@@ -118,7 +118,7 @@ function relabel(text) {
 }
 
 export const STATES = new Set(("AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY " +
-  "AS GU MP PR VI AA AE AP").split(" "));
+  "AS FM GU MH MP PR PW VI AA AE AP").split(" "));
 // States whose ZIP codes begin with 0, where Excel drops the zero.
 const ZERO_ZIP_STATES = new Set(["CT", "MA", "ME", "NH", "NJ", "PR", "RI", "VT", "VI"]);
 const EIN_PREFIXES = new Set(("01 02 03 04 05 06 10 11 12 13 14 15 16 20 21 22 23 24 25 26 27 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 50 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66 67 68 71 72 73 74 75 76 77 80 81 82 83 84 85 86 87 88 90 91 92 93 94 95 98 99").split(" "));
@@ -183,6 +183,17 @@ export function closestColumn(name, tmpl = false) {
   return bestD <= Math.max(2, Math.floor(n.length / 5)) ? best : null;
 }
 
+// IRIS template formatting guidelines, TY2025 (1099-NEC and 1099-MISC, columns D and U):
+// EIN and QI-EIN as XX-XXXXXXX; SSN, ITIN and ATIN as XXX-XX-XXXX; UND (undeterminable) as nine plain digits.
+// Returns the required form of nine digits for an explicit type, or null when the type does not fix one.
+export function tinFormat(digits, type) {
+  const t = String(type ?? "").trim().toUpperCase();
+  if (!/^\d{9}$/.test(digits)) return null;
+  if (t === "EIN" || t === "QI-EIN") return `${digits.slice(0, 2)}-${digits.slice(2)}`;
+  if (t === "SSN" || t === "ITIN" || t === "ATIN") return `${digits.slice(0, 3)}-${digits.slice(3, 5)}-${digits.slice(5)}`;
+  if (t === "UND") return digits;
+  return null;
+}
 export const maskTin = (s) => {
   const d = String(s).replace(/\D/g, "");
   return d.length === 9 ? `***-**-${d.slice(5)}` : "(not nine digits)";
@@ -359,16 +370,17 @@ export function validate(input, opts = {}) {
     // Recipient TIN
     const rawTin = g(r, "Recipient TIN");
     const tt = g(r, "Recipient TIN Type").trim().toUpperCase();
-    if (tt && !["SSN", "EIN", "ITIN", "ATIN", "UNKNOWN", "NONE"].includes(tt)) add("warning", "tin-type", line, `Recipient TIN Type "${g(r, "Recipient TIN Type").trim()}" is not SSN, EIN, ITIN or ATIN`, "");
+    if (tt && !["SSN", "EIN", "QI-EIN", "ITIN", "ATIN", "UND", "UNKNOWN", "NONE"].includes(tt)) add("warning", "tin-type", line, `Recipient TIN Type "${g(r, "Recipient TIN Type").trim()}" is not SSN, EIN, QI-EIN, ITIN, ATIN or UND`, "");
     const rt = tinShape(rawTin);
     let rdigits = "";
-    if (rt.problem && !(tt === "UNKNOWN" || tt === "NONE") ) add("error", "recipient-tin", line, `Recipient TIN ${rt.problem}`, `Value: ${maskTin(rawTin)}. Dashes are fine; the safe fixes remove them.`);
+    if (rt.problem && !(tt === "UNKNOWN" || tt === "NONE") ) add("error", "recipient-tin", line, `Recipient TIN ${rt.problem}`, `Value: ${maskTin(rawTin)}. IRIS wants XX-XXXXXXX for an EIN and XXX-XX-XXXX for an SSN, ITIN or ATIN.`);
     else if (!rt.problem) {
       rdigits = rt.digits;
-      if (/-/.test(rawTin.trim()) || /\s/.test(rawTin.trim())) add("info", "tin-dashes", line, "Recipient TIN contains dashes or spaces", "Upload files usually want nine plain digits. The safe fixes remove them.");
+      const wantR = tinFormat(rdigits, tt);
+      if (wantR !== null && rawTin.trim() !== wantR) add("warning", "tin-format", line, `Recipient TIN is not in the IRS format for type ${tt}`, "The IRIS template guidelines (TY2025, column U) ask for XX-XXXXXXX for an EIN or QI-EIN, XXX-XX-XXXX for an SSN, ITIN or ATIN, and nine plain digits for UND. The safe fixes rewrite it in that format.");
       const looksEin = /^\d{2}-\d{7}$/.test(rawTin.trim());
       const looksSsn = /^\d{3}-\d{2}-\d{4}$/.test(rawTin.trim());
-      const kind = tt || (looksEin ? "EIN" : looksSsn ? "SSN" : "");
+      const kind = tt === "QI-EIN" ? "EIN" : tt === "UND" ? "" : tt || (looksEin ? "EIN" : looksSsn ? "SSN" : "");
       if (/^(\d)\1{8}$/.test(rdigits)) add("error", "recipient-tin", line, "Recipient TIN is one digit repeated nine times", `Value: ${maskTin(rdigits)}. A placeholder TIN will draw a CP2100 notice.`);
       else if (WELL_KNOWN.has(rdigits)) add("error", "recipient-tin", line, "Recipient TIN is a well-known sample number", `Value: ${maskTin(rdigits)}.`);
       else if (kind === "EIN") {
@@ -388,6 +400,9 @@ export function validate(input, opts = {}) {
       // Template-only columns. Accepted values are those the open-source writers above use
       // (name type B or I, TIN types SSN/EIN/ITIN/ATIN, Y/N flags); unverified on irs.gov.
       const ptt = raw(r, "Payer TIN Type").trim().toUpperCase();
+      const pd = tinShape(g(r, "Payer TIN"));
+      const wantP = pd.problem ? null : tinFormat(pd.digits, ptt === "EIN" || ptt === "SSN" ? ptt : "");
+      if (wantP !== null && g(r, "Payer TIN").trim() !== wantP) add("warning", "payer-tin-format", line, `Payer TIN is not in the IRS format for type ${ptt}`, "The IRIS template guidelines (TY2025, column D) ask for XX-XXXXXXX for an EIN and XXX-XX-XXXX for an SSN. The safe fixes rewrite it in that format.");
       if (idx["Payer TIN Type"] !== undefined && !ptt) add("error", "payer-tin-type", line, "Payer TIN Type is blank", "Use EIN, or SSN for a sole proprietor filing under their own number.");
       else if (ptt && !["EIN", "SSN", "ITIN", "ATIN"].includes(ptt)) add("warning", "payer-tin-type", line, `Payer TIN Type "${raw(r, "Payer TIN Type").trim()}" is not EIN, SSN, ITIN or ATIN`, "");
       if (idx["Recipient TIN Type"] !== undefined && !tt) add("error", "tin-type", line, "Recipient TIN Type is blank", "The template asks for the type of every TIN: SSN, EIN, ITIN or ATIN, as on the W-9.");
@@ -558,12 +573,12 @@ export function repair(input) {
     for (const col of Object.keys(idx)) { const v = val(col); if (v !== v.trim() && v.trim() !== "") set(col, v.trim(), "stray spaces trimmed"); }
     const ft = val("Form Type").trim();
     if (ft && ft !== ft.toUpperCase() && ["1099-NEC", "1099-MISC"].includes(ft.toUpperCase())) set("Form Type", ft.toUpperCase(), "upper case");
-    for (const col of ["Payer TIN", "Recipient TIN"]) {
+    // TINs are written in the format the IRIS guidelines require for the row's explicit TIN type; with no type, they are left alone.
+    for (const [col, typeCol] of [["Payer TIN", "Payer TIN Type"], ["Recipient TIN", "Recipient TIN Type"]]) {
       const v = val(col).trim();
-      if (/[-\s]/.test(v) && /^[\d\-\s]+$/.test(v)) {
-        const d = v.replace(/[-\s]/g, "");
-        if (d.length === 9) set(col, d, "dashes and spaces removed");
-      }
+      if (!/^[\d\-\s]+$/.test(v)) continue;
+      const want = tinFormat(v.replace(/[-\s]/g, ""), val(typeCol));
+      if (want !== null && want !== v) set(col, want, `written in the IRS format for ${val(typeCol).trim().toUpperCase()}`);
     }
     for (const col of ["Payer State", "Recipient State", "State 1", "State 2"]) {
       const v = val(col).trim();
@@ -590,7 +605,7 @@ export function findingsCsv(result) {
 }
 
 const trow = (o) => TEMPLATE_NEC.map((c) => o[c] ?? "");
-const tpayer = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN Type": "EIN", "Payer Taxpayer ID Number": "123456780", "Payer Name Type": "B",
+const tpayer = { "Form Type": "1099-NEC", "Tax Year": "2025", "Payer TIN Type": "EIN", "Payer Taxpayer ID Number": "12-3456780", "Payer Name Type": "B",
   "Payer Business or Entity Name Line 1": "Northwind Sample Co", "Payer Country": "US", "Payer Address Line 1": "100 Example Way", "Payer City/Town": "Austin",
   "Payer State/Province/Territory": "TX", "Payer ZIP/Postal Code": "78701", "Recipient Country": "US", "2nd TIN Notice": "N", [T_NEC_BOX2]: "N" };
 // A 1099-NEC file in the IRIS template layout (TEMPLATE_NEC). Made-up payer and recipients.
@@ -598,9 +613,9 @@ export function sampleFile() {
   const nec = (o) => trow({ ...tpayer, ...o });
   return toCsv([
     TEMPLATE_NEC,
-    nec({ "Recipient TIN Type": "SSN", "Recipient Taxpayer ID Number": "412345678", "Recipient Name Type": "I", "Recipient First Name": "Jordan", "Recipient Last Name (Surname)": "Sample", "Recipient Address Line 1": "12 Maple St", "Recipient City/Town": "Dallas", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "75201", "Box 1 - Nonemployee Compensation": "4200.00" }),
-    nec({ "Recipient TIN Type": "EIN", "Recipient Taxpayer ID Number": "456789012", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Blue Door Design LLC", "Recipient Address Line 1": "9 Harbor Rd", "Recipient City/Town": "Portland", "Recipient State/Province/Territory": "ME", "Recipient ZIP/Postal Code": "04101", "Box 1 - Nonemployee Compensation": "2250.50", "Box 4 - Federal income tax withheld": "540.12" }),
-    nec({ "Recipient TIN Type": "EIN", "Recipient Taxpayer ID Number": "551234567", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Oak Row Consulting", "Recipient Address Line 1": "400 Main St", "Recipient City/Town": "Houston", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "77002", "Box 1 - Nonemployee Compensation": "9600.00" }),
+    nec({ "Recipient TIN Type": "SSN", "Recipient Taxpayer ID Number": "412-34-5678", "Recipient Name Type": "I", "Recipient First Name": "Jordan", "Recipient Last Name (Surname)": "Sample", "Recipient Address Line 1": "12 Maple St", "Recipient City/Town": "Dallas", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "75201", "Box 1 - Nonemployee Compensation": "4200.00" }),
+    nec({ "Recipient TIN Type": "EIN", "Recipient Taxpayer ID Number": "45-6789012", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Blue Door Design LLC", "Recipient Address Line 1": "9 Harbor Rd", "Recipient City/Town": "Portland", "Recipient State/Province/Territory": "ME", "Recipient ZIP/Postal Code": "04101", "Box 1 - Nonemployee Compensation": "2250.50", "Box 4 - Federal income tax withheld": "540.12" }),
+    nec({ "Recipient TIN Type": "EIN", "Recipient Taxpayer ID Number": "55-1234567", "Recipient Name Type": "B", "Recipient Business or Entity Name Line 1": "Oak Row Consulting", "Recipient Address Line 1": "400 Main St", "Recipient City/Town": "Houston", "Recipient State/Province/Territory": "TX", "Recipient ZIP/Postal Code": "77002", "Box 1 - Nonemployee Compensation": "9600.00" }),
   ]);
 }
 export function sampleBrokenFile() {
@@ -622,9 +637,9 @@ export function sampleLegacyFile() {
   const nec = (o) => row({ "Form Type": "1099-NEC", ...payer, "Recipient TIN Type": "SSN", ...o });
   return toCsv([
     COLUMNS,
-    nec({ "Recipient TIN": "412345678", "Recipient Name": "Jordan Sample", "Recipient Address": "12 Maple St", "Recipient City": "Dallas", "Recipient State": "TX", "Recipient ZIP": "75201", "NEC Box 1 Nonemployee Compensation": "4200.00" }),
-    nec({ "Recipient TIN": "456789012", "Recipient TIN Type": "EIN", "Recipient Name": "Blue Door Design LLC", "Recipient Address": "9 Harbor Rd", "Recipient City": "Portland", "Recipient State": "ME", "Recipient ZIP": "04101", "NEC Box 1 Nonemployee Compensation": "1250.50", "Box 4 Federal Income Tax Withheld": "300.12" }),
-    row({ "Form Type": "1099-MISC", ...payer, "Recipient TIN Type": "EIN", "Recipient TIN": "551234567", "Recipient Name": "Oak Row Properties", "Recipient Address": "400 Main St", "Recipient City": "Houston", "Recipient State": "TX", "Recipient ZIP": "77002", "MISC Box 1 Rents": "9600.00" }),
+    nec({ "Recipient TIN": "412-34-5678", "Recipient Name": "Jordan Sample", "Recipient Address": "12 Maple St", "Recipient City": "Dallas", "Recipient State": "TX", "Recipient ZIP": "75201", "NEC Box 1 Nonemployee Compensation": "4200.00" }),
+    nec({ "Recipient TIN": "45-6789012", "Recipient TIN Type": "EIN", "Recipient Name": "Blue Door Design LLC", "Recipient Address": "9 Harbor Rd", "Recipient City": "Portland", "Recipient State": "ME", "Recipient ZIP": "04101", "NEC Box 1 Nonemployee Compensation": "1250.50", "Box 4 Federal Income Tax Withheld": "300.12" }),
+    row({ "Form Type": "1099-MISC", ...payer, "Recipient TIN Type": "EIN", "Recipient TIN": "55-1234567", "Recipient Name": "Oak Row Properties", "Recipient Address": "400 Main St", "Recipient City": "Houston", "Recipient State": "TX", "Recipient ZIP": "77002", "MISC Box 1 Rents": "9600.00" }),
   ]);
 }
 export function sampleLegacyBrokenFile() {

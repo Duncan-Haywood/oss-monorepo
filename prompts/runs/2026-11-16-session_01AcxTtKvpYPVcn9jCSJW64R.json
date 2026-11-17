@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKvpYPVcn9jCSJW64R",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T01:06:35Z",
+  "ended": "2026-11-16T01:12:46Z",
+  "wall_minutes": 6.34,
+  "tokens_in": 1927682,
+  "tokens_out": 31912,
+  "cost_usd": 1.6993,
+  "tool_calls": 24,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16403",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A python replace script asserted on a sentence I had misremembered ('went on up alone' vs 'And then Moses went on up alone'); rerun with the exact text."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/saints-by-candlelight/PRODUCTION.md",
+      "issue": "The next-up list is one 'suggestions' line holding several ideas, so 'mark one Done at the start of its line' does not fit; I split a separate Done line out and kept the rest as suggestions."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap is still stated as binding though PRODUCTION.md and docs/reports/2026-11-13-audio-cap-is-stale.md say it is stale since jsDelivr serves audio; I followed the prompt (text only)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-saints-by-candlelight-127-egeria-at-sinai.md"
+  ],
+  "goal": null,
+  "notes": "Project saints-by-candlelight, piece egeria-and-the-mountain-climbed-like-a-wall (episode 127, ~7,000 words, text only; audio 529 MB). Security queue empty; IDEAS.md and website requests empty; route drew creative. Adversarial pass fixed Justinian dating (~170 years after), removed a false claim that the bush species grows nowhere else, removed an uncertain walk-out site, softened a Valerius paraphrase and the Exodus 24 'alone'. Checks: node generate.mjs --check-script ok (6,995 words); node --test 18/18 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d6016085-fb99-5b09-9202-dab7c0614793",
+    "transcripts": 1,
+    "first": "2026-11-16T01:06:35Z",
+    "last": "2026-11-16T01:12:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 22,
+        "input": 44,
+        "output": 31912,
+        "thinking": 11280,
+        "cache_read": 1841050,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86588,
+        "api_equivalent_usd": 1.6993,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 22,
+      "input": 44,
+      "output": 31912,
+      "thinking": 11280,
+      "cache_read": 1841050,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86588,
+      "api_equivalent_usd": 1.6993,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.955,
+    "tool_calls": 24,
+    "tools": {
+      "Bash": 20,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.34,
+      "active_minutes": 6.34,
+      "model_minutes": 6.04,
+      "tool_minutes": 0.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "researching and drafting a 7,000-word sourced bedtime script",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 470.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

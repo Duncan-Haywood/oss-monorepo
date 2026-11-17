@@ -1,0 +1,497 @@
+[
+ {
+  "case": "case1803_snem",
+  "kind": "typ",
+  "nbus": 1803,
+  "nbr": 2795,
+  "ngen": 230,
+  "ref_moved": null,
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 98335.0,
+  "start_rule": null,
+  "secs": 1.905700922012329
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "typ",
+  "nbus": 1888,
+  "nbr": 2531,
+  "ngen": 297,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 1402500.0,
+  "start_rule": "DC+ang",
+  "S": null,
+  "SR": null,
+  "J_secs": 0.6053507328033447,
+  "J": {
+   "rounds": 1,
+   "clean_at": null,
+   "final": null,
+   "status": [
+    "PF failed at point"
+   ],
+   "qp": [
+    null
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": null
+  },
+  "JR": null,
+  "J10R": null,
+  "R_secs": 5.0067901611328125e-06,
+  "secs": 18.440673112869263
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "typ",
+  "nbus": 1951,
+  "nbr": 2596,
+  "ngen": 391,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 2085600.0,
+  "start_rule": "DC+ang",
+  "S": null,
+  "SR": null,
+  "J_secs": 0.5470764636993408,
+  "J": {
+   "rounds": 1,
+   "clean_at": null,
+   "final": null,
+   "status": [
+    "PF failed at point"
+   ],
+   "qp": [
+    null
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": null
+  },
+  "JR": null,
+  "J10R": null,
+  "R_secs": 4.5299530029296875e-06,
+  "secs": 23.246238470077515
+ },
+ {
+  "case": "case588_sdet",
+  "kind": "api",
+  "nbus": 588,
+  "nbr": 686,
+  "ngen": 167,
+  "ref_moved": null,
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 398760.0,
+  "start_rule": "DC+ang",
+  "S": {
+   "n_over": 19,
+   "max_load": 1.3266328320669847,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 5,
+   "q_exc_mvar": 536.3650228215927,
+   "cost": 401928.53154377785,
+   "losses": 231.15393990539997,
+   "p_clean": false,
+   "clean": false
+  },
+  "SR": null,
+  "J_secs": 8.967556715011597,
+  "J": {
+   "rounds": 15,
+   "clean_at": 15,
+   "final": {
+    "it": 15,
+    "status": "clean",
+    "qp": "elastic",
+    "n_over": 0,
+    "max_load": 0.9991631309519348,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 402540.57766675414,
+    "losses": 193.68551658045544,
+    "p_clean": true,
+    "clean": true
+   },
+   "status": [
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "clean"
+   ],
+   "qp": [
+    "elastic",
+    "hard",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic"
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "elastic",
+    "n_over": 1,
+    "max_load": 1.0066653597858906,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 3,
+    "q_exc_mvar": 1.2660082159300998,
+    "cost": 403137.93268671306,
+    "losses": 195.4501000600012,
+    "p_clean": false,
+    "clean": false
+   }
+  },
+  "JR": null,
+  "J10R": {
+   "n_over": 0,
+   "max_load": 0.999999999995034,
+   "slack_out_mw": 0.0,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 0,
+   "v_exc_pu": 0.0,
+   "qviol": 0,
+   "q_exc_mvar": 0.0,
+   "cost": 402110.16286468745,
+   "losses": 169.31810210019103,
+   "p_clean": true,
+   "clean": true
+  },
+  "R_secs": 3.6929924488067627,
+  "secs": 14.282911777496338
+ },
+ {
+  "case": "case1354_pegase",
+  "kind": "api",
+  "nbus": 1354,
+  "nbr": 1991,
+  "ngen": 260,
+  "ref_moved": null,
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 1608200.0,
+  "start_rule": "DC+ang",
+  "S": {
+   "n_over": 12,
+   "max_load": 1.0861434935558663,
+   "slack_out_mw": 1693.1240192076848,
+   "n_ang": 0,
+   "ang_exc_deg": 0.0,
+   "vviol": 1,
+   "v_exc_pu": 0.008855963876868933,
+   "qviol": 47,
+   "q_exc_mvar": 8504.675164223561,
+   "cost": 1570724.954860529,
+   "losses": 1693.1240192078403,
+   "p_clean": false,
+   "clean": false
+  },
+  "SR": null,
+  "J_secs": 96.67397975921631,
+  "J": {
+   "rounds": 20,
+   "clean_at": null,
+   "final": {
+    "it": 20,
+    "status": "not clean",
+    "qp": "elastic",
+    "n_over": 1,
+    "max_load": 1.1950330789085408,
+    "slack_out_mw": 0.0,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 0,
+    "q_exc_mvar": 0.0,
+    "cost": 1609787.1977102258,
+    "losses": 1575.2122935665393,
+    "p_clean": false,
+    "clean": false
+   },
+   "status": [
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean",
+    "not clean"
+   ],
+   "qp": [
+    "elastic",
+    "hard",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic",
+    "elastic"
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": {
+    "it": 10,
+    "status": "not clean",
+    "qp": "elastic",
+    "n_over": 4,
+    "max_load": 1.3484936221352635,
+    "slack_out_mw": 7.581720577715259,
+    "n_ang": 0,
+    "ang_exc_deg": 0.0,
+    "vviol": 0,
+    "v_exc_pu": 0.0,
+    "qviol": 13,
+    "q_exc_mvar": 6.262774740895672,
+    "cost": 1617724.8681763322,
+    "losses": 1567.5566720538482,
+    "p_clean": false,
+    "clean": false
+   }
+  },
+  "JR": null,
+  "J10R": null,
+  "R_secs": 7.681346893310547,
+  "secs": 115.38659930229187
+ },
+ {
+  "case": "case1803_snem",
+  "kind": "api",
+  "nbus": 1803,
+  "nbr": 2795,
+  "ngen": 230,
+  "ref_moved": null,
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 80240.0,
+  "start_rule": null,
+  "secs": 3.0024635791778564
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "api",
+  "nbus": 1888,
+  "nbr": 2531,
+  "ngen": 297,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 2019700.0,
+  "start_rule": "DC, no ang",
+  "S": null,
+  "SR": null,
+  "J_secs": 0.5638999938964844,
+  "J": {
+   "rounds": 1,
+   "clean_at": null,
+   "final": null,
+   "status": [
+    "PF failed at point"
+   ],
+   "qp": [
+    null
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": null
+  },
+  "JR": null,
+  "J10R": null,
+  "R_secs": 5.245208740234375e-06,
+  "secs": 39.16026568412781
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "api",
+  "nbus": 1951,
+  "nbr": 2596,
+  "ngen": 391,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 2490300.0,
+  "start_rule": null,
+  "secs": 4.820077419281006
+ },
+ {
+  "case": "case1803_snem",
+  "kind": "sad",
+  "nbus": 1803,
+  "nbr": 2795,
+  "ngen": 230,
+  "ref_moved": null,
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 106340.0,
+  "start_rule": null,
+  "secs": 2.3149173259735107
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "sad",
+  "nbus": 1888,
+  "nbr": 2531,
+  "ngen": 297,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 1413900.0,
+  "start_rule": "DC+ang",
+  "S": null,
+  "SR": null,
+  "J_secs": 0.5471832752227783,
+  "J": {
+   "rounds": 1,
+   "clean_at": null,
+   "final": null,
+   "status": [
+    "PF failed at point"
+   ],
+   "qp": [
+    null
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": null
+  },
+  "JR": null,
+  "J10R": null,
+  "R_secs": 2.1457672119140625e-06,
+  "secs": 27.88718318939209
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "sad",
+  "nbus": 1951,
+  "nbr": 2596,
+  "ngen": 391,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ac_ok": true,
+  "ac_secs": 0.0,
+  "ref": "PGLib IPOPT",
+  "ac": 2092400.0,
+  "start_rule": "DC, no ang",
+  "S": null,
+  "SR": null,
+  "J_secs": 0.5302917957305908,
+  "J": {
+   "rounds": 1,
+   "clean_at": null,
+   "final": null,
+   "status": [
+    "PF failed at point"
+   ],
+   "qp": [
+    null
+   ]
+  },
+  "J10": {
+   "clean_at": null,
+   "final": null
+  },
+  "JR": null,
+  "J10R": null,
+  "R_secs": 5.0067901611328125e-06,
+  "secs": 25.835628986358643
+ }
+]

@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHA1iC54Pky5Na1NVk",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T19:06:57Z",
+  "ended": "2026-11-15T19:41:30Z",
+  "wall_minutes": 34.83,
+  "tokens_in": 8782488,
+  "tokens_out": 29759,
+  "cost_usd": 3.3903,
+  "tool_calls": 71,
+  "task": "ai-bookkeeper flagship item (5): receipt totals whose decimal point OCR lost",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16314",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a background wait loop grepped the OCR log for 'done', which matched an unrelated line, so it returned early; re-waited on the processes instead"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/guess-vote-2026-11-15.md",
+      "issue": "the reproduce block is complete and reproduced 153/196 exactly on the first try; no friction beyond the ~20 min of OCR it costs, which the doc does not state"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-receipt-total-lost-decimal-point.md",
+    "ventures/ai-bookkeeper/eval/split-decimal-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Rebuilt the page's four tesseract.js readings of the 200 SRD photos (reproduced 153/196). New splitDecimal in receipts.mjs reads total lines like 'TOTAL 184 47)' / '92:22' / '9, 70' on decimal-point receipts: SRD 153 to 156 (fixed 1018, 1080, 1112, 1157; broke 1182, a slip with an included printed tip), wrong-unwarned stays 3. Held out: SROIE tesseract.js psm6+psm4 OCR re-read fresh, 506 to 506 (160 fixed, 474 broken). Dataset text (SROIE 611, CORD 749/96/92) unchanged. Venture suite 3241 tests pass; run_workflow_locally --for-changes 10/10 workflows passed. CLI --four-pass not re-measured (no tesseract binary).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "79619131-ce90-5a98-982f-5ba5085bca67",
+    "transcripts": 1,
+    "first": "2026-11-15T19:06:57Z",
+    "last": "2026-11-15T19:41:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 148,
+        "output": 29759,
+        "thinking": 6118,
+        "cache_read": 8649260,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133080,
+        "api_equivalent_usd": 3.3903,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 148,
+      "output": 29759,
+      "thinking": 6118,
+      "cache_read": 8649260,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133080,
+      "api_equivalent_usd": 3.3903,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 64,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.83,
+      "active_minutes": 12.2,
+      "model_minutes": 7.27,
+      "tool_minutes": 4.93,
+      "waiting_on_human_minutes": 22.63,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer rebuilding the OCR eval, writing and measuring the rule on two datasets, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 177.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

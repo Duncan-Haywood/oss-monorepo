@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMYceYVSWWUQXWe6o4",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine)",
+  "input_sha256": "11e3b35e49613a6364c0c8156c62feb36e116801279806d7c7661dd70db1a697",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T01:10:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots (flagship 10): the slip hub facing's friction spread with wear as a sweep axis",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16398",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Tells you to rewrite the venture's `next:`, but for open-tennis-robots the item named 'Next:' is in the `buildable` field. flagship_field.py found it and told me to rerun with --field buildable, which cost one retry."
+    },
+    {
+      "file": "ventures/open-tennis-robots/cad/README.md",
+      "issue": "The slip hub entries treat the disc spring's 400 N flat load as an assumption. DIN 2093's own formula gives 855 N for that size, and the spring's stiffness at the working point (not its flat load) was what the design depended on."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The first route with no --task drew the creative track (weight 0.1). The scheduled brief asks for revenue/venture work, so I routed with --task and got ventures/2 as prompt.md describes.",
+      "did": "route --task",
+      "result": "took the allocate.py flagship row (open-tennis-robots)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-open-tennis-robots-slip-hub-wear.md",
+    "ventures/open-tennis-robots/cad/README.md (Slip hub wear)"
+  ],
+  "goal": null,
+  "notes": "Wear model: the bench set locks the stack, so facing loss comes off the disc spring's deflection (Almen-Laszlo, checked against the DIN 2093 A 8 row). The single A 12.5x0.7 disc held 4 um of budget; at 40 um worn, a 24 V hot jam with the trip at its highest went uncut on the real firmware. Changed to four B 12.5x0.5 discs in series: 53 um budget against 47 um of assumed loss, every jam cut to 160 um. The boot pocket is now asymmetric and the bench notes add a bed-in and a second set. Verified: tests/test_host 46 OK; cad tests (no build123d) 141 OK with 58 skipped; the full cad suite with build123d and the manufacturing package regeneration are recorded in the PR. No separate agent doc: the next run's item is in flagships.yaml and the method is in cad/README.md.",
+  "corrections": [],
+  "redteam": null
+}

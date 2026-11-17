@@ -37,6 +37,7 @@ import { suggest, trainClassifier, buildMemory, buildMccMemory, trainNewPayee, h
 import { newBooks } from "../engine.mjs";
 import { aiSuggest, sameAccountName } from "../ai.mjs";
 import { configFromEnv } from "../byok.mjs";
+import { pathToFileURL } from "node:url";
 
 // Replay the deterministic layers; return the fill queue and the filed history.
 export function fillQueue(rows, { from = "" } = {}) {
@@ -144,7 +145,7 @@ export function score(results, { nameCheck = false } = {}) {
   return t;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d = null) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const rows = loadToronto(readFileSync(arg("--file"), "utf8"), { division: arg("--division") });
   const { queue, filed } = fillQueue(rows, { from: arg("--from", "") });

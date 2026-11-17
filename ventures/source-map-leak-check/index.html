@@ -159,7 +159,7 @@ node check.mjs --script https://example.com/static/main.js --json</code></pre>
 <script type="module">
   import { checkPage } from './probe.mjs';
   import { buildReport } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -253,7 +253,7 @@ node check.mjs --script https://example.com/static/main.js --json</code></pre>
       } else {
         els.status.textContent = 'Done. This ran entirely in your browser; nothing was sent to us.';
       }
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     } catch (err) {
       els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
     } finally {
@@ -266,7 +266,7 @@ node check.mjs --script https://example.com/static/main.js --json</code></pre>
   $('#load-example').addEventListener('click', () => {
     render(EXAMPLE_REPORT);
     els.status.textContent = 'Worked example: one script with a fully exposed map (danger), one whose map reference 404s (blocked, good), one clean.';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
   });
 
   $('#clear').addEventListener('click', () => {
@@ -279,8 +279,8 @@ node check.mjs --script https://example.com/static/main.js --json</code></pre>
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 </script>

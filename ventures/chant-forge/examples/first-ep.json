@@ -1,0 +1,12 @@
+{
+  "title": "Lux in Tenebris",
+  "type": "ep",
+  "releaseDate": "2027-01-15",
+  "artist": "",
+  "tracks": [
+    { "gabc": "../corpus/dies-irae.gabc", "args": ["--genre", "metal", "--bpm", "170", "--halftime", "--fit", "8", "--stretch", "--auto-final", "--fills", "--intro", "2", "--outro", "2"] },
+    { "gabc": "../corpus/pange-lingua-full.gabc", "args": ["--genre", "deep-house", "--bpm", "124", "--fit", "8", "--stretch", "--auto-final", "--sections", "--intro", "2", "--outro", "2", "--a-cappella", "--key-lift", "2"] },
+    { "gabc": "../corpus/veni-creator-full.gabc", "args": ["--genre", "hard-rock", "--bpm", "140", "--fit", "8", "--stretch", "--auto-final", "--sections", "--intro", "2", "--outro", "2"] },
+    { "gabc": "../corpus/te-deum.gabc", "args": ["--genre", "edm", "--bpm", "128", "--fit", "8", "--stretch", "--auto-final", "--fills", "--intro", "2", "--outro", "2"] }
+  ]
+}

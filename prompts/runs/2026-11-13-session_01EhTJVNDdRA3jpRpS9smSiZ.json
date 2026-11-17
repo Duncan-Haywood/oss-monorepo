@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVNDdRA3jpRpS9smSiZ",
+  "track": "process",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T22:03:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15629,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "'Cloud sessions: data hosts' could name research/_shared/remote_zip.py for big dataset zips; not edited here because the file is control-plane (CODEOWNERS)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": ".github/workflows/research-ci.yml",
+      "why": "test_remote_zip is not in research-ci's unittest list; adding it is a control-plane edit, so it is left for a small owner-gated PR",
+      "did": "ran the tests locally",
+      "result": "5/5 OK"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Process critique: backlog had only owner/blocked rows. Took the live research/CLAUDE.md doc_friction (2026-11-13T20:28, Zenodo zip range reads) and shipped research/_shared/remote_zip.py (list/get, CRC, resume, no-Range error, path guard) + 5 tests (OK) + live check on a PyPI wheel (METADATA byte-exact); capture-sync fetch.py now imports it. Zenodo 403 through the proxy this session. Post: docs/posts/2026-11-13-read-one-file-from-a-55-gb-zip.md. Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null
+}

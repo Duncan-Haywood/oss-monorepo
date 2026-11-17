@@ -36,7 +36,7 @@ test("a loss is flagged high with the break-even board price", () => {
 test("a horse that costs more than it earns makes break-even unreachable", () => {
   const r = compute(raw({ boardPrice: "100", extras: "0" }));
   assert.equal(r.breakEvenOcc, null);
-  assert.ok(r.findings.some((f) => /costs more to keep/.test(f.title)));
+  assert.ok(r.findings.some((f) => /more to keep than it brings in/.test(f.title)));
   assert.match(summaryText(r), /not reachable/);
 });
 
@@ -74,4 +74,90 @@ test("summary and dollars format", () => {
   assert.equal(dollars(-1234.5), "-$1,234.50");
   const s = summaryText(compute(raw()));
   assert.match(s, /Horse boarding: 20 stalls, 85% full/);
+});
+
+// Added by quality audit round 53 (portfolio/quality/audits/2026-11-12-horse-boarding-stall-profit-calculator.json):
+// the occupancy table, the hourly-pay finding and the warning thresholds had no test.
+test("the occupancy table's row at today's occupancy equals the headline profit, and other rows follow the rule", () => {
+  const r = compute(raw());
+  const row = r.sweep.find((x) => x.occ === 85);
+  assert.equal(row.profit, r.profit);
+  // 50% full: 10 horses x 205.30 margin - 3000 fixed = -947.00 (hand-computed)
+  assert.equal(r.sweep.find((x) => x.occ === 50).profit, -947);
+  assert.equal(r.sweep.find((x) => x.occ === 100).revenue, 20 * 572.3);
+});
+
+test("the hourly-pay finding is profit plus labour over care hours", () => {
+  const r = compute(raw());
+  // labour 17 x 152 = 2584, profit 490.10, hours 17 x 20 x 30.4 / 60 = 172.27 -> $17.85 an hour
+  const f = r.findings.find((x) => /pays you about/.test(x.title));
+  assert.match(f.title, /\$17\.85 an hour for 172 hours/);
+});
+
+test("the thin-margin warning fires within 10 points of break-even, not beyond", () => {
+  // margin 205.30 a horse; fixed 3000 -> 14.61 horses = 73.1% break-even
+  const near = compute(raw({ occupancy: "80" }));
+  assert.ok(near.findings.some((f) => /A couple of empty stalls/.test(f.title)));
+  const far = compute(raw({ occupancy: "85" })); // 11.9 points above
+  assert.ok(!far.findings.some((f) => /A couple of empty stalls/.test(f.title)));
+});
+
+test("the unpaid-board note starts at exactly 5 percent", () => {
+  assert.ok(compute(raw({ badDebt: "5" })).findings.some((f) => /unpaid board costs/.test(f.title)));
+  assert.ok(!compute(raw({ badDebt: "4.9" })).findings.some((f) => /unpaid board costs/.test(f.title)));
+});
+
+test("an occupancy typed as a fraction is rejected with a hint", () => {
+  const r = compute(raw({ occupancy: "0.85" }));
+  assert.match(r.errors.join(" "), /looks like a fraction.*85/);
+});
+
+// Red team 2026-11-13: guards for mutants that escaped, and the per-horse margin wording.
+test("a horse that loses money is not called a gain, and an empty stall is not called a cost", () => {
+  const r = compute(raw({ boardPrice: "100", extras: "0" }));
+  assert.ok(r.margin < 0);
+  const titles = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(titles, /adds about -\$/);
+  assert.doesNotMatch(titles, /empty stall costs you/);
+  assert.match(titles, /costs about \$270\.00 a month more to keep than it brings in/);
+});
+
+test("a zero per-horse margin is not called a loss per horse", () => {
+  const r = compute(raw({ boardPrice: "215", extras: "0", badDebt: "0", careMin: "0" }));
+  assert.equal(r.margin, 0);
+  assert.equal(r.breakEvenOcc, null);
+  const titles = r.findings.map((f) => f.title).join("\n");
+  assert.doesNotMatch(titles, /costs more to keep/);
+  assert.match(titles, /brings in exactly what it costs to keep/);
+});
+
+test("a small positive margin still has a break-even", () => {
+  // margin = 215.5 - 215 = 0.50 a horse
+  const r = compute(raw({ boardPrice: "215.5", extras: "0", badDebt: "0", careMin: "0", fixedMonth: "5" }));
+  assert.equal(r.margin, 0.5);
+  assert.equal(r.breakEvenHorses, 10);
+  assert.equal(r.breakEvenOcc, 50);
+});
+
+test("occupancy from 1 percent up is a percent, not a fraction", () => {
+  assert.equal(compute(raw({ occupancy: "1.5" })).errors.length, 0);
+  assert.equal(compute(raw({ occupancy: "1" })).errors.length, 0);
+  assert.ok(compute(raw({ occupancy: "0.85" })).errors.length);
+});
+
+test("board price may be zero or a fraction of a dollar", () => {
+  assert.equal(compute(raw({ boardPrice: "0" })).errors.length, 0);
+  assert.equal(compute(raw({ boardPrice: "0.5" })).errors.length, 0);
+});
+
+test("a blank profit target is zero: target price equals break-even price", () => {
+  const r = compute(raw({ target: "" }));
+  assert.equal(r.input.target, 0);
+  assert.equal(r.targetPrice, r.breakEvenPrice);
+});
+
+test("half a minute of care a day still gets the hourly-pay finding", () => {
+  const r = compute(raw({ careMin: "0.5" }));
+  assert.ok(r.profit >= 0);
+  assert.ok(r.findings.some((f) => /pays you about/.test(f.title)));
 });

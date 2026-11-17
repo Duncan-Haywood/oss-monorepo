@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKdXjFftscqzCwF64w",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T16:07:17Z",
+  "ended": "2026-11-16T16:42:43Z",
+  "wall_minutes": 35.76,
+  "tokens_in": 11937279,
+  "tokens_out": 47808,
+  "cost_usd": 4.6113,
+  "tool_calls": 81,
+  "task": "chant-forge flagship (allocate.py row 8): K's ib/eb and N's nab/gab voiced-stop codas left by the per-note voice bar",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16627",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First create_pull_request call failed with an upstream connect error; the retry succeeded.",
+    "A shell command chained `cd /home/user/oss-monorepo && (...) & cd ventures/chant-forge`: the background part's cd did not carry, so the second cd failed (harmless)."
+  ],
+  "integrity_issues": [
+    "The pre-registration quoted one development figure wrong (Q's others '75 to 73', copied from the earlier run that also changed the nasal rule; it is 75 of 80 both ways). Recorded as such in the outcome and the README, not edited out of the registration."
+  ],
+  "doc_friction": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "issue": "Asks for a one-click deploy and a donate link as the finish line, which does not bear on a multi-session reader/synthesis research slice in a flagship; the flagship row's next: was the useful guide."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The 'Long commands' advice to use run_in_background is right, but the harness also blocks a foreground `sleep N; ls` wait, so waiting on several background jobs needs a background until-loop; saying so would save a blocked call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Did not run venture-preflight.mjs: the change touches the reader and eval scripts and an opt-in synthesis flag, with the default render byte-identical on openings; no page, llms.txt or site surface changed.",
+      "did": "Ran the full chant-forge suite (269 tests) and the coda and consonant checks instead.",
+      "result": "All green; consonant-check report byte-identical."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "No llms.txt or marketing page change: nothing user-facing changed in the product's options.",
+      "did": "README, ROADMAP and a post carry the change.",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-closure-against-the-vowel-before-it.md",
+    "ventures/chant-forge/README.md 'A closure against the vowel before it'"
+  ],
+  "goal": "Deepen flagship chant-forge",
+  "notes": "Diagnosed (eval/vstop-diag.mjs) two faults on D4-E4 voiced-stop codas: a 60 ms reference in a 15-20 dB beat trough (D4), and bursts under 12 dB over the bar above 600 Hz (D#4-E4). Shipped readCoda localRef on the closure rule (onsets.mjs LOCAL_REF); tried and left off a wall low-pass of the voice bar (sing.mjs voiceBarWall). Pre-registered held-out part R (commit a3ead4c2d before R ran): voiced stops 99 to 103 of 120 (bar +4), nasals 48/48, others 72/72, control 238/240 unchanged; consonant-check-report.md byte-identical. Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok, 269 tests, 0 failed; post front matter, links and similarity checks clean; validate.py ok. Not listened to.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fb116fd7-8d62-5bd4-affe-608a796d726d",
+    "transcripts": 1,
+    "first": "2026-11-16T16:07:17Z",
+    "last": "2026-11-16T16:43:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 86,
+        "input": 181,
+        "output": 47808,
+        "thinking": 12936,
+        "cache_read": 11774657,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162441,
+        "api_equivalent_usd": 4.6113,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 86,
+      "input": 181,
+      "output": 47808,
+      "thinking": 12936,
+      "cache_read": 11774657,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162441,
+      "api_equivalent_usd": 4.6113,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 76,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 2,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 35.76,
+      "active_minutes": 16.97,
+      "model_minutes": 10.4,
+      "tool_minutes": 6.57,
+      "waiting_on_human_minutes": 18.79,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an audio DSP engineer diagnosing two reader faults frame by frame, implementing and comparing four configurations, a pre-registered held-out set and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 173.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

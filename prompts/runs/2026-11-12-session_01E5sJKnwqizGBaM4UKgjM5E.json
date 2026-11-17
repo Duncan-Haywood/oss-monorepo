@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnwqizGBaM4UKgjM5E",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T08:30:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 4 changepoint-detector, item (w): watch mode round 3, an AR(1) Bayesian candidate",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15058",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/watch.test.mjs",
+      "issue": "the CLI test pins the exact alert text (noise sd, probability), so any default change breaks it on a cosmetic string; updated, not loosened."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "the 160-character post description limit shows up only in preflight; knowing it before writing the post would save a 5-minute rerun."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "the stop hook required committing the round-3 output file while the replay was still writing it",
+      "did": "committed a partial placeholder, then replaced it with the full output in the next commit",
+      "result": "the branch history holds one placeholder commit; the merged tree has the full output"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-quieter-metric-watch-and-what-it-misses.md",
+    "ventures/changepoint-detector/README.md (Watching a growing series, Round 3)"
+  ],
+  "goal": "deepen flagship 4",
+  "notes": "Round-3 rule committed (commit 1) before the run. Result: bocpd-ar1-window passed both parts (mean null FA 2.38 vs 10.56 per 1,000; 38 vs 35 steps) and is now the default for --model mean; bocpd stays the default for poisson/meanvar. TCPD (scored once, decides nothing): 16.2 vs 30.3 alerts per 1,000 checks, 38% vs 33% marked, but 29 of 52 vs 38 of 52 majority changes reached; the trade is stated on the page, README, llms.txt and post. Part A took 376 s on 4 cores. Checks: node --test watch.test.mjs 15/15; run_venture_tests and venture-preflight results in the PR body.",
+  "corrections": [],
+  "redteam": null
+}

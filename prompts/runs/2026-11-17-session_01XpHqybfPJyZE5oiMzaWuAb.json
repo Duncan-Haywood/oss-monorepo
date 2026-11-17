@@ -1,0 +1,303 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqybfPJyZE5oiMzaWuAb",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:38:47Z",
+  "ended": "2026-11-17T02:41:43Z",
+  "wall_minutes": 24.51,
+  "tokens_in": 5873994,
+  "tokens_out": 33973,
+  "cost_usd": 2.6226,
+  "tool_calls": 67,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16791",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First push blocked by the front-matter hook: the post's seo_title was 78 chars (limit 70); shortened.",
+    "Local branch claude/inspiring-fermat-wbnsli held unrelated history; reset to origin/main before work."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 10 open entries are control-plane (workflows/prompts) that need their own owner-approved PRs; the open list could mark those as blocked-on-owner so runs don't re-read them each time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 10 open defects need control-plane PRs with owner approval.",
+      "did": "Left them open and did not re-verify each one.",
+      "result": "Run time went to the target, where 3 new real defects were found and fixed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-the-rule-that-ran-past-year-9999.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: seeded hostile-rule fuzz test in ventures/rrule-explainer/rrule.test.mjs (analyze never throws, 4-digit years, CSV works). It fails alone on the year-9999 crash. Catch rate 6/9 -> 9/9. Local run_workflow_locally --for-changes: only failures were the seo_title length and downstream site-build steps; front-matter check now clean; platform/distribution/shorts.test.mjs passes when run alone.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rrule-explainer/rrule.mjs",
+        "test": "node --test ventures/rrule-explainer/**/*.test.mjs  (in .)",
+        "seed": 125258471,
+        "commit": "753dd2731",
+        "sites": 931,
+        "baseline_seconds": 7.3,
+        "mutants": [
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 171,
+            "col": 162,
+            "operator": "eq-flip",
+            "before": "if (!/^\\d+$/.test(value) || +value < 1) findings.push(finding(\"error\", `bad-${name.toLowerCase()}`, `${name}=${value} is not a positive whole number`, name === \"COUNT\" ? \"COUNT is how many occurrences the rule has; it is ignored here.\" : \"INTERVAL defaults to 1; the bad value is ignored.\"));",
+            "after": "if (!/^\\d+$/.test(value) || +value < 1) findings.push(finding(\"error\", `bad-${name.toLowerCase()}`, `${name}=${value} is not a positive whole number`, name !== \"COUNT\" ? \"COUNT is how many occurrences the rule has; it is ignored here.\" : \"INTERVAL defaults to 1; the bad value is ignored.\"));",
+            "line_text": "      if (!/^\\d+$/.test(value) || +value < 1) findings.push(finding(\"error\", `bad-${name.toLowerCase()}`, `${name}=${value} is not a positive whole number`, name === \"COUNT\" ? \"COUNT is how many occurrences the rule has; it is ignored here.\" : \"INTERVAL defaults to 1; the bad value is ignored.\"));",
+            "caught": false,
+            "seconds": 7.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "COUNT and INTERVAL advice swapped; new test checks each detail text."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 183,
+            "col": 14,
+            "operator": "const-plus-one",
+            "before": "if (i < 0) findings.push(finding(\"error\", \"bad-wkst\", `WKST=${value} is not a weekday`, \"Use MO, TU, WE, TH, FR, SA or SU.\"));",
+            "after": "if (i < 1) findings.push(finding(\"error\", \"bad-wkst\", `WKST=${value} is not a weekday`, \"Use MO, TU, WE, TH, FR, SA or SU.\"));",
+            "line_text": "      if (i < 0) findings.push(finding(\"error\", \"bad-wkst\", `WKST=${value} is not a weekday`, \"Use MO, TU, WE, TH, FR, SA or SU.\"));",
+            "caught": true,
+            "seconds": 7.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 230,
+            "col": 10,
+            "operator": "false-to-true",
+            "before": "let q = false;",
+            "after": "let q = true;",
+            "line_text": "  let q = false;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 264,
+            "col": 19,
+            "operator": "and-to-or",
+            "before": "if (v.date && p.params.VALUE !== \"DATE\") findings.push(finding(\"warning\", \"dtstart-value\", \"A date-only DTSTART should carry VALUE=DATE\", \"RFC 5545 makes DATE-TIME the default type; strict parsers reject DTSTART:20260105 without ;VALUE=DATE.\"));",
+            "after": "if (v.date || p.params.VALUE !== \"DATE\") findings.push(finding(\"warning\", \"dtstart-value\", \"A date-only DTSTART should carry VALUE=DATE\", \"RFC 5545 makes DATE-TIME the default type; strict parsers reject DTSTART:20260105 without ;VALUE=DATE.\"));",
+            "line_text": "        if (v.date && p.params.VALUE !== \"DATE\") findings.push(finding(\"warning\", \"dtstart-value\", \"A date-only DTSTART should carry VALUE=DATE\", \"RFC 5545 makes DATE-TIME the default type; strict parsers reject DTSTART:20260105 without ;VALUE=DATE.\"));",
+            "caught": false,
+            "seconds": 7.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "date-time DTSTARTs got the VALUE=DATE warning; new test covers floating, TZID, date and VALUE=DATE."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 402,
+            "col": 39,
+            "operator": "div-to-times",
+            "before": "const fwd = Math.floor((idx - 1) / 7) + 1;",
+            "after": "const fwd = Math.floor((idx - 1) * 7) + 1;",
+            "line_text": "      const fwd = Math.floor((idx - 1) / 7) + 1;",
+            "caught": true,
+            "seconds": 7.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 473,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "if (first > lastDay) {",
+            "after": "if (first >= lastDay) {",
+            "line_text": "      if (first > lastDay) {",
+            "caught": false,
+            "seconds": 7.2,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "ruleTimes' lastDay is an internal search horizon (400*INTERVAL years past DTSTART, or maxYears*366 days for the 50-year dateutil probe); >= vs > moves that arbitrary cap by one period. Nothing documents whether the horizon day is inclusive, and with the new year-9999 stop the default horizon is never reached for DTSTART after year 1600."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 497,
+            "col": 10,
+            "operator": "neq-flip",
+            "before": "if (n !== cacheDay) {",
+            "after": "if (n === cacheDay) {",
+            "line_text": "    if (n !== cacheDay) {",
+            "caught": true,
+            "seconds": 8.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 693,
+            "col": 55,
+            "operator": "or-to-and",
+            "before": "[\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "after": "[\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" && f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "line_text": "  [\"BYYEARDAY\", (f) => f === \"DAILY\" || f === \"WEEKLY\" || f === \"MONTHLY\", \"BYYEARDAY is not valid with FREQ=DAILY, WEEKLY or MONTHLY\"],",
+            "caught": false,
+            "seconds": 7.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "BYYEARDAY with MONTHLY went unflagged; new test walks all seven frequencies."
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 770,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (a.join() !== b.join()) F(\"warning\", \"mixed-byday\", \"BYDAY mixes plain weekdays with numbered ones (like MO with 2TU)\", `RFC 5545 reads the list as either kind matching, which is what this tool lists. python-dateutil 4.0.0 requires both kinds to match the same day${b.length ? `, so it gives a different set of dates` : `, so it gives no dates in the next 50 years for this rule`} (on 100 random rules of this shape it gave none for 92). Split it into two RRULEs, or two events, if other software has to read it.`);",
+            "after": "if (a.join() === b.join()) F(\"warning\", \"mixed-byday\", \"BYDAY mixes plain weekdays with numbered ones (like MO with 2TU)\", `RFC 5545 reads the list as either kind matching, which is what this tool lists. python-dateutil 4.0.0 requires both kinds to match the same day${b.length ? `, so it gives a different set of dates` : `, so it gives no dates in the next 50 years for this rule`} (on 100 random rules of this shape it gave none for 92). Split it into two RRULEs, or two events, if other software has to read it.`);",
+            "line_text": "    if (a.join() !== b.join()) F(\"warning\", \"mixed-byday\", \"BYDAY mixes plain weekdays with numbered ones (like MO with 2TU)\", `RFC 5545 reads the list as either kind matching, which is what this tool lists. python-dateutil 4.0.0 requires both kinds to match the same day${b.length ? `, so it gives a different set of dates` : `, so it gives no dates in the next 50 years for this rule`} (on 100 random rules of this shape it gave none for 92). Split it into two RRULEs, or two events, if other software has to read it.`);",
+            "caught": true,
+            "seconds": 7.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rrule-explainer/rrule.mjs",
+            "line": 870,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "...(x.zone === \"gap\" ? { actualLocal: shownLocal(x.utc, exp.tz) } : {}),",
+            "after": "...(x.zone !== \"gap\" ? { actualLocal: shownLocal(x.utc, exp.tz) } : {}),",
+            "line_text": "    ...(x.zone === \"gap\" ? { actualLocal: shownLocal(x.utc, exp.tz) } : {}),",
+            "caught": true,
+            "seconds": 7.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rrule-explainer/rrule.mjs",
+        "issue": "A large INTERVAL with a TZID or UTC DTSTART (e.g. FREQ=DAILY;INTERVAL=99999999) threw RangeError from Intl/toISOString past year ~275760; index.html calls analyze() with no try/catch, so Run did nothing. Floating rules printed five-digit years iCalendar cannot hold. Fixed: expand stops at 9999-12-31 with an info finding past-year-9999; a seeded 50-rule fuzz test now asserts analyze never throws.",
+        "patched": true
+      },
+      {
+        "file": "ventures/rrule-explainer/rrule.mjs",
+        "issue": "Sub-daily search hit its 3,000,000-step cap silently: FREQ=SECONDLY from 2026-01-05 with Show from 2026-03-01 (or HOURLY from 2400) listed 'No dates.' for a never-ending rule (expand's gaveUp was never read). Fixed: warning finding search-stopped, result.searchStopped, page line says the search stopped.",
+        "patched": true
+      },
+      {
+        "file": "ventures/rrule-explainer/rrule.mjs",
+        "issue": "A zoned SECONDLY rule with a UTC UNTIL ran one Intl zone lookup per step, so a far Show from (9999-12-31) froze the page for 53 s. Fixed: the lookup runs only for wall times within 26 h of UNTIL (no UTC offset is larger); a boundary test at +14:00 (Kiritimati) and a timing test guard it.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a4e0d2a7-dd9d-5c8e-8f56-c205c2518ade",
+    "transcripts": 1,
+    "first": "2026-11-17T02:38:47Z",
+    "last": "2026-11-17T03:03:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 124,
+        "output": 33973,
+        "thinking": 8027,
+        "cache_read": 5775429,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98441,
+        "api_equivalent_usd": 2.6226,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 124,
+      "output": 33973,
+      "thinking": 8027,
+      "cache_read": 5775429,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98441,
+      "api_equivalent_usd": 2.6226,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 64,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.51,
+      "active_minutes": 24.51,
+      "model_minutes": 5.56,
+      "tool_minutes": 18.95,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: mutation triage, three engine fixes with tests, fuzz guard, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 190.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

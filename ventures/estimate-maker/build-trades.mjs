@@ -3,6 +3,7 @@
 // reach the calculator that prices their trade. Run `node build-trades.mjs`
 // after a bid calculator is added; trades.test.mjs fails if the page is stale.
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 
 const root = new URL("../", import.meta.url);
 const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -82,6 +83,6 @@ q.addEventListener("input", filter);
 `;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   writeFileSync(new URL("./trade-bid-calculators.html", import.meta.url), renderPage(listTrades()));
 }

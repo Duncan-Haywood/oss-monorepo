@@ -51,6 +51,8 @@
    "where": "research/selfrep-redesign/src/selfrep_redesign/design.py:13"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15758"
+ ],
  "verdict": "The arithmetic is right and fully reproducible: run.py regenerates results.txt byte for byte, and my independent script recovered the baseline (43.1 / 22.4 / 15.9%, 29 vitamin lines), the all-substitutions figures (60.4 / 35.8 / 47.7%, 19 lines) and the 17-of-21 greedy count. But the headline cost-closure finding is largely an accounting artefact (printed nuts costed at 0.5 each against 0.03 purchased: 33.6% reported, 17.4% if costed consistently), the dowel mass assumption moves the mass result by 8 points, a seeded bug reversing the greedy rule passed all 5 tests, and the penalties that drive every conclusion are arbitrary with no cited closure literature. Correctness, claims and verification are 2, so it does not meet the bar; it is finished (completeness 3) as a small honest toy rather than a PhD-level programme step. Recheck: `python3 experiments/run.py`, the budget-0.5 cost row, and the mutation at design.py:94. Small safe fix: cost printed parts at the cost of what they replace (or report cost closure only with that rule), add a test pinning greedy's choice at budget 1.0, and cite Freitas and Merkle."
 }

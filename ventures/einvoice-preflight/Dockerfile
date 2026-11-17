@@ -19,6 +19,7 @@ COPY --from=schematron /build/node_modules/prsc ./node_modules/prsc
 COPY --from=schematron /build/node_modules/whynot ./node_modules/whynot
 COPY --from=schematron /build/node_modules/xspattern ./node_modules/xspattern
 COPY plain ./plain
+COPY fonts ./fonts
 USER node
 ENV PORT=8080
 EXPOSE 8080

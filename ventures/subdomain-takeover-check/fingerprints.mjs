@@ -261,3 +261,17 @@ export function matchProvider(targetHost) {
   const host = String(targetHost).replace(/\.$/, '').toLowerCase();
   return PROVIDERS.find((p) => p.cnamePattern.test(host)) ?? null;
 }
+
+/* The first provider any CNAME target in the chain matches (chain[0] is the
+ * hostname itself, so it is skipped). Matching only the last name missed the
+ * commonest takeover: <bucket>.s3.amazonaws.com resolves on to an internal
+ * S3 name such as s3-w.us-east-1.amazonaws.com that no pattern matches
+ * (quality audit 2026-11-12, round 54). */
+export function providerForChain(chain) {
+  if (!Array.isArray(chain)) return null;
+  for (const host of chain.slice(1)) {
+    const p = matchProvider(host);
+    if (p) return p;
+  }
+  return null;
+}

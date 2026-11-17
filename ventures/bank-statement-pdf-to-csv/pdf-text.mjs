@@ -97,6 +97,7 @@ async function loadFont(fontRef, objects, binaryStr, inflate) {
   if (!isDict(dict)) return font;
   const composite = isName(dict.get('Subtype'), 'Type0');
   if (composite) font.codeLen = 2;
+  font.widths = fontWidths(dict, composite, objects);
   const tu = dict.get('ToUnicode');
   if (tu instanceof PRef) {
     const entry = objects.get(tu.num);
@@ -125,6 +126,65 @@ async function loadFont(fontRef, objects, binaryStr, inflate) {
     }
   }
   return font;
+}
+
+// Glyph widths, in thousandths of the font size, keyed by character code: a
+// simple font's /FirstChar and /Widths, a composite font's descendant /W and
+// /DW, and Courier's fixed 600. With them a run's real end is known, so two
+// runs that are pieces of one word ("1" + "3 J" + "an") can be put back
+// together. Without them (the other standard fonts, whose metrics a PDF does
+// not carry) the width stays an estimate and no runs are joined.
+function fontWidths(dict, composite, objects) {
+  const num = (v) => (typeof v === 'number' ? v : null);
+  if (composite) {
+    const kids = resolve(dict.get('DescendantFonts'), objects);
+    const cid = Array.isArray(kids) ? resolve(kids[0], objects) : null;
+    if (!isDict(cid)) return null;
+    const map = new Map();
+    const dw = num(resolve(cid.get('DW'), objects));
+    const w = resolve(cid.get('W'), objects);
+    if (Array.isArray(w)) {
+      for (let i = 0; i < w.length;) {
+        const first = num(resolve(w[i], objects));
+        const next = resolve(w[i + 1], objects);
+        if (first === null) break;
+        if (Array.isArray(next)) { next.forEach((x, k) => { const v = num(resolve(x, objects)); if (v !== null) map.set(first + k, v); }); i += 2; continue; }
+        const last = num(next), v = num(resolve(w[i + 2], objects));
+        if (last === null || v === null || last < first || last - first > 0xffff) break;
+        for (let c = first; c <= last; c++) map.set(c, v);
+        i += 3;
+      }
+    }
+    if (!map.size && dw === null) return null;
+    return { map, missing: dw === null ? 1000 : dw };
+  }
+  const widths = resolve(dict.get('Widths'), objects);
+  const first = num(resolve(dict.get('FirstChar'), objects));
+  if (Array.isArray(widths) && first !== null) {
+    const map = new Map();
+    widths.forEach((x, k) => { const v = num(resolve(x, objects)); if (v !== null) map.set(first + k, v); });
+    const fd = resolve(dict.get('FontDescriptor'), objects);
+    const mw = isDict(fd) ? num(resolve(fd.get('MissingWidth'), objects)) : null;
+    return { map, missing: mw === null ? 0 : mw };
+  }
+  const base = resolve(dict.get('BaseFont'), objects);
+  if (base instanceof PName && /^Courier(-Bold|-Oblique|-BoldOblique)?$/.test(base.name)) return { map: new Map(), missing: 600 };
+  return null;
+}
+
+/** Width of a string in text space units per unit font size, or null when the font carries no widths. */
+function stringWidth(str, font) {
+  if (!font || !font.widths) return null;
+  const n = font.codeLen || 1;
+  let w = 0, spaces = 0;
+  for (let i = 0; i + n <= str.length; i += n) {
+    let code = 0;
+    for (let k = 0; k < n; k++) code = code * 256 + (str.charCodeAt(i + k) & 0xff);
+    const g = font.widths.map.get(code);
+    w += (g === undefined ? font.widths.missing : g) / 1000;
+    if (n === 1 && code === 32) spaces++;
+  }
+  return { w, glyphs: Math.floor(str.length / n), spaces };
 }
 
 function decodeString(str, font) {
@@ -193,16 +253,26 @@ export function textRuns(content, fonts) {
   let ctm = [1, 0, 0, 1, 0, 0];
   const stack = [];
   let tm = [1, 0, 0, 1, 0, 0], tlm = [1, 0, 0, 1, 0, 0];
-  let font = null, fontSize = 10, leading = 0;
+  let font = null, fontSize = 10, leading = 0, charSpace = 0, wordSpace = 0, hScale = 1;
   let operands = [];
   const emit = (str) => {
     const text = decodeString(str, font);
     const trm = mul(tm, ctm);
     const size = Math.abs(fontSize * (Math.abs(trm[3]) || 1));
-    const adv = size * 0.5 * text.length * Math.abs(tm[0] || 1);
-    if (text !== '') runs.push({ text, x: trm[4], y: trm[5], size, flip: ctm[3] < 0 || tm[3] < 0, unreadable: Boolean(font && font.unreadable && text === '') });
+    const sw = stringWidth(str, font);
+    // Advance in text space (PDF 32000-1, 9.4.4): glyph widths times the font
+    // size, plus character and word spacing, times horizontal scaling.
+    let tx, width;
+    if (sw) {
+      tx = (sw.w * fontSize + sw.glyphs * charSpace + sw.spaces * wordSpace) * hScale;
+      width = Math.abs(tx * (trm[0] || 1));
+    } else {
+      width = size * 0.5 * text.length * Math.abs(tm[0] || 1);
+      tx = width / (Math.abs(ctm[0]) || 1);
+    }
+    if (text !== '') runs.push({ text, x: trm[4], y: trm[5], size, flip: ctm[3] < 0 || tm[3] < 0, unreadable: Boolean(font && font.unreadable && text === ''), width, exact: Boolean(sw) });
     else if (font && font.unreadable && str.length) runs.push({ text: '', x: trm[4], y: trm[5], size, flip: false, unreadable: true });
-    tm = mul([1, 0, 0, 1, adv / (Math.abs(ctm[0]) || 1), 0], tm);
+    tm = mul([1, 0, 0, 1, tx, 0], tm);
   };
   for (const t of tokens(content)) {
     if (!('op' in t)) { operands.push(t.v); if (operands.length > 64) operands.shift(); continue; }
@@ -221,6 +291,9 @@ export function textRuns(content, fonts) {
         break;
       }
       case 'TL': leading = num(0); break;
+      case 'Tc': charSpace = num(operands.length - 1); break;
+      case 'Tw': wordSpace = num(operands.length - 1); break;
+      case 'Tz': hScale = num(operands.length - 1) / 100 || 1; break;
       case 'Td': case 'TD': {
         const tx = num(operands.length - 2), ty = num(operands.length - 1);
         if (op === 'TD') leading = -ty;
@@ -239,12 +312,15 @@ export function textRuns(content, fonts) {
         const arr = operands[operands.length - 1];
         if (Array.isArray(arr)) {
           let pending = '';
-          const flush = () => { if (pending !== '') { emit(pending); pending = ''; } };
+          let kern = 0; // small adjustments inside one run, applied after it
+          // With real widths, the spec's text-space shift; without, the earlier estimate.
+          const shift = (units) => { tm = mul([1, 0, 0, 1, (-units / 1000) * fontSize * (font && font.widths ? hScale : Math.abs(tm[0]) || 1), 0], tm); };
+          const flush = () => { if (pending !== '') { emit(pending); pending = ''; } if (kern) { if (font && font.widths) shift(kern); kern = 0; } };
           for (const el of arr) {
             if (el instanceof PString) pending += el.text;
             else if (typeof el === 'number') {
-              if (el < -180) { flush(); tm = mul([1, 0, 0, 1, (-el / 1000) * fontSize * (Math.abs(tm[0]) || 1), 0], tm); }
-              else if (el !== 0) { /* kerning: small shift, keep in the same run */ }
+              if (el < -180) { flush(); shift(el); }
+              else if (el !== 0) kern += el; // kerning: keep in the same run
             }
           }
           flush();
@@ -256,6 +332,28 @@ export function textRuns(content, fonts) {
     operands = [];
   }
   return runs;
+}
+
+// Runs that touch are pieces of one word or phrase: some PDF writers place
+// every few glyphs on their own ("1" + "3 J" + "an" for "13 Jan", "20" + ".00").
+// Two runs are joined only when both widths come from the font, the second
+// starts within a fifth of the font size of where the first ends, and neither
+// is only spaces; a column gap is many times that.
+export function joinPieces(items) {
+  const out = [];
+  for (const it of items) {
+    const last = out[out.length - 1];
+    if (last && last.exact && it.exact && last.text.trim() && it.text.trim() && Math.abs((it.size || 0) - (last.size || 0)) < 0.5) {
+      const gap = it.x - (last.x + last.width);
+      const size = it.size || 10;
+      if (gap > -0.2 * size && gap < 0.2 * size) {
+        out[out.length - 1] = { ...last, text: last.text + it.text, width: it.x + it.width - last.x };
+        continue;
+      }
+    }
+    out.push(it);
+  }
+  return out;
 }
 
 // Group runs into lines, top to bottom, items left to right.
@@ -289,11 +387,7 @@ export function groupLines(runs, page = 1) {
       groups.forEach((g) => g.items.sort((a, b) => a.x - b.x));
     } else groups.push(l);
     for (const g of groups) {
-      out.push({
-        page: l.page,
-        key: g.key,
-        items: g.items.map((it) => ({ text: it.text.replace(/ /g, ' '), x: it.x, xEnd: it.x + it.size * 0.5 * it.text.length })),
-      });
+      out.push({ page: l.page, key: g.key, items: joinPieces(g.items).map((it) => ({ text: it.text.replace(/\u00a0/g, ' '), x: it.x, xEnd: it.exact ? it.x + it.width : it.x + it.size * 0.5 * it.text.length })) });
     }
   }
   return out;

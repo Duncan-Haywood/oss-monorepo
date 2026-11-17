@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { unitlessLengths } from './css-lint.mjs';
 
 import {
   MIN_CARRIED_FIELDS,
@@ -430,6 +431,16 @@ test('injectShopRates adds the bar, the style link and the script tag exactly on
   assert.equal(injectShopRates(once), once, 'the pass must be safe to run twice');
 });
 
+test('a page cut off before </body> is left alone, not given a bar with no script', () => {
+  // Without the closing tag there is nowhere to put the module tag, so a bar
+  // injected anyway would be a form that never loads or saves a rate.
+  const truncated = page(form).replace(/<\/body><\/html>$/, '');
+  assert.equal(injectShopRates(truncated), truncated);
+  // And the other half of the guard: a closing tag with no opening one.
+  const noOpen = page(form).replace('<body>', '');
+  assert.equal(injectShopRates(noOpen), noOpen);
+});
+
 test('the tag names exactly the fields the page carries, and nothing else', () => {
   const out = injectShopRates(page(form));
   const pairs = out.match(/data-pf-rates-fields="([^"]*)"/)[1].split(',');
@@ -473,6 +484,25 @@ test('the bar sits under the site navigation when there is one', () => {
   const navEnd = out.indexOf('</nav>');
   const bar = out.indexOf('data-pf-rates-root');
   assert.ok(navEnd > 0 && bar > navEnd, 'the bar must follow the nav, not precede it');
+});
+
+test('the bar sits under the heading block, so the tool\'s name comes first', () => {
+  // 171 of 174 bar pages put the h1 in a <header> that closes before the form.
+  const nav = '<nav class="pf-chrome pf-chrome-top" aria-label="Site"><a href="../">All tools</a></nav>';
+  const head = '<header><p class="eyebrow">FOR SIDING CONTRACTORS</p><h1>Bid the squares</h1><p>Pitch.</p></header>';
+  const out = injectShopRates(page(`${nav}${head}<main>${form}</main>`));
+  const bar = out.indexOf('data-pf-rates-root');
+  assert.ok(out.indexOf('</header>') < bar, 'after the heading block');
+  assert.ok(bar < out.indexOf('<main>'), 'before the form it fills');
+});
+
+test('a header that holds the form, or an h1 in <main>, keeps the old place under the nav', () => {
+  const nav = '<nav class="pf-chrome pf-chrome-top" aria-label="Site"><a href="../">All tools</a></nav>';
+  for (const body of [`<header><h1>T</h1>${form}</header>`, `<main><h1>T</h1>${form}</main>`]) {
+    const out = injectShopRates(page(`${nav}${body}`));
+    const bar = out.indexOf('data-pf-rates-root');
+    assert.ok(out.indexOf('</nav>') < bar && bar < out.indexOf('<h1>'), body.slice(0, 20));
+  }
 });
 
 test('a page with no navigation still gets the bar, at the top of the body', () => {
@@ -595,7 +625,7 @@ test('every rate source names a venture that exists', async () => {
 // 2026-10-23 red-team campaign 8 of 8. These execute it.
 const PAIRS = 'hourlyWage:wage,burdenRate:burden';
 
-function mount({ stored, optOut, dnt, gpc, hash = '', inputs = { wage: '', burden: '' }, pairs = PAIRS } = {}) {
+function mount({ stored, optOut, dnt, gpc, hash = '', inputs = { wage: '', burden: '' }, maxes = {}, pairs = PAIRS } = {}) {
   const data = new Map();
   if (stored !== undefined) data.set(SHOP_RATES_KEY, stored);
   if (optOut) data.set('portfolio-hub-optout', '1');
@@ -613,7 +643,8 @@ function mount({ stored, optOut, dnt, gpc, hash = '', inputs = { wage: '', burde
     querySelector: (sel) => buttons[/"(\w+)"/.exec(sel)[1]],
   });
   for (const [id, value] of Object.entries(inputs)) {
-    nodes[id] = Object.assign(mk(), { tagName: 'INPUT', value, dispatchEvent() {} });
+    // `max` is the attribute as the DOM reports it: '' when the input sets none.
+    nodes[id] = Object.assign(mk(), { tagName: 'INPUT', value, max: maxes[id] ?? '', dispatchEvent() {} });
   }
   const tag = { getAttribute: () => pairs };
   const document = {
@@ -788,4 +819,89 @@ test('the bar and its panel paragraphs use valid margins (a unitless 1 would be 
   const css = renderShopRatesStyle();
   assert.match(css, /\.pf-rates\{[^}]*margin:0 auto 12px;/);
   assert.match(css, /\.pf-rates-panel p\{margin:0 0 10px\}/);
+  // Every length, not just the two above: `padding:8px 14px 1` in the narrow-screen rule
+  // survived the suite (red team 2026-11-13).
+  assert.deepEqual(unitlessLengths(css), []);
+});
+
+// Red team 2026-11-13: Number(String(v).trim()) reads " " and [] as 0 and
+// "0x10" as 16, so a stored payload this file did not write (another tool on
+// the same key, an older shape) prefilled a $0 wage into every bid calculator
+// -- the outcome the parseStoredRates comment promises cannot happen.
+const NOT_A_RATE = [' ', '\t', [], [40], {}, '0x10', '0b1', '1,000', true];
+
+test('a stored value that is not a plain decimal number is no saved rate', () => {
+  for (const v of NOT_A_RATE) {
+    assert.equal(parseStoredRates(JSON.stringify({ v: 1, rates: { hourlyWage: v } })), null, JSON.stringify(v));
+  }
+  // Plain decimals, as numbers or strings, still read.
+  assert.deepEqual(parseStoredRates('{"hourlyWage":"42.5","burdenRate":" 18 "}'), { hourlyWage: 42.5, burdenRate: 18 });
+  assert.deepEqual(parseStoredRates('{"hourlyWage":1e2}'), { hourlyWage: 100 });
+});
+
+test('the page script applies no wage from a stored value that is not a number', () => {
+  for (const v of NOT_A_RATE) {
+    const m = mount({ stored: JSON.stringify({ v: 1, rates: { hourlyWage: v, burdenRate: v } }) });
+    assert.equal(m.nodes.wage.value, '', JSON.stringify(v));
+    assert.equal(m.nodes.burden.value, '', JSON.stringify(v));
+  }
+});
+
+// Red team 2026-11-16: the shared spec allows overhead up to 500%, but
+// locksmith-bid-calculator caps it at 100 (`max="100"`, and its calc.mjs throws
+// "Overhead rate must be 100 or less."). A 150% overhead saved on any other
+// trade tool was written into that form on load, so the locksmith page opened
+// on an error instead of a price. Thirteen inputs on nine pages set a ceiling
+// below the shared one.
+test('a saved rate above this page\'s own ceiling is held back, not prefilled into an error', () => {
+  const stored = JSON.stringify({ v: 1, rates: { hourlyWage: 40, burdenRate: 250 } });
+  const m = mount({ stored, inputs: { wage: '', burden: '20' }, maxes: { burden: '200' } });
+  assert.equal(m.nodes.wage.value, 40, 'a rate inside the ceiling still applies');
+  assert.equal(m.nodes.burden.value, '20', 'the page keeps its own value');
+  assert.match(m.nodes['pf-rates-status'].textContent, /Payroll burden is above what this tool accepts/);
+  assert.doesNotMatch(m.nodes['pf-rates-list'].innerHTML, /250/);
+  // Storage is untouched: the 250 still opens every tool that accepts it.
+  assert.equal(JSON.parse(m.data.get(SHOP_RATES_KEY)).rates.burdenRate, 250);
+
+  // On the ceiling itself it applies, and a page with no max of its own keeps
+  // the shared ceiling.
+  assert.equal(mount({ stored: JSON.stringify({ burdenRate: 200 }), maxes: { burden: '200' } }).nodes.burden.value, 200);
+  assert.equal(mount({ stored }).nodes.burden.value, 250);
+});
+
+test('saving refuses a form value over the page\'s own ceiling, the same as its calculator', () => {
+  const m = mount({ inputs: { wage: '40', burden: '250' }, maxes: { burden: '200' } });
+  m.click('save');
+  assert.equal(m.data.has(SHOP_RATES_KEY), false);
+});
+
+// The guard for the class. The bar reads a page's ceiling from its input's
+// `max` attribute, so a calculator that caps a carried field in code
+// (`number(input.overheadRate, ..., { max: 100 })`) without saying so on the
+// input is invisible to it: ice-dam-removal-bid-calculator was exactly that.
+// Every page that takes the bar must mirror such a cap on the input.
+test('a calculator that caps a carried rate in code says so on the input', async () => {
+  const slugs = (await fs.readdir(VENTURES, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory()).map((entry) => entry.name);
+  const problems = [];
+  let pages = 0;
+  for (const slug of slugs) {
+    const html = await fs.readFile(path.join(VENTURES, slug, 'index.html'), 'utf8').catch(() => null);
+    if (html === null || !pageTakesShopRates(html, slug)) continue;
+    pages += 1;
+    const files = (await fs.readdir(path.join(VENTURES, slug)))
+      .filter((f) => /\.m?js$/.test(f) && !/\.test\./.test(f));
+    const code = (await Promise.all(files.map((f) => fs.readFile(path.join(VENTURES, slug, f), 'utf8')))).join('\n');
+    for (const field of pageShopRateFields(html, slug)) {
+      const cap = new RegExp(`input\\.${field.inputId}\\b[^;\\n]*?\\bmax:\\s*([0-9.]+)`).exec(code);
+      if (!cap || Number(cap[1]) >= field.max) continue;
+      const tag = new RegExp(`<input[^>]*\\bid="${field.inputId}"[^>]*>`, 'i').exec(html)[0];
+      const own = /\bmax="([^"]*)"/.exec(tag);
+      if (!own || Number(own[1]) > Number(cap[1])) {
+        problems.push(`${slug}: ${field.inputId} is capped at ${cap[1]} in code, input max is ${own ? own[1] : 'unset'}`);
+      }
+    }
+  }
+  assert.ok(pages >= 30, `expected the pages that take the bar, saw ${pages}`);
+  assert.deepEqual(problems, []);
 });

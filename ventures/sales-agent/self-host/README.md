@@ -34,12 +34,13 @@ travels in the URL and header.
 
 | Variable | Default | |
 |---|---|---|
-| `IMAP_HOST`, `IMAP_USER`, `IMAP_PASS` | required | `IMAP_PORT` 993, `IMAP_SECURE=false` for a plain test server, `IMAP_BOX` INBOX, `TLS_CA_FILE` a PEM file of an extra trusted CA for a mail server with a private certificate (certificates are always verified; there is no switch to skip it) |
+| `IMAP_HOST`, `IMAP_USER`, `IMAP_PASS` | required | `IMAP_PORT` 993 (implicit TLS); `IMAP_PORT=143` connects in plain text and upgrades with STARTTLS before any login (`IMAP_SECURE=false` does the same on another port). Off loopback, a server that offers no STARTTLS, greets with PREAUTH, or sends bytes between its STARTTLS reply and the handshake is refused before the password goes out; `IMAP_BOX` INBOX, `TLS_CA_FILE` a PEM file of an extra trusted CA for a mail server with a private certificate (certificates are always verified; there is no switch to skip it) |
 | `ADMIN_TOKEN` | required, 12+ chars | protects every page except `/healthz` |
 | `DATA_DIR` | `./data` | `state.json` (prospects, queue, cursor), `audit.jsonl` |
 | `POLL_MINUTES`, `SINCE_DAYS` | 10, 7 | first poll reads the last `SINCE_DAYS` days, then only new UIDs |
 | `SENT_BOX`, `SENT_SINCE_DAYS` | `auto`, 60 | each poll also reads your Sent folder (found by its `\Sent` attribute, else by name; or give the name; `off` skips it), headers only (Date, To, Cc, Subject, Message-ID, via `BODY.PEEK`), as the done list for **Today's queue** (`/api/daily`): an email step already sent to that person is not queued again |
-| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` | none (send off) | `SMTP_PORT` 587 (STARTTLS; 465 with `SMTP_SECURE=true`), `SEND_FROM` (default `IMAP_USER`), `SEND_MAX_PER_DAY` 20. A password is never sent over an unencrypted link to a non-local host |
+| `HOLIDAYS` | none | days the Today's queue treats as off: `us` (the eleven US federal holidays, weekend-observed), `us-business` (New Year's, Memorial, Independence, Labor, Thanksgiving, Christmas), `gb-eng` (England and Wales bank holidays), `gb-sct` (Scotland), `gb-nir` (Northern Ireland), `ca` (Canada's twelve federal holidays; provinces differ, `ca-on`, `ca-qc`, ...), a US state's legal holidays (`us-tx`, `us-ny`, `us-dc`, ...: the days state offices close, which most private firms do not), dates (`2026-11-27`), or a comma-separated mix. The Days off field on the page starts from this value; what you type there is kept in `state.json` and wins over it (empty it to have no days off). Under the field the page lists the next five days off by name, redrawn on each build (`upcomingOff` in `/api/daily`). A call that rang out comes back the next business day that is not one of these, and the later steps a late call pushes back skip them too |
+| `SMTP_HOST`, `SMTP_USER`, `SMTP_PASS` | none (send off) | `SMTP_PORT` 587 (STARTTLS; 465 is implicit TLS, `SMTP_SECURE=true` forces it on another port; a reply injected before the TLS handshake is refused), `SEND_FROM` (default `IMAP_USER`), `SEND_MAX_PER_DAY` 20. A password is never sent over an unencrypted link to a non-local host |
 | `OAUTH_PROVIDER` (`google` or `microsoft`), `OAUTH_CLIENT_ID`, `OAUTH_CLIENT_SECRET`, `OAUTH_REFRESH_TOKEN` | none (password login) | M4c: replaces `IMAP_PASS`/`SMTP_PASS` with SASL XOAUTH2 on both IMAP and SMTP. `OAUTH_TENANT` (Microsoft, default `common`), `OAUTH_TOKEN_URL` override. Your own OAuth app, your own token |
 | `PIPEDRIVE_API_TOKEN` and/or `HUBSPOT_TOKEN` (`PIPEDRIVE_BASE`, `HUBSPOT_BASE` to override) | none (off) | M8a: after each poll, writes every read reply as a note on the *existing* contact (exact email match) and sets the CRM's opt-out on an unsubscribe (Pipedrive `marketing_status: unsubscribed`, HubSpot `hs_email_optout`). Never creates people or deals, moves stages, deletes or sends; each result is in the audit log as `crm_writeback`. Tested against a fake HTTP server only; no real account tried |
 | `PIPEDRIVE_MEETING_STAGE_ID`, `HUBSPOT_MEETING_STAGE` | none (off) | M8b: shows a "Move their open deal to the meeting stage" button on interested replies. Only your click moves anything (`POST /api/crm-stage`, audited as `crm_stage`); it moves the contact's one open deal and skips with zero or several, once per reply. Fake server only |
@@ -49,6 +50,10 @@ travels in the URL and header.
 Messages you sent yourself are skipped. Each message is read once (Message-ID);
 duplicates are ignored. Endpoints: `/` queue, `/api/queue`, `/api/audit`,
 `/api/prospects.csv`, `/api/suppression.csv`, `POST /api/poll`, `POST /api/decide`, `POST /api/send`.
+
+## Against real mail servers (2026-11-14)
+
+Besides the fakes, the whole loop (poll, triage, suppress, a real bounce, approve, send once, threading) has run against a real Dovecot 2.3 and Postfix 3.8 behind a private CA: 32 of 32 checks, and two bugs it found are fixed. Steps to repeat it and the full result: [`real-servers/`](real-servers/README.md). Not yet tried: Gmail, Microsoft 365 or another hosted provider.
 
 ## One-click deploy (2026-10-28)
 
@@ -86,7 +91,7 @@ fix and send a patch.
 HTML, multipart, encoded subjects), the IMAP client against an in-memory fake
 server (`fake-imap.mjs`) that records every command, an end-to-end poll that
 suppresses an unsubscribe and queues a reply, a wrong password that leaks nothing, the send guards (off by default, approved only, once, suppressed and daily-cap refusals, header and dot-stuffing handling, a refused recipient, a wrong SMTP password) against an in-memory fake SMTP server (`fake-smtp.mjs`),
-placeholder blocking, and token checks. **Not tested: any real mail server, IMAP or SMTP.** The SMTP client is hand-written (EHLO, STARTTLS, AUTH PLAIN/LOGIN, DATA); STARTTLS and implicit TLS are not exercised by the fake. No DKIM/SPF/DMARC work here: your provider signs on submission, and a new sending domain needs those set up first.
+placeholder blocking, and token checks. TLS paths (`tls.test.mjs`): implicit TLS, SMTP and IMAP STARTTLS, untrusted certificates, a stripped STARTTLS, a PREAUTH greeting and bytes injected before the handshake, each refused before a credential is sent. Real servers: Dovecot and Postfix, 36 of 36 (`real-servers/`); not yet Gmail or Microsoft 365. No DKIM/SPF/DMARC work here: your provider signs on submission, and a new sending domain needs those set up first.
 Gmail, Fastmail, Outlook and Dovecot differ in literal and flag handling; the
 first deployer on one should expect to fix a parser edge and send a patch. Not
 built: IMAP IDLE, attachments, threading beyond Message-ID, a bounce-to-

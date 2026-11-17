@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { analyze } from "./calc.mjs";
-import { onPeakFlags, greedyCaps, bestCaps, energyDP, monthBill, touBattery } from "./tou.mjs";
+import { onPeakFlags, greedyCaps, bestCaps, energyDP, monthBill, touBattery, yearLP } from "./tou.mjs";
 
 const bat = (kw, kwh, roundTrip = 1) => ({ kw, kwh, roundTrip });
 const tariff = { facilityRate: 0, onStart: 16, onEnd: 21, weekdaysOnly: true, onDemandRate: 0, onPrice: 0.3, offPrice: 0.1 };
@@ -107,4 +107,49 @@ test("monthBill splits on- and off-peak kWh", () => {
   assert.equal(b.facKw, 30); assert.equal(b.onKw, 30); assert.equal(b.onDemand, 150);
   assert.ok(Math.abs(b.offKwh - 2.5) < 1e-9 && Math.abs(b.onKwh - 12.5) < 1e-9);
   assert.ok(Math.abs(b.energy - (0.25 + 1.5 + 2.25)) < 1e-9);
+});
+
+// Ratchet inside the plan (yearLP, 2026-11-14). June's 100 kW spike, shaved to
+// 90, sets an 80% floor of 72 kW on July. July's own peak is a 40 kW hour
+// right after the on-peak window on the 1st: planned alone, July keeps 10 kWh
+// back from that afternoon's arbitrage to shave it, but the floor bills July
+// at 72 kW whatever it does, so the whole-period plan trades instead.
+test("ratchet: the whole-period plan stops paying for peak shaving the floor already bills", () => {
+  const june = month((d, q) => (d === 1 && q === 12 ? 100 : 20), 6);
+  const july = month((d, q) => (d === 1 && q >= 84 && q < 88 ? 40 : 20), 7);
+  const a = analyze([...june, ...july], { ...settings("10"), ratchetPct: "80" });
+  const t = { ...tariff, facilityRate: 10 };
+  const b = bat(10, 10);
+  const alone = touBattery(a, t, b, { yearPlan: false });
+  const whole = touBattery(a, t, b);
+  assert.ok(Math.abs(alone.months[0].after.facKw - 90) < 0.01);
+  assert.ok(alone.months[1].after.facKw < 30.01, String(alone.months[1].after.facKw)); // shaved, for nothing
+  assert.ok(whole.ratchetPlan.used);
+  assert.ok(Math.abs(whole.months[1].after.facBilled - 72) < 0.01);
+  // 10 kWh more traded on one day: 10 x (0.30 - 0.10) = $2, two months scaled to 12 = $12.
+  assert.ok(Math.abs(alone.yearlyAfter - whole.yearlyAfter - 12) < 0.1, `${alone.yearlyAfter - whole.yearlyAfter}`);
+});
+
+test("ratchet: when no floor binds the month-by-month plan is kept without solving the year", () => {
+  const june = month((d, q) => (d === 1 && q === 12 ? 40 : 20), 6);
+  const july = month((d, q) => (d === 2 && q === 12 ? 45 : 20), 7);
+  const a = analyze([...june, ...july], { ...settings("10"), ratchetPct: "80" });
+  const r = touBattery(a, { ...tariff, facilityRate: 10 }, bat(10, 10));
+  assert.ok(r.ratchetPlan.skipped && !r.ratchetPlan.used);
+});
+
+test("yearLP with no ratchet equals the months solved alone", () => {
+  let seed = 5; const rnd = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+  const months = [0, 1].map(() => {
+    const load = Array.from({ length: 192 }, () => 10 + rnd() * 40);
+    const on = load.map((_, i) => (i % 96) >= 64 && (i % 96) < 84);
+    return { load, on, price: on.map((x) => (x ? 0.3 : 0.1)) };
+  });
+  const b = bat(8, 20, 0.9);
+  const yr = yearLP(months, 0.25, b, 10, 6, 0);
+  const sumAlone = months.reduce((s, m) => {
+    const p = yearLP([m], 0.25, b, 10, 6, 0);
+    return s + p.objective;
+  }, 0);
+  assert.ok(Math.abs(yr.objective - sumAlone) < 1e-3 * Math.abs(sumAlone), `${yr.objective} vs ${sumAlone}`);
 });

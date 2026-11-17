@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVP2wkqVDhw5W958SjJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T18:10:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 5 (einvoice-preflight): Brazil NF-e/NFC-e 4.00 XML checker",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 15210,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route draws research for a scheduled input that asks for product work; the input's intent is not weighed in the draw"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The router drew the research track, but this run's scheduled input asks for revenue-generating product work; followed the input and took the allocator's flagship row (einvoice-preflight).",
+      "did": "venture flagship slice instead of a research programme step",
+      "result": "Brazil NF-e 4.00 checker landed with schema, key, totals and CFOP checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-einvoice-brazil-nfe-checker.md"
+  ],
+  "goal": null,
+  "notes": "nfe.mjs (BR-001..BR-042) + build-nfe-schema.mjs compiling PL_009_V4 XSD (sped-nfe pinned ff80086aa165) into nfe-xsd-data.mjs (114 complex types as content-model regexes, 335 simple types). eval/nfe-xsd-diff.mjs vs xmllint: 2,600/2,600 verdicts agree on 4 seeds (first run 2 disagreements fixed: deleted infNFe, xs:unique nItem). Key DV reproduces 16/22 sped-nfe fixture keys (rest look edited). Local: node --test nfe.test.mjs 13/13, brazil page test 9/9, run_venture_tests.py einvoice-preflight ok (incl. Python steps). Brazil page widget checked in headless Chromium at 390 px: sample draws exactly its three planted findings, no console errors, no horizontal scroll (fixed a file input overflow).",
+  "corrections": [],
+  "redteam": null
+}

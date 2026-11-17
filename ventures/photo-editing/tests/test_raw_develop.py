@@ -163,7 +163,7 @@ def encode_lossless_jpeg(samples, width, height, nf, precision=16, predictor=1, 
 def _ifd_bytes(entries, start):
     """Serialise ``entries`` [(tag, type, values)] as an IFD at ``start``."""
 
-    fmt = {1: "B", 2: "B", 3: "H", 4: "I", 7: "B", 9: "i"}
+    fmt = {1: "B", 2: "B", 3: "H", 4: "I", 7: "B", 8: "h", 9: "i", 11: "f", 12: "d"}
     entries = sorted(entries, key=lambda e: e[0])
     head = struct.pack("<H", len(entries))
     extra = bytearray()
@@ -215,6 +215,7 @@ def make_dng(
     extra_raw_tags=(),
     photometric=rd.PHOTOMETRIC_CFA,
     spp=1,
+    colour_tags=None,
 ):
     """A little-endian DNG holding ``sensor`` (row-major ints)."""
 
@@ -276,15 +277,19 @@ def make_dng(
     if linearization:
         raw_tags.append((50712, 3, linearization))
     raw_tags += list(extra_raw_tags)
+    if colour_tags is None:
+        colour_tags = [
+            (50721, 10, CAMERA_MATRIX),
+            (50722, 10, CAMERA_MATRIX),
+            (50778, 3, (17,)),
+            (50779, 3, (21,)),
+            (50728, 5, neutral),
+        ]
     ifd0_tags = [
         (50706, 1, (1, 4, 0, 0)),
         (274, 3, (orientation,)),
-        (50721, 10, CAMERA_MATRIX),
-        (50722, 10, CAMERA_MATRIX),
-        (50778, 3, (17,)),
-        (50779, 3, (21,)),
-        (50728, 5, neutral),
         (50730, 10, (baseline_exposure,)),
+        *colour_tags,
     ]
 
     # Layout: header | chunks | raw IFD (if sub) | IFD0
@@ -361,7 +366,15 @@ class DevelopColourTests(unittest.TestCase):
         ow, oh, px, report = self._develop(blob)
         self.assertEqual((ow, oh), (w, h))
         self.assertEqual(report.cfa, "RGGB")
+        # Both matrices are the same here, so the blend at the D65 white is that matrix.
+        self.assertTrue(report.matrix.startswith("ColorMatrix2 at 650"), report.matrix)
+        self.assertEqual(report.colour, "dng")
+        self.assertAlmostEqual(report.cct, 6504, delta=5)
+        for i, want in enumerate(PATCHES):
+            self.assertColour(read_pixel(ow, px, i * 8 + 4, 4), want)
+        ow, oh, px, report = self._develop(blob, colour="dcraw")
         self.assertEqual(report.matrix, "ColorMatrix2")
+        self.assertEqual(report.colour, "dcraw")
         for i, want in enumerate(PATCHES):
             self.assertColour(read_pixel(ow, px, i * 8 + 4, 4), want)
 
@@ -545,6 +558,108 @@ class DevelopContainerTests(unittest.TestCase):
                     pass
 
 
+class ThreadedTileDecodeTests(unittest.TestCase):
+    """Lossless-JPEG tiles decode on a thread pool (``rd._decode_chunks``); the count never changes a sample."""
+
+    def _blob(self, w=70, h=37, tiles=(16, 8), **opts):
+        sensor = patch_sensor(w, h)
+        return sensor, make_dng(sensor, w, h, compression=7, tiles=tiles, **opts)
+
+    def test_same_samples_at_every_thread_count(self):
+        import os
+        from unittest import mock
+
+        for opts in ({}, {"lossless_nf": 2}, {"predictor": 6}, {"restart": 16}):
+            sensor, blob = self._blob(**opts)
+            for engine in ("auto", "python"):
+                for threads in ("1", "2", "3", "8"):
+                    with self.subTest(opts=opts, engine=engine, threads=threads):
+                        with mock.patch.dict(os.environ, {"SHOOTFLOW_THREADS": threads}), mock.patch.object(
+                            rd, "HUFFMAN_ENGINE", engine
+                        ):
+                            self.assertEqual(rd.parse_raw(blob).values.tolist(), sensor)
+
+    def test_chunks_come_back_in_file_order(self):
+        _, blob = self._blob()
+        reader = rd._Reader(blob)
+        ifd = rd._raw_ifd(rd._all_ifds(reader))
+        spans = list(zip(ifd.get(rd.TAG_TILE_OFFSETS), ifd.get(rd.TAG_TILE_BYTES)))
+        self.assertGreater(len(spans), 8)
+        serial = [list(t) for t in rd._decode_chunks(blob, spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=1)]
+        for threads in (2, 4, 64):
+            got = [list(t) for t in rd._decode_chunks(blob, spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=threads)]
+            self.assertEqual(got, serial)
+
+    def test_a_broken_tile_raises_at_every_thread_count(self):
+        _, blob = self._blob()
+        reader = rd._Reader(blob)
+        ifd = rd._raw_ifd(rd._all_ifds(reader))
+        spans = list(zip(ifd.get(rd.TAG_TILE_OFFSETS), ifd.get(rd.TAG_TILE_BYTES)))
+        off, _ = spans[5]
+        broken = bytearray(blob)
+        broken[off : off + 2] = b"\x00\x00"  # tile 5 no longer starts with SOI
+        for threads in (1, 2, 4):
+            with self.subTest(threads=threads):
+                with self.assertRaises(rd.DevelopError):
+                    list(rd._decode_chunks(bytes(broken), spans, 7, 16, 1, lambda i: (16, 8), reader.end, threads=threads))
+
+
+class TilePlacingTests(unittest.TestCase):
+    """``rd._blit`` places a chunk the same way on its numpy, array-slice and list paths (edge tiles clipped)."""
+
+    def _place_all(self, mode, typecode, spp, src_kind):
+        from array import array
+        from unittest import mock
+
+        width, height, cw, ch = 23, 13, 8, 5
+        dst = array(typecode, bytes(array(typecode).itemsize * width * height * spp))
+        across, down = -(-width // cw), -(-height // ch)
+        numpy_state = rd._NUMPY_MISSING if mode != "numpy" else rd._blit_numpy()
+        if mode == "numpy" and numpy_state is None:
+            self.skipTest("numpy not installed")
+        with mock.patch.object(rd, "_numpy_module", numpy_state):
+            for i in range(across * down):
+                ty, tx = divmod(i, across)
+                vals = [(i * 1009 + k * 7) % (65536 if typecode == "H" else 1 << 20) for k in range(cw * ch * spp)]
+                src = array(typecode, vals) if src_kind == "array" else vals
+                rd._blit(dst, width, height, spp, src, cw, ch, tx * cw, ty * ch)
+        return dst.tolist()
+
+    def test_every_path_places_the_same_samples(self):
+        for typecode in ("H", "I"):
+            for spp in (1, 3):
+                with self.subTest(typecode=typecode, spp=spp):
+                    want = self._place_all("pure", typecode, spp, "list")
+                    self.assertEqual(self._place_all("pure", typecode, spp, "array"), want)
+                    try:
+                        import numpy  # noqa: F401
+                    except ImportError:
+                        continue
+                    self.assertEqual(self._place_all("numpy", typecode, spp, "array"), want)
+                    self.assertEqual(self._place_all("numpy", typecode, spp, "list"), want)
+
+    def test_a_list_value_too_big_for_the_plane_is_refused(self):
+        from array import array
+
+        dst = array("H", bytes(2 * 4 * 4))
+        with self.assertRaises(OverflowError):
+            rd._blit(dst, 4, 4, 1, [70000] * 16, 4, 4, 0, 0)
+
+    def test_tiles_placed_on_the_pool_match_serial_placing(self):
+        import os
+        from unittest import mock
+
+        sensor = patch_sensor(70, 37)
+        blob = make_dng(sensor, 70, 37, compression=7, tiles=(16, 8))
+        for numpy_state in (None, rd._NUMPY_MISSING):
+            for threads in ("1", "4"):
+                with self.subTest(numpy=numpy_state is None, threads=threads):
+                    with mock.patch.dict(os.environ, {"SHOOTFLOW_THREADS": threads}), mock.patch.object(
+                        rd, "_numpy_module", numpy_state
+                    ):
+                        self.assertEqual(rd.parse_raw(blob).values.tolist(), sensor)
+
+
 class LosslessJpegInteropTests(unittest.TestCase):
     @unittest.skipUnless(shutil.which("ffmpeg"), "ffmpeg not installed")
     def test_decodes_ffmpeg_ljpeg_streams(self):
@@ -665,7 +780,8 @@ class DevelopCliTests(unittest.TestCase):
             result = json.loads(out.getvalue())["developed"][0]
             self.assertEqual((result["width"], result["height"]), (24, 4))
             self.assertTrue(Path(result["master"]).is_file())
-            self.assertEqual(result["matrix"], "ColorMatrix2")
+            self.assertTrue(result["matrix"].startswith("ColorMatrix"), result["matrix"])
+            self.assertEqual(result["colour"], "dng")
             # a second run refuses to overwrite and exits 1 with a reason
             out, err = io.StringIO(), io.StringIO()
             code = main(["develop", str(src), "--out", str(Path(tmp) / "masters")], stdout=out, stderr=err)

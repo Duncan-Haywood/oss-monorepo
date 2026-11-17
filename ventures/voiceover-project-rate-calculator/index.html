@@ -37,13 +37,22 @@
     .price { font-weight: 800; font-size: 1.05rem; color: #14532d; }
     .finding { border-bottom: 1px solid #ece9f7; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #ece5f7; color: #5b4fa8; }
     .stats { font-size: .85rem; color: #4b4a58; margin-bottom: 10px; }
     .error { color: #9a3412; font-weight: 600; }
     footer { margin-top: 28px; border-top: 1px solid #d9d5e8; padding-top: 16px; }
     th[scope="row"] { font-weight: normal; font-size: inherit; text-transform: none; letter-spacing: normal; color: inherit; }
 </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 580px) { div.grid:has(#usage-term) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 298px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -220,7 +229,7 @@
     };
 
     function money(n) {
-      const format = (n) => `$${n.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
+      const format = (n) => `$${n.toLocaleString('en-US', { maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -232,7 +241,7 @@
       }
       els.findings.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -256,7 +265,7 @@
         extraRevisionFee: Number(els.extraRevisionFee.value),
       };
       const result = computeProjectQuote(input);
-      els.stats.textContent = `${result.finishedMinutes.toLocaleString()} estimated finished minute(s) of audio at the read pace entered above.`;
+      els.stats.textContent = `${result.finishedMinutes.toLocaleString('en-US')} estimated finished minute(s) of audio at the read pace entered above.`;
       els.resultBody.innerHTML = `
         <tr><th scope="row">Base fee (before usage term)</th><td class="price">${money(result.baseFee)}</td></tr>
         <tr><th scope="row">Usage term (${USAGE_TERM_LABELS[input.usageTerm] ?? "Web / unrestricted digital use"})</th><td class="price">×${result.usageMultiplier}</td></tr>
@@ -274,7 +283,7 @@
         epmRatePerFinishedHour: Number(els.epmRate.value),
       };
       const result = computeAudiobookQuote(input);
-      els.stats.textContent = `${result.finishedHours.toLocaleString()} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
+      els.stats.textContent = `${result.finishedHours.toLocaleString('en-US')} estimated finished hour(s), at the words-per-finished-hour conversion entered above.`;
       els.resultBody.innerHTML = `
         <tr><th scope="row">Narration fee (finished hours × your rate)</th><td class="price">${money(result.narrationFee)}</td></tr>
         <tr><th scope="row">Editing / proofing / mastering fee</th><td class="price">${money(result.epmFee)}</td></tr>

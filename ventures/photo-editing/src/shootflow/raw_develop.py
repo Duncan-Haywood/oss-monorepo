@@ -7,9 +7,11 @@ itself and renders a 16-bit TIFF (or PNG) master the grade stage can take.
 
 Scope, stated plainly:
 
-* **DNG only.** DNG is the open format (Adobe's published specification),
-  every phone that shoots RAW writes it, and Adobe's free DNG Converter turns
-  CR2/CR3/NEF/ARW into it. Maker formats are not parsed here.
+* **DNG, and Canon CR2 with a camera profile.** DNG is the open format
+  (Adobe's published specification), every phone that shoots RAW writes it,
+  and Adobe's free DNG Converter turns CR3 and other makers' raws into it. A CR2 is read by
+  ``shootflow.cr2`` into the same tags (its sensor is the same lossless JPEG);
+  it carries no colour matrix, so it develops only with a ``.dcp`` profile.
 * Sensor data stored uncompressed (8 or 16 bit, or packed 10/12/14 bit) or as
   lossless JPEG (compression 7, SOF3, any of the seven predictors, interleaved
   components, restart markers), in strips or tiles, in IFD0 or a SubIFD.
@@ -20,14 +22,24 @@ Scope, stated plainly:
 * The DNG rendering steps a viewer needs: linearization table, black level
   (repeat pattern and per-row/column deltas), white level, active area, default
   crop, as-shot white balance (``AsShotNeutral``), the camera colour matrix,
-  ``BaselineExposure`` and the IFD0 orientation.
-* Colour: the camera matrix nearest D65 (``ColorMatrix2`` when its
-  ``CalibrationIlluminant2`` is D65 or daylight, else ``ColorMatrix1``) taken
-  through sRGB primaries with each row normalised, so a white-balanced neutral
-  stays neutral (the method dcraw uses). Matrices are not interpolated by
-  colour temperature, and ``ForwardMatrix``, ``CameraCalibration`` and the
-  profile hue/sat maps are ignored. Expect hues close to, not identical to,
-  Adobe's rendering.
+  ``BaselineExposure``, the IFD0 orientation, the ``GainMap`` opcodes in
+  ``OpcodeList2`` (lens shading, as phones write it; ``dng_opcodes``) and
+  ``WarpRectilinear`` and ``WarpFisheye`` in ``OpcodeList3`` (lens distortion
+  and lateral colour, and fisheye unwrapping, run on the linear image after
+  demosaic), and ``FixVignetteRadial`` and
+  ``MapPolynomial`` in either list, in list order, and ``FixBadPixelsConstant``
+  and ``FixBadPixelsList`` in ``OpcodeList1`` (bad sensels on the stored CFA
+  values). Other opcodes are named in the report, not run.
+* Colour (default ``colour="dng"``, since 2026-11-12): the DNG
+  specification's model in ``dng_colour``: the as-shot white found from
+  ``AsShotNeutral`` (or ``AsShotWhiteXY``), ``ColorMatrix``,
+  ``CameraCalibration`` and ``ForwardMatrix`` interpolated in mired between
+  the two calibration illuminants, ``AnalogBalance``, then XYZ D50 to sRGB
+  through Bradford. ``colour="dcraw"`` keeps the earlier method: the matrix
+  nearest D65 (``ColorMatrix2`` when its ``CalibrationIlluminant2`` is D65 or
+  daylight, else ``ColorMatrix1``) through sRGB primaries with each row
+  normalised and white balance in camera space, which is what dcraw and
+  LibRaw do. The profile hue/sat and look tables are ignored either way.
 * Demosaic: bilinear (each missing colour is the mean of the same-colour
   sensels in the 3x3 neighbourhood) at full size, or ``half`` (each 2x2 block
   becomes one pixel, no interpolation, a quarter of the pixels).
@@ -45,6 +57,7 @@ With numpy installed, ``develop`` hands the per-pixel work to
 
 from __future__ import annotations
 
+import os
 import re
 import struct
 import sys
@@ -54,6 +67,13 @@ from dataclasses import dataclass, field
 from itertools import accumulate
 from operator import add
 from pathlib import Path
+from typing import TYPE_CHECKING, NamedTuple
+
+from shootflow import dng_colour as dc
+from shootflow import dng_opcodes
+
+if TYPE_CHECKING:  # lens_profiles imports dng_opcodes only; typed here without a runtime import
+    from shootflow.lens_profiles import LensDb
 
 # --------------------------------------------------------------------------
 # TIFF / DNG container
@@ -62,6 +82,8 @@ from pathlib import Path
 _TYPE_SIZES = {1: 1, 2: 1, 3: 2, 4: 4, 5: 8, 6: 1, 7: 1, 8: 2, 9: 4, 10: 8, 11: 4, 12: 8, 13: 4, 16: 8}
 _TYPE_FMT = {1: "B", 3: "H", 4: "I", 6: "b", 8: "h", 9: "i", 11: "f", 12: "d", 13: "I", 16: "Q"}
 
+
+TAG_EXIF_IFD = 34665
 TAG_NEW_SUBFILE_TYPE = 254
 TAG_WIDTH = 256
 TAG_HEIGHT = 257
@@ -92,12 +114,51 @@ TAG_CROP_ORIGIN = 50719
 TAG_CROP_SIZE = 50720
 TAG_COLOR_MATRIX_1 = 50721
 TAG_COLOR_MATRIX_2 = 50722
+TAG_CAMERA_CALIBRATION_1 = 50723
+TAG_CAMERA_CALIBRATION_2 = 50724
+TAG_ANALOG_BALANCE = 50727
 TAG_AS_SHOT_NEUTRAL = 50728
 TAG_AS_SHOT_WHITE_XY = 50729
 TAG_BASELINE_EXPOSURE = 50730
 TAG_ILLUMINANT_1 = 50778
 TAG_ILLUMINANT_2 = 50779
 TAG_ACTIVE_AREA = 50829
+TAG_CAMERA_CALIBRATION_SIGNATURE = 50931
+TAG_PROFILE_CALIBRATION_SIGNATURE = 50932
+TAG_FORWARD_MATRIX_1 = 50964
+TAG_FORWARD_MATRIX_2 = 50965
+TAG_UNIQUE_CAMERA_MODEL = 50708
+TAG_PROFILE_NAME = 50936
+TAG_HUE_SAT_MAP_DIMS = 50937
+TAG_HUE_SAT_MAP_DATA_1 = 50938
+TAG_HUE_SAT_MAP_DATA_2 = 50939
+TAG_PROFILE_TONE_CURVE = 50940
+TAG_PROFILE_TONE_COPYRIGHT = 50942
+TAG_LOOK_TABLE_DIMS = 50981
+TAG_LOOK_TABLE_DATA = 50982
+TAG_HUE_SAT_MAP_ENCODING = 51107
+TAG_LOOK_TABLE_ENCODING = 51108
+TAG_NOISE_PROFILE = 51041
+TAG_CFA_PLANE_COLOR = 50710
+TAG_BASELINE_EXPOSURE_OFFSET = 51109
+# DNG 1.6: a third calibration illuminant and custom illuminant data.
+TAG_ILLUMINANT_3 = 52529
+TAG_CAMERA_CALIBRATION_3 = 52530
+TAG_COLOR_MATRIX_3 = 52531
+TAG_FORWARD_MATRIX_3 = 52532
+TAG_ILLUMINANT_DATA_1 = 52533
+TAG_ILLUMINANT_DATA_2 = 52534
+TAG_ILLUMINANT_DATA_3 = 52535
+TAG_HUE_SAT_MAP_DATA_3 = 52537
+# A .dcp camera profile is a TIFF-structured file with "RC" in place of 42.
+DCP_MAGIC = 0x4352
+# Olympus ORF headers write "IIRO" / "MMOR" (or "IIRS") where TIFF has 42; the IFDs after it are classic TIFF
+# (dcraw, LibRaw and Exiv2 all accept the same three values). Read for shot facts only: an ORF has no
+# DNGVersion, so ``develop`` still asks for a DNG.
+ORF_MAGICS = (0x4F52, 0x5352)
+# Panasonic RW2 headers write "IIU\0" (0x55) where TIFF has 42; IFD0 is classic TIFF holding Panasonic's own
+# low-numbered tags (sensor size, borders, black, white balance) next to the usual ones. Read by ``shootflow.rw2``.
+RW2_MAGIC = 0x55
 
 PHOTOMETRIC_CFA = 32803
 PHOTOMETRIC_LINEAR_RAW = 34892
@@ -114,6 +175,12 @@ class DevelopError(ValueError):
 @dataclass
 class Ifd:
     entries: dict[int, tuple] = field(default_factory=dict)
+    # The file's byte order, for UNDEFINED tags with inner structure (IlluminantData).
+    byte_order: str = "<"
+    # Where each tag's values start in ``source`` (the buffer the IFD was read from), for maker notes whose
+    # own offsets count from the file's TIFF header (old-style Olympus) rather than from the note.
+    offsets: dict[int, int] = field(default_factory=dict, repr=False, compare=False)
+    source: bytes | None = field(default=None, repr=False, compare=False)
 
     def get(self, tag: int, default=None):
         values = self.entries.get(tag)
@@ -134,8 +201,9 @@ class _Reader:
         else:
             raise DevelopError("not a TIFF/DNG file (no II/MM byte-order mark)")
         magic = struct.unpack_from(self.end + "H", data, 2)[0]
-        if magic != 42:
+        if magic not in (42, DCP_MAGIC, RW2_MAGIC) + ORF_MAGICS:
             raise DevelopError(f"not a classic TIFF/DNG file (magic {magic})")
+        self.magic = magic
 
     def first_ifd_offset(self) -> int:
         return struct.unpack_from(self.end + "I", self.data, 4)[0]
@@ -145,7 +213,7 @@ class _Reader:
         if offset <= 0 or offset + 2 > len(data):
             raise DevelopError(f"IFD offset {offset} is outside the file")
         count = struct.unpack_from(end + "H", data, offset)[0]
-        ifd = Ifd()
+        ifd = Ifd(byte_order=end, source=data)
         pos = offset + 2
         for _ in range(count):
             if pos + 12 > len(data):
@@ -157,6 +225,7 @@ class _Reader:
                 at = pos + 8 if total <= 4 else struct.unpack_from(end + "I", data, pos + 8)[0]
                 if at + total <= len(data):
                     ifd.entries[tag] = self._values(typ, n, at)
+                    ifd.offsets[tag] = at
             pos += 12
         following = struct.unpack_from(end + "I", data, pos)[0] if pos + 4 <= len(data) else 0
         return ifd, following
@@ -475,24 +544,41 @@ def _decode_scan(data, pos, width, height, tables, predictor, precision, pt, res
     nf = len(tables)
     diffs = _scan_diffs(data, pos, width * height, tables, restart)
     initial = 1 << (precision - pt - 1)
+    if DECODE_ENGINE in ("auto", "native") and isinstance(diffs, array):
+        # Differences from the C reader: predict in C too, so a tile's whole decode runs
+        # without the GIL (eval/native-destuff-2026-11-13.md). Same samples as _predict_scan,
+        # shifted by the point transform in C as well (eval/point-transform-c-2026-11-14.md).
+        from shootflow import ljpeg_native
+
+        got = ljpeg_native.predict(diffs, width, height, nf, predictor, initial, restart, pt)
+        if got is not None:
+            return got
+        if DECODE_ENGINE == "native":
+            raise DevelopError("decode engine 'native' needs the C reader (ljpeg_native)")
     if predictor in (1, 2) and (not restart or restart % width == 0):
         np_predict = _numpy_predict_rows()
         if np_predict is not None and width * height >= _NP_PREDICT_MIN:
             out = np_predict(diffs, width, height, nf, predictor, initial, restart)
         else:
-            out = _predict_rows(diffs, width, height, nf, predictor, initial, restart)
+            out = _predict_rows(_as_list(diffs), width, height, nf, predictor, initial, restart)
     else:
-        out = _predict_scan(diffs, width, height, nf, predictor, initial, restart)
+        out = _predict_scan(_as_list(diffs), width, height, nf, predictor, initial, restart)
     if pt:
         out = [v << pt for v in out]
     return out
 
 
+def _as_list(diffs):
+    return diffs.tolist() if isinstance(diffs, array) else diffs
+
+
 # Below about this many pixels the numpy prediction pass costs more in setup
 # than it saves; tests set it to 0 to run the numpy path on small cases.
 _NP_PREDICT_MIN = 1024
-# "auto" uses numpy for the prediction pass when it is importable; "python"
-# keeps the pure path (the reference); "numpy" requires it. Same samples.
+# "auto" predicts in C when the differences came from the C reader (point
+# transform 0), else with numpy when it is importable; "python" keeps the pure
+# path (the reference); "numpy" requires numpy; "native" requires the C pass.
+# Same samples.
 DECODE_ENGINE = "auto"
 
 
@@ -558,7 +644,7 @@ _MARKER = re.compile(rb"\xff[\x01-\xff]")
 _RESTART_MARKER = re.compile(rb"\xff[\xd0-\xd7]")
 
 
-def _segment_words(data: bytes, pos: int) -> tuple[list[int], int]:
+def _segment_words(data: bytes, pos: int, as_list: bool = True):
     """The entropy-coded bytes from ``pos`` to the next marker, as 32-bit words.
 
     Stuffed ``FF 00`` pairs become ``FF``; past the marker the stream reads as
@@ -575,10 +661,65 @@ def _segment_words(data: bytes, pos: int) -> tuple[list[int], int]:
     words.frombytes(seg)
     if sys.byteorder == "little":
         words.byteswap()
-    return words.tolist(), stop
+    return (words.tolist() if as_list else words), stop
 
 
-def _scan_diffs(data, pos, mcus_total, tables, restart) -> list[int]:
+# "auto" reads Huffman differences with the optional native reader
+# (``ljpeg_native``: C compiled on first use, loaded by ctypes) when it builds,
+# else the pure loop below; "python" keeps the pure loop (the reference);
+# "native" requires the C reader. Same differences either way.
+HUFFMAN_ENGINE = "auto"
+
+
+def _native_huffman():
+    if HUFFMAN_ENGINE == "python":
+        return None
+    from shootflow import ljpeg_native
+
+    if ljpeg_native.reader() is None:
+        if HUFFMAN_ENGINE == "native":
+            raise DevelopError("Huffman engine 'native' needs a C compiler (cc) to build ljpeg_native")
+        return None
+    return ljpeg_native
+
+
+def _scan_diffs_native(native, data, pos, mcus_total, tables, restart):
+    """``_scan_diffs`` through the C reader: an ``array('i')``, or None to fall back.
+
+    The C side reads the scan's bytes directly (de-stuffing and restart
+    intervals included); ``SHOOTFLOW_NATIVE_SCAN=0`` keeps the older path that
+    de-stuffs and packs words here and calls C once per interval.
+    """
+
+    if os.environ.get("SHOOTFLOW_NATIVE_SCAN", "1") != "0" and hasattr(native, "scan_run") and len(tables) <= 4:
+        return native.scan_run(data, pos, mcus_total, tables, restart)
+    if not restart:
+        words, _ = _segment_words(data, pos, as_list=False)
+        return native.huffman_run(words, mcus_total, tables)
+    out = array("i")
+    done = 0
+    while done < mcus_total:
+        if done:
+            m = _RESTART_MARKER.search(data, pos)
+            pos = m.end() if m else len(data)
+        words, pos = _segment_words(data, pos, as_list=False)
+        n = min(restart, mcus_total - done)
+        part = native.huffman_run(words, n, tables)
+        if part is None:
+            return None
+        out.extend(part)
+        done += n
+    return out
+
+
+def _scan_diffs(data, pos, mcus_total, tables, restart):
+    native = _native_huffman()
+    if native is not None:
+        got = _scan_diffs_native(native, data, pos, mcus_total, tables, restart)
+        if got is not None:
+            return got
+        # An invalid code (or a size the C table does not carry): the pure
+        # loop decides, so errors and odd streams behave exactly as before.
     luts = [(_combined_lookup(t), t) for t in tables]
     out: list[int] = []
     if not restart:
@@ -803,6 +944,28 @@ def _decode_scan_reference(data, pos, width, height, tables, predictor, precisio
 # --------------------------------------------------------------------------
 
 
+class LensHint(NamedTuple):
+    """What a file says about the lens when it gives no usable name.
+
+    From Canon's CameraSettings (``cr2.lens_hint``) or, for any maker, the EXIF LensSpecification or DNG
+    LensInfo tag (``lens_profiles.spec_hint``). ``short`` and ``long`` are the lens's focal range in mm (equal
+    for a prime); ``aperture`` is its widest f-number at the shot's focal length (a zoom's f/3.5-5.6 reports
+    5.6 at the long end), or None; ``lens_type`` is Canon's lens number (several lenses, Canon's and third
+    parties', share one), or None. ``marked`` is the lens's widest f-number at its short and at its long end
+    (the "f/3.5-5.6" of its name), when the file states both; ``source`` names the field, for notes.
+    """
+
+    short: float
+    long: float
+    aperture: float | None
+    lens_type: int | None = None
+    marked: tuple[float, float] | None = None
+    source: str = "maker note"
+    # A lens name the maker note carries beside the range (Olympus Equipment 0x0203), used only to break a
+    # tie among lenses that fit the range: generic ones such as "OLYMPUS 14-54mm Lens" match nothing.
+    name: str | None = None
+
+
 @dataclass
 class RawImage:
     width: int
@@ -811,6 +974,16 @@ class RawImage:
     values: array  # 'H' (or 'I'), row-major, samples interleaved
     ifd: Ifd
     ifd0: Ifd
+    # "dng", "cr2" for a Canon CR2 read by ``shootflow.cr2``, "arw" for a Sony ARW read by ``shootflow.arw`` or
+    # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
+    # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
+    # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``
+    # (DNG-equivalent tags, no colour matrix).
+    source: str = "dng"
+    notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
+    exif: Ifd | None = None  # the EXIF IFD (lens name, focal length), when the file has one
+    lens_hint: LensHint | None = None  # the maker note's focal range and aperture (CR2), for a lens with no name
 
 
 def _unpack_bits(chunk: bytes, bits: int, count: int, row_samples: int) -> list[int]:
@@ -848,7 +1021,8 @@ def _decode_chunk(
         elif bits == 32:
             vals = list(struct.unpack_from(end + "I" * min(count, len(chunk) // 4), chunk, 0))
         elif 8 < bits < 16:
-            vals = _unpack_bits(chunk, bits, count, cw * spp)
+            np_mod = _numpy_engine("auto")
+            vals = np_mod.unpack_bits(chunk, bits, count, cw * spp) if np_mod else _unpack_bits(chunk, bits, count, cw * spp)
         else:
             raise DevelopError(f"{bits}-bit uncompressed sensor data is not supported")
         if len(vals) < count:
@@ -866,19 +1040,84 @@ def _decode_chunk(
     raise DevelopError(f"compression {compression} is not supported")
 
 
-def read_raw(path: Path | str) -> RawImage:
+def _decode_chunks(
+    data: bytes, spans, compression: int, bits: int, spp: int, size_of, end: str, threads=None, sink=None
+):
+    """Decode each ``(offset, bytecount)`` chunk (``size_of(i)`` gives its width and rows); yields them in order.
+
+    Lossless-JPEG tiles and strips are independent streams (DNG 1.7.1.0, "Compression": each tile or strip is
+    its own JPEG), so with more than one they decode on a thread pool, ``SHOOTFLOW_THREADS`` threads if set,
+    else one per CPU, at most one per chunk. The C Huffman reader runs with the GIL released (ctypes) and the
+    numpy prediction pass releases it in its array operations, so the chunks decode in parallel. Each chunk's
+    samples depend only on its own bytes, so the thread count cannot change them; results come back in file
+    order and the first error raises as it would serially. Uncompressed chunks stay on the calling thread.
+
+    With ``sink``, each chunk is handed to ``sink(i, samples)`` on the thread that decoded it and ``None`` is
+    yielded in its place: ``parse_raw`` places tiles that way, so placing them is no longer a serial step after
+    the pool (each chunk writes its own rectangle of the output, so the writes never overlap).
+    """
+
+    def one(i):
+        off, size = spans[i]
+        cw, ch = size_of(i)
+        samples = _decode_chunk(data[off : off + size], compression, bits, spp, cw, ch, end)
+        if sink is None:
+            return samples
+        sink(i, samples)
+        return None
+
+    from shootflow import dng_opcodes
+
+    n = dng_opcodes._warp_threads(len(spans), 1) if threads is None else max(1, min(int(threads), len(spans)))
+    if compression != 7 or n <= 1:
+        for i in range(len(spans)):
+            yield one(i)
+        return
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=n) as ex:
+        yield from ex.map(one, range(len(spans)))
+
+
+def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
     data = Path(path).read_bytes()
-    return parse_raw(data)
+    return parse_raw(data, cfa=cfa)
 
 
-def parse_raw(data: bytes) -> RawImage:
+def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's or Canon CR3's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+
+    from shootflow import arw, cr2, cr3, crw, nef, orf, pef, raf, rw2, srw
+
+    if crw.is_crw(data):
+        return crw.parse_crw(data)
+    if cr3.is_cr3(data):
+        return cr3.parse_cr3(data)
+    if raf.is_raf(data):
+        return raf.parse_raf(data)
+    if cr2.is_cr2(data):
+        return cr2.parse_cr2(data, cfa=cfa)
+    if arw.is_arw(data):
+        return arw.parse_arw(data)
+    if nef.is_nef(data):
+        return nef.parse_nef(data)
+    if orf.is_orf(data):
+        return orf.parse_orf(data)
+    if rw2.is_rw2(data):
+        return rw2.parse_rw2(data)
+    if pef.is_pef(data):  # before SRW: a Samsung K-mount body's PEF says SAMSUNG too
+        return pef.parse_pef(data)
+    if srw.is_srw(data):
+        return srw.parse_srw(data)
     reader = _Reader(data)
     ifds = _all_ifds(reader)
     if not ifds:
         raise DevelopError("the file has no IFDs")
     ifd0 = ifds[0]
     if ifd0.one(TAG_DNG_VERSION) is None:
-        raise DevelopError("not a DNG (no DNGVersion tag); convert maker RAW files with Adobe DNG Converter")
+        raise DevelopError(
+            "not a DNG, a Canon CR2, a Sony ARW, a Nikon NEF, an Olympus ORF or a Panasonic RW2 (no DNGVersion tag); convert other maker RAW files with Adobe DNG Converter"
+        )
     ifd = _raw_ifd(ifds)
     width = ifd.one(TAG_WIDTH)
     height = ifd.one(TAG_HEIGHT)
@@ -889,41 +1128,126 @@ def parse_raw(data: bytes) -> RawImage:
         raise DevelopError("planar (separate plane) LinearRaw is not supported")
     if not width or not height or width * height > 400_000_000:
         raise DevelopError("raw image size is missing or implausible")
-    values = array("I" if bits > 16 else "H", bytes((4 if bits > 16 else 2) * width * height * spp))
+    # One zeroed buffer: array(..., bytes(n)) built a zeroed bytes and copied it, twice the plane's
+    # size at peak (eval/point-transform-c-2026-11-14.md).
+    values = array("I" if bits > 16 else "H", [0]) * (width * height * spp)
     if TAG_TILE_OFFSETS in ifd.entries:
         tw = ifd.one(TAG_TILE_WIDTH)
         tl = ifd.one(TAG_TILE_LENGTH)
         offsets = ifd.get(TAG_TILE_OFFSETS)
         sizes = ifd.get(TAG_TILE_BYTES)
         across = (width + tw - 1) // tw
-        for i, (off, size) in enumerate(zip(offsets, sizes)):
+
+        def place_tile(i, tile):
             ty, tx = divmod(i, across)
-            tile = _decode_chunk(data[off : off + size], compression, bits, spp, tw, tl, reader.end)
             _blit(values, width, height, spp, tile, tw, tl, tx * tw, ty * tl)
+
+        _place_chunks(
+            data, list(zip(offsets, sizes)), compression, bits, spp, lambda i: (tw, tl), reader.end, place_tile
+        )
     elif TAG_STRIP_OFFSETS in ifd.entries:
         rps = ifd.one(TAG_ROWS_PER_STRIP, height)
         offsets = ifd.get(TAG_STRIP_OFFSETS)
         sizes = ifd.get(TAG_STRIP_BYTES)
-        for i, (off, size) in enumerate(zip(offsets, sizes)):
-            y0 = i * rps
-            rows = min(rps, height - y0)
-            if rows <= 0:
-                break
-            strip = _decode_chunk(data[off : off + size], compression, bits, spp, width, rows, reader.end)
-            _blit(values, width, height, spp, strip, width, rows, 0, y0)
+        n = max(0, min(len(offsets), len(sizes), -(-height // rps)))
+        _place_chunks(
+            data,
+            list(zip(offsets[:n], sizes[:n])),
+            compression,
+            bits,
+            spp,
+            lambda i: (width, min(rps, height - i * rps)),
+            reader.end,
+            lambda i, strip: _blit(values, width, height, spp, strip, width, min(rps, height - i * rps), 0, i * rps),
+        )
     else:
         raise DevelopError("raw IFD has neither strips nor tiles")
-    return RawImage(width, height, spp, values, ifd, ifd0)
+    return RawImage(width, height, spp, values, ifd, ifd0, exif=exif_ifd(reader, ifd0))
 
 
-def _blit(dst: array, width, height, spp, src: list[int], cw, ch, x0, y0) -> None:
-    w = min(cw, width - x0)
-    if w <= 0:
+def _place_chunks(data, spans, compression, bits, spp, size_of, end, place) -> None:
+    """Decode the chunks and ``place(i, samples)`` each one.
+
+    With numpy, placing is one 2-D copy that releases the GIL, so it runs on the decoding threads (measured on
+    the Pixel 3 XL DNG, eval/parallel-tile-placing-2026-11-13.md: 4-thread read 0.13 s to 0.085 s median).
+    Without numpy, the row-slice copy holds the GIL and slowed the pool when moved onto it, so the chunks are
+    placed on the calling thread in file order, as before.
+    """
+
+    if _blit_numpy() is not None:
+        for _ in _decode_chunks(data, spans, compression, bits, spp, size_of, end, sink=place):
+            pass
         return
-    for r in range(min(ch, height - y0)):
+    for i, samples in enumerate(_decode_chunks(data, spans, compression, bits, spp, size_of, end)):
+        place(i, samples)
+
+
+def exif_ifd(reader: _Reader, ifd0: Ifd) -> Ifd | None:
+    """The EXIF IFD that IFD0's ExifIFD tag points to, or None when there is none or it is unreadable."""
+
+    at = ifd0.one(TAG_EXIF_IFD)
+    if not at:
+        return None
+    try:
+        return reader.read_ifd(int(at))[0]
+    except (DevelopError, struct.error):
+        return None
+
+
+def _blit(dst: array, width, height, spp, src, cw, ch, x0, y0) -> None:
+    """Copy a decoded ``cw`` x ``ch`` chunk into ``dst`` at (``x0``, ``y0``), clipped to the image.
+
+    A chunk that came back as an ``array`` of ``dst``'s own type (the C and numpy lossless-JPEG paths) is copied
+    as one 2-D numpy assignment when numpy is installed, else row by row as array slices; anything else (a list
+    from the pure decoders) goes through ``array(...)`` per row, which also refuses a value too big for ``dst``.
+    """
+
+    w = min(cw, width - x0)
+    rows = min(ch, height - y0)
+    if w <= 0 or rows <= 0:
+        return
+    span = w * spp
+    if isinstance(src, array) and src.typecode == dst.typecode and len(src) >= rows * cw * spp:
+        np = _blit_numpy()
+        if np is not None:
+            dtype = np.uint16 if dst.typecode == "H" else np.uint32
+            out = np.frombuffer(dst, dtype=dtype).reshape(height, width * spp)
+            tile = np.frombuffer(src, dtype=dtype, count=rows * cw * spp).reshape(rows, cw * spp)
+            out[y0 : y0 + rows, x0 * spp : x0 * spp + span] = tile[:, :span]
+            return
+        for r in range(rows):
+            s = r * cw * spp
+            d = ((y0 + r) * width + x0) * spp
+            dst[d : d + span] = src[s : s + span]
+        return
+    for r in range(rows):
         s = r * cw * spp
         d = ((y0 + r) * width + x0) * spp
-        dst[d : d + w * spp] = array(dst.typecode, src[s : s + w * spp])
+        dst[d : d + span] = array(dst.typecode, src[s : s + span])
+
+
+_NUMPY_MISSING = object()
+_numpy_module = None
+
+
+def _blit_numpy():
+    """numpy, or None when it is not installed or ``SHOOTFLOW_NATIVE=0`` asks for the pure reference path.
+
+    The import is tried once: a failed ``import`` searches ``sys.path`` again on every call, and this runs per
+    tile (192 times for a Pixel 3 XL DNG), which cost more than the copy it chooses between.
+    """
+
+    global _numpy_module
+    if os.environ.get("SHOOTFLOW_NATIVE", "1") == "0":
+        return None
+    if _numpy_module is None:
+        try:
+            import numpy as _numpy_module_local
+        except ImportError:
+            _numpy_module = _NUMPY_MISSING
+        else:
+            _numpy_module = _numpy_module_local
+    return None if _numpy_module is _NUMPY_MISSING else _numpy_module
 
 
 # --------------------------------------------------------------------------
@@ -964,6 +1288,68 @@ class DevelopSettings:
     # "auto": the numpy engine when numpy is importable, else pure Python;
     # "python" or "numpy" to choose. Both give the same bytes (raw_develop_np).
     engine: str = "auto"
+    # "dng": the DNG specification's colour model (dng_colour); "dcraw": one
+    # matrix nearest D65 and camera-space white balance, as dcraw and LibRaw.
+    colour: str = "dng"
+    # A .dcp camera profile (Adobe, dcamprof, RawTherapee) used in place of
+    # the DNG's own profile tags; read with ``read_dcp``. dng colour only.
+    dcp: Ifd | None = None
+    # Apply the profile's ProfileHueSatMap and ProfileLookTable (dng colour).
+    profile_tables: bool = True
+    # Apply the profile's ProfileToneCurve (with profile_tables on); off keeps
+    # the plain sRGB curve.
+    tone_curve: bool = True
+    # When the profile carries no ProfileToneCurve: "auto" applies the default
+    # curve (dng_colour.DEFAULT_TONE_KNOTS, a fit to Adobe's ACR3 default) only
+    # if the profile's ProfileToneCopyright names Adobe, as RawTherapee does;
+    # "always" applies it to every profile with no curve, as Adobe's own
+    # converters do; "never" keeps the plain sRGB curve.
+    default_tone: str = "auto"
+    # A Canon CR2's 2x2 CFA phase (RGGB, GRBG, GBRG, BGGR) when the reader
+    # cannot tell it from the picture; ignored for DNG (its CFAPattern rules).
+    cfa: str | None = None
+    # Run the DNG opcode lists' GainMap (lens shading; every Android phone
+    # DNG carries one), WarpRectilinear (lens distortion), FixVignetteRadial
+    # and MapPolynomial; other opcodes are named in the report, not run.
+    opcodes: bool = True
+    # The DNG specification's "preview quality" processing: opcodes flagged as
+    # needed only at full quality (flag bit 1) are skipped. Off by default, so a
+    # develop is full quality; the half-size review still (``still_for_review``) sets it.
+    preview_quality: bool = False
+    # How the warps (WarpRectilinear, WarpRectilinear2, WarpFisheye, lensfun's) sample their
+    # source: "bilinear" (2 x 2) or "cubic" (the 4 x 4 Catmull-Rom spline the DNG
+    # specification recommends; sharper, clipped at edges). Both engines give the same bytes.
+    # Cubic is the default since 2026-11-13 (eval/warp-kernel-fast-cubic-2026-11-13.md): with the
+    # padded-plane taps and threaded bands it costs less than bilinear did before.
+    warp_kernel: str = "cubic"
+    # How a CFA is demosaiced: "bilinear" (the 3x3 average; both engines, byte for byte), "directional"
+    # (numpy engine: ``xtrans_demosaic`` on X-Trans, four directional greens blended by smoothness along each
+    # line; ``bayer_demosaic`` on Bayer, row and column greens blended by a colour-difference test) or "auto"
+    # (directional when the numpy engine runs, else bilinear). Measured against known truth and LibRaw in
+    # eval/xtrans-directional-demosaic-2026-11-14.md and eval/bayer-directional-demosaic-2026-11-15.md.
+    demosaic: str = "auto"
+    # Lens distortion from a lensfun database (``lens_profiles.load_db``) for files whose opcode lists
+    # carry no warp of their own (or with opcodes off): lens and focal length from EXIF unless given.
+    lens_db: "LensDb | None" = None
+    lens_name: str | None = None
+    lens_focal: float | None = None
+    lens_crop: float | None = None
+    lens_fill: bool = True
+    # Correct the lens's lateral colour (lensfun TCA) with its distortion, per colour plane.
+    lens_tca: bool = True
+    # Correct the lens's vignetting (lensfun pa) as a FixVignetteRadial before the warp; aperture and subject
+    # distance from EXIF unless given (distance 1000 m when the file has none).
+    lens_vignetting: bool = True
+    lens_aperture: float | None = None
+    lens_distance: float | None = None
+    # Lens memory (lens_profiles.load_lens_memory), {lens key: lens name}: a frame whose body reports a remembered
+    # lens number gets that lens; with lens_name given, its lens is remembered under the frame's key (this dict is
+    # updated in place, and the caller saves it).
+    lens_memory: dict | None = None
+    # A Sony ARW's own lens tables (0x7037 distortion, 0x7035 lateral colour; ``sony_corrections``): applied when
+    # the file carries them and no lens database correction ran. Checked against lensfun in
+    # eval/sony-in-file-corrections-2026-11-15.md.
+    lens_in_file: bool = True
 
 
 @dataclass
@@ -979,19 +1365,58 @@ class DevelopReport:
     clipped_fraction: float
     notes: list[str] = field(default_factory=list)
     engine: str = "python"
+    colour: str = "dcraw"
+    white_xy: tuple[float, float] | None = None  # as-shot white chromaticity (dng colour)
+    cct: float | None = None  # its correlated colour temperature, kelvin
+    profile: str | None = None  # "<name>: <tables applied>" when a profile's tables were used
+    # With a lens database (settings.lens_db): the lensfun lens whose correction ran, or None when none did,
+    # and the notes about it (why none ran, or what was corrected). Both stay empty without a database.
+    lens: str | None = None
+    lens_notes: list[str] = field(default_factory=list)
+    lens_key: str | None = None  # the body's number for the lens (lens_profiles.lens_key), when it gives one
+    demosaic: str | None = None  # "bilinear", "directional" or "learned" for a CFA; None for LinearRaw
 
 
-def _cfa_pattern(ifd: Ifd) -> tuple[int, int, int, int]:
-    dims = ifd.get(TAG_CFA_REPEAT, (2, 2))
+CFA_PERIODS = (2, 6)  # Bayer 2x2 and Fujifilm X-Trans 6x6
+
+
+def _cfa_pattern(ifd: Ifd) -> tuple[int, ...]:
+    """The CFA as ``period * period`` colours, row-major; ``cfa_period`` gives the period back."""
+
+    dims = tuple(int(d) for d in ifd.get(TAG_CFA_REPEAT, (2, 2)))
     pattern = ifd.get(TAG_CFA_PATTERN)
     if pattern is None:
         raise DevelopError("CFA raw has no CFAPattern")
-    if tuple(dims) != (2, 2) or len(pattern) < 4:
-        raise DevelopError(f"only 2x2 CFA patterns are supported (found {tuple(dims)})")
-    pat = tuple(int(p) for p in pattern[:4])
+    if len(dims) != 2 or dims[0] != dims[1] or dims[0] not in CFA_PERIODS or len(pattern) < dims[0] * dims[1]:
+        raise DevelopError(f"only 2x2 (Bayer) and 6x6 (X-Trans) CFA patterns are supported (found {dims})")
+    pat = tuple(int(p) for p in pattern[: dims[0] * dims[1]])
     if sorted(set(pat)) != [0, 1, 2]:
         raise DevelopError(f"only three-colour (R, G, B) CFAs are supported (pattern {pat})")
-    return pat  # type: ignore[return-value]
+    return pat
+
+
+def cfa_period(pat) -> int:
+    """2 for a 4-entry (Bayer) pattern, 6 for a 36-entry (X-Trans) one."""
+
+    return 6 if len(pat) == 36 else 2
+
+
+def cfa_offsets(pat) -> dict[tuple[int, int, int], list[tuple[int, int]]]:
+    """For each phase (row, column modulo the period) and colour, the 3x3 offsets holding that colour, in
+    row order. Every 3x3 window of a Bayer or an X-Trans layout holds all three colours."""
+
+    p = cfa_period(pat)
+    return {
+        (py, px, colour): [
+            (dy, dx)
+            for dy in (-1, 0, 1)
+            for dx in (-1, 0, 1)
+            if pat[((py + dy) % p) * p + (px + dx) % p] == colour
+        ]
+        for py in range(p)
+        for px in range(p)
+        for colour in (0, 1, 2)
+    }
 
 
 def _colour_matrix(ifd0: Ifd, ifd: Ifd, notes: list[str]):
@@ -1020,6 +1445,283 @@ def _colour_matrix(ifd0: Ifd, ifd: Ifd, notes: list[str]):
             raise DevelopError("camera colour matrix row sums to zero")
         normalised.append(tuple(v / s for v in row))
     return _inverse3(tuple(normalised)), name
+
+
+_SRGB_WHITE_XY = dc.xyz_to_xy(dc.apply(_XYZ_TO_SRGB_D65, (1.0, 1.0, 1.0)))
+# XYZ (D50 white) to linear sRGB (D65 white): Bradford, then the sRGB primaries.
+_XYZ_D50_TO_SRGB = dc.matmul(_inverse3(_XYZ_TO_SRGB_D65), dc.bradford(dc.D50_XY, _SRGB_WHITE_XY))
+
+
+def read_dcp(path: Path | str) -> Ifd:
+    """A ``.dcp`` camera profile's tags (one IFD, TIFF layout, "RC" magic)."""
+
+    data = Path(path).read_bytes()
+    reader = _Reader(data)
+    if reader.magic != DCP_MAGIC:
+        raise DevelopError(f"{path}: not a DCP camera profile (expected IIRC or MMCR)")
+    ifd, _ = reader.read_ifd(reader.first_ifd_offset())
+    if ifd.get(TAG_COLOR_MATRIX_1) is None:
+        raise DevelopError(f"{path}: the profile has no ColorMatrix1")
+    return ifd
+
+
+def _text(values) -> str:
+    return bytes(values or b"").split(b"\0", 1)[0].decode("latin-1").strip()
+
+
+def _tables(tag, notes: list[str]):
+    """(HueSatMap1, HueSatMap2, LookTable, HueSatMap3) from the profile tags; a bad table is skipped with a note."""
+
+    out: list[dc.HueSatTable | None] = []
+    for dims_tag, data_tag, enc_tag, label in (
+        (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_1, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData1"),
+        (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_2, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData2"),
+        (TAG_LOOK_TABLE_DIMS, TAG_LOOK_TABLE_DATA, TAG_LOOK_TABLE_ENCODING, "ProfileLookTableData"),
+        (TAG_HUE_SAT_MAP_DIMS, TAG_HUE_SAT_MAP_DATA_3, TAG_HUE_SAT_MAP_ENCODING, "ProfileHueSatMapData3"),
+    ):
+        data = tag(data_tag)
+        if data is None:
+            out.append(None)
+            continue
+        try:
+            out.append(dc.HueSatTable.from_tags(tag(dims_tag), data, (tag(enc_tag) or (0,))[0]))
+        except dc.ColourError as exc:
+            notes.append(f"{label} ignored: {exc}")
+            out.append(None)
+    return out
+
+
+def _profile(ifd0: Ifd, ifd: Ifd, dcp: Ifd | None = None, notes: list[str] | None = None) -> dc.Profile | None:
+    """The file's colour tags (raw IFD first, then IFD0); None without a ColorMatrix.
+
+    With ``dcp``, the profile's own tags (matrices, illuminants, tables,
+    ProfileCalibrationSignature) come from that camera profile instead, while
+    the camera's tags (AnalogBalance, CameraCalibration and its signature)
+    still come from the DNG, as the specification's external-profile rule says.
+    """
+
+    notes = notes if notes is not None else []
+
+    def camera_tag(t):
+        return ifd.get(t) or ifd0.get(t)
+
+    def tag(t):
+        if dcp is not None and t not in (
+            TAG_CAMERA_CALIBRATION_1, TAG_CAMERA_CALIBRATION_2, TAG_CAMERA_CALIBRATION_3,
+            TAG_CAMERA_CALIBRATION_SIGNATURE, TAG_ANALOG_BALANCE,
+        ):
+            return dcp.get(t)
+        return camera_tag(t)
+
+    try:
+        cm1, cm2 = dc.as_matrix(tag(TAG_COLOR_MATRIX_1)), dc.as_matrix(tag(TAG_COLOR_MATRIX_2))
+        if cm1 is None and cm2 is None:
+            return None
+        if cm1 is None:
+            cm1, cm2, ill1, ill2 = cm2, None, (tag(TAG_ILLUMINANT_2) or (0,))[0], 0
+            cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2)), None
+            fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_2)), None
+            data_tags: tuple[int | None, int | None] = (TAG_ILLUMINANT_DATA_2, None)
+        else:
+            ill1, ill2 = (tag(TAG_ILLUMINANT_1) or (0,))[0], (tag(TAG_ILLUMINANT_2) or (0,))[0]
+            cc1, cc2 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_1)), dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_2))
+            fm1, fm2 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_1)), dc.as_matrix(tag(TAG_FORWARD_MATRIX_2))
+            data_tags = (TAG_ILLUMINANT_DATA_1, TAG_ILLUMINANT_DATA_2)
+        cm3 = dc.as_matrix(tag(TAG_COLOR_MATRIX_3)) if cm2 is not None else None
+        ill3 = (tag(TAG_ILLUMINANT_3) or (0,))[0] if cm3 is not None else 0
+        cc3 = dc.as_matrix(tag(TAG_CAMERA_CALIBRATION_3)) if cm3 is not None else None
+        fm3 = dc.as_matrix(tag(TAG_FORWARD_MATRIX_3)) if cm3 is not None else None
+    except dc.ColourError as exc:
+        raise DevelopError(str(exc)) from None
+    # IlluminantData's inner fields follow the byte order of the file that holds it.
+    order = dcp.byte_order if dcp is not None else ifd.byte_order
+    light_data: list[tuple[float, float] | None] = []
+    for code, data_tag in ((ill1, data_tags[0]), (ill2, data_tags[1]), (ill3, TAG_ILLUMINANT_DATA_3)):
+        values = tag(data_tag) if data_tag is not None and int(code) == dc.LIGHT_OTHER else None
+        xy = None
+        if values:
+            try:
+                xy = dc.parse_illuminant_data(values, order)
+            except dc.ColourError as exc:
+                notes.append(f"{exc}; that illuminant is treated as unknown")
+        light_data.append(xy)
+    ab = tag(TAG_ANALOG_BALANCE)
+    sig_cam = bytes(tag(TAG_CAMERA_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
+    sig_prof = bytes(tag(TAG_PROFILE_CALIBRATION_SIGNATURE) or b"").rstrip(b"\0")
+    if dcp is not None:
+        want, have = _text(dcp.get(TAG_UNIQUE_CAMERA_MODEL)), _text(camera_tag(TAG_UNIQUE_CAMERA_MODEL))
+        # Compared as the profile chooser compares them: Leica's RWL writes its make in
+        # capitals ('LEICA D-LUX (Typ 109)'), Adobe's profile names it 'Leica D-LUX (Typ 109)'.
+        if want and have and " ".join(want.casefold().split()) != " ".join(have.casefold().split()):
+            notes.append(f"camera profile is for {want!r}, the file is from {have!r}")
+    hsm1, hsm2, look, hsm3 = _tables(tag, notes)
+    if cm3 is None:
+        hsm3 = None
+    elif hsm3 is not None and hsm1 is not None and hsm3.dims != hsm1.dims:
+        notes.append("ProfileHueSatMapData3 ignored: its shape differs from ProfileHueSatMapData1")
+        hsm3 = None
+    if hsm1 is not None and hsm2 is not None and hsm1.dims != hsm2.dims:
+        notes.append("ProfileHueSatMapData2 ignored: its shape differs from ProfileHueSatMapData1")
+        hsm2 = None
+    if hsm1 is None and hsm2 is not None:
+        hsm1, hsm2 = hsm2, None
+    return dc.Profile(
+        color_matrix_1=cm1,
+        color_matrix_2=cm2,
+        illuminant_1=int(ill1),
+        illuminant_2=int(ill2),
+        camera_calibration_1=cc1,
+        camera_calibration_2=cc2,
+        forward_matrix_1=fm1,
+        forward_matrix_2=fm2,
+        analog_balance=(float(ab[0]), float(ab[1]), float(ab[2])) if ab and len(ab) >= 3 and min(ab[:3]) > 0 else (1.0, 1.0, 1.0),
+        use_calibration=sig_cam == sig_prof,
+        hue_sat_map_1=hsm1,
+        hue_sat_map_2=hsm2,
+        look_table=look,
+        color_matrix_3=cm3,
+        illuminant_3=int(ill3),
+        camera_calibration_3=cc3,
+        forward_matrix_3=fm3,
+        hue_sat_map_3=hsm3,
+        illuminant_data_1=light_data[0],
+        illuminant_data_2=light_data[1],
+        illuminant_data_3=light_data[2],
+    )
+
+
+def _dng_colour(profile: dc.Profile, neutral_hat, white_xy, notes: list[str]):
+    """Matrix from white-balanced camera RGB to linear sRGB, by the DNG model.
+
+    ``neutral_hat`` is the camera neutral scaled to a largest value of 1; the
+    developer multiplies sensels by ``1 / neutral_hat`` before this matrix, so
+    the matrix takes back that scaling: ``sRGB = XYZ_D50->sRGB *
+    CameraToXYZ_D50 * diag(neutral_hat)``. A white-balanced (1, 1, 1) is
+    the neutral and renders as sRGB white.
+    """
+
+    try:
+        cam_xyz, xy, cct, used_fm = profile.camera_to_xyz_d50(neutral_hat, white_xy)
+    except dc.ColourError as exc:
+        raise DevelopError(str(exc)) from None
+    m = dc.matmul(dc.matmul(_XYZ_D50_TO_SRGB, cam_xyz), dc.diag(neutral_hat))
+    base = "ForwardMatrix" if used_fm else "ColorMatrix"
+    t1 = dc.illuminant_temperature(profile.illuminant_1, profile.illuminant_data_1)
+    problem = profile.triple_problem()
+    if problem:
+        notes.append(problem)
+    if profile.is_triple():
+        w = profile.weights_for_white(xy)
+        # A weight under 0.05% is left out of the name, as in the two-illuminant case.
+        which = "+".join(str(i + 1) for i, v in enumerate(w) if v > 0.0005)
+        name = f"{base}{which} at {cct:.0f} K (weights {w[0]:.2f}/{w[1]:.2f}/{w[2]:.2f})"
+        hsms = (profile.hue_sat_map_1, profile.hue_sat_map_2, profile.hue_sat_map_3)
+        if any(h is not None for h in hsms) and not all(h is not None for h in hsms):
+            notes.append("ProfileHueSatMapData is not present for all three illuminants: blended by temperature from the first two")
+    elif profile.color_matrix_2 is not None and profile._pair() is not None:
+        g = profile.weight(cct)
+        # Within 0.05% of one end (a white a few kelvin off the illuminant's
+        # nominal temperature) the name says that end.
+        which = "1" if g >= 0.9995 else ("2" if g <= 0.0005 else "1+2")
+        name = f"{base}{which} at {cct:.0f} K"
+    else:
+        name = f"{base}1"
+        if profile.color_matrix_2 is not None:
+            notes.append("calibration illuminants unknown or equal: ColorMatrix1 used alone")
+        elif t1:
+            name += f" ({dc.illuminant_name(profile.illuminant_1)})"
+    if not profile.use_calibration and (profile.camera_calibration_1 or profile.camera_calibration_2):
+        notes.append("CameraCalibration ignored: its signature does not match the profile's")
+    return m, name, xy, cct
+
+
+_PROPHOTO_TO_SRGB = dc.matmul(_XYZ_D50_TO_SRGB, dc.PROPHOTO_TO_XYZ_D50)
+
+
+def _tone_curve(src: Ifd, settings: DevelopSettings, notes: list[str]):
+    """(ToneCurve or None, report label part or None) for the profile's ProfileToneCurve."""
+
+    values = src.get(TAG_PROFILE_TONE_CURVE)
+    if not values:
+        return _default_tone(src, settings, notes)
+    try:
+        tone = dc.ToneCurve.from_tags(values)
+    except dc.ColourError as exc:
+        notes.append(f"ProfileToneCurve ignored: {exc}")
+        return None, None
+    label = f"ToneCurve {tone.points} points"
+    if not settings.tone_curve:
+        notes.append("ProfileToneCurve present but not applied (tone_curve off)")
+        return None, label + " off"
+    if tone.is_identity():
+        return None, label + " (identity)"
+    return tone, label
+
+
+DEFAULT_TONE_MODES = ("auto", "always", "never")
+
+
+def _wants_default_tone(src: Ifd, settings: DevelopSettings) -> bool:
+    mode = settings.default_tone
+    if mode not in DEFAULT_TONE_MODES:
+        raise DevelopError(f"default_tone must be one of {', '.join(DEFAULT_TONE_MODES)}, not {mode!r}")
+    if mode == "never" or src.get(TAG_PROFILE_TONE_CURVE):
+        return False
+    if mode == "always":
+        return True
+    return "adobe" in (_text(src.get(TAG_PROFILE_TONE_COPYRIGHT)) or "").lower()
+
+
+def _default_tone(src: Ifd, settings: DevelopSettings, notes: list[str]):
+    """(ToneCurve or None, label or None) when the profile has no ProfileToneCurve."""
+
+    if not _wants_default_tone(src, settings):
+        return None, None
+    if not settings.tone_curve:
+        notes.append("default tone curve not applied (tone_curve off)")
+        return None, "default ToneCurve off"
+    return dc.default_tone_curve(), "default ToneCurve (ACR3 fit)"
+
+
+def _profile_look(
+    profile: dc.Profile, settings: DevelopSettings, ifd0: Ifd, cct, gain: float, notes: list[str], white_xy=None
+):
+    """(ProfileLook or None, report label) for the profile's tables and tone curve."""
+
+    if white_xy is not None:
+        hsm = profile.hue_sat_map_for_white(white_xy)
+    else:
+        hsm = profile.hue_sat_map_at(cct) if cct else profile.hue_sat_map_1
+    lt = profile.look_table
+    src = settings.dcp if settings.dcp is not None else ifd0
+    name = _text(src.get(TAG_PROFILE_NAME)) or ("camera profile" if settings.dcp is not None else "embedded profile")
+    has_tone = bool(src.get(TAG_PROFILE_TONE_CURVE)) or _wants_default_tone(src, settings)
+    if hsm is None and lt is None and not has_tone:
+        return None, (name if settings.dcp is not None else None)
+    if not settings.profile_tables:
+        notes.append("profile tables present but not applied (profile_tables off)")
+        return None, f"{name}: tables off"
+    parts = []
+    if hsm is not None:
+        parts.append("HueSatMap {}x{}x{}".format(*hsm.dims))
+        if hsm.is_identity():
+            hsm = None
+    if lt is not None:
+        parts.append("LookTable {}x{}x{}".format(*lt.dims))
+        if lt.is_identity():
+            lt = None
+    tone, tone_label = _tone_curve(src, settings, notes)
+    if tone_label:
+        parts.append(tone_label)
+    if not parts:
+        return None, (name if settings.dcp is not None else None)
+    label = f"{name}: " + ", ".join(parts)
+    if hsm is None and lt is None and tone is None:
+        # Nothing left to apply: every table is the identity, and the tone
+        # curve is absent, the identity or switched off.
+        tone_off = tone_label is not None and tone_label.endswith(" off")
+        return None, label + ("" if tone_off else " (identity)")
+    return dc.ProfileLook(hsm, lt, gain, _PROPHOTO_TO_SRGB, tone), label
 
 
 def _levels(raw: RawImage, top: int, left: int, h: int, w: int, colours: int):
@@ -1063,7 +1765,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
 
     settings = settings or DevelopSettings()
     ifd, ifd0 = raw.ifd, raw.ifd0
-    notes: list[str] = []
+    notes: list[str] = list(raw.notes)
     photometric = ifd.one(TAG_PHOTOMETRIC)
     linear_raw = photometric == PHOTOMETRIC_LINEAR_RAW
     if linear_raw and raw.samples_per_pixel != 3:
@@ -1080,7 +1782,47 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     h, w = bottom - top, right - left
     lin, black, dh, dv, white, rr, rc = _levels(raw, top, left, h, w, 3)
 
+    if settings.colour not in ("dng", "dcraw"):
+        raise DevelopError(f"unknown colour model {settings.colour!r} (dng or dcraw)")
     neutral = ifd.get(TAG_AS_SHOT_NEUTRAL) or ifd0.get(TAG_AS_SHOT_NEUTRAL)
+    white_xy_tag = ifd.get(TAG_AS_SHOT_WHITE_XY) or ifd0.get(TAG_AS_SHOT_WHITE_XY)
+    if settings.dcp is not None and settings.colour != "dng":
+        raise DevelopError("a DCP camera profile needs the dng colour model")
+    profile = _profile(ifd0, ifd, settings.dcp, notes) if settings.colour == "dng" else None
+    if settings.dcp is not None and profile is None:
+        raise DevelopError("the camera profile has no ColorMatrix1")
+    if raw.source in ("crw", "cr2", "cr3", "arw", "nef", "orf", "rw2", "srw", "pef", "raf") and profile is None:
+        example = {
+            "crw": "Canon EOS 10D",
+            "cr2": "Canon EOS 5D Mark II",
+            "cr3": "Canon EOS R8",
+            "arw": "Sony ILCE-7M3",
+            "nef": "Nikon D810",
+            "orf": "Olympus E-M10",
+            "rw2": "Panasonic DMC-GF7",
+            "srw": "Samsung NX1",
+            "pef": "Pentax K-1 Mark II",
+            "raf": "Fujifilm X-E1",
+        }[raw.source]
+        raise DevelopError(
+            f"a{'n' if raw.source in ('arw', 'nef', 'orf', 'rw2', 'srw') else ''} {raw.source.upper()} carries no colour matrix: pass the camera's "
+            f".dcp profile with --dcp (Adobe's free DNG Converter installs one per camera, e.g. '{example} Adobe "
+            "Standard.dcp' under CameraRaw/CameraProfiles), or convert the file to DNG"
+        )
+    given_xy = None
+    if (
+        profile is not None
+        and settings.white_balance is None
+        and not (neutral and len(neutral) >= 3 and min(neutral[:3]) > 0)
+        and white_xy_tag
+        and len(white_xy_tag) >= 2
+    ):
+        # AsShotWhiteXY: the white is known; its camera neutral follows from the profile.
+        given_xy = (float(white_xy_tag[0]), float(white_xy_tag[1]))
+        try:
+            neutral = profile.xy_to_neutral(given_xy)
+        except dc.ColourError as exc:
+            raise DevelopError(str(exc)) from None
     if settings.white_balance is not None:
         wb = tuple(float(v) for v in settings.white_balance)
     elif neutral and len(neutral) >= 3 and min(neutral[:3]) > 0:
@@ -1090,20 +1832,114 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     else:
         wb = (1.0, 1.0, 1.0)
         if ifd.get(TAG_AS_SHOT_WHITE_XY) or ifd0.get(TAG_AS_SHOT_WHITE_XY):
-            notes.append("AsShotWhiteXY is not used; rendered without white balance")
+            notes.append("AsShotWhiteXY is used only by the dng colour model; rendered without white balance")
         else:
             notes.append("no AsShotNeutral; rendered without white balance")
-    rgb_cam, matrix_name = _colour_matrix(ifd0, ifd, notes)
+    white_xy = cct = None
+    if profile is not None:
+        lo_wb = min(wb)
+        neutral_hat = tuple(lo_wb / v for v in wb)
+        rgb_cam, matrix_name, white_xy, cct = _dng_colour(
+            profile, neutral_hat, given_xy if settings.white_balance is None else None, notes
+        )
+        colour_model = "dng"
+    else:
+        rgb_cam, matrix_name = _colour_matrix(ifd0, ifd, notes)
+        colour_model = "dcraw"
     ev = settings.exposure_ev
     if settings.use_baseline_exposure:
         base = ifd0.get(TAG_BASELINE_EXPOSURE) or ifd.get(TAG_BASELINE_EXPOSURE)
         if base:
             ev += float(base[0])
+        if profile is not None:
+            # A profile's own exposure offset rides with it (DNG 1.4).
+            src = settings.dcp if settings.dcp is not None else ifd0
+            offset = src.get(TAG_BASELINE_EXPOSURE_OFFSET)
+            if offset:
+                ev += float(offset[0])
     gain = 2.0**ev
+    look, profile_label = None, None
+    if profile is not None:
+        look, profile_label = _profile_look(profile, settings, ifd0, cct, gain, notes, white_xy)
+        if look is not None:
+            # Camera to ProPhoto here; the look's own matrix takes ProPhoto to sRGB.
+            rgb_cam = dc.matmul(dc.inverse(look.out), rgb_cam)
 
     spp = raw.samples_per_pixel
     vals = raw.values
     rw = raw.width
+    gain_maps: list = []
+    warps: list = []
+    if raw.source == "dng":
+        op_plan = dng_opcodes.plan(ifd, ifd0, cfa=not linear_raw, preview=settings.preview_quality)
+        if settings.opcodes:
+            gain_maps = op_plan.stage2  # GainMap, FixVignetteRadial, MapPolynomial, in list order
+            warps = op_plan.stage3  # WarpRectilinear, FixVignetteRadial, MapPolynomial, in list order
+            notes.extend(op_plan.notes)
+            if op_plan.stage1 and spp == 1:
+                # FixBadPixels in OpcodeList1, on the stored values (a copy) before anything reads them.
+                vals = dng_opcodes.run_stage1(op_plan.stage1, vals, rw, raw.height, notes)
+        elif op_plan.notes:
+            notes.append("opcode lists not run (opcodes off)")
+    lens_used: str | None = None
+    lens_key: str | None = None
+    lens_notes: list[str] = []
+    if settings.lens_db is not None:
+        if any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
+            lens_notes.append("lens database not used: the file carries its own lens warp")
+        else:
+            from shootflow import lens_profiles
+
+            try:
+                corr = lens_profiles.correction_for(
+                    settings.lens_db, lens_profiles.shot_info(ifd0, raw.exif, raw.lens_hint), w, h,
+                    lens_name=settings.lens_name, focal=settings.lens_focal, crop=settings.lens_crop,
+                    fill=settings.lens_fill, tca=settings.lens_tca, vignetting=settings.lens_vignetting,
+                    aperture=settings.lens_aperture, distance=settings.lens_distance,
+                    memory=settings.lens_memory,
+                )
+            except lens_profiles.LensProfileError as exc:
+                lens_notes.append(f"no lens correction: {exc}")
+            else:
+                warps = list(warps) + corr.opcodes()
+                lens_used = corr.lens.name
+                lens_key = corr.lens_key
+                lens_notes.extend(corr.notes)
+                memory = settings.lens_memory
+                if memory is not None and settings.lens_name and corr.lens_key and \
+                        memory.get(corr.lens_key) != corr.lens.name:
+                    memory[corr.lens_key] = corr.lens.name
+                    lens_notes.append(f"lens memory: {corr.lens_key} is now {corr.lens.name}")
+        notes.extend(lens_notes)
+    if settings.lens_in_file and raw.source == "arw" and lens_used is None and \
+            not any(isinstance(op, dng_opcodes.WARP_TYPES) for op in warps):
+        from shootflow import sony_corrections
+
+        own = sony_corrections.from_ifd(ifd)
+        if own is not None and own.distortion:
+            try:
+                crop = ifd.get(0xC620)  # DefaultCropSize
+                picture = (int(crop[0]), int(crop[1])) if crop and len(crop) == 2 else None
+                warp, _zoom, own_notes = sony_corrections.build_warp(own, w, h, fill=settings.lens_fill,
+                                                                     tca=settings.lens_tca, picture=picture)
+            except (ValueError, ArithmeticError) as exc:
+                own_notes = [f"Sony in-file lens tables not used: {exc}"]
+            else:
+                warps = list(warps) + [warp]
+                lens_used = "Sony in-file corrections"
+            lens_notes.extend(own_notes)
+            notes.extend(own_notes)
+    # TrimBounds: each opcode after a trim runs on its frame, and the output is cropped to the last one.
+    half_f = 0.5 if (settings.half and not linear_raw) else 1.0
+    stage3_w, stage3_h = (w // 2, h // 2) if half_f != 1.0 else (w, h)
+    trim = (0, 0, stage3_h, stage3_w)
+    if gain_maps or warps:
+        gain_maps, (t2, l2, h2, w2) = dng_opcodes.frame_trims(gain_maps, h, w, "OpcodeList2", notes)
+        t3, l3 = int(t2 * half_f), int(l2 * half_f)
+        start3 = (t3, l3, min(int((t2 + h2) * half_f), stage3_h) - t3, min(int((l2 + w2) * half_f), stage3_w) - l3)
+        warps, trim = dng_opcodes.frame_trims(
+            warps, stage3_h, stage3_w, "OpcodeList3", notes, start=start3, factor=half_f
+        )
     # Normalised 0..1 sample for active-area pixel (y, x), sample s.
     # Each CFA position's black is subtracted and its own span to white scaled
     # to 1, so per-channel blacks do not tint the picture.
@@ -1122,7 +1958,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     if pat is None:
         caplines = [[lo_wb / wb[s % 3] for s in range(w * spp)]] * 2
     else:
-        caplines = [[lo_wb / wb[pat[py * 2 + (x % 2)]] for x in range(w)] for py in (0, 1)]
+        period = cfa_period(pat)
+        caplines = [[lo_wb / wb[pat[py * period + (x % period)]] for x in range(w)] for py in range(period)]
 
     def norm_row(y: int) -> list[float]:
         start = ((top + y) * rw + left) * spp
@@ -1133,7 +1970,7 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         b = black[y % rr]
         sp = span[y % rr]
         dvy = float(dv[y]) if y < len(dv) else 0.0
-        caps = caplines[y % 2]
+        caps = caplines[y % len(caplines)]
         if spp == 1 and rc == 1 and not dh:
             off = b[0][0] + dvy
             sc = scale[0]
@@ -1146,6 +1983,9 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                 sx = sp[x % rc]
                 for s in range(spp):
                     out[x * spp + s] = (row[x * spp + s] - bx[s] - dvy - dhx) * sx[s]
+        if gain_maps:
+            out = [0.0 if v < 0.0 else (1.0 if v > 1.0 else v) for v in out]
+            dng_opcodes.apply_row(gain_maps, y, out, h, w, spp)
         nonlocal clipped
         clipped += sum(1 for v, c in zip(out, caps) if v >= c)
         return [0.0 if v < 0.0 else (c if v > c else v) for v, c in zip(out, caps)]
@@ -1159,6 +1999,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
     lut_size = 4096
     curve = [round(_srgb_curve(i / (lut_size - 1)) * 65535) for i in range(lut_size)]
 
+    look_apply = look.apply if look is not None else None
+
     def encode(r: float, g: float, b: float, out: array) -> None:
         r = hi if r > hi else (0.0 if r < 0 else r)
         g = hi if g > hi else (0.0 if g < 0 else g)
@@ -1166,6 +2008,8 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         x = m[0][0] * r + m[0][1] * g + m[0][2] * b
         yv = m[1][0] * r + m[1][1] * g + m[1][2] * b
         z = m[2][0] * r + m[2][1] * g + m[2][2] * b
+        if look_apply is not None:
+            x, yv, z = look_apply(x, yv, z)
         for v in (x, yv, z):
             if v <= 0:
                 out.append(0)
@@ -1174,30 +2018,61 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
             else:
                 out.append(curve[int(v * (lut_size - 1) + 0.5)])
 
+    # With a WarpRectilinear to run, the white-balanced linear values (clipped as
+    # ``encode`` clips them) are kept, warped, and only then encoded: the warp
+    # resamples, which must happen in linear light, before the colour matrix's
+    # look tables and the sRGB curve. The white balance and the matrix are
+    # linear, so warping after the white balance gives what warping the camera
+    # values would.
+    lin_rgb = array("d")  # filled only when there is a warp
+
+    def collect(r: float, g: float, b: float, _out: array) -> None:
+        lin_rgb.append(hi if r > hi else (0.0 if r < 0 else r))
+        lin_rgb.append(hi if g > hi else (0.0 if g < 0 else g))
+        lin_rgb.append(hi if b > hi else (0.0 if b < 0 else b))
+
+    emit = collect if warps else encode
+
     cfa_name = "LinearRaw" if pat is None else "".join("RGB"[c] for c in pat)
     np_engine = _numpy_engine(settings.engine) if (w >= 2 and h >= 2) else None
     if settings.engine == "numpy" and np_engine is None:
         raise DevelopError("engine 'numpy' needs numpy and an image at least 2x2")
+    demosaic = _demosaic_method(settings.demosaic, pat, np_engine is not None, w, h, notes)
+    noise = None
+    if demosaic == "noise-aware":
+        noise = noise_profile_planes(ifd, ifd0)
+        if noise is None:
+            notes.append("noise-aware demosaic needs the file's NoiseProfile (DNG): used the directional one")
+            demosaic = "directional"
     if np_engine is not None:
-        return _develop_numpy(
+        nw, nh, npx, report = _develop_numpy(
             np_engine, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name,
+            colour=(colour_model, white_xy, cct, profile_label),
             vals=vals, rw=rw, top=top, left=left, w=w, h=h, spp=spp, lin=lin, black_=black, span=span,
             dh=dh, dv=dv, rr=rr, rc=rc, caplines=caplines, linear_raw=linear_raw, pat=pat,
             half=settings.half, mults=(wbr, wbg, wbb), hi=hi, m=m, curve=curve, lut_size=lut_size,
+            look=look, gain_maps=gain_maps, warps=warps, trim=trim, warp_kernel=settings.warp_kernel,
+            demosaic=demosaic or "bilinear", noise=noise,
         )
+        report.lens, report.lens_notes, report.lens_key = lens_used, lens_notes, lens_key
+        report.demosaic = demosaic
+        return nw, nh, npx, report
 
     out = array("H")
     if linear_raw:
         for y in range(h):
             row = norm_row(y)
             for x in range(w):
-                encode(row[3 * x] * wbr, row[3 * x + 1] * wbg, row[3 * x + 2] * wbb, out)
+                emit(row[3 * x] * wbr, row[3 * x + 1] * wbg, row[3 * x + 2] * wbb, out)
         ow, oh = w, h
     else:
         assert pat is not None
         # Pattern phase is relative to the active area (DNG spec, ActiveArea).
         mults = (wbr, wbg, wbb)
-        if settings.half:
+        if settings.half and cfa_period(pat) != 2:
+            ow, oh = w // 2, h // 2
+            _half_from_full(norm_row, w, h, pat, mults, hi, emit, out)
+        elif settings.half:
             ow, oh = w // 2, h // 2
             for by in range(oh):
                 r0 = norm_row(2 * by)
@@ -1210,30 +2085,27 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
                             c = pat[dy * 2 + dx]
                             acc[c] += row[2 * bx + dx]
                             cnt[c] += 1
-                    encode(
+                    emit(
                         acc[0] / cnt[0] * mults[0],
                         acc[1] / cnt[1] * mults[1],
                         acc[2] / cnt[2] * mults[2],
                         out,
                     )
+            if h % 2:
+                # The odd last row is not binned, but its clipped sensels count,
+                # as on the numpy engine (which normalises every row).
+                norm_row(h - 1)
         else:
             ow, oh = w, h
-            _bilinear(norm_row, w, h, pat, mults, encode, out)
+            _bilinear(norm_row, w, h, pat, mults, emit, out)
 
-    report_w, report_h = ow, oh
-    # Default crop (relative to the active area), in output pixels.
-    origin = ifd.get(TAG_CROP_ORIGIN)
-    size = ifd.get(TAG_CROP_SIZE)
-    if origin and size and len(origin) == 2 and len(size) == 2:
-        f = 0.5 if (settings.half and not linear_raw) else 1.0
-        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
-        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
-        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
-            if (cx, cy, cw, ch) != (0, 0, ow, oh):
-                out = _crop(out, ow, cx, cy, cw, ch)
-                report_w, report_h = cw, ch
-        else:
-            notes.append("DefaultCrop lies outside the image and was ignored")
+    if warps:
+        lin_rgb = dng_opcodes.run_stage3_rgb(warps, lin_rgb, ow, oh, (wbr, wbg, wbb), settings.warp_kernel)
+        for i in range(0, len(lin_rgb), 3):
+            encode(lin_rgb[i], lin_rgb[i + 1], lin_rgb[i + 2], out)
+        del lin_rgb
+
+    out, report_w, report_h = _trim_and_crop(out, ow, oh, trim, ifd, settings, linear_raw, notes, _crop)
     orientation = ifd0.one(TAG_ORIENTATION, 1)
     out, report_w, report_h = _orient(out, report_w, report_h, orientation)
     total = max(1, w * h * spp)
@@ -1248,8 +2120,106 @@ def develop(raw: RawImage, settings: DevelopSettings | None = None) -> tuple[int
         exposure_ev=round(ev, 3),
         clipped_fraction=round(clipped / total, 6),
         notes=notes,
+        colour=colour_model,
+        white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
+        cct=None if cct is None else round(cct, 1),
+        profile=profile_label,
+        lens=lens_used,
+        lens_key=lens_key,
+        lens_notes=lens_notes,
+        demosaic=demosaic,
     )
     return report_w, report_h, out, report
+
+
+DEMOSAICS = ("auto", "bilinear", "directional", "learned", "noise-aware")
+
+
+def noise_profile(ifd, ifd0=None) -> tuple[float, float] | None:
+    """The DNG NoiseProfile (tag 51041) as one (shot, read) pair, variance = shot * x + read for a signal x
+    normalised to 0..1 (black 0, white 1): the mean over the colour planes when it gives one pair per plane.
+    None when the file has none or it is malformed: an odd count, or a pair outside the DNG 1.7.1.0 rule
+    "each S_i term must be positive (S_i > 0), and each O_i term must be non-negative (O_i >= 0)". A read
+    term of exactly 0 is legal and common: 14 of the 83 CFA DNG profiles checked on raw.pixls.us write one
+    (Samsung, OnePlus, Xiaomi, LG, asus); until 2026-11-16 they were refused (eval/noise-profile-real-dngs-2026-11-16.md)."""
+
+    for d in (ifd, ifd0):
+        if d is None:
+            continue
+        v = d.get(TAG_NOISE_PROFILE)
+        if not v or len(v) % 2:
+            continue
+        pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
+            continue
+        return sum(p[0] for p in pairs) / len(pairs), sum(p[1] for p in pairs) / len(pairs)
+    return None
+
+
+def noise_profile_planes(ifd, ifd0=None) -> list[tuple[float, float]] | None:
+    """The DNG NoiseProfile as one (shot, read) pair per colour, R, G, B (``noise_profile``'s rules). DNG 1.7.1.0
+    gives either one pair for every plane or one per CFA plane, in the order of CFAPlaneColor (tag 50710,
+    default 0, 1, 2); a single pair is repeated. Ten of 83 real CFA DNGs write pairs that differ between
+    planes (six Google Pixels, a Lightroom D80, two Xiaomis, an asus; eval/noise-profile-real-dngs-2026-11-16.md).
+    None when there is no usable profile, or its planes do not name R, G and B once each."""
+
+    for d in (ifd, ifd0):
+        if d is None:
+            continue
+        v = d.get(TAG_NOISE_PROFILE)
+        if not v or len(v) % 2:
+            continue
+        pairs = [(float(v[i]), float(v[i + 1])) for i in range(0, len(v), 2)]
+        if any(not sh > 0 or not rd >= 0 for sh, rd in pairs):
+            continue
+        if len(pairs) == 1:
+            return pairs * 3
+        plane_colours = d.get(TAG_CFA_PLANE_COLOR) or (ifd.get(TAG_CFA_PLANE_COLOR) if ifd is not None else None)
+        colours = [int(x) for x in (plane_colours or (0, 1, 2))]
+        if len(colours) != len(pairs) or sorted(colours) != [0, 1, 2]:
+            return None
+        by_colour = dict(zip(colours, pairs))
+        return [by_colour[0], by_colour[1], by_colour[2]]
+    return None
+
+
+def _demosaic_method(choice: str, pat, numpy_engine: bool, w: int, h: int, notes: list[str]) -> str | None:
+    """The demosaic a CFA gets ("bilinear" or "directional"); None for LinearRaw. "auto" is directional
+    whenever the numpy engine runs: on X-Trans at full and half size (X-Trans half size demosaics at
+    full size, then averages; eval/xtrans-directional-demosaic-2026-11-14.md), and on Bayer at full size
+    since 2026-11-15 (eval/bayer-directional-demosaic-2026-11-15.md; Bayer half size bins each 2x2
+    block and demosaics nothing). "learned" (opt-in, Bayer): the directional demosaic with a per-sensel
+    Laplacian weight from a fitted model, 0.01-0.39 dB colour and 0.02-0.66 dB luma above the default on
+    ten held-out frames, at 4-6x the time (eval/bayer-learned-laplace-2026-11-16.md); in C since 2026-11-16,
+    bit-identical, 2.6-3.3x the default's time (eval/bayer-learned-native-2026-11-16.md). "noise-aware"
+    (opt-in, both CFAs, 2026-11-16): the directional result blended toward bilinear block by block where it
+    adds less than the sensor noise the DNG's NoiseProfile states; without one, ``develop`` falls back to
+    directional (eval/xtrans-noise-aware-blend-2026-11-16.md)."""
+
+    if choice not in DEMOSAICS:
+        raise DevelopError(f"unknown demosaic {choice!r} ({', '.join(DEMOSAICS)})")
+    if pat is None:
+        return None
+    xtrans = cfa_period(pat) == 6
+    least = 6 if xtrans else 2
+    if choice == "bilinear":
+        return "bilinear"
+    if choice in ("directional", "learned", "noise-aware"):
+        if not numpy_engine:
+            raise DevelopError(f"the {choice} demosaic needs the numpy engine (numpy installed)")
+        if w < least or h < least:
+            raise DevelopError(f"the {choice} demosaic needs at least {least} x {least} sensels")
+        if choice == "learned" and xtrans:
+            notes.append("learned demosaic is for Bayer sensors: X-Trans uses the directional one")
+            return "directional"
+        return choice
+    # auto
+    if w >= least and h >= least:
+        if numpy_engine:
+            return "directional"
+        if xtrans:  # (Bayer: report.demosaic says "bilinear"; its half size demosaics nothing, so no note)
+            notes.append("bilinear X-Trans demosaic: the directional one needs the numpy engine")
+    return "bilinear"
 
 
 def _numpy_engine(engine: str):
@@ -1264,25 +2234,18 @@ def _numpy_engine(engine: str):
     return raw_develop_np
 
 
-def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name, **kw):
+def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, cfa_name, matrix_name, colour, **kw):
     """``develop``'s rendering half on the numpy engine; same bytes as the pure path."""
 
+    colour_model, white_xy, cct, profile_label = colour
+
     black_ = kw.pop("black_")
-    pixels, ow, oh, clipped = eng.render(black=black_, **kw)
+    trim = kw.pop("trim")
+    pixels, ow, oh, clipped = eng.render(black=black_, notes=notes, **kw)
     linear_raw, w, h, spp = kw["linear_raw"], kw["w"], kw["h"], kw["spp"]
-    report_w, report_h = ow, oh
-    origin = ifd.get(TAG_CROP_ORIGIN)
-    size = ifd.get(TAG_CROP_SIZE)
-    if origin and size and len(origin) == 2 and len(size) == 2:
-        f = 0.5 if (settings.half and not linear_raw) else 1.0
-        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
-        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
-        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
-            if (cx, cy, cw, ch) != (0, 0, ow, oh):
-                pixels = eng.crop(pixels, cx, cy, cw, ch)
-                report_w, report_h = cw, ch
-        else:
-            notes.append("DefaultCrop lies outside the image and was ignored")
+    pixels, report_w, report_h = _trim_and_crop(
+        pixels, ow, oh, trim, ifd, settings, linear_raw, notes, lambda p, _w, cx, cy, cw, ch: eng.crop(p, cx, cy, cw, ch)
+    )
     orientation = ifd0.one(TAG_ORIENTATION, 1)
     if orientation in range(2, 9):
         pixels = eng.orient(pixels, orientation)
@@ -1301,6 +2264,10 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
         clipped_fraction=round(clipped / total, 6),
         notes=notes,
         engine="numpy",
+        colour=colour_model,
+        white_xy=None if white_xy is None else (round(white_xy[0], 5), round(white_xy[1], 5)),
+        cct=None if cct is None else round(cct, 1),
+        profile=profile_label,
     )
     return report_w, report_h, eng.to_array(pixels), report
 
@@ -1308,18 +2275,9 @@ def _develop_numpy(eng, raw, settings, ifd, ifd0, notes, wb, ev, black, white, c
 def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
     """Bilinear demosaic, three rows in memory at a time."""
 
-    # For each phase (row parity, column parity) and colour, the 3x3 offsets
-    # holding that colour.
-    offsets: dict[tuple[int, int, int], list[tuple[int, int]]] = {}
-    for py in (0, 1):
-        for px in (0, 1):
-            for colour in (0, 1, 2):
-                offsets[(py, px, colour)] = [
-                    (dy, dx)
-                    for dy in (-1, 0, 1)
-                    for dx in (-1, 0, 1)
-                    if pat[((py + dy) % 2) * 2 + (px + dx) % 2] == colour
-                ]
+    # For each phase (row, column modulo the CFA period) and colour, the 3x3 offsets holding that colour.
+    offsets = cfa_offsets(pat)
+    p = cfa_period(pat)
     rows = {0: norm_row(0)}
     if h > 1:
         rows[1] = norm_row(1)
@@ -1327,10 +2285,10 @@ def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
         if y + 1 < h and (y + 1) not in rows:
             rows[y + 1] = norm_row(y + 1)
         rows.pop(y - 2, None)
-        py = y % 2
+        py = y % p
         for x in range(w):
-            px = x % 2
-            own = pat[py * 2 + px]
+            px = x % p
+            own = pat[py * p + px]
             rgb = [0.0, 0.0, 0.0]
             for colour in (0, 1, 2):
                 if colour == own:
@@ -1350,6 +2308,70 @@ def _bilinear(norm_row, w, h, pat, mults, encode, out) -> None:
                         n += 1
                 rgb[colour] = total / n if n else 0.0
             encode(rgb[0] * mults[0], rgb[1] * mults[1], rgb[2] * mults[2], out)
+
+
+def _half_from_full(norm_row, w, h, pat, mults, hi, emit, out) -> None:
+    """Half size for a CFA whose 2x2 blocks do not each hold R, G and B (X-Trans): demosaic at full size,
+    clip each white-balanced pixel as ``encode`` does, then average each 2x2 block, summed in row order from
+    0.0, and divide by 4. The odd last row and column are dropped, as the Bayer half path drops them."""
+
+    ow, oh = w // 2, h // 2
+    full = array("d")
+
+    def keep(r: float, g: float, b: float, _out) -> None:
+        full.append(hi if r > hi else (0.0 if r < 0 else r))
+        full.append(hi if g > hi else (0.0 if g < 0 else g))
+        full.append(hi if b > hi else (0.0 if b < 0 else b))
+
+    _bilinear(norm_row, w, h, pat, (mults[0], mults[1], mults[2]), keep, None)
+    for by in range(oh):
+        r0 = 2 * by * w * 3
+        r1 = r0 + w * 3
+        for bx in range(ow):
+            a, b = r0 + 6 * bx, r1 + 6 * bx
+            px = []
+            for s in range(3):
+                t = 0.0 + full[a + s]
+                t = t + full[a + 3 + s]
+                t = t + full[b + s]
+                t = t + full[b + 3 + s]
+                px.append(t / 4.0)
+            emit(px[0], px[1], px[2], out)
+
+
+def _trim_and_crop(pixels, ow, oh, trim, ifd, settings, linear_raw, notes, crop):
+    """Crop the output to the TrimBounds frame ``trim``, then to the DefaultCrop; returns ``(pixels, w, h)``.
+
+    The DefaultCrop is relative to the active area (DNG 1.4), so after a trim
+    it moves by the trim's top-left and is cut to the trimmed image
+    (``dng_opcodes`` docstring, TrimBounds).
+    """
+
+    ty, tx, th, tw = trim
+    trimmed = (ty, tx, th, tw) != (0, 0, oh, ow)
+    if trimmed:
+        pixels = crop(pixels, ow, tx, ty, tw, th)
+        ow, oh = tw, th
+    origin = ifd.get(TAG_CROP_ORIGIN)
+    size = ifd.get(TAG_CROP_SIZE)
+    if origin and size and len(origin) == 2 and len(size) == 2:
+        f = 0.5 if (settings.half and not linear_raw) else 1.0
+        cx, cy = int(round(float(origin[0]) * f)), int(round(float(origin[1]) * f))
+        cw, ch = int(round(float(size[0]) * f)), int(round(float(size[1]) * f))
+        if trimmed and cw > 0 and ch > 0:
+            x0, y0 = max(cx - tx, 0), max(cy - ty, 0)
+            x1, y1 = min(cx - tx + cw, ow), min(cy - ty + ch, oh)
+            if x1 > x0 and y1 > y0:
+                cx, cy, cw, ch = x0, y0, x1 - x0, y1 - y0
+            else:
+                cw = 0  # nothing of it is left: ignored below
+        if 0 <= cx and 0 <= cy and cw > 0 and ch > 0 and cx + cw <= ow and cy + ch <= oh:
+            if (cx, cy, cw, ch) != (0, 0, ow, oh):
+                pixels = crop(pixels, ow, cx, cy, cw, ch)
+                ow, oh = cw, ch
+        else:
+            notes.append("DefaultCrop lies outside the image and was ignored")
+    return pixels, ow, oh
 
 
 def _crop(pixels: array, width: int, cx: int, cy: int, cw: int, ch: int) -> array:
@@ -1460,7 +2482,7 @@ def write_png(path: Path, width: int, height: int, rgb16: array, bits: int = 8) 
 def develop_file(
     source: Path | str, destination: Path | str, settings: DevelopSettings | None = None, png_bits: int = 8
 ) -> DevelopReport:
-    """Develop ``source`` (a DNG) to ``destination`` (.tif/.tiff or .png)."""
+    """Develop ``source`` (a DNG, or a Canon CR2 with ``settings.dcp``) to ``destination`` (.tif/.tiff or .png)."""
 
     source, destination = Path(source), Path(destination)
     suffix = destination.suffix.lower()
@@ -1468,7 +2490,7 @@ def develop_file(
         raise DevelopError("output must end in .tif, .tiff or .png")
     if destination.exists():
         raise DevelopError(f"{destination} exists; masters are never overwritten")
-    raw = read_raw(source)
+    raw = read_raw(source, cfa=settings.cfa if settings is not None else None)
     width, height, pixels, report = develop(raw, settings)
     destination.parent.mkdir(parents=True, exist_ok=True)
     tmp = destination.with_name(destination.name + ".part")
@@ -1501,7 +2523,7 @@ def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
     if not is_dng_path(source):
         return None
     developed = scratch / "developed-half.tif"
-    develop_file(source, developed, DevelopSettings(half=True))
+    develop_file(source, developed, DevelopSettings(half=True, preview_quality=True))
     return developed
 
 

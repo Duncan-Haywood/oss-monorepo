@@ -1,0 +1,82 @@
+Milestone 7a: an eighth gear-pump family (Bosch Rexroth AZPF, sizes 4 to 28 cm3/r, largest size below the 85 L/min index point) held out from every fit, then eight families crossed (moving shape x idle drag), rules refitted on 64 cells and tested leave-one-family-out
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps: Casappa KAPPA K 05 T A (6k), Danfoss SNP3 (6m), Marzocchi ALP3 (6o), Frosina, Senatore, Rigosi 2017 bench KP30 (6p, 6q), Bosch Rexroth AZPG RE 10093 (6w), AZPN RE 10091 (6y), AZPU RE 10 098/02.12 (6z), AZPF RE 10089/2021-11-24 (7a))
+
+Check: the 49 seven-family cells against 6z's table (49 read): largest difference 0.0000
+
+AZPF at 2100 r/min, from the digitised curves (sizes 4 to 28 cm3/r; 32 mm2/s, 50 C):
+  size  V cm3/r  Q20 L/min  Q20/geometric  eta_t(100)  eta_t(150)  eta_t(200)  P(0) kW  P(0) W per L/min
+     4      4.0       8.24         0.9814      0.7954      0.8112      0.8066    0.174              21.1
+     5      5.5      11.42         0.9888      0.8240      0.8434      0.8513    0.221              19.4
+     8      8.0      16.60         0.9881      0.8516      0.8700      0.8752    0.242              14.6
+    11     11.0      22.72         0.9834      0.8729      0.8858      0.8913    0.240              10.6
+    14     14.0      29.06         0.9886      0.8676      0.8846      0.8913    0.302              10.4
+    16     16.0      33.42         0.9948      0.8670      0.8838      0.8891    0.328               9.8
+    19     19.0      39.58         0.9919      0.8785      0.8907      0.8925    0.374               9.4
+    22     22.5      46.09         0.9755      0.8766      0.8855      0.8798    0.364               7.9
+    25     25.0      52.62         1.0024      0.9076      0.9160      0.9140    0.314               6.0
+    28     28.0      58.87         1.0012      0.9026      0.9103      0.9084    0.455               7.7
+  largest size gives 58.87 L/min of 20 bar flow, so 85 L/min lies outside the family and the hold rule prices it; 76.6% of the fixed-pump size grid (10 to 219 L/min) lies above size 28
+
+Families (index 2 = eta_t(150 bar) at 85 L/min of 20 bar flow, held at the end sizes; size slope k = eta(150 L/min)/E - 1; idle kW at 85 L/min):
+  family     index 2  size slope k  idle kW
+  casappa    0.7590       +0.0334     3.57
+  danfoss    0.8481       -0.0283     3.64
+  marzocchi  0.8975       -0.0872     3.32
+  bench      0.9130       +0.0000     2.85
+  rexroth    0.9124       -0.0005     2.58
+  azpn       0.9250       +0.0000     2.49
+  azpu       0.8890       -0.0016     2.45
+  azpf       0.9103       +0.0000     2.61
+
+(i) AZPF as a held-out family:
+  E50 (own shape, own drag) 0.8075
+  (A) 6x as committed 0.8241 + 0.0179 (2.61 - 3.57) = 0.8069; error +0.0006
+  (Z) 6z seven-family refit 0.8239 + 0.0179 (2.61 - 3.57) = 0.8067; error +0.0008
+  (C) seven-family one-number 0.8135; error -0.0060
+  diagnostics: AZPF shape with AZPN drag 0.8054, with Casappa drag 0.8216; AZPN shape with AZPF drag 0.8075; Casappa shape with AZPF drag 0.8122
+
+(iii) post-hoc end-size sensitivity (not registered): the AZPF read with size 25 as its largest size
+  index 2 0.9160 (size 28: 0.9103); idle kW at 85 L/min 2.47 (size 28: 2.61); E50 0.8052 (size 28: 0.8075); rule (Z) at its kW 0.8042, error +0.0010
+
+50% crossing E50 of the share beating 3.986 L/h at S = 0.38 (rows: moving shape; columns: idle drag; E step 0.0025 from 0.70; index held at the end sizes):
+  shape \ idle    casappa    danfoss  marzocchi      bench    rexroth       azpn       azpu       azpf   row mean
+  casappa          0.8277     0.8283     0.8300     0.8172     0.8108     0.8106     0.8090     0.8122     0.8182
+  danfoss          0.8217     0.8297     0.8217     0.8100     0.8042     0.8033     0.8038     0.8058     0.8125
+  marzocchi        0.8175     0.8214     0.8193     0.8069     0.8010     0.8004     0.7996     0.8019     0.8085
+  bench            0.8216     0.8214     0.8231     0.8116     0.8057     0.8050     0.8044     0.8075     0.8125
+  rexroth          0.8207     0.8220     0.8225     0.8108     0.8040     0.8037     0.8030     0.8058     0.8116
+  azpn             0.8237     0.8289     0.8232     0.8125     0.8065     0.8050     0.8058     0.8075     0.8141
+  azpu             0.8197     0.8191     0.8217     0.8105     0.8042     0.8033     0.8030     0.8056     0.8109
+  azpf             0.8216     0.8213     0.8231     0.8117     0.8054     0.8054     0.8042     0.8075     0.8125
+  column mean      0.8218     0.8240     0.8231     0.8114     0.8052     0.8046     0.8041     0.8067
+  all 64 cells 0.7996 to 0.8300; shape main effect 0.0097, drag main effect 0.0199
+
+Rules fitted on all 64 cells (least squares):
+  one-number   a 0.8126; in-sample RMS 0.0088, worst +0.0174
+  two-number   a 0.7607, b +0.0177 per kW; in-sample RMS 0.0033, worst +0.0107
+  two-number fit as E50 = 0.8238 + 0.0177 (kW - 3.57) (6z: 0.8239 + 0.0179; 6x: 0.8241 + 0.0179)
+  6x (A) on the 64 cells: RMS 0.0033, worst +0.0104
+  6z (Z) on the 64 cells: RMS 0.0033, worst +0.0106
+
+Leave-one-family-out (fit on the 49 cells with neither shape h nor drag h; error = cell minus prediction):
+  held out   diagonal E50   one-number  two-number   15-cell RMS: one  two   two-number fit (a at 3.57 kW, b)
+  casappa          0.8277      +0.0172     +0.0037   0.0110 0.0053   0.8241, +0.0188
+  danfoss          0.8297      +0.0186     +0.0041   0.0112 0.0033   0.8244, +0.0182
+  marzocchi        0.8193      +0.0076     +0.0004   0.0108 0.0050   0.8230, +0.0165
+  bench            0.8116      -0.0012     +0.0006   0.0060 0.0025   0.8239, +0.0179
+  rexroth          0.8040      -0.0098     -0.0027   0.0087 0.0027   0.8239, +0.0174
+  azpn             0.8050      -0.0085     +0.0003   0.0092 0.0026   0.8234, +0.0174
+  azpu             0.8030      -0.0111     -0.0011   0.0092 0.0029   0.8242, +0.0180
+  azpf             0.8075      -0.0060     +0.0008   0.0076 0.0025   0.8239, +0.0179
+  RMS over the eight held-out diagonals: one-number 0.0113, two-number 0.0022
+  RMS over all 120 held-out cell predictions: one-number 0.0094, two-number 0.0035; fold slopes 0.0165 to 0.0188 per kW
+
+Predictions (LOG.md 7a):
+  AF1 AZPF within 0.006 of rule (Z): held (+0.0008)
+  AF2 rule (A) error smaller than the seven-family one-number: held (0.0006 against 0.0060)
+  AF3 AZPF idle kW outside 2.45 to 3.64: refuted (2.61)
+  AF4 AZPF index 2 within 0.020 of the AZPN's 0.925: held (0.9103, -0.0147)
+  AF5 64-cell slope in 0.016 to 0.021 per kW: held (0.0177)
+  AF6 eight-fold held-out diagonal RMS, two-number below 0.005 and below one-number: held (0.0022 against 0.0113)
+
+Sources: fuxi-robot/excavator-motion (CC BY-NC-SA 4.0; derived statistics only); Kauranne 2022 Fig. 13 (CC BY 4.0); Casappa KAPPA K 05 T A (2012); Danfoss SNP3; Marzocchi ALP3; Frosina et al. 2017; Bosch Rexroth RE 10093/2019-09-27 (AZPG), RE 10091/2024-11-18 (AZPN), RE 10 098/02.12 (AZPU), RE 10089/2021-11-24 (AZPF); PVG 32 neutral curve; Moore 2020 (idle share).

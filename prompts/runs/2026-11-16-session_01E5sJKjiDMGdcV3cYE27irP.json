@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKjiDMGdcV3cYE27irP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T04:17:56Z",
+  "ended": "2026-11-16T04:24:59Z",
+  "wall_minutes": 7.21,
+  "tokens_in": 3940512,
+  "tokens_out": 24560,
+  "cost_usd": 2.1015,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16450",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "issue": "Next steps asked for a third disjoint TUM pool, but cvg.cit.tum.de answers 403 through the proxy (as in milestone 4m); the step is unrunnable in cloud sessions until the frames are mirrored somewhere reachable."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py with -r requirements.txt reported /usr/bin/python3.13, which already imported cv2 although plain python3 did not; worth one line that python3.13 is the interpreter for this project."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "why": "Next step needs a third disjoint pool of TUM frames; host refused (403).",
+      "did": "Pre-registered and scored the geometry gate on the existing pools A and B, disclosed as a consistency check on the data that suggested it, not a confirmation.",
+      "result": "1 of 4 hypotheses held (power x1.75); found that milestone 4p's far-solve explanation of the Xtion over-alarm was wrong."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-letting-a-camera-skip-its-own-calibration-test.md",
+    "research/sensing-selfcal/LOG.md (milestone 4q plan and result)"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: research/_homepage/build.py ok; research_live_links --write; check_md_links ok; post frontmatter/links/similarity ok; programme_check ok; tests test_m4q + test_m4p 5 passed; paper/check_numbers 252/252.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "79928dfd-f743-5902-8ab4-3129fb41c59e",
+    "transcripts": 1,
+    "first": "2026-11-16T04:17:56Z",
+    "last": "2026-11-16T04:25:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 73,
+        "output": 24560,
+        "thinking": 5355,
+        "cache_read": 3835070,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105369,
+        "api_equivalent_usd": 2.1015,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 73,
+      "output": 24560,
+      "thinking": 5355,
+      "cache_read": 3835070,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105369,
+      "api_equivalent_usd": 2.1015,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.21,
+      "active_minutes": 7.21,
+      "model_minutes": 4.32,
+      "tool_minutes": 2.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

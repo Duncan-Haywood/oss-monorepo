@@ -17,6 +17,8 @@ sys.path.insert(0, str(HERE.parent))
 import h3_llm_width as H3  # noqa: E402
 import h6ak_screen as K  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 REPS = int(ARGS[0]) if ARGS else 500
 SEED = 20261101
@@ -33,9 +35,9 @@ def best_threshold(s, y):
 
 
 def one(f, human, n, truth, rr, tau):
-    pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE * n))
+    pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE_PRE7AR * n))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, n, tau=tau, guard=A.GUARD_6AM, neg_guard=0)  # the 7g screen (before 7r and 7ai)
+    plan = A.plan_audit_pre7ar(f, labels, n, tau=tau, guard=A.GUARD_6AM, neg_guard=0, width_margin=None)  # the 7g screen (before 7r and 7ai)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]

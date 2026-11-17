@@ -1,0 +1,42 @@
+[
+ {
+  "n": 30,
+  "xi": 0.1,
+  "reps": 400,
+  "truth": 5.841,
+  "deltaCoverage": 0.86,
+  "profileCoverage": 0.94,
+  "profileUpperOpen": 0,
+  "fails": 0
+ },
+ {
+  "n": 60,
+  "xi": 0.1,
+  "reps": 400,
+  "truth": 5.841,
+  "deltaCoverage": 0.8375,
+  "profileCoverage": 0.9375,
+  "profileUpperOpen": 0,
+  "fails": 0
+ },
+ {
+  "n": 60,
+  "xi": -0.2,
+  "reps": 400,
+  "truth": 3.0075,
+  "deltaCoverage": 0.8425,
+  "profileCoverage": 0.9325,
+  "profileUpperOpen": 0,
+  "fails": 0
+ },
+ {
+  "n": 100,
+  "xi": 0.2,
+  "reps": 400,
+  "truth": 7.5468,
+  "deltaCoverage": 0.9325,
+  "profileCoverage": 0.965,
+  "profileUpperOpen": 0,
+  "fails": 0
+ }
+]

@@ -123,6 +123,16 @@ a drop-in PyBaMM search loop.
   optimisation with continuous approximations, ICML, arXiv:1703.06240
   **[unchecked]**. BOCA; assumes fidelity error is smooth and bounded, which
   the SPMe collapse is not.
+- Huang, Allen, Notz and Miller (2006), sequential kriging optimization using
+  multiple-fidelity evaluations, *Struct. Multidisc. Optim.* 32, 369,
+  doi:10.1007/s00158-005-0587-0 **[checked 2026-11-12]**. Augmented EI, the
+  fidelity rule milestone 4b runs on co-kriging; it fixes the start design, which
+  4b found decides the outcome.
+- Kandasamy, Dasarathy, Oliva, Schneider and Poczos (2016), multi-fidelity
+  Gaussian process bandit optimisation, arXiv:1603.06288 **[checked
+  2026-11-12]**. MF-GP-UCB's rule (query the cheap fidelity while its
+  uncertainty exceeds a cost-scaled threshold), run in milestone 4b with the
+  threshold from the fitted discrepancy.
 - Poloczek, Wang and Frazier (2017), multi-information source optimisation,
   NeurIPS, arXiv:1603.00389 **[unchecked]**. Models source bias with a GP;
   a strong baseline for H3.

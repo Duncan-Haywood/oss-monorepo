@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #eceae6; --accent: #c2410c; --ink2: #555c63; --line: #c9c5bd; --panel: #fbfaf8; }
     body { max-width: 1160px; margin: 0 auto; padding: 32px 16px; }
     header { max-width: 780px; margin-bottom: 24px; }
-    h1 { font-size: clamp(1.9rem, 5.5vw, 3.1rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
+    h1 { font-size: clamp(1.9rem, 5.5vw, 3rem); line-height: 1.02; margin: 0 0 12px; letter-spacing: -.04em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .08em; color: var(--accent); margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 18px; align-items: start; }
@@ -50,6 +50,14 @@
     @media (max-width: 860px) { .layout { grid-template-columns: 1fr; } }
     @media (max-width: 520px) { .fields { grid-template-columns: 1fr; } }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.fields > label:has(> #method) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
   <header>
@@ -165,18 +173,19 @@
     <p><strong>Nothing leaves your browser.</strong> Your logger file and lab results are read and calculated on this device and never uploaded. We don't have accounts, tracking cookies or an analytics vendor. An anonymous counter in this browser's local storage records which features were used and the day, never a temperature, a strength or a file name; the box above turns it off.</p>
     <p>Framing the walls that go on this slab? <a href="../wall-framing-takeoff/">Wall framing takeoff</a> lays out studs, headers and plates and orders the lumber.</p>
     <p>Free and open source: the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> (<a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/concrete-maturity" rel="noopener">source</a>, with a command-line version). <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional and never changes what the tool does.</p>
+    <p>Related: <a href="../earthwork-cut-fill/">earthwork cut and fill calculator</a>, from survey points to pad volumes and the balance elevation.</p>
   </footer>
 
   <script type="module">
     import { parseLoggerCsv, parseCalibrationText, calibrationPoints, fitStrength, estimate, predictStrength, indexUnit, toCsv, exampleCsv, EXAMPLE_CALIBRATION } from './maturity.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const NS = 'http://www.w3.org/2000/svg';
     const COLORS = ['#c2410c', '#1d4ed8', '#047857', '#7c3aed', '#b45309', '#be185d'];
     let last = null;
 
-    function count(event) { recordUsage(localStorage, el('usageOptOut').checked, event); }
+    function count(event) { recordUsage(usageStorage(), el('usageOptOut').checked, event); }
     function num(id) { const v = el(id).value.trim(); return v === '' ? null : Number(v); }
     function opts() {
       const o = { method: el('method').value };
@@ -208,8 +217,8 @@
       for (let i = 0; i <= 4; i++) {
         const yv = ym * i / 4, xv = xm * i / 4;
         svg.append(svgEl('line', { x1: L, x2: W - R, y1: Y(yv), y2: Y(yv), stroke: '#e3dfd7' }));
-        svg.append(svgEl('text', { x: L - 6, y: Y(yv) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#555c63' }, Math.round(yv).toLocaleString()));
-        svg.append(svgEl('text', { x: X(xv), y: H - B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: '#555c63' }, Math.round(xv).toLocaleString()));
+        svg.append(svgEl('text', { x: L - 6, y: Y(yv) + 4, 'text-anchor': 'end', 'font-size': 11, fill: '#555c63' }, Math.round(yv).toLocaleString('en-US')));
+        svg.append(svgEl('text', { x: X(xv), y: H - B + 16, 'text-anchor': 'middle', 'font-size': 11, fill: '#555c63' }, Math.round(xv).toLocaleString('en-US')));
       }
       svg.append(svgEl('text', { x: (L + W - R) / 2, y: H - 6, 'text-anchor': 'middle', 'font-size': 12, fill: '#1d2125' }, xLabel));
       svg.append(svgEl('text', { x: 12, y: (T + H - B) / 2, 'text-anchor': 'middle', 'font-size': 12, fill: '#1d2125', transform: `rotate(-90 12 ${(T + H - B) / 2})` }, yLabel));
@@ -256,15 +265,15 @@
         const c = text('div', null, { class: 'card' + (s.name === result.governing && result.sensors.length > 1 ? ' gov' : '') });
         const h = text('h3', s.name + (s.name === result.governing && result.sensors.length > 1 ? ' (lowest)' : ''));
         h.style.color = COLORS[i % COLORS.length];
-        c.append(h, text('p', `${Math.round(s.strengthNow).toLocaleString()} ${unit}`, { class: 'big' }));
+        c.append(h, text('p', `${Math.round(s.strengthNow).toLocaleString('en-US')} ${unit}`, { class: 'big' }));
         const row = text('div', null, { class: 'row' });
-        row.append(text('span', `Maturity ${Math.round(s.maturityNow).toLocaleString()} ${iu}`), text('span', `${fmtH(s.spanHours)} logged`), text('span', `${s.minC.toFixed(1)} to ${s.maxC.toFixed(1)} °C`));
+        row.append(text('span', `Maturity ${Math.round(s.maturityNow).toLocaleString('en-US')} ${iu}`), text('span', `${fmtH(s.spanHours)} logged`), text('span', `${s.minC.toFixed(1)} to ${s.maxC.toFixed(1)} °C`));
         c.append(row);
         let t = null;
-        if (s.reached?.status === 'reached') t = `Reached ${target.toLocaleString()} ${unit} about ${fmtH(s.reached.hour)} after the first reading.`;
-        else if (s.reached?.status === 'unreachable') t = `The fitted curve levels off below ${target.toLocaleString()} ${unit}.`;
-        else if (s.projected?.status === 'projected') t = `Not yet at ${target.toLocaleString()} ${unit}: about ${fmtH(s.projected.hoursMore)} more if it stays near ${s.projected.assumedC.toFixed(1)} °C.`;
-        else if (s.projected?.status === 'stalled') t = `Not yet at ${target.toLocaleString()} ${unit}, and no maturity is gained at ${s.projected.assumedC.toFixed(1)} °C.`;
+        if (s.reached?.status === 'reached') t = `Reached ${target.toLocaleString('en-US')} ${unit} about ${fmtH(s.reached.hour)} after the first reading.`;
+        else if (s.reached?.status === 'unreachable') t = `The fitted curve levels off below ${target.toLocaleString('en-US')} ${unit}.`;
+        else if (s.projected?.status === 'projected') t = `Not yet at ${target.toLocaleString('en-US')} ${unit}: about ${fmtH(s.projected.hoursMore)} more if it stays near ${s.projected.assumedC.toFixed(1)} °C.`;
+        else if (s.projected?.status === 'stalled') t = `Not yet at ${target.toLocaleString('en-US')} ${unit}, and no maturity is gained at ${s.projected.assumedC.toFixed(1)} °C.`;
         if (t) c.append(text('p', t, { class: 'muted' }));
         for (const w of s.warnings) c.append(text('p', w, { class: 'warn' }));
         cards.append(c);
@@ -274,7 +283,7 @@
       const maxS = Math.max(target || 0, ...result.sensors.map(s => s.strengthNow)) * 1.1;
       plot(el('chart'), result.sensors.map(s => ({ name: s.name, pts: s.curve.map(p => [p.hour, p.strength]) })), {
         xLabel: 'Hours since first reading', yLabel: `Strength (${unit})`, xMax: maxH, yMax: maxS,
-        hLine: target > 0 ? { y: target, label: `Target ${target.toLocaleString()}` } : null,
+        hLine: target > 0 ? { y: target, label: `Target ${target.toLocaleString('en-US')}` } : null,
       });
 
       const xs = []; const xMax = Math.max(fit.range.max, ...result.sensors.map(s => s.maturityNow)) * 1.05;
@@ -290,7 +299,7 @@
         else { tr.append(text('td', f.label)); const td = text('td', f.reason); td.colSpan = 3; tr.append(td); }
         tb.append(tr);
       }
-      el('fitNote').textContent = `${fit.n} specimens, maturity ${Math.round(fit.range.min).toLocaleString()} to ${Math.round(fit.range.max).toLocaleString()} ${iu}. Lower AICc is better; it penalises the three-parameter curves for their extra freedom.`;
+      el('fitNote').textContent = `${fit.n} specimens, maturity ${Math.round(fit.range.min).toLocaleString('en-US')} to ${Math.round(fit.range.max).toLocaleString('en-US')} ${iu}. Lower AICc is better; it penalises the three-parameter curves for their extra freedom.`;
     }
 
     el('loggerFile').addEventListener('change', async e => {
@@ -318,8 +327,8 @@
     });
     try {
       const u = el('usageOptOut');
-      u.checked = readOptOut(localStorage);
-      u.addEventListener('change', () => writeOptOut(localStorage, u.checked));
+      u.checked = readOptOut(usageStorage());
+      u.addEventListener('change', () => writeOptOut(usageStorage(), u.checked));
     } catch { /* storage is optional */ }
   </script>
 </body>

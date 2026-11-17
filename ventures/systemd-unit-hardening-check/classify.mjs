@@ -56,7 +56,9 @@ const SECRET_KEY = /(?:PASSWORD|PASSWD|PASSPHRASE|SECRET|TOKEN|API_?KEY|PRIVATE_
 const TRUE = new Set(["1", "yes", "true", "on"]);
 const FALSE = new Set(["0", "no", "false", "off"]);
 const WRITABLE_DIRS = ["/tmp/", "/var/tmp/", "/dev/shm/"];
-const PIPE_SHELL = /\b(?:curl|wget)\b[^|]*\|\s*(?:sudo\s+)?(?:ba|z|da|k)?sh\b/;
+// After the pipe: an optional sudo (with flags), an optional env, then the shell,
+// each by bare name or full path (`| /bin/bash`, `| sudo -E bash`, `| /usr/bin/env sh`).
+const PIPE_SHELL = /\b(?:curl|wget)\b[^|]*\|\s*(?:(?:\S*\/)?sudo(?:\s+-\S+(?:\s+[^\s/-]\S*)?)*\s+)?(?:(?:\S*\/)?env\s+)?(?:\S*\/)?(?:ba|z|da|k)?sh\b/;
 const CONTAINER_RUN = /^(?:\S*\/)?(?:docker|podman|nerdctl)\s+(?:container\s+)?(?:run|start)\b/;
 const DROPIN = /(?:^|\/)([^/]+\.service)\.d\/[^/]+\.conf$/;
 
@@ -140,6 +142,13 @@ function envAssignments(value) {
   return pairs;
 }
 
+// Drop one pair of matching quotes around a word, as systemd does.
+const unquote = (w) => (w.length >= 2 && (w[0] === '"' || w[0] === "'") && w[w.length - 1] === w[0] ? w.slice(1, -1) : w);
+
+// systemd's path_simplify: collapse repeated slashes and drop "." components.
+// ".." is left alone (systemd refuses a non-normalized executable path).
+const canonPath = (p) => (p.startsWith("/") ? "/" + p.split("/").filter((c) => c !== "" && c !== ".").join("/") : p);
+
 function execParts(value) {
   let v = value.trim();
   let prefixes = "";
@@ -187,8 +196,9 @@ function evaluate(unit, entries, anchor, hasMain, userUnits) {
           "Drop the prefix if the command does not need root; if it does, keep it to a short, fixed helper rather than the main process.",
           unit));
       }
-      let wdir = WRITABLE_DIRS.find((d) => binary.startsWith(d)) ?? null;
-      if (wdir === null && asRoot && binary.startsWith("/home/")) wdir = "/home/";
+      const canon = canonPath(unquote(binary));
+      let wdir = WRITABLE_DIRS.find((d) => canon.startsWith(d)) ?? null;
+      if (wdir === null && asRoot && canon.startsWith("/home/")) wdir = "/home/";
       if (wdir) {
         out.push(finding(e, EXEC_FROM_WRITABLE_DIR,
           `${key}= runs ${binary}, under ${wdir}, a directory other users (or the service's own user) can write to; whoever replaces the file runs code as this service.`,
@@ -219,7 +229,7 @@ function evaluate(unit, entries, anchor, hasMain, userUnits) {
   }
 
   for (const e of effective(svc, "ReadWritePaths")) {
-    const paths = e.value.split(/\s+/).filter(Boolean).map((p) => p.replace(/^[-+]+/, ""));
+    const paths = e.value.split(/\s+/).filter(Boolean).map((p) => canonPath(unquote(p).replace(/^[-+]+/, "")));
     if (paths.includes("/")) {
       out.push(finding(e, READ_WRITE_ROOT,
         "ReadWritePaths= includes /, which makes the whole filesystem writable again and cancels ProtectSystem=.",

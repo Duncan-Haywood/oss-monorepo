@@ -21,7 +21,18 @@ const asServerReads = (block) => {
   const r = parseReplies(block)[0];
   if (!r) return block;
   const head = [`From: ${r.name ? `${r.name} <${r.from}>` : r.from}`, `Subject: ${r.subject}`, `Date: ${r.date}`, r.signal ? `X-Signal: ${r.signal}` : "", r.failed ? `X-Failed-Recipient: ${r.failed}` : ""].filter(Boolean);
-  return `${head.join("\n")}\n\n${r.body.replace(/(\n\s*-{3,}\s*)+$/, "")}`; // a closing "---" line would read as a separator
+  return `${head.join("\n")}\n\n${stripClosingRules(r.body)}`; // a closing "---" line would read as a separator
+};
+
+// Drops the trailing lines that are blank or a single "---" (3+ dashes) rule, when at least one is a rule; the first
+// line always stays. Same result as body.replace(/(\n\s*-{3,}\s*)+$/, "") on 400,000 random strings, but line by line:
+// that regex let a newline match both \n and \s, so 24 "---" lines took it 7.8 s (ReDoS). parseReplies already cuts a
+// body at its first "---" line, so no mail reached that case; this keeps it that way if parseReplies ever changes.
+export const stripClosingRules = (body) => {
+  const lines = body.split("\n");
+  let i = lines.length, rule = false;
+  while (i > 1 && /^\s*(?:-{3,}\s*)?$/.test(lines[i - 1])) { if (lines[i - 1].includes("-")) rule = true; i--; }
+  return rule ? lines.slice(0, i).join("\n") : body;
 };
 
 export const MAX_BYTES = 200000;

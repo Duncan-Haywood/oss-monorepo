@@ -1,3 +1,4 @@
+import math
 import random
 import unittest
 
@@ -52,6 +53,38 @@ class Tests(unittest.TestCase):
         ex = [(str(i), f"word{i}", i % 2, 1) for i in range(100)]
         d, t = h.split(ex, 30, 50, random.Random(0))
         self.assertEqual((len(d[0]), len(t[0])), (30, 50))
+
+
+    # Added by quality audit round 53 (portfolio/quality/audits/2026-11-12-qual-hypothesis.json): five seeded
+    # bugs (Bonferroni for BH, sign check removed, min_count off, pooled p corrupted, |d| ranking) left tests green.
+    def test_bh_is_not_bonferroni(self):
+        # BH step-up rejects all four (0.04 <= 0.05); Bonferroni (0.0125) would reject only the first
+        self.assertEqual(h.benjamini_hochberg([0.01, 0.02, 0.03, 0.04]), {0, 1, 2, 3})
+
+    def test_pooled_z_by_hand(self):
+        # 30/100 vs 10/100: pooled p 0.2, se sqrt(0.16 * 0.02) = 0.056569, z = 0.2 / se = 3.535534
+        self.assertAlmostEqual(h.effect(30, 100, 10, 100)[1], 0.2 / math.sqrt(0.16 * 0.02), places=9)
+
+    def test_replication_needs_same_sign(self):
+        docs = [{"w"}] * 300 + [set()] * 700 + [{"w"}] * 100 + [set()] * 900
+        labels = [1] * 1000 + [0] * 1000
+        (row,) = h.test_hypotheses([("w", -0.1)], docs, labels)
+        self.assertLess(row[3], 1e-6)   # held-out effect +0.2 is significant
+        self.assertFalse(row[4])        # but discovery said negative, so it does not replicate
+        (row,) = h.test_hypotheses([("w", 0.1)], docs, labels)
+        self.assertTrue(row[4])
+
+    def test_min_count_filter(self):
+        docs = [{"rare"}] * 4 + [set()] * 96 + [set()] * 100
+        labels = [1] * 100 + [0] * 100
+        self.assertEqual(h.propose(docs, labels, 5), [])
+        self.assertEqual(h.propose(docs, labels, 5, min_count=4)[0][0], "rare")
+
+    def test_proposer_ranks_by_z_not_raw_difference(self):
+        # A: 6/100 vs 0/100, d 0.06, z 2.49; B: 50/100 vs 40/100, d 0.10, z 1.42
+        docs = [{"A", "B"}] * 6 + [{"B"}] * 44 + [set()] * 50 + [{"B"}] * 40 + [set()] * 60
+        labels = [1] * 100 + [0] * 100
+        self.assertEqual(h.propose(docs, labels, 1)[0][0], "A")
 
 
 if __name__ == "__main__":

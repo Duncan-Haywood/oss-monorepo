@@ -13,9 +13,11 @@ import { inspectInvoicePeriod } from "./period.mjs";
 import { inspectCommercialReferences } from "./reference.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
+import { inspectAccountingCurrencyTax } from "./taxcurrency.mjs";
+import { inspectLineExtension } from "./lineext.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
 import { inspectPartyVat } from "./vat.mjs";
-import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
 import { parseDecimal } from "./numbers.mjs";
 
 // numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
@@ -30,7 +32,7 @@ export function roundHalfUpToCents(value) {
 // Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
 // total to the unit instead of the cent. Accepted only when the stated total is
 // a whole number equal to the computed tax rounded half up to the unit.
-function wholeUnitTaxAgrees(currency, stated, expected) {
+export function wholeUnitTaxAgrees(currency, stated, expected) {
   if (currency !== "HUF" || stated === null || expected === null) return false;
   return Number.isInteger(stated) && stated === Math.round(expected);
 }
@@ -152,6 +154,12 @@ export function checkInvoice(invoice) {
   for (const finding of inspectTaxExemption(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
+  for (const finding of inspectAccountingCurrencyTax(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectLineExtension(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
   // Factur-X / ZUGFeRD MINIMUM and BASIC WL carry totals and no lines, by design.
   const linesOptional = /[:#](minimum|basicwl)$/i.test(String(invoice.specification_id || "").trim());
   const noLines = !Array.isArray(invoice.lines) || invoice.lines.length === 0;
@@ -207,7 +215,8 @@ export function checkInvoice(invoice) {
     if (quantity !== null && price !== null && price >= 0) {
       const supplied = money(line.net);
       const lineNet = acceptedLineNet(line, supplied);
-      expectedNet = roundHalfUpToCents(expectedNet + summedLineNet(line, invoice));
+      // Summed unrounded and rounded once below: baisa lines (linenet.mjs, summedLineNet).
+      expectedNet += summedLineNet(line, invoice);
       if (supplied === null || supplied !== lineNet) {
         fail(
           "INV-012",
@@ -223,6 +232,20 @@ export function checkInvoice(invoice) {
   const perRate = taxGroups(invoice);
   let expectedTax = 0;
   for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
+  // Where the lines state their own VAT (PINT Oman, BTOM-016), the tax total may be
+  // their sum per rate instead (ALIGNED-IBRP-S-09-OM); either reading is accepted.
+  let lineTaxTotal = null;
+  if ([...perRate.groups.values()].some((g) => g.lineTax !== null)) {
+    lineTaxTotal = 0;
+    for (const group of perRate.groups.values()) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + (group.lineTax ?? group.tax));
+  }
+  // Flat-amount taxes beside VAT (Malaysia's tourism tax) add their stated amount;
+  // a row with no readable tax is INV-038's to report, so the total is not judged.
+  const flatTax = flatTaxTotal(invoice);
+  if (flatTax !== null && flatTax !== 0) {
+    expectedTax = roundHalfUpToCents(expectedTax + flatTax);
+    if (lineTaxTotal !== null) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + flatTax);
+  }
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
   const negativeInvoice = isNegativeInvoice(invoice);
   if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
@@ -249,7 +272,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!(linesOptional && noLines) && !perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && flatTax !== null && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || (gross < 0 && !negativeInvoice)) {

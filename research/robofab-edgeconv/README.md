@@ -1,18 +1,21 @@
-# Once the solver is converged, is the time-optimal carry's edge over a tuned trapezoid still positive in all twelve speed-limited rows? (stylised)
+# Once the solver is converged, is the time-optimal carry's edge over a tuned trapezoid still positive in all twelve speed-limited rows? (stylised; corrected 2026-11-14: no, not once the trapezoid is converged too)
 
 A follow-up to `research/robofab-scurvefine` (track `robofab`), taking its first "Next steps" item: re-solve the time-optimal profile at higher node counts for all rows. Same toy arm, parts, limits, ramp grid and ramp-resolved sampling as `robofab-scurvefine`, `robofab-scurve`, `robofab-trapezoid`, `robofab-jointspeed` and `robofab-jawcap`. All numbers below are from `experiments/results.txt` (and `results.json`).
 
 **Live page:** https://marisstella.app/research/robofab-edgeconv/
 
+> **Correction, 2026-11-14 (quality fix of the [2026-11-07 audit](../../portfolio/quality/audits/2026-11-07-robofab-edgeconv.json)).** The second bullet below compared a converged solver with a trapezoid that was *not* converged: the ramp-fraction grid stops at 0.002, and that floor was the grid's optimum for most parts at 1 rad/s. `experiments/trapconv.py` searches f over [1e-5, 0.5] (41-point log grid, then golden section; every optimum is interior, 72 of 72 parts) and gives `experiments/trapconv.txt`: **the time-optimal edge over the converged trapezoid is -0.02% to +0.26% at n = 6400, negative in 2 of 12 rows and at most +0.03% in 7**; against the extrapolated solver total it is +0.01% to +0.26%. For the 0.08 and 0.12 m arms with no jaw cap at 1 rad/s, both profiles sit within 0.04% of the speed bound sum(max|dq|)/wmax (column `lb`) and the edge is indistinguishable from zero; the edge grows where torque or the jaw cap binds, up to +0.26% (0.2 m, k = 5, 2 rad/s, where both are 2.0 to 2.3% above the speed bound). The converged trapezoids were re-checked with 2,000 + 2 x 1,000 samples per move: worst limit use 1.0001. So "positive in all 12 rows" and "the negatives were the discretisation" are withdrawn; the claim that survives is that the solver side converges (bullets 1 and 3). `robofab-rampopt` refined only between grid neighbours and inherits the same floor.
+
 - **Raising the solver from 400 to 6400 nodes moves the six-part time-optimal total down by 0.01 to 0.46%** across the 12 rows (3 arm sizes x jaw cap 5x hold force or none x speed limit 2 or 1 rad/s). Most of the change is already there at 1600 nodes: the 1600 to 6400 step is 0.000 to 0.009 s, against 0.000 to 0.038 s for 400 to 1600.
-- **With n = 6400 the time-optimal edge over the ramp-resolved trapezoid is positive in all 12 rows: +0.11% to +0.88%.** At n = 400 it was negative in 7 of the 12 rows (down to -0.30%), five of them at 1 rad/s. So the negatives reported in `robofab-scurvefine` were the solver's discretisation, as that project suspected from one row.
+- **(Superseded, see the correction above.) With n = 6400 the time-optimal edge over the grid-tuned trapezoid is positive in all 12 rows: +0.11% to +0.88%.** At n = 400 it was negative in 7 of the 12 rows (down to -0.30%), five of them at 1 rad/s. So the negatives reported in `robofab-scurvefine` were the solver's discretisation, as that project suspected from one row.
 - **A one-step Richardson estimate (assuming error proportional to 1/n) changes the edge by at most 0.03 percentage points** from the n = 6400 value (+0.12% to +0.88%). The ratio of the 400-to-1600 change to the 1600-to-6400 change ranges from 4 to 85 across rows (4 would be exactly first order), so the extrapolation is only indicative; the n = 6400 figures are the ones to quote.
-- **Reading:** in this toy the time-optimal carry is about 0.1 to 0.9% faster than a well-tuned trapezoid at tight speed limits. The solver side is now converged to a few hundredths of a percent; the trapezoid side still uses a finite ramp grid (below), which can only make the true edge smaller. The earlier 0.8 to 2.9% (`robofab-scurve`) was an overestimate, as `robofab-scurvefine` found.
+- **Reading (corrected):** in this toy a trapezoid with a converged ramp fraction is within 0.03% of the time-optimal carry in most speed-limited rows and at most 0.26% slower; the 0.1 to 0.9% first reported here was mostly the trapezoid's ramp grid. The solver side is now converged to a few hundredths of a percent; the trapezoid side still uses a finite ramp grid (below), which can only make the true edge smaller. The earlier 0.8 to 2.9% (`robofab-scurve`) was an overestimate, as `robofab-scurvefine` found.
 
 ```bash
 cd research/robofab-edgeconv
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 47 tests, < 10 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 54 tests, about 10 s
 PYTHONPATH=src python3 experiments/run.py > experiments/results.txt   # about 2 min; also writes results.json
+PYTHONPATH=src python3 experiments/trapconv.py > experiments/trapconv.txt   # about 3 min; reads results.json, writes trapconv.json
 ```
 Produced with Python 3.11, standard library only.
 
@@ -35,14 +38,14 @@ Unchanged from `robofab-scurvefine` for the "resolved" configuration: planar two
 ## Limitations
 
 - Stylised. All parameters other than geometry are assumed; simulated results are not claims about physical arms or drives.
-- The trapezoid side was not re-converged: its best ramp fraction is picked from a 14-value grid, so its time is an upper bound on the best trapezoid. A finer grid could shave the edge further. The 40 samples per ramp are a choice, not checked against a denser setting.
+- In `run.py` the trapezoid side was not re-converged (14-value grid, floor 0.002); `trapconv.py` fixes that and changes the conclusion (see the correction). Its residual: bisection to 1e-6 s and sampled limit checks (worst 1.0001 at 20x the samples). The 40 samples per ramp are a choice, not checked against a denser setting.
 - The Richardson step assumes first-order convergence, which the data only roughly support (ratio 4 to 85 between steps). The residual solver error at n = 6400 is not bounded rigorously; it is estimated to be a few hundredths of a percent from the last step.
 - The torque- and jaw-bound rows of `robofab-scurve` (no speed limit) are not re-examined.
 - One speed limit on both joints, a fixed joint-space line, one planar arm, no motor dynamics, and jerk as a shape parameter, as in the parent projects.
 
 ## Next steps
 
-Refine the trapezoid's ramp-fraction search (golden-section instead of a grid) so both sides are converged; re-run the unlimited-speed torque- and jaw-bound rows with ramp-resolved sampling and n = 6400; an absolute jerk limit in rad/s^3; check the profiles in MuJoCo.
+Bound the solver's residual error at n = 6400 rigorously (its total exceeds the converged trapezoid in two rows, so its O(ds) error is the deciding term); re-run the unlimited-speed torque- and jaw-bound rows with ramp-resolved sampling and n = 6400; an absolute jerk limit in rad/s^3; check the profiles in MuJoCo.
 
 ## Owner steps
 

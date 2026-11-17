@@ -1,0 +1,252 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/selfrep-coverscale",
+ "stratum": "research",
+ "seed": "2026-11-15-b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior operations-research / combinatorial-optimisation researcher who referees experimental-algorithms papers on submodular and budgeted coverage problems (the reader of Mathematical Programming, INFORMS JoC or SEA). They would check first that the 'exact' baseline really is exact, that the greedy variant is the one with a known guarantee, that the instance generator does what the knob names say, whether the nearest literature (Khuller, Moss and Naor 1999; Sviridenko 2004) is cited and its (1-1/e) algorithm compared, and whether 100-instance differences are reported with uncertainty",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every number reproduces and three outputs recompute against code the author did not write. `python3 experiments/run.py` in a scratch copy (53 s) gives results.txt byte-identical to the committed file. My own exact solver (a dynamic programme over covered-line bitmasks keeping the minimum penalty per mask, a different algorithm from the author's branch and bound) agrees with cover.exact on all 1,200 experiment instances (0 mismatches); my own set-based greedy agrees with cover.greedy on all 1,200, and from them I recompute every greedy column of results.txt exactly (e.g. n=7 ov=0.9: mean 97.40%, worst 49.6%, optimal 91/100; n=24 ov=0.0: 98.84%, 93.1%, 33/100). A hand instance (w=[2,3,4], covers {0,1},{2},{1,2}, penalties .6/.5/.5, budget 1.0: optimum 7 by inspection) returns exact 7, greedy 7. The surprising local-search worst case (13.6% at n=7 ov=0.9) is genuine: enumerating that instance's maximal feasible sets shows five 2-item sets worth 0.758 that are add/1-swap local optima while only the 1-item set {0} reaches 5.576. The branch-and-bound bound (remaining budget times the best stand-alone value/penalty ratio) is valid because coverage marginals never exceed stand-alone values. Not 4: the README mislabels its own statistic (says ratios of means; run.py:22 computes means of per-instance ratios) and no uncertainty is reported.",
+  "completeness": "README promises: 5 stdlib tests (`python3 -m unittest discover -s tests -v`: Ran 5 tests in 0.057s OK), run.py writes results.txt (byte-identical rerun, 53 s vs 'about 2 minutes'), figure.py plots ratio_vs_n.svg from results.txt (regenerated in a copy with research/_shared: byte-identical), every Results bullet traceable to results.txt (all five checked). The live page https://marisstella.app/research/selfrep-coverscale/ could not be loaded from this sandbox (proxy CONNECT 403), so it is unchecked, not failed. Next step (real redesign list) is honestly listed as not done.",
+  "verification": "Tests pass (5 OK). Six seeded mutants via platform/ci/quality_mutate.py: 2 caught (branch-and-bound bound halved at cover.py:46; greedy ranking by raw gain instead of gain/penalty at cover.py:67), 4 survived: inverting the overlap knob (cover.py:24, `<` -> `>`, which would turn overlap 0.9 into near-uniform and flip the headline 'heavy overlap helps greedy'), constant line weights instead of log-normal (cover.py:18), deleting local search's swap moves (cover.py:116, which is exactly what produces the 13.6% worst case), and random search doing 1 evaluation instead of 64 (cover.py:84). Tests only check exact == brute force and heuristics <= exact; nothing tests the generator, run.py or pins results.txt.",
+  "craft": "Read src/selfrep_coverscale/cover.py (122 lines), tests/test_cover.py, experiments/run.py, experiments/figure.py. Small, readable, standard library only, src layout, exact verified against brute force. Defects: local_search docstring says add/drop/swap but there is no drop move (cover.py:95); one rng drives instance generation and the heuristics' randomness (run.py:12, 21-22), so changing restarts or evals silently changes the instance set; the bound recomputes a max over order[k:] at every node although order is already sorted by that ratio (cover.py:45, harmless); local_search recomputes penalty sums per move. Nothing a reviewer would block.",
+  "claims": "Checked each Results bullet against results.txt: greedy mean 96.3-99.9%, optimal 33-95/100, worst 49.6% at n=7 ov=0.9 and 87-98% at n=18/24 (backed); overlap 0.9 optimal 91-95 (backed); local search best mean from n=12 at ov 0/0.5, 99.4-99.7%, worst 13.6% at n=7 (backed); random 64 perfect at n=7, 89-90% at n=24 (backed); greedy+single matters only at n=7 (backed). Synthetic instances, assumed generator and AI assistance disclosed. Small slips: 'within about 1 to 3% ... on average' while the worst row is 3.75% off (README.md:23); 'ratios of means' is the wrong statistic (README.md:31); 'ties' at ov=0.9 without an interval. No novelty is claimed.",
+  "fitness": "A researcher could rerun and extend it in minutes, but it does not reach the research bar in research/CLAUDE.md (PhD-level programme aimed at a venue): it is a single-session experiment on budgeted maximum coverage, a problem with a 25-year literature (Khuller, Moss and Naor 1999, IPL 70; Sviridenko 2004, ORL 32) that is not cited, and greedy's near-optimality on random coverage instances is the expected result. Its own question (does real printer-substitution overlap look like 0.5 or 0.9?) is deferred to Next steps, so the result says nothing yet about the printer list it is named for.",
+  "domain": "Against standard experimental-algorithms practice for budgeted coverage: the exact baseline is sound (branch and bound with a valid bound, independently confirmed by DP), and 'greedy plus best single item' is the Khuller-Moss-Naor modified greedy with a constant-factor guarantee ((1-1/e)/2 ~ 31.6%; observed worst 74.4%, consistent). Departures: the (1-1/e) partial-enumeration algorithm that a reviewer would expect as the principled baseline is not run; no confidence intervals or paired tests on 100 instances; one budget (25%) and one generator; local search is only add/1-swap, so its n=7 failure is a neighbourhood artefact rather than a property of local search. A referee would ask for these before accepting the conclusions."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "exact optimum on all 1,200 experiment instances",
+   "method": "independent DP over covered-line bitmasks (min penalty per mask), my own code, compared to cover.exact",
+   "command": "python3 -I scratchpad/selfrep/indep/indep.py",
+   "expected": "0 mismatches",
+   "observed": "exact mismatches (DP vs B&B): 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "greedy column of results.txt (mean, worst, optimal count) for all 12 rows",
+   "method": "independent set-based greedy plus DP optimum, my own code",
+   "command": "python3 -I scratchpad/selfrep/indep/indep.py",
+   "expected": "results.txt, e.g. n=7 ov=0.9 97.40% (49.6%) 91/100; n=24 ov=0.0 98.84% (93.1%) 33/100",
+   "observed": "identical for all 12 rows; greedy mismatches 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "hand instance w=[2,3,4], covers {0,1},{2},{1,2}, penalties .6/.5/.5, budget 1.0",
+   "method": "by hand: feasible sets A=5, B=4, C=7, B+C=7, A+B and A+C over budget; greedy picks C (ratio 14) then nothing adds",
+   "command": "python3 -I scratchpad/selfrep/indep/ls_check.py",
+   "expected": "exact 7, greedy 7",
+   "observed": "hand exact 7.0 greedy 7.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "local-search worst case 13.6% at n=7 overlap 0.9 is a real local optimum, not a bug",
+   "method": "exhaustive enumeration of maximal feasible sets of that instance with my own add/1-swap neighbourhood test",
+   "command": "python3 -I scratchpad/selfrep/indep/ls_check.py",
+   "expected": "a set worth 13.6% of optimum that no add or 1-swap improves",
+   "observed": "worst ratio 0.1360 at instance 59; five 2-item sets val 0.758 ratio 0.136 localopt=True; only {0} reaches 5.576",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "greedy+single respects the Khuller-Moss-Naor constant-factor guarantee",
+   "method": "Khuller, Moss, Naor (1999) modified greedy bound (1-1/e)/2 ~ 0.316",
+   "command": "python3 experiments/run.py (greedy+single worst column)",
+   "expected": ">= 31.6% in every row",
+   "observed": "minimum 71.0%",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py reproduces results.txt",
+   "method": "rerun in a scratch copy and diff",
+   "command": "cd copy && python3 experiments/run.py && diff experiments/results.txt <committed>",
+   "expected": "identical",
+   "observed": "IDENTICAL, 53 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py reproduces ratio_vs_n.svg",
+   "method": "regenerate in a copy with research/_shared and compare bytes",
+   "command": "python3 experiments/figure.py (in copy)",
+   "expected": "identical SVG",
+   "observed": "figure identical: True",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "README test claim",
+   "method": "run the stated command",
+   "command": "cd research/selfrep-coverscale && python3 -m unittest discover -s tests -v",
+   "expected": "5 tests OK",
+   "observed": "Ran 5 tests in 0.057s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "would a test catch an inverted overlap knob (the variable behind a headline finding)?",
+   "method": "seeded mutant via quality_mutate.py",
+   "command": "python3 platform/ci/quality_mutate.py .../cover.py --old 'rng.random() < overlap' --new 'rng.random() > overlap' -- python3 -m unittest discover -s tests",
+   "expected": "a failing test",
+   "observed": "tests pass -> SURVIVED",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'ratios of means' in Limitations",
+   "method": "read run.py:22-23",
+   "command": "grep -n statistics.mean experiments/run.py",
+   "expected": "sum(value)/sum(optimum)",
+   "observed": "statistics.mean of per-instance ratios",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Greedy stays within about 1 to 3% of the optimum on average at every size'",
+   "method": "compare against results.txt greedy means",
+   "command": "cat experiments/results.txt",
+   "expected": "every row >= 97%",
+   "observed": "n=7 ov=0.5 is 96.25% (3.75% off), though the same sentence quotes 96.3%",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "each Results bullet matches results.txt",
+   "method": "line-by-line comparison",
+   "command": "cat experiments/results.txt",
+   "expected": "all numbers present",
+   "observed": "all five bullets backed",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page serves",
+   "method": "HTTP GET",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/research/selfrep-coverscale/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 from sandbox; unchecked",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "search README for budgeted maximum coverage literature",
+   "command": "grep -n 'Khuller\\|Sviridenko\\|coverage' README.md",
+   "expected": "Khuller-Moss-Naor 1999 and Sviridenko 2004 cited, (1-1/e) algorithm compared",
+   "observed": "neither cited; only sibling selfrep projects",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/selfrep_coverscale/cover.py:46",
+   "change": "if val + rem * ratio <= best[0] + 1e-12: -> if val + 0.5 * rem * ratio <= best[0] + 1e-12:",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_coverscale/cover.py:67",
+   "change": "g = (value(covered | cov[i], w) - base) / pen[i] -> g = (value(covered | cov[i], w) - base)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_coverscale/cover.py:116",
+   "change": "local search swap moves deleted (moves += [] and [...])",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_coverscale/cover.py:84",
+   "change": "for _ in range(evals): -> for _ in range(1):",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_coverscale/cover.py:18",
+   "change": "w = [rng.lognormvariate(0, 1) ...] -> w = [1.0 ...]",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/selfrep_coverscale/cover.py:24",
+   "change": "rng.random() < overlap -> rng.random() > overlap",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The instance generator is untested: inverting the overlap knob, flattening the log-normal weights, removing local-search swaps or cutting random search to 1 evaluation all leave every test green; the overlap inversion would reverse the headline 'heavy overlap helps greedy'. Nothing tests run.py or pins results.txt.",
+   "where": "research/selfrep-coverscale/src/selfrep_coverscale/cover.py:24",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Budgeted maximum coverage has a known literature (Khuller, Moss and Naor 1999; Sviridenko 2004) that is not cited, and the (1-1/e) partial-enumeration algorithm a referee would expect as the principled baseline is not compared; the greedy+single variant is called 'the classic knapsack fix' rather than the KMN modified greedy with its guarantee.",
+   "where": "research/selfrep-coverscale/README.md:11",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Limitations say 'ratios of means' but run.py computes the mean of per-instance ratios (statistics.mean of value/optimum).",
+   "where": "research/selfrep-coverscale/README.md:31",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "low",
+   "what": "No confidence intervals or paired tests on 100 instances per cell; differences of 0.1 to 1 point (e.g. local search 99.76% vs greedy 99.84% called a tie) are read without uncertainty, and only one budget fraction is run.",
+   "where": "research/selfrep-coverscale/README.md:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "One rng drives both instance generation and the heuristics' randomness, so changing restarts or evaluations silently changes which instances are drawn; instance and solver streams should be separate.",
+   "where": "research/selfrep-coverscale/experiments/run.py:12",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'Greedy stays within about 1 to 3% of the optimum on average' while the n=7 overlap 0.5 row is 3.75% off (96.25%).",
+   "where": "research/selfrep-coverscale/README.md:23",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "low",
+   "what": "local_search docstring promises add/drop/swap moves; there is no drop (or 2-for-1) move, which is why it stalls at 13.6% at n=7.",
+   "where": "research/selfrep-coverscale/src/selfrep_coverscale/cover.py:95",
+   "category": "code-craft",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
+ "verdict": "A small, honest, correct experiment. Every number in results.txt reproduces byte for byte (53 s). An exact DP I wrote independently agrees with the author's branch and bound on all 1,200 instances, and my own greedy recomputes the greedy column of every row. The figure regenerates identically, and the odd 13.6% local-search worst case is a genuine 1-swap local optimum. It does not meet the bar on verification: 4 of 6 seeded mutants survive, including an inverted overlap knob that would reverse a headline finding, because the tests never touch the generator or the experiment. As research it falls short of the repository's PhD-level bar. It studies budgeted maximum coverage without citing Khuller-Moss-Naor or Sviridenko or running their (1-1/e) algorithm, gives no intervals, and leaves its own printer-list question for later. Meets the bar: no (verification 2)."
+}

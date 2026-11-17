@@ -58,7 +58,7 @@ test("the worked-example figures match calc.mjs on the stated $350 trip", async 
   assert.equal(byPlan.more_earnings.hostPayout, 315);
   assert.equal(plans.swing, 70);
 
-  const windows = compareBookingWindows({ ...base, plan: "balanced", selectedWindow: "3_13" });
+  const windows = compareBookingWindows({ ...base, plan: "balanced", market: "variable", selectedWindow: "3_13" });
   const byWindow = Object.fromEntries(windows.rows.map((r) => [r.bookingWindow, r]));
   assert.equal(byWindow["0_2"].hostPayout, 262.5);
   assert.equal(byWindow["3_13"].hostPayout, 280);

@@ -73,6 +73,6 @@ export function stats(state) {
 }
 
 export function toCsv(items) {
-  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const cell = (v) => { let s = String(v ?? ""); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   return [["id", "form", "status", "name", "role", "company", "rating", "text", "email", "date"], ...items.map((i) => [i.id, i.form, i.status, i.name, i.role, i.company, i.rating ?? "", i.text, i.email, new Date(i.at).toISOString().slice(0, 10)])].map((r) => r.map(cell).join(",")).join("\n") + "\n";
 }

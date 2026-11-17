@@ -1,0 +1,11 @@
+series per cell 200, bootstrap replicates 99, seeds from 61,000,000; change at 60% of n, line 0.02 t, innovation sd 1
+cell | tested | p<=0.05 (share of all) | of those, says step | says bend | right kind among rejections | bar | post hoc, not pre-registered: OLS (rho 0) right kind
+step 1, n 100, rho 0.5 | 200 | 11 (5.5%) | 6 | 5 | 54.5% | reported | 54.5%
+step 2, n 100, rho 0.5 | 200 | 28 (14.0%) | 23 | 5 | 82.1% | fewer than 30 rejections | 71.4%
+step 3, n 100, rho 0.5 | 200 | 31 (15.5%) | 28 | 3 | 90.3% | holds (>= 85%) | 90.3%
+step 2, n 145, rho 0.5 | 200 | 41 (20.5%) | 35 | 6 | 85.4% | holds (>= 85%) | 80.5%
+step 2, n 100, rho 0 | 200 | 84 (42.0%) | 83 | 1 | 98.8% | holds (>= 85%) | 98.8%
+bend 0.04, n 100, rho 0.5 | 200 | 34 (17.0%) | 24 | 10 | 29.4% | reported | 35.3%
+bend 0.08, n 100, rho 0.5 | 200 | 120 (60.0%) | 67 | 53 | 44.2% | FAILS (< 85%) | 56.7%
+bend 0.04, n 145, rho 0.5 | 200 | 99 (49.5%) | 64 | 35 | 35.4% | reported | 53.5%
+bend 0.08, n 100, rho 0 | 200 | 200 (100.0%) | 36 | 164 | 82.0% | FAILS (< 85%) | 81.0%

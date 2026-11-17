@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJM5FMMnNy3rAZ9Vc2",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T02:06:45Z",
+  "ended": "2026-11-17T02:18:04Z",
+  "wall_minutes": 11.47,
+  "tokens_in": 3568409,
+  "tokens_out": 16106,
+  "cost_usd": 1.6804,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16782",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "main_health.py ran while seeded fault files sat in the working tree; it still reported no red check, but a health run should come before seeding."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "changed_paths used git diff --name-only, which omits untracked files, so a new uncommitted post was missing from the diff (both selection and COMMON CAUSE). A bare 'index.html' also counted as naming the one changed index.html. Both fixed here."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "The friction list mixes fixed and live rows; picking a live one meant reading the latest run records by hand. Reproducing the fault by seeding it settled the question in one sweep."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-file-git-diff-could-not-see.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode: the backlog had owner rows only, so no backlog id was touched. Seeded the reported fault (a new post with a 178-character description plus a one-line index.html edit) and swept with run_workflow_locally --for-changes --foreground --only portfolio-pages. Before the fix, COMMON CAUSE named index.html (2 of 4 failed steps). After the fix it named the post (3 of 4) and nothing else. unittest test_run_workflow_locally: 223 OK. main_health.py: 250 checks, none red.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7b81b98c-d069-5259-bb24-0b47ba44080d",
+    "transcripts": 1,
+    "first": "2026-11-17T02:06:45Z",
+    "last": "2026-11-17T02:18:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 16106,
+        "thinking": 3827,
+        "cache_read": 3485726,
+        "cache_write_5m": 0,
+        "cache_write_1h": 82602,
+        "api_equivalent_usd": 1.6804,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 16106,
+      "thinking": 3827,
+      "cache_read": 3485726,
+      "cache_write_5m": 0,
+      "cache_write_1h": 82602,
+      "api_equivalent_usd": 1.6804,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 41,
+      "Edit": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.47,
+      "active_minutes": 11.47,
+      "model_minutes": 3.82,
+      "tool_minutes": 7.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "reproduce a CI-tool misdiagnosis, two small fixes with tests, a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 119.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

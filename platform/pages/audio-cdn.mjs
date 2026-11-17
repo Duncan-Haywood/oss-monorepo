@@ -23,6 +23,8 @@ import path from 'node:path';
 export const CDN_ORIGIN = 'https://cdn.jsdelivr.net/gh/';
 export const CDN_MAX_BYTES = 20 * 1024 * 1024;
 const DEFAULT_REPO = 'Duncan-Haywood/oss-monorepo';
+// Text files the rewrite holds open at once (see moveAudioToCdn).
+const READ_LIMIT = 64;
 // Files whose text can name an audio URL: pages, feeds, data and scripts.
 const TEXT_EXTS = new Set(['.html', '.xml', '.json', '.js', '.mjs', '.txt', '.webmanifest']);
 
@@ -112,11 +114,21 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
   }
   if (!target.size) return result;
 
-  // A quoted, parenthesised or attribute-valued reference ending in .mp3.
-  const REF = /(["'(=\s])([^"'()\s<>]*?\.mp3)(?=[?#]?[^"'()\s<>]*["')\s<>])/g;
+  // A quoted, parenthesised or attribute-valued reference ending in .mp3,
+  // optionally followed by a query or fragment. Only those: `one.mp3.vtt` or
+  // `one.mp3-notes.html` name another file, and rewriting their `.mp3` prefix
+  // broke the link and counted the MP3 as linked (red team, 2026-11-17).
+  const REF = /(["'(=\s])([^"'()\s<>]*?\.mp3)(?=(?:[?#][^"'()\s<>]*)?["')\s<>])/g;
   const texts = files.filter((f) => TEXT_EXTS.has(path.extname(f)));
   const unreferenced = new Set(target.keys());
-  await Promise.all(texts.map(async (file) => {
+  // At most READ_LIMIT files open at once: the site has more text files
+  // (~21,500 on 2026-11-16) than some sandboxes allow open descriptors
+  // (ulimit -n 20000), and one Promise.all over them all failed with EMFILE.
+  let nextText = 0;
+  await Promise.all(Array.from({ length: Math.min(READ_LIMIT, texts.length) }, async () => {
+    while (nextText < texts.length) await rewrite(texts[nextText++]);
+  }));
+  async function rewrite(file) {
     const src = await fs.readFile(file, 'utf8');
     if (!src.includes('.mp3')) return;
     const from = urlOf(file);
@@ -135,7 +147,7 @@ export async function moveAudioToCdn({ outDir, base, repoRoot, repo = process.en
       return `${lead}${hit.cdn}`;
     });
     if (changed) await fs.writeFile(file, out);
-  }));
+  }
 
   for (const [url, { file, bytes }] of target) {
     // An MP3 nothing links is still a published URL (a feed reader may hold

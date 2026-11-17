@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVKXX7LkEqGW2SsuNsF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled venture prompt: develop, deploy, market, sell and support revenue-generating products; merge when done",
+  "input_sha256": "0210aed757f81c6dd6c0e70f6a62a676f0f5bcfd3bb9781295ab2556994b3372",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T16:10:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 5 einvoice-preflight: Factur-X PDF/A-3b writer for the creator, and veraPDF on the repair (open item)",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": 15900,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The router can send a run to research when the scheduled prompt asks for product work; nothing tells the run which wins. This run let the user's prompt win."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The router drew the research track, but the scheduled prompt that started this run asks for venture work (develop, deploy, market, sell). The user's prompt ranks above the router, so the run took allocate.py's venture pick (einvoice-preflight, flagship row 3).",
+      "did": "venture work on flagship 5",
+      "result": "Factur-X writer shipped; veraPDF closed the repair's open check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-factur-x-pdf-that-verapdf-passes-with-no-dependencies.md",
+    "ventures/einvoice-preflight/eval/facturx-pdf-verapdf-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "veraPDF 1.30.4 from Maven Central (org.verapdf.apps:cli, GreenfieldCliWrapper); software.verapdf.org is blocked. The writer's 8 test PDFs and the browser download all PASS PDF/A-3b. The repo's old example PDFs failed 4 rules. Repair on real corpus PDFs: 155 of 155 seeded and repaired files still pass (3a/3b/3u/4f). Official EN 16931 CII Schematron on the embedded XML: no finding. Local checks: run_venture_tests.py einvoice-preflight 0 failed; facturx-pdf.test.mjs 13/13; server.test.mjs 13/13; inherited_keys 0. Mustang validator not run (its Maven path came back empty through the proxy).",
+  "corrections": [],
+  "redteam": null
+}

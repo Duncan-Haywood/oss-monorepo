@@ -28,8 +28,8 @@ const o = { splh: 60, minStaff: 1, shifts: true };
 test("score-closed: a staffed lunch closure now counts as over; the plan that shuts it is scored as before", () => {
   const text = sales();
   const all = (b) => b.methods[0];
-  const offOld = all(backtestSales(text, { ...o, keepRare: true })), offNew = all(backtestSales(text, { ...o, keepRare: true, scoreClosed: true }));
-  const onOld = all(backtestSales(text, o)), onNew = all(backtestSales(text, { ...o, scoreClosed: true }));
+  const offOld = all(backtestSales(text, { ...o, keepRare: true, scoreClosed: false })), offNew = all(backtestSales(text, { ...o, keepRare: true, scoreClosed: true }));
+  const onOld = all(backtestSales(text, { ...o, scoreClosed: false })), onNew = all(backtestSales(text, { ...o, scoreClosed: true }));
   // Rules off staffs 13:00 and 14:00 with minimum staff every day. Old score: needed, never over. New score: over on
   // the 9 in 10 dates with no sale then, 2 hours x 7 days x 0.9 = 12.6 a week (whole weeks shift it by a little).
   assert.equal(offOld.scheduled, offNew.scheduled);
@@ -42,18 +42,22 @@ test("score-closed: a staffed lunch closure now counts as over; the plan that sh
   assert.ok(addedOn >= 0 && addedOn < added / 2, `rules on: over rose by ${addedOn}`);
   assert.equal(onNew.short, onOld.short);
   const late = (b) => b.perWeek.all.slice(-3);
-  assert.deepEqual(late(backtestSales(text, { ...o, scoreClosed: true })), late(backtestSales(text, o)));
+  assert.deepEqual(late(backtestSales(text, { ...o, scoreClosed: true })), late(backtestSales(text, { ...o, scoreClosed: false })));
+  // The closure score is the default since 2026-11-12.
+  assert.deepEqual(backtestSales(text, o).perWeek.all, backtestSales(text, { ...o, scoreClosed: true }).perWeek.all);
   // Under the old score shutting the closure only looked worse (short on the stray-sale dates); now it wins.
   assert.ok(onOld.miss > offOld.miss, `old: rules on ${onOld.miss} vs off ${offOld.miss}`);
   assert.ok(onNew.miss < offNew.miss, `new: rules on ${onNew.miss} vs off ${offNew.miss}`);
 });
 
-test("score-closed: the CLI flag reaches the backtest and the report says so", () => {
+test("score-closed: the default reaches the CLI backtest and the report says so; --score-open-hours turns it off", () => {
   const dir = mkdtempSync(join(tmpdir(), "score-closed-"));
   const f = join(dir, "sales.csv");
   writeFileSync(f, sales());
   const out = execFileSync("node", ["cli.mjs", "--from-sales", f, "--splh", "60", "--backtest", "--score-closed", "--keep-rare"], { cwd: import.meta.dirname, encoding: "utf8" });
   assert.match(out, /only in hours your shop normally trades/);
-  const plain = execFileSync("node", ["cli.mjs", "--from-sales", f, "--splh", "60", "--backtest", "--keep-rare"], { cwd: import.meta.dirname, encoding: "utf8" });
+  const dflt = execFileSync("node", ["cli.mjs", "--from-sales", f, "--splh", "60", "--backtest", "--keep-rare"], { cwd: import.meta.dirname, encoding: "utf8" });
+  assert.equal(dflt, out);
+  const plain = execFileSync("node", ["cli.mjs", "--from-sales", f, "--splh", "60", "--backtest", "--score-open-hours", "--keep-rare"], { cwd: import.meta.dirname, encoding: "utf8" });
   assert.doesNotMatch(plain, /only in hours your shop normally trades/);
 });

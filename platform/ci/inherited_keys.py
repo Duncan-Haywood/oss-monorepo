@@ -76,6 +76,9 @@ def scan_text(text: str) -> list[tuple[int, str]]:
     return out
 
 
+BUILD_DIRS = {"dist", "build", "out"}
+
+
 def engine_files(slug: str, ventures: Path = VENTURES) -> list[Path]:
     base = ventures / slug
     if not base.is_dir():
@@ -85,6 +88,11 @@ def engine_files(slug: str, ventures: Path = VENTURES) -> list[Path]:
         if p.suffix not in {".mjs", ".js"} or not p.is_file():
             continue
         rel = p.relative_to(base).parts
+        # Build output is gitignored (.next/, dist/, build/, out/ in .gitignore),
+        # so CI never sees it; scanning it locally failed the venture preflight
+        # on Next's own bundle after `npm run verify` (run record 2026-11-13).
+        if any(part.startswith(".") or part in BUILD_DIRS for part in rel[:-1]):
+            continue
         if "node_modules" in rel or "eval" in rel or ".test." in p.name or p.name.endswith(".min.js"):
             continue
         files.append(p)

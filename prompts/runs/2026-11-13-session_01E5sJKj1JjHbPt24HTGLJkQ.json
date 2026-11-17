@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKj1JjHbPt24HTGLJkQ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T02:17:50Z",
+  "ended": "2026-11-13T02:46:11Z",
+  "wall_minutes": 28.61,
+  "tokens_in": 15931590,
+  "tokens_out": 50511,
+  "cost_usd": 5.433,
+  "tool_calls": 87,
+  "task": "Deepen (flagship 6) shift-roster-builder: a reissue that keeps slack for later call-outs",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15343",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A first slack design (hand shifts to people so someone stays free behind each, priced per change) moved nothing on the cafe: nearly every Tue-Sun shift had nobody free to take it outright; dropped before commit and reported in the README.",
+    "Two Bash calls with heredocs writing files were refused by the rm-safety parser although they contained no rm; rewrote them with the Write tool."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Stop hook demands a commit while a long eval is still writing its output file; it fired about 15 times during one 40-minute background run, so a partial output had to be committed twice."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-which-tied-roster-holds-up.md",
+    "ventures/shift-roster-builder/README.md (Which of the tied best rosters holds up to a call-out?)"
+  ],
+  "goal": "Land the flagship's 'slack for later call-outs' item with a measured result.",
+  "notes": "calloutExposure + steadyRoster in calc.mjs, CLI --steady, eval/steady-for-callouts.mjs (40 seeded weeks x 4 rate settings x 5 templates). Least-exposed tie adds 3,304 open hours vs 3,423 average tie (-3.5%) and 3,595 worst (-8.1%), fewer on 10 of 12 cells, at +16% changes to others. Verification: node --test steady.test.mjs 5/5; python3 platform/ci/run_venture_tests.py shift-roster-builder ok (149.3 s); venture-preflight see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "24e8469d-d35d-55cc-b977-4c6559dffe73",
+    "transcripts": 1,
+    "first": "2026-11-13T02:17:50Z",
+    "last": "2026-11-13T02:46:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 113,
+        "input": 280,
+        "output": 50511,
+        "thinking": 13806,
+        "cache_read": 15772928,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158382,
+        "api_equivalent_usd": 5.433,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 113,
+      "input": 280,
+      "output": 50511,
+      "thinking": 13806,
+      "cache_read": 15772928,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158382,
+      "api_equivalent_usd": 5.433,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 73,
+      "Write": 6,
+      "ToolSearch": 3,
+      "TaskStop": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 28.61,
+      "active_minutes": 19.39,
+      "model_minutes": 12.97,
+      "tool_minutes": 6.42,
+      "waiting_on_human_minutes": 9.22,
+      "human_prompts": 36,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an operations-research engineer designing, coding and running the exposure study and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 220.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

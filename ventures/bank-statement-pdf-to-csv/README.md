@@ -32,6 +32,13 @@ layouts (the date printed once per day, one-decimal amounts) it matches 100 of
 100 and 56 of 62 rows on date and signed amount, and flags the second as not
 adding up. None of these is a real customer's statement.
 
+A second round (2026-11-14, `eval/README.md` "Round 2") read glyph widths
+from the font so text placed a few letters at a time joins back up, and added
+whole-number balances tagged CR/DR, an end-of-transactions marker, a
+misprinted-balance finding and spacing-aware descriptions: the transtractor
+fixture went from 56 to 62 of 62 rows right and proved, and its held-out twin
+from unbalanced to proved.
+
 What the reader handles now: month names and balance labels in English,
 French, Dutch, German, Spanish, Italian and Portuguese; amounts like
 `1,234.56`, `1.234,56`, `1 234,56 $` and (when a statement prints them)

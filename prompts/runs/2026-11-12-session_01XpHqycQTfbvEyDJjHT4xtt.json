@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqycQTfbvEyDJjHT4xtt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T18:38:56Z",
+  "ended": "2026-11-12T19:17:34Z",
+  "wall_minutes": 38.89,
+  "tokens_in": 8726105,
+  "tokens_out": 72165,
+  "cost_usd": 4.6055,
+  "tool_calls": 62,
+  "task": "research programme theism-formal-evidence (drawn by pick_track.py): E19, the AFP AndersonProof.thy cross-check and frame-condition map",
+  "projects": [
+    "research/theism-formal-evidence"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15220",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First background sweep would have crashed at the end: a statement name contained '|', the key separator in results.json; caught on a quick run, renamed, restarted (lost ~2 min)."
+    },
+    {
+      "what": "Launched the first sweep with a shell '&' instead of run_in_background; killed and relaunched properly."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Lean build: build.sh needs zstd and a PATH to the cached toolchain on a second invocation; the second ./build.sh call needed PATH=/tmp/lean-toolchain/lean-<ver>-linux/bin exported by hand (the script exports it only inside its own run)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py has no --dry-run; finding what --for-changes will run without running it is not documented."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-anderson-godel-argument-needs-only-symmetry.md",
+    "research/theism-formal-evidence/experiments/e19_afp_anderson/results.md",
+    "research/theism-formal-evidence/LOG.md (E19 entry)"
+  ],
+  "goal": "Advance the programme's M2: agreement with the published machine-checked literature, plus a new result on which modal premise Anderson's argument uses.",
+  "notes": "Prediction H23 committed (first commit) before any code. Sweep: 8,112,532 frames, 28.5 min. All AFP claims reproduce in S5; stage II/III counts equal E12's formula on 17,742 frames. Conclusion GodNecExists holds in every symmetric frame and fails in K, T, K4, S4 (S4: 96,036/136,466). Lean 4 AndersonK.lean (7 theorems, no sorry, no warnings) proves the symmetric-frame conclusion for any frame, domains and Henkin property collection. Verification: test_theism.py 28/28 ok; research/_homepage/build.py ok; check_md_links ok; research_live_links 0 updates; programme_check ok; cite_check (no DOIs in results). No agent doc in docs/reports: the LOG.md entry carries the next steps for the next run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "540b59ff-41b0-50cb-ae76-5404ff56e85b",
+    "transcripts": 1,
+    "first": "2026-11-12T18:38:56Z",
+    "last": "2026-11-12T19:17:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 58,
+        "input": 114,
+        "output": 72165,
+        "thinking": 35303,
+        "cache_read": 8544377,
+        "cache_write_5m": 0,
+        "cache_write_1h": 181614,
+        "api_equivalent_usd": 4.6055,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 58,
+      "input": 114,
+      "output": 72165,
+      "thinking": 35303,
+      "cache_read": 8544377,
+      "cache_write_5m": 0,
+      "cache_write_1h": 181614,
+      "api_equivalent_usd": 4.6055,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.89,
+      "active_minutes": 38.89,
+      "model_minutes": 11.68,
+      "tool_minutes": 27.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a logician transcribing the AFP theory, writing an exact finite-model enumerator, a 28-min sweep, and 7 Lean proofs: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 347.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,12 +1,14 @@
 // Structure and value-format checks for a FatturaPA file, read from the Agenzia
-// delle Entrate schema (XSD 1.2.1) by build-fatturapa-schema.mjs. The XSD is the
+// delle Entrate schema (XSD 1.2.3, specification 1.9) by build-fatturapa-schema.mjs. The XSD is the
 // first gate SdI applies; a file that fails it is refused before any business rule.
 //   IT-018 elements out of sequence     IT-019 an element the schema does not allow here
 //   IT-020 a required element missing   IT-021 a value outside its length / pattern / range
 //   IT-022 the XML is not well formed (a cut-off file, a mismatched tag)
-// Not enforced: the code lists. 1.2.1 predates TD16-TD28, RF17-RF19 and the N2.1,
-// N3.x, N6.x codes in use today, so only the lists that have not grown are read
-// from it (STABLE_ENUMS); the others stay with IT-006, IT-008 and IT-011.
+// Code lists: every enumeration in 1.2.3 is enforced here (IT-021), except the three
+// that fatturapa.mjs checks with its own rule ids (TipoDocumento IT-008,
+// RegimeFiscale IT-006, Natura IT-011), which read their lists from this table too.
+// A code the schema keeps but whose comment says is no longer valid (CausalePagamento
+// Z; Natura N2, N3, N6, all from 1 January 2021) is refused as well.
 // Messages never echo the value, only which element and why.
 import schema from "./fatturapa-xsd-data.mjs";
 
@@ -19,10 +21,12 @@ export function calendarDate(value) {
   return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
 }
 
-const STABLE_ENUMS = new Set([
-  "Art73Type", "BolloVirtualeType", "CondizioniPagamentoType", "EsigibilitaIVAType", "RitenutaType",
-  "SocioUnicoType", "SoggettoEmittenteType", "StatoLiquidazioneType", "TipoCessionePrestazioneType", "TipoScontoMaggiorazioneType",
-]);
+/** Codes in force for `typeName`: the schema's list less the codes its comments retire. */
+export function codesFor(typeName) {
+  const retired = new Set((schema.retired ?? []).filter((r) => r.type === typeName).map((r) => r.code));
+  return (schema.enums[typeName] ?? []).filter((c) => !retired.has(c));
+}
+const OWN_RULE_ENUMS = new Set(["TipoDocumentoType", "RegimeFiscaleType", "NaturaType"]);
 
 const finding = (rule, message, fix, path) => ({ rule, message, fix, path });
 
@@ -76,8 +80,10 @@ function valueProblem(typeName, raw) {
     }
     return "does not match the format the schema requires";
   }
-  if (STABLE_ENUMS.has(typeName) && schema.enums[typeName] && !schema.enums[typeName].includes(value)) {
-    return `is not one of ${schema.enums[typeName].join(", ")}`;
+  if (!OWN_RULE_ENUMS.has(typeName) && schema.enums[typeName]) {
+    const retired = (schema.retired ?? []).find((r) => r.type === typeName && r.code === value);
+    if (retired) return `uses a code the schema marks as no longer valid for invoices issued from ${retired.from}; use one of ${codesFor(typeName).join(", ")}`;
+    if (!schema.enums[typeName].includes(value)) return `is not one of ${codesFor(typeName).join(", ")}`;
   }
   return "";
 }

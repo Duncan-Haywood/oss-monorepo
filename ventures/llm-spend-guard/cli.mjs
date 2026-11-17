@@ -16,6 +16,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { createGuard, normalisePolicy } from './guard.mjs';
 import { EXAMPLE_POLICY, parseLog, simulate } from './simulate.mjs';
+import { pathToFileURL } from 'node:url';
 
 export const DISCLAIMER = 'No warranty. LLM Spend Guard is free, as-is software, not financial advice and not a billing system: '
   + 'it estimates cost from the prices you configure and the usage providers report, and may differ from your invoice. '
@@ -161,6 +162,6 @@ export async function main(argv, { stdout = (s) => process.stdout.write(`${s}\n`
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main(process.argv.slice(2)).then((code) => { if (code != null) process.exitCode = code; });
 }

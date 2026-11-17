@@ -30,3 +30,10 @@ def test_closer_camera_reaches_larger_radius():
 def test_wide_rig_identifies_k2_better():
     s = run_trial_wide(dist=2.5, k1_true=-0.2, k2_true=0.1, seed=0, n_feat=200)
     assert abs(s["k2_est"] - 0.1) < 0.1 and np.isfinite(s["k1k2"])
+
+
+def test_radius_table_pins_published_values():
+    # round 64 audit: dividing by camera distance instead of depth, or reporting the median as the
+    # 95th percentile, left every test green; values agree with an independent sampler (p95 0.617)
+    rmax, r95, n = rig_radius_stats(2.0, seeds=6)
+    assert abs(r95 - 0.616) < 0.01 and 0.80 < rmax < 0.89 and 3550 < n < 3800

@@ -1,0 +1,12 @@
+normalised_plane threads=1: 0.243 s  clipped=168822  sha=692b58a19b44afde
+develop default     threads=1: 11.01 s  sha=a68c6ac0001c4f91
+develop no opcodes  threads=1: 2.27 s  sha=8f0006a926fbe3df
+develop half size   threads=1: 2.13 s  sha=fc54d121fe1087dc
+normalised_plane threads=2: 0.237 s  clipped=168822  sha=692b58a19b44afde
+develop default     threads=2: 4.36 s  sha=a68c6ac0001c4f91
+develop no opcodes  threads=2: 1.18 s  sha=8f0006a926fbe3df
+develop half size   threads=2: 1.18 s  sha=fc54d121fe1087dc
+normalised_plane threads=4: 0.242 s  clipped=168822  sha=692b58a19b44afde
+develop default     threads=4: 3.15 s  sha=a68c6ac0001c4f91
+develop no opcodes  threads=4: 0.93 s  sha=8f0006a926fbe3df
+develop half size   threads=4: 1.14 s  sha=fc54d121fe1087dc

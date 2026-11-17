@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLwpcjYbiMp1A5G4tu",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "8e865a5d3fb7abbe88c8f6feebc14a6e00111a6047c4a948d8cee3cc025ee6fa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T18:16:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 10): open-tennis-robots lift strands' sideways modes vs flight rate and drive modes, balls on the up strand only",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 16299,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/cad/README.md",
+      "issue": "tensioner, belt-stretch and tooth-jump notes labelled the down strand slack; the drive pulley pulls the down strand in, so it is the tight one (models symmetric, labels fixed)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew the research track (weighted draw), but the scheduled routine's stored prompt asks for revenue-product work; followed the routine and allocate.py's flagship pick instead",
+      "did": "took allocate.py row 7 (open-tennis-robots), recorded as ventures/1",
+      "result": "one flagship slice landed with a correction to the build notes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-tennis-lifts-belt-rings-at-the-flight-rate.md"
+  ],
+  "goal": null,
+  "notes": "New pure-Python modal solver (finite differences + Sturm count) in cad/otr_cad/params.py; matches string and beam-string closed forms to 0.2%. Findings: pluck figure 2.12 Hz not 2.36 (flights' mass left out; tensioning to the old figure sets 1.24x T0), fixed in manifest; empty belt's fundamental sits inside the flight-passing band over the battery's speed range (0.91-1.23x) and no static T0 clears all low bands robustly; held speed would. Distributed loop: first stuck drive mode 34-41 Hz (lumped 38), next 98-131 Hz (lumped 78). The first sweep ran with a bug that gave the down strand T0 instead of T0+P/2; a test caught it before anything was written up, and all reported numbers come from the corrected run. Checks run here: venture python tests (119 OK), node tests (21 pass), cad pytest with build123d after rebuilding manufacturing/feeder, post front matter/links/similarity clean, validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

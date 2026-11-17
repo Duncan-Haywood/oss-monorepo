@@ -9,7 +9,7 @@
   <meta property="og:description" content="The fee Gumroad actually took, what you keep per order and per product, and the price to charge for a target take-home. Nothing leaves your device.">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Gumroad Sales Fee Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Turns a Gumroad seller sales CSV into the service fee actually observed, take-home per order, net revenue per product and buyer, repeat-buyer share, refunds, withdrawal costs, funds still clearing and the price needed for a target take-home. Runs entirely in your browser; the file is never uploaded.", "featureList": "Observed fee rate, take-home per order, per-product net revenue, repeat buyer share, refunds and cancellations, withdrawal costs, pending funds, break-even price, optional per-hour ranking"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does Gumroad actually take from a seller?", "acceptedAnswer": {"@type": "Answer", "text": "Only what your file shows. If your export has a service fee column, or both an order amount and your earnings, the tool computes the fee it actually observed as fees divided by order value. The rate can differ between rows because of payment processing, discovery-sourced sales, adjustments or a changed fee schedule, so the tool reports the observed rate and only falls back to the percentage you type (20 by default, an assumption, not Gumroad’s rate) when the file has no fee information at all. The buyer-side fee is separate and is not part of what you keep."}}, {"@type": "Question", "name": "What is my real take-home per order?", "acceptedAnswer": {"@type": "Answer", "text": "Take-home is your net order and tip revenue, minus refunds, minus any cost per order you enter, minus withdrawal fees found in the file, divided by the number of orders. It is shown next to the average order value so you can see how much of a typical price you actually keep."}}, {"@type": "Question", "name": "What price do I need to charge to take home a target amount?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the take-home you want per order. The break-even price is (target + your cost per order) divided by (1 minus the fee rate), and a second figure also allows for your own refund rate. It uses the fee rate observed in your file, or the percentage you enter when the file has none."}}, {"@type": "Question", "name": "Does the tool rank products by profit per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Only when you supply hours. Gumroad does not record your time, so hours per order come from an optional Hours column, a line per product, or one default figure you type. Without hours the tool ranks products by take-home only and says so."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "They are matched by alias, and no real Gumroad export was available when this was built, so nothing here claims to know Gumroad's exact headers. The page lists the columns it looks for and, if a row cannot be read, names the line and the reason. A sheet with Date, Type, Status, Product, Buyer, Amount, Service Fee and Net always works."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you type. It is independent of Gumroad and not affiliated with or endorsed by Gumroad, Inc."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much does Gumroad actually take from a seller?", "acceptedAnswer": {"@type": "Answer", "text": "Only what your file shows. If your export has a service fee column, or both an order amount and your earnings, the tool computes the fee it actually observed as fees divided by order value. Gumroad's standard schedule is 10% + $0.50 per direct sale plus 2.9% + $0.30 card processing when Gumroad takes the payment (12.9% + $0.80 in all), and a flat 30% on a sale that came through Gumroad Discover. Rows differ with Discover sales, PayPal or Stripe Connect processing, custom or volume rates and affiliates, so the tool reports the observed rate next to what the standard schedule would have charged, and applies the schedule only when the file has no fee information at all."}}, {"@type": "Question", "name": "What is my real take-home per order?", "acceptedAnswer": {"@type": "Answer", "text": "Take-home is your net order and tip revenue, minus refunds, minus any cost per order you enter, minus withdrawal fees found in the file, divided by the number of orders. It is shown next to the average order value so you can see how much of a typical price you actually keep."}}, {"@type": "Question", "name": "What price do I need to charge to take home a target amount?", "acceptedAnswer": {"@type": "Answer", "text": "Enter the take-home you want per order. The break-even price is (target + your cost per order + the fixed fee per sale) divided by (1 minus the percentage fee), and a second figure also allows for your own refund rate. The percentage is the fee observed in your file after taking the fixed fee off each direct sale, or the rate you enter when the file has none, so cheap products do not inflate the price for a dearer one."}}, {"@type": "Question", "name": "Does the tool rank products by profit per hour?", "acceptedAnswer": {"@type": "Answer", "text": "Only when you supply hours. Gumroad does not record your time, so hours per order come from an optional Hours column, a line per product, or one default figure you type. Without hours the tool ranks products by take-home only and says so."}}, {"@type": "Question", "name": "Are the column names right for my export?", "acceptedAnswer": {"@type": "Answer", "text": "Gumroad's own sales export (Sales, then Export) is read as it comes: its column names, including Sale Price ($), Fees ($), Net Total ($), Refunded?, Partial Refund ($), Fully Refunded?, Disputed?, Dispute Won? and Discover?, were checked against the export code in Gumroad's open-source repository on 2026-11-15. Other sheets are matched by alias, and if a row cannot be read the page names the line and the reason."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off."}}, {"@type": "Question", "name": "Is this tax or financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It applies arithmetic to the file and the costs you type. It is independent of Gumroad and not affiliated with or endorsed by Gumroad, Inc."}}]}</script>
   <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -47,26 +47,36 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     td.heat { text-align: center; font-variant-numeric: tabular-nums; font-size: .82rem; padding: 6px 4px; }
     </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#feemode) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 448px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
-    <p class="note">FIVERR EARNINGS FEE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <p class="note">GUMROAD SALES FEE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>What do you actually take home from Gumroad?</h1>
     <p>Drop in your <strong>Gumroad sales CSV</strong> and get <strong>the service fee actually taken, your take-home per order, net revenue per product and per buyer, repeat-buyer share, refunds, withdrawal costs and funds still clearing</strong>, plus the <strong>price to charge for a target take-home</strong>.</p>
-    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Gumroad: not affiliated with or endorsed by Gumroad, Inc. Column names are matched by alias and were not checked against a real export; if yours is not read, the page tells you which rows were skipped and why.</p>
+    <p class="note">The file is read in this browser tab and never leaves your device. Independent of Gumroad: not affiliated with or endorsed by Gumroad, Inc. Gumroad's sales export is read as it comes (column names checked against Gumroad's open-source export code); other sheets are matched by alias, and skipped rows are listed with the reason.</p>
   </header>
 <main>
 
   <section class="card">
     <h2>1. Your earnings file</h2>
-    <p class="note">Columns looked for, under several spellings each: an amount, as <strong>Amount</strong> or <strong>Price</strong> (read as before Gumroad's fee) and/or <strong>Earnings</strong> or <strong>Net</strong> (what you keep). Used when present: <strong>Date</strong>, <strong>Type</strong> (order, tip, refund, withdrawal), <strong>Status</strong> (cancelled, pending or clearing), <strong>Product</strong>, <strong>Buyer</strong>, <strong>Service fee</strong>, <strong>Hours</strong>. These are assumed names, not Gumroad's documented ones. Without a Type column, a negative amount is read as a refund and a description mentioning withdrawal as a withdrawal.</p>
+    <p class="note">Columns looked for, under several spellings each: an amount, as <strong>Amount</strong> or <strong>Price</strong> (read as before Gumroad's fee) and/or <strong>Earnings</strong> or <strong>Net</strong> (what you keep). Used when present: <strong>Date</strong>, <strong>Type</strong> (order, tip, refund, withdrawal), <strong>Status</strong> (cancelled, pending or clearing), <strong>Product</strong>, <strong>Buyer</strong>, <strong>Service fee</strong>, <strong>Hours</strong>. <strong>Gumroad's sales export</strong> works as it comes: Sale Price ($), Fees ($), Net Total ($), the refund and dispute flags and Discover? are read, and the Totals row is skipped. Other names are matched by alias. Without a Type column, a negative amount is read as a refund and a description mentioning withdrawal as a withdrawal.</p>
     <label for="file">Choose a CSV file</label>
     <input type="file" id="file" accept=".csv,.tsv,.txt,text/csv">
     <label for="paste">…or paste the file text</label>
-    <textarea id="paste" spellcheck="false" placeholder="Date,Order ID,Type,Status,Product,Buyer,Amount,Service Fee,Net"></textarea>
+    <textarea id="paste" spellcheck="false" placeholder="Purchase ID,Item Name,Buyer Name,Purchase Date,Sale Price ($),Fees ($),Net Total ($),Refunded?,…"></textarea>
     <div class="grid">
       <div><label for="feemode">Amounts in the file are</label><select id="feemode"><option value="auto">Detect (fee column, amount vs earnings, or amount only)</option><option value="gross">Before Gumroad's fee: apply the percentage below</option><option value="net">What I keep: gross it up by the percentage below</option></select></div>
-      <div><label for="feepct">Fee % (only when the file has no fee)</label><input type="number" id="feepct" min="0" max="99" step="any" value="20"></div>
+      <div><label for="feepct">Fee % per direct sale (Gumroad: 12.9)</label><input type="number" id="feepct" min="0" max="99" step="any" value="12.9"></div>
+      <div><label for="feefixed">Fixed fee per sale ($)</label><input type="number" id="feefixed" min="0" step="any" value="0.80"></div>
       <div><label for="from">From date (optional)</label><input type="date" id="from"></div>
       <div><label for="to">To date (optional)</label><input type="date" id="to"></div>
     </div>
@@ -111,7 +121,7 @@
     <ul>
       <li><strong>Observed fee.</strong> Fees divided by order value, taken from the file's fee column, or from amount minus earnings. Only when the file has neither is the percentage you enter applied, and the page says so under the result.</li>
       <li><strong>Reconciles.</strong> The per-product rows add up to the totals at the top, and take-home is net revenue minus refunds, minus your cost per order, minus withdrawal fees.</li>
-      <li><strong>Refunds</strong> are rows typed as refund, dispute or adjustment, or with a negative amount; they reduce net by the earnings figure on the row, or the amount if that is all it has. <strong>Cancelled</strong> orders are counted and left out of revenue.</li>
+      <li><strong>Refunds</strong> in Gumroad's export are the Fully Refunded?, Partial Refund ($) and Disputed? (not won) flags on a sale; Gumroad returns its fee in proportion to the amount refunded, so the share of net refunded is taken back. Gumroad's dispute fee is not in the export and is not counted. In other sheets, refunds are rows typed as refund, dispute or adjustment, or with a negative amount; they reduce net by the earnings figure on the row, or the amount if that is all it has. <strong>Cancelled</strong> orders are counted and left out of revenue.</li>
       <li><strong>Withdrawals</strong> are rows typed as withdrawal or payout to a method. Their cost is the fee column, or the gap between the two amounts; currency conversion appears only if the file shows it that way.</li>
       <li><strong>Still clearing</strong> means a status of pending, clearing, processing or in progress. It stays in the totals and is shown separately; the clearing period itself is set by Gumroad for your account.</li>
       <li><strong>Repeat buyers</strong> have two or more orders in the file, using the buyer names the file gives.</li>
@@ -122,15 +132,15 @@
   <section class="card">
     <h2>Common questions</h2>
     <h3>How much does Gumroad actually take from a seller?</h3>
-    <p>Only what your file shows. If your export has a service fee column, or both an order amount and your earnings, the tool computes the fee it actually observed as fees divided by order value. The rate can differ between rows because of payment processing, discovery-sourced sales, adjustments or a changed fee schedule, so the tool reports the observed rate and only falls back to the percentage you type (20 by default, an assumption, not Gumroad’s rate) when the file has no fee information at all. The buyer-side fee is separate and is not part of what you keep.</p>
+    <p>Only what your file shows. If your export has a service fee column, or both an order amount and your earnings, the tool computes the fee it actually observed as fees divided by order value. Gumroad's standard schedule is 10% + $0.50 per direct sale plus 2.9% + $0.30 card processing when Gumroad takes the payment (12.9% + $0.80 in all), and a flat 30% on a sale that came through Gumroad Discover. Rows differ with Discover sales, PayPal or Stripe Connect processing, custom or volume rates and affiliates, so the tool reports the observed rate next to what the standard schedule would have charged, and applies the schedule only when the file has no fee information at all.</p>
     <h3>What is my real take-home per order?</h3>
     <p>Take-home is your net order and tip revenue, minus refunds, minus any cost per order you enter, minus withdrawal fees found in the file, divided by the number of orders. It is shown next to the average order value so you can see how much of a typical price you actually keep.</p>
     <h3>What price do I need to charge to take home a target amount?</h3>
-    <p>Enter the take-home you want per order. The break-even price is (target + your cost per order) divided by (1 minus the fee rate), and a second figure also allows for your own refund rate. It uses the fee rate observed in your file, or the percentage you enter when the file has none.</p>
+    <p>Enter the take-home you want per order. The break-even price is (target + your cost per order + the fixed fee per sale) divided by (1 minus the percentage fee), and a second figure also allows for your own refund rate. The percentage is the fee observed in your file after taking the fixed fee off each direct sale, or the rate you enter when the file has none, so cheap products do not inflate the price for a dearer one.</p>
     <h3>Does the tool rank products by profit per hour?</h3>
     <p>Only when you supply hours. Gumroad does not record your time, so hours per order come from an optional Hours column, a line per product, or one default figure you type. Without hours the tool ranks products by take-home only and says so.</p>
     <h3>Are the column names right for my export?</h3>
-    <p>They are matched by alias, and no real Gumroad export was available when this was built, so nothing here claims to know Gumroad's exact headers. The page lists the columns it looks for and, if a row cannot be read, names the line and the reason. A sheet with Date, Type, Status, Product, Buyer, Amount, Service Fee and Net always works.</p>
+    <p>Gumroad's own sales export (Sales, then Export) is read as it comes: its column names, including Sale Price ($), Fees ($), Net Total ($), Refunded?, Partial Refund ($), Fully Refunded?, Disputed?, Dispute Won? and Discover?, were checked against the export code in Gumroad's open-source repository on 2026-11-15. Other sheets are matched by alias, and if a row cannot be read the page names the line and the reason.</p>
     <h3>Is my data uploaded anywhere?</h3>
     <p>No. The file is read in your browser tab and never leaves your device. There are no accounts, and the only counters are anonymous feature events kept in local storage on your device, which you can turn off.</p>
     <h3>Is this tax or financial advice?</h3>
@@ -154,7 +164,7 @@
   </footer>
 
   <script type="module">
-    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr } from "./calc.mjs";
+    import { parseCsv, detectDelimiter, decodeBuffer, normalizeRows, analyze, sampleCsv, money, pct, dateStr, detectDecimalComma } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = (sel) => document.querySelector(sel);
@@ -166,16 +176,16 @@
 
     function run(text) {
       const delim = detectDelimiter(text);
-      const n = normalizeRows(parseCsv(text, delim), { decimalComma: delim === ";", feeMode: $("#feemode").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value) });
+      const n = normalizeRows(parseCsv(text, delim), { decimalComma: detectDecimalComma(parseCsv(text, delim), delim), feeMode: $("#feemode").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), feeFixed: $("#feefixed").value === "" ? 0 : Number($("#feefixed").value) });
       if (n.error) { status.textContent = n.error; report.hidden = true; return false; }
       const day = (id) => { const v = $(id).value; return v ? Date.parse(v + "T00:00:00Z") : null; };
-      const r = analyze(n.rows, { costPerOrder: num("#cost"), hoursDefault: num("#hoursdefault"), target: num("#target"), targetHourly: num("#targethourly"), hoursList: $("#hourslist").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), from: day("#from"), to: day("#to") });
+      const r = analyze(n.rows, { costPerOrder: num("#cost"), hoursDefault: num("#hoursdefault"), target: num("#target"), targetHourly: num("#targethourly"), hoursList: $("#hourslist").value, feePct: $("#feepct").value === "" ? 0 : Number($("#feepct").value), feeFixed: $("#feefixed").value === "" ? 0 : Number($("#feefixed").value), from: day("#from"), to: day("#to") });
       if (r.invalid) { status.textContent = r.invalid; report.hidden = true; return false; }
       last = r;
       const s = r.summary, cur = n.currency ? `${esc(n.currency)} ` : "";
       const span = s.from !== null ? `${dateStr(s.from)} to ${dateStr(s.to)}. ` : "";
       $("#report-stats").innerHTML = `${span}${s.orders} orders${s.tips ? ` and ${s.tips} tips` : ""}: order value ${cur}${money(s.gross)}, fee ${cur}${money(s.fee)} (<strong>${pct(s.feeRate)} observed</strong>), net ${cur}${money(s.net)}, refunds ${cur}${money(s.refundNet)}, withdrawal costs ${cur}${money(s.moveFees)}, your costs ${cur}${money(s.orderCosts)}, <strong>take-home ${cur}${money(s.takeHome)}</strong>, which is <strong>${rate(s.takeHomePerOrder)} per order</strong> against an average order value of ${rate(s.avgOrderGross)}.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       const be = r.breakEven;
       $("#by-product").innerHTML = r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${g.orders}</td><td class="n">${money(g.gross)}</td><td class="n">${money(g.fee)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net)}</td><td class="n">${money(g.refundNet)}</td><td class="n">${money(g.takeHome)}</td><td class="n">${rate(g.takeHomePerOrder)}</td><td class="n">${rate(g.netPerHour)}</td><td class="n">${be ? money(be.priceWithRefunds) : "–"}</td></tr>`).join("");
       $("#by-month").innerHTML = r.byMonth.length ? r.byMonth.map((m) => `<tr><th scope="row">${esc(m.label)}</th><td class="n">${m.orders}</td><td class="n">${money(m.gross)}</td><td class="n">${money(m.fee)}</td><td class="n">${money(m.net)}</td><td class="n">${money(m.takeHome)}</td></tr>`).join("") : `<tr><td colspan="6">The file has no dates.</td></tr>`;
@@ -183,7 +193,7 @@
       const notes = [];
       if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : ""));
       if (n.dmy) notes.push("Dates were read day-first.");
-      notes.push({ column: "Fee read from the file's fee column.", difference: "Fee taken as amount minus earnings.", percent: `Fee not in the file: ${$("#feepct").value || 0}% applied to the amount, so the fee rate above is assumed, not observed.`, grossup: `Only what you keep is in the file: order value grossed up at ${$("#feepct").value || 0}%, so the fee rate above is assumed, not observed.` }[n.feeSource]);
+      notes.push({ column: "Fee read from the file's fee column.", difference: "Fee taken as amount minus earnings.", percent: `Fee not in the file: ${$("#feepct").value || 0}% + $${$("#feefixed").value || 0} per direct sale (30% on a Discover sale) applied to the amount, so the fee rate above is assumed, not observed.`, grossup: `Only what you keep is in the file: order value grossed up at ${$("#feepct").value || 0}% + $${$("#feefixed").value || 0}, so the fee rate above is assumed, not observed.` }[n.feeSource]);
       if (be) notes.push(`Price for target is the refund-adjusted break-even price (${money(be.priceWithRefunds)}); it is the same for every product because it uses one fee rate.`);
       $("#skipped").textContent = notes.join(" ");
       report.hidden = false;
@@ -204,7 +214,7 @@
       if (!$("#cost").value) $("#cost").value = 2;
       if (!$("#hoursdefault").value) $("#hoursdefault").value = 2;
       if (!$("#target").value) $("#target").value = 50;
-      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic orders for three made-up products with sample cost, hours and target filled in. Not a real account."; }
+      if (run($("#paste").value)) { record("example_loaded"); status.textContent = "Worked example: synthetic sales of three made-up digital products in Gumroad's export layout, fees at the standard schedule, with sample cost, hours and target filled in. Not a real account."; }
     });
     $("#clear-all").addEventListener("click", () => { $("#paste").value = ""; $("#file").value = ""; report.hidden = true; last = null; status.textContent = "Choose a file or paste the text, then click Analyze."; });
     $("#download").addEventListener("click", () => {

@@ -1,0 +1,384 @@
+---
+number: 119
+slug: paul-and-the-speech-on-the-steps-of-the-fortress
+title: Paul and the Speech on the Steps of the Fortress
+published: 2026-11-14
+summary: Saint Paul reaches Jerusalem at last, tells Saint James and the elders everything God has done among the nations, agrees to pay for four men finishing a vow in the temple, and is seized by a crowd, carried up the steps of a Roman fortress in two chains, and asks the commander if he may say a few words. Told straight from the Acts of the Apostles, chapters twenty-one and twenty-two.
+figures: Saint Paul the Apostle, Saint James the brother of the Lord, the elders of Jerusalem, Saint Luke, Mnason of Cyprus, Trophimus of Ephesus, the Roman commander later named Claudius Lysias, a centurion, four men under a vow, and an invented young man of Jerusalem called Natan, one of the four
+tradition: Catholic and Orthodox; the account is Scripture for both; Paul, Luke and James are honoured as saints in both; we claim no feast for Mnason or Trophimus
+feast: Saint Paul with Saint Peter on the twenty-ninth of June in both traditions, and his conversion on the twenty-fifth of January in the Western calendar; Saint James the brother of the Lord on the twenty-third of October in the Orthodox Church, and in the Roman calendar Saints Philip and James on the third of May, the West counting this James as the apostle James son of Alphaeus
+history: the account is in the Acts of the Apostles, chapter twenty-one, verse seventeen, to chapter twenty-two, verse twenty-nine, which Catholic and Orthodox Christians read as Scripture; the Nazirite vow is in the Book of Numbers, chapter six; the temple's warning stones and the fortress Antonia with its stairs are described by Josephus, and one complete warning stone was found in Jerusalem in eighteen seventy-one; the Egyptian prophet is in Josephus; citizenship sold under Claudius is in Cassius Dio
+legend: none told as fact; the death of James is told from Josephus, with the longer account of Hegesippus, quoted by Eusebius, labelled as his; the room in the temple where Nazirites shaved is from the Mishnah, written down more than a century later, and is told as its description
+fiction: Natan the potter's son and his long hair, his sister, his lamb, the smell of the room, the order of the temple visits, the weather, everybody's thoughts and the small conversations round the verses are our own invention, told in the spirit of the original; what Acts says happened is kept, and the words of James and the elders, of the crowd, of the commander, of the centurion and of Paul, including his speech, are given in our own plain rendering with nothing added; how Paul felt about the elders' plan is offered as a reading from his own letters and not settled
+sources:
+  - The Acts of the Apostles, chapter twenty-one, verse seventeen, to chapter twenty-two, verse twenty-nine (Catholic and Orthodox New Testament)
+  - The Acts of the Apostles, chapter fifteen, on the council at Jerusalem and the letter to the Gentile believers, and chapter eighteen, verse eighteen, on Paul's hair cut at Cenchreae for a vow
+  - The Acts of the Apostles, chapter five, verse thirty-four, on Gamaliel; chapters seven and eight on Stephen and Saul; chapter nine on the road to Damascus and Ananias
+  - The Acts of the Apostles, chapter twenty, verse four, and the Second Letter to Timothy, chapter four, verse twenty, on Trophimus of Ephesus
+  - The Acts of the Apostles, chapter twenty-two, verse thirty, to chapter twenty-three, verse thirty-five, on what happened next, including the commander's name and Paul's nephew; chapter twenty-four, verse seventeen, on the alms Paul brought
+  - The Book of Numbers, chapter six, on the Nazirite vow and the priestly blessing
+  - The Letter of Paul to the Galatians, chapter one, verses eighteen and nineteen, and chapter two, verse nine, on James the Lord's brother
+  - The Second Letter of Paul to the Corinthians, chapter eleven, verse twenty-five, on three shipwrecks and a night and a day in the sea
+  - The Letter of Paul to the Romans, chapter fifteen, verses twenty-five to thirty-one, and the First Letter to the Corinthians, chapter nine, verses nineteen to twenty-three
+  - The Gospel according to Luke, chapter twenty-three, verse eighteen, for away with this man
+  - Josephus, The Jewish War, book five, chapters five and five to eight in the Greek numbering, on the balustrade with its warning stones and on the fortress Antonia and its stairs; Jewish Antiquities, book fifteen, chapter eleven, on the warning
+  - Josephus, The Jewish War, book two, chapter thirteen, and Jewish Antiquities, book twenty, chapter eight, on the daggermen and the Egyptian prophet
+  - Josephus, Jewish Antiquities, book nineteen, chapter six, on King Agrippa paying for many Nazirites to be shaved; book twenty, chapter nine, on the death of James
+  - Eusebius, Church History, book two, chapter twenty-three, quoting Hegesippus on James the Just
+  - Cassius Dio, Roman History, book sixty, chapter seventeen, on Roman citizenship sold under Claudius
+  - Cicero, Against Verres, the second action, book five, on the cry I am a Roman citizen
+  - The Mishnah, tractate Middot, chapter two, on the chamber of the Nazirites in the Court of the Women
+  - The temple warning inscription found by Charles Clermont-Ganneau in eighteen seventy-one, now in the Istanbul Archaeology Museums
+---
+
+It is afternoon, in Jerusalem, at the top of a flight of stone steps.
+
+The steps run up the side of a great fortress, at the corner of the temple, and the bottom of them is lost in a crowd. Thousands of people. The noise is like the sea. And halfway up the steps there is a knot of Roman soldiers, in their helmets, holding up between them a short man with a tired face and a bruise coming on his cheek, and two chains on his wrists.
+
+They have had to carry him up the last of the steps, because the crowd was pressing so hard. And now, at the top, the short man has asked the Roman commander for a favour, and the commander, a little surprised, has said yes.
+
+So the short man turns round. He stands on the top step, in his chains, and looks down at all those faces. And he lifts one hand.
+
+And the whole crowd, for no reason anyone can quite explain, goes quiet.
+
+But we're getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is from the Acts of the Apostles, chapters twenty-one and twenty-two, which Catholic and Orthodox Christians read as Scripture, and a young man called Natan, his long hair, his little sister, and a few of the small conversations are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Last time, if you were with us, we were in a house by the sea at Caesarea, the house of Philip the evangelist and his four daughters. And an old prophet called Agabus had walked down from the hills, borrowed Saint Paul's belt, and tied up his own hands and feet with it, and said, this is how the man who owns this belt will be bound in Jerusalem. And everybody in the room had begged Paul not to go. And Paul had said, why are you weeping and breaking my heart? I am ready not only to be bound, but to die in Jerusalem, for the name of the Lord Jesus. And in the end they had all stopped arguing, and said, the will of the Lord be done.
+
+And then they had packed their bags. And some of the disciples from Caesarea had walked with them up into the hills, to the house of a man called Mnason, from Cyprus, a disciple from the early days, where they were going to stay.
+
+So tonight, at last, we are in Jerusalem.
+
+And I should tell you at the start what kind of a story this is. It is a story about a man who tries very hard to keep the peace, and does everything his friends ask, and gets into trouble anyway. It has a riot in it, and a case of mistaken identity, and a Roman officer who gets the wrong end of the stick not once but twice. It has a man who talks his way out of a whipping with one question. And in the middle of it, there is a speech, given in chains, from the top of a staircase, that is one of the bravest speeches in the whole Bible.
+
+It does not have an ending, exactly. It stops, the way the next part of a long journey stops, with our man safe for the night and nobody quite sure what to do with him. But that, I think, is a good place to stop at bedtime.
+
+First, the city. Jerusalem in the time of Saint Paul was not enormous, as cities go. You could walk across it in well under an hour. But at the great feasts, it filled up like a bucket under a tap. Pilgrims came from everywhere, from Egypt and Babylon and Rome and all the cities of Greece and Asia, and they slept in courtyards, and on roofs, and in tents on the hills outside the walls. And Paul had wanted, if he possibly could, to be here for Pentecost. So we must imagine the streets very full, and very loud, and smelling of cooking fires and animals and people who had walked a long way.
+
+And over all of it, on its great platform on the eastern side of the city, stood the temple.
+
+I want to spend a moment on the temple, because almost everything in tonight's story happens in it, or beside it, or on the steps going up from it.
+
+King Herod the Great had rebuilt it, about eighty years before, on a gigantic scale. He had made a flat platform of stone so big that you could fit a good many football pitches on it, and round the edge of it ran long covered walkways, with rows of tall pillars, where people sat in the shade and teachers taught and money changed hands. That big outer space was open to everybody. Anybody at all, from any nation, could walk in there.
+
+But as you walked further in, towards the holy place, there was a low stone fence. Josephus, the Jewish historian who knew the temple well, says it was three cubits high, which is about the height of a man's chest, and very finely made. And at intervals along it stood stone slabs, with a warning carved on them in Greek and in Latin. The warning said, more or less, that no foreigner was to go inside the fence, and that anyone who was caught doing so would have only himself to blame for the death that would follow.
+
+That was not a figure of speech. It was meant. Beyond that fence, only the people of Israel went. And this matters very much for our story, so keep that low stone fence in your mind.
+
+The other thing to keep in your mind is the fortress.
+
+At the north-west corner of the temple platform, Herod had built a great castle, and named it the Antonia, after his friend Mark Antony, back when being Mark Antony's friend was a good idea. It had towers at its corners, and inside it was almost a little town, with courtyards and baths and barracks. And in Paul's time, it was full of Roman soldiers. A whole cohort, Josephus says, under a commander whose title, in Greek, means the leader of a thousand.
+
+The Romans did not go into the inner temple, and mostly they did not want to. But they knew perfectly well that at the great feasts, when the city was crammed with pilgrims and feelings ran high, a riot could start in the temple courts in a matter of minutes. So at feast times, Josephus tells us, soldiers stood on the roofs of the walkways, watching. And from the fortress, there were stairs that came down into the temple courts, so that the soldiers could get from their barracks to any trouble very quickly.
+
+Those stairs are where our story ends up.
+
+[pause]
+
+* * *
+
+Luke, who wrote the Acts of the Apostles, is still with us at the start of tonight's story. He writes, when we arrived at Jerusalem, the brothers received us gladly. And on the next day, he says, Paul went in with us to James, and all the elders were there.
+
+Now, which James is this? There are a few Jameses in the New Testament, and it is easy to muddle them. This is not James the brother of John, the fisherman, one of the first disciples, because he had already died, years before. This is the James whom Saint Paul himself, in one of his letters, calls James the brother of the Lord. Both our traditions understand that as a close kinsman of Jesus, not another son of Mary, though they tell the family tree a little differently, and we will leave that for another night.
+
+What we can say is that by now, James was the man everybody in Jerusalem looked to. Paul calls him one of the pillars of the church. When the apostles had held their great council in Jerusalem, a few years before, to decide whether the Gentile believers had to keep the whole law of Moses, it was James who stood up at the end and summed up. And he was famous, among Jews who did not believe in Jesus as well as among those who did, for his holiness. People called him James the Just. A writer called Hegesippus, a century later, said that James spent so long kneeling in prayer in the temple that his knees had gone hard, like a camel's. That is Hegesippus's report, and you may believe as much of it as you like, but it tells you the kind of man people remembered.
+
+So imagine a room, in a house somewhere in the city, with a lot of grey-bearded men in it. The elders of the church in Jerusalem. And James, at the head of them. And in comes Paul, with Luke, and with the men from the churches of Greece and Asia who had been travelling with him. Luke had named seven of them, a few chapters before: Sopater and Aristarchus and Secundus, Gaius and Timothy, Tychicus, and Trophimus, from Ephesus. He does not say whether all seven came this far, but we know for certain that Trophimus did, and you will see why in a little while.
+
+Paul had been thinking about this morning for a long time. Years, in fact. For years, he had been collecting money in every church he visited, for the poor Christians of Jerusalem. He had written about it in his letters. In his letter to the Romans, just before he set out, he had asked them to pray for two things. He asked them to pray that he would be kept safe from the people in Judea who did not believe. And he asked them to pray that the gift he was bringing would be welcome to the saints in Jerusalem.
+
+Isn't that interesting? He was worried about both. He was worried that the gift might not be welcome. Because he knew that there were people in Jerusalem who did not trust him at all.
+
+Luke does not tell us, here, about the money being handed over. He mentions it, briefly, much later, when Paul says to a governor that he came to Jerusalem to bring alms to his nation. What Luke tells us here is that Paul greeted them, and then, one by one, he told them everything that God had done among the Gentiles through his work.
+
+One by one. I like that. Not a summary. One by one. Here is Philippi, and the jailer, and the earthquake. Here is Thessalonica. Here is Corinth, and Priscilla and Aquila and the tent-making. Here is Ephesus, and the silversmiths, and the riot in the theatre. Here is a young man called Eutychus who fell out of a window. It must have taken all morning. And the old men listened.
+
+And when he had finished, Luke says, they glorified God.
+
+And then, a little awkwardly, they said, there is one more thing.
+
+You see, brother, they said, how many thousands of Jews there are who have believed. The word Luke uses is myriads, which means tens of thousands. And they are all zealous for the law. And they have been told something about you. They have been told that you teach all the Jews who live out among the Gentiles to abandon Moses, and not to circumcise their children, and not to live by the customs.
+
+That was not true, by the way. What Paul taught was that Gentiles did not have to become Jews in order to follow Christ. He never told Jews to stop being Jews. But a rumour does not have to be true to travel fast, and this one had travelled all the way to Jerusalem.
+
+So what is to be done? the elders said. They are certainly going to hear that you have come.
+
+And then they made a suggestion.
+
+We have four men here, they said, who are under a vow. Take them. Go through the purification with them. Pay their expenses, so that they can have their heads shaved. Then everyone will know that there is nothing in what they have been told about you, and that you yourself walk in step with the law, and keep it.
+
+And as for the Gentiles who have believed, they said, we have already written to them, with our decision. And they repeated the four simple things the council had asked of the Gentile believers, years before: to keep away from food offered to idols, and from blood, and from the meat of animals that had been strangled, and from sexual sin. That is all. Nothing has changed there.
+
+Now, I need to tell you what a vow like that was, because otherwise none of the rest makes sense.
+
+In the Book of Numbers, chapter six, there is a kind of vow called the vow of a Nazirite. A man or a woman could make it, for a set time, to belong to God in a special way. While the vow lasted, you drank no wine, and ate nothing from the grapevine at all, not even a raisin. You went near no dead body. And you did not cut your hair. Not a snip. It just grew.
+
+And when the days of the vow were over, you went to the temple, and offered sacrifices, a lamb and a ewe lamb and a ram, with bread and oil and wine. And then your hair, all of it, was shaved off, and put into the fire under the sacrifice.
+
+Three animals is a lot of money. A poor man who had made a vow might find, at the end of it, that he could not afford to finish it. And so it was counted a very good and generous thing, a pious thing, for somebody with money to pay for a poor Nazirite's offerings. Josephus tells us that King Agrippa, when he came to Jerusalem, paid for a great many Nazirites to be shaved, and everyone thought well of him for it.
+
+So that is what the elders were asking. Pay for four poor men to finish their vows. Go into the temple with them, day after day, in full view of everybody. Show the whole city that you are not against the law of Moses.
+
+And Paul said yes.
+
+Did he mind? We do not know. Luke does not tell us what he felt. But we know what Paul wrote, a few years earlier, in a letter to the Corinthians. To the Jews, he wrote, I became like a Jew, to win Jews. To those under the law, I became like one under the law. I have become all things to all people, so that by every means I might save some. So I think, and this is only a reading, that he did not mind very much. He had made a vow like this himself once, years before. Luke tells us, and most readers take it to be about Paul, that he had his hair cut at a little port near Corinth, because of a vow. He was a Jew. He loved the temple. He had nothing to hide.
+
+And so, Luke says, the very next day, Paul took the four men, and purified himself with them, and went into the temple, to give notice of the day when the days of purification would be finished, and the offering would be made for each one of them.
+
+It was a good plan. It was a kind plan. Everybody meant well.
+
+I just want to say that, before we go on.
+
+[pause]
+
+* * *
+
+Now, here is where we have to make something up, and I will tell you clearly that we are making it up.
+
+Acts does not tell us anything about the four men under the vow. Not their names. Not their ages. Not where they lived. So let me give you one of them, and you must remember that he is our invention. His name is Natan. He is nineteen. He is the son of a potter in the lower city, and he made his vow at the beginning of spring, for thirty days, because his little sister had been very ill with a fever, and he had promised God, on the worst night, that if she got better, he would be a Nazirite for a month.
+
+She got better. And Natan kept his word.
+
+The trouble was the end of the month. When the thirty days were up, Natan had no lambs, and no ram, and his father's pots were not selling well that year, and the family was poor. So his vow just sort of went on, with no end to it, while he waited. And his hair grew. Natan's hair had never been very well behaved even when it was short. By now it was a sort of wild black bush, and his sister, who was seven, called him the haystack, and laughed every time he came in the door.
+
+And then one evening, a man from the church came to the potter's house, and said, there is a visitor in the city who is going to pay for your offerings. All four of you. He is a teacher, from Tarsus. You are to meet him at the temple tomorrow.
+
+So the next morning, Natan went up to the temple, with his haystack, and there, by one of the gates, was a short man with a tired face and a travelling cloak, waiting for him. And the short man looked at Natan's hair, and Natan saw the corner of his mouth twitch, just slightly.
+
+Thirty days, said the short man.
+
+Fifty-one, said Natan, rather embarrassed. It was meant to be thirty.
+
+The short man laughed then, properly. And he put a hand on Natan's shoulder, and said, well, God has had good value from you, then. Let us go in.
+
+* * *
+
+The purification took seven days.
+
+Every day, Paul and the four men went up to the temple together. They went in through the great outer court, where anyone could go, with its pillars and its shade and its noise. And they went past the low stone fence, with the warning stones on it, and up the steps, into the courts where only Israel went.
+
+There was a room there, in the corner of the court where the women could come too. The Mishnah, a book of Jewish teaching written down a good while later, describes it, and calls it the chamber of the Nazirites. It was where the Nazirites cooked their offerings, at the end of their vows, and where their hair was shaved and thrown into the fire under the pot. I imagine Natan looking into that room, on the first morning, and seeing the smoke, and smelling it, and thinking, that is where it all goes. A month and three weeks of hair. Into the pot.
+
+And every day, Paul was there. And people saw him there. That was the whole point. Look, there is Paul of Tarsus, in the temple, keeping the law, paying for poor men's vows. Whatever you heard about him, it is not true.
+
+I imagine they talked, Natan and the short man, in the long hours of waiting that every temple involves. I imagine Natan asked about the sea, because he had never seen it. And Paul told him about being shipwrecked, which he had been, three times, by then, and about a night and a day in the water. And Natan said, and you still get on ships? And Paul said, mostly, yes. And I imagine Paul asked about Natan's sister, and Natan said, she's well, she's very well, she is driving everybody mad, and Paul said, good. Good. That's what they're for.
+
+That is all our invention. But it is the kind of thing that does happen, in a long week, when you are waiting somewhere with someone.
+
+And the days went by. One, two, three. Four, five, six.
+
+* * *
+
+On about the seventh day, Luke says, when the seven days were almost finished, some Jews from the province of Asia saw Paul in the temple.
+
+Asia, in the Bible, does not mean the whole continent. It means the Roman province on the west coast of what is now Turkey, with Ephesus as its great city. And Ephesus is where Paul had spent nearly three years, and where there had been the riot in the theatre. So these were people from Paul's old patch, up in Jerusalem for the feast, who had heard him preach back home and did not like it one bit. And here he was, in the holiest place in the world.
+
+And they grabbed him, and they shouted.
+
+Men of Israel! they shouted. Help! This is the man who teaches everybody, everywhere, against our people, and against the law, and against this place! And what is more, he has even brought Greeks into the temple, and made this holy place unclean!
+
+Now, that last part was not true. And Luke tells us exactly how the mistake was made. A day or two before, these same people had seen Paul out in the city, walking with Trophimus. Trophimus, you remember, was one of Paul's travelling companions, from Ephesus. They knew his face. They knew he was a Gentile, a Greek. And they had seen him with Paul in the street. And so, when they saw Paul in the inner court, they simply assumed that Trophimus was in there too.
+
+He was not. There is no reason at all to think that he was. Paul, of all people, knew exactly what that low stone fence meant, and he had spent the whole week trying to show the city that he kept the law. But the people from Asia did not stop to check. They put two things they had seen together, and made a third thing they had not seen. Which is a mistake people have been making ever since, and are probably making somewhere right now.
+
+And you remember what the warning stones said. A Gentile found inside the fence had only himself to blame for the death that followed. So the shout that Paul had brought a Greek in there was a terrible shout. It went through the courts like fire through dry grass.
+
+The whole city was stirred up, Luke says. The people came running from every direction. They seized Paul and dragged him out of the temple, and at once, behind them, the great gates were shut.
+
+I imagine Natan, in the inner court, with his haystack of hair, being swept back against a pillar by the crowd. Seeing the short man go down, under all those hands, and then be dragged off, out through the gate. And then the gate shutting. And Natan, on the inside, and Paul, on the outside, and the noise.
+
+Outside, in the great outer court, the crowd began to beat him. Luke says they were trying to kill him. And that is all I want to say about it, at bedtime, except that they did not.
+
+Because up on the roofs of the walkways, the soldiers were watching. And a message went running up the stairs into the fortress, to the commander of the cohort, that the whole of Jerusalem was in an uproar.
+
+* * *
+
+The commander's name, we find out a little later in Acts, was Claudius Lysias. And whatever else you say about him, and there are things to say, he did not hang about. Luke says he took soldiers and centurions, at once, which means at least two centuries, and so perhaps a couple of hundred men, and he ran down to them. Down the stairs from the fortress, into the court, at a run, in armour.
+
+And when the crowd saw the commander and the soldiers coming, Luke says, they stopped beating Paul.
+
+Then the commander came up, and took hold of him, and ordered him to be bound with two chains.
+
+Two chains. I want you to notice that. Because a few days before, in a house by the sea, an old prophet called Agabus had tied up his own hands and feet with Paul's belt, and said, this is how the owner of this belt will be bound in Jerusalem. And here it was. Paul had known it was coming. Everybody had told him. And it had come.
+
+The commander asked who he was, and what he had done. And this is where it gets almost funny, if it were not so frightening. Some people in the crowd shouted one thing, and some shouted another. And the commander could not get any sense out of anybody, because of the noise. So he gave up, and ordered Paul to be taken into the barracks, up in the fortress.
+
+And when they got to the steps, the crowd was pushing so violently that the soldiers had to pick Paul up and carry him. Luke says it in so many words. He was carried by the soldiers. Up the stairs. In his two chains. While the whole crowd came after them, shouting, away with him. Away with him.
+
+If you know the Gospel of Luke, you may have heard those words before, or words very like them. At the trial of Jesus, in Luke's Gospel, the crowd shouts, away with this man. Luke wrote both books, and I do not think he wrote those words twice by accident. That is a reading, and not everyone would agree. But I think Luke wanted us to see that the servant was walking the road his Master had walked.
+
+So up the steps they went. And just as they reached the top, just as they were about to take him in through the door of the barracks, Paul turned to the commander, and spoke to him.
+
+May I say something to you?
+
+He said it in Greek. And the commander stopped dead, and stared at him.
+
+You speak Greek?
+
+And then, says Luke, the commander said something that tells us exactly what had been going on in his head. Then you are not the Egyptian, he said, who stirred up a revolt a while ago, and led the four thousand men of the daggermen out into the wilderness?
+
+Now, the commander was not making that up. There really had been an Egyptian. Josephus tells us about him. A few years before, a man from Egypt had come to Jerusalem, calling himself a prophet, and gathered a great crowd, and led them out into the wilderness and round to the Mount of Olives. He told them that at his command, the walls of Jerusalem would fall down, and they would march in and take the city. The Roman governor sent soldiers, and the crowd was scattered, and a great many were killed or captured. But the Egyptian himself got away, and nobody knew where he was.
+
+And the daggermen were real too. They were a band of fighters, who carried short curved daggers under their cloaks, and mingled with the crowds at the feasts, and struck at people they counted as enemies, and melted away again.
+
+So the commander had come running down the stairs, found a man in the middle of a riot at a feast, with the whole crowd baying for his blood, and thought, that is it. I have got him. It is the Egyptian, come back. And the Egyptian, presumably, being from Egypt, would not have been expected to speak good educated Greek.
+
+And then Paul opened his mouth, and spoke beautiful Greek. And the commander's whole theory fell down on the stairs.
+
+I am a Jew, said Paul. From Tarsus, in Cilicia. A citizen of no unimportant city. And I beg you, let me speak to the people.
+
+Tarsus was a famous city, a university city, full of philosophers and teachers. Paul was proud of it, a little. You can hear it. A citizen of no unimportant city. It is the sort of thing a man says about his home town when he wants you to know it is somewhere, without boasting.
+
+And the commander, who must by now have been very confused indeed, said yes.
+
+And that brings us back to where we began. Paul, at the top of the steps, in his chains, turning round. Looking down at the crowd that had just been trying to kill him. And lifting his hand.
+
+And there was a great silence, Luke says.
+
+And Paul began to speak. Not in Greek. In the language of the people of Judea, the Hebrew tongue, Luke calls it, which most scholars think means the Aramaic that was spoken every day in Jerusalem. The language of home. The language of mothers and markets.
+
+And when the crowd heard him speaking to them in their own language, Luke says, they went even quieter.
+
+[pause]
+
+* * *
+
+Here is what he said. I am going to give it to you in our own plain words, but I am not going to add anything to it, because Luke has kept it, and it is Paul's.
+
+Brothers and fathers, he said. Listen to the defence I am making to you now.
+
+I am a Jew. I was born in Tarsus in Cilicia, but I was brought up here, in this city, at the feet of Gamaliel. I was trained, strictly, in the law of our fathers. And I was zealous for God, just as all of you are today.
+
+I persecuted this Way, to the death. I bound people and handed them over to prison, men and women both. The high priest can tell you that this is true, and the whole council of elders. I got letters from them, to the brothers in Damascus, and I went there to bring back the people of the Way in chains to Jerusalem, to be punished.
+
+And as I was on the road, and getting near to Damascus, at about noon, suddenly a great light from heaven flashed all around me. And I fell to the ground. And I heard a voice saying to me, Saul, Saul, why are you persecuting me?
+
+And I answered, who are you, Lord?
+
+And he said to me, I am Jesus of Nazareth, whom you are persecuting.
+
+The men who were with me saw the light, but they did not understand the voice of the one who was speaking to me.
+
+And I said, what shall I do, Lord?
+
+And the Lord said to me, get up, and go into Damascus, and there you will be told everything that has been appointed for you to do.
+
+And because I could not see, because of the brightness of that light, the men with me led me by the hand, and I came into Damascus.
+
+And there was a man there called Ananias. A devout man, according to the law, and well spoken of by all the Jews who lived there. He came to me, and stood beside me, and said, brother Saul, receive your sight. And in that very moment, I looked up and saw him.
+
+And he said, the God of our fathers has chosen you to know his will, and to see the Righteous One, and to hear a voice from his own mouth. Because you will be his witness to all people, of what you have seen and heard. And now, why are you waiting? Get up, and be baptised, and wash away your sins, calling on his name.
+
+And after that, when I had come back to Jerusalem, and I was praying in the temple, I fell into a trance. And I saw him, and he said to me, hurry, and get out of Jerusalem quickly, because they will not accept your witness about me.
+
+And I said, Lord, they know that I went from synagogue to synagogue, putting in prison and beating the people who believed in you. And when the blood of Stephen, your witness, was being poured out, I was standing there myself, approving, and keeping the coats of the men who were killing him.
+
+And he said to me, go. For I will send you far away, to the nations.
+
+[pause]
+
+I want to stop there for a moment, because the crowd did.
+
+Think about what Paul had just done. He was standing in chains, in front of a crowd that had been told he was an enemy of the law and the temple. And what did he tell them? He did not argue about Trophimus. He did not say, I have been in the temple for a week, keeping a vow, ask anybody. He did not make excuses at all.
+
+He told them about himself. He told them that he had been exactly like them. Zealous. Strict. Angrier than any of them. He told them he had once held the coats of the men who killed Stephen, a few hundred yards from where they were all standing. He told them about the light on the road, and the voice, and being led by the hand into Damascus, blind and helpless. He told them about a good Jewish man called Ananias, respected by everybody, who called him brother. And he told them that it had happened to him in the temple, this temple, while he was praying.
+
+He was saying, in every way he could, I am one of you. I love what you love. And then something happened to me that I could not explain away.
+
+And they listened. All of it. Right up to the last word.
+
+* * *
+
+Up to that word, Luke says, they listened to him.
+
+The word was nations. Gentiles. The Lord had said, I will send you far away to the Gentiles.
+
+And at that word, the silence broke. They raised their voices and shouted, away with such a man from the earth! He is not fit to live!
+
+And they were shouting, and tearing off their cloaks and waving them, and throwing dust into the air. I do not know if you have ever seen a crowd throw dust into the air. It is a thing people did, in those days, in grief or in fury, and it must have looked like a storm coming up off the stones of the court.
+
+And the commander, who had not understood a single word of the speech, because it was in Aramaic, and who now had a crowd that was even angrier than before, did what an exasperated officer does. He ordered Paul to be taken into the barracks, at once. And he gave orders that Paul was to be examined by flogging, to find out why on earth they were shouting at him like that.
+
+This is the second time the commander got hold of the wrong end of the stick. The first time, he thought Paul was the Egyptian. This time, he thought that if he could not get the truth out of the crowd, he would get it out of the prisoner. That was what Romans did with prisoners who were not Romans. It was not thought of as a punishment, even. It was just how you asked questions.
+
+So they took Paul inside. Into a courtyard of the fortress. And the soldiers began to stretch him out, and tie him with the leather straps.
+
+And Paul, lying there, said quite calmly to the centurion who was standing by, is it lawful for you to flog a man who is a Roman citizen, and who has not been found guilty of anything?
+
+[pause]
+
+I would love to have seen the centurion's face.
+
+Because you have to understand what that question meant. A Roman citizen had rights. Very old rights, written into Roman law. A Roman citizen could not be flogged, or tied up to be flogged, without a trial. To do it was a serious crime, and a magistrate who did it could find himself in very deep trouble indeed. Roman writers made a great deal of it. More than a hundred years before Paul, the orator Cicero had made a famous speech against a governor who had flogged a man in a marketplace in Sicily, while the man kept crying out, I am a Roman citizen, and Cicero made the whole of Rome shudder about it.
+
+So the centurion did not argue. He went straight to the commander. And he said, what are you about to do? This man is a Roman citizen.
+
+And the commander came, himself, at once. And he said to Paul, tell me. Are you a Roman citizen?
+
+And Paul said, yes.
+
+And then the commander said something which I think is the most human line in the whole chapter. He said, I paid a great deal of money to get this citizenship.
+
+You can hear it, can't you? A little rueful. A little defensive. A Roman historian called Cassius Dio tells us that in the reign of the emperor Claudius, citizenship was being sold, by people close to the palace, first for a great deal of money, and later, he says rather sniffily, for almost nothing. And our commander's name, remember, was Claudius Lysias. Lysias is a Greek name. Claudius is the emperor's name. When a man bought or was given citizenship in those days, he often took the name of the emperor who was reigning. So it is very likely that Lysias was a Greek by birth, who had worked his way up and paid a great deal of money, under Claudius, to become a Roman. And he was rather proud of it. And a bit sore about how much it had cost.
+
+And Paul said, but I was born a citizen.
+
+[pause]
+
+Well.
+
+The men who had been about to examine him, Luke says, stepped back from him at once. And the commander was afraid. Because he had realised that Paul was a Roman citizen, and that he had put him in chains.
+
+And there, for tonight, the soldiers loosened the straps. And a short man with a tired face, and a bruise on his cheek, sat up in a courtyard of the fortress Antonia, and rubbed his wrists, and was, for the moment, safe.
+
+[pause]
+
+* * *
+
+What happened next is a long story, and we will tell it on other nights.
+
+The very next day, the commander, still trying to find out what this was all about, called together the chief priests and the whole council, and brought Paul down, and stood him in front of them. That did not go well either. And then, Luke tells us, more than forty men took an oath that they would neither eat nor drink until they had killed Paul. And Paul's nephew, his sister's son, who must have lived in Jerusalem, heard about the plot, and walked into the fortress, and told his uncle. And Paul sent the boy to the commander. And the commander, who by now I think was heartily sick of the whole business, sent Paul off that very night, down to Caesarea, with two hundred soldiers and seventy horsemen and two hundred spearmen. Which is quite an escort for one short man.
+
+So Paul went back down the road to Caesarea, to the city by the sea, where Philip and his daughters lived. Bound, just as Agabus had said.
+
+And the four men under the vow? Acts does not tell us. Luke is following Paul, and he never looks back at them. But I like to think, and this is our invention, that the vow was finished. That somebody from the church, or James himself, made sure that the lambs and the ram were paid for. And that one morning, a week or two later, when the city had quietened down, a young man called Natan went up to the temple, and into that smoky room in the corner of the court, and sat on a stool while his haystack came off, all fifty-something days of it. And that it went into the fire, under the pot, just as the law of Moses said.
+
+And that he went home, with his head cold and bare and strange, and his little sister took one look at him, and laughed so much she had to sit down.
+
+And that afterwards, sometimes, he told her about the short man from Tarsus, who had been shipwrecked three times, and still got on ships. And who had stood at the top of the steps, in chains, and lifted his hand, and made the whole of Jerusalem be quiet.
+
+[pause]
+
+James stayed in Jerusalem. He was the leader of the church there for some years more. And then, Josephus tells us, in the year sixty-two, in the gap between one Roman governor dying and the next one arriving, the high priest had James brought before a council and condemned, and he was put to death. Josephus says that the fairest-minded people in the city were deeply upset about it. Hegesippus tells a longer story of how he died, which we will not tell tonight. And so James the Just went home to God, in the city he had never left.
+
+Eight years after that, the Romans came, and the temple was burned, and the fortress was pulled down, and almost all of what we have walked through tonight was gone.
+
+But not quite all of it. In the year eighteen seventy-one, a French scholar called Charles Clermont-Ganneau was in Jerusalem, and he found, built into the wall of an old building near the temple mount, a block of stone with Greek letters on it. And when he read it, it said that no foreigner was to go inside the fence and enclosure round the temple, and that whoever was caught would have himself to blame for the death that would follow.
+
+It was one of the warning stones. From the low stone fence. Perhaps one of the very stones that Paul walked past, every morning, for seven days, with four men with long hair. It is in a museum in Istanbul now, and you can go and look at it. It is not very big. The letters are plain and clear. And it is very quiet in the room where it stands.
+
+[pause]
+
+Here are the notes for the curious.
+
+Tonight's story comes from the Acts of the Apostles, chapter twenty-one, verse seventeen, to chapter twenty-two, verse twenty-nine. Catholic and Orthodox Christians read it as Scripture. Everything Luke says happened is kept. The words of James and the elders, of the crowd, of the commander, of the centurion, and the whole of Paul's speech on the steps are in our own plain rendering, adding nothing to what Luke reports. What happened next, with the council, the plot, Paul's nephew and the commander's name, is in chapters twenty-two and twenty-three.
+
+The Nazirite vow is in the Book of Numbers, chapter six. King Agrippa paying for Nazirites is from Josephus. The chamber of the Nazirites is described in the Mishnah, written down more than a century after the temple fell. The low fence, the warning stones, the fortress Antonia and its stairs, the Egyptian prophet and the daggermen are all from Josephus, whose number for the Egyptian's followers is much bigger than the commander's four thousand, as numbers in ancient writers often are. The warning stone found in eighteen seventy-one is real, and so is a broken piece of another found later.
+
+Citizenship sold under Claudius is from Cassius Dio. That Lysias bought his under Claudius is a likely guess from his name, not a certainty. Cicero's speech is real. How Paul felt about the elders' plan, and the echo of away with this man from Luke's Gospel, are readings, not settled. The knees like a camel's and the longer death of James are Hegesippus's report, kept by Eusebius.
+
+Natan, his sister, his hair, his fifty-one days, the talk about ships, and what became of the four men are our own invention.
+
+[pause]
+
+That's the story of Paul and the speech on the steps of the fortress for tonight. Saint Paul is remembered with Saint Peter on the twenty-ninth of June, in East and West alike. The Orthodox Church remembers Saint James the brother of the Lord on the twenty-third of October, and the Roman calendar keeps Saints Philip and James on the third of May, so do check your own. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a blessing, from the same chapter of the Book of Numbers that gives the Nazirite vow. The Lord bless you, and keep you. The Lord make his face to shine upon you, and be gracious to you. The Lord lift up his countenance upon you, and give you peace. Amen.
+
+Goodnight, and God bless.

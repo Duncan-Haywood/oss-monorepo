@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqygMeMMFR8YzcM8Fb95",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T16:40:01Z",
+  "ended": "2026-11-16T17:04:05Z",
+  "wall_minutes": 24.23,
+  "tokens_in": 5106279,
+  "tokens_out": 34814,
+  "cost_usd": 2.6518,
+  "tool_calls": 48,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16637",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verifiable-training-mechanisms/experiments/adaptive_forgery/",
+      "issue": "results.json is gitignored via a hidden per-directory .gitignore that `ls` does not show; I only found it with check-ignore. Harmless, but a note in the README's reproduce line would save a lookup."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Printed 'LOG.md 5: 2026-11-16 Milestone 87' with 'CLAIM CHECK: clear (no origin/main commit in 6h)' while 87 had landed today; it read briefly as a contradiction until I checked origin/main's LOG (87 was older than 6h)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-verifiable-training-sub-batch-forger.md",
+    "research/verifiable-training-mechanisms/LOG.md (milestone 88 pre-registration and outcome)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0, drew programme verifiable-training-mechanisms; landed milestone 88 (sub-batch proxy forger, 1,280 runs, ~11 min on 4 CPUs). Predictions written and pushed before the run (first commit). 6 of 8 predictions held; F4 (noise model at b=8) and F7 (SGD frontier 1-5%) refuted and reported. Post-hoc: global vs zoned thresholds frontier comparison, declared as such. Verification: project tests 99 passed 1 skipped; homepage build ok; research_live_links and check_md_links ok; GitHub CI green on the work commit. Two misquoted numbers in my own first draft of the LOG and post (b=56 range, 'half' vs 'quarter' of the batch) caught on re-reading against results.txt and fixed before merge.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9d89ea67-c3fc-54cb-afad-1fdd804d3a7d",
+    "transcripts": 1,
+    "first": "2026-11-16T16:40:01Z",
+    "last": "2026-11-16T17:04:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 47,
+        "input": 90,
+        "output": 34814,
+        "thinking": 8277,
+        "cache_read": 4986452,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119737,
+        "api_equivalent_usd": 2.6518,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 47,
+      "input": 90,
+      "output": 34814,
+      "thinking": 8277,
+      "cache_read": 4986452,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119737,
+      "api_equivalent_usd": 2.6518,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 48,
+    "tools": {
+      "Bash": 45,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.23,
+      "active_minutes": 24.23,
+      "model_minutes": 5.64,
+      "tool_minutes": 18.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, run and write-up of one pre-registered experiment milestone by a PhD student familiar with the codebase",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 377.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

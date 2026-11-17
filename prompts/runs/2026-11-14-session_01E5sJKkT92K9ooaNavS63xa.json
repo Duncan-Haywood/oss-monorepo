@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkT92K9ooaNavS63xa",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T19:20:06Z",
+  "ended": "2026-11-14T19:30:19Z",
+  "wall_minutes": 13.88,
+  "tokens_in": 6088551,
+  "tokens_out": 28636,
+  "cost_usd": 2.8583,
+  "tool_calls": 52,
+  "task": "research/codesign-cant milestone 7j (lever-0 45\u00b0 divergence); landed as an addendum after a parallel run's #15955 merged the same milestone first",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15960",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "pytest with the default python3 lacked numpy; python3.13 lacked scipy for tests/test_allocation.py until pyenv.py installed it"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/HOSTS",
+      "issue": "pick_track drew track 14 and listed heavy-hydraulics as open although its HOSTS file names huggingface.co, which this session's proxy refused (CONNECT 403); probing by hand cost a few minutes"
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "rejects a lowercase tag (px4) when another post spells it PX4; not mentioned in the post guidance, found only by running the checker"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "CLAIM CHECK reported no open PR for codesign-cant at 19:21; a parallel session opened #15955 on the same milestone within minutes and merged it at 19:44, the same directory name (m7j_lever0) and the same ten-probe design. Both sessions drew the same README Next-step item; the first-push claim did not prevent it because both pushed within the same few minutes. A re-run of CLAIM CHECK before the full run (not only before merge, which the prompt asks for steps over an hour) would have caught it at ~19:24."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "heavy-hydraulics (the first open programme with no PR) needs huggingface.co, refused here",
+      "did": "took codesign-cant's open Next-steps item instead (the unexplained 45\u00b0 lever-0 divergence)",
+      "result": "a 47 s diagnostic run answered it; landed as milestone 7j"
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "most PRs carry a new post; the sibling #15955 already posted about this milestone and a second post on the same result would be a duplicate",
+      "did": "dropped this run's drafted post (docs/posts/2026-11-14-the-drone-crashed-with-no-gust-at-all.md, in closed #15956) and landed only the addendum",
+      "result": "no duplicate post on main"
+    }
+  ],
+  "writeups": [
+    "research/codesign-cant/LOG.md (7j addendum)",
+    "research/codesign-cant/README.md (7j addendum bullet)"
+  ],
+  "goal": null,
+  "notes": "Predictions J1-J10 were committed in #15956 before the held-out run. Then #15955 (parallel session) merged the same milestone 7j with the same mechanism. #15956 closed as superseded; #15960 lands what #15955 lacks: an independent reproduction (identical counts), a thrust-to-weight-2 re-size probe (21 of 21 crashes remain) and the 35\u00b0/40\u00b0 onset (1/11/23/24). Checks: codesign-cant tests 45 passed, 1 skipped (python3.13 with scipy, on #15956's tree; this PR adds no src change); build.py ok; check_md_links ok; research_live_links ok. #15956's CI was all green before the conflict.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bd5d5dfd-e5fd-5e5e-be98-77d190e5bd08",
+    "transcripts": 1,
+    "first": "2026-11-14T19:20:06Z",
+    "last": "2026-11-14T19:50:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 147,
+        "output": 40576,
+        "thinking": 8094,
+        "cache_read": 10643695,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167817,
+        "api_equivalent_usd": 4.2834,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 147,
+      "output": 40576,
+      "thinking": 8094,
+      "cache_read": 10643695,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167817,
+      "api_equivalent_usd": 4.2834,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 68,
+      "mcp__github__pull_request_read": 3,
+      "mcp__github__create_pull_request": 2,
+      "Write": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__github__merge_pull_request": 2,
+      "ToolSearch": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.16,
+      "active_minutes": 30.16,
+      "model_minutes": 8.13,
+      "tool_minutes": 22.04,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a controls researcher writing and running a probe diagnostic and reconciling it with a parallel result",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 70.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

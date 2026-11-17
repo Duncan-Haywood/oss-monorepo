@@ -147,4 +147,9 @@ def trace_breakeven(samples, dt, p_neutral, q_standby=0.0):
         out.update(r=r, p_Q=p_Q, p_q=p_q, d_bar=d_bar, beta=beta, A_off=A - A_on,
                    main=beta * (r - 1) * p_q, cov=beta * r * (p_Q - p_q), drop=beta * r * d_bar,
                    idle=(I - (A - A_on)) / B, rule2=(r - 1) * p_q + r * d_bar)
+        if r != 1:
+            # 5v: the pressure the surplus flow is pushed at, p_s = (r p_Q - p_q) / (r - 1); it folds the
+            # covariance in, so m* = beta [(r - 1) p_s + r d_bar] + idle exactly. Where every section LS
+            # counts is also moving for open-centre, it is the (pump flow - demand)-weighted pressure.
+            out["p_s"] = (r * p_Q - p_q) / (r - 1)
     return out

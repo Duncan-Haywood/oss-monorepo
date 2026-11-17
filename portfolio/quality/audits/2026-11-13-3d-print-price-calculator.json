@@ -1,0 +1,255 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/3d-print-price-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "someone who runs a small 3D print farm and quotes print jobs commercially (Etsy/Shopify plus custom orders); first they check that the machine-hour cost (power plus depreciation) and the failure allowance are computed the way they would, that the marketplace fee default matches what Etsy actually takes (percentage plus fixed per-order fees), that a full plate of parts can be priced per part, and that the G-code import reads the file their own slicer (most often Bambu Studio) writes",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed independently in Python (not using the author's tests) from the standard conventions (filament $ = g/1000 x $/kg, as PrusaSlicer's own filament-cost estimate does; electricity = h x W/1000 x $/kWh; straight-line machine depreciation = cost/lifetime hours x h; expected attempts = 1/(1-p) for a geometric number of trials), then compared with node calc.mjs: defaults give material 0.99, electricity 0.0576, depreciation 0.25, buffer 0.1128, total 5.4938, break-even 6.0041, price 9.7235, all equal to the tool's output. The failed-print guide's table (5% vs 25%: buffer 0.07/0.43, total 5.45/5.81, break-even 5.96/6.35, price 9.64/10.29, +$0.64, $18 on 50 parts) matches to the cent. Cura length-to-grams: 10 m of 1.75 mm at 1.24 g/cm3 = pi x 0.875^2 x 10000 / 1000 x 1.24 = 29.83 g; tool 29.82 to 29.83. G-code parsing was checked against fixtures built from the line formats in the BambuStudio and OrcaSlicer source (GCodeProcessor.cpp), not the author's fixtures: PrusaSlicer, Orca (non-Bambu printer) and Cura headers parse right (29.46 g, 1.98 h); a Bambu Studio file fails to give a time (see completeness). The arithmetic is right. Kept at 3, not 4, because the default 8.5% fee is below Etsy's 6.5% transaction + 3% processing (9.5%) + $0.25 + $0.20 listing: at the tool's $9.72, the true Etsy margin is 29.4%, not the 35% shown.",
+  "completeness": "Claimed features walked: cost breakdown and fee-solved price (works), break-even (works), check-a-price panel (works, tested), save/forget/share link (share.test.mjs, page.test.mjs), opt-out usage counting (usage.test.mjs), the three guide pages (served; https://marisstella.app/3d-print-price-calculator/ 200), and G-code import for five slicers. The import works for PrusaSlicer, Cura, Simplify3D and OrcaSlicer with a non-Bambu printer, but not for Bambu Studio, nor OrcaSlicer when the printer profile is a Bambu one: both write the time as '; model printing time: 1h 52m 3s; total estimated time: 1h 58m 40s' on one line (BambuStudio GCodeProcessor.cpp:715, Orca :1316), and gcode.mjs:53 only matches a line that starts with 'total estimated time'. Result on a Bambu-format header: ok=false, missing=['print time'], so the page asks the user to type the time. It fails loudly, not with a wrong number. No TODOs or stubs found.",
+  "verification": "cd ventures/3d-print-price-calculator && node --test '*.test.mjs': 77 pass, 0 fail, 0.19 s. quality_mutate.py, 6 core mutants: 5 caught (failure multiplier 1/(1-p) -> 1+p; electricity x1.25; labor and packaging inflated by the failure multiplier; actual profit off by packaging; Bambu-time regex branch removed). 1 survived: dropping otherFixedCost from totalCost (calc.mjs:121), because every test uses the default 0. The deeper gap is that the Bambu fixture in gcode.test.mjs:22 is a made-up line ('; total estimated time: 1h 30m 0s' on its own), not the format Bambu Studio writes, so the test passes a feature that fails on real files.",
+  "craft": "Files read: calc.mjs (163 lines, pure, validated inputs with field-named errors), gcode.mjs (90 lines, regex parsing, no I/O, tested), share.mjs (derives its field list from DEFAULTS rather than copying it), index.html script (reads only the head and tail 256 KB of large G-code files, sensible). Clean and small. Defects: Number('') is 0, so a blank grams or wattage field silently prices as 0 (calc.mjs:26; node: blank grams and wattage -> material 0, electricity 0, price $7.71, no warning); the .gcode.3mf that Bambu Studio exports by default is not accepted (index.html:22, accept list), which is acceptable but undocumented.",
+  "claims": "Checked: the fee-solving formula and the 1/(1-p) claim (backed by calc.mjs and recomputed); 'post-processing and packaging are not inflated' (calc.mjs:120-121, mutant caught); the guide's worked numbers (recomputed, pass); 'never uploaded' (gcode.mjs has no I/O, tested; FileReader slices only); the disclaimer (index.html:103 and all three guides, plus not-affiliated wording on the slicer page). Not backed: index.html:23 and README.md:43 say import reads 'Bambu Studio' files; it does not read their print time. README.md:55-56 says 'nothing is saved when you close the tab, every field resets on refresh by design', contradicted by the Save button and shared link the page itself describes (index.html:87). llms.txt lists github.io URLs in source, but the served llms.txt is rewritten to marisstella.app (checked), so not a defect.",
+  "fitness": "Job: price one part for an Etsy listing. A hobby seller can do it in a minute and gets an honest breakdown and a fee-solved price. A print-farm operator hits three things in the first hour: (1) no parts-per-plate field, and the G-code import fills in the whole plate's grams and hours, so a 10-part plate imported as is gets priced as one part; (2) the Etsy fixed fees ($0.25 processing, $0.20 listing) have no field of their own (the note at index.html:69 says to fold the listing fee into 'other cost'), and the 8.5% default is below Etsy's 9.5%; (3) a Bambu user must type the time by hand.",
+  "domain": "Compared with common print-farm costing practice (machine-hour rate = power + depreciation + maintenance; failure allowance; per-plate costing divided by parts per plate) and Etsy's Fees & Payments Policy (6.5% transaction fee on item price plus shipping, 3% + $0.25 US payment processing, $0.20 listing; etsy.com/legal/fees returns 403 through the proxy, so these are the published figures as of the auditor's knowledge). Matches: the cost lines, depreciation by machine hours, the fee folded into the price denominator. Departs: (a) the failure model charges every failed attempt a full print's material and hours; most failures (first-layer adhesion) stop early, so 1/(1-p) is an upper bound, and the guide's own example (a failure 'at hour six of eight') isn't parameterised; (b) no maintenance or consumables (nozzles, build plates) beyond the purchase price; (c) no batch/plate quantity; (d) the default fee understates Etsy's and the fixed fees aren't modelled. Each is within the stated limits, but a farm operator would not sign off the defaults as is."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default cost breakdown and suggested price (45 g, $22/kg, 3 h, 120 W, $0.16/kWh, $250 / 3000 h, 8%, 10 min @ $20, $0.75, 8.5% fee, 35% margin)",
+   "method": "by hand in Python from standard conventions: g/1000 x $/kg; h x kW x rate; straight-line depreciation per machine hour; 1/(1-p) expected attempts; price = cost/(1-fee-margin)",
+   "command": "python3 (independent recompute) vs node -e \"import('./calc.mjs')...calculatePrice(DEFAULTS)\"",
+   "expected": "material 0.99, electricity 0.0576, depreciation 0.25, total 5.4938, break-even 6.0041, price 9.7235",
+   "observed": "0.99, 0.0576, 0.25, 5.4938, 6.0041, 9.7235",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "failed-print guide table, 5% vs 25% failure",
+   "method": "same independent recompute",
+   "command": "python3 (independent recompute) vs node calc.mjs with failureRatePercent 5 and 25",
+   "expected": "buffer 0.0683/0.4325, total 5.4492/5.8135, break-even 5.9554/6.3535, price 9.6447/10.2893, delta 0.645, 50 parts x 0.364 = $18.2",
+   "observed": "tool identical; page shows $0.07/$0.43, $5.45/$5.81, $5.96/$6.35, $9.64/$10.29, $0.64, about $18",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cura filament length to grams, 10 m of 1.75 mm PLA",
+   "method": "cylinder volume pi r^2 L, PLA density 1.24 g/cm3",
+   "command": "node --test gcode.test.mjs; python3 -c 'print(10000*3.14159*0.875**2/1000*1.24)'",
+   "expected": "29.83 g",
+   "observed": "29.82 to 29.83 g",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PrusaSlicer, OrcaSlicer (non-Bambu printer) and Cura headers in the slicers' real line formats",
+   "method": "BambuStudio master src/libslic3r/GCode/GCodeProcessor.cpp:715 (sprintf \"; model printing time: %s; total estimated time: %s\\n\" for Bambu printers) and :741/:666 (\"; total filament weight [g] : \"), GCode.cpp:2570 (only time placeholder, in the header); OrcaSlicer main GCodeProcessor.cpp:1316 same line for Bambu printers, :1312 '; estimated printing time (normal mode) =' otherwise; fetched from raw.githubusercontent.com 2026-11-13",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/gcode_check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator/gcode.mjs",
+   "expected": "29.46 g and 1.98 h for each",
+   "observed": "29.46 g, 1.98 h for all three",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Bambu Studio header (also OrcaSlicer with a Bambu printer profile)",
+   "method": "BambuStudio master src/libslic3r/GCode/GCodeProcessor.cpp:715 (sprintf \"; model printing time: %s; total estimated time: %s\\n\" for Bambu printers) and :741/:666 (\"; total filament weight [g] : \"), GCode.cpp:2570 (only time placeholder, in the header); OrcaSlicer main GCodeProcessor.cpp:1316 same line for Bambu printers, :1312 '; estimated printing time (normal mode) =' otherwise; fetched from raw.githubusercontent.com 2026-11-13",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/gcode_check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator/gcode.mjs",
+   "expected": "ok, 29.46 g, 1.98 h",
+   "observed": "ok=false, grams 29.46, hours null, missing ['print time']",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "realised margin on Etsy at the default 8.5% fee",
+   "method": "Etsy Fees & Payments Policy: 6.5% transaction + 3% + $0.25 US payment processing + $0.20 listing (etsy.com/legal/fees, 403 via proxy; published figures)",
+   "command": "python3: (9.7235 x (1-0.095) - 0.45 - 5.4938) / 9.7235",
+   "expected": "35% target margin",
+   "observed": "29.4% real margin; Etsy-correct price would be $10.71",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/3d-print-price-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "77 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "seeded mutants in calc.mjs and gcode.mjs",
+   "method": "platform/ci/quality_mutate.py, private copies",
+   "command": "python3 platform/ci/quality_mutate.py ventures/3d-print-price-calculator/calc.mjs --old ... --new ... -- node --test '*.test.mjs'",
+   "expected": "6/6 caught",
+   "observed": "5/6 caught; otherFixedCost dropped survived",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Import ... (PrusaSlicer, OrcaSlicer, Bambu Studio, Cura, Simplify3D)'",
+   "method": "real Bambu Studio line format (above)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/gcode_check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator/gcode.mjs",
+   "expected": "Bambu Studio files import",
+   "observed": "time not read from Bambu Studio files",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README privacy line 'every field resets on refresh by design'",
+   "method": "read index.html Save/share controls and privacy copy",
+   "command": "grep -n 'resets on refresh\\|nothing is saved' ventures/3d-print-price-calculator/README.md ventures/3d-print-price-calculator/index.html",
+   "expected": "consistent with the Save button and shared link",
+   "observed": "README.md:55-56 contradicts index.html:87 (Save writes localStorage)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "no-warranty disclaimer and not-affiliated wording",
+   "method": "read pages; page.test.mjs disclaimer tests",
+   "command": "grep -n 'No warranty\\|not affiliated' ventures/3d-print-price-calculator/*.html",
+   "expected": "present on tool and guides",
+   "observed": "present on index.html:103 and all three guide pages; not-affiliated on the slicer comparison page",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "served page and llms.txt",
+   "method": "load https://marisstella.app/3d-print-price-calculator/",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/3d-print-price-calculator/; curl -sS https://marisstella.app/3d-print-price-calculator/llms.txt",
+   "expected": "200; URLs on marisstella.app",
+   "observed": "200; served llms.txt rewritten to marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "price one part from a 10-part plate imported from G-code",
+   "method": "read index.html import handler and calc.mjs inputs",
+   "command": "grep -n \"el('filamentUsedGrams').value = r.grams\" ventures/3d-print-price-calculator/index.html",
+   "expected": "a parts-per-plate field dividing grams and hours",
+   "observed": "none; the whole plate's grams and hours are written into the single-part fields",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:121",
+   "change": "totalCost = adjustedPerAttemptCost + laborCost + packagingCost + otherFixedCost -> without + otherFixedCost",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:116",
+   "change": "failureMultiplier = 1 / (1 - failureRatePercent / 100) -> 1 + failureRatePercent / 100",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:108",
+   "change": "electricityCost ... * electricityCostPerKwh -> ... * electricityCostPerKwh * 1.25",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:121",
+   "change": "laborCost + packagingCost -> (laborCost + packagingCost) * failureMultiplier",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "calc.mjs:135",
+   "change": "actualProfit = actualNetRevenue - totalCost -> ... + packagingCost",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "gcode.mjs:53",
+   "change": "?? line(src, /^;\\s*total estimated time:.../) -> removed",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "G-code import cannot read the print time from Bambu Studio files (or OrcaSlicer files for Bambu printers): those slicers write '; model printing time: X; total estimated time: Y' on one line (BambuStudio GCodeProcessor.cpp:715, Orca :1316), and the regex only matches a line that starts with 'total estimated time'. The import fails with 'Could not find print time'.",
+   "where": "ventures/3d-print-price-calculator/gcode.mjs:53",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "The page and README say the import reads Bambu Studio files; it does not read their print time.",
+   "where": "ventures/3d-print-price-calculator/index.html:23",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "The Bambu fixture is a made-up line ('; total estimated time: 1h 30m 0s' on its own), not the format Bambu Studio writes, so the test passes a feature that fails on real files.",
+   "where": "ventures/3d-print-price-calculator/gcode.test.mjs:22",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The 8.5% default 'marketplace + payment fee' is below Etsy's 6.5% transaction + 3% processing = 9.5%, and the fixed $0.25 processing and $0.20 listing fees have no field of their own. At the default suggested price ($9.72), the real Etsy margin is 29.4%, not the 35% shown; the Etsy-correct price is $10.71.",
+   "where": "ventures/3d-print-price-calculator/calc.mjs:45",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No parts-per-plate quantity. The G-code import writes the whole plate's grams and hours into single-part fields, so an imported multi-part plate is priced as one part unless the user divides by hand.",
+   "where": "ventures/3d-print-price-calculator/index.html:189",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "The failure model charges every failed attempt a full print's material and hours; most failures stop early, so 1/(1-p) is an upper bound, and the page doesn't say so or offer a 'share of print completed at failure' input.",
+   "where": "ventures/3d-print-price-calculator/calc.mjs:116",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "README privacy line says nothing is saved and every field resets on refresh by design, contradicted by the Save button (localStorage) and shared link the page describes.",
+   "where": "ventures/3d-print-price-calculator/README.md:55",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "otherFixedCost is not pinned by any test: dropping it from totalCost leaves all 77 tests green, because every test uses the default 0.",
+   "where": "ventures/3d-print-price-calculator/calc.test.mjs:5",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "A blank field is Number('') = 0, so clearing grams or wattage silently prices that line at $0 instead of raising an error (blank grams and wattage -> $7.71, no warning).",
+   "where": "ventures/3d-print-price-calculator/calc.mjs:26",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
+ ],
+ "verdict": "The pricing arithmetic is right: an independent recompute of the defaults and of the failed-print guide's 5%-vs-25% table matches to the cent, and the Cura length-to-grams conversion is right. 77 tests pass and 5 of 6 seeded mutants were caught. It misses the bar on claims. The page says G-code import works for Bambu Studio, but Bambu Studio and Orca, for Bambu printers, write the print time on a '; model printing time: ...; total estimated time: ...' line (per their source), which gcode.mjs:53 doesn't match. Real Bambu files fail to import, while the test passes on a made-up fixture. A print-farm operator would also flag that the 8.5% default fee is below Etsy's 9.5% plus $0.45 fixed (real margin 29.4% at the default price, not 35%), that there's no parts-per-plate field, and that every failure is charged as a full print. The fixes are small: a one-regex change plus a fixture from real Bambu output, an Etsy-accurate default with a fixed-fee field, a quantity field, and a corrected README privacy line."
+}

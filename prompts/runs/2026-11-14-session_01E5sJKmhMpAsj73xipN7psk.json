@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmhMpAsj73xipN7psk",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:09:43Z",
+  "ended": "2026-11-14T01:29:01Z",
+  "wall_minutes": 19.65,
+  "tokens_in": 11617408,
+  "tokens_out": 107254,
+  "cost_usd": 5.9901,
+  "tool_calls": 87,
+  "task": "Explore: new venture rrule-explainer (iCalendar RRULE expansion with findings), differential-tested against python-dateutil",
+  "projects": [
+    "rrule-explainer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15682",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 41,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Playwright check with a background python http.server was refused by the auto-mode classifier",
+      "fix": "served files through Playwright's page.route instead; no server process"
+    },
+    {
+      "what": "first fixture set mixed plain and ordinal BYDAY inside the 'rfc' group, so 156 of 1,500 diffs were the known dateutil intersect reading",
+      "fix": "generator keeps each list all-plain or all-ordinal in that group; mixed lists get their own group of 100"
+    },
+    {
+      "what": "page overflowed a 390px phone (482px) from long rule strings in FAQ text",
+      "fix": "overflow-wrap:anywhere on p/li, nowrap code in table cells inside the scroller"
+    },
+    {
+      "what": "first local sweep found three gates the new venture had not met: no CSV formula guard, no sibling linking it (sibling-links budget 0), no launched.json date",
+      "fix": "csvSafe in reportCsv; paired with cron-dst-drift-check both ways with tests; launched.mjs --write"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/privacy/optout-persistence.test.mjs",
+      "issue": "A new venture with an opt-out needs a hand bump of SWITCHES_IN_THE_CATALOGUE plus a comment line; nothing in AGENTS.md or the playbook says so, found only by running the test."
+    },
+    {
+      "file": "AGENTS.md",
+      "issue": "A new venture must also pass the CSV formula guard, the sibling-link orphan budget and launched.json; none of these is on a new-venture checklist I read, each surfaced only in run_workflow_locally --for-changes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "No security alerts, ideas or website requests were open; route drew explore, so this run picked a new venture rather than a flagship.",
+      "did": "built rrule-explainer",
+      "result": "landed with 41 tests"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-recurring-event-that-skips-five-months.md",
+    "ventures/rrule-explainer/README.md",
+    "ventures/rrule-explainer/why-recurring-event-skips-months.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: rrule-explainer, an RFC 5545 RRULE expander (BYSETPOS, BYWEEKNO under WKST, DST gap/overlap per 3.3.5, DTSTART counted per 3.8.5.3) with English text and findings (skipped short months + fixed rule, never-fires proved over 400y*INTERVAL, DTSTART not in rule, WKST sensitivity, mixed BYDAY). Differential test vs python-dateutil 4.0.0 via committed fixtures (gen_fixtures.py, seed 20261114): flavor 'dateutil' identical on 1,500/1,500 RFC-valid random rules and 100/100 mixed-BYDAY rules; RFC reading differs only in 3 documented places (DTSTART, mixed BYDAY intersect, WEEKLY first-week BYSETPOS: 1 of 1,500). dateutil returned no dates for 92 of 100 mixed MO,2TU-style rules. Page checked in Playwright at 1100 and 390 px, no console errors. Local checks: node --test on the venture (41 pass), optout-persistence test, check_post_links, check_post_frontmatter, run_workflow_locally --for-changes (see PR). Next: read VTIMEZONE from pasted files; diff two rules (series edit impact). Local verification (GitHub runners queued): run_workflow_locally --for-changes then reruns on a stable tree: sibling-links 2/2, ventures-tests 5/5, portfolio-validate 100/100, platform/pages suite 1,623 tests with 0 failures after the launched.json fix, plus duplicate-symbols, page-integrity, link-contrast, control-plane, conflict-markers, doc-refs green.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bbb5efb2-985a-5576-9f9a-c94c926ccb47",
+    "transcripts": 1,
+    "first": "2026-11-14T01:09:43Z",
+    "last": "2026-11-14T01:29:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 78,
+        "input": 151,
+        "output": 107254,
+        "thinking": 22319,
+        "cache_read": 11422256,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195001,
+        "api_equivalent_usd": 5.9901,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 78,
+      "input": 151,
+      "output": 107254,
+      "thinking": 22319,
+      "cache_read": 11422256,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195001,
+      "api_equivalent_usd": 5.9901,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 72,
+      "Write": 10,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.65,
+      "active_minutes": 19.65,
+      "model_minutes": 15.43,
+      "tool_minutes": 4.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "senior engineer: RFC 5545 expander with TZ handling, differential harness, page, CLI, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 400.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

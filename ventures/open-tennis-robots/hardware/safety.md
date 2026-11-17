@@ -15,8 +15,12 @@ loss, damage or injury arising from its use.
 ## Built into the design
 
 - **Hard-wired e-stop** that cuts motor power through a contactor, on each
-  robot. Add a wireless e-stop fob (a latching relay remote in series)
-  before you use the feeder alone.
+  robot. On the feeder the same switch also feeds the precharge relay and the
+  contactor's on-delay timer, so pressing it drops all three
+  (`electronics.md`, 2026-11-14). Add a wireless e-stop fob (a latching relay remote in series)
+  before you use the feeder alone. Since 2026-11-14 the feeder's ESP32 also
+  senses the contactor's coil (GPIO 15), so a fob that drops it halts the
+  board and clears its feed queue even though the button was never pressed.
 - **Watchdog**: the ESP32 stops every motor if the Pi sends nothing for
   300 ms (`firmware/esp32/controller.py`).
 - **Feed interlock**: a ball is released only when both launcher wheels
@@ -33,6 +37,10 @@ loss, damage or injury arising from its use.
 
 - Guard both launcher wheels fully; never reach into the head unless the
   e-stop is pressed and the wheels have stopped.
+  The wheels are not braked to a stop: after a stop or an e-stop they coast,
+  and from the drill's top speed that takes at least 20 seconds (a lower
+  bound on an assumed drag, `Feeder.regen_braking`). Watch them stop; do not
+  count on the e-stop to stop them.
 - Test new drills at low speed first; stand to the side, not in front of
   the muzzle, while the feeder spins up.
 - Nobody but the player on the court while the feeder runs. Children and

@@ -127,3 +127,44 @@ def best_trap(arm, qa, qb, tau_max, mass, fcap, mu=0.5, wmax=None, fracs=FRACS, 
         if T is not None and (best is None or T < best[0]):
             best = (T, f)
     return best
+
+
+def log_grid(lo, hi, n):
+    """n ramp fractions spaced evenly in log f from lo to hi."""
+    return tuple(lo * (hi / lo) ** (i / (n - 1)) for i in range(n))
+
+
+def converged_trap(arm, qa, qb, tau_max, mass, fcap, mu=0.5, wmax=None, lo=1e-5, hi=0.5, dense=41, iters=30,
+                   tol=1e-6, j=0.0, ramp_samples=40):
+    """(robofab-edgeconv, quality fix 2026-11-14) Best trapezoid over ramp fractions f in [lo, hi]: a dense log grid,
+    then golden-section search in log f between the best grid point's neighbours, with bisection tolerance tol on T.
+    best_trap's 14-value grid stops at 0.002, which in the speed-limited rows is where its optimum sits, so it is not
+    converged. Returns (T, f, interior), interior = the best grid point is not at either end of [lo, hi], or None
+    if no f is feasible."""
+    fgrid = log_grid(lo, hi, dense)
+
+    def val(f):
+        t = min_time_trap(arm, qa, qb, tau_max, mass, fcap, f, mu=mu, wmax=wmax, tol=tol, j=j, ramp_samples=ramp_samples)
+        return math.inf if t is None else t
+    vals = [val(f) for f in fgrid]
+    i = min(range(dense), key=lambda k: vals[k])
+    if math.isinf(vals[i]):
+        return None
+    best = (vals[i], fgrid[i])
+    a, b = math.log(fgrid[max(i - 1, 0)]), math.log(fgrid[min(i + 1, dense - 1)])
+    g = (math.sqrt(5.0) - 1.0) / 2.0
+    c, d = b - g * (b - a), a + g * (b - a)
+    fc, fd = val(math.exp(c)), val(math.exp(d))
+    for _ in range(iters):
+        for x, t in ((c, fc), (d, fd)):
+            if t < best[0]:
+                best = (t, math.exp(x))
+        if fc < fd:
+            b, d, fd = d, c, fc
+            c = b - g * (b - a)
+            fc = val(math.exp(c))
+        else:
+            a, c, fc = c, d, fd
+            d = a + g * (b - a)
+            fd = val(math.exp(d))
+    return best[0], best[1], 0 < i < dense - 1

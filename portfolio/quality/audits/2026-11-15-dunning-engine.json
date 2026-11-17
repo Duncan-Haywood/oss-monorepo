@@ -1,0 +1,249 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/dunning-engine",
+ "stratum": "venture",
+ "seed": "2026-11-15-1fba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior payments / billing engineer who runs involuntary-churn recovery for a Stripe SaaS (the person who would otherwise configure Churn Buster or Smart Retries). They would check first: that decline codes where the cardholder or issuer has said stop (stop_payment_order, revocation_of_authorization, do_not_try_again) are never retried, that nothing can double-charge, that the Stripe webhook signature is verified exactly as Stripe specifies, that amounts in customer emails are right in every currency, and that the dunning emails say nothing untrue to the customer",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed against sources the author did not write. Pass: webhook signature (HMAC computed in Python hmac/hashlib per Stripe's t=,v1= scheme verifies true; +301 s stale and a tampered body are rejected); Wilson 81/263 = 0.2553-0.3662 and Newcombe hybrid-score difference 56/70 vs 48/80 = 0.0524-0.3339 (Newcombe 1998 worked examples) and an independent Python implementation (Wilson 7/20, Newcombe 30/50 vs 10/30 agree to 4 dp); casesPerArm 0.5 vs 0.4 = 387 vs exact-z 387.3 (ceil 388, uses z_b=0.84); payday snap for a failure on Mon 5 Jan 2026 gives retries 9, 10, 15, 18 Jan = page's 'day 4, 5, 10, 13'; cardValidUntil(2,2028) = 2028-02-29T23:59:59.999Z. Fail: (1) planRecovery for stop_payment_order, revocation_of_authorization, revocation_of_all_authorizations, do_not_try_again, merchant_blacklist, security_violation all return class soft with 4 retries (dunning.mjs:11-29, default fallback) although the cardholder/issuer has said stop; (2) formatMoney(500,'isk') = 'ISK 500' where Stripe docs (docs.stripe.com/currencies, Special cases) say ISK amounts are two-decimal so 500 = 5 ISK (100x overstated), and XPF/BIF/DJF/GNF/KMF/MGA/VUV are missing from the zero-decimal list (formatMoney(1000,'xpf') = 'CFPF 10', 100x understated); (3) renderEmail with COMPANY_ADDRESS unset leaves the literal '{{address}}' in every customer email footer; (4) the final-notice email says 'your subscription will be ended' while the default (CANCEL_ON_EXPIRE unset) leaves it alone.",
+  "completeness": "README features checked: decline classification (present), never-expiring /update/<token> link (linkToken/customerFromToken, server.test.mjs), replan on lost_card and card-updated retry (engine.mjs:54,87), close on paid/voided/uncollectible/subscription deleted (engine.mjs:72-86), re-read invoice before retry + idempotency key + event de-dup (engine.mjs:134-138, :40), expiry notices (expiry.mjs, scanExpiring), grace-period alert / optional cancel, holdout experiment with interval (holdout.mjs), weekly digest, doctor preflight, /admin dashboard, four mail providers, Render/Docker/Fly configs. All present and exercised by the 100 node tests against a fake Stripe. Served page https://marisstella.app/dunning-engine/ returns 200 with the simulator and No-warranty disclaimer; served llms.txt uses marisstella.app URLs; dunning.mjs served 200 for the browser import. Not done (and stated): never run against live Stripe.",
+  "verification": "`cd ventures/dunning-engine && node --test '*.test.mjs'`: 100 tests, 100 pass, 0.57 s. Six seeded mutants via platform/ci/quality_mutate.py: 2 caught (retry guard inv.status !== 'open' -> === 'void'; holdout exclusion from card-updated retries removed), 4 survived: payday days [1,2,15,16] -> [1,15] (dunning.mjs:68), Newcombe lower bound using the wrong holdout tail (holdout.mjs:41), webhook tolerance Math.abs removed so future-dated timestamps pass (stripe.mjs:14), grace cut-off graceDays -> graceDays+1 letting a retry fall after the expiry date (dunning.mjs:99). No test pins the class of the stop/revocation codes or the email footer with no address.",
+  "craft": "Read dunning.mjs, stripe.mjs, engine.mjs, holdout.mjs, templates.mjs, expiry.mjs, server.mjs. Zero-dependency, small pure modules, effects injected, atomic state write (tmp+rename), timing-safe compares, request size cap. Defects: renderEmail deliberately leaves unknown/empty placeholders visible (templates.mjs:215), which turns a missing optional env var into a customer-visible '{{address}}'; a failed declineCodeFor call is swallowed to null and silently becomes class soft (server.mjs:60), so a lost_card can get one retry; setInterval(async tick, 60 s) has no re-entrancy guard, so a slow tick can overlap and double-send an email (retries are protected by the idempotency key, emails are not); AUTH final template still says 'Update your payment method' (templates.mjs:209 only replaces the lower-case phrase).",
+  "claims": "Backed: dry-run default (server.mjs:108), zero dependencies (no package.json deps), Wilson/Newcombe interval and sample-size wording (holdout.mjs, recomputed), 'not run against live Stripe' disclosed, No-warranty / not advice disclaimer on index.html:105 and llms.txt, usage counter with opt-out. Not backed: README.md:80 says '91 tests' (100 run); stripe-decline-codes.html FAQ says retry 'only decline codes where the payment can succeed later without the customer doing anything' yet the code retries stop_payment_order/revocation/do_not_try_again via the soft fallback; the final customer email asserts the subscription 'will be ended' which the default configuration does not do.",
+  "fitness": "Job walked: an indie SaaS founder previews a plan in the simulator (loaded, 200), deploys the server in dry run, reads the log, then goes live. The dry-run path and doctor make that safe to try. But a founder going live would, on day one, email customers a footer with '{{address}}' unless they knew to set COMPANY_ADDRESS, tell every non-payer their subscription will be ended when it will not, and retry customers who have revoked authorization or placed a stop-payment. Never run against live Stripe by the author.",
+  "domain": "Compared against Stripe's decline-code reference (docs.stripe.com/declines/codes, fetched) and currency reference (docs.stripe.com/currencies, fetched), and card-network retry practice (Visa's 'issuer will never approve' category, which includes the stop-payment / revocation codes R0/R1/R3, and Mastercard Merchant Advice Code 03 'do not try again', both of which carry excessive-retry fees). The class split (hard/update/funds/auth/soft), no retry on expired/lost cards, re-read-before-retry and idempotency keys match practice. Departures: the soft default absorbs every code it does not list, including the ones that mean stop; ISK and seven zero-decimal currencies are mis-scaled; the final notice states a consequence the operator did not configure, which is the kind of misstatement consumer-protection review flags."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Stripe webhook signature verification",
+   "method": "independent HMAC-SHA256 in Python hmac over '<t>.<body>' per Stripe's Stripe-Signature scheme",
+   "command": "python3 -c '...hmac.new(b\"whsec_test\",...)' then verifySignature(body,sig,'whsec_test',1763200000)",
+   "expected": "true; false at +301 s; false on tampered body",
+   "observed": "true / false / false",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Newcombe hybrid-score interval for a difference of proportions",
+   "method": "Newcombe (1998) Stat Med worked example 56/70 vs 48/80, method 10",
+   "command": "node -e 'diffInterval(56,70,48,80)'",
+   "expected": "0.2000 (0.0524, 0.3339)",
+   "observed": "0.2000 (0.05243, 0.33387)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wilson interval",
+   "method": "Newcombe (1998) single-proportion example 81/263 and an independent Python implementation for 7/20",
+   "command": "node -e 'wilson(81,263); wilson(7,20)'",
+   "expected": "0.2553-0.3662; 0.1812-0.5671",
+   "observed": "0.2553-0.3662; 0.1812-0.5671",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sample size per arm for 0.5 vs 0.4 at 80% power, 5% alpha",
+   "method": "two-proportion normal-approximation formula computed in Python with exact NormalDist quantiles",
+   "command": "node -e 'casesPerArm(0.5,0.4)'",
+   "expected": "387.3 (388 rounded up)",
+   "observed": "387",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Funds retry dates for a failure on Mon 5 Jan 2026 with payday nudge",
+   "method": "calendar by hand (Fri 9 Jan, Sat 10, Thu 15 = 15th, Sun 18 no payday within 2 days)",
+   "command": "node -e 'planRecovery({declineCode:\"insufficient_funds\",t0:Date.UTC(2026,0,5,12)})'",
+   "expected": "retries 9, 10, 15, 18 Jan",
+   "observed": "9, 10, 15, 18 Jan; page says day 4, 5, 10, 13",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Codes where the cardholder or issuer says stop are not retried",
+   "method": "Stripe decline-code reference (fetched) and card-network retry rules (Visa stop-payment/revocation codes R0/R1/R3 in the never-approve category; Mastercard MAC 03 do not try again)",
+   "command": "node -e 'planRecovery({declineCode:\"stop_payment_order\",...})' for 6 codes",
+   "expected": "no retries (hard)",
+   "observed": "class soft, 4 retries for stop_payment_order, revocation_of_authorization, revocation_of_all_authorizations, do_not_try_again, merchant_blacklist, security_violation",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Email amount in ISK and XPF",
+   "method": "docs.stripe.com/currencies: zero-decimal list (BIF CLP DJF GNF JPY KMF KRW MGA PYG RWF UGX VND VUV XAF XOF XPF) and ISK special case (500 = 5 ISK)",
+   "command": "node -e 'formatMoney(500,\"isk\"); formatMoney(1000,\"xpf\")'",
+   "expected": "ISK 5; XPF 1,000",
+   "observed": "ISK 500; CFPF 10",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Customer email footer with COMPANY_ADDRESS unset",
+   "method": "rendered the soft-first email with address '' as engine.mjs:115 passes it",
+   "command": "node -e 'renderEmail(\"soft-first\",{...,address:\"\"})'",
+   "expected": "footer without a placeholder",
+   "observed": "footer ends 'Acme\\n{{address}}'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Final notice says the subscription will be ended",
+   "method": "default config: CANCEL_ON_EXPIRE unset, engine.mjs:152 cancels only when set",
+   "command": "node -e 'renderEmail(\"soft-final\",...)'",
+   "expected": "wording matching the configured outcome",
+   "observed": "'Unless the payment is updated by 2026-01-19, your subscription will be ended.' with no cancellation configured",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README test count",
+   "method": "ran the suite",
+   "command": "node --test '*.test.mjs'",
+   "expected": "91 tests (README.md:80)",
+   "observed": "100 tests, 100 pass",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer and usage tracking on the served page",
+   "method": "loaded the served page",
+   "command": "curl -s https://marisstella.app/dunning-engine/ | grep -c 'No warranty'",
+   "expected": "disclaimer present, 200",
+   "observed": "200, 1 match; usage opt-out checkbox present",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served llms.txt links",
+   "method": "loaded the served file (source uses the old github.io host, rewritten at deploy)",
+   "command": "curl -s https://marisstella.app/dunning-engine/llms.txt",
+   "expected": "marisstella.app URLs",
+   "observed": "marisstella.app URLs",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "ran it",
+   "command": "cd ventures/dunning-engine && node --test '*.test.mjs'",
+   "expected": "green",
+   "observed": "100/100 pass in 0.57 s",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:135",
+   "change": "if (inv.status !== \"open\") { -> if (inv.status === \"void\") {",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "engine.mjs:92",
+   "change": "c.status === \"open\" && c.arm !== \"holdout\" && c.customer === cust -> c.status === \"open\" && c.customer === cust",
+   "caught": true,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "dunning.mjs:68",
+   "change": "[1, 2, 15, 16].includes(dom) -> [1, 15].includes(dom)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "holdout.mjs:41",
+   "change": "low: d - Math.sqrt((a.p - a.low) ** 2 + (b.high - b.p) ** 2) -> low: d - Math.sqrt((a.p - a.low) ** 2 + (b.p - b.low) ** 2)",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "stripe.mjs:14",
+   "change": "if (Math.abs(nowSec - Number(t)) > toleranceSec) return false; -> if (nowSec - Number(t) > toleranceSec) return false;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  },
+  {
+   "where": "dunning.mjs:99",
+   "change": "if (dayMs - day0 > p.graceDays * DAY) return; -> if (dayMs - day0 > (p.graceDays + 1) * DAY) return;",
+   "caught": false,
+   "test_cmd": "node --test *.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Decline codes meaning the cardholder or issuer said stop (stop_payment_order, revocation_of_authorization, revocation_of_all_authorizations, do_not_try_again, plus merchant_blacklist, security_violation) are not in CLASS_OF and fall to the 'soft' default, so the server retries them 4 times; transaction_not_allowed is explicitly soft. Retrying after a revoked authorization breaches card-network retry rules and incurs excessive-retry fees.",
+   "where": "ventures/dunning-engine/dunning.mjs:11",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  },
+  {
+   "severity": "medium",
+   "what": "With COMPANY_ADDRESS unset (no default, not required), every customer email ends with the literal '{{address}}' because renderEmail leaves empty placeholders visible and engine passes address ''.",
+   "where": "ventures/dunning-engine/engine.mjs:115",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Final-notice email tells the customer 'your subscription will be ended' by the deadline, but the default configuration (CANCEL_ON_EXPIRE unset) never cancels; a false statement to the operator's customers.",
+   "where": "ventures/dunning-engine/templates.mjs:190",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "formatMoney treats ISK as zero-decimal (Stripe sends ISK as two-decimal, 500 = 5 ISK, so emails show 100x the amount) and omits BIF, DJF, GNF, KMF, MGA, VUV, XPF from the zero-decimal list (shown at 1/100).",
+   "where": "ventures/dunning-engine/dunning.mjs:125",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Four of six seeded mutants in core logic survive: payday days, Newcombe lower-bound tail, webhook future-timestamp tolerance, and the grace cut-off for retries.",
+   "where": "ventures/dunning-engine/holdout.mjs:41",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "A failed decline-code lookup is swallowed to null and classified soft, so a lost/stolen card can get one retry before the decline re-classifies it.",
+   "where": "ventures/dunning-engine/server.mjs:60",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "setInterval runs an async tick every 60 s with no re-entrancy guard; an overlapping slow tick can send the same email twice (retries are protected by idempotency keys, emails are not).",
+   "where": "ventures/dunning-engine/server.mjs:123",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README says 'node --test # 91 tests'; the suite has 100.",
+   "where": "ventures/dunning-engine/README.md:80",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16169"
+ ],
+ "verdict": "A clean, zero-dependency Stripe dunning server whose statistics, webhook verification and payday calendar all recompute correctly, but it does not meet the bar: its soft-by-default classifier retries stop-payment, revoked-authorization and do_not_try_again declines, customer emails by default carry a literal '{{address}}' and a false 'subscription will be ended' threat, ISK and seven zero-decimal currencies are mis-scaled, and four of six seeded core mutants survive the 100-test suite."
+}

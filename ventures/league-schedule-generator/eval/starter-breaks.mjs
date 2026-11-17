@@ -16,6 +16,7 @@
 // Output: one JSON line per size and parity, then the STARTERS_WEIGHTED literal for carryover.mjs.
 import { carryOverFromOpponents, starterOpp, assignVenues, STARTERS, STARTERS_WEIGHTED } from "../carryover.mjs";
 import { climb, toPairs } from "./starter-climb.mjs";
+import { pathToFileURL } from "node:url";
 
 const secs = Number(process.argv[2] || 20);
 const weight = Number(process.argv[3] || 10);
@@ -52,7 +53,7 @@ function startInvariant(N, n, s) {
   return vals.size === 1;
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const table = {};
   for (const N of sizes) {

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnEAxmryoJSRRtT1HP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:09:24Z",
+  "ended": "2026-11-17T05:20:00Z",
+  "wall_minutes": 11.0,
+  "tokens_in": 8091735,
+  "tokens_out": 38452,
+  "cost_usd": 3.5439,
+  "tool_calls": 71,
+  "task": "shift-roster-builder (flagship 6): read Deputy rosters from its API (--import-deputy, --fetch-deputy, page box)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16827",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "checked out stalled PR #16521 to land it, merged main in, found an empty diff: its squash commit f693694a1 is already on main though the PR reads open",
+      "cost": "about 10 tool calls and a killed test run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Table row 2 shows PR #16521 as an OPEN PR and '20h old: extend it or pick a different item', but its content landed on main as f693694a1; the open-PR check could compare a PR's title with recent main commit subjects ('(#16521)') before listing it as open."
+    },
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "Said 'Deputy's API docs were not reachable' with no pointer to another source; open-source clients (git clone through the proxy works while api.github.com repo reads are refused) gave the field names. Now noted in eval/deputy-api-format-2026-11-17.md and the row's buildable: field."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "'Left recently' said shift-roster-builder's next: is nearly all inputs-only; instead of leaving the row, found a buildable item not in next: (Deputy's API, previously marked unreachable) and recorded one more in buildable:",
+      "did": "built the Deputy API reader from two open-source clients' field names; added a buildable: note (Deputy staff and wages)",
+      "result": "landed with 10 tests and a headless page check; the next session sent here has a concrete no-input item"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-reading-deputy-rosters-without-deputys-docs.md",
+    "ventures/shift-roster-builder/eval/deputy-api-format-2026-11-17.md"
+  ],
+  "goal": "flagship depth: a manager leaving Deputy can bring the roster in without exporting a file",
+  "notes": "Verification: node --test import-deputy.test.mjs 10/10; headless Chromium upload of rosters+areas JSON filled the shifts box (Mon 7-15 x2 floor, Mon 15-23 kitchen), no page errors; CLI --import-deputy prints the same lines; post front matter, links and similarity checks clean. run_venture_tests.py shift-roster-builder: first run 1 failure (page.test.mjs pins the page's import list; updated for import-deputy.mjs), rerun 0 failed; venture-preflight.mjs shift-roster-builder: 'preflight clean'. Stranded-branch sweep: 2 branches (a wall-framing profile note, a redteam record), left alone.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bae9ab92-7f26-5ce9-ab81-1c4b617442e1",
+    "transcripts": 1,
+    "first": "2026-11-17T05:09:24Z",
+    "last": "2026-11-17T05:20:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 127,
+        "output": 38452,
+        "thinking": 6817,
+        "cache_read": 7943400,
+        "cache_write_5m": 0,
+        "cache_write_1h": 148208,
+        "api_equivalent_usd": 3.5439,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 127,
+      "output": 38452,
+      "thinking": 6817,
+      "cache_read": 7943400,
+      "cache_write_5m": 0,
+      "cache_write_1h": 148208,
+      "api_equivalent_usd": 3.5439,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 71,
+    "tools": {
+      "Bash": 63,
+      "mcp__github__pull_request_read": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.0,
+      "active_minutes": 11.0,
+      "model_minutes": 8.04,
+      "tool_minutes": 2.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading two client libraries for an undocumented-here API, writing the reader, tests, CLI/page wiring and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 169.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

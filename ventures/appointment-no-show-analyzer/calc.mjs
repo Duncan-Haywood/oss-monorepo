@@ -11,9 +11,9 @@ const LOW_SAMPLE = 5;
 export const money = (n) => {
   const v = Math.round((Number(n) + Number.EPSILON) * 100) / 100;
   const [i, f] = Math.abs(v).toFixed(2).split(".");
-  return (v < 0 ? "-" : "") + i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + f;
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(i.replace(/\B(?=(\d{3})+$)/g, ",") + "." + f);
 };
-const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
 const pct = (n, d) => (d > 0 ? (n / d) * 100 : null);
 const round2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
@@ -541,4 +541,24 @@ export function sampleCsv() {
     lines.push([c, email, svc, `${m}/${dd}/${y} ${time}`, status, i % 17 === 0 ? "" : price.toFixed(2), created.toISOString().slice(0, 10), cancelled].join(","));
   }
   return lines.join("\n");
+}
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
 }

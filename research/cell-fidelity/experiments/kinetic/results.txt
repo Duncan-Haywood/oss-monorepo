@@ -1,0 +1,18 @@
+cell-fidelity milestone 5zb: a ten-cycle law shaped by the plating kinetics (a line in n through
+R_Q = int exp(kappa dU) Q(0)/Q(l) dl, cycles 2 to 10) against 5y's power law on R. DFN (SEI + plating) to cycle 100,
+fresh Sobol designs (seed 20); median |ln(L_pred(99) / L_DFN(99))|
+
+condition             n drop     5y    kin  sgn 5y  sgn k  wins  rhoL k rhoL 5y  kin+s  sgn ks  Q99/Q1  lost%
+Ai2020@0.65x         32    0  0.150  0.076  +0.150 +0.062    31   0.977   0.962  0.142  -0.142   0.579   28.3
+NCA_Kim2011@0.5x     32    0  0.078  0.024  -0.078 -0.024    30   0.999   1.000  0.026  +0.026   0.425   51.2
+Chen2020@1.25x       32    0  0.308  0.264  +0.308 +0.264    29   0.991   0.995  0.204  +0.195   0.723   19.8
+OKane2022@1.25x      32    0  0.325  0.243  +0.325 +0.243    32   0.993   0.994  0.179  +0.168   0.732   19.1
+
+(kin+s: the kinetic law with 5za's surface offset, descriptive; Q99/Q1: open-circuit capacity after the
+ cycle-99 loss over that after cycle 1; lost%: median share of the cyclable lithium lost by cycle 99)
+
+H147 (kinetic law beats 5y on both control pools): supported
+H148 (kinetic law within 0.06 on both control pools): mixed
+H149 (on LG M50: beats 5y on both pools, still above 0.15 on both): supported
+H150 (one law: worst-pool error below 5y's worst-pool error; 0.264 vs 0.325): supported
+H151 (ranks the cycle-99 loss at 0.9 or above on all four pools): supported

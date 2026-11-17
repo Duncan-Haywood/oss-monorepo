@@ -36,35 +36,38 @@ const CATEGORY = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 export function parseDate(value) {
   const s = String(value ?? "").trim();
   if (!s) return null;
-  let iso = s;
-  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z";
+  let iso = s, ymd = null;
+  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) { iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z"; ymd = s.slice(0, 10); }
   else if (/^\d{9,10}$/.test(s)) return new Date(Number(s) * 1000);
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(d.getTime()) || (ymd && d.toISOString().slice(0, 10) !== ymd) ? null : d;
 }
 
 export function normalizeReason(raw) {
@@ -103,17 +106,17 @@ export function normalizeRows(table) {
     const line = table[r];
     const get = (f) => (cols[f] === undefined ? "" : (line[cols[f]] ?? "").trim());
     const at = parseDate(get("date"));
-    if (!at) { skipped.push({ line: r + 1, reason: "unreadable date" }); continue; }
+    if (!at) { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable date" }); continue; }
     const amount = Number(get("amount").replace(/[$,€£\s]/g, ""));
-    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: r + 1, reason: "unreadable amount" }); continue; }
+    if (!Number.isFinite(amount) || get("amount") === "") { skipped.push({ line: table[r].line ?? r + 1, reason: "unreadable amount" }); continue; }
     const status = get("status").toLowerCase().replace(/\s+/g, "_");
     const ok = OK.has(status), fail = FAIL.has(status);
     if (!ok && !fail) { ignored++; continue; } // refunded, canceled, pending: not a charge outcome
     const customer = get("customer");
     const invoice = get("invoice");
     const key = invoice || customer;
-    if (!key) { skipped.push({ line: r + 1, reason: "no customer or invoice on the row" }); continue; }
-    raw.push({ line: r + 1, at, amount, ok, key, byInvoice: Boolean(invoice), customer: customer || invoice, reason: normalizeReason(get("reason")), currency: get("currency").toUpperCase() });
+    if (!key) { skipped.push({ line: table[r].line ?? r + 1, reason: "no customer or invoice on the row" }); continue; }
+    raw.push({ line: table[r].line ?? r + 1, at, amount, ok, key, byInvoice: Boolean(invoice), customer: customer || invoice, reason: normalizeReason(get("reason")), currency: get("currency").toUpperCase() });
   }
   const tally = {};
   for (const e of raw) tally[e.currency || ""] = (tally[e.currency || ""] || 0) + 1;
@@ -136,7 +139,10 @@ export function buildCases(events, windowDays = 14) {
     if (!byKey.has(e.key)) byKey.set(e.key, []);
     byKey.get(e.key).push(e);
   }
-  const lastAt = Math.max(...events.map((e) => e.at.getTime()));
+  // A loop, not Math.max(...events.map()): spreading 125k+ values overflows
+  // the call stack.
+  let lastAt = -Infinity;
+  for (const e of events) { const t = e.at.getTime(); if (t > lastAt) lastAt = t; }
   const cases = [];
   for (const list of byKey.values()) {
     list.sort((a, b) => a.at - b.at);
@@ -178,8 +184,9 @@ export function analyze(events, { windowDays = 14, uplift = 0.1 } = {}) {
   const settled = cases.filter((c) => c.status !== "open");
   const openCount = cases.length - settled.length;
   const total = bucket(cases);
-  const times = events.map((e) => e.at.getTime());
-  const spanDays = Math.max(1, (Math.max(...times) - Math.min(...times)) / DAY);
+  let tMin = Infinity, tMax = -Infinity;
+  for (const e of events) { const t = e.at.getTime(); if (t < tMin) tMin = t; if (t > tMax) tMax = t; }
+  const spanDays = Math.max(1, (tMax - tMin) / DAY);
   const perYear = 365 / spanDays;
   const groups = (fn) => {
     const m = new Map();
@@ -223,7 +230,7 @@ export function analyze(events, { windowDays = 14, uplift = 0.1 } = {}) {
   return { summary, cases, byReason, byCategory, byAttempts, byMonth, whatIf, findings, topLost: lostSorted.slice(0, 5) };
 }
 
-export function money(v) { return (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+export function money(v) { return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })); }
 export function pct(v) { return v === null || v === undefined ? "–" : `${(v * 100).toFixed(1)}%`; }
 
 // Deterministic synthetic data so the example, the tests and the docs agree.

@@ -1,0 +1,157 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKrJw6rrqTmiTHVCaG",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:07:16Z",
+  "ended": "2026-11-13T00:21:03Z",
+  "wall_minutes": 14.15,
+  "tokens_in": 16712481,
+  "tokens_out": 121187,
+  "cost_usd": 8.4598,
+  "tool_calls": 182,
+  "task": "quality audit round 55 (mode sample, seed 2026-11-13)",
+  "projects": [
+    "ventures/ball-python-morph-pairing-planner",
+    "ventures/snow-removal-bid-calculator",
+    "research/mimic-featuretransfer",
+    "research/robofab-reach"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15304",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first auditor brief was sent with unfilled SUBJECT_PATH/STRATUM placeholders",
+      "fix": "corrected by SendMessage before it wrote anything; its file names the right subject"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Fix forward says a large defect goes in ROADMAP; the four defects here were small enough to fix in-round, but the README gives no size line, so each call was judgment."
+    },
+    {
+      "file": "ventures/snow-removal-bid-calculator/vs-aspire.test.mjs",
+      "issue": "the page test bans every external URL, including a plain citation link, so a competitor claim cannot carry a clickable source; I cited the page by name in text."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "auditor proposed a robofab example base (120,-690) that stopped working once the pick-height bug was fixed in the same PR",
+      "did": "searched for a new base (60,780) and used that in README and test; the audit file keeps the auditor's pre-fix example",
+      "result": "test passes on the fixed model"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "snow auditor filed the Aspire revenue-tier claim as unbacked (pricing page 404)",
+      "did": "one web search found Aspire's own landing page grouping plans by annual revenue; kept the claim and added the source instead of deleting it",
+      "result": "claim now cited; audit score left as recorded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-55.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-13, round 55, mode sample. Subjects: ventures/ball-python-morph-pairing-planner, ventures/snow-removal-bid-calculator, research/mimic-featuretransfer, research/robofab-reach (no flagship or platform drawn: all recently audited). Share meeting the bar this round 0 of 4; cumulative sampled 31 of 234 (Wilson 10-18%). Fix PR: #15304 (all four subjects). Spot-checks done by the orchestrator: ball-python Luna x Ember 0.3807 vs 0.4903 by hand and rerun of the auditor's script; robofab feasible((120,-690)) True pre-fix, rerun.py output diff after fix (4 cells); snow route split $956.19 for a driveway alone in Chromium; mimic README examples against results.json. Local checks: ball-python 42 pass, snow 98 pass, robofab 9 OK, mimic 6 OK, quality_audit validate 0 problems, research homepage build ok, md links ok, post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c7bd76da-fba0-5582-91c4-a58d419f796f",
+    "transcripts": 5,
+    "first": "2026-11-13T00:07:16Z",
+    "last": "2026-11-13T00:21:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 171,
+        "input": 344,
+        "output": 121187,
+        "thinking": 26799,
+        "cache_read": 16246767,
+        "cache_write_5m": 312534,
+        "cache_write_1h": 152836,
+        "api_equivalent_usd": 8.4598,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 171,
+      "input": 344,
+      "output": 121187,
+      "thinking": 26799,
+      "cache_read": 16246767,
+      "cache_write_5m": 312534,
+      "cache_write_1h": 152836,
+      "api_equivalent_usd": 8.4598,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 182,
+    "tools": {
+      "Bash": 163,
+      "ToolSearch": 4,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "mcp__github__list_pull_requests": 1,
+      "SendMessage": 1,
+      "ReadNotifications": 1,
+      "WebSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.15,
+      "active_minutes": 11.37,
+      "model_minutes": 9.31,
+      "tool_minutes": 2.06,
+      "waiting_on_human_minutes": 2.79,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 23.47
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "four expert audits (~2.5 h each) plus four fixes with tests (~1 h each)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 165.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

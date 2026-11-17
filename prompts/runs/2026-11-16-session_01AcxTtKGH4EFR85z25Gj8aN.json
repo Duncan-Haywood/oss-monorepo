@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKGH4EFR85z25Gj8aN",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T13:07:27Z",
+  "ended": "2026-11-16T13:18:37Z",
+  "wall_minutes": 11.33,
+  "tokens_in": 5057441,
+  "tokens_out": 28922,
+  "cost_usd": 2.5368,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16582",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First launch of run_era5_rules.py scored NASA twice: ls.high_amp_points() filled fy._sun's lru_cache with NASA sun before the ERA5 swap. Caught because ERA5 matched NASA cell for cell; fixed by clearing every cache and asserting the swap reached fy._sun; disclosed in the docstring and LOG."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/experiments/run_fresh_years.py",
+      "issue": "Module-level lru_caches (_sun, _clim, learned) silently pin whichever irradiance source was read first; swapping a data source needs every cache cleared. Not documented anywhere; cost one full rerun."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "Run on a post it creates an untracked docs/posts/cite_check.json and says to commit it, but no such file exists on main; unclear whether posts should carry one (left it out)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-marine-hull-solar-boat-era5-second-source.md",
+    "research/marine-hull/LOG.md (6zzu)",
+    "research/marine-hull/paper/DRAFT.md section 2.7 point 11 and limits"
+  ],
+  "goal": null,
+  "notes": "Milestone 6zzu: single-season rules at the nine high-amplitude points rescored with ERA5 in place of NASA POWER. 6 of 9 pre-registered predictions held. Orderings robust (Spearman 1.00 over lags); leads over no correction shrink by a third to a half (LC +56 -> +28, DG +84 -> +47); per-point real-shape gain does not survive (LC 36.4 vs AT_90 38 of 72). Local checks: tests (era5_rules, replay_fallback, side_guard) OK; research/_homepage/build.py ok; check_md_links ok; post front matter and links ok; cite_check ok (ERA5 DOI).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9ee7e900-ca41-5ab4-8101-8d25464b32c1",
+    "transcripts": 1,
+    "first": "2026-11-16T13:07:27Z",
+    "last": "2026-11-16T13:18:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 89,
+        "output": 28922,
+        "thinking": 6059,
+        "cache_read": 4936002,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121350,
+        "api_equivalent_usd": 2.5368,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 89,
+      "output": 28922,
+      "thinking": 6059,
+      "cache_read": 4936002,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121350,
+      "api_equivalent_usd": 2.5368,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 46,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.33,
+      "active_minutes": 11.33,
+      "model_minutes": 5.41,
+      "tool_minutes": 5.92,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "experiment design, debugging a cache bug, a 2-source rerun and write-up by a research engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 236.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

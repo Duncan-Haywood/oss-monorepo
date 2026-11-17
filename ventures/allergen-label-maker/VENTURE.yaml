@@ -2,7 +2,7 @@ name: allergen-label-maker
 description: >-
   Free browser tool for cafes, bakeries, delis, caterers and market stalls: paste each dish's
   ingredients, get an allergen matrix for the 14 UK/EU allergens (or the US 9 major allergens)
-  and print-ready pre-packed-for-direct-sale (Natasha's Law) labels with the allergens in bold.
+  and draft pre-packed-for-direct-sale (Natasha's Law) labels with the allergens in bold.
   Handles look-alikes (coconut milk, cocoa butter, rice flour), supplier allergen tags for
   branded products, "check" flags for foods that usually hide an allergen, and a may-contain
   line. CSV export. Nothing leaves the browser.

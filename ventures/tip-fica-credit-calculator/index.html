@@ -61,7 +61,7 @@
     <section class="card" aria-labelledby="h-0">
       <h2 id="h-0">1. Your tipped employees</h2>
       <div class="grid">
-        <div style="grid-column:1/-1"><label for="employees">One line each: name, cash wage per hour, hours worked, tips reported (no thousands commas)</label><textarea id="employees" rows="7" style="width:100%"></textarea></div>
+        <div style="grid-column:1/-1"><label for="employees">One line each: name, cash wage per hour, hours worked, tips reported (24,000 is fine; a line that cannot be read is listed as skipped)</label><textarea id="employees" rows="7" style="width:100%"></textarea></div>
       </div>
     </section>
     <section class="card" aria-labelledby="h-1">
@@ -116,7 +116,7 @@
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
-    const opts = () => { const o = {}; for (const k of KEYS) { if (k === "employees") { o[k] = $(k).value; continue; } const n = num($(k).value); o[k] = Number.isFinite(n) ? n : DEFAULTS[k]; } return o; };
+    const opts = () => { const o = {}; for (const k of KEYS) { if (k === "employees") { o[k] = $(k).value; continue; } const n = num($(k).value); if (Number.isFinite(n)) o[k] = n; else { o[k] = DEFAULTS[k]; $(k).value = DEFAULTS[k]; } } return o; };
     const fill = () => { for (const k of KEYS) $(k).value = DEFAULTS[k]; };
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const table = (head, rows) => `<div class="scroll"><table><thead><tr>${head.map((h, i) => `<th${i ? ' class="n"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td${i ? ' class="n"' : ""}>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;

@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVQ9DZYuX2QonwhFhJB",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products...)",
+  "input_sha256": "0c205c8dd85c6aca752a84bcb7732da2c6108cc978592ce61cf06f10a91f1c08",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T20:11:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper flagship item (5): tax on receipt photos",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 16323,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "A bare `promptctl.py route` drew the process track for the scheduled ventures brief; I went through process-track setup (backlog, measure, friction_rank) before seeing that step 1 says to route with --task. The scheduled run's own route line could add --task by default."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper item (5) said 'next: CORD', but CORD had been measured since 2026-10-24 (README 'Measured on 1,000 real receipts'). The item was stale, and finding a real open target took a README read. The receipt tax score (42%) sat in the eval output and nobody had looked at it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-tax-on-receipt-photos.md",
+    "ventures/ai-bookkeeper/eval/receipt-tax-2026-11-15.md"
+  ],
+  "goal": "ship a measured improvement to a flagship product",
+  "notes": "Page tax on 185 SRD US receipt photos went from 78 to 130 right (42.2% to 70.3%); wrong 15 to 13; even half 40 to 63, odd half 38 to 67 (the odd half is not strictly held out, see eval doc). Totals unchanged at 156/196, unwarned wrong totals 3. CORD tax from the dataset's own text unchanged 316/46/37, CORD totals 749/96/92. Verification: run_venture_tests.py ai-bookkeeper ok (3252 tests, 23.9 s); receipt-tax.test.mjs 11 pass; check_post_frontmatter and check_post_links clean; portfolio validate ok; main_health.py 231/231 at the start of the run. SROIE not re-read (no tax labels; totals unchanged by construction). CLI --four-pass not re-measured (no tesseract binary).",
+  "corrections": [],
+  "redteam": null
+}

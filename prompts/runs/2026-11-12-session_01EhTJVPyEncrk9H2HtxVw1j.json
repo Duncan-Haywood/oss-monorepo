@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVPyEncrk9H2HtxVw1j",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (develop, deploy, market, sell and support revenue-generating products; merge when done)",
+  "input_sha256": "cd54593df98734ebc77542eeb104f8518a69e572789077f739dbb05559db75b1",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T21:01:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: run DNG MapTable, DeltaPerRow/Column, ScalePerRow/Column (the row's BUILDABLE HERE item)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15255",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here row picks among the first 3 Deepen flagships by session id without checking whether the row has a BUILDABLE note; ai-bookkeeper has none, so a cloud run must read its whole next: to discover nothing is buildable. Adding inputs_only would be wrong too (some items might be buildable with public data), so a buildable: field on ai-bookkeeper written by someone who checks would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here named ai-bookkeeper, whose next: items all ask for real outside inputs (firm books, a hosted-model key, real bank/payroll/merchant files) and which already has 73 commits in 7 days; photo-editing (row 5) had a named BUILDABLE HERE item with no outside input, so I took that.",
+      "did": "landed the photo-editing BUILDABLE item instead",
+      "result": "five opcodes run with 16 closed-form tests; full venture suite green"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-banding-and-tables-in-a-dng.md",
+    "ventures/photo-editing/eval/table-per-line-2026-11-12.md"
+  ],
+  "goal": null,
+  "notes": "Verification here: tests/test_dng_table_per_line.py 16 passed; with the five other DNG opcode suites 79 passed (python3.13 + numpy). platform/ci/run_venture_tests.py photo-editing: ok (58.5 s), 1 suite, 0 failed. Post front matter, links and similarity checks pass. venture-preflight run in background (see PR). numpy timing on 12 MP plane: MapTable 0.34 s, row/column 0.15-0.16 s. OpcodeList1 left un-run for these five on purpose (SDK unit value/65535 ambiguous for raw data), documented in module docstring and README.",
+  "corrections": [],
+  "redteam": null
+}

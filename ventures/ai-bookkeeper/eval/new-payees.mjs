@@ -29,6 +29,7 @@ import * as HC from "./hackclub-ledger.mjs";
 import * as QL from "./queeriouslabs-bank.mjs";
 import { parseDated } from "./queeriouslabs-online.mjs";
 import * as BC from "./billcat-card.mjs";
+import { pathToFileURL } from "node:url";
 
 const mdY = (s) => { const [m, d, y] = s.split("/"); return `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`; };
 
@@ -89,7 +90,7 @@ export function replay(rows, { skip, newPayeeOpts } = {}) {
 const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");
 export const fmt = (o) => `n=${o.n} right ${pct(o.right, o.n)} wrong ${pct(o.wrong, o.n)} blank ${pct(o.blank, o.n)}`;
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k) => { const i = process.argv.indexOf(k); return i === -1 ? null : process.argv[i + 1]; };
   const sets = [];
   if (arg("--hackclub")) sets.push(["hackclub", loadHackclub(readFileSync(arg("--hackclub"), "utf8")), undefined]);

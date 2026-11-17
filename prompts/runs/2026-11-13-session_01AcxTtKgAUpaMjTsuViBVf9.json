@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKgAUpaMjTsuViBVf9",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:06:50Z",
+  "ended": "2026-11-13T18:41:45Z",
+  "wall_minutes": 34.9,
+  "tokens_in": 18984266,
+  "tokens_out": 137344,
+  "cost_usd": 9.2328,
+  "tool_calls": 194,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    "Claim race: drew seed 2026-11-13-o / round 69 at the same time as session 01AcxTtGzKokhrcy9iABYiUf (PR #15569); its claim PR was not visible when `sample` ran, both audited the same four subjects, #15569 merged first and this PR hit conflicts at merge. Consolidated onto main and kept the audits as a blind pair.",
+    "quality_mutate.py baseline failed once: the test path was given relative to the repo root, but the command runs inside the subject's private copy"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "free_seed handed out the next letter deterministically, so two sessions minutes apart got the same seed and subjects (third collision on 2026-11-13: e, h, o). Fixed here with a random seed tail."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "quality_mutate.py runs the test command from the subject's copy; the README does not say paths are relative to the subject"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "the drawn round had already landed from a parallel session; re-landing duplicate audits would double-count subjects",
+      "did": "kept this session's four audits under blind-pairs/2026-11-13-o/ (outside the summary), landed only the fixes main lacked, and fixed the seed race in software",
+      "result": "23/28 identical scores with the canonical audits, 4/4 verdicts; three surviving mutants now caught"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-69-blind-pair.md",
+    "portfolio/quality/blind-pairs/2026-11-13-o/README.md"
+  ],
+  "goal": null,
+  "notes": "Mode sample, seed 2026-11-13-o, round 69 (duplicate of PR #15569). Subjects: ventures/3d-print-price-calculator, ventures/mortgage-escrow-analysis-checker, research/energy-store-modelprice, research/garment-twonodeheld. This pair's verdicts: 0 of 4 at the bar (same as canonical); cumulative sampled 32 of 290 (Wilson 8%-15%). Blind agreement 23/28 identical, 28/28 within one, 4/4 verdicts; pooled over 3 pairs 67/84 (80%, Wilson 70-87%). Orchestrator spot checks: escrow deficiency case reproduced and Reg X 1024.17(b) definition read from govinfo text; 3D print default total recomputed by hand (5.4938, price 9.7235); energy pump-win count checked against its own diff series; Fanger formula checked. Landed: tests killing the energy leakage mutant and garment oracle/band-grid mutants (verified with quality_mutate: caught), 3D print total pin, slicer/privacy claim fixes, energy limitation, random seed tail in quality_audit sample (+unit test). Checks: node 80/80, pytest 8/8 and 9/9, test_quality_audit 16 OK, validate 0 problems, post front matter/links ok. Escrow fix itself landed via #15569 (identical to this session's).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c337335d-2523-5f19-bd28-910dc6cbc8ea",
+    "transcripts": 5,
+    "first": "2026-11-13T18:06:50Z",
+    "last": "2026-11-13T18:41:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 188,
+        "input": 379,
+        "output": 137344,
+        "thinking": 32379,
+        "cache_read": 18528013,
+        "cache_write_5m": 289409,
+        "cache_write_1h": 166465,
+        "api_equivalent_usd": 9.2328,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 188,
+      "input": 379,
+      "output": 137344,
+      "thinking": 32379,
+      "cache_read": 18528013,
+      "cache_write_5m": 289409,
+      "cache_write_1h": 166465,
+      "api_equivalent_usd": 9.2328,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 194,
+    "tools": {
+      "Bash": 172,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "Write": 3,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__github__update_pull_request": 2,
+      "mcp__github__get_job_logs": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.9,
+      "active_minutes": 16.24,
+      "model_minutes": 11.69,
+      "tool_minutes": 4.55,
+      "waiting_on_human_minutes": 18.66,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 20.18
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "four audits with recomputation, consolidation, a tooling fix with test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 86.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -10,7 +10,7 @@
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f6f5c'/%3E%3Cpath d='M5 22l6-8 5 4 6-10 5 8' stroke='%23fff' stroke-width='3' fill='none'/%3E%3C/svg%3E">
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Demand Charge Interval Analyzer", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste utility interval data and see monthly peak demand, demand charges, ratchet effects, and what holding demand to a lower cap would save and require. Runs in your browser.", "featureList": "Interval CSV parser, monthly demand charges, ratchet, peak timing, peak-shaving cap table, battery sizing and payback, time-of-use bill with battery peak shaving and energy arbitrage, CSV export"}</script>
-  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a demand charge?", "acceptedAnswer": {"@type": "Answer", "text": "Many commercial electricity tariffs bill not just for energy used (kWh) but for the highest average power drawn in any 15- or 30-minute window of the billing month (kW). That one interval is multiplied by a rate, often $10 to $25 per kW, so a single short spike can set a large part of the bill."}}, {"@type": "Question", "name": "What is a demand ratchet?", "acceptedAnswer": {"@type": "Answer", "text": "Some tariffs bill at least a set percentage, often 50% to 90%, of the highest demand reached in the previous 11 months, even if this month was quiet. A ratchet makes one bad afternoon cost money for a year, which is why the tool shows billed demand next to measured demand."}}, {"@type": "Question", "name": "Where do I get interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV. Paste the file contents here, or use the file picker. The tool reads the date and time column and the usage column on its own and tells you which it chose."}}, {"@type": "Question", "name": "Is a battery worth it for peak shaving?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less."}}, {"@type": "Question", "name": "Can a battery save money on a time-of-use rate?", "acceptedAnswer": {"@type": "Answer", "text": "Two ways: by holding down the facility and on-peak demand peaks, and by charging when energy is cheap and discharging during the on-peak window. Enter your on-peak hours and prices and the tool plans one battery month by month against your own readings, showing how much of the saving comes from demand and how much from energy. A spread too small to cover round-trip losses is not traded."}}]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is a demand charge?", "acceptedAnswer": {"@type": "Answer", "text": "Many commercial electricity tariffs bill not just for energy used (kWh) but for the highest average power drawn in any 15- or 30-minute window of the billing month (kW). That one interval is multiplied by a rate, often $10 to $25 per kW, so a single short spike can set a large part of the bill."}}, {"@type": "Question", "name": "What is a demand ratchet?", "acceptedAnswer": {"@type": "Answer", "text": "Some tariffs bill at least a set percentage, often 50% to 90%, of the highest demand reached in the previous 11 months, even if this month was quiet. A ratchet makes one bad afternoon cost money for a year, which is why the tool shows billed demand next to measured demand."}}, {"@type": "Question", "name": "Where do I get interval data?", "acceptedAnswer": {"@type": "Answer", "text": "Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV or XML file. Paste a CSV here, or choose either file with the file picker; XML is converted to local clock time, daylight saving included. The tool reads the date and time columns (combined or separate) and the usage column on its own and tells you which it chose."}}, {"@type": "Question", "name": "Is a battery worth it for peak shaving?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less."}}, {"@type": "Question", "name": "Can a battery save money on a time-of-use rate?", "acceptedAnswer": {"@type": "Answer", "text": "Two ways: by holding down the facility and on-peak demand peaks, and by charging when energy is cheap and discharging during the on-peak window. Enter your on-peak hours and prices and the tool plans one battery month by month against your own readings, showing how much of the saving comes from demand and how much from energy. A spread too small to cover round-trip losses is not traded."}}]}</script>
   <style data-base-style>
     /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
     :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
@@ -58,7 +58,7 @@
   <header>
     <p class="note">DEMAND CHARGE ANALYZER · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>How much of our electric bill is one bad 15 minutes, and what would it take to remove it?</h1>
-    <p>Paste the interval data your utility lets you download (15- or 30-minute readings, usually a Green Button CSV) and enter the demand charge from your bill. The tool finds each month's peak and when it happened, the charge it set, any ratchet carrying a past peak forward, and a table of what holding demand to a lower cap would save, the battery energy that would take, and a rough payback.</p>
+    <p>Paste the interval data your utility lets you download (15- or 30-minute readings: a Green Button CSV or XML file works as downloaded) and enter the demand charge from your bill. The tool finds each month's peak and when it happened, the charge it set, any ratchet carrying a past peak forward, and a table of what holding demand to a lower cap would save, the battery energy that would take, and a rough payback.</p>
     <p class="note">Arithmetic on the data you paste. Not engineering, energy, tax, legal or financial advice. Real tariffs have rules this does not model, such as holidays and seasonal windows in time-of-use rates, power-factor charges and seasonal demand rates. The example data is a synthetic placeholder, not a real site or benchmark.</p>
   </header>
   <main>
@@ -66,7 +66,8 @@
       <h2 id="h-0">Your interval data</h2>
       <label for="data">Paste CSV (a timestamp column and a usage column)</label>
       <textarea id="data" rows="8" spellcheck="false"></textarea>
-      <p><label for="file">Or choose a CSV file (read in your browser, never uploaded)</label> <input id="file" type="file" accept=".csv,.txt,text/csv"></p>
+      <p><label for="file">Or choose a file: Green Button CSV or XML, or any CSV (read in your browser, never uploaded)</label> <input id="file" type="file" accept=".csv,.txt,.xml,text/csv,text/xml,application/xml,application/atom+xml"></p>
+      <p id="filenote" class="note" hidden></p>
       <div class="grid">
         <div><label for="unit">Readings are</label><select id="unit"><option value="kw">average kW per interval</option><option value="kwh">kWh per interval</option></select></div>
       </div>
@@ -115,7 +116,7 @@
       <h3>What is a demand ratchet?</h3>
       <p>Some tariffs bill at least a set percentage, often 50% to 90%, of the highest demand reached in the previous 11 months, even if this month was quiet. A ratchet makes one bad afternoon cost money for a year, which is why the tool shows billed demand next to measured demand.</p>
       <h3>Where do I get interval data?</h3>
-      <p>Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV. Paste the file contents here, or use the file picker. The tool reads the date and time column and the usage column on its own and tells you which it chose.</p>
+      <p>Most utilities let commercial customers download 15-minute data from their online account, often as a Green Button CSV or XML file. Paste a CSV here, or choose either file with the file picker; XML is converted to local clock time, daylight saving included. The tool reads the date and time columns (combined or separate) and the usage column on its own and tells you which it chose.</p>
       <h3>Is a battery worth it for peak shaving?</h3>
       <p>It depends on how tall and how long your peaks are. The cap table shows, for each level you could hold demand to, the yearly saving, the battery energy needed to ride through your longest peak above that level, and a rough payback from the costs you enter. Short, tall peaks pay back far faster than long, shallow ones. Load shifting or staggering equipment starts can capture some of the same saving for far less.</p>
       <h3>Can a battery save money on a time-of-use rate?</h3>
@@ -132,8 +133,9 @@
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Results are arithmetic on figures you type or paste; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
-    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>, <code>greenbutton_xml_loaded</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Choosing a home electricity plan in Texas? The <a href="../texas-electricity-plan-checker/">Texas electricity plan checker</a> bills your own months on each plan's EFL terms and checks the label &mdash; nothing uploaded.</p>
     <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
   </footer>
   <script type="module">
@@ -141,6 +143,7 @@
     import { sizeSweep } from "./battery.mjs";
     import { touBattery } from "./tou.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    import { isEspi, espiToCsv } from "./greenbutton.mjs";
     const $ = (id) => document.getElementById(id);
     const KEYS = Object.keys(DEFAULTS);
     const fill = (o) => { for (const k of KEYS) $(k).value = o[k]; };
@@ -150,9 +153,11 @@
     let last = null;
     function run() {
       const parsed = parseIntervals($("data").value);
+      const unitNote = applyUnitHint(parsed.unitHint);
       const a = analyze(parsed.rows, readAll());
       let h = "";
       for (const n of parsed.notes) h += '<p class="note">' + esc(n) + "</p>";
+      if (unitNote) h += unitNote;
       for (const w of a.warnings) h += '<div class="finding"><span class="pill">Check</span> ' + esc(w) + "</div>";
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
@@ -180,6 +185,15 @@
       });
       record("analysis_run");
     }
+    // The unit the file declares (a kWh header, a UNITS column, or the ESPI unit code). An untouched selector
+    // follows the file; a selector the user changed is left alone but flagged, since kW vs kWh per 15 minutes is a 4x error.
+    let unitTouched = false;
+    const UNIT_LABEL = { kw: "average kW per interval", kwh: "kWh per interval" };
+    function applyUnitHint(hint) {
+      if (!hint || hint === $("unit").value) return "";
+      if (!unitTouched) { $("unit").value = hint; return '<p class="note">"Readings are" set to ' + UNIT_LABEL[hint] + ", as the file says.</p>"; }
+      return '<div class="finding"><span class="pill">Check</span> The file says its readings are ' + UNIT_LABEL[hint] + ', but "Readings are" is set to ' + UNIT_LABEL[$("unit").value] + ". On 15-minute data that is a 4x difference in every peak.</div>";
+    }
     function touSection(a, st, sw, n) {
       const num = (v) => { const x = Number(String(v).replace(/[$,%\s]/g, "")); return v !== "" && Number.isFinite(x) ? x : NaN; };
       const onStart = num(st.onStart), onEnd = num(st.onEnd), onPrice = num(st.onPrice), offPrice = num(st.offPrice);
@@ -199,13 +213,37 @@
       h += "<p>Battery: " + esc(sizeNote) + ". Saves " + money(r.demandSaving) + " a year in demand charges and " + money(r.energySaving) + " in energy, " + money(r.saving) + " in all, scaled to a year using " + a.monthsUsed + " complete month(s).</p>";
       h += table(["Part of the bill (per year)", "Now", "With battery"], [["Facility demand", money(y.before.facility), money(y.after.facility)], ["On-peak demand", money(y.before.onDemand), money(y.after.onDemand)], ["Energy", money(y.before.energy), money(y.after.energy)]]);
       h += table(["Month", "Peak now", "Peak after", "On-peak peak now", "On-peak peak after", "Bill now", "Bill after", "Best plan"], r.months.map((m) => [m.month + (m.complete ? "" : " (partial)"), kw(m.before.facKw), kw(m.after.facKw), kw(m.before.onKw), kw(m.after.onKw), money(m.before.total), money(m.after.total), m.method]));
-      h += "<p>Each month the battery is planned twice: first the lowest pair of facility and on-peak caps it can hold (exact, by bisection), then a dynamic programme over its charge level picks when to charge and discharge for the cheapest energy without breaking those caps. The cheaper of that, peak shaving alone, energy trading alone and no battery is shown. It starts each month full, pays to refill at month end, never exports, and knows the month's load in advance, so a real controller will save somewhat less. Energy prices here exclude fixed and per-kWh riders not tied to time of day.</p></div>";
+      const rp = r.ratchetPlan;
+      if (rp && rp.skipped) h += "<p>Ratchet: no month's bill with the battery is set by the ratchet floor, so planning each month alone is already the best plan for the whole period (each month is at its own lowest bill, which the ratchet can only raise).</p>";
+      else if (rp && rp.used) h += "<p>Ratchet: in at least one month the floor from an earlier peak sets the bill, so the whole period was also planned as one programme with the ratchet inside it. That plan bills " + money((rp.monthByMonth - rp.wholePeriod) * 12 / a.monthsUsed) + " a year less than planning month by month, by not spending the battery on peaks the floor already bills, and it is the one shown.</p>";
+      else if (rp) h += "<p>Ratchet: the whole period was also planned as one programme with the ratchet inside it; planning month by month did as well, and is shown.</p>";
+      h += "<p>Each month the battery is planned by a linear programme that weighs demand charges and energy prices together, so it will accept a slightly higher peak when spending the battery on on-peak energy saves more. That answer is exact for this model (on 684 real building-months it matched an independent solver, HiGHS, to within 3 cents). It is compared with peak shaving alone (the lowest caps the battery can hold), energy trading alone and no battery, and the cheapest is shown. It starts each month full, pays to refill at month end, never exports, and knows the month's load in advance, so a real controller will save somewhat less. Energy prices here exclude fixed and per-kWh riders not tied to time of day.</p></div>";
       return h;
     }
     fill(DEFAULTS);
-    $("run").addEventListener("click", run);
-    $("example").addEventListener("click", () => { fill(EXAMPLE_SETTINGS); $("data").value = exampleCsv(); record("example_loaded"); run(); });
-    $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) $("data").value = await f.text(); });
+    $("run").addEventListener("click", () => {
+      // Planning a year with a binding ratchet can take 10 s or more: say so, let the label paint, then run.
+      const btn = $("run"); btn.disabled = true; btn.textContent = "Working (a year with a ratchet can take 10 to 20 s)...";
+      setTimeout(() => { try { run(); } finally { btn.disabled = false; btn.textContent = "Analyze"; } }, 30);
+    });
+    $("example").addEventListener("click", () => { fill(EXAMPLE_SETTINGS); unitTouched = false; $("data").value = exampleCsv(); record("example_loaded"); run(); });
+    $("unit").addEventListener("change", () => { unitTouched = true; });
+    $("file").addEventListener("change", async (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const text = await f.text();
+      const note = $("filenote");
+      note.hidden = true;
+      if (isEspi(text)) {
+        // Show the XML as the CSV the tool reads, so what is analyzed is visible and can be checked or edited.
+        const g = espiToCsv(text);
+        $("data").value = g.csv;
+        note.textContent = g.notes.join(" ") + (g.csv ? " " + (g.csv.split("\n").length - 1).toLocaleString("en-US") + " readings shown above as CSV." : "");
+        note.hidden = false;
+        if (g.unit) applyUnitHint(g.unit);
+        record("greenbutton_xml_loaded");
+      } else $("data").value = text;
+    });
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
   </script>

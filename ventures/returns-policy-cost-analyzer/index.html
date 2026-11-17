@@ -170,7 +170,7 @@ node cli.mjs analyze orders.csv --deterrence 0.5 --drag 5 --json --fail-on warn<
       if (days >= 1) o.days = days;
       return o;
     }
-    const usd = (n) => `${n < 0 ? "-" : "+"}$${Math.abs(n).toFixed(2)}`;
+    const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== "0.00" ? "-" : "+"}$${Math.abs(n).toFixed(2)}`;
     const pays = (b) => (b.kind === "always" ? "at any drop-off tested" : b.kind === "never" ? "never" : `drop-off is ${(b.drag * 100).toFixed(1)}% or less`);
 
     function renderReport() {

@@ -8,6 +8,7 @@ and are left alone.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 
@@ -433,6 +434,12 @@ def _es(body: str) -> bool:
     letters = "TRWAGMYFPDXBNJZSQVHLCKE"
     if body[0].isdigit() and body[8].isalpha():
         return body[8] == letters[int(body[:8]) % 23]
+    # NIE (foreign residents): X, Y, Z stand for 0, 1, 2 ahead of the DNI letter test.
+    if re.fullmatch(r"[XYZ]\d{7}[A-Z]", body):
+        return body[8] == letters[int(str("XYZ".index(body[0])) + body[1:8]) % 23]
+    # K, L and M NIFs use the DNI letter on their seven digits.
+    if re.fullmatch(r"[KLM]\d{7}[A-Z]", body):
+        return body[8] == letters[int(body[1:8]) % 23]
     if not body[0].isalpha() or not body[1:8].isdigit():
         return False
     total = 0

@@ -1,0 +1,7 @@
+seed 20261120: 1000 draws, pooled coverage 92.60%
+seed 20261121: 1000 draws, pooled coverage 95.40%
+seed 20261112: 1000 draws, pooled coverage 95.10%
+seed 101: 2000 draws, pooled coverage 96.05%
+seed 202: 2000 draws, pooled coverage 95.15%
+seed 303: 2000 draws, pooled coverage 96.15%
+seed 404: 2000 draws, pooled coverage 94.80%

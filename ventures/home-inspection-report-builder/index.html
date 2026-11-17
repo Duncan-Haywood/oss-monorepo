@@ -79,6 +79,10 @@
         <div><label for="inspector">Inspector</label><input id="inspector" type="text"></div>
         <div><label for="license">License or ID</label><input id="license" type="text"></div>
       </div>
+      <label for="notInspected">Not inspected or restricted, and why</label>
+      <textarea id="notInspected" rows="3" placeholder="e.g. Roof viewed from the ground only: wet surface. Crawlspace not entered: less than 18 in. clearance."></textarea>
+      <label for="scope">Scope and limitations (optional)</label>
+      <textarea id="scope" rows="3" placeholder="What this inspection covered, the standard of practice it followed, and anything excluded by your agreement."></textarea>
     </section>
     <section class="card" aria-labelledby="h-1">
       <h2 id="h-1">2. Add findings from the library</h2>
@@ -131,10 +135,10 @@
     <p>If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
   </footer>
   <script type="module">
-    import { SEVERITIES, SYSTEMS, LIBRARY, newFinding, normalise, toHtml, toText, exportJson, parseImport } from "./calc.mjs";
+    import { SEVERITIES, SYSTEMS, LIBRARY, HEADER_FIELDS, newFinding, normalise, toHtml, toText, exportJson, parseImport } from "./calc.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (id) => document.getElementById(id);
-    const HEADER = ["property", "client", "date", "inspector", "license"];
+    const HEADER = HEADER_FIELDS;
     let findings = [];
     const header = () => Object.fromEntries(HEADER.map((k) => [k, $(k).value]));
     const mk = (tag, props = {}, kids = []) => { const e = document.createElement(tag); Object.assign(e, props); for (const k of kids) e.append(k); return e; };
@@ -164,9 +168,10 @@
       }));
     }
     function build() {
-      const clean = findings.map(normalise).filter((f) => f.title);
+      const issues = [];
+      const clean = findings.map((f) => normalise(f, issues)).filter((f) => f.title);
       if (!clean.length) { $("msg").textContent = "Add at least one finding with a title first."; return; }
-      $("msg").textContent = "";
+      $("msg").textContent = issues.length ? "Check these before you send the report: " + issues.join("; ") + "." : "";
       $("report").innerHTML = toHtml(header(), clean);
       $("out").hidden = false;
       $("out").scrollIntoView();
@@ -188,7 +193,8 @@
       const r = parseImport(await file.text());
       if (r.error) { $("msg").textContent = r.error; return; }
       for (const k of HEADER) $(k).value = r.header[k];
-      findings = r.findings; drawFindings(); $("msg").textContent = "Loaded " + findings.length + " finding(s).";
+      findings = r.findings; drawFindings();
+      $("msg").textContent = "Loaded " + findings.length + " finding(s)." + (r.warnings.length ? " Check these before you issue the report: " + r.warnings.join("; ") + "." : "");
     });
     $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
     if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }

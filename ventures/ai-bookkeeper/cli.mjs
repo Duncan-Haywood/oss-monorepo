@@ -17,8 +17,9 @@
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { addLoan, addLoanExtra, applyLoanPayments, checkLenderSchedule, loanRegister, loanSchedule } from "./loans.mjs";
-import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote } from "./salestaxreturn.mjs";
+import { salesTaxReturn, parseRateSpecs, parseDiscountSpecs, stateDiscounts, stateDueDay, stateEndMonth, stateFilingNote, stateDiscountNote, presetDiscountWarning, stateHistoryPresets } from "./salestaxreturn.mjs";
 import { gstReturn } from "./gstreturn.mjs";
+import { addDeferral, importDeferralsCsv, cancelDeferral, markRefunded, removeDeferral, deferredRegister, deferredWaterfall, waterfallCsv } from "./deferred.mjs";
 import { newBooks, importStatement, importOfxAccounts, importCsvAccounts, importQifAccounts, lockPeriod, closeYear, reopenYear, yearEndReport, categorize, suggestRules, addRules, addDocuments, addAsset, disposeAsset, addAssetsCsv, register, addPrepaid, prepaidRegister, addInventoryMove, addLandedCost, addInventoryWritedown, setInventoryMethod, inventoryRegister, writeOff, aging, salesTax, vatReturn, confirm, parseSplit, acceptSuggestions, reports, closeChecks, exportJournal, addFxAccount, setRates, parseRates, fxRegister, exportLines, status, analyze, fmt, taxableBusinessIncome, s179Carryforward } from "./engine.mjs";
 import { parseCents } from "./bank.mjs";
 import { accountMap } from "./ledger.mjs";
@@ -36,7 +37,7 @@ import { sniffFormat, splitOfx, splitQif, readStatement } from "./bank.mjs";
 import { detectRecurring, forecastCash } from "./recurring.mjs";
 import { findAnomalies } from "./anomalies.mjs";
 import { payeeReport } from "./payees.mjs";
-import { receiptTextFromFile, receiptPassesFromFile, statementTextFromFile } from "./ocr.mjs";
+import { receiptTextFromFile, receiptPassesFromFile, statementTextFromFile, readStatementFile } from "./ocr.mjs";
 import { addReceipts, attachReceipt, removeReceipt, receiptReport, taxOnReceipts, planReceiptSplit, splitFromReceipt } from "./receipts.mjs";
 import { compareProfit } from "./compare.mjs";
 import { cashBasis } from "./cashbasis.mjs";
@@ -53,13 +54,14 @@ import { reminders } from "./collections.mjs";
 import { planBills } from "./billpay.mjs";
 import { taxPack } from "./taxpack.mjs";
 import { renderStatement, customers } from "./statement.mjs";
+import { cardSpend, cardLinesCsv, cardMoney } from "./cards.mjs";
 
 const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that learn from your corrections.
 
   --books FILE           the books (JSON); created on first import
   --example              start from the synthetic three-month example instead
   import FILE --account CODE [--invert] [--day-first] [--decimal-comma] [--year Y] [--auto 0.85]
-  import FILE.txt|FILE.pdf                    statement text copied from a PDF, or the PDF itself via pdftotext (date, description, amount per line)
+  import FILE.txt|FILE.pdf|FILE.png           statement text copied from a PDF, the PDF itself via pdftotext, or a scanned PDF or page photo via OCR (pdftoppm + tesseract; checked against the statement's balances)
   import FILE.ofx --map OFXID=CODE,OFXID=CODE   a multi-account OFX file, one chart code per account
   review                 list lines waiting for an account
   confirm ID=CODE ...    file lines (and learn from them)
@@ -88,19 +90,21 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   rental accounts | add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B) | untag (same) | list   rental properties; tag bank lines to a property
   project add ID [NAME...] | tag ID (--match TEXT|--account CODE|--ids A,B|--docs INV-1,BILL-2) | untag (same) | list   projects (jobs, classes): tag bank lines and invoices to one
   projects [--from D --to D] [--csv|--json]  profit and loss per project: revenue, cost, net and margin, with what is untagged
+  cards [--account CODE] [--card 1234] [--from D --to D] [--csv|--json]   spend by card on a business card account (the "Card" column of
+                         Chase's business download, Brex "Card Last Four"): each cardholder's spend, refunds, where it is filed, what still waits, top merchants; --csv lists the lines
   schedulee [--from D --to D] [--csv|--json]  the books on US Schedule E Part I lines, one column per property (a worksheet, not a filing)
   schedulec [--year Y] [--from D --to D] [--meals PCT] [--csv|--json]  the profit and loss on US Schedule C lines (a worksheet, not a filing)
   retirement [--year Y] [--months N] [--age N] [--wages $] [--json]  most a sole proprietor can put in a SEP-IRA or solo 401(k) this year (worksheet)
   estimate [--year Y] [--months N] [--filing single|mfj|hoh] [--wages $] [--other $] [--withholding $] [--paid $] [--prior-tax $ --prior-agi $] [--as-of D] [--no-qbi] [--service] [--business-wages $] [--itemized $] [--investment $] [--eitc-children N] [--eitc-table] [--state-rate PCT [--state-deduction $] [--state-withheld $]] [--tax-table file.json] [--json]  federal income tax plus SE tax and a safe-harbour 1040-ES payment plan (worksheet)
   calendar [--year Y] [--state XX --freq monthly|quarterly|annual] [--payroll] [--contractors] [--planned Q1,Q2,Q3,Q4 dollars] [--ics file.ics] [--json]  Tax deadlines for the year (federal estimates, filing, 941/940/1099, your state's sales tax returns), printed or written as an iCalendar file with a 7-day reminder
-  annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--withheld DATE:$ ...] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method), and the underpayment penalty figured both ways (and with box D, withholding on its actual dates, when --withheld is given)
+  annualized [--year Y] [--filing ...] [--wages $] [--withholding $] [--prior-tax $ --prior-agi $] [--payment DATE:$ ...] [--withheld DATE:$ ...] [--paid-with-return DATE:$] [--tax-table file.json] [--json]  Form 2210 Schedule AI worksheet: what each estimated-tax date requires when income is uneven (annualized income installment method), and the underpayment penalty figured both ways (and with box D, withholding on its actual dates, when --withheld is given)
   se [--year Y] [--months N] [--wages $] [--json]  self-employment tax on the year's Schedule C profit, annualised, split into the four estimated-payment dates (worksheet; income tax not estimated)
   asset add NAME --cost 1800 --date D [--life MONTHS] [--salvage 0] [--expense]  register equipment; depreciation is booked monthly (default 60 months, straight-line)
   asset dispose ID --date D [--proceeds 0] [--into 1000]  sell or scrap it; books the gain or loss
   asset tax ID --class 5 [--s179 N] [--bonus PCT]  set the asset's US tax treatment (MACRS class 3/5/7/10/15/20 years, half-year)
   taxdepr YEAR [--income books|N] [--carry-in N] [--json]  tax depreciation worksheet beside the book depreciation, with what it cannot check
   prepaid add NAME --amount 2400 --date D [--months 12] [--into 6030]  spread an up-front payment (filed to 1400) over the months it covers
-  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34]  a fixed-rate loan and its schedule
+  loan add NAME --amount 20000 --rate 6.5 --months 36 --first 2026-02-01 [--payment 612.34] [--round up]  a fixed-rate loan and its schedule (--round up: the lender rounds the payment up to the cent, as LendingClub does)
   loan extra ID --amount 2000 --date 2026-06-10   extra principal on top of the schedule (it ends sooner)
   loan check ID FILE.csv  compare a lender's own schedule (date, payment, interest, principal, balance) with this loan's
   loan apply ID           split the unfiled bank lines that are its scheduled payments into interest (6040) and principal (2200)
@@ -117,6 +121,14 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   inventory method fifo|avg             costing method (default fifo)
   inventory             stock on hand by SKU, valued; the total should equal account 1450
   prepaid [--as-of D]     list prepaid items: amount, expensed so far, still paid ahead
+  deferred add NAME --amount 1200 --start D (--end D | --months 12) [--received D] [--customer TEXT] [--monthly] [--into 4000]
+                         an up-front sale earned over time (annual plan, retainer, class pass); file the receipt to 2400
+  deferred import FILE.csv [--monthly] [--end-exclusive] [--into 4000]  one row per up-front sale (name, amount, start, end or months[, customer, date, account, method])
+  deferred cancel ID --date D [--keep]   stop earning on D; the rest is a refund owed (file the refund to 2400), or with --keep is earned that day
+  deferred refunded ID --date D   the refund of a cancelled plan was paid (its bank line filed to 2400)
+  deferred remove ID     drop a row
+  deferred [--as-of D]   list deferrals: received, earned so far, still to earn, refund owed
+  deferred waterfall [--as-of D] [--months 12] [--csv]   what is still to be earned, month by month; current (next 12 months) and long-term
   assets FILE|[--as-of D] load a CSV (name,date,cost,life_months[,salvage,method]), or list the register: cost, accumulated depreciation, net book value
   profile [KEY VALUE]     your details for invoices (name, address, email, taxId, payTo, terms); no arguments lists them
   invoice ID [--out FILE] [--as-of D]  a printable invoice or credit note (HTML; print to PDF) with payments, balance due and overdue days
@@ -127,7 +139,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
   recurring [--as-of D] [--json]  payees that repeat on a steady interval: cost per year, next date, and which went overdue, lapsed or changed amount
   forecast [--as-of D] [--days N] [--json]  expected cash day by day from the bank balance, recurring items and open invoices and bills; the lowest point
   anomalies [--json]     lines worth a second look: double charges, amounts far above a payee's usual, large first-time payees (candidates with a reason, not an audit)
- receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD; --two-pass reads a photo twice)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
+ receipts [FILE (.txt, text-layer .pdf via pdftotext, or a photo via tesseract / RECEIPT_OCR_CMD; --two-pass reads a photo twice, --four-pass four times with a grey enlarged copy and a vote)|attach RID LINEID|detach RID|remove RID|split RID [--other CODE] [--fix WORD=CODE]... [--apply]] [--min DOLLARS] [--tax] [--json]  receipt text (blocks split by ---) matched to bank lines; lists unmatched receipts and spending over --min (default 75) with no receipt
   compare [--from D --to D --vs-from D --vs-to D] [--json]  profit and loss against an earlier period (default: latest month vs the month before): what moved, what is new or gone
   payroll FILE.csv [--apply]  book a payroll provider's pay-run report (wages, employer taxes, 2300) and find the bank lines that paid it; --apply files them to 2300
   payroll deposits YEAR [--schedule monthly|semiweekly]  federal deposit due dates (lookback, $100,000 next-day rule, holidays) and whether the bank shows each paid on time
@@ -149,6 +161,7 @@ const HELP = `AI Bookkeeper: double-entry books from bank and card CSVs that lea
 No warranty. Not accounting, tax or financial advice; check its output before you rely on it.`;
 
 const argv = process.argv.slice(2);
+// flag() removes what it reads (so repeated flags like --rate can be read in a loop): read each flag once into a const.
 const flag = (k) => { const i = argv.indexOf(k); if (i === -1) return null; const v = argv[i + 1]; argv.splice(i, 2); return v; };
 const has = (k) => { const i = argv.indexOf(k); if (i === -1) return false; argv.splice(i, 1); return true; };
 if (has("--help") || has("-h") || !argv.length) { console.log(HELP); process.exit(0); }
@@ -210,10 +223,17 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log(`${r.accounts.filter((a) => a.code).length} of ${r.accounts.length} accounts imported: ${r.added} lines added, ${r.skipped} already in the books.`);
 } else if (cmd === "import") {
   if (!rest[0] || !account) { console.error("import needs a CSV file and --account CODE"); process.exit(2); }
-  const r = importStatement(books, statementTextFromFile(rest[0]), account, opts);
+  const read = readStatementFile(rest[0], opts);
+  const r = importStatement(books, read.text, account, { ...opts, ocr: !!read.ocr });
   books = r.books;
   save();
   for (const p of r.problems) console.error(p);
+  if (read.ocr) {
+    const o = read.ocr;
+    console.log(`Read by OCR (${o.tool}, ${o.pages} page${o.pages === 1 ? "" : "s"}${o.passes > 1 ? `, read twice${o.chose ? ` and the ${o.chose} reading kept` : ""}` : ""}): ${o.score === 0 ? "the statement's own balances agree with the rows read." : o.score === null ? "the statement carries no running balance or opening and closing balance, so no row could be checked; compare the rows with the page." : `${o.score} balance check${o.score === 1 ? "" : "s"} still fail${o.score === 1 ? "s" : ""}, so a digit was probably misread; compare the flagged rows with the page.`}`);
+  }
+  const total = readStatement(read.text, { ...opts, ocr: !!read.ocr }).check;
+  if (total && !total.ok) console.log(`Opening ${fmt(total.opening)} and the rows read (${fmt(total.rowsTotal)}${total.owed ? ", on a card where the balance is what is owed" : ""}) miss the closing balance ${fmt(total.closing)} by ${fmt(total.off)}: a row is missing, doubled or misread.`);
   const s = status(books);
   console.log(`${r.added} lines added, ${r.skipped} already in the books. ${s.auto} posted by rule or memory, ${s.transfer} transfer lines paired, ${s.review} waiting for review.`);
   if (r.balanceCheck?.checked) console.log(r.balanceCheck.breaks.length ? `The running balance breaks at ${r.balanceCheck.breaks.length} line(s), first at line ${r.balanceCheck.breaks[0].line}: a row may be missing or doubled.` : "The statement's running balance agrees with every row.");
@@ -324,8 +344,8 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "loan") {
   try {
     if (rest[0] === "add") {
-      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment");
-      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment });
+      const amount = flag("--amount"), rate = flag("--rate"), months = flag("--months"), first = flag("--first"), payment = flag("--payment"), rounding = flag("--round") ?? undefined;
+      const r = addLoan(books, { name: argv.slice(2).join(" "), amount, rate, months, first, payment, rounding });
       books = r.books; save(); console.log(`${r.loan.id} ${r.loan.name}: ${fmt(r.loan.cents)} at ${r.loan.rateBp / 100}% over ${r.loan.months} months, payment ${fmt(r.loan.payment)}. Enter the proceeds as a deposit filed to 2200 (or use opening balances), then \`loan apply ${r.loan.id}\`.`);
     } else if (rest[0] === "extra") {
       const r = addLoanExtra(books, rest[1], { amount: flag("--amount"), date: flag("--date") });
@@ -409,6 +429,56 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       console.log(`  Total: paid ${fmt(g.cents)}, still paid ahead ${fmt(g.remaining)}`);
     }
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "deferred") {
+  try {
+    const sub = rest[0];
+    if (sub === "add") {
+      const fields = { amount: flag("--amount"), start: flag("--start"), end: flag("--end"), months: flag("--months"), received: flag("--received"), customer: flag("--customer") ?? "", incomeAccount: flag("--into") ?? undefined, method: has("--monthly") ? "monthly" : "daily" };
+      const r = addDeferral(books, { ...fields, name: argv.slice(2).join(" ") });
+      books = r.books; save();
+      const d = r.deferral;
+      console.log(`${d.id} ${d.name}: ${fmt(d.cents)} earned ${d.method === "monthly" ? "in equal monthly shares" : "by the day"} from ${d.start} to ${d.end} into ${name(d.incomeAccount)}. File the customer's payment (or the invoice) to 2400.`);
+    } else if (sub === "import") {
+      const into = flag("--into") ?? undefined, method = has("--monthly") ? "monthly" : "daily", endExclusive = has("--end-exclusive");
+      if (!rest[1] || !existsSync(rest[1])) throw new Error("deferred import needs a CSV file.");
+      const r = importDeferralsCsv(books, readFileSync(rest[1], "utf8"), { method, endExclusive, dayFirst, ...(into ? { incomeAccount: into } : {}) });
+      books = r.books; save();
+      for (const p of r.problems) console.error(p);
+      console.log(`${r.added} deferral${r.added === 1 ? "" : "s"} added.${r.added ? " File each receipt (or invoice) to 2400." : ""}`);
+    } else if (sub === "cancel") {
+      const date = flag("--date"), keep = has("--keep");
+      const r = cancelDeferral(books, rest[1], { date, keep });
+      books = r.books; save();
+      console.log(keep ? `${rest[1]} cancelled on ${date}; what was left is earned that day.` : `${rest[1]} cancelled on ${date}; ${fmt(r.refund)} unearned is owed back. File the refund payment to 2400.`);
+    } else if (sub === "refunded") {
+      const date = flag("--date");
+      books = markRefunded(books, rest[1], { date }).books; save();
+      console.log(`${rest[1]}: refund paid on ${date}; nothing more is owed back.`);
+    } else if (sub === "remove") {
+      books = removeDeferral(books, rest[1]).books; save();
+      console.log(`${rest[1]} removed.`);
+    } else if (sub === "waterfall") {
+      const horizon = flag("--months") ?? 12, csv = has("--csv");
+      const w = deferredWaterfall(books, { asOf, horizon });
+      if (json) { console.log(JSON.stringify(w, null, 2)); process.exit(0); }
+      if (csv) { process.stdout.write(waterfallCsv(w)); process.exit(0); }
+      console.log(`DEFERRED REVENUE WATERFALL after ${w.asOf ?? "-"}`);
+      if (!w.rows.length) console.log("  Nothing left to earn.");
+      else {
+        console.log(`  ${"".padEnd(26)}${w.months.map((m) => m.padStart(10)).join("")}${"later".padStart(11)}`);
+        for (const r of w.rows) console.log(`  ${(r.id + " " + r.name).slice(0, 25).padEnd(26)}${r.byMonth.map((v) => (v ? fmt(v) : "-").padStart(10)).join("")}${(r.later ? fmt(r.later) : "-").padStart(11)}`);
+        console.log(`  ${"Total".padEnd(26)}${w.totals.map((v) => fmt(v).padStart(10)).join("")}${fmt(w.later).padStart(11)}`);
+      }
+      console.log(`  Still to earn ${fmt(w.unearned)}: ${fmt(w.current)} in the next 12 months (current), ${fmt(w.longTerm)} after (long term).`);
+      if (w.refund) console.log(`  Refunds owed on cancelled plans: ${fmt(w.refund)} (not earned; file each refund payment to 2400).`);
+    } else {
+      const g = deferredRegister(books, asOf);
+      if (json) { console.log(JSON.stringify(g, null, 2)); process.exit(0); }
+      console.log(`DEFERRED REVENUE as of ${g.asOf ?? "-"}`);
+      for (const a of g.rows) console.log(`  ${a.id.padEnd(6)} ${(a.name + (a.customer ? ` (${a.customer})` : "")).slice(0, 30).padEnd(30)} ${a.start} to ${a.end}  received ${fmt(a.cents).padStart(11)}  earned ${fmt(a.earned).padStart(11)}  to earn ${fmt(a.unearned).padStart(11)}${a.refundDue ? `  refund owed ${fmt(a.refundDue)}` : ""}${a.cancelled ? `  cancelled ${a.cancelled.date}` : ""}`);
+      console.log(`  Total: received ${fmt(g.cents)}, earned ${fmt(g.earned)}, still to earn ${fmt(g.unearned)}${g.refundDue ? `, refunds owed ${fmt(g.refundDue)}` : ""}`);
+    }
+  } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "assets") {
   if (rest[0]) {
     const r = addAssetsCsv(books, readFileSync(rest[0], "utf8"), opts);
@@ -434,7 +504,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     if (out) { writeFileSync(out, r.html); console.log(`Wrote ${out}: ${r.id}, ${r.status}${r.balance ? `, balance ${fmt(r.balance)}` : ""}.`); } else process.stdout.write(r.html);
   } catch (e) { console.error(e.message); process.exit(1); }
 } else if (cmd === "reminders") {
-  const min = flag("--min") ? Math.round(Number(flag("--min")) * 100) : 1;
+  const minFlag = flag("--min"), min = minFlag ? Math.round(Number(minFlag) * 100) : 1;
   const r = reminders(books, { asOf: asOf ?? null, min });
   const dir = flag("--out");
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
@@ -445,7 +515,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   });
   console.log(r.length ? `${r.length} reminder${r.length > 1 ? "s" : ""}${dir ? ` written to ${dir}` : " (add --out DIR to write the drafts)"}.` : "Nothing overdue.");
 } else if (cmd === "paybills") {
-  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100), terms: flag("--terms") ? JSON.parse(readFileSync(flag("--terms"), "utf8")) : {} });
+  const p = planBills(books, { asOf: asOf ?? null, days: +(flag("--days") ?? 90), reserve: Math.round(Number(flag("--reserve") ?? 0) * 100), terms: ((t) => t ? JSON.parse(readFileSync(t, "utf8")) : {})(flag("--terms")) });
   if (json) { console.log(JSON.stringify(p, null, 2)); process.exit(0); }
   console.log(`BILL PLAN ${p.asOf} to ${p.to}: cash ${fmt(p.start)}, reserve ${fmt(p.reserve)}, lowest after paying ${fmt(p.lowest.cents)} on ${p.lowest.date}.`);
   for (const r of p.rows) console.log(`  ${r.payOn}  ${fmt(r.cents).padStart(11)}  ${r.id.padEnd(12)} ${r.party.slice(0, 24).padEnd(24)} due ${r.due}  ${r.status}${r.note ? ` - ${r.note}` : ""}`);
@@ -490,8 +560,9 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   if (rest[0] && !rest[0].startsWith("--")) {
     if (!existsSync(rest[0])) { console.error(`no file ${rest[0]}`); process.exit(2); }
     let text;
-    // --two-pass: a photo is read twice by tesseract and the receipt's arithmetic settles the total
-    try { text = has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
+    // --two-pass: a photo is read twice by tesseract and the receipt's arithmetic settles the total;
+    // --four-pass: twice more as a grey copy enlarged to 2,000 px (ImageMagick), and the readings vote
+    try { text = has("--four-pass") ? receiptPassesFromFile(rest[0], { grow: 2000 }) : has("--two-pass") ? receiptPassesFromFile(rest[0]) : receiptTextFromFile(rest[0]); } catch (e) { console.error(e.message); process.exit(2); }
     const r = addReceipts(books, text);
     books = r.books; save();
     console.log(`Read ${r.added.length} receipt${r.added.length === 1 ? "" : "s"}; ${r.duplicates.length} already on file; ${r.skipped.length} could not be read.`);
@@ -740,6 +811,19 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
       if (!(books.projects ?? []).length) console.log("  No projects. project add kitchen Kitchen reno");
     } else throw new Error("project add ID [NAME] | tag ID --match TEXT | untag --match TEXT | list");
   } catch (e) { console.error(e.message); process.exit(1); }
+} else if (cmd === "cards") {
+  const card = flag("--card");
+  const r = cardSpend(books, { from, to, account, card });
+  if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
+  if (has("--csv")) { process.stdout.write(cardLinesCsv(books, { from, to, account, card })); process.exit(0); }
+  console.log(`SPEND BY CARD${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
+  for (const c of r.cards) {
+    console.log(`  ${c.accountName}, card ${c.card}: ${c.lines} lines, spend ${cardMoney(c.spend)}, refunds ${cardMoney(c.refunds)}, net ${cardMoney(c.net)}`);
+    for (const a of c.filed) console.log(`      ${cardMoney(a.cents).padStart(12)}  ${a.code} ${a.name}`);
+    if (c.waiting.lines) console.log(`      ${cardMoney(c.waiting.cents).padStart(12)}  waiting (${c.waiting.lines} lines; suggested: ${c.waiting.suggested.slice(0, 3).map((a) => `${a.name} ${cardMoney(a.cents)}`).join(", ")})`);
+    console.log(`      top merchants: ${c.merchants.map((m) => `${m.name} ${cardMoney(m.cents)}`).join("; ")}`);
+  }
+  for (const w of r.warnings) console.log(`  ! ${w}`);
 } else if (cmd === "projects") {
   const r = projectReport(books, { from, to });
   if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
@@ -763,7 +847,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   console.log("  A worksheet for you or your preparer. Not tax advice; it leaves out passive-loss limits, personal-use days and the depreciation schedule.");
 } else if (cmd === "schedulec") {
   const yr = flag("--year");
-  const sc = scheduleC(books, { from, to, mealsPct: flag("--meals") !== null ? +flag("--meals") : 50, year: yr ? +yr : null });
+  const sc = scheduleC(books, { from, to, mealsPct: ((m) => m !== null ? +m : 50)(flag("--meals")), year: yr ? +yr : null });
   if (json) { console.log(JSON.stringify(sc, null, 2)); process.exit(0); }
   if (has("--csv")) { process.stdout.write(scheduleCCsv(sc)); process.exit(0); }
   console.log(`SCHEDULE C WORKSHEET${from || to ? ` ${from ?? ""}..${to ?? ""}` : ""}`);
@@ -784,7 +868,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
 } else if (cmd === "scorp") {
   const yr = flag("--year"), mo = flag("--months"), c = (n) => { const v = flag(n); return v !== null ? Math.round(+v * 100) : undefined; };
   try {
-    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: flag("--salary-pct") !== null ? +flag("--salary-pct") / 100 : undefined, extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
+    const r = scorpFromBooks(books, { year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", salary: c("--salary"), salaryPct: ((v) => v !== null ? +v / 100 : undefined)(flag("--salary-pct")), extraCost: c("--extra-cost"), stateUnemployment: c("--suta"), otherIncome: c("--other-income"), service: has("--service") });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`S-CORPORATION ELECTION ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}, salary ${fmt(r.salary)}`);
     const row = (l, a, b) => console.log(`  ${l.padEnd(26)} ${fmt(a).padStart(12)} ${fmt(b).padStart(12)}`);
@@ -801,7 +885,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const ttFile = flag("--tax-table");
     const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
     const stateRatePct = flag("--state-rate");
-    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), healthInsurance: c("--health-insurance"), retirement: c("--retirement"), over65: +(flag("--over65") ?? 0), blind: +(flag("--blind") ?? 0), children: +(flag("--children") ?? 0), otherDependents: +(flag("--other-dependents") ?? 0), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined, service: has("--service"), businessWages: c("--business-wages"), itemized: c("--itemized"), investmentIncome: c("--investment"), eitcChildren: flag("--eitc-children") !== undefined ? +flag("--eitc-children") : undefined, eitcTable: has("--eitc-table"), stateRate: stateRatePct !== null ? +stateRatePct / 100 : undefined, stateDeduction: c("--state-deduction"), stateWithheld: c("--state-withheld") });
+    const r = estimatedTax(books, { ...table, year: yr ? +yr : new Date().getFullYear(), monthsElapsed: mo ? +mo : 12, filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), paid: c("--paid"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), healthInsurance: c("--health-insurance"), retirement: c("--retirement"), over65: +(flag("--over65") ?? 0), blind: +(flag("--blind") ?? 0), children: +(flag("--children") ?? 0), otherDependents: +(flag("--other-dependents") ?? 0), asOf: asOf ?? undefined, qbi: has("--no-qbi") ? false : undefined, service: has("--service"), businessWages: c("--business-wages"), itemized: c("--itemized"), investmentIncome: c("--investment"), eitcChildren: ((v) => v != null ? +v : undefined)(flag("--eitc-children")), eitcTable: has("--eitc-table"), stateRate: stateRatePct !== null ? +stateRatePct / 100 : undefined, stateDeduction: c("--state-deduction"), stateWithheld: c("--state-withheld") });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`FEDERAL ESTIMATE ${r.year} (${r.filing}), profit annualised ${fmt(r.profit)}`);
     console.log(`${r.healthDeduction ? `  Health insurance (7206)  ${fmt(r.healthDeduction).padStart(12)}\n` : ""}${r.retirementDeduction ? `  Retirement contribution  ${fmt(r.retirementDeduction).padStart(12)}\n` : ""}  Adjusted gross income    ${fmt(r.agi).padStart(12)}\n  Standard deduction       ${fmt(r.standardDeduction).padStart(12)}\n  QBI deduction            ${fmt(r.qbiDeduction).padStart(12)}\n  Taxable income           ${fmt(r.taxable).padStart(12)}\n  Income tax (${Math.round(r.marginalRate * 100)}% top)    ${fmt(r.incomeTax).padStart(12)}\n  Self-employment tax      ${fmt(r.se.tax).padStart(12)}\n  Additional Medicare tax  ${fmt(r.addlMedicare).padStart(12)}\n  Total                    ${fmt(r.totalTax).padStart(12)}  (${(r.effectiveRate * 100).toFixed(1)}% of income)`);
@@ -818,7 +902,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
     const table = ttFile ? taxTableOptions(JSON.parse(readFileSync(ttFile, "utf8"))) : {};
     const payments = [];
     const dated = [];
-    process.argv.forEach((a, i) => { if (a === "--payment" || a === "--withheld") { const [d, v] = (process.argv[i + 1] ?? "").split(":"); if (!/^\d{4}-\d\d-\d\d$/.test(d ?? "") || !Number.isFinite(+v)) { console.error(`${a} takes DATE:AMOUNT, like 2026-04-15:1500`); process.exit(1); } (a === "--payment" ? payments : dated).push({ date: d, cents: Math.round(+v * 100) }); } });
+    process.argv.forEach((a, i) => { if (a === "--payment" || a === "--withheld" || a === "--paid-with-return") { const [d, v] = (process.argv[i + 1] ?? "").split(":"); if (!/^\d{4}-\d\d-\d\d$/.test(d ?? "") || !Number.isFinite(+v)) { console.error(`${a} takes DATE:AMOUNT, like 2026-04-15:1500`); process.exit(1); } (a === "--withheld" ? dated : payments).push({ date: d, cents: Math.round(+v * 100), ...(a === "--paid-with-return" ? { withReturn: true } : {}) }); } });
     const r = annualizedInstallments(books, { ...table, year: yr ? +yr : new Date().getFullYear(), filing: flag("--filing") ?? "single", wages: c("--wages"), otherIncome: c("--other"), withholding: c("--withholding"), priorYearTax: c("--prior-tax"), priorAgi: c("--prior-agi"), payments, ...(dated.length ? { withheld: dated } : {}) });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
     console.log(`ANNUALIZED INCOME INSTALLMENTS ${r.year} (Form 2210 Schedule AI), required annual payment ${fmt(r.requiredAnnual)}, regular quarter ${fmt(r.regularQuarter)}`);
@@ -848,7 +932,7 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   try {
     const r = bNoticeDates(rest[0], { received: flag("--received") ?? null, second: has("--second"), firstNotice: flag("--first-notice") ?? null, bNoticeSent: flag("--b-notice-sent") ?? null });
     if (json) { console.log(JSON.stringify(r, null, 2)); process.exit(0); }
-    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${r.rate * 100}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first (stop within ${r.stopWithholdingWithinDays} calendar days of receiving it)${r.disregard ? "\n  Pub. 1281 Q17: this second CP2100 is in the same calendar year as the first, so you may disregard it" : ""}\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
+    console.log(`CP2100 ${r.second ? "(second notice) " : ""}counted from ${r.base}\n  mail the ${r.second ? "Second" : "First"} B Notice by ${r.mailBNoticeBy}, enclosing ${r.enclose}\n  start ${+(r.rate * 100).toFixed(4)}% backup withholding by ${r.startWithholdingBy} unless a signed W-9 arrives first (stop within ${r.stopWithholdingWithinDays} calendar days of receiving it)${r.disregard ? "\n  Pub. 1281 Q17: this second CP2100 is in the same calendar year as the first, so you may disregard it" : ""}\n  ${r.note}\n  Worksheet dates from the IRS B-program pages, not tax advice.`);
   } catch (e) { console.error(e.message); process.exit(2); }
 } else if (cmd === "contractors") {
   const yr = flag("--year"), th = flag("--threshold");
@@ -917,10 +1001,21 @@ if (cmd === "import" && rest[0] && !account && existsSync(rest[0])) {
   const rates = parseRateSpecs(specs("--rate"));
   let t;
   const discounts = parseDiscountSpecs(specs("--discount"));
-  for (const [k, d] of Object.entries(stateDiscounts(flag("--state")))) if (!(k in discounts)) discounts[k] = d;
-  try { t = salesTaxReturn(books, { frequency: flag("--freq") ?? "quarterly", endMonth: flag("--end-month") ? Number(flag("--end-month")) : stateEndMonth(flag("--state"), flag("--freq") ?? "quarterly"), dueDay: flag("--due-day") ? Number(flag("--due-day")) : stateDueDay(flag("--state"), flag("--freq") ?? "quarterly"), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
-  const stateNote = stateFilingNote(flag("--state"), t.frequency);
+  // flag() removes what it reads, so each flag is read once (before 2026-11-12 only the first --state read saw it:
+  // due days, NY/PA/DC periods and the state notes all fell back to the defaults)
+  const state = flag("--state"), freq = flag("--freq") ?? "quarterly", endMonthFlag = flag("--end-month"), dueDayFlag = flag("--due-day");
+  // Indiana's allowance band and due day come from the book's own past tax (stateHistoryPresets); an explicit flag still wins
+  const hist = stateHistoryPresets(state, books, freq, { from, to });
+  for (const [k, d] of Object.entries({ ...stateDiscounts(state, freq), ...hist.discounts })) if (!(k in discounts)) discounts[k] = d;
+  try { t = salesTaxReturn(books, { frequency: freq, endMonth: endMonthFlag ? Number(endMonthFlag) : stateEndMonth(state, freq), dueDay: dueDayFlag ? Number(dueDayFlag) : hist.dueDay ?? stateDueDay(state, freq), from, to, rates, discounts, rollover: !has("--no-rollover"), asOf: new Date().toISOString().slice(0, 10) }); } catch (e) { console.error(e.message); process.exit(2); }
+  const stateNote = stateFilingNote(state, t.frequency);
   if (stateNote) t.warnings.push(stateNote);
+  t.warnings.push(...hist.notes);
+  // a preset that matched no tax line says so instead of the note that calls it applied (red team 2026-11-14)
+  const presetMiss = presetDiscountWarning(state, t.frequency, t, discounts);
+  const discNote = stateDiscountNote(state);
+  if (presetMiss) t.warnings.push(presetMiss);
+  else if (discNote) t.warnings.push(discNote);
   if (json) { console.log(JSON.stringify(t, null, 2)); process.exit(0); }
   console.log(`SALES TAX RETURN WORKSHEET (${t.frequency})`);
   for (const p of t.periods) {

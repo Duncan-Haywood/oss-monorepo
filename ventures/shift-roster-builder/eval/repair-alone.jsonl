@@ -1,0 +1,112 @@
+{"P":80,"S":224,"week":0,"copies":304,"floor":257,"start":290,"repair":"main k3","open":281,"valid":true,"gains":null,"guidedGains":null,"ms":345}
+{"P":80,"S":224,"week":0,"copies":304,"floor":257,"start":290,"repair":"new k3 unguided","open":281,"valid":true,"gains":6,"guidedGains":0,"ms":309}
+{"P":80,"S":224,"week":0,"copies":304,"floor":257,"start":290,"repair":"new k3 guided","open":271,"valid":true,"gains":12,"guidedGains":8,"ms":373}
+{"P":80,"S":224,"week":0,"copies":304,"floor":257,"start":290,"repair":"new k5 unguided","open":280,"valid":true,"gains":4,"guidedGains":0,"ms":502}
+{"P":80,"S":224,"week":1,"copies":314,"floor":331,"start":361,"repair":"main k3","open":355,"valid":true,"gains":null,"guidedGains":null,"ms":400}
+{"P":80,"S":224,"week":2,"copies":326,"floor":281,"start":310,"repair":"main k3","open":309,"valid":true,"gains":null,"guidedGains":null,"ms":418}
+{"P":80,"S":224,"week":0,"copies":304,"floor":257,"start":290,"repair":"new k5 guided","open":285,"valid":true,"gains":2,"guidedGains":0,"ms":446}
+{"P":80,"S":224,"week":1,"copies":314,"floor":331,"start":361,"repair":"new k3 unguided","open":355,"valid":true,"gains":5,"guidedGains":0,"ms":493}
+{"P":80,"S":224,"week":2,"copies":326,"floor":281,"start":310,"repair":"new k3 unguided","open":309,"valid":true,"gains":6,"guidedGains":0,"ms":511}
+{"P":80,"S":224,"week":1,"copies":314,"floor":331,"start":361,"repair":"new k3 guided","open":359,"valid":true,"gains":6,"guidedGains":3,"ms":481}
+{"P":80,"S":224,"week":2,"copies":326,"floor":281,"start":310,"repair":"new k3 guided","open":309,"valid":true,"gains":3,"guidedGains":1,"ms":525}
+{"P":80,"S":224,"week":1,"copies":314,"floor":331,"start":361,"repair":"new k5 unguided","open":361,"valid":true,"gains":3,"guidedGains":0,"ms":622}
+{"P":80,"S":224,"week":2,"copies":326,"floor":281,"start":310,"repair":"new k5 unguided","open":309,"valid":true,"gains":2,"guidedGains":0,"ms":703}
+{"P":80,"S":224,"week":1,"copies":314,"floor":331,"start":361,"repair":"new k5 guided","open":359,"valid":true,"gains":1,"guidedGains":1,"ms":573}
+{"P":80,"S":224,"week":2,"copies":326,"floor":281,"start":310,"repair":"new k5 guided","open":310,"valid":true,"gains":0,"guidedGains":0,"ms":721}
+{"P":90,"S":252,"week":0,"copies":348,"floor":352,"start":390,"repair":"main k3","open":380,"valid":true,"gains":null,"guidedGains":null,"ms":272}
+{"P":90,"S":252,"week":0,"copies":348,"floor":352,"start":390,"repair":"new k3 unguided","open":380,"valid":true,"gains":7,"guidedGains":0,"ms":390}
+{"P":90,"S":252,"week":0,"copies":348,"floor":352,"start":390,"repair":"new k3 guided","open":378,"valid":true,"gains":8,"guidedGains":6,"ms":341}
+{"P":90,"S":252,"week":0,"copies":348,"floor":352,"start":390,"repair":"new k5 unguided","open":388,"valid":true,"gains":3,"guidedGains":0,"ms":437}
+{"P":90,"S":252,"week":0,"copies":348,"floor":352,"start":390,"repair":"new k5 guided","open":389,"valid":true,"gains":2,"guidedGains":0,"ms":518}
+{"P":90,"S":252,"week":1,"copies":352,"floor":219,"start":280,"repair":"main k3","open":270,"valid":true,"gains":null,"guidedGains":null,"ms":510}
+{"P":90,"S":252,"week":1,"copies":352,"floor":219,"start":280,"repair":"new k3 unguided","open":268,"valid":true,"gains":8,"guidedGains":0,"ms":445}
+{"P":90,"S":252,"week":1,"copies":352,"floor":219,"start":280,"repair":"new k3 guided","open":267,"valid":true,"gains":7,"guidedGains":2,"ms":508}
+{"P":90,"S":252,"week":2,"copies":363,"floor":374,"start":417,"repair":"main k3","open":406,"valid":true,"gains":null,"guidedGains":null,"ms":272}
+{"P":90,"S":252,"week":1,"copies":352,"floor":219,"start":280,"repair":"new k5 unguided","open":272,"valid":true,"gains":4,"guidedGains":0,"ms":760}
+{"P":90,"S":252,"week":2,"copies":363,"floor":374,"start":417,"repair":"new k3 unguided","open":406,"valid":true,"gains":5,"guidedGains":0,"ms":477}
+{"P":90,"S":252,"week":2,"copies":363,"floor":374,"start":417,"repair":"new k3 guided","open":405,"valid":true,"gains":4,"guidedGains":3,"ms":399}
+{"P":90,"S":252,"week":1,"copies":352,"floor":219,"start":280,"repair":"new k5 guided","open":279,"valid":true,"gains":1,"guidedGains":0,"ms":742}
+{"P":90,"S":252,"week":2,"copies":363,"floor":374,"start":417,"repair":"new k5 unguided","open":416,"valid":true,"gains":1,"guidedGains":0,"ms":723}
+{"P":90,"S":252,"week":2,"copies":363,"floor":374,"start":417,"repair":"new k5 guided","open":415,"valid":true,"gains":1,"guidedGains":1,"ms":708}
+{"P":100,"S":280,"week":0,"copies":400,"floor":358,"start":423,"repair":"main k3","open":415,"valid":true,"gains":null,"guidedGains":null,"ms":327}
+{"P":100,"S":280,"week":0,"copies":400,"floor":358,"start":423,"repair":"new k3 unguided","open":414,"valid":true,"gains":5,"guidedGains":0,"ms":514}
+{"P":100,"S":280,"week":0,"copies":400,"floor":358,"start":423,"repair":"new k3 guided","open":414,"valid":true,"gains":7,"guidedGains":3,"ms":494}
+{"P":100,"S":280,"week":1,"copies":400,"floor":344,"start":412,"repair":"main k3","open":397,"valid":true,"gains":null,"guidedGains":null,"ms":312}
+{"P":100,"S":280,"week":0,"copies":400,"floor":358,"start":423,"repair":"new k5 unguided","open":420,"valid":true,"gains":3,"guidedGains":0,"ms":759}
+{"P":100,"S":280,"week":1,"copies":400,"floor":344,"start":412,"repair":"new k3 unguided","open":397,"valid":true,"gains":8,"guidedGains":0,"ms":329}
+{"P":100,"S":280,"week":1,"copies":400,"floor":344,"start":412,"repair":"new k3 guided","open":400,"valid":true,"gains":12,"guidedGains":5,"ms":355}
+{"P":100,"S":280,"week":0,"copies":400,"floor":358,"start":423,"repair":"new k5 guided","open":414,"valid":true,"gains":2,"guidedGains":1,"ms":815}
+{"P":100,"S":280,"week":1,"copies":400,"floor":344,"start":412,"repair":"new k5 unguided","open":404,"valid":true,"gains":5,"guidedGains":0,"ms":471}
+{"P":100,"S":280,"week":1,"copies":400,"floor":344,"start":412,"repair":"new k5 guided","open":402,"valid":true,"gains":5,"guidedGains":2,"ms":511}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":2,"floor":257,"start":295,"repair":"main k3","open":282,"valid":true,"gains":null,"guidedGains":null,"ms":321}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":2,"floor":257,"start":295,"repair":"new k3 unguided","open":281,"valid":true,"gains":7,"guidedGains":0,"ms":383}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":2,"floor":257,"start":295,"repair":"new k3 guided","open":280,"valid":true,"gains":8,"guidedGains":7,"ms":381}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":2,"floor":331,"start":355,"repair":"main k3","open":350,"valid":true,"gains":null,"guidedGains":null,"ms":461}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":2,"floor":257,"start":295,"repair":"new k3 guided p1","open":279,"valid":true,"gains":10,"guidedGains":10,"ms":495}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":2,"floor":331,"start":355,"repair":"new k3 unguided","open":350,"valid":true,"gains":7,"guidedGains":0,"ms":460}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":2,"floor":281,"start":317,"repair":"main k3","open":316,"valid":true,"gains":null,"guidedGains":null,"ms":487}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":2,"floor":331,"start":355,"repair":"new k3 guided","open":352,"valid":true,"gains":8,"guidedGains":5,"ms":529}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":2,"floor":281,"start":317,"repair":"new k3 unguided","open":316,"valid":true,"gains":3,"guidedGains":0,"ms":525}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":2,"floor":331,"start":355,"repair":"new k3 guided p1","open":349,"valid":true,"gains":6,"guidedGains":6,"ms":578}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":2,"floor":281,"start":317,"repair":"new k3 guided","open":314,"valid":true,"gains":3,"guidedGains":3,"ms":570}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":2,"floor":281,"start":317,"repair":"new k3 guided p1","open":316,"valid":true,"gains":2,"guidedGains":2,"ms":533}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":2,"floor":352,"start":383,"repair":"main k3","open":380,"valid":true,"gains":null,"guidedGains":null,"ms":194}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":2,"floor":352,"start":383,"repair":"new k3 unguided","open":377,"valid":true,"gains":4,"guidedGains":0,"ms":369}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":2,"floor":352,"start":383,"repair":"new k3 guided","open":376,"valid":true,"gains":6,"guidedGains":3,"ms":357}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":2,"floor":352,"start":383,"repair":"new k3 guided p1","open":381,"valid":true,"gains":3,"guidedGains":3,"ms":300}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":2,"floor":219,"start":276,"repair":"main k3","open":264,"valid":true,"gains":null,"guidedGains":null,"ms":412}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":2,"floor":219,"start":276,"repair":"new k3 unguided","open":263,"valid":true,"gains":10,"guidedGains":0,"ms":430}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":2,"floor":219,"start":276,"repair":"new k3 guided","open":260,"valid":true,"gains":7,"guidedGains":5,"ms":503}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":2,"floor":374,"start":419,"repair":"main k3","open":417,"valid":true,"gains":null,"guidedGains":null,"ms":353}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":2,"floor":219,"start":276,"repair":"new k3 guided p1","open":264,"valid":true,"gains":9,"guidedGains":9,"ms":441}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":2,"floor":374,"start":419,"repair":"new k3 unguided","open":416,"valid":true,"gains":7,"guidedGains":0,"ms":474}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":2,"floor":374,"start":419,"repair":"new k3 guided","open":414,"valid":true,"gains":6,"guidedGains":4,"ms":496}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":2,"floor":374,"start":419,"repair":"new k3 guided p1","open":414,"valid":true,"gains":4,"guidedGains":4,"ms":573}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":3,"floor":257,"start":290,"repair":"main k3","open":282,"valid":true,"gains":null,"guidedGains":null,"ms":289}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":3,"floor":257,"start":290,"repair":"new k3 unguided","open":282,"valid":true,"gains":6,"guidedGains":0,"ms":331}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":3,"floor":257,"start":290,"repair":"new k3 guided","open":286,"valid":true,"gains":5,"guidedGains":2,"ms":407}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":3,"floor":257,"start":290,"repair":"new k3 guided p1","open":287,"valid":true,"gains":2,"guidedGains":2,"ms":441}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":2,"floor":358,"start":428,"repair":"main k3","open":413,"valid":true,"gains":null,"guidedGains":null,"ms":293}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":2,"floor":358,"start":428,"repair":"new k3 unguided","open":413,"valid":true,"gains":10,"guidedGains":0,"ms":424}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":2,"floor":358,"start":428,"repair":"new k3 guided","open":418,"valid":true,"gains":8,"guidedGains":3,"ms":687}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":2,"floor":358,"start":428,"repair":"new k3 guided p1","open":422,"valid":true,"gains":6,"guidedGains":6,"ms":575}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":2,"floor":344,"start":425,"repair":"main k3","open":407,"valid":true,"gains":null,"guidedGains":null,"ms":356}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":2,"floor":344,"start":425,"repair":"new k3 unguided","open":407,"valid":true,"gains":11,"guidedGains":0,"ms":447}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":3,"floor":331,"start":355,"repair":"main k3","open":355,"valid":true,"gains":null,"guidedGains":null,"ms":388}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":2,"floor":344,"start":425,"repair":"new k3 guided","open":407,"valid":true,"gains":9,"guidedGains":4,"ms":533}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":3,"floor":331,"start":355,"repair":"new k3 unguided","open":355,"valid":true,"gains":1,"guidedGains":0,"ms":429}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":2,"floor":344,"start":425,"repair":"new k3 guided p1","open":412,"valid":true,"gains":5,"guidedGains":5,"ms":517}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":3,"floor":331,"start":355,"repair":"new k3 guided","open":349,"valid":true,"gains":3,"guidedGains":1,"ms":471}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":3,"floor":331,"start":355,"repair":"new k3 guided p1","open":354,"valid":true,"gains":3,"guidedGains":3,"ms":497}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":3,"floor":281,"start":311,"repair":"main k3","open":308,"valid":true,"gains":null,"guidedGains":null,"ms":581}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":3,"floor":281,"start":311,"repair":"new k3 unguided","open":308,"valid":true,"gains":4,"guidedGains":0,"ms":482}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":3,"floor":281,"start":311,"repair":"new k3 guided","open":310,"valid":true,"gains":5,"guidedGains":0,"ms":496}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":3,"floor":352,"start":401,"repair":"main k3","open":390,"valid":true,"gains":null,"guidedGains":null,"ms":232}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":3,"floor":281,"start":311,"repair":"new k3 guided p1","open":307,"valid":true,"gains":4,"guidedGains":4,"ms":639}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":3,"floor":352,"start":401,"repair":"new k3 unguided","open":388,"valid":true,"gains":8,"guidedGains":0,"ms":450}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":3,"floor":352,"start":401,"repair":"new k3 guided","open":390,"valid":true,"gains":9,"guidedGains":5,"ms":394}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":3,"floor":219,"start":281,"repair":"main k3","open":260,"valid":true,"gains":null,"guidedGains":null,"ms":478}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":3,"floor":352,"start":401,"repair":"new k3 guided p1","open":393,"valid":true,"gains":6,"guidedGains":6,"ms":498}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":3,"floor":219,"start":281,"repair":"new k3 unguided","open":260,"valid":true,"gains":10,"guidedGains":0,"ms":489}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":3,"floor":219,"start":281,"repair":"new k3 guided","open":260,"valid":true,"gains":9,"guidedGains":3,"ms":449}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":3,"floor":219,"start":281,"repair":"new k3 guided p1","open":267,"valid":true,"gains":7,"guidedGains":7,"ms":667}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":3,"floor":374,"start":417,"repair":"main k3","open":413,"valid":true,"gains":null,"guidedGains":null,"ms":356}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":3,"floor":374,"start":417,"repair":"new k3 unguided","open":413,"valid":true,"gains":4,"guidedGains":0,"ms":429}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":3,"floor":374,"start":417,"repair":"new k3 guided","open":412,"valid":true,"gains":5,"guidedGains":4,"ms":535}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":3,"floor":374,"start":417,"repair":"new k3 guided p1","open":406,"valid":true,"gains":7,"guidedGains":7,"ms":632}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":3,"floor":358,"start":421,"repair":"main k3","open":413,"valid":true,"gains":null,"guidedGains":null,"ms":407}
+{"P":80,"S":224,"week":0,"copies":304,"startSeed":1,"floor":257,"start":290,"repair":"new k3 guided p1","open":281,"valid":true,"gains":7,"guidedGains":7,"ms":451}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":3,"floor":358,"start":421,"repair":"new k3 unguided","open":412,"valid":true,"gains":7,"guidedGains":0,"ms":579}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":3,"floor":344,"start":404,"repair":"main k3","open":392,"valid":true,"gains":null,"guidedGains":null,"ms":380}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":3,"floor":344,"start":404,"repair":"new k3 unguided","open":393,"valid":true,"gains":8,"guidedGains":0,"ms":476}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":3,"floor":358,"start":421,"repair":"new k3 guided","open":417,"valid":true,"gains":5,"guidedGains":2,"ms":570}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":3,"floor":344,"start":404,"repair":"new k3 guided","open":395,"valid":true,"gains":11,"guidedGains":7,"ms":414}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":3,"floor":358,"start":421,"repair":"new k3 guided p1","open":418,"valid":true,"gains":7,"guidedGains":7,"ms":539}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":3,"floor":344,"start":404,"repair":"new k3 guided p1","open":398,"valid":true,"gains":5,"guidedGains":5,"ms":425}
+{"P":80,"S":224,"week":1,"copies":314,"startSeed":1,"floor":331,"start":361,"repair":"new k3 guided p1","open":360,"valid":true,"gains":5,"guidedGains":5,"ms":515}
+{"P":80,"S":224,"week":2,"copies":326,"startSeed":1,"floor":281,"start":310,"repair":"new k3 guided p1","open":305,"valid":true,"gains":2,"guidedGains":2,"ms":552}
+{"P":90,"S":252,"week":0,"copies":348,"startSeed":1,"floor":352,"start":390,"repair":"new k3 guided p1","open":382,"valid":true,"gains":6,"guidedGains":6,"ms":474}
+{"P":90,"S":252,"week":1,"copies":352,"startSeed":1,"floor":219,"start":280,"repair":"new k3 guided p1","open":267,"valid":true,"gains":9,"guidedGains":9,"ms":450}
+{"P":90,"S":252,"week":2,"copies":363,"startSeed":1,"floor":374,"start":417,"repair":"new k3 guided p1","open":408,"valid":true,"gains":4,"guidedGains":4,"ms":483}
+{"P":100,"S":280,"week":0,"copies":400,"startSeed":1,"floor":358,"start":423,"repair":"new k3 guided p1","open":411,"valid":true,"gains":6,"guidedGains":6,"ms":503}
+{"P":100,"S":280,"week":1,"copies":400,"startSeed":1,"floor":344,"start":412,"repair":"new k3 guided p1","open":400,"valid":true,"gains":8,"guidedGains":8,"ms":421}

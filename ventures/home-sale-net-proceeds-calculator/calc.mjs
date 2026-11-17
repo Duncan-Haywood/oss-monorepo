@@ -20,7 +20,7 @@ export const TAX = {
 export function money(x) {
   const n = Math.round(Number(x) * 100) / 100;
   const s = Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (n < 0 ? "-$" : "$") + s;
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 const num = (v) => (v === "" || v === null || v === undefined ? 0 : Number(v));
 const band = (start, amount, lo, hi) => Math.max(0, Math.min(start + amount, hi) - Math.max(start, lo));

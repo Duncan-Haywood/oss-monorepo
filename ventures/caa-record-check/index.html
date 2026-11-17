@@ -164,7 +164,7 @@
 <script type="module">
   import { resolveCaaSet } from './lookup.mjs';
   import { classify, buildReport, KNOWN_CAS } from './analyze.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -258,7 +258,7 @@
       els.status.textContent = result.category === 'lookup-error'
         ? ''
         : 'Done. This ran entirely in your browser; nothing was sent to us.';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'check_run');
     } catch (err) {
       els.status.innerHTML = `<span class="error">${escapeHtml(err.message || String(err))}</span>`;
     } finally {
@@ -271,7 +271,7 @@
   $('#load-example').addEventListener('click', () => {
     render(EXAMPLE_REPORT);
     els.status.textContent = "Worked example: a domain whose CAA record only names DigiCert, so Let's Encrypt (checked here) is blocked.";
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, 'example_loaded');
   });
 
   $('#clear').addEventListener('click', () => {
@@ -284,8 +284,8 @@
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 

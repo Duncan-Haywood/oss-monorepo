@@ -127,3 +127,35 @@ test("parity: check.py and classify.mjs agree on the edge-case corpus", () => {
   assert.equal(py.length, cases.length);
   cases.forEach((t, i) => assert.deepEqual(key(scanText(t, "app.service")), [...py[i]].sort(), JSON.stringify(t)));
 });
+
+// systemd unquotes the executable and simplifies paths (duplicate slashes, "."
+// components) before using them, so //tmp/x runs /tmp/x and ReadWritePaths=//
+// opens the whole filesystem. The checker must read them the same way.
+test("non-canonical spellings of a writable dir or / are still caught", () => {
+  for (const v of ['"/tmp/x" a', "-//tmp/x", "/./tmp/x", "'/var/tmp/x'"]) {
+    assert.deepEqual(lines(scanText(`[Service]\nUser=app\nExecStart=${v}\n`), EXEC_FROM_WRITABLE_DIR), [3], v);
+  }
+  for (const v of ['"/"', "-//", "/./", "+/."]) {
+    assert.deepEqual(lines(scanText(`[Service]\nUser=app\nReadWritePaths=${v}\n`), READ_WRITE_ROOT), [3], v);
+  }
+  assert.deepEqual(lines(scanText("[Service]\nUser=app\nExecStart=/usr/bin/tmp/x\n"), EXEC_FROM_WRITABLE_DIR), []);
+  assert.deepEqual(lines(scanText("[Service]\nUser=app\nReadWritePaths=/var /srv/.\n"), READ_WRITE_ROOT), []);
+});
+
+test("UMask= outside octal is ignored, as systemd rejects it", () => {
+  for (const v of ["0008", "8", "0009"]) {
+    assert.deepEqual(lines(scanText(`[Service]\nUser=app\nUMask=${v}\n`), PERMISSIVE_UMASK), [], v);
+  }
+});
+
+test("an escaped quote right before the closing quote does not swallow the next variable", () => {
+  const f = scanText('[Service]\nUser=app\nEnvironment="MODE=a\\"" API_TOKEN=abc\n');
+  assert.deepEqual(lines(f, LITERAL_SECRET), [3]);
+});
+
+test("hasRisk is true for any high or medium finding, false for low only", () => {
+  assert.equal(hasRisk([{ severity: "medium" }]), true);
+  assert.equal(hasRisk([{ severity: "high" }]), true);
+  assert.equal(hasRisk([{ severity: "low" }, { severity: "medium" }]), true);
+  assert.equal(hasRisk([{ severity: "low" }]), false);
+});

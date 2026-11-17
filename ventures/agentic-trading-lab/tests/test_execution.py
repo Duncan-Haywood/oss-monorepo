@@ -62,6 +62,27 @@ class Guard(unittest.TestCase):
         self.assertTrue(any("per-symbol" in e for e in errs))
 
 
+    def test_guards_fail_closed_on_nan_and_inf(self):
+        # Every guard is a > or < comparison, and NaN compares False both
+        # ways: a NaN notional or weight used to pass every check.
+        nan, inf = float("nan"), float("inf")
+        v = safety.check_orders([Order("XLK", "buy", nan), Order("XLK", "buy", inf), Order("XLK", "buy", 10)], Limits())
+        self.assertEqual([o.notional for o in v.accepted], [10])
+        self.assertTrue(all("finite" in why for _, why in v.rejected))
+        errs = safety.check_targets({"A": nan, "B": 0.1}, Limits())
+        self.assertTrue(any("A" in e and "finite" in e for e in errs))
+        for field in ("max_order_notional", "max_gross_exposure", "max_weight_per_symbol", "min_order_notional"):
+            for bad in (nan, inf, -1.0):
+                with self.assertRaises(ValueError, msg=f"{field}={bad}"):
+                    Limits(**{field: bad})
+        with self.assertRaises(ValueError):
+            Limits(max_orders_per_run=-1)
+
+    def test_rebalance_refuses_a_nan_limit_from_the_command_line(self):
+        with self.assertRaises(SystemExit) as cm:
+            cli.main(["rebalance", "--max-order", "nan"])
+        self.assertEqual(cm.exception.code, 2)
+
 class Planner(unittest.TestCase):
     def test_orders_reach_target_and_sell_first(self):
         orders = planner.plan_orders({"A": 0.5, "B": 0.5}, 10_000, {"A": 2_000, "C": 3_000},

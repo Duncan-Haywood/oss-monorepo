@@ -321,3 +321,24 @@ test("monthlyTimeline: sums detected recurring charges per calendar month and fl
   assert.equal(tl[3].partial, true);
   assert.equal(tl[1].partial, false);
 });
+
+// Red-team gap tests, 2026-11-16 (prompts/runs/2026-11-16-session_01EhTJVMWEWjfG8yqSCF8XUS.json).
+test("a rise needs both 2% and 25 cents: 20 cents on a $4 plan is drift", () => {
+  const s = analyze(read(csv(["2026-01-05,APP,-4.00", "2026-02-05,APP,-4.00", "2026-03-05,APP,-4.20", "2026-04-05,APP,-4.20"])).rows).subs[0];
+  assert.equal(s.rises.length, 0);
+});
+
+test("the first data row counts as date-order evidence", () => {
+  const n = read("Date,Description,Amount\n13/01/2026,GYM,-30\n01/02/2026,GYM,-30\n01/03/2026,GYM,-30\n");
+  assert.deepEqual(n.rows.map((r) => isoDay(r.day)), ["2026-01-13", "2026-02-01", "2026-03-01"]);
+});
+
+test("a comma-delimited file with \"12,50\" amounts votes decimal comma", async () => {
+  const { detectDecimalComma } = await import("./calc.mjs");
+  assert.equal(detectDecimalComma([["Date", "Amount"], ["2026-01-05", "12,50"]], ","), true);
+});
+
+test("skipped rows keep their file line across a quoted line break", () => {
+  const n = read('Date,Description,Amount\n2026-01-05,"two\nline memo",-9.99\nbad-date,X,-1\n');
+  assert.deepEqual(n.skipped.map((s) => s.line), [4]);
+});

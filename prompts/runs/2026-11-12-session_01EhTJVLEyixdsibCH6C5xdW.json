@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLEyixdsibCH6C5xdW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (scheduled routine)",
+  "input_sha256": "06803603fe2aa19203b94097a4e6666d9fdd6c696580e63c7dd3bd9b079c39f5",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T05:55:51Z",
+  "ended": "2026-11-12T06:03:39Z",
+  "wall_minutes": 7.99,
+  "tokens_in": 5033900,
+  "tokens_out": 32109,
+  "cost_usd": 2.4616,
+  "tool_calls": 51,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15024",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First commit carries Prompt-Version: ventures/0 (should be ventures/1); the amend + force-push to fix it was refused by the auto-mode classifier, so it stays; later commits carry ventures/1."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The route draw sent a scheduled run whose stored prompt is explicitly about revenue products to the research track; the stored prompt has no phrase --task keys on unless passed, so a run must think to re-route with --track ventures."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Start from main' via git reset --hard origin/main was refused by the auto-mode classifier; git merge --ff-only origin/main works on a clean checkout and is the safer instruction."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Router drew research, but the scheduled task's own words ask for revenue-generating products; the user's stated task wins over the weighted draw.",
+      "did": "Routed with --track ventures and deepened flagship einvoice-preflight (open item: INV-026 on clearing codes in BT-86) instead of the session-id-picked changepoint-detector, whose open items were mostly failed pre-registered rounds; einvoice is closer to paying B2B users (EU e-invoicing mandates).",
+      "result": "Item closed, tests green."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-sort-code-is-not-a-typo.md",
+    "ventures/einvoice-preflight/README.md (BT-86 clearing codes)"
+  ],
+  "goal": null,
+  "notes": "Local verification: venture node suite 1454 tests, 1394 pass, 0 fail, 60 skipped; with slimdom+fontoxpath installed pint-current/report-plain-route/official-good-cases 19/19; Python unittest 372 OK. docs.peppol.eu unreachable (DNS) so the BT-86 definition is paraphrased, not quoted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f0efed92-4eb9-5b19-9d2f-0a0e34eddfb2",
+    "transcripts": 1,
+    "first": "2026-11-12T05:55:51Z",
+    "last": "2026-11-12T06:03:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 94,
+        "output": 32109,
+        "thinking": 8603,
+        "cache_read": 4929662,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104144,
+        "api_equivalent_usd": 2.4616,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 94,
+      "output": 32109,
+      "thinking": 8603,
+      "cache_read": 4929662,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104144,
+      "api_equivalent_usd": 2.4616,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 2,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.99,
+      "active_minutes": 7.99,
+      "model_minutes": 5.76,
+      "tool_minutes": 2.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "engineer: research BT-86, write JS+Python check with IBAN registry table, tests, docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 162.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

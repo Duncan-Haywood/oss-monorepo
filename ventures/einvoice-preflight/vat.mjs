@@ -216,8 +216,11 @@ function czBirth9Ok(b) {
 function czBirthNumberOk(b) {
   const month = Number(b.slice(2, 4));
   const day = Number(b.slice(4, 6));
-  const monthOk = [1, 21, 51, 71].some((base) => month >= base && month <= base + 11);
-  if (!monthOk || day < 1 || day > 31) return false;
+  const base = [71, 51, 21, 1].find((b) => month >= b && month <= b + 11);
+  if (base === undefined) return false;
+  // 10 digits means born 1954 or later: yy 54-99 is 19yy, 00-53 is 20yy. The day must exist (no 31 February).
+  const yy = Number(b.slice(0, 2));
+  if (!realDate(yy >= 54 ? 1900 + yy : 2000 + yy, month - base + 1, day)) return false;
   return (Number(b.slice(0, 9)) % 11) % 10 === Number(b[9]);
 }
 
@@ -456,11 +459,15 @@ function itOk(digits) {
   return (10 - (total % 10)) % 10 === Number(digits[10]);
 }
 
-function esOk(body) {
+export function esOk(body) {
   const letters = "TRWAGMYFPDXBNJZSQVHLCKE";
   if (/^\d/.test(body[0]) && /[A-Z]/.test(body[8])) {
     return body[8] === letters[Number(body.slice(0, 8)) % 23];
   }
+  // NIE (foreign residents): X, Y, Z stand for 0, 1, 2 ahead of the DNI letter test.
+  if (/^[XYZ]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number("XYZ".indexOf(body[0]) + body.slice(1, 8)) % 23];
+  // K, L and M NIFs (under-14s, non-residents, foreigners without a NIE) use the DNI letter on their seven digits.
+  if (/^[KLM]\d{7}[A-Z]$/.test(body)) return body[8] === letters[Number(body.slice(1, 8)) % 23];
   if (!/^[A-Z]/.test(body[0]) || !/^\d{7}$/.test(body.slice(1, 8))) return false;
   let total = 0;
   for (let index = 0; index < 7; index += 1) {

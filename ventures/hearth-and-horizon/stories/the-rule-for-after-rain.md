@@ -92,7 +92,7 @@ She did not think of it again until Monday.
 
 * * *
 
-On Monday morning, at forty-eight hours, the larvae should have been D-shaped: a tiny clam-shaped shell, straight along the hinge, round along the edge, the first shell an oyster ever makes and the one it will carry, under all the others, for the rest of its life. In a good spawn at Kestrel Bay about two of every three eggs made one.
+On Monday morning, at forty hours, the larvae should have been D-shaped: a tiny clam-shaped shell, straight along the hinge, round along the edge, the first shell an oyster ever makes and the one it will carry, under all the others, for the rest of its life. In a good spawn at Kestrel Bay about two of every three eggs made one.
 
 Hoa drained a litre from each tank through a fine screen, washed what was caught into a beaker, and put a millilitre under the microscope. Lola came in from the car with her coat still on and stood behind her.
 
@@ -196,13 +196,13 @@ On Wednesday at a quarter past two the intake read fifteen degrees, pH eight poi
 
 "Fill," said Lola.
 
-Hoa spawned bay four that evening: eight females, a hundred and eight million eggs. On Friday morning, at forty-eight hours, they put a millilitre under the microscope together.
+Hoa spawned bay four that evening: eight females, a hundred and eight million eggs. On Friday morning, at thirty-six hours, they put a millilitre under the microscope together.
 
 Hoa counted. Lola did not watch the count; she watched Hoa's face, which was easier to read than a burette.
 
 "Five point five to the mil," Hoa said at last. "Sixty-one percent. And they're good. Look at the hinges."
 
-Lola looked. Straight hinges, round edges, tiny, perfect, clear as glass, each with a dark smudge inside that was the gut, and the little hairy wheel of the velum turning. Sixty million small houses, built.
+Lola looked. Straight hinges, round edges, tiny, perfect, clear as glass, each with a dark smudge inside that was the gut, and the little hairy wheel of the velum turning. Sixty-odd million small houses, built.
 
 "Well," she said. "There's Walt."
 

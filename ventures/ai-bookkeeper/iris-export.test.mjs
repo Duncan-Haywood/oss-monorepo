@@ -83,7 +83,7 @@ test("the IRIS CSV check reads the export as its template, and only the W-9 fiel
   // With the W-9 fields filled in, it is clean.
   const rows = parse(nec1099IrisCsv(contractors1099(books2026(), { year: 2026 }), payer).csv);
   const col = (c) => IRIS_NEC_COLUMNS.indexOf(c);
-  rows.slice(1).forEach((x, i) => { x[col("Recipient TIN Type")] = "SSN"; x[col("Recipient Taxpayer ID Number")] = `41234567${i}`; x[col("Recipient Address Line 1")] = "2 B St"; x[col("Recipient City/Town")] = "Dallas"; x[col("Recipient State/Province/Territory")] = "TX"; x[col("Recipient ZIP/Postal Code")] = "75201"; });
+  rows.slice(1).forEach((x, i) => { x[col("Recipient TIN Type")] = "SSN"; x[col("Recipient Taxpayer ID Number")] = `412-34-567${i}`; x[col("Recipient Address Line 1")] = "2 B St"; x[col("Recipient City/Town")] = "Dallas"; x[col("Recipient State/Province/Territory")] = "TX"; x[col("Recipient ZIP/Postal Code")] = "75201"; });
   const clean = validate(rows.map((x) => x.map((v) => (/[",]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v)).join(",")).join("\r\n"));
   assert.deepEqual(clean.findings.filter((f) => f.severity !== "info").map((f) => f.code), []);
 });

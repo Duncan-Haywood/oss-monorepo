@@ -70,7 +70,7 @@ export function procurementText(p) {
 
 /** @param {any} p */
 export function procurementCsv(p) {
-  const q = (/** @type {any} */ v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? "'" + s : s; };
+  const q = (/** @type {any} */ v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" + s : s; };
   const c = (/** @type {any} */ v) => { const s = q(v); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   if (!p || !Array.isArray(p.rows)) throw new TypeError("procurementCsv needs a procurement result");
   const head = "order_by,item,supplier,lead_days,buffer_days,activity,need_date,critical,status,days_late,cost";

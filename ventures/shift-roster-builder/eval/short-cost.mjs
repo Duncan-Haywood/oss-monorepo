@@ -24,7 +24,7 @@ for (const [i, F] of FILES.entries()) {
   console.log(`\n== ${F.name}`);
   console.log("splh    r     average: short over cost | fractile (all weeks): short over cost  vs avg (95% CI)      | best fractile weighting, vs avg");
   for (const splh of F.splh) for (const r of RS) {
-    const b = backtestSales(text, { splh, shortCost: r });
+    const b = backtestSales(text, { scoreClosed: false, splh, shortCost: r });
     const a = b.methods[0], q = b.methods.find((m) => m.id === "q-all");
     const best = b.methods.slice(1).reduce((x, y) => (y.miss < x.miss ? y : x));
     const ci = (m) => `${m.vsDefault >= 0 ? "+" : ""}${f(m.vsDefault)} (${f(m.ci[0])} to ${f(m.ci[1])})`;
@@ -33,7 +33,7 @@ for (const [i, F] of FILES.entries()) {
   // Hindsight check of the rule: at the middle splh, which fixed share would have been cheapest for each r?
   const splh = F.splh[1];
   const shares = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.75, 0.8, 0.9];
-  const runs = shares.map((p) => ({ p, b: backtestSales(text, { splh, shortCost: p / (1 - p) }) }));
+  const runs = shares.map((p) => ({ p, b: backtestSales(text, { scoreClosed: false, splh, shortCost: p / (1 - p) }) }));
   console.log(`\nsplh ${splh}: weighted cost per week of the fractile rule (all weeks equal) run at each fixed share p, scored at each r`);
   console.log("r      " + shares.map((p) => p.toFixed(2).padStart(7)).join("") + "   best p  vs r/(1+r)");
   for (const r of RS) {

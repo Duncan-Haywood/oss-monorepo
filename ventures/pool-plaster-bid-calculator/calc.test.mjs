@@ -244,3 +244,8 @@ test('skipping drain-and-refill zeros water and drain hours', () => {
   assert.equal(result.drainHours, 0);
   assert.equal(result.waterMaterial, 0);
 });
+
+test('inverted depths are rejected for both shapes (quality audit 2026-11-12)', () => {
+  assert.throws(() => poolGeometry({ shape: 'rectangle', lengthFt: 32, widthFt: 16, shallowFt: 9, deepFt: 3 }), /Shallow depth/);
+  assert.throws(() => poolGeometry({ shape: 'freeform', waterSurfaceSf: 620, freeformMultiplier: 1.85, shallowFt: 9, deepFt: 3 }), /Shallow depth/);
+});

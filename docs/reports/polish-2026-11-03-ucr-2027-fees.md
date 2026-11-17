@@ -13,3 +13,8 @@ tagged: auto
 **Measured.** `node --test ventures/ucr-fee-calculator/*.test.mjs`: 23 pass. Full site build not run. Rankings not measured.
 
 **Next.** Probe which other primary hosts respond (plan.ucr.gov did; etsy.com, fmcsa.dot.gov, tiktok did not) and add leads to fee pages with a reachable source.
+
+
+## Correction, 2026-11-12
+
+The amounts this report recorded as the 2027 schedule were the 2025 and 2026 fees. The 2027-and-later fees in 49 CFR 367.50 (FMCSA final rule, 91 FR 56063, FR Doc 2026-17893) are $55 / $167 / $333 / $1,163 / $5,548 / $54,165. Freight forwarders pay by vehicle count, not the lowest bracket. Both were fixed in the round 52 quality audit PR; see `portfolio/quality/audits/2026-11-12-ucr-fee-calculator.json`. Hosts ecfr.gov, federalregister.gov and plan.ucr.gov were unreachable from the session, so the amounts were checked against several secondary sources that quote the final rule; recheck on ecfr.gov when a session can reach it.

@@ -1,0 +1,48 @@
+# Milestone 11d: four operators with unequal speeds and shares. 20000 NYC destinations within 10 km of 11a's hub.
+# Lambda 240/h for the city, R 50 m, r_t 250 m, h 60 s. Hubs: (-1056, -2524); (469, 598); (1834, -6068); (2519, 3278)
+
+## En-route and terminal conflicts per flight, simulator (closed form)
+scen | shares                 | speeds m/s       | rule       | enr/flight (cf)     sim/cf | term/flight (cf)    | cross share of enr | enr vs single
+S0   | 0.25 0.25 0.25 0.25 |   20   20   20   20 | single     | 0.2909 (0.2843) 1.023 | 0.2608 (0.2597) |  0.323 | 1.000
+       counts {('same', 'term'): 15651, ('same', 'enr'): 11821, ('cross', 'term'): 0, ('cross', 'enr'): 5632}
+S0   | 0.25 0.25 0.25 0.25 |   20   20   20   20 | inout      | 0.0694 (0.0626) 1.109 | 0.0854 (0.0833) |  1.000 | 0.239
+       counts {('same', 'term'): 5125, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 4165}
+S0   | 0.25 0.25 0.25 0.25 |   20   20   20   20 | semi       | 0.0223 (0.0195) 1.142 | 0.0781 (0.0781) |  0.975 | 0.077
+       counts {('same', 'term'): 4684, ('same', 'enr'): 33, ('cross', 'term'): 0, ('cross', 'enr'): 1303}
+S0   | 0.25 0.25 0.25 0.25 |   20   20   20   20 | semi_inout | 0.0092 (0.0074) 1.248 | 0.0531 (0.0549) |  1.000 | 0.032
+       counts {('same', 'term'): 3184, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 555}
+S1   | 0.25 0.25 0.25 0.25 |   12   16   24   28 | single     | 0.3218 (0.3160) 1.018 | 0.2771 (0.2786) |  0.396 | 1.000
+       counts {('same', 'term'): 16625, ('same', 'enr'): 11666, ('cross', 'term'): 0, ('cross', 'enr'): 7640}
+S1   | 0.25 0.25 0.25 0.25 |   12   16   24   28 | inout      | 0.0910 (0.0812) 1.121 | 0.0962 (0.0929) |  1.000 | 0.283
+       counts {('same', 'term'): 5771, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 5459}
+S1   | 0.25 0.25 0.25 0.25 |   12   16   24   28 | semi       | 0.0392 (0.0350) 1.118 | 0.0883 (0.0869) |  0.988 | 0.122
+       counts {('same', 'term'): 5296, ('same', 'enr'): 28, ('cross', 'term'): 0, ('cross', 'enr'): 2322}
+S1   | 0.25 0.25 0.25 0.25 |   12   16   24   28 | semi_inout | 0.0115 (0.0105) 1.094 | 0.0571 (0.0587) |  1.000 | 0.036
+       counts {('same', 'term'): 3428, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 691}
+S2   | 0.55 0.25 0.15 0.05 |   20   20   20   20 | single     | 0.3451 (0.3332) 1.036 | 0.3685 (0.3678) |  0.348 | 1.000
+       counts {('same', 'term'): 22110, ('same', 'enr'): 13493, ('cross', 'term'): 0, ('cross', 'enr'): 7212}
+S2   | 0.55 0.25 0.15 0.05 |   20   20   20   20 | inout      | 0.0916 (0.0831) 1.102 | 0.1320 (0.1304) |  1.000 | 0.265
+       counts {('same', 'term'): 7919, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 5497}
+S2   | 0.55 0.25 0.15 0.05 |   20   20   20   20 | semi       | 0.0285 (0.0254) 1.122 | 0.1256 (0.1231) |  0.966 | 0.083
+       counts {('same', 'term'): 7537, ('same', 'enr'): 58, ('cross', 'term'): 0, ('cross', 'enr'): 1653}
+S2   | 0.55 0.25 0.15 0.05 |   20   20   20   20 | semi_inout | 0.0100 (0.0096) 1.040 | 0.0757 (0.0780) |  1.000 | 0.029
+       counts {('same', 'term'): 4541, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 600}
+S3   | 0.55 0.25 0.15 0.05 |   12   16   24   28 | single     | 0.5230 (0.5051) 1.035 | 0.5678 (0.5660) |  0.346 | 1.000
+       counts {('same', 'term'): 34066, ('same', 'enr'): 20525, ('cross', 'term'): 0, ('cross', 'enr'): 10855}
+S3   | 0.55 0.25 0.15 0.05 |   12   16   24   28 | inout      | 0.1287 (0.1180) 1.090 | 0.2042 (0.2013) |  1.000 | 0.246
+       counts {('same', 'term'): 12255, ('same', 'enr'): 1, ('cross', 'term'): 0, ('cross', 'enr'): 7721}
+S3   | 0.55 0.25 0.15 0.05 |   12   16   24   28 | semi       | 0.0520 (0.0454) 1.145 | 0.1914 (0.1905) |  0.971 | 0.099
+       counts {('same', 'term'): 11486, ('same', 'enr'): 92, ('cross', 'term'): 0, ('cross', 'enr'): 3027}
+S3   | 0.55 0.25 0.15 0.05 |   12   16   24   28 | semi_inout | 0.0161 (0.0141) 1.141 | 0.1182 (0.1201) |  1.000 | 0.031
+       counts {('same', 'term'): 7093, ('same', 'enr'): 0, ('cross', 'term'): 0, ('cross', 'enr'): 964}
+
+## Prediction checks
+S0: semi / inout en route 0.321; semi_inout / semi 0.415
+S1: semi / inout en route 0.430; semi_inout / semi 0.294
+S2: semi / inout en route 0.311; semi_inout / semi 0.351
+S3: semi / inout en route 0.404; semi_inout / semi 0.309
+S1 / S0 en route, semi 1.759; single 1.106; inout 1.311
+S2 vs S0 single: cross share 0.348 vs 0.323; enr per flight ratio 1.186
+S3 / S2 en route, semi 1.823; single 1.516
+
+# runtime 47 s

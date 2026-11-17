@@ -12,7 +12,7 @@ import { plainFix } from "./schematron-fixes.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
-export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" } };
+export const PLAIN_ADDON_FILES = { xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
 // A money equation like `BasisAmount = round(a*100) div 100 + round(b*100) div 100`
@@ -187,19 +187,26 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
       }
       return { status: "ok", syntax, findings, sets: [profile[0]], skipped };
     }
-    const base = syntax && (await load(RULE_FILES[syntax]));
+    // A national add-on built on an older EN 16931 release (CIUS-RO on 1.3.8) gets that
+    // release as its base, as its own validator runs it; a copy without that file falls
+    // back to the current base.
+    const pinned = syntax ? matchingAddons(xml, syntax).map(([, a]) => a.base?.[syntax]).find(Boolean) : null;
+    let base = pinned ? await load(pinned[0]) : null;
+    const baseName = base ? pinned[1] : "en16931";
+    if (!base) base = syntax && (await load(RULE_FILES[syntax]));
     if (!base) return { status: "unavailable", syntax, findings: [], sets: [] };
     const doc = parseXml(xml);
     const baseRaw = runRules(base, doc);
     const findings = baseRaw.map((f) => toFinding(f, "en16931-schematron"));
     const skipped = [...baseRaw.skipped];
-    const sets = ["en16931"];
+    const sets = [baseName];
     const seen = new Set(findings.map((f) => `${f.rule}|${f.path}`));
     for (const [name, addon] of matchingAddons(xml, syntax)) {
       const rules = await load(PLAIN_ADDON_FILES[name][syntax]);
       if (!rules) continue;
       sets.push(name);
       if (name === "cius-pt") for (const f of findings) if (f.rule === "BR-CL-17" || f.rule === "BR-CL-18") f.fix += PT_CODE_NOTE;
+      if (name === "cius-hr") for (const f of findings) if (Object.hasOwn(HR_REQUIRED, f.rule)) f.fix = HR_REQUIRED[f.rule];
       const raw = runRules(rules, doc);
       skipped.push(...raw.skipped);
       for (const f of raw.map((x) => toFinding(x, addon.source))) {
@@ -214,5 +221,24 @@ export function createPlainRunner({ fontoxpath, parseXml }) {
 
 // AMA's CIUS-PT 2.1.1 stylesheet carries no BR-CL-* rule, and its own format rules (DT-CIUS-PT-091, -105, -131) and BR-AA-* rules admit AA, RED, INT, NOR, ISE, OUT and NA. EN 16931's list does not, so the EU base rejects them: say so instead of leaving a Portuguese issuer to guess.
 const PT_CODE_NOTE = " This invoice names CIUS-PT, whose own rules accept AA, RED, INT, NOR, ISE, OUT and NA; if the code is one of those, the EN 16931 base and the Portuguese profile disagree, and S with the actual rate is what the EU base accepts. Ask your software vendor or AT which one the receiver validates against.";
+
+// The EN 16931 base warns (UBL-CR-*) on UBL elements outside the core model, and Croatia's
+// HR-CIUS requires some of them: the issue time (HR-BR-2), the operator in SellerContact
+// (HR-BR-37, HR-BR-9), the HR category label in a tax category's Name (HR-BR-11, -16, CL-1),
+// a line's exemption reason (HR-BR-36) and the HRFISK20Data extension (HR-BR-26, -30). Deleting them to quiet the warning would
+// make the Porezna uprava reject the file, so the fix says to keep them.
+const HR_KEEP = (what, rule) => `Keep it: this invoice names HR-CIUS 2025, and Croatia's rules require ${what} (${rule}). The EN 16931 base only warns about elements outside its core model; a Croatian receiver accepts it.`;
+const HR_REQUIRED = {
+  "UBL-CR-001": HR_KEEP("the HR extension (HRFISK20Data) when an invoice has exempt or out-of-scope amounts", "HR-BR-26, HR-BR-30"),
+  "UBL-CR-006": HR_KEEP("the issue time in hh:mm:ss", "HR-BR-2"),
+  "UBL-CR-200": HR_KEEP("the operator's name and OIB in SellerContact", "HR-BR-37, HR-BR-9"),
+  "UBL-CR-477": HR_KEEP("an HR VAT category label in the Name of an exempt or out-of-scope charge's tax category", "HR-BR-11, HR-BR-CL-1"),
+  "UBL-CR-504": HR_KEEP("the HR VAT category label to come from HR-TB-2 wherever a tax category has a Name", "HR-BR-CL-1"),
+  "UBL-CR-480": HR_KEEP("an exemption reason or reason code on an exempt or out-of-scope document charge", "HR-BR-13"),
+  "UBL-CR-481": HR_KEEP("an exemption reason or reason code on an exempt or out-of-scope document charge", "HR-BR-13"),
+  "UBL-CR-600": HR_KEEP("an exemption reason or reason code on every exempt or out-of-scope line", "HR-BR-36"),
+  "UBL-CR-601": HR_KEEP("an exemption reason (or reason code) on every exempt or out-of-scope line", "HR-BR-36"),
+  "UBL-CR-597": HR_KEEP("an HR VAT category label (HR:PDV25, HR:E, HR:O...) in the Name of an exempt or out-of-scope line's tax category", "HR-BR-16, HR-BR-CL-1"),
+};
 
 export { FILES, ADDONS, PROFILES };

@@ -1,0 +1,83 @@
+# Milestone 3: identification by simulation
+grid: 850 points (I 50, T 200, R 600), S = 75, seeds (0, 1); 200 synthetic datasets per process; beta held at the real-data logit
+grid simulated in 82 s
+selection done in 91 s
+
+## real data, this grid
+bcdj5: in-sample I I qN=0.050 qP=0.3 Q=1.057e-03; T T qN=0.050 qP=0.2 theta=0.75 Q=8.932e-04; R R qN=0.075 qP=0.7 gamma=0.05 delta=-0.25 Q=7.903e-04
+bcdj5: LOO mean loss I 0.1475, T 0.1514, R 0.1504; R better than I in 24/43 villages, T better than I in 20/43
+ext8: in-sample I I qN=0.050 qP=0.3 Q=4.219e-03; T T qN=0.075 qP=0.1 theta=0.60 Q=3.449e-03; R R qN=0.100 qP=0.1 gamma=0.10 delta=-0.25 Q=2.471e-03
+ext8: LOO mean loss I 0.1742, T 0.1837, R 0.1906; R better than I in 13/43 villages, T better than I in 19/43
+
+## confusion, rule in-sample, moments bcdj5 (rows: true process; columns: share choosing I, T, R)
+  I: I 0.145  T 0.005  R 0.850   recovered 0.145
+  T: I 0.320  T 0.085  R 0.595   recovered 0.085
+  R: I 0.170  T 0.005  R 0.825   recovered 0.825
+  pairwise recovery (true a scores lower than b):
+   I>T 0.840  I>R 0.145
+   T>I 0.255  T>R 0.235
+   R>I 0.830  R>T 0.960
+
+## confusion, rule in-sample, moments ext8 (rows: true process; columns: share choosing I, T, R)
+  I: I 0.270  T 0.010  R 0.720   recovered 0.270
+  T: I 0.075  T 0.485  R 0.440   recovered 0.485
+  R: I 0.000  T 0.005  R 0.995   recovered 0.995
+  pairwise recovery (true a scores lower than b):
+   I>T 0.910  I>R 0.280
+   T>I 0.785  T>R 0.490
+   R>I 1.000  R>T 0.995
+
+## confusion, rule leave-one-village-out, moments bcdj5 (rows: true process; columns: share choosing I, T, R)
+  I: I 0.565  T 0.165  R 0.270   recovered 0.565
+  T: I 0.165  T 0.830  R 0.005   recovered 0.830
+  R: I 0.390  T 0.485  R 0.125   recovered 0.125
+  pairwise recovery (true a scores lower than b):
+   I>T 0.805  I>R 0.710
+   T>I 0.830  T>R 0.970
+   R>I 0.185  R>T 0.355
+
+## confusion, rule leave-one-village-out, moments ext8 (rows: true process; columns: share choosing I, T, R)
+  I: I 0.585  T 0.170  R 0.245   recovered 0.585
+  T: I 0.155  T 0.820  R 0.025   recovered 0.820
+  R: I 0.230  T 0.215  R 0.555   recovered 0.555
+  pairwise recovery (true a scores lower than b):
+   I>T 0.800  I>R 0.745
+   T>I 0.840  T>R 0.945
+   R>I 0.670  R>T 0.660
+
+H2 (bcdj5, in-sample): recovery I 0.145, T 0.085, R 0.825; min pairwise 0.145 -> held
+H2b (R process, LOO ext8): R preferred to I in 0.670 of 200 datasets -> held; R better in <= 13/43 held-out villages in 0.000 (median 25, 5-95% 18-32)
+  I process: R better than I in median 20/43 held-out villages (5-95% 15-28)
+  T process: R better than I in median 18/43 held-out villages (5-95% 12-27)
+  R process: R better than I in median 25/43 held-out villages (5-95% 18-32)
+
+## post hoc: real data against each process's synthetic spread (LOO, ext8)
+  I process: I loss real 0.1742 vs 0.0417-0.0665 (share above real 0.000); T loss real 0.1837 vs 0.0456-0.0721 (share above real 0.000); R loss real 0.1906 vs 0.0440-0.0698 (share above real 0.000); R wins <= 13 villages in 0.025
+  T process: I loss real 0.1742 vs 0.0499-0.1244 (share above real 0.015); T loss real 0.1837 vs 0.0467-0.1053 (share above real 0.000); R loss real 0.1906 vs 0.0530-0.1347 (share above real 0.010); R wins <= 13 villages in 0.130
+  R process: I loss real 0.1742 vs 0.0524-0.0950 (share above real 0.000); T loss real 0.1837 vs 0.0522-0.0991 (share above real 0.000); R loss real 0.1906 vs 0.0506-0.0866 (share above real 0.000); R wins <= 13 villages in 0.000
+
+## parameter recovery within the true family (in-sample, ext8): share of datasets at each value
+  I qN (true 0.05): 0.025: 0.04, 0.05: 0.94, 0.075: 0.03
+  I qP (true 0.3): 0.2: 0.15, 0.3: 0.58, 0.4: 0.24, 0.5: 0.01, 0.6: 0.01, 0.7: 0.01
+  T qN (true 0.075): 0.05: 0.12, 0.075: 0.81, 0.1: 0.07
+  T qP (true 0.1): 0.1: 0.83, 0.2: 0.17
+  T theta (true 0.6): 0.6: 0.73, 0.75: 0.27
+  R qN (true 0.1): 0.075: 0.09, 0.1: 0.39, 0.15: 0.52
+  R qP (true 0.1): 0.1: 0.40, 0.2: 0.31, 0.3: 0.10, 0.4: 0.05, 0.5: 0.03, 0.6: 0.01, 0.7: 0.01, 0.8: 0.01, 0.9: 0.01, 1: 0.08
+  R gamma (true 0.1): 0.05: 0.11, 0.1: 0.27, 0.15: 0.62
+  R delta (true -0.25): -0.5: 0.73, -0.25: 0.23, 0: 0.03
+
+## Jacobian of village-mean ext8 moments at the R-delta fit (qN, qP, gamma, delta), S = 1000
+  m1: +0.6724 +0.0254 -0.2076 +0.0488
+  m2: +0.4901 +0.1566 +0.6847 +0.2110
+  m3: +0.5405 +0.1589 +0.5798 +0.1963
+  m4: +0.2237 +0.1074 +0.4157 +0.1031
+  m5: +1.9586 +0.6675 +2.2539 +0.7092
+  m6: +0.5038 +0.1715 -0.1204 +0.0755
+  m7: +0.4185 +0.1863 +0.1000 +0.1165
+  m8: +0.3471 +0.2016 +0.9502 +0.2134
+  raw: singular values 3.586 0.9168 0.1528 0.02778; condition 129.1; weakest direction (qN, qP, gamma, delta) -0.112 -0.223 -0.139 +0.958
+  scaled to grid ranges: singular values 0.9377 0.1401 0.07536 0.01189; condition 78.8; weakest direction (qN, qP, gamma, delta) -0.397 -0.098 -0.402 +0.819
+  scaled, bcdj5 only: singular values 0.8751 0.08862 0.02565 0.003421; condition 255.8; weakest -0.452 +0.130 -0.591 +0.656
+  scaled, ext8 only: singular values 0.9377 0.1401 0.07536 0.01189; condition 78.8; weakest -0.397 -0.098 -0.402 +0.819
+runtime 106 s

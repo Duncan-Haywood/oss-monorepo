@@ -32,8 +32,9 @@ SYNTH_ZERO_DROP = 20.53     # bar, closed-form zero-drop break-even (breakeven_c
 QSB = (0.0, 2.0, 5.0)       # L/min standby flow while nothing moves (swept; 0 is 5n's convention)
 
 
-def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None)):
-    """numpy twin of breakeven.trace_breakeven. drops[i]: per-sample spool drop of section i."""
+def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None), vg=63e-6):
+    """numpy twin of breakeven.trace_breakeven. drops[i]: per-sample spool drop of section i.
+    vg: open-centre fixed-pump displacement, m3/rev (the loader's own 63 cc unless swept, 5w)."""
     dt = r["dt"]
     k = dt / 0.6
     qs = [s[0][sl] for s in r["secs"]]
@@ -41,7 +42,7 @@ def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None)):
     ms = [m[sl] for m in masks]
     ds = [d[sl] for d in drops]
     w = r["w"][sl]
-    q_fix = np.maximum(0.0, 63e-6 * 1e3 * w / (2 * math.pi) * 60 - 2.5)
+    q_fix = np.maximum(0.0, vg * 1e3 * w / (2 * math.pi) * 60 - 2.5)
     q_tot = sum(np.where(q > 0, q, 0.0) for q in qs)
     pl = np.full_like(q_fix, -np.inf)
     pin = np.full_like(q_fix, -np.inf)
@@ -64,8 +65,18 @@ def parts(r, masks, drops, p_neutral, q_sb=0.0, sl=slice(None)):
     D = float((q_oc[oc_mv] * (poc[oc_mv] - pin[oc_mv])).sum() * k)
     I = float((q_fix[~oc_mv] * p_neutral).sum() * k)
     S = S_oc - A
-    return {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
-            "dm_ddrop": float(q_oc[oc_mv].sum() * k) / B, "dm_dpn": float(q_fix[~oc_mv].sum() * k) / B}
+    q_mv = float(q_oc[oc_mv].sum() * k)
+    out = {"m": (S + D + I) / B, "A": A, "S": S, "D": D, "I": I, "B": B, "OC": S_oc + D + I,
+           "dm_ddrop": q_mv / B, "dm_dpn": float(q_fix[~oc_mv].sum() * k) / B}
+    # 5u/5v split (same algebra as breakeven.trace_breakeven): open-centre moving implies LS moving
+    V_on = float(q_tot[oc_mv].sum() * k)
+    if V_on > 0:
+        A_on = float((q_tot[oc_mv] * pl[oc_mv]).sum() * k)
+        r_, p_Q, p_q, d_bar, beta = q_mv / V_on, S_oc / q_mv, A_on / V_on, D / q_mv, V_on / B
+        out.update(r=r_, p_Q=p_Q, p_q=p_q, d_bar=d_bar, beta=beta, A_off=A - A_on,
+                   main=beta * (r_ - 1) * p_q, cov=beta * r_ * (p_Q - p_q), drop=beta * r_ * d_bar,
+                   idle=(I - (A - A_on)) / B, rule2=(r_ - 1) * p_q + r_ * d_bar)
+    return out
 
 
 def orifice_drop(q, row):

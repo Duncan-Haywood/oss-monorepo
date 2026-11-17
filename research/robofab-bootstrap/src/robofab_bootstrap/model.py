@@ -210,8 +210,11 @@ def opening(s, pad_t=4.0, stroke=None):
 
 def chain(w0, scales, pad_t=4.0, stroke=None, arm="side", generations=12, policy="max"):
     """Follow generations from a seed gripper with opening w0. Each generation prints the gripper
-    scale chosen by `policy` among `scales` that the current gripper can assemble (min_jaw <= opening).
+    scale chosen by `policy` among `scales` that the current gripper can assemble (min_jaw <= opening):
+    'max' the largest, 'min' the smallest, 'nearest' the one whose own opening is closest to the current one.
     Returns list of (generation, opening, scale built or None)."""
+    if policy not in ("max", "min", "nearest"):
+        raise ValueError(f"unknown policy {policy!r}: use 'max', 'min' or 'nearest'")
     need = {s: min_jaw(s, arm, pad_t) for s in scales}
     w, out = w0, []
     for g in range(generations):

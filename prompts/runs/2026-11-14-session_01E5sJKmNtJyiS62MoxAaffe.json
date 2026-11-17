@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmNtJyiS62MoxAaffe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T04:18:10Z",
+  "ended": "2026-11-14T05:04:01Z",
+  "wall_minutes": 49.8,
+  "tokens_in": 9390443,
+  "tokens_out": 37512,
+  "cost_usd": 3.629,
+  "tool_calls": 81,
+  "task": "Deepen (flagship 9): league-schedule-generator, the 12-team 124-136 carry-over gap",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15727",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Randomised cheapest-first dives added to eval/carryover-bnb.c did not reach even 136 at 12 teams in ~10 min on 4 cores; reverted and replaced by a C refill LNS"
+    },
+    {
+      "what": "First LNS runs at 14/18/24 from the circle start stalled (220/396/770); restarted from the built-in starters, which did not improve in 600 s"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook refuses a bracketed pattern if the unbracketed name also appears later in the same command line (e.g. './bnb' in a following launch); had to split kill and relaunch into separate calls"
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 7 showed league-schedule-generator free and claim_check said HOLD, but PRs #15716 and #15717 (titled chant-forge / ai-bookkeeper claims at the time) were retitled to league-schedule-generator and landed the same C refill idea in parallel, so the title claim missed them; found only at merge time via an add/add conflict on eval/carryover-lns.c"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Merged with no CI check runs registered on the PR (runners starved/none triggered)",
+      "did": "Ran the venture suite (twice, before and after merging main) and venture-preflight locally",
+      "result": "suite ok 203.7 s and 165.6 s after merge; preflight clean"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-twelve-teams-at-132.md",
+    "ventures/league-schedule-generator/README.md (12 teams at 132: a window refill that walks plateaus)"
+  ],
+  "goal": "Close the 12-team non-cyclic carry-over gap (proved >= 124, best 136)",
+  "notes": "eval/window-refill.c (renamed from carryover-lns.c at merge: a parallel PR #15717 landed a different program under that name): 3 of 4 900 s runs found 132 at 12 teams (seeds 11, 13, 14); stored seed 14 as TIMETABLES[12].even, kept 136 as evenAlt because the 132 alone worsened the carry-over-only season at seed 1 (530/68 -> 538/62). field-start.mjs 12 before/after: single 136/20 -> 132/18; single w10 170/14 same; season 530/68 same; season w10 602/40 -> 576/40. node --test starter.test.mjs carryover.test.mjs: 40/40 pass. 14/18/24 starters unchanged after 600 s each. Full venture suite (run_venture_tests.py league-schedule-generator) ok in 203.7 s; venture-preflight clean. After merging main (which added TIMETABLES[14] at 210 from PR #15716): field-start.mjs 12 unchanged (132/18, 170/14, 530/68, 576/40); suite ok 165.6 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9db6eb6e-1cfd-5373-b526-51d6160a4cd4",
+    "transcripts": 1,
+    "first": "2026-11-14T04:18:10Z",
+    "last": "2026-11-14T05:07:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 157,
+        "output": 37512,
+        "thinking": 8756,
+        "cache_read": 9262065,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128221,
+        "api_equivalent_usd": 3.629,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 157,
+      "output": 37512,
+      "thinking": 8756,
+      "cache_read": 9262065,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128221,
+      "api_equivalent_usd": 3.629,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 81,
+    "tools": {
+      "Bash": 75,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 49.8,
+      "active_minutes": 49.8,
+      "model_minutes": 7.19,
+      "tool_minutes": 42.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "writing and tuning a C LNS for round-robin carry-over plus measurement runs and page integration",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 165.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

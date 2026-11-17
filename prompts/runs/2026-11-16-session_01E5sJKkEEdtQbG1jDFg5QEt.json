@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKkEEdtQbG1jDFg5QEt",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:18:42Z",
+  "ended": "2026-11-16T21:42:25Z",
+  "wall_minutes": 23.99,
+  "tokens_in": 6486654,
+  "tokens_out": 28719,
+  "cost_usd": 2.8787,
+  "tool_calls": 58,
+  "task": "chant-forge flagship: T's voiced stops read as a nasal, frame by frame",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16707",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "eval/vstop-diag.mjs read argv[3] as the syllable list, so '--bar 8' as the third argument printed nothing; fixed to skip flags"
+  ],
+  "integrity_issues": [
+    "the part U registration quoted its vowel-only control as 'of 288' (copied from T); U has 28 syllables so 336. Reported in the eval header and README beside the outcome; no prediction depends on the denominator"
+  ],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "none this run; the security-queue, ideas and allocate.py steps all answered first try"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-voice-bar-read-as-a-murmur.md",
+    "ventures/chant-forge/README.md 'A voice bar read as a murmur'"
+  ],
+  "goal": "deepen a flagship: a pre-registered reader round on chant-forge",
+  "notes": "Diagnosed T's voiced stops read as a nasal: all 10 tag/pob/hag/vob nasal misses came from readCoda's level rule, 7 with a burst-ended closure starting 1-7 frames into the run (beat swells the vowel over the 60 ms reference). Opt-in barLead drops such runs. Development A-T: no figure fell, T 122->125. Pre-registered and committed (c491962c8) before held-out part U ran: voiced stops 127->128 of 144 (+2 wanted) FAILED; nasal 6->4, nasals/clusters/others/control unchanged. Stays opt-in; default reader unchanged (coda-check-report.md only gains section U). Verification: run_venture_tests.py chant-forge ok (286 tests, 48.9s); validate.py all 1381 VENTURE.yaml valid; check_post_frontmatter, check_post_links, post_similarity clean; venture-preflight.mjs chant-forge clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cd5dd9ad-55dd-51c7-aaf7-571a06afe4c8",
+    "transcripts": 1,
+    "first": "2026-11-16T21:18:42Z",
+    "last": "2026-11-16T21:42:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 28719,
+        "thinking": 6493,
+        "cache_read": 6357492,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129054,
+        "api_equivalent_usd": 2.8787,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 28719,
+      "thinking": 6493,
+      "cache_read": 6357492,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129054,
+      "api_equivalent_usd": 2.8787,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.99,
+      "active_minutes": 23.99,
+      "model_minutes": 4.86,
+      "tool_minutes": 19.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an audio DSP engineer diagnosing a reader fault frame by frame, writing a rule, a new held-out set and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 208.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

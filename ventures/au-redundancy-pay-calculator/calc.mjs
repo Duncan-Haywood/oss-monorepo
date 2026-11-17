@@ -67,12 +67,22 @@ export function compute(input) {
   if (start === null) errors.push("Enter the start date as YYYY-MM-DD.");
   if (end === null) errors.push("Enter the last day of employment as YYYY-MM-DD.");
   if (start !== null && end !== null && end < start) errors.push("The last day is before the start date.");
-  const age = num(input.age || 0);
+  if (!Number.isFinite(weekly)) errors.push("Weekly base pay is too large to be a real amount.");
+  // An optional field left blank counts as 0; anything typed must be a non-negative number, since a typo
+  // read as 0 silently drops the age 45+ notice week or the leave payout.
+  const opt = (v, msg) => {
+    if (String(v ?? "").trim() === "") return 0;
+    const n = num(v);
+    if (!(n >= 0) || !Number.isFinite(n)) { errors.push(msg); return 0; }
+    return n;
+  };
+  const age = opt(input.age, "Age must be a number of years, for example 47 (leave it blank if unknown).");
+  if (age > 120) errors.push("Age must be 120 or less.");
   const employees = num(input.employees || 0);
-  if (!(employees >= 1)) errors.push("Enter the number of employees the employer has (1 or more).");
+  if (!(employees >= 1) || !Number.isInteger(employees)) errors.push("Enter the number of employees the employer has (a whole number, 1 or more).");
   const type = String(input.employmentType || "permanent");
-  const worked = Math.max(0, num(input.noticeWorkedWeeks || 0) || 0);
-  const leaveDays = Math.max(0, num(input.leaveDays || 0) || 0);
+  const worked = opt(input.noticeWorkedWeeks, "Notice weeks already worked must be a number, 0 or more.");
+  const leaveDays = opt(input.leaveDays, "Accrued annual leave must be a number of days, 0 or more.");
   if (errors.length) return { errors };
 
   const years = completedYears(start, end);
@@ -89,10 +99,14 @@ export function compute(input) {
   else findings.push({ severity: "info", title: `${years} completed year(s) of service = ${weeks} weeks of base pay.` });
   if (!reason && years >= 9 && years < 10) findings.push({ severity: "medium", title: "At 9 years the entitlement is 16 weeks, but it drops to 12 weeks from 10 years. Check the date of termination against the anniversary." });
 
-  const nWeeks = noticeWeeks(years, age);
+  // s123(1)(a) and (c): fixed-term/task and casual employees are outside all of Division 11, so no NES
+  // notice either; apprentices lose only redundancy pay (s123(4)(a)) and keep their notice.
+  const noNotice = type === "casual" || type === "fixed-term";
+  const nWeeks = noNotice ? 0 : noticeWeeks(years, age);
   const unworked = Math.max(0, nWeeks - worked);
   const noticePay = unworked * weekly;
-  findings.push({ severity: "info", title: `Minimum notice is ${nWeeks} week(s)${age >= 45 && years >= 2 ? " (includes 1 extra week for age 45+ with 2+ years)" : ""}; ${unworked} unworked week(s) are paid out.` });
+  if (noNotice) findings.push({ severity: "info", title: `No NES minimum notice: s123(1) of the Fair Work Act takes ${type} employees out of the notice and redundancy rules (Division 11). An award, agreement or contract may still require notice.` });
+  else findings.push({ severity: "info", title: `Minimum notice is ${nWeeks} week(s)${age >= 45 && years >= 2 ? " (includes 1 extra week for age 45+ with 2+ years)" : ""}; ${unworked} unworked week(s) are paid out.` });
   const leavePay = leaveDays * (weekly / dpw);
   if (leaveDays) findings.push({ severity: "info", title: `${leaveDays} day(s) of accrued annual leave paid at ${money(weekly / dpw)} a day.` });
   const total = redundancy + noticePay + leavePay;

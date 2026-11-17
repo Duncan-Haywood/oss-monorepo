@@ -1,0 +1,194 @@
+Milestone 82. N = 75 segments of s = 20; cheat = full stall of one segment; harms are paired (stalled minus honest held-out loss, same seed).
+test seeds 40 (halves 0-19 and 20-39); calibration seeds per schedule 10.
+
+== cosine: lr at segment starts 0.2 .. 8.772e-05; honest held-out loss 0.0900 (s.d. 0.0041)
+  detection: honest calibration max fp16 0.307, reorder 7.75e-06; stalled segment min fp16 2.34 (7.6x the honest max), min reorder 2.34 (3.03e+05x); d_j min 1.000, mean 1.000
+  harm profile: max +1.161e-03 (s.e. 9.3e-05) at segment 0; quarter means +1.02e-03 +7.37e-04 +3.53e-04 +7.00e-05 (segments 0-17, 18-35, 36-53, 54-74)
+  last quarter (56-74): max +1.57e-04 = 0.135 of the max; last-quarter mean / first-quarter mean 0.058; cooldown 60-74 mean / 0-59 mean 0.064
+  segments with harm above 2 s.e.: 65 of 75; share of total positive harm in the top 10 segments 0.268
+  segment   harm      s.e.     (every 5th)
+        0 +1.161e-03 9.3e-05
+        5 +1.042e-03 3.0e-05
+       10 +9.930e-04 2.8e-05
+       15 +9.618e-04 2.7e-05
+       20 +8.646e-04 2.1e-05
+       25 +7.507e-04 2.1e-05
+       30 +6.782e-04 2.5e-05
+       35 +6.039e-04 2.5e-05
+       40 +4.250e-04 2.1e-05
+       45 +3.163e-04 2.6e-05
+       50 +2.766e-04 1.9e-05
+       55 +1.447e-04 1.8e-05
+       60 +9.386e-05 2.2e-05
+       65 +8.357e-05 3.8e-05
+       70 -1.067e-06 1.2e-05
+  additivity, 160 five-segment sets: sum(set harm)/sum(single harms) 1.040; per-set ratio median 1.035, mean 1.036 (160 sets with |sum| > 1e-6); corr 0.992
+  game A (saboteur): worst-case undetected harm, uniform vs minimax; in-sample (all 40 seeds) and cross-fit
+      k   uniform    minimax  gain | crossfit A->B: uniform  minimax  gain | B->A: uniform  minimax  gain
+      1 1.146e-03 9.656e-04  1.19 |  1.094e-03 1.069e-03  1.02 |  1.261e-03 1.166e-03  1.08
+      2 1.130e-03 9.046e-04  1.25 |  1.079e-03 1.001e-03  1.08 |  1.244e-03 1.087e-03  1.14
+      5 1.084e-03 7.682e-04  1.41 |  1.035e-03 8.515e-04  1.22 |  1.192e-03 9.226e-04  1.29
+     10 1.006e-03 6.133e-04  1.64 |  9.611e-04 6.809e-04  1.41 |  1.107e-03 7.354e-04  1.51
+     20 8.516e-04 3.966e-04  2.15 |  8.133e-04 4.399e-04  1.85 |  9.369e-04 4.757e-04  1.97
+  game B (rational worker, k = 5): expected harm, uniform vs knapsack coverage; total if all stall +3.946e-02
+    B/g theta  uniform    (stalls)  knapsack   (stalls)  gain | crossfit A->B gain, B->A gain | post hoc: random-order concentrated harm, gain
+      1 1.000 +3.683e-02 ( 75)   +3.400e-02 ( 70)   1.08 |   1.08   1.08 | +3.685e-02   1.00
+      2 0.500 +3.683e-02 ( 75)   +2.887e-02 ( 65)   1.28 |   1.27   1.26 | +3.422e-02   1.08
+      3 0.333 +3.683e-02 ( 75)   +2.391e-02 ( 60)   1.54 |   1.53   1.53 | +3.158e-02   1.17
+      5 0.200 +3.683e-02 ( 75)   +1.520e-02 ( 50)   2.42 |   2.44   2.40 | +2.635e-02   1.40
+     10 0.100 +3.683e-02 ( 75)   +2.362e-03 ( 25)  15.59 |  16.38  14.65 | +1.318e-02   2.79
+     15 0.067 +0.000e+00 (  0)   +0.000e+00 (  0)    inf |    inf    inf | +0.000e+00    inf
+
+== constant: lr at segment starts 0.1 .. 0.1; honest held-out loss 0.0926 (s.d. 0.0055)
+  detection: honest calibration max fp16 0.118, reorder 1.51e-05; stalled segment min fp16 2.28 (19.3x the honest max), min reorder 2.28 (1.51e+05x); d_j min 1.000, mean 1.000
+  harm profile: max +5.990e-04 (s.e. 5.5e-05) at segment 72; quarter means +5.23e-04 +5.39e-04 +5.38e-04 +5.29e-04 (segments 0-17, 18-35, 36-53, 54-74)
+  last quarter (56-74): max +5.99e-04 = 1.000 of the max; last-quarter mean / first-quarter mean 1.010; cooldown 60-74 mean / 0-59 mean 0.993
+  segments with harm above 2 s.e.: 74 of 75; share of total positive harm in the top 10 segments 0.143
+  segment   harm      s.e.     (every 5th)
+        0 +5.850e-04 6.6e-05
+        5 +4.702e-04 3.8e-05
+       10 +5.129e-04 3.8e-05
+       15 +5.389e-04 2.4e-05
+       20 +5.288e-04 2.1e-05
+       25 +5.117e-04 2.0e-05
+       30 +5.557e-04 1.8e-05
+       35 +5.409e-04 1.6e-05
+       40 +5.350e-04 1.4e-05
+       45 +5.290e-04 1.9e-05
+       50 +5.556e-04 1.7e-05
+       55 +5.180e-04 1.8e-05
+       60 +4.951e-04 2.4e-05
+       65 +5.158e-04 2.2e-05
+       70 +5.370e-04 4.8e-05
+  additivity, 160 five-segment sets: sum(set harm)/sum(single harms) 1.043; per-set ratio median 1.039, mean 1.055 (160 sets with |sum| > 1e-6); corr 0.981
+  game A (saboteur): worst-case undetected harm, uniform vs minimax; in-sample (all 40 seeds) and cross-fit
+      k   uniform    minimax  gain | crossfit A->B: uniform  minimax  gain | B->A: uniform  minimax  gain
+      1 5.910e-04 5.368e-04  1.10 |  1.394e-03 1.413e-03  0.99 |  6.308e-04 6.393e-04  0.99
+      2 5.830e-04 5.241e-04  1.11 |  1.375e-03 1.413e-03  0.97 |  6.222e-04 6.319e-04  0.98
+      5 5.590e-04 4.971e-04  1.12 |  1.319e-03 1.413e-03  0.93 |  5.967e-04 5.969e-04  1.00
+     10 5.191e-04 4.602e-04  1.13 |  1.224e-03 1.413e-03  0.87 |  5.540e-04 5.642e-04  0.98
+     20 4.392e-04 3.894e-04  1.13 |  1.036e-03 1.413e-03  0.73 |  4.688e-04 4.770e-04  0.98
+  game B (rational worker, k = 5): expected harm, uniform vs knapsack coverage; total if all stall +3.992e-02
+    B/g theta  uniform    (stalls)  knapsack   (stalls)  gain | crossfit A->B gain, B->A gain | post hoc: random-order concentrated harm, gain
+      1 1.000 +3.726e-02 ( 75)   +3.700e-02 ( 70)   1.01 |   1.00   0.98 | +3.726e-02   1.00
+      2 0.500 +3.726e-02 ( 75)   +3.421e-02 ( 65)   1.09 |   1.08   1.05 | +3.460e-02   1.08
+      3 0.333 +3.726e-02 ( 75)   +3.143e-02 ( 60)   1.19 |   1.17   1.15 | +3.194e-02   1.17
+      5 0.200 +3.726e-02 ( 75)   +2.596e-02 ( 50)   1.44 |   1.39   1.38 | +2.662e-02   1.40
+     10 0.100 +3.726e-02 ( 75)   +1.261e-02 ( 25)   2.96 |   2.73   2.82 | +1.331e-02   2.80
+     15 0.067 +0.000e+00 (  0)   +0.000e+00 (  0)    inf |    inf    inf | +0.000e+00    inf
+
+== wsd: lr at segment starts 0.1111 .. 0.007407; honest held-out loss 0.0909 (s.d. 0.0043)
+  detection: honest calibration max fp16 0.163, reorder 1.38e-05; stalled segment min fp16 2.19 (13.4x the honest max), min reorder 2.19 (1.58e+05x); d_j min 1.000, mean 1.000
+  harm profile: max +6.595e-04 (s.e. 7.2e-05) at segment 0; quarter means +5.93e-04 +5.87e-04 +5.85e-04 +3.70e-04 (segments 0-17, 18-35, 36-53, 54-74)
+  last quarter (56-74): max +6.00e-04 = 0.909 of the max; last-quarter mean / first-quarter mean 0.588; cooldown 60-74 mean / 0-59 mean 0.495
+  segments with harm above 2 s.e.: 72 of 75; share of total positive harm in the top 10 segments 0.158
+  segment   harm      s.e.     (every 5th)
+        0 +6.595e-04 7.2e-05
+        5 +5.418e-04 3.3e-05
+       10 +5.290e-04 3.3e-05
+       15 +5.739e-04 1.7e-05
+       20 +5.795e-04 1.8e-05
+       25 +5.694e-04 1.8e-05
+       30 +5.892e-04 1.6e-05
+       35 +5.941e-04 1.4e-05
+       40 +5.795e-04 1.5e-05
+       45 +5.835e-04 1.9e-05
+       50 +6.143e-04 1.9e-05
+       55 +5.543e-04 2.3e-05
+       60 +4.924e-04 3.9e-05
+       65 +3.329e-04 3.3e-05
+       70 +1.841e-04 4.0e-05
+  additivity, 160 five-segment sets: sum(set harm)/sum(single harms) 1.034; per-set ratio median 1.038, mean 1.038 (160 sets with |sum| > 1e-6); corr 0.951
+  game A (saboteur): worst-case undetected harm, uniform vs minimax; in-sample (all 40 seeds) and cross-fit
+      k   uniform    minimax  gain | crossfit A->B: uniform  minimax  gain | B->A: uniform  minimax  gain
+      1 6.507e-04 5.829e-04  1.12 |  6.702e-04 6.792e-04  0.99 |  6.941e-04 6.675e-04  1.04
+      2 6.419e-04 5.687e-04  1.13 |  6.611e-04 6.792e-04  0.97 |  6.848e-04 6.465e-04  1.06
+      5 6.156e-04 5.369e-04  1.15 |  6.340e-04 6.777e-04  0.94 |  6.566e-04 6.096e-04  1.08
+     10 5.716e-04 4.880e-04  1.17 |  5.887e-04 6.253e-04  0.94 |  6.097e-04 5.894e-04  1.03
+     20 4.837e-04 3.968e-04  1.22 |  4.981e-04 5.080e-04  0.98 |  5.159e-04 5.841e-04  0.88
+  game B (rational worker, k = 5): expected harm, uniform vs knapsack coverage; total if all stall +3.953e-02
+    B/g theta  uniform    (stalls)  knapsack   (stalls)  gain | crossfit A->B gain, B->A gain | post hoc: random-order concentrated harm, gain
+      1 1.000 +3.690e-02 ( 75)   +3.635e-02 ( 70)   1.02 |   1.01   1.01 | +3.691e-02   1.00
+      2 0.500 +3.690e-02 ( 75)   +3.328e-02 ( 65)   1.11 |   1.10   1.10 | +3.427e-02   1.08
+      3 0.333 +3.690e-02 ( 75)   +3.027e-02 ( 60)   1.22 |   1.20   1.21 | +3.163e-02   1.17
+      5 0.200 +3.690e-02 ( 75)   +2.436e-02 ( 50)   1.52 |   1.49   1.49 | +2.637e-02   1.40
+     10 0.100 +3.690e-02 ( 75)   +9.887e-03 ( 25)   3.73 |   3.60   3.59 | +1.320e-02   2.79
+     15 0.067 +0.000e+00 (  0)   +0.000e+00 (  0)    inf |    inf    inf | +0.000e+00    inf
+
+Harm by segment, all schedules (for figure.py):
+  segment  cosine     constant   wsd
+        0 +1.1613e-03 +5.8500e-04 +6.5953e-04
+        1 +1.0154e-03 +5.4643e-04 +6.3423e-04
+        2 +1.0321e-03 +5.5011e-04 +6.3518e-04
+        3 +1.0986e-03 +4.7281e-04 +5.8120e-04
+        4 +1.1025e-03 +5.5507e-04 +6.0577e-04
+        5 +1.0421e-03 +4.7024e-04 +5.4184e-04
+        6 +1.0542e-03 +4.8850e-04 +6.2632e-04
+        7 +1.0286e-03 +5.3566e-04 +6.2236e-04
+        8 +1.0021e-03 +4.9160e-04 +5.5410e-04
+        9 +1.0216e-03 +4.9270e-04 +5.9577e-04
+       10 +9.9301e-04 +5.1292e-04 +5.2900e-04
+       11 +1.0107e-03 +5.3283e-04 +6.1094e-04
+       12 +1.0320e-03 +5.6169e-04 +5.9734e-04
+       13 +9.9102e-04 +5.1067e-04 +5.7291e-04
+       14 +9.6677e-04 +5.1418e-04 +5.7221e-04
+       15 +9.6178e-04 +5.3892e-04 +5.7392e-04
+       16 +9.1645e-04 +5.1864e-04 +5.6839e-04
+       17 +9.3280e-04 +5.4441e-04 +5.8775e-04
+       18 +9.1531e-04 +5.4405e-04 +5.8752e-04
+       19 +8.6545e-04 +5.4362e-04 +5.8305e-04
+       20 +8.6461e-04 +5.2876e-04 +5.7947e-04
+       21 +8.4915e-04 +5.5643e-04 +6.0208e-04
+       22 +7.9508e-04 +5.2167e-04 +5.7555e-04
+       23 +8.0975e-04 +5.2845e-04 +5.9410e-04
+       24 +7.9523e-04 +5.4894e-04 +5.9277e-04
+       25 +7.5065e-04 +5.1167e-04 +5.6935e-04
+       26 +7.6104e-04 +5.4960e-04 +6.0263e-04
+       27 +7.3837e-04 +5.3756e-04 +5.8667e-04
+       28 +6.7857e-04 +5.2643e-04 +5.7003e-04
+       29 +6.8985e-04 +5.4146e-04 +5.9037e-04
+       30 +6.7817e-04 +5.5569e-04 +5.8920e-04
+       31 +6.6215e-04 +5.5392e-04 +6.0332e-04
+       32 +6.3794e-04 +5.5895e-04 +6.0693e-04
+       33 +6.1559e-04 +5.4387e-04 +5.8667e-04
+       34 +5.6414e-04 +5.1583e-04 +5.5387e-04
+       35 +6.0390e-04 +5.4092e-04 +5.9412e-04
+       36 +5.0418e-04 +5.1782e-04 +5.6666e-04
+       37 +5.1448e-04 +5.3687e-04 +5.8461e-04
+       38 +4.9099e-04 +5.1613e-04 +5.6645e-04
+       39 +4.5536e-04 +5.2773e-04 +5.7547e-04
+       40 +4.2496e-04 +5.3503e-04 +5.7952e-04
+       41 +4.1861e-04 +5.3291e-04 +5.7712e-04
+       42 +3.9280e-04 +5.4394e-04 +5.8392e-04
+       43 +3.6870e-04 +5.5176e-04 +5.8630e-04
+       44 +3.5979e-04 +5.3515e-04 +5.8329e-04
+       45 +3.1633e-04 +5.2897e-04 +5.8352e-04
+       46 +3.4154e-04 +5.3284e-04 +5.8009e-04
+       47 +2.8337e-04 +5.2819e-04 +5.6929e-04
+       48 +2.9735e-04 +5.8689e-04 +6.3148e-04
+       49 +2.8994e-04 +5.5781e-04 +6.0920e-04
+       50 +2.7658e-04 +5.5558e-04 +6.1435e-04
+       51 +2.0455e-04 +5.2670e-04 +5.7585e-04
+       52 +2.1489e-04 +5.3272e-04 +5.8379e-04
+       53 +1.9479e-04 +5.3995e-04 +5.8158e-04
+       54 +2.0011e-04 +5.4272e-04 +5.8464e-04
+       55 +1.4469e-04 +5.1797e-04 +5.5430e-04
+       56 +1.5676e-04 +5.4914e-04 +5.9971e-04
+       57 +1.4156e-04 +5.3133e-04 +5.7192e-04
+       58 +9.3103e-05 +4.9074e-04 +5.2589e-04
+       59 +1.1224e-04 +5.3435e-04 +5.7249e-04
+       60 +9.3863e-05 +4.9514e-04 +4.9240e-04
+       61 +7.1641e-05 +5.2467e-04 +4.9723e-04
+       62 +3.2778e-05 +4.9315e-04 +4.3076e-04
+       63 +7.8633e-05 +4.9628e-04 +4.1084e-04
+       64 +1.2844e-04 +5.7685e-04 +4.7561e-04
+       65 +8.3573e-05 +5.1583e-04 +3.3286e-04
+       66 +3.3631e-05 +5.2523e-04 +3.0444e-04
+       67 +6.3683e-05 +5.6266e-04 +3.2625e-04
+       68 +4.6393e-05 +4.9511e-04 +2.3564e-04
+       69 -1.4852e-05 +5.4963e-04 +1.9942e-04
+       70 -1.0666e-06 +5.3703e-04 +1.8408e-04
+       71 +5.7884e-06 +5.1233e-04 +1.4047e-04
+       72 +2.0709e-06 +5.9897e-04 +2.1810e-04
+       73 -2.1966e-06 +5.7107e-04 +3.8991e-05
+       74 -4.0685e-09 +4.8424e-04 +6.9821e-05

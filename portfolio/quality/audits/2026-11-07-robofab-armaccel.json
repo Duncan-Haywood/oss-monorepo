@@ -28,7 +28,8 @@
   {
    "severity": "medium",
    "what": "Wrist acceleration and jaw-force path (the source of every headline force number) has no effective test: flipping G+az to G-az or dropping the centripetal term passes all 10 tests; the one test meant for it moves (0,0) to (0,0) and asserts nothing",
-   "where": "research/robofab-armaccel/tests/test_model.py:67"
+   "where": "research/robofab-armaccel/tests/test_model.py:67",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "medium",
@@ -38,7 +39,8 @@
   {
    "severity": "low",
    "what": "README says 9 tests, 10 exist",
-   "where": "research/robofab-armaccel/README.md:14"
+   "where": "research/robofab-armaccel/README.md:14",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   },
   {
    "severity": "low",
@@ -48,9 +50,10 @@
   {
    "severity": "low",
    "what": "JSON written through an unclosed open() with a cwd-relative path",
-   "where": "research/robofab-armaccel/experiments/run.py:96"
+   "where": "research/robofab-armaccel/experiments/run.py:96",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16542"],
  "verdict": "A tidy, honest, stdlib-only calculation whose numbers are right: I rederived the torques and jaw forces with a different method and matched all six per-part times and forces for the 0.12 m, 5 N m case, and the run reproduces byte for byte. The disclaimers are unusually candid. It falls short of the bar on verification (the jaw-force path that yields the headline can be broken without a test failing) and on fitness/domain (all ingredients are textbook, nothing is compared with prior work, the model omits base yaw and motor limits, the paper is a stub). Finished against its own README, correct inside its model, not publishable and not usable as an arm or gripper specification."
 }

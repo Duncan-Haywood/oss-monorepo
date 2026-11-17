@@ -1,0 +1,51 @@
+record 220099 samples, 440.2 s; case (b): PVG 32 orifice floor, spools E, E, p_n 5.0; q_sb 0; engine speed measured, leak 2.5 L/min
+data check: demand above the 63 cc pump's geometric flow (no leak) in 16.3% of samples with demand > 2 L/min (excess median 3.0, p99 29.0 L/min); the authors' pump flow estimate equals the summed valve flows (mean gap 2.90e-15 L/min) and their angle estimate there has median 1.055 (> 1 is beyond full stroke), so the excess is in the velocity-derived flows; load-sensing's own 63 cc limit is charged so it cancels in the net time ratio
+check: vg = 63 cc reproduces 5t/5v under (b): m* 87.0 bar, p_s 99.5 bar
+check: in every slowed sample, pump flow x stretched time = demanded volume (energy identity behind parts(vg))
+check: numpy open-centre time equals the tested stdlib measured.slowed_time on the first 50,000 samples (32 cc)
+
+whole record, sweep of the fixed open-centre pump (case b)
+  Vg cc   m* bar      r    p_s   p_q  beta  idle  shortfall%  T_oc/T_ls  (T_oc s, T_ls s)
+     63     87.0  1.793   99.5 133.9 0.995   4.4       23.4     0.9997  (444.5, 444.6)
+     56     70.7  1.658   96.1 133.9 0.995   3.8       40.0     1.0287  (457.4, 444.6)
+     50     58.9  1.557   93.2 133.9 0.995   3.3       44.7     1.0670  (474.4, 444.6)
+     45     49.9  1.477   90.7 133.9 0.995   2.9       47.6     1.1096  (493.3, 444.6)
+     40     41.6  1.402   87.9 133.9 0.995   2.5       50.7     1.1659  (518.4, 444.6)
+     36     35.4  1.344   85.4 133.9 0.995   2.2       53.0     1.2248  (544.6, 444.6)
+     32     29.6  1.289   82.7 133.9 0.995   1.9       55.4     1.3012  (578.5, 444.6)
+     28     24.2  1.237   79.5 133.9 0.995   1.6       57.8     1.4033  (623.9, 444.6)
+     25     20.5  1.200   76.7 133.9 0.995   1.3       59.6     1.5046  (669.0, 444.6)
+
+V_eq (linear interpolation on the sweep, as registered) 28.49 cc
+V_eq (bisection) 28.51 cc: m* 24.90 bar, r 1.244, p_s 80.0, p_q 133.9, beta 0.995, idle 1.6 bar; T_oc/T_ls 1.3885; shortfall 57.5% of OC-moving samples
+  terms: beta (r-1) p_s 19.4, drop 3.9, idle 1.6 bar
+  pump flow at V_eq: mean 40.7 L/min (63 cc: 92.9); demand p50/p90/p99 while moving 55.9/106.6/126.9 L/min
+
+per Y-cycle (18 cycles): m*_c and net time ratio, median (min to max)
+   63.00 cc: m*_c   81.2 (  59.0 to  143.0); time ratio 0.9997 (0.9995 to 0.9999); cycles with m*_c <= 24.9: 0
+   56.00 cc: m*_c   66.0 (  47.8 to  120.4); time ratio 1.0298 (1.0170 to 1.0440); cycles with m*_c <= 24.9: 0
+   50.00 cc: m*_c   55.1 (  39.4 to  102.7); time ratio 1.0714 (1.0449 to 1.0990); cycles with m*_c <= 24.9: 0
+   45.00 cc: m*_c   46.7 (  32.9 to   88.4); time ratio 1.1175 (1.0801 to 1.1590); cycles with m*_c <= 24.9: 0
+   40.00 cc: m*_c   38.2 (  27.2 to   74.6); time ratio 1.1784 (1.1207 to 1.2377); cycles with m*_c <= 24.9: 0
+   36.00 cc: m*_c   31.9 (  22.9 to   63.8); time ratio 1.2425 (1.1620 to 1.3184); cycles with m*_c <= 24.9: 2
+   32.00 cc: m*_c   26.7 (  19.2 to   53.2); time ratio 1.3259 (1.2149 to 1.4217); cycles with m*_c <= 24.9: 6
+   28.00 cc: m*_c   21.9 (  16.1 to   42.8); time ratio 1.4339 (1.2849 to 1.5583); cycles with m*_c <= 24.9: 12
+   25.00 cc: m*_c   18.5 (  13.8 to   35.4); time ratio 1.5405 (1.3548 to 1.6936); cycles with m*_c <= 24.9: 15
+   28.51 cc: m*_c   22.5 (  16.4 to   44.1); time ratio 1.4183 (1.2747 to 1.5385); cycles with m*_c <= 24.9: 12
+  Spearman(r at 63 cc, time ratio at V_eq) -0.686
+
+trade: per step down the sweep, break-even margin lost per percent of extra record time
+  63 -> 56 cc: m* - 16.2 bar, time + 2.898% (     5.6 bar per %)
+  56 -> 50 cc: m* - 11.8 bar, time + 3.827% (     3.1 bar per %)
+  50 -> 45 cc: m* -  9.0 bar, time + 4.262% (     2.1 bar per %)
+  45 -> 40 cc: m* -  8.3 bar, time + 5.632% (     1.5 bar per %)
+  40 -> 36 cc: m* -  6.2 bar, time + 5.893% (     1.0 bar per %)
+  36 -> 32 cc: m* -  5.8 bar, time + 7.639% (     0.8 bar per %)
+  32 -> 28 cc: m* -  5.4 bar, time +10.205% (     0.5 bar per %)
+  28 -> 25 cc: m* -  3.8 bar, time +10.135% (     0.4 bar per %)
+
+W1 HOLDS (m* > 24.9 for every Vg >= 40 cc: at 40 cc 41.6)
+W2 HOLDS (V_eq in 25 to 40 cc: 28.49)
+W3 HOLDS (net time ratio at V_eq > 1.25: 1.3885)
+W4 HOLDS (p_s at V_eq < 99.5: 80.0)
+W5 HOLDS (Spearman(r63, time ratio at V_eq) < -0.5: -0.686)

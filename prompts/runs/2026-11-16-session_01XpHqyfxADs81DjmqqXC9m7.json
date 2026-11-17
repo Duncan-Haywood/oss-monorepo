@@ -1,0 +1,363 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfxADs81DjmqqXC9m7",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T11:39:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16561",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Edited the post's front matter while run_workflow_locally was sweeping, which voided portfolio-validate/portfolio-pages; shorts.test.mjs failed in that sweep and passes alone (10/10).",
+      "fix": "Re-ran portfolio-validate.yml on a still tree."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 9 entries, every one a control-plane fix waiting on owner approval; a scheduled run can do nothing with them, but the prompt reads as if it must clear them before seeding. A filter (redteam.py open --actionable) would save the read."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The suggested `git log --since=3.days --name-only origin/main` prints nothing on the shallow clone (depth 1), so it can't pick a recently changed target."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix open entries first; all 9 are control-plane (.github/workflows, prompts/, platform/ci guards) needing an owner-approved PR.",
+      "did": "Left them untouched and seeded faults.",
+      "result": "The run spent its time on product defects instead (3 found, 3 fixed)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b prefers a repo-wide lint for the class. A '40-hex' lint would be mostly false positives, because GitHub action and PR SHAs are rightly SHA-1 only.",
+      "did": "Swept the 15 such patterns by hand and fixed the one that parses raw git output (git-exposure-check); the rest are GitHub-SHA checks.",
+      "result": "One sibling defect fixed; no lint added."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-timesheet-that-could-not-read-sha-256-repositories.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: git-timesheet/usage.mjs 8/8 caught (random draw); engine.mjs 6/10 caught, 4 gaps -> tests, 10/10 after. Guard added: per-product tests only; the class check was a manual sweep of 40-hex regexes (ventures/requirements-pin-check's VCS @sha pin would read a 64-hex pin as unpinned, which errs on the safe side, so it was left). Local checks: run_venture_tests git-timesheet + git-exposure-check: 101 tests ok; run_workflow_locally --for-changes: see PR. run_workflow_locally --for-changes: ventures-tests, pages, doc-refs, page-integrity, link-contrast, sibling-links and others green; portfolio-validate re-run after a post front-matter fix (description 168>160 chars); agent-cross-review and deploy jobs can't run locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/git-timesheet/usage.mjs",
+        "test": "node --test ventures/git-timesheet/**/*.test.mjs  (in .)",
+        "seed": 86123331,
+        "commit": "28ed462e8",
+        "sites": 24,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 11,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "return typeof localStorage === \"undefined\";",
+            "after": "return typeof localStorage !== \"undefined\";",
+            "line_text": "    return typeof localStorage === \"undefined\";",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 38,
+            "col": 9,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "  return false;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 49,
+            "col": 15,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current && typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 49,
+            "col": 33,
+            "operator": "neq-flip",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current === \"object\" || Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 49,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== \"object\" && Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 50,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 1) + 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 62,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed !== \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/usage.mjs",
+            "line": 62,
+            "col": 48,
+            "operator": "and-to-or",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed === \"object\" || !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/git-timesheet/engine.mjs",
+        "test": "node --test ventures/git-timesheet/**/*.test.mjs  (in .)",
+        "seed": 828894704,
+        "commit": "28ed462e8",
+        "sites": 69,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 14,
+            "col": 28,
+            "operator": "const-plus-one",
+            "before": "const m = /^([0-9a-f]{4,40})\\|([^|]*)\\|(\\d{4}-\\d\\d-\\d\\dT[\\d:.]+(?:Z|[+-]\\d\\d:?\\d\\d))\\|(.*)$/.exec(line);",
+            "after": "const m = /^([0-9a-f]{4,41})\\|([^|]*)\\|(\\d{4}-\\d\\d-\\d\\dT[\\d:.]+(?:Z|[+-]\\d\\d:?\\d\\d))\\|(.*)$/.exec(line);",
+            "line_text": "    const m = /^([0-9a-f]{4,40})\\|([^|]*)\\|(\\d{4}-\\d\\d-\\d\\dT[\\d:.]+(?:Z|[+-]\\d\\d:?\\d\\d))\\|(.*)$/.exec(line);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": null,
+            "note": "gap: no test pinned the hash length; also exposed real defect #0 (SHA-256 repos rejected). New test: 64-hex accepted, 65-hex rejected. [rerun: line changed; triage by hand] rerun reported the line changed (the fix rewrote it); re-applied by hand as {4,64}->{4,65} on the new line 15: the new test fails (not ok 11), so caught after fix."
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 29,
+            "col": 38,
+            "operator": "times-to-div",
+            "before": "if (last && c.t - last.end <= gap * 60000) { last.end = c.t; last.commits.push(c); }",
+            "after": "if (last && c.t - last.end <= gap / 60000) { last.end = c.t; last.commits.push(c); }",
+            "line_text": "    if (last && c.t - last.end <= gap * 60000) { last.end = c.t; last.commits.push(c); }",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 36,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const round2 = (n) => Math.round(n * 100) / 100;",
+            "after": "const round2 = (n) => Math.round(n * 101) / 100;",
+            "line_text": "const round2 = (n) => Math.round(n * 100) / 100;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 50,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "const d = days.get(s.day) || { day: s.day, minutes: 0, commits: [] };",
+            "after": "const d = days.get(s.day) || { day: s.day, minutes: 1, commits: [] };",
+            "line_text": "    const d = days.get(s.day) || { day: s.day, minutes: 0, commits: [] };",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test checked per-day hours. New test asserts each day's hours."
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 56,
+            "col": 46,
+            "operator": "plus-to-minus",
+            "before": "const minutes = byAuthor.reduce((n, a) => n + a.minutes, 0);",
+            "after": "const minutes = byAuthor.reduce((n, a) => n - a.minutes, 0);",
+            "line_text": "  const minutes = byAuthor.reduce((n, a) => n + a.minutes, 0);",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 69,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "if (cc) return { type: cc[1].toLowerCase(), text: cc[2] };",
+            "after": "if (cc) return { type: cc[1].toLowerCase(), text: cc[3] };",
+            "line_text": "  if (cc) return { type: cc[1].toLowerCase(), text: cc[2] };",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 82,
+            "col": 40,
+            "operator": "gt-to-ge",
+            "before": "if (showAuthors && sum.authors.length > 1) {",
+            "after": "if (showAuthors && sum.authors.length >= 1) {",
+            "line_text": "  if (showAuthors && sum.authors.length > 1) {",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: single-author reports never checked for the absent contributor table. New test."
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 108,
+            "col": 25,
+            "operator": "plus-to-minus",
+            "before": "return rows.join(\"\\n\") + \"\\n\";",
+            "after": "return rows.join(\"\\n\") - \"\\n\";",
+            "line_text": "  return rows.join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 114,
+            "col": 23,
+            "operator": "and-to-or",
+            "before": "if (maxHours != null && sum.hours > maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);",
+            "after": "if (maxHours != null || sum.hours > maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);",
+            "line_text": "  if (maxHours != null && sum.hours > maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/git-timesheet/engine.mjs",
+            "line": 114,
+            "col": 36,
+            "operator": "gt-to-ge",
+            "before": "if (maxHours != null && sum.hours > maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);",
+            "after": "if (maxHours != null && sum.hours >= maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);",
+            "line_text": "  if (maxHours != null && sum.hours > maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no boundary test at exactly --max-hours. New test: equal passes, 0.01 over fails."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/git-timesheet/engine.mjs",
+        "issue": "parseLog accepted hashes of 4-40 hex only, so a SHA-256 repository (git init --object-format=sha256, %H is 64 hex) had every line rejected: the CLI exited 2 'no commits parsed' and the page showed nothing. Reproduced with a real sha256 repo. Fixed: {4,64}, with a test.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16561"
+      },
+      {
+        "file": "ventures/git-timesheet/engine.mjs",
+        "issue": "gate() skipped --max-amount when no --rate was given (amount null), so `cli.mjs --max-amount 1` exited 0 'within limits': a CI/cron budget gate that can never fire. Fixed: gate fails with '--max-amount N cannot be checked without --rate' (exit 1), with engine and CLI tests.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16561"
+      },
+      {
+        "file": "ventures/git-exposure-check/analyze.mjs",
+        "issue": "HEAD_DETACHED_RE accepted only 40 hex, so a detached HEAD from a SHA-256 repository (64 hex) was not recognised: with config also readable the site was downgraded from git-directory-exposed to git-config-exposed; with only HEAD readable the exposure was missed. Found by sweeping for the git-timesheet hash-length class. Fixed: 40 or 64 hex, test first; page copy updated.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16561"
+      }
+    ]
+  }
+}

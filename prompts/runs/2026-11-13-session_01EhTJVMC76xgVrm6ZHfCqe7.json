@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVMC76xgVrm6ZHfCqe7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products; merge when done.",
+  "input_sha256": "81cce4695fb80157924b6c22d20d8ba6981a45ca77882284ef71cf8b87115a95",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T06:34:01Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 8) quick-pick-survey: item (a), a pooled spread fit that carries each person's lapse share in the likelihood, scored against the oracle on the gated sweep's mixed panels",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 15395,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "promptctl route drew research/0, but the scheduled prompt asks for revenue-product work, so the run followed the ventures track and allocate.py's assigned flagship row (quick-pick-survey) instead",
+      "did": "ventures/1 track, flagship 8 item (a)",
+      "result": "item (a) measured and closed with a negative result, written up with data"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-a-lapse-hides-on-a-ridge.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#a-pooled-spread-that-models-the-lapse"
+  ],
+  "goal": null,
+  "notes": "Built src/lib/lapsePool.ts (lapse-aware importance-sampled evidence on a 7-point lapse grid, Fisher-precision proposal, EM-profiled or fixed Beta(1,19) lapse weights, upper end of the phi likelihood interval). 72-cell sweep (scripts/gated-upper-sweep.ts --lapse-pool, docs/lapse-pool-2026-11-13.jsonl): EM lapse-pool upper end at 1.85-1.96 of the 2.02 ceiling everywhere, so intervals equal the fixed prior's (safe, no gain); Beta(1,19) lapse-prior tracks the lapse-blind pool within 0.012 (honest 0.903 vs fixed 0.968 at half careless lapse 0.4 shipped). scripts/lapse-ridge.ts shows the spread-lapse ridge: honest shipped panel drop to phi 2 is 17.6 nats at e=0, 3.0 with EM weights. Not shipped; flagships next rewritten. Checks: vitest lapsePool.test.ts 12/12 (a mutation dropping the lapse term fails the coin-flipper test); tsc --noEmit exit 0, eslint clean on changed files, vitest fast suite 48 files / 463 tests passed; post frontmatter/links/similarity checks pass.",
+  "corrections": [],
+  "redteam": null
+}

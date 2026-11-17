@@ -25,6 +25,7 @@ import {
   readWorkflowSource,
 } from './estimate.mjs';
 import { UnsupportedYamlError } from './workflow-yaml.mjs';
+import { pathToFileURL } from 'node:url';
 
 const USAGE = `Estimate monthly GitHub Actions minutes and cost from workflow files.
 
@@ -270,7 +271,7 @@ export async function main(argv) {
 }
 
 const invokedDirectly =
-  process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href;
+  process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedDirectly) {
   main(process.argv.slice(2)).then((code) => {
     process.exitCode = code;

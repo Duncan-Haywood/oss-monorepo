@@ -50,35 +50,38 @@ export const DEFAULT_OPTIONS = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 export function parseDate(value) {
   const s = String(value ?? "").trim();
   if (!s) return null;
-  let iso = s;
-  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z";
+  let iso = s, ymd = null;
+  if (/^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s)) { iso = s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + "Z"; ymd = s.slice(0, 10); }
   else if (/^\d{9,10}$/.test(s)) return new Date(Number(s) * 1000);
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(d.getTime()) || (ymd && d.toISOString().slice(0, 10) !== ymd) ? null : d;
 }
 
 export function parseAmount(value) {
@@ -130,7 +133,7 @@ export function normalizeRows(table) {
   }
   currency = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] || "";
   for (let i = 1; i < table.length; i++) {
-    const r = table[i], line = i + 1;
+    const r = table[i], line = table[i].line ?? i + 1;
     const status = get(r, "status").toLowerCase();
     if (IGNORED.has(status)) { ignored++; continue; }
     if (!SETTLED.has(status)) { skipped.push({ line, reason: `status “${get(r, "status")}” not recognised` }); continue; }

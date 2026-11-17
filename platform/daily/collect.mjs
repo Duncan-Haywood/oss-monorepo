@@ -288,6 +288,7 @@ export function snapshotOf(stats) {
     pr_cycle_p50: gh?.pr_cycle_hours?.p50 ?? null,
     first_try_green: gh?.ci_pr?.first_try_green_share ?? null,
     branches: gh?.branches?.count ?? null,
+    owner_held: gh?.owner_held?.available ? gh.owner_held : null,
   };
 }
 

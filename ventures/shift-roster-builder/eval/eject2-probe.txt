@@ -1,0 +1,14 @@
+# Two-shift eject in the kept start (keptEject2), 2026-11-13. keepShift 1, default options, exact check on, one 4-core cloud machine.
+# 'tried': a person whose every clashing shift (2 or more, none started) could be given up to take an open shift under the hard rules;
+# 'taken': that move lowered the score and was made. Counted with a scratch copy of calc.mjs (counters not committed).
+templates (56 call-outs)   EJ2 tried 6  taken 0  one-shift eject taken 10
+20x56 2 weeks (24)        EJ2 tried 4  taken 0  one-shift eject taken 5
+30x84 2 weeks (24)        EJ2 tried 6  taken 0  one-shift eject taken 9
+40x112 2 weeks (24)       EJ2 tried 2  taken 0  one-shift eject taken 16
+cafes, both (41), every keep variant  EJ2 tried 40 taken 0  one-shift eject taken 36
+
+# keptEject2 on vs off (OPTS='{"keptEject2":false}'), every call-out's open hours, changes, premium and pay identical:
+on  TOTAL 40x112 keep/shift 1  open 3822 h, changes to others 37, premiums $697.00, pay $295476.00, proven 20/24, 118.0 s
+off TOTAL 40x112 keep/shift 1  open 3822 h, changes to others 37, premiums $697.00, pay $295476.00, proven 20/24, 117.6 s
+on  TOTAL 60x168 keep/shift 1  open 7337 h, changes to others 26, premiums $451.00, pay $457398.00, proven 12/24, 362.4 s
+off TOTAL 60x168 keep/shift 1  open 7337 h, changes to others 26, premiums $451.00, pay $457398.00, proven 12/24, 361.9 s

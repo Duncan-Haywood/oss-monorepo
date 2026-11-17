@@ -17,7 +17,7 @@
     :root { color-scheme: light; --ink:#17221f; --muted:#60706b; --paper:#f5f1e8; --card:#fffdf8; --accent:#b54c2d; --line:#d9d1c1; }
     * { box-sizing:border-box; } body { margin:0; background:var(--paper); color:var(--ink); font:16px/1.5 system-ui,sans-serif; }
     main { max-width:980px; margin:auto; padding:48px 20px 64px; } header { max-width:760px; margin-bottom:28px; }
-    h1 { font:700 clamp(2.2rem,7vw,4.8rem)/.95 Georgia,serif; letter-spacing:-.06em; margin:0 0 18px; } h2 { font:700 1.45rem Georgia,serif; }
+    h1 { font:700 clamp(2.2rem,7vw,3rem)/.95 Georgia,serif; letter-spacing:-.06em; margin:0 0 18px; } h2 { font:700 1.45rem Georgia,serif; }
     .eyebrow { color:var(--accent); font-weight:800; letter-spacing:.12em; text-transform:uppercase; font-size:.78rem; }
     .lede { color:var(--muted); font-size:1.15rem; max-width:680px; } .value { border-left:4px solid var(--accent); padding-left:14px; font-weight:650; }
     .layout { display:grid; grid-template-columns:1fr 1fr; gap:18px; } .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px; box-shadow:0 8px 24px #51412712; }
@@ -73,10 +73,10 @@
     <p>Subcontractor Cash Flow Planner is free to use. Optional support: <a href="https://github.com/sponsors/Duncan-Haywood">GitHub Sponsors</a>. Keep a copy of important project assumptions outside this browser.</p>
   </footer>
 </main><script type="module">
-import { planCashflow, csvRow, CSV_FIELDS } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
+import { planCashflow, csvRow, CSV_FIELDS } from './calc.mjs'; import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs'; import { encodeInputs, decodeInputs } from './share.mjs';
 const form = document.querySelector('#planner'), result = document.querySelector('#result'), usage = document.querySelector('#usage'), shareStatus = document.querySelector('#shareStatus'); let latest;
-const money = (n) => new Intl.NumberFormat(undefined, {style:'currency', currency:'USD', maximumFractionDigits:0}).format(n);
-const cents = (n) => new Intl.NumberFormat(undefined, {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
+const money = (n) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:0}).format(n);
+const cents = (n) => new Intl.NumberFormat('en-US', {style:'currency', currency:'USD', maximumFractionDigits:2}).format(n);
 const metric = (label, value, cls = '') => `<div class="metric"><span>${label}</span><strong${cls ? ` class="${cls}"` : ''}>${value}</strong></div>`;
 // The verdict line answers the decision, not the arithmetic. A gap on its own
 // reads as "walk away"; a gap next to what it costs to carry usually does not,
@@ -110,7 +110,7 @@ function run(count = true) {
   result.innerHTML = rows.filter(Boolean).join('') + verdict(p);
   if (count) recordUsage('scenario_planned', usage.checked);
 }
-form.addEventListener('submit', (e) => { e.preventDefault(); run(); }); document.querySelector('#save').addEventListener('click', () => { localStorage.setItem('subcontractor-cashflow-draft', JSON.stringify(Object.fromEntries(new FormData(form)))); run(false); }); document.querySelector('#export').addEventListener('click', () => { if (!latest) run(false); const blob = new Blob([`field,value\n${csvRow(latest).split(',').map((v,i)=>`${CSV_FIELDS[i]},${v}`).join('\n')}`], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'subcontractor-cashflow-scenario.csv'; a.click(); recordUsage('csv_exported', usage.checked); });
+form.addEventListener('submit', (e) => { e.preventDefault(); run(); }); document.querySelector('#save').addEventListener('click', () => { try { localStorage.setItem('subcontractor-cashflow-draft', JSON.stringify(Object.fromEntries(new FormData(form)))); } catch { /* site data blocked or full: not saved */ } run(false); }); document.querySelector('#export').addEventListener('click', () => { if (!latest) run(false); const blob = new Blob([`field,value\n${csvRow(latest).split(',').map((v,i)=>`${CSV_FIELDS[i]},${v}`).join('\n')}`], {type:'text/csv'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'subcontractor-cashflow-scenario.csv'; a.click(); recordUsage('csv_exported', usage.checked); });
 document.querySelector('#shareLink').addEventListener('click', async () => {
   const fragment = encodeInputs(Object.fromEntries(new FormData(form)));
   const shareUrl = `${location.href.split('#')[0]}#${fragment}`;
@@ -125,7 +125,10 @@ document.querySelector('#shareLink').addEventListener('click', async () => {
 });
 const shared = decodeInputs(location.hash);
 const openedFromShareLink = Object.keys(shared).length > 0;
-const draft = openedFromShareLink ? null : JSON.parse(localStorage.getItem('subcontractor-cashflow-draft') || 'null');
+// Inside try: reading the global throws when site data is blocked, and a bad draft must not stop the page.
+let draft = null;
+if (!openedFromShareLink) { try { draft = JSON.parse(localStorage.getItem('subcontractor-cashflow-draft') || 'null'); } catch { draft = null; } }
+if (!draft || typeof draft !== 'object') draft = null;
 const restored = openedFromShareLink ? shared : draft;
 if (restored) for (const [key, value] of Object.entries(restored)) if (form.elements[key]) form.elements[key].value = value;
 run(false);
@@ -144,16 +147,16 @@ if (openedFromShareLink) recordUsage('shared_scenario_opened', usage.checked);
         // `enabled`. Painting it from `readOptOut` directly would uncheck it
         // on every fresh load and write an opt-out when the visitor checks
         // it: counting off in both states, and the control lying about which.
-        usageControl.checked = !readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, !usageControl.checked));
+        usageControl.checked = !readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), !usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

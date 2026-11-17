@@ -76,9 +76,12 @@ that preview downscaled to 1024 px (`proxies/<job>/IMG_0001.CR3.jpg`; synthetic 
 only, no real camera file yet). Since 2026-11-10 the pipeline develops DNG stills itself
 (see "Develop DNG raw files" below): the grade stage develops the sensor data into a 16-bit
 TIFF and grades that into `graded/<job>/IMG_0001.DNG.tif`, and a DNG with no embedded preview
-gets its proxy and its scores from a half-size development instead of failing. Other RAW
-formats (CR2, CR3, NEF, ARW, ...) are still scored from their preview but stop at the grade
-stage with a message to convert them to DNG (Adobe's free DNG Converter); one with no preview
+gets its proxy and its scores from a half-size development instead of failing. Since
+2026-11-12 a Canon CR2 is developed by the grade stage too, with its camera's `.dcp` profile
+from the workspace's `color/camera-profiles/` ("CR2 in the pipeline" below), and since
+2026-11-14 a Sony ARW, a Nikon NEF, an Olympus ORF, a Panasonic RW2, a Samsung SRW and a Pentax PEF the same way ("Sony ARW", "Nikon NEF",
+"Olympus ORF", "Panasonic RW2", "Samsung SRW" and "Pentax PEF" below), and a Fujifilm RAF too, X-Trans included ("Fujifilm RAF" below), and since 2026-11-15 a Canon CR3, full quality and C-RAW ("Canon CR3" below). Since 2026-11-15 the GH6-era RawFormat 8 RW2 too ("Lumix bodies from 2022 on" below). Since 2026-11-16 a C-RAW CR3 stored in several tiles too ("C-RAW in tiles" below). Other RAW formats (a CR3 with an unknown codec version, ...) are still scored from their preview but stop at the grade
+stage with a message to convert them to DNG (Adobe's free DNG Converter). A CR2 with no preview
 fails its proxy (`no embedded JPEG preview`) and keeps the sha256 stand-in scores. Camera-raw video is not decoded. The preview
 reader is tested on synthetic containers, not yet on real camera files. Since 2026-11-10 it
 counts only 8-bit lossy JPEGs as previews: CR2 sensor data is a lossless JPEG (SOF3) and DNG
@@ -103,7 +106,7 @@ through a detector you supply: set `SHOOTFLOW_FACE_DETECTOR` to a command that
 takes an image path and prints `{"faces": [{"size": 0.1, "eyes_open": 0.9}]}`
 (`src/shootflow/faces.py`). A prominent face (1% of the frame or more) with eyes
 open adds 0.03 to `story_score`; the least-open eye costs up to 0.25; off by
-default, run without a shell, and any failure keeps the measured score. `tools/opencv_face_detector.py` (2026-10-29) is a reference detector for that contract: OpenCV Haar
+default, run without a shell, and any failure keeps the measured score. Since 2026-11-16 the recommended detector is `tools/mediapipe_face_detector.py`: Google's MediaPipe Face Landmarker (Apache 2.0, a 3.8 MB model you download once, path in `SHOOTFLOW_FACE_LANDMARKER`; on Linux `apt-get install libegl1 libgles2`) reads each lid's blink score, searches the frame in tiles so group shots' small faces are found, and averages the score over every view of a face. On 105 real CC0 photos it flagged 5 of 6 closed-eye photos and none of the other 99; the Haar detector below flagged 3 of 6 and 8 of 99 (open eyes behind sunglasses or narrowed by a smile, a sleeping cat). The labels are an agent's, not a photographer's, and the open/shut margin was thin (blink 0.44 against 0.50): `eval/blink-landmarker-2026-11-16.md`. A face cut in half by the frame edge, which no face finder sees, is searched for in each edge's strip mirrored across the edge (later on 2026-11-16): the set's one miss is now flagged (6 of 6, still 0 of 99), and of 40 half faces cut from the set's own faces 20 are found instead of none, 19 reading the same as the whole face (16 of 18 faces over 100 px wide; `eval/blink-edge-mirror-2026-11-16.md`). `tools/opencv_face_detector.py` (2026-10-29) is the older reference detector for that contract: OpenCV Haar
 cascades (`pip install "opencv-python-headless<5"`; 5.x dropped the cascade classifier), on your machine, nothing
 uploaded. `eyes_open` is 0.95, 0.5 or 0.1 for two, one or no eyes found in the upper face, and null under 70 px wide.
 It is a classical detector, not a blink classifier: the eye cascade was trained on open eyes, so sunglasses,
@@ -913,19 +916,20 @@ white balance with camera multipliers. Stdlib only, like the rest of ShootFlow
 the same arithmetic and writes the same bytes (`src/shootflow/raw_develop_np.py`, below;
 `--engine python|numpy` to choose, default `auto`).
 
-What it reads: DNG (convert CR2, CR3, NEF and ARW with Adobe's free DNG Converter first), raw
+What it reads: DNG, and Canon CR2, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF and Canon CR3 with a `.dcp` profile (CR2 since 2026-11-12, ARW, NEF, ORF, RW2, SRW, PEF and RAF since 2026-11-14, CR3 since 2026-11-15, C-RAW included, "Sony ARW", "Nikon NEF", "Olympus ORF", "Panasonic RW2", "Samsung SRW", "Pentax PEF", "Fujifilm RAF" and "Canon CR3" below), raw
 data in IFD0 or a SubIFD, in strips or tiles, uncompressed 8/16-bit or packed 10-14-bit, or
 lossless JPEG (SOF3, all seven predictors, restart markers, multi-component tiles); 2x2
 RGB colour filter arrays in any phase, and LinearRaw. It applies the linearization table,
 black level (repeat pattern and row/column deltas), white level, active area, default crop,
-`AsShotNeutral`, the camera matrix nearest D65 through sRGB primaries (the method dcraw uses),
-`BaselineExposure` and the orientation tag. It refuses, with the reason, lossy DNG, deflate
+`AsShotNeutral` or `AsShotWhiteXY`, the DNG specification's colour model (both camera
+matrices blended for the light the photo was taken in, `ForwardMatrix`, `CameraCalibration`,
+`AnalogBalance`; next section), `BaselineExposure` and the orientation tag. It refuses, with the reason, lossy DNG, deflate
 and floating-point DNG, four-colour CFAs and non-DNG files.
 
-What it does not do: interpolate the two camera matrices by colour temperature, use
-`ForwardMatrix`, `CameraCalibration` or DNG profile hue maps, reconstruct blown highlights,
-reduce noise, or use a better demosaic than bilinear. Colours will be close to dcraw and
-LibRaw's plain rendering, not to Lightroom's. Masters are neutral on purpose: the look is the
+What it does not do: use DNG profile hue/saturation maps or look tables, a third
+calibration illuminant (DNG 1.6 `ColorMatrix3`), reconstruct blown highlights, reduce noise,
+or use a better demosaic than bilinear. Colours follow the DNG specification's matrices, not
+Adobe's full profiles, so they will still differ from Lightroom's. Masters are neutral on purpose: the look is the
 grade stage's job, and since 2026-11-10 the pipeline's grade stage calls the developer for
 every DNG still (below).
 
@@ -952,7 +956,7 @@ How it was checked:
   per-channel black about 1026, white 15600), both from rawpy's test folder on GitHub. LibRaw
   reads the sensor data and metadata, the tool writes them into an uncompressed DNG, and our
   render of that DNG is compared with LibRaw's own render set to the same steps (bilinear,
-  camera white balance, clip, no auto-brightening, sRGB). Every pixel agrees within one 8-bit
+  camera white balance, clip, no auto-brightening, sRGB; since 2026-11-12 the tool asks for `--colour dcraw`, the model LibRaw uses). Every pixel agrees within one 8-bit
   step at full size and at half size (worst pixel 0.46 to 0.60 of a step, mean 0.08 to 0.12).
   The first run on the Canon had 10% of pixels over one step, all in the deep shadows: we
   clamped below-black noise after demosaicing and LibRaw clamps each sensel before; matching
@@ -960,7 +964,8 @@ How it was checked:
   This checks the levels, white balance, matrix, demosaic and curve on real sensor data. It
   does not check our reading of a DNG written by a camera or Adobe's converter (the DNGs here
   are written by our tool), and no camera-written lossless-JPEG DNG was available (raw.pixls.us
-  and rawsamples.ch answer 403 from the build sandbox).
+  and rawsamples.ch answer 403 from the build sandbox; on 2026-11-15 raw.pixls.us answered and served
+  real Fujifilm files, `eval/fujifilm-compressed-raf-2026-11-15.md`).
 - In the pipeline (`eval/pipeline-dng-grade-2026-11-10.md`): `run-local-pipeline` on a card
   holding the Nikon's sensor data as a DNG (no embedded preview) and one clip rendered every
   deliverable with nothing for review in 75 s. The graded master is 4284x2844 rgb48le and
@@ -1009,3 +1014,1647 @@ How it was checked:
   256x256-sensel tile 27-30 ms to 18-21 ms. Same samples as the pure pass on all 345 encoder
   cases and sensel-for-sensel equal to LibRaw on the CR2. `raw_develop.DECODE_ENGINE`
   (`auto`, `python`, `numpy`) chooses; the Huffman pass is now about 85% of decoding.
+- Point-transform scans in C (2026-11-14, `eval/point-transform-c-2026-11-14.md`): a
+  lossless-JPEG scan with a non-zero point transform now predicts and shifts in C too, off the
+  GIL, instead of falling back to the numpy or Python pass: 4x (predictor 1) to 54x
+  (predictor 6) faster on a synthetic 1,000 x 750 scan, identical samples. No real camera file
+  we have uses a point transform, so measured reads do not change. `parse_raw` also allocates
+  the raw plane once (peak 50 MB to 24 MB on a 12-megasensel DNG).
+
+- Huffman pass in native code (2026-11-12, `eval/ljpeg-native-huffman-2026-11-12.md`): an
+  optional C reader (`shootflow/ljpeg_native.py`, about 40 lines of C kept as a string,
+  compiled with the system `cc` on first use into `~/.cache/shootflow` and loaded with
+  `ctypes`; no package, nothing downloaded) reads the Huffman differences through one 16-bit
+  prefix table per component. On the Canon CR2 stream the whole decode goes from 8.8-11.7 s to
+  1.2-1.7 s (0.7-1.1 s on the array path `develop` takes; the C call itself 0.48 s), a DNG-shaped
+  256x256-sensel tile from 17 ms to 1.3 ms. Same samples as the pure loop on every encoder case
+  and on the CR2, and still 0 of 22,032,768 sensels different from LibRaw. No compiler, Windows
+  or `SHOOTFLOW_NATIVE=0`: the pure loop runs. `raw_develop.HUFFMAN_ENGINE` (`auto`, `python`,
+  `native`) chooses; an invalid code falls back to the pure loop, which raises as before.
+
+## Develop a Canon CR2 directly (2026-11-12)
+
+`shootflow develop IMG_0001.CR2 --dcp "Canon EOS 5D Mark II Adobe Standard.dcp" --out DIR`
+develops a Canon CR2 with no DNG Converter step. A CR2's sensor is the same lossless JPEG a DNG
+tile is (the decoder above, native Huffman reader included), cut into vertical slices that
+`src/shootflow/cr2.py` puts back side by side. What a DNG states in tags, the reader finds:
+
+- **Image area** from the maker note's SensorInfo (tag 0x00E0) borders; the rest is masked.
+- **Black level** per 2x2 position: the median of the masked columns left of the image.
+- **White level**: read from the picture when the frame has clipped sensels (since the same
+  day, "Five Canon bodies" below): a pile of at least 64 sensels on one 2x2 position's maximum,
+  8 times the values just below it and well above black, is the clip, and the lowest such pile
+  is the white level. Otherwise the top of the stream's precision (16,383 at 14 bits), which
+  changes nothing when nothing clipped. LibRaw's per-model table (15,600 for the 5D Mark II,
+  13,584 for the 7D) is not copied.
+- **As-shot white balance** from ColorData (tag 0x4001), whose version is told by its length
+  (ExifTool's documented layouts; unknown versions develop unbalanced and say so).
+- **CFA phase**: a CR2 has no CFAPattern tag and the phase differs between bodies, so it is
+  read from the picture: the green diagonal is the pair of 2x2 positions that agree most, and
+  red is told from blue by the as-shot balance, or, when that balance is too close to neutral,
+  by the sign of the correlation between the two non-green positions and the RGB thumbnail's
+  red/blue across a 12 x 8 grid (needs |r| of at least 0.8; a clear thumbnail that contradicts
+  a clear balance is refused). When these are unclear the file is refused with a request for
+  `--cfa RGGB|GRBG|GBRG|BGGR`, never guessed. (The thumbnail cannot place the green diagonal:
+  on the 5D Mark II it is framed differently and matched no phase clearly. Red against blue
+  needs only a sign, which survives the framing.)
+- **Colour** needs a camera profile: a CR2 has no colour matrix. Adobe's free DNG Converter
+  installs one `.dcp` per camera (`CameraRaw/CameraProfiles/Adobe Standard/` under
+  `ProgramData` on Windows or `/Library/Application Support/Adobe` on macOS); dcamprof and
+  RawTherapee write them too. Without `--dcp` the command stops and says so.
+
+Checked (`eval/cr2-direct-2026-11-12.md`, `tools/cr2_develop_check.py`): on the real Canon
+5D Mark II CR2 from rawpy's test folder, the image area is LibRaw's crop to the pixel
+(56, 168, 3744 x 5616), the black levels are within 2 of LibRaw's, the CFA phase found (GBRG)
+is LibRaw's, the white balance is LibRaw's camera multipliers, and, developed with a profile
+built at run time from LibRaw's own matrix for the camera, the half-size render is within
+0.61 of an 8-bit step of LibRaw's at the median (3.9 at the 99th percentile; channel means
+within 3%). Full size, 21 MP to a 16-bit TIFF: 4.3 s with numpy and the native Huffman reader.
+`tests/test_cr2.py` (12 tests) builds CR2s with a known scene behind each of the four CFA
+phases and checks every inferred tag, the refusals (unclear phase, sRAW, no profile), a grey
+patch rendering neutral, the numpy and pure engines byte for byte, and the CLI. Not done: a
+real Adobe profile (not in the build container), sRAW/mRAW and CR3. (The pipeline's grade stage
+reads CR2 since later the same day: "CR2 in the pipeline"; four more bodies on real files:
+"Five Canon bodies".)
+
+## Five Canon bodies on real files (2026-11-12)
+
+Real full-size CR2s from the 350D (12-bit, ColorData1), 600D (ColorData6), 70D (ColorData7)
+and 7D (ColorData4), from the public metadata-extractor-images collection, joined the 5D Mark
+II (`eval/cr2-five-bodies-2026-11-12.md`, `tools/cr2_ljpeg_check.py`,
+`tools/cr2_develop_check.py`). Against LibRaw on all five: 0 sensels different, the image area
+to LibRaw's crop, black levels within 2, the as-shot white balance equal, and the CFA phase
+LibRaw's. Two bodies needed changes:
+
+- **The 70D was refused.** Its as-shot balance is nearly neutral (red level 1,993, blue
+  1,964), so the balance cannot tell red from blue. The RGB thumbnail now decides when the
+  balance cannot: its red/blue correlates with the two non-green positions at +0.99 when the
+  first is red, -0.98 to -0.99 when it is blue, on four of the five bodies (the dim ISO 3200
+  5D Mark II frame gives -0.06, so there the balance alone decides, as before). The 70D now
+  develops as RGGB, LibRaw's phase.
+- **The 7D's highlights were pink.** Its greens clip at 12,649 and 12,650 (25,793 sensels
+  piled there), not at 16,383. Read as 16,383, the 14,224 clipped half-size pixels rendered a
+  pinkish grey (mean 0.94, 0.87, 0.87; none white). With the clip level read from the frame
+  they render white (mean 0.998, 1.000, 0.981; 69% at 0.97 or more in every channel).
+  LibRaw's table value for the body, 13,584, would also leave them grey.
+
+The other three frames have no pile at the clip, so their white level stays 16,383 (4,095 on
+the 12-bit 350D, whose pile sits at full scale). Rendered against LibRaw with LibRaw's matrix,
+the median difference first measured 3.0-5.6 8-bit steps, with ShootFlow 3-9% brighter in every
+channel. That gap was the check's own fault (next section). Speed with numpy: read 0.3-0.7 s.
+
+## Sony ARW (2026-11-14)
+
+Until now Sony's raw files had to go through Adobe's DNG Converter first. `shootflow develop DSC00001.ARW --dcp PROFILE.dcp` (or `--dcp FOLDER`,
+chosen per camera as for CR2) now reads the ARW itself, and the pipeline's grade stage develops
+ARW stills with the workspace's `color/camera-profiles/` like CR2 (`src/shootflow/arw.py`).
+
+What it reads: all three ways Sony stores the sensor. Compressed RAW (every Alpha and NEX body
+since about 2008): 16-byte blocks of 16 same-colour sensels (an 11-bit maximum and minimum, their
+positions, fourteen 7-bit deltas with a shift), through the tone curve the file's SonyToneCurve tag
+gives; this format is lossy in the camera, and the reader returns exactly what the camera kept.
+Uncompressed 14-bit. Lossless compressed (A7 IV, A1, A7R V and later): 512 x 512 tiles, each a
+four-component lossless JPEG of 2x2 Bayer cells, decoded by the same lossless-JPEG decoder DNG
+and CR2 use, on every CPU. Black level and as-shot white balance come from the raw IFD on newer
+bodies and from the SR2 sub-IFD on older ones, which Sony encrypts with a key-seeded shift
+register (an independent implementation of the scheme dcraw and ExifTool describe). Newer
+bodies' DefaultCrop is applied; older ones carry none and develop at the full stored width.
+
+Like a CR2, an ARW carries no colour matrix the DNG colour model can use, so it needs the camera's
+`.dcp` (Adobe's free DNG Converter installs one per body, e.g. `Sony ILCE-7M3 Adobe Standard.dcp`).
+
+How it was checked (`tools/arw_libraw_check.py`, `eval/sony-arw-reader-2026-11-14.md`): six real
+ARWs from six bodies (DSLR-A500, NEX-5N, NEX-7, A5000, A7 III compressed; A7 IV lossless), from
+the public metadata-extractor-images collection. Against LibRaw 0.22 through rawpy: every one of
+133.9 M sensels equal on both engines, and the as-shot white balance, black level and CFA pattern
+equal on all six. Reading takes 0.4-1.5 s per file with numpy and 3.5-6.2 s on the standard library
+alone. `tests/test_arw.py` (11 tests) writes ARWs in all three storages with an encoder of its own,
+an encrypted SR2 sub-IFD, partial edge tiles, and runs the profile chooser, the CLI and both engines.
+
+Not done: colour is only as good as the profile you supply (no profile ships here); ARW 1.0
+(DSLR-A100) and SR2/SRF are refused; the older bodies' masked right-hand columns are not trimmed
+(LibRaw trims 8-32 columns by a per-model table; with no tag naming them they are developed);
+Sony's own lens corrections (the raw IFD's 0x7032 vignetting and distortion parameters) are not
+applied. Since the same day the maker note's LensSpec names the lens for lensfun (see "Sony and Samsung:
+lenses named from the maker note" below).
+
+## Canon CR3 (2026-11-15)
+
+Every Canon body since 2018 (EOS R, RP, R5, R6, R7, R8, R10, R50, R3, M50, M6 Mark II, 90D, 250D...)
+writes CR3, and until now ShootFlow sent those files to Adobe's DNG Converter first. A full-quality CR3
+("RAW" in the camera's menu) is now read directly: `shootflow develop IMG_0001.CR3 --dcp PROFILE.dcp`
+(or `--dcp FOLDER`, chosen per camera) and the pipeline's grade stage take it like a CR2.
+
+What it reads (`src/shootflow/cr3.py`): a CR3 is an MP4-family box file, not a TIFF. Canon's `uuid` box
+holds IFD0 (CMT1), EXIF (CMT2) and the maker note (CMT3: SensorInfo for the crop, the lens name); the
+raw track's `CMP1` box is the codec header and its `CDI1/IAD1` box names the optical-black rectangle,
+where black is measured (on the R8 the light-sensitive area starts 12 columns left of the crop, so the
+CR2 rule of "every column left of the crop" would read 6 levels high). The as-shot white balance is not in
+the maker note: it is in the timed-metadata track (CTMD), record type 8, ColorData11 index 0x69. The
+CFA is CMP1's layout turned by the crop's parity.
+
+The sensor data is Canon's CRX codec at its lossless setting: four planes, one per 2x2 position, each
+coded line by line with a median edge predictor, an adaptive Rice code and a JPEG-LS-style run mode.
+An independent implementation (the format as LibRaw's `crx.cpp` decodes it), pure Python as the
+reference and C through the same optional ctypes library as the other readers.
+
+Checked on the five CR3s in the public metadata-extractor-images collection (`tools/cr3_libraw_check.py`,
+`eval/canon-cr3-reader-2026-11-15.md`): on both full-quality EOS R8 files every one of 25.5 M sensels
+equals LibRaw 0.22's, with both decoders, and the white balance, CFA and white level match; black is
+within 1 level of LibRaw's stated figure. 0.5 s per file with the C decoder, 35 s in pure Python.
+
+**C-RAW (later on 2026-11-15).** The other three files (an R3 and two R8s) are C-RAW, the smaller
+quality (about 40% smaller files), and are read directly too (`src/shootflow/cr3_wavelet.py`): each
+plane is a three-level reversible 5/3 wavelet whose subbands are quantised by a per-tile QP grid; the
+deepest low band is coded like a lossless band and the others with a zero-run Rice code that does not
+predict values. On all three files every one of 25.5-25.7 M sensels equals LibRaw 0.22's with both
+decoders, and the white balance, CFA and white level match; 0.6-0.7 s per file with the C decoder
+(each plane on its own thread), 25-28 s in pure Python. The R3 frame develops to a median 0.24 of an
+8-bit step from LibRaw's render (`eval/canon-cr3-craw-2026-11-15.md`).
+
+**Sensors stored in several tiles (later on 2026-11-15).** Canon's widest sensors (the R5 class) can
+store a frame as tiles side by side, and those files were refused. A full-quality CR3 in tiles is now
+read: CMP1's tile size cuts each plane into a grid (every tile that size except the last of each row and
+column, which takes the rest, at least 22 plane sensels, as LibRaw requires); the sample header lists each
+tile's header (0xFF01, carrying its index) and its four planes' headers in turn, and the data follows tile
+after tile, each tile's plane an independent band at the tile's width. The C decoder writes each tile
+straight into its place in the frame, so speed is unchanged (0.53 s for 25.5 M sensels in two tiles).
+
+No public tiled CR3 could be fetched (raw.pixls.us refuses this container's proxy; every CR3 in the
+metadata-extractor-images collection is one tile). So `tools/cr3_tiled_libraw_check.py` makes them: it
+re-stores a real one-tile EOS R8 frame as tiles with the repository's own CRX encoder, splices the sample
+into a copy of the real file, and asks LibRaw 0.22 to read it. LibRaw is an independent reader: it gave back
+every original sensel on six such files (two real R8 frames, each as two tiles across in two splits
+and as a 4 x 3 grid whose last column is 22 plane sensels, the narrowest LibRaw allows), and so did both of
+our engines. A deliberately wrong layout (the same tiles written column by column) comes back from LibRaw
+with 21.4 M of 25.5 M sensels wrong and is refused by ours, so the check can fail. What it cannot prove: the layout comes from this
+repository's reading of LibRaw, not from a Canon body, so a real R5 file is still the stronger test
+(`eval/canon-cr3-tiled-2026-11-15.md`). C-RAW in tiles is read since 2026-11-16 (next section).
+
+**C-RAW in tiles (2026-11-16).** The smaller C-RAW quality in tiles was the last CR3 layout ShootFlow
+refused. It is harder than full quality: a C-RAW tile is not an independent picture but a wavelet
+decomposition, and the 5/3 filter reaches across the seam. Each tile is coded as its own three-level
+decomposition (its first sample even at every level), and its subbands carry a few coefficients lent by
+its neighbours: one more high-pass coefficient before a left (or top) neighbour, and after a right (or
+bottom) one 0-2 per band and level, as LibRaw's `exCoefNumTbl` gives them for the tile's size mod 8. With
+them the inverse runs straight across the seam, and each level rebuilds the next level's low band with its
+own borrowed edge. Each tile has its own QP grid; a borrowed coefficient takes the step of the nearest own
+column. `cr3_wavelet.tile_geometry` sizes the bands, `inverse_53` and `inverse_level` take the
+neighbour flags, and the C decoder (`shootflow_craw_plane`) does the same per tile and plane.
+
+No public tiled C-RAW exists to test with, so `tools/cr3_craw_tiled_libraw_check.py` makes them from real
+one-tile files: each tile's decomposition is computed from the real sensels around it
+(`tests/craw_tiled.py`), the sample is spliced into a copy of the real file, and LibRaw 0.22 reads it.
+On all 20 side-by-side layouts tried (two R8 frames and an R3 frame, two to five tiles across, plane tiles
+from 22 sensels, the narrowest LibRaw allows, to 2,048, and an odd 619), LibRaw and both of our engines return
+the same sensels: equal to the original when every step is 1, and equal to each other when the file's own
+steps are used (`eval/canon-cr3-craw-tiled-libraw-2026-11-16.jsonl`). Reading a tiled file takes as long as a
+one-tile one, 0.6-0.9 s with the C decoder.
+
+**Where LibRaw and ShootFlow part: tiles stacked one above another.** A grid with more than one row of
+tiles does not come back from LibRaw: on the same R8 frame cut 1 x 2 it returns 160,305 of 25.5 M sensels
+different from the original (rows next to the seam only), 1 x 3 gives 370,013, and the 4 x 3 grid fails to
+decode at all. Our reader returns every original sensel on all three. Reading LibRaw's `crx.cpp` shows one
+cause: in `crxIdwt53FilterTransform` the test for a tile below is nested inside the end-of-tile test, so a
+tile with a neighbour below never computes its last rows (and the branch written for that case is dead
+code; `crxIdwt53FilterDecode` uses the combined test). Rebuilt with the two tests combined, LibRaw gives the
+upper tile back exactly, but the first 8 rows of the lower tile still differ, and this run could not trace
+that second difference. So side-by-side tiles (the layout of the wide R5-class sensors) are checked by an
+independent reader; stacked tiles are read by the same seamless rule, which nothing independent confirms
+yet, and a developed frame carries a note saying so. The QP row rule LibRaw uses for borrowed rows (row
+minus the bottom count, where columns subtract the left count) is followed but likewise unconfirmed
+(`eval/canon-cr3-craw-tiled-2026-11-16.md`).
+
+## Fujifilm RAF (2026-11-14)
+
+Fujifilm raw files no longer need Adobe's DNG Converter, and that includes X-Trans, the 6x6 colour
+layout most Fujifilm X bodies use instead of a Bayer pattern. `shootflow develop DSCF0001.RAF --dcp
+PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for the other raw formats) reads the RAF itself,
+and the pipeline's grade stage develops RAF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/raf.py`).
+
+What it reads: the RAF's own header (not a TIFF), its header records and the CFA block, which on
+X-Trans bodies is a small TIFF of Fujifilm tags (size, bits, data offset, 36 black levels, balance)
+and on older Bayer bodies is the sensor data itself. Uncompressed 16-bit words and 12-bit packing.
+The X-Trans layout comes from header record 0x0131, which is stored backwards. The crop is the
+camera's picture area from the header (0x0110, 0x0111): on all three files it is centred on the
+camera's embedded JPEG, which drops a further 8 px a side on the X-Trans bodies
+(`eval/raf_jpeg_alignment.py`).
+
+The developer now demosaics 6x6 patterns: the bilinear demosaic takes the CFA's period as a
+parameter (every 3x3 X-Trans window holds all three colours), an edge sensel with no in-image
+neighbour of a colour borrows the reflected ones on both engines, and half size on X-Trans averages
+2x2 blocks of a full-size demosaic. The pure-Python and numpy engines still give identical bytes.
+
+How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-raf-reader-2026-11-14.md`): the
+three RAFs in the public metadata-extractor-images collection, an X-E1 (12-bit packed), an X-E2
+(14-bit) and a FinePix S5500 (Bayer). Against LibRaw 0.22 through rawpy, every sensel is equal on
+all three (37.3 M in all), and so are the as-shot white balance, the black level at each of the 36
+(or 4) CFA positions, the white level and the CFA layout. 0.01-0.33 s to read; 7 s to develop a
+16 MP X-Trans frame with numpy. `tests/test_raf.py` (14 tests) writes RAFs of each layout, checks
+the sensels exactly, keeps flat fields flat through the X-Trans demosaic, compares the two engines
+byte for byte and runs a synthetic RAF through the profile chooser and the CLI.
+
+Not done: SuperCCD files are refused (none at hand); colour is only as good as the profile you
+supply (no real Fujifilm `.dcp` was at hand). Lossless compressed RAFs: see the next section.
+
+## Fujifilm lossless compressed RAF (2026-11-15)
+
+Fujifilm's "lossless compressed" raw, offered from the X-Pro2 and X-T2 on and about half the size of
+an uncompressed RAF, is now read directly too, X-Trans and Bayer (GFX): `shootflow develop
+DSCF0001.RAF --dcp PROFILE.dcp` and the grade stage take it like any other RAF
+(`src/shootflow/raf_compressed.py`; the strip decoder also in C in the optional `ljpeg_native`
+library, strips in parallel; the pure-Python decoder is the reference and runs with no compiler).
+The lossy compressed mode (header version 0) is read too since the same day: see "Fujifilm lossy
+compressed RAF" below.
+
+How it was checked (`tools/raf_libraw_check.py`, `eval/fujifilm-compressed-raf-2026-11-15.md`, rows
+in `eval/fujifilm-compressed-raf-libraw-2026-11-15.jsonl`): five real lossless compressed RAFs from
+raw.pixls.us (CC0), an X-T2, X-H1, X-T3 and X-S10 (X-Trans) and a GFX 50S (Bayer, 51 MP). Against
+LibRaw 0.22 every one of 159.5 M sensels is equal, and so are the balance, the black levels, the
+white level and the CFA layout. 0.5-1.0 s to read a file with the C decoder on four cores (1.6 s on
+one); 48-56 s in pure Python, which also matches on every sensel. 24 s to develop the 26 MP X-T3
+frame end to end. A Bayer RAF with a Fujifilm sub-IFD now takes the 0x3E00 white level the older
+Bayer bodies use (LibRaw's value for the GFX 50S; that frame has no clipped highlights to confirm
+it). `tests/test_raf_compressed.py` (10 tests) encodes known sensels with a test-only encoder and
+decodes them on both paths.
+
+## Fujifilm lossy compressed RAF (2026-11-15)
+
+The "compressed" (lossy) raw setting of the X-S10, X-E4 and other recent Fujifilm bodies is read
+directly too, by the same decoder (`src/shootflow/raf_compressed.py`, C and pure Python). It was the
+top open item on this flagship. A lossy stream adds, for each strip and each six-row group, a
+quantisation base `q`: residuals are coded in steps of `2q + 1`, the gradient thresholds widen with
+`q`, and flat patches switch to one of three fixed side quantisers. The module docstring has the
+layout.
+
+How it was checked (`eval/fujifilm-lossy-raf-2026-11-15.md`, rows in
+`eval/fujifilm-lossy-raf-libraw-2026-11-15.jsonl`): the two lossy RAFs on raw.pixls.us (CC0), an
+X-S10 and an X-E4. Against LibRaw 0.22.2 (rawpy 0.28) every one of 2 x 26.7 M sensels is equal, and
+so are the balance, black level, white level and CFA, in C (0.7 s a file on four cores) and in pure
+Python (73-75 s a file). The X-T2 and GFX 50S lossless files were rerun after the change and still
+match on every sensel. What the files show about the format: both sit at 4.75 bits a sensel
+(15.8 MB for 26.7 M sensels), so the camera holds a bit budget and varies the step instead: the
+X-S10 frame's bases run 0-9 (mean step 5.7 counts), the X-E4 frame's 0-13 (mean step 11.2 counts,
+under 0.1% of its 1,022-16,383 range). `tests/test_raf_compressed.py` (now 15 tests) has a lossy
+test encoder: bases changing between groups, all three side quantisers, a 12-bit Bayer stream, a
+base-0 lossy stream that must come back exactly, and truncated bases.
+
+## Directional X-Trans demosaic (2026-11-14)
+
+X-Trans files are now demosaiced directionally by default (with numpy): green is built four times,
+each time interpolated along one direction only (across, down, both diagonals), red and blue follow
+from each, and every pixel keeps the direction whose result is most even in L\*a\*b\*, with a 3x3
+median of the colour differences after. The bilinear demosaic averaged across edges and left coloured
+fringes on them. `shootflow develop X.RAF --demosaic auto|bilinear|directional` (auto, the default, is
+directional on X-Trans with numpy and bilinear otherwise; the pure-Python engine keeps bilinear and
+says so). The code is the repository's own, from the published idea, not dcraw's or LibRaw's source
+(`src/shootflow/xtrans_demosaic.py`).
+
+How it was checked (`tools/xtrans_demosaic_check.py`, `eval/xtrans-directional-demosaic-2026-11-14.md`):
+known-truth pictures mosaicked with the real X-E1 and X-E2 layouts and demosaiced by ours and by LibRaw
+itself (the mosaic written into the RAF's sensor data, so LibRaw runs its own linear and Markesteijn
+X-Trans methods). Colour PSNR against bilinear: 36.6 against 34.8 dB on the X-E1 frame (binned 4x4 as
+truth), 47.9 against 42.0 on the held-out X-E2 frame, 33.5 against 20.3 on a synthetic zone plate and
+colour-edge sheet; 99th-percentile false colour down 27-75%. That beats LibRaw's one-pass Markesteijn on
+two of the three (X-E2 46.5, sheet 25.9; X-E1 37.5) and trails its three-pass method by 2-6 dB. 7-8.5 s
+for a 16 MP frame on four cores (bilinear 0.9 s; LibRaw's three-pass 1.7 s in C). Not done: a C path,
+LibRaw's three-pass quality, a noisy known truth (on real sensor data our luminance is further from
+LibRaw's render than bilinear's is, unexplained), Bayer files (they keep bilinear).
+
+**2026-11-15: within half a dB of LibRaw's three-pass.** Two changes, both found by measuring where
+the error was (`eval/xtrans-clamp-gradient-2026-11-15.md`). First, the L\*a\*b\* homogeneity choice
+turned out to be no better than averaging all four directions on the X-E1 frame (36.38 against 36.39
+dB) and worse on the sheet, while the best direction per pixel would have reached 40.0: the choice
+was the weak step. It is replaced by a blend weighted by each direction's smoothness along its own
+line (second difference, 3x3 window, weights (D_min/D)^4). Second, each directional green is now
+held between the two greens it was interpolated from; the colour-difference estimate overshot where
+the 3x3 estimate of the sensel's own colour was off. Colour PSNR, old rule to new: X-E1 frame 36.60
+to 38.56 dB (LibRaw three-pass 39.27), held-out X-E2 frame 47.88 to 49.43 (LibRaw 49.89), sheet 33.51
+to 35.00 (LibRaw 39.37); 99th-percentile false colour down 20-33%. Half size: X-E1 40.07 to 42.27.
+Tuned on the X-E1 frame and the sheet; the X-E2 was looked at once, with the final settings. On the real
+frames' sensor data the output is nearer LibRaw's three-pass render than before (X-E1 colour 45.72 to
+47.52 dB, luma 47.41 to 49.44), and the luma gap to bilinear's closeness (51.22) is the median's: without
+it, 52.40. `directional(...,
+clamp=False, select="homogeneity")` reproduces the 2026-11-14 numbers exactly. With sensor-like
+noise added to the mosaic (`--noise-snr 60 --noise-snr 25`, scored against the clean truth, LibRaw given
+the same noisy mosaic) the gap narrows: X-E1 0.65 and 0.43 dB short, X-E2 0.09 dB short and 0.12 dB
+ahead. Still open: the sheet's 4.4 dB gap to LibRaw's three passes (fine rings near the sampling limit),
+whether the median should leave green alone (+0.4 dB on the frames, -2.4 on the sheet; needs a real
+noisy frame with a known answer), a C path, Bayer.
+
+**In C since 2026-11-15** (`src/shootflow/xtrans_native.py`, `eval/xtrans-native-2026-11-15.md`). The
+whole X-Trans demosaic (estimates, four clamped directional greens, red and blue, the gradient blend,
+passes and median) in one C function per band, built with the system compiler on first use and loaded
+through `ctypes`; numpy stays the reference and the fallback. On the real X-E1 and X-E2 frames the output
+is equal to numpy's bit for bit, and a 16 MP frame takes 1.3 s on four cores (numpy 5.0 s; LibRaw's
+single-threaded three-pass `postprocess` 2.5 s). To make that exact on every machine the blend's
+`** 4` became two squarings: numpy's float32 power follows the CPU's SIMD library and differed from libm
+on a fifth of values here (output moved by at most 0.02 of a 16-bit step). `SHOOTFLOW_NATIVE=0` turns it off.
+
+**2026-11-16: checked on seven held-out truths; ahead of LibRaw's three passes under noise on all seven**
+(`eval/xtrans-fresh-truths-2026-11-16.md`). Only two X-Trans frames are in the public sample set, so the
+check tool now borrows scenes: `tools/xtrans_demosaic_check.py --truth-from FILE` renders any raw LibRaw
+reads (here six Bayer frames from Sony, Nikon, Canon, Panasonic, Samsung and OM System bodies), bins it
+4 x 4 and mosaics it with the RAF's own X-Trans layout, LibRaw getting the same mosaic. On those six and the
+X-E2, none used to tune it, the shipped default has higher colour PSNR than LibRaw 0.22.2's three-pass
+Markesteijn on four of seven noise-free (-0.46 to +2.41 dB) and all seven at SNR 25 (+0.07 to +2.3), higher
+luma on six of seven noise-free, and lower 99th-percentile false colour at SNR 25 on all seven. Under noise
+its luma trails by 0.01-0.6 dB on six (the median's cost). Two changes that gained on the X-E1 were
+refused: keeping green out of the median (now `directional(..., median_green=False)`, numpy only: worse on
+six of seven noise-free, up to 1.4 dB, a wash at SNR 25) and a green-guided red/blue step. The default is
+unchanged.
+
+### Noise-aware demosaic: bilinear where edge-keeping only adds noise (2026-11-16)
+
+`shootflow develop FILE.dng --demosaic noise-aware` (opt-in, numpy, Bayer and X-Trans) blends the
+directional result toward bilinear block by block (24 x 24). Each block's weight comes from how far
+directional departs from bilinear there, against the noise the sensor has at that brightness. The noise
+comes from the DNG's own NoiseProfile tag, which phones and converted DNGs write. Without the tag the
+file develops as directional, and the notes say so. On 25 held-out sample files (scenes from 41 bodies,
+noise drawn at three levels), colour PSNR rises +0.43 dB on X-Trans and +0.31 dB on Bayer over the
+directional default on average, +0.93 / +0.68 dB at SNR 12, and no tile is worse by more than 0.01 dB.
+That beats the best single blend weight per frame chosen with the truth in hand (+0.41 / +0.26). The
+answer to "which frames want less edge-keeping" is "parts of every frame".
+
+Measured, not shipped: the same blend with the noise estimated from the mosaic, which reads texture as
+noise on detailed frames and lost up to 5 dB. Also measured, not shipped: one weight per frame, worst
+-2.6 dB. It stays opt-in because a profile that overstates the noise by about 1.5x starts to cost detail,
+and only one real profile (an LG Nexus 5X's, about 20% above the in-frame estimate) has been checked.
+4.4 s against 2.0 s for 12 MP. How it was checked:
+`tools/xtrans_frame_choice.py`, `eval/xtrans-noise-aware-blend-2026-11-16.md`.
+
+**Since the same day every profile is checked against the frame before the blend uses it.** On 83 real CFA
+DNGs from 80 bodies (raw.pixls.us), 43 profiles state more than 1.25x the noise their own sensels show, 25
+more than 2x and 11 more than 5x, up to 77x (third-party iPhone apps 14-32x; Adobe-written profiles 0.94-1.20).
+The check (`xtrans_demosaic.profile_ratio`) compares the profile with the quietest blocks at each brightness.
+It reads an honest synthetic profile as 0.95-1.02 and a k-times-overstated one as k within 5%, and texture can
+only make it read low. A profile over 1.25x is scaled to 1.25x, and the develop notes say so. On a synthetic
+scene where a 4x-16x overstated profile cost 1.4-10.6 dB, the guarded blend is within 0.02 dB of the true
+profile's at every overstatement from 2x to 100x, on Bayer and X-Trans. The guard adds a median 2.7 s per file.
+The same check found that the reader refused profiles with a read-noise term of exactly 0, which DNG 1.7.1.0
+allows and 14 of the 83 files write (Samsung, OnePlus, Xiaomi, LG, asus). They are read now. The mode stays
+opt-in: its gains are still measured on synthetic noise. `tools/noise_profile_check.py`,
+`tools/noise_profile_guard_synth.py`, `eval/noise-profile-real-dngs-2026-11-16.md`.
+
+**Since the same day the blend's luma is scored, under noise drawn as a sensor draws it, and the guard reads each
+colour plane on its own.** On 25 held-out files the blend raises luma PSNR over the directional default by
++0.61 dB (Bayer) and +0.92 dB (X-Trans), and by +0.91 / +1.31 dB when the noise is drawn before white balance
+with each file's own gains. No tile in 522 per layout is worse in luma by more than 0.01 dB. Under that
+white-balanced noise the old guard, which carried a profile by one mean gain, read honest profiles as high as
+1.55x and trimmed them on up to 33 of 174 tiles, at a cost of up to 0.68 dB luma on a tile. The guard now carries
+each plane's pair by its own gain and checks it against that colour's sensels. Honest profiles then read at most
+1.03 at the 95th percentile in every scenario, a trim costs at most 0.12 dB, and a profile overstated on one
+plane is scaled on that plane alone. NoiseProfiles with one pair per plane are read through CFAPlaneColor.
+On 24 real DNGs only a Pixel 4 XL's green plane read differently from the old check (1.34). The blend itself
+keeps the one-gain carry it was tuned with: a per-colour noise model in the blend gained 0.01-0.05 dB colour and
+lost 0.05-0.07 dB luma. Still opt-in, still synthetic noise. `tools/noise_aware_planes.py`,
+`eval/noise-aware-planes-luma-2026-11-16.md`.
+
+## A directional demosaic for Bayer files (2026-11-15)
+
+Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
+CR3, NEF, ARW, ORF, RW2, SRW, PEF, the GFX's RAF) was demosaiced bilinearly, which leaves zipper
+patterns and false colour along every sharp line. `src/shootflow/bayer_demosaic.py` builds green along
+the row and the column (Hamilton-Adams), decides which way each edge runs from how fast the colour
+difference changes along each (the test Menon, Andriani and Calvagno published in 2007) and blends the
+two, then fills red and blue as weighted colour differences. It is the default with numpy installed
+(`--demosaic auto`); `--demosaic bilinear` gives the old bytes on both engines.
+
+Checked with `tools/bayer_demosaic_check.py` against known truth (five real frames binned 4x4, and a
+synthetic zone plate and colour-edge sheet) and against LibRaw's own seven Bayer methods run on the same
+mosaics (`eval/bayer-directional-demosaic-2026-11-15.md`). Tuned on a Canon 70D, a Nikon D810 and the
+sheet; a Sony A7 III, an Olympus E-M10 and a Pentax K-1 Mark II were held out. Against bilinear: +0.25
+to +14 dB colour PSNR and 9-78% less false colour (99th percentile) on every truth. Against LibRaw's
+VNG, PPG, AHD, DCB, DHT and AAHD: the highest colour PSNR on five of the six truths (second on the A7
+III, 0.07 dB behind VNG) and the least false colour on five of six. Not better everywhere: on the two
+finest, most aliased frames (A7 III, K-1 II) its luma trails bilinear, DCB or VNG by 0.8-1 dB, and with
+heavy noise (SNR 25) a plain average has the higher colour PSNR on two frames while leaving 1.2-1.9x the
+false colour. A 24 MP frame takes 1.8 s on four cores (bilinear 0.6 s, LibRaw's AHD 1.0 s).
+
+**In C since 2026-11-15** (`src/shootflow/bayer_native.py`, `eval/bayer-native-2026-11-15.md`). The same
+steps in one C function per band, built with the system compiler on first use and loaded through
+`ctypes` like the raw decoders; numpy stays the reference and the fallback. On the five real frames
+above the output is equal to numpy's bit for bit, and it runs 4.2-4.9x faster on four cores: a 24 MP
+A7 III frame in 0.44 s (numpy 2.13 s; LibRaw's single-threaded AHD `postprocess` 0.99 s), a 36 MP D810
+or K-1 II in 0.6-0.7 s. The median clean-up stays numpy-only; `SHOOTFLOW_NATIVE=0` turns it off.
+
+**Less Laplacian, 2026-11-15** (`eval/bayer-laplace-weight-2026-11-15.md`). The row and column greens
+now carry 3/16 of the sensel's own second difference instead of Hamilton and Adams' quarter (an eighth
+is what a smooth green gives; the quarter assumes a linear colour difference, which fine aliased texture
+is not). Picked on the tuning truths only, then run once on the held-out frames: luma on the A7 III
+goes from 0.99 dB behind bilinear to 0.08 behind, on the K-1 II from 0.77 behind VNG to 0.17 behind;
+colour PSNR rises on all six truths (+0.10 to +4.28 dB), so ours now has the highest colour PSNR of
+LibRaw's seven methods and bilinear on all six; the sheet goes from 35.59 to 39.87 dB with false colour
+119 to 42, without the median. `directional(..., laplace=0.25)` gives the earlier output.
+
+**Per-sensel weight, and a fresh held-out set, 2026-11-16** (`eval/bayer-adaptive-laplace-2026-11-16.md`).
+`directional(..., laplace="adaptive")` picks the weight per sensel in [1/8, 1/4] as the least-squares
+weight that makes the colour difference closest to linear over a 3 x 3 window. It is an option, not the
+default: on five frames no earlier note used (Sony A7 IV, Nikon D800E, Canon 7D, Panasonic GF7,
+Samsung NX1) it adds 0.10 dB colour PSNR on average (-0.03 to +0.37), and on the sheet false colour
+falls from 42 to 9.6, but it loses luma on the A7 III and K-1 II (-0.33, -0.24), takes about twice the
+time and runs in numpy only. The same five frames are the first independent check of the 3/16
+default: it beats all seven LibRaw methods on colour PSNR on every one, by 0.5-1.5 dB noise-free and
+0.2-1.1 dB at SNR 25.
+
+**A learned weight, 2026-11-16** (`eval/bayer-learned-laplace-2026-11-16.md`). `--demosaic learned`
+(`directional(..., laplace="learned")`) sets the weight per sensel from a quadratic in eight scale-free
+local features (45 weights). It is fitted by weighted least squares on 40 sample frames, and the ten
+frames above were never in the fit. On those ten, colour PSNR is equal or higher than the 3/16 default
+on every one (+0.01 to +0.39 dB, mean +0.14). Luma is higher on every one (+0.02 to +0.66, mean +0.29),
+and that includes the A7 III and K-1 II, where the least-squares weight lost luma. It is opt-in: it
+loses on the synthetic sheet (colour -0.45 dB, false colour 42 to 59) and takes longer.
+`tools/bayer_laplace_train.py` refits it. Since the same day it runs in C when a compiler is present
+(`eval/bayer-learned-native-2026-11-16.md`). On seven real frames the output equals numpy's bit for
+bit. It is 1.9-2.8x faster than numpy, and 2.6-3.3x the default's time instead of 4-6x: 2.0 s for
+24 MP on four cores. Later the same day its feature passes were fused into one row pipeline over 8-row
+rings and vectorized (`eval/bayer-learned-fused-2026-11-16.md`). It is still bit for bit with numpy on
+the same seven frames, 1.8-2.2x faster than the morning's C, and 1.5-2.0x the default's time: 0.73 s for
+24 MP on four cores, faster than LibRaw's AHD on every frame.
+
+**Refitted on noisy mosaics, 2026-11-16** (`eval/bayer-learned-noisy-nyquist-2026-11-16.md`). The
+weights now come from the same 40 frames plus a noisy copy of each at SNR 25 and 50, scored against
+the clean green (`bayer_laplace_train.py --noise-snr`). This passed a test written before it was run.
+At SNR 25 colour is +0.014 dB and luma +0.07 dB over the first fit, and colour beats the 3/16 default
+on all ten frames, noisy and noise-free. Noise-free colour is 0.023 dB lower. Fixed 1/8 still leads
+on three frames at SNR 25, but by 0.01-0.02 dB, down from 0.04-0.06. The model's form and speed are
+unchanged. Adding synthetic near-Nyquist gratings (`--synthetic`) made the sheet worse (38.64 dB): on
+gratings between unrelated colours 1/8 is right, while on the grey zone plate 3/16 beats it by 5 dB.
+So the weight should follow how strongly the channels' fine detail is correlated, not only how fine
+the detail is. That is the next feature to try.
+
+**Channel correlation tried, not shipped, 2026-11-16** (`eval/bayer-channel-correlation-2026-11-16.md`).
+Four correlation features (`bayer_demosaic.CORRELATION_FEATURES`: how strongly the sensel's own second
+difference and the other colour's move together over a 3 x 3 or 5 x 5 window) and synthetic frames
+matched to real photographs' correlation went through a pre-registered test. The best set gained only
++0.012 dB in cross-validation (the bar was 0.02), and the matched frames lowered that, so nothing reached
+the test frames and `LEARNED_LAPLACE` is unchanged. On real frames the hypothesis runs backwards: weakly
+correlated detail wants *more* borrowing (1/4 comes within 0.1-0.2 dB of 3/16, 1/8 stays 0.5-0.7 dB
+behind). Scored afterwards, as exploration only, the features also made the sheet worse (39.24 dB). A
+model with these features runs through `directional(..., laplace=<10-feature weights>,
+laplace_extra=(...))` in numpy. `bayer_laplace_train.py --extra` and `--synthetic-kind matched` fit one.
+
+**How much is left: the oracle ceiling, 2026-11-16** (`eval/bayer-oracle-ceiling-2026-11-16.md`,
+`tools/bayer_oracle_ceiling.py`). On whole frames of the 40 training raws (clean, SNR 50, SNR 25), the
+best weight per sensel gains +1.91 dB of green over 3/16. The best single weight per 4 x 4 tile gains only
++0.83, and per 32 x 32 tile +0.41, which is what B already reaches in sample (+0.405). So more than half
+of the per-sensel oracle is choice that changes inside four sensels. Under the pre-registered rule, a
+richer model is still worth one try, with +0.83 as its realistic ceiling against B's +0.385 held out.
+Fitting B's model to a 4 x 4 box-averaged target lost 0.062 dB in cross-validation, so nothing changed in
+the shipped demosaic.
+
+**Boosted trees, 2026-11-16** (`eval/bayer-boosted-weight-2026-11-16.md`, `tools/bayer_boosted_weight.py`;
+pre-registered in its own commit before any score). LightGBM on 29 features (the eight, the four
+correlation features, log|D| and the 5 x 5 mean and spread of the eight) gains +0.527 dB in five-fold CV
+against +0.386 for B's model on the same folds, better on 108 of 120 copies, and +0.451 against B's +0.406
+on the ten test frames (22 of 30 copies). Both bars passed, about 31% of the way from B to the 4 x 4
+ceiling. Not shipped: on the Pentax K-1 Mark II it falls below the 3/16 default at every noise level
+(-0.21 to -0.29 dB, where B gains +0.25), and the A7 III loses to B too. Next: a guarded variant judged
+per frame, then tree inference in numpy and C.
+
+**Guarded trees and numpy inference, 2026-11-16** (`eval/bayer-boosted-guard-2026-11-16.md`,
+`tools/bayer_boosted_guard.py`, `src/shootflow/tree_ensemble.py`; pre-registered in its own commit). Four
+fallbacks to B were scored in CV. The rule picked a frame guard: B for the whole frame when any of the
+eight feature means falls outside the training range. It gains +0.518 dB in CV and +0.398 against B's
++0.242 on six fresh cameras no note had used (Canon R3, R8, 10D, Kodak DCS Pro SLR/n, Leica D-LUX 109 and
+V-LUX 114). No fresh frame does worse than B, and the guard catches the R8, where unguarded trees lose
+0.65 dB to B. Still not shipped: on the ten test frames the K-1 II (-0.49) and A7 III (-0.12) look
+ordinary to the guard and stay below B. `shootflow.tree_ensemble` evaluates a LightGBM model from flattened
+arrays in numpy, matching `Booster.predict` exactly on the full model. It is a reference, not yet a developer path: 58 s against lightgbm's 3.7 s on 0.6 million sensels, so shipping one would need the walk in C.
+
+## Pentax PEF (2026-11-14)
+
+Pentax raw files no longer need Adobe's DNG Converter, and they are no longer skipped at ingest:
+before this, `.pef` was in none of the ingest, catalogue or preview extension lists, so a Pentax
+card's raws were not even copied. `shootflow develop IMGP0001.PEF --dcp PROFILE.dcp` (or `--dcp
+FOLDER`, chosen per camera as for the other raw formats) reads the PEF itself, and the pipeline's
+grade stage develops PEF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/pef.py`).
+
+What it reads: Pentax's compression 65535, a stream of Huffman-coded differences whose code table
+the camera stores in its maker note (tag 0x0220), predicted from two columns left (the first two
+columns from two rows up). Black level (0x0200) and as-shot balance (0x0201) come from the maker
+note, the CFA from EXIF CFAPattern, white level from the bit depth. The crop is the camera's own
+picture area: on the K-1 Mark II the embedded 7360 x 4912 JPEG sits at (14, 28) of the stored
+7392 x 4950 frame, measured by sliding the JPEG over the raw (the same shift in all four corners,
+`eval/pef_jpeg_alignment.py`); other bodies get the JPEG's size centred, with a note. The decode
+runs in C through the same optional ctypes library as the other readers (0.5 s for 36.6 MP), with a
+pure-Python reference that gives the same sensels (32 s).
+
+How it was checked (`tools/pef_libraw_check.py`, `eval/pentax-pef-reader-2026-11-14.md`): the
+K-1 Mark II PEF in the public metadata-extractor-images collection, the only PEF there. Against
+LibRaw 0.22 through rawpy, every one of 36.6 M sensels is equal on both decoders, and so are the
+as-shot white balance, the black level at each CFA position, the white level and the CFA. The
+masked rows and columns average 1,026, next to the maker note's black of 1,024. `tests/test_pef.py`
+(13 tests) writes PEFs with an encoder and a Huffman table of its own, in both byte orders, checks
+that the C and Python decoders agree on random streams, and runs a synthetic PEF through the
+profile chooser and the CLI.
+
+Not done: one real body only (older bodies' tables are read by the same rule, but no K10D or
+K-5 PEF was at hand); colour is only as good as the profile you supply (no real Pentax `.dcp` was
+at hand); uncompressed PEFs and Pixel Shift's four frames are refused with a message to convert
+to DNG; the measured crop exists for the K-1 Mark II alone.
+
+## Samsung SRW (2026-11-14)
+
+Samsung NX raw files no longer need Adobe's DNG Converter. `shootflow develop SAM_0001.SRW
+--dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for the other raw formats) reads the
+SRW itself, and the pipeline's grade stage develops SRW stills with the workspace's
+`color/camera-profiles/` (`src/shootflow/srw.py`).
+
+What it reads: all four storage schemes in the test set. Compression 32770 with a row table (the
+Galaxy NX and the NX300 generation: rows of 16-sensel blocks with adaptive bit lengths and a
+vertical or horizontal predictor), 32770 without one (the NX20: 12-bit packed), 32772 (the
+NX3000: fixed-table Huffman differences) and 32773 (the NX1 and NX500: 14-bit blocks with
+prediction modes and a magnitude scale). Black level and as-shot balance come from the maker note,
+where they are stored with an encryption key added (tag 0xA020; subtracting it gives LibRaw's
+numbers exactly); the crop is the maker note's picture area, which on all four bodies is exactly
+the size of the camera's own JPEG. The three compressed schemes decode in C through the same
+optional ctypes library as the other readers (0.25-0.5 s per file), with pure-Python references
+that give the same sensels (17-28 s).
+
+The CFAPattern tag is not trusted: the Galaxy NX writes garbage there and the NX3000 writes GBRG,
+but its image is GRBG (checked against the embedded JPEG's colour, and as LibRaw reads it), so
+every SRW is read as GRBG and the develop notes say when the tag disagreed.
+
+How it was checked (`tools/srw_libraw_check.py`, `eval/samsung-srw-reader-2026-11-14.md`): the
+four camera SRWs in the public metadata-extractor-images collection (Galaxy NX, NX1, NX20,
+NX3000). Against LibRaw 0.22 through rawpy, every one of 90.5 M stored sensels is equal on both
+decoders, and so are the as-shot white balance, the black level at each CFA position, the white
+level and the CFA on all four. `tests/test_srw.py` (12 tests) writes each scheme with an exact
+encoder of its own, checks that the C and Python decoders agree on random streams, and runs a
+synthetic SRW through the profile chooser and the CLI.
+
+Not done: colour is only as good as the profile you supply (no real Samsung `.dcp` was at hand);
+the lens is named from the maker note's LensType since the same day (see "Sony and Samsung: lenses
+named from the maker note"); uncompressed and 32769 SRWs are
+refused for want of a test file.
+
+## Panasonic RW2 (2026-11-14)
+
+Panasonic Lumix raw files no longer need Adobe's DNG Converter. `shootflow develop P1000001.RW2
+--dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for CR2, ARW, NEF and ORF) reads the
+RW2 itself, and the pipeline's grade stage develops RW2 stills with the workspace's
+`color/camera-profiles/` (`src/shootflow/rw2.py`).
+
+What it reads: Panasonic's compressed RW2 with RawFormat 4, which every body in the test set
+writes (the 2009 GF1 to the 2015 GF7). The data comes in 0x4000-byte blocks, each stored rotated
+by 0x2008 bytes, read from the top of the block down; every run of 14 sensels on a row restarts
+two predictions, and every third sensel reads a 2-bit shift for the 8-bit steps that follow.
+Size, sensor borders (the crop), CFA, black level, white level and as-shot balance come from
+Panasonic's own tags in IFD0. The decode runs in C through the same optional ctypes library as
+the NEF and ORF readers (0.07-0.15 s per file), with a pure-Python reference that gives the same
+sensels (7-11 s).
+
+Like a CR2, ARW, NEF or ORF, it is developed with the camera's `.dcp` (e.g. `Panasonic DMC-GF7
+Adobe Standard.dcp` from Adobe's free DNG Converter).
+
+How it was checked (`tools/rw2_libraw_check.py`, `eval/panasonic-rw2-reader-2026-11-14.md`): the
+four camera RW2s in the public metadata-extractor-images collection (GF1, GF3, GF7, LX7). Against
+LibRaw 0.22 through rawpy, every one of 50.1 M stored sensels is equal on both decoders, and so are
+the as-shot white balance, the black level at each CFA position, the CFA pattern and the crop on
+all four. `tests/test_rw2.py` (9 tests) writes RW2s with an encoder of its own that picks a shift
+for every three sensels and writes each value through the decoder's block addressing, across
+several blocks and all four shifts, and runs both decoders, the profile chooser, the crop and the
+CLI.
+
+Lens: the RW2's own EXIF names no lens, so since 2026-11-14 the lens comes from the JPEG the camera
+embeds (tag 0x2E, JpgFromRaw): its EXIF maker note's LensType ("LUMIX G 20/F1.7") becomes LensModel,
+and `--lens-db` (or the grade stage's `color/lens-profiles/`) corrects the frame with no `--lens`.
+On the GF1, GF3 and GF7 the name and serial equal metadata-extractor's and the lensfun pick equals
+the compiled lensfun 0.3.4's (`tools/rw2_lens_check.py`, `eval/panasonic-rw2-lens-2026-11-14.md`);
+the fixed-lens LX7 uses lensfun's camera entry as before.
+
+Not done: colour is only as good as the profile you supply; the GF7's own colour matrix (tags
+0x11C-0x120) is not read yet. The GF1's white level is 4095, where LibRaw takes 3986 from a
+per-model table. Older 16-bit RW2s (RawFormat 2 and 3) are refused for want of a test file.
+
+### Lumix bodies from 2017 on: RawFormat 5, 6 and 7 (2026-11-15)
+
+Until today the reader stopped at the G9, GH5S, S1, S1R, S1H and S5: they write newer layouts,
+and a photographer on one of them still had to convert to DNG first. Now three of those layouts
+are read (`eval/panasonic-rw2-newer-2026-11-15.md`):
+
+| RawFormat | bodies checked | how it is stored |
+|---|---|---|
+| 5 | G9 (12-bit, an 82 MP high-resolution frame), GH5S (14-bit) | the same rotated 0x4000-byte blocks as RawFormat 4, but no prediction: each 16-byte line holds 10 sensels of 12 bits or 9 of 14, from the line's lowest bit up |
+| 6 | S1, S1R, S1H (14-bit) | 11 sensels a 16-byte line, read from the top bit down: two absolute 14-bit values, then three groups of a 2-bit shift and 10-bit values that step from the previous value of the same column parity; 15 is taken off every sensel |
+| 7 | S5 (14-bit) | RawFormat 5's packing, stored in order with no block rotation |
+
+Two fixes came with it, both found on the new files. The crop is now the camera's own (tags
+0x2F-0x32): a GH5 frame shot at 1:1 develops 3888 x 3888, as the camera framed it and as LibRaw
+crops it, where it used to develop the whole 5184-wide sensor; the GX9 and TZ200 frames are the
+same story at 1:1 and 4:3. And on formats 5 to 7 the black-level tags are used as stored (RawFormat
+4 adds 15) and a 14-bit body's white level is no longer held at 4095.
+
+Checked against LibRaw 0.22 (`tools/rw2_libraw_check.py`, rows in
+`eval/panasonic-rw2-newer-libraw-2026-11-15.jsonl`) on 12 public CC0 files from raw.pixls.us, one
+per body: every one of 331.7 M sensels is equal, and so are the as-shot white balance, the black
+level at each CFA position, the CFA pattern and the crop on all twelve. That includes six RawFormat
+4 bodies newer than the first set (GH5, G90, G100, GX9, LX100 II, TZ200), which already read
+sensel for sensel. The C decoder takes 0.06-0.6 s a file; the Python reference gives the same
+sensels on the S1, S5 and GH5S (1-8 s). The white level equals LibRaw's too, but not on the first
+try: we first used the hard clip (16368 on the S1), and counting the sensels near the top showed
+the S1-family bodies saturate at several levels from 16320 up (144,576 sensels of one S1 frame at
+16352-16355), which would have tinted blown highlights. RawFormat 6 and 7 now take LibRaw's 64-level
+margin (16319).
+
+Not done: a RawFormat 5-7 row that is not whole 16-byte lines is refused (no file has one).
+
+### Lumix bodies from 2022 on: RawFormat 8 (2026-11-15)
+
+Every Lumix announced since 2022 (GH6, GH7, G9 II, S5 II, S1 II, S9) writes RawFormat 8, and until
+today a photographer on one of them had to convert to DNG before the pipeline would develop a
+frame. Now `shootflow develop P1000001.RW2 --dcp PROFILE.dcp` and the grade stage read it
+(`eval/panasonic-rw2-format8-2026-11-15.md`).
+
+How it is stored: the frame is split into 2 or 3 tiles across, each its own bit stream (bytes read
+from their lowest bit). Sensels come in 2x2 blocks, each sensel a Huffman symbol from the file's own
+17-entry table (tag 0x40) and that many raw bits, a lossless-JPEG style step from the same sensel
+of the block to its left. The decode runs in C through the same optional library (0.5-0.6 s for a
+24 MP file, 1.6-1.9 s for the 96-100 MP high-resolution modes), with a pure-Python reference that
+gives the same sensels (12-14 s for 24 MP).
+
+Checked against LibRaw 0.22 (`tools/rw2_libraw_check.py`, rows in
+`eval/panasonic-rw2-format8-libraw-2026-11-15.jsonl`) on ten public CC0 files from raw.pixls.us,
+all six bodies, 12-, 14- and 16-bit, including the GH6's 100 MP and the S1 II's and S9's 96 MP
+high-resolution frames: every one of 464.6 M sensels is equal, and so are the as-shot white
+balance, the black level at each CFA position, the CFA pattern and the crop on all ten.
+
+White level: 12- and 14-bit files take LibRaw's 16- and 64-level margin under the clip, as
+RawFormat 6 and 7 do. Measured before choosing: on the S1 II's 96 MP frame 474,477 blown sensels
+sit at 16381-16382, one or two levels under the 16383 clip, and would have developed as not quite
+saturated. 16-bit files (GH6, GH7, G9 II) keep 65535, as LibRaw does.
+
+`tests/test_rw2_c8.py` (7 tests) writes RawFormat 8 files with an encoder of its own and checks
+both decoders sensel for sensel, a hand-worked stream through the per-symbol shift, tile grids,
+the levels and the refusals.
+
+Not done: no checked file uses a tone curve (tags 0x39/0x3A), per-symbol shifts or starting
+values. A file with a curve is refused with the reason; shifts and starting values are read as
+LibRaw reads them, tested on synthetic streams only. Colour needs the camera's `.dcp`, as for every
+RW2 here.
+
+### Leica RWL, and a card copy that leaves no raw behind (2026-11-16)
+
+Leica's D-LUX, V-LUX and C-LUX are Lumix bodies, and their `.RWL` files are RW2 under another
+name. They now develop like any RW2 (`shootflow develop L1000001.RWL --dcp DIR`): on a real
+D-LUX (Typ 109) and V-LUX (Typ 114) every one of 32.7 M sensels, the white balance, black
+level, CFA, crop and white level equal LibRaw 0.22's.
+
+The card copy used to take only the ten raw formats the developer reads and say nothing about
+the rest, so a `.RWL`, `.NRW`, `.CRW` or `.X3F` stayed on the card. It now copies 27 raw
+formats, HEIF/HIF stills, MXF and M2TS video and XMP sidecars, skips the hidden `._` files a Mac
+writes on a card (which carry the raw's extension and used to be copied as photos), and lists
+every other file it leaves behind as `left_on_card` in the preview, the result and
+`ingest_manifest.json`. On the 71 camera raw files in the public metadata-extractor-images
+corpus the old copy left 6 behind; the new one leaves none. Formats with no reader are culled
+from their embedded preview and stop at the grade with the "convert to DNG" message. Details:
+`eval/leica-rwl-and-card-formats-2026-11-16.md`; tests: `tests/test_card_formats.py`.
+
+### Canon CRW, the 2000-2004 bodies (2026-11-16)
+
+Canon's CIFF raw files (`.CRW`: the EOS D30, D60, 10D and 300D, the PowerShot G2 to G6, Pro1 and
+S30 to S70) now develop directly: `shootflow develop CRW_0001.CRW --dcp DIR`, and the grade stage
+takes them like any CR2 (`src/shootflow/crw.py`). It reads the CIFF heap, Canon's 64-sensel block
+coder with its three tree pairs, the 12-bit bodies' stored low bits, SensorInfo's picture area and
+masked rectangle (black level), the as-shot white balance from whichever of the three colour
+records the body writes, and the camera's rotation. On 20 real files from 15 bodies every one of
+114.0 M sensels and the CFA equal LibRaw 0.22's, the white balance too wherever the file records
+one, black within 2; 2-4 s a file in Python. A PowerShot on Auto white balance keeps no levels for
+the shot, so none is applied and the report says so. The four-colour G1, Pro70 and Pro90 IS are
+refused. Details: `eval/canon-crw-reader-2026-11-16.md`; check: `tools/crw_libraw_check.py`;
+tests: `tests/test_crw.py`.
+
+## Olympus ORF (2026-11-14)
+
+Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop
+P1010001.ORF --dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for CR2, ARW and NEF)
+reads the ORF itself, and the pipeline's grade stage develops ORF stills with the workspace's
+`color/camera-profiles/` (`src/shootflow/orf.py`).
+
+What it reads: Olympus's compressed ORF, which every E-system, PEN, OM-D, OM System and Tough body
+in the test set writes (the E-30 of 2008 to the OM-1 and TG-7). It is one bit stream per frame with
+an adaptive bit width per column parity, a unary escape, and an edge or median-style prediction from
+left, up and up-left. It also reads the older compacts' 12-bit packed, interlaced ORF (even rows,
+then odd rows from the next 2048-byte boundary). Black level, as-shot balance and the camera's crop
+come from the maker note's ImageProcessing IFD; the older compacts' balance comes from the main
+note, and the CFA from EXIF. The crop becomes the DNG DefaultCrop, which leaves out the masked or
+dim columns several bodies store at the right edge. The decode runs in C through the same optional
+ctypes library as the NEF and lossless-JPEG readers (0.2-0.5 s per file), with a pure-Python
+reference that gives the same sensels (9-19 s).
+
+Like a CR2, ARW or NEF, an ORF carries no colour matrix the DNG colour model can use, so it needs the
+camera's `.dcp` (e.g. `Olympus E-M10 Adobe Standard.dcp` from Adobe's free DNG Converter).
+
+How it was checked (`tools/orf_libraw_check.py`, `eval/olympus-orf-reader-2026-11-14.md`): 18 real
+ORFs from 18 bodies, from the public metadata-extractor-images collection (14 compressed, 4 packed
+and interlaced). Against LibRaw 0.22 through rawpy, every one of 219.6 M sensels is equal on both
+decoders, and so are the as-shot white balance, the black level at each CFA position and the CFA
+pattern on all 18. `tests/test_orf.py` (9 tests) writes ORFs with an encoder of its own, including
+the escape field, the run counter and an interlaced compact with its extra row, and runs both
+decoders, the profile chooser, the crop and the CLI.
+
+Not done: colour is only as good as the profile you supply. The white level is 4095, where LibRaw
+lowers it on four of the 18 bodies from a per-model table (E-30: 4028). The E-1/E-300-era layouts
+(12-bit packed without interlace, 16-bit unpacked) and high-res composites are refused for want of
+a test file.
+
+## Nikon NEF (2026-11-14)
+
+Nikon's raw files no longer need Adobe's DNG Converter either. `shootflow develop DSC_0001.NEF
+--dcp PROFILE.dcp` (or `--dcp FOLDER`, chosen per camera as for CR2 and ARW) reads the NEF itself,
+and the pipeline's grade stage develops NEF stills with the workspace's `color/camera-profiles/`
+(`src/shootflow/nef.py`).
+
+What it reads: Nikon's compressed NEF (compression 34713, every body from the D1X/D100 on), lossy
+or lossless, 12- or 14-bit: a Huffman-coded difference per sensel from one of six fixed code
+tables, predicted from two columns left (or two rows up at the start of a row) and mapped through
+the linearisation curve the maker note's tag 0x0096 stores (in full, or as points interpolated
+linearly, with the "split row" after which a second, scaling code table takes over). And
+uncompressed NEFs, packed 12/14-bit or 16-bit. As-shot white balance comes from the maker note's
+WB_RBLevels (0x000C), black level from its BlackLevel (0x003D) on bodies that write one (D810:
+600; older bodies store black-subtracted data), white level from the top of the stored curve. The
+decode runs in C through the same optional ctypes library as the lossless-JPEG reader (0.1-0.6 s
+per file), with a pure-Python reference that gives the same sensels (4-29 s).
+
+Like a CR2 or an ARW, a NEF carries no colour matrix the DNG colour model can use, so it needs the
+camera's `.dcp` (Adobe's free DNG Converter installs one per body, e.g. `Nikon D810 Adobe
+Standard.dcp`).
+
+How it was checked (`tools/nef_libraw_check.py`, `eval/nikon-nef-reader-2026-11-14.md`): seven real
+NEFs from seven bodies (D70 lossy with a full curve; D90 and D5100 lossy with a stepped curve; D300,
+D800E and D810 lossless; D200 uncompressed), from the public metadata-extractor-images collection.
+Against LibRaw 0.22 through rawpy: every one of 130.6 M sensels equal on both decoders, and the
+as-shot white balance, black level and CFA pattern equal on all seven. The one difference is the
+D5100's white level: LibRaw takes 15,846 from a per-model table, but its own sensor data for that
+frame reaches 16,383, the top of the file's curve, which is the value used here (no clipping of
+values the camera stored). `tests/test_nef.py` (11 tests) writes NEFs with an encoder of its own in
+every storage, including a split row coded with the scaling table, and runs the profile chooser,
+the CLI and both decoders.
+
+Not done: colour is only as good as the profile you supply (no profile ships here); Nikon's
+high-efficiency NEF (Z bodies) and Coolpix NEFs are refused with a message to convert to DNG.
+
+### Real split rows, the Z 6II's lossy curve and 12-bit black levels (2026-11-15)
+
+Eleven more NEFs from raw.pixls.us (CC0), found by probing all 235 for a non-zero split row in the
+maker note: 1 J5, D3400, D5000, D5200, D5500, D5600 x2, D5, D7000 and two Z 6II frames. The split
+rows were already right (every sensel equal to LibRaw's on all nine 0x44 0x20 files). Three other
+faults were not: the Z 6II's lossy form (0x44 0x40, a curve with its step and range quartered) fell
+to the full-curve branch and got 99.3% of sensels wrong; a 12-bit file's black level was read 4x too
+high (tag 0x003D is on a 14-bit scale), which put 82-95% of a frame's sensels at or under black, so
+every 12-bit NEF from a 2014-on body developed nearly black; and the edge-column rule cut two picture
+columns from busy D3400 and D5600 frames (its correlation bar is now 0.5, not 0.8, after measuring
+every masked column on 18 bodies). All three fixed: 18 of 18 real NEFs now equal LibRaw in every
+decoded sensel, black level, balance, CFA and visible area (the J5 keeps 2 picture rows LibRaw does
+not decode). `eval/nikon-nef-split-row-2026-11-15.md`, `tests/test_nef.py` (21 tests).
+
+### The edge columns that hold no picture (2026-11-15)
+
+Five of the seven bodies store columns at the right edge that are not picture: optically masked
+sensels, then padding of one value (D800E: 46 of 7,424, ending in a column of 16,382 and thirty of
+1). Developed whole, a D800E came out with a grey band, a white line and fifteen black columns down
+its right side. Nothing in a NEF marks the edge, and dcraw and LibRaw trim by a per-model table, so
+`nef.masked_margins` reads it from the sensels: a picture column varies as much as a tenth of the
+middle of the frame and moves with its same-colour neighbour two columns in (correlation 0.5 or
+more since 2026-11-15; it was 0.8, which cut two picture columns of busy lossy frames); a masked or padding column does neither. The result becomes the ActiveArea, and the report's
+notes say how many columns were left out. Against LibRaw's table: seven of seven bodies equal
+(D800E 46, D300 32, D5100 44, D90 42, D70 1, D200 2 left and 3 right, D810 none). Run on the picture
+alone at 0, 3 and 6 stops under, it cut nothing in 21 of 21 cases; on a very dark frame it keeps a
+margin rather than guess. `eval/nikon-nef-visible-area-2026-11-15.md`, `tools/nef_libraw_check.py`
+(now gates on the visible area too), `tests/test_nef.py` `VisibleAreaTests`.
+
+## The CR2 brightness gap was the check (2026-11-12)
+
+`tools/cr2_develop_check.py` passed LibRaw the white level with black included, but LibRaw's
+`user_sat` is black-subtracted, so every LibRaw render was darker by white / (white - black):
+predicted 1.067-1.193 in linear light, measured the same. It also binned the 350D on a 2x2 grid
+one row off LibRaw's, and compared the 70D one pixel out of place. With all three fixed, the
+median difference is 0.07-0.88 steps (was 0.6-5.6). Re-rendered through dcraw's own matrix,
+ShootFlow's data matches LibRaw to 0.05-0.19 steps on all five bodies. The rest is the DNG colour
+model against dcraw's, which grows with the as-shot white's distance from D65 (0.07 on the 7D
+near D65, 0.88 on the 70D at about 4,700 K, tinted green). ShootFlow keeps the DNG model; a
+colour chart under that light would say which is closer. Details:
+`eval/cr2-brightness-gap-2026-11-12.md`.
+
+## CR2 in the pipeline (2026-11-12)
+
+Copy your camera's profile into the shoot workspace's `color/camera-profiles/` (Adobe's free
+DNG Converter installs them under `CameraRaw/CameraProfiles`, several per body; copying the
+whole camera folder is fine) and the overnight pipeline's grade stage develops each CR2 into
+`graded/<job>/IMG_0001.CR2.tif` like a DNG. The profile is chosen per file by the camera that
+took it (`src/shootflow/camera_profiles.py`): a file named `<camera>.dcp` first, then the one
+profile tagged for that camera, then its Adobe Standard among several; anything else stops the
+file for review naming the candidates, rather than picking a colour silently. With no profile
+for the camera it stops naming the folder and the cameras it does hold. `shootflow develop
+--dcp FOLDER` does the same for a batch from several bodies.
+
+Checked (`eval/cr2-pipeline-grade-2026-11-12.md`, `tools/real_cr2_pipeline.py`): a real
+Canon 5D Mark II CR2 and a clip through the whole pipeline in 7.1 s, the 21 MP 16-bit master
+bit-identical to `shootflow develop --dcp` with the same profile, a decoy profile for another
+body left unused, proxy from the camera's preview and measured scores.
+`tests/test_camera_profiles.py` (12 tests) covers each rule, the refusals, symlinks, the CLI
+folder mode and a synthetic CR2 through the pipeline with and without a profile. Not done: a
+real Adobe profile, regional model names (rename the profile file), other bodies on real files.
+
+## Colour for the light the photo was taken in (2026-11-12)
+
+A camera does not respond to colour the same way under tungsten as under daylight, so a DNG
+carries two colour matrices, measured under two calibration lights (almost always Standard
+Illuminant A, about 2856 K, and D65). Until today the developer picked the daylight matrix and
+white-balanced in camera space, as dcraw and LibRaw do. That is right for daylight shots and
+drifts for indoor ones. `shootflow develop` (and the pipeline's grade stage) now follows the
+DNG specification's colour model by default (`src/shootflow/dng_colour.py`):
+
+- the as-shot white is the one consistent with `AsShotNeutral`: blend the matrices for a
+  white's colour temperature, map the neutral back to XYZ, and the same white must come out.
+  The specification finds it by plain iteration, which took over 200 steps on some strongly
+  different matrix pairs in testing; here it iterates on the blend weight and bisects once
+  it stalls. `AsShotWhiteXY` is used directly when there is no neutral;
+- `ColorMatrix`, `CameraCalibration` and `ForwardMatrix` are blended linearly in inverse
+  temperature (mired) and clamped outside the two calibration lights; colour temperature is
+  Robertson's 1968 method;
+- with `ForwardMatrix`, camera to XYZ D50 is `FM * D * inv(AB * CC)`; without it, Bradford
+  from the white to D50 after the inverted blended matrix; then XYZ D50 to sRGB through
+  Bradford to D65;
+- `CameraCalibration` only when its signature matches the profile's; `AnalogBalance` is taken out.
+
+`--colour dcraw` (`DevelopSettings(colour="dcraw")`) keeps the old method, which is what the
+LibRaw comparison above measures (`tools/libraw_differential.py` now asks for it). The JSON
+report gains `colour`, `white_xy` and `cct`, and `matrix` says which tags were blended at what
+temperature (`"ColorMatrix1+2 at 3584 K"`).
+
+How it was checked (`eval/dng-colour-2026-11-12.md`):
+
+- `tests/test_dng_colour.py` (15 tests) writes DNGs from a known scene: a camera whose true
+  response under A differs from the one under D65, photographing patches lit by that light.
+  Under tungsten the new model gives the patches back within 0.0004 in linear light; the old
+  one misses them by 0.036. It also covers daylight, greys staying grey at any white, a
+  `ForwardMatrix` that carries the real response when the colour matrices are a crude fit,
+  `AsShotWhiteXY` against the neutral, `AnalogBalance`, the `CameraCalibration` signature rule,
+  one matrix or unknown illuminants, a `--wb` override (the white is found from it), and refusals.
+- Against an independent implementation, colour-hdri (BSD-3, colour-science.org), which has
+  its own Robertson code, iteration and blending (`tools/dng_colour_check.py`, in a separate
+  venv): on 2,000 random profiles of the shape Adobe publishes (with and without
+  `CameraCalibration`, `AnalogBalance` and `ForwardMatrix`) and whites from 2,000 to 10,000 K,
+  a little off the Planckian locus, the white, its temperature and the camera-to-XYZ matrix
+  agree to rounding (largest matrix difference about 1e-13), apart from two profiles with
+  several self-consistent whites where the two loops, started from different guesses,
+  settle on different ones.
+- On a real file's tags: exiftool's test DNG, written by Adobe's converter from a Canon EOS
+  350D (image data stripped, so tags only: two matrices for A and D65, a `CameraCalibration1`,
+  an as-shot neutral). Its white is x 0.4014, y 0.3905, 3584 K (an indoor shot), the blend is
+  64% the tungsten matrix, and colour-hdri gives the same white and matrix within 2e-15. On 64
+  colour patches at that white the old one-matrix method lands up to 35 8-bit sRGB steps from
+  the DNG model (mean 9). That measures how much the two models differ on a real camera
+  profile, not which is closer to the scene: a real tungsten-lit chart with known colours is
+  still wanted for that, as is a DNG with `ForwardMatrix` written by a camera or Adobe.
+
+## Camera profiles: hue/saturation maps, look tables and `.dcp` files (2026-11-12)
+
+The matrices are only half of a camera profile. Adobe's profiles, and the ones RawTherapee
+and dcamprof make, also carry a **hue/saturation map**: a grid over hue, saturation and
+(sometimes) brightness that nudges each colour's hue, saturation and value. Many also carry
+a **look table**, the same kind of grid applied after the exposure. These are what give a raw
+converter its colour rendering. The developer now applies both by default, in the DNG
+specification's order: camera to linear ProPhoto, the map (two maps blended for the as-shot
+light like the matrices), the exposure, the look table, then sRGB.
+
+```
+shootflow develop IMG_0001.dng --out masters/                          # tables embedded in the DNG
+shootflow develop IMG_0001.dng --out masters/ --dcp "Canon EOS 5D Mark II.dcp"   # your own camera profile
+shootflow develop IMG_0001.dng --out masters/ --no-profile-tables      # matrices only
+```
+
+`--dcp` reads a `.dcp` camera profile, the file Adobe DNG Converter installs and dcamprof and
+RawTherapee write. Its matrices, maps and look table replace the DNG's own. The camera's
+`AnalogBalance` and `CameraCalibration` still come from the DNG, as the specification says.
+A profile made for another camera model renders with a note. The JSON report's `profile` field
+names the profile and the tables it applied (`"Canon EOS 5D Mark II: HueSatMap 90x30x1"`).
+
+How it was checked (`eval/dcp-tables-2026-11-12.md`):
+
+- `tests/test_dng_profile_tables.py` (15 tests): the table code against a second
+  implementation built on the stdlib's `colorsys`, worst difference under 1e-9 on four table
+  shapes; known hue, saturation and value edits; the hue wrap; the sRGB-encoded value axis;
+  renders against the plain render edited by hand (within 0.004 linear); DCP and embedded
+  tags giving the same bytes; the numpy engine byte-identical to pure Python.
+- `tools/dcp_check.py` on all 161 profiles RawTherapee ships: every one reads, greys stay
+  exactly grey, and numpy matches pure Python on 2,000 colours per profile. A typical profile
+  turns saturated colours' hue by about 10 degrees and raises their saturation about 27%.
+  One shipped profile (FUJIFILM X-A7) has a +/-180 degree angle-wrap fault in its map.
+- On a real Canon 5D Mark II raw frame with its RawTherapee profile, the maps move 36% of
+  pixels by more than 5 8-bit steps. The two engines give identical bytes, and numpy takes
+  3.8 s at half size against 1.3 s without the tables.
+
+Not yet: DNG 1.6's third illuminant, and a comparison against Adobe's own render of the same
+profile. The tone curve landed later the same day (next section).
+
+## The profile's tone curve (2026-11-12)
+
+Most camera profiles also carry a **tone curve** (`ProfileToneCurve`): the contrast curve the
+profile's maker meant to sit on top of its colours. 126 of RawTherapee's 161 profiles have
+one; 53 of those are a plain straight line, and 68 share one 8,192-point film-like curve that
+takes linear mid-grey (0.18) to 0.388 and steepens the mid-tones about 2.1 times. The
+developer now applies it after the look table, by default, as the DNG specification and
+Adobe's reference code do:
+
+- the points are joined by the **natural cubic spline** (second derivative zero at both ends)
+  and sampled into a 4,096-step table;
+- the curve is applied in linear ProPhoto by the **hue-preserving RGB tone**: the brightest and
+  darkest channel go through the curve and the middle one keeps its place between them, so
+  a colour gains contrast without its hue drifting the way a per-channel curve shifts it.
+
+```
+shootflow develop IMG_0001.dng --out masters/ --dcp "Canon EOS 6D.dcp"   # tone curve applied
+shootflow develop IMG_0001.dng --out masters/ --no-tone-curve            # tables, plain sRGB curve
+```
+
+The report's `profile` field lists it (`"Canon EOS 6D: HueSatMap 90x30x1, LookTable 90x30x30,
+ToneCurve 8192 points"`); `--no-profile-tables` turns the curve off with the tables.
+
+How it was checked (`eval/tone-curve-2026-11-12.md`):
+
+- `tests/test_dng_tone_curve.py` (14 tests): the spline against a second implementation in the
+  test (second-derivative form, dense elimination) and against scipy's
+  `CubicSpline(bc_type="natural")`, worst 1e-9 on 200 random curves; HSV hue unchanged and the
+  brightest and darkest channel through the curve on 5,000 colours with ties; renders against
+  the plain render toned by hand; DCP and embedded curves giving the same bytes; the numpy
+  engine byte-identical to pure Python.
+- `tools/dcp_check.py` on all 161 profiles: all 126 curves load, every table is
+  non-decreasing, the spline equals scipy's to 3e-16, hue moves at most 6e-14 degrees, and
+  numpy matches pure Python on every colour.
+- A real Canon 5D Mark II frame (its own profile's curve is a straight line, so the shared
+  8,192-point curve was taken from the Canon EOS 6D profile): 37% of pixels move more than 5
+  8-bit steps, mean level 26.0 to 29.6, and the two engines give identical bytes (numpy 4.9 s,
+  pure Python 40 s, half size).
+
+Still open: whether the curve brings the render closer to Adobe's own (needs an Adobe render
+of a known frame). Adobe's default curve for profiles with none landed later the same day
+(next section).
+
+## The default tone curve, for profiles with none (2026-11-12)
+
+The shared 8,192-point curve above turned out to be **Adobe's "ACR3 default" curve**, the one
+Adobe's raw converters fall back to when a profile carries no tone curve: resampled from the
+1,025-entry table that RawTherapee (`rtengine/dcp.cc`) and Adobe's DNG SDK carry, it matches
+within 4.5e-7 linear on 4,097 points; two RawTherapee profiles carry the 1,025-point original.
+So 35 of RawTherapee's profiles, and any DNG whose embedded profile has no curve, rendered
+flatter here than in Lightroom or RawTherapee.
+
+shootflow now has that curve as **20 knots of its own** (`dng_colour.DEFAULT_TONE_KNOTS`), a
+weighted least-squares natural-spline fit, not a copy of the table: worst error 5.1e-4 linear
+and 0.077 of an 8-bit sRGB step; mid-grey 0.18 goes to 0.3880 (the curve: 0.3881).
+`tools/default_tone_fit.py` re-derives the knots from any profile that embeds the curve.
+
+```
+shootflow develop IMG_0001.dng --out masters/ --default-tone-curve always   # Adobe's behaviour
+shootflow develop IMG_0001.dng --out masters/ --default-tone-curve never    # plain sRGB curve
+```
+
+`auto` (the default) applies it only when the profile has no curve and its
+`ProfileToneCopyright` names Adobe, which is RawTherapee's rule; `always` applies it to every
+profile without one. A profile's own curve, even a straight line, always wins. The report's
+`profile` field says `default ToneCurve (ACR3 fit)` when it ran.
+
+How it was checked (`eval/default-tone-curve-2026-11-12.md`):
+
+- `tests/test_default_tone_curve.py` (12 tests): the knots pass the tag checks and the table
+  never falls; the curve's published landmarks within 6e-4; auto, always and never; a
+  profile's own curve (and a straight line) wins; after the tables; the off switches; a `.dcp`
+  with an Adobe copyright; numpy byte-identical to pure Python. With
+  `SHOOTFLOW_DEFAULT_TONE_DCP` naming a profile that embeds the curve, it is also checked
+  point by point (passes on RawTherapee's `Canon EOS 100D.dcp`, 1,025 points).
+- A real Canon 5D Mark II frame at half size: the fitted default against the embedded
+  8,192-point curve differs by a mean 0.014 8-bit steps, p99 0.68, max 0.81; no pixel moves
+  a whole step. The curve itself against no curve: mean 6.9 steps, max 205.
+
+
+## Three calibration lights: DNG 1.6 profiles (2026-11-12)
+
+A two-matrix profile blends between tungsten and daylight. A photo lit by a fluorescent tube or
+an LED lies off that line, and DNG 1.6 lets a profile carry a third set of tags for a third
+light (`ColorMatrix3`, `CalibrationIlluminant3`, `CameraCalibration3`, `ForwardMatrix3`,
+`ProfileHueSatMapData3`), plus `IlluminantData` to describe a custom light by its xy or its
+spectrum. The developer now reads them from the DNG or a `.dcp` and blends the three sets the
+way Adobe's DNG SDK does: by the photo's white's distance to each light in a plane of tint and
+inverse temperature (`dng_colour.triple_weights`). The as-shot white is found by the SDK's loop on
+xy. The report names the sets used and their weights (`"ColorMatrix3 at 4225 K (weights
+0.00/0.00/1.00)"`). A third set that breaks the SDK's validity rules is ignored with a note
+saying why. A light coded 255 ("other") takes its white from `IlluminantData`, in two-light
+profiles too.
+
+How it was checked (`eval/triple-illuminant-2026-11-12.md`): on a synthetic fluorescent-lit
+scene the third matrix gives the patches back within 0.0005 linear, against 0.079 when the same
+file is read as two-light. Temperature and tint match colour-science's Robertson on 5,000 whites
+(to 6e-15 and 5e-13), and spectra give colour-science's xy on 20 CIE illuminants within 5e-5
+(`tools/triple_illuminant_check.py`). The weights were not compared value for value with the
+SDK's output, and no real DNG 1.6 profile has been read yet.
+
+## Phone DNGs: the lens shading map, and camera DNGs against LibRaw (2026-11-12)
+
+Android phones write their raw files uncorrected and store the lens shading they measured in
+the DNG's `OpcodeList2` as four `GainMap`s, one per Bayer position. Ignore them and the corners
+come out at about a third of their brightness, tinted. `shootflow develop` now runs `GainMap`
+(`shootflow.dng_opcodes`, the DNG specification's rectangle, pitch and map coordinates, gain
+bilinear between map points, capped at white) on both engines, byte-identical, and names every
+other opcode in the report (`"OpcodeList3: 1 x WarpRectilinear (required) not applied"`).
+`--no-opcodes` turns it off. On a real LG Nexus 5X DNG the gains run 1.00 at the centre to 3.8
+in the corners, different per colour. Picture: `docs/reports/img/photo-editing-2026-11-12-gainmap.jpg`
+in the repository.
+
+The first three camera-written DNGs read against LibRaw (`tools/dng_camera_check.py`, opcodes
+off on both sides, since rawpy's LibRaw does not run them): Nexus 5X, Leica T and Pentax Q-S1
+match to a median 0.105, 0.027 and 0.023 of an 8-bit step through dcraw's colour method, with
+the same black, white and white balance. Correctness of the gain map itself is checked on
+synthetic files, including a linear map whose flat-field answer is known in closed form; it
+has not been compared with an Adobe render. Details: `eval/camera-dngs-2026-11-12.md`.
+
+## Lens distortion from the DNG: WarpRectilinear (2026-11-12)
+
+Cameras with corrected lenses store the correction in the DNG's `OpcodeList3` as a
+`WarpRectilinear`. It has a radial polynomial per colour plane, so it covers both distortion and
+lateral colour. Adobe's readers apply it; LibRaw, as rawpy packages it, does not. `shootflow
+develop` now runs it after demosaic, on the linear image before colour and tone. Both engines run
+it with the same output bytes, and `--no-opcodes` turns it off. On the real Leica T DNG the
+correction moves features by up to 5 px at the 720 px preview's scale (about 34 px at full size).
+Block-matched against the camera's own embedded preview, 444 patches sit a median 4.2 px off with
+the warp off. The offsets follow the formula's prediction within 0.1-0.3 px at every radius. With
+the warp on they drop to 0.18 px, the same as the matcher's noise across the radius.
+`tools/warp_preview_check.py` runs that check on any DNG with a preview and a warp. The formula is
+also checked exactly on synthetic ramps (13 tests) and agrees with darktable's reading of the same
+opcode. Details, choices and what is not checked: `eval/warp-rectilinear-2026-11-12.md`.
+
+## Higher-order lens distortion from the DNG: WarpRectilinear2 (2026-11-12)
+
+`WarpRectilinear2` (opcode 14, DNG 1.6) now runs in `OpcodeList3` beside WarpRectilinear. Its
+radial polynomial has 15 terms on every power of `r` up to `r^14`, odd as well as even, where
+WarpRectilinear has four even ones. It can also divide by the polynomial instead of multiplying,
+and it clamps `r` to a valid range before the polynomial. The layout and formula were read from
+the DNG 1.7.1.0 specification text (pages 120-122), not from memory. The specification's skip rule
+is in too: a writer can put an optional WarpRectilinear2 first and a plain WarpRectilinear or
+WarpFisheye after it for older readers, and a reader that applies the first skips the second.
+`plan()` does that and says so in the notes. If the WarpRectilinear2 can't be read, the fallback
+runs. Both engines give the same bytes, and `--no-opcodes` turns it off.
+
+Why it matters, measured: lensfun's 5,440 ptlens calibrations (1,079 lenses) carry exactly as a
+WarpRectilinear2 (kr0..kr3 from `a, b, c`; checked to 1.8e-12 px against lensfun's formula). 4,741
+of them have an odd term that WarpRectilinear can't hold. Even with its four terms chosen as well
+as possible (a minimax fit), WarpRectilinear leaves more than 1 px on a 6,000 px wide frame for
+17% of rectilinear profiles, and more than 0.5 px for 38%. A plain least-squares fit leaves more
+than 1 px for 52%. `tools/lensfun_warp_fit.py` runs it.
+
+What is checked: 21 tests (`tests/test_dng_warp2.py`). The source point is checked against the
+specification's formula, written out separately in the test, for odd terms, clamping, `r^14` and
+the division form. An even-only WarpRectilinear2 gives WarpRectilinear's points. The skip rule is
+checked on the specification's three worked examples. numpy and pure Python give the same bytes.
+What is not: no camera- or converter-written file carrying it has been tried. The gap found in
+passing here (opcodes with flag bit 1 skipped in every develop) was fixed on 2026-11-13: see
+"Full and preview quality" below. Details: `eval/warp-rectilinear2-2026-11-12.md`.
+
+## Value tables and row and column gains on the stored raw values: OpcodeList1 (2026-11-13)
+
+`MapTable`, `ScalePerRow` and `ScalePerColumn` now run in `OpcodeList1` too, on the stored CFA
+values before black subtraction or anything else reads them. Until now they ran only in
+`OpcodeList2` and `OpcodeList3`. In the first list they were named and left undone, because no
+file had shown what unit a stored raw value is in. The DNG 1.7.1.0 text settles it for these
+three (chapter 6, p. 105): after each opcode "image values are clipped ... to the logical range
+of the image being modified. For OpcodeList1, this range is 0 to 2^32-1 for images with a bit
+depth greater than 16, otherwise 0 to 2^16-1." So the first list works on integers:
+
+- `MapTable`: the stored value is the table index. Value `v` becomes `table[min(v, size - 1)]`.
+  That picks the same entry the SDK's float view (`v / 65535`, indexed at `floor(x * 65535 + 0.5)`)
+  picks, so one rule holds in all three lists. A sensor that stores companded values (a square
+  root or log curve, to fit a wide range into fewer bits) writes the expansion table here.
+- `ScalePerRow` / `ScalePerColumn`: a gain has no unit. `v * scale` is rounded half up and clipped
+  to `0..65535` (`0..2^32-1` above 16 bits). This is the fix for row or column readout gain
+  mismatch, applied where the mismatch happens: on the raw values, black level included.
+
+The other three still wait. `DeltaPerRow`, `DeltaPerColumn` and `MapPolynomial` need a unit. An
+offset of 0.01 is 0.01 of what? The text doesn't say for stored values, so in `OpcodeList1` they
+stay named and undone. Also named and skipped: a `MapTable` on 32-bit stored data (a 16-bit table
+gives no index there), and a plane range that leaves out plane 0 (a CFA image has one plane).
+Areas count from the stored frame's top-left, as the bad-pixel fixes do. One choice to check
+against Adobe's output when a file turns up: the SDK multiplies in float32, so where a product
+lands within float32 rounding of a half step, its result may differ from this float64 one by one
+count.
+
+Speed on a 12.2 MP stored frame (4032 x 3024): `MapTable` 0.07 s, a row or column scale
+0.15-0.16 s with numpy; pure Python 1.4 s and 2.6-2.9 s. Both give the same values.
+
+What is checked: 12 tests (`tests/test_dng_list1_table_scale.py`), each on both engines. Every
+answer is checked against the closed form written out in the test:
+
+- tables of 1, 2, 300, 4,096 and 65,536 entries, over the whole frame and over an area with row
+  and column pitches; the input is left untouched;
+- row and column scales, including gains of 0 and 3 (clipped), with an exact half rounding up;
+- a table and a scale composing in list order, and 32-bit stored data;
+- on a whole develop, a sensor that stored square-root-companded 16-bit values develops
+  byte-identical to the clean sensor with the expansion table in `OpcodeList1` (more than 100
+  8-bit steps off without it);
+- rows and columns darkened by known readout gains come back within 3 16-bit steps of 257
+  (more than 20 without);
+- numpy and pure Python give the same bytes at full and half size.
+
+Four seeded faults each fail 5 to 14 of the tests: rounding down instead of half up, a table
+index off by one, wrapping instead of clipping at the top, and the column pitch ignored. What is
+not checked: no camera- or converter-written file carrying any of the three in `OpcodeList1`.
+Details: `eval/list1-table-scale-2026-11-13.md`.
+
+## Full and preview quality: opcode flag bit 1 (2026-11-13)
+
+Each DNG opcode carries two flag bits. Bit 0 marks it optional. Bit 1, in the
+specification's words (DNG 1.7.1.0, chapter 6, p. 104), means the opcode "can be skipped when
+doing 'preview quality' processing, and only needs to be applied when doing 'full quality'
+processing". Until 2026-11-13 `dng_opcodes.plan()` treated bit 1 as "preview only" and skipped
+such opcodes in every develop, so a full develop of a file using the flag left out a correction
+the file asked for. Now a develop is full quality by default and runs them; `--preview-quality`
+(`DevelopSettings.preview_quality`) skips them and names each one in the report
+(`"OpcodeList2: 1 x GainMap skipped (full quality only; this is a preview-quality render)"`). The
+half-size still made for proxies and analysis when a DNG has no embedded preview
+(`still_for_review`) is the one preview-quality render ShootFlow makes. A WarpRectilinear2 skipped
+this way does not arm the skip rule, so the fallback warp after it runs.
+
+Checked: 11 tests (`tests/test_dng_quality_flag.py`, plus the WarpRectilinear2 skip-rule case in
+`tests/test_dng_warp2.py`); 6 of them fail on the old code. On real files it changes nothing yet:
+`tools/dng_opcode_flags.py` lists the flags of the six camera DNGs in the metadata-extractor
+collection (DJI Phantom 4 x2, LG Nexus 5X, Leica T, Leica X Vario, Pentax Q-S1) and none sets bit
+1. The two DJI files are the first real ones here carrying FixVignetteRadial and FixBadPixelsList;
+the first develops in 46 s, repairs 9,334 sensels and matches LibRaw to a median 0.012 8-bit steps
+with opcodes off. Details: `eval/opcode-quality-flag-2026-11-13.md`.
+
+## Cubic resampling for the lens warps (2026-11-13)
+
+Every warp (the DNG's WarpRectilinear, WarpRectilinear2 and WarpFisheye, and the lensfun corrections
+from `--lens-db`) maps each output pixel to a point between source pixels and has to sample there.
+Until now that was bilinear, a blend of the four nearest pixels, which softens the image a little
+wherever the point falls between pixels. The DNG specification recommends "a suitable resampling
+kernel, such as a cubic spline" (1.7.1.0, p. 107). `shootflow develop --warp-kernel cubic`
+(`DevelopSettings.warp_kernel="cubic"`) now samples 16 pixels with the Catmull-Rom spline (Keys'
+cubic convolution, a = -0.5), clips the spline's overshoot at hard edges to the plane's range, and
+gives the same bytes on the pure-Python and numpy engines.
+
+Measured (`eval/warp-kernel-cubic-2026-11-13.md`, `tools/warp_kernel_check.py`): under the Leica T's
+own WarpRectilinear, on gratings whose true value at every source point is known, cubic is 2 to 100
+times closer than bilinear (RMS 0.0133 against 0.0550 at 0.25 cycles per pixel). On the real Leica T
+frame, the bilinear warp keeps 73% of the unwarped render's fine detail (mean absolute Laplacian of
+green) and cubic keeps 89%. The cost: the full-size warp takes 14.6 s instead of 5.7 s on the numpy
+engine, so bilinear stayed the default until a faster cubic landed. Not checked: the kernel Adobe's
+DNG SDK uses.
+
+Later the same day the faster cubic landed and **cubic became the default**
+(`eval/warp-kernel-fast-cubic-2026-11-13.md`). Each plane is edge-padded once, so the 16 taps are
+fixed offsets read with one `take` each, and the warp's bands run on a thread pool
+(`SHOOTFLOW_THREADS`, default every CPU). The output is byte-for-byte what it was, at any thread
+count. On the Leica T frame the cubic warp now costs 8.4 s on one thread (was 15.7 s), 5.5 s on two
+(what bilinear cost before) and 3.0 s on four, where the whole develop (5.2 s) beats the old bilinear
+develop (7.3 s). `--warp-kernel bilinear` keeps the softer, slightly faster sampling.
+
+## The whole develop on every core, and a 17x faster file read (2026-11-13)
+
+The numpy engine's demosaic, colour and encode now run in 256-row bands on a thread pool, as the
+warp already did (`SHOOTFLOW_THREADS`, default every CPU), and uncompressed DNGs packed 9 to 15
+bits per sample (the Leica T writes 12-bit) unpack in numpy instead of a per-sample Python loop
+(`eval/threaded-develop-2026-11-13.md`). Output is byte-for-byte what it was at every thread count
+and band height; the tests compare it with the pure-Python engine at five band heights and three
+thread counts. On the Leica T frame and four CPUs, reading the file takes 0.23 s (was 3.97 s) and
+read plus full default develop takes 3.7 s (was 8.8 s); an unwarped develop takes 1.1 s (was 2.2 s).
+Not yet threaded: the lossless-JPEG decode of compressed DNGs and CR2s.
+
+Since 2026-11-14 the last serial stage, sensor normalisation (`_normalised_plane`: linearise, black,
+scale, clamp, clip count), runs in the same bands too (`eval/normalised-plane-bands-2026-11-14.md`):
+0.24 s to 0.05 s on four CPUs on the Leica T frame, same bytes, so an unwarped develop takes 0.70 s
+(was 0.93 s) and the half-size review still 0.74 s (was 1.14 s). GainMap opcodes still run once on the
+whole plane between two banded passes.
+
+## A phone's lossless-JPEG DNG, sensel for sensel, and its tiles on every CPU (2026-11-13)
+
+The first camera-written lossless-JPEG DNG ShootFlow has read: a Google Pixel 3 XL raw (4032 x
+3024, 192 lossless-JPEG tiles, four GainMaps, a WarpRectilinear; MIT-licensed, from the tinydng
+repository, downloaded at check time). All 12,192,768 sensels equal LibRaw's `raw_image`, and the
+half-size render matches LibRaw's to a median 0.054 of an 8-bit step with opcodes off. With the
+phone's lens shading map on, the two lit corners come to 110% and 85% of the phone's own preview
+(41% and 33% without it). `tools/dng_camera_check.py --preview` now turns the embedded preview by
+the file's Orientation before comparing corners; on this file it had been comparing the wrong ones.
+Lossless-JPEG tiles and strips now decode on a thread pool (`SHOOTFLOW_THREADS`, default every
+CPU), same samples at every thread count: the Pixel's read takes 0.21 s on four CPUs against
+0.33 s on one, and read plus full develop 3.1 s against 6.5 s
+(`eval/pixel3-lossless-tiles-2026-11-13.md`).
+Later the same day the whole tile decode moved into the optional C reader: it reads the scan's
+bytes directly (de-stuffing and restart intervals included), decodes through a 12-bit first table,
+and runs the predictor in C, so a tile holds the GIL only to set up the call. Same sensels as
+LibRaw; the Pixel read drops from 0.21 s to 0.10 s on four CPUs and from 0.33 s to 0.22 s on one.
+Measuring first showed the Python de-stuffing was about 8% of a tile, not half, and that the
+Pixel writes new Huffman tables for every tile (`eval/native-destuff-2026-11-13.md`).
+Then tile placing moved onto the decode threads too: a tile the C reader returns is copied into
+the sensor plane as one numpy assignment on the thread that decoded it, instead of 256 row copies on
+the calling thread after the pool. Same sensels; the Pixel's four-thread read drops from a median
+0.12-0.17 s to 0.09-0.14 s on a noisy shared host (paired runs 1.3-1.4 times faster); one thread and
+installs without numpy are unchanged (`eval/parallel-tile-placing-2026-11-13.md`).
+
+## Value tables and row/column fixes from the DNG: MapTable, Delta/Scale per row and column (2026-11-12)
+
+Five more opcodes now run in `OpcodeList2` and `OpcodeList3`, in list order with the others:
+`MapTable` (opcode 7) sends each value through a table of up to 65,536 16-bit entries (a sensor's
+non-linear response, or a converter's tone map); `DeltaPerRow` and `DeltaPerColumn` (10, 11) add
+one offset per row or column, the fix for the banding a sensor's readout leaves; `ScalePerRow` and
+`ScalePerColumn` (12, 13) multiply by one gain per row or column. Each takes the same area, plane
+range and pitches as `MapPolynomial`; results are pinned to 0..1, and in stage 3 the white-balance
+scale is taken off and put back. The table is indexed as the DNG SDK indexes 16-bit data:
+`floor(x * 65535 + 0.5)`, a short table's last entry serving every larger value. A per-row or
+per-column list whose length does not match its area's steps is named and skipped, as the SDK
+rejects it. Both engines give the same bytes (numpy: 0.15-0.34 s per opcode on a 12 MP plane);
+`--no-opcodes` turns them off. In `OpcodeList1` they stayed named, since no file had shown which
+unit a stored raw value is in. Since 2026-11-13, `MapTable` and the two scales run there too. The
+specification's integer range for that list settles them; the deltas still wait (see
+"Value tables and row and column gains on the stored raw values" above).
+
+What is checked: 16 tests (`tests/test_dng_table_per_line.py`) against the formulas written out in
+the test. A raw file with its rows darkened by known gains, a fixed offset added per column, or
+its values squared develops back to the clean scene with `ScalePerRow`, `DeltaPerColumn` or a
+square-root `MapTable` (within 3, 3 and 8 8-bit steps; off, more than 10); tables of 1 to 65,536
+entries match the lookup exactly; area, plane and pitch select exactly the named samples; numpy
+and pure Python agree byte for byte in both stages, full and half size. What is not: no camera- or
+converter-written file carrying any of the five has been tried. Details:
+`eval/table-per-line-2026-11-12.md`.
+
+## Cropping inside the opcode lists: TrimBounds (2026-11-12)
+
+`TrimBounds` (opcode 6) now runs in `OpcodeList2` and `OpcodeList3`. It crops the image to a
+rectangle, and every opcode after it in the list works on the smaller image: its area counts from
+the trimmed top-left, and a vignette's or warp's optical centre and corner distance are measured
+on the trimmed frame (as the DNG SDK resets a trimmed image's origin, `dng_simple_image::Trim`).
+A converter writes it after a warp to drop the edges the warp leaves without data. Before this, a
+DNG carrying it got "TrimBounds (required) not applied" and its full frame.
+
+How it runs: no pixel moves while the lists run. `dng_opcodes.frame_trims` resolves each list once
+the image size is known, wraps every opcode after a trim with its frame, and the developer crops
+its output to the last frame after encoding; an `OpcodeList2` trim is the frame `OpcodeList3`
+starts in. A trim that is empty or does not lie inside the image is skipped with a note (the SDK
+rejects the file). On a half-size develop the rectangle is halved. The DefaultCrop, given relative
+to the active area, moves with the trim and is cut to it. Choices to check against Adobe's output
+when a file turns up: the demosaic sees the whole active area, so the outermost pixel or two of an
+`OpcodeList2` trim are interpolated from neighbours the SDK would not see; and whether the SDK
+moves the DefaultCrop with a trim, or reads it in the trimmed image's own coordinates. In
+`OpcodeList1` (a crop of the stored frame, Bayer phase and all) it stays named and undone.
+
+What is checked: 17 tests (`tests/test_dng_trim_bounds.py`). A trim alone, in either list, gives
+the untrimmed develop's pixels inside the rectangle byte for byte, at full and half size; an
+`OpcodeList3` trim inside an `OpcodeList2` trim lands where the two compose; a vignette, a warp and
+a per-row gain after a trim give exactly what they give on the cropped image, and an opcode before
+it what it gives on the whole image; a row gain indexed from the trim's top undoes rows darkened
+by known gains (within 3 8-bit steps away from the trim's edge); the DefaultCrop inside, across and
+outside a trim; numpy and pure Python agree byte for byte with two trims per list. Three seeded
+faults (frame offset dropped, framed result not written back, frames not applied) each fail 3 to 5
+of the tests. What is not: no camera- or converter-written file carrying TrimBounds has been tried.
+
+## The opcodes against the DNG specification's own text (2026-11-12)
+
+Earlier opcode work was written without the specification, which no session had fetched. It
+turns out to be reachable from a cloud session (Adobe's helpx PDF of DNG 1.7.1.0, September 2023).
+So every opcode ShootFlow runs was compared with chapter 6 of that text: GainMap, WarpRectilinear,
+WarpFisheye, FixVignetteRadial, FixBadPixelsConstant/List, TrimBounds, MapTable, MapPolynomial
+and Delta/ScalePerRow/Column. Parameter layouts and formulas all match, including the WarpFisheye
+formula written from memory. One thing differed. The specification places the optical centre
+between the top-left and bottom-right *pixels* (`(1, 0)` is "the top-right pixel") and measures
+`m` to the farthest *pixel*. The module measured both from the image's edges and called that a
+choice the specification leaves open. It now follows the text, for both warps and the vignette.
+On the Leica T's terms a source point moves at most 0.048 px. The check against that camera's
+own preview, re-run, is unchanged: median radial shift +0.18 px over 444 patches. That shows
+nothing regressed; the preview can't tell the two conventions apart. Tests: the independent
+formula helpers now use the text's pixel-index coordinates, and a new test pins the text's `(1, 0)`
+example and `r = 1` at the farthest pixel. Not done: an Adobe render or the SDK's own code, which
+may differ from its text. Details: `eval/opcode-spec-audit-2026-11-12.md`.
+
+## Fisheye unwrapping from the DNG: WarpFisheye (2026-11-12)
+
+`WarpFisheye`, the DNG's other warp, now runs in `OpcodeList3` beside `WarpRectilinear`, in list
+order and through the same resampler. A converter writes it for a fisheye lens: each output pixel
+at normalised radius `r` reads from radius `kr0 t + kr1 t^3 + kr2 t^5 + kr3 t^7` with
+`t = atan(r)`, per colour plane, so an equidistant fisheye comes out as a rectilinear (pinhole)
+image. Before, the report named it as "required, not applied" and the frame stayed curved. Both
+engines give the same bytes; `--no-opcodes` turns it off. 13 tests (`tests/test_dng_warp_fisheye.py`)
+check it on closed forms: with `kr0 = 1` every pixel reads from radius `atan(r)` along its own ray,
+the centre pixel reads itself, and on a ramp every pixel equals the ramp at the formula's source
+point. What is not checked: the formula was written from memory, since neither the specification
+nor Adobe's SDK could be fetched that session (it has since been compared with the DNG 1.7.1.0
+text and matches; see "The opcodes against the DNG specification's own text" above); no
+camera- or converter-written file carrying it has been tried. Details:
+`eval/warp-fisheye-2026-11-12.md`.
+
+## Vignetting and value maps from the DNG: FixVignetteRadial and MapPolynomial (2026-11-12)
+
+Two more opcodes now run, in `OpcodeList2` (on the sensor values, before demosaic) and
+`OpcodeList3` (after it), in the order the list gives them alongside `GainMap` and
+`WarpRectilinear`. `FixVignetteRadial` brightens the frame by `1 + k0 r^2 + ... + k4 r^10`, with
+`r` the distance from the optical centre over the distance to the farthest corner, capped at
+white. `MapPolynomial` maps each value in an area, plane range and pitch through a polynomial of
+degree up to 8, pinned to 0..1. In stage 3 the developer holds white-balanced values, so each
+plane is divided by its white-balance scale for the polynomial and multiplied back: the opcode
+sees the 0..1 camera values the specification describes. Both engines give the same bytes, and
+`--no-opcodes` turns them off. (`OpcodeList1` now runs the two bad-pixel fixes; see below.)
+
+What is checked: 13 tests (`tests/test_dng_vignette_poly.py`) against the formulas written out
+independently. A raw file darkened by the inverse of a known vignette, or with its red sensels
+halved, develops back to the undarkened scene within 3 8-bit steps (the darkened sensels'
+rounding); a stage-3 vignette and polynomial hit the closed form at every pixel to 12 places;
+area, plane and pitch select exactly the named samples; numpy and pure Python agree byte for
+byte with a mixed list in both stages, full and half size. What is not: no camera-written DNG
+carrying either opcode has been found (`eval/vignette-polynomial-2026-11-12.md` lists the names
+tried), and the SDK evaluates the vignette on a coarser fixed-point mask, so an Adobe render may
+differ in the last bits.
+
+## Dead and hot sensels from the DNG: FixBadPixelsConstant and FixBadPixelsList (2026-11-12)
+
+The first opcode list, `OpcodeList1`, now runs too, for the two opcodes a camera writes there to
+mark defective sensels. `FixBadPixelsConstant` says "every sensel holding this value is bad";
+`FixBadPixelsList` lists bad points and rectangles (a dead column is a one-wide rectangle). Both
+run on the stored CFA values before black subtraction or anything else reads them, so a dead
+sensel never reaches the demosaic as a black dot with a coloured fringe.
+
+A bad sensel becomes the mean of the nearest good sensels of its own colour: the four diagonal
+neighbours for green, the eight two rows or columns away for red and blue, widening one step at a
+time (up to 8) when those are bad too. Repairs read only original good values, so their order
+does not matter. On any plane `a + b*row + c*col` a whole ring gives the exact value back, so an
+isolated point, a dead column or a dead row comes back exactly. A constant that would flag more
+than 1% of the frame is not run (that is an under-exposed frame, not a defect map) and the report
+says so. Both engines read the repaired copy, so they give the same bytes; `--no-opcodes` turns it
+off. A 12 MP frame with 2,000 marked sensels repairs in 0.15 s (numpy scan) or 0.34 s (pure).
+
+What is checked: 15 tests (`tests/test_dng_bad_pixels.py`): parse round trips and malformed
+parameters; the nearest rings and the green parity for all four Bayer phases; isolated points, a
+dead column and a dead row exact on a plane; corners, adjacent bad sensels and blocks equal to a
+brute-force reference written in the test; a develop of a file with zeroed sensels and either
+opcode equal byte for byte to the develop of the clean file (and far from it with opcodes off);
+numpy and pure Python identical. What is not: no camera-written DNG with `OpcodeList1` has been
+found yet (the Nexus 5X and Leica T files carry none), and the SDK's own interpolation weights are
+not reproduced, so an Adobe render can differ at the repaired sensels. Details:
+`eval/bad-pixels-2026-11-12.md`.
+
+## Lens correction for raws that carry none: lensfun profiles (2026-11-13)
+
+Most raw files carry no lens correction: every Canon CR2, and most DNGs. `shootflow develop FILE
+--lens-db DIR` now corrects their distortion from lensfun's open database. `DIR` is a folder of its
+`data/db/*.xml`, CC BY-SA 3.0, read at run time and not shipped here. The camera, lens and focal
+length come from the file's EXIF (`--lens`, `--lens-focal` and `--lens-crop` override them). The
+calibration is chosen and interpolated by lensfun's own rules, ported from its source: word
+matching, mount and crop filters, a Hermite spline over focal length, and the crop and aspect
+rescaling. It then becomes an exact `WarpRectilinear2`, which runs through the same warp code as a
+camera's own opcode, so both engines give the same bytes. By default it zooms just enough that no
+edge is smeared or empty (`--no-lens-fill` keeps the centre's scale). A file's own lens warp wins.
+An unknown lens is a note in the report, not an error. A lens name that is only a focal length,
+such as `105mm` (how Canon bodies write third-party lenses), is refused rather than guessed.
+
+Measured: the module's warp lands within 1e-7 px of lensfun's pipeline written out separately (17
+tests, including a camera crop that differs from the calibration's, a portrait frame, poly3 and
+poly5). All 6,500 calibrations in the database build a warp. 1,576 of its 1,580 lenses find their
+own name first, and the other 4 find an alias of themselves. On a real Canon 600D CR2 it found the
+EF100-400mm at 100 mm and developed half size in 9.5 s. On the one real file carrying both a
+maker's correction and a lensfun profile, a Leica X Vario at 46 mm, the two differ by up to 8 px at
+full size once their zooms are matched, more than the camera's own correction of under 4 px. Which
+is right is not settled by that file. Details: `eval/lensfun-correction-2026-11-13.md`.
+
+### Lateral colour too, and Canon lens names from the maker note (2026-11-13)
+
+With `--lens-db`, a lens that lensfun also has a TCA calibration for (909 of its lenses) now gets its
+lateral colour corrected with its distortion: the red and blue fringes that grow toward the corners.
+Lensfun moves red and blue after the distortion, on the distorted point. So each plane's source
+radius is `r f_D(r) f_T(s r f_D(r))`, a polynomial of degree at most 14. That is exactly the 15
+terms a WarpRectilinear2 plane holds, so the three planes carry it with no approximation, and the
+fill zoom keeps all three inside the frame. TCA calibrations are interpolated over focal length as
+lensfun does, with the `v` terms not scaled by focal length (`lens.cpp`, `__parameter_scales`).
+`--no-lens-tca` corrects distortion only. Canon bodies from before EXIF 2.3 (the 5D Mark II, 7D,
+550D) write no `LensModel` tag but name the lens in their maker note (tag 0x0095). The CR2 reader
+now hands that name on, so the real 5D Mark II test file finds `Canon EF 50mm f/1.2L USM` without
+`--lens`.
+
+Measured: every lens with TCA in lensfun's database (909 lenses, 6,257 focal lengths counting
+midpoints) lands within 3e-12 px of lensfun's pipeline written out step by step
+(`tools/lensfun_tca_check.py`). On a 6000 px frame at the calibration's crop, the uncorrected
+corner has red and blue a median 0.56 px apart, over 1 px for 30% of cases and over 2 px for 9%,
+and up to 9.9 px. 12 tests (`tests/test_lens_tca.py`). Four seeded faults each fail 1 or 2 of them:
+TCA before the distortion, `v` scaled by focal length, `b` scaled once, and a fill zoom from green
+alone. Not checked: a real frame with sharp corner edges, to see that the fringes go. Details:
+`eval/lensfun-tca-2026-11-13.md`.
+
+### Vignetting too (2026-11-13, later)
+
+With `--lens-db`, a lens with a lensfun vignetting calibration (`pa`, 717 lenses) now has its dark
+corners brought up. Lensfun divides each pixel by `1 + k1 r^2 + k2 r^4 + k3 r^6`, interpolated to
+the shot's focal length, f-number and subject distance by inverse distance weighting
+(`lens.cpp`, `InterpolateVignetting`), with `r = 1` at the corner of the calibration's sensor
+(`mod-color.cpp`). The developer already runs the DNG FixVignetteRadial opcode, whose gain is a
+polynomial `1 + k0 r^2 + ... + k4 r^10`, so the five terms are fitted to lensfun's `1 / c` (least
+squares, then Lawson reweighting where that leaves more than 0.1%) and the opcode goes into
+OpcodeList3 before the warp, as lensfun corrects colour on the uncorrected image. The f-number is
+EXIF FNumber; the distance is EXIF SubjectDistance, else 1000 m (said in the notes).
+`--lens-aperture`, `--lens-distance` and `--no-lens-vignetting` override. A calibration that goes
+dark inside the frame, or that the fit misses by more than 10%, is refused with a note.
+
+Measured on every `pa` calibration in lensfun's database and the midpoints between apertures
+(54,108 cases on 717 lenses; `tools/lensfun_vignetting_check.py`): the fitted gain is a median
+0.0036% from lensfun's, 1.1% at the 99th percentile; 0.7% of cases are refused. Lensfun's own corner
+gain is a median +0.46 EV, over a stop in 18% of cases: that much darker are those corners without
+it. 16 tests (`tests/test_lens_vignetting.py`), and nine seeded faults all caught. Not checked: a
+real evenly lit frame. Details:
+`eval/lensfun-vignetting-2026-11-13.md`.
+
+### Vignetting against the compiled lensfun (2026-11-13, later still)
+
+`tools/lensfun_vignetting_released_check.py` runs liblensfun 0.3.4's own devignetting (lensfunpy's
+`apply_color_modification` on an image of ones) on every `pa` lens in that release's database that
+we find by the same name: 97,382 cases on 474 lenses, calibration points and midpoints in f-number
+and in focal length, on 3:2 and 4:3 frames at two crop factors. Our interpolation and units agree
+with it to a median 0.00012% of the gain (99th percentile 0.0034%; the largest, 0.32%, is lensfun's
+own float32 rounding on a 93x corner gain). Where lensfun's `c` goes negative it returns black;
+`build_vignette` refuses all 133 such cases. One difference is deliberate: the release measures the
+radius by the pixel-centre diagonal `hypot(w - 1, h - 1)`, master (which we follow) by the
+edge-to-edge one, `hypot(w, h)`. That moves the corner gain by a median 0.0075% on a 6000 px frame,
+but by up to 10% on the steepest calibrations (46% on an 800 px preview), so programs built on the
+release and on master disagree there. The FixVignetteRadial we ship is within 1.2% of the release at
+the 99th percentile on an 800 px frame. 6 tests (`tests/test_lensfun_vignetting_released.py`); four
+seeded faults all caught. Details: `eval/lensfun-vignetting-released-2026-11-13.md`.
+
+### Which lensfun? Its SSE, 16-bit and SSE2 paths (2026-11-14)
+
+The check above reached only lensfun's plain float32 loop, because lensfunpy takes 3-channel images.
+Lensfun 0.3.4 picks its devignetting routine (plain, SSE or SSE2) from the pixel format, the component count and the
+buffer's alignment. `tools/lensfun_vignetting_paths_check.py` drives the bundled liblensfun through
+`ctypes` with RGBA rows, aligned and not, on 40,730 cases (474 lenses, 1,202 and 6,002 px wide):
+
+- **float SSE** (what four-component float callers get) matches the plain loop to float rounding, but it
+  also multiplies the alpha (`UNKNOWN`) channel, by up to 6.9x, which the plain loop leaves alone;
+- **16-bit plain** truncates the gain to 1/1024: up to 8 steps low at 8,192, 4 on average (0.05% darker),
+  matched by our model to the step;
+- **16-bit SSE2** has two faults, still in lensfun's master branch. The four lanes' radii drift apart along
+  the row, giving 4-pixel stripes: p99 4.2% at 1,202 px and 0.9% at 6,002 px, up to 25% on a 7.9x corner.
+  And the last `w % 4` pixels of every row are computed as if far outside the frame. A numpy model of the
+  loop with both faults matches the library on every sampled case; with them fixed it is within 0.12%.
+
+ShootFlow corrects in float64 and rounds once when it writes the 16-bit master, so it matches lensfun's
+float routines. Against lensfun's 16-bit ones the differences above are lensfun's. 8 tests
+(`tests/test_lensfun_vignetting_paths.py`); five of six seeded faults caught. Details:
+`eval/lensfun-vignetting-paths-2026-11-14.md`.
+
+### Lens correction in the overnight pipeline (2026-11-13, latest)
+
+Until now only `shootflow develop --lens-db` corrected lenses; the overnight pipeline's grade stage
+did not, so a shoot's masters came out with the barrel, fringes and dark corners left in. Copy
+lensfun's `data/db/*.xml` into the shoot workspace's `color/lens-profiles/` (beside
+`color/camera-profiles/`) and the grade stage now corrects every DNG and CR2 it develops exactly as
+`--lens-db` does: distortion, lateral colour and vignetting, lens and focal length from each file's
+EXIF (or a Canon maker note), a file's own lens warp first. Beside each such master it writes
+`<master>.lens.json`:
+
+```json
+{"kind": "lens_correction", "corrected": true, "lens": "Canon EF 50mm f/1.2L USM",
+ "lens_database": "color/lens-profiles/ (56 XML files)",
+ "notes": ["no vignetting correction: ... has no vignetting calibration near 50 mm f/1.2 ...",
+           "lens correction from lensfun: Canon EF 50mm f/1.2L USM [slr-canon.xml], ptlens, ..."]}
+```
+
+A lens the database lacks still gets its master, uncorrected, with `"corrected": false` and the reason
+in `notes`, so one unknown lens never holds up a shoot. An unreadable XML file stops the grade for
+review naming the file. A symlinked folder is refused and symlinked files are skipped, as for
+camera profiles. With no folder, or no XML in it, nothing changes. The database is parsed once per
+process (0.27 s for lensfun's 56 files, 1,580 lenses) and read again only when a file's size or time
+changes.
+
+Checked on a real Canon 5D Mark II CR2 with lensfun's whole database (`tools/real_cr2_pipeline.py
+FILE.CR2 WORKDIR --lens-db lensfun/data/db`, `eval/lens-pipeline-grade-2026-11-13.md`): the pipeline
+master is bit-identical to `shootflow develop --dcp --lens-db` on the same file, and 92% of its
+samples differ from the uncorrected master. The run took 14.1 s against 10.9 s without the
+database. `tests/test_lens_pipeline.py` (8 tests): a synthetic CR2 with lens, focal length and
+f-number tags through the whole pipeline (master equal to `develop --lens-db` and unequal to the
+uncorrected develop, the note, notes beside raws only), an unknown lens, no folder, a broken XML, the
+cache and the symlink rules. `shootflow develop`'s JSON now carries `lens` and `lens_notes` too.
+
+### Canon lenses with no name: found from the maker note's focal range (2026-11-14)
+
+A Canon 350D writes no lens name at all, and bodies write a third-party lens as "105mm" or
+"10-17mm", so `--lens-db` refused those files. Their maker note still says the lens's focal range
+and its widest f-number at the focal length shot (CameraSettings, read on five real bodies). When
+the file names no lens, ShootFlow now looks for the lenses in lensfun whose names state that exact
+range and an f-number range holding that aperture, on the body's mount or an adapted mount of the
+same maker. If exactly one fits, it corrects with it and says so in the report ("pass --lens if it
+is not"). If several fit, it refuses and lists them. A real name in the file, or `--lens`, wins.
+
+On a real 70D frame named only "105mm" it now finds the Sigma 105mm f/2.8 EX DG OS HSM Macro and
+corrects distortion, lateral colour and vignetting. The 350D's 28-200 mm and the 7D's 10-17 mm stay
+refused, because lensfun has no Canon-mount lens with either range, and the note now says that.
+Across lensfun's 366 Canon-mount lenses, the range alone picks one lens in 38% of cases. The rest
+are ties, mostly versions of one lens (IS, IS II). The true lens is never dropped. "Alone" means
+alone in lensfun, so a lens lensfun lacks can be taken for one it has with the same range; the note
+names the lens it used. Details: `eval/canon-lens-from-range-2026-11-14.md`.
+
+### Any maker: lenses found from LensSpecification, DNG LensInfo or Nikon's maker note (2026-11-14)
+
+The same idea now works beyond Canon. Most bodies since EXIF 2.3 write the lens's focal range and its
+widest f-number at each end in one standard tag, LensSpecification; DNG files carry the same four values as
+LensInfo, and older Nikon bodies keep them in their maker note (tag 0x0084, read on seven real NEFs, D70 to
+D810). When a file names no lens, ShootFlow matches those values against lensfun's names on the body's
+mount, both f-numbers this time, so an f/4 zoom is no longer confused with an f/3.5-5.6 one of the same
+range. One fit: corrected, with a note naming the tag. Several: refused, the candidates listed. The tag is
+not used for a camera lensfun does not know (no mount to narrow the search) or for a fixed-lens camera
+(its own entry wins).
+
+On real Sony and Samsung files that also name their lens, the tag alone picked the same lens 3 times out
+of 6 and refused the other 3; it never picked a different one. Across lensfun's 1,119 lenses whose names
+state a range, the four values pick one lens in 50.0% of cases (one f-number, as Canon gives: 46.6%).
+Details: `eval/lens-specification-2026-11-14.md`.
+
+### Olympus: lenses found from the maker note's Equipment IFD (2026-11-14)
+
+Olympus bodies of the Four Thirds and early Micro Four Thirds years (E-1 to E-600, the first PENs) write no
+EXIF lens name or LensSpecification, so their files gave nothing to match. Their maker note has an Equipment
+block with the lens's focal range, its widest f-number at each end and usually a name. ShootFlow now reads it
+in all three layouts Olympus has used (the E-1's, the E-3-to-OM-D one and OM System's), and ORF files are
+read for these facts (their header magic was refused before). The range picks a lens when one lensfun lens
+fits; when several do, the maker note's own name ("OLYMPUS M.14-42mm F3.5-5.6 II R") breaks the tie among
+them, and a generic one ("OLYMPUS 14-54mm Lens") leaves it refused with the list.
+
+On 18 real ORFs and four Olympus JPEGs, eight frames from seven bodies that gave no lens before are now
+identified, and every pick is the lens metadata-extractor's independent decoder names for the same file.
+Develop still takes DNG or CR2, so this reaches ORF and JPEG shot facts and a future ORF developer.
+Details: `eval/olympus-equipment-2026-11-14.md`.
+
+### Sony and Samsung: lenses named from the maker note (2026-11-14)
+
+The Sony DSLR-A500 and Samsung's Galaxy NX and NX20 write no EXIF lens name or LensSpecification, and E-mount
+bodies that do write LensSpecification often fit several lensfun lenses with it (three 24 mm f/1.8 lenses,
+four 24-70 mm f/2.8). Sony's maker note keeps LensSpec (tag 0xB02A): the range, the f-numbers and the
+feature letters of Sony's lens names (DT, FE, E, PZ, ZA, G, SAM, SSM, OSS, II ...), so ShootFlow rebuilds
+"DT 18-55mm F3.5-5.6 SAM" from it. Samsung's keeps the lens's number in its NX list (tag 0xA003), named from
+metadata-extractor's Apache-licensed list. The range picks the lens when one fits, and the name breaks the
+tie when several do, also beside a file's own LensSpecification.
+
+On the ten real ARW and SRW files at hand, every frame now picks the lens its own EXIF name (or, for the
+A500, ExifTool's reading of its lens number) gives, from maker-note and tag data alone; before, three gave
+no hint and three were refused as ties. Details: `eval/sony-samsung-lens-2026-11-14.md`.
+
+### Sony ARW: the lens's own correction tables (2026-11-15)
+
+Sony E-mount bodies write the lens's distortion, lateral-colour and vignetting curves into every ARW (tags
+0x7037, 0x7035, 0x7032 of the raw IFD), the curves the camera uses for its JPEGs. `shootflow develop` and the
+grade stage now apply the distortion and lateral colour from them when no lensfun correction runs, so an A7
+frame is corrected with no lens database at all (`--no-in-file-lens` to skip; a `--lens-db` match still wins).
+
+Checked against lensfun's own calibration of the same lens at the same focal length on three real frames
+(A5000 16 mm, A7 III 24 mm, A7 IV 42 mm): the distortion curves agree within 9 px on corrections of 84-411 px
+at 6000 px wide; reading the knots on the raw radius instead fits worse on all three. Lateral colour agrees on
+two of three. The vignetting table lifts the corners by 0.6-1.0 stops where lensfun lifts 2.6, so it is read
+but not applied. Details: `eval/sony-in-file-corrections-2026-11-15.md`.
+
+### Converted DNGs: the camera's maker note from DNGPrivateData (2026-11-14)
+
+Adobe DNG Converter drops the camera's EXIF maker note and keeps it in the DNG's private data instead, so the
+Canon, Nikon and Olympus lens readers above reached the camera's own raw files but not the DNGs ShootFlow
+develops. ShootFlow now reads Adobe's "MakN" record (layout as ExifTool reads it), puts Canon and old Olympus
+notes back at their original offset so their file-relative pointers work, and uses the note when the DNG's own
+tags give no lens or give the range with no f-numbers (`18-55mm f/?`). On ExifTool's real 350D DNG every value
+read (18-55 mm, f/4 at the shot's 55 mm, lens type n/a) matches ExifTool's own decode; camera-native DNGs
+read exactly as before. Details: `eval/dng-maker-note-2026-11-14.md`.
+
+### Pentax lens numbers, and a lens memory (2026-11-14)
+
+Pentax files name no lens in EXIF (not even the 2018 K-1 Mark II); the maker note holds only the number the
+lens reports. ShootFlow now reads it from all four places a Pentax file keeps it ("AOC", "PENTAX" and "RICOH"
+notes, a Pentax DNG's private data, a converted DNG's MakN record), with the lens's own focal length and
+f-numbers: on ExifTool's K10D file every value matches ExifTool's decode, and on five more real Pentax files
+each focal length matches EXIF. A number is not a name, and ShootFlow ships no table of them; instead
+`--lens-memory FILE` remembers the lens you name once with `--lens` under the body's number (Pentax's, or
+Canon's lens type with the range) and uses it on every later frame with that number:
+
+```bash
+shootflow develop IMGP0001.DNG --lens-db lensfun/ --lens-memory lens-memory.json \
+  --lens "smc PENTAX DA* 60-250mm F4 [IF] SDM" --out masters/
+shootflow develop IMGP*.DNG --lens-db lensfun/ --lens-memory lens-memory.json --out masters/
+```
+
+The overnight pipeline reads `color/lens-profiles/lens-memory.json`. Details:
+`eval/pentax-lens-memory-2026-11-14.md`.
+
+## The lensfun port against the real lensfun library (2026-11-13)
+
+The lensfun correction above was checked against lensfun's own compiled code, not just against its
+formulas written out again. lensfunpy bundles liblensfun 0.3.4, lensfun's latest release.
+`tools/lensfun_released_check.py` runs it on every rectilinear ptlens, poly3 and poly5 lens in that
+release's database: at each calibrated focal length and between each pair, on 3:2 and 4:3 frames, at
+two crop factors. It compares where each pixel reads from with our WarpRectilinear2. We follow
+lensfun's master branch, which keeps the centre's scale. The release keeps Hugin's half-height point
+instead, and one exact change of radius takes one to the other (derived in the eval).
+On 36,756 cases over 1,083 lenses the median gap is 0.008 px (ptlens) and 0.005 px (poly3). The
+worst is 0.40 px, on lenses with large terms, inside the error of lensfun's own approximate square
+root. The exception is five lenses that list one focal length twice: lensfun 0.3.4 keeps the last
+entry and master, which we follow, the first.
+
+The first comparisons were 0.05-0.3 px off. The cause was a bug in lensfun 0.3.4 itself. Its SSE
+loops for ptlens and poly3 (`mod-coord-sse.cpp`) compute each pixel's factor, then multiply it lane
+by lane into interleaved `(x, y)` registers. Six of every eight coordinates get a neighbouring
+pixel's factor. Lensfun's master branch fixed it; no release has the fix yet. So the check compares
+only the coordinates lensfun computes with their own factor, and reports the bug's size separately.
+`tests/test_lensfun_released.py` (3) holds the identity to 1e-9 px against v0.3.4's pipeline written
+out, and runs the real library when lensfunpy is installed. Details:
+`eval/lensfun-released-check-2026-11-13.md`.

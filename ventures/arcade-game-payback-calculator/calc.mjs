@@ -22,8 +22,8 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
-const money2 = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
+const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toFixed(2));
 export const WEEKS_PER_MONTH = 52 / 12;
 export const MAX_GAMES = 200;
 
@@ -129,7 +129,7 @@ export function summaryText(r) {
   return L.join("\n");
 }
 
-const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) || /[",\n]/.test(s) ? `"${(/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? "'" : "") + s.replace(/"/g, '""')}"` : s; };
 export function sweepCsv(r) {
   const head = ["game", "cost", "plays_per_week", "revenue_per_week", "prize_cost_per_week", "profit_per_week", "payback_months", "break_even_plays", "plays_needed_for_target", "profit_per_sqft_year", "verdict"];
   const lines = [head.join(",")];

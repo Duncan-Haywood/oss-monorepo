@@ -15,7 +15,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
-import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds } from "../carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, withSearchMemo } from "../carryover.mjs";
 import { roundRobin } from "../calc.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -58,7 +58,14 @@ function breaksOf(n, rounds) {
 
 const mirror = (first) => [...first, ...first.map((r) => ({ ...r, matches: r.matches.map(([h, a]) => [a, h]) }))];
 
-export function run({ seed = 1, effort = 1 } = {}) {
+// The double round robins search the same circle-start and starter-start leg ones as the single
+// ones beside them (lowCarryOverDoubleRounds' starter branch), so the searches share a memo: same
+// rows, about 5 s less (docs/history/ci-perf-2026-11-16-carryover-guide-leg-memo.md).
+export function run(opts = {}) {
+  return withSearchMemo(() => table(opts));
+}
+
+function table({ seed = 1, effort = 1 } = {}) {
   const rows = [];
   const cache = new Map();
   for (const [key, lg] of Object.entries(data.leagues)) {

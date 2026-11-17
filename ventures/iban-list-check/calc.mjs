@@ -11,6 +11,8 @@ export const COUNTRIES = {
   LV: 21, MC: 27, MD: 24, ME: 22, MK: 19, MR: 27, MT: 31, MU: 30, NL: 18, NO: 15, PK: 24, PL: 28, PS: 29, PT: 25, QA: 29,
   RO: 24, RS: 22, SA: 24, SC: 31, SE: 24, SI: 19, SK: 24, SM: 27, ST: 25, SV: 28, TL: 23, TN: 24, TR: 26, UA: 29, VA: 22,
   VG: 24, XK: 20,
+  // Added from SWIFT IBAN Registry release 101 (round 63 quality audit): previously reported as "unknown country".
+  BI: 27, DJ: 27, FK: 18, HN: 28, LY: 25, MN: 20, NI: 28, OM: 23, RU: 33, SD: 18, SO: 23, YE: 30,
 };
 const BBAN_SHAPE = {
   DE: /^\d{18}$/, AT: /^\d{16}$/, BE: /^\d{12}$/, ES: /^\d{20}$/, DK: /^\d{14}$/, FI: /^\d{14}$/, NO: /^\d{11}$/,
@@ -33,7 +35,9 @@ export function mod97(iban) {
   }
   return rem;
 }
-export const checkOk = (iban) => /^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(iban) && mod97(iban) === 1;
+// ISO 13616: check digits run 02 to 98; 00, 01 and 99 never come out of the computation, so they are never valid
+// even when the remainder happens to be 1.
+export const checkOk = (iban) => /^[A-Z]{2}\d{2}[A-Z0-9]+$/.test(iban) && !/^..(00|01|99)/.test(iban) && mod97(iban) === 1;
 export function computeCheckDigits(country, bban) {
   return String(98 - mod97(`${country}00${bban}`)).padStart(2, "0");
 }
@@ -144,8 +148,16 @@ export function pickColumn(table, columnOverride) {
   if (!rows.length) return { col: 0, header: false };
   const head = rows[0].cells;
   if (columnOverride !== undefined && columnOverride !== "" && columnOverride !== null) {
-    const n = Number(columnOverride) - 1;
-    if (Number.isInteger(n) && n >= 0) return { col: n, header: !looksLikeData(head[n]) };
+    const name = String(columnOverride).trim();
+    if (/^\d+$/.test(name)) {
+      const n = Number(name) - 1;
+      if (n >= 0) return { col: n, header: !looksLikeData(head[n]) };
+    } else {
+      const idx = head.findIndex((c) => String(c ?? "").trim().toLowerCase() === name.toLowerCase());
+      if (idx >= 0) return { col: idx, header: true };
+    }
+    // A named or numbered column that is not there is an error, never a silent fall back to the detected column.
+    return { col: -1, header: false, missing: name };
   }
   const strong = head.findIndex((c) => STRONG_HEADER_RE.test(c));
   if (strong >= 0) return { col: strong, header: true };
@@ -163,7 +175,14 @@ const looksLikeData = (c) => /^[A-Za-z]{2}\d{2}[A-Za-z0-9 .\-]{8,}$/.test(String
 
 export function validate(text, options = {}) {
   const table = parseTable(String(text ?? ""));
-  const { col, header } = pickColumn(table, options.column);
+  const { col, header, missing } = pickColumn(table, options.column);
+  if (missing !== undefined) {
+    return {
+      findings: [{ severity: "error", line: 0, title: `No column "${missing}" in this file`, detail: `The header row has: ${(table.rows[0]?.cells || []).join(", ") || "nothing"}. Give a column name from the header or its number (1 is the first).` }],
+      items: [], column: -1, hasHeader: false, delim: table.delim,
+      summary: { rows: 0, codes: 0, valid: 0, fixable: 0, errors: 1, warnings: 0, blanks: 0, unfixable: 0 },
+    };
+  }
   const body = table.rows.slice(header ? 1 : 0);
   const findings = [];
   const seen = new Map();
@@ -212,7 +231,8 @@ export function validate(text, options = {}) {
 // Rewrite the chosen column with normalised IBANs (electronic form, or groups of four). Unfixable rows are left exactly as they were.
 export function repair(text, options = {}) {
   const table = parseTable(String(text ?? ""));
-  const { col, header } = pickColumn(table, options.column);
+  const { col, header, missing } = pickColumn(table, options.column);
+  if (missing !== undefined) return { text: String(text ?? ""), changes: [] };
   const changes = [];
   const fmt = (v) => (options.groups ? printFormat(v) : v);
   const outRows = table.rows.map((r, i) => {

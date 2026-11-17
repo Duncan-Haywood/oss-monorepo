@@ -65,8 +65,17 @@ class ProgrammeCheckTest(unittest.TestCase):
         self.assertEqual(self.check(self.make("b", card={"programme": "none", "why_standalone": "a dataset"})), [])
 
 
-if __name__ == "__main__":
-    unittest.main()
+class LongParagraphTest(unittest.TestCase):
+    def test_flags_only_lines_over_the_limit(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            d = Path(tmp)
+            (d / "README.md").write_text("# T\n\n" + "x" * 50 + "\n\n" + "y" * 101 + "\n")
+            self.assertEqual(pc.long_paragraphs(d, limit=100), [(5, 101)])
+            self.assertEqual(pc.long_paragraphs(d, limit=101), [])
+
+    def test_no_readme(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(pc.long_paragraphs(Path(tmp)), [])
 
 
 class SrcLayoutTest(unittest.TestCase):
@@ -123,3 +132,72 @@ class SrcLayoutTest(unittest.TestCase):
         d = self.project("conf")
         (d / "tests" / "conftest.py").write_text("")
         self.assertFalse(self.sl.needs_fix(d))
+
+
+import reproduce_names as rn
+
+
+class ReproduceNamesTest(unittest.TestCase):
+    """A new experiment script must be named in a doc of its programme (reproduce_names.py)."""
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        self.root = Path(self.tmp.name)
+        (self.root / "_shared").mkdir()
+        (self.root / "_shared" / "legacy_projects.txt").write_text("prog\n")
+        self.d = self.root / "prog"
+        (self.d / "experiments" / "m2_sweep").mkdir(parents=True)
+        (self.d / "README.md").write_text("## Reproduce\n\npython3 experiments/run.py\n")
+        (self.d / "experiments" / "run.py").write_text("import common\n")
+        (self.d / "experiments" / "common.py").write_text("X = 1\n")
+        (self.d / "experiments" / "_util.py").write_text("")
+        (self.d / "experiments" / "test_run.py").write_text("")
+
+    def tearDown(self):
+        self.tmp.cleanup()
+
+    def add(self, rel, body=""):
+        f = self.d / "experiments" / rel
+        f.write_text(body)
+        return f
+
+    def test_named_and_helpers_pass(self):
+        self.assertEqual(rn.unnamed(self.d), [])
+        self.assertEqual(pc.main(self.root), 0)
+
+    def test_new_unnamed_script_fails_until_named(self):
+        self.add("figure.py")
+        self.assertEqual(rn.unnamed(self.d), ["research/prog/experiments/figure.py"])
+        self.assertEqual(pc.main(self.root), 1)
+        (self.d / "LOG.md").write_text("Ran `experiments/figure.py`.\n")
+        self.assertEqual(pc.main(self.root), 0)
+
+    def test_stem_must_match_whole_word(self):
+        self.add("run_long.py")  # 'run' is named, 'run_long' is not
+        self.assertEqual(rn.unnamed(self.d), ["research/prog/experiments/run_long.py"])
+
+    def test_subdirectory_name_counts(self):
+        self.add("m2_sweep/go.py")
+        self.assertEqual(len(rn.unnamed(self.d)), 1)
+        (self.d / "README.md").write_text("python3 experiments/run.py\nexperiments/m2_sweep/ reruns milestone 2\n")
+        self.assertEqual(rn.unnamed(self.d), [])
+
+    def test_baseline_grandfathers_and_prune_shrinks(self):
+        self.add("old.py")
+        path = self.root / "_shared" / "reproduce_baseline.txt"
+        rn.write_baseline({"research/prog/experiments/old.py", "research/prog/experiments/gone.py"}, path)
+        self.assertEqual(pc.main(self.root), 0)
+        self.assertEqual(rn.main(["--check"], self.root, path), 0)
+        self.add("new.py")
+        self.assertEqual(rn.main(["--check"], self.root, path), 1)
+        rn.main(["--prune"], self.root, path)
+        self.assertEqual(rn.baseline(path), {"research/prog/experiments/old.py"})
+
+    def test_brief_line(self):
+        self.assertIsNone(rn.brief_line("prog", self.root))
+        self.add("extra.mjs", "")
+        self.assertIn("1 script(s)", rn.brief_line("prog", self.root))
+
+
+if __name__ == "__main__":
+    unittest.main()

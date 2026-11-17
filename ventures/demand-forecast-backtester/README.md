@@ -28,10 +28,19 @@ to mean paid inventory-planning software or a data analyst.
   below the reorder point, order up to the reorder point plus the cover days (default one more lead time) of forecast
   demand, raised to the minimum order and rounded up to whole packs. Flags SKUs that will run out before delivery and
   SKUs with excess cover. CLI: `node cli.mjs --stock stock.csv sales.csv`.
+- Order calendar (optional `--order-cost`, and a `unit_cost` column in the stock file): the winning method forecasts
+  26 weeks or 12 months (`--plan`); safety stock stays as a floor; stock on hand and on order covers the lead time,
+  and any shortfall there is flagged, not planned. From the first period an order can land, the net requirements
+  are planned to minimise order costs plus holding costs exactly by the Wagner-Whitin dynamic programme (Wagner and
+  Whitin 1958, *Management Science* 5(1):89-96), and three rules of thumb are priced on the same forecast:
+  Silver-Meal (Silver and Meal 1973, *Production and Inventory Management* 14(2):64-74), a period order quantity
+  from the EOQ, and lot-for-lot. Holding cost per unit per period = unit cost x yearly rate (default 25%, a round
+  assumption, not a measured figure) x period days / 365. `lotsize.mjs`; `--schedule-csv` prints the orders.
+  Minimums, packs, price breaks and the end-of-horizon effect are not optimised (minimums and packs are flagged).
 - Classes: ABC by cumulative units (80/15/5); XYZ by coefficient of variation (0.5 / 1.0).
 
 Not modelled: stock-outs (sales are not demand; zero-heavy SKUs are flagged), promotions, price changes, moving
-holidays, supplier lead-time variability, shelf life, budget limits, substitution, holding cost.
+holidays, supplier lead-time variability, shelf life, budget limits, substitution; holding cost only in the order calendar.
 
 **Checked so far.** Unit tests cover the inverse-normal against table values, each method on a series where the
 answer is known (flat, ramp, exact seasonal cycle, lumpy demand), that the back-test never lets a method see the period
@@ -39,7 +48,11 @@ it forecasts, and that a perfectly seasonal series is won by a seasonal method. 
 SKUs, 48 months, seeded) the chosen methods' pooled lead-time error on unseen points is about 8% against about 16%
 repeating last month. That number comes from data built to contain trend and seasonality, so it shows the machinery
 works, not that your data will behave. On one invented stable SKU the pick lost to naive on unseen points (-93%), which
-the tool reports rather than hides. **Unverified** against a published retail dataset or a commercial planning tool.
+the tool reports rather than hides. The Wagner-Whitin plan equals brute force over every possible order plan on 400 seeded random cases of up to 10
+periods, and no rule of thumb ever beats it on 300 more (`lotsize.test.mjs`). `node lotsize-bench.mjs` measures the
+rules of thumb on 2,000 invented 12-period cases per demand spread: Silver-Meal averages 1.7-2.3% above the exact
+cost (worst 13-26%); the period order quantity 1.5% for steady demand but 12-13% for lumpy demand (worst 96%);
+ordering every period 43-72%. **Unverified** against a published retail dataset or a commercial planning tool.
 
 ## Alternatives, and what this does differently
 
@@ -59,6 +72,8 @@ node cli.mjs sales.csv                                   # summary, findings, to
 node cli.mjs --period month --lead 45 --service 97 sales.csv
 node cli.mjs --csv sales.csv > reorder.csv               # one row per SKU, for a spreadsheet
 node cli.mjs --json sales.csv                            # full analysis for scripts
+node cli.mjs --stock stock.csv --order-cost 60 sales.csv # plus the cheapest order calendar (stock needs unit_cost)
+node cli.mjs --stock stock.csv --order-cost 60 --schedule-csv sales.csv > orders.csv
 node cli.mjs --example                                   # try it on synthetic data
 ```
 
@@ -73,7 +88,7 @@ liability for any loss or damage arising from its use.
 Independent of e-commerce platforms and inventory software vendors; none is named or ranked.
 
 **Privacy.** Nothing is uploaded. Anonymous feature counts (`analysis_run`, `example_loaded`, `file_loaded`,
-`report_downloaded`) are kept only in local storage, can be switched off on the page, and honour Do Not Track.
+`stock_loaded`, `report_downloaded`, `calendar_downloaded`) are kept only in local storage, can be switched off on the page, and honour Do Not Track.
 
 **Best-effort hosting, no SLA.** These tools are free, experimental, and may be slow, broken, moved, or
 taken offline without notice. Do not use this as a system of record.

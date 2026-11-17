@@ -1,0 +1,239 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/house-dewpoint",
+ "stratum": "research",
+ "seed": "2026-11-13-k",
+ "drawn_by": "sample",
+ "round": 65,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior building scientist / hygrothermal engineer (the kind who runs ISO 13788 and WUFI checks for envelope consultancies and reviews for Building and Environment). They would check first the saturation-pressure formula and its phase below 0 C, the Glaser clamping (does it equal the tangent/taut-string construction), unit conversions (perm, R), whether the result agrees with the code table that already encodes it (IRC R702.7 Class III + continuous-insulation ratios), and which face of the sheathing actually condenses",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Rerun `cd research/house-dewpoint && PYTHONPATH=src python3 experiments/run.py` into a scratch copy: byte-identical to experiments/results.txt (diff empty); every headline number in README.md:7 (6.18, 11.43, 0.05, 0.25, 97%, the 7-of-12 and 3-of-12 lists) matches results.txt. Independent re-implementation /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/indep.py (imports nothing from the package; layer data retyped from the README; saturation pressure from Wagner & Pruss 2002 (IAPWS) instead of Magnus; lower-convex-hull 'taut string' Glaser instead of the package's iterative clamp): Chicago paint 6.221 vs 6.18, Duluth paint 11.481 vs 11.43, Chicago kraft 0.055 vs 0.05, Duluth kraft+2in XPS 0.258 vs 0.25, Chicago paint+1in XPS 2.378 vs 2.34, Chicago paint+2in XPS 0 vs 0 (all within 1%, the gap is Magnus vs IAPWS). /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/greedy.py: the package's greedy clamp equals the hull on all 96 grid cells (max diff 1.8e-15 g/m2/d) and on 20,000 random 3-7 layer walls (0 differ, 0 negative rates), so the algorithm is right. Magnus constants 610.94/17.625/243.04 are Alduchov & Eskridge (1996) AERK; PERM 57.2 ng/(Pa s m2) and R-19 -> 3.35, R-5 -> 0.88 m2K/W are right. Not 4: psat is over liquid water at all temperatures (model.py:21-23); over ice below 0 C, as ISO 13788 uses, Duluth paint rises 11.48 -> 12.10 (+5%) and Chicago kraft 0.055 -> 0.094 (+70%); the zero/non-zero pattern of table B is unchanged.",
+  "completeness": "README promises checked: 8 tests (ran: 8 passed in 0.01 s); run.py writes results.txt (byte-identical); figure.py regenerates experiments/winter_condensation.svg (byte-identical when run from a copy that keeps research/_shared; it imports linefig from research/_shared, which the README Reproduce block does not say); tables A and B present and match the headline. Live page https://marisstella.app/research/house-dewpoint/ could not be loaded (agent proxy refused marisstella.app), so not verified. 'Next steps' (sourced values, smart retarder, air leakage, wet cladding, validation against a published Glaser example) are honestly listed as not done. Everything it says is done works.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q tests`: 8 passed in 0.01 s. Six mutants via platform/ci/quality_mutate.py: 2 caught (Magnus 17.625 -> 17.27; outdoor vapour pressure computed at indoor temperature), 4 survived: the sign of the net-condensation mass balance (model.py:81, flux_in - flux_out -> flux_in + flux_out), PERM 57.2 -> 5.72 (every rate off 10x), interior film 0.12 -> 0 and kraft permeance 1 -> 10 perm (which flips the Chicago kraft result). No test pins any absolute condensation rate or any value in results.txt. test_poly_worse_than_paint_in_summer_miami_inward_drive asserts 0 >= 0 (both are zero in results.txt), and test_single_plane_mass_balance checks only non-negativity, not a mass balance.",
+  "craft": "Read src/house_dewpoint/model.py (121 lines), tests/test_dewpoint.py, experiments/run.py, experiments/figure.py, pyproject.toml. Stdlib only, small pure functions, docstrings give units, deterministic, figure parses results.txt rather than retyping numbers. Defects: two test names promise more than they check (above); the 'none' retarder is a 1000-perm dummy layer so 'none' and 'paint' rows are the same wall twice (6.14 vs 6.18); condensation() returns 'rh' values above 100% (141%) under the name rh, unclamped; run.py reports RH at the OSB outer face while condensation happens at its inner face (node 2), which is what misled the headline; figure.py depends on research/_shared via a relative path; no input validation (perm 0 -> ZeroDivisionError).",
+  "claims": "Checked against results.txt and the independent check: headline (1), (2) numbers, (3), (5) backed; the README is unusually candid (inputs 'from memory', references 'not read in this run', Glaser not WUFI, disclaimer present). Failing: (4) 'Exterior foam alone moves the condensing plane to the sheathing face: with 1 in XPS in Chicago the sheathing's unclamped RH is 97%' is wrong: both with and without foam the only condensing node is the batt/OSB interface (node 2: 6.18 -> 2.34 g/m2/d, unclamped RH 141% -> 114%); foam does not move the plane, it warms it (-2.4 C -> 2.0 C). The 97% is the OSB's outer face, which never condenses. (2) says kraft 'removes it' while the same sentence gives 0.05 g/m2/d and table B excludes kraft+none in Chicago. Test names (mass balance, poly worse in summer) claim checks the tests do not make.",
+  "fitness": "Nearest prior work: ISO 13788 (monthly Glaser with accumulation and drying), IRC R702.7 / Table R702.7.1 (Class III retarder permitted in zone 5 on 2x6 with continuous insulation >= R-7.5, zone 7 with >= R-15), Lstiburek's dew-point / first-condensing-surface method (Building Science Corp.), ASHRAE 160 and WUFI for transient design. The model reproduces the IRC answer (Chicago: paint+R-10 XPS clean, paint+R-5 condenses; Duluth: R-10 is not enough) but does not cite it, so the 'result' is a known code table recovered with unsourced inputs, single steady months and no accumulation. Not new; the research brief's PhD/publishable bar is not approached. The kernel is correct and small, and it already graduated into ventures/wall-condensation-check (month-by-month with drying), which supersedes it for anyone building on it.",
+  "domain": "Compared with ISO 13788 and ASHRAE Fundamentals ch. 25-27 practice: Glaser construction right (equals the tangent method), unit conversions right, permeances and R-values in typical ranges (painted gypsum 5 perm, kraft 1, 6-mil poly 0.06, OSB 2, XPS 1/0.5). Departures a hygrothermal engineer would hit at once: saturation over water, not ice, below 0 C; a single design month with no accumulation/drying balance, which is the ISO 13788 criterion; climates and indoor RH from memory; vented cladding counted in the thermal path; RH reported at the non-condensing face. Summer inward drive is acknowledged as uninformative."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Chicago winter, painted drywall, no foam: condensation at batt/OSB interface",
+   "method": "independent taut-string Glaser with Wagner & Pruss (2002) IAPWS saturation pressure",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/indep.py",
+   "expected": "6.22 g/m2/day (indep)",
+   "observed": "6.18 (results.txt, README 6.2)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Duluth winter, painted drywall, no foam",
+   "method": "independent taut-string Glaser, IAPWS psat",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/indep.py",
+   "expected": "11.48",
+   "observed": "11.43 (README 11.4)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Duluth kraft + 2 in XPS and Chicago kraft no foam",
+   "method": "independent taut-string Glaser, IAPWS psat",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/indep.py",
+   "expected": "0.258 / 0.055",
+   "observed": "0.25 / 0.05",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Greedy clamp equals the lower-convex-hull (tangent) Glaser solution",
+   "method": "Glaser/ISO 13788 tangent construction, own hull code, 96 grid cells + 20,000 random walls",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/greedy.py",
+   "expected": "identical totals, no negative rates",
+   "observed": "max diff 1.8e-15 on grid; 0/20000 differ; 0 negative",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Magnus constants and psat anchors",
+   "method": "Alduchov & Eskridge (1996) AERK: 610.94 Pa, 17.625, 243.04 C; IAPWS psat(20 C)=2339 Pa",
+   "command": "python3 -c 'from house_dewpoint import psat; print(psat(0), psat(20))'",
+   "expected": "610.94 / 2339",
+   "observed": "610.94 / 2333.4 (0.24% low, normal for Magnus)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sub-zero saturation phase (Duluth paint, Chicago kraft)",
+   "method": "ISO 13788 uses saturation over ice below 0 C; Murphy & Koop (2005) ice formula",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/dew/indep.py",
+   "expected": "12.10 / 0.094 g/m2/day over ice",
+   "observed": "11.43 / 0.05 (over water)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Agreement with IRC Table R702.7.1 continuous-insulation ratios for Class III retarders",
+   "method": "IRC 2018/2021 R702.7 (zone 5 2x6 needs ci >= R-7.5; zone 7 2x6 >= R-15), from auditor's knowledge, not fetched",
+   "command": "results.txt table B",
+   "expected": "Chicago paint+R-10 ok, paint+R-5 not; Duluth paint+R-10 not",
+   "observed": "paint+xps2 0, paint+xps1 2.34; Duluth paint+xps2 4.76",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline (4): foam moves the condensing plane to the sheathing face; 97% RH",
+   "method": "per-node rates from condensation() for paint+none and paint+xps1, Chicago winter",
+   "command": "python3 -c '...condensation(build_wall(\"paint\",e), *CLIMATES[\"Chicago (5A)\"][\"winter\"])'",
+   "expected": "plane moves",
+   "observed": "condensing node is the batt/OSB interface in both (6.18 -> 2.34); 97% is the OSB outer face, which does not condense",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline (2): kraft facing 'removes' Chicago condensation",
+   "method": "results.txt table A and B",
+   "command": "grep Chicago experiments/results.txt",
+   "expected": "0",
+   "observed": "0.05 g/m2/day; kraft+none absent from table B",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reproduce block: run.py and figure.py regenerate committed outputs",
+   "method": "rerun in scratch copies, cmp",
+   "command": "PYTHONPATH=src python3 experiments/run.py; python3 experiments/figure.py",
+   "expected": "identical",
+   "observed": "results.txt identical; svg identical only with research/_shared present (figure.py:10)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "/usr/bin/python3.13 -m pytest -q tests",
+   "expected": "8 pass",
+   "observed": "8 passed in 0.01 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page",
+   "method": "curl https://marisstella.app/research/house-dewpoint/",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/house-dewpoint/",
+   "expected": "200",
+   "observed": "proxy refused the host (connect_rejected), not checked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/house_dewpoint/model.py:81",
+   "change": "rates[i] = flux[(lo, i)] - flux[(i, hi)] -> rates[i] = flux[(lo, i)] + flux[(i, hi)]",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/house_dewpoint/model.py:11",
+   "change": "PERM = 57.2 -> PERM = 5.72",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/house_dewpoint/model.py:26",
+   "change": "r_film_in=0.12 -> r_film_in=0.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/house_dewpoint/model.py:98",
+   "change": "kraft perm 1.0 -> 10.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/house_dewpoint/model.py:23",
+   "change": "17.625 * t_c -> 17.27 * t_c",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/house_dewpoint/model.py:39",
+   "change": "rh_out * psat(t_out) -> rh_out * psat(t_in)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline (4) misreads the model: foam does not move the condensing plane; the only condensing node is the batt/OSB interface with or without 1 in XPS (6.18 -> 2.34 g/m2/day, unclamped RH 141% -> 114%). The quoted 97% is the OSB outer face, which never condenses. Foam warms the condensing face (-2.4 C -> 2.0 C).",
+   "where": "research/house-dewpoint/README.md:7",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "4 of 6 seeded mutants survive, including the sign of the condensation mass balance and a 10x perm conversion error: no test pins any absolute rate or results.txt value.",
+   "where": "research/house-dewpoint/tests/test_dewpoint.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "test_poly_worse_than_paint_in_summer_miami_inward_drive asserts 0 >= 0 (both zero), and test_single_plane_mass_balance checks only non-negativity; names claim checks the tests do not make.",
+   "where": "research/house-dewpoint/tests/test_dewpoint.py:40",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Saturation pressure over liquid water below 0 C; ISO 13788 uses ice. Duluth paint 11.48 -> 12.10 g/m2/day, Chicago kraft 0.055 -> 0.094 over ice; zero/non-zero pattern unchanged.",
+   "where": "research/house-dewpoint/src/house_dewpoint/model.py:23",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Results table reports RH at the OSB outer face while condensation happens at its inner face (node 2), the source of the headline (4) error.",
+   "where": "research/house-dewpoint/experiments/run.py:22",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Headline (2) says a kraft facing 'removes' Chicago condensation while giving 0.05 g/m2/day in the same sentence and table B excludes kraft+none.",
+   "where": "research/house-dewpoint/README.md:7",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Prior work that already encodes the result (IRC R702.7 / Table R702.7.1 continuous-insulation ratios, ISO 13788, Lstiburek's dew-point method) not cited; the model's table B recovers the IRC answer without saying so.",
+   "where": "research/house-dewpoint/README.md:45",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "All permeances, R-values and climate months are unsourced (stated); the ASHRAE Fundamentals and Glaser references are 'cited from memory; not read'.",
+   "where": "research/house-dewpoint/src/house_dewpoint/model.py:85",
+   "category": "source-data",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15478"
+ ],
+ "verdict": "A small, correct steady-state Glaser kernel. Its numbers reproduce byte for byte, agree within 1% with an independent IAPWS + taut-string implementation, its greedy clamp equals the tangent construction on 20,000 random walls, and its retarder/foam pattern matches the IRC R702.7 continuous-insulation table it does not cite. It misses the bar on verification (4 of 6 seeded bugs survive, including a 10x unit error and the mass-balance sign, and one test asserts 0 >= 0) and on claims (headline (4) says foam moves the condensing plane, but the model condenses at the batt/OSB interface in both cases and the 97% quoted is the other face). As research it is a known code result recovered from unsourced inputs, with saturation over water rather than ice and no ISO 13788 accumulation; the useful part has already graduated into ventures/wall-condensation-check. Finished (it does what it says), does not meet the bar."
+}

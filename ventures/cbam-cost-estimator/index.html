@@ -44,11 +44,23 @@
     .scroll { overflow-x: auto; }
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#defaults) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 376px), 1fr)); } }
+    @media (min-width: 740px) { div.grid:has(#good1) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 417px), 1fr)); } }
+    @media (min-width: 740px) { div.grid:has(#good2) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 417px), 1fr)); } }
+    @media (min-width: 740px) { div.grid:has(#good3) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 417px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
     <p class="note">CBAM COST ESTIMATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What will the EU carbon border levy (CBAM) cost on your steel, aluminium, cement or fertiliser imports?</h1>
+    <h1>What will CBAM cost on your steel, aluminium, cement or fertiliser imports?</h1>
     <p>Enter what you import and the carbon price. You get the <strong>certificates you would need</strong>, the <strong>euro cost and cost per tonne</strong>, whether you are under the <strong>50-tonne threshold</strong>, and how the bill <strong>ramps from 2026 to 2034</strong> as free allocation is phased out.</p>
     <p class="note">An estimate under Regulation (EU) 2023/956 as amended. Emission presets are illustrative; use verified supplier data or Commission defaults for anything you declare. It is not legal or customs advice.</p>
   </header>

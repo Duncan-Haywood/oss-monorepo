@@ -16,7 +16,7 @@ export const ADDITIONAL_FROM = 125140;
 export const YEARS = { 2025: { label: "2025/26" }, 2026: { label: "2026/27" } };
 const RATES = [0.2, 0.4, 0.45];
 
-const money = (n) => (n < 0 ? "-" : "") + "GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 
 export function parse(input) {

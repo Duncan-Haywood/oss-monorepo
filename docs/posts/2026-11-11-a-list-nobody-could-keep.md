@@ -2,6 +2,7 @@
 title: "A list nobody could keep: why the Hearth & Horizon README now writes itself"
 seo_title: "Hand-kept lists drift: a README story index built from front matter"
 date: 2026-11-11
+topic: agents
 tags: [process, hearth-and-horizon, automation, documentation]
 description: "The Hearth & Horizon README listed 190 of its 340 stories, with four more stranded below the disclaimer. The list is now generated from the stories themselves."
 ---

@@ -166,7 +166,31 @@ export function calculateQuote(input) {
 
   const capacityMinutes = prepWindowMinutes * artistsBooked;
   const minutesShort = Math.max(0, totalServiceMinutes - capacityMinutes);
-  const additionalArtistsNeeded = minutesShort > 0 ? Math.ceil(minutesShort / prepWindowMinutes) : 0;
+  // Pooled minutes are only a lower bound: one artist does each person's whole
+  // look, so looks cannot be split between artists. A bride at 105 min plus
+  // five bridesmaids at 75 min, 10-min buffer, 180-min window pools to 540
+  // minutes (3 artists) but needs 4 (quality audit round 65). So the count
+  // comes from an actual schedule: each look plus its buffer is placed, longest
+  // first, with the first artist whose window still has room (first-fit
+  // decreasing). Every artist in it finishes inside the window, so the count is
+  // achievable; on small parties it is at most one above the true minimum, and
+  // never below the pooled bound.
+  const looks = [];
+  const pushLooks = (count, minutes) => { for (let i = 0; i < count; i++) looks.push(minutes + bufferMinutesPerPerson); };
+  pushLooks(brideCount, minutesPerFullService + brideExtraMinutes);
+  pushLooks(fullServiceCount, minutesPerFullService);
+  pushLooks(hairOnlyCount, minutesPerHairOnly);
+  pushLooks(makeupOnlyCount, minutesPerMakeupOnly);
+  pushLooks(kidsCount, minutesPerKid);
+  looks.sort((a, b) => b - a);
+  const artistLoads = [];
+  for (const m of looks) {
+    const i = artistLoads.findIndex((load) => load + m <= prepWindowMinutes);
+    if (i >= 0) artistLoads[i] += m;
+    else artistLoads.push(m); // a look longer than the window gets its own artist and is flagged below
+  }
+  const artistsScheduled = Math.max(artistLoads.length, Math.ceil(totalServiceMinutes / prepWindowMinutes));
+  const additionalArtistsNeeded = Math.max(0, artistsScheduled - artistsBooked);
 
   // Pooled minutes are not the whole question: one person's look is done by
   // one artist, so a look longer than the window cannot be finished by any
@@ -209,6 +233,8 @@ export function calculateQuote(input) {
     totalServiceMinutes,
     capacityMinutes,
     minutesShort,
+    artistsBooked,
+    artistsScheduled,
     additionalArtistsNeeded,
     longestLookMinutes,
     lookLongerThanWindow,

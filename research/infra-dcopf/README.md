@@ -9,6 +9,12 @@ Track 21 (`infra`), grid first. Grid dispatch is routinely planned and priced wi
 - **IEEE 39-bus:** the DC cost is 1.0 to 1.5 % below the AC optimum, and the DC dispatch is nearly free in cost terms (within 0.06 %) but **breaks voltage limits**: 15 buses out of band at 0.6 of load, 5 at 0.8, 1 at the case's load (highest 1.079 pu).
 - **IEEE 30-bus:** the DC cost is 1.3 to 2.3 % below; at the case's load the DC dispatch overloads one branch to 111 % and is 0.31 % *cheaper* than the AC optimum, which is the signature of a violated constraint, not a better plan.
 - **PGLib-OPF with published binding ratings (2026-11-11):** on 11 congested (API) benchmark cases the DC OPF's dispatch overloads branches in **every** case when run through an AC power flow (worst 103 to 180 % of rating), finds a median 56 % of the binding lines, and its LMPs correlate with the AC ones at a median r = 0.66; uniform derating or iterated AC correction repairs only 1 of 11. Also: MATPOWER's and PowerModels' DC OPFs differ by up to 2.8 % on these cases ([section below](#with-published-ratings-that-bind-23-pglib-opf-cases-added-2026-11-11-experimentsrun_pglibpy-results_pglibtxt)).
+- **Linearising the AC power flow instead (2026-11-12):** successive linearisation (finite-difference loss factors and apparent-flow sensitivities at each AC point, a QP, a step box) gives an AC-feasible dispatch on **7 of the 11 congested API cases** within 10 rounds, at the AC optimum's own cost, and leaves the other four within 0.012 % of their ratings; one linearisation at the plain DC dispatch clears none, and even the oracle linearisation at the AC optimum clears only 7 ([section below](#linearising-the-ac-power-flow-at-an-ac-point-added-2026-11-12-experimentsrun_aclinpy-results_aclintxt)).
+- **Held-out test on angle-limited cases (2026-11-12):** on PGLib's 12 SAD cases (every branch angle limited to 4.7 to 16.2 degrees), which the method was never tuned on, successive linearisation with two linearised angle rows per branch and the *same* step rules clears **7 of the 11** cases with an AC optimum at the AC optimum's cost, the same rate as on the tuning set; the frozen, angle-blind version clears 3 and lands 6.5 to 17.6 % below the optimum's cost by breaking up to 16 angle limits ([section below](#held-out-test-on-pglibs-angle-limited-sad-cases-added-2026-11-12-experimentsrun_sadpy-results_sadtxt)). Part of the research programme [`grid-linopf`](../grid-linopf/PROPOSAL.md).
+- **Without the oracle voltage schedule (2026-11-12):** at the case file's 1.0 pu setpoints the same repair clears thermal, slack and angle limits on **2 of 11** congested and **2 of 11** angle-limited cases (6 and 7 at the oracle schedule), and none of its dispatches meets voltage and Q limits; a reactive stage after it is fully clean on 16 of 34 cases but at a mean 0.8 to 4.3 % above the AC optimum's cost ([section below](#voltage-schedule-not-from-the-ac-optimum-added-2026-11-12-experimentsrun_vschedpy-results_vschedtxt)).
+- **Held-out larger cases (milestone 6, 2026-11-13):** on the PGLib cases of 500 to 2,000 buses, which no rule was set on, the frozen repair is fully AC-feasible within 10 rounds on **0 of 12** scored cases (development: 21 of 34), so the programme's H2 as written is refuted; within the 20-round budget fixed beforehand **6 of 12**, and **8 of 12** with the reactive stage, against 0 of 12 for the DC dispatch with the same stage (sign test P = 0.008), at a mean +0.66 % over the AC optimum. PIPS solves only 13 of the 24 cases, and on five RTE cases the AC power flow at the DC start does not converge ([section below](#held-out-larger-cases-500-to-2000-buses-added-2026-11-13-experimentsrun_heldoutpy-results_heldouttxt)).
+- **Round budget and convergence (2026-11-13):** with 20 rounds instead of 10 the repair alone is fully AC-feasible on **31 of 34** cases (10 rounds: 21) at a mean +0.41 % over the AC optimum for the late finishers; misses are mostly curvature (the step's second-order error exceeds the margin), and one case (case73 API) stalls at a point of local infeasibility, refuting the programme's convergence bound as written ([section below](#why-does-the-repair-finish-or-stall-added-2026-11-13-experimentsrun_convergepy-srcinfra_dcopfconvergepy-results_convergetxt)).
+- **Load-perturbed copies (2026-11-13):** on 244 copies of the 34 cases (every bus's load x 0.9 to 1.1), the repair from the DC dispatch at 1.0 pu is fully AC-feasible on **0.66** (95 % cluster interval 0.52 to 0.79) and **0.91** with a reactive stage after it (0.83 to 0.97), matching the single-load-point counts; 101 of 360 copies, mostly congested ones, have no AC optimum and are excluded ([section below](#load-perturbed-copies-how-stable-are-the-repairs-counts-added-2026-11-13-experimentsrun_perturbpy-results_perturbtxt-results_perturb_noreftxt)).
 - **Reading:** the DC model's price error is a loss term of 1 to 3 % here, and the danger of its dispatch is not cost but reactive and voltage limits it never modelled, on the smaller cases. Neither is a large number, and none says DC is wrong for planning.
 
 ![IEEE 118-bus: DC OPF cost error and AC cost of the DC dispatch](experiments/gap_vs_load.svg)
@@ -92,14 +98,216 @@ Next step 2 asked for a usable scheme: `previous_interval_penalty_dc` takes fact
 - A 0.2 upward step (0.8 to 1.0) keeps about 70 % of it (0.703 %); stale factors still beat plain DC, but the sensitivity point matters, consistent with the earlier finding. Stepping down (1.0 to 0.8) costs almost nothing.
 - Limits: one network (case118), a load scale stands in for a real interval (same load shape, no outages or renewables), one solver, one dispatch point per cell.
 
+## Linearising the AC power flow at an AC point (added 2026-11-12, `experiments/run_aclin.py`, `results_aclin.txt`)
+Next step 1: plain DC, derating and `corrected_dc` all leave the API dispatches AC-infeasible. Does a linear model taken from the AC power flow itself do better? At an AC operating point (`src/infra_dcopf/aclin.py`), each generator is moved 1 MW in PYPOWER's AC power flow with the slack compensating, giving its marginal loss factor (d P<sub>slack</sub>/d P<sub>k</sub>, 0.95 to 1.38 MW per MW on case24 API) and the change of the apparent flow |S| at both ends of every rated branch. With the point's own flows as offsets, the model is exact at the point and first order away from it; it carries losses and reactive flow, which the DC model does not. A QP on the case's costs (PYPOWER's PIPS) gives the next dispatch, then the same AC check as above (generator voltages at the AC optimum's schedule). Predictions were logged before the run (`LOG.md`, 2026-11-12); all four were refuted as stated.
+
+| API cases with an AC optimum (11) | clean dispatches | AC cost where clean |
+|---|---|---|
+| plain DC (MATPOWER B) | 0 | n/a |
+| derating, best a in 0.8 to 1 | 1 | +2.7 % |
+| `corrected_dc` (loss and rating feedback) | 1 | see `results_pglib.txt` |
+| **B**: one linearisation at the plain DC dispatch's AC flow | 0 | n/a |
+| **A**: one linearisation at the AC optimum (oracle bound) | 7 | within 0.001 % |
+| **C**: successive linearisation from B, at most 10 rounds | **7** (rounds 2 to 7) | within 0.001 % (case24 −0.47 %, 4 buses out of band) |
+
+- **One shot is not enough, even at the right point.** Linearised at the AC optimum itself, the QP still moves to a cheaper dispatch that the first-order model calls feasible and the AC flow does not (case24, 57, 300 end 0.15 to 3.9 % over), and on case73 a branch whose flow redispatch barely moves leaves the model with no feasible point. Linearised once at the plain DC dispatch (B), nothing is clean: on 5 cases the residual is a curvature hair (worst branch 100.05 to 100.66 %), on 2 the model is infeasible, and on 4 the point is so far off (the DC dispatch's slack 50 to 800 MW outside its limits) that the step lands at 108 to 167 %.
+- **Relinearising closes most of it.** C relinearises at each new dispatch with a per-unit step box (20 % of the unit's range, halved when a step does not lower the infeasibility) and an l1-penalised elastic QP when the model has no feasible point in the box (Fletcher's Sl1QP device). Seven API cases reach a clean dispatch at the AC optimum's cost; the other four (case57, 73, 200, 300) end within **0.012 %** of their ratings and 0.8 MW of the slack's limits after 10 rounds, so a strict-feasibility margin in the last round should finish them (untested). On TYP, C is clean on 7 of 9 that could start (case179 and case300 TYP have no AC power flow at the plain DC point; case240 TYP has no DC solution). Run time 1 to 13 s per case on one CPU, n<sub>gen</sub> power flows per round.
+
+![PGLib API cases with an AC-feasible dispatch after k rounds of successive linearisation](experiments/aclin_rounds.svg)
+
+- **Reading.** The congested cases are not beyond a linear model; they are beyond a linear model taken once. The DC model's error on them is mostly the losses and reactive flows a first-order AC model carries, plus curvature that relinearising removes. This is the successive linear programming idea that AC OPF solvers have used for decades, measured here as a repair for the DC dispatch on today's benchmark set.
+- **Limits, plainly.** C's step rules (the elastic fallback, the 1 ppm tolerance, the box halving) were added after the first runs failed, on these same cases, with no held-out set; its first version cleared 3 of 12. Voltages stay at the AC optimum's schedule, so only the active-power side is tested, and the schedule itself comes from the AC OPF this is meant to avoid. One AC solver (PYPOWER), finite-difference sensitivities, benchmark cases, no N-1.
+
+## Held-out test on PGLib's angle-limited SAD cases (added 2026-11-12, `experiments/run_sad.py`, `results_sad.txt`)
+Successive linearisation (C) had its step rules set on the 11 API cases it was scored on. PGLib v23.07's SAD ("small angle difference") set is a held-out test: the TYP cases with the same loads and ratings, but every branch's voltage-angle difference limited to 4.7 to 16.2 degrees (30 in TYP). Plan and predictions were logged before the run (`LOG.md`). Two versions, with the same start (the DC-MP dispatch, or the angle-free DC dispatch where the DC OPF with angle limits is infeasible), box, elastic penalty and 10 rounds: **C-frozen**, exactly as committed (thermal and slack rows only), and **C-ang**, which adds two rows per branch from finite-difference angle sensitivities taken in the same power flows (`linearise(..., angles=True)`) and adds the worst angle excess to the merit. The AC check now also counts angle violations (tolerance 0.001 deg).
+
+| SAD cases with an AC optimum (11) | clean on thermal + slack | clean on thermal + slack + angle | AC cost where fully clean |
+|---|---|---|---|
+| start (DC-MP, angle-free where infeasible) | 3 | 1 (case200) | 0.000 % |
+| C-frozen (API rules, angle-blind) | 7 | 3 | within 0.001 % |
+| **C-ang** (same rules, angle rows) | 8 | **7** (rounds 1 to 5) | within 0.001 % |
+
+- **Validation.** PYPOWER's AC OPF matches PGLib's published SAD objectives within 0.005 % on 11 of 12; case300 SAD did not converge. MATPOWER's DC OPF with the angle limits is infeasible on 8 of 11, PowerModels' (PGLib's published values) on 7, and not the same 7: the susceptance convention decides DC feasibility at these limits.
+- **Angle limits are what the optimum pays for.** Ignoring them, C-frozen's dispatches cost 6.5 to 17.6 % *less* than the AC optimum on case24, 39, 73 and 118 while breaking up to 16 angle limits by up to 4.9 degrees.
+- **The rules transfer.** C-ang is clean on 7 of 11 held-out cases (prediction: at least 8, so refuted narrowly), the same count as on the tuning set. Its misses look like the API misses: case73 one branch over by under 1 ppm, case118 three angle limits over by at most 0.019 deg, case240 eight branches at 100.01 %; case179's angle-free start has no AC power-flow solution.
+- **Limits.** Voltages at the AC optimum's schedule (an oracle), so C-ang still leaves generators outside Q limits on case39 (1) and case73, 118, 240 (4 to 13); one AC solver; one load point per case; finite-difference sensitivities (44 s on case240).
+
+## Voltage schedule not from the AC optimum (added 2026-11-12, `experiments/run_vsched.py`, `results_vsched.txt`)
+Every result above ran the AC power flows with generator voltages at the AC optimum's schedule, which a market engine without an AC OPF does not have. Milestone 3 of [`grid-linopf`](../grid-linopf/PROPOSAL.md) reruns C-ang (the SAD variant, rules unchanged) on all 36 TYP, API and SAD cases at the case file's own schedule (F: PGLib ships 1.0 pu on every generator; the AC optima sit up to 0.06 pu higher), then adds a reactive stage (`src/infra_dcopf/vsched.py`: an AC OPF over voltages and Q with every non-slack unit's P pinned, the slack free). Plan and predictions logged before the run.
+
+| 34 cases with an AC optimum | TYP (12) | API (11) | SAD (11) |
+|---|---|---|---|
+| C-ang at the oracle schedule: thermal, slack, angle clean (fully clean incl. V and Q) | 7 (5) | 6 (6) | 7 (6) |
+| C-ang at the case-file schedule: thermal, slack, angle clean (fully clean) | 8 (0) | **2** (0) | **2** (0) |
+| then the reactive stage: fully clean | 7 | 4 | 5 |
+| mean AC cost over the optimum, where fully clean | +1.17 % | +0.82 % | +4.28 % |
+| reactive stage on the plain DC dispatch (no repair): fully clean | 3 | 0 | 1 |
+
+- **The oracle schedule carried the result.** Without it, the repair clears thermal, slack and angle limits on 2 of 11 congested and 2 of 11 angle-limited cases instead of 6 and 7, and none of its dispatches is clean on voltage and Q.
+- **Repair then reactive stage** is fully clean on 16 of 34 cases (the oracle run: 17), but at a cost premium of 0.8 to 4.3 % on average (worst +10.1 %, SAD case14): P was fixed at a voltage 0.06 pu low, where thermal and angle limits bind harder, and the stage cannot move it back. The stage alone on the plain DC dispatch is fully clean on 4.
+- **Check on the failures.** On all 11 cases where the reactive stage found no solution after F, it solves at the AC optimum's dispatch and returns the optimum's cost, so the failures belong to F's dispatch, not to the stage (PIPS failing is still not proof of infeasibility).
+- **Limits.** One schedule (flat 1.0 pu) stands for "not from the AC OPF"; PIPS only; one load point per case. Next: voltage setpoints as decision variables in the linearisation.
+
+## Voltage setpoints as decision variables (added 2026-11-12, `experiments/run_vlin.py`, `results_vlin.txt`, `results_vlin_margin.txt`)
+Milestone 3b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `src/infra_dcopf/vlin.py` linearises the AC power flow in P *and* in one voltage setpoint per generator bus (finite differences: 1 MW per unit, 0.002 pu per setpoint), with rows for thermal, slack, angle, bus-voltage (every non-generator bus) and Q (every live unit) limits, and runs C's step rules from the plain DC dispatch at 1.0 pu. Plan and predictions logged before each run.
+
+| 34 cases with an AC optimum, fully clean (thermal, slack, angle, V, Q) | TYP (12) | API (11) | SAD (11) |
+|---|---|---|---|
+| milestone 3: P-only repair at 1.0 pu, then reactive stage (F+R) | 7 | 4 | 5 |
+| milestone 3: P-only repair at the oracle schedule (O) | 5 | 6 | 6 |
+| J, as pre-registered (bounds as hard rows) | 2 | 1 | 2 |
+| J then reactive stage | 7 | 5 | 6 |
+| **J-m (bounds pulled inside their limits; post-hoc variant)** | **7** | **3** | **8** |
+| **J-m then reactive stage** | **10** | **8** | **10** |
+| mean AC cost over the optimum: F+R / J-m then stage | +1.17 / +0.17 % | +0.82 / +0.34 % | +4.28 / +0.32 % |
+
+- **As planned, it gets close but does not finish.** J ends within 0.1 % of ratings and 0.1 MVAr of Q limits on 19 of 34 but strictly inside on 5: the QP puts rows on their bounds and first-order error decides the side.
+- **A small interior margin fixes most of it.** J-m changes one thing: ratings x 0.999, slack limits by 0.1 MW, angles by 0.01 deg, voltages by 0.001 pu, Q by 0.1 MVAr. 17 of the 19 near-misses become fully clean. On SAD, J-m alone (8 of 11) beats the P-only repair run at the AC optimum's own schedule (6).
+- **Cost.** n_gen + n_vbus power flows per round, up to 10 rounds; 26 min for all 36 cases on 4 processes, of which case300 API (no QP solution in 10 rounds) takes 10 min.
+- **Limits.** J-m's margins were chosen after seeing J on the same cases, so 28 of 34 is a tuning-set figure until the frozen rules run on held-out cases. PIPS only; one load point per case; LPAC baseline in the section below (2026-11-13). Not repaired: case300 TYP and API, case179 TYP, case73 API, case118 API, case240 SAD.
+
+## Load-perturbed copies: how stable are the repair's counts? (added 2026-11-13, `experiments/run_perturb.py`, `results_perturb.txt`, `results_perturb_noref.txt`)
+Milestone 5 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). Every count above is one load point per case. Here each of the 36 PGLib cases gets 10 copies with every bus's load scaled by its own factor drawn from 0.9 to 1.1 (constant power factor), and the frozen arms run on each: the DC dispatch at the file's setpoints (S), the reactive stage on it (S+R), the repair J-m-a with Clarabel (J) and J then the reactive stage (J+R). Plan and predictions logged before any perturbed run; all five held.
+
+| 244 scored copies of 34 base cases | fully clean | 95 % cluster bootstrap (over base cases) | nominal (one load point) |
+|---|---|---|---|
+| S: DC dispatch at 1.0 pu | 0.000 | 0.000 to 0.000 | 0 / 34 |
+| S or S+R: reactive stage on the DC dispatch | 0.184 | 0.054 to 0.333 | |
+| **J: the repair** | **0.660** | **0.516 to 0.792** | 21 / 34 = 0.62 |
+| **J or J+R** | **0.906** | **0.833 to 0.967** | 31 / 34 = 0.91 |
+
+- **The nominal counts were not a lucky draw.** The repair's verdict on a case's nominal load matches its majority verdict across copies on 30 of 34 cases, and J+R beats the reactive stage on the DC dispatch on 29 cases and loses none (exact sign test P = 3.7e-9). Clean points cost +0.08 % (TYP), +0.23 % (API) and +0.69 % (SAD) over each copy's AC optimum on average; SAD's mean is case14 SAD's path-dependent +4.6 to +7.1 %.
+- **The fragile cases are the late finishers.** Cases the nominal run finished at round 8 or later stay clean on 0.68 of their copies; earlier finishers on 0.97.
+- **The stressed tail is not covered.** PIPS finds no AC optimum on 101 of the 360 copies, 71 of the 120 congested (API) ones, even though 31 of those carry less total load than nominal. Running the arms on them anyway finds a feasible point on only 4, and 21 have no DC solution at all, so most are probably infeasible, but that is not proven. The API rates rest on 42 copies of 11 cases.
+- **Limits.** Ten copies per case; one perturbation model (independent uniform per-bus scaling, no correlation between buses); PIPS as the only AC reference (on one copy, case179 SAD seed 6, the repair's clean point is 0.85 % cheaper than PIPS's reported optimum).
+
+## Held-out larger cases, 500 to 2,000 buses (added 2026-11-13, `experiments/run_heldout.py`, `results_heldout.txt`)
+Milestone 6 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). The eight PGLib-OPF v23.07 networks between 500 and 2,000 buses (case500_goc, case588_sdet, case793_goc, case1354_pegase, case1803_snem, case1888_rte, case1951_rte, case2000_goc), TYP, API and SAD: 24 cases that no rule, margin or budget was set on. The repair is J-m-a exactly as frozen, with the 20-round budget that milestone 7 recommended, fixed before any of these cases ran. One implementation change was needed, logged before any repair outcome: the full QP (about 10,000 dense rows at 2,000 buses) did not finish one case in 25 minutes, so the QPs are solved by constraint generation on Clarabel. On the 34 development cases this gives the same verdict and the same round-by-round statuses on every case, with zero cost difference, 11x faster (`results_vlin_margin_analytic_screen_clarabel.txt`). case500, case1888 and case1951 have a reference bus with no generator; `pglib.fix_ref` applies PYPOWER's own rule for that (the first PV bus becomes the reference), so the slack bookkeeping agrees with the power flow.
+
+| 12 scored held-out cases (5 TYP, 2 API, 5 SAD) | fully clean | development (34 nominal; S+R: 244 load-perturbed copies) |
+|---|---|---|
+| S: DC dispatch at the file's setpoints | 0 | 0 |
+| S, then the reactive stage | 0 | 18 % of copies (`results_perturb.txt`) |
+| J within 10 rounds (H2 as written) | **0** | 21 |
+| J within 20 rounds (frozen budget) | **6** (Wilson 0.25 to 0.75) | 31 |
+| J, then the reactive stage | **8** | 31 (at 10 rounds) |
+
+- **H2 as written is refuted** on the larger cases (0 of 12 within 10 rounds; the refutation bar was below 50 %). Every success is a late finisher (round 14 to 20), and the share of elastic QPs rises to 44 % from 29 %. The starts are far worse than in development: the DC dispatch breaks unit Q limits on 14 to 118 units (development: 0 to 26), and on all five scored SAD cases the DC OPF is infeasible with its angle limits.
+- **The repair still beats no repair:** J+R against S+R, 8 wins, 0 losses (P = 0.0078). H1 holds again: the DC dispatch breaks a thermal, slack or angle limit on 7 of 7 scored API and SAD cases.
+- **Cost:** the six clean points sit at a mean +0.66 % over the AC optimum (median +0.51 %, worst +1.92 %), above the development figure of +0.4 %.
+- **Misses:** case1354 TYP and SAD end with 4 thermal overloads; case500 and case588 SAD end with 2 angle violations after 18 to 20 elastic QPs; case2000 TYP and SAD are P-clean but leave 5 units outside Q limits, which the reactive stage fixes.
+- **Coverage is the main caveat.** PIPS solves 13 of the 24 cases, within 0.004 % of PGLib's published objective. It finds no optimum on all 9 SNEM and RTE cases and on case588 and case1354 API, and case2000 API has no DC start. A declared diagnostic after the run (`--noref`, `results_heldout_noref.txt`) scores those cases against PGLib's published IPOPT objective. case588 API is clean at round 15 (+0.95 %). case1354 API ends with one overload. Four have no DC start. On five RTE cases the AC power flow at the DC start does not converge, so the repair has no point to linearise at. On these networks the start decides the outcome, not the repair.
+
+## Why does the repair finish, or stall? (added 2026-11-13, `experiments/run_converge.py`, `src/infra_dcopf/converge.py`, `results_converge.txt`)
+Milestone 7 of [`grid-linopf`](../grid-linopf/PROPOSAL.md), empirical half. The frozen repair (J-m-a with Clarabel) is traced round by round with a **30-round budget** instead of 10: per round the QP kind, the merit, the step, each tracked row's linearisation remainder over its margin, and the smallest singular value of the Newton power-flow Jacobian. The first 10 rounds reproduce the nominal run exactly. Plan and six predictions logged before the run (two held, four refuted).
+- **The budget was the binding choice.** Fully clean by round 10: 21 of 34; by 12: 28; by 20: **31 of 34**, and nothing more by 30. The ten late finishers cost a mean +0.41 % over the AC optimum (max +1.02 %); the early ones +0.38 %. The slowest repair takes 105 s (case240 SAD, round 20).
+- **Misses are curvature, not model infeasibility.** 168 of 224 misses in rounds 1 to 10 come after a hard QP whose step lands outside a limit because the second-order remainder exceeds the margin (thermal and Q rows mostly); 56 are elastic rounds. The one-step finishing condition (a row breaks only if its remainder exceeds its margin) holds on all 190 hard misses.
+- **H4 as written is refuted.** Its bound 1 + k* + &phi;<sub>0</sub>/&delta;<sub>min</sub> is within 10x of the observed rounds on only 6 of 31 finishers (up to 55,000x off), and the curvature estimate varies more than 10x along the path on 13 of 26 cases. case73 API stalls with a well-conditioned Jacobian (&sigma;<sub>min</sub> &ge; 0.25): all 30 QPs elastic, merit flat at 0.0196 from round 14 (two bus voltages 0.002 pu out of band), a point of local infeasibility of the linearised rows, while PIPS reports an AC optimum.
+- **Limits.** The same 34 cases the rules were set on; one start (DC dispatch at 1.0 pu); the curvature estimate is the largest observed remainder over the squared step, a lower bound on the true constant.
+
+## LPAC as a one-shot baseline (added 2026-11-13, `experiments/run_lpac.py`, `results_lpac.txt`, `diag_lpac.py`, `results_lpac_infeasible.txt`)
+Milestone 4a of [`grid-linopf`](../grid-linopf/PROPOSAL.md). LPAC-C (Coffrin and Van Hentenryck 2014), in the conic form PowerModels.jl implements, carries reactive power and voltage magnitude in a linear power-flow model (`src/infra_dcopf/lpac.py`, solved by Clarabel; SCS as a second opinion). Its dispatch and voltages were run through one AC power flow and scored with the same checks as the repair, on the 34 PGLib cases with an AC optimum. Plan and predictions logged before any LPAC code ran.
+
+| 34 cases with an AC optimum | fully clean | P-clean |
+|---|---|---|
+| LPAC-C has a solution | 25 | |
+| L: LPAC's P and voltages, one AC power flow | **0** | 4 |
+| L-f: LPAC's P at the case file's 1.0 pu | 0 | 4 |
+| L, then the reactive stage | 8 | |
+| L&rarr;J: the frozen J-m-a repair started at L | 17 (24 with the reactive stage) | |
+| J-m-a from the DC start, same 25 cases / all 34 | 15 (23) / 21 (31) | |
+
+- **No case is feasible one-shot.** On the 25 cases LPAC-C solves, the AC power flow breaks Q limits on 21 and voltage limits on 20; 376 of 1,000 units get a setpoint exactly on a voltage bound. LPAC's own thermal rows hold, but the AC flows overload by up to 17 %.
+- **LPAC-C has no solution on 9 cases**, 7 of them SAD; SCS agrees on 8 and is inconclusive on the ninth (case24 SAD). Removing the angle limits makes 8 of the 9 solvable (after-the-run diagnostic).
+- **As a warm start it is neutral to slightly helpful:** 17 against 15 fully clean on the same 25 cases (sign test P = 0.73), finishing earlier on 7 of the 12 both finish.
+- **Limits.** One LPAC form (cold start, conic cosine and thermal rows), one load point per case; LPAC-W and the polyhedral LP form are not run yet.
+
+## Is the repair's QP solved correctly? (added 2026-11-13, `experiments/audit_qp.py`, `audit_qp.txt`, `run_vlin.py --margin --analytic --clarabel` / `--screen`)
+Milestone 2b of [`grid-linopf`](../grid-linopf/PROPOSAL.md). Every QP the repair poses (347 along J-m-a's path on 34 PGLib cases) was re-solved by Clarabel (an independent interior-point solver) and by a screened PIPS solve (constraint generation over the rows near their bounds, exact for a convex QP), and the whole repair was rerun with each. Plan and predictions logged before the runs.
+
+| | PIPS, full QP (U, as before) | PIPS, screened (S) | Clarabel, full QP (C) |
+|---|---|---|---|
+| hard QPs solved, of 248 | 173 | 173 | 178 |
+| elastic QPs solved, of 99 | 63 | 55 | **89** |
+| objective agrees with C where both solve | 236 of 236 | 228 of 228 | |
+| J-m fully clean, of 34 | 19 | 21 | **21** |
+| J-m then reactive stage, of 34 | 29 | 29 | **31** |
+| repair time, summed over 34 cases | 1,353 s | 452 s (3.0x) | **260 to 277 s (4.9 to 5.2x)** |
+
+- **Where PIPS reports a solution, it is the right one** (every objective matches Clarabel within 1e-6), so the costs of finished repairs stand.
+- **PIPS's failures on the elastic QP are mostly spurious.** An elastic QP has a slack on every row and is almost always feasible; PIPS failed 36 of 99, Clarabel solved 26 of those. On case24 API and case73 SAD the repair had been halving its step box after these failures; with Clarabel both finish. Hard-QP failures are mostly real: Clarabel solves 5 of PIPS's 75.
+- **Clarabel is the solver for later milestones** (`solver="clarabel"`; the default stays PIPS so earlier scripts reproduce): never worse here, about 5x faster. Screening is exact but uses PIPS, and inherits its elastic failures.
+
+## Is the stall a loading limit? A fold test, and a repair that walks up in load (added 2026-11-14, `experiments/run_fold.py`, `src/infra_dcopf/fold.py`, `results_fold.txt`, `results_fold_fallback.txt`, `fold_sigma.svg`)
+Milestone 6's Next (1) and (2) of [`grid-linopf`](../grid-linopf/PROPOSAL.md), pre-registered in `LOG.md` (2026-11-14). On the six cases where the DC dispatch has no AC power flow (case300 TYP; case1888_rte TYP, API, SAD; case1951_rte TYP, SAD), scaling load and the DC dispatch up together stalls at 48 to 85 % of load. Is that a voltage-collapse fold, and can the repair be walked past it?
+
+![Smallest singular value of the power-flow Jacobian along the load continuation](experiments/fold_sigma.svg)
+
+| case | stall &mu;* | &sigma;<sub>min</sub>(&mu;*) / &sigma;<sub>min</sub>(0) | fitted fold &mu;<sub>f</sub> (R<sup>2</sup>) | lowest V at &mu;* | repair-and-continue reaches |
+|---|---|---|---|---|---|
+| case300 TYP | 0.855 | 0.056 | 0.856 (1.000) | 0.72 pu | **&mu; = 1, fully clean, +0.83 %** (with the declared fallback) |
+| case1888_rte TYP | 0.798 | 0.053 | 0.801 (0.996) | 0.78 pu | 0.920, then every round's power flow fails |
+| case1888_rte API | 0.475 | 0.086 | 0.478 (0.996) | 0.79 pu | 0.594, then the same |
+| case1888_rte SAD | 0.798 | 0.080 | 0.802 (0.996) | 0.78 pu | 0.930, then the same |
+| case1951_rte TYP | 0.572 | 0.066 | 0.574 (0.997) | 0.78 pu | 0.572 (stall) |
+| case1951_rte SAD | 0.572 | 0.066 | 0.574 (0.997) | 0.78 pu | 0.572 (stall) |
+
+- **It is a fold (F1, F2, F3 held).** The smallest singular value of the Newton Jacobian falls to 5 to 9 % of its no-load value at every stall, and &sigma;<sub>min</sub><sup>2</sup> is linear in load over the last 0.1 (R<sup>2</sup> &ge; 0.996), the square-root nose of a saddle-node bifurcation (Dobson 1992), with the fitted fold 0.001 to 0.004 past where the continuation stopped. At the AC optimum's dispatch on case300 TYP the same quantity stays at 0.84 at full load. So the DC dispatch at the file's voltage setpoints is past the network's loading limit on all six; no Newton start, damping or continuation could have found a power flow. **Corrected 2026-11-15:** that holds for the slack unit `fix_ref` picks. On the five RTE cases it is a 15 to 30 MW unit; with the reference at the largest unit the same dispatch has a power flow at full load (next section).
+- **Walking the repair up in load does not rescue the RTE networks (M1 to M3 refuted; M4 held on the one clean point).** Repaired at the fold, the first linearisation sits on a near-singular Jacobian and its step has no power flow on every case; the stage's best point breaks 331 to 453 voltage limits on the RTE cases. Continuation from it gains 0.12 in load on case1888 and none on case1951, and the next stage finds no point with a power flow at all. On case300 TYP the repair moves off the fold (&sigma;<sub>min</sub> 0.0024 to 0.036, lowest V 0.94 pu), and four repair-and-continue stages reach full load, where the frozen 20-round repair is fully clean at round 14 at **+0.83 %** over the AC optimum: the first feasible point from the DC start on a case whose DC dispatch has no power flow.
+- **Caveat on that case:** as pre-registered, case300 stopped after stage 1 because its repaired point was re-solved warm from the path's last (near-fold) solution, which Newton could not leave. Re-solving it cold from the file's voltages, a fallback declared after the run, is the only change in `--fallback`; it alters no RTE verdict (`results_fold_fallback.txt`). The planned run is in `results_fold.txt`.
+- **Reading:** a first-order repair needs a well-conditioned Jacobian, and at the loading limit it has none. On the RTE networks the start has to change the voltage schedule or the dispatch before the first power flow, by something that knows about voltage (a reactive pre-stage at reduced load, or an AC OPF warm start), not by walking in load.
+
+## Voltages first, a second AC solver, and the slack that made the fold (added 2026-11-15, `experiments/run_vfirst.py`, `run_ipopt_ref.py`, `diag_slack_fold.py`, `diag_slack_move.py`, `run_bigslack.py`, `src/infra_dcopf/ipopt_nlp.py`)
+Milestone 6's next step in [`grid-linopf`](../grid-linopf/PROPOSAL.md), pre-registered in `LOG.md` (2026-11-14 and 2026-11-15), on the same six cases.
+
+- **Voltages first, as planned (`results_vfirst.txt`):** a reactive (V, Q) stage at the fold with P pinned to the DC dispatch has no PIPS solution on any of the six, and the AC OPF at reduced load has none on any RTE case. On case300 TYP the reduced-load AC OPF's voltage schedule moves the fold only from 0.855 to 0.892.
+- **A second reference AC solver (`results_ipopt_ref.txt`):** `ipopt_nlp.use_ipopt()` hands PYPOWER's unchanged AC OPF to IPOPT (cyipopt, MUMPS). It solves **all 12** large cases PIPS cannot (the SNEM, RTE and two API networks of milestone 6, plus case300 TYP), each **within 0.005 %** of PGLib's published objective. PIPS stops "Numerically failed" after 12 iterations on case1951_rte at any load, so its "no AC optimum" there was a solver failure.
+- **Voltages first, rerun on IPOPT (`results_vfirst_ipopt.txt`, 5 of 6 cases finished):** the reactive stage still has no solution on any case. The reduced-load AC OPF now solves on 4 of 5, but its schedule raises the fold by only 0.014 to 0.038 in load, and no path reaches full load.
+- **Why the pinned stage fails (`diag_slack_fold.txt`):** with every other unit pinned to the lossless DC dispatch, the slack must carry the AC losses. On case300 that is 1,544 MW against a 718 MW limit at the stall, and IPOPT agrees the stage is locally infeasible whatever the voltage, Q and thermal limits. On the RTE cases `fix_ref` makes a 15 to 30 MW unit the slack (the file's reference bus has no unit), and it has to give 505 to 687 MW.
+- **Move the slack and the fold goes (`diag_slack_move.txt`):** with the reference at the largest live unit, the same continuation reaches full load on **all five RTE cases**, with the Jacobian's smallest singular value at 64 to 93 % of its no-load value. case300 still folds at 0.998.
+- **The frozen repair from there (`results_bigslack.txt`, pre-registered B1 to B3, all held):** fully feasible on **3 of 5** RTE cases, at +0.62 % (case1888 API), +0.02 % (case1951 TYP) and +0.05 % (case1951 SAD) over PGLib's optimum, from starts with up to 90 overloads and 293 voltage violations. The two case1888 TYP/SAD runs end with one bus out of voltage band. With case300's earlier result, 4 of the 6 cases that had no power flow now reach a feasible point.
+- **Reading:** the slack rule is part of the method. One slack unit takes all of the network's losses at one bus, and a small one collapses it.
+
+## Milestone 6 under one protocol (added 2026-11-15, `experiments/run_heldout_slack.py`, `results_heldout_slack.txt`)
+The 24 held-out cases of [`grid-linopf`](../grid-linopf/PROPOSAL.md)'s milestone 6, rerun under one protocol (pre-registered in `LOG.md`, 2026-11-15): reference at the bus of the largest live unit, DC start, the fold step's continuation to the full-load power flow, the frozen 20-round J-m-a warm there, the reactive stage on IPOPT, cost against PGLib's published objective.
+
+- **10 of 24 fully feasible within 20 rounds, 12 of 24 with the reactive stage** (DC dispatch: 0 of 24). Scored 19: the three SNEM networks, case1951_rte API and case2000_goc API have no DC OPF solution even without angle limits.
+- **Nothing lost:** paired on the 19 cases the earlier protocol scored, 3 gained (the RTE cases) and 0 lost. Where the reference does not move, the round-by-round statuses are identical to the earlier run (6 of 6).
+- **Cost:** clean points +0.01 to +2.12 % over PGLib's objective, mean +0.50 %, median +0.26 %; case588 TYP is the one above +1 % (pre-registered bar refuted).
+- **Misses:** case1354 (1 to 4 overloads at 112 to 120 %), case1888 TYP and SAD (one bus out of voltage band), case500 SAD (2 angle limits) and case588 SAD; IPOPT's reactive stage finds no solution on any of them.
+
+## A step-based convergence statement, checked on the traces (added 2026-11-17, `experiments/check_theory.py`, `results_theory.txt`)
+Milestone 7's theory half; statement and proofs in [`../grid-linopf/theory.md`](../grid-linopf/theory.md). Under a smooth power flow along each step (A1) and hard-QP feasibility (A2): a hard step within r* = &kappa;<sup>&minus;1/2</sup> finishes (Theorem 1), the trust box is halved at most max(1, &lceil;log<sub>2</sub>(||&Delta;||/r*)&rceil;) times (Theorem 2), and the round count is 1 + A + H with the accepted rounds A bounded only by their path length over r* (Theorem 3). On the 2026-11-13 traces: H&#770;* is 1 to 12 against 0 to 5 observed halvings; the finishing step is inside the radius on 4 of 31; steps shrink before the finish on 28 of 28; accepted rounds are 162 of 228 misses and the path bound is a median 24x loose; round 1's curvature predicts the path poorly (15 of 39); case73 API's elastic step scales with its box over a 250-fold halving, so its stall is not the first-order stationary point the 2026-11-13 entry inferred. Four of seven predictions held (`LOG.md`, 2026-11-17).
+
+## Analytic sensitivities from the power-flow Jacobian (added 2026-11-13, `experiments/check_sens.py`, `results_sens.txt`, `run_vlin.py --margin --analytic`, `results_vlin_margin_analytic.txt`)
+Milestone 2 of [`grid-linopf`](../grid-linopf/PROPOSAL.md). `vlin.jacobian_sens` takes every sensitivity J-m uses (slack P, |S| at both branch ends, angle differences, PQ-bus voltages, unit Q; with respect to unit P and generator voltage setpoints) from the Newton Jacobian at the base power flow, by the implicit function theorem: one sparse LU and one solve per round, instead of n_gen + n_vbus extra power flows. Plan and predictions logged before the run.
+
+| | finite differences (FD) | analytic (A) |
+|---|---|---|
+| agreement with central differences (scaled, worst of 34 cases) | | 1.3e-5 (2.3e-6 on 32 of 34) |
+| J-m fully clean, of 34 | 18 | **19** |
+| J-m then reactive stage, of 34 | 28 | **29** |
+| AC power flows per round | n_gen + n_vbus + 2 (up to 251) | **2** |
+| repair time, summed over 34 cases | 1,491 s | 1,353 s (1.1x) |
+| mean cost over the AC optimum, fully clean J-m (TYP / API / SAD) | +0.20 / +0.37 / +0.28 % | +0.08 / +0.42 / +0.69 % |
+
+- **The outcome counts are robust to the derivative source** (same verdict on 31 of 34).
+- **The power flows were never the bottleneck.** PIPS's QP takes 98 to 99 % of the repair (`experiments/profile_vlin.py`: 74.3 of 75.1 s on case118 API, 190.5 of 192.0 s on case240 SAD); it has 758 to 2,452 inequality rows per round, and the elastic QP adds a slack per row.
+- **The cost of a finished repair is path-dependent.** The method stops at its first fully clean round; on 6 of 17 cases both finish, the cost moves by more than 0.05 points, worst 3.08 (case14 SAD: +0.77 % with FD, +3.85 % with A). A post-feasibility phase, not better derivatives, is what the cost claim needs.
+
 ## Method (`src/infra_dcopf/dcopf.py`)
 - **Cases.** `case30`, `case39` and `case118` from `pandapower.networks` (MATPOWER cases), with their quadratic generator costs (`poly_cost`).
 - **Two OPFs per condition.** `runopp` (AC, PIPS interior point, voltage and branch loading limits) and `rundcopp` (DC), on the same network with load scaled by 0.6, 0.8, 1.0 and 1.1 (P and Q together).
 - **DC dispatch under AC.** The DC generator set-points are fixed in an AC power flow with the external grid as slack; we count buses outside their voltage limits, branches above their loading limit, and the cost of the resulting dispatch (slack included) with the same cost function (`gen_cost`, checked to match pandapower's `res_cost` to 1e-6).
 - **Tightened limits.** A second sweep scales every line's `max_i_ka` and transformer `sn_mva` by 0.7 and 0.5 to force congestion. Many of those runs have no solution (below).
 
-## Checks (`tests/`, 8)
-- `tests/test_pglib.py` (5): the PGLib reader, the parsed BASELINE.md table, the AC OPF against PGLib's published case118 TYP and API objectives (within 0.01 %), and the PowerModels DC convention reproducing the published case14 API DC cost while MATPOWER's B matrix does not.
+## Checks (`tests/`, 59)
+- `tests/test_converge.py` (4): the traced repair reproduces `vlin.slp`'s history on case14 API, halving a step quarters the linearisation remainder (second order), broken rows are flagged on the side they break, and misses are classed elastic, curvature or other.
+- `tests/test_lpac.py` (4, 8 cases): LPAC's branch coefficients with the exact trigonometric terms reproduce PYPOWER's flows at the AC optimum on case14 TYP, case30 API and case118 SAD and with a 5-degree phase shifter added; LPAC-C solves case14 TYP and API and case30 SAD inside its voltage bands with positive losses and a cost within 5 % of the AC optimum; SCS and Clarabel agree on its objective to 1e-5.
+- `tests/test_vlin.py` (10): the screened QP returns the full QP's solution (hard and elastic) with fewer rows, and Clarabel and PIPS solve the same QP to the same point; the analytic sensitivities match central finite differences to 1e-4 (scaled) on case14 API and case30 SAD, and an analytic linearisation runs one power flow; the joint check is clean at the AC optimum and returns its cost, per-bus setpoints round-trip to per-unit VG, a 0.004 pu setpoint move is predicted to first order, the bound-shrinking helper stops at the midpoint, and the method repairs case14 API from 1.0 pu at the optimum's cost (within 0.1 %).
+- `tests/test_vsched.py` (4): the reference dict carries a schedule to every generator bus, PGLib's file schedule is flat 1.0 pu, pinning holds every non-slack unit within 0.02 MW, and the reactive stage at the AC optimum's dispatch returns the optimum's cost.
+- `tests/test_aclin.py` (5): on case30 API, the linearisation's offsets reproduce the AC power flow at its point, a 5 MW redispatch is predicted to within 0.05 MW of slack and 0.5 MVA of branch flow, the loss factors lie in a physical range, the QP solution satisfies its own linear constraints, and the linearisation at the AC optimum returns an AC-feasible dispatch.
+- `tests/test_pglib.py` (6): load-perturbed copies are reproducible per seed and case, scale PD and QD by one factor in [0.9, 1.1] per bus and leave the case untouched; the PGLib reader, the parsed BASELINE.md table, the AC OPF against PGLib's published case118 TYP and API objectives (within 0.01 %), and the PowerModels DC convention reproducing the published case14 API DC cost while MATPOWER's B matrix does not.
 A two-bus network with a closed-form answer (DC cost 10x50 + 0.01x50^2 = 525; the AC slack supplies load plus line loss); `gen_cost` equals pandapower's cost on case39; the 118-bus DC dispatch is feasible and costs no less than the AC optimum; the DC cost error lies in 1 to 5 %; case39's DC dispatch breaks voltage limits at light load; the loss-adjusted model's cost on case118 is under half of plain DC's error and the losses it feeds back exceed 50 MW; on the two-bus case its fed-back loss equals the AC loss of its dispatch.
 
 ## Limitations
@@ -184,39 +392,67 @@ Next step 2 asked for an outage stress test. Penalty factors and loss share are 
 - Limits: one network (case118, whose ratings do not bind at the intact optimum; post-trip line loadings were not reported, and a trip that congests the network is where stale factors are most at risk, to be tested on the PGLib API cases), single-line trips only, one solver, one dispatch per outage, the oracle uses the post-trip AC optimum (a bound, not a scheme).
 
 ## Next steps
-1. Published binding ratings done on 23 PGLib-OPF cases (section above): the DC dispatch is AC-infeasible on all 11 API cases, and derating or iterated AC correction does not repair it. Next: an AC-informed linearisation taken at a nearby AC point (hot-start PTDFs with loss factors and reactive offsets) on the API set; check whether it stays feasible where `corrected_dc` does not; an exact loss/congestion decomposition of the API LMPs from the AC duals.
+1. Published binding ratings done on 23 PGLib-OPF cases, and an AC-informed linearisation on them (sections above): successive linearisation clears 7 of 11 API cases where `corrected_dc` clears 1. SAD held-out test done (C-ang clean on 7 of 11, same rules). Voltage schedule not from the AC optimum done (clean on 2 of 11 API and SAD at 1.0 pu; section above). Voltage setpoints as decision variables done (with interior margins, 28 of 34 fully clean with the reactive stage; tuned on these cases). Analytic sensitivities done (19 and 29 of 34; the QP is the bottleneck). Next: a sparse or screened QP and a post-feasibility cost phase; Next, as milestones of the programme [`grid-linopf`](../grid-linopf/PROPOSAL.md): the frozen J-m on held-out (larger) PGLib cases; LPAC and optimised-linearisation baselines; an exact loss/congestion decomposition of the API LMPs from the AC duals.
 2. Previous-interval factors keep ~90 % of the oracle gain for 0.1 load steps, and essentially all of it on two real hourly weeks (above). Ramp and single-line outage stress tests done (above): stale factors beat plain DC on all 80 trips. Next: outages on a case whose ratings bind (PGLib API), a refresh rule driven by the factor change, a DC-based estimate of the point, or a distributed slack.
 3. Done by another route (see "Voltage violations" above). Next: a voltage/Q stage that is not a full AC OPF, and full-load feasibility with a solver that converges.
 
 ## Reproduce
 ```bash
-pip install pytest numpy pandapower
+pip install pytest numpy pandapower pypower clarabel
 cd research/infra-dcopf
-python -m pytest -q tests                     # 19 tests, about 35 s
+python -m pytest -q tests                     # 52 tests, about 40 s
 PYTHONPATH=src python experiments/run.py      # about 1 min; writes experiments/results.txt
 PYTHONPATH=src python experiments/run_penalty_acopt.py  # about 3 min; writes results_penalty_acopt.txt
 PYTHONPATH=src python experiments/run_prev_interval.py  # about 2 min; writes results_prev_interval.txt
+python experiments/run_sad.py                 # about 80 s, needs pypower; writes results_sad.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vsched.py  # about 6 min on 4 processes, needs pypower; writes results_vsched.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py    # about 29 min on 4 processes, needs pypower; writes results_vlin.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin  # variant J-m, about 26 min; writes results_vlin_margin.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic  # J-m, Jacobian sensitivities, about 24 min; writes results_vlin_margin_analytic.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --clarabel  # milestone 2b, Clarabel on every QP, about 2 min; results_vlin_margin_analytic_clarabel.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --screen    # milestone 2b, screened PIPS QP, about 3 min; results_vlin_margin_analytic_screen.txt/.json
+OMP_NUM_THREADS=1 python experiments/audit_qp.py  # every QP of J-m-a's path under PIPS, screened PIPS and Clarabel, about 12 min; audit_qp.txt/.json
+python experiments/check_sens.py              # analytic vs central differences, about 2 min; writes results_sens.txt
+python experiments/profile_vlin.py case118_ieee api  # where the repair's time goes
 PYTHONPATH=src python experiments/run_lossadj.py  # loss-adjusted DC, about 1 min; writes results_lossadj.txt
 python experiments/run_pglib.py               # PGLib TYP+API, about 3 min; needs pypower; writes results_pglib.txt/.json
 python experiments/figure_pglib.py            # experiments/pglib_overload.svg
+python experiments/run_aclin.py               # AC-informed linearisation, about 2 min; needs pypower; writes results_aclin.txt/.json
+python experiments/figure_aclin.py            # experiments/aclin_rounds.svg
 PYTHONPATH=src python experiments/run_case300_pypower.py  # about 2 min; needs pypower; writes results_case300_pypower.txt
 PYTHONPATH=src python experiments/run_case300.py  # case300 sweep, about 1.5 min; writes results_case300.txt
 PYTHONPATH=src python experiments/run_hourly_profile.py  # about 25 min; writes results_hourly_profile.txt
 PYTHONPATH=src:experiments python experiments/run_stale_factors.py  # about 4 min; writes results_stale_factors.txt
 PYTHONPATH=src python experiments/run_outage.py 1.0   # about 9 min; writes results_outage.txt (1.1 writes results_outage_k1.1.txt)
+OMP_NUM_THREADS=1 python experiments/run_lpac.py  # LPAC one-shot baseline and LPAC-started repair, about 5 min; needs pypower, clarabel, scs; writes results_lpac.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_perturb.py  # milestone 5, 360 load-perturbed copies, about 12 min on 4 processes; results_perturb.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_heldout.py  # milestone 6, the 24 held-out 500 to 2,000-bus cases, about 20 min on 4 processes; results_heldout.txt/.json (--noref: the cases PIPS cannot solve, results_heldout_noref.txt)
+OMP_NUM_THREADS=1 python experiments/run_heldout_slack.py J <case/kind ...>  # milestone 6 under one protocol (largest-unit slack); then `R <case/kind ...>` (IPOPT reactive stage, needs cyipopt) on the unfinished ones and `--merge`; about 23 min (J) and 30 min (R) summed over cases; results_heldout_slack.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_vlin.py --margin --analytic --screen --clarabel  # milestone 6 gate: screened Clarabel against full Clarabel on the 34 development cases, about 1 min
+OMP_NUM_THREADS=1 python experiments/run_converge.py  # milestone 7, traced repair with a 30-round budget, about 3 min on 4 processes; results_converge.txt/.json
+python experiments/check_theory.py  # milestone 7 theory half: Theorems 1-3 and Proposition 2 on those traces, under a second; results_theory.txt/.json
+OMP_NUM_THREADS=1 python experiments/run_perturb.py --noref  # the arms on copies with no AC optimum, about 5 min; results_perturb_noref.txt/.json
+python experiments/diag_lpac.py               # which limit class makes LPAC-C infeasible; writes results_lpac_infeasible.txt
 python experiments/run_lmp.py                 # LMP comparison, about 1 min; writes experiments/results_lmp.txt
 PYTHONPATH=src python experiments/run_voltage.py  # voltage setpoint study, about 1 min; writes results_voltage.txt
 python experiments/figure.py                  # experiments/gap_vs_load.svg
 ```
 
 ## References
+- W&auml;chter, A. and Biegler, L. T. (2006), On the implementation of an interior-point filter line-search algorithm for large-scale nonlinear programming, *Mathematical Programming* 106(1):25&ndash;57, doi:10.1007/s10107-004-0559-y (IPOPT, the second reference AC solver in `ipopt_nlp.py`; DOI from memory, the resolver refused the lookup on 2026-11-15).
+- Dobson, I. (1992), Observations on the geometry of saddle node bifurcation and voltage collapse in electrical power systems, *IEEE Trans. Circuits and Systems I* 39(3):240&ndash;243, doi:10.1109/81.128018 (the singular Jacobian at the loading limit; the square-root nose that `fold.fold_fit` fits).
+- Ajjarapu, V., Christy, C. (1992), The continuation power flow: a tool for steady state voltage stability analysis, *IEEE Trans. Power Systems* 7(1):416&ndash;423, doi:10.1109/59.141737 (why simple load stepping stalls before a fold).
+- Coffrin, C., Van Hentenryck, P. (2014), A linear-programming approximation of AC power flows, *INFORMS Journal on Computing* 26(4):718-734, doi:10.1287/ijoc.2014.0594 (arXiv:1206.3614).
+- O'Donoghue, B., Chu, E., Parikh, N., Boyd, S. (2016), Conic optimization via operator splitting and homogeneous self-dual embedding, *Journal of Optimization Theory and Applications* 169(3):1042-1068, doi:10.1007/s10957-016-0892-3 (SCS).
 (DOIs from memory; the DOI resolver was unreachable through the proxy, so they were not looked up in this run. 2026-11-11: the PowerModels.jl DOI and bibliographic data were checked against the BibTeX in its README; the PGLib arXiv id was checked against the PGLib-OPF README, which links it as the library's report and asks users to cite it, but arxiv.org was unreachable, so its author list and title are from memory.)
 - Thurner, L. et al. (2018), pandapower, *IEEE Trans. Power Systems* 33(6), doi:10.1109/TPWRS.2018.2829021.
 - Zimmerman, R. D., Murillo-Sanchez, C. E., Thomas, R. J. (2011), MATPOWER, *IEEE Trans. Power Systems* 26(1), doi:10.1109/TPWRS.2010.2051168.
 - Stott, B., Jardim, J., Alsac, O. (2009), DC power flow revisited, *IEEE Trans. Power Systems* 24(3), doi:10.1109/TPWRS.2009.2021235.
 
 - Babaeinejadsarookolaee, S. et al. (2019), The Power Grid Library for Benchmarking AC Optimal Power Flow Algorithms, arXiv:1908.02788 (PGLib-OPF; cases v23.07 in `data/pglib/`, CC BY 4.0).
+- Fletcher, R., Sainz de la Maza, E. (1989), Nonlinear programming and nonsmooth optimization by successive linear programming, *Mathematical Programming* 43, 235&ndash;256, doi:10.1007/BF01582292 (the l1-penalised SLP step used in C; DOI, volume and pages checked 2026-11-12 against the publisher's first page via a web search, the resolver being unreachable).
+- Goulart, P. J., Chen, Y. (2024), Clarabel: An interior-point solver for conic programs with quadratic objectives, arXiv:2405.12762 (the QP solver adopted in milestone 2b; version 0.11.1 from PyPI; title, authors and arXiv id checked 2026-11-13 against the BibTeX in its PyPI description, arXiv itself unreachable through the proxy).
 - Coffrin, C., Bent, R., Sundar, K., Ng, Y., Lubin, M. (2018), PowerModels.jl: An Open-Source Framework for Exploring Power Flow Formulations, *Power Systems Computation Conference (PSCC)*, doi:10.23919/PSCC.2018.8442948.
 
 ## Outside dependencies
-pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`).
+pandapower (and its PYPOWER-derived solvers), the MATPOWER case data it ships, PYPOWER, and PGLib-OPF v23.07 case files (CC BY 4.0, `data/pglib/`), and SciPy (sparse matrices for PYPOWER's QP), and Clarabel (Apache 2.0) for the repair's QP since milestone 2b and for LPAC; SCS 3.3 (MIT) as the second LPAC solver (milestone 4a).

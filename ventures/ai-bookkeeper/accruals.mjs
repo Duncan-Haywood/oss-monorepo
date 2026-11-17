@@ -36,7 +36,7 @@ export function parseDocuments(text, { dayFirst = false, decimalComma = false } 
   const problems = [];
   if (rows.length < 2) return { documents: [], problems: ["No document rows found. Expected a header: type,number,date,due,party,amount,account."] };
   const head = rows[0].map((h) => h.trim().toLowerCase());
-  const col = (...names) => head.findIndex((h) => names.includes(h));
+  const col = (...names) => (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   const c = { type: col("type", "kind"), number: col("number", "no", "invoice", "bill", "ref", "id"), date: col("date", "issued", "invoice date", "bill date"), due: col("due", "due date"), party: col("party", "customer", "vendor", "name", "supplier"), amount: col("amount", "total", "line amount"), account: col("account", "account code", "code"), against: col("against", "applies to", "original", "credit for"), desc: col("description", "memo", "item", "details"), cur: col("currency", "cur", "ccy"), rate: col("rate", "fx rate", "exchange rate") };
   for (const k of ["type", "number", "date", "party", "amount", "account"]) if (c[k] === -1) problems.push(`Missing column "${k}".`);
   if (problems.length) return { documents: [], problems };

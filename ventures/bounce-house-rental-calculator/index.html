@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1c2333; background: #eef1fa; }
     body { max-width: 1120px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 800px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.3rem); line-height: 1; margin: 0 0 12px; letter-spacing: -.045em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: 1; margin: 0 0 12px; letter-spacing: -.045em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2b3f9e; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .76fr); gap: 18px; align-items: start; }
@@ -198,7 +198,7 @@
   <script type="module">
     import { calculateQuote, COST_IDS, UNIT_FIELDS, UNIT_PRESETS } from './calc.mjs';
     import { encodeInputs, decodeInputs, formValues, carriesAnything } from './share.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = (id) => document.getElementById(id);
     const money = (value) => {
@@ -207,7 +207,7 @@
     };
 
     const optedOut = () => el('usageOptOut').checked;
-    const count = (event) => recordUsage(localStorage, optedOut(), event);
+    const count = (event) => recordUsage(usageStorage(), optedOut(), event);
 
     // The opening example: 2 standard bounce houses and 1 water slide, so the
     // page shows a real, non-zero quote before anyone types anything.
@@ -390,8 +390,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

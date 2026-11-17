@@ -158,6 +158,15 @@
     .handoff .rank { color: var(--muted); font-size: .87rem; }
     @media (max-width: 640px) { .wrap { padding: 1.2rem .8rem 3rem; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.fields:has(#categoryId) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 261px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
 <div class="wrap">
@@ -386,7 +395,7 @@
     loadItem,
   } from "./calc.mjs";
   import { specialistRows } from "./specialists.mjs";
-  import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
   import { decodeShare, encodeShare } from "./share.mjs";
   import { handoffsForRows, handoffUrl, excludedHandoffUrl, whereToSellUrl } from "./handoff.mjs";
 
@@ -405,7 +414,7 @@
       ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
 
   function count(event) {
-    recordUsage(localStorage, el("usageOptOut").checked, event);
+    recordUsage(usageStorage(), el("usageOptOut").checked, event);
   }
 
   // Built from the model rather than written into the markup, so a channel
@@ -711,16 +720,16 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl && 'checked' in usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       } else if (usageControl) {
         const paint = () => {
-          usageControl.textContent = readOptOut(localStorage)
+          usageControl.textContent = readOptOut(usageStorage())
             ? 'Usage counting is off'
             : 'Turn off local usage counting';
         };
         usageControl.addEventListener('click', () => {
-          writeOptOut(localStorage, !readOptOut(localStorage));
+          writeOptOut(usageStorage(), !readOptOut(usageStorage()));
           paint();
         });
         paint();

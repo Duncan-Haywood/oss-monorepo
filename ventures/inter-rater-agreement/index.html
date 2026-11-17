@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%2313325b'/%3E%3Ccircle%20cx='11'%20cy='16'%20r='6'%20fill='none'%20stroke='%23ffd166'%20stroke-width='2.4'/%3E%3Ccircle%20cx='21'%20cy='16'%20r='6'%20fill='none'%20stroke='%23ffffff'%20stroke-width='2.4'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Inter-Rater Agreement Calculator — Krippendorff's alpha, kappa, ICC, free</title>
+  <meta name="description" content="Free inter-rater reliability calculator: Krippendorff's alpha (nominal, ordinal, interval, ratio, missing data) with a bootstrap interval, Cohen's and weighted kappa, Fleiss' kappa, Gwet's AC1 and the six ICCs. Finds the rater and the category your coders disagree on. Matches krippendorff, irrCAC, statsmodels and pingouin. Runs in your browser.">
+  <meta property="og:title" content="Inter-rater agreement in your browser: do your coders agree beyond chance, and where do they not?">
+  <meta property="og:description" content="Krippendorff's alpha, Cohen's, weighted and Fleiss' kappa, Gwet's AC1 and intraclass correlations from one CSV, with intervals, per-category agreement and alpha with each rater left out. Nothing is uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Inter-rater agreement calculator", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Paste ratings from two or more raters, coders or annotators, in wide, long or counts layout. Krippendorff's alpha for any level of measurement with missing data and a bootstrap interval, Cohen's kappa with weights and its standard error, Fleiss' kappa, Gwet's AC1 and AC2, pairwise and per-category kappa, alpha with each rater left out, and the six intraclass correlations of Shrout and Fleiss with McGraw and Wong's intervals. Runs in your browser.", "featureList": "Krippendorff's alpha calculator, inter-rater reliability, intercoder reliability, Cohen's kappa calculator, weighted kappa, quadratic weighted kappa, Fleiss' kappa, Gwet's AC1, kappa paradox, intraclass correlation coefficient, ICC(2,1), annotator agreement, missing ratings, bootstrap confidence interval, per-category kappa, CSV upload, CSV download", "citation": ["https://repository.upenn.edu/asc_papers/43/", "https://doi.org/10.1080/19312450709336664", "https://doi.org/10.1177/001316446002000104", "https://doi.org/10.1037/h0026256", "https://doi.org/10.1037/h0031619", "https://doi.org/10.1348/000711006X126600", "https://doi.org/10.1037/0033-2909.86.2.420", "https://doi.org/10.1037/1082-989X.1.1.30"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Which coefficient should I report?", "acceptedAnswer": {"@type": "Answer", "text": "For coded content, annotation or any data where raters vary from item to item or some ratings are missing, report Krippendorff's alpha at the level of measurement of your categories, with its interval. For exactly two raters who rated every item, Cohen's kappa is the familiar choice, weighted for ordered categories. For numeric scores by the same raters, report the intraclass correlation that matches your design, usually ICC(2,1), and say which form it is."}}, {"@type": "Question", "name": "Why is my kappa low when the raters agree 90% of the time?", "acceptedAnswer": {"@type": "Answer", "text": "This is the kappa paradox. When one category dominates, two raters would agree often by chance alone, so kappa, which measures agreement beyond chance, can be low or even negative despite high raw agreement. Gwet's AC1 uses a chance term that is less affected by skewed categories. Report raw agreement, kappa and AC1 together and say how skewed the categories are."}}, {"@type": "Question", "name": "What is a good Krippendorff's alpha?", "acceptedAnswer": {"@type": "Answer", "text": "Krippendorff recommends relying on data only where alpha is at least 0.800, and drawing tentative conclusions where it is between 0.667 and 0.800. Look at the lower end of the interval too: the tool reports how often the bootstrap fell below each standard. These are conventions for content analysis, not laws; a medical or safety decision may need more."}}, {"@type": "Question", "name": "Which ICC is which?", "acceptedAnswer": {"@type": "Answer", "text": "ICC(1) treats every subject as rated by a different random set of raters. ICC(2) treats the raters as a random sample of possible raters and asks for absolute agreement, so a rater who scores everyone two points higher lowers it. ICC(3) treats these raters as the only ones of interest and asks only for consistency, so a constant offset does not count. The k forms are the reliability of the mean of all raters rather than of one."}}, {"@type": "Question", "name": "What layouts can I paste?", "acceptedAnswer": {"@type": "Answer", "text": "Wide: one row per subject and one column per rater. Long: three columns, subject, rater and rating, as most annotation tools export. Counts: one row per subject and one column per category holding how many raters chose it. Empty cells, NA, a dot, a dash and a question mark count as missing."}}, {"@type": "Question", "name": "Should I drop the rater whose removal raises alpha?", "acceptedAnswer": {"@type": "Answer", "text": "Not on that basis alone. Choosing raters to raise a reliability coefficient makes it look better than the coding process is. Use the table to find a coder who misread the instructions or a category that is badly defined, fix that, and code again, or report alpha both with and without the rater and say why."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #14213a; background: #eef2f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1d4f91; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #13325b; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #13325b; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5568; }
+    .card { background: #fff; border: 1px solid #d5dde8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #13325b10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #708096; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1d4f91; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3eaf4; color: #13325b; }
+    button:disabled { opacity: .6; cursor: progress; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6ebf2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5568; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dde8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #708096; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; margin: 12px 0; }
+    .stat { background: #f1f5fa; border-radius: 10px; padding: 10px 12px; }
+    .stat b { display: block; font-size: 1.35rem; color: #13325b; font-variant-numeric: tabular-nums; }
+    .stat span { font-size: .82rem; color: #4a5568; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    pre { background: #f3f6fa; border: 1px solid #dde4ee; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">INTER-RATER RELIABILITY · KRIPPENDORFF'S ALPHA · COHEN'S AND FLEISS' KAPPA · GWET'S AC1 · ICC · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Do your raters agree beyond chance, and where do they not?</h1>
+    <p>Paste the ratings two or more people gave the same things: coders labelling interview passages, annotators tagging text for a model, clinicians grading scans, judges scoring entries, teachers marking essays. You get <strong>Krippendorff's alpha</strong> at the right level of measurement, with missing ratings allowed and a bootstrap interval; <strong>Cohen's kappa</strong> for two raters, weighted when the categories are ordered; <strong>Fleiss' kappa</strong> and <strong>Gwet's AC1</strong> for many; the six <strong>intraclass correlations</strong> for numeric scores; and the parts a single number hides: which category is confused, which rater pulls agreement down, and which items the raters split on.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Statistical output from data you supply, not advice. Not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your ratings</h2>
+    <label for="csv">A CSV with a header row (comma, tab or semicolon separated): one row per subject and one column per rater, or three columns subject, rater, rating, or one column per category with counts. Blank, NA, ".", "-" and "?" are missing.</label>
+    <textarea id="csv" spellcheck="false" placeholder="item,coder_a,coder_b,coder_c&#10;1,praise,praise,neutral&#10;2,complaint,complaint,complaint&#10;3,neutral,,praise&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <button type="button" class="secondary" id="load-example">Load example: 1,200 sentiment labels of 300 Reddit comments by 75 raters (GoEmotions)</button>
+    <p class="note" id="data-status">Paste ratings or load the example.</p>
+
+    <div class="grid">
+      <div><label for="layout">Layout</label><select id="layout"><option value="auto" selected>Detect</option><option value="wide">Wide: a column per rater</option><option value="long">Long: subject, rater, rating</option><option value="counts">Counts: a column per category</option></select></div>
+      <div><label for="scale">Level of measurement</label><select id="scale"><option value="auto" selected>Detect</option><option value="nominal">Nominal (unordered labels)</option><option value="ordinal">Ordinal (ordered levels)</option><option value="interval">Interval (numbers, differences matter)</option><option value="ratio">Ratio (numbers with a true zero)</option></select></div>
+      <div><label for="categories">Possible categories in order (optional, comma separated)</label><input id="categories" placeholder="e.g. none,mild,moderate,severe"></div>
+      <div><label for="confidence">Interval</label><select id="confidence"><option value="0.9">90%</option><option value="0.95" selected>95%</option><option value="0.99">99%</option></select></div>
+      <div><label for="bootstrap">Bootstrap replicates</label><select id="bootstrap"><option value="0">Off</option><option value="500">500</option><option value="1000" selected>1,000</option><option value="5000">5,000</option></select></div>
+    </div>
+    <button type="button" id="analyze">Measure agreement</button>
+    <p id="status" class="note" role="status"></p>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div class="stats" id="stats"></div>
+    <div id="warnings"></div>
+    <h3>Coefficients</h3>
+    <p class="note">Each dot is a coefficient and each bar its interval; dashed lines mark Krippendorff's 0.667 and 0.800 standards.</p>
+    <div id="forest" role="img" aria-label="Each agreement coefficient with its confidence interval on a scale from -0.2 to 1, with reference lines at 0.667 and 0.800"></div>
+    <div class="scroll">
+      <table id="coef-table">
+        <thead><tr><th>Coefficient</th><th class="n">Value</th><th class="n">Interval</th><th>Reading</th><th>Interval method</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div id="cohen-block" hidden>
+      <h3>Two raters</h3>
+      <p class="note" id="cohen-note"></p>
+      <div class="scroll"><table id="confusion"></table></div>
+    </div>
+    <div id="category-block" hidden>
+      <h3>Agreement by category</h3>
+      <p class="note">Each category against all the others (Fleiss' per-category kappa). A low value means raters use that category inconsistently: its definition is the first thing to tighten.</p>
+      <div class="scroll"><table id="category-table"><thead><tr><th>Category</th><th class="n">Ratings</th><th class="n">Share</th><th class="n">Kappa</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="icc-block" hidden>
+      <h3>Intraclass correlations</h3>
+      <p class="note" id="icc-note"></p>
+      <div class="scroll"><table id="icc-table"><thead><tr><th>Form</th><th>Model</th><th>Reliability of</th><th class="n">ICC</th><th class="n">Interval</th><th class="n">F test</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="pair-block" hidden>
+      <h3>Every pair of raters</h3>
+      <div class="scroll"><table id="pair-table"><thead><tr><th>Raters</th><th class="n">Shared subjects</th><th class="n">Cohen's kappa</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <div id="drop-block" hidden>
+      <h3>Alpha with each rater left out</h3>
+      <p class="note">A rater whose removal raises alpha a lot disagrees with the others. Check their instructions and training before excluding anyone; dropping raters to raise alpha overstates reliability.</p>
+      <div class="scroll"><table id="drop-table"><thead><tr><th>Rater</th><th class="n">Ratings</th><th class="n">Alpha without</th><th class="n">Change</th></tr></thead><tbody></tbody></table></div>
+    </div>
+    <h3>Subjects the raters split on most</h3>
+    <div class="scroll"><table id="contested-table"><thead><tr><th>Subject</th><th class="n">Ratings</th><th>Most common rating</th><th>All ratings</th></tr></thead><tbody></tbody></table></div>
+    <p class="note" id="settings-line"></p>
+    <button type="button" class="secondary" id="download">Download per-subject table (CSV)</button>
+    <button type="button" class="secondary" id="download-report">Download the report (text)</button>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Krippendorff's alpha.</strong> <code>α = 1 − D_o / D_e</code>: one minus observed disagreement over the disagreement expected by chance. Every pair of ratings of the same subject enters a coincidence matrix with weight <code>1/(m_u − 1)</code>, m_u that subject's number of ratings, so subjects with more raters do not count more; subjects with a single rating drop out; D_e comes from the pooled category totals. The difference function sets the level of measurement: nominal (any two different labels differ by 1), ordinal (by the number of ratings ranked between them), interval (squared difference) and ratio (squared difference over the squared sum) (Krippendorff 2004, 2011; Hayes &amp; Krippendorff 2007). Its interval here resamples subjects with replacement and recomputes alpha each time, and the share of replicates below 0.667 and 0.800 is the probability Krippendorff recommends reporting.</p>
+    <p><strong>Kappa and AC1.</strong> Cohen's kappa (1960) compares two raters' agreement with what their own category rates would give by chance; weighted kappa (Cohen 1968) gives partial credit to near misses, with linear or quadratic weights on the category ranks; its interval and z test use the large-sample standard errors of Fleiss, Cohen &amp; Everitt (1969). Fleiss' kappa (1971) and Gwet's AC1 (2008), AC2 with weights, cover many raters; both are computed in Gwet's generalised form, which allows missing ratings and equals Fleiss' 1971 value on complete data. They share the observed agreement and differ in the chance term: Fleiss uses <code>Σ π_k²</code>, AC1 uses <code>Σ π_k (1 − π_k) / (q − 1)</code>, which stays small when one category dominates. Per-category kappa is Fleiss' kappa on the data recoded as "this category or not". With two raters the tool adds PABAK and, for two categories, the prevalence and bias indices of Byrt, Bishop &amp; Carlin (1993); with three to fifteen raters, every pairwise kappa and their mean, Light's kappa (1971).</p>
+    <p><strong>Intraclass correlations.</strong> For numeric ratings with the same raters on every subject, the two-way ANOVA mean squares give the six ICCs of Shrout &amp; Fleiss (1979), named as in McGraw &amp; Wong (1996), with their exact F-based intervals (Satterthwaite degrees of freedom for the absolute-agreement forms). Subjects missing a rating are left out of the ICC only, and the page says how many. The bands of Koo &amp; Li (2016) are read off the interval.</p>
+    <p>Verified by tests in the source: alpha reproduces the four values published in Krippendorff's (2011) worked example (0.743, 0.815, 0.849, 0.797) and agrees with the <strong>krippendorff 0.9.0</strong> package to 10⁻¹² for every level on data with missing ratings; Fleiss' and Gwet's coefficients, plain and quadratic-weighted, match <strong>irrCAC 0.4.4</strong> to its five decimals and statsmodels' <code>fleiss_kappa</code> to 10⁻¹²; Cohen's kappa matches scikit-learn's <code>cohen_kappa_score</code> (none, linear, quadratic) and its standard errors match <strong>statsmodels 0.15.0</strong>'s <code>cohens_kappa</code> to 10⁻¹²; the ICCs reproduce Shrout &amp; Fleiss's (1979) table and match <strong>pingouin 0.7.0</strong>'s <code>intraclass_corr</code> to 10⁻¹², with intervals equal to McGraw &amp; Wong's formulas evaluated with scipy's F quantiles to 10⁻⁸. Wide, long and counts layouts of the same ratings give the same alpha, and relabelling categories or reordering raters and subjects leaves it unchanged.</p>
+    <h3>BibTeX</h3>
+    <pre>@book{krippendorff2004content,
+  author    = {Krippendorff, Klaus},
+  title     = {Content Analysis: An Introduction to Its Methodology},
+  edition   = {2}, publisher = {Sage}, address = {Thousand Oaks, CA}, year = {2004}
+}
+@misc{krippendorff2011computing,
+  author = {Krippendorff, Klaus},
+  title  = {Computing {K}rippendorff's Alpha-Reliability},
+  howpublished = {Departmental Papers (ASC) 43, University of Pennsylvania},
+  year   = {2011}, url = {https://repository.upenn.edu/asc_papers/43/}
+}
+@article{hayes2007answering,
+  author  = {Hayes, Andrew F. and Krippendorff, Klaus},
+  title   = {Answering the Call for a Standard Reliability Measure for Coding Data},
+  journal = {Communication Methods and Measures},
+  volume  = {1}, number = {1}, pages = {77--89}, year = {2007},
+  doi     = {10.1080/19312450709336664}
+}
+@article{cohen1960coefficient,
+  author  = {Cohen, Jacob},
+  title   = {A Coefficient of Agreement for Nominal Scales},
+  journal = {Educational and Psychological Measurement},
+  volume  = {20}, number = {1}, pages = {37--46}, year = {1960},
+  doi     = {10.1177/001316446002000104}
+}
+@article{cohen1968weighted,
+  author  = {Cohen, Jacob},
+  title   = {Weighted Kappa: Nominal Scale Agreement with Provision for Scaled Disagreement or Partial Credit},
+  journal = {Psychological Bulletin},
+  volume  = {70}, number = {4}, pages = {213--220}, year = {1968},
+  doi     = {10.1037/h0026256}
+}
+@article{fleiss1969large,
+  author  = {Fleiss, Joseph L. and Cohen, Jacob and Everitt, B. S.},
+  title   = {Large Sample Standard Errors of Kappa and Weighted Kappa},
+  journal = {Psychological Bulletin},
+  volume  = {72}, number = {5}, pages = {323--327}, year = {1969},
+  doi     = {10.1037/h0028106}
+}
+@article{fleiss1971measuring,
+  author  = {Fleiss, Joseph L.},
+  title   = {Measuring Nominal Scale Agreement Among Many Raters},
+  journal = {Psychological Bulletin},
+  volume  = {76}, number = {5}, pages = {378--382}, year = {1971},
+  doi     = {10.1037/h0031619}
+}
+@article{gwet2008computing,
+  author  = {Gwet, Kilem Li},
+  title   = {Computing Inter-Rater Reliability and Its Variance in the Presence of High Agreement},
+  journal = {British Journal of Mathematical and Statistical Psychology},
+  volume  = {61}, number = {1}, pages = {29--48}, year = {2008},
+  doi     = {10.1348/000711006X126600}
+}
+@article{shrout1979intraclass,
+  author  = {Shrout, Patrick E. and Fleiss, Joseph L.},
+  title   = {Intraclass Correlations: Uses in Assessing Rater Reliability},
+  journal = {Psychological Bulletin},
+  volume  = {86}, number = {2}, pages = {420--428}, year = {1979},
+  doi     = {10.1037/0033-2909.86.2.420}
+}
+@article{mcgraw1996forming,
+  author  = {McGraw, Kenneth O. and Wong, S. P.},
+  title   = {Forming Inferences About Some Intraclass Correlation Coefficients},
+  journal = {Psychological Methods},
+  volume  = {1}, number = {1}, pages = {30--46}, year = {1996},
+  doi     = {10.1037/1082-989X.1.1.30}
+}
+@article{landis1977measurement,
+  author  = {Landis, J. Richard and Koch, Gary G.},
+  title   = {The Measurement of Observer Agreement for Categorical Data},
+  journal = {Biometrics},
+  volume  = {33}, number = {1}, pages = {159--174}, year = {1977},
+  doi     = {10.2307/2529310}
+}
+@article{koo2016guideline,
+  author  = {Koo, Terry K. and Li, Mae Y.},
+  title   = {A Guideline of Selecting and Reporting Intraclass Correlation Coefficients for Reliability Research},
+  journal = {Journal of Chiropractic Medicine},
+  volume  = {15}, number = {2}, pages = {155--163}, year = {2016},
+  doi     = {10.1016/j.jcm.2016.02.012}
+}
+@article{byrt1993bias,
+  author  = {Byrt, Ted and Bishop, Janet and Carlin, John B.},
+  title   = {Bias, Prevalence and Kappa},
+  journal = {Journal of Clinical Epidemiology},
+  volume  = {46}, number = {5}, pages = {423--429}, year = {1993},
+  doi     = {10.1016/0895-4356(93)90018-V}
+}
+@article{light1971measures,
+  author  = {Light, Richard J.},
+  title   = {Measures of Response Agreement for Qualitative Data: Some Generalizations and Alternatives},
+  journal = {Psychological Bulletin},
+  volume  = {76}, number = {5}, pages = {365--377}, year = {1971},
+  doi     = {10.1037/h0031643}
+}</pre>
+    <h3>Limits</h3>
+    <ul>
+      <li><strong>Agreement is not accuracy.</strong> Raters can agree perfectly and all be wrong, or share a bias the coefficient cannot see. Agreement says the coding is reproducible, not that it is valid; a reference standard is a separate question.</li>
+      <li><strong>The labels are conventions.</strong> Landis &amp; Koch called their kappa bands arbitrary, and Krippendorff's 0.667 and 0.800 are standards for content analysis. Lead with the value and its interval, and set the bar by what the data will be used for.</li>
+      <li><strong>Bootstrap intervals need subjects.</strong> With fewer than about 30 subjects rated twice or more the intervals are rough, and the page says so. The bootstrap resamples subjects, not raters, so it does not say how a different set of raters would do.</li>
+      <li><strong>Gwet's AC1 depends on the number of categories.</strong> It counts the categories seen in the data unless you list the possible ones; list them when some were never used.</li>
+      <li><strong>ICCs need a complete table.</strong> Subjects missing any rater's score are left out of the ICC (alpha uses them). With crowd-style data where raters change from item to item, use alpha.</li>
+      <li>Not modelled: rater-specific bias models (Dawid-Skene), agreement on multi-label or span annotations, Bland-Altman limits of agreement for two measurement methods, and significance tests comparing two alphas.</li>
+    </ul>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Which coefficient should I report?</h3>
+    <p>For coded content, annotation or any data where raters vary from item to item or some ratings are missing, report Krippendorff's alpha at the level of measurement of your categories, with its interval. For exactly two raters who rated every item, Cohen's kappa is the familiar choice, weighted for ordered categories. For numeric scores by the same raters, report the intraclass correlation that matches your design, usually ICC(2,1), and say which form it is.</p>
+    <h3>Why is my kappa low when the raters agree 90% of the time?</h3>
+    <p>This is the kappa paradox. When one category dominates, two raters would agree often by chance alone, so kappa, which measures agreement beyond chance, can be low or even negative despite high raw agreement. Gwet's AC1 uses a chance term that is less affected by skewed categories. Report raw agreement, kappa and AC1 together and say how skewed the categories are.</p>
+    <h3>What is a good Krippendorff's alpha?</h3>
+    <p>Krippendorff recommends relying on data only where alpha is at least 0.800, and drawing tentative conclusions where it is between 0.667 and 0.800. Look at the lower end of the interval too: the tool reports how often the bootstrap fell below each standard. These are conventions for content analysis, not laws; a medical or safety decision may need more.</p>
+    <h3>Which ICC is which?</h3>
+    <p>ICC(1) treats every subject as rated by a different random set of raters. ICC(2) treats the raters as a random sample of possible raters and asks for absolute agreement, so a rater who scores everyone two points higher lowers it. ICC(3) treats these raters as the only ones of interest and asks only for consistency, so a constant offset does not count. The k forms are the reliability of the mean of all raters rather than of one.</p>
+    <h3>What layouts can I paste?</h3>
+    <p>Wide: one row per subject and one column per rater. Long: three columns, subject, rater and rating, as most annotation tools export. Counts: one row per subject and one column per category holding how many raters chose it. Empty cells, NA, a dot, a dash and a question mark count as missing.</p>
+    <h3>Should I drop the rater whose removal raises alpha?</h3>
+    <p>Not on that basis alone. Choosing raters to raise a reliability coefficient makes it look better than the coding process is. Use the table to find a coder who misread the instructions or a category that is badly defined, fix that, and code again, or report alpha both with and without the rater and say why.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The file is read and analysed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+    <p class="note">Example data: 1,200 rows, one per rater per comment, for 300 Reddit comments from GoEmotions (Demszky et al. 2020, ACL; Apache License 2.0), each labelled by three to five of the dataset's raters. Each rater's emotion ticks are reduced to one sentiment with the dataset's own grouping (positive, negative, ambiguous, neutral, or mixed when a rater ticked emotions from more than one group); a rater who marked a comment "very unclear" or ticked nothing counts as missing. The comment text is not included. On these 300 comments alpha is 0.276: the raters agree on a comment's overall sentiment far less than a coding study would accept, most on "positive" and least on "mixed".</p>
+  </section>
+</main>
+
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, nor medical advice, and it does not replace a qualified statistician. Results are statistical estimates from the data you enter; low agreement is not proof of an error or of a cause, and high agreement is not proof of accuracy. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, the GoEmotions authors or Google, the krippendorff, irrCAC, statsmodels, scikit-learn or pingouin projects, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs ratings.csv</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/inter-rater-agreement" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../probability-calibration/">probability calibration check</a> says whether forecast probabilities can be taken at face value, the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed, <a href="../fdr-multiple-testing/">multiple testing correction</a> says which of many results still stand, <a href="../survival-analysis/">survival analysis</a> estimates time to an event, <a href="../conformal-prediction-intervals/">conformal prediction intervals</a> gives intervals with guaranteed coverage, <a href="../spc-control-charts/">control charts</a> tell a process change from noise, the <a href="../fuzzy-dedupe/">fuzzy dedupe</a> tool finds rows that are the same person, the <a href="../isolation-forest/">isolation forest</a> finds unusual rows, <a href="../robust-pca/">robust PCA</a> finds the cells that break a table's pattern, the <a href="../mann-kendall-trend/">Mann-Kendall trend test</a> says whether a series is going up or down, and the <a href="../lomb-scargle-periodogram/">Lomb-Scargle periodogram</a> finds periods in uneven data.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, parseCsv, toCsv, report, fmt, fmtP, kooLi } from "./engine.mjs";
+    import { EXAMPLE_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    let last = null;
+
+    function refreshStatus() {
+      const text = $("#csv").value;
+      try {
+        const p = parseCsv(text);
+        $("#data-status").textContent = `${p.rows.length.toLocaleString("en-US")} rows, ${p.header.length} columns: ${p.header.slice(0, 6).join(", ")}${p.header.length > 6 ? ", ..." : ""}.`;
+      } catch (e) {
+        $("#data-status").textContent = text.trim() ? e.message : "Paste ratings or load the example.";
+      }
+    }
+    $("#csv").addEventListener("input", refreshStatus);
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#csv").value = await f.text();
+      refreshStatus();
+    });
+
+    function inputs() {
+      const cats = $("#categories").value.trim();
+      return {
+        csv: $("#csv").value,
+        layout: $("#layout").value,
+        scale: $("#scale").value,
+        categories: cats ? cats : null,
+        confidence: Number($("#confidence").value),
+        bootstrap: Number($("#bootstrap").value),
+      };
+    }
+
+    const W = 900;
+    function drawForest(r) {
+      const rows = r.coefficients.filter((c) => Number.isFinite(c.value));
+      const h = 40 + rows.length * 34;
+      const lo = Math.min(-0.2, ...rows.map((c) => (Number.isFinite(c.low) ? c.low : c.value)));
+      const sx = (v) => 300 + ((v - lo) / (1 - lo)) * (W - 330);
+      let s = "";
+      for (const t of [0, 0.2, 0.4, 0.6, 0.8, 1]) s += `<line x1="${sx(t)}" x2="${sx(t)}" y1="10" y2="${h - 26}" stroke="#e6ebf2"/><text x="${sx(t)}" y="${h - 10}" font-size="12" text-anchor="middle" fill="#4a5568">${t}</text>`;
+      for (const t of [0.667, 0.8]) s += `<line x1="${sx(t)}" x2="${sx(t)}" y1="10" y2="${h - 26}" stroke="#c0392b" stroke-dasharray="5 4"/>`;
+      rows.forEach((c, i) => {
+        const y = 28 + i * 34;
+        const label = c.name.length > 44 ? c.name.slice(0, 42) + "…" : c.name;
+        s += `<text x="290" y="${y + 4}" font-size="12.5" text-anchor="end" fill="#14213a">${esc(label)}</text>`;
+        if (Number.isFinite(c.low)) s += `<line x1="${sx(c.low)}" x2="${sx(c.high)}" y1="${y}" y2="${y}" stroke="#1d4f91" stroke-width="3" stroke-linecap="round"/>`;
+        s += `<circle cx="${sx(c.value)}" cy="${y}" r="6" fill="${c.key === "alpha" ? "#e07a1f" : "#13325b"}"/>`;
+        s += `<text x="${Math.min(sx(c.high ?? c.value) + 10, W - 4)}" y="${y - 8}" font-size="11" fill="#4a5568">${fmt(c.value)}</text>`;
+      });
+      $("#forest").innerHTML = `<svg viewBox="0 0 ${W} ${h}" xmlns="http://www.w3.org/2000/svg">${s}</svg>`;
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      const a = r.coefficients.find((c) => c.key === "alpha");
+      const stats = [
+        [fmt(a.value), `Krippendorff's alpha (${r.scale})`],
+        [Number.isFinite(a.low) ? `${fmt(a.low, 2)} to ${fmt(a.high, 2)}` : "off", `${Math.round(r.confidence * 100)}% interval`],
+        [r.percentAgreement != null ? `${(r.percentAgreement * 100).toFixed(1)}%` : "n/a", "pairs of ratings that match"],
+        [r.nSubjects.toLocaleString("en-US"), `subjects, ${r.nRatings.toLocaleString("en-US")} ratings`],
+        [r.nRaters ? String(r.nRaters) : "n/a", "raters"],
+      ];
+      $("#stats").innerHTML = stats.map(([b, sp]) => `<div class="stat"><b>${esc(b)}</b><span>${esc(sp)}</span></div>`).join("");
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      drawForest(r);
+      $("#coef-table tbody").innerHTML = r.coefficients.map((c) => `<tr><td>${esc(c.name)}</td><td class="n">${fmt(c.value)}</td><td class="n">${Number.isFinite(c.low) ? `${fmt(c.low)} to ${fmt(c.high)}` : "n/a"}</td><td>${esc(c.label)}</td><td>${esc(c.interval)}</td></tr>`).join("") + (r.percentAgreement != null ? `<tr><td>Percent agreement</td><td class="n">${fmt(r.percentAgreement)}</td><td class="n">n/a</td><td>raw, not chance-corrected</td><td></td></tr>` : "");
+
+      $("#cohen-block").hidden = !r.cohen;
+      if (r.cohen) {
+        const c = r.cohen;
+        const ks = [["unweighted", c.unweighted], ["linear weights", c.linear], ["quadratic weights", c.quadratic]].filter(([, v]) => v);
+        $("#cohen-note").textContent = `${c.raters[0]} (rows) against ${c.raters[1]} (columns), ${c.n} subjects rated by both. ` + ks.map(([k, v]) => `Kappa ${k} ${fmt(v.kappa)} (SE ${fmt(v.se, 3)}, z = ${fmt(v.z, 2)}, p = ${fmtP(v.p)})`).join("; ") + `. PABAK ${fmt(c.pabak)}${c.prevalenceIndex != null ? `, prevalence index ${fmt(c.prevalenceIndex)}, bias index ${fmt(c.biasIndex)}` : ""}.`;
+        const cats = r.categories.map((x) => x.category);
+        $("#confusion").innerHTML = `<thead><tr><th></th>${cats.map((x) => `<th class="n">${esc(x)}</th>`).join("")}</tr></thead><tbody>` + c.confusion.map((row, i) => `<tr><th>${esc(cats[i])}</th>${row.map((v, j) => `<td class="n"${i === j ? ' style="font-weight:700"' : ""}>${v}</td>`).join("")}</tr>`).join("") + "</tbody>";
+      }
+      $("#category-block").hidden = !r.perCategory;
+      if (r.perCategory) $("#category-table tbody").innerHTML = r.perCategory.map((c) => `<tr><td>${esc(c.category)}</td><td class="n">${c.ratings}</td><td class="n">${(c.share * 100).toFixed(1)}%</td><td class="n">${fmt(c.kappa)}</td></tr>`).join("");
+      $("#icc-block").hidden = !r.icc;
+      if (r.icc) {
+        $("#icc-note").textContent = `${r.icc.n} subjects rated by all ${r.icc.k} raters${r.icc.dropped ? ` (${r.icc.dropped} with a missing rating left out)` : ""}. Rater means: ${r.icc.raterMeans.map((m, j) => `${r.raters[j]} ${fmt(m, 2)}`).join(", ")}. Koo and Li's bands are read from the interval.`;
+        $("#icc-table tbody").innerHTML = r.icc.forms.map((f) => `<tr><td>${esc(f.name)}</td><td>${esc(f.model)}</td><td>${esc(f.type)}</td><td class="n">${fmt(f.value)}</td><td class="n">${fmt(f.low)} to ${fmt(f.high)} (${kooLi(f.low)} to ${kooLi(f.high)})</td><td class="n">F(${f.df1}, ${f.df2}) = ${fmt(f.F, 2)}, p = ${fmtP(f.p)}</td></tr>`).join("");
+      }
+      $("#pair-block").hidden = !r.pairwise;
+      if (r.pairwise) $("#pair-table tbody").innerHTML = r.pairwise.pairs.map((p) => `<tr><td>${esc(p.a)} and ${esc(p.b)}</td><td class="n">${p.n}</td><td class="n">${fmt(p.kappa)}</td></tr>`).join("");
+      $("#drop-block").hidden = !r.dropOne;
+      if (r.dropOne) $("#drop-table tbody").innerHTML = [...r.dropOne].sort((x, y) => (Number.isFinite(y.change) ? y.change : -9) - (Number.isFinite(x.change) ? x.change : -9)).slice(0, 12).map((d) => `<tr><td>${esc(d.rater)}</td><td class="n">${d.ratings}</td><td class="n">${fmt(d.alphaWithout)}</td><td class="n">${d.change >= 0 ? "+" : ""}${fmt(d.change)}</td></tr>`).join("");
+      $("#contested-table tbody").innerHTML = r.contested.map((s) => `<tr><td>${esc(s.id)}</td><td class="n">${s.ratings}</td><td>${esc(s.modal)} (${Math.round(s.modalShare * 100)}%)</td><td>${esc(s.counts.map((n, k) => (n ? `${r.categories[k].category} ×${n}` : "")).filter(Boolean).join(", "))}</td></tr>`).join("");
+      $("#settings-line").textContent = `Layout ${r.layout}${r.columns ? ` (subject ${r.columns.item}, rater ${r.columns.rater}, rating ${r.columns.rating})` : ""}; scale ${r.scale} (${r.scaleReason}); ${r.bootstrap} bootstrap replicates, seed ${r.seed}; categories ${r.categories.map((c) => c.category).join(", ")}.`;
+    }
+
+    function run() {
+      $("#status").textContent = "Computing…";
+      $("#analyze").disabled = true;
+      setTimeout(() => {
+        try {
+          const t0 = performance.now();
+          const r = analyze(inputs());
+          render(r);
+          record("analysis_run");
+          $("#status").textContent = `Done in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+        } catch (e) {
+          $("#results").hidden = true;
+          $("#status").textContent = e.message;
+        } finally {
+          $("#analyze").disabled = false;
+        }
+      }, 20);
+    }
+    $("#analyze").addEventListener("click", run);
+    $("#load-example").addEventListener("click", () => {
+      $("#csv").value = EXAMPLE_CSV;
+      refreshStatus();
+      $("#layout").value = "auto";
+      $("#scale").value = "auto";
+      $("#categories").value = "";
+      record("example_loaded");
+      run();
+    });
+    function save(text, name, type) {
+      const blob = new Blob([text], { type });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    }
+    $("#download").addEventListener("click", () => last && save(toCsv(last), "agreement-by-subject.csv", "text/csv"));
+    $("#download-report").addEventListener("click", () => last && save(report(last) + "\n", "agreement.txt", "text/plain"));
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

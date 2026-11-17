@@ -154,7 +154,7 @@
     let last = null;
     const map = { acres: "acres", usablepct: "usablePct", spacesqft: "spaceSqft", land: "land", sitepersqft: "sitePerSqft", developedpct: "developedPct", fencegate: "fenceGate", permits: "permits", other: "other", rate: "rate", stabocc: "stabOcc", startocc: "startOcc", rampmonths: "rampMonths", baddebtpct: "badDebtPct", proptax: "propTax", insurance: "insurance", fixedmonthly: "fixedMonthly", mgmtpct: "mgmtPct", repairsperspace: "repairsPerSpace", rategrowth: "rateGrowth", costgrowth: "costGrowth", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", holdyears: "holdYears", exitcap: "exitCap", sellpct: "sellPct", targetyield: "targetYield" };
     const IDLE = "Fill in your lot, then click Work out the lot. Only acres, rent and stabilized occupancy are required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     const cov = (n) => (n === null ? "no loan" : n.toFixed(2));
 

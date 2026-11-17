@@ -96,6 +96,7 @@ from dataclasses import dataclass, field
 from datetime import date, datetime, timedelta, timezone
 
 import unlanded_work as uw
+from argtypes import finite_nonneg
 
 DEFAULT_MIN_AGE_HOURS = 6
 DEFAULT_SINCE_DAYS = 14
@@ -473,7 +474,7 @@ def main(argv=None):
     parser.add_argument("--base", default="main")
     parser.add_argument("--since", help=f"only tips dated on/after YYYY-MM-DD (default: "
                         f"{DEFAULT_SINCE_DAYS} days ago; 'all' for no limit)")
-    parser.add_argument("--min-age-hours", type=float, default=DEFAULT_MIN_AGE_HOURS)
+    parser.add_argument("--min-age-hours", type=finite_nonneg, default=DEFAULT_MIN_AGE_HOURS)
     parser.add_argument("--max-open", type=int, default=DEFAULT_MAX_OPEN,
                         help="open at most this many PRs per run, oldest tips last")
     parser.add_argument("--max-files", type=int, default=DEFAULT_MAX_FILES)

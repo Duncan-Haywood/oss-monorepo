@@ -44,11 +44,20 @@
     .scroll { overflow-x: auto; }
     @media print { body { background: #fff; padding: 0; } .card { box-shadow: none; border: 0; } button, #inputs, footer, #rules, #faq, header { display: none; } }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#year) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 334px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
     <p class="note">UK PENSION ANNUAL ALLOWANCE CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>Paying a lot into a pension? Check your tapered annual allowance, carry forward and any tax charge.</h1>
+    <h1>Paying a lot into a pension? Check your annual allowance and any tax charge.</h1>
     <p>Enter your income and what went into your pensions. You get your allowance (tapered for high earners), the unused allowance you can carry forward from the last three years, how much more you can pay in, and the annual allowance charge on any excess. Works for defined contribution, salary sacrifice and final salary schemes such as the NHS.</p>
     <p class="note">A first read written from published rules without a live lookup. England, Wales and Northern Ireland rates. Confirm current figures. Not tax advice.</p>
   </header>
@@ -137,7 +146,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    const gbp = (n) => "£" + Number(n).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
     let last = null;
     const map = { year: "year", income: "income", own: "own", sacrificed: "sacrificed", employer: "employer", dbInput: "dbInput", dbOwn: "dbOwn", mpaa: "mpaa", used1: "used1", used2: "used2", used3: "used3", aa1: "aa1", aa2: "aa2", aa3: "aa3" };
     const IDLE = "Fill in the figures, then click Check my allowance.";

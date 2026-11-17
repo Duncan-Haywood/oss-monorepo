@@ -36,6 +36,27 @@ class SocialProof(unittest.TestCase):
         self.assertEqual(check("It says it is trusted by thousands of pros."), [])
         self.assertEqual(check("Its own marketing calls it award-winning."), [])
 
+    def test_example_words_after_a_claim_do_not_excuse_it(self):
+        # 2026-11-13 red team: "such as", "sample" and "example" anywhere within
+        # NEAR excused the claim, so a logo-wall line passed.
+        self.assertTrue(check("<p>Trusted by teams such as Acme and Globex.</p>"))
+        self.assertTrue(check("<p>Award-winning payroll, used by agencies such as yours.</p>"))
+        self.assertTrue(check("<p>Trusted by 2,000 firms. Download a sample invoice.</p>"))
+        self.assertTrue(check("<p>Rated 4.9/5 stars. See an example report.</p>"))
+
+    def test_example_words_before_a_claim_still_excuse_it(self):
+        self.assertEqual(check("<p>It flags phrases such as trusted by and award-winning.</p>"), [])
+        self.assertEqual(check("<p>For example, trusted by 5,000 teams is a claim.</p>"), [])
+        self.assertEqual(check("<p>Sample copy: rated 4.8 out of 5</p>"), [])
+
+    def test_loved_by_and_join_thousands_flagged(self):
+        self.assertTrue(check("<p>Loved by 10,000+ freelancers</p>"))
+        self.assertTrue(check("<p>Loved by over 500 shops</p>"))
+        self.assertTrue(check("<p>Join thousands of happy users</p>"))
+        self.assertTrue(check("<p>Join the millions of teams</p>"))
+        self.assertEqual(check("<p>Loved by its author, used by nobody yet.</p>"), [])
+        self.assertEqual(check("<p>Join the two tables on id.</p>"), [])
+
     def test_format_example_allowed(self):
         self.assertEqual(check("start a block with <code>5 stars</code> or ★★★☆☆ e.g."), [])
 
@@ -58,6 +79,26 @@ class SocialProof(unittest.TestCase):
         with contextlib.redirect_stdout(out), self.assertRaises(SystemExit):
             check_social_proof.main(["--help"])
         self.assertIn("Fail if visible page copy makes social-proof claims", out.getvalue())
+
+
+    def test_used_by_counts_and_review_tallies_flagged(self):
+        # Red team 2026-11-16: "Used by 10,000+ restaurants" and "4.9/5 from
+        # 1,200 reviews" are the same claims as "trusted by" and "rated 4.9/5",
+        # and both passed.
+        for line in ("<p>Used by 10,000+ restaurants</p>",
+                     "<p>Relied on by more than 3,000 accountants.</p>",
+                     "<p>Chosen by 2k shops</p>",
+                     "<p>4.9/5 from 1,200 reviews</p>",
+                     "<p>4.8 / 5 based on 310 ratings</p>"):
+            with self.subTest(line=line):
+                self.assertTrue(check(line), line)
+
+    def test_used_by_attributed_or_not_a_count_allowed(self):
+        for line in ("Public research reports it is used by more than 200,000 service professionals.",
+                     "The rates used by 2026 payroll tables.",
+                     "The method used by 3 of the 5 states."):
+            with self.subTest(line=line):
+                self.assertEqual(check(line), [], line)
 
 
 class Cli(unittest.TestCase):
@@ -84,6 +125,16 @@ class Cli(unittest.TestCase):
         self.assertIn("2 files scanned, 2 unattributed", out)
         self.assertIn("a.html:1:", out)
         self.assertIn("a.html:2:", out)
+
+    def test_pooled_scan_prints_in_file_order(self):
+        # 70 files (over page_pool.MIN_POOL), so main maps them on a process
+        # pool; the lines must come back in the serial order, file by file.
+        files = {f"p{i:02d}.html": ("ok" if i % 4 else f"Trusted by {i},000 teams") for i in range(70)}
+        code, out = self.run_main(files)
+        self.assertEqual(code, 1)
+        flagged = [line.split("/")[-1].split(":")[0] for line in out.splitlines()[:-1]]
+        self.assertEqual(flagged, [f"p{i:02d}.html" for i in range(70) if i % 4 == 0])
+        self.assertIn("70 files scanned, 18 unattributed", out)
 
     def test_node_modules_skipped(self):
         code, out = self.run_main({"node_modules/x/README.md": "Trusted by 9,000", "a.html": "ok"})
@@ -120,6 +171,21 @@ class Evasions(unittest.TestCase):
             with self.subTest(line=line):
                 self.assertTrue(check_social_proof.check(line))
 
+    def test_attribution_far_before_the_claim_does_not_excuse_it(self):
+        # Red team 2026-11-12: the window was only tested after the claim; a slice
+        # starting at 0 (min for max) let a header "for example" excuse the page.
+        page = "<p>Enter amounts, for example 12.50</p>" + "<p>Plain words.</p>" * 20 + "<p>Trusted by 5,000 shops</p>"
+        self.assertTrue(check_social_proof.check(page))
+
+    def test_attribution_window_reaches_exactly_near_chars_before(self):
+        # "says" opens the line; the claim starts `start` characters in. The window
+        # reaches NEAR characters back, so it starts on the "s" of "says" or just past it.
+        near = 120  # the docstring promises 120 characters; read from the module, a mutant would move with it
+        for start, flagged in ((near, False), (near + 1, True)):
+            line = "says " + "x" * (start - 5) + "trusted by 5,000 shops"
+            with self.subTest(start=start):
+                self.assertEqual(bool(check_social_proof.check(line)), flagged)
+
     def test_code_span_attribution_survives_normalising(self):
         self.assertEqual(check_social_proof.check(
             "<li>Flags <code>trusted by 5,000</code> in copy</li>"), [])
@@ -134,7 +200,9 @@ class PrefilterIsSuperset(unittest.TestCase):
                  "Satisfied", "customers", "rated", "4.8", "/5", "/ 5", "out of 5",
                  "stars", "★★★", "⭐⭐⭐", "3-star", "rating", "as seen", "AS FEATURED",
                  "on", "in", "award-winning", "Award winning", "#1 rated", "#1 choice",
-                 "best-selling", "Best selling", "over", "more than", "x", " ", "<p>"]
+                 "best-selling", "Best selling", "over", "more than", "x", " ", "<p>",
+                 "Loved by", "loved BY", "500", "Used by", "relied on by", "chosen BY",
+                 "from", "based on", "reviews", "ratings", "4.9/5", "thousands", "Millions", "of", "the"]
         rng = random.Random(7)
         for _ in range(20000):
             line = " ".join(rng.choice(frags) for _ in range(rng.randint(1, 6)))

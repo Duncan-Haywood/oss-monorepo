@@ -99,7 +99,12 @@
     import { roi, render, checkConfig, smsSegments, DEFAULTS } from "./engine.mjs";
     import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
     const $ = (s) => document.querySelector(s);
-    const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    const money = (n) => {
+      const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     $("#tmpl").value = DEFAULTS.openMessage;
     $("#when").addEventListener("change", () => { $("#tmpl").value = $("#when").value === "open" ? DEFAULTS.openMessage : DEFAULTS.afterHoursMessage; });
     function calc() {

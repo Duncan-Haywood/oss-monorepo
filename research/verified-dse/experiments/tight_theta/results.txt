@@ -1,0 +1,128 @@
+# Milestone 139: are SWC's losses a tight-clock, near-theta pattern? (replay, no flow run)
+
+theta = 3; guard SWCT(theta') routes random at the tight clock when routed/r2 <= theta' (primary 4); 10000 permutations and 2000 bootstrap resamples, seed 139.
+
+Test pool T: 99 ladder-branch cells on 57 designs (seen m119-125 51, blind m125 16, blind m132 6, blind m133 14, blind m137 12); milestone 138 (the source of the reading, descriptive): 25 cells.
+
+## Failures by clock
+
+pool | clock | ladder cells | failing | SWC % | random %
+T | tight | 51 | 14 | 4.62 | 5.20
+T | relaxed | 48 | 11 | 3.78 | 5.22
+m138 | tight | 13 | 4 | 3.90 | 6.55
+m138 | relaxed | 12 | 0 | 0.89 | 6.32
+
+T: failure rate tight 14/51, relaxed 11/48; one-sided Fisher p = 0.3875
+T paired by design (42 designs with both clocks on the ladder branch): d(tight) > d(relaxed) on 19, < on 23, tied on 0; two-sided sign p = 0.6440; mean d(tight) - d(relaxed) +0.52 points
+
+## Routing-cost ratio of failing cells
+
+pool | cells | failing | median ratio failing | median ratio other | AUC P(failing lower) | one-sided permutation p
+T | 99 | 25 | 3.77 | 4.11 | 0.672 | 0.0061
+T tight | 51 | 14 | 3.71 | 4.09 | 0.645 | 0.0579
+T relaxed | 48 | 11 | 3.77 | 4.14 | 0.700 | 0.0231
+m138 | 25 | 4 | 3.57 | 5.49 | 0.786 | 0.0413
+m138 tight | 13 | 4 | 3.57 | 5.49 | 0.778 | 0.0752
+
+## Ratio bands (T)
+
+band | clock | cells | failing | SWC % | random %
+(3, 4] | tight | 23 | 9 | 7.33 | 6.44
+(3, 4] | relaxed | 22 | 7 | 5.02 | 5.60
+(4, 6] | tight | 27 | 5 | 2.49 | 4.21
+(4, 6] | relaxed | 25 | 4 | 2.84 | 4.69
+(6, 10] | tight | 1 | 0 | 0.00 | 3.25
+(6, 10] | relaxed | 1 | 0 | 0.00 | 10.34
+> 10 | tight | 0 | 0 | - | -
+> 10 | relaxed | 0 | 0 | - | -
+
+## The guard SWCT(theta')
+
+pool | clocks | theta' | cells moved to random | SWCT % | SWC % | SWCT better | SWCT worse
+T | tight only | 3.5 | 7 | 4.12 | 4.21 | 4 | 3
+T | tight only | 4 | 23 | 4.01 | 4.21 | 12 | 11
+T | tight only | 5 | 45 | 4.22 | 4.21 | 19 | 26
+T | tight only | 6 | 50 | 4.48 | 4.21 | 19 | 31
+T | tight only | 8 | 50 | 4.48 | 4.21 | 19 | 31
+T | both clocks | 3.5 | 12 | 4.09 | 4.21 | 5 | 7
+T | both clocks | 4 | 45 | 4.14 | 4.21 | 19 | 26
+T | both clocks | 5 | 87 | 4.65 | 4.21 | 30 | 57
+T | both clocks | 6 | 97 | 5.07 | 4.21 | 30 | 67
+T | both clocks | 8 | 98 | 5.18 | 4.21 | 30 | 68
+m138 | tight only | 3.5 | 2 | 1.99 | 2.45 | 2 | 0
+m138 | tight only | 4 | 4 | 2.16 | 2.45 | 3 | 1
+m138 | tight only | 5 | 6 | 2.50 | 2.45 | 3 | 3
+m138 | tight only | 6 | 8 | 3.01 | 2.45 | 3 | 5
+m138 | tight only | 8 | 10 | 3.25 | 2.45 | 3 | 7
+m138 | both clocks | 3.5 | 3 | 2.08 | 2.45 | 2 | 1
+m138 | both clocks | 4 | 7 | 2.52 | 2.45 | 3 | 4
+m138 | both clocks | 5 | 12 | 3.48 | 2.45 | 3 | 9
+m138 | both clocks | 6 | 14 | 3.99 | 2.45 | 3 | 11
+m138 | both clocks | 8 | 18 | 4.54 | 2.45 | 3 | 15
+
+T, SWCT(4) against SWC: cells better 12, worse 11, tied 76; design-bootstrap 95% interval of the mean -1.25 to +0.78 points; designs better 12, worse 11, tied 34 (sign p = 1.0000)
+
+## Cells SWCT(4) moves to random (T)
+
+source | design | ratio | SWC % | random % | d
+seen m119-125 | pcsh64 | 3.01 | 0.00 | 0.92 | -0.92
+seen m119-125 | rotmask64 | 3.05 | 1.22 | 1.02 | +0.21
+seen m119-125 | alignsh64 | 3.22 | 13.77 | 13.70 | +0.07
+blind m125 | lane2k2 | 3.39 | 0.00 | 2.89 | -2.89
+seen m119-125 | lzcnorm128 | 3.41 | 0.00 | 11.83 | -11.83
+blind m125 | pmul4 | 3.43 | 21.43 | 3.80 | +17.63
+blind m137 | isq10 | 3.49 | 16.21 | 9.13 | +7.08
+seen m119-125 | sat2b5 | 3.55 | 0.00 | 12.83 | -12.83
+seen m119-125 | muxshl128 | 3.55 | 17.85 | 2.37 | +15.48
+seen m119-125 | xor8 | 3.56 | 16.88 | 0.03 | +16.85
+seen m119-125 | sad1b8 | 3.62 | 27.73 | 4.32 | +23.41
+seen m119-125 | fpalign128 | 3.62 | 21.03 | 8.73 | +12.30
+blind m137 | isq14 | 3.65 | 9.69 | 5.80 | +3.89
+seen m119-125 | xor4 | 3.67 | 0.76 | 0.61 | +0.15
+seen m119-125 | max3b6 | 3.75 | 0.00 | 22.73 | -22.73
+blind m133 | bcd3 | 3.78 | 9.32 | 6.34 | +2.98
+blind m125 | avg5 | 3.78 | 0.00 | 8.70 | -8.70
+seen m119-125 | chainsh2 | 3.83 | 0.00 | 2.79 | -2.79
+blind m132 | lut1 | 3.87 | 12.66 | 5.11 | +7.56
+blind m137 | amin12 | 3.88 | 0.00 | 3.25 | -3.25
+blind m125 | pmul3 | 3.93 | 0.00 | 10.61 | -10.61
+seen m119-125 | max3b5 | 3.97 | 0.00 | 5.60 | -5.60
+seen m119-125 | maxtree16x16 | 4.00 | 0.00 | 4.95 | -4.95
+
+## Failing cells (T)
+
+source | design | clock | ratio | SWC % | random % | d
+blind m125 | pmul4 | relaxed | 3.42 | 24.78 | 4.07 | +20.71
+seen m119-125 | xor8 | relaxed | 3.52 | 16.91 | 0.02 | +16.89
+seen m119-125 | muxshl128 | relaxed | 3.52 | 19.68 | 2.99 | +16.69
+seen m119-125 | xor4 | relaxed | 3.69 | 2.81 | 0.53 | +2.28
+seen m119-125 | fpalign128 | relaxed | 3.71 | 21.30 | 8.38 | +12.92
+blind m133 | bcd3 | relaxed | 3.77 | 9.32 | 6.64 | +2.68
+blind m132 | gray0 | relaxed | 3.89 | 9.99 | 0.39 | +9.60
+seen m119-125 | alignsh128 | relaxed | 4.02 | 9.34 | 5.32 | +4.02
+seen m119-125 | rotmask128 | relaxed | 4.05 | 22.94 | 9.68 | +13.25
+seen m119-125 | addsh128 | relaxed | 4.45 | 7.74 | 1.30 | +6.44
+blind m133 | crc7s16 | relaxed | 4.60 | 19.10 | 3.71 | +15.39
+blind m125 | pmul4 | tight | 3.43 | 21.43 | 3.80 | +17.63
+blind m137 | isq10 | tight | 3.49 | 16.21 | 9.13 | +7.08
+seen m119-125 | muxshl128 | tight | 3.55 | 17.85 | 2.37 | +15.48
+seen m119-125 | xor8 | tight | 3.56 | 16.88 | 0.03 | +16.85
+seen m119-125 | sad1b8 | tight | 3.62 | 27.73 | 4.32 | +23.41
+seen m119-125 | fpalign128 | tight | 3.62 | 21.03 | 8.73 | +12.30
+blind m137 | isq14 | tight | 3.65 | 9.69 | 5.80 | +3.89
+blind m133 | bcd3 | tight | 3.78 | 9.32 | 6.34 | +2.98
+blind m132 | lut1 | tight | 3.87 | 12.66 | 5.11 | +7.56
+seen m119-125 | alignsh128 | tight | 4.09 | 7.11 | 5.43 | +1.68
+blind m132 | gray0 | tight | 4.47 | 7.36 | 0.23 | +7.13
+seen m119-125 | addsh128 | tight | 4.56 | 23.02 | 1.82 | +21.20
+seen m119-125 | rotmask128 | tight | 4.75 | 9.37 | 7.95 | +1.41
+seen m119-125 | wsum3w | tight | 4.84 | 12.74 | 5.52 | +7.22
+
+## Predictions
+
+(1) PRIMARY, paired: d(tight) > d(relaxed) on more designs, sign p < 0.05: False (19 against 23, p = 0.6440)
+(2) failure rate tight > relaxed, Fisher p < 0.05: False (14/51 against 11/48, p = 0.3875)
+(3) failing cells lower ratio, AUC > 0.6 and p < 0.05: True (AUC 0.672, p = 0.0061)
+(4) as (3) at the tight clock: False (AUC 0.645, p = 0.0579)
+(5) SWCT(4) below SWC on mean regret over T: True (4.01% against 4.21%)
+(6) SWCT(4) better than SWC on more designs than worse: True (12 against 11)

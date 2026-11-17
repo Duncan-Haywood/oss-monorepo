@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjZmr1JtAcib8ELWtf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T03:30:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 11 chant-forge: roadmap 5(b), a singing voice on the Latin vowels",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16074",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "archive.org and gregobase.selapa.net return 403 (CONNECT rejected) through the proxy, so the scan-reader items in chant-forge's next: could not be worked this session"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "chant-forge's next: lists scan-reader items (worn pages, 3464's cephalicus, 3408's strokes) with no note that they need archive.org page images; this session's proxy refuses archive.org and GregoBase. A BUILDABLE HERE / host note, as photo-editing's row has, would have saved a probe."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The branch named in the harness (claude/sweet-ptolemy-bow8qv) already existed locally, so allocate.py's suggested `git commit --allow-empty` sequence after `checkout -b` failed once; harmless."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The next: items that need no person are all scan-reader fixes that need archive.org scans (403 here). Rather than move to another flagship, I took roadmap item 5(b), the singing voice, which is in chant-forge's own roadmap and needs no outside data.",
+      "did": "Built sing.mjs and formants.mjs, render --sing, a studio page option and an eval that measures from the audio.",
+      "result": "Landed: 95.3% of corpus notes read back as their written vowel (the pad: 17.8%)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-synthetic-choir-that-sings-the-latin-vowels.md",
+    "ventures/chant-forge/eval/vowel-check-report.md",
+    "ventures/chant-forge/README.md (The choir sings the vowels)"
+  ],
+  "goal": "Move chant-forge's Voice milestone from 'not built' to a measured first version",
+  "notes": "Verification: node --test *.test.mjs in ventures/chant-forge 240 pass / 0 fail; eval/browser-e2e.mjs 115/115 (the page's sung WAV is byte-equal to render-cli --sing); post front-matter, links and similarity checks clean; portfolio/router/validate.py valid. The first corpus run read 79.7% because the pad's 0.25 s release masked the next short syllable; I added a 50 ms legato cross-fade, after which it read 95.3%. The remaining 74 misses are one cached waveform (G3 /i/ 0.24 s), which section E of the report shows. Nothing has been listened to by a person.",
+  "corrections": [],
+  "redteam": null
+}

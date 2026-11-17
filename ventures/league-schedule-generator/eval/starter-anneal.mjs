@@ -27,6 +27,7 @@
 // the old entry wherever the climb did not beat it.
 import { carryOverFromOpponents, starterOpp, STARTERS } from "../carryover.mjs";
 import { mulberry32 } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const secs = Number(process.argv[2] || 30);
 const TEMP = Number(process.env.TEMP_SCALE || 0.02);
@@ -150,7 +151,7 @@ export function climb(N, n, pairs, ms, seed) {
   return { pairs: best, value: bestV, iters, moves, accepted };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const table = {};
   for (const N of sizes) {
     const p = N - 1;

@@ -1,0 +1,262 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/supabase-bill-estimator",
+ "stratum": "venture",
+ "seed": "2026-11-15-8354",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a FinOps / platform engineer who manages Supabase spend across several projects and orgs. They would check first that the $10 compute credit and plan quotas are applied per organization, that disk is per project and provisioned, that cached and uncached egress are split, whether the spend cap (on by default) suppresses overage, and that the rate card is dated and current",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed 6 bills against supabase.com/pricing and the Manage-your-usage docs examples, all fetched 2026-11-15. Single-org, single-project, uncached-only cases match exactly (docs egress example without cached line: 34.50 = 34.50). Fails: two Pro orgs inside quota estimate $409.60 vs $50 (quotas and credit not per org); docs egress example with 800 GB cached egress $106.50 vs $51 (no cached line); docs disk example $67.25 vs $65.24 and three 8 GB projects charged $2 (disk quota is per project); storage $0.021 vs $0.0213 (532.70 vs 532.76). The pro_orgs field is a first-class input, so multi-org wrong numbers are reachable by default.",
+  "completeness": "Every README feature ran: template, estimate from file and stdin, --budget (exit 1 over, 2 on bad input), --set, --json, --prices, --assume; the browser page imports the same engine.mjs; guide page present; served page returns 200. No stubs or TODOs.",
+  "verification": "`node --test '*.test.mjs'` in the subject: 28 pass, 0 fail. 6 mutants via quality_mutate.py: 3 caught (allowance clamp, credit cap, lever sort), 3 survived (budget > vs >=, Realtime rate 2.5 -> 2, pctOfBill x10). Tests check the author's own arithmetic only; no test uses a Supabase-published example or more than one org.",
+  "craft": "Read engine.mjs (159 lines), cli.mjs, index.html script, tests. Small, zero-dependency, pure engine shared by CLI and page, clear input validation. Minor: fractional --top accepted, pro_orgs 0 still grants the org quotas, the org-fee line is special-cased by key name, single egress line conflates two meters.",
+  "claims": "Disclaimer, no-warranty and not-affiliated text on both pages; privacy claim backed (no network code). But the rate card is cited only as '2025', the FAQ says the bundled credit is modelled correctly as the compute allowance (true only for one org), the guide pitches CDN caching as removing egress, and the merge-orgs lever claims a saving for a single org and ignores lost quotas.",
+  "fitness": "A founder with one org and one project, no cached egress and the spend cap off gets a right bill and a sensible ranking. The FinOps engineer this targets (several projects, often several orgs, CDN-heavy storage) gets wrong totals and a misleading top lever on the first realistic input.",
+  "domain": "Against Supabase's billing model: Pro fee, Micro credit, compute pricing, uncached egress, MAU, Edge and Realtime rates match. Departs on: per-org quotas and credit, per-project disk quota, provisioned (not used) disk, cached egress as a separate meter, spend cap default and its coverage, and an undated rate card."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Supabase's own egress billing example minus the cached line: Pro + Small compute ($15) + 300 GB uncached egress",
+   "method": "docs/guides/platform/manage-your-usage/egress billing example (fetched 2026-11-15): $25 + $15 + $4.50 - $10 credit = $34.50 without the cached line",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,1\\ncompute_usd,15\\negress_gb,300\\n' | node cli.mjs estimate -",
+   "expected": "34.50",
+   "observed": "34.50",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Same docs example with its 800 GB cached egress (total egress 1,100 GB)",
+   "method": "egress docs example: uncached 50 GB over x $0.09 = $4.50, cached 550 GB over x $0.03 = $16.50, total $51",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,1\\ncompute_usd,15\\negress_gb,1100\\n' | node cli.mjs estimate - --json",
+   "expected": "51.00",
+   "observed": "106.50 (no cached-egress line; all 1,100 GB priced at $0.09 against one 250 GB quota)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Supabase's disk-size example: 3 Small projects, disks 8, 8 and 50 GB",
+   "method": "docs/guides/platform/manage-your-usage/disk-size example (fetched 2026-11-15): 8 GB included per project, total $65.24",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,1\\ncompute_usd,45\\ndb_disk_gb,66\\n' | node cli.mjs estimate -",
+   "expected": "65.24 (65.25 at monthly rather than hourly rounding)",
+   "observed": "67.25 when total disk (66 GB) is entered, as the field label invites; 65.25 only if the user knows to enter just the over-quota project",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Three Micro projects, 8 GB disk each (24 GB total)",
+   "method": "pricing page: 8 GB disk per project; compute $10 x 3 - $10 credit",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,1\\ncompute_usd,30\\ndb_disk_gb,24\\n' | node cli.mjs estimate -",
+   "expected": "45.00",
+   "observed": "47.00 ($2 disk charge for 16 GB that is inside the per-project quotas)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Two Pro organizations, each one Micro project, 250 GB egress, 100k MAU, 100 GB storage (entered as totals)",
+   "method": "pricing page and compute docs: each Pro org gets its own plan quotas and $10 compute credit; each org is inside quota, so 2 x $25",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,2\\ncompute_usd,20\\negress_gb,500\\nmau_thousand,200\\nstorage_gb,200\\n' | node cli.mjs estimate -",
+   "expected": "50.00",
+   "observed": "409.60 (one set of quotas and one $10 credit for both orgs: $325 MAU, $22.50 egress, $10 compute, $2.10 storage overage that do not exist)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "One org, overage on MAU, storage, Edge Functions, Realtime",
+   "method": "pricing page (fetched 2026-11-15): MAU $0.00325 over 100k, storage $0.0213/GB over 100 GB, Edge $2/M over 2M, Realtime $2.50/M over 5M; 25 + 487.50 + 4.26 + 6 + 10",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,1\\ncompute_usd,10\\nmau_thousand,250\\nedge_invocations_million,5\\nrealtime_messages_million,9\\nstorage_gb,300\\n' | node cli.mjs estimate -",
+   "expected": "532.76",
+   "observed": "532.70 (storage rate $0.021 vs published $0.0213)",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "node test runner",
+   "command": "cd ventures/supabase-bill-estimator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "28 tests, 28 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutants in engine.mjs",
+   "method": "platform/ci/quality_mutate.py, 6 mutants",
+   "command": "python3 platform/ci/quality_mutate.py ventures/supabase-bill-estimator/engine.mjs --old ... --new ... -- node --test '*.test.mjs'",
+   "expected": "each caught",
+   "observed": "3 of 6 caught; budget boundary, Realtime rate and pctOfBill survived",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Spend cap (on by default on Pro) modelled",
+   "method": "docs/guides/platform/cost-control (fetched 2026-11-15): cap covers disk size, egress, MAU, storage, Edge, Realtime; not compute, IPv4, PITR, custom domain",
+   "command": "grep -n -i 'spend' ventures/supabase-bill-estimator/engine.mjs",
+   "expected": "a cap toggle that zeroes capped overage, or a note that overage is billed only with the cap off",
+   "observed": "no match in the engine; the pages mention spend cap only as 'outside it'",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Rate card current and cited with a date",
+   "method": "pricing page fetched 2026-11-15",
+   "command": "grep -n PRICES_AS_OF ventures/supabase-bill-estimator/engine.mjs",
+   "expected": "a dated citation matching the live card",
+   "observed": "'approximate public Pro-plan list prices, 2025': no day or month; 7 of 8 rates match, storage $0.021 vs $0.0213; cached egress, Realtime peak connections and image transformations missing",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "README features: template, estimate from file and stdin, --budget gate, --set, --json, --prices, --assume, browser page, guide page",
+   "method": "ran each CLI path; read index.html (imports engine.mjs) and page.test.mjs",
+   "command": "cd ventures/supabase-bill-estimator && node cli.mjs template; node cli.mjs estimate <csv> --budget 50; echo $?",
+   "expected": "all work",
+   "observed": "all work; --budget exits 1 over budget, 2 on bad input; page uses the same engine",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, not-affiliated line, no-warranty, privacy claim",
+   "method": "read index.html and guide; page.test.mjs asserts no-warranty and privacy text",
+   "command": "grep -n -i 'no warranty\\|not affiliated' ventures/supabase-bill-estimator/*.html",
+   "expected": "present on both pages",
+   "observed": "present on both pages",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Merge-orgs lever with a single organization",
+   "method": "you cannot merge your only org; merging orgs also loses a set of quotas and a compute credit",
+   "command": "cd ventures/supabase-bill-estimator && printf 'pro_orgs,1\\ncompute_usd,15\\negress_gb,300\\n' | node cli.mjs estimate - | head -1",
+   "expected": "no merge lever for 1 org",
+   "observed": "'Biggest lever: Consolidate small projects into fewer Pro organizations, about $5.00 per month' (20% of one org)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page",
+   "method": "HTTP GET",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/supabase-bill-estimator/",
+   "expected": "200",
+   "observed": "200",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "engine.mjs:92",
+   "change": "Math.max(0, quantity - p.included) -> quantity - p.included",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:101",
+   "change": "round2(Math.min(creditUsd, usageCharges)) -> round2(creditUsd)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:148",
+   "change": "estimate.total > budget -> estimate.total >= budget",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:27",
+   "change": "Realtime rate 2.5 -> 2",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:122",
+   "change": "(saving / base) * 100 -> * 10",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "engine.mjs:142",
+   "change": "b.saving - a.saving -> a.saving - b.saving",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Plan quotas and the $10 compute credit are applied once however many Pro organizations are entered, though each org has its own quotas and credit: 2 orgs inside quota estimate $409.60 instead of $50. The merge-orgs lever inherits this and never counts the quotas lost by merging",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:92",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "high",
+   "what": "No cached-egress line (250 GB included, $0.03/GB, independent quota): Supabase's own docs example costs $51, the tool says $106.50 if total egress is entered; the trim-egress lever tells users CDN caching removes egress when it moves it to the cheaper cached line",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:23",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  },
+  {
+   "severity": "medium",
+   "what": "Database disk quota is 8 GB per project but modelled as 8 GB total: 3 projects at 8 GB each are charged $2 that Supabase does not bill; docs disk example gives 67.25 vs 65.24",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:22",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  },
+  {
+   "severity": "medium",
+   "what": "Spend cap (on by default on Pro, covering disk, egress, MAU, storage, Edge and Realtime overage) is not modelled or explained, so a default Pro org sees overage it cannot be billed",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:86",
+   "category": "scope-gap",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  },
+  {
+   "severity": "medium",
+   "what": "Rate card is undated ('2025') and storage is $0.021/GB vs published $0.0213; Realtime peak connections, image transformations, IPv4, PITR, custom domain not listed",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:12",
+   "category": "source-data",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  },
+  {
+   "severity": "low",
+   "what": "Merge-orgs lever offers a $5/month saving for a single organization (20% of one org)",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:140",
+   "category": "logic-error",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  },
+  {
+   "severity": "low",
+   "what": "Shrink-database lever assumes deleting rows cuts the disk charge, but disk is billed on provisioned size and does not shrink by itself (disk-size docs point to a manual reduce step)",
+   "where": "ventures/supabase-bill-estimator/engine.mjs:129",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  },
+  {
+   "severity": "low",
+   "what": "3 of 6 seeded mutants survive: no test pins the budget boundary, the Edge/Realtime rates or pctOfBill",
+   "where": "ventures/supabase-bill-estimator/engine.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371", "https://github.com/Duncan-Haywood/oss-monorepo/pull/16407"],
+ "verdict": "A tidy, honest-in-tone calculator that is right for the simplest case (one org, one project, uncached egress, cap off) and matches Supabase's published Pro rates on 7 of 8 lines. It misses the billing structure a Supabase FinOps engineer checks first: quotas and the compute credit per organization (two in-quota orgs estimate $409.60 instead of $50), disk quota per project, cached egress as its own cheaper meter (Supabase's own example: $106.50 vs $51), and the default spend cap. Tests pass but check only the author's arithmetic; 3 of 6 mutants survive. Does not meet the bar."
+}

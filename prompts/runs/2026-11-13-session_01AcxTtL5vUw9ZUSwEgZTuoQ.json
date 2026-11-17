@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtL5vUw9ZUSwEgZTuoQ",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T04:05:42Z",
+  "ended": "2026-11-13T04:17:40Z",
+  "wall_minutes": 12.38,
+  "tokens_in": 11650792,
+  "tokens_out": 106498,
+  "cost_usd": 7.006,
+  "tool_calls": 132,
+  "task": "quality round 59 (mode sample, seed 2026-11-13-e)",
+  "projects": [
+    "ventures/stripe-payout-to-journal",
+    "ventures/allergen-label-maker",
+    "research/cfar-family-twin",
+    "research/eda-gridorder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15368",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "A stray `cat >> /dev/null` in a heredoc chain blocked on stdin and hung a foreground command for 2 minutes until stopped; re-ran without it."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "`sample` drew seed 2026-11-13-d first, because my checkout predated round 58 landing on main; the README says to fetch origin main first, and that fetch-and-fast-forward step is what fixed it. A `sample` warning when HEAD is behind origin/main would save the re-draw."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "The auditor briefs ask for a recommended small fix; one (cfar-family-twin) proposed a test pinning twin_pd to the closed form of the current, wrong power-sum model, which would lock the defect in. The prompt could say a fix-test must pin the correct behaviour, not the current one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 2 asks the lead to accept auditor scores after spot-checks; the Stripe auditor gave claims 3 with a failed and a partial claim check.",
+      "did": "Lowered claims to 2 with the reason written into the audit's evidence.",
+      "result": "Verdict unchanged (verification already fails); scoreboard honest."
+    },
+    {
+      "file": "research/cfar-family-twin",
+      "why": "The auditor's suggested test would pin the defective model.",
+      "did": "Documented the defect under Known gaps instead of adding that test; the real fix needs a rerun and paper edits.",
+      "result": "Defect visible to the next research run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-59.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-13-e, round 59, mode sample. Subjects: ventures/stripe-payout-to-journal, ventures/allergen-label-maker, research/cfar-family-twin, research/eda-gridorder. Meeting the bar: 0 of 4 (overall sampled 31 of 250, Wilson 9% to 17%). Seeded bugs caught 12 of 21. Spot-checks by the lead: eda-gridorder budget-16 rank recomputed (1 of 300 random orders below lexicographic); cfar _pd_cond read and confirmed to sum powers; stripe categoryOf run (application_fee->fees, payment_failure_refund->disputes); parseFloat('1.262.00')=1.262 by reading; the new Halton test kills the int->round mutant (quality_mutate, caught true). Fix PR: #15368 (allergen word list + [none] rule, Stripe deposit box parseAmount + README test command, eda-gridorder README claims + prior work + Halton test, Known gaps in all four READMEs). No agent doc in docs/reports/: the audit files and Known gaps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5c09808e-b910-5bd3-9e17-e69d93c16160",
+    "transcripts": 5,
+    "first": "2026-11-13T04:05:42Z",
+    "last": "2026-11-13T04:18:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 132,
+        "input": 267,
+        "output": 106498,
+        "thinking": 29328,
+        "cache_read": 11195779,
+        "cache_write_5m": 334043,
+        "cache_write_1h": 120703,
+        "api_equivalent_usd": 7.006,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 132,
+      "input": 267,
+      "output": 106498,
+      "thinking": 29328,
+      "cache_read": 11195779,
+      "cache_write_5m": 334043,
+      "cache_write_1h": 120703,
+      "api_equivalent_usd": 7.006,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.961,
+    "tool_calls": 132,
+    "tools": {
+      "Bash": 117,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "TaskStop": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.38,
+      "active_minutes": 9.31,
+      "model_minutes": 6.38,
+      "tool_minutes": 2.93,
+      "waiting_on_human_minutes": 3.07,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 20.19
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four independent expert audits at ~2 h each plus fixes and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 142.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

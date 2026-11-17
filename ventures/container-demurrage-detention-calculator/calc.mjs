@@ -40,7 +40,7 @@ const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 
 const DAY_MS = 86400000;

@@ -6,8 +6,13 @@ import argparse
 import io
 import contextlib
 import os
+import shutil
+import sys
+import tempfile
 import textwrap
+import time
 import unittest
+from unittest import mock
 
 import run_workflow_locally as runner
 import yaml
@@ -32,6 +37,89 @@ class Collect(unittest.TestCase):
                     run: echo 2
         """)
         self.assertEqual([s.name for s in steps], ["first", "second"])
+
+    def test_independent_jobs_run_cheapest_declared_first(self):
+        # portfolio-pages' shape: a 30-minute test suite in file order ahead
+        # of a 20-minute build whose first step is a seconds-long gate.
+        steps, _ = self.collect("""
+            jobs:
+              gate:
+                timeout-minutes: 2
+                steps: [{name: g, run: "true"}]
+              test:
+                timeout-minutes: 30
+                steps: [{name: suite, run: "true"}]
+              build:
+                needs: gate
+                timeout-minutes: 20
+                steps: [{name: frontmatter, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps], ["g", "frontmatter", "suite"])
+
+    def test_needs_wins_over_a_lower_timeout(self):
+        steps, _ = self.collect("""
+            jobs:
+              slow:
+                timeout-minutes: 50
+                steps: [{name: first, run: "true"}]
+              quick:
+                needs: [slow]
+                timeout-minutes: 1
+                steps: [{name: second, run: "true"}]
+              plain:
+                steps: [{name: undeclared, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps], ["first", "second", "undeclared"])
+
+    def test_a_needs_cycle_keeps_file_order(self):
+        order = runner.job_order({"a": {"needs": "b", "timeout-minutes": 9},
+                                  "b": {"needs": "a", "timeout-minutes": 1}})
+        self.assertEqual(order, ["a", "b"])
+
+    def test_steps_and_jobs_ci_skips_on_a_pull_request_are_not_run(self):
+        steps, skipped = self.collect("""
+            jobs:
+              a:
+                steps:
+                  - {name: always, run: "true"}
+                  - {name: main-only, if: "github.event_name != 'pull_request'", run: "sleep 600"}
+                  - {name: chained, if: "${{ !cancelled() && github.event_name == 'schedule' }}", run: "true"}
+                  - {name: either, if: "github.event_name == 'schedule' || inputs.x", run: "true"}
+                  - {name: pr-only, if: "github.event_name == 'pull_request'", run: "true"}
+                  - {name: not-push, if: "github.event_name != 'push'", run: "true"}
+              deploy:
+                if: github.event_name == 'push'
+                steps: [{name: ship, run: "true"}]
+        """)
+        self.assertEqual([s.name for s in steps],
+                         ["always", "either", "pr-only", "not-push"])
+        self.assertEqual(len(skipped), 3)
+        self.assertTrue(all("pull request" in note for note in skipped))
+
+    def test_an_or_inside_parentheses_does_not_hide_a_false_event_term(self):
+        """portfolio-pages' deploy job ran locally and reached IndexNow's
+        --submit because its if: holds a parenthesised `||`."""
+        f = runner.false_on_pull_request
+        self.assertTrue(f("${{ !cancelled() && (a != 'true' || b == 'success') "
+                          "&& github.event_name != 'pull_request' }}"))
+        self.assertTrue(f("x == 'a || b' && github.event_name == 'push'"))
+        self.assertFalse(f("(github.event_name == 'push') || inputs.x"))
+        self.assertFalse(f("github.event_name == 'push' || inputs.x"))
+        self.assertFalse(f("(a && github.event_name == 'push'"))
+        self.assertFalse(f("a && (b || c) && github.event_name == 'pull_request'"))
+
+    def test_this_repositorys_deploy_jobs_are_skipped_locally(self):
+        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        steps, skipped = runner.collect(runner.load_workflow(path))
+        self.assertFalse([s.label for s in steps if s.job in ("deploy", "deploy-cloudflare")])
+        self.assertIn("deploy: job's if: is false on a pull request", skipped)
+
+    def test_this_repositorys_pages_build_reaches_frontmatter_before_suite(self):
+        path = os.path.join(runner.REPO, ".github/workflows/portfolio-pages.yml")
+        steps, _ = runner.collect(runner.load_workflow(path))
+        names = [s.name for s in steps]
+        self.assertLess(names.index("Check blog post front matter before the long build"),
+                        names.index("Test the site builder"))
 
     def test_uses_steps_are_reported_not_silently_dropped(self):
         steps, skipped = self.collect("""
@@ -126,7 +214,7 @@ class Collect(unittest.TestCase):
               a:
                 steps:
                   - name: templated
-                    run: echo ${{ github.event_name }}
+                    run: echo ${{ inputs.target }}
         """)
         self.assertEqual(steps[0].status, "skipped")
         self.assertIn("expression", steps[0].reason)
@@ -192,6 +280,29 @@ class Collect(unittest.TestCase):
                     run: echo hi
         """)
         self.assertEqual(steps[0].status, "skipped")
+
+    def test_workflow_and_job_env_reach_the_step(self):
+        """einvoice-preflight-ci.yml sets `PYTHONPATH: src` on the job; until
+        2026-11-12 plain env values were dropped at every level, so its 22
+        Python tests failed locally on an import that is green in CI."""
+        steps, _ = self.collect("""
+            env:
+              TOP: a
+              SHARED: top
+            jobs:
+              a:
+                env:
+                  PYTHONPATH: src
+                  SHARED: job
+                  TOKEN: ${{ secrets.NPM_TOKEN }}
+                steps:
+                  - name: t
+                    env:
+                      SHARED: step
+                    run: echo 1
+        """)
+        self.assertEqual(steps[0].status, "pending")
+        self.assertEqual(steps[0].env, {"TOP": "a", "SHARED": "step", "PYTHONPATH": "src"})
 
     def test_a_vars_expression_in_the_command_still_skips(self):
         """Only `env:` is resolved. A `vars.` reference inline in the command
@@ -275,6 +386,36 @@ class WorkflowBudget(unittest.TestCase):
         self.assertTrue(all(s.reason.startswith("TIMEOUT") for s in steps))
         self.assertLess(steps[0].seconds, 4)
 
+    def test_a_timed_out_step_keeps_what_it_printed(self):
+        # Dropped, a timed-out build showed no output: slow and broken looked
+        # the same (doc friction, 2026-11-16).
+        step = runner.Step("j", "slow", "echo 'not ok 3 - faq is visible'; "
+                           "echo 'error: boom' >&2; sleep 5", ".")
+        runner.execute(step, timeout=1)
+        self.assertEqual(step.status, "failed")
+        self.assertTrue(step.reason.startswith("timed out after"))
+        self.assertIn("not ok 3 - faq is visible", step.tail)
+        self.assertIn("error: boom", step.tail)
+        self.assertLess(step.seconds, 4)
+
+    def test_a_budget_cut_step_prints_its_last_output(self):
+        steps = [runner.Step("j", "slow", "echo building page 4021; sleep 5", ".")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.run_steps(steps, 900, budget=1)
+            runner.report("wf.yml", steps, [], False)
+        self.assertEqual(steps[0].status, "unrun")
+        self.assertIn("last output before the cut:", out.getvalue())
+        self.assertIn("building page 4021", out.getvalue())
+
+    def test_a_short_budget_still_runs_its_first_step(self):
+        # The time left was int()-truncated, so 0.99 s read as 0 and a 1 s
+        # budget marked every step UNRUN before any ran.
+        steps = [runner.Step("j", "quick", "true", ".")]
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900, budget=1)
+        self.assertEqual(steps[0].status, "ok")
+
     def test_a_budget_cut_workflow_is_not_green_and_not_failed(self):
         steps = [runner.Step("j", "ok", "true", "."),
                  runner.Step("j", "slow", "sleep 5", ".")]
@@ -285,6 +426,60 @@ class WorkflowBudget(unittest.TestCase):
         self.assertEqual(code, runner.BUDGET_SPENT)
         self.assertNotIn("FAILED", out.getvalue())
         self.assertIn("run_workflow_locally.py wf.yml", out.getvalue())
+
+    def test_a_failure_after_a_skipped_step_is_no_verdict(self):
+        build = runner.Step("j", "build", "true", ".")
+        build.status = "skipped"
+        build.reason = "contains a ${{ }} expression this cannot evaluate"
+        steps = [build, runner.Step("j", "check", "echo no _site; false", "."),
+                 runner.Step("other", "real", "false", ".")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.run_steps(steps, 900)
+            code = runner.report("wf.yml", steps, [], False)
+        # Same job as the skip: UNRUN with its output kept; another job's
+        # failure stays a real FAILED and decides the exit.
+        self.assertEqual([s.status for s in steps], ["skipped", "unrun", "failed"])
+        self.assertEqual(steps[1].missing_kind, "after-skip")
+        self.assertIn("no _site", out.getvalue())
+        self.assertEqual(code, 1)
+        with contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(runner.report("wf.yml", steps[:2], [], False),
+                             runner.AFTER_SKIP)
+
+    def test_standalone_checks_run_before_a_budget_spending_step(self):
+        # portfolio-pages: job `test` (300 s suite) came first in file order
+        # and starved job `build`'s 1 s front-matter check (2026-11-12).
+        steps = [runner.Step("test", "slow", "sleep 5", "."),
+                 runner.Step("build", "fm", "python3 platform/ci/check_post_frontmatter.py", "."),
+                 runner.Step("build", "after", "true", ".")]
+        order = []
+        with mock.patch.object(runner, "execute",
+                               side_effect=lambda s, t: (order.append(s.name), setattr(s, "status", "ok"))), \
+                contextlib.redirect_stdout(io.StringIO()) as out:
+            runner.run_steps(steps, 900, budget=60)
+        self.assertEqual(order, ["fm", "slow", "after"])
+        self.assertIn("1 standalone check(s) first", out.getvalue())
+
+    def test_only_argument_free_ci_checks_count_as_standalone(self):
+        S = runner.Step
+        self.assertTrue(runner.standalone(S("j", "n", "python3 platform/ci/check_x.py", ".")))
+        self.assertTrue(runner.standalone(S("j", "n", "python3 check_x.py", "platform/ci")))
+        for step in (S("j", "n", "python3 platform/ci/check_x.py --base main", "."),
+                     S("j", "n", "python3 check_x.py", "."),
+                     S("j", "n", "python3 platform/ci/check_built_site.py", "."),
+                     S("j", "n", "python3 -m unittest test_check_x", "platform/ci")):
+            self.assertFalse(runner.standalone(step), step.run)
+
+    def test_no_budget_keeps_file_order(self):
+        steps = [runner.Step("a", "first", "true", "."),
+                 runner.Step("b", "fm", "python3 platform/ci/check_x.py", ".")]
+        order = []
+        with mock.patch.object(runner, "execute",
+                               side_effect=lambda s, t: (order.append(s.name), setattr(s, "status", "ok"))), \
+                contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps(steps, 900)
+        self.assertEqual(order, ["first", "fm"])
 
     def test_no_budget_runs_normally(self):
         steps = [runner.Step("j", "ok", "true", ".")]
@@ -420,6 +615,48 @@ class ToolchainMissing(unittest.TestCase):
     def test_an_ordinary_assertion_failure_is_untouched(self):
         step = self.run_one("python3 -c 'assert False, \"real defect\"'")
         self.assertEqual(step.status, "failed")
+
+    def test_a_compiled_extension_that_will_not_load_names_pkg_dot_ext(self):
+        # PATH's python3 3.11 picked up a Pillow built for 3.13 (2026-11-12).
+        line = "ImportError: cannot import name '_imaging' from 'PIL' (/usr/lib/python3/dist-packages/PIL/__init__.py)"
+        self.assertEqual(runner.missing_toolchain([line], "."), "PIL._imaging")
+
+    PTH_NOISE = [
+        "Error processing line 1 of /usr/lib/python3/dist-packages/distutils-precedence.pth:",
+        "",
+        "  Traceback (most recent call last):",
+        '    File "<frozen site>", line 213, in addpackage',
+        '    File "<string>", line 1, in <module>',
+        "  ModuleNotFoundError: No module named '_distutils_hack'",
+        "",
+        "Remainder of file ignored",
+    ]
+
+    def test_a_broken_pth_at_startup_is_not_the_missing_tool(self):
+        # pip into python3.13 left a distutils-precedence.pth whose import
+        # fails on every start (run record 2026-11-15); the step ran anyway.
+        self.assertIsNone(runner.missing_toolchain(
+            self.PTH_NOISE + ["AssertionError: real defect"], "."))
+
+    def test_a_real_missing_module_after_pth_noise_is_still_found(self):
+        self.assertEqual(runner.missing_toolchain(
+            self.PTH_NOISE + ["ModuleNotFoundError: No module named 'pytest'"], "."),
+            "pytest")
+
+    def test_a_step_with_pth_noise_that_fails_reads_failed(self):
+        pth = "/tmp/rwl-pth-" + str(os.getpid())
+        os.makedirs(pth, exist_ok=True)
+        with open(os.path.join(pth, "zz.pth"), "w") as fh:
+            fh.write("import _no_such_hack_rwl\n")
+        step = self.run_one(
+            f"python3 -c \"import site; site.addsitedir('{pth}'); "
+            "assert False, 'real defect'\"")
+        self.assertEqual(step.status, "failed")
+
+    def test_a_public_name_missing_from_a_package_is_not_a_tool(self):
+        # `cannot import name 'foo'` is usually a code bug, not a broken install.
+        self.assertIsNone(runner.missing_toolchain(
+            ["ImportError: cannot import name 'Image' from 'PIL'"], "."))
 
     def test_a_failing_install_is_still_classified_as_setup_first(self):
         """SETUP is checked before this, and must stay that way: an install
@@ -594,7 +831,8 @@ class Report(unittest.TestCase):
 
     def test_running_nothing_is_not_a_pass(self):
         code, out = self.report([], uses_skipped=["a / b: uses: step"])
-        self.assertEqual(code, 1)
+        self.assertEqual(code, runner.NOTHING_RAN)  # 1 by name, no verdict in a sweep
+        self.assertNotEqual(code, 0)
         self.assertIn("nothing was verified", out.lower())
 
     def test_skipped_steps_are_named_and_the_report_says_it_is_not_green(self):
@@ -664,6 +902,52 @@ class AgainstThisRepository(unittest.TestCase):
 
     def test_an_unlisted_workflow_is_refused_without_force(self):
         self.assertEqual(runner.main(["branch-cleanup.yml"]), 2)
+
+    def test_an_unlisted_read_only_workflow_lists_without_force(self):
+        """doc-refs-ci.yml is not in VERIFICATION_ONLY, but --for-changes
+        already runs it; naming it must not need --force."""
+        self.assertNotIn("doc-refs-ci.yml", runner.VERIFICATION_ONLY)
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "doc-refs-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[run", out.getvalue())
+
+    def test_a_mixed_workflow_by_name_lists_only_its_read_only_jobs(self):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.main(["--list", "uitest-ci.yml"])
+        self.assertEqual(code, 0)
+        self.assertIn("[held  ] uitest-ci.yml / manual", out.getvalue())
+        self.assertNotIn("manual /", out.getvalue().split("[held", 1)[0])
+
+    def test_only_needs_a_sweep(self):
+        err = io.StringIO()
+        with contextlib.redirect_stderr(err):
+            code = runner.main(["--only", "doc-refs-ci", "doc-refs-ci.yml"])
+        self.assertEqual(code, 2)
+
+
+class OnlyFilter(unittest.TestCase):
+    def test_names_take_an_optional_suffix(self):
+        self.assertEqual(runner.only_names("doc-refs-ci, prompts-ci.yml,"),
+                         {"doc-refs-ci.yml", "prompts-ci.yml"})
+        self.assertIsNone(runner.only_names(None))
+
+    def test_narrow_keeps_named_and_reports_absent(self):
+        args = argparse.Namespace(only="a,c")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            sel, held = runner.narrow(args, [("a.yml", {}, {"j"}), ("b.yml", {}, {"j"})],
+                                      [("b.yml", "k", "grants write")])
+        self.assertEqual([s[0] for s in sel], ["a.yml"])
+        self.assertEqual(held, [])
+        self.assertIn("[absent] c.yml", out.getvalue())
+
+    def test_no_only_keeps_everything(self):
+        args = argparse.Namespace(only=None)
+        sel = [("a.yml", {}, {"j"})]
+        self.assertEqual(runner.narrow(args, sel, []), (sel, []))
 
     def test_a_missing_workflow_is_reported(self):
         self.assertEqual(runner.main(["no-such-workflow.yml"]), 2)
@@ -745,6 +1029,30 @@ class Selects(unittest.TestCase):
 
     def test_a_list_form_trigger_has_no_path_filter(self):
         self.assertTrue(self.selects("on: [push, pull_request]\n", ["anything"]))
+
+    def test_a_pull_request_filter_wins_over_a_post_merge_push(self):
+        # portfolio-pages.yml's shape: `push` to main with no path filter
+        # (every merge redeploys), `pull_request` with one. The PR runs only
+        # the filtered trigger, so a change outside it selects nothing.
+        body = """
+            on:
+              push:
+                branches: [main]
+              pull_request:
+                paths: ["ventures/**"]
+        """
+        self.assertFalse(self.selects(body, ["research/x/README.md"]))
+        self.assertTrue(self.selects(body, ["ventures/a/index.html"]))
+
+    def test_a_push_only_workflow_still_reads_its_push_filter(self):
+        body = """
+            on:
+              push:
+                branches: [main]
+                paths: ["edge/**"]
+        """
+        self.assertTrue(self.selects(body, ["edge/worker.js"]))
+        self.assertFalse(self.selects(body, ["research/x/README.md"]))
 
 
 class ReadOnlyJobs(unittest.TestCase):
@@ -1004,6 +1312,16 @@ class ForChanges(unittest.TestCase):
         names = self.selected(["ventures/cloud-egress-calculator/index.html"])
         self.assertNotIn("no-show-fee-calculator-ci.yml", names)
 
+    def test_a_research_readme_does_not_select_the_site_build(self):
+        # portfolio-pages.yml's pull_request filter names research/_homepage,
+        # research/README.md and research/*/app only; its path-less push to
+        # main used to select it for every research diff anyway.
+        names = self.selected(["research/_audit/README.md"])
+        self.assertNotIn("portfolio-pages.yml", names)
+        self.assertIn("research-ci.yml", names)
+        # A post is a site input (loadPosts throws on a malformed one).
+        self.assertIn("portfolio-pages.yml", self.selected(["docs/posts/x.md"]))
+
 
 class LocalContext(unittest.TestCase):
     """`${{ }}` values with an honest local answer run instead of skipping."""
@@ -1019,8 +1337,8 @@ class LocalContext(unittest.TestCase):
                          ["github.event.pull_request.base.sha || github.event.before"])
 
     def test_an_expression_without_a_local_meaning_is_left_for_the_skip(self):
-        text, names = runner.resolve_context("${{ github.event_name }} ${{ steps.a.outputs.b }}")
-        self.assertEqual(text, "${{ github.event_name }} ${{ steps.a.outputs.b }}")
+        text, names = runner.resolve_context("${{ inputs.target }} ${{ steps.a.outputs.b }}")
+        self.assertEqual(text, "${{ inputs.target }} ${{ steps.a.outputs.b }}")
         self.assertEqual(names, [])
 
     def test_a_diff_scoped_step_is_collected_as_runnable(self):
@@ -1033,6 +1351,37 @@ class LocalContext(unittest.TestCase):
         steps, _ = runner.collect(workflow)
         self.assertNotEqual(steps[0].status, "skipped")
         self.assertNotIn("${{", steps[0].env["BASE"])
+
+    def test_a_cache_restored_under_runner_temp_outlives_the_process(self):
+        """portfolio-pages' share cards were redrawn on every local run (330 s
+        cold, past the 300 s budget) because runner.temp is a fresh directory."""
+        with tempfile.TemporaryDirectory() as kept_root, \
+                tempfile.TemporaryDirectory() as temp:
+            raw = {"uses": "actions/cache/restore@0123abc",
+                   "with": {"path": "${{ runner.temp }}/share-cards\n~/.npm\n"
+                                    "${{ runner.temp }}/../escape"}}
+            notes = runner.local_cache_dirs(raw, root=kept_root, temp=temp)
+            self.assertEqual(len(notes), 1)
+            target = os.path.join(temp, "share-cards")
+            kept = os.path.join(kept_root, "share-cards")
+            self.assertEqual(os.path.realpath(target), os.path.realpath(kept))
+            # A second collect in the same process keeps the existing link.
+            self.assertEqual(len(runner.local_cache_dirs(raw, root=kept_root, temp=temp)), 1)
+
+    def test_only_cache_restores_get_a_stand_in(self):
+        for uses in ("actions/cache/save@0123abc", "actions/checkout@0123abc", ""):
+            raw = {"uses": uses, "with": {"path": "${{ runner.temp }}/x"}}
+            self.assertEqual(runner.local_cache_dirs(raw, root="/nonexistent"), [], uses)
+
+    def test_portfolio_pages_restores_its_share_cards_locally(self):
+        path = os.path.join(runner.WORKFLOWS, "portfolio-pages.yml")
+        with tempfile.TemporaryDirectory() as kept_root, \
+                mock.patch.object(runner, "PIN_CACHE", kept_root):
+            steps, skipped = runner.collect(runner.load_workflow(path), only={"test"})
+        self.assertTrue(any("share-cards kept in" in note for note in skipped), skipped)
+        tests = [s for s in steps if s.name == "Test the site builder"]
+        self.assertEqual(len(tests), 1)
+        self.assertTrue(tests[0].env["PAGES_CARD_CACHE"].endswith("/share-cards"))
 
     def test_naming_a_workflow_and_for_changes_together_is_refused(self):
         self.assertEqual(runner.main(["portfolio-validate.yml", "--for-changes"]), 2)
@@ -1217,6 +1566,242 @@ class Tree(unittest.TestCase):
             "nothing until the buffer fills or the process exits")
 
 
+class SweepExitCode(unittest.TestCase):
+    """A workflow with no verdict fails the sweep on its own.
+
+    Red-team run 2026-11-13: `failures or out_of_budget or after_skip`
+    mutated to `failures or out_of_budget and after_skip` survived the whole
+    suite, so a sweep where one workflow ran out of budget (and nothing else
+    went wrong) could have exited 0 -- a verification that verified nothing
+    reading as green before a merge.
+    """
+
+    def sweep(self, code_for_report):
+        real_report, real_fp = runner.report, runner.checkout_fingerprint
+        runner.report = lambda *a, **k: code_for_report
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("w.yml", wf, {"j"})], [])
+        finally:
+            runner.report, runner.checkout_fingerprint = real_report, real_fp
+        return code, out.getvalue()
+
+    def test_out_of_budget_alone_is_not_a_pass(self):
+        code, out = self.sweep(runner.BUDGET_SPENT)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertNotIn(code, (0, 1))
+        self.assertIn("ran out of budget with no verdict", out)
+        self.assertIn("NO VERDICT", out)
+
+    def test_no_verdict_after_a_skipped_step_alone_is_not_a_pass(self):
+        code, out = self.sweep(runner.AFTER_SKIP)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertIn("no verdict after a skipped step", out)
+
+    def test_no_verdict_is_distinct_from_every_other_exit(self):
+        # 1 failed, 2 usage error, 3 handed off: a reader (or a script)
+        # must be able to tell "unverifiable here" from all three.
+        self.assertNotIn(runner.NO_VERDICT,
+                         (0, 1, 2, runner.HANDED_OFF))
+
+    def test_a_failure_beside_a_no_verdict_still_exits_1(self):
+        real_report, real_fp = runner.report, runner.checkout_fingerprint
+        codes = iter([1, runner.BUDGET_SPENT])
+        runner.report = lambda *a, **k: next(codes)
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("a.yml", wf, {"j"}), ("b.yml", wf, {"j"})], [])
+        finally:
+            runner.report, runner.checkout_fingerprint = real_report, real_fp
+        self.assertEqual(code, 1)
+        self.assertNotIn("NO VERDICT", out.getvalue())
+
+    def test_a_workflow_where_nothing_ran_is_no_verdict_in_a_sweep(self):
+        code, out = self.sweep(runner.NOTHING_RAN)
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertIn("NO VERDICT", out)
+
+    def sweep_codes(self, codes):
+        real_report, real_fp = runner.report, runner.checkout_fingerprint
+        it = iter(codes)
+        runner.report = lambda *a, **k: next(it)
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [(f"w{i}.yml", wf, {"j"}) for i in range(len(codes))], [])
+        finally:
+            runner.report, runner.checkout_fingerprint = real_report, real_fp
+        return code, out.getvalue()
+
+    def test_a_ci_only_workflow_beside_passes_does_not_block_a_pass(self):
+        # agent-cross-review.yml (nothing runnable here) is selected by every
+        # diff; it made every clean sweep exit 5 until 2026-11-15.
+        code, out = self.sweep_codes([runner.NOTHING_RAN, 0])
+        self.assertEqual(code, 0)
+        self.assertIn("1/1 selected workflow(s) passed", out)
+        self.assertIn("w0.yml had no step that can run", out)
+        self.assertNotIn("NO VERDICT", out)
+
+    def test_a_ci_only_workflow_does_not_hide_other_no_verdicts(self):
+        code, _ = self.sweep_codes([runner.NOTHING_RAN, runner.AFTER_SKIP])
+        self.assertEqual(code, runner.NO_VERDICT)
+        code, _ = self.sweep_codes([runner.NOTHING_RAN, 1])
+        self.assertEqual(code, 1)
+
+    def test_nothing_ran_anywhere_is_still_no_verdict(self):
+        code, out = self.sweep_codes([runner.NOTHING_RAN, runner.NOTHING_RAN])
+        self.assertEqual(code, runner.NO_VERDICT)
+        self.assertIn("NO VERDICT", out)
+
+    def test_nothing_ran_is_distinct_from_the_other_report_codes(self):
+        self.assertNotIn(runner.NOTHING_RAN,
+                         (0, 1, runner.BUDGET_SPENT, runner.AFTER_SKIP,
+                          runner.NO_VERDICT))
+
+    def test_a_clean_workflow_passes(self):
+        code, _ = self.sweep(0)
+        self.assertEqual(code, 0)
+
+
+class PullRequestContextTest(unittest.TestCase):
+    """`github.event_name` and the gate's base URL have local values."""
+
+    def test_event_name_is_a_pull_request(self):
+        self.assertEqual(runner.local_context("github.event_name"), "pull_request")
+
+    def test_the_deploy_only_ternary_is_empty_on_a_pull_request(self):
+        expr = "github.event_name != 'pull_request' && '1' || ''"
+        self.assertEqual(runner.local_context(expr), "")
+        self.assertEqual(runner.local_context(
+            "github.event_name == 'pull_request' && 'a' || 'b'"), "a")
+
+    def test_build_the_site_now_runs(self):
+        text, resolved = runner.resolve_context(
+            "X=${{ github.event_name != 'pull_request' && '1' || '' }} "
+            "B=${{ needs.gate.outputs.base }}")
+        self.assertEqual(text, "X= B=https://marisstella.app/")
+        self.assertEqual(len(resolved), 2)
+
+    def test_the_gate_base_is_the_builds_default_origin(self):
+        build = open(os.path.join(runner.REPO, "platform/pages/build.mjs")).read()
+        self.assertIn("DEFAULT_BASE_URL = '%s'" % runner.LOCAL_NEEDS["needs.gate.outputs.base"],
+                      build)
+
+    def test_other_step_outputs_keep_the_skip(self):
+        self.assertIsNone(runner.local_context("needs.plan.outputs.checks"))
+        self.assertIsNone(runner.local_context("github.event_name || 'x'"))
+
+
+class RepositoryContextTest(unittest.TestCase):
+    """pages.yml's base URL: `vars.X || format(...)` over the repository names."""
+
+    PARTS = {"github.repository": "o/r", "github.repository_owner": "o",
+             "github.event.repository.name": "r"}
+
+    def setUp(self):
+        runner.local_context.cache_clear()
+        patcher = mock.patch.object(runner, "repository_parts", return_value=self.PARTS)
+        patcher.start()
+        self.addCleanup(patcher.stop)
+        self.addCleanup(runner.local_context.cache_clear)
+
+    def test_pages_build_base_url_resolves(self):
+        text, resolved = runner.resolve_context(
+            "${{ vars.PAGES_BASE_URL || format('https://{0}.github.io/{1}', "
+            "github.repository_owner, github.event.repository.name) }}")
+        self.assertEqual(text, "https://o.github.io/r")
+        self.assertEqual(len(resolved), 1)
+
+    def test_format_keeps_quoted_commas_and_escaped_quotes(self):
+        self.assertEqual(runner.local_context(
+            "format('{1}:{0}''s', 'a,b', github.repository)"), "o/r:a,b's")
+
+    def test_an_unknown_operand_keeps_the_skip(self):
+        self.assertIsNone(runner.local_context("vars.X || needs.plan.outputs.y"))
+        self.assertIsNone(runner.local_context("format('{0}', steps.a.outputs.b)"))
+        self.assertIsNone(runner.local_context("format('{1}', 'a')"))
+
+    def test_no_origin_remote_keeps_the_skip(self):
+        with mock.patch.object(runner, "repository_parts", return_value={}):
+            runner.local_context.cache_clear()
+            self.assertIsNone(runner.local_context("github.repository_owner"))
+
+    def test_remote_url_forms(self):
+        for url in ("https://github.com/o/r.git", "git@github.com:o/r.git",
+                    "http://proxy@127.0.0.1/git/x https://github.com/o/r"):
+            self.assertEqual(runner.REMOTE_REPO.search(url).groups(), ("o", "r"), url)
+
+    def test_the_pages_workflow_build_step_is_no_longer_skipped(self):
+        wf = runner.load_workflow(os.path.join(runner.WORKFLOWS, "pages.yml"))
+        steps, _ = runner.collect(wf)
+        build = [s for s in steps if s.name == "Build the site"]
+        self.assertEqual(len(build), 1)
+        self.assertNotEqual(build[0].status, "skipped", build[0].reason)
+        self.assertEqual(build[0].env["BASE_URL"], "https://o.github.io/r")
+
+
+class PooledBudgetTest(unittest.TestCase):
+    """A sweep's per-workflow budgets are pooled (see `pooled_budget`)."""
+
+    def test_the_last_workflow_gets_what_the_fast_ones_left(self):
+        # Two research workflows done in 20 s leave the site builder ~880 s.
+        self.assertEqual(runner.pooled_budget(300, 3, 2, 20.0), 880)
+
+    def test_an_early_workflow_keeps_the_later_ones_full_share(self):
+        self.assertEqual(runner.pooled_budget(300, 3, 0, 0.0), 300)
+        self.assertEqual(runner.pooled_budget(300, 3, 1, 10.0), 590)
+
+    def test_never_less_than_the_old_per_workflow_budget(self):
+        self.assertEqual(runner.pooled_budget(300, 3, 2, 899.0), 300)
+
+    def test_no_budget_stays_none(self):
+        self.assertEqual(runner.pooled_budget(0, 3, 2, 5.0), 0)
+
+    def test_a_single_workflow_is_unchanged(self):
+        self.assertEqual(runner.pooled_budget(300, 1, 0, 0.0), 300)
+
+    def test_cheapest_declared_workflow_runs_first(self):
+        slow = workflow("jobs:\n  t:\n    timeout-minutes: 30\n    steps:\n"
+                        "      - name: s\n        run: 'true'")
+        fast = workflow("jobs:\n  j:\n    timeout-minutes: 2\n    steps:\n"
+                        "      - name: s\n        run: 'true'")
+        seen = []
+        real = (runner.report, runner.checkout_fingerprint, runner.run_steps)
+        runner.report = lambda name, *a, **k: seen.append(name) or 0
+        runner.checkout_fingerprint = lambda **_: runner.Fingerprint("a" * 40, "d1")
+        budgets = []
+        runner.run_steps = lambda steps, timeout, budget=None: budgets.append(budget)
+        try:
+            with contextlib.redirect_stdout(io.StringIO()):
+                runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30, workflow_timeout=300),
+                    [("pages.yml", slow, {"t"}), ("validate.yml", fast, {"j"})], [])
+        finally:
+            runner.report, runner.checkout_fingerprint, runner.run_steps = real
+        self.assertEqual(seen, ["validate.yml", "pages.yml"])
+        self.assertEqual(budgets[0], 300)
+        self.assertGreater(budgets[1], 590)
+
+
+def fp(head, content, paths=None):
+    """A fingerprint for the mocked sweeps below (`runner.Fingerprint`)."""
+    return runner.Fingerprint(head * 40, content, paths or {})
+
+
 class CheckoutStability(unittest.TestCase):
     """A sweep whose tree moved under it is not a reading of anything.
 
@@ -1231,7 +1816,7 @@ class CheckoutStability(unittest.TestCase):
         """Run an empty-but-nonzero selection with a fingerprint sequence."""
         real = runner.checkout_fingerprint
         seq = iter([before, after])
-        runner.checkout_fingerprint = lambda: next(seq)
+        runner.checkout_fingerprint = lambda **_: next(seq)
         wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
         out = io.StringIO()
         try:
@@ -1243,26 +1828,47 @@ class CheckoutStability(unittest.TestCase):
             runner.checkout_fingerprint = real
         return code, out.getvalue()
 
-    def test_a_moved_head_fails_the_sweep_and_names_both_commits(self):
-        code, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
-        self.assertEqual(code, 1)
-        self.assertIn("UNSTABLE CHECKOUT", out)
-        self.assertIn("aaaaaaaaa", out)
-        self.assertIn("bbbbbbbbb", out)
+    def test_a_moved_head_over_the_same_tree_keeps_the_verdict(self):
+        # Committing the run record is the one thing a run is told to do while
+        # a long sweep runs, and it changes no byte a step reads. Three of the
+        # four 2026-11-12/13 friction reports lost a whole sweep to it.
+        code, out = self.sweep(fp("a", "d1"), fp("b", "d1"))
+        self.assertEqual(code, 0)
+        self.assertNotIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("note: HEAD moved", out)
+        self.assertIn("the verdicts above stand", out)
 
-    def test_changed_tracked_files_fail_even_when_head_held_still(self):
-        # The commoner shape: another session runs `regen.mjs` or resolves a
-        # conflict in this checkout without committing. HEAD never moves.
-        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d2"))
-        self.assertEqual(code, 1)
-        self.assertIn("UNSTABLE CHECKOUT", out)
+    def test_changed_tracked_files_fail_whether_or_not_head_moved(self):
+        # A branch checkout or a merge mid-sweep: the content moved, so the
+        # verdict is a reading of two trees either way.
+        for after in (fp("a", "d2"), fp("b", "d2")):
+            code, out = self.sweep(fp("a", "d1"), after)
+            self.assertEqual(code, 1)
+            self.assertIn("UNSTABLE CHECKOUT", out)
+        code, out = self.sweep(fp("a", "d1"), fp("a", "d2"))
         self.assertIn("HEAD did not move", out)
+
+    def test_the_drift_line_names_the_paths_that_moved(self):
+        # "tracked files changed" alone sent runs back to a 40-minute sweep to
+        # find out whether it mattered; the paths answer that in a glance.
+        code, out = self.sweep(
+            fp("a", "d1", {"a.py": "1", "b.py": "1"}),
+            fp("a", "d2", {"a.py": "2", "b.py": "1"}))
+        self.assertEqual(code, 1)
+        self.assertIn("a.py", out)
+        self.assertNotIn("b.py", out)
+
+    def test_many_moved_paths_are_cut_with_a_count(self):
+        before = fp("a", "d1", {f"f{i}.py": "1" for i in range(9)})
+        after = fp("a", "d2", {f"f{i}.py": "2" for i in range(9)})
+        self.assertIn("(+4 more)", runner.checkout_drift(before, after))
 
     def test_a_still_checkout_does_not_trip_it(self):
         # A guard that fails on correct input gets switched off within a day.
-        code, out = self.sweep(("a" * 40, "d1"), ("a" * 40, "d1"))
+        code, out = self.sweep(fp("a", "d1"), fp("a", "d1"))
         self.assertEqual(code, 0)
         self.assertNotIn("UNSTABLE CHECKOUT", out)
+        self.assertNotIn("note: HEAD moved", out)
 
     def test_an_unmeasurable_fingerprint_is_not_a_finding(self):
         # No git binary, or not a repository. "Could not measure" must not
@@ -1271,28 +1877,181 @@ class CheckoutStability(unittest.TestCase):
         code, out = self.sweep(None, None)
         self.assertEqual(code, 0)
         self.assertNotIn("UNSTABLE CHECKOUT", out)
-        self.assertIsNone(runner.checkout_drift(None, ("a" * 40, "d1")))
-        self.assertIsNone(runner.checkout_drift(("a" * 40, "d1"), None))
+        self.assertIsNone(runner.checkout_drift(None, fp("a", "d1")))
+        self.assertIsNone(runner.checkout_drift(fp("a", "d1"), None))
 
     def test_the_failure_is_reported_after_the_verdict_it_invalidates(self):
         # It invalidates a pass and a failure alike, so it has to read as a
         # note about the whole run rather than as one more failing workflow.
-        _, out = self.sweep(("a" * 40, "d1"), ("b" * 40, "d1"))
+        _, out = self.sweep(fp("a", "d1"), fp("b", "d2"))
         self.assertLess(out.index("workflow(s) passed."),
                         out.index("UNSTABLE CHECKOUT"))
+
+    def two_workflow_sweep(self, prints):
+        real = runner.checkout_fingerprint
+        seq = iter(prints)
+        runner.checkout_fingerprint = lambda **_: next(seq)
+        wf = workflow("jobs:\n  j:\n    steps:\n      - name: s\n        run: 'true'")
+        out = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(out):
+                code = runner._run_selected(
+                    argparse.Namespace(list=False, timeout=30),
+                    [("first.yml", wf, {"j"}), ("second.yml", wf, {"j"})], [])
+        finally:
+            runner.checkout_fingerprint = real
+        return code, out.getvalue()
+
+    def test_workflows_done_before_the_move_keep_their_verdict(self):
+        # Eleven run records lost a whole sweep for one edit mid-run and
+        # re-ran every workflow; only the ones after the move are void.
+        a, b = fp("a", "d1"), fp("a", "d2")
+        code, out = self.two_workflow_sweep([a, a, b])
+        self.assertEqual(code, 1)
+        self.assertIn("UNSTABLE CHECKOUT", out)
+        self.assertIn("these verdicts stand): first.yml.", out)
+        self.assertIn("run_workflow_locally.py second.yml", out)
+        self.assertNotIn("run_workflow_locally.py first.yml", out)
+
+    def test_a_move_during_the_first_workflow_voids_them_all(self):
+        a, b = fp("a", "d1"), fp("a", "d2")
+        code, out = self.two_workflow_sweep([a, b])
+        self.assertEqual(code, 1)
+        self.assertIn("not a reading of anything", out)
+        self.assertNotIn("verdicts stand", out)
 
     def test_the_real_fingerprint_reads_this_repository(self):
         # Asserts the premise rather than assuming it: the function really
         # does return this checkout's HEAD, so a test suite passing on
         # mocks cannot hide a fingerprint that never measured anything.
-        fp = runner.checkout_fingerprint()
-        self.assertIsNotNone(fp)
-        head, digest = fp
-        self.assertEqual(len(head), 40, head)
-        self.assertEqual(len(digest), 64, digest)
-        self.assertEqual(fp, runner.checkout_fingerprint(),
+        taken = runner.checkout_fingerprint()
+        self.assertIsNotNone(taken)
+        self.assertEqual(len(taken.head), 40, taken.head)
+        self.assertEqual(len(taken.content), 64, taken.content)
+        self.assertTrue(taken.paths, "no tracked path was fingerprinted")
+        self.assertEqual(taken, runner.checkout_fingerprint(),
                          "the fingerprint is not stable across two reads of "
                          "an unchanged tree, so it would cry wolf on every run")
+
+
+class TrackedContent(unittest.TestCase):
+    """The premise of the stability check, measured against real git.
+
+    The mocked sweeps above cannot tell whether `tracked_content` actually
+    reads the same digest either side of a `git commit`; that claim is the
+    whole fix, so it is checked on a repository.
+    """
+
+    def setUp(self):
+        import subprocess
+        import tempfile
+        self.tmp = tempfile.TemporaryDirectory()
+        self.repo = self.tmp.name
+        self.addCleanup(self.tmp.cleanup)
+
+        def run(*args):
+            return subprocess.run(["git"] + list(args), cwd=self.repo,
+                                  capture_output=True, text=True, check=True)
+
+        self.run = run
+        run("init", "-q", "-b", "main")
+        run("config", "user.email", "t@example.com")
+        run("config", "user.name", "T")
+        run("config", "commit.gpgsign", "false")  # the signing helper is not here
+        self.write("kept.txt", "one\n")
+        run("add", "-A")
+        run("commit", "-qm", "first")
+
+    def write(self, name, text):
+        with open(os.path.join(self.repo, name), "w", encoding="utf-8") as f:
+            f.write(text)
+
+    def digest(self):
+        content = runner.tracked_content(cwd=self.repo)
+        self.assertIsNotNone(content)
+        return content
+
+    def test_committing_what_the_worktree_already_held_changes_nothing(self):
+        self.write("kept.txt", "two\n")
+        self.write("new.txt", "fresh\n")
+        self.run("add", "-A")
+        staged = self.digest()
+        self.run("commit", "-qm", "the run record")
+        self.assertEqual(staged, self.digest(),
+                         "a commit of files already in the worktree read as "
+                         "the tree moving, which voided eleven runs' sweeps")
+
+    def fingerprint(self, untracked=False):
+        content = self.digest()
+        loose = runner.untracked_content(cwd=self.repo) if untracked else {}
+        return runner.Fingerprint("h", repr(sorted(content.items())), content, loose)
+
+    def test_committing_a_file_that_was_untracked_is_not_drift(self):
+        # 2026-11-14, two reports: a sweep voided five workflows because the
+        # run committed a new post it had written (untracked -> tracked) while
+        # the sweep ran; no byte any step read had changed.
+        self.write("post.md", "new post\n")
+        before = self.fingerprint(untracked=True)
+        self.assertIn("post.md", before.untracked)
+        self.run("add", "post.md")
+        self.run("commit", "-qm", "the post")
+        after = self.fingerprint()
+        self.assertNotEqual(before.content, after.content)
+        self.assertIsNone(runner.checkout_drift(before, after))
+
+    def test_a_new_file_with_other_bytes_than_the_untracked_one_is_drift(self):
+        self.write("post.md", "draft\n")
+        before = self.fingerprint(untracked=True)
+        self.write("post.md", "rewritten\n")
+        self.run("add", "post.md")
+        self.run("commit", "-qm", "the post")
+        self.assertIn("post.md", runner.checkout_drift(before, self.fingerprint()))
+
+    def test_a_file_that_appears_from_nowhere_is_still_drift(self):
+        # A checkout or merge adding a file the worktree never held.
+        before = self.fingerprint(untracked=True)
+        self.write("theirs.md", "from a branch\n")
+        self.run("add", "theirs.md")
+        self.run("commit", "-qm", "theirs")
+        self.assertIn("theirs.md", runner.checkout_drift(before, self.fingerprint()))
+
+    def test_an_edit_changes_the_path_it_touched(self):
+        before = self.digest()
+        self.write("kept.txt", "edited\n")
+        after = self.digest()
+        self.assertNotEqual(before["kept.txt"], after["kept.txt"])
+        self.assertEqual(runner.moved_paths(
+            runner.Fingerprint("a", "1", before),
+            runner.Fingerprint("a", "2", after)), "kept.txt")
+
+    def test_a_deleted_tracked_file_is_marked_gone(self):
+        os.remove(os.path.join(self.repo, "kept.txt"))
+        self.assertEqual(self.digest()["kept.txt"], runner.GONE)
+
+    def test_a_checkout_of_another_branch_still_moves_the_tree(self):
+        # The 2026-09-11 incident: the shape the check exists for must stay caught.
+        before = self.digest()
+        self.run("checkout", "-q", "-b", "other")
+        self.write("kept.txt", "theirs\n")
+        self.run("commit", "-qam", "theirs")
+        self.assertNotEqual(before, self.digest())
+
+    def test_batching_many_dirty_files_hashes_every_one(self):
+        for i in range(7):
+            self.write(f"f{i}.txt", "x\n")
+        self.run("add", "-A")
+        self.run("commit", "-qm", "seven")
+        for i in range(7):
+            self.write(f"f{i}.txt", f"changed {i}\n")
+        content = runner.tracked_content(cwd=self.repo, chunk=2)
+        ids = [content[f"f{i}.txt"] for i in range(7)]
+        self.assertEqual(len(set(ids)), 7, ids)
+        self.assertEqual(content, runner.tracked_content(cwd=self.repo))
+
+    def test_git_that_cannot_answer_reads_as_unmeasurable(self):
+        empty = tempfile.mkdtemp()
+        self.addCleanup(lambda: shutil.rmtree(empty, ignore_errors=True))
+        self.assertIsNone(runner.tracked_content(cwd=empty))
 
 
 class ChangedPaths(unittest.TestCase):
@@ -1333,6 +2092,15 @@ class ChangedPaths(unittest.TestCase):
             fh.write("edited")
         self.assertEqual(runner.changed_paths("main", repo=self.repo), ["base.txt"])
 
+    def test_a_new_file_not_yet_added_is_counted_and_an_ignored_one_is_not(self):
+        self.sh("checkout", "-q", "-b", "work")
+        for name, text in (("new-post.md", "post"), (".gitignore", "*.log\n"),
+                           ("scratch.log", "noise")):
+            with open(os.path.join(self.repo, name), "w") as fh:
+                fh.write(text)
+        self.assertEqual(sorted(runner.changed_paths("main", repo=self.repo)),
+                         [".gitignore", "new-post.md"])
+
     def test_no_shared_commit_stops_instead_of_diffing_everything(self):
         self.sh("checkout", "-q", "--orphan", "other")
         self.commit("unrelated.txt")
@@ -1340,6 +2108,32 @@ class ChangedPaths(unittest.TestCase):
             runner.changed_paths("main", repo=self.repo)
         self.assertIn("share no commit", str(caught.exception))
         self.assertIn("git fetch", str(caught.exception))
+
+    def test_a_shallow_remote_base_is_fetched_until_it_meets_head(self):
+        import subprocess
+        import tempfile
+        upstream = self.repo
+        self.commit("b.txt")
+        clone = tempfile.mkdtemp(prefix="changed-paths-clone-")
+        self.addCleanup(__import__("shutil").rmtree, clone, True)
+        run = lambda *a: subprocess.run(["git", *a], cwd=clone, check=True,
+                                        capture_output=True, text=True)
+        subprocess.run(["git", "clone", "-q", "--depth=1", f"file://{upstream}",
+                        clone], check=True, capture_output=True)
+        run("config", "user.email", "t@example.invalid")
+        run("config", "user.name", "t")
+        run("checkout", "-q", "-b", "work")
+        with open(os.path.join(clone, "mine.txt"), "w") as fh:
+            fh.write("mine")
+        run("add", "mine.txt")
+        run("commit", "-q", "-m", "mine")
+        self.commit("later.txt")          # main moves on upstream
+        run("fetch", "-q", "--depth=1", "origin", "main")
+        self.assertNotEqual(subprocess.run(
+            ["git", "merge-base", "origin/main", "HEAD"], cwd=clone,
+            capture_output=True).returncode, 0)
+        self.assertEqual(runner.changed_paths("origin/main", repo=clone),
+                         ["mine.txt"])
 
     def test_a_missing_base_says_to_fetch_it(self):
         with self.assertRaises(SystemExit) as caught:
@@ -1359,6 +2153,248 @@ class BudgetHintTest(unittest.TestCase):
         self.assertIsNone(runner.budget_hint(2, 300, listing=False))
         self.assertIsNone(runner.budget_hint(13, 300, listing=True))
         self.assertIsNone(runner.budget_hint(13, 0, listing=False))
+
+
+class Handoff(unittest.TestCase):
+    """A long run under an agent harness detaches instead of being cut off."""
+
+    def test_only_an_agent_harness_without_a_terminal_hands_off(self):
+        agent = {"CLAUDECODE": "1"}
+        no_tty = lambda: False
+        self.assertTrue(runner.wants_handoff(["--for-changes"], agent, no_tty))
+        self.assertFalse(runner.wants_handoff(["--for-changes"], {}, no_tty))
+        self.assertFalse(runner.wants_handoff(["--for-changes"], agent, lambda: True))
+        self.assertFalse(runner.wants_handoff(["--for-changes", "--foreground"],
+                                              agent, no_tty))
+        self.assertFalse(runner.wants_handoff(["--list"], agent, no_tty))
+        self.assertFalse(runner.wants_handoff(["--for-changes", "--dry-run"], agent, no_tty))
+        child = dict(agent, **{runner.CHILD_ENV: "1"})
+        self.assertFalse(runner.wants_handoff(["--tree"], child, no_tty))
+
+    def test_a_short_run_reads_as_before_with_its_exit_code(self):
+        out = io.StringIO()
+        code = runner.handoff([], window=60, out=out, nap=lambda _s: None)
+        self.assertEqual(code, 2)
+        self.assertIn("name a workflow", out.getvalue())
+        self.assertNotIn(runner.DONE_PREFIX, out.getvalue())
+
+    def test_a_long_run_prints_its_log_and_how_to_wait(self):
+        out = io.StringIO()
+        cmd = [sys.executable, "-c",
+               "import time; print('started', flush=True); time.sleep(5); "
+               f"print('{runner.DONE_PREFIX}0')"]
+        ticks = iter(range(100))
+        code = runner.handoff([], window=1, out=out, clock=lambda: next(ticks),
+                              nap=lambda _s: time.sleep(0.2), cmd=cmd)
+        self.assertEqual(code, runner.HANDED_OFF)
+        text = out.getvalue()
+        self.assertIn("[handed off]", text)
+        log = text.split("Log: ", 1)[1].split()[0]
+        self.assertTrue(os.path.isfile(log))
+        self.assertIn("wait_for.py " + log, text)
+        # Editing mid-sweep voided eleven runs' verdicts: say so while it runs,
+        # and say that committing (which they are told to do) is not an edit.
+        self.assertIn("do not change tracked files", text)
+        self.assertIn("Committing files already written is fine", text)
+
+    def test_the_child_ends_with_a_line_wait_for_accepts(self):
+        import wait_for
+        self.assertTrue(wait_for.is_marker(runner.DONE_PREFIX + "1", "DONE"))
+
+
+class FailureCauses(unittest.TestCase):
+    """A failed suite's distinct errors, so "# fail 172" names its one cause."""
+
+    TAP = [
+        "not ok 1 - builds the writing index",
+        "  ---",
+        "  error: 'docs/posts/x.md: description is 208 characters; keep it to 160'",
+        "  ...",
+        "not ok 2 - lists every post",
+        "  error: 'docs/posts/x.md: description is 208 characters; keep it to 160'",
+        "not ok 3 - a block-form error",
+        "  error: |-",
+        "    Error: docs/posts/x.md: description is 208 characters; keep it to 160",
+        "not ok 4 - an unrelated one",
+        "  error: 'Expected values to be strictly equal'",
+        "# fail 4",
+    ]
+
+    def test_node_tap_errors_are_grouped_most_frequent_first(self):
+        self.assertEqual(runner.failure_causes(self.TAP), [
+            (3, "docs/posts/x.md: description is 208 characters; keep it to 160"),
+            (1, "Expected values to be strictly equal"),
+        ])
+
+    def test_pytest_summary_lines_are_read(self):
+        lines = ["FAILED tests/test_a.py::test_x - AssertionError: 2 != 3",
+                 "FAILED tests/test_a.py::test_y - AssertionError: 2 != 3"]
+        self.assertEqual(runner.failure_causes(lines), [(2, "2 != 3")])
+
+    def test_output_without_either_gives_nothing(self):
+        self.assertEqual(runner.failure_causes(["boom", "exit 1"]), [])
+
+    def test_report_prints_the_cause_above_the_tail(self):
+        step = runner.Step("test", "Test the site builder", "node --test", ".")
+        step.status, step.reason = "failed", "exit 1"
+        step.causes = runner.failure_causes(self.TAP)
+        step.tail = ["# fail 4"]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            runner.report("portfolio-pages.yml", [step], [], False)
+        text = out.getvalue()
+        self.assertIn("4 error(s), 2 distinct", text)
+        self.assertLess(text.index("3 x docs/posts/x.md"), text.index("# fail 4"))
+
+    def test_named_paths_reads_relative_and_absolute_paths(self):
+        lines = ["FAIL: 1 problem(s); first: docs/posts/2026-11-16-x.md: description",
+                 f"    at {runner.REPO}/platform/pages/writing.mjs:389:11",
+                 "see ./ventures/a/README.md, version 1.2"]
+        self.assertTrue({"docs/posts/2026-11-16-x.md", "platform/pages/writing.mjs",
+                         "ventures/a/README.md"} <= runner.named_paths(lines))
+
+    def test_a_bare_name_matches_only_when_the_diff_has_one_such_file(self):
+        step = runner.Step("j", "s", "true", ".")
+        step.status, step.paths = "failed", {"2026-11-16-x.md", "README.md"}
+        post = "docs/posts/2026-11-16-x.md"
+        pairs = [("a.yml", step), ("b.yml", step)]
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, "ventures/a/README.md", "ventures/b/README.md"])], [post])
+
+    def test_a_bare_name_many_tracked_files_share_names_none_of_them(self):
+        step = runner.Step("j", "s", "true", ".")
+        step.status, step.paths = "failed", {"2026-11-16-x.md", "index.html"}
+        post, page = "docs/posts/2026-11-16-x.md", "ventures/a/site/index.html"
+        pairs = [("a.yml", step), ("b.yml", step)]
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, page], tree_counts={"index.html": 412})], [post])
+        # Named in full, the page still counts.
+        step.paths = {page}
+        self.assertEqual([p for p, _ in runner.shared_changed_paths(
+            pairs, [post, page], tree_counts={"index.html": 412})], [page])
+
+    def test_a_changed_path_two_failed_steps_name_is_shared(self):
+        def failed(job, paths):
+            step = runner.Step(job, "s", "true", ".")
+            step.status, step.paths = "failed", set(paths)
+            return step
+        post = "docs/posts/2026-11-16-x.md"
+        pairs = [("posts.yml", failed("check", [post])),
+                 ("portfolio-pages.yml", failed("build", [post, "platform/pages/writing.mjs"])),
+                 ("other.yml", failed("t", ["platform/pages/writing.mjs"]))]
+        # writing.mjs is named twice but is not in the diff: not a cause.
+        self.assertEqual(runner.shared_changed_paths(pairs, [post]), [
+            (post, ["posts.yml / check / s", "portfolio-pages.yml / build / s"])])
+        self.assertEqual(runner.shared_changed_paths(pairs[:1], [post]), [])
+
+    def test_sweep_names_the_changed_file_failed_workflows_share(self):
+        post = "docs/posts/2026-11-16-x.md"
+        bad = f"echo '{post}: description is 167 characters' >&2; exit 1"
+        wfs = [(n, {"jobs": {"j": {"steps": [{"run": bad}]}}}, {"j"})
+               for n in ("a.yml", "b.yml")]
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner._run_selected(
+                argparse.Namespace(list=False, timeout=30), wfs, [],
+                changed=[post, "ventures/z/x.py"])
+        self.assertEqual(code, 1)
+        self.assertIn(f"COMMON CAUSE: {post}, in your diff, is named by 2 of 2",
+                      out.getvalue())
+
+    def test_a_real_failing_node_test_is_digested(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, "a.test.mjs")
+            with open(path, "w") as fh:
+                fh.write("import test from 'node:test';\n"
+                         "for (const n of [1, 2]) test(`t${n}`, () => { "
+                         "throw new Error('one shared cause'); });\n")
+            step = runner.Step("j", "s", f"node --test {path}", ".")
+            runner.execute(step, 60)
+        self.assertEqual(step.status, "failed")
+        self.assertEqual(step.causes, [(2, "one shared cause")])
+
+
+class PinnedTools(unittest.TestCase):
+    """A step calling a pip-pinned tool runs the pinned version (see PIN)."""
+
+    def steps(self):
+        a = runner.Step("lint", "a", "pip install ruff==0.15.8 mypy==1.19.1", ".")
+        b = runner.Step("lint", "b", "ruff check .", ".")
+        c = runner.Step("test", "c", "ruff check .", ".")
+        d = runner.Step("lint", "d", "PYTHONPATH=src mypy && echo ok", ".")
+        return a, b, c, d
+
+    def test_pins_reach_later_steps_of_the_same_job_only(self):
+        a, b, c, d = self.steps()
+        pins = runner.job_pins([a, b, c, d])
+        self.assertEqual(pins[a], ({}, []))
+        self.assertEqual(pins[b], ({"ruff": "0.15.8", "mypy": "1.19.1"},
+                                   ["ruff==0.15.8", "mypy==1.19.1"]))
+        self.assertEqual(pins[c], ({}, []))
+
+    def test_install_args_keep_unpinned_and_requirement_files(self):
+        s = runner.Step("python", "i", "pip install -q -r tests/requirements.txt "
+                        "pyflakes ruff==0.15.8 types-PyYAML && echo done", "ventures/x")
+        self.assertEqual(runner.install_args(s), [
+            "-r", os.path.join(runner.REPO, "ventures/x", "tests/requirements.txt"),
+            "pyflakes", "ruff==0.15.8", "types-PyYAML"])
+        m = runner.Step("python", "m", "mypy", ".")
+        self.assertEqual(runner.job_pins([s, m])[m][0], {"ruff": "0.15.8"})
+
+    def test_called_tools_needs_a_command_position(self):
+        pins = {"ruff": "1", "mypy": "2"}
+        self.assertEqual(runner.called_tools("ruff check .", pins), ["ruff"])
+        self.assertEqual(runner.called_tools("PYTHONPATH=src mypy", pins), ["mypy"])
+        self.assertEqual(runner.called_tools("echo ruff-report.txt", pins), [])
+        self.assertEqual(runner.called_tools("cat x && mypy", pins), ["mypy"])
+
+    def test_tool_comes_from_the_pin_venv(self):
+        with tempfile.TemporaryDirectory() as d:
+            exe = os.path.join(d, "ruff")
+            with open(exe, "w") as f:
+                f.write("#!/bin/sh\necho pinned\n")
+            os.chmod(exe, 0o755)
+            _, b, _, _ = self.steps()
+            runner.pin_tools(b, ({"ruff": "0.15.8"}, ["ruff==0.15.8"]), venv_for=lambda i: d,
+                             path_env="/usr/bin")
+            shim = b.env["PATH"].split(os.pathsep)[0]
+            self.assertEqual(os.path.realpath(os.path.join(shim, "ruff")), exe)
+            self.assertEqual(b.env["PATH"].split(os.pathsep)[1:], ["/usr/bin"])
+            self.assertIn("ruff 0.15.8", b.pinned[0])
+            self.assertIsNone(b.pin_miss)
+
+    def test_no_venv_and_another_version_is_a_miss(self):
+        with tempfile.TemporaryDirectory() as d:
+            exe = os.path.join(d, "ruff")
+            with open(exe, "w") as f:
+                f.write("#!/bin/sh\n")
+            os.chmod(exe, 0o755)
+            _, b, _, _ = self.steps()
+            runner.pin_tools(b, ({"ruff": "0.15.8"}, []), venv_for=lambda i: None,
+                             version_of=lambda p: "ruff 0.16.9", path_env=d)
+            self.assertEqual(b.pin_miss, ("ruff", "0.15.8", "ruff 0.16.9"))
+            self.assertNotIn("PATH", b.env)
+            # The matching version on PATH is no miss.
+            _, b2, _, _ = self.steps()
+            runner.pin_tools(b2, ({"ruff": "0.15.8"}, []), venv_for=lambda i: None,
+                             version_of=lambda p: "ruff 0.15.8", path_env=d)
+            self.assertIsNone(b2.pin_miss)
+
+    def test_a_failure_under_a_missed_pin_is_unrun(self):
+        _, b, _, _ = self.steps()
+        b.run = "false"
+        b.pin_miss = ("ruff", "0.15.8", "ruff 0.16.9")
+        ok = runner.Step("lint", "ok", "true", ".")
+        with contextlib.redirect_stdout(io.StringIO()):
+            runner.run_steps([ok, b], timeout=30)
+        self.assertEqual(b.status, "unrun")
+        self.assertEqual(b.missing_kind, "version")
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            code = runner.report("w.yml", [ok, b], [], False)
+        self.assertEqual(code, 0)
+        self.assertIn("pip install ruff==0.15.8", out.getvalue())
+        self.assertIn("Not a green check", out.getvalue())
 
 
 if __name__ == "__main__":

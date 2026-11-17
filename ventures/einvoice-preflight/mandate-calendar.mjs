@@ -68,7 +68,7 @@ export function parseHub(html) {
   return events.sort((a, b) => a.date.localeCompare(b.date) || a.country.localeCompare(b.country));
 }
 
-const esc = (s) => s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const esc = (s) => s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 function fold(line) {
   const out = [];
   let rest = line;
@@ -86,7 +86,7 @@ const nextDay = (iso) => { const d = new Date(iso + "T00:00:00Z"); d.setUTCDate(
 
 export function toIcs(events) {
   const lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//einvoice-preflight//mandate calendar//EN", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
-    "X-WR-CALNAME:E-invoicing mandate dates", "X-WR-CALDESC:Dated e-invoicing mandate milestones by country. Not legal or tax advice; confirm with the tax authority."];
+    "X-WR-CALNAME:E-invoicing mandate dates", "X-WR-CALDESC:Dated e-invoicing mandate milestones by country. Not legal or tax advice\\; confirm with the tax authority."];
   for (const e of events) {
     const uid = crypto.createHash("sha1").update(`${e.country}|${e.date}|${e.note}`).digest("hex").slice(0, 16) + "@einvoice-preflight";
     const summary = `${e.country}: ${e.note.length > 90 ? e.note.slice(0, 87) + "..." : e.note}`;

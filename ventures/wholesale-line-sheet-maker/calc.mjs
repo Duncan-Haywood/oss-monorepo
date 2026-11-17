@@ -278,7 +278,7 @@ export function ordersToClear(mix, settings, targetProfitCents, { afterCommissio
 // Neutralise spreadsheet formula injection in text cells and quote as needed.
 export function csvCell(value) {
   let s = String(value ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

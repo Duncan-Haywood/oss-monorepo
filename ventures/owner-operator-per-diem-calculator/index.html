@@ -136,7 +136,12 @@
 
     const $ = (id) => document.getElementById(id);
     const FIELDS = ["fullDays", "partialDays", "dailyRate", "partialPct", "dotPct", "receipts", "netProfit", "otherWages", "wageBase", "marginalRate"];
-    const money = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const money = (n) => {
+      const format = (n) => "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (!(Number(n) < 0)) return format(n);
+      const text = format(Math.abs(n));
+      return /[1-9]/.test(text) ? `-${text}` : text;
+    };
     const BLANK = ["perDiemGross", "perDiemDeduction", "receiptsGross", "receiptsDeduction", "seBefore", "seAfter", "seSaving", "incomeSaving", "totalSaving"];
 
     function read() { const o = {}; for (const f of FIELDS) o[f] = $(f).value; return o; }

@@ -33,8 +33,32 @@ export function resolveImageSrc(src, fromPath = '') {
   return url.startsWith(REPO_BLOB) ? REPO_RAW + url.slice(REPO_BLOB.length) : url;
 }
 
-/** Inline spans on raw (unescaped) text. Code spans are cut out first so nothing inside them is formatted. */
-export function inline(text, fromPath = '', { linkPrs = true } = {}) {
+// An HTML entity an author typed (&minus;, &radic;, &#8722;) is kept as itself after escaping, so
+// the page shows "−" rather than the literal text "&minus;" (blog posts and research log lines on
+// /updates/ did until 2026-11-14; the research pages' own builder got the same fix in PR #15883).
+// Inside a code span it stays literal, which is how a post shows the entity's source. Safe: an
+// entity decodes to text, never to markup (`&lt;b&gt;` reads as "<b>", it does not open a tag).
+const TYPED_ENTITY = /&amp;(#\d{1,7}|#x[0-9a-fA-F]{1,6}|[a-zA-Z][a-zA-Z0-9]{1,31});/g;
+// What `esc` itself writes; *em* may open after any other entity (`*K*&radic;*P*`).
+// A paired, attribute-free <sub>…</sub> or <sup>…</sup> (p<sub>s</sub>, CO<sub>2</sub>, N<sup>1.85</sup>)
+// is the one raw HTML kept: seven posts used it and showed the tags as text until 2026-11-14. No
+// attributes and a closing tag on the same line, so it cannot open anything else or run on.
+const SUB_SUP = /&lt;(sub|sup)&gt;((?:(?!&lt;\/?su[bp]&gt;).){1,80}?)&lt;\/\1&gt;/g;
+// *em* may also open after a slash or an opening quote: "1/*e*", "Deira/*de ira*" and "“*x*”" showed
+// their asterisks until 2026-11-14 (CommonMark treats both as emphasis).
+const EM_OPEN = /(^|[\s(/“‘]|&(?:quot|#39);|&(?!(?:amp|lt|gt|quot|#39);)#?[a-zA-Z0-9]+;)\*([^*\s.][^*]*)\*/g;
+const EM_OPEN_PLAIN = /(^|[\s(/“‘]|&(?:quot|#39);)\*([^*\s.][^*]*)\*/g;
+// A code span is a backtick run closed by a run of the same length, so `` `x` `` shows `x` with its
+// backticks (one space either side trimmed, as CommonMark does). Only single runs matched until
+// 2026-11-14, and double-backtick spans in eight posts showed as raw text.
+const CODE_SPAN = /(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)/g;
+const trimCode = (c) => (c.length > 2 && c.startsWith(' ') && c.endsWith(' ') && c.trim() ? c.slice(1, -1) : c);
+
+/**
+ * Inline spans on raw (unescaped) text. Code spans are cut out first so nothing inside them is formatted.
+ * `entities: false` shows a typed entity as its source text, for text GitHub shows plainly (commit titles).
+ */
+export function inline(text, fromPath = '', { linkPrs = true, entities = true } = {}) {
   // Links first, so a label written in code (`[`file`](file)`) stays a link;
   // then code spans, so nothing inside them is formatted.
   // A link written wholly inside a code span (`[title](post.md)`) is shown as
@@ -49,20 +73,26 @@ export function inline(text, fromPath = '', { linkPrs = true } = {}) {
   });
   s = s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (src, label, href) => {
     const url = resolveHref(href, fromPath);
-    const inner = inline(label, fromPath, { linkPrs: false });
+    const inner = inline(label, fromPath, { linkPrs: false, entities });
     return hold(url ? `<a href="${esc(url)}">${inner}</a>` : inner, src);
   });
-  s = s.replace(/`([^`]+)`/g, (_, code) => hold(`<code>${esc(code.replace(/\u0000(\d+)\u0000/g, (_m, i) => raw[Number(i)]))}</code>`));
-  s = esc(s)
+  s = s.replace(CODE_SPAN, (_, _ticks, code) => hold(`<code>${esc(trimCode(code).replace(/\u0000(\d+)\u0000/g, (_m, i) => raw[Number(i)]))}</code>`));
+  s = esc(s);
+  // Tags before entities, so a typed "&lt;sub&gt;" stays text.
+  if (entities) s = s.replace(SUB_SUP, '<$1>$2</$1>').replace(TYPED_ENTITY, '&$1;');
+  s = s
     .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    .replace(/(^|[\s(])\*([^*\s][^*]*)\*/g, '$1<em>$2</em>')
+    .replace(entities ? EM_OPEN : EM_OPEN_PLAIN, '$1<em>$2</em>')
     .replace(/(^|[\s(])_([^_\s][^_]*)_(?=[\s.,;:)]|$)/g, '$1<em>$2</em>');
   if (linkPrs) s = s.replace(/(^|[\s(])#(\d{3,5})\b/g, `$1<a href="${REPO_PULL}$2">#$2</a>`);
   return s.replace(/\u0000(\d+)\u0000/g, (_, i) => held[Number(i)]);
 }
 
 const isTableSep = (line) => /^\s*\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)*\|?\s*$/.test(line);
-const cells = (line) => line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((c) => c.trim());
+// A cell may hold an escaped pipe, `\|` (GFM; also inside code, as in `` `\|\|` ``). Split on the
+// others only, then unescape: four red-team posts showed "`\ \ &&`" for `||` → `&&` until 2026-11-14.
+const cells = (line) =>
+  line.trim().replace(/^\|/, '').replace(/(?<!\\)\|$/, '').split(/(?<!\\)\|/).map((c) => c.trim().replace(/\\\|/g, '|'));
 
 /**
  * Block-level rendering. Handles headings, fenced code, lists, tables, quotes and paragraphs.

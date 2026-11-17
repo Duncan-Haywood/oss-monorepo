@@ -51,6 +51,6 @@
       "where": "platform/agents/tools.mjs:260-263,516"
     }
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14674"],
   "verdict": "Does not meet the bar (correctness 2, claims 2; verification 3, craft 3; median 3); finished (completeness 3). The 16 tests pass and the server is carefully built: slugs are validated before any path join, a `--module ../../../etc/passwd` is rejected, the child env is scrubbed, and the MCP protocol surface conforms to the 2025-06-18 spec. Three recomputed outputs (loan payment 411.8694, outside payment 683.5526, gross-up 31,746.03) match an independent annuity formula exactly. But the JSON layer an agent depends on has a real bug: shared object references print as \"[circular]\", so the 401k tool's `ranked` list loses its winner, and no test catches it (a mutation to the MCP limit cap also survived; 2 of 3 mutations caught). The site URL in every result points at a retired address. Reproduce: `node -e \"import('./platform/agents/tools.mjs').then(m=>{const o={a:1};console.log(m.toJson({x:o,y:o},0))})\"` prints {\"x\":{\"a\":1},\"y\":\"[circular]\"}."
 }

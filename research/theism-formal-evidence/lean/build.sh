@@ -10,6 +10,12 @@ if ! command -v lake >/dev/null 2>&1; then
   LEAN_HOME=${LEAN_HOME:-${TMPDIR:-/tmp}/lean-toolchain}
   dir="$LEAN_HOME/lean-$ver-linux"
   if [ ! -x "$dir/bin/lake" ]; then
+    # Without unzstd the pipe below dies as a curl "write error" that hides the cause
+    # (friction 2026-11-13), so say what is missing before downloading.
+    if ! command -v unzstd >/dev/null 2>&1; then
+      echo "build.sh: unzstd not found; run: apt-get update -qq && apt-get install -y zstd" >&2
+      exit 2
+    fi
     mkdir -p "$LEAN_HOME"
     curl -sSL "https://github.com/leanprover/lean4/releases/download/v$ver/lean-$ver-linux.tar.zst" \
       | tar --use-compress-program=unzstd -x -C "$LEAN_HOME"

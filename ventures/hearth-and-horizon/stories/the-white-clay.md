@@ -12,7 +12,7 @@ It was not really gone. Marta Ketelsen knew that, the way she knew the kettle wa
 
 The tablet on the windowsill chimed, and the island's flood assistant said, in the voice it used for things that went into a report:
 
-*Landunter, Hallig Lüttmoor, third of the season. Peak expected 18:40 at 1.9 metres above mean high water. Warften secure. Report filed.*
+*Landunter, Hallig Lüttmoor, second of the season. Peak expected 18:40 at 1.9 metres above mean high water. Warften secure. Report filed.*
 
 "Thank you, Pegel," said Marta.
 
@@ -200,7 +200,7 @@ Knud phoned her at ten. He did not say good morning. He said, "Have you seen the
 
 The Biike is lit on the twenty-first of February, on the evening before the feast of Saint Peter's Chair, and has been for longer than anyone in North Frisia can document, though everyone in North Frisia has a theory. The commonest is that the fires were lit to see the whalers off to sea in spring; the next commonest is that they were lit to drive the winter out; and Marta's own private theory, which she had never said aloud, was that people who live on mud in the sea simply need, once a year, to set fire to something very large.
 
-The Lüttmoor Biike was on the open marsh below Hanswarf, a stack of old fence posts, Christmas trees and the wrack the January storm had left, as high as two men. On Thursday the twenty-first of February 2058, at half past six, with a thin moon and a light wind from the east and the fires of Hooge and Langeneß already burning across the water like a string of lamps, Jannik and the five children lit it, and it went up with a roar that made Ose shriek and hide behind Knud.
+The Lüttmoor Biike was on the open marsh below Hanswarf, a stack of old fence posts, Christmas trees and the wrack the January storm had left, as high as two men. On Thursday the twenty-first of February 2058, at half past six, with no moon and a light wind from the east and the fires of Hooge and Langeneß already burning across the water like a string of lamps, Jannik and the five children lit it, and it went up with a roar that made Ose shriek and hide behind Knud.
 
 Afterwards there was kale and sausage and potatoes in the school, as there is everywhere in North Frisia after the Biike, and then the council met at the same long table, with the windows still orange from the embers outside.
 

@@ -16,13 +16,14 @@ PATTERN = (9, 6)  # inner corners of OpenCV's samples/data board
 
 
 def detect(path, pattern=PATTERN, method="subpix11"):
-    """Sub-pixel checkerboard corners of one image, (N, 2) float64, or None.
+    """Sub-pixel checkerboard corners of one image (a path or a grey uint8 array),
+    (N, 2) float64, or None.
 
     method: "subpix11" (milestones 1-5: findChessboardCorners, then cornerSubPix with an
     11x11 half-window), "subpix5" (a 5x5 half-window), or "sb" (findChessboardCornersSB
     with CALIB_CB_ACCURACY, Duda and Frese 2018), re-ordered to subpix11's corner order
     by nearest neighbour so corner i is the same physical corner whatever the detector."""
-    img = cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
+    img = path if isinstance(path, np.ndarray) else cv2.imread(str(path), cv2.IMREAD_GRAYSCALE)
     ok, c = cv2.findChessboardCorners(img, pattern)
     if not ok:
         return None, img.shape[::-1]
@@ -306,6 +307,7 @@ def selfcal_fixed_analytic(obs, size, f0, nk=1, ref=0, max_nfev=2000, keep_resid
                         max_nfev=max_nfev, xtol=1e-12, ftol=1e-12, gtol=1e-10)
     out = _summarise(sol, ni, nk, ref)
     out.update(robust_sf(np.asarray(sol.jac), sol.fun, nv, npt))
+    out["cov_intr_cr_view"] = cov_cr_view(np.asarray(sol.jac), sol.fun, nv, npt, ni).tolist()
     out["planarity"] = planarity(np.insert(sol.x[ni + 6 * (nv - 1):], 2, X[0, 2]).reshape(npt, 3))
     if keep_resid:
         out["resid"] = sol.fun.reshape(nv, npt, 2)
@@ -339,6 +341,35 @@ def robust_sf(J, r, nv, npt):
             G = len(c)
             out["sf_cr_" + name] = float(np.sqrt(G / (G - 1) * c @ c))
     return out
+
+
+def cov_cr_view(J, r, nv, npt, ni):
+    """Milestone 4b: the full sandwich covariance of the first ni parameters (the
+    intrinsics), clustered by view, with the small-sample factor G / (G - 1).
+
+    Influence of residual i on parameter j: U[i, j] = (J (J^T J)^-1)[i, j] r_i; the view
+    sums s_g = sum over the view's residuals of U, and cov = G/(G-1) sum_g s_g s_g^T.
+    The generalisation of robust_sf's sf_cr_view to a matrix (its [0, 0] is sf_cr_view^2)."""
+    sc = np.linalg.norm(J, axis=0)
+    sc[sc == 0] = 1.0
+    Js = J / sc
+    E = np.zeros((J.shape[1], ni)); E[np.arange(ni), np.arange(ni)] = 1.0
+    B = np.linalg.lstsq(Js.T @ Js, E / sc[:, None], rcond=None)[0] / sc[:, None]   # (J^T J)^-1 E
+    U = (J @ B) * r[:, None]
+    S = U.reshape(nv, npt * 2, ni).sum(axis=1)
+    return (nv / (nv - 1)) * S.T @ S if nv > 1 else np.full((ni, ni), np.nan)
+
+
+def jackknife_cov(thetas):
+    """Milestone 4b: the leave-one-out jackknife covariance (m - 1)/m sum (t_i - mean)(t_i - mean)^T
+    of the m delete-one estimates (rows of thetas); rows with a non-finite entry are dropped."""
+    a = np.asarray(thetas, float)
+    a = a[np.all(np.isfinite(a), axis=1)]
+    m = len(a)
+    if m < 2:
+        return np.full((a.shape[1], a.shape[1]), np.nan)
+    d = a - a.mean(axis=0)
+    return (m - 1) / m * d.T @ d
 
 
 def jackknife_sf(obs, size, f0, nk=1, max_nfev=2000):
@@ -391,6 +422,7 @@ def _summarise(sol, ni, nk, ref):
                status=int(sol.status), ref=ref, cond_intr=float(ev[-1] / ev[0]),
                corr_f_cx=float(corr[0, 1]), corr_f_cy=float(corr[0, 2]), corr_f_k1=float(corr[0, 3]),
                cond_full=float(np.linalg.cond(H)))
+    out["cov_intr"] = cov[:ni, :ni].tolist()   # milestone 4: the full intrinsics covariance
     return out
 
 
@@ -466,3 +498,60 @@ def residual_structure(resid, obs, pattern=PATTERN):
     return dict(col_share=col_share, col_null=1 / pattern[1], row_share=row_share, row_null=1 / pattern[0],
                 col_perp_share=perp_share, row_perp_share=row_perp,
                 col_mean_rms_px=float(np.sqrt((cm ** 2).sum(-1).mean())))
+
+
+# ---------------------------------------------------------------------------
+# Milestone 4: the accept/reject test for an in-field update.
+
+CHI2_3_99 = 11.344866730144373   # chi-square, 3 degrees of freedom, upper 1%
+
+
+def satterthwaite_nu(a, b, m_a, m_b):
+    """Milestone 4c: Welch-Satterthwaite degrees of freedom of a + b, two variance estimates from
+    m_a and m_b delete-one solves (each with m - 1 degrees of freedom)."""
+    den = a * a / (m_a - 1) + b * b / (m_b - 1)
+    return float((a + b) ** 2 / den) if den > 0 else float("nan")
+
+
+def hotelling_crit(p, nu, alpha=0.01):
+    """Milestone 4c: the upper-alpha point of Hotelling's T^2 with p dimensions and nu degrees of
+    freedom of the covariance, p nu / (nu - p + 1) F_{p, nu - p + 1}; tends to chi^2_p as nu grows.
+    nan when nu <= p - 1 (no finite reference)."""
+    from scipy.stats import f as fdist
+    d2 = nu - p + 1
+    if not np.isfinite(nu) or d2 <= 0:
+        return float("nan")
+    return float(p * nu / d2 * fdist.ppf(1 - alpha, p, d2))
+
+
+def disturb_obs(obs, size, s=1.0, du=0.0):
+    """Exact model change applied to observed pixels: a focal change by factor s about the
+    image centre p (f -> s f, c -> p + s (c - p), k1 unchanged) and a principal-point shift
+    of du pixels in u. Both keep the pinhole-plus-radial model closed."""
+    p = np.array([size[0] / 2.0, size[1] / 2.0])
+    out = p + s * (np.asarray(obs, float) - p)
+    out[..., 0] += du
+    return out
+
+
+def disturb_solution(theta, cov, size, s=1.0, du=0.0):
+    """The same change applied to a solution (f, cx, cy) and its 3x3 covariance."""
+    p = np.array([size[0] / 2.0, size[1] / 2.0])
+    f, cx, cy = theta
+    t = np.array([s * f, p[0] + s * (cx - p[0]) + du, p[1] + s * (cy - p[1])])
+    return t, (s * s) * np.asarray(cov)
+
+
+def update_test(th_old, cov_old, th_new, cov_new, kappa=1.0, idx=(0, 1, 2)):
+    """Chi-square of the change between two independent estimates on the parameters idx."""
+    i = list(idx)
+    d = np.asarray(th_new, float)[i] - np.asarray(th_old, float)[i]
+    C = kappa ** 2 * (np.asarray(cov_old)[np.ix_(i, i)] + np.asarray(cov_new)[np.ix_(i, i)])
+    return float(d @ np.linalg.solve(C, d))
+
+
+def decide(chi2, sf_new, f_new, crit=CHI2_3_99, gate=0.005):
+    """keep (no change detected), adopt (detected, new is precise) or flag (detected, imprecise)."""
+    if chi2 <= crit:
+        return "keep"
+    return "adopt" if sf_new / f_new <= gate else "flag"

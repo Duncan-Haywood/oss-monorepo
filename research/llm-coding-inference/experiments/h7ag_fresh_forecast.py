@@ -41,6 +41,8 @@ ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 import h3_llm_width as H3  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED = 20261111
 PREVS = (0.02, 0.05, 0.10)
@@ -70,9 +72,9 @@ def counts(h, f):
 
 
 def one(f, human, n, truth, rr, tau, guard, ng):
-    pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE * n))
+    pilot = rr.sample(range(len(f)), round(A.PILOT_SHARE_PRE7AR * n))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, n, tau=tau, guard=guard, neg_guard=ng)
+    plan = A.plan_audit_pre7ar(f, labels, n, tau=tau, guard=guard, neg_guard=ng, width_margin=None)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]
@@ -88,7 +90,7 @@ def main():
         tp, fn, fp = counts(h, f)
         N, truth = len(h), sum(h) / len(h)
         for n in NS:
-            pilot = round(A.PILOT_SHARE * n)
+            pilot = round(A.PILOT_SHARE_PRE7AR * n)
             q = 100 * A.cells_probability(pilot, tp, fn, fp, N)
             head = f"{cname} | {prev} | {n} | {N} | {truth:.4f} | {A.informedness(h, f):.3f} | {pilot} | {q:.1f}"
             if mode == "forecast":

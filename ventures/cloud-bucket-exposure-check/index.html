@@ -159,7 +159,7 @@ node check.mjs --provider azure --bucket your-container --account your-storage-a
 
 <script type="module">
   import { buildReport } from './engine.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -227,7 +227,7 @@ node check.mjs --provider azure --bucket your-container --account your-storage-a
     }
     render(report);
     els.status.textContent = '';
-    recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+    recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, event);
   }
 
   $('#check').addEventListener('click', () => {
@@ -266,8 +266,8 @@ node check.mjs --provider azure --bucket your-container --account your-storage-a
   {
     const usageControl = document.getElementById('usageOptOut');
     if (usageControl) {
-      usageControl.checked = readOptOut(localStorage);
-      usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+      usageControl.checked = readOptOut(usageStorage());
+      usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
     }
   }
 </script>

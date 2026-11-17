@@ -1,0 +1,13 @@
+cell-fidelity milestone 5y: the power law fitted to R (the plating feedback removed, 5x) on every pool, no constant
+fitted; fresh pools: 64 Sobol designs (seed 17) x 3 conditions, DFN (SEI + plating) to cycle 100;
+ranks on 5w's held-out split (8 calibration designs, random.Random(0)) so the one-constant map can be compared
+
+condition              n drop   law |lnerr| law     5x   Rpow signed Rpow rhoE raw   sqrt    law    one     5x   Rpow  trueL   rhoL  lost  fade
+Ai2020@0.55x          64    0  sqrt       0.178  0.323  0.102      +0.102    0.947  0.739  0.809  0.958  0.974  0.875  0.963  0.984 0.302 0.436
+NCA_Kim2011@0.75x     64    0 power       0.297  0.038  0.038      -0.038    0.933 -0.080 -0.359  0.623  0.819  0.819  0.958  0.999 0.480 0.335
+NCA_Kim2011@1x        64    0 power       0.311  0.024  0.024      -0.015    0.958 -0.561 -0.265  0.839  0.933  0.933  0.960  0.996 0.442 0.322
+
+H135 (power law on R: median |ln err| at cycle 99 below the uncorrected pool law's on all 3): supported (3 of 3, sign p = 0.250)
+H136 (that median at most 0.10 on all 3; refuted above 0.15 on any): mixed (2 of 3)
+H137 (its map ranks held-out DFN@100 above 5n's sqrt fit on all 3 and within 0.05 of the one-constant map on both NCA_Kim2011 pools): supported (above sqrt 3, within 0.05 of one-constant on NCA_Kim2011 2)
+H138 (no worse than 5x by more than 0.03 on all 3, better on Ai2020): supported (3 of 3; better on Ai2020: True)

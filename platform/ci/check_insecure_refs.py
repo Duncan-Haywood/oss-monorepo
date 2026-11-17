@@ -104,13 +104,16 @@ def main(argv=None):
     root = Path(args.root)
     bad, pages = [], 0
     for page in sorted([*root.rglob("*.html"), *root.rglob("*.css")]):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, u) for u in insecure(page)]
     for page, u in bad:
         print(f"{page}: {u}")
     print(f"{pages} pages, {len(bad)} plain-http loaders")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

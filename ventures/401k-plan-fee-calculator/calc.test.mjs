@@ -65,3 +65,44 @@ test("high expense-ratio funds are named and CSV totals match", () => {
   const csv = toCsv(r);
   assert.match(csv, new RegExp(`total,${r.total.toFixed(2)},`));
 });
+
+// Red team 2026-11-14: "[\d,]+" read "$,-$,: 1" as a 0-0 band and "1.2.3%" as NaN, with no error.
+test("benchmark bands need real numbers: commas only between thousands", () => {
+  for (const bad of ["$,-$,: 1", "1,,000-5000: 1", "0-5,00: 1", "0-1000: 1.2.3", "0-1000: ."]) {
+    assert.ok(parseBenchmarks(bad).errors.length, bad);
+  }
+  const ok = parseBenchmarks("$0-$1,000,000: 1.25%\n1,000,001+: .5");
+  assert.deepEqual(ok.errors, []);
+});
+
+test("expense ratios up to 5% are taken; above 5% is called a typo", () => {
+  assert.deepEqual(parseFunds("A, 1000, 5").errors, []);
+  assert.match(parseFunds("A, 1000, 5.5").errors[0], /looks wrong/);
+});
+
+test("a $1 fee line is listed, a $0 one is dropped", () => {
+  const r = plan({ ...sampleInput(), otherFlat: 1, advisorFlat: 0 });
+  assert.ok(r.lines.some((l) => l.label.startsWith("TPA") && l.amount === 1));
+  assert.ok(!r.lines.some((l) => l.label === "Advisor, flat"));
+});
+
+test("no employer-paid sentence when the employer pays nothing", () => {
+  assert.ok(!plan({ ...sampleInput(), employerPaid: 0 }).advice.some((a) => /employer pays/.test(a)));
+  assert.ok(plan({ ...sampleInput(), employerPaid: 1000 }).advice.some((a) => /employer pays \$1,000/.test(a)));
+});
+
+test("csv percent column is each line over assets", () => {
+  const r = plan(sampleInput());
+  const csv = toCsv(r);
+  for (const l of r.lines) assert.ok(csv.includes(`${l.amount.toFixed(2)},${((l.amount / r.assets) * 100).toFixed(3)}`), l.label);
+  assert.match(csv, /^Fund expense ratios,\d+\.\d\d,0\.\d{3}$/m);
+});
+
+// Red team 2026-11-14: `num(grossReturn) || 6` turned a typed 0% return into 6%.
+test("a typed 0% gross return is used, blank means the 6% default", () => {
+  assert.equal(plan({ ...sampleInput(), grossReturn: "0" }).gross, 0);
+  assert.equal(plan({ ...sampleInput(), grossReturn: 0 }).gross, 0);
+  assert.equal(plan({ ...sampleInput(), grossReturn: "" }).gross, 6);
+  assert.equal(plan({ ...sampleInput(), grossReturn: undefined }).gross, 6);
+  assert.equal(plan({ ...sampleInput(), grossReturn: "abc" }).gross, 6);
+});

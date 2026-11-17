@@ -59,7 +59,9 @@ const STOP = new Set(("the and for are but not you your this that with have has 
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   // Some exports are tab or semicolon separated; take the delimiter the header line uses most.
   const head = src.split(/\r?\n/, 1)[0] || "";
@@ -69,18 +71,18 @@ export function parseCsv(text) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -92,7 +94,9 @@ export function parseDate(value) {
     ? s.replace(" ", "T") + (s.length > 10 ? "" : "T00:00:00") + (s.endsWith("Z") ? "" : "Z")
     : s;
   const d = new Date(iso);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  const ymd = iso !== s || /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2})?Z$/.test(s) ? s.slice(0, 10) : null;
+  return Number.isNaN(d.getTime()) || (ymd && d.toISOString().slice(0, 10) !== ymd) ? null : d;
 }
 
 export function parseRating(value) {
@@ -122,10 +126,10 @@ export function normalizeRows(rows) {
     const row = rows[r];
     const get = (k) => (col[k] === undefined ? "" : String(row[col[k]] ?? "").trim());
     const rating = parseRating(get("rating"));
-    if (rating === null) { skipped.push({ line: r + 1, reason: "no readable 1-5 rating" }); continue; }
+    if (rating === null) { skipped.push({ line: rows[r].line ?? r + 1, reason: "no readable 1-5 rating" }); continue; }
     const date = col.date === undefined ? null : parseDate(get("date"));
     reviews.push({
-      line: r + 1, rating, date,
+      line: rows[r].line ?? r + 1, rating, date,
       text: [get("title"), get("text")].filter(Boolean).join(". "),
       version: get("version") || "", reply: get("reply"), country: get("country"),
     });

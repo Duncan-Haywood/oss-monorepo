@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGfZSBFMt7S29iYM5B",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T03:06:50Z",
+  "ended": "2026-11-17T03:36:21Z",
+  "wall_minutes": 29.73,
+  "tokens_in": 6291318,
+  "tokens_out": 42218,
+  "cost_usd": 3.3188,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16794",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/experiments/m37_preload/run.py",
+      "issue": "Starting from a copy of the previous milestone's ~550-line run.py works, but the shared setup (poses, contact, signs, rows) is duplicated across m30-m38; a shared setup module would make each new milestone smaller and less error-prone."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes hands off after 100 s and exits 3 even when everything passes; you need a second wait_for call on the detached log to see 'DONE exit 0'. Expected, but the exit code 3 reads like a failure at first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md (milestone 38 plan)",
+      "why": "The registered squeeze rule kept every arm joint inside its MJCF torque limit, but the smoke run showed that the G1's right wrist pitch already exceeds its 5 N m limit at 7 of 14 poses with no squeeze, so that rule had no solution.",
+      "did": "Before the full run, relaxed the rule so the squeeze may not push any arm joint beyond the larger of its limit and its unsqueezed torque. Disclosed in LOG, README and the code comment, and reported the over-limit wrist as a finding.",
+      "result": "Every margin is finite. The hypotheses were evaluated on the relaxed rule, which the LOG states."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-robot-two-hand-squeeze-arm-preload.md",
+    "research/buildbot-sheathing/LOG.md (milestone 38 planned and result entries)"
+  ],
+  "goal": null,
+  "notes": "Programme draw: buildbot-sheathing, milestone 38 (two-hand squeeze as the arm preload). The full run took 633 s on 4 processes. Checks: S=0 reproduces milestone 37's m=0.1 rows exactly; squeeze leaks 1e-16 into base/legs/waist. H141, H143, H144 and H145 held; H142 was refuted. Local verification: project tests 196 passed and 4 skipped; check_numbers 316/316; homepage build ok; md links ok; post front matter ok; run_workflow_locally --for-changes DONE exit 0 (research-ci 3/3).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e5b002ea-44e4-57e3-b896-50b6e68f76d1",
+    "transcripts": 1,
+    "first": "2026-11-17T03:06:50Z",
+    "last": "2026-11-17T03:36:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 91,
+        "output": 42218,
+        "thinking": 11607,
+        "cache_read": 6135351,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155876,
+        "api_equivalent_usd": 3.3188,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 91,
+      "output": 42218,
+      "thinking": 11607,
+      "cache_read": 6135351,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155876,
+      "api_equivalent_usd": 3.3188,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 45,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.73,
+      "active_minutes": 29.73,
+      "model_minutes": 7.3,
+      "tool_minutes": 22.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a robotics researcher deriving the squeeze statics, coding it into the existing MuJoCo pipeline, running and writing up one milestone",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 301.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

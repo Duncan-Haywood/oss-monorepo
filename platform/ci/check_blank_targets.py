@@ -42,13 +42,16 @@ def main(argv=None):
     args = ap.parse_args(argv)
     bad, pages = [], 0
     for page in sorted(Path(args.root).rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, t) for t in unsafe(page)]
     for page, t in bad:
         print(f"{page}: {t[:120]}")
     print(f"{pages} pages, {len(bad)} _blank links without rel=noopener")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyetqmMEAVC7sYZ56bp",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T02:39:06Z",
+  "ended": "2026-11-16T03:01:32Z",
+  "wall_minutes": 22.59,
+  "tokens_in": 5379666,
+  "tokens_out": 37072,
+  "cost_usd": 2.7579,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16425",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "One Ai2020@0.65x DFN run was killed for memory at 3 workers (exit -9) and re-run with 1 worker; known and documented in the 5za Reproduce line.",
+    "My first self-consistency test built its synthetic curve on the predictor's own coarse 64-point grid (2.5% error); fixed by generating the curve on a fine grid."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py for pybamm returned /usr/bin/python3.13 at once (it already had pybamm 26.10.1.1); worth saying that the system python3.13 carries pybamm, so cell-fidelity runs need no install."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-battery-fade-law-shaped-by-plating-kinetics.md",
+    "research/cell-fidelity/LOG.md (5zb plan + outcome)"
+  ],
+  "goal": null,
+  "notes": "Routed research/0, drew programme cell-fidelity. Milestone 5zb: pre-registered a kinetics-shaped ten-cycle law (line in n through R_Q = int exp(kappa dU) Q0/Q dl) on 128 fresh DFN designs (seed 20, new currents). It beat 5y's power law on 4/4 pools and on 122/128 designs (Ai2020 0.150->0.076, NCA 0.078->0.024, LG M50 0.31-0.33 -> 0.24-0.26). H147, H149, H150 and H151 supported; H148 mixed. Checks: test_kinetic + test_surface pass, build.py ok, research_live_links, check_md_links, post front matter/links/similarity, programme_check all ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b9d7562b-56e3-59d4-9e50-765a1bd62fdf",
+    "transcripts": 1,
+    "first": "2026-11-16T02:39:06Z",
+    "last": "2026-11-16T03:01:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 95,
+        "output": 37072,
+        "thinking": 8961,
+        "cache_read": 5259034,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120537,
+        "api_equivalent_usd": 2.7579,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 95,
+      "output": 37072,
+      "thinking": 8961,
+      "cache_read": 5259034,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120537,
+      "api_equivalent_usd": 2.7579,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.59,
+      "active_minutes": 22.59,
+      "model_minutes": 5.8,
+      "tool_minutes": 16.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a battery-modelling researcher designing the law, running 128 DFN runs, analysing and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 362.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

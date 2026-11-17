@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVL1AkctBrPoK1SFB5b",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products)",
+  "input_sha256": "d06985287d402957a41f6a151c3bedfc2a633c6c4ef4d3b85a37ca1e6f2013bc",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T00:15:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "flagship 7 photo-editing BUILDABLE item: lensfun lens correction for raws with none",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15302",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing's eval notes said the DJI DNG name was unknown without a directory listing; a blob-less sparse git clone of the collection lists every file (DJI Phantom 4 (1).dng, Leica X VARIO (Typ 107).dng) from a cloud session."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Allocator's session pick was changepoint-detector (112 commits in 7 days, next items mostly need fresh labelled data); took row 5, photo-editing, whose BUILDABLE HERE item needed no outside input and had no open PR.",
+      "did": "built lensfun lens correction for photo-editing",
+      "result": "landed with tests and a real-file check"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-volunteer-lens-profile-against-the-makers-own.md",
+    "ventures/photo-editing/eval/lensfun-correction-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Ported lensfun's matching, Hermite focal interpolation and coordinate rescaling (from its C++ source) into src/shootflow/lens_profiles.py; correction becomes an exact WarpRectilinear2. Checks: tests/test_lens_profiles.py 17 pass (warp within 1e-7 px of lensfun's pipeline written out separately); run_venture_tests.py photo-editing ok (91.6 s); all 6,500 lensfun calibrations build; 1,576/1,580 lenses self-match (4 match an alias); real 600D CR2 developed end to end in 9.5 s half size; Leica X Vario 46 mm lensfun vs camera warp differ up to 8.1 px after zoom matching (camera's own correction <=3.8 px). warp_preview_check.py fixed to undo EXIF orientation (Leica T unchanged: 444 patches, 4.2 -> 0.18 px).",
+  "corrections": [],
+  "redteam": null
+}

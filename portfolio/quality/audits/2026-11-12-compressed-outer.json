@@ -1,0 +1,247 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/compressed-outer",
+ "stratum": "research",
+ "round": 52,
+ "seed": "2026-11-12-k",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit round 52",
+ "status": "audited",
+ "professional": "a referee for an optimization-for-ML venue (OPT / NeurIPS workshop, or TMLR) working on communication-compressed distributed SGD (QSGD-style unbiased compressors, local SGD / DiLoCo, dithered quantisation in federated learning). They would check first that the stationary-variance recursion is right (an independent derivation, not the author's), that the bandwidth accounting is the rate a real system pays (with a shared dither seed the Zamir-Feder conditional entropy H(K|U), not H(K)), that the fixed-bandwidth comparison has a fair baseline, and how the work sits against Alistarh et al. 2017 (QSGD), Wangni et al. 2018, Basu et al. 2019 (Qsparse-local-SGD), Reisizadeh et al. 2020 (FedPAQ), Shlezinger et al. 2021 (UVeQFed) and Douillard et al. 2023/2025 (DiLoCo, Streaming DiLoCo with quantised outer gradients).",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Recomputed with my own numpy script (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/indep.py, imports nothing from the subject). (1) Sparse floor by explicit enumeration of the kept count K~Bin(M,r) (E[(1-alpha s K/(M r))^2] summed over the binomial, not the closed form): M=6, alpha=0.8, r=0.2 -> 0.25000, r=0.5 -> 0.06250, equal to results.txt table 1. (2) Stability limit by bisection on the enumerated contraction: M=8, r=0.1 -> alpha s max 0.94118 = 2/c, table 3 says 0.941. (3) Dither floor by a vectorised numpy Monte Carlo (20,000 chains, different RNG): D=2 -> 0.06478 +- 0.00012 vs 0.06481. (4) Entropy of the dithered index by quadrature over u instead of over w: delta 3.5151 -> H(K)=1.0001, delta 1.1395 -> 2.0000, delta 9.4929 -> 0.5003, delta 0.2597 -> 4.0002, matching table 5's R column. (5) Bandwidth-factor minimum with my own entropy + bisection: argmin R=1.30, factor 1.8704, f(8)=8.0002, f(1)=2.0299, matching table 6 (1.8703, 8.0002, 2.0296). (6) Participation: research/partial-participation's own floor_fixed (a different module) gives 0.00893/0.01852/0.04000 at p=1/0.5/0.25, matching table 2. (7) By hand: high-res law pi e/6 * 4^-1 = 0.35582 and rounds to 1e-6 at c=2.125: ln 1e-6/ln(1-1/2.125) = 21.72. experiments/run.py re-run in 2 m 50 s: byte-identical to experiments/results.txt. Not 4: the quantity labelled the bandwidth (R = H(K)) is computed correctly but is not the rate the stated shared-seed scheme needs (see domain), and the 1%-from-3-bits sentence is wrong.",
+  "completeness": "Each README item checked end to end: 10 tests (README says 10) pass in 6.0 s (README ~5 s); experiments/run.py reproduces results.txt byte-for-byte (diff empty, 2 m 50 s vs README ~4 min); experiments/figure.py and floor_vs_workers.svg present. All seven paper results map to results.txt sections and recompute. No stubs or TODOs. The live page https://marisstella.app/research/compressed-outer/ could not be loaded from this container (curl returned 000 through the proxy), so the served page is unchecked.",
+  "verification": "`cd research/compressed-outer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests -v`: Ran 10 tests in 5.991s, OK. The tests check closed forms against literal simulation (3% tolerance), against the partial-participation Rule B formula, and the entropy quadrature against sampling and the high-resolution law: a real cross-check, not a copy. Four mutations via platform/ci/quality_mutate.py: dither_noise /12 -> /11 caught; best_contraction 1-1/c -> 1-1/c^2 caught; delta_for_rate bisection threshold > R -> >= R+0.01 caught; bandwidth_factor Vq/(sd*sd) -> Vq/sd SURVIVED (every test and run.py use sd=1, so the scaling is never exercised; no shipped number changes). 3 of 4 caught.",
+  "craft": "Read src/compressed_outer/model.py (187 lines), tests/test_model.py (84), experiments/run.py (65), experiments/figure.py. Small, dependency-free, docstrings state each formula. Minor: tests and run.py use `from compressed_outer import *`; __all__ is a 200-character line; rounds_to packs two conditionals in one nested ternary; dither_entropy is pure-Python midpoint quadrature (64 sub-points per bin) inside an 80-step bisection, which is why run.py takes ~3 minutes; bandwidth_factor's sd argument is untested. No dead code or silent fallbacks found.",
+  "claims": "Backed: README/paper floor formulas and stability limit (my enumeration); 'reproduces partial-participation's Rule B exactly' (its own module, 3 points); result 1 numbers 0.94/0.53/22/0.22/0.16 (table 3, by hand); result 4 0.0417 -> 0.0500 and M<7.2 (table 4); result 5 floor factors 8.00/4.02/3.07/2.22/1.87/4.25 and '~4x below 8-bit' (8/1.87=4.28), '8.5x below sparse 16-bit' (16/1.870=8.55); 'matches to 0.2% at 300k rounds' (max ratio 1.002). Not backed: whitepaper.md:16 'the textbook high-resolution law is right to 1% from 3 bits' -- at 3 bits exact/high-res = 1.0465 (4.7%), at 4 bits 1.011; whitepaper.md:18 calls the section-7 runs 'near-critical', but they are at alpha s = 0.05 (limit 2), the small-step regime, and no Monte Carlo error bars are given for the 3.1% gap; R is called the bandwidth without saying it ignores the shared dither (an upper bound on the needed rate); whitepaper.md:24 lists `quantized-reports` as a companion, but that project is about probability reports under proper scoring rules, unrelated. No prior work is cited in README or paper, so novelty is claimed by omission for results that are largely standard (the 1 + omega/M variance factor is QSGD's; quantised local SGD with partial participation is FedPAQ).",
+  "fitness": "A researcher could reuse the exact one-mode floor and stability formulas (independently confirmed) and the bits-versus-workers framing. Nearest prior work: Alistarh et al. 2017 (QSGD: unbiased compressors with variance omega, the (1+omega/M) aggregation factor), Wangni et al. 2018 (random sparsification, omega=1/r-1), Basu et al. 2019 and Reisizadeh et al. 2020 (FedPAQ: local SGD with quantised updates and partial participation, which treats both noise sources together), Shlezinger et al. 2021 (UVeQFed: subtractive dithered quantisation for FL, rate via conditional entropy), Zamir and Feder 1992 (entropy of dithered quantisers), Douillard et al. 2023/2025 (DiLoCo; Streaming DiLoCo quantises outer gradients to 4 bits). What looks new is the exact quadratic stationary variance with the explicit alpha s c < 2 limit in the DiLoCo outer loop and the fixed-bandwidth optimum; but the headline optimum (1.3 bits, 1.87) is computed with a rate the stated scheme does not need: with H(K|U) the optimum moves to about 0.8 bits with factor 1.50 (5.3x below 8 bits, not 4x). A reader would have to redo the rate accounting and the literature placement before citing it. Short of the research/CLAUDE.md PhD bar: a 24-line whitepaper, one mode, no related-work section.",
+  "domain": "Compared against the information-theory standard for subtractive dither (Zamir and Feder 1992; Gray and Stockham 1993): when encoder and decoder share the dither (the paper's own model, whitepaper.md:9), the entropy-coded rate is the conditional entropy H(K|U), not H(K). My quadrature gives H(K|U)=0.740 bits at the delta the paper calls 1 bit, 0.275 at its 0.5 bits, 1.933 at 2 bits, so at low rates the paper overstates the bandwidth by up to ~45% and its optimum (R=1.3, factor 1.870) becomes R~0.8, factor 1.503. The direction of the conclusion (quantise coarsely, recruit workers) survives and strengthens, but the specific numbers do not. The fixed-bandwidth sparsification baseline sends uncompressed 16-bit values, a weak baseline: no sparsify-plus-quantise combination and no comparison to the Gaussian rate-distortion bound. The stationary-variance method (second-moment recursion on a quadratic) is standard and correctly applied."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Sparse floor M=6, alpha=0.8, r=0.2 and r=0.5 (table 1 exact column)",
+   "method": "independent derivation: explicit enumeration of kept count K~Bin(M,r) in numpy script, not the subject's closed form",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/indep.py",
+   "expected": "0.25000 / 0.06250 (indep)",
+   "observed": "results.txt: 0.25000 / 0.06250",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Largest stable alpha s at M=8, r=0.1 (table 3)",
+   "method": "bisection on the enumerated binomial contraction E[(1-alpha s K/(Mr))^2] < 1",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/indep.py",
+   "expected": "0.94118 (indep)",
+   "observed": "0.941",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Dither floor D=2, M=6, alpha=0.8 (table 1)",
+   "method": "vectorised numpy Monte Carlo, 20,000 chains x 300 rounds, independent RNG",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/indep.py",
+   "expected": "0.06478 +- 0.00012 (MC)",
+   "observed": "0.06481",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Entropy of dithered index at the deltas of table 5",
+   "method": "quadrature over the dither u of Gaussian CDF differences (numpy), the subject integrates over w",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/indep.py",
+   "expected": "delta 3.5151 -> 1.0001; 1.1395 -> 2.0000; 9.4929 -> 0.5003",
+   "observed": "R = 1.0, 2.0, 0.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Fixed-bandwidth quantisation optimum (table 6, headline 1.3 bits)",
+   "method": "own entropy quadrature + bisection for delta + grid over R",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/indep.py",
+   "expected": "argmin R=1.30, factor 1.8704, f(8)=8.0002",
+   "observed": "R=1.30, factor 1.8703, f(8)=8.0002",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Participation floors equal partial-participation Rule B (table 2)",
+   "method": "research/partial-participation model.floor_fixed (separate module), a=2, eta=0.5, H=1, N=12, alpha=0.6",
+   "command": "python3 -c 'pp.floor_fixed([2.0],0.5,1.0,12,p,1,0.6)/1.0'",
+   "expected": "0.00893 / 0.01852 / 0.04000",
+   "observed": "0.00893 / 0.01852 / 0.04000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "High-resolution law at R=1 and rounds to 1e-6 at c=2.125",
+   "method": "by hand: (pi e/6) 4^-R (Gish-Pierce / Cover-Thomas); ln(1e-6)/ln(1-1/c)",
+   "command": "python3 -c 'math.pi*math.e/6/4; math.log(1e-6)/math.log(1-1/2.125)'",
+   "expected": "0.35582; 21.72",
+   "observed": "0.3558; 21.7",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Rate of the shared-seed dithered quantiser: H(K|U) vs the paper's H(K)",
+   "method": "Zamir and Feder 1992: with the dither known to the decoder the entropy-coded rate is H(K|U); numpy quadrature",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/cond.py",
+   "expected": "rate at delta 3.5151 = 0.740 bits; optimum R~0.8, factor 1.503",
+   "observed": "paper uses H(K)=1.0 bits; optimum 1.3 bits, factor 1.870",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiments/run.py reproduces experiments/results.txt",
+   "method": "re-run and diff",
+   "command": "cd research/compressed-outer && PYTHONPATH=src python3 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/results.txt; diff experiments/results.txt /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/co/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL, 2 m 50 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "cd research/compressed-outer && PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src python3 -m unittest discover -s tests -v",
+   "expected": "10 tests pass",
+   "observed": "Ran 10 tests in 5.991s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'high-resolution law is right to 1% from 3 bits'",
+   "method": "subject's own dither_noise(delta_for_rate(1,R))/dither_rate_penalty(R)",
+   "command": "python3 -c 'dither_noise(delta_for_rate(1.0,R))/dither_rate_penalty(R) for R in (3,4)'",
+   "expected": "<= 1.01 at R=3",
+   "observed": "1.0465 at R=3, 1.0112 at R=4",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'to 3% in the near-critical fixed-bandwidth runs' (section 7)",
+   "method": "read run.py section 7 parameters",
+   "command": "grep -n 'alpha=0.05' research/compressed-outer/experiments/run.py",
+   "expected": "alpha s near 2",
+   "observed": "alpha s = 0.05 (small-step); no error bars on the 3.1% gap (my estimate ~1.6% s.e., ~2 sigma)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Prior work cited and novelty positioned",
+   "method": "grep README and paper for citations",
+   "command": "grep -n -i -E 'et al|qsgd|diloco|zamir|fedpaq' research/compressed-outer/README.md research/compressed-outer/paper/whitepaper.md",
+   "expected": "related-work section",
+   "observed": "no citations at all",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'~4x below 8-bit reports' and '8.5x below sparse 16-bit'",
+   "method": "arithmetic on table 6",
+   "command": "python3 -c 'print(8/1.8703, 16/1.8703)'",
+   "expected": "4.28, 8.55",
+   "observed": "~4x, 8.5x",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page loads",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/compressed-outer/",
+   "expected": "200",
+   "observed": "000 (unreachable from container)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/compressed_outer/model.py:60",
+   "change": "return delta * delta / 12.0 -> return delta * delta / 11.0",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/compressed_outer/model.py:155",
+   "change": "return R * (1.0 + dither_noise(dl) / (sd * sd)) -> return R * (1.0 + dither_noise(dl) / sd)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/compressed_outer/model.py:85",
+   "change": "return 1.0 - 1.0 / c_factor(M, omega) -> return 1.0 - 1.0 / c_factor(M, omega) ** 2",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/compressed_outer/model.py:144",
+   "change": "if dither_entropy(sd, math.exp(mid)) > R: -> if dither_entropy(sd, math.exp(mid)) >= R + 0.01:",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Bandwidth is measured as the unconditional entropy H(K) of the dithered index, but the model has a shared dither seed, so the rate the scheme needs is H(K|U) (Zamir-Feder): 0.740 bits at the delta called 1 bit, 0.275 at '0.5 bits'. The headline optimum '1.3 bits, factor 1.87, ~4x below 8-bit' becomes ~0.8 bits, factor 1.50, ~5.3x. Conclusion direction survives; the numbers do not.",
+   "where": "research/compressed-outer/src/compressed_outer/model.py:123",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work is cited anywhere (QSGD, random sparsification, Qsparse-local-SGD, FedPAQ, UVeQFed, Zamir-Feder, DiLoCo/Streaming DiLoCo); the (1+omega/M) factor and quantised local SGD with partial participation are known, so novelty is claimed by omission.",
+   "where": "research/compressed-outer/paper/whitepaper.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "'The textbook high-resolution law is right to 1% from 3 bits': the code's own numbers give 4.7% at 3 bits and 1.1% at 4 bits.",
+   "where": "research/compressed-outer/paper/whitepaper.md:16",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Section-7 simulations are called 'near-critical' but run at alpha s = 0.05 (limit 2); the 3.1% gap is reported without a Monte Carlo error bar (s.e. ~1.6% by autocorrelation estimate).",
+   "where": "research/compressed-outer/paper/whitepaper.md:18",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Fixed-bandwidth sparsification baseline sends raw 16-bit values; no sparsify-plus-quantise baseline and no Gaussian rate-distortion bound, so '8.5x below sparsification' compares against a weak baseline.",
+   "where": "research/compressed-outer/experiments/run.py:53",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "bandwidth_factor's sd scaling is never exercised (all tests and run.py use sd=1): mutating Vq/(sd*sd) to Vq/sd survives.",
+   "where": "research/compressed-outer/src/compressed_outer/model.py:155",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Lists `quantized-reports` as a companion, but that project is about probability reports under proper scoring rules, unrelated to compressed SGD.",
+   "where": "research/compressed-outer/paper/whitepaper.md:24",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  15193
+ ],
+ "verdict": "Every number the code prints reproduces (run.py byte-identical) and the core formulas check out against independent derivations: binomial enumeration for the sparse floor and stability limit, a numpy Monte Carlo for the dither floor, a separate quadrature for the index entropy, and partial-participation's own Rule B module. Tests are real cross-checks (3 of 4 seeded bugs caught). It misses the bar on claims: no prior work is cited for results that are largely standard (QSGD's 1+omega/M, FedPAQ), and two sentences are wrong (1% from 3 bits is 4.7%; 'near-critical' runs are small-step). The main domain finding: with the paper's own shared dither seed, the rate is H(K|U), not H(K), which moves the headline bits-per-coordinate optimum from 1.3 bits (4x below 8-bit) to about 0.8 bits (5.3x). The qualitative advice holds and gets stronger. Finished as stated; not yet a PhD-level contribution."
+}

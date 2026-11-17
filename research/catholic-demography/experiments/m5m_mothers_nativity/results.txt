@@ -1,0 +1,446 @@
+module sample by mother nativity (unweighted): {'US mother': 5302, 'FB mother': 412}
+research/catholic-demography/experiments/m5h_fertility/run.py:134: RuntimeWarning: invalid value encountered in scalar divide
+  Rcell[j] = (ws[j] * rs[j]).sum() / ws[j].sum()
+
+t35_p_rho_by_nativity.csv (percent or points; rho as ratios; counts unweighted; shares of residual as fractions; sensitivities are point estimates)
+  group             quantity    est     lo     hi   g=24   g=32  p = raised Catholic
+   1880             p pooled 20.844 16.490 25.780 20.844 20.844               20.152
+   1880           rho pooled  1.184  1.008  1.418  1.184  1.184                1.184
+   1880          p FB mother 45.456 40.863 50.376 45.456 45.456               58.294
+   1880        rho FB mother  1.190  0.994  1.436  1.190  1.190                1.190
+   1880    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1880          p US mother 19.734 16.000 23.327 19.734 19.734               19.770
+   1880        rho US mother  1.116  0.925  1.300  1.116  1.116                1.116
+   1880    covered US mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1890             p pooled 20.844 16.490 25.780 20.844 20.844               20.152
+   1890           rho pooled  1.184  1.008  1.418  1.184  1.184                1.184
+   1890          p FB mother 45.456 40.863 50.376 45.456 45.456               58.294
+   1890        rho FB mother  1.190  0.994  1.436  1.190  1.190                1.190
+   1890    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1890          p US mother 19.734 16.000 23.327 19.734 19.734               19.770
+   1890        rho US mother  1.116  0.925  1.300  1.116  1.116                1.116
+   1890    covered US mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1900             p pooled 20.355 17.670 23.065 20.355 20.355               18.428
+   1900           rho pooled  1.119  0.973  1.277  1.119  1.119                1.119
+   1900          p FB mother 45.456 40.863 50.376 45.456 45.456               58.294
+   1900        rho FB mother  1.190  0.994  1.436  1.190  1.190                1.190
+   1900    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1900          p US mother 17.493 14.416 20.604 17.493 17.493               17.821
+   1900        rho US mother  1.116  0.925  1.300  1.116  1.116                1.116
+   1900    covered US mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1910             p pooled 21.565 19.924 23.159 21.565 21.565               21.491
+   1910           rho pooled  1.016  0.934  1.100  1.016  1.016                1.016
+   1910          p FB mother 45.456 40.863 50.376 45.456 45.456               58.294
+   1910        rho FB mother  1.190  0.994  1.436  1.190  1.190                1.190
+   1910    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1910          p US mother 20.417 18.758 22.158 20.417 20.417               19.503
+   1910        rho US mother  0.954  0.861  1.042  0.954  0.954                0.954
+   1910    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1920             p pooled 25.465 24.011 26.772 25.465 25.465               24.594
+   1920           rho pooled  1.030  0.980  1.079  1.030  1.030                1.030
+   1920          p FB mother 45.456 40.863 50.376 45.456 45.456               58.294
+   1920        rho FB mother  1.190  0.994  1.436  1.190  1.190                1.190
+   1920    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1920          p US mother 22.633 21.285 23.851 22.633 22.633               22.137
+   1920        rho US mother  0.974  0.919  1.029  0.974  0.974                0.974
+   1920    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1930             p pooled 24.828 23.552 26.066 24.828 24.828               25.192
+   1930           rho pooled  1.127  1.078  1.182  1.127  1.127                1.127
+   1930          p FB mother 45.456 40.863 50.376 45.456 45.456               58.294
+   1930        rho FB mother  1.112  0.945  1.318  1.112  1.112                1.112
+   1930    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1930          p US mother 22.649 21.197 23.942 22.649 22.649               22.404
+   1930        rho US mother  1.141  1.091  1.198  1.141  1.141                1.141
+   1930    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1940             p pooled 26.821 25.819 28.003 26.821 26.821               29.099
+   1940           rho pooled  1.106  1.060  1.160  1.106  1.106                1.106
+   1940          p FB mother 44.506 40.424 49.066 44.506 44.506               57.647
+   1940        rho FB mother  1.265  1.080  1.506  1.265  1.265                1.265
+   1940    covered FB mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1940          p US mother 23.958 22.837 25.170 23.958 23.958               24.954
+   1940        rho US mother  1.077  1.026  1.128  1.077  1.077                1.077
+   1940    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1950             p pooled 26.997 26.021 27.928 26.997 26.997               33.310
+   1950           rho pooled  1.121  1.078  1.162  1.121  1.121                1.121
+   1950          p FB mother 43.666 39.658 47.599 43.666 43.666               57.907
+   1950        rho FB mother  1.156  1.039  1.283  1.156  1.156                1.156
+   1950    covered FB mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1950          p US mother 24.181 23.167 25.196 24.181 24.181               29.743
+   1950        rho US mother  1.087  1.041  1.134  1.087  1.087                1.087
+   1950    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1960             p pooled 28.252 27.203 29.255 28.252 28.252               35.740
+   1960           rho pooled  1.101  1.044  1.162  1.101  1.101                1.101
+   1960          p FB mother 41.317 37.680 44.568 41.317 41.317               55.124
+   1960        rho FB mother  1.352  1.175  1.527  1.352  1.352                1.352
+   1960    covered FB mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1960          p US mother 26.022 24.967 26.965 26.022 26.022               32.578
+   1960        rho US mother  1.003  0.945  1.067  1.003  1.003                1.003
+   1960    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1970             p pooled 27.778 26.689 28.995 27.778 27.778               34.792
+   1970           rho pooled  0.940  0.881  1.007  0.940  0.940                0.940
+   1970          p FB mother 43.621 39.905 47.063 43.621 43.621               53.023
+   1970        rho FB mother  0.938  0.814  1.064  0.938  0.938                0.938
+   1970    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1970          p US mother 23.970 22.792 25.114 23.970 23.970               30.298
+   1970        rho US mother  0.935  0.856  1.012  0.935  0.935                0.935
+   1970    covered US mother  1.000    NaN    NaN  1.000  1.000                1.000
+   1980             p pooled 23.093 21.721 24.407 23.093 23.093               34.103
+   1980           rho pooled  1.045  0.897  1.187  1.045  1.045                1.045
+   1980          p FB mother 36.146 31.882 40.294 36.146 36.146               50.435
+   1980        rho FB mother  0.938  0.814  1.064  0.938  0.938                0.938
+   1980    covered FB mother  0.000    NaN    NaN  0.000  0.000                0.000
+   1980          p US mother 19.848 18.501 21.131 19.848 19.848               30.140
+   1980        rho US mother  0.952  0.818  1.077  0.952  0.952                0.952
+   1980    covered US mother  0.000    NaN    NaN  0.000  0.000                0.000
+1900-39 mean rho FB - rho US  0.162 -0.005  0.370  0.162  0.162                0.162
+
+t36_module_by_nativity.csv (percent or points; rho as ratios; counts unweighted; shares of residual as fractions; sensitivities are point estimates)
+              group                            quantity      est      lo     hi     g=24     g=32  p = raised Catholic
+      all 1900-1924                                   n  600.000     NaN    NaN  600.000  600.000              600.000
+      all 1900-1924                   R raised Catholic   23.195  20.505 26.423   23.195   23.195               23.195
+      all 1900-1924                   M mother Catholic   25.174  22.068 28.302   25.174   25.174               25.174
+      all 1900-1924            M_model pooled (m5h/m5l)   23.939  18.031 29.928   23.614   23.771               23.250
+      all 1900-1924          M_gen (by mother nativity)   26.181  21.867 30.856   25.967   26.181               28.298
+      all 1900-1924                  M - M_model pooled    1.234  -5.711  7.468    1.560    1.402                1.923
+      all 1900-1924       M - M_gen (mothers miss left)   -1.008  -6.094  3.858   -0.793   -1.008               -3.124
+      all 1900-1924           R - M_gen (residual left)   -2.986  -8.052  2.216   -2.772   -2.986               -5.103
+      all 1900-1924                R - M (transmission)   -1.978  -3.335 -0.479   -1.978   -1.978               -1.978
+      all 1900-1924 transmission share of residual left    0.663  -4.536  6.838    0.714    0.663                0.388
+      all 1925-1944                                   n 1147.000     NaN    NaN 1147.000 1147.000             1147.000
+      all 1925-1944                   R raised Catholic   24.538  22.185 26.553   24.538   24.538               24.538
+      all 1925-1944                   M mother Catholic   24.685  22.623 26.715   24.685   24.685               24.685
+      all 1925-1944            M_model pooled (m5h/m5l)   22.610  20.796 24.275   23.220   22.667               21.941
+      all 1925-1944          M_gen (by mother nativity)   22.035  19.826 24.095   22.369   21.648               22.765
+      all 1925-1944                  M - M_model pooled    2.075  -0.497  4.882    1.465    2.018                2.744
+      all 1925-1944       M - M_gen (mothers miss left)    2.650  -0.158  5.662    2.316    3.037                1.920
+      all 1925-1944           R - M_gen (residual left)    2.503  -0.262  5.509    2.169    2.890                1.773
+      all 1925-1944                R - M (transmission)   -0.147  -0.973  0.632   -0.147   -0.147               -0.147
+      all 1925-1944 transmission share of residual left   -0.059  -2.147  1.003   -0.068   -0.051               -0.083
+      all 1945-1964                                   n 2331.000     NaN    NaN 2331.000 2331.000             2331.000
+      all 1945-1964                   R raised Catholic   30.842  29.034 32.466   30.842   30.842               30.842
+      all 1945-1964                   M mother Catholic   29.917  28.377 31.518   29.917   29.917               29.917
+      all 1945-1964            M_model pooled (m5h/m5l)   26.996  25.793 28.143   27.564   26.210               26.995
+      all 1945-1964          M_gen (by mother nativity)   25.122  24.005 26.163   25.530   24.696               25.084
+      all 1945-1964                  M - M_model pooled    2.921   1.113  5.047    2.353    3.708                2.923
+      all 1945-1964       M - M_gen (mothers miss left)    4.795   2.813  6.801    4.387    5.222                4.833
+      all 1945-1964           R - M_gen (residual left)    5.719   3.609  7.752    5.312    6.146                5.758
+      all 1945-1964                R - M (transmission)    0.924   0.266  1.481    0.924    0.924                0.924
+      all 1945-1964 transmission share of residual left    0.162   0.046  0.276    0.174    0.150                0.161
+      all 1965-1980                                   n 1177.000     NaN    NaN 1177.000 1177.000             1177.000
+      all 1965-1980                   R raised Catholic   34.466  32.337 36.768   34.466   34.466               34.466
+      all 1965-1980                   M mother Catholic   33.053  30.752 35.296   33.053   33.053               33.053
+      all 1965-1980            M_model pooled (m5h/m5l)   29.016  27.952 30.066   29.492   28.426               32.705
+      all 1965-1980          M_gen (by mother nativity)   27.223  26.165 28.399   27.582   26.764               30.456
+      all 1965-1980                  M - M_model pooled    4.037   1.537  6.422    3.561    4.627                0.348
+      all 1965-1980       M - M_gen (mothers miss left)    5.830   3.297  8.197    5.471    6.289                2.597
+      all 1965-1980           R - M_gen (residual left)    7.243   4.814  9.616    6.884    7.701                4.009
+      all 1965-1980                R - M (transmission)    1.413   0.339  2.572    1.413    1.413                1.413
+      all 1965-1980 transmission share of residual left    0.195   0.048  0.385    0.205    0.183                0.352
+      all 1981-1999                                   n  459.000     NaN    NaN  459.000  459.000              459.000
+      all 1981-1999                   R raised Catholic   34.471  30.933 37.878   34.471   34.471               34.471
+      all 1981-1999                   M mother Catholic   35.142  31.154 39.210   35.142   35.142               35.142
+      all 1981-1999            M_model pooled (m5h/m5l)   29.100  27.960 30.330   28.639   29.348               36.508
+      all 1981-1999          M_gen (by mother nativity)   28.637  27.349 29.904   27.996   29.101               36.081
+      all 1981-1999                  M - M_model pooled    6.043   1.774 10.174    6.504    5.794               -1.366
+      all 1981-1999       M - M_gen (mothers miss left)    6.505   2.555 10.259    7.146    6.041               -0.939
+      all 1981-1999           R - M_gen (residual left)    5.834   2.303  9.289    6.475    5.370               -1.610
+      all 1981-1999                R - M (transmission)   -0.671  -2.999  1.703   -0.671   -0.671               -0.671
+      all 1981-1999 transmission share of residual left   -0.115  -0.854  0.298   -0.104   -0.125                0.417
+      all 1925-1964                                   n 3478.000     NaN    NaN 3478.000 3478.000             3478.000
+      all 1925-1964                   R raised Catholic   28.715  27.156 30.118   28.715   28.715               28.715
+      all 1925-1964                   M mother Catholic   28.152  26.747 29.459   28.152   28.152               28.152
+      all 1925-1964            M_model pooled (m5h/m5l)   25.516  24.511 26.518   26.098   25.014               25.290
+      all 1925-1964          M_gen (by mother nativity)   24.081  23.006 25.167   24.464   23.668               24.301
+      all 1925-1964                  M - M_model pooled    2.636   1.035  4.202    2.054    3.138                2.862
+      all 1925-1964       M - M_gen (mothers miss left)    4.071   2.496  5.633    3.688    4.484                3.851
+      all 1925-1964           R - M_gen (residual left)    4.634   2.830  6.217    4.251    5.047                4.413
+      all 1925-1964                R - M (transmission)    0.563  -0.012  1.009    0.563    0.563                0.563
+      all 1925-1964 transmission share of residual left    0.121  -0.005  0.230    0.132    0.112                0.128
+      all 1965-1999                                   n 1636.000     NaN    NaN 1636.000 1636.000             1636.000
+      all 1965-1999                   R raised Catholic   34.467  32.661 36.419   34.467   34.467               34.467
+      all 1965-1999                   M mother Catholic   33.664  31.744 35.715   33.664   33.664               33.664
+      all 1965-1999            M_model pooled (m5h/m5l)   29.041  28.161 29.876   29.242   28.696               33.817
+      all 1965-1999          M_gen (by mother nativity)   27.636  26.728 28.569   27.703   27.448               32.101
+      all 1965-1999                  M - M_model pooled    4.623   2.577  6.620    4.422    4.968               -0.153
+      all 1965-1999       M - M_gen (mothers miss left)    6.028   3.970  8.019    5.961    6.216                1.563
+      all 1965-1999           R - M_gen (residual left)    6.831   4.944  8.794    6.764    7.020                2.366
+      all 1965-1999                R - M (transmission)    0.803  -0.353  1.897    0.803    0.803                0.803
+      all 1965-1999 transmission share of residual left    0.118  -0.059  0.291    0.119    0.114                0.339
+FB mother 1900-1924                                   n  100.000     NaN    NaN  100.000  100.000              100.000
+FB mother 1900-1924                   R raised Catholic   54.939  48.074 62.265   54.939   54.939               54.939
+FB mother 1900-1924                   M mother Catholic   61.765  54.946 68.856   61.765   61.765               61.765
+FB mother 1900-1924            M_model pooled (m5h/m5l)   23.869  17.779 30.115   23.755   23.771               23.150
+FB mother 1900-1924          M_gen (by mother nativity)   49.803  43.462 56.334   49.803   49.803               62.462
+FB mother 1900-1924                  M - M_model pooled   37.896  28.233 47.145   38.010   37.994               38.615
+FB mother 1900-1924       M - M_gen (mothers miss left)   11.962   1.975 21.740   11.962   11.962               -0.697
+FB mother 1900-1924           R - M_gen (residual left)    5.137  -4.980 14.690    5.137    5.137               -7.523
+FB mother 1900-1924                R - M (transmission)   -6.825 -10.840 -3.286   -6.825   -6.825               -6.825
+FB mother 1900-1924 transmission share of residual left   -1.329 -14.381 22.600   -1.329   -1.329                0.907
+FB mother 1925-1944                                   n   72.000     NaN    NaN   72.000   72.000               72.000
+FB mother 1925-1944                   R raised Catholic   46.424  37.750 54.408   46.424   46.424               46.424
+FB mother 1925-1944                   M mother Catholic   48.046  39.558 55.932   48.046   48.046               48.046
+FB mother 1925-1944            M_model pooled (m5h/m5l)   22.309  20.198 24.405   22.882   22.694               21.517
+FB mother 1925-1944          M_gen (by mother nativity)   49.803  43.462 56.334   49.803   49.803               62.462
+FB mother 1925-1944                  M - M_model pooled   25.737  16.390 34.164   25.164   25.352               26.530
+FB mother 1925-1944       M - M_gen (mothers miss left)   -1.756 -12.682  7.993   -1.756   -1.756              -14.416
+FB mother 1925-1944           R - M_gen (residual left)   -3.378 -14.118  6.601   -3.378   -3.378              -16.038
+FB mother 1925-1944                R - M (transmission)   -1.622  -6.122  4.396   -1.622   -1.622               -1.622
+FB mother 1925-1944 transmission share of residual left    0.480 -11.022  8.138    0.480    0.480                0.101
+FB mother 1945-1964                                   n   88.000     NaN    NaN   88.000   88.000               88.000
+FB mother 1945-1964                   R raised Catholic   54.658  45.849 63.895   54.658   54.658               54.658
+FB mother 1945-1964                   M mother Catholic   57.320  49.053 65.745   57.320   57.320               57.320
+FB mother 1945-1964            M_model pooled (m5h/m5l)   26.927  25.801 27.999   27.544   26.140               27.035
+FB mother 1945-1964          M_gen (by mother nativity)   50.067  44.175 56.238   50.378   50.029               62.704
+FB mother 1945-1964                  M - M_model pooled   30.393  21.666 39.575   29.776   31.180               30.285
+FB mother 1945-1964       M - M_gen (mothers miss left)    7.253  -4.923 18.575    6.943    7.291               -5.384
+FB mother 1945-1964           R - M_gen (residual left)    4.591  -7.310 16.179    4.281    4.629               -8.046
+FB mother 1945-1964                R - M (transmission)   -2.662  -7.602  1.905   -2.662   -2.662               -2.662
+FB mother 1945-1964 transmission share of residual left   -0.580  -6.155  5.931   -0.622   -0.575                0.331
+FB mother 1965-1980                                   n   88.000     NaN    NaN   88.000   88.000               88.000
+FB mother 1965-1980                   R raised Catholic   76.131  69.628 82.631   76.131   76.131               76.131
+FB mother 1965-1980                   M mother Catholic   71.025  62.823 79.564   71.025   71.025               71.025
+FB mother 1965-1980            M_model pooled (m5h/m5l)   29.053  27.941 30.117   29.438   28.537               32.928
+FB mother 1965-1980          M_gen (by mother nativity)   49.217  44.562 53.908   48.100   49.934               62.564
+FB mother 1965-1980                  M - M_model pooled   41.972  33.246 50.411   41.587   42.488               38.097
+FB mother 1965-1980       M - M_gen (mothers miss left)   21.808  11.780 31.499   22.925   21.091                8.461
+FB mother 1965-1980           R - M_gen (residual left)   26.914  18.777 34.544   28.031   26.198               13.567
+FB mother 1965-1980                R - M (transmission)    5.106  -0.713 10.694    5.106    5.106                5.106
+FB mother 1965-1980 transmission share of residual left    0.190  -0.029  0.441    0.182    0.195                0.376
+FB mother 1981-1999                                   n   64.000     NaN    NaN   64.000   64.000               64.000
+FB mother 1981-1999                   R raised Catholic   60.052  48.920 71.507   60.052   60.052               60.052
+FB mother 1981-1999                   M mother Catholic   68.923  59.243 79.428   68.923   68.923               68.923
+FB mother 1981-1999            M_model pooled (m5h/m5l)   28.833  27.717 30.071   28.261   29.339               36.267
+FB mother 1981-1999          M_gen (by mother nativity)   46.012  42.492 49.443   44.536   47.389               58.187
+FB mother 1981-1999                  M - M_model pooled   40.090  30.087 50.774   40.662   39.585               32.656
+FB mother 1981-1999       M - M_gen (mothers miss left)   22.911  12.591 33.361   24.387   21.534               10.737
+FB mother 1981-1999           R - M_gen (residual left)   14.040   2.745 25.781   15.516   12.663                1.866
+FB mother 1981-1999                R - M (transmission)   -8.871 -15.308 -2.433   -8.871   -8.871               -8.871
+FB mother 1981-1999 transmission share of residual left   -0.632  -3.786 -0.116   -0.572   -0.701               -4.755
+FB mother 1925-1964                                   n  160.000     NaN    NaN  160.000  160.000              160.000
+FB mother 1925-1964                   R raised Catholic   50.514  44.668 57.156   50.514   50.514               50.514
+FB mother 1925-1964                   M mother Catholic   52.653  46.890 59.022   52.653   52.653               52.653
+FB mother 1925-1964            M_model pooled (m5h/m5l)   24.603  23.373 25.805   25.198   24.406               24.257
+FB mother 1925-1964          M_gen (by mother nativity)   49.934  43.794 55.961   50.088   49.915               62.582
+FB mother 1925-1964                  M - M_model pooled   28.050  22.088 34.284   27.455   28.247               28.395
+FB mother 1925-1964       M - M_gen (mothers miss left)    2.718  -6.429 11.957    2.564    2.737               -9.930
+FB mother 1925-1964           R - M_gen (residual left)    0.580  -8.680 10.037    0.426    0.599              -12.068
+FB mother 1925-1964                R - M (transmission)   -2.138  -5.399  1.081   -2.138   -2.138               -2.138
+FB mother 1925-1964 transmission share of residual left   -3.687  -3.911 10.322   -5.020   -3.571                0.177
+FB mother 1965-1999                                   n  152.000     NaN    NaN  152.000  152.000              152.000
+FB mother 1965-1999                   R raised Catholic   67.951  61.782 74.364   67.951   67.951               67.951
+FB mother 1965-1999                   M mother Catholic   69.956  63.832 76.988   69.956   69.956               69.956
+FB mother 1965-1999            M_model pooled (m5h/m5l)   28.941  28.128 29.854   28.839   28.945               34.627
+FB mother 1965-1999          M_gen (by mother nativity)   47.586  44.629 50.626   46.287   48.639               60.337
+FB mother 1965-1999                  M - M_model pooled   41.014  34.829 47.737   41.117   41.011               35.329
+FB mother 1965-1999       M - M_gen (mothers miss left)   22.369  15.331 29.563   23.669   21.317                9.619
+FB mother 1965-1999           R - M_gen (residual left)   20.364  13.467 27.224   21.664   19.311                7.614
+FB mother 1965-1999                R - M (transmission)   -2.005  -6.807  2.609   -2.005   -2.005               -2.005
+FB mother 1965-1999 transmission share of residual left   -0.098  -0.409  0.120   -0.093   -0.104               -0.263
+US mother 1900-1924                                   n  500.000     NaN    NaN  500.000  500.000              500.000
+US mother 1900-1924                   R raised Catholic   16.938  14.321 20.054   16.938   16.938               16.938
+US mother 1900-1924                   M mother Catholic   17.961  15.277 20.846   17.961   17.961               17.961
+US mother 1900-1924            M_model pooled (m5h/m5l)   23.953  18.060 29.896   23.586   23.771               23.270
+US mother 1900-1924          M_gen (by mother nativity)   21.525  16.121 26.924   21.268   21.525               21.563
+US mother 1900-1924                  M - M_model pooled   -5.993 -12.407  0.587   -5.626   -5.811               -5.309
+US mother 1900-1924       M - M_gen (mothers miss left)   -3.564  -9.485  2.327   -3.308   -3.564               -3.603
+US mother 1900-1924           R - M_gen (residual left)   -4.587 -10.409  1.671   -4.331   -4.587               -4.626
+US mother 1900-1924                R - M (transmission)   -1.023  -2.371  0.612   -1.023   -1.023               -1.023
+US mother 1900-1924 transmission share of residual left    0.223  -0.613  1.791    0.236    0.223                0.221
+US mother 1925-1944                                   n 1075.000     NaN    NaN 1075.000 1075.000             1075.000
+US mother 1925-1944                   R raised Catholic   22.856  20.451 25.116   22.856   22.856               22.856
+US mother 1925-1944                   M mother Catholic   22.890  20.568 24.992   22.890   22.890               22.890
+US mother 1925-1944            M_model pooled (m5h/m5l)   22.633  20.817 24.269   23.246   22.664               21.974
+US mother 1925-1944          M_gen (by mother nativity)   19.901  17.697 21.979   20.262   19.485               19.714
+US mother 1925-1944                  M - M_model pooled    0.257  -2.229  3.037   -0.356    0.226                0.916
+US mother 1925-1944       M - M_gen (mothers miss left)    2.989   0.226  6.216    2.629    3.405                3.176
+US mother 1925-1944           R - M_gen (residual left)    2.955   0.032  6.162    2.595    3.371                3.142
+US mother 1925-1944                R - M (transmission)   -0.034  -0.862  0.702   -0.034   -0.034               -0.034
+US mother 1925-1944 transmission share of residual left   -0.011  -0.709  0.862   -0.013   -0.010               -0.011
+US mother 1945-1964                                   n 2243.000     NaN    NaN 2243.000 2243.000             2243.000
+US mother 1945-1964                   R raised Catholic   29.956  28.135 31.586   29.956   29.956               29.956
+US mother 1945-1964                   M mother Catholic   28.898  27.312 30.488   28.898   28.898               28.898
+US mother 1945-1964            M_model pooled (m5h/m5l)   26.999  25.791 28.151   27.565   26.212               26.993
+US mother 1945-1964          M_gen (by mother nativity)   24.195  23.024 25.267   24.606   23.754               23.685
+US mother 1945-1964                  M - M_model pooled    1.900   0.082  4.048    1.333    2.686                1.905
+US mother 1945-1964       M - M_gen (mothers miss left)    4.704   2.870  6.781    4.292    5.145                5.213
+US mother 1945-1964           R - M_gen (residual left)    5.761   3.807  7.799    5.350    6.202                6.271
+US mother 1945-1964                R - M (transmission)    1.058   0.400  1.602    1.058    1.058                1.058
+US mother 1945-1964 transmission share of residual left    0.184   0.073  0.304    0.198    0.171                0.169
+US mother 1965-1980                                   n 1089.000     NaN    NaN 1089.000 1089.000             1089.000
+US mother 1965-1980                   R raised Catholic   31.562  29.232 33.920   31.562   31.562               31.562
+US mother 1965-1980                   M mother Catholic   30.407  28.028 32.715   30.407   30.407               30.407
+US mother 1965-1980            M_model pooled (m5h/m5l)   29.014  27.947 30.061   29.495   28.419               32.689
+US mother 1965-1980          M_gen (by mother nativity)   25.690  24.647 26.804   26.152   25.150               28.219
+US mother 1965-1980                  M - M_model pooled    1.393  -1.263  3.683    0.911    1.988               -2.283
+US mother 1965-1980       M - M_gen (mothers miss left)    4.717   1.924  7.249    4.254    5.257                2.188
+US mother 1965-1980           R - M_gen (residual left)    5.872   3.295  8.353    5.410    6.412                3.343
+US mother 1965-1980                R - M (transmission)    1.155   0.074  2.376    1.155    1.155                1.155
+US mother 1965-1980 transmission share of residual left    0.197   0.015  0.470    0.214    0.180                0.346
+US mother 1981-1999                                   n  395.000     NaN    NaN  395.000  395.000              395.000
+US mother 1981-1999                   R raised Catholic   29.478  25.455 33.189   29.478   29.478               29.478
+US mother 1981-1999                   M mother Catholic   28.549  24.074 32.517   28.549   28.549               28.549
+US mother 1981-1999            M_model pooled (m5h/m5l)   29.152  28.004 30.411   28.712   29.350               36.555
+US mother 1981-1999          M_gen (by mother nativity)   25.246  24.173 26.416   24.768   25.532               31.766
+US mother 1981-1999                  M - M_model pooled   -0.603  -5.193  3.592   -0.163   -0.801               -8.006
+US mother 1981-1999       M - M_gen (mothers miss left)    3.302  -1.213  7.393    3.781    3.017               -3.218
+US mother 1981-1999           R - M_gen (residual left)    4.232  -0.052  7.921    4.710    3.947               -2.288
+US mother 1981-1999                R - M (transmission)    0.929  -1.575  3.597    0.929    0.929                0.929
+US mother 1981-1999 transmission share of residual left    0.220  -1.055  1.383    0.197    0.235               -0.406
+US mother 1925-1964                                   n 3318.000     NaN    NaN 3318.000 3318.000             3318.000
+US mother 1925-1964                   R raised Catholic   27.620  26.148 29.027   27.620   27.620               27.620
+US mother 1925-1964                   M mother Catholic   26.921  25.567 28.303   26.921   26.921               26.921
+US mother 1925-1964            M_model pooled (m5h/m5l)   25.562  24.551 26.561   26.144   25.045               25.341
+US mother 1925-1964          M_gen (by mother nativity)   22.782  21.717 23.866   23.177   22.349               22.378
+US mother 1925-1964                  M - M_model pooled    1.359  -0.149  2.982    0.778    1.876                1.580
+US mother 1925-1964       M - M_gen (mothers miss left)    4.139   2.525  5.702    3.745    4.572                4.543
+US mother 1925-1964           R - M_gen (residual left)    4.838   3.134  6.402    4.443    5.271                5.241
+US mother 1925-1964                R - M (transmission)    0.699   0.082  1.142    0.699    0.699                0.699
+US mother 1925-1964 transmission share of residual left    0.144   0.021  0.254    0.157    0.133                0.133
+US mother 1965-1999                                   n 1484.000     NaN    NaN 1484.000 1484.000             1484.000
+US mother 1965-1999                   R raised Catholic   30.999  28.842 32.864   30.999   30.999               30.999
+US mother 1965-1999                   M mother Catholic   29.905  27.695 31.982   29.905   29.905               29.905
+US mother 1965-1999            M_model pooled (m5h/m5l)   29.051  28.164 29.892   29.284   28.670               33.733
+US mother 1965-1999          M_gen (by mother nativity)   25.570  24.709 26.441   25.778   25.253               29.176
+US mother 1965-1999                  M - M_model pooled    0.854  -1.531  2.953    0.621    1.235               -3.828
+US mother 1965-1999       M - M_gen (mothers miss left)    4.335   2.077  6.397    4.127    4.652                0.728
+US mother 1965-1999           R - M_gen (residual left)    5.429   3.199  7.498    5.221    5.746                1.823
+US mother 1965-1999                R - M (transmission)    1.094  -0.038  2.304    1.094    1.094                1.094
+US mother 1965-1999 transmission share of residual left    0.202  -0.008  0.467    0.210    0.190                0.600
+
+t37_model_check_by_nativity.csv (percent or points; rho as ratios; counts unweighted; shares of residual as fractions; sensitivities are point estimates)
+    group                      quantity       est     lo     hi      g=24      g=32  p = raised Catholic
+1920-1924                             n  2087.000    NaN    NaN  2087.000  2087.000             2087.000
+1920-1924                             R    22.799 21.361 24.273    22.799    22.799               22.799
+1920-1924            R - R_model pooled    -1.458 -7.483  4.003    -0.091    -0.972               -0.908
+1920-1924                     R - R_gen    -2.885 -7.795  1.990    -2.323    -2.885               -4.780
+1920-1924          share with FB mother    14.710 13.492 15.993    14.710    14.710               14.710
+1920-1924 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1925-1929                             n  2361.000    NaN    NaN  2361.000  2361.000             2361.000
+1925-1929                             R    23.254 21.911 24.695    23.254    23.254               23.254
+1925-1929            R - R_model pooled     0.897 -3.125  5.462     1.453    -1.082                2.347
+1925-1929                     R - R_gen    -1.449 -5.897  3.072     0.982    -2.286               -3.287
+1925-1929          share with FB mother    14.198 12.990 15.476    14.198    14.198               14.198
+1925-1929 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1930-1934                             n  2454.000    NaN    NaN  2454.000  2454.000             2454.000
+1930-1934                             R    24.081 22.640 25.527    24.081    24.081               24.081
+1930-1934            R - R_model pooled     2.487 -0.699  5.666     1.919     1.927                3.191
+1930-1934                     R - R_gen     4.087  0.726  7.327     3.134     1.336                2.868
+1930-1934          share with FB mother     9.475  8.437 10.435     9.475     9.475                9.475
+1930-1934 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1935-1939                             n  2907.000    NaN    NaN  2907.000  2907.000             2907.000
+1935-1939                             R    23.385 22.012 24.669    23.385    23.385               23.385
+1935-1939            R - R_model pooled     0.823 -1.526  3.426     0.179     1.883                1.169
+1935-1939                     R - R_gen     3.010  0.700  5.601    -0.019     5.105                3.012
+1935-1939          share with FB mother     5.123  4.447  5.830     5.123     5.123                5.123
+1935-1939 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1940-1944                             n  3861.000    NaN    NaN  3861.000  3861.000             3861.000
+1940-1944                             R    26.554 25.515 27.743    26.554    26.554               26.554
+1940-1944            R - R_model pooled     3.049  1.130  5.250     1.601     3.798                3.316
+1940-1944                     R - R_gen     3.123  1.221  5.372     3.094     5.429                2.711
+1940-1944          share with FB mother     4.144  3.526  4.633     4.144     4.144                4.144
+1940-1944 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1945-1949                             n  5036.000    NaN    NaN  5036.000  5036.000             5036.000
+1945-1949                             R    29.211 28.079 30.202    29.211    29.211               29.211
+1945-1949            R - R_model pooled     3.804  2.139  5.805     2.426     5.516                4.600
+1945-1949                     R - R_gen     5.466  3.756  7.409     4.253     5.802                5.404
+1945-1949          share with FB mother     4.013  3.529  4.456     4.013     4.013                4.013
+1945-1949 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1950-1954                             n  5975.000    NaN    NaN  5975.000  5975.000             5975.000
+1950-1954                             R    29.315 28.328 30.222    29.315    29.315               29.315
+1950-1954            R - R_model pooled     2.312  0.504  4.302     1.875     3.548                3.169
+1950-1954                     R - R_gen     4.061  2.324  5.952     3.118     5.358                4.753
+1950-1954          share with FB mother     3.947  3.525  4.365     3.947     3.947                3.947
+1950-1954 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1955-1959                             n  6532.000    NaN    NaN  6532.000  6532.000             6532.000
+1955-1959                             R    32.372 31.316 33.384    32.372    32.372               32.372
+1955-1959            R - R_model pooled     4.960  3.122  6.643     4.676     5.031                4.773
+1955-1959                     R - R_gen     6.512  4.637  8.233     6.878     6.712                6.609
+1955-1959          share with FB mother     3.703  3.325  4.109     3.703     3.703                3.703
+1955-1959 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1960-1964                             n  5644.000    NaN    NaN  5644.000  5644.000             5644.000
+1960-1964                             R    32.715 31.586 33.834    32.715    32.715               32.715
+1960-1964            R - R_model pooled     4.964  3.130  6.904     4.618     5.291                3.746
+1960-1964                     R - R_gen     6.917  5.340  8.726     6.867     6.721                6.102
+1960-1964          share with FB mother     4.763  4.294  5.269     4.763     4.763                4.763
+1960-1964 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1965-1969                             n  4306.000    NaN    NaN  4306.000  4306.000             4306.000
+1965-1969                             R    32.130 30.818 33.413    32.130    32.130               32.130
+1965-1969            R - R_model pooled     3.807  1.880  5.654     2.500     4.501                1.621
+1965-1969                     R - R_gen     5.823  4.026  7.633     4.364     6.363                4.207
+1965-1969          share with FB mother     5.326  4.690  5.948     5.326     5.326                5.326
+1965-1969 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1970-1974                             n  3374.000    NaN    NaN  3374.000  3374.000             3374.000
+1970-1974                             R    30.542 29.283 31.836    30.542    30.542               30.542
+1970-1974            R - R_model pooled     0.838 -0.915  2.741     1.094     1.931               -3.118
+1970-1974                     R - R_gen     2.476  0.721  4.324     3.009     3.550               -0.970
+1970-1974          share with FB mother     6.662  5.963  7.497     6.662     6.662                6.662
+1970-1974 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1975-1979                             n  2876.000    NaN    NaN  2876.000  2876.000             2876.000
+1975-1979                             R    29.322 27.909 30.827    29.322    29.322               29.322
+1975-1979            R - R_model pooled    -0.140 -1.990  1.792     0.232    -0.591               -6.348
+1975-1979                     R - R_gen     1.641 -0.146  3.488     2.285     0.790               -4.305
+1975-1979          share with FB mother     8.068  7.205  8.932     8.068     8.068                8.068
+1975-1979 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1980-1984                             n  2468.000    NaN    NaN  2468.000  2468.000             2468.000
+1980-1984                             R    33.107 31.116 34.960    33.107    33.107               33.107
+1980-1984            R - R_model pooled     3.944  1.839  6.211     3.155     3.734               -2.884
+1980-1984                     R - R_gen     5.709  3.577  7.924     5.028     5.265               -0.954
+1980-1984          share with FB mother     9.532  8.536 10.766     9.532     9.532                9.532
+1980-1984 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1985-1989                             n  1884.000    NaN    NaN  1884.000  1884.000             1884.000
+1985-1989                             R    30.319 28.229 32.368    30.319    30.319               30.319
+1985-1989            R - R_model pooled     0.380 -2.052  2.685     1.054     1.006               -7.221
+1985-1989                     R - R_gen     1.815 -0.571  4.073     2.375     2.410               -5.550
+1985-1989          share with FB mother    11.352  9.987 12.725    11.352    11.352               11.352
+1985-1989 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1990-1994                             n  1382.000    NaN    NaN  1382.000  1382.000             1382.000
+1990-1994                             R    30.447 28.074 32.657    30.447    30.447               30.447
+1990-1994            R - R_model pooled     1.447 -1.427  4.101     2.834     0.546               -6.596
+1990-1994                     R - R_gen     2.077 -0.789  4.838     3.675     1.206               -5.862
+1990-1994          share with FB mother    14.878 12.910 16.840    14.878    14.878               14.878
+1990-1994 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1995-1999                             n   799.000    NaN    NaN   799.000   799.000              799.000
+1995-1999                             R    30.853 27.657 34.108    30.853    30.853               30.853
+1995-1999            R - R_model pooled     3.685  0.132  7.232     4.859     2.180               -3.416
+1995-1999                     R - R_gen     4.322  0.895  8.078     6.671     2.491               -2.597
+1995-1999          share with FB mother    16.661 13.774 19.433    16.661    16.661               16.661
+1995-1999 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1925-1964                             n 34770.000    NaN    NaN 34770.000 34770.000            34770.000
+1925-1964                             R    28.845 28.348 29.303    28.845    28.845               28.845
+1925-1964            R - R_model pooled     3.336  2.341  4.418     2.746     3.838                3.559
+1925-1964                     R - R_gen     4.628  3.623  5.657     4.204     5.063                4.353
+1925-1964          share with FB mother     5.292  5.100  5.512     5.292     5.292                5.292
+1925-1964 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+1965-1999                             n 17089.000    NaN    NaN 17089.000 17089.000            17089.000
+1965-1999                             R    31.080 30.379 31.765    31.080    31.080               31.080
+1965-1999            R - R_model pooled     2.025  1.034  3.084     1.980     2.199               -3.228
+1965-1999                     R - R_gen     3.619  2.582  4.628     3.731     3.634               -1.285
+1965-1999          share with FB mother     8.856  8.413  9.287     8.856     8.856                8.856
+1965-1999 share mother nativity unknown     0.000  0.000  0.000     0.000     0.000                0.000
+
+t38_fertility_gen.csv (percent or points; rho as ratios; counts unweighted; shares of residual as fractions; sensitivities are point estimates)
+             group                                   quantity    est     lo     hi  g=24  g=32  p = raised Catholic
+           1990-99             fertility gen-specific (level)  0.899  0.413  1.261   NaN   NaN                  NaN
+           1990-99                 fertility m5h main (level)  1.173  0.763  1.549   NaN   NaN                  NaN
+           2000-09             fertility gen-specific (level)  0.762  0.445  1.050   NaN   NaN                  NaN
+           2000-09                 fertility m5h main (level)  1.042  0.765  1.301   NaN   NaN                  NaN
+           2010-18             fertility gen-specific (level)  0.580  0.344  0.815   NaN   NaN                  NaN
+           2010-18                 fertility m5h main (level)  0.806  0.599  1.019   NaN   NaN                  NaN
+           2021-24             fertility gen-specific (level)  0.426  0.191  0.640   NaN   NaN                  NaN
+           2021-24                 fertility m5h main (level)  0.659  0.430  0.864   NaN   NaN                  NaN
+1990-99 -> 2010-18            fertility gen-specific (change) -0.319 -0.604  0.042   NaN   NaN                  NaN
+1990-99 -> 2010-18                fertility m5h main (change) -0.367 -0.665 -0.076   NaN   NaN                  NaN
+1990-99 -> 2010-18                gen-specific minus m5h main  0.048 -0.277  0.431   NaN   NaN                  NaN
+1990-99 -> 2010-18                  immigration 1st gen (m5h)  1.068  0.513  1.627   NaN   NaN                  NaN
+1990-99 -> 2010-18 immigration minus |fertility gen-specific|  0.750  0.112  1.376   NaN   NaN                  NaN
+1990-99 -> 2021-24            fertility gen-specific (change) -0.473 -0.846 -0.050   NaN   NaN                  NaN
+1990-99 -> 2021-24                fertility m5h main (change) -0.513 -0.843 -0.186   NaN   NaN                  NaN
+1990-99 -> 2021-24                gen-specific minus m5h main  0.041 -0.347  0.473   NaN   NaN                  NaN
+1990-99 -> 2021-24                  immigration 1st gen (m5h) -0.312 -0.930  0.279   NaN   NaN                  NaN
+1990-99 -> 2021-24 immigration minus |fertility gen-specific| -0.785 -1.471 -0.128   NaN   NaN                  NaN
+2010-18 -> 2021-24            fertility gen-specific (change) -0.154 -0.281 -0.026   NaN   NaN                  NaN
+2010-18 -> 2021-24                fertility m5h main (change) -0.146 -0.282 -0.026   NaN   NaN                  NaN
+2010-18 -> 2021-24                gen-specific minus m5h main -0.007 -0.092  0.082   NaN   NaN                  NaN
+2010-18 -> 2021-24                  immigration 1st gen (m5h) -1.380 -2.051 -0.720   NaN   NaN                  NaN
+2010-18 -> 2021-24 immigration minus |fertility gen-specific| -1.534 -2.223 -0.851   NaN   NaN                  NaN
+EXIT 0

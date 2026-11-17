@@ -172,7 +172,12 @@ export function discountGroups(rows) {
   return [...g.entries()].sort((a, b) => a[0] - b[0]).map(([pct, codes]) => ({ pct, codes: codes.sort() }));
 }
 
-export const money = (n) => "$" + (Math.round(n * 100) / 100).toFixed(2);
+export const money = (n) => {
+  const format = (n) => "$" + (Math.round(n * 100) / 100).toFixed(2);
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (x) => Math.round(x * 1000) / 10 + "%";
 
 export function toCsv(rows) {

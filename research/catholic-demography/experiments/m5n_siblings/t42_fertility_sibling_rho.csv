@@ -1,0 +1,24 @@
+group,quantity,est,lo,hi
+1990-99,fertility sibling rho (level),0.1279,-0.2179,0.4208
+1990-99,fertility m5h main (level),1.1727,0.7630,1.5494
+2000-09,fertility sibling rho (level),0.1348,-0.1099,0.3265
+2000-09,fertility m5h main (level),1.0420,0.7653,1.3013
+2010-18,fertility sibling rho (level),0.0820,-0.1186,0.2349
+2010-18,fertility m5h main (level),0.8058,0.5989,1.0195
+2021-24,fertility sibling rho (level),0.0526,-0.1499,0.2531
+2021-24,fertility m5h main (level),0.6593,0.4303,0.8641
+1990-99 -> 2010-18,fertility sibling rho (change),-0.0459,-0.2943,0.1953
+1990-99 -> 2010-18,fertility m5h main (change),-0.3669,-0.6649,-0.0761
+1990-99 -> 2010-18,sibling minus m5h main,0.3211,-0.0391,0.6855
+1990-99 -> 2010-18,immigration 1st gen (m5h),1.0684,0.5127,1.6268
+1990-99 -> 2010-18,immigration minus |fertility sibling rho|,1.0226,0.3544,1.5627
+1990-99 -> 2021-24,fertility sibling rho (change),-0.0753,-0.3785,0.2516
+1990-99 -> 2021-24,fertility m5h main (change),-0.5134,-0.8433,-0.1864
+1990-99 -> 2021-24,sibling minus m5h main,0.4381,0.0520,0.8665
+1990-99 -> 2021-24,immigration 1st gen (m5h),-0.3119,-0.9303,0.2788
+1990-99 -> 2021-24,immigration minus |fertility sibling rho|,-0.3871,-1.0616,0.1446
+2010-18 -> 2021-24,fertility sibling rho (change),-0.0294,-0.1663,0.1253
+2010-18 -> 2021-24,fertility m5h main (change),-0.1465,-0.2816,-0.0262
+2010-18 -> 2021-24,sibling minus m5h main,0.1171,-0.0293,0.2786
+2010-18 -> 2021-24,immigration 1st gen (m5h),-1.3803,-2.0510,-0.7198
+2010-18 -> 2021-24,immigration minus |fertility sibling rho|,-1.4097,-2.1379,-0.7421

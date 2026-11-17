@@ -21,7 +21,13 @@
 //   - Do Not Track and Global Privacy Control stop counting;
 //   - setUsageOptOut(true), where exported, clears counters and stops new ones;
 //   - a store whose global read throws, or whose writes throw, never makes
-//     record(), readUsage() or setUsageOptOut() throw.
+//     record(), readUsage() or setUsageOptOut() throw;
+//   - an opt-out survives the next page load (a fresh copy of the module with
+//     the in-memory flag gone), and blocked storage never reads as an opt-out.
+//     Added 2026-11-14: a red-team mutant turned the blocked-store branch of
+//     usageOptedOut() into `return true` and every copy's suite but one passed,
+//     and no test anywhere reloaded the module after opting out, though the
+//     in-memory flag is the first thing a refactor would make "enough".
 //
 // The same checks, reading the stored counter directly, run on the 36 copies
 // of the usageAllowed()/recordEvent()/toggleUsage() design (checkEventModule).
@@ -68,7 +74,7 @@ function blockStorage() {
 const isPlainObject = (v) => v !== null && typeof v === "object" && !Array.isArray(v);
 const NOT_OBJECTS = ["[1,2]", "[]", "5", "\"text\"", "null", "true"];
 
-export async function checkModule(mod) {
+export async function checkModule(mod, reload) {
   const problems = [];
   const fail = (msg) => problems.push(msg);
   const { record, readUsage, setUsageOptOut } = mod;
@@ -139,6 +145,38 @@ export async function checkModule(mod) {
     setUsageOptOut(false);
   }
 
+  // 4b. the opt-out survives the next page load, and blocked storage is not one.
+  if (typeof setUsageOptOut === "function" && reload) {
+    reset();
+    setUsageOptOut(true);
+    delete globalThis.__usageOptOut;
+    const fresh = await reload();
+    fresh.record("contract_a");
+    const read = fresh.readUsage();
+    if (!isPlainObject(read) || read.contract_a) fail(`opt-out did not survive a page load: record() counted (${JSON.stringify(read)})`);
+    if (typeof fresh.usageOptedOut === "function" && fresh.usageOptedOut() !== true) fail("opt-out did not survive a page load: usageOptedOut() is not true");
+    reset();
+    fresh.setUsageOptOut(false);
+  }
+  if (typeof mod.usageOptedOut === "function") {
+    // Two ways a browser blocks: reading the global throws, or the store is
+    // there and its methods throw. Each reaches a different branch.
+    const boom = () => {
+      throw new Error("SecurityError");
+    };
+    for (const [label, arrange] of [["blocked site data", blockStorage], ["a store whose reads throw", () => reset({ store: new Map(), getItem: boom, setItem: boom, removeItem: boom })]]) {
+      reset();
+      arrange();
+      let opted;
+      try {
+        opted = mod.usageOptedOut();
+      } catch (err) {
+        opted = `threw ${err && err.message}`;
+      }
+      if (opted !== false) fail(`${label}: usageOptedOut() gave ${opted}, want false (the visitor never opted out)`);
+    }
+  }
+
   // 5. blocked or full storage never throws.
   const calls = [["record", () => record("contract_a")], ["readUsage", () => readUsage()]];
   if (typeof setUsageOptOut === "function") {
@@ -164,7 +202,7 @@ export async function checkModule(mod) {
 // and toggleUsage(enabled), with no reader, so the contract reads the stored
 // counter itself. Same red-team origin: its `||`-to-`&&` mutants in the shape
 // check escaped in two ventures' suites on the same day.
-export async function checkEventModule(mod) {
+export async function checkEventModule(mod, reload) {
   const problems = [];
   const fail = (msg) => problems.push(msg);
   const { recordEvent, toggleUsage, usageAllowed } = mod;
@@ -226,6 +264,19 @@ export async function checkEventModule(mod) {
   recordEvent("contract_a");
   if (parse(storage, key)?.contract_a !== 1) fail("after toggleUsage(true), recordEvent did not count again");
 
+  // 4b. the opt-out survives the next page load.
+  if (reload) {
+    storage = reset();
+    toggleUsage(false);
+    delete globalThis.__usageOptOut;
+    const fresh = await reload();
+    if (fresh.usageAllowed()) fail("opt-out did not survive a page load: usageAllowed() is true");
+    fresh.recordEvent("contract_a");
+    if (storage.store.has(key)) fail(`opt-out did not survive a page load: recordEvent counted (${storage.store.get(key)})`);
+    reset();
+    fresh.toggleUsage(true);
+  }
+
   // 5. blocked or full storage never throws.
   const calls = [
     ["recordEvent", () => recordEvent("contract_a")],
@@ -270,8 +321,12 @@ export async function checkTree(root) {
   let skipped = 0;
   for (const file of usageFiles(root)) {
     let mod;
+    const href = pathToFileURL(resolve(file)).href;
+    let loads = 0;
+    // A query string gives a fresh module instance: what the next page load sees.
+    const reload = () => import(`${href}?page-load=${++loads}`);
     try {
-      mod = await import(pathToFileURL(resolve(file)).href);
+      mod = await import(href);
     } catch (err) {
       problems.push(`${file}: failed to import: ${err && err.message}`);
       continue;
@@ -284,7 +339,7 @@ export async function checkTree(root) {
     checked += 1;
     let found;
     try {
-      found = await check(mod);
+      found = await check(mod, reload);
     } catch (err) {
       found = [`threw ${err && err.message}`];
     }

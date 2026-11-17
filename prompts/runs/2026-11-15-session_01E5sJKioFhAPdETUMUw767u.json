@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKioFhAPdETUMUw767u",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T04:18:38Z",
+  "ended": "2026-11-15T04:29:02Z",
+  "wall_minutes": 10.71,
+  "tokens_in": 4431959,
+  "tokens_out": 53302,
+  "cost_usd": 2.9343,
+  "tool_calls": 40,
+  "task": "creative track: Little Lamps story from the bible's open proposal (Peter Canisius), after a duplicate H&H story was dropped",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16092",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' is hard to apply on a shallow clone: git log -- ventures/... shows only the 4 commits in the clone's depth, so the spread check rests on front-matter published dates instead."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "node overlap.mjs matches words, so 'silo' hit a story that uses it only as a metaphor (Not Enough Ones); I first wrote a keep-clear note against it before reading the hit. Reading each hit's summary first saves the edit."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The open-PR search before writing cannot see a concurrent session that has picked the same bible proposal but not yet pushed: session_01E5sJKkYUVpPpXKzAi5qPVU and this one both wrote 'Ten Tonnes Up' (same title, Leitrim, Brigid's Eve) from the single open H&H proposal; theirs merged as #16091 first and this run's 6,800-word draft was dropped. Suggest: open the draft PR (an empty claim commit) right after picking a proposal, and prefer a proposal fewer runs will draw (there is usually only one open per shelf). Not filed in prompts/process/backlog because that path is control plane (CODEOWNERS) and would hold this PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Did not land the first finished piece (Ten Tonnes Up): an identical-proposal story with the same title merged first (#16091), so landing it would duplicate the shelf",
+      "did": "reset the branch to main, reused PR #16092 for a Little Lamps story from the other open proposal (Peter Canisius)",
+      "result": "one non-duplicate story landed; about half the run's writing time spent on the dropped draft"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-peter-canisius-littlest-book.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Little Lamps shelf). Piece: peter-canisius-and-the-littlest-book (1,507 words before the grown-ups note). Text only (audio dirs 474 MB > 400 MB cap). First piece written: ten-tonnes-up (H&H buried tank flotation); dropped at merge time because #16091 from another session had landed the same proposal under the same title. Canisius facts checked by web search (WebFetch to newadvent.org and bridwell.omeka.net blocked by the session network): birth 8 May 1521 Nijmegen, Cologne 1536, Jesuits at Mainz 8 May 1543 under Faber, ordained 1546, Summa 1555, Catechismus minimus 1556, Parvus 1558 (sources differ on which was for the youngest; note says so), Zabern catechizing from the 1908 Catholic Encyclopedia, died Fribourg 21 Dec 1597, beatified 1864 (Pius IX), canonized and Doctor 1925 (Pius XI). Edition counts (200 vs 300) and mileage left vague on purpose. New Little Lamps proposal added (John of God). node --test in ventures/hearth-and-horizon: 17/17 pass. Local CI for the first diff (same files touched): every run: step that ran passed (portfolio-validate 100/100, ventures-tests 5/5); pages.yml built-artifact checks have no verdict locally (site build skipped).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "519aaf92-24ec-5a21-a630-d271b3f9e6a8",
+    "transcripts": 1,
+    "first": "2026-11-15T04:18:38Z",
+    "last": "2026-11-15T04:29:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 76,
+        "output": 53302,
+        "thinking": 25972,
+        "cache_read": 4306041,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125842,
+        "api_equivalent_usd": 2.9343,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 76,
+      "output": 53302,
+      "thinking": 25972,
+      "cache_read": 4306041,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125842,
+      "api_equivalent_usd": 2.9343,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 35,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.71,
+      "active_minutes": 10.71,
+      "model_minutes": 10.26,
+      "tool_minutes": 0.44,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a writer researching and checking buoyancy numbers and drafting a 5,700-word story plus post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 340.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

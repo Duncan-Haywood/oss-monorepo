@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Drape coefficient change from the 3.75 mm lattice against triangle side, seed mean and lowest-energy seed">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cusick drape change with mesh at sourced stiffness (7 seeds per point)</text>
+<line x1="64" x2="624" y1="300.4" y2="300.4" stroke="#ddd"/><text x="58" y="304.4" text-anchor="end" font-family="sans-serif" font-size="11">-0.01</text>
+<line x1="64" x2="624" y1="258.4" y2="258.4" stroke="#ddd"/><text x="58" y="262.4" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="216.5" y2="216.5" stroke="#ddd"/><text x="58" y="220.5" text-anchor="end" font-family="sans-serif" font-size="11">0.01</text>
+<line x1="64" x2="624" y1="174.5" y2="174.5" stroke="#ddd"/><text x="58" y="178.5" text-anchor="end" font-family="sans-serif" font-size="11">0.02</text>
+<line x1="64" x2="624" y1="132.5" y2="132.5" stroke="#ddd"/><text x="58" y="136.5" text-anchor="end" font-family="sans-serif" font-size="11">0.03</text>
+<line x1="64" x2="624" y1="90.5" y2="90.5" stroke="#ddd"/><text x="58" y="94.5" text-anchor="end" font-family="sans-serif" font-size="11">0.04</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3.75</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.875</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">triangle side (mm)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">DC minus DC at 3.75 mm</text>
+<polyline points="624.0,258.4 250.7,102.4 64.0,71.2" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="258.4" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="102.4" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">D 1896, mean</text>
+<polyline points="624.0,258.4 250.7,161.0 64.0,75.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="258.4" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="161.0" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="75.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">D 1896, lowest E</text>
+<polyline points="624.0,258.4 250.7,300.6 64.0,302.6" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="258.4" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="300.6" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="302.6" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">A 369, mean</text>
+<polyline points="624.0,258.4 250.7,324.0 64.0,296.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="624.0" cy="258.4" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="324.0" r="3" fill="#8e44ad"/>
+<circle cx="64.0" cy="296.9" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">A 369, lowest E</text>
+</svg>

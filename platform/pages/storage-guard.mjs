@@ -19,6 +19,7 @@
 // (re)insert it.
 
 import { readFileSync, writeFileSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
 
 export const GUARD_SLUGS = [
   'invoice-maker',
@@ -85,7 +86,7 @@ export function applyGuard(html) {
   return `${out.slice(0, at)}${GUARD_SCRIPT}\n${out.slice(at)}`;
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const slug of GUARD_SLUGS) {
     const path = new URL(`../../ventures/${slug}/index.html`, import.meta.url);
     writeFileSync(path, applyGuard(readFileSync(path, 'utf8')));

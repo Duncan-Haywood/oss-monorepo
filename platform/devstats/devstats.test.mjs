@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP, delivery, fromDelivery } from './devstats.mjs';
+import { quantile, dayRange, fromGit, fromRuns, fromGitHub, inventory, collect, ciActivity, outcomeOf, countRunsByDay, fromCI, COUNT_CAP, delivery, fromDelivery, codeownersRegex, parseCodeowners, isOwned, ownerHeld } from './devstats.mjs';
 import { renderDashboard, barChart, stackedChart } from './render.mjs';
 
 const NOW = Date.parse('2026-10-16T12:00:00Z');
@@ -42,6 +42,8 @@ test('quantile and dayRange', () => {
   assert.equal(quantile([3, 1, 2], 0.5), 2);
   assert.equal(quantile([], 0.5), null);
   assert.equal(quantile([0, 10], 0.9), 9);
+  // Interpolates from the lower neighbour, not from index 0: pos 1.5 lies halfway from 10 to 20.
+  assert.equal(quantile([20, 0, 10], 0.75), 15);
   assert.deepEqual(dayRange(NOW, 3), ['2026-10-14', '2026-10-15', '2026-10-16']);
 });
 
@@ -55,6 +57,35 @@ test('git: merges per day, lead time from the oldest branch commit, reverts', ()
   assert.equal(g.lead_time_hours.p50, 2);
   assert.equal(g.reverts, 1);
   assert.deepEqual(inventory(repo), { ventures: 1, research_projects: 0 });
+});
+
+// The deploy job clones 3000 commits deep, under 30 days of this repository.
+// git diffs the shallow boundary commit against nothing, so every venture in
+// the tree looked added in the window: marisstella.app/dev read "1,377
+// ventures added" in 30 days, the whole portfolio (red team, 2026-11-16).
+test('git: a shallow clone boundary does not count every venture as added', () => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'devstats-shallow-'));
+  const origin = path.join(dir, 'origin');
+  mkdirSync(origin);
+  const g = (args, date) => execFileSync('git', ['-C', origin, ...args], {
+    env: { ...process.env, GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date, GIT_AUTHOR_NAME: 't', GIT_AUTHOR_EMAIL: 't@t', GIT_COMMITTER_NAME: 't', GIT_COMMITTER_EMAIL: 't@t' },
+  });
+  const venture = (slug, date, msg) => {
+    mkdirSync(path.join(origin, 'ventures', slug), { recursive: true });
+    writeFileSync(path.join(origin, 'ventures', slug, 'VENTURE.yaml'), `name: ${slug}\n`);
+    g(['add', '.'], date);
+    g(['commit', '-qm', msg], date);
+  };
+  g(['init', '-q', '-b', 'main'], '2026-09-01T00:00:00Z');
+  venture('old', '2026-09-01T00:00:00Z', 'old venture, long before the window');
+  g(['commit', '-q', '--allow-empty', '-m', 'filler'], '2026-10-15T00:00:00Z');
+  venture('new', '2026-10-16T09:00:00Z', 'new venture, inside the window');
+  g(['commit', '-q', '--allow-empty', '-m', 'tip'], '2026-10-16T10:00:00Z');
+
+  assert.equal(fromGit(origin, { now: NOW, days: 3 }).ventures_added, 1);
+  const shallow = path.join(dir, 'shallow');
+  execFileSync('git', ['clone', '-q', '--depth', '3', `file://${origin}`, shallow]);
+  assert.equal(fromGit(shallow, { now: NOW, days: 3 }).ventures_added, 1);
 });
 
 test('runs: window, grouping, measured cost only from runcost blocks, bad files skipped', () => {
@@ -265,4 +296,113 @@ test('the page renders every section, marks missing data, and escapes', async ()
   assert.match(html, /<nav class="pfs-head" aria-label="Site" data-pfs-head>/);
   assert.match(html, /class="pfs-brand" href="\.\.\/" data-pf-to="hub"/);
   assert.match(html, /<link rel="stylesheet" href="\.\.\/pf-site\.css">/);
+});
+
+// A fork chooses its branch name and can add a workflow with any `name:`; both
+// reach these tallies through the runs API, so a key like `__proto__` must
+// count like any other and leave Object.prototype alone.
+test('github and ciActivity: hostile branch and workflow names are counted, not used to pollute prototypes', async () => {
+  const iso = (h) => new Date(NOW - h * 3_600_000).toISOString();
+  const routes = [
+    [/\/pulls\?state=closed/, []],
+    [/\/pulls\?state=open/, []],
+    [/event=push/, { workflow_runs: [{ name: '__proto__', conclusion: 'failure' }, { name: 'constructor', conclusion: 'failure' }] }],
+    [/event=pull_request/, { workflow_runs: [
+      { head_branch: '__proto__', head_sha: 'polluted_sha', created_at: iso(5), conclusion: 'success' },
+      { head_branch: 'constructor', head_sha: 'c1', created_at: iso(5), conclusion: 'failure' },
+      { head_branch: 'constructor', head_sha: 'c2', created_at: iso(4), conclusion: 'success' },
+      { head_branch: 'x', head_sha: 's1', created_at: iso(4), conclusion: 'success' },
+    ] }],
+    [/\/branches/, []],
+  ];
+  const fetch = async (url) => ({ ok: true, json: async () => routes.find(([re]) => re.test(url))[1] });
+  try {
+    const gh = await fromGitHub({ token: 't', repo: 'o/r', now: NOW, fetch });
+    assert.equal(gh.available, true, gh.reason);
+    assert.equal(gh.ci_pr.branches_seen, 3);
+    assert.equal(gh.ci_pr.first_try_green_share, round3(2 / 3));
+    assert.deepEqual(gh.ci_main.failing_workflows.map(([n, c]) => [n, c]).sort(), [['__proto__', 1], ['constructor', 1]]);
+    assert.equal({}.polluted_sha, undefined);
+    assert.equal(Object.c1, undefined);
+
+    const run = (name, conclusion, h) => ({ name, conclusion, event: 'push', head_branch: 'main', created_at: iso(h), run_started_at: iso(h), updated_at: iso(h - 0.1) });
+    const main = [run('__proto__', 'failure', 3), run('constructor', 'failure', 2), run('toString', 'success', 1)];
+    const ci = ciActivity({ sample: main, main }, { now: NOW });
+    assert.deepEqual(ci.workflows.map((w) => [w.name, w.runs]).sort(), [['__proto__', 1], ['constructor', 1], ['toString', 1]]);
+    assert.deepEqual(ci.red_on_main_now.map((r) => r.workflow).sort(), ['__proto__', 'constructor']);
+    assert.equal({}.passed, undefined);
+    assert.equal({}.minutes, undefined);
+  } finally {
+    delete Object.prototype.polluted_sha;
+    delete Object.c1;
+    delete Object.c2;
+    for (const k of ['passed', 'failed', 'cancelled', 'skipped', 'minutes']) delete Object.prototype[k];
+  }
+});
+
+test('github: each list stops at its page budget, and the top failing workflows are eight', async () => {
+  const calls = {};
+  const full = (make) => Array.from({ length: 100 }, (_, i) => make(i));
+  const fetch = async (url) => {
+    const key = url.replace(/[?&]per_page.*/, '');
+    calls[key] = (calls[key] ?? 0) + 1;
+    const page = Number(new URL(url).searchParams.get('page'));
+    if (/event=push/.test(url)) return { ok: true, json: async () => ({ workflow_runs: full((i) => ({ name: `W${(page * 100 + i) % 9}`, conclusion: 'failure' })) }) };
+    if (/event=pull_request/.test(url)) return { ok: true, json: async () => ({ workflow_runs: full((i) => ({ head_branch: `b${page}-${i}`, head_sha: 's', created_at: '2026-10-16T00:00:00Z', conclusion: 'success' })) }) };
+    if (/\/branches/.test(url)) return { ok: true, json: async () => full((i) => ({ name: `b${page}-${i}` })) };
+    return { ok: true, json: async () => [] };
+  };
+  const gh = await fromGitHub({ token: 't', repo: 'o/r', now: NOW, fetch });
+  assert.equal(gh.available, true, gh.reason);
+  assert.equal(gh.ci_main.runs, 200);
+  assert.equal(gh.ci_pr.runs, 300);
+  assert.equal(gh.ci_pr.branches_seen, 300);
+  assert.equal(gh.branches.count, 3000);
+  assert.equal(gh.branches.capped, true);
+  assert.equal(gh.ci_main.failing_workflows.length, 8);
+});
+
+test('CODEOWNERS patterns match as control_plane_guard.py reads them; the last match wins', () => {
+  const rules = parseCodeowners([
+    '# comment', '/CLAUDE.md @o', '**/AGENTS.md @o', '/prompts/ @o', '/.github/ @o',
+    '/platform/ci/agent_review/ @o', '/prompts/runs/', 'docs/*.md @o',
+  ].join('\n'));
+  for (const f of ['CLAUDE.md', 'ventures/x/AGENTS.md', 'AGENTS.md', 'prompts/promptctl.py', '.github/workflows/a.yml', 'platform/ci/agent_review/x.py', 'docs/a.md']) assert.ok(isOwned(f, rules), f);
+  for (const f of ['ventures/CLAUDE.md', 'prompts/runs/r.json', 'prompts', 'platform/ci/x.py', 'docs/posts/a.md', 'xprompts/a']) assert.ok(!isOwned(f, rules), f);
+  assert.ok(codeownersRegex('*.yml').test('a/b/c.yml'));
+  assert.ok(!codeownersRegex('/a.b').test('aXb'));
+});
+
+test('owner-held: same-repo open PRs touching an owned path, oldest first; forks are never read', async () => {
+  const iso = (d) => new Date(NOW - d * 86_400_000).toISOString();
+  const open = [
+    { number: 3, title: 'new held', created_at: iso(1), head: { repo: { full_name: 'o/r' } } },
+    { number: 1, title: 'old held', created_at: iso(9), head: { repo: { full_name: 'O/R' } } },
+    { number: 2, title: 'product', created_at: iso(5), head: { repo: { full_name: 'o/r' } } },
+    { number: 4, title: 'fork', created_at: iso(20), head: { repo: { full_name: 'x/r' } } },
+  ];
+  const files = { 1: ['prompts/promptctl.py', 'docs/posts/a.md'], 2: ['ventures/a/index.html', 'prompts/runs/r.json'], 3: ['.github/workflows/w.yml'] };
+  const asked = [];
+  const fetch = async (url) => {
+    const n = Number(/pulls\/(\d+)\/files/.exec(url)[1]);
+    asked.push(n);
+    return { ok: true, json: async () => files[n].map((filename) => ({ filename })) };
+  };
+  const held = await ownerHeld(open, { codeowners: '/prompts/ @o\n/.github/ @o\n/prompts/runs/\n', repo: 'o/r', now: NOW, token: 't', api: 'https://api.github.com/repos/o/r', fetch });
+  assert.deepEqual(asked, [1, 2, 3]);
+  assert.deepEqual([held.count, held.checked, held.of], [2, 3, 3]);
+  assert.deepEqual(held.prs.map((p) => [p.number, p.age_days, p.owned_count, p.also_unowned]), [[1, 9, 1, 1], [3, 1, 1, 0]]);
+  assert.equal((await ownerHeld(open, { codeowners: '', repo: 'o/r', now: NOW, fetch })).available, false);
+});
+
+test('github: an owner-held failure leaves the rest of the snapshot available', async () => {
+  const fetch = async (url) => {
+    if (/\/files/.test(url)) return { ok: false, status: 403 };
+    if (/\/pulls\?state=open/.test(url)) return { ok: true, json: async () => [{ number: 9, created_at: new Date(NOW).toISOString(), head: { repo: { full_name: 'o/r' } } }] };
+    return { ok: true, json: async () => (/actions\/runs/.test(url) ? { workflow_runs: [] } : []) };
+  };
+  const gh = await fromGitHub({ token: 't', repo: 'o/r', now: NOW, fetch, codeowners: '/prompts/ @o' });
+  assert.equal(gh.available, true);
+  assert.equal(gh.owner_held.available, false);
+  assert.match(gh.owner_held.reason, /403/);
 });

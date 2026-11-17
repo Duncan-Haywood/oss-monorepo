@@ -1,0 +1,79 @@
+# tests/low_speed_loop_sweep.py --low 0,1500 --revs 6 --window 0,40,60 (2026-11-16, README "A tach that averages a fixed time"; 336 cases a setting)
+
+LOOP_LOW_RPM off, GATE_HOLD_REVS 6, tach window off ms: all never 29/336 | over 3% at gate  17 | steady median 3.88 s, slowest 11.65 s | error at gate worst  6.0% | next 1 s worst  6.1%
+  slow  510 rpm: never 16/48 | over 3% at gate   1 | steady median 7.92 s, slowest 11.65 s | error at gate worst  3.1% | next 1 s worst  3.3%
+  slow  600 rpm: never  9/48 | over 3% at gate   3 | steady median 6.34 s, slowest 11.53 s | error at gate worst  3.8% | next 1 s worst  3.8%
+  slow  750 rpm: never  4/48 | over 3% at gate   3 | steady median 4.92 s, slowest  9.15 s | error at gate worst  3.3% | next 1 s worst  3.4%
+  slow 1000 rpm: never  0/48 | over 3% at gate   2 | steady median 4.07 s, slowest 10.40 s | error at gate worst  3.5% | next 1 s worst  3.8%
+  slow 1250 rpm: never  0/48 | over 3% at gate   4 | steady median 3.72 s, slowest  5.47 s | error at gate worst  3.6% | next 1 s worst  4.0%
+  slow 1500 rpm: never  0/48 | over 3% at gate   2 | steady median 3.46 s, slowest  5.01 s | error at gate worst  6.0% | next 1 s worst  6.1%
+  slow 2000 rpm: never  0/48 | over 3% at gate   2 | steady median 3.19 s, slowest  3.89 s | error at gate worst  3.2% | next 1 s worst  3.9%
+  first-order: never  3/84 | over 3% at gate   2 | steady median 3.78 s, slowest 11.36 s | error at gate worst  3.7% | next 1 s worst  4.0%
+  tach 5 us  : never  3/84 | over 3% at gate   3 | steady median 3.78 s, slowest 11.37 s | error at gate worst  3.8% | next 1 s worst  4.0%
+  ESC 30 ms  : never  8/84 | over 3% at gate   3 | steady median 3.85 s, slowest 11.53 s | error at gate worst  6.0% | next 1 s worst  6.1%
+  ESC 80 ms  : never 15/84 | over 3% at gate   9 | steady median 4.13 s, slowest 11.65 s | error at gate worst  3.6% | next 1 s worst  3.9%
+
+LOOP_LOW_RPM off, GATE_HOLD_REVS 6, tach window 40 ms: all never  0/336 | over 3% at gate   3 | steady median 3.76 s, slowest  7.84 s | error at gate worst  3.5% | next 1 s worst  4.4%
+  slow  510 rpm: never  0/48 | over 3% at gate   0 | steady median 4.61 s, slowest  7.84 s | error at gate worst  1.6% | next 1 s worst  2.2%
+  slow  600 rpm: never  0/48 | over 3% at gate   0 | steady median 4.43 s, slowest  6.62 s | error at gate worst  2.2% | next 1 s worst  2.2%
+  slow  750 rpm: never  0/48 | over 3% at gate   0 | steady median 4.21 s, slowest  6.11 s | error at gate worst  1.8% | next 1 s worst  1.8%
+  slow 1000 rpm: never  0/48 | over 3% at gate   0 | steady median 3.83 s, slowest  5.56 s | error at gate worst  2.9% | next 1 s worst  3.4%
+  slow 1250 rpm: never  0/48 | over 3% at gate   1 | steady median 3.65 s, slowest  4.56 s | error at gate worst  3.1% | next 1 s worst  4.2%
+  slow 1500 rpm: never  0/48 | over 3% at gate   0 | steady median 3.45 s, slowest  4.13 s | error at gate worst  2.6% | next 1 s worst  3.4%
+  slow 2000 rpm: never  0/48 | over 3% at gate   2 | steady median 3.17 s, slowest  3.91 s | error at gate worst  3.5% | next 1 s worst  4.4%
+  first-order: never  0/84 | over 3% at gate   1 | steady median 3.76 s, slowest  6.52 s | error at gate worst  3.5% | next 1 s worst  4.4%
+  tach 5 us  : never  0/84 | over 3% at gate   1 | steady median 3.76 s, slowest  6.52 s | error at gate worst  3.5% | next 1 s worst  4.4%
+  ESC 30 ms  : never  0/84 | over 3% at gate   0 | steady median 3.75 s, slowest  6.52 s | error at gate worst  2.9% | next 1 s worst  3.4%
+  ESC 80 ms  : never  0/84 | over 3% at gate   1 | steady median 3.75 s, slowest  7.84 s | error at gate worst  3.1% | next 1 s worst  4.2%
+
+LOOP_LOW_RPM off, GATE_HOLD_REVS 6, tach window 60 ms: all never  0/336 | over 3% at gate   5 | steady median 3.75 s, slowest  7.82 s | error at gate worst  3.7% | next 1 s worst  4.1%
+  slow  510 rpm: never  0/48 | over 3% at gate   0 | steady median 4.72 s, slowest  7.82 s | error at gate worst  1.4% | next 1 s worst  2.2%
+  slow  600 rpm: never  0/48 | over 3% at gate   0 | steady median 4.47 s, slowest  6.61 s | error at gate worst  2.2% | next 1 s worst  2.2%
+  slow  750 rpm: never  0/48 | over 3% at gate   0 | steady median 4.21 s, slowest  6.10 s | error at gate worst  1.9% | next 1 s worst  1.9%
+  slow 1000 rpm: never  0/48 | over 3% at gate   2 | steady median 3.83 s, slowest  5.60 s | error at gate worst  3.1% | next 1 s worst  3.6%
+  slow 1250 rpm: never  0/48 | over 3% at gate   0 | steady median 3.66 s, slowest  5.22 s | error at gate worst  2.5% | next 1 s worst  3.2%
+  slow 1500 rpm: never  0/48 | over 3% at gate   2 | steady median 3.42 s, slowest  4.13 s | error at gate worst  3.7% | next 1 s worst  4.1%
+  slow 2000 rpm: never  0/48 | over 3% at gate   1 | steady median 3.19 s, slowest  3.90 s | error at gate worst  3.1% | next 1 s worst  3.2%
+  first-order: never  0/84 | over 3% at gate   0 | steady median 3.75 s, slowest  6.52 s | error at gate worst  2.3% | next 1 s worst  2.8%
+  tach 5 us  : never  0/84 | over 3% at gate   0 | steady median 3.75 s, slowest  6.52 s | error at gate worst  2.3% | next 1 s worst  2.8%
+  ESC 30 ms  : never  0/84 | over 3% at gate   3 | steady median 3.74 s, slowest  6.51 s | error at gate worst  3.1% | next 1 s worst  3.6%
+  ESC 80 ms  : never  0/84 | over 3% at gate   2 | steady median 3.76 s, slowest  7.82 s | error at gate worst  3.7% | next 1 s worst  4.1%
+
+LOOP_LOW_RPM 1500, GATE_HOLD_REVS 6, tach window off ms: all never  0/336 | over 3% at gate  14 | steady median 3.76 s, slowest 11.62 s | error at gate worst  7.0% | next 1 s worst  7.0%
+  slow  510 rpm: never  0/48 | over 3% at gate   1 | steady median 5.71 s, slowest 11.62 s | error at gate worst  4.0% | next 1 s worst  4.2%
+  slow  600 rpm: never  0/48 | over 3% at gate   1 | steady median 5.44 s, slowest  9.23 s | error at gate worst  3.6% | next 1 s worst  3.8%
+  slow  750 rpm: never  0/48 | over 3% at gate   3 | steady median 5.01 s, slowest  8.06 s | error at gate worst  3.4% | next 1 s worst  3.8%
+  slow 1000 rpm: never  0/48 | over 3% at gate   0 | steady median 4.04 s, slowest  6.68 s | error at gate worst  2.3% | next 1 s worst  2.6%
+  slow 1250 rpm: never  0/48 | over 3% at gate   3 | steady median 3.67 s, slowest  5.59 s | error at gate worst  7.0% | next 1 s worst  7.0%
+  slow 1500 rpm: never  0/48 | over 3% at gate   3 | steady median 3.47 s, slowest  5.04 s | error at gate worst  6.0% | next 1 s worst  6.1%
+  slow 2000 rpm: never  0/48 | over 3% at gate   3 | steady median 3.19 s, slowest  3.92 s | error at gate worst  3.2% | next 1 s worst  4.0%
+  first-order: never  0/84 | over 3% at gate   2 | steady median 3.75 s, slowest 10.04 s | error at gate worst  3.6% | next 1 s worst  4.3%
+  tach 5 us  : never  0/84 | over 3% at gate   2 | steady median 3.75 s, slowest 10.04 s | error at gate worst  3.6% | next 1 s worst  4.3%
+  ESC 30 ms  : never  0/84 | over 3% at gate   5 | steady median 3.71 s, slowest 10.16 s | error at gate worst  7.0% | next 1 s worst  7.0%
+  ESC 80 ms  : never  0/84 | over 3% at gate   5 | steady median 3.96 s, slowest 11.62 s | error at gate worst  4.0% | next 1 s worst  4.2%
+
+LOOP_LOW_RPM 1500, GATE_HOLD_REVS 6, tach window 40 ms: all never  0/336 | over 3% at gate   7 | steady median 3.75 s, slowest  9.12 s | error at gate worst  3.3% | next 1 s worst  4.5%
+  slow  510 rpm: never  0/48 | over 3% at gate   1 | steady median 5.28 s, slowest  9.12 s | error at gate worst  3.3% | next 1 s worst  3.6%
+  slow  600 rpm: never  0/48 | over 3% at gate   0 | steady median 5.28 s, slowest  8.28 s | error at gate worst  2.7% | next 1 s worst  2.8%
+  slow  750 rpm: never  0/48 | over 3% at gate   0 | steady median 4.69 s, slowest  7.47 s | error at gate worst  2.8% | next 1 s worst  2.8%
+  slow 1000 rpm: never  0/48 | over 3% at gate   3 | steady median 4.08 s, slowest  6.28 s | error at gate worst  3.2% | next 1 s worst  4.2%
+  slow 1250 rpm: never  0/48 | over 3% at gate   1 | steady median 3.68 s, slowest  4.85 s | error at gate worst  3.2% | next 1 s worst  4.5%
+  slow 1500 rpm: never  0/48 | over 3% at gate   0 | steady median 3.47 s, slowest  4.11 s | error at gate worst  2.6% | next 1 s worst  3.4%
+  slow 2000 rpm: never  0/48 | over 3% at gate   2 | steady median 3.17 s, slowest  3.90 s | error at gate worst  3.3% | next 1 s worst  4.4%
+  first-order: never  0/84 | over 3% at gate   2 | steady median 3.75 s, slowest  8.87 s | error at gate worst  3.3% | next 1 s worst  4.4%
+  tach 5 us  : never  0/84 | over 3% at gate   2 | steady median 3.75 s, slowest  8.87 s | error at gate worst  3.3% | next 1 s worst  4.4%
+  ESC 30 ms  : never  0/84 | over 3% at gate   1 | steady median 3.75 s, slowest  8.91 s | error at gate worst  3.2% | next 1 s worst  4.2%
+  ESC 80 ms  : never  0/84 | over 3% at gate   2 | steady median 3.76 s, slowest  9.12 s | error at gate worst  3.3% | next 1 s worst  4.5%
+
+LOOP_LOW_RPM 1500, GATE_HOLD_REVS 6, tach window 60 ms: all never  0/336 | over 3% at gate   6 | steady median 3.76 s, slowest  9.11 s | error at gate worst  3.4% | next 1 s worst  4.3%
+  slow  510 rpm: never  0/48 | over 3% at gate   1 | steady median 5.36 s, slowest  9.11 s | error at gate worst  3.3% | next 1 s worst  3.6%
+  slow  600 rpm: never  0/48 | over 3% at gate   0 | steady median 5.07 s, slowest  8.27 s | error at gate worst  2.7% | next 1 s worst  2.8%
+  slow  750 rpm: never  0/48 | over 3% at gate   0 | steady median 4.66 s, slowest  7.47 s | error at gate worst  2.8% | next 1 s worst  2.8%
+  slow 1000 rpm: never  0/48 | over 3% at gate   3 | steady median 4.08 s, slowest  6.32 s | error at gate worst  3.4% | next 1 s worst  4.3%
+  slow 1250 rpm: never  0/48 | over 3% at gate   0 | steady median 3.67 s, slowest  5.54 s | error at gate worst  2.9% | next 1 s worst  3.4%
+  slow 1500 rpm: never  0/48 | over 3% at gate   1 | steady median 3.43 s, slowest  4.33 s | error at gate worst  3.2% | next 1 s worst  4.1%
+  slow 2000 rpm: never  0/48 | over 3% at gate   1 | steady median 3.21 s, slowest  3.89 s | error at gate worst  3.1% | next 1 s worst  3.1%
+  first-order: never  0/84 | over 3% at gate   1 | steady median 3.76 s, slowest  8.87 s | error at gate worst  3.4% | next 1 s worst  3.7%
+  tach 5 us  : never  0/84 | over 3% at gate   1 | steady median 3.76 s, slowest  8.87 s | error at gate worst  3.4% | next 1 s worst  3.7%
+  ESC 30 ms  : never  0/84 | over 3% at gate   2 | steady median 3.75 s, slowest  8.90 s | error at gate worst  3.3% | next 1 s worst  4.3%
+  ESC 80 ms  : never  0/84 | over 3% at gate   2 | steady median 3.79 s, slowest  9.11 s | error at gate worst  3.3% | next 1 s worst  4.1%

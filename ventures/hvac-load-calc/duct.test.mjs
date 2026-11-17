@@ -172,3 +172,50 @@ test('designFromLoad reads only lengths typed for that room, not inherited objec
   assert.deepEqual(d.runs.map(r => r.effectiveLengthFt), [80, 80]);
   assert.deepEqual(sizeDucts(d).errors, []);
 });
+
+// Every bounded setting accepts its own limits and refuses just past them. A table over
+// the whole validator, so a nudged bound fails here rather than slipping through
+// (redteam 2026-11-15: five bound mutants survived the hand-picked refusal cases).
+test('every bounded duct setting accepts its limits and refuses just past them', () => {
+  const ok = { runs: [{ room: 'A', cfm: 100, effectiveLengthFt: 50 }], returnEffectiveLengthFt: 20 };
+  const bounds = [
+    ['blowerStaticInWC', 0.05, 3],
+    ...['coilInWC', 'filterInWC', 'supplyRegisterInWC', 'returnGrilleInWC', 'otherInWC'].map(k => [k, 0, 2]),
+    ['roughnessFt', 0, 0.05],
+    ...['branchMaxFpm', 'trunkMaxFpm', 'returnMaxFpm'].map(k => [k, 200, 3000]),
+    ['rectHeightIn', 4, 30], ['rectStepIn', 0.5, 6], ['elevationFt', -300, 14000], ['returnEffectiveLengthFt', 1, 2000],
+  ];
+  for (const [k, min, max] of bounds) {
+    const eps = Math.max(1e-6, (max - min) * 1e-6);
+    assert.deepEqual(validateDucts({ ...ok, [k]: min }), [], `${k} = ${min}`);
+    assert.deepEqual(validateDucts({ ...ok, [k]: max }), [], `${k} = ${max}`);
+    assert.match(validateDucts({ ...ok, [k]: min - eps }).join(), /must be between/, `${k} below ${min}`);
+    assert.match(validateDucts({ ...ok, [k]: max + eps }).join(), /must be between/, `${k} above ${max}`);
+  }
+  const run = (cfm, effectiveLengthFt) => ({ ...ok, runs: [{ room: 'A', cfm, effectiveLengthFt }] });
+  for (const [c, l] of [[0, 1], [5000, 2000]]) assert.deepEqual(validateDucts(run(c, l)), []);
+  for (const [c, l] of [[-0.01, 50], [5000.01, 50], [100, 0.99], [100, 2000.01]]) assert.match(validateDucts(run(c, l)).join(), /must be between/, `${c} cfm, ${l} ft`);
+  const ret = (cfm, effectiveLengthFt) => ({ ...ok, returns: [{ name: 'R', cfm, effectiveLengthFt }] });
+  for (const [c, l] of [[10000, 1], [0, 2000]]) assert.deepEqual(validateDucts(ret(c, l)), []);
+  for (const [c, l] of [[10000.01, 50], [100, 0.99], [100, 2000.01]]) assert.match(validateDucts(ret(c, l)).join(), /must be between/, `return ${c} cfm, ${l} ft`);
+});
+
+test('round sizes must be numbers: a string or a nested list is refused, not coerced', () => {
+  const ok = { runs: [{ room: 'A', cfm: 100, effectiveLengthFt: 50 }], returnEffectiveLengthFt: 20 };
+  assert.deepEqual(validateDucts({ ...ok, sizesIn: [2, 60] }), []);
+  for (const sizesIn of [['6', 8], [[6], 8], [1.99, 8], [8, 60.01], []]) assert.match(validateDucts({ ...ok, sizesIn }).join(), /Round sizes/, JSON.stringify(sizesIn));
+});
+
+test('warning thresholds: friction rate over 0.18, and a run under 15 cfm', () => {
+  const zero = { coilInWC: 0, filterInWC: 0, supplyRegisterInWC: 0, returnGrilleInWC: 0 };
+  // 0.18 in. w.c. over 100 ft of total effective length is exactly 0.18 per 100 ft.
+  const at = rate => sizeDucts({ ...zero, blowerStaticInWC: rate, runs: [{ room: 'A', cfm: 100, effectiveLengthFt: 50 }], returnEffectiveLengthFt: 50 });
+  assert.equal(at(0.18).pressure.frictionRate, 0.18);
+  assert.ok(!at(0.18).warnings.some(w => /velocity limits/.test(w)), 'exactly 0.18 is not over');
+  assert.ok(at(0.19).warnings.some(w => /velocity limits/.test(w)));
+  const small = cfm => sizeDucts({ runs: [{ room: 'A', cfm: 300, effectiveLengthFt: 50 }, { room: 'Closet', cfm, effectiveLengthFt: 20 }], returnEffectiveLengthFt: 20 }).warnings.some(w => /"Closet" needs only/.test(w));
+  assert.equal(small(15), false);
+  assert.equal(small(15.5), false);
+  assert.equal(small(14.9), true);
+  assert.equal(small(0), false);
+});

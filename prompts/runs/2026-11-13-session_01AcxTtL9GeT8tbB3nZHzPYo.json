@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtL9GeT8tbB3nZHzPYo",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T11:07:05Z",
+  "ended": "2026-11-13T11:14:31Z",
+  "wall_minutes": 18.86,
+  "tokens_in": 5067506,
+  "tokens_out": 35408,
+  "cost_usd": 2.5623,
+  "tool_calls": 58,
+  "task": "Shared jump-row / guide-list component in pf-chrome.css (item 1 of last polish report's still-weakest list)",
+  "projects": [
+    "platform/pages",
+    "ai-bookkeeper",
+    "clothing-design-studio",
+    "etsy-profit-calculator",
+    "ebay-fee-calculator",
+    "reverb-fee-calculator",
+    "league-schedule-generator",
+    "shift-roster-builder",
+    "state-residency-day-counter",
+    "3pl-quote-normalizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15476",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft of the main pill fell back to currentColor for its fill while setting its own text to #fff (white on white).",
+      "fix": "Fallback #1f4e8c; jump-row.test.mjs guards it."
+    },
+    {
+      "what": "First draft used border-box with min-height 32px, shrinking pills from 34 to 32px.",
+      "fix": "min-height 34px with border-box."
+    },
+    {
+      "what": "Neutral border fallback #c9d0d8 broke build.test.mjs 'chrome must not hard-code a colour'.",
+      "fix": "rgba(128,128,128,.45); main-pill rule allow-listed like the voice button."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says to run platform/ci/wait_for.py build.log until it returns, but wait_for defaults to 100 s; the --timeout 540 hint only shows after the first timeout. Stating it in the prompt saves a call."
+    },
+    {
+      "file": "platform/pages/build.test.mjs",
+      "issue": "Its 'chrome must not hard-code a colour' test reads dist/pf-chrome.css, so after changing renderChromeStyle a run must rebuild (or rewrite that file) before the test sees the change; nothing says so near renderChromeStyle."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-ten-copies-of-one-pill.md",
+    "docs/reports/polish-2026-11-13-shared-jump-row.md"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; ideas inbox and website requests empty; routed polish/0 by weighted draw. Full local build OK; check.mjs: publishable, 9200 pages, no dead links. node --test 'platform/pages/*.test.mjs': 1617 tests, 1 fail (hard-coded colour, fixed), then build.test.mjs + jump-row.test.mjs 317/317 pass. 58 page/SEO/guide test files of the nine ventures: 1594 pass. Before/after measured on nine pages at 390 and 1280 px from dist: row heights unchanged on 17/18 (eBay +40px inside a closed details), pills uniform 12px/.87rem/34px/3px ring, no sideways scroll. Two-column guides on phones measured and rejected (makes league and shift-roster taller).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "76eb554b-f94f-565a-b364-1673dccc7ae7",
+    "transcripts": 1,
+    "first": "2026-11-13T11:07:05Z",
+    "last": "2026-11-13T11:25:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 95,
+        "output": 35408,
+        "thinking": 7762,
+        "cache_read": 4959683,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107728,
+        "api_equivalent_usd": 2.5623,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 95,
+      "output": 35408,
+      "thinking": 7762,
+      "cache_read": 4959683,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107728,
+      "api_equivalent_usd": 2.5623,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 50,
+      "Write": 3,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.86,
+      "active_minutes": 18.86,
+      "model_minutes": 6.62,
+      "tool_minutes": 12.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "front-end dev: audit ten pages' CSS, write shared component, migrate, measure before/after, tests, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 156.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

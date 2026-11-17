@@ -90,7 +90,9 @@ test("the guide's worked numbers are the engine's", async () => {
   const rowOf = (a) => `<td class="n">${a.worst ? a.worst.peak.toFixed(0) + " g/m²" : "none"}</td><td class="n">${a.worst ? a.worst.wetMonths : 0}</td><td class="n">${a.safeIndoorRh.toFixed(0)}%</td>`;
   const lay = c.sampleInput().layers;
   const xps2 = c.analyze({ layers: lay.replace("Polymer housewrap, 0, 50", "2 in XPS foam, 10, 0.55\nPolymer housewrap, 0, 50") });
-  const poly = c.analyze({ layers: lay.replace("Latex primer and paint, 0, 5", "6 mil polyethylene, 0, 0.06") });
+  // polyethylene goes behind the drywall (the paint's vapour role, not its room-side position)
+  const poly = c.analyze({ layers: lay.replace("Latex primer and paint, 0, 5\n1/2 in gypsum board, 0.45, 50", "1/2 in gypsum board, 0.45, 50\n6 mil polyethylene, 0, 0.06") });
+  assert.equal(poly.layers[1].name, "6 mil polyethylene");
   for (const a of [base, c.analyze(c.sampleWithFoam()), xps2, poly]) assert.ok(g.includes(rowOf(a)), rowOf(a));
   assert.ok(xps2.rows.find((r) => r.name === "Jan").interfaces[i].t > 0, "2 in XPS: OSB face above freezing in January");
 });

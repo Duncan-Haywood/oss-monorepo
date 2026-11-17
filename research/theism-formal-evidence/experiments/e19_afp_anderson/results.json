@@ -1,0 +1,2937 @@
+{
+ "frames": 8112532,
+ "skipped_frames": 435,
+ "models": {
+  "I": 1952588,
+  "II": 735109,
+  "III": 477291,
+  "III-noA4": 1478138
+ },
+ "first_model_size": {
+  "I": [
+   1,
+   1
+  ],
+  "II": [
+   1,
+   1
+  ],
+  "III": [
+   1,
+   1
+  ],
+  "III-noA4": [
+   1,
+   1
+  ]
+ },
+ "fails": {
+  "D (seriality, forced)|I|S5|full": [
+   0,
+   1890
+  ],
+  "T1: P X -> dia exists^E X|I|S5|full": [
+   0,
+   1890
+  ],
+  "T3: dia exists^E G|I|S5|full": [
+   0,
+   1890
+  ],
+  "D (seriality, forced)|II|S5|full": [
+   0,
+   1890
+  ],
+  "T1: P X -> dia exists^E X|II|S5|full": [
+   0,
+   1890
+  ],
+  "T3: dia exists^E G|II|S5|full": [
+   0,
+   1890
+  ],
+  "A4b: not P X -> box not P X|II|S5|full": [
+   0,
+   1890
+  ],
+  "rigidPred P|II|S5|full": [
+   0,
+   1890
+  ],
+  "GodIsEssential: G x -> E G x|II|S5|full": [
+   0,
+   1890
+  ],
+  "D (seriality, forced)|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "T3: dia exists^E G|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "GodNecExists: box exists^E G|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "non-empty domain (not in the file)|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|S5|full": [
+   0,
+   1890
+  ],
+  "modal collapse|III-noA4|S5|full": [
+   508,
+   1890
+  ],
+  "D (seriality, forced)|III|S5|full": [
+   0,
+   1890
+  ],
+  "T1: P X -> dia exists^E X|III|S5|full": [
+   0,
+   1890
+  ],
+  "T3: dia exists^E G|III|S5|full": [
+   0,
+   1890
+  ],
+  "A4b: not P X -> box not P X|III|S5|full": [
+   0,
+   1890
+  ],
+  "rigidPred P|III|S5|full": [
+   0,
+   1890
+  ],
+  "GodIsEssential: G x -> E G x|III|S5|full": [
+   0,
+   1890
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|S5|full": [
+   0,
+   1890
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|S5|full": [
+   0,
+   1890
+  ],
+  "GodNecExists: box exists^E G|III|S5|full": [
+   0,
+   1890
+  ],
+  "non-empty domain (not in the file)|III|S5|full": [
+   0,
+   1890
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|S5|full": [
+   0,
+   1890
+  ],
+  "modal collapse|III|S5|full": [
+   508,
+   1890
+  ],
+  "D (seriality, forced)|I|S5|coarse": [
+   0,
+   40994
+  ],
+  "T1: P X -> dia exists^E X|I|S5|coarse": [
+   0,
+   40994
+  ],
+  "T3: dia exists^E G|I|S5|coarse": [
+   0,
+   40994
+  ],
+  "D (seriality, forced)|II|S5|coarse": [
+   0,
+   40994
+  ],
+  "T1: P X -> dia exists^E X|II|S5|coarse": [
+   0,
+   40994
+  ],
+  "T3: dia exists^E G|II|S5|coarse": [
+   0,
+   40994
+  ],
+  "A4b: not P X -> box not P X|II|S5|coarse": [
+   0,
+   40994
+  ],
+  "rigidPred P|II|S5|coarse": [
+   0,
+   40994
+  ],
+  "GodIsEssential: G x -> E G x|II|S5|coarse": [
+   0,
+   40994
+  ],
+  "D (seriality, forced)|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "T3: dia exists^E G|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "GodNecExists: box exists^E G|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "non-empty domain (not in the file)|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|S5|coarse": [
+   0,
+   28380
+  ],
+  "modal collapse|III-noA4|S5|coarse": [
+   10035,
+   28380
+  ],
+  "D (seriality, forced)|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "T1: P X -> dia exists^E X|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "T3: dia exists^E G|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "A4b: not P X -> box not P X|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "rigidPred P|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "GodIsEssential: G x -> E G x|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "GodNecExists: box exists^E G|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "non-empty domain (not in the file)|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|S5|coarse": [
+   0,
+   28380
+  ],
+  "modal collapse|III|S5|coarse": [
+   10035,
+   28380
+  ],
+  "D (seriality, forced)|I|K4|coarse": [
+   0,
+   350260
+  ],
+  "T1: P X -> dia exists^E X|I|K4|coarse": [
+   0,
+   350260
+  ],
+  "T3: dia exists^E G|I|K4|coarse": [
+   0,
+   350260
+  ],
+  "D (seriality, forced)|II|K4|coarse": [
+   0,
+   197086
+  ],
+  "T1: P X -> dia exists^E X|II|K4|coarse": [
+   0,
+   197086
+  ],
+  "T3: dia exists^E G|II|K4|coarse": [
+   0,
+   197086
+  ],
+  "A4b: not P X -> box not P X|II|K4|coarse": [
+   58638,
+   197086
+  ],
+  "rigidPred P|II|K4|coarse": [
+   58638,
+   197086
+  ],
+  "GodIsEssential: G x -> E G x|II|K4|coarse": [
+   2304,
+   197086
+  ],
+  "D (seriality, forced)|III-noA4|K4|coarse": [
+   0,
+   286444
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|K4|coarse": [
+   0,
+   286444
+  ],
+  "T3: dia exists^E G|III-noA4|K4|coarse": [
+   0,
+   286444
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|K4|coarse": [
+   1164,
+   286444
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|K4|coarse": [
+   121992,
+   286444
+  ],
+  "GodNecExists: box exists^E G|III-noA4|K4|coarse": [
+   121992,
+   286444
+  ],
+  "non-empty domain (not in the file)|III-noA4|K4|coarse": [
+   63470,
+   286444
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|K4|coarse": [
+   121992,
+   286444
+  ],
+  "modal collapse|III-noA4|K4|coarse": [
+   286444,
+   286444
+  ],
+  "D (seriality, forced)|III|K4|coarse": [
+   0,
+   158446
+  ],
+  "T1: P X -> dia exists^E X|III|K4|coarse": [
+   0,
+   158446
+  ],
+  "T3: dia exists^E G|III|K4|coarse": [
+   0,
+   158446
+  ],
+  "A4b: not P X -> box not P X|III|K4|coarse": [
+   46710,
+   158446
+  ],
+  "rigidPred P|III|K4|coarse": [
+   46710,
+   158446
+  ],
+  "GodIsEssential: G x -> E G x|III|K4|coarse": [
+   1512,
+   158446
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|K4|coarse": [
+   1164,
+   158446
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|K4|coarse": [
+   57882,
+   158446
+  ],
+  "GodNecExists: box exists^E G|III|K4|coarse": [
+   57882,
+   158446
+  ],
+  "non-empty domain (not in the file)|III|K4|coarse": [
+   45974,
+   158446
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|K4|coarse": [
+   57882,
+   158446
+  ],
+  "modal collapse|III|K4|coarse": [
+   158446,
+   158446
+  ],
+  "D (seriality, forced)|I|K4|full": [
+   0,
+   81224
+  ],
+  "T1: P X -> dia exists^E X|I|K4|full": [
+   0,
+   81224
+  ],
+  "T3: dia exists^E G|I|K4|full": [
+   0,
+   81224
+  ],
+  "D (seriality, forced)|II|K4|full": [
+   0,
+   19576
+  ],
+  "T1: P X -> dia exists^E X|II|K4|full": [
+   0,
+   19576
+  ],
+  "T3: dia exists^E G|II|K4|full": [
+   0,
+   19576
+  ],
+  "A4b: not P X -> box not P X|II|K4|full": [
+   10586,
+   19576
+  ],
+  "rigidPred P|II|K4|full": [
+   10586,
+   19576
+  ],
+  "GodIsEssential: G x -> E G x|II|K4|full": [
+   0,
+   19576
+  ],
+  "D (seriality, forced)|III-noA4|K4|full": [
+   0,
+   81224
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|K4|full": [
+   0,
+   81224
+  ],
+  "T3: dia exists^E G|III-noA4|K4|full": [
+   0,
+   81224
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|K4|full": [
+   0,
+   81224
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|K4|full": [
+   62898,
+   81224
+  ],
+  "GodNecExists: box exists^E G|III-noA4|K4|full": [
+   62898,
+   81224
+  ],
+  "non-empty domain (not in the file)|III-noA4|K4|full": [
+   32521,
+   81224
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|K4|full": [
+   62898,
+   81224
+  ],
+  "modal collapse|III-noA4|K4|full": [
+   81224,
+   81224
+  ],
+  "D (seriality, forced)|III|K4|full": [
+   0,
+   19576
+  ],
+  "T1: P X -> dia exists^E X|III|K4|full": [
+   0,
+   19576
+  ],
+  "T3: dia exists^E G|III|K4|full": [
+   0,
+   19576
+  ],
+  "A4b: not P X -> box not P X|III|K4|full": [
+   10586,
+   19576
+  ],
+  "rigidPred P|III|K4|full": [
+   10586,
+   19576
+  ],
+  "GodIsEssential: G x -> E G x|III|K4|full": [
+   0,
+   19576
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|K4|full": [
+   0,
+   19576
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|K4|full": [
+   13350,
+   19576
+  ],
+  "GodNecExists: box exists^E G|III|K4|full": [
+   13350,
+   19576
+  ],
+  "non-empty domain (not in the file)|III|K4|full": [
+   10823,
+   19576
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|K4|full": [
+   13350,
+   19576
+  ],
+  "modal collapse|III|K4|full": [
+   19576,
+   19576
+  ],
+  "D (seriality, forced)|I|KB|coarse": [
+   0,
+   52012
+  ],
+  "T1: P X -> dia exists^E X|I|KB|coarse": [
+   0,
+   52012
+  ],
+  "T3: dia exists^E G|I|KB|coarse": [
+   0,
+   52012
+  ],
+  "D (seriality, forced)|II|KB|coarse": [
+   0,
+   25038
+  ],
+  "T1: P X -> dia exists^E X|II|KB|coarse": [
+   0,
+   25038
+  ],
+  "T3: dia exists^E G|II|KB|coarse": [
+   0,
+   25038
+  ],
+  "A4b: not P X -> box not P X|II|KB|coarse": [
+   0,
+   25038
+  ],
+  "rigidPred P|II|KB|coarse": [
+   0,
+   25038
+  ],
+  "GodIsEssential: G x -> E G x|II|KB|coarse": [
+   0,
+   25038
+  ],
+  "D (seriality, forced)|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "T3: dia exists^E G|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "GodNecExists: box exists^E G|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "non-empty domain (not in the file)|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|KB|coarse": [
+   0,
+   29118
+  ],
+  "modal collapse|III-noA4|KB|coarse": [
+   29118,
+   29118
+  ],
+  "D (seriality, forced)|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "T1: P X -> dia exists^E X|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "T3: dia exists^E G|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "A4b: not P X -> box not P X|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "rigidPred P|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "GodIsEssential: G x -> E G x|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "GodNecExists: box exists^E G|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "non-empty domain (not in the file)|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|KB|coarse": [
+   0,
+   10690
+  ],
+  "modal collapse|III|KB|coarse": [
+   10690,
+   10690
+  ],
+  "D (seriality, forced)|I|KB|full": [
+   0,
+   2457
+  ],
+  "T1: P X -> dia exists^E X|I|KB|full": [
+   0,
+   2457
+  ],
+  "T3: dia exists^E G|I|KB|full": [
+   0,
+   2457
+  ],
+  "D (seriality, forced)|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "T3: dia exists^E G|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "GodNecExists: box exists^E G|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "non-empty domain (not in the file)|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|KB|full": [
+   0,
+   2457
+  ],
+  "modal collapse|III-noA4|KB|full": [
+   2457,
+   2457
+  ],
+  "D (seriality, forced)|I|S4|coarse": [
+   0,
+   439254
+  ],
+  "T1: P X -> dia exists^E X|I|S4|coarse": [
+   0,
+   439254
+  ],
+  "T3: dia exists^E G|I|S4|coarse": [
+   0,
+   439254
+  ],
+  "D (seriality, forced)|II|S4|coarse": [
+   0,
+   217050
+  ],
+  "T1: P X -> dia exists^E X|II|S4|coarse": [
+   0,
+   217050
+  ],
+  "T3: dia exists^E G|II|S4|coarse": [
+   0,
+   217050
+  ],
+  "A4b: not P X -> box not P X|II|S4|coarse": [
+   61054,
+   217050
+  ],
+  "rigidPred P|II|S4|coarse": [
+   61054,
+   217050
+  ],
+  "GodIsEssential: G x -> E G x|II|S4|coarse": [
+   0,
+   217050
+  ],
+  "D (seriality, forced)|I|S4|full": [
+   0,
+   101124
+  ],
+  "T1: P X -> dia exists^E X|I|S4|full": [
+   0,
+   101124
+  ],
+  "T3: dia exists^E G|I|S4|full": [
+   0,
+   101124
+  ],
+  "D (seriality, forced)|II|S4|full": [
+   0,
+   10568
+  ],
+  "T1: P X -> dia exists^E X|II|S4|full": [
+   0,
+   10568
+  ],
+  "T3: dia exists^E G|II|S4|full": [
+   0,
+   10568
+  ],
+  "A4b: not P X -> box not P X|II|S4|full": [
+   5576,
+   10568
+  ],
+  "rigidPred P|II|S4|full": [
+   5576,
+   10568
+  ],
+  "GodIsEssential: G x -> E G x|II|S4|full": [
+   0,
+   10568
+  ],
+  "D (seriality, forced)|III-noA4|S4|full": [
+   0,
+   101124
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|S4|full": [
+   0,
+   101124
+  ],
+  "T3: dia exists^E G|III-noA4|S4|full": [
+   0,
+   101124
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|S4|full": [
+   0,
+   101124
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|S4|full": [
+   99314,
+   101124
+  ],
+  "GodNecExists: box exists^E G|III-noA4|S4|full": [
+   99314,
+   101124
+  ],
+  "non-empty domain (not in the file)|III-noA4|S4|full": [
+   22376,
+   101124
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|S4|full": [
+   99314,
+   101124
+  ],
+  "modal collapse|III-noA4|S4|full": [
+   101124,
+   101124
+  ],
+  "D (seriality, forced)|III|S4|full": [
+   0,
+   10568
+  ],
+  "T1: P X -> dia exists^E X|III|S4|full": [
+   0,
+   10568
+  ],
+  "T3: dia exists^E G|III|S4|full": [
+   0,
+   10568
+  ],
+  "A4b: not P X -> box not P X|III|S4|full": [
+   5576,
+   10568
+  ],
+  "rigidPred P|III|S4|full": [
+   5576,
+   10568
+  ],
+  "GodIsEssential: G x -> E G x|III|S4|full": [
+   0,
+   10568
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|S4|full": [
+   0,
+   10568
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|S4|full": [
+   8758,
+   10568
+  ],
+  "GodNecExists: box exists^E G|III|S4|full": [
+   8758,
+   10568
+  ],
+  "non-empty domain (not in the file)|III|S4|full": [
+   4990,
+   10568
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|S4|full": [
+   8758,
+   10568
+  ],
+  "modal collapse|III|S4|full": [
+   10568,
+   10568
+  ],
+  "D (seriality, forced)|III-noA4|S4|coarse": [
+   0,
+   269658
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|S4|coarse": [
+   0,
+   269658
+  ],
+  "T3: dia exists^E G|III-noA4|S4|coarse": [
+   0,
+   269658
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|S4|coarse": [
+   0,
+   269658
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|S4|coarse": [
+   231038,
+   269658
+  ],
+  "GodNecExists: box exists^E G|III-noA4|S4|coarse": [
+   231038,
+   269658
+  ],
+  "non-empty domain (not in the file)|III-noA4|S4|coarse": [
+   39310,
+   269658
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|S4|coarse": [
+   231038,
+   269658
+  ],
+  "modal collapse|III-noA4|S4|coarse": [
+   269658,
+   269658
+  ],
+  "D (seriality, forced)|III|S4|coarse": [
+   0,
+   125898
+  ],
+  "T1: P X -> dia exists^E X|III|S4|coarse": [
+   0,
+   125898
+  ],
+  "T3: dia exists^E G|III|S4|coarse": [
+   0,
+   125898
+  ],
+  "A4b: not P X -> box not P X|III|S4|coarse": [
+   37952,
+   125898
+  ],
+  "rigidPred P|III|S4|coarse": [
+   37952,
+   125898
+  ],
+  "GodIsEssential: G x -> E G x|III|S4|coarse": [
+   0,
+   125898
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|S4|coarse": [
+   0,
+   125898
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|S4|coarse": [
+   87278,
+   125898
+  ],
+  "GodNecExists: box exists^E G|III|S4|coarse": [
+   87278,
+   125898
+  ],
+  "non-empty domain (not in the file)|III|S4|coarse": [
+   28240,
+   125898
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|S4|coarse": [
+   87278,
+   125898
+  ],
+  "modal collapse|III|S4|coarse": [
+   125898,
+   125898
+  ],
+  "D (seriality, forced)|I|K|coarse": [
+   0,
+   457448
+  ],
+  "T1: P X -> dia exists^E X|I|K|coarse": [
+   0,
+   457448
+  ],
+  "T3: dia exists^E G|I|K|coarse": [
+   0,
+   457448
+  ],
+  "D (seriality, forced)|II|K|coarse": [
+   0,
+   169914
+  ],
+  "T1: P X -> dia exists^E X|II|K|coarse": [
+   0,
+   169914
+  ],
+  "T3: dia exists^E G|II|K|coarse": [
+   0,
+   169914
+  ],
+  "A4b: not P X -> box not P X|II|K|coarse": [
+   14148,
+   169914
+  ],
+  "rigidPred P|II|K|coarse": [
+   14148,
+   169914
+  ],
+  "GodIsEssential: G x -> E G x|II|K|coarse": [
+   792,
+   169914
+  ],
+  "D (seriality, forced)|III-noA4|K|coarse": [
+   0,
+   285068
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|K|coarse": [
+   0,
+   285068
+  ],
+  "T3: dia exists^E G|III-noA4|K|coarse": [
+   0,
+   285068
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|K|coarse": [
+   0,
+   285068
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|K|coarse": [
+   112446,
+   285068
+  ],
+  "GodNecExists: box exists^E G|III-noA4|K|coarse": [
+   112446,
+   285068
+  ],
+  "non-empty domain (not in the file)|III-noA4|K|coarse": [
+   40674,
+   285068
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|K|coarse": [
+   112446,
+   285068
+  ],
+  "modal collapse|III-noA4|K|coarse": [
+   285068,
+   285068
+  ],
+  "D (seriality, forced)|III|K|coarse": [
+   0,
+   91200
+  ],
+  "T1: P X -> dia exists^E X|III|K|coarse": [
+   0,
+   91200
+  ],
+  "T3: dia exists^E G|III|K|coarse": [
+   0,
+   91200
+  ],
+  "A4b: not P X -> box not P X|III|K|coarse": [
+   9516,
+   91200
+  ],
+  "rigidPred P|III|K|coarse": [
+   9516,
+   91200
+  ],
+  "GodIsEssential: G x -> E G x|III|K|coarse": [
+   648,
+   91200
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|K|coarse": [
+   0,
+   91200
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|K|coarse": [
+   38838,
+   91200
+  ],
+  "GodNecExists: box exists^E G|III|K|coarse": [
+   38838,
+   91200
+  ],
+  "non-empty domain (not in the file)|III|K|coarse": [
+   19164,
+   91200
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|K|coarse": [
+   38838,
+   91200
+  ],
+  "modal collapse|III|K|coarse": [
+   91200,
+   91200
+  ],
+  "D (seriality, forced)|I|K|full": [
+   0,
+   327275
+  ],
+  "T1: P X -> dia exists^E X|I|K|full": [
+   0,
+   327275
+  ],
+  "T3: dia exists^E G|I|K|full": [
+   0,
+   327275
+  ],
+  "D (seriality, forced)|III-noA4|K|full": [
+   0,
+   327275
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|K|full": [
+   0,
+   327275
+  ],
+  "T3: dia exists^E G|III-noA4|K|full": [
+   0,
+   327275
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|K|full": [
+   0,
+   327275
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|K|full": [
+   229029,
+   327275
+  ],
+  "GodNecExists: box exists^E G|III-noA4|K|full": [
+   229029,
+   327275
+  ],
+  "non-empty domain (not in the file)|III-noA4|K|full": [
+   113917,
+   327275
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|K|full": [
+   229029,
+   327275
+  ],
+  "modal collapse|III-noA4|K|full": [
+   327275,
+   327275
+  ],
+  "D (seriality, forced)|II|K|full": [
+   0,
+   11160
+  ],
+  "T1: P X -> dia exists^E X|II|K|full": [
+   0,
+   11160
+  ],
+  "T3: dia exists^E G|II|K|full": [
+   0,
+   11160
+  ],
+  "A4b: not P X -> box not P X|II|K|full": [
+   552,
+   11160
+  ],
+  "rigidPred P|II|K|full": [
+   552,
+   11160
+  ],
+  "GodIsEssential: G x -> E G x|II|K|full": [
+   0,
+   11160
+  ],
+  "D (seriality, forced)|III|K|full": [
+   0,
+   11160
+  ],
+  "T1: P X -> dia exists^E X|III|K|full": [
+   0,
+   11160
+  ],
+  "T3: dia exists^E G|III|K|full": [
+   0,
+   11160
+  ],
+  "A4b: not P X -> box not P X|III|K|full": [
+   552,
+   11160
+  ],
+  "rigidPred P|III|K|full": [
+   552,
+   11160
+  ],
+  "GodIsEssential: G x -> E G x|III|K|full": [
+   0,
+   11160
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|K|full": [
+   0,
+   11160
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|K|full": [
+   11160,
+   11160
+  ],
+  "GodNecExists: box exists^E G|III|K|full": [
+   11160,
+   11160
+  ],
+  "non-empty domain (not in the file)|III|K|full": [
+   9411,
+   11160
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|K|full": [
+   11160,
+   11160
+  ],
+  "modal collapse|III|K|full": [
+   11160,
+   11160
+  ],
+  "D (seriality, forced)|I|T|coarse": [
+   0,
+   63860
+  ],
+  "T1: P X -> dia exists^E X|I|T|coarse": [
+   0,
+   63860
+  ],
+  "T3: dia exists^E G|I|T|coarse": [
+   0,
+   63860
+  ],
+  "D (seriality, forced)|II|T|coarse": [
+   0,
+   38928
+  ],
+  "T1: P X -> dia exists^E X|II|T|coarse": [
+   0,
+   38928
+  ],
+  "T3: dia exists^E G|II|T|coarse": [
+   0,
+   38928
+  ],
+  "A4b: not P X -> box not P X|II|T|coarse": [
+   5976,
+   38928
+  ],
+  "rigidPred P|II|T|coarse": [
+   5976,
+   38928
+  ],
+  "GodIsEssential: G x -> E G x|II|T|coarse": [
+   0,
+   38928
+  ],
+  "D (seriality, forced)|III-noA4|T|coarse": [
+   0,
+   32576
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|T|coarse": [
+   0,
+   32576
+  ],
+  "T3: dia exists^E G|III-noA4|T|coarse": [
+   0,
+   32576
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|T|coarse": [
+   0,
+   32576
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|T|coarse": [
+   12768,
+   32576
+  ],
+  "GodNecExists: box exists^E G|III-noA4|T|coarse": [
+   12768,
+   32576
+  ],
+  "non-empty domain (not in the file)|III-noA4|T|coarse": [
+   2952,
+   32576
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|T|coarse": [
+   12768,
+   32576
+  ],
+  "modal collapse|III-noA4|T|coarse": [
+   32576,
+   32576
+  ],
+  "D (seriality, forced)|III|T|coarse": [
+   0,
+   17760
+  ],
+  "T1: P X -> dia exists^E X|III|T|coarse": [
+   0,
+   17760
+  ],
+  "T3: dia exists^E G|III|T|coarse": [
+   0,
+   17760
+  ],
+  "A4b: not P X -> box not P X|III|T|coarse": [
+   4404,
+   17760
+  ],
+  "rigidPred P|III|T|coarse": [
+   4404,
+   17760
+  ],
+  "GodIsEssential: G x -> E G x|III|T|coarse": [
+   0,
+   17760
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|T|coarse": [
+   0,
+   17760
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|T|coarse": [
+   6132,
+   17760
+  ],
+  "GodNecExists: box exists^E G|III|T|coarse": [
+   6132,
+   17760
+  ],
+  "non-empty domain (not in the file)|III|T|coarse": [
+   1488,
+   17760
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|T|coarse": [
+   6132,
+   17760
+  ],
+  "modal collapse|III|T|coarse": [
+   17760,
+   17760
+  ],
+  "D (seriality, forced)|I|T|full": [
+   0,
+   31444
+  ],
+  "T1: P X -> dia exists^E X|I|T|full": [
+   0,
+   31444
+  ],
+  "T3: dia exists^E G|I|T|full": [
+   0,
+   31444
+  ],
+  "D (seriality, forced)|III-noA4|T|full": [
+   0,
+   31444
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|T|full": [
+   0,
+   31444
+  ],
+  "T3: dia exists^E G|III-noA4|T|full": [
+   0,
+   31444
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|T|full": [
+   0,
+   31444
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|T|full": [
+   27208,
+   31444
+  ],
+  "GodNecExists: box exists^E G|III-noA4|T|full": [
+   27208,
+   31444
+  ],
+  "non-empty domain (not in the file)|III-noA4|T|full": [
+   9840,
+   31444
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|T|full": [
+   27208,
+   31444
+  ],
+  "modal collapse|III-noA4|T|full": [
+   31444,
+   31444
+  ],
+  "D (seriality, forced)|I|B|coarse": [
+   0,
+   3246
+  ],
+  "T1: P X -> dia exists^E X|I|B|coarse": [
+   0,
+   3246
+  ],
+  "T3: dia exists^E G|I|B|coarse": [
+   0,
+   3246
+  ],
+  "D (seriality, forced)|II|B|coarse": [
+   0,
+   1785
+  ],
+  "T1: P X -> dia exists^E X|II|B|coarse": [
+   0,
+   1785
+  ],
+  "T3: dia exists^E G|II|B|coarse": [
+   0,
+   1785
+  ],
+  "A4b: not P X -> box not P X|II|B|coarse": [
+   0,
+   1785
+  ],
+  "rigidPred P|II|B|coarse": [
+   0,
+   1785
+  ],
+  "GodIsEssential: G x -> E G x|II|B|coarse": [
+   0,
+   1785
+  ],
+  "D (seriality, forced)|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "T3: dia exists^E G|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "GodNecExists: box exists^E G|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "non-empty domain (not in the file)|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|B|coarse": [
+   0,
+   1380
+  ],
+  "modal collapse|III-noA4|B|coarse": [
+   1380,
+   1380
+  ],
+  "D (seriality, forced)|III|B|coarse": [
+   0,
+   603
+  ],
+  "T1: P X -> dia exists^E X|III|B|coarse": [
+   0,
+   603
+  ],
+  "T3: dia exists^E G|III|B|coarse": [
+   0,
+   603
+  ],
+  "A4b: not P X -> box not P X|III|B|coarse": [
+   0,
+   603
+  ],
+  "rigidPred P|III|B|coarse": [
+   0,
+   603
+  ],
+  "GodIsEssential: G x -> E G x|III|B|coarse": [
+   0,
+   603
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|B|coarse": [
+   0,
+   603
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|B|coarse": [
+   0,
+   603
+  ],
+  "GodNecExists: box exists^E G|III|B|coarse": [
+   0,
+   603
+  ],
+  "non-empty domain (not in the file)|III|B|coarse": [
+   0,
+   603
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|B|coarse": [
+   0,
+   603
+  ],
+  "modal collapse|III|B|coarse": [
+   603,
+   603
+  ],
+  "D (seriality, forced)|I|B|full": [
+   0,
+   100
+  ],
+  "T1: P X -> dia exists^E X|I|B|full": [
+   0,
+   100
+  ],
+  "T3: dia exists^E G|I|B|full": [
+   0,
+   100
+  ],
+  "D (seriality, forced)|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "T1: P X -> dia exists^E X|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "T3: dia exists^E G|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "GodNecExists: box exists^E G|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "non-empty domain (not in the file)|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|B|full": [
+   0,
+   100
+  ],
+  "modal collapse|III-noA4|B|full": [
+   100,
+   100
+  ],
+  "D (seriality, forced)|II|T|full": [
+   0,
+   1120
+  ],
+  "T1: P X -> dia exists^E X|II|T|full": [
+   0,
+   1120
+  ],
+  "T3: dia exists^E G|II|T|full": [
+   0,
+   1120
+  ],
+  "A4b: not P X -> box not P X|II|T|full": [
+   0,
+   1120
+  ],
+  "rigidPred P|II|T|full": [
+   0,
+   1120
+  ],
+  "GodIsEssential: G x -> E G x|II|T|full": [
+   0,
+   1120
+  ],
+  "D (seriality, forced)|III|T|full": [
+   0,
+   1120
+  ],
+  "T1: P X -> dia exists^E X|III|T|full": [
+   0,
+   1120
+  ],
+  "T3: dia exists^E G|III|T|full": [
+   0,
+   1120
+  ],
+  "A4b: not P X -> box not P X|III|T|full": [
+   0,
+   1120
+  ],
+  "rigidPred P|III|T|full": [
+   0,
+   1120
+  ],
+  "GodIsEssential: G x -> E G x|III|T|full": [
+   0,
+   1120
+  ],
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|T|full": [
+   0,
+   1120
+  ],
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|T|full": [
+   1120,
+   1120
+  ],
+  "GodNecExists: box exists^E G|III|T|full": [
+   1120,
+   1120
+  ],
+  "non-empty domain (not in the file)|III|T|full": [
+   980,
+   1120
+  ],
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|T|full": [
+   1120,
+   1120
+  ],
+  "modal collapse|III|T|full": [
+   1120,
+   1120
+  ]
+ },
+ "smallest": {
+  "non-empty domain (not in the file)|III-noA4|K4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "modal collapse|III-noA4|K4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "non-empty domain (not in the file)|III|K4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "modal collapse|III|K4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "modal collapse|III-noA4|KB": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    2,
+    1
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "modal collapse|III|KB": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    2,
+    1
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "GodNecExists: box exists^E G|III-noA4|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "non-empty domain (not in the file)|III-noA4|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "modal collapse|III-noA4|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "GodNecExists: box exists^E G|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "non-empty domain (not in the file)|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "modal collapse|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    0,
+    1
+   ],
+   "P": [
+    "0b1100",
+    "0b1100"
+   ],
+   "G": "0b10"
+  },
+  "A4b: not P X -> box not P X|II|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b1000",
+    "0b1100"
+   ],
+   "G": "0b11"
+  },
+  "rigidPred P|II|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b1000",
+    "0b1100"
+   ],
+   "G": "0b11"
+  },
+  "A4b: not P X -> box not P X|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b1000",
+    "0b1100"
+   ],
+   "G": "0b11"
+  },
+  "rigidPred P|III|S4": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    3,
+    2
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b1000",
+    "0b1100"
+   ],
+   "G": "0b11"
+  },
+  "modal collapse|III-noA4|S5": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    3,
+    3
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "modal collapse|III|S5": {
+   "worlds": 2,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    3,
+    3
+   ],
+   "dom": [
+    1,
+    1
+   ],
+   "P": [
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b11"
+  },
+  "non-empty domain (not in the file)|III-noA4|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    2,
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b111"
+  },
+  "modal collapse|III-noA4|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    2,
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b111"
+  },
+  "non-empty domain (not in the file)|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    2,
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b111"
+  },
+  "modal collapse|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    2,
+    1,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b10",
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b111"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "GodNecExists: box exists^E G|III-noA4|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "GodNecExists: box exists^E G|III|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "A4b: not P X -> box not P X|II|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "rigidPred P|II|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "A4b: not P X -> box not P X|III|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "rigidPred P|III|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "GodNecExists: box exists^E G|III-noA4|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "GodNecExists: box exists^E G|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "A4b: not P X -> box not P X|II|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "rigidPred P|II|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "A4b: not P X -> box not P X|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "rigidPred P|III|K": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    4,
+    3,
+    1
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III-noA4|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    5,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "GodExistenceImpliesNecExistence: exists G -> box exists^E G|III|K4": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    1,
+    5,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    0
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III-noA4|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "GodNecExists: box exists^E G|III-noA4|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "non-empty domain (not in the file)|III-noA4|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III-noA4|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "modal collapse|III-noA4|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "possExistenceImpliesNecEx: dia exists G -> box exists^E G|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "GodNecExists: box exists^E G|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "non-empty domain (not in the file)|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "T4: valid(dia exists G) -> valid(box exists^E G)|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "modal collapse|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1010",
+    "0b1010"
+   ],
+   "G": "0b101"
+  },
+  "A4b: not P X -> box not P X|II|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "rigidPred P|II|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "A4b: not P X -> box not P X|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "rigidPred P|III|T": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 2,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b1010",
+    "0b1000",
+    "0b1010"
+   ],
+   "G": "0b111"
+  },
+  "modal collapse|III-noA4|B": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    7,
+    3,
+    5
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b10",
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b111"
+  },
+  "modal collapse|III|B": {
+   "worlds": 3,
+   "individuals": 1,
+   "blocks": 1,
+   "R": [
+    7,
+    3,
+    5
+   ],
+   "dom": [
+    1,
+    1,
+    1
+   ],
+   "P": [
+    "0b10",
+    "0b10",
+    "0b10"
+   ],
+   "G": "0b111"
+  },
+  "GodIsEssential: G x -> E G x|II|K": {
+   "worlds": 3,
+   "individuals": 2,
+   "blocks": 3,
+   "R": [
+    2,
+    2,
+    1
+   ],
+   "dom": [
+    3,
+    1,
+    0
+   ],
+   "P": [
+    "0b10101010",
+    "0b10101010",
+    "0b10101010"
+   ],
+   "G": "0b11111"
+  },
+  "GodIsEssential: G x -> E G x|III|K": {
+   "worlds": 3,
+   "individuals": 2,
+   "blocks": 3,
+   "R": [
+    2,
+    2,
+    1
+   ],
+   "dom": [
+    3,
+    1,
+    0
+   ],
+   "P": [
+    "0b10101010",
+    "0b10101010",
+    "0b10101010"
+   ],
+   "G": "0b11111"
+  },
+  "GodIsEssential: G x -> E G x|II|K4": {
+   "worlds": 3,
+   "individuals": 2,
+   "blocks": 3,
+   "R": [
+    1,
+    5,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b10101010",
+    "0b10101010",
+    "0b10101010"
+   ],
+   "G": "0b111011"
+  },
+  "GodIsEssential: G x -> E G x|III|K4": {
+   "worlds": 3,
+   "individuals": 2,
+   "blocks": 4,
+   "R": [
+    1,
+    5,
+    1
+   ],
+   "dom": [
+    1,
+    0,
+    1
+   ],
+   "P": [
+    "0b1010101010101010",
+    "0b1010101010101010",
+    "0b1010101010101010"
+   ],
+   "G": "0b111011"
+  }
+ },
+ "e12": {
+  "frames": 17742,
+  "agree_III": 17742,
+  "agree_II": 17742,
+  "disagree": []
+ },
+ "seconds": 1712.2
+}

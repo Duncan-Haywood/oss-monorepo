@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #efe9da; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #f8dcd6; color: #7a1f10; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -45,6 +45,15 @@
     .best td { background: #eef3e1; font-weight: 600; }
     td.warn { background: #fdf0d5; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.grid:has(#betaVocUnit) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 253px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -152,7 +161,7 @@
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
     <p>Everything runs in your browser. Your numbers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>strings_sized</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
-    <p>Pricing the job? The <a href="../solar-pv-bid-calculator/">solar PV bid calculator</a> prices an install. Homeowner weighing a quote? The <a href="../solar-payback-calculator/">solar payback calculator</a>. A story about this exact problem: <a href="../hearth-and-horizon/the-morning-it-was-too-cold.html">The Morning It Was Too Cold</a>. Guide: <a href="how-many-solar-panels-per-string.html">how many solar panels per string</a>.</p>
+    <p>Pricing the job? The <a href="../solar-pv-bid-calculator/">solar PV bid calculator</a> prices an install. Homeowner weighing a quote? The <a href="../solar-payback-calculator/">solar payback calculator</a>. A story about this exact problem: <a href="../hearth-and-horizon/the-morning-it-was-too-cold.html">The Morning It Was Too Cold</a>. Sizing the conductors? The <a href="../voltage-drop-calculator/">voltage drop calculator</a>. Guide: <a href="how-many-solar-panels-per-string.html">how many solar panels per string</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 
@@ -177,7 +186,7 @@
       last = a;
       const tiles = [[a.lengths.length ? `${a.minLen} to ${a.maxLen}` : "None", "modules per string"], [`${v(a.perModule.vocCold, 2)} V`, `Voc per module at ${v(a.temps.tMinC)} C`], [`${v(a.perModule.vmpHot, 2)} V`, `Vmp per module, ${v(a.temps.tCellHot)} C cell`], [a.current.perMppt === null ? "n/a" : String(a.current.perMppt), "strings per MPPT input"]];
       $("#big").innerHTML = tiles.map(([x, l]) => `<div><strong>${esc(x)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#length-table tbody").innerHTML = a.lengths.map((l) => `<tr><td class="n">${l.modules}</td><td class="n">${v(l.vocCold)} V</td><td class="n">${v(l.voltageMarginPct)}%</td><td class="n">${v(l.vmpHot)} V</td><td class="n">${v(l.mpptMarginPct)}%</td><td class="n${l.coldTracking === false ? " warn" : ""}">${v(l.vmpCold)} V</td><td class="n">${v(l.stcKw, 2)}</td></tr>`).join("");
       $("#layouts-wrap").hidden = !a.layouts.length;
       $("#layout-table tbody").innerHTML = a.layouts.map((l, i) => {

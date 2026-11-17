@@ -1,0 +1,54 @@
+Milestone 6a: a smaller fixed pump on the measured excavator, priced in cycle time
+(fuxi-robot/excavator-motion, folder 75, CC BY-NC-SA 4.0; geometry XCMG XE80E brochure; demand as 5z)
+
+check: numpy r vs stdlib pump_ratio, file 1 at 120 L/min: 1.306538 vs 1.306538; inverse at that r 120.000 L/min
+check: r at the p99 pump 239.9 L/min = 2.377 (5z: 2.38); r at 219 L/min = 2.175 (5z: 2.16 to 2.17, no slowing there)
+central demand while moving: mean 100.9, median 90.3, p99 239.9 L/min; load-sensing at 219 L/min slows 3.9% of moving samples
+
+Pump sweep, central (kinematic signs, bucket +1, swing 0.5, p 130 bar, m* = 0.78 (r - 1) p):
+ frac  q_p L/min       r   m* bar  time OC/LS  short %
+ 1.00      219.0   2.175    118.8       1.000      3.9
+ 0.90      197.1   1.970     98.0       1.006      6.7
+ 0.80      175.2   1.769     77.7       1.016      8.2
+ 0.70      153.3   1.572     57.8       1.031      9.7
+ 0.60      131.4   1.380     38.4       1.056     15.1
+ 0.50      109.5   1.209     21.1       1.108     27.8
+ 0.45       98.5   1.136     13.7       1.156     38.5
+ 0.40       87.6   1.077      7.8       1.232     54.2
+
+Equal-energy pump q_eq (m* = margin), central geometry:
+ margin  p bar   r_eq  q_eq L/min  q_eq/p99  q_eq/219  time OC/LS
+   14.0    100  1.179       105.3     0.439     0.481       1.124
+   14.0    130  1.139        99.0     0.413     0.452       1.154
+   14.0    174  1.103        92.9     0.387     0.424       1.191
+   20.0    100  1.256       116.0     0.484     0.530       1.088
+   20.0    130  1.198       108.0     0.450     0.493       1.114
+   20.0    174  1.147       100.4     0.419     0.459       1.146
+   24.9    100  1.319       124.0     0.517     0.566       1.069
+   24.9    130  1.246       114.7     0.478     0.524       1.092
+   24.9    174  1.183       105.9     0.442     0.484       1.122
+   25.0    100  1.321       124.1     0.518     0.567       1.069
+   25.0    130  1.247       114.8     0.479     0.524       1.092
+   25.0    174  1.184       106.0     0.442     0.484       1.121
+
+per file (central, pooled q_eq 108.0 L/min): r at 219 2.11 to 2.29; time ratio 1.093 to 1.126 (median 1.115); each file at its own q_eq 1.105 to 1.122; Spearman(r at 219, time ratio) -0.842
+
+Break-even bought per % of extra time, step by step (central):
+   219.0 ->  197.1 L/min:   20.7 bar for  0.61% time (33.80 bar per %)
+   197.1 ->  175.2 L/min:   20.3 bar for  1.02% time (19.89 bar per %)
+   175.2 ->  153.3 L/min:   20.0 bar for  1.49% time (13.38 bar per %)
+   153.3 ->  131.4 L/min:   19.3 bar for  2.49% time (7.75 bar per %)
+   131.4 ->  109.5 L/min:   17.4 bar for  5.22% time (3.32 bar per %)
+   109.5 ->  108.0 L/min:    1.1 bar for  0.54% time (2.00 bar per %)
+
+Geometry sweep: 384 cases (lever factors 1 to 2.5 per joint, bucket sign, swing 0/0.5/1) x margins 14/20/25 x p 100/130/174 bar = 3456: time ratio at q_eq 1.046 to 1.686 (median 1.197); q_eq/p99 0.220 to 0.647
+
+Predictions (LOG.md 6a):
+  A1 q_eq below half the p99 demand (central): held (108.0 / 239.9 = 0.450)
+  A2 time ratio at q_eq > 1.25 (central): refuted (1.114)
+  A3 time ratio > the loader's 1.39 (central): refuted (1.114; at the loader's 24.9 bar margin 1.092)
+  A4 time ratio > 1.10 in every sweep case: refuted (min 1.046)
+  A5 Spearman(r at 219, time ratio) < -0.5 over files: held (-0.842)
+  A6 first step buys more bar per % time than the last: held (33.80 against 2.00)
+
+Source: fuxi-robot/excavator-motion, https://huggingface.co/datasets/fuxi-robot/excavator-motion, CC BY-NC-SA 4.0. Derived statistics only; no data redistributed.

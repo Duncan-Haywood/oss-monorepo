@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPECgBnyV6NfHGTX1t",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T16:27:31Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: guarded boosted Bayer weight, then numpy tree inference",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 16624,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "flagship next/buildable fields are near their caps, so landing an item means rewording; buildable rejects landed-work pointers, which made a parked item hard to record briefly."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-guarding-boosted-demosaic-weight.md",
+    "ventures/photo-editing/eval/bayer-boosted-guard-2026-11-16.md"
+  ],
+  "goal": "Land the flagship's BUILDABLE HERE item: a guard that removes the boosted weight's per-camera losses, judged on clean frames.",
+  "notes": "Pre-registered (commit ff775a96f) before any score. CV chose C1b (frame-range guard on eight feature means): +0.518 vs linear +0.386. Fresh set (6 unused Bayer cameras, chosen by a rule fixed in advance): pass, +0.398 vs B +0.242, no frame below B; guard caught the Canon R8 (unguarded -0.65 vs B). Test set: fail, K-1 II -0.49 and A7 III -0.12 inside the training range. Not shipped; buildable item parked (no unused Bayer frames left; raw.pixls.us refused). numpy tree_ensemble matches LightGBM exactly on the 400-tree model; 58 s vs 3.7 s on 0.6M sensels. Local checks: run_venture_tests.py photo-editing ok (1228 tests, 205 s); post frontmatter/links/similarity clean; validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}

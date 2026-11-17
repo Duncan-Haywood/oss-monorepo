@@ -1,0 +1,127 @@
+Milestone 7i: lever-aware objective (train on levers 0, 1, 2); integrator feed-forward, ki <= ceiling / 1.25 as a constraint.
+6 seeds, best of 2 CMA-ES starts x 3200 evaluations on 6 episodes per training lever; held-out 64 episodes (seed 9999), side force on.
+7e = milestone 7e's constrained designs (lever-1 objective, TWR 2); 7h free = milestone 7h's retrained designs (lever-1 objective, TWR free).
+J includes the hover-power price; paired differences are against 7e. tau/W = torque limit per newton of weight (m); dead = diverged episodes, summed (per seed).
+rho = worst linear spectral radius at the design's own ki (>= 1: unstable at some plant corner); ceil = ki_ceiling multiple.
+
+[above, 7e] TWR 2.00, 2.00, 2.00, 2.00, 2.00, 2.00; cant 31.0 deg; L 0.094 m; D 0.121 m; mass 1.605 kg; hover W 486.1; cost $134; tau_max 0.981 N m; tau/W 0.0622 m; feasible 6/6
+  ki/kp 3.84, 3.81, 3.30, 3.52, 3.93, 3.50; rho 1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 0.9999; ceil 1.27, 1.28, 1.30, 1.28, 1.26, 1.30
+  cap 20, lever 0: J -1.571; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.592; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -1.896; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.139 m; dead 4 [0, 1, 1, 1, 1, 0]
+  cap 20, lever 3: J -6.708; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.635 m; dead 68 [5, 15, 12, 15, 14, 7]
+  cap 30, lever 0: J -1.562; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 1: J -1.583; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 2: J -2.305; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.184 m; dead 9 [0, 2, 2, 3, 2, 0]
+  cap 30, lever 3: J -7.942; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.759 m; dead 82 [8, 17, 14, 18, 16, 9]
+  cap 45, lever 0: J -1.561; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.582; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.629; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.221 m; dead 12 [1, 2, 2, 4, 2, 1]
+  cap 45, lever 3: J -10.038; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.971 m; dead 108 [11, 20, 20, 21, 20, 16]
+
+[above, 7h free] TWR 2.37, 2.26, 2.17, 2.09, 2.26, 2.30; cant 32.6 deg; L 0.097 m; D 0.129 m; mass 1.587 kg; hover W 460.1; cost $139; tau_max 0.995 N m; tau/W 0.0640 m; feasible 6/6
+  ki/kp 3.56, 3.47, 3.14, 3.38, 3.17, 3.51; rho 0.9998, 0.9999, 0.9997, 0.9998, 1.0000, 1.0000; ceil 1.26, 1.25, 1.36, 1.27, 1.26, 1.34
+  cap 20, lever 0: J -1.565; minus 7e +0.006 (se 0.002, better in 5 of 6); pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.587; minus 7e +0.005 (se 0.002, better in 5 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.236; minus 7e -0.341 (se 0.108, better in 1 of 6); pos 0.178 m; dead 9 [1, 2, 1, 3, 2, 0]
+  cap 20, lever 3: J -7.209; minus 7e -0.501 (se 0.515, better in 2 of 6); pos 0.689 m; dead 73 [10, 14, 14, 15, 12, 8]
+  cap 30, lever 0: J -1.558; minus 7e +0.004 (se 0.002, better in 4 of 6); pos 0.104 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 1: J -1.677; minus 7e -0.094 (se 0.099, better in 3 of 6); pos 0.117 m; dead 1 [1, 0, 0, 0, 0, 0]
+  cap 30, lever 2: J -2.608; minus 7e -0.302 (se 0.165, better in 2 of 6); pos 0.218 m; dead 14 [2, 3, 3, 4, 2, 0]
+  cap 30, lever 3: J -8.741; minus 7e -0.799 (se 0.481, better in 1 of 6); pos 0.842 m; dead 88 [14, 15, 15, 19, 15, 10]
+  cap 45, lever 0: J -2.559; minus 7e -0.999 (se 0.424, better in 2 of 6); pos 0.213 m; dead 9 [4, 2, 0, 0, 2, 1]
+  cap 45, lever 1: J -2.695; minus 7e -1.113 (se 0.552, better in 2 of 6); pos 0.226 m; dead 10 [5, 3, 0, 0, 1, 1]
+  cap 45, lever 2: J -4.242; minus 7e -1.613 (se 0.615, better in 0 of 6); pos 0.388 m; dead 28 [7, 6, 3, 5, 5, 2]
+  cap 45, lever 3: J -11.815; minus 7e -1.777 (se 1.051, better in 1 of 6); pos 1.149 m; dead 121 [21, 22, 20, 23, 21, 14]
+
+[above, aware TWR=2.0] TWR 2.00, 2.00, 2.00, 2.00, 2.00, 2.00; cant 32.8 deg; L 0.099 m; D 0.126 m; mass 1.632 kg; hover W 495.5; cost $137; tau_max 1.053 N m; tau/W 0.0655 m; feasible 6/6; rejected 0.14 of training candidates
+  ki/kp 3.53, 3.31, 3.20, 3.25, 4.00, 3.51; rho 0.9999, 0.9997, 0.9999, 0.9999, 1.0000, 0.9998; ceil 1.25, 1.33, 1.25, 1.25, 1.25, 1.25
+  cap 20, lever 0: J -1.567; minus 7e +0.003 (se 0.007, better in 4 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.590; minus 7e +0.002 (se 0.005, better in 4 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.099; minus 7e -0.204 (se 0.257, better in 2 of 6); pos 0.161 m; dead 7 [3, 1, 3, 0, 0, 0]
+  cap 20, lever 3: J -6.814; minus 7e -0.106 (se 1.459, better in 3 of 6); pos 0.645 m; dead 66 [15, 14, 15, 5, 9, 8]
+  cap 30, lever 0: J -1.559; minus 7e +0.003 (se 0.007, better in 4 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 1: J -1.580; minus 7e +0.003 (se 0.005, better in 4 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 2: J -2.384; minus 7e -0.079 (se 0.303, better in 2 of 6); pos 0.194 m; dead 11 [3, 3, 3, 0, 1, 1]
+  cap 30, lever 3: J -8.050; minus 7e -0.108 (se 1.674, better in 3 of 6); pos 0.768 m; dead 83 [19, 17, 21, 5, 10, 11]
+  cap 45, lever 0: J -1.874; minus 7e -0.313 (se 0.140, better in 2 of 6); pos 0.140 m; dead 3 [1, 0, 1, 0, 1, 0]
+  cap 45, lever 1: J -1.579; minus 7e +0.003 (se 0.005, better in 4 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 2: J -2.866; minus 7e -0.236 (se 0.494, better in 3 of 6); pos 0.244 m; dead 16 [4, 4, 6, 0, 1, 1]
+  cap 45, lever 3: J -10.295; minus 7e -0.256 (se 1.695, better in 2 of 6); pos 0.995 m; dead 110 [23, 21, 24, 8, 18, 16]
+
+[above, aware TWR free] TWR 2.47, 2.37, 2.16, 2.24, 2.33, 2.33; cant 30.0 deg; L 0.096 m; D 0.124 m; mass 1.611 kg; hover W 473.2; cost $141; tau_max 1.011 N m; tau/W 0.0638 m; feasible 6/6; rejected 0.12 of training candidates
+  ki/kp 3.84, 3.48, 3.30, 4.02, 4.18, 3.54; rho 1.0000, 0.9998, 0.9999, 1.0000, 0.9998, 1.0000; ceil 1.27, 1.30, 1.25, 1.28, 1.26, 1.25
+  cap 20, lever 0: J -1.577; minus 7e -0.007 (se 0.008, better in 3 of 6); pos 0.105 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.596; minus 7e -0.004 (se 0.006, better in 3 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.081; minus 7e -0.186 (se 0.155, better in 2 of 6); pos 0.161 m; dead 8 [2, 1, 2, 0, 2, 1]
+  cap 20, lever 3: J -7.560; minus 7e -0.852 (se 1.339, better in 2 of 6); pos 0.723 m; dead 75 [15, 14, 15, 5, 15, 11]
+  cap 30, lever 0: J -1.675; minus 7e -0.113 (se 0.106, better in 3 of 6); pos 0.116 m; dead 1 [0, 0, 0, 0, 1, 0]
+  cap 30, lever 1: J -1.693; minus 7e -0.110 (se 0.105, better in 3 of 6); pos 0.117 m; dead 1 [0, 0, 0, 0, 1, 0]
+  cap 30, lever 2: J -2.739; minus 7e -0.434 (se 0.504, better in 2 of 6); pos 0.230 m; dead 14 [3, 1, 4, 0, 5, 1]
+  cap 30, lever 3: J -8.687; minus 7e -0.745 (se 1.628, better in 2 of 6); pos 0.836 m; dead 88 [19, 15, 19, 6, 16, 13]
+  cap 45, lever 0: J -2.939; minus 7e -1.378 (se 0.776, better in 1 of 6); pos 0.250 m; dead 12 [3, 0, 1, 0, 7, 1]
+  cap 45, lever 1: J -2.747; minus 7e -1.165 (se 0.827, better in 2 of 6); pos 0.227 m; dead 10 [3, 0, 0, 0, 7, 0]
+  cap 45, lever 2: J -4.359; minus 7e -1.730 (se 1.203, better in 2 of 6); pos 0.396 m; dead 27 [7, 2, 4, 0, 11, 3]
+  cap 45, lever 3: J -11.533; minus 7e -1.495 (se 2.111, better in 2 of 6); pos 1.120 m; dead 113 [22, 19, 23, 6, 24, 19]
+
+[below, 7e] TWR 2.00, 2.00, 2.00, 2.00, 2.00, 2.00; cant 32.2 deg; L 0.102 m; D 0.128 m; mass 1.234 kg; hover W 315.5; cost $105; tau_max 0.821 N m; tau/W 0.0678 m; feasible 6/6
+  ki/kp 0.18, 0.19, 0.15, 0.09, 0.16, 0.24; rho 0.9999, 0.9999, 0.9998, 0.9999, 1.0000, 1.0000; ceil 2.88, 3.74, 4.00, 4.00, 4.00, 2.11
+  cap 20, lever 0: J -1.575; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.113 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.521; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.104 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -4.809; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.450 m; dead 45 [7, 9, 7, 9, 6, 7]
+  cap 20, lever 3: J -15.928; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 1.565 m; dead 159 [23, 34, 25, 35, 22, 20]
+  cap 30, lever 0: J -1.569; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.112 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 1: J -2.031; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.163 m; dead 5 [1, 1, 1, 1, 0, 1]
+  cap 30, lever 2: J -5.772; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.549 m; dead 47 [8, 9, 8, 9, 7, 6]
+  cap 30, lever 3: J -16.956; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 1.667 m; dead 173 [27, 34, 29, 37, 23, 23]
+  cap 45, lever 0: J -1.664; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.122 m; dead 1 [0, 1, 0, 0, 0, 0]
+  cap 45, lever 1: J -2.143; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.175 m; dead 6 [1, 2, 1, 1, 0, 1]
+  cap 45, lever 2: J -6.520; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 0.624 m; dead 55 [9, 11, 9, 10, 8, 8]
+  cap 45, lever 3: J -17.416; minus 7e +0.000 (se 0.000, better in 0 of 6); pos 1.712 m; dead 180 [26, 36, 31, 38, 25, 24]
+
+[below, 7h free] TWR 2.43, 2.27, 2.17, 2.05, 2.55, 2.21; cant 30.8 deg; L 0.099 m; D 0.129 m; mass 1.247 kg; hover W 311.8; cost $110; tau_max 0.804 N m; tau/W 0.0657 m; feasible 6/6
+  ki/kp 0.13, 0.26, 0.12, 0.10, 0.18, 0.24; rho 0.9999, 0.9999, 0.9998, 1.0000, 0.9998, 1.0000; ceil 3.76, 1.70, 4.00, 4.00, 3.81, 2.46
+  cap 20, lever 0: J -1.574; minus 7e +0.001 (se 0.004, better in 2 of 6); pos 0.112 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.517; minus 7e +0.004 (se 0.002, better in 5 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -4.565; minus 7e +0.244 (se 0.245, better in 4 of 6); pos 0.427 m; dead 38 [7, 7, 6, 6, 6, 6]
+  cap 20, lever 3: J -14.617; minus 7e +1.311 (se 0.781, better in 5 of 6); pos 1.435 m; dead 146 [25, 25, 32, 27, 20, 17]
+  cap 30, lever 0: J -1.787; minus 7e -0.217 (se 0.216, better in 2 of 6); pos 0.135 m; dead 2 [0, 2, 0, 0, 0, 0]
+  cap 30, lever 1: J -1.836; minus 7e +0.195 (se 0.215, better in 4 of 6); pos 0.139 m; dead 3 [1, 2, 0, 0, 0, 0]
+  cap 30, lever 2: J -5.191; minus 7e +0.582 (se 0.341, better in 5 of 6); pos 0.490 m; dead 43 [8, 9, 7, 7, 7, 5]
+  cap 30, lever 3: J -16.329; minus 7e +0.627 (se 0.629, better in 4 of 6); pos 1.605 m; dead 166 [28, 31, 33, 30, 23, 21]
+  cap 45, lever 0: J -1.786; minus 7e -0.122 (se 0.121, better in 2 of 6); pos 0.135 m; dead 2 [0, 2, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.836; minus 7e +0.306 (se 0.142, better in 4 of 6); pos 0.139 m; dead 3 [1, 2, 0, 0, 0, 0]
+  cap 45, lever 2: J -5.980; minus 7e +0.540 (se 0.316, better in 5 of 6); pos 0.570 m; dead 49 [9, 10, 8, 8, 8, 6]
+  cap 45, lever 3: J -17.068; minus 7e +0.348 (se 0.620, better in 4 of 6); pos 1.678 m; dead 177 [32, 32, 33, 32, 25, 23]
+
+[below, aware TWR=2.0] TWR 2.00, 2.00, 2.00, 2.00, 2.00, 2.00; cant 32.7 deg; L 0.102 m; D 0.127 m; mass 1.486 kg; hover W 428.4; cost $125; tau_max 0.990 N m; tau/W 0.0675 m; feasible 6/6; rejected 0.09 of training candidates
+  ki/kp 0.70, 0.45, 0.39, 2.50, 2.94, 3.20; rho 0.9998, 1.0000, 0.9999, 1.0000, 0.9997, 0.9998; ceil 4.00, 4.00, 4.00, 1.29, 1.25, 1.31
+  cap 20, lever 0: J -1.564; minus 7e +0.011 (se 0.007, better in 5 of 6); pos 0.108 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.547; minus 7e -0.026 (se 0.008, better in 1 of 6); pos 0.104 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.628; minus 7e +2.181 (se 0.437, better in 6 of 6); pos 0.221 m; dead 20 [5, 4, 4, 0, 3, 4]
+  cap 20, lever 3: J -9.026; minus 7e +6.902 (se 1.966, better in 6 of 6); pos 0.870 m; dead 87 [17, 16, 18, 4, 15, 17]
+  cap 30, lever 0: J -1.555; minus 7e +0.014 (se 0.007, better in 5 of 6); pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 1: J -1.539; minus 7e +0.492 (se 0.104, better in 5 of 6); pos 0.103 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 2: J -2.835; minus 7e +2.937 (se 0.401, better in 6 of 6); pos 0.242 m; dead 22 [5, 5, 5, 0, 3, 4]
+  cap 30, lever 3: J -10.502; minus 7e +6.454 (se 2.069, better in 6 of 6); pos 1.018 m; dead 99 [17, 17, 18, 6, 20, 21]
+  cap 45, lever 0: J -1.555; minus 7e +0.110 (se 0.095, better in 5 of 6); pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.644; minus 7e +0.499 (se 0.199, better in 4 of 6); pos 0.115 m; dead 1 [0, 0, 1, 0, 0, 0]
+  cap 45, lever 2: J -3.857; minus 7e +2.664 (se 0.494, better in 6 of 6); pos 0.351 m; dead 28 [6, 5, 6, 1, 4, 6]
+  cap 45, lever 3: J -11.544; minus 7e +5.873 (se 2.051, better in 6 of 6); pos 1.122 m; dead 111 [19, 17, 23, 7, 22, 23]
+
+[below, aware TWR free] TWR 2.24, 2.54, 2.67, 2.07, 2.12, 2.17; cant 32.2 deg; L 0.101 m; D 0.131 m; mass 1.516 kg; hover W 427.4; cost $133; tau_max 1.000 N m; tau/W 0.0669 m; feasible 6/6; rejected 0.10 of training candidates
+  ki/kp 0.22, 0.80, 0.64, 2.77, 2.51, 2.65; rho 1.0000, 0.9999, 1.0000, 1.0000, 0.9997, 0.9998; ceil 4.00, 1.29, 1.63, 1.28, 1.44, 1.25
+  cap 20, lever 0: J -1.563; minus 7e +0.012 (se 0.007, better in 4 of 6); pos 0.107 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 1: J -1.543; minus 7e -0.022 (se 0.007, better in 0 of 6); pos 0.104 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 20, lever 2: J -2.341; minus 7e +2.468 (se 0.438, better in 6 of 6); pos 0.192 m; dead 14 [2, 3, 4, 0, 2, 3]
+  cap 20, lever 3: J -8.868; minus 7e +7.060 (se 1.968, better in 6 of 6); pos 0.856 m; dead 86 [12, 17, 18, 5, 16, 18]
+  cap 30, lever 0: J -1.561; minus 7e +0.009 (se 0.011, better in 4 of 6); pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 30, lever 1: J -1.749; minus 7e +0.282 (se 0.136, better in 3 of 6); pos 0.127 m; dead 2 [1, 1, 0, 0, 0, 0]
+  cap 30, lever 2: J -3.458; minus 7e +2.314 (se 0.572, better in 6 of 6); pos 0.309 m; dead 23 [4, 4, 5, 0, 4, 6]
+  cap 30, lever 3: J -10.113; minus 7e +6.843 (se 2.040, better in 6 of 6); pos 0.980 m; dead 97 [14, 19, 20, 6, 18, 20]
+  cap 45, lever 0: J -1.561; minus 7e +0.103 (se 0.097, better in 4 of 6); pos 0.106 m; dead 0 [0, 0, 0, 0, 0, 0]
+  cap 45, lever 1: J -1.961; minus 7e +0.181 (se 0.212, better in 3 of 6); pos 0.151 m; dead 4 [1, 1, 0, 0, 1, 1]
+  cap 45, lever 2: J -4.100; minus 7e +2.420 (se 0.524, better in 6 of 6); pos 0.376 m; dead 29 [4, 7, 6, 1, 4, 7]
+  cap 45, lever 3: J -11.783; minus 7e +5.633 (se 2.026, better in 6 of 6); pos 1.147 m; dead 119 [17, 25, 24, 7, 22, 24]
+
+wall time 751 s (training 603 s)

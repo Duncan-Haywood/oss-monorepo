@@ -453,24 +453,82 @@ export function selectNextPairByInformation(
   if (items.length < 2) throw new Error("Need at least 2 items to pair");
   const pool = capPool(activeItems(items, answeredCount, timesShown, admissionPaused(agreement)), timesShown, poolCap);
   const avgShown = pool.reduce((sum, i) => sum + (timesShown.get(i.id) ?? 0), 0) / pool.length;
-  const lag = (i: PairItem) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0));
+
+  // The pair loop is quadratic in the pool (125k pairs at 500 items), so what
+  // depends on one item is computed once per item here, and a pair's key is
+  // built only when both ids occur in some recent key (a necessary condition
+  // for the key to be in the set). Every score is the same float, from the
+  // same operations in the same order, as `expectedVarianceReduction` and the
+  // per-pair form this replaced; rand() is still drawn once per pair, in the
+  // same order. pairing.test.ts pins the result against that form.
+  const n = pool.length;
+  const ids = pool.map((i) => i.id);
+  const dims = pool.map((i) => i.dimensions?.[0]);
+  const lags = pool.map((i) => Math.max(0, avgShown - (timesShown.get(i.id) ?? 0)));
+  const ratings = pool.map((i) => i.rating);
+  const phis = pool.map((i) => i.rd / GLICKO_SCALE);
+  const phiSq = phis.map((phi) => phi * phi);
+  const invPhiSq = phis.map((phi) => 1 / (phi * phi));
+  const gSq = phis.map((phi) => glickoG(phi) ** 2);
+  const recentKeys = [...recentPairKeys];
+  const inRecent = ids.map((id) => recentKeys.some((k) => k.includes(id)));
+  // Exact skips, in two tiers. A pair's score is at most its bound below
+  // (with a margin far above float rounding), so a pair whose bound is under
+  // the best score so far cannot win and its exp/hypot/sqrt are skipped.
+  // rand() is still drawn for it, so the stream, and every pick, is
+  // unchanged; pairing.test.ts pins the result against the unskipped form.
+  // Tier 1, per item: p * (1 - p) <= 1/4 and g^2 <= 1, so an item's drop is
+  // at most phi^2 - 1 / (1 / phi^2 + 1/4) whoever it meets. The penalty is at
+  // most 1 and the noise under 1 + 1e-6.
+  // Tier 2, per pair: the pair's g is at least g(largest phi in the pool), as
+  // hypot(phiA, phiB) / sqrt 2 <= max(phiA, phiB) and g falls with phi; and
+  // p * (1 - p) = 1 / (2 + 2 cosh x) <= 1 / (4 + x^2). So the spread is at most
+  // 1 / (4 + (gMin * mu)^2), and each drop rises with the spread.
+  const dropCap = phis.map((phi, k) => phiSq[k] - 1 / (invPhiSq[k] + 0.25) + 1e-9 * phiSq[k]);
+  const conflictCap = Math.max(1, conflictBonus) * GLICKO_SCALE * GLICKO_SCALE * (1 + 1e-6) * (1 + 1e-9);
+  const gMin = glickoG(Math.max(...phis)) * (1 - 1e-9);
 
   let best: [string, string] | null = null;
   let bestScore = -Infinity;
-  for (let i = 0; i < pool.length; i++) {
-    for (let j = i + 1; j < pool.length; j++) {
-      const repeatPenalty = recentPairKeys.has(pairKey(pool[i].id, pool[j].id)) ? 0.05 : 1;
+  for (let i = 0; i < n; i++) {
+    const phiA = phis[i];
+    const ra = ratings[i];
+    const da = dims[i];
+    const recentA = inRecent[i];
+    for (let j = i + 1; j < n; j++) {
+      const repeatPenalty = recentA && inRecent[j] && recentPairKeys.has(pairKey(ids[i], ids[j])) ? 0.05 : 1;
       // A sliver of noise breaks exact ties (all-default start) without
       // reordering pairs whose scores differ.
-      const da = pool[i].dimensions?.[0];
-      const db = pool[j].dimensions?.[0];
+      const db = dims[j];
       const conflict = da && db && da !== db ? conflictBonus : 1;
-      const coverage = 1 + coverageWeight * (lag(pool[i]) + lag(pool[j]));
-      const score =
-        expectedVarianceReduction(pool[i], pool[j]) * repeatPenalty * conflict * coverage * (1 + rand() * 1e-6);
+      const coverage = 1 + coverageWeight * (lags[i] + lags[j]);
+      const mu = (ra - ratings[j]) / GLICKO_SCALE;
+      if (coverage > 0) {
+        const cap = conflictCap * coverage;
+        if ((dropCap[i] + dropCap[j]) * cap < bestScore) {
+          rand();
+          continue;
+        }
+        const x = gMin * mu;
+        const spreadCap = 1 / (4 + x * x);
+        const capA = phiSq[i] - 1 / (invPhiSq[i] + gSq[j] * spreadCap) + 1e-9 * phiSq[i];
+        const capB = phiSq[j] - 1 / (invPhiSq[j] + gSq[i] * spreadCap) + 1e-9 * phiSq[j];
+        if ((capA + capB) * cap < bestScore) {
+          rand();
+          continue;
+        }
+      }
+      // expectedVarianceReduction(pool[i], pool[j]), inlined.
+      const phiB = phis[j];
+      const p = 1 / (1 + Math.exp(-glickoG(Math.hypot(phiA, phiB) / Math.SQRT2) * mu));
+      const spread = p * (1 - p);
+      const dropA = phiSq[i] - 1 / (invPhiSq[i] + gSq[j] * spread);
+      const dropB = phiSq[j] - 1 / (invPhiSq[j] + gSq[i] * spread);
+      const evr = (dropA + dropB) * GLICKO_SCALE * GLICKO_SCALE;
+      const score = evr * repeatPenalty * conflict * coverage * (1 + rand() * 1e-6);
       if (score > bestScore) {
         bestScore = score;
-        best = [pool[i].id, pool[j].id];
+        best = [ids[i], ids[j]];
       }
     }
   }
@@ -479,32 +537,71 @@ export function selectNextPairByInformation(
 
 /**
  * Staged hybrid: the shipped selector while `answeredCount` is below
- * `switchAt` (by default `hybridSwitchAt(items.length)`: 0 up to 120 items,
- * so short lists use the information selector throughout), the information
- * selector after. On long lists the shipped one gets a few items under rd 150
+ * `switchAt` (by default `hybridSwitchAt(items.length)`: 0 at every length
+ * since 2026-11-13, so the information selector runs throughout unless a
+ * caller passes a switch point), the information selector after. On long lists the shipped one gets a few items under rd 150
  * sooner when there are fewer than about three answers per item; the
  * information one wins on rank accuracy and on items under rd 150 once there
  * are enough answers, and on the couple screen's own bar (8 items under rd
  * 200) at every length measured. Measured in
  * `infoGainPairing.simulation.test.ts` and `scripts/couple-bar-sweep.ts`.
+ * `HYBRID_SWITCH_ANSWERS` is the switch point lists over 120 items used until
+ * 2026-11-13; it is no longer anyone's default, and callers may still pass it.
  */
 export const HYBRID_SWITCH_ANSWERS = 120;
 
 /**
- * Lists up to this many items use the information selector from the first
- * answer. On 8 to 120 synthetic items (scripts/couple-bar-sweep.ts, 30
- * respondents each, 2026-11-10) it reaches the couple screen's bar (8 items
- * under rd 200, `couples.ts`) in a median 19 to 35 answers against 26 to 40
- * for the shipped selector, with a tighter spread (p90 20 to 36 against 31 to
- * 45), and ranks better at 2, 4 and 8 answers per item. Waiting for 120
- * answers meant a respondent on a short list never reached it at all. Longer
- * lists keep the 120-answer switch: they were not measured here.
+ * Lists up to this many items used the information selector from the first
+ * answer from 2026-11-10 to 2026-11-13 (scripts/couple-bar-sweep.ts, 8 to 120
+ * items: the couple screen's bar in a median 19 to 35 answers against 26 to 40
+ * for the shipped selector, and better ranks at 2, 4 and 8 answers per item).
+ * Longer lists kept the 120-answer warm-up until scripts/long-list-switch-sweep.ts
+ * measured them (150 to 500 items, 60 seeds, 2026-11-13): from the first
+ * answer the per-person rank is ahead of the warm-up at every budget up to 120
+ * answers (+0.003 to +0.021), level with it after (-0.015 to +0.014), ahead of
+ * the shipped selector in 55 of 56 cells, and reaches the couple bar in 35
+ * answers against 38 to 40. So since 2026-11-13 the length no longer matters:
+ * `hybridSwitchAt` is 0 at every length. Kept for the tests and sweeps that
+ * name the old boundary.
  */
 export const INFO_FROM_START_MAX_ITEMS = 120;
 
-/** Where the staged selector hands over, by list length (docs/INFORMATION-GAIN-SELECTOR.md). */
+/** Where the staged selector hands over, by list length: the first answer at every length since 2026-11-13 (docs/INFORMATION-GAIN-SELECTOR.md, "Lists over 120 items"). */
 export function hybridSwitchAt(itemCount: number): number {
-  return itemCount <= INFO_FROM_START_MAX_ITEMS ? 0 : HYBRID_SWITCH_ANSWERS;
+  void itemCount;
+  return 0;
+}
+
+/**
+ * Which selector `/api/trials/next` runs when nothing names one: "staged" at
+ * every length since 2026-11-13. From 2026-11-12 it was staged up to
+ * `INFO_FROM_START_MAX_ITEMS` items and "standard" above, until the switch
+ * rule there was measured (docs/INFORMATION-GAIN-SELECTOR.md, "Staged as the
+ * default up to 120 items" and "Lists over 120 items").
+ */
+export function defaultPairSelector(itemCount: number): "standard" | "staged" {
+  void itemCount;
+  return "staged";
+}
+
+/**
+ * The survey's own setting wins, then the deployment's `PAIR_SELECTOR`, then
+ * `defaultPairSelector`. Only "standard" and "staged" are read as choices: an
+ * unknown value (a typo in the environment, a stale column) is not coerced to
+ * either, it is ignored and reported in `ignored` so the caller can log it.
+ */
+export function resolvePairSelector(
+  surveySetting: string | null | undefined,
+  envSetting: string | undefined,
+  itemCount: number
+): { selector: "standard" | "staged"; ignored: string[] } {
+  const ignored: string[] = [];
+  for (const v of [surveySetting, envSetting]) {
+    if (v == null || v === "") continue;
+    if (v === "standard" || v === "staged") return { selector: v, ignored };
+    ignored.push(v);
+  }
+  return { selector: defaultPairSelector(itemCount), ignored };
 }
 
 /**

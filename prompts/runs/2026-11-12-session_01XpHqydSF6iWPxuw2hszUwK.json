@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydSF6iWPxuw2hszUwK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:42:11Z",
+  "ended": "2026-11-12T03:47:04Z",
+  "wall_minutes": 5.08,
+  "tokens_in": 3811674,
+  "tokens_out": 25168,
+  "cost_usd": 2.0548,
+  "tool_calls": 40,
+  "task": "heavy-hydraulics milestone 5v: run 5u's registered V6 on the measured loader, plus V7-V10",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": 14989,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "measured_volume_ratio.py read sys.argv[1] after importing breakeven_volume_ratio, whose import chain (spool_floor_synthetic.py) resets sys.argv; IndexError on first run",
+      "fix": "saved argv before imports"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/experiments/spool_floor_synthetic.py",
+      "issue": "resets sys.argv at import time, so any script importing it (directly or via breakeven_volume_ratio) loses its command-line arguments; cost one failed run"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-wrong-pressure-in-a-hydraulic-break-even.md",
+    "research/heavy-hydraulics/LOG.md (5v)",
+    "research/heavy-hydraulics/README.md (Milestone 5v)"
+  ],
+  "goal": null,
+  "notes": "zenodo.org answered (HTTP 200) at 03:45 UTC; 96 MB record downloaded in under a minute. V6 refuted (p_q 133.9 bar, covariance -27.1), V7 and V10 refuted, V8 (Spearman r 0.92 vs p_q 0.24) and V9 (beta 0.995) hold. New exact form with surplus-flow pressure p_s = 99.5 bar. Verified: 44 tests pass (python3.13 + pytest), measured_breakeven/breakeven_volume_ratio/breakeven_closed_form results reproduce byte for byte, build.py ok, research_live_links and check_md_links ok, post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "03169bcc-7b3c-570f-9183-1d5e52b6d00f",
+    "transcripts": 1,
+    "first": "2026-11-12T03:42:11Z",
+    "last": "2026-11-12T03:47:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 74,
+        "output": 25168,
+        "thinking": 4260,
+        "cache_read": 3710474,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101126,
+        "api_equivalent_usd": 2.0548,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 74,
+      "output": 25168,
+      "thinking": 4260,
+      "cache_read": 3710474,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101126,
+      "api_equivalent_usd": 2.0548,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.08,
+      "active_minutes": 5.08,
+      "model_minutes": 3.95,
+      "tool_minutes": 1.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researcher: download, extend analysis code, test, write log/README/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 292.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

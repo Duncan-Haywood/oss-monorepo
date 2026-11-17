@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJjAYGk39ntT3hHxYQ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T09:07:04Z",
+  "ended": "2026-11-14T09:23:15Z",
+  "wall_minutes": 195.15,
+  "tokens_in": 18997570,
+  "tokens_out": 78142,
+  "cost_usd": 7.0239,
+  "tool_calls": 120,
+  "task": "research/sensing-selfcal milestone 4j: the milestone-4i twin reference and the robust jackknife update test pre-registered on two new cameras (TUM RGB-D fr1 Kinect and fr3 Xtion)",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15801",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "experiments/m4j_tum/check.py first crashed: the pool could not pickle the imported milestone-4i solve function (module loaded by spec has no importable name); fixed with a module-level wrapper and rerun",
+    "Patching selfcal/twin module defaults for the 8x6 board leaked into tests/test_m4i.py when both ran in one pytest process; fixed by loading private copies of selfcal.py and twin.py in milestone 4j, then reran analyse.py and check.py to confirm byte-identical outputs"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No guidance on solve cost: 11,442 cold-start subset solves took 2 h on 4 cores (3-view sets often hit the 2,000-evaluation cap); a per-solve timing note for sensing-selfcal would have let the plan size the run before starting"
+    },
+    {
+      "file": "research/sensing-selfcal/src/selfcal.py",
+      "issue": "Board pattern is a module global baked into default arguments (board_points, planarity) and robust_sf; reusing the solver on another board needs monkeypatching or a private module copy. A pattern argument threaded through would be cleaner"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/experiments/m4j_tum/prepare.py",
+      "why": "The first pre-registered view-selection rule (sharpest frame per time block) picked 7-8 px boards and fronto-parallel views; replaced before any solve, looking only at corner spacing and a contact sheet",
+      "did": "Added a 15 px spacing floor and a foreshortening criterion; documented in prepare.py and the LOG plan, which was committed before results",
+      "result": "13 well-spread views per unit; the change is disclosed"
+    },
+    {
+      "file": "research/sensing-selfcal/experiments/m4j_tum/check.py",
+      "why": "Milestone 4i's H59 check used 8 sets per size, 3 noise configs, 9,600 solves (25 min); with 4 cores busy for 2 h on the main solves, the replication was cut to iid noise and 4 sets per size",
+      "did": "Pre-registered the smaller check (1,280 solves) in the plan",
+      "result": "Enough to refute H64 on fr1 (cold-start far minima); fr3 matches within 0.4%"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-our-camera-update-test-on-two-more-cameras.md",
+    "research/sensing-selfcal/LOG.md (milestone 4j planned + result)",
+    "research/sensing-selfcal/paper/draft.md (Section 7 two-unit paragraph, recommendations 2 and 5, limitations, Section 10)"
+  ],
+  "goal": "Advance the open sensing-selfcal programme: the paper's first listed submission need (the twin reference on a second unit)",
+  "notes": "Data: TUM RGB-D (CC BY 4.0) fr1_rgb_calibration and fr3_calibration_rgb_depth downloaded through the proxy (cvg.cit.tum.de works, ~1 min per GB); only corners committed (a person is in every frame). Results: H63 held (fr3 f within 0.64% of TUM); H64 refuted on fr1 (cold-start far minima at n=7, one never-converging 4-view set); H65 refuted at k=4 only (3.3%/4.7%; 0.06-0.80% at k=5-6); H66 refuted (10.0% at +-2%, k=6, vs 33.1% on OpenCV); H67 refuted (real unit difference only 1.40% after fr1's k1-only bias; caught 6.3%/7.9%, between the +-1% and +-2% scaled rates). Verification: tests/test_m4j.py + test_m4i.py + test_selfcal.py pass together (31); paper/check_numbers.py 175/175; build.py ok; check_md_links ok; cite_check ok for the TUM DOI; analyse.py and check.py rerun after the module-isolation fix gave a byte-identical summary.json and a check.json equal to the 16th significant digit (pool order).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "62b71475-492e-5108-88dd-b2197b6efaf2",
+    "transcripts": 1,
+    "first": "2026-11-14T09:07:04Z",
+    "last": "2026-11-14T12:22:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 116,
+        "input": 225,
+        "output": 78142,
+        "thinking": 24288,
+        "cache_read": 18784439,
+        "cache_write_5m": 0,
+        "cache_write_1h": 212906,
+        "api_equivalent_usd": 7.0239,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 116,
+      "input": 225,
+      "output": 78142,
+      "thinking": 24288,
+      "cache_read": 18784439,
+      "cache_write_5m": 0,
+      "cache_write_1h": 212906,
+      "api_equivalent_usd": 7.0239,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 120,
+    "tools": {
+      "Bash": 112,
+      "Read": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 195.15,
+      "active_minutes": 195.15,
+      "model_minutes": 16.03,
+      "tool_minutes": 179.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student: find and fetch a second open dataset, write a frame-selection rule, re-run the 11k-solve pipeline and twin analysis, write up log, paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 227.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

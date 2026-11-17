@@ -15,6 +15,14 @@ After using this, you can **stop discovering at award time that the bond or the 
 - **Which bids.** Every subset of bids is enumerated. For each, expected profit is the sum of win chance times profit, and the chance of overcommitting is computed exactly over every win/lose outcome. The tool reports the best set at zero risk, the best set within your tolerance, and the bid-on-everything baseline. A randomised test compares the search against an independent recursion.
 - **Working capital needed** is the larger of price / single multiple and (backlog + price) / aggregate multiple.
 
+## Known gaps
+
+From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-surety-bond-capacity-calculator.json), not yet fixed:
+
+- **No net worth cap.** Sureties commonly take the lesser of 10-20x working capital and 10-20x (tangible) net worth; this tool has no net worth input, so a thinly capitalised firm sees a larger aggregate than practice gives.
+- **Working capital is used as typed.** No underwriter adjustments (underbillings on troubled jobs, aged receivables, inventory haircuts) and no step for the CPA statement level (compiled, reviewed, audited), which moves the multiple a surety will use.
+- **Only bonded backlog** counts toward the aggregate; sureties look at all work on hand.
+
 Not modelled: retainage and cash flow, collateral, bid bond terms, joint ventures, partial wins, jobs that finish late or early, and how a surety actually underwrites.
 
 ## Run

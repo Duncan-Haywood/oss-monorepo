@@ -1214,12 +1214,12 @@ test("team sheets: every fixture once per side, duties on the right night, rota 
   const fixtureRows = sheets.slice(0, -1).reduce((n, sh) => n + (sh.match(/<td>(Home|Away)<\/td>/g) || []).length, 0);
   assert.equal(fixtureRows, 2 * matches, "each match appears on both teams' sheets");
   // duties on sheets equal the rota rows, and each sits on a night the team plays
-  const dutyCells = sheets.slice(0, -1).flatMap((sh) => [...sh.matchAll(/<td class="d">([^<]*)<\/td>/g)].map((m) => m[1]).filter(Boolean).flatMap((c) => c.split(", ")));
+  const dutyCells = sheets.slice(0, -1).flatMap((sh) => [...sh.matchAll(/<td class="d s">([^<]*)<\/td>/g)].map((m) => m[1]).filter(Boolean).flatMap((c) => c.split(", ")));
   assert.equal(dutyCells.length, r.rows.length);
   const first = r.rows[0];
   const sheet = sheets.find((sh) => sh.startsWith(`<h2>${first.team} <span>${first.division}</span>`));
   assert.ok(sheet, "sheet for the first duty's team");
-  assert.match(sheet, new RegExp(`<td>${dayLabel(first.day)}</td>[^\\n]*<td class="d">[^<]*${first.duty}`));
+  assert.match(sheet, new RegExp(`<td class="s">${dayLabel(first.day)}</td>[^\\n]*<td class="d s">[^<]*${first.duty}`));
   assert.match(sheets.at(-1), /<h2>Duty rota<\/h2>/);
   assert.ok(html.includes("Spring &lt;League&gt;") && !html.includes("<League>"), "title escaped");
   assert.match(html, /Questions: a@b\.c/);
@@ -1234,4 +1234,44 @@ test("team sheets: every fixture once per side, duties on the right night, rota 
   const evil = build({ divisions: [{ name: "D<1>", teams: ["<img src=x onerror=alert(1)>", "B", "C", "D"] }] });
   const eh = divisionsTeamSheetsHtml(evil);
   assert.ok(!eh.includes("<img src=x"), "team name escaped");
+});
+
+test("one-division league: singleAsDivisions gives duties and team sheets with byes (2026-11-13)", async () => {
+  const { buildSchedule, readSpec, sampleFields, parseOfficials, assignOfficials } = await import("./calc.mjs");
+  const { singleAsDivisions, parseDivisionDuties, assignDivisionDuties, validateDivisionDuties, divisionsTeamSheetsHtml, divisionsDutiesText } = await import("./divisions.mjs");
+  for (const n of [5, 6, 7]) {
+    const f = { ...sampleFields(), teams: Array.from({ length: n }, (_, i) => (i === 0 ? "<Hawks> & =Co" : `Team ${i + 1}`)).join("\n"), double: n === 6, blackouts: "" };
+    const { spec, errors } = readSpec(f);
+    assert.deepEqual(errors, []);
+    let s = buildSchedule(spec);
+    const po = parseOfficials("Pat\nSam", s.teams);
+    s = assignOfficials(s, po.officials).schedule;
+    const before = JSON.stringify(s);
+    const shaped = singleAsDivisions(s);
+    assert.equal(JSON.stringify(s), before, "input unchanged");
+    // every match carried over once, nights in date order, one night per distinct date
+    assert.equal(shaped.nights.reduce((a, x) => a + x.matches.length, 0), s.rounds.reduce((a, r) => a + r.matches.length, 0));
+    assert.equal(shaped.nights.length, new Set(s.rounds.map((r) => r.day)).size);
+    assert.ok(shaped.nights.every((x, i) => i === 0 || shaped.nights[i - 1].day < x.day));
+    const byes = s.rounds.filter((r) => r.bye !== null && r.bye !== undefined).length;
+    assert.equal(shaped.nights.reduce((a, x) => a + x.byes.length, 0), byes);
+    assert.equal(byes > 0, n % 2 === 1);
+    const { duties } = parseDivisionDuties("Snack stand: 2\nScoreboard");
+    const r = assignDivisionDuties(shaped, duties);
+    assert.deepEqual(validateDivisionDuties(shaped, duties, r), []);
+    const totals = r.loads.map((l) => l.total);
+    assert.ok(Math.max(...totals) - Math.min(...totals) <= 2, `spread ${totals}`);
+    // a team on a bye never gets a duty that night
+    for (const x of shaped.nights) for (const b of x.byes) assert.ok(!r.rows.some((row) => row.day === x.day && row.team === b.team));
+    const html = divisionsTeamSheetsHtml(shaped, { title: "Spring", contact: "Sam", duties: r });
+    assert.equal((html.match(/<section class="sheet">/g) || []).length, n + 1, "one sheet per team plus the rota");
+    assert.equal((html.match(/<tr class="bye">/g) || []).length, byes);
+    assert.ok(!html.includes("<Hawks>") && html.includes("&lt;Hawks&gt; &amp; =Co"));
+    assert.ok(!/<span><\/span>|\(\)/.test(html), "no empty division labels");
+    assert.ok(html.includes("<th>Official</th>") && html.includes("<th>Your duty</th>"));
+    // every match appears on both teams' sheets: rows = 2 x matches + byes
+    const matchRows = (html.match(/<tr><td class="s">/g) || []).length;
+    assert.equal(matchRows, 2 * s.rounds.reduce((a, rr) => a + rr.matches.length, 0));
+    assert.ok(!/\[\]/.test(divisionsDutiesText(r)));
+  }
 });

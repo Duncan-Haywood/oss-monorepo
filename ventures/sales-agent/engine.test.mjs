@@ -306,7 +306,9 @@ test("seventh set (2026-11-03c): 24 opt-outs scored once at 10 missed before the
   const s = score(rows);
   assert.equal(s.n, 30);
   assert.equal(s.unsubMissed, 0);
-  assert.equal(s.right, 26);
+  // 27 since 2026-11-12: "remove Dana from this thread, she left the company" was labelled "wrong_person", not a category, so it
+  // could never score right; relabelled left_company, which the rules already said.
+  assert.equal(s.right, 27);
 });
 
 test("eighth set (2026-11-04): quoted footers and signatures stripped as in production; 14/20 before the change (6 misses, 2 of them my label errors), 20/20 after; a tuned set", () => {
@@ -574,4 +576,14 @@ test("property: findDate never throws and every date it returns is a real YYYY-M
     if (r) { assert.ok(real(r.date), `${JSON.stringify(s)} on ${today} gave ${r.date}`); checked++; }
   }
   assert.ok(checked > 1000); // the grid reaches real dates, not only nulls
+});
+
+test("a bounce for an address not yet in the prospects table adds it with no first name (not the mail system's 'Mail')", () => {
+  // Found 2026-11-14 on Postfix's own DSN in a real round trip (self-host/real-servers).
+  const replies = "From: Mail Delivery System <MAILER-DAEMON@mail.example.test>\nSubject: Undelivered Mail Returned to Sender\nX-Signal: dsn-permanent\nX-Failed-Recipient: nobody@example.test\n\nYour message could not be delivered.";
+  const r = runInbox({ replies, prospects: "", suppression: "", offer: SAMPLE_OFFER, today: "2026-11-14" });
+  const p = r.prospects.find((x) => x.email === "nobody@example.test");
+  assert.equal(p.status, "bounced");
+  assert.equal(p.first_name, "");
+  assert.ok(!r.prospects.some((x) => /mailer-daemon/i.test(x.email)));
 });

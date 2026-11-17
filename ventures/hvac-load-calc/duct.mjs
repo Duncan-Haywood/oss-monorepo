@@ -130,7 +130,7 @@ export function validateDucts(design) {
   num(o.rectHeightIn, 'Rectangular trunk height', errs, 4, 30);
   num(o.rectStepIn, 'Rectangular width step', errs, 0.5, 6);
   num(o.elevationFt, 'Elevation', errs, -300, 14000);
-  if (!Array.isArray(o.sizesIn) || !o.sizesIn.length || o.sizesIn.some(s => !(s >= 2 && s <= 60))) errs.push('Round sizes must be a list of diameters between 2 and 60 inches');
+  if (!Array.isArray(o.sizesIn) || !o.sizesIn.length || o.sizesIn.some(s => typeof s !== 'number' || !(s >= 2 && s <= 60))) errs.push('Round sizes must be a list of diameters between 2 and 60 inches');
   const runs = o.runs;
   if (!Array.isArray(runs) || !runs.length) errs.push('Add at least one supply run');
   else runs.forEach((r, i) => {

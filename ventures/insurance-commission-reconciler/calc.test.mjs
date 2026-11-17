@@ -244,6 +244,18 @@ test("CSV output has a header, escapes commas, and cannot run a typed formula", 
   assert.match(carrierCsv(r), /^carrier,statement_lines/);
 });
 
+// Red team 2026-11-16: the guard let any "-" followed by a digit through, so an insured named "-1+HYPERLINK(...)" was
+// written raw and a spreadsheet ran it. Only a plain number may start with "-".
+test("CSV defuses a formula that starts with a minus and a digit, and keeps plain negatives as numbers", () => {
+  const r = rec(["P1,\"-1+HYPERLINK(\"\"http://x\"\",\"\"y\"\")\",Acme Insurance,Auto,2026-08-10,10000,10%,New,Active,Agency"], ["P9,Z,New,100,10.00,2026-09-15"]);
+  const csv = findingsCsv(r);
+  assert.ok(csv.includes("\"'-1+HYPERLINK("), csv);
+  assert.ok(!/(^|,)"?-1\+HYPERLINK/m.test(csv));
+  const row = findingsCsv({ findings: [{ severity: "high", kind: "underpaid", carrier: "-5", policy: "P", insured: "I", effective: null, premiumCents: -1250, expectedCents: null, paidCents: null, cents: null, title: "t", detail: "d" }] }).split("\n")[1];
+  assert.equal(row.split(",")[2], "-5");
+  assert.equal(row.split(",")[6], "-12.50");
+});
+
 test("the module never touches the network", async () => {
   const { readFileSync } = await import("node:fs");
   assert.doesNotMatch(readFileSync(new URL("./calc.mjs", import.meta.url), "utf8"), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket/);

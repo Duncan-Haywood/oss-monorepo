@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Share of 384 cylinder-geometry cases in which a smaller fixed open-centre pump burns less fuel than load-sensing, against the rest-of-machine fuel rate over the extra working time; under all 108 parameter sets, at central parameters, and under at least one set.">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Excavator: where a smaller fixed pump still beats load-sensing on fuel</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="112.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="161.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.25</text>
+<text x="210.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.75</text>
+<text x="283.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2.5</text>
+<text x="429.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">6</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">rest-of-machine fuel rate f_t (L/h)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of geometry cases (%)</text>
+<polyline points="64.0,157.4 88.3,269.9 112.7,318.2 137.0,323.2 161.4,324.0 183.8,324.0 210.1,324.0 234.4,324.0 283.1,324.0 331.8,324.0 429.2,324.0 541.2,324.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="157.4" r="3" fill="#c0392b"/>
+<circle cx="88.3" cy="269.9" r="3" fill="#c0392b"/>
+<circle cx="112.7" cy="318.2" r="3" fill="#c0392b"/>
+<circle cx="137.0" cy="323.2" r="3" fill="#c0392b"/>
+<circle cx="161.4" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="183.8" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="210.1" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="234.4" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="283.1" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="331.8" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="429.2" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="541.2" cy="324.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">every parameter set</text>
+<polyline points="64.0,71.2 88.3,117.9 112.7,155.4 137.0,196.8 161.4,243.1 183.8,278.0 210.1,300.2 234.4,311.6 283.1,322.0 331.8,323.2 429.2,324.0 541.2,324.0 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<circle cx="88.3" cy="117.9" r="3" fill="#1f6fb2"/>
+<circle cx="112.7" cy="155.4" r="3" fill="#1f6fb2"/>
+<circle cx="137.0" cy="196.8" r="3" fill="#1f6fb2"/>
+<circle cx="161.4" cy="243.1" r="3" fill="#1f6fb2"/>
+<circle cx="183.8" cy="278.0" r="3" fill="#1f6fb2"/>
+<circle cx="210.1" cy="300.2" r="3" fill="#1f6fb2"/>
+<circle cx="234.4" cy="311.6" r="3" fill="#1f6fb2"/>
+<circle cx="283.1" cy="322.0" r="3" fill="#1f6fb2"/>
+<circle cx="331.8" cy="323.2" r="3" fill="#1f6fb2"/>
+<circle cx="429.2" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="541.2" cy="324.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">central parameters</text>
+<polyline points="64.0,71.2 88.3,71.2 112.7,71.9 137.0,96.2 161.4,125.3 183.8,141.7 210.1,157.4 234.4,173.3 283.1,221.9 331.8,262.8 429.2,302.3 541.2,320.0 624.0,323.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="88.3" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="112.7" cy="71.9" r="3" fill="#2e8b57"/>
+<circle cx="137.0" cy="96.2" r="3" fill="#2e8b57"/>
+<circle cx="161.4" cy="125.3" r="3" fill="#2e8b57"/>
+<circle cx="183.8" cy="141.7" r="3" fill="#2e8b57"/>
+<circle cx="210.1" cy="157.4" r="3" fill="#2e8b57"/>
+<circle cx="234.4" cy="173.3" r="3" fill="#2e8b57"/>
+<circle cx="283.1" cy="221.9" r="3" fill="#2e8b57"/>
+<circle cx="331.8" cy="262.8" r="3" fill="#2e8b57"/>
+<circle cx="429.2" cy="302.3" r="3" fill="#2e8b57"/>
+<circle cx="541.2" cy="320.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="323.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">some parameter set</text>
+</svg>

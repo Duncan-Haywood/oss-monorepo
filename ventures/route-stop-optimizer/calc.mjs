@@ -13,7 +13,12 @@ const EARTH_MI = 3958.8;
 const LATE_WEIGHT = 1000; // one late minute outweighs any drive-time saving
 
 export const num = (x, d = 0) => Number(x).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
-export const money = (x) => "$" + Number(x).toLocaleString("en-US", { maximumFractionDigits: 0 });
+export const money = (x) => {
+  const format = (x) => "$" + Number(x).toLocaleString("en-US", { maximumFractionDigits: 0 });
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (x, d = 0) => (x * 100).toFixed(d) + "%";
 
 export function fmtTime(min) {

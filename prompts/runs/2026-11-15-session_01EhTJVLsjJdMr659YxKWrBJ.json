@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLsjJdMr659YxKWrBJ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (standing ventures brief)",
+  "input_sha256": "bd21f1129ba809e796b68a1d2bf7670ff90157ecee0ebfc70c69514b21bd90b4",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T07:56:15Z",
+  "ended": "2026-11-15T08:08:32Z",
+  "wall_minutes": 14.87,
+  "tokens_in": 12504553,
+  "tokens_out": 52920,
+  "cost_usd": 4.9179,
+  "tool_calls": 89,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16144",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A PreToolUse hook blocked a command that combined a bracketed pgrep with the script name elsewhere on the line; the batched tool-script edit in the same command did not run and was re-applied."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 1 (ai-bookkeeper) was claimed by another session 14 s before mine (PR 16142); claim_check said YIELD. Expected behaviour, but the PR had to be retitled for a different venture."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace without --field searches only `next:`; the X-Trans item lives in `buildable:`, so the first call said 'not found' with no hint to try --field buildable."
+    },
+    {
+      "file": "ventures/photo-editing/tools/xtrans_demosaic_check.py",
+      "issue": "The usage notes named an X-E2 RAF, but the public collection files it as 'FujiFilm EX-2.raf'; noted in the docstring now."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Took flagship row 5 (photo-editing) rather than row 1, because claim_check told me to yield row 1 and rows 2-4 had open PRs or only items that need outside inputs.",
+      "did": "Built the photo-editing BUILDABLE HERE item (the X-Trans demosaic gap to LibRaw).",
+      "result": "Real frames went from 2.0-2.7 dB short to 0.46-0.71 dB short; level under noise."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-x-trans-demosaic-the-choice-was-the-weak-step.md",
+    "ventures/photo-editing/eval/xtrans-clamp-gradient-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Diagnosis first: the four directional pictures were scored separately, averaged, chosen by the old rule, and chosen by an oracle. The L*a*b* homogeneity choice was no better than a plain average (36.38 vs 36.39 dB on X-E1), while the oracle reached 40.03. Fix: clamp each directional green between the two greens it was interpolated from, and replace the choice with a second-difference blend, weights (Dmin/D)^4. Colour PSNR, X-E1 36.60->38.56 (LibRaw 3-pass 39.27); held-out X-E2 47.88->49.43 (49.89); sheet 33.51->35.00 (39.37). Noisy known truth added (--noise-snr): X-E2 at SNR 25 is 0.12 dB ahead of LibRaw. The real-data luma gap was traced to the median step. Checks: tests/test_xtrans_demosaic.py 13 pass (numpy venv); run_venture_tests.py photo-editing ok (104.7 s); ruff check clean; mypy has only the error already on main (dng_opcodes.py:1000); post front matter, links and similarity clean.",
+  "corrections": [],
+  "redteam": null,
+  "venture": "photo-editing",
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4ade2333-8d72-5901-8ee0-404e45ed16c6",
+    "transcripts": 1,
+    "first": "2026-11-15T07:56:15Z",
+    "last": "2026-11-15T08:11:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 162,
+        "output": 52920,
+        "thinking": 10451,
+        "cache_read": 12330290,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174101,
+        "api_equivalent_usd": 4.9179,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 162,
+      "output": 52920,
+      "thinking": 10451,
+      "cache_read": 12330290,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174101,
+      "api_equivalent_usd": 4.9179,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 74,
+      "Monitor": 5,
+      "ReadNotifications": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.87,
+      "active_minutes": 14.87,
+      "model_minutes": 9.9,
+      "tool_minutes": 4.97,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "an imaging engineer diagnosing a demosaic, tuning, adding a noise harness and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 162.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

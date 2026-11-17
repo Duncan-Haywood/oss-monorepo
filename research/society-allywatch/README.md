@@ -5,7 +5,7 @@ asks whether fading that depends on what an ally has watched is better or worse 
 rate applied blindly.
 **With 20% allies in a 200-person crowd (memory 9), an ally who converts with probability `c` times the share of
 their own memory that is R tips more crowds than one who converts at a flat `c`, but only once robots are at least about 0.10:
-12/12 against 10/12 at `c` = 0.01 and robot share 0.10 (about 26 of 40 allies still present at the end), 4/12 against 0/12
+12/12 against 10/12 at `c` = 0.01 and robot share 0.10 (about 26 of 36 allies still present at the end), 4/12 against 0/12
 at `c` = 0.03, and 12/12 against 10/12 at 0.15. At 0.05 robots it is 2/12 against 0/12 at `c` = 0.01, and at 0.02 robots or at
 `c` ≥ 0.1 neither rule rescues the crowd.**
 Produced with AI assistance (Claude). Next step 1 of `society-allyfade`, research track 17 (`society`). Every result is
@@ -16,8 +16,18 @@ about simulated people following a stated rule, not real crowds.
 ## Why this question
 
 A first guess is that discouragement is worse than constant fading: allies leave exactly when the crowd is against them,
-which is when the robots need them. The result goes the other way. Memories start all R, so every ally has `f` = 1 and fades at
-the flat rate in the first rounds under both rules; the rules differ only after the tip begins, when allies who watch L stay.
+which is when the robots need them. In this model the result goes the other way. One caveat about the comparison: the watch rule fades at `c·f`, never faster than
+`c`, so at the same `c` watching allies always fade less in total. There is no rate-matched baseline yet (a constant rate equal
+to the watch rule's realised mean), so part of the gain may simply be slower fading. An earlier version of this README said the
+two rules match in the first rounds because `f` = 1. That was wrong: robots and allies walk L from round 1, so `f` falls at once
+(the 2026-11-12 quality audit measured a mean `f` of 0.57 at round 20 at robot share 0.10).
+
+**Seeds (added 2026-11-12).** The table uses 12 seeds per cell, and its cells were read off a 4×5 grid. The quality audit reran
+the four headline cells with 100 fresh seeds per arm (seeds 100-199, same code), constant against watch: 85 vs 96 tipped
+(Fisher p 0.014), 1 vs 12 (p 0.0025), 0 vs 3, and 88 vs 97. The direction holds, but the effect is smaller than the 12-seed
+counts suggest, which have no intervals (`portfolio/quality/audits/2026-11-12-society-allywatch.json`). The closest earlier
+studies of committed minorities tipping a convention, Xie et al. (Phys. Rev. E 2011), Centola et al. (Science 2018) and
+Granovetter's threshold model (Am. J. Sociol. 1978), were not cited before the audit.
 
 ## Builds on
 
@@ -35,7 +45,7 @@ the ally's memory that is R. Memories start all R; a crowd is tipped if after 15
 
 ## Results
 
-From `experiments/results.txt` (`experiments/run.py`, seeded, 12 seeds per cell). Crowds tipped of 12 (allies left at the end, mean of 40 or so):
+From `experiments/results.txt` (`experiments/run.py`, seeded, 12 seeds per cell). Crowds tipped of 12 (allies left at the end, of 32 to 39 allies at the start: 20% of the humans):
 
 | c | rule | ρ=0.02 | 0.05 | 0.10 | 0.15 | 0.20 |
 |---|---|---|---|---|---|---|
@@ -70,7 +80,7 @@ not real people. Recruiting allies is a consent question (track 17 guardrails); 
 ```
 cd research/society-allywatch
 python3 -m unittest discover -s tests            # 5 tests, ~1 s
-PYTHONPATH=src python3 experiments/run.py        # writes results.txt (~3 min)
+PYTHONPATH=src python3 experiments/run.py        # writes results.txt (~2 min)
 python3 experiments/figure.py
 ```
 

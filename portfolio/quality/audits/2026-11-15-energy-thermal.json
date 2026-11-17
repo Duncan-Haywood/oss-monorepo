@@ -1,0 +1,245 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/energy-thermal",
+ "stratum": "research",
+ "seed": "2026-11-15-b",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior thermal-energy-storage researcher (the kind who reviews sensible-heat and seasonal TES papers for Applied Energy or Solar Energy). They would check first that the conduction solver reproduces an analytic transient (sphere with a convective/insulated surface), then the temperature dependence of the inputs (sand c_p from 100 to 500 C, mineral-wool k across a 500 K drop), and then whether the round-trip efficiency is a first charge from ambient or a steady cyclic figure, since that decides the days-scale versus seasonal verdict",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `cd research/energy-thermal && PYTHONPATH=src python3 experiments/run.py` in a scratch copy (3.6 s): results.txt byte-identical (`diff` empty), and `python3 experiments/figure.py` regenerates standby.svg identically. Independent script /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py (`python3 -I indep.py`) implements the textbook multi-term series for the mean temperature of a sphere with a convective surface (Incropera ch. 5.6, eigenvalues of 1 - z cot z = Bi) with the insulation folded into an equivalent film from Incropera eq. 3.36 (spherical shell + outside film): kept share for sand/0.5 m wool matches the code within 0.2 points at six points (e.g. 100 m3, 90 d: analytic 0.2855, code 0.2862, results.txt 28.6%; 1000 m3, 180 d: 0.4252 vs 0.4258 vs 42.6%). Sizing by bisection on the analytic series gives 222.2 m3 and eta 0.258 for the 10 MWh/120 d headline (code 222.0, 0.259). Lumped exponential decay for 1000 m3 water/1 m/180 d gives 85.3% (results.txt 84.8%, the gap is insulation heat capacity). Hand checks: 1600*800*400/3.6e6 = 142.2 kWh/m3, 970*4180*50/3.6e6 = 56.3, 0.45*308.15/35 = 3.96, diameter of 222 m3 = 7.51 m, 3.962/(10000/38675) = 15.32. Not 4: the 'days-scale' efficiencies (0.79 after 1 day, 0.73 after 7) are first charges from 10 C; in steady cyclic operation the same model gives 0.98 and 0.90 (indep.py step 9), and the inputs are unsourced constants.",
+  "completeness": "README promises: 9 tests (9 passed in 0.19 s), run.py reproduces results.txt (byte-identical), figure.py reproduces the SVG (identical), sections A to E all present and matching the README bullets, standard library only (model and run.py yes; figure.py imports research/_shared/linefig, in-repo). Live page https://marisstella.app/research/energy-thermal/ could not be loaded (egress proxy refused marisstella.app), so not checked. PROJECTS.md:1211 milestone 6 also asked for charging, discharge to heat or power and a house-model link; the README labels itself a first version and lists those as Next steps, so nothing claimed as done is missing.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests` in research/energy-thermal: 9 passed in 0.19s. Five mutants via platform/ci/quality_mutate.py, 2 caught (interface conductance using the wrong material's k; ambient term zeroed), 3 survived: outside film area 4 pi r^2 -> 4 pi r (model.py:63), heat-pump Carnot fraction 0.45 -> 0.55 (model.py:120), usable heat from the centre temperature instead of the mean (model.py:107). The only quantitative transient test (test_model.py:30) compares against lumped_decay(s.ua(), ...), i.e. the code's own UA, so any error in g_out cancels. No test pins results.txt or any headline number.",
+  "craft": "Read src/energy_thermal/model.py (146 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Compact, readable finite-volume code with a correct Thomas solve and series-resistance interfaces; backward Euler is a sound choice. Small issues: unused local `n` in Store.ua (model.py:111); the tau column (run.py:55) uses ua() which includes half of the outermost medium shell, so it is mesh-dependent (190.5 d vs 179.8 d for shell+film alone, indep.py step 5); run.py:3 docstring says 'about a minute' (it takes 3.6 s); Medium is a bare class with no validation. No dead engines or copied code.",
+  "claims": "Checked: 222 m3 / 7.5 m / 70 m3 no-loss (results.txt C, backed and recomputed); 26%/36%/18% and '15 times dearer' (D, backed); 43% at 1000 m3/180 d (B, backed); 'doubling insulation helps less than ten times the volume' (B: 10 m3 30 d 30.9 -> 45.9 vs 30.9 -> 67.0, backed); '9 tests', 'about 4 s', 'within 0.15 C', 'within 6%' (backed). Not backed as worded: 'Left for a day or a week, the same sand store returns 79% and 73%' (README.md:7) - section E resizes the store for each standing time (72.4 and 79.0 m3, not the 222 m3 store) and the figure is a first charge from ambient, which understates days-scale cycling (0.98/0.90 steady-cycle); 'a hot-water tank with the same insulation' (README.md:7) uses a different conductivity (0.045 vs 0.08). Inputs are disclosed as unsourced (README.md:24), which is honest but runs against research/CLAUDE.md 'Run the numbers; don't stylise them'. Limitations and a safety note are present.",
+  "fitness": "Nearest prior work: the surface-to-volume argument that sensible seasonal stores only work at district scale is textbook and field practice (seasonal TES reviews, e.g. Xu, Wang and Li, Solar Energy 2014; borehole/pit stores such as Drake Landing and Marstal), and commercial sand batteries (Polar Night Energy) are sized at utility scale for that reason. The result here - a house-sized 500 C sand store is a days-scale store, scale helps - restates that with a clean, checked solver; it cites no TES paper and is not new. As a building block it is useful: the solver is verified against an analytic series and nine later projects (energy-thermal-cost, -hourly, -real, energy-store-*) import it, but the README does not link to them and still lists their work as Next steps.",
+  "domain": "A TES engineer would accept the radial FV conduction method and the sphere-as-best-case framing. Departures: sand c_p fixed at 800 J/kgK (Incropera Table A.3's 300 K value) while quartz c_p rises to roughly 1,000 to 1,100 J/kgK over 100 to 500 C (NIST-JANAF SiO2), so capacity per m3 is understated by about a fifth; mineral-wool k fixed at a single 0.08 W/mK across a 10 to 500 C drop instead of k(T); round-trip efficiency reported for a first charge from ambient, not a periodic steady state, which flips the magnitude of the days-scale figures; no ground or support losses. Several are disclosed as limitations; none is swept to show the conclusion survives, which research/CLAUDE.md asks for when inputs are unsourced."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Kept share, sand 100 m3, 0.5 m wool, 90 days",
+   "method": "Incropera ch. 5.6 multi-term series for a sphere with convective surface, insulation as an equivalent film via eq. 3.36; own implementation",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py",
+   "expected": "0.2855 (analytic, massless wool)",
+   "observed": "0.2862 (code default), 28.6% in results.txt",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Kept share, sand 1000 m3, 0.5 m wool, 180 days",
+   "method": "same textbook series",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py",
+   "expected": "0.4252",
+   "observed": "0.4258, 42.6% in results.txt",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Headline size for 10 MWh after 120 d, sand, 0.5 m wool",
+   "method": "bisection on the textbook series (not the subject's solver)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py",
+   "expected": "222.2 m3, eta 0.258",
+   "observed": "222.0 m3, eta 0.259",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Water 1000 m3, 1 m wool k=0.045, 180 d kept share",
+   "method": "lumped exponential decay with Incropera eq. 3.36 UA",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py",
+   "expected": "85.3%",
+   "observed": "84.8%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Capacity per m3 and heat-pump COP",
+   "method": "by hand: rho c dT / 3.6e6; 0.45 T_h/(T_h - T_c)",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py",
+   "expected": "142.2 and 56.3 kWh/m3; COP 3.96; break-even 15.32",
+   "observed": "142.2, 56.3; 3.96; 15.32",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Days-scale delivered/in (1 and 7 days) as a cyclic store",
+   "method": "same Store, periodic charge to 500 C / stand / discharge to mean 100 C, 60 cycles",
+   "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/515452bf-fa90-5a4d-8dff-eb31dd7bc4c4/scratchpad/energy-thermal/indep.py",
+   "expected": "README 0.79 and 0.73 as what the store returns",
+   "observed": "steady cycle 0.983 and 0.899; README figures are first charges from 10 C",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs",
+   "method": "rerun in scratch copy and diff",
+   "command": "PYTHONPATH=src python3 experiments/run.py && diff experiments/results.txt <committed>; python3 experiments/figure.py && diff standby.svg",
+   "expected": "identical",
+   "observed": "both identical, 3.6 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "pytest",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "9 tests pass",
+   "observed": "9 passed in 0.19s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Seeded mutants caught",
+   "method": "platform/ci/quality_mutate.py, 5 mutants",
+   "command": "python3 platform/ci/quality_mutate.py research/energy-thermal/src/energy_thermal/model.py --old ... -- /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "all caught",
+   "observed": "2 of 5 caught",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Left for a day or a week, the same sand store returns 79% and 73%'",
+   "method": "read results.txt section E",
+   "command": "grep -A6 '^E\\.' experiments/results.txt",
+   "expected": "same 222 m3 store",
+   "observed": "stores resized to 72.4 and 79.0 m3; first-charge figures",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'A hot-water tank with the same insulation'",
+   "method": "read run.py INS",
+   "command": "grep -n INS experiments/run.py",
+   "expected": "same k",
+   "observed": "k 0.045 vs 0.08 (disclosed in the same sentence and in Limitations)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Cooling time constants 11 to 190 days; 1000 m3 43% after 180 d; doubling insulation < 10x volume",
+   "method": "read results.txt B",
+   "command": "grep '^sand     0.50' experiments/results.txt",
+   "expected": "as stated",
+   "observed": "10.8 to 190.5 d; 42.6%; 45.9 vs 67.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page",
+   "method": "curl",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/energy-thermal/",
+   "expected": "200",
+   "observed": "000 (egress proxy refused the host)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "Sand specific heat over 100 to 500 C",
+   "method": "Incropera Table A.3 (sand 300 K: 800 J/kgK) vs NIST-JANAF quartz c_p rising to about 1,000-1,100 J/kgK at 500-800 K",
+   "command": "grep -n SAND src/energy_thermal/model.py",
+   "expected": "temperature-dependent or mean c_p near 1,000 J/kgK, or a sweep",
+   "observed": "constant 800 J/kgK, unsourced",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/energy_thermal/model.py:63",
+   "change": "+ 1 / (h_out * 4 * math.pi * ro * ro)) -> + 1 / (h_out * 4 * math.pi * ro))",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal/model.py:59",
+   "change": "(1 / rf - 1 / mid[i + 1]) / (4 * math.pi * self.mat[i + 1].k)) -> (1 / rf - 1 / mid[i + 1]) / (4 * math.pi * self.mat[i].k))",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal/model.py:120",
+   "change": "carnot_fraction=0.45 -> carnot_fraction=0.55",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal/model.py:83",
+   "change": "d[-1] += self.g_out * self.t_amb -> d[-1] += self.g_out * 0.0",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/energy_thermal/model.py:107",
+   "change": "self.mean_medium_temp() - t_cut -> self.T[0] - t_cut",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Days-scale efficiencies (0.79 after 1 day, 0.73 after 7) are first charges from ambient, counting the 10 to 100 C heat that a cycling store keeps; in steady cyclic operation the same model returns 0.98 and 0.90. The README presents them as what 'the same sand store returns' and draws the days-scale verdict from them; the stores are also resized per row (72.4, 79.0 m3), not the 222 m3 store.",
+   "where": "research/energy-thermal/README.md:7",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "medium",
+   "what": "Outside film conductance, usable-heat definition and heat-pump COP value are untested: mutants to the film area (4 pi r^2 -> 4 pi r), centre-for-mean temperature and Carnot fraction all survive, because the only transient test compares with lumped_decay(s.ua()) built from the code's own conductances, and no test pins results.txt. Nine downstream projects import this model.",
+   "where": "research/energy-thermal/tests/test_model.py:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Every driving input is an unsourced constant (README says none was checked): sand c_p 800 J/kgK is a 300 K value while quartz c_p is about 1,000-1,100 J/kgK over the 100-500 C range, and mineral-wool k is a single 0.08 W/mK over a 500 K drop. No sweep shows the verdict survives, contrary to research/CLAUDE.md 'Run the numbers'.",
+   "where": "research/energy-thermal/src/energy_thermal/model.py:22",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'A hot-water tank with the same insulation loses less per day' while the tank's insulation k is 0.045 vs 0.08 for sand; the comparison is driven by that assumption.",
+   "where": "research/energy-thermal/README.md:7",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+  },
+  {
+   "severity": "low",
+   "what": "Novelty not positioned: no TES literature cited; the house-vs-district scale result is the established surface-to-volume argument for seasonal storage.",
+   "where": "research/energy-thermal/README.md:9",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Next steps 2 and 3 were done by energy-thermal-cost, -hourly and -real, which the README does not link; run.py docstring says 'about a minute' (3.6 s).",
+   "where": "research/energy-thermal/README.md:59",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "tau column uses ua(), which includes half of the outermost medium shell, so it depends on n_med (190.5 d vs 179.8 d for shell+film); unused local n in Store.ua.",
+   "where": "research/energy-thermal/experiments/run.py:55",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16129"
+ ],
+ "verdict": "The conduction solver is right: it reproduces a textbook multi-term sphere series within 0.2 points at six points and the 222 m3 / 26% / 15x headline recomputes independently (222.2 m3, 0.258), and run.py and the figure regenerate byte-identically. It does not meet the bar. Verification is 2 (3 of 5 seeded mutants survive, including the outside film area, because the transient test is built on the code's own UA), claims are 2 (the 79%/73% days-scale figures are first charges from ambient for differently sized stores; a steady cyclic run of the same model gives 0.98/0.90), and the inputs are unsourced constants with no sweep (sand c_p at its 300 K value), so a TES reviewer would not sign off the domain method, and the result is not new against seasonal-storage practice. Finished for what it claims (completeness 3)."
+}

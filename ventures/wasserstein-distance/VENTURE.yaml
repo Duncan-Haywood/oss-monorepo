@@ -1,0 +1,66 @@
+name: wasserstein-distance
+description: >-
+  Free browser tool, CLI and agent call for analysts, data scientists,
+  operations and quality teams, climate and science students: paste a CSV
+  with a group column and get the Wasserstein (earth mover's) distance
+  between two groups, exact per column with mass moved up and down and
+  quantile shifts, and across several columns by Sinkhorn optimal transport
+  with a certified range on the exact value. Permutation tests. Checked
+  against POT and SciPy. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-14 on an explore run, as the twelfth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md listed Sinkhorn
+# optimal transport, Cuturi 2013, "for comparing distributions" as a
+# candidate). Implemented from the papers' mathematics; no third-party code
+# was ported. POT and SciPy were used only to produce eval/reference.json,
+# which the tests check against. Example data: NOAA GHCN-Daily, Central
+# Park, public domain; data/SOURCE.md.
+#
+# First visitor: searches such as "wasserstein distance calculator", "earth
+# mover's distance online", "compare two distributions", "distribution shift
+# between two groups", "optimal transport online"; analysts checking a
+# before/after or an A/B change beyond the mean, ML engineers checking data
+# drift, students of optimal transport. Volume not measured with an external
+# tool.
+#
+# Alternatives: scipy.stats.wasserstein_distance (one dimension, needs
+# Python), POT and GeomLoss (need code), R's transport package. A
+# Kolmogorov-Smirnov test gives a p-value but no distance in units.
+# Differentiators here: no install, the distance in the data's own units
+# with what moved up and down, several columns with a certified range on the
+# exact value rather than a regularised number, tests pinned to POT.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# medical advice; the page says a distance or p-value is not proof of a
+# cause and that the tests assume exchangeable rows. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts who need to say how much a distribution changed (not only
+      whether the mean did) will use a no-install earth mover's distance
+      tool that states the answer in their units and splits it into what
+      moved up and what moved down.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a distance outside the certified range of the exact value from POT's ot.emd2 on the same data, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/wasserstein-distance/
+  analytics: null

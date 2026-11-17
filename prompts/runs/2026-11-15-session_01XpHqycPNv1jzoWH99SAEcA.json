@@ -1,0 +1,411 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycPNv1jzoWH99SAEcA",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T07:39:20Z",
+  "ended": "2026-11-15T07:40:07Z",
+  "wall_minutes": 10.57,
+  "tokens_in": 9165099,
+  "tokens_out": 35799,
+  "cost_usd": 3.4389,
+  "tool_calls": 87,
+  "task": "redteam: campaigns on wash-sale-checker and gumroad-sales-fee-analyzer calc.mjs; date-regex digit-boundary class fix",
+  "projects": [
+    "wash-sale-checker",
+    "gumroad-sales-fee-analyzer",
+    "shift-roster-builder",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16140",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first push blocked by the post front-matter hook (description 173 chars, tag 'red-team' vs 'redteam')",
+      "fix": "shortened, retagged, separate commits"
+    },
+    {
+      "what": "gumroad header gap test first used 'Total amount', which findColumns does not read as an amount, so the status mutant still escaped on rerun",
+      "fix": "bare 'Amount' preamble line; rerun caught it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 lists 12 open entries, 11 of them control-plane workflow edits; four are already covered by unwired_checks.py (added 2026-11-12/13) and nothing in the open list or the prompt says to check unwired_checks --list first, so each red-team run re-reads them."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets --probe 20 with no --under printed nothing for the files I wanted; --under <venture dir> was needed to see their timings."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Picked targets that changed on main in the last 3 days by hand rather than a random draw; wash-sale-checker had already been red-teamed twice today (#16058, #16105).",
+      "did": "Ran its campaign anyway since the 3 escapes were new gaps, and spent the hunt on the date-parsing class across ventures.",
+      "result": "The class sweep found the shift-roster 2020 bug, the run's most user-visible defect."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-date-regex-that-read-2026-as-2020.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate 8/16 (0.50) before, 16/16 after gap tests (wash-sale line 14 mutant re-applied by hand after the (?!\\d) fix changed the line; rerun records 0.938 because it cannot re-apply it). Guard added: platform/ci/check_date_digit_boundary.py + test (no workflow names it, so unwired_checks.py runs it on every ventures/** PR); 178 hits in 100 files on its first run, 0 after the sweep. Verification: run_venture_tests.py --changed: 86 suites run, 0 failed (shift-roster-builder 213 s). Step 0: four open entries marked already fixed via unwired_checks; the other eight remain control-plane.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/wash-sale-checker/calc.mjs",
+        "test": "node --test ventures/wash-sale-checker/**/*.test.mjs  (in .)",
+        "seed": 8842680,
+        "commit": "de6af0676",
+        "sites": 237,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 14,
+            "col": 42,
+            "operator": "const-plus-one",
+            "before": "let m = t.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})/);",
+            "after": "let m = t.match(/^(\\d{4})-(\\d{1,2})-(\\d{2,2})/);",
+            "line_text": "  let m = t.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})/);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test 'ISO dates with one-digit month and day are read'. Line changed by the (?!\\d) fix; re-applied by hand to the new line (\\d{1,2}) -> (\\d{2,2}) before (?!\\d): suite fails 1 (test 63)."
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 17,
+            "col": 116,
+            "operator": "const-plus-one",
+            "before": "else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "after": "else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 101) y += 2000; }",
+            "line_text": "  else if ((m = t.match(/^(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4}|\\d{2})(?!\\d)/))) { mo = +m[1]; d = +m[2]; y = +m[3]; if (y < 100) y += 2000; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 21,
+            "col": 61,
+            "operator": "minus-to-plus",
+            "before": "if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "after": "if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo + 1 || chk.getUTCDate() !== d) return null;",
+            "line_text": "  if (chk.getUTCFullYear() !== y || chk.getUTCMonth() !== mo - 1 || chk.getUTCDate() !== d) return null;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 90,
+            "col": 32,
+            "operator": "and-to-or",
+            "before": "if (!missingCols(cc).length && (cc.price >= 0 || cc.amount >= 0)) { hi = i; head = h; c = cc; break; }",
+            "after": "if (!missingCols(cc).length || (cc.price >= 0 || cc.amount >= 0)) { hi = i; head = h; c = cc; break; }",
+            "line_text": "    if (!missingCols(cc).length && (cc.price >= 0 || cc.amount >= 0)) { hi = i; head = h; c = cc; break; }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 113,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (!(price >= 0) && amount >= 0 && qty > 0) price = amount / qty;",
+            "after": "if (!(price >= 1) && amount >= 0 && qty > 0) price = amount / qty;",
+            "line_text": "    if (!(price >= 0) && amount >= 0 && qty > 0) price = amount / qty;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 199,
+            "col": 95,
+            "operator": "const-plus-one",
+            "before": "sales: sales.length, lossSales: losses.length, washed: losses.filter((x) => x.disallowed > 0).length,",
+            "after": "sales: sales.length, lossSales: losses.length, washed: losses.filter((x) => x.disallowed > 1).length,",
+            "line_text": "    sales: sales.length, lossSales: losses.length, washed: losses.filter((x) => x.disallowed > 0).length,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 215,
+            "col": 65,
+            "operator": "const-plus-one",
+            "before": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 1) * DAY;",
+            "after": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 2) * DAY;",
+            "line_text": "export const safeRebuyDate = (saleMs) => saleMs + (WINDOW_DAYS + 1) * DAY;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/wash-sale-checker/calc.mjs",
+            "line": 245,
+            "col": 25,
+            "operator": "plus-to-minus",
+            "before": "return rows.join(\"\\n\") + \"\\n\";",
+            "after": "return rows.join(\"\\n\") - \"\\n\";",
+            "line_text": "  return rows.join(\"\\n\") + \"\\n\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+        "test": "node --test ventures/gumroad-sales-fee-analyzer/**/*.test.mjs  (in .)",
+        "seed": 296794911,
+        "commit": "de6af0676",
+        "sites": 652,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 28,
+            "col": 37,
+            "operator": "false-to-true",
+            "before": "let row = [], field = \"\", quoted = false;",
+            "after": "let row = [], field = \"\", quoted = true;",
+            "line_text": "  let row = [], field = \"\", quoted = false;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 78,
+            "col": 13,
+            "operator": "or-to-and",
+            "before": "if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "after": "if (mo < 1 && mo > 12 || d < 1 || d > 31) return null;",
+            "line_text": "  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 105,
+            "col": 16,
+            "operator": "or-to-and",
+            "before": "return (first || dotted) && !second;",
+            "after": "return (first && dotted) && !second;",
+            "line_text": "  return (first || dotted) && !second;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 179,
+            "col": 168,
+            "operator": "neq-flip",
+            "before": "if ((c.gross !== undefined || c.net !== undefined) && (c.date !== undefined || c.type !== undefined || c.product !== undefined || c.buyer !== undefined || c.status !== undefined)) { h = i; break; }",
+            "after": "if ((c.gross !== undefined || c.net !== undefined) && (c.date !== undefined || c.type !== undefined || c.product !== undefined || c.buyer !== undefined || c.status === undefined)) { h = i; break; }",
+            "line_text": "    if ((c.gross !== undefined || c.net !== undefined) && (c.date !== undefined || c.type !== undefined || c.product !== undefined || c.buyer !== undefined || c.status !== undefined)) { h = i; break; }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 252,
+            "col": 103,
+            "operator": "const-plus-one",
+            "before": "net = gross <= 0 ? gross : discover ? gross * (1 - DISCOVER_FEE_PCT / 100) : Math.max(gross * (1 - pctRaw) - fixedRaw, 0);",
+            "after": "net = gross <= 0 ? gross : discover ? gross * (1 - DISCOVER_FEE_PCT / 100) : Math.max(gross * (2 - pctRaw) - fixedRaw, 0);",
+            "line_text": "        net = gross <= 0 ? gross : discover ? gross * (1 - DISCOVER_FEE_PCT / 100) : Math.max(gross * (1 - pctRaw) - fixedRaw, 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 370,
+            "col": 49,
+            "operator": "or-to-and",
+            "before": "if (r.product) grab(products, key(r.product) || \"all products\", r.product).refundNet += r.refundNet;",
+            "after": "if (r.product) grab(products, key(r.product) && \"all products\", r.product).refundNet += r.refundNet;",
+            "line_text": "    if (r.product) grab(products, key(r.product) || \"all products\", r.product).refundNet += r.refundNet;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 398,
+            "col": 94,
+            "operator": "div-to-times",
+            "before": "buyers: byBuyer.length, repeatBuyers: repeatList.length, shareOfBuyers: repeatList.length / byBuyer.length,",
+            "after": "buyers: byBuyer.length, repeatBuyers: repeatList.length, shareOfBuyers: repeatList.length * byBuyer.length,",
+            "line_text": "    buyers: byBuyer.length, repeatBuyers: repeatList.length, shareOfBuyers: repeatList.length / byBuyer.length,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test in the target's calc.test.mjs (red team 2026-11-15, second campaign)"
+          },
+          {
+            "file": "ventures/gumroad-sales-fee-analyzer/calc.mjs",
+            "line": 406,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (target === null && Number(opts.targetHourly) > 0 && hoursDefault) target = Number(opts.targetHourly) * hoursDefault;",
+            "after": "if (target === null || Number(opts.targetHourly) > 0 && hoursDefault) target = Number(opts.targetHourly) * hoursDefault;",
+            "line_text": "  if (target === null && Number(opts.targetHourly) > 0 && hoursDefault) target = Number(opts.targetHourly) * hoursDefault;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/shift-roster-builder/import-shifts.mjs",
+        "issue": "US/EU slash-date regex `(\\d{2}|\\d{4})` with no boundary matched '20' of a four-digit year, so 01/05/2026 was read as 2020-01-05 (a Sunday, not Monday); every Jan-Feb 2026 date and every 2025/2027 date landed on the wrong weekday. Failing test first.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16140"
+      },
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs (and 99 other venture files)",
+        "issue": "178 numeric date regexes let a digit follow the last date group: '2025-03-091' read as 9 March, '06/03/20261' as 2026. In the wash-sale checker that can move a sale across the 30-day window. All now end with (?!\\d); failing-first tests in wash-sale-checker and gumroad analyzer; new lint platform/ci/check_date_digit_boundary.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16140"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "706caa7d-ce23-5ecc-a14e-8c076acaaf28",
+    "transcripts": 1,
+    "first": "2026-11-15T07:39:20Z",
+    "last": "2026-11-15T07:49:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 172,
+        "output": 35799,
+        "thinking": 9376,
+        "cache_read": 9050920,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114007,
+        "api_equivalent_usd": 3.4389,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 172,
+      "output": 35799,
+      "thinking": 9376,
+      "cache_read": 9050920,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114007,
+      "api_equivalent_usd": 3.4389,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 87,
+    "tools": {
+      "Bash": 78,
+      "Write": 3,
+      "Monitor": 2,
+      "ReadNotifications": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.57,
+      "active_minutes": 9.47,
+      "model_minutes": 6.25,
+      "tool_minutes": 3.22,
+      "waiting_on_human_minutes": 1.1,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: two mutation campaigns, a 100-file regex sweep with suite runs, a lint with tests, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 174.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

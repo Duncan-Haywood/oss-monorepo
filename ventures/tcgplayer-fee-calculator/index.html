@@ -20,7 +20,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #13262a; background: #eef7f7; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.2rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #0d5c63; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .85fr); gap: 18px; align-items: start; }
@@ -72,6 +72,14 @@
       .layout > *, .fields > * { min-width: 0; }
     }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.fields > label:has(> #schedule) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
   <header>
@@ -182,7 +190,7 @@
   <script type="module">
     import { calculateSale, compareSchedules, INPUT_IDS, TOGGLE_IDS, SELECT_IDS, SCHEDULES } from './calc.mjs';
     import { whereToSellUrl } from './to-where-to-sell.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs, formValues } from './share.mjs';
     
     const DRAFT_KEY = 'tcgplayer-fee-calculator-draft';
@@ -194,7 +202,7 @@
     const pct = value => `${value.toFixed(1)}%`;
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function readInput() {
@@ -375,8 +383,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

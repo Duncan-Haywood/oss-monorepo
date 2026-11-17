@@ -1,0 +1,7 @@
+BUILD spare price 0: score 3937.38, payroll $3885.00, open 0 h, risk n/a h on n/a/n/a person-days, moves 0 of 0 candidates, exposure 54 h, 3.6 s
+BUILD spare price 25: score 3955.72, payroll $3900.00, open 0 h, risk 167 h on 21/27 person-days, moves 2 of 1211 candidates, exposure 54 h, 2.6 s
+  Call-out slack: 2 shifts changed hands to cut the hours at risk from 192 to 167, at $18.34 of score (pay plus penalties) at your price of $25.00 an hour at risk. 167 h on 21 of 27 person-days are still at risk (Ana on Tue, Ana on Wed, Ana on Fri, Ana on Sat, Ben on Fri and 16 more).
+PLAY call 0.01 extra 0 spare price 0 (risk n/a h, exposure 54 h, payroll $3885.00): 75 disrupted weeks, open hours added 108, changes to others 118, premiums $2018.00, proven 45/45
+PLAY call 0.01 extra 0 spare price 25 (risk 167 h, exposure 54 h, payroll $3900.00): 75 disrupted weeks, open hours added 119, changes to others 117, premiums $1909.00, proven 46/46
+PLAY call 0.084 extra 0 spare price 0 (risk n/a h, exposure 54 h, payroll $3885.00): 198 disrupted weeks, open hours added 1205, changes to others 1252, premiums $20766.00, proven 385/385
+PLAY call 0.084 extra 0 spare price 25 (risk 167 h, exposure 54 h, payroll $3900.00): 198 disrupted weeks, open hours added 1192, changes to others 1275, premiums $20776.00, proven 389/389

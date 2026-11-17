@@ -1,0 +1,201 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/accel-lutrtl",
+  "stratum": "research",
+  "round": 50,
+  "seed": "2026-11-12-i",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), quality-audit round 50",
+  "status": "audited",
+  "professional": "a senior ASIC/FPGA design engineer who signs off datapath area and cycle estimates, with an arithmetic-circuits / DNN-accelerator researcher (weight sharing, LUT-based GEMM). They would check first that the RTL was actually simulated and synthesised and is bit exact at the worst-case operands, that the area accounting is defensible (cell library, flops with enable, ROM as logic vs memory macro), and that the product-table engine is compared against the right baseline: a MAC engine that also decodes a shared codebook (EIE style), so the storage saving of weight sharing is not credited to the product table.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "The container had no simulator; `apt-get update && apt-get install -y yosys iverilog` gave Yosys 0.33 and Icarus Verilog 12.0. Re-ran the whole experiment in a scratch copy (`/usr/bin/python3.13 experiments/run.py`, 65.8 s, README says about 1 min; then report.py): results.txt and results.json are identical to the committed files. Independent checks with my own pure-Python reference (not the author's make_layer y): worst-case operands the author's generator never draws (codebook containing -128 and 127, all activations 15, all weights -128 or all +127) for (N,K) = (4,16), (8,4), (16,8): both engines bit exact, y = -122880 and 121920, so the 20-bit accumulator and 12-bit product table are sized right (|15*-128| = 1920 < 2047). Cycle counts from simulation equal N*64 (MAC) and 64(K+N)+N (table) in all 12 runs and in every results.txt row (e.g. 64*(16+128)+128 = 9344). Hand flop count: MAC 1+16+16+20+20+16+2 = 91 = Yosys; table 88+12K+20N = 440/920/2840/776 vs Yosys 445/927/2849/783 (within 1.2%; the extra are FSM re-encoding). README table sums (e.g. 1934.5+1507 = 3442) and break-even column (2679/1920 = 1.40) recomputed. Numbers are right; not 4 because GE weights are assumed and DFFE enable muxes are costed as plain flops (916 DFFE in the N=32 table engine vs 88 in MAC), which biases toward the table engine.",
+    "completeness": "Claimed and checked: 4 tests (4 ran, OK in 2.5 s once tools are installed; 3 of 4 skip without them), run.py about 1 min (65.8 s), report.py writes results.txt (identical), seven configurations in results.txt (7 rows, all bit exact), figure rtl_cost.png present (not regenerated, to keep the tree clean), live page https://marisstella.app/research/accel-lutrtl/ returns 200 with the negative headline and AI-assistance note. Next steps (toggle energy, iCE40/SKY130, double buffering) are listed as not done, not claimed. Everything stated as done works.",
+    "verification": "`cd research/accel-lutrtl && python3.13 -m unittest discover -s tests`: without yosys/iverilog (the default container, and no workflow under .github/workflows installs them) 3 of 4 tests skip and the suite reports OK, so CI never exercises the RTL. With the tools: 4 OK. Five seeded mutations, each reverted with git checkout: table accumulator reset i==0 -> i==1 caught; MAC acc 20 -> 16 bits caught; product table 12 -> 11 bits caught; ROM/datapath split `\"rom\" in name` -> `name.upper()` caught (rom_ge > 0 assertion); DFF_GE 5.0 -> 1.0 survived (no test pins any GE, flop or stored-bit number; the area accounting and run.py's stored_bits formula are untested). RTL datapaths are well guarded; the area numbers the conclusion rests on are not, and the guards silently skip in CI.",
+    "craft": "Read flow.py, run.py, report.py, figure.py, mac_engine.v, table_engine.v, test_lutrtl.py. Small, readable, parameterised RTL and a clean flow. Defects: run.py:22-23 hard-codes stored bits as 4/3/2 index bits by K threshold, wrong for K > 16 (KB = clog2(K) = 5 for K = 32, but 4 is used) and for K = 2; flow.py:36-42 opens files without closing (ResourceWarning in the test run); flow.py:91 unused `env`; flow.py:95 import inside function; 16-bit loop counters in both engines (harmless, equal in both). Senior-reviewer acceptable with those fixes.",
+    "claims": "Backed: bit exact in all configs (re-run), cycles 1.1x-3.0x (9344/8192 = 1.14, 1544/512 = 3.02), datapath 2.4x-11.6x (results.txt), 'table halves stored bits' (2176 vs 4096 ... 32896 vs 65536), ROM logic about 0.4 GE/bit (actual 0.23-0.41: the upper end, which favours the table engine, so conservative), AI assistance and stylised/limits sections present. Not backed: README.md:35 frames the halved storage as the table engine's advantage, with a break-even GE-per-bit column, but the saving comes from weight sharing, not the product table: my codebook-decoding MAC (scratch cbmac_engine.v, simulated bit exact on 3 seeds, synthesised with the author's flow) stores exactly the same bits (2176/8320/32896/4128) with the same ROM-logic GE (902/2910/9235/1598 vs table 896/2910/9230/1598), MAC cycles (512/2048/8192/2048) and a smaller datapath (1786/1784/1780/1784 GE vs table 4614/8280/22877/7171). README.md:38 generalises 'a table engine that reuses each product across all outputs needs all N accumulators live' to product-table engines broadly, but output-stationary LUT engines (LUT-GEMM, T-MAC) do not keep N accumulators. Titled 'Builds on' cites Han et al. 2016 only, flagged unverified.",
+    "fitness": "A researcher can reproduce in about 2 minutes once apt tools are installed and could extend the flow to new engines (I did, in 30 lines). Nearest prior work, from memory, not re-verified: UCNN (Hegde et al., ISCA 2018) exploits repeated weights by reusing products across outputs, the same idea, with real area/energy; EIE (Han et al., ISCA 2016) is the codebook-decode MAC baseline; LUT-GEMM (Park et al., ICLR 2024), T-MAC (Wei et al., EuroSys 2025) and LUT Tensor Core (Mo et al., ISCA 2025) are table-based GEMM with an output-stationary dataflow; Eyeriss (Chen et al., ISCA 2016) frames the input- vs output-stationary accumulator trade. None is cited, so novelty is overstated by omission; the result (input-stationary reuse needs N accumulators) is a known dataflow consequence. Not attached to a programme in PROGRAMMES.md (legacy project list).",
+    "domain": "A senior ASIC engineer would reject generic-gate GE with assumed weights when an open PDK flow (SKY130 liberty via Yosys/abc -liberty) is available in the same apt ecosystem, and would not cost ROM as random logic or N accumulators as flops when a register file/SRAM is the practice. No timing, so cycles are not seconds (stated). The decisive departure is the baseline: the comparison isolates neither weight sharing nor the product table, because the EIE-style codebook MAC is missing. The negative direction survives (strengthens, in fact) but the break-even analysis is the wrong question."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "bit exactness at worst-case operands both engines",
+      "method": "own pure-Python integer reference, codebook {-128,127}, a=15 everywhere, Icarus Verilog 12.0",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/lut && python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/chk/extreme.py /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/lut/src",
+      "expected": "y0 = -122880 (64*15*-128) and 121920 (64*15*127); ok=True",
+      "observed": "ok=True for mac and table at (4,16),(8,4),(16,8), y0 = -122880 / 121920",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "cycle counts vs closed form",
+      "method": "hand derivation from the FSMs: MAC N*FIN, table FIN*(K+N)+N",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/lut && python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/chk/extreme.py /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/lut/src; cat experiments/results.txt",
+      "expected": "256/1284, 512/776, 1024/1552; results rows e.g. 64*(16+128)+128 = 9344",
+      "observed": "identical in all 12 simulations and all 7 rows",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "flop counts vs hand count",
+      "method": "register widths read from RTL: MAC 91, table 88+12K+20N",
+      "command": "python3.13 -c 'flow.synth(...)' per-module DFF breakdown (see evidence)",
+      "expected": "MAC 91; table 440 (N=8,K=16), 776 (N=32,K=4)",
+      "observed": "MAC 91; table 445, 783 (+5/+7 from FSM recoding)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "README table sums and break-even column",
+      "method": "hand arithmetic on results.json",
+      "command": "python3 -c json arithmetic on experiments/results.json",
+      "expected": "N=8: 1934.5+1507 = 3441.5; (4613.5-1934.5)/(4096-2176) = 1.395",
+      "observed": "README 3442 and 1.40",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "full experiment reproduces committed results",
+      "method": "re-run run.py + report.py in a scratch copy, diff",
+      "command": "python3.13 experiments/run.py && python3.13 experiments/report.py; diff results.txt; json diff",
+      "expected": "identical",
+      "observed": "IDENTICAL, JSON_IDENTICAL, 65.8 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "tests run in the default environment",
+      "method": "run suite without simulators, then with",
+      "command": "cd research/accel-lutrtl && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests",
+      "expected": "4 tests exercising RTL",
+      "observed": "without tools: OK (skipped=3); no workflow installs yosys/iverilog; with tools: 4 OK",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "storage saving attributed to the product table (README.md:35)",
+      "method": "auditor's EIE-style codebook-MAC baseline, same flow and GE weights",
+      "command": "cd /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/cbmac && python3.13 -I run.py /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/lut/src /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/lut/rtl /tmp/claude-0/-home-user-oss-monorepo/6d772762-c35d-5a87-aeb0-eb40c77c23ec/scratchpad/cbmac/cbmac_engine.v",
+      "expected": "if the claim held, only the table engine would reach the halved storage",
+      "observed": "codebook MAC: same stored bits (2176/8320/32896/4128) and ROM GE (902/2910/9235/1598), MAC cycles, datapath 1786/1784/1780/1784 GE (< MAC 1934-1965)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "ROM logic about 0.4 GE per stored bit",
+      "method": "rom_ge/stored_bits from results.json",
+      "command": "python3 -c json arithmetic",
+      "expected": "about 0.4",
+      "observed": "0.23-0.41 (MAC N=128 0.23; table N=8 0.41)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and AI-assistance disclosure",
+      "method": "HTTP fetch",
+      "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/accel-lutrtl/",
+      "expected": "200, negative headline, AI note",
+      "observed": "200; 'Negative and stylised...'; 'AI assistance (Claude)'",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "prior work cited",
+      "method": "auditor's knowledge (UCNN ISCA 2018, EIE ISCA 2016, LUT-GEMM, T-MAC, LUT Tensor Core, Eyeriss), not re-verified online",
+      "command": "grep -n 'Builds on' research/accel-lutrtl/README.md",
+      "expected": "nearest product-reuse and LUT-GEMM work cited",
+      "observed": "only Han et al. 2016 Deep Compression, flagged unverified",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/accel-lutrtl/rtl/table_engine.v:45",
+      "change": "(i == 0 ? 20'sd0 : acc[o]) -> (i == 1 ? ...)",
+      "caught": true,
+      "test_cmd": "cd research/accel-lutrtl && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-lutrtl/rtl/mac_engine.v:16",
+      "change": "reg signed [19:0] acc -> [15:0]",
+      "caught": true,
+      "test_cmd": "cd research/accel-lutrtl && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-lutrtl/rtl/table_engine.v:27",
+      "change": "reg signed [11:0] T -> [10:0]",
+      "caught": true,
+      "test_cmd": "cd research/accel-lutrtl && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-lutrtl/src/accel_lutrtl/flow.py:107",
+      "change": "\"rom\" in name -> \"rom\" in name.upper()",
+      "caught": true,
+      "test_cmd": "cd research/accel-lutrtl && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    },
+    {
+      "where": "research/accel-lutrtl/src/accel_lutrtl/flow.py:16",
+      "change": "DFF_GE = 5.0 -> 1.0",
+      "caught": false,
+      "test_cmd": "cd research/accel-lutrtl && PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Missing baseline confounds the storage result: the halved stored bits and the break-even GE-per-bit column are credited to the product-table engine, but a MAC engine that decodes the same index ROM + codebook (EIE style) gets identical stored bits and ROM-logic GE with MAC cycles and a smaller datapath (1786 vs 4614 GE at N=8). The comparison should be table vs codebook-MAC; then the table engine loses on every axis and the break-even column has no meaning.",
+      "where": "research/accel-lutrtl/README.md:35",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "The three RTL tests skipUnless iverilog and yosys, and no workflow installs them, so in CI and the default container the suite prints OK with 3 of 4 skipped: the simulation and synthesis are never run by any check after the author's session.",
+      "where": "research/accel-lutrtl/tests/test_lutrtl.py:8",
+      "category": "not-built-or-run",
+      "origin": "build"
+    },
+    {
+      "severity": "medium",
+      "what": "Nearest prior work uncited and the conclusion over-generalised: UCNN (Hegde et al., ISCA 2018) already reuses products across repeated weights; LUT-GEMM / T-MAC / LUT Tensor Core use output-stationary tables that do not need N live accumulators, yet README says a table engine that reuses products across outputs needs all N accumulators as if it were general.",
+      "where": "research/accel-lutrtl/README.md:38",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Area accounting is untested: DFF_GE 5.0 -> 1.0 leaves every test green; no test pins a GE, flop or stored-bit value from results.json. DFFE cells (916 in the N=32 table engine) are costed as plain flops, omitting the enable mux.",
+      "where": "research/accel-lutrtl/src/accel_lutrtl/flow.py:16",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "stored_bits hard-codes 4/3/2 index bits by K threshold; for K > 16 (e.g. K=32, KB=5) or K=2 the stored-bit count and break-even column would be wrong. Should be ceil(log2 K)*FIN*N + 8K.",
+      "where": "research/accel-lutrtl/experiments/run.py:22",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Generic-gate GE with assumed weights and ROMs as random logic, while an open-PDK liberty flow (SKY130) is reachable with the same Yosys; accumulators as flops rather than a register file. Stated as limits, but it keeps the result short of a domain-grade area estimate.",
+      "where": "research/accel-lutrtl/src/accel_lutrtl/flow.py:13",
+      "category": "domain-rule",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15144"
+  ],
+  "verdict": "The RTL is real and right: with Yosys 0.33 and Icarus 12 installed, the full experiment reproduces results.txt and results.json byte for byte, both engines are bit exact against my own integer reference at worst-case operands, and cycles and flop counts match hand derivations. It misses the bar on verification (the RTL tests skip silently wherever the tools are absent, including CI, and the area accounting is untested) and on claims and design: the storage saving it credits to the product table belongs to weight sharing, as an EIE-style codebook-MAC baseline built with the author's own flow shows (same stored bits, MAC cycles, smaller datapath), and the nearest prior work (UCNN, LUT-GEMM/T-MAC) is uncited. The negative headline survives and gets stronger; the framing and the generalisation do not. Median 2: does not meet the bar; finished."
+}

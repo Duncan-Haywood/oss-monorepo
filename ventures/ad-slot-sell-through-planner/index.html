@@ -39,7 +39,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e2efeb; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -148,15 +148,15 @@
       const sc = priceScenarios({ price, slots, anchorRate, e: fit.e, runsPerMonth: perMonth });
       const daysOut = num($("days-out").value), soldNow = num($("sold-now").value);
       const pace = Number.isFinite(daysOut) && Number.isFinite(soldNow) ? pacing({ slots, soldNow, daysOut, typicalFinalRate: anchorRate }) : null;
-      let h = `<div class="finding"><h4>History</h4><p class="stats">${percent(s.rate)} sold across ${s.runs} runs · ${money(s.revenue)} booked of ${money(s.capacity)} at the prices you charged (${money(s.unsold)} unsold)</p>`
+      let h = `<div class="finding"><h3>History</h3><p class="stats">${percent(s.rate)} sold across ${s.runs} runs · ${money(s.revenue)} booked of ${money(s.capacity)} at the prices you charged (${money(s.unsold)} unsold)</p>`
         + `<div class="scroll"><table><thead><tr><th>Run</th><th class="n">Sold</th><th class="n">Price</th><th class="n">Sell-through</th><th class="n">Revenue</th></tr></thead><tbody>`
         + s.perRow.map((r) => `<tr><td>${esc(r.label)}</td><td class="n">${r.sold}/${r.offered}</td><td class="n">${money(r.price)}</td><td class="n">${percent(r.rate)}</td><td class="n">${money(r.revenue)}</td></tr>`).join("")
         + `</tbody></table></div></div>`;
-      for (const f of diagnose({ summary: s, fit, rec, pace })) h += `<div class="finding"><h4><span class="pill ${LEVEL[f.level]}">${f.level === "info" ? "Note" : f.level === "high" ? "Act" : "Watch"}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
-      h += `<div class="finding"><h4>Price scenarios (${slots} slots, anchored on ${percent(anchorRate >= 0.999 ? 1 : anchorRate)} sold at ${money(price)}, response ${fit.e.toFixed(2)} ${fit.source})</h4><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Price</th><th class="n">Expected sold</th><th class="n">Per run</th><th class="n">Per month</th></tr></thead><tbody>`
+      for (const f of diagnose({ summary: s, fit, rec, pace })) h += `<div class="finding"><h3><span class="pill ${LEVEL[f.level]}">${f.level === "info" ? "Note" : f.level === "high" ? "Act" : "Watch"}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
+      h += `<div class="finding"><h3>Price scenarios (${slots} slots, anchored on ${percent(anchorRate >= 0.999 ? 1 : anchorRate)} sold at ${money(price)}, response ${fit.e.toFixed(2)} ${fit.source})</h3><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Price</th><th class="n">Expected sold</th><th class="n">Per run</th><th class="n">Per month</th></tr></thead><tbody>`
         + sc.map((r) => `<tr><td>${r.change > 0 ? "+" : ""}${Math.round(r.change * 100)}%</td><td class="n">${money(r.price)}</td><td class="n">${percent(r.rate)}</td><td class="n">${money(r.perRun)}</td><td class="n">${money(r.perMonth)}</td></tr>`).join("")
         + `</tbody></table></div><p class="note">Change one price at a time and give it three runs before judging it.</p></div>`;
-      if (pace) h += `<div class="finding"><h4>Next run: ${pace.status}</h4><p>${soldNow} of ${slots} slots sold with ${daysOut} days to go. Typically about ${percent(pace.share)} of bookings are in by now`
+      if (pace) h += `<div class="finding"><h3>Next run: ${pace.status}</h3><p>${soldNow} of ${slots} slots sold with ${daysOut} days to go. Typically about ${percent(pace.share)} of bookings are in by now`
         + (pace.projected !== null ? `, which projects ${pace.projected.toFixed(1)} sold and ${pace.projectedUnsold.toFixed(1)} unsold.` : ".") + `</p>`;
       if (pace && pace.projectedUnsold !== null) {
         const lm = lastMinute({ unsold: pace.projectedUnsold, price, floorPct: num($("floor-pct").value) / 100, fillChance: num($("fill-chance").value) / 100 });
@@ -165,7 +165,7 @@
       if (pace) h += `</div>`;
       const tiers = [{ runs: 3, discount: num($("pkg-discount").value) / 100 }, { runs: 6, discount: num($("pkg-discount-6").value) / 100 }];
       const pk = packages({ price, tiers });
-      h += `<div class="finding"><h4>Multi-run packages</h4><table><thead><tr><th>Package</th><th class="n">Per slot</th><th class="n">Committed</th><th class="n">Given up vs list</th></tr></thead><tbody>`
+      h += `<div class="finding"><h3>Multi-run packages</h3><table><thead><tr><th>Package</th><th class="n">Per slot</th><th class="n">Committed</th><th class="n">Given up vs list</th></tr></thead><tbody>`
         + pk.map((p) => `<tr><td>${p.runs} runs at ${percent(p.discount)} off</td><td class="n">${money(p.each)}</td><td class="n">${money(p.committed)}</td><td class="n">${money(p.vsList)}</td></tr>`).join("")
         + `</tbody></table><p class="note">Worth it when the committed runs would otherwise sell below list or not at all. Not worth it for slots that already sell out.</p></div>`;
       $("result").innerHTML = h;

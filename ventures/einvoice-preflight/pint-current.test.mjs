@@ -27,8 +27,9 @@ test("the current PINT ids pick the current rule sets; the older ids keep theirs
   assert.equal(matchingProfile(read("pint-sg-invoice.xml"), "ubl")[0], "pint-sg");
   assert.equal(matchingProfile(read("pint-aunz-invoice.xml"), "ubl")[0], "pint-aunz");
   assert.equal(matchingProfile(read("pint-current-sg-invoice.xml"), "cii"), null);
-  // Japan, Malaysia and the other PINT jurisdictions are not loaded: no profile, EU base.
-  assert.equal(matchingProfile(withText(read("pint-current-sg-invoice.xml"), "CustomizationID", "urn:peppol:pint:billing-1@jp-1"), "ubl"), null);
+  // Japan, Malaysia, the UAE and Oman load since 2026-11-12 (pint-jp-my-ae-om.test.mjs);
+  // PINT EU and any other jurisdiction is not loaded: no profile, EU base.
+  assert.equal(matchingProfile(withText(read("pint-current-sg-invoice.xml"), "CustomizationID", "urn:peppol:pint:billing-1@eu-1"), "ubl"), null);
 });
 
 test("clean current-release SG and A-NZ invoices pass with no rule skipped", { skip }, async () => {
@@ -83,8 +84,10 @@ test("under PINT the EU conventions for BIC, payment means and exemption reasons
   const { reports } = await preflightDocuments([{ name: "au.xml", source: au }], { schematron: true });
   const ids = reports[0].errors.map((e) => e.rule);
   assert.ok(!ids.includes("INV-026"), ids.join(" "));
-  // The same branch id on an EU Peppol file is still a malformed BIC.
-  const eu = withText(au, "CustomizationID", "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0");
+  // On an EU Peppol file a six-digit BSB reads as a national clearing code, which BT-86 admits
+  // (bic.mjs, 2026-11-12), but a value that is neither a BIC nor a clearing code is still INV-026.
+  const eu = withText(au, "CustomizationID", "urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:billing:3.0")
+    .replace("<cbc:ID>062-000</cbc:ID>", "<cbc:ID>BA11</cbc:ID>");
   const euIds = (await preflightDocuments([{ name: "eu.xml", source: eu }], { schematron: true })).reports[0].errors.map((e) => e.rule);
   assert.ok(euIds.includes("INV-026"), euIds.join(" "));
 });

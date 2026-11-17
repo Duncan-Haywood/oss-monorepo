@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKj7hSxVKYp7JXWWzvo",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:17:49Z",
+  "ended": "2026-11-14T03:25:19Z",
+  "wall_minutes": 7.85,
+  "tokens_in": 3892428,
+  "tokens_out": 18257,
+  "cost_usd": 1.9106,
+  "tool_calls": 43,
+  "task": "quality fix mode: open high defect on ventures/open-tennis-robots (2026-11-08 audit)",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15712",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "The test command runs in the subject root, so repo-relative `-s ventures/x/tests` fails the baseline; the --help usage line does not say so (only the module docstring does). Cost one round of three mutants."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`queue` prints 'changed since audit: unknown' for every row on a shallow clone, so it cannot flag already-fixed rows; I had to search open PRs by hand to find #14674 already fixing the top row."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Fix mode lists the queue worst first; the first row (platform/agents) already had a fix PR (#14674) held for owner review as control plane, but no fix_prs entry, so it still shows as open.",
+      "did": "Took the next fixable row (open-tennis-robots) instead of duplicating #14674.",
+      "result": "One high defect closed; #14674 left for the owner."
+    },
+    {
+      "file": "ventures/open-tennis-robots (audit medium defect: CLEAR_ESTOP)",
+      "why": "Changing the e-stop reset to a local button is a hardware design change (new input, wiring, docs), not a safe one-line patch.",
+      "did": "Listed it in README 'Known gaps' with the reason.",
+      "result": "Remains open, documented."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quality-fix-a-catch-net-nobody-tested.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (seeded draw; 8 high defects open). Seed: n/a (fix mode). Subject: ventures/open-tennis-robots, defects high#0 (untested catch geometry/Magnus) and medium#1 (unclamped SET_BASE) fixed; share meeting the bar not re-scored (fixes are re-audited later). Fix PR: #15712. Spot-check: hand-computed C_L 0.20616 and accel (-8.1328, 0, -12.8585) matched code; README cell 3.0m/2.5m/s recomputed 274/300 = 91%, fixed 93/300 = 31%, 1.5m/1m/s 136/300 = 45%, all as published. Verification: `PYTHONPATH=src python3 -m unittest discover -s tests` 80 OK in 47 s. quality_mutate.py: net half-width doubled -> caught; lift coeff x1.3 -> caught; SET_BASE clamp removed -> caught. quality_audit.py validate: 346 files, 0 problems; open high defects 8 -> 7.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "93a6987a-bc97-5a2f-878a-06114b410c03",
+    "transcripts": 1,
+    "first": "2026-11-14T03:17:49Z",
+    "last": "2026-11-14T03:25:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 80,
+        "output": 18257,
+        "thinking": 3945,
+        "cache_read": 3794054,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98294,
+        "api_equivalent_usd": 1.9106,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 80,
+      "output": 18257,
+      "thinking": 3945,
+      "cache_read": 3794054,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98294,
+      "api_equivalent_usd": 1.9106,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.85,
+      "active_minutes": 7.85,
+      "model_minutes": 3.08,
+      "tool_minutes": 4.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "a robotics engineer writing four pinned tests, a firmware clamp and re-running seeded mutations",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 157.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

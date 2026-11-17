@@ -38,7 +38,7 @@ Two caveats run through all of this. First, the polars come from NeuralFoil, a s
 ## The two feeder projects
 
 - **`research/osrobot-uav`** asks which airframe closes lightest for an observation mission. At its reference mission (3 km out, 20 minutes on station, 0.5 kg payload) a plain fixed wing closes at 1.27 kg, a quadrotor at 2.14 kg and a VTOL wing at 2.08 kg. Every technology constant is an assumed round number, marked as such in the code.
-- **`research/codesign-aero`** asks whether a quadrotor's airframe and its roll controller should be sized together. In its roll-only simulation, sizing them jointly gave 5.25° RMS roll error against 7.06° for picking the lightest airframe first and tuning after. The controller is a three-gain linear law, and the constants are assumed.
+- **`research/codesign-aero`** asks whether a quadrotor's airframe and its roll controller should be sized together. In its roll-only simulation, sizing them jointly gave 5.42° RMS roll error against 7.05° for picking the lightest airframe first and tuning after (corrected 2026-11-15 from 5.25° and 7.06°: the first version scored airframes whose battery mass never closed). The controller is a three-gain linear law, and the constants are assumed.
 
 Both size an aircraft at one scale; neither compares two sizes.
 

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up ISSNet 1.00 query (ConsultarNfseEnvio); validated by xmllint against
+     servico_consultar_nfse_envio.xsd from OpenAC.Net.NFSe (cac2bb13). Its types are
+     <xs:all> groups, so the order below (period before provider) is allowed. No real party. -->
+<ConsultarNfseEnvio xmlns="http://www.issnetonline.com.br/webserviceabrasf/vsd/servico_consultar_nfse_envio.xsd" xmlns:tc="http://www.issnetonline.com.br/webserviceabrasf/vsd/tipos_complexos.xsd">
+  <PeriodoEmissao>
+    <DataFinal>2026-10-31</DataFinal>
+    <DataInicial>2026-10-01</DataInicial>
+  </PeriodoEmissao>
+  <Prestador>
+    <tc:InscricaoMunicipal>123456</tc:InscricaoMunicipal>
+    <tc:CpfCnpj>
+      <tc:Cnpj>11222333000181</tc:Cnpj>
+    </tc:CpfCnpj>
+  </Prestador>
+</ConsultarNfseEnvio>

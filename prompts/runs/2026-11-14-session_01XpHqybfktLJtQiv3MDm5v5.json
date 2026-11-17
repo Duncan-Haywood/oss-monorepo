@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqybfktLJtQiv3MDm5v5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:39:04Z",
+  "ended": "2026-11-14T18:49:50Z",
+  "wall_minutes": 17.49,
+  "tokens_in": 11453187,
+  "tokens_out": 59693,
+  "cost_usd": 4.8648,
+  "tool_calls": 77,
+  "task": "photo-editing flagship 7: RW2 read directly (top next: item)",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15941",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First test field (random jumps) was not codable under RW2's shift rules; replaced by a field built from random valid shifts and steps, coded back from values alone"
+    },
+    {
+      "what": "Test bit writer did not start a fresh block at the top position (vbits 0x20000); fixed"
+    },
+    {
+      "what": "Three existing tests asserted the old format list in error messages; one pipeline test used .RW2 as its unsupported example (now .RAF)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "photo-editing's next: sat at 1951 of 2000 characters, so adding one landed item went over the cap. I had to fold RW2 into the existing 'ARW, NEF, ORF read directly' phrase to fit; the cap leaves almost no room for a run's landed note"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-panasonic-raw-files-read-from-the-top-down.md",
+    "ventures/photo-editing/eval/panasonic-rw2-reader-2026-11-14.md"
+  ],
+  "goal": "Deepen flagship 7 (photo-editing): a fifth maker raw format read directly, checked against LibRaw",
+  "notes": "rw2.py + C decoder; on 4 real RW2s (GF1, GF3, GF7, LX7) every one of 50,087,520 stored sensels equals LibRaw 0.22 on both decoders, as do WB, black, CFA and crop (tools/rw2_libraw_check.py, eval jsonl). End to end develop of 3 real frames: 3.9 s, masters inspected. Findings: columns past the right border are not black; the GF1 clips at about 3975 (LibRaw table 3986); RW2 EXIF has no lens or maker note (they are in JpgFromRaw), now first in next:. Verification: run_venture_tests.py photo-editing ok (1040+ tests, 166 s); venture-preflight clean (first run failed only on this record being unfilled at the time); PR CI green on the code commit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "380bf7c1-2c5e-5e01-9a5c-0776959f3b93",
+    "transcripts": 1,
+    "first": "2026-11-14T18:39:04Z",
+    "last": "2026-11-14T18:56:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 152,
+        "output": 59693,
+        "thinking": 13392,
+        "cache_read": 11276149,
+        "cache_write_5m": 0,
+        "cache_write_1h": 176886,
+        "api_equivalent_usd": 4.8648,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 152,
+      "output": 59693,
+      "thinking": 13392,
+      "cache_read": 11276149,
+      "cache_write_5m": 0,
+      "cache_write_1h": 176886,
+      "api_equivalent_usd": 4.8648,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 66,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.49,
+      "active_minutes": 11.76,
+      "model_minutes": 9.29,
+      "tool_minutes": 2.47,
+      "waiting_on_human_minutes": 5.74,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "an engineer reverse-reading the RW2 block format from dcraw, writing C and Python decoders, an encoder for tests and a LibRaw check on four files",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 328.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

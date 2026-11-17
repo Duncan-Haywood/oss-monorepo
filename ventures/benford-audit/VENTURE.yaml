@@ -1,0 +1,26 @@
+name: benford-audit
+description: Free browser and CLI tool that runs Nigrini's Benford's-law digit tests, a just-under-approval-limit test and a corrected per-vendor ranking on a ledger, expense or invoice CSV, for internal auditors, fraud examiners and bookkeepers without an audit analytics licence.
+stage: prototype
+owner: duncan
+hypotheses:
+  - claim: Internal auditors, fraud examiners and bookkeepers reviewing payables or expense claims will run a free, private browser Benford test on an export they already have, instead of opening a licensed audit analytics suite or building the test in a spreadsheet.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The mechanism-specific tests (just under a limit, repeated amounts, a per-group ranking corrected for group size and multiple testing) point to the problem records more often than the whole-file first-digit test does; on the synthetic worked example the whole-file first-digit test reads close conformity while those tests isolate all three planted problems.
+    status: untested
+    checked: null
+    evidence: customer-contact
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+budget:
+  monthly_cap: 1
+  protected: true
+kill_criteria:
+  - No organic visits, forks, or repeat local usage after 60 days of availability.
+links:
+  production: https://marisstella.app/benford-audit/
+  analytics: null

@@ -313,3 +313,23 @@ test("strata input errors and warnings are readable", () => {
   const lots = "time,event,id\n" + Array.from({ length: 60 }, (_, i) => `${i + 1},1,${i}`).join("\n");
   assert.match(analyze({ csv: lots, strata: "id" }).error, /column id makes 60 strata/);
 });
+
+test("large inputs do not overflow the call stack (quality audit 2026-11-12)", () => {
+  const rows = ["time,event,arm,age"];
+  for (let i = 0; i < 200000; i++) rows.push(`${1 + (i * 7919) % 500},${i % 3 ? 1 : 0},${i % 2 ? "a" : "b"},${40 + (i % 30)}`);
+  const r = analyze({ csv: rows.join("\n"), group: "arm", covariates: "age" });
+  assert.equal(r.error, undefined);
+  assert.equal(r.groups.length, 2);
+  assert.equal(r.groups[0].n + r.groups[1].n, 200000);
+  assert.equal(Math.max(r.groups[0].maxTime, r.groups[1].maxTime), 500);
+});
+
+test("restricted-mean horizon past follow-up and single-group columns warn (quality audit 2026-11-12)", () => {
+  const csv = readFileSync(new URL("./data/leukemia.csv", import.meta.url), "utf8");
+  const far = analyze({ csv, group: "treatment", tau: 40 });
+  assert.ok(far.warnings.some((w) => /past the last follow-up/.test(w)), JSON.stringify(far.warnings));
+  const near = analyze({ csv, group: "treatment", tau: 10 });
+  assert.ok(!near.warnings.some((w) => /past the last follow-up/.test(w)));
+  const one = analyze({ csv: "time,event,arm\n1,1,x\n2,0,x\n3,1,x", group: "arm" });
+  assert.ok(one.warnings.some((w) => /single value/.test(w)), JSON.stringify(one));
+});

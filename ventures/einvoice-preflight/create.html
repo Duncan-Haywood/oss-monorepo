@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%237e551b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EE%3C/text%3E%3C/svg%3E">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Free XRechnung &amp; Peppol invoice creator — UBL and CII XML</title>
-  <meta name="description" content="Fill in a form, download a valid XRechnung 3.0, Peppol BIS 3.0 or EN 16931 e-invoice as UBL or CII XML. Totals and the VAT breakdown are computed for you, then the file is checked before you download it. Free, open source, and nothing leaves your browser.">
+  <title>Free XRechnung, Peppol &amp; Factur-X invoice creator — UBL, CII or PDF/A-3</title>
+  <meta name="description" content="Fill in a form, download a valid XRechnung 3.0, Peppol BIS 3.0 or EN 16931 e-invoice as UBL or CII XML, or a Factur-X / ZUGFeRD PDF/A-3 with the XML inside. Totals and the VAT breakdown are computed for you, then the file is checked before you download it. Free, open source, and nothing leaves your browser.">
   <meta name="robots" content="index, follow">
   <meta property="og:title" content="Free XRechnung &amp; Peppol invoice creator">
   <meta property="og:description" content="Create a compliant UBL or CII e-invoice in your browser. Computes VAT, checks the result, no account, no upload.">
@@ -23,6 +23,7 @@
     label { display: block; font-size: .82rem; font-weight: 600; color: #3d4f5f; }
     input, select, textarea { width: 100%; box-sizing: border-box; margin-top: 3px; font: inherit; font-size: .95rem; padding: 8px; border: 1px solid #9aabbb; border-radius: 6px; background: #fff; }
     .lines { width: 100%; border-collapse: collapse; }
+    .lines-scroll { overflow-x: auto; max-width: 100%; }
     .lines td { padding: 3px; vertical-align: top; }
     .lines th { font-size: .75rem; text-align: left; color: #52606d; }
     button { background: #0b5f8a; color: #fff; border: 0; border-radius: 8px; padding: 10px 14px; font: inherit; font-weight: 700; cursor: pointer; }
@@ -42,23 +43,39 @@
 <main>
   <p class="eyebrow">E-INVOICING · FREE · NO ACCOUNT</p>
   <h1>Create an XRechnung or Peppol e-invoice</h1>
-  <p>Germany already requires businesses to <em>receive</em> structured e-invoices, and sending becomes mandatory from 2027 (2028 for smaller firms); Belgium, Poland and France follow. A PDF is no longer enough. Fill in the form, get a UBL or CII XML file, and see it checked against <a href="index.html">the preflight rules</a> before you download it. Totals and the per-rate VAT breakdown are worked out for you. Nothing is uploaded.</p>
+  <p>Germany already requires businesses to <em>receive</em> structured e-invoices, and sending becomes mandatory from 2027 (2028 for smaller firms); Belgium, Poland and France follow. A plain PDF is no longer enough. Fill in the form, get a UBL or CII XML file, or a Factur-X / ZUGFeRD PDF (a printable PDF/A-3 page with the CII XML inside, the hybrid format France and Germany both accept), and see it checked against <a href="index.html">the preflight rules</a> before you download it. Totals and the per-rate VAT breakdown are worked out for you. Nothing is uploaded.</p>
 
   <section>
     <h2>Document</h2>
     <div class="grid">
-      <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option></select></label>
-      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option></select></label>
+      <label>Format <select id="format"><option value="ubl">UBL 2.1 XML</option><option value="cii">UN/CEFACT CII XML</option><option value="facturx">Factur-X / ZUGFeRD PDF (PDF/A-3, CII inside)</option></select></label>
+      <label>Profile <select id="profile"><option value="xrechnung">XRechnung 3.0 (Germany)</option><option value="peppol">Peppol BIS Billing 3.0</option><option value="en16931">EN 16931 core</option><option value="hr">HR-CIUS 2025 (Croatia, Fiskalizacija 2.0)</option></select></label>
       <label>Type <select id="document_type"><option value="invoice">Invoice</option><option value="credit_note">Credit note</option></select></label>
       <label>Invoice number <input id="number" value="RE-2026-001"></label>
       <label>Issue date <input id="issue_date" type="date"></label>
       <label>Due date <input id="due_date" type="date"></label>
+      <label>Delivery / service date <input id="delivery_date" type="date"></label>
+      <label>Service period from <input id="period_start" type="date"></label>
+      <label>Service period to <input id="period_end" type="date"></label>
       <label>Currency <input id="currency" value="EUR" maxlength="3"></label>
       <label>Buyer reference (Leitweg-ID) <input id="buyer_reference"></label>
       <label>Order reference <input id="order_reference"></label>
       <label>Original invoice (credit notes) <input id="original_invoice"></label>
+      <label>Original invoice date <input id="original_invoice_date" type="date"></label>
+      <label>Deliver-to country (ISO; K defaults to the buyer's) <input id="delivery_country" maxlength="2"></label>
       <label>Already paid (prepaid) <input id="prepaid" type="number" step="0.01" min="0" value="0"></label>
       <label>Payment terms text <input id="terms" value="Payable within 30 days"></label>
+    </div>
+  </section>
+
+  <section id="hrSection" hidden>
+    <h2>Croatia (HR-CIUS 2025)</h2>
+    <p class="muted" style="font-size:.85rem">Fiskalizacija 2.0 adds these to every domestic B2B invoice. Give each line a KPD 2025 class (e.g. 62.20.30) in the lines table. An exempt (E) line or charge, or an amount with an HR label (deposit, PP, PPMV, other non-taxable fee), makes the creator add the HR extension (HRFISK20Data) that HR-BR-26 requires. Seller and buyer e-addresses default to scheme 9934 and the OIB from the VAT ID.</p>
+    <div class="grid">
+      <label>Issue time (hh:mm:ss) <input id="issue_time" value="12:00:00" pattern="\d{2}:\d{2}:\d{2}"></label>
+      <label>Business process (P1 to P12) <input id="process" value="P1"></label>
+      <label>Operator name (who issues it) <input id="operator_name"></label>
+      <label>Operator OIB (11 digits) <input id="operator_oib" inputmode="numeric" maxlength="11"></label>
     </div>
   </section>
 
@@ -99,8 +116,12 @@
 
   <section>
     <h2>Lines</h2>
-    <table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th></th></tr></thead><tbody id="lines"></tbody></table>
+    <div class="lines-scroll"><table class="lines"><thead><tr><th>Description</th><th>Qty</th><th>Unit</th><th>Unit price (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>KPD (HR)</th><th>HR label</th><th></th></tr></thead><tbody id="lines"></tbody></table></div>
     <div class="actions"><button type="button" class="secondary" id="addLine">+ Add line</button></div>
+    <h3 style="font-size:1rem;margin:1rem 0 .3rem">Allowances and charges on the whole invoice</h3>
+    <div class="lines-scroll"><table class="lines"><thead><tr><th>Type</th><th>Reason</th><th>Amount (net)</th><th>VAT %</th><th>VAT category</th><th>Exemption reason</th><th>HR label</th><th></th></tr></thead><tbody id="adjustments"></tbody></table></div>
+    <div class="actions"><button type="button" class="secondary" id="addAdjustment">+ Add allowance or charge</button></div>
+    <p class="muted" style="font-size:.85rem">A discount on the whole invoice is an <b>allowance</b>, a delivery or packaging fee a <b>charge</b>; each counts in its VAT rate's row (EN 16931 BG-20, BG-21). In Croatia, an amount outside the VAT base takes an <b>HR label</b>: POVNAK (refundable deposit), PP (consumption tax), PPMV (special tax on motor vehicles) or N (another non-taxable fee, e.g. tourist tax). The label also works on a line, in the HR label column there. It is written as the Porezna uprava's own samples write it: exempt (E) in the EN layer, outside the VAT base (O) in the HR extension.</p>
     <p class="muted" style="font-size:.85rem">0% needs a category: <b>Z</b> zero-rated, <b>E</b> exempt (e.g. Kleinunternehmer § 19 UStG), <b>AE</b> reverse charge, <b>K</b> intra-EU supply, <b>G</b> export, <b>O</b> outside scope. All but Z need a reason.</p>
     <div class="totals" id="totals"></div>
   </section>
@@ -126,8 +147,9 @@
 
   <script type="module">
     import { generateInvoice } from "./generate.mjs";
+    import { generateFacturX, FACTURX_PROFILES } from "./facturx-pdf.mjs";
     import { parseInvoiceSource, preflightDocuments, buildJsonReport } from "./report.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const $ = (id) => document.getElementById(id);
     const optedOut = () => $("usageOptOut").checked;
@@ -147,11 +169,32 @@
         <td><select data-f="unit" aria-label="Unit"><option value="C62">piece</option><option value="HUR">hour</option><option value="DAY">day</option><option value="MON">month</option><option value="KGM">kg</option><option value="SET">set</option></select></td>
         <td><input data-f="unit_price" aria-label="Unit price (net)" type="number" step="any" style="width:7em"></td><td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
         <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
-        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><input data-f="kpd" aria-label="KPD 2025 class (Croatia)" placeholder="62.20.30" style="width:6.5em"></td><td><select data-f="hr_label" aria-label="Croatian out-of-scope label"><option value="">none</option><option>POVNAK</option><option>PP</option><option>PPMV</option><option>N</option></select></td><td><button type="button" class="secondary" aria-label="Remove line">×</button></td>`;
       for (const [k, v] of Object.entries(l)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
       tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
       tr.addEventListener("input", showTotals);
       $("lines").appendChild(tr);
+    }
+    function adjustmentRow(a = {}) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td><select data-f="type" aria-label="Allowance or charge"><option value="charge">charge</option><option value="allowance">allowance</option></select></td>
+        <td><input data-f="reason" aria-label="Reason" placeholder="Delivery"></td><td><input data-f="amount" aria-label="Amount (net)" type="number" step="any" min="0" style="width:7em"></td>
+        <td><input data-f="tax_percent" aria-label="VAT percent" type="number" step="any" value="19" style="width:4.5em"></td>
+        <td><select data-f="tax_category" aria-label="VAT category"><option value="">auto</option><option>S</option><option>Z</option><option>E</option><option>AE</option><option>K</option><option>G</option><option>O</option></select></td>
+        <td><input data-f="tax_reason" aria-label="Exemption reason" placeholder="if 0% exempt"></td><td><select data-f="hr_label" aria-label="Croatian out-of-scope label"><option value="">none</option><option>POVNAK</option><option>PP</option><option>PPMV</option><option>N</option></select></td><td><button type="button" class="secondary" aria-label="Remove allowance or charge">×</button></td>`;
+      for (const [k, v] of Object.entries(a)) { const el = tr.querySelector(`[data-f="${k}"]`); if (el) el.value = v; }
+      tr.querySelector("button").onclick = () => { tr.remove(); showTotals(); };
+      tr.addEventListener("input", showTotals);
+      $("adjustments").appendChild(tr);
+    }
+    function adjustments() {
+      const out = { allowances: [], charges: [] };
+      for (const tr of $("adjustments").children) {
+        const o = {}; tr.querySelectorAll("[data-f]").forEach((el) => { o[el.dataset.f] = el.value; });
+        const { type, ...rest } = o;
+        (type === "allowance" ? out.allowances : out.charges).push(rest);
+      }
+      return out;
     }
     function lines() {
       return [...$("lines").children].map((tr) => {
@@ -164,12 +207,24 @@
         document_type: g("document_type"), number: g("number"), issue_date: g("issue_date"), due_date: g("due_date"), currency: g("currency"),
         buyer_reference: g("buyer_reference"), order_reference: g("order_reference"), original_invoice: g("original_invoice"),
         prepaid: g("prepaid") || 0, terms: g("terms"), seller: party("seller"), buyer: party("buyer"), lines: lines(),
+        delivery_date: g("delivery_date"), period: { start: g("period_start"), end: g("period_end") },
+        original_invoice_date: g("original_invoice_date"), delivery_country: g("delivery_country"),
+        ...adjustments(),
       };
+      if ($("profile").value === "hr") Object.assign(d, { issue_time: g("issue_time"), process: g("process"), operator: { name: g("operator_name"), oib: g("operator_oib") } });
       const pay = {}; document.querySelectorAll("#payment [data-k]").forEach((el) => { pay[el.dataset.k] = el.value.trim(); });
       d.payment = pay;
       return d;
     }
-    const opts = () => ({ format: $("format").value, profile: $("profile").value });
+    const opts = () => ({ format: $("format").value === "facturx" ? "cii" : $("format").value, profile: $("profile").value });
+    let fontBytes = null;
+    const loadFonts = async () => {
+      if (fontBytes) return fontBytes;
+      const get = async (n) => new Uint8Array(await (await fetch(`fonts/PreflightSans-${n}.ttf`)).arrayBuffer());
+      fontBytes = { regular: await get("Regular"), bold: await get("Bold") };
+      return fontBytes;
+    };
+    let lastBlob = null;
     const money = (n, c) => new Intl.NumberFormat("en", { style: "currency", currency: /^[A-Z]{3}$/.test(c) ? c : "EUR" }).format(n);
     const li = (items, cls) => items.length ? `<ul class="msgs ${cls}">${items.map((m) => `<li>${esc(m.path)}: ${esc(m.message)}</li>`).join("")}</ul>` : "";
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
@@ -177,46 +232,90 @@
     function showTotals() {
       const r = generateInvoice(draft(), opts());
       const t = r.totals;
-      $("totals").innerHTML = t ? ["net", "tax", "gross", "due"].map((k) => `<div class="metric"><strong>${money(t[k], $("currency").value.toUpperCase())}</strong><span>${{ net: "Net", tax: "VAT", gross: "Gross", due: "Amount due" }[k]}</span></div>`).join("") : "";
+      const keys = ["net", ...(t && t.allowances ? ["allowances"] : []), ...(t && t.charges ? ["charges"] : []), "tax", "gross", "due"];
+      $("totals").innerHTML = t ? keys.map((k) => `<div class="metric"><strong>${money(k === "allowances" ? -t[k] : t[k], $("currency").value.toUpperCase())}</strong><span>${{ net: "Net of lines", allowances: "Allowances", charges: "Charges", tax: "VAT", gross: "Gross", due: "Amount due" }[k]}</span></div>`).join("") : "";
     }
     document.querySelectorAll("input,select").forEach((el) => el.addEventListener("input", showTotals));
 
     $("generate").onclick = async () => {
-      safe(() => recordUsage(localStorage, optedOut(), "einvoice_create_attempted"));
-      const r = generateInvoice(draft(), opts());
+      safe(() => recordUsage(usageStorage(), optedOut(), "einvoice_create_attempted"));
+      const pdfWanted = $("format").value === "facturx";
+      if (pdfWanted && !Object.hasOwn(FACTURX_PROFILES, $("profile").value)) {
+        $("result").innerHTML = `<p class="err"><b>Factur-X takes the XRechnung or EN 16931 profile.</b> Peppol BIS travels as XML over the Peppol network, not as a PDF: pick UBL or CII for it.</p>`;
+        return;
+      }
+      let r = generateInvoice(draft(), opts());
+      if (r.ok && pdfWanted) {
+        try {
+          r = generateFacturX(draft(), { profile: $("profile").value, fonts: await loadFonts() });
+        } catch (e) {
+          $("result").innerHTML = `<p class="err">Could not build the PDF: ${esc(e.message)}</p>`;
+          return;
+        }
+      }
       const out = $("result"), pre = $("xml");
       $("download").disabled = true; pre.hidden = true;
       if (!r.ok) { out.innerHTML = `<p class="err"><b>Not created yet — fix these first:</b></p>${li(r.errors, "err")}${li(r.warnings, "warn")}`; return; }
       lastXml = r.xml; lastName = r.filename;
-      const check = buildJsonReport(await preflightDocuments([{ name: r.filename, source: r.xml }]));
+      lastBlob = pdfWanted ? new Blob([r.pdf], { type: "application/pdf" }) : new Blob([r.xml], { type: "application/xml" });
+      const check = buildJsonReport(await preflightDocuments([{ name: r.filename, source: pdfWanted ? r.pdf : r.xml }]));
       const findings = check.errors || [];
       out.innerHTML = `<p class="ok">E-invoice created.</p>${li(r.warnings, "warn") ? `<p class="warn"><b>Your chosen profile also expects:</b></p>${li(r.warnings, "warn")}` : ""}` +
         (findings.length ? `<p class="err"><b>Preflight found ${findings.length} issue(s) in the generated file:</b></p><ul class="msgs err">${findings.map((f) => `<li>${esc(f.rule)} ${esc(f.message)}</li>`).join("")}</ul>` : `<p class="ok">Preflight: no findings.</p>`) +
+        (pdfWanted ? `<p class="muted">The PDF is PDF/A-3b with the CII XML embedded as ${esc(FACTURX_PROFILES[$("profile").value].filename)}; the XML is shown below. Writer output checked with veraPDF; the printed page is drawn from the same data.</p>` : "") +
         `<p class="muted">Preflight is a shape and arithmetic check, not a full schema or Schematron validation. Run it through your network's validator (e.g. the KoSIT validator for XRechnung) before sending.</p>`;
       pre.textContent = r.xml; pre.hidden = false; $("download").disabled = false;
-      safe(() => recordUsage(localStorage, optedOut(), "einvoice_created"));
+      safe(() => recordUsage(usageStorage(), optedOut(), pdfWanted ? "einvoice_facturx_created" : "einvoice_created"));
+      $("download").textContent = pdfWanted ? "Download PDF" : "Download XML";
     };
     $("download").onclick = () => {
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
+      a.href = URL.createObjectURL(lastBlob || new Blob([lastXml], { type: "application/xml" })); a.download = lastName; a.click();
       URL.revokeObjectURL(a.href);
     };
+    const showHr = () => { $("hrSection").hidden = $("profile").value !== "hr"; };
+    $("profile").addEventListener("change", showHr);
     $("example").onclick = () => {
+      if ($("profile").value === "hr") return croatianExample();
       const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
       set("seller", { name: "Muster Software GmbH", street: "Hauptstrasse 1", postal_code: "10115", city: "Berlin", country: "DE", vat_id: "DE136695976", endpoint_scheme: "EM", endpoint_id: "billing@muster.example", contact_name: "Erika Muster", contact_phone: "+49 30 123456", contact_email: "billing@muster.example" });
       set("buyer", { name: "Kunde AG", street: "Marktplatz 2", postal_code: "20095", city: "Hamburg", country: "DE", endpoint_scheme: "EM", endpoint_id: "ap@kunde.example" });
       set("payment", { iban: "DE02120300000000202051", bic: "BYLADEM1001", account_name: "Muster Software GmbH" });
       $("buyer_reference").value = "04011000-12345-03";
+      $("delivery_date").value = $("issue_date").value;
       $("lines").innerHTML = "";
       lineRow({ description: "Consulting", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 19 });
       lineRow({ description: "Printed handbook", quantity: 3, unit: "C62", unit_price: 50, tax_percent: 7 });
+      $("adjustments").innerHTML = "";
+      adjustmentRow({ type: "charge", reason: "Shipping", amount: 4.9, tax_percent: 7 });
       showTotals();
     };
+    // Made-up companies and operator; the OIB check digits are valid. The third line is exempt,
+    // so the file carries the HR extension.
+    function croatianExample() {
+      const set = (root, vals) => Object.entries(vals).forEach(([k, v]) => { const el = document.querySelector(`#${root} [data-k="${k}"]`); if (el) el.value = v; });
+      set("seller", { name: "Primjer Usluge d.o.o.", street: "Ilica 1", postal_code: "10000", city: "Zagreb", country: "HR", vat_id: "HR12345678903", endpoint_scheme: "", endpoint_id: "" });
+      set("buyer", { name: "Kupac Primjer d.d.", street: "Riva 5", postal_code: "21000", city: "Split", country: "HR", vat_id: "HR98765432106", endpoint_scheme: "", endpoint_id: "" });
+      set("payment", { iban: "HR1210010051863000160", bic: "", account_name: "Primjer Usluge d.o.o." });
+      $("currency").value = "EUR"; $("number").value = "42-1-1"; $("buyer_reference").value = "";
+      if (!$("due_date").value) $("due_date").value = new Date(Date.parse($("issue_date").value) + 30 * 864e5).toISOString().slice(0, 10);
+      $("issue_time").value = "09:30:00"; $("process").value = "P1"; $("operator_name").value = "Ana Operater"; $("operator_oib").value = "55556666775";
+      $("lines").innerHTML = "";
+      lineRow({ description: "IT podrška", quantity: 2, unit: "HUR", unit_price: 100, tax_percent: 25, kpd: "62.20.30" });
+      lineRow({ description: "Priručnik (tiskani)", quantity: 3, unit: "C62", unit_price: 20, tax_percent: 5, kpd: "58.11.11" });
+      lineRow({ description: "Tečaj", quantity: 1, unit: "C62", unit_price: 150, tax_percent: 0, tax_category: "E", tax_reason: "Oslobođeno PDV-a prema čl. 39. Zakona o PDV-u", kpd: "85.59.09" });
+      // A refundable deposit on the printed handbooks' packaging: outside the VAT base (HR:POVNAK).
+      $("adjustments").innerHTML = "";
+      adjustmentRow({ type: "charge", reason: "Povratna naknada", amount: 0.3, tax_percent: 0, hr_label: "POVNAK" });
+      showTotals();
+    }
     $("addLine").onclick = () => lineRow();
-    $("issue_date").value = new Date().toISOString().slice(0, 10);
+    $("addAdjustment").onclick = () => adjustmentRow();
+    showHr();
+    $("issue_date").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     lineRow();
     showTotals();
-    safe(() => { $("usageOptOut").checked = readOptOut(localStorage); $("usageOptOut").addEventListener("change", () => writeOptOut(localStorage, $("usageOptOut").checked)); });
+    safe(() => { $("usageOptOut").checked = readOptOut(usageStorage()); $("usageOptOut").addEventListener("change", () => writeOptOut(usageStorage(), $("usageOptOut").checked)); });
   </script>
 </body>
 </html>

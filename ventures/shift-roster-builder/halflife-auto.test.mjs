@@ -31,25 +31,31 @@ test("half-life auto: steady sales keep equal weights (a tie goes to the plain a
   assert.match(p.note, /every earlier week weighed the same/);
 });
 
-test("half-life auto: sales that kept growing pick a half-life, and the plan follows the recent level", () => {
+test("half-life auto: sales that kept growing pick a recent weighting, and the plan follows the recent level", () => {
   const text = sales(20, (w) => 1 + 0.12 * w);
+  // Under the old score (scoreClosed false) only the half-lives are offered; under the default the last 4 weeks are too.
+  const old = pickHalfLife(text, { splh: 60, scoreClosed: false });
+  assert.ok([8, 4, 2].includes(old.halfLife), `picked ${old.halfLife}`);
   const p = pickHalfLife(text, { splh: 60 });
-  assert.ok([8, 4, 2].includes(p.halfLife), `picked ${p.halfLife}`);
+  assert.ok([8, 4, 2].includes(p.halfLife) || p.window === 4, `picked ${p.halfLife} / ${p.window}`);
   assert.match(p.note, /fewer than equal weights/);
   const auto = demandShifts(text, { splh: 60, halfLife: "auto" });
   const plain = demandShifts(text, { splh: 60 });
   assert.equal(auto.halfLife, p.halfLife);
+  assert.equal(auto.window, p.window);
   assert.ok(auto.needed > plain.needed, `${auto.needed} vs ${plain.needed}`);
   assert.ok(auto.notes.some((n) => n.startsWith("Half-life auto:")));
   // An explicit number or none is used as given.
   assert.equal(demandShifts(text, { splh: 60, halfLife: "none" }).needed, plain.needed);
-  assert.equal(demandShifts(text, { splh: 60, halfLife: p.halfLife }).needed, auto.needed);
+  assert.equal(demandShifts(text, { splh: 60, halfLife: p.halfLife, window: p.window }).needed, auto.needed);
 });
 
 test("half-life auto: with a short cost it picks among the fractile plans", () => {
   const text = sales(20, (w) => 1 + 0.12 * w);
-  const p = pickHalfLife(text, { splh: 60, shortCost: 3 });
+  const p = pickHalfLife(text, { splh: 60, shortCost: 3, scoreClosed: false });
   assert.ok([8, 4, 2].includes(p.halfLife), `picked ${p.halfLife}`);
+  const q = pickHalfLife(text, { splh: 60, shortCost: 3 });
+  assert.ok([8, 4, 2].includes(q.halfLife) || q.window === 4, `picked ${q.halfLife} / ${q.window}`);
 });
 
 test("CLI: --from-sales defaults to auto; --half-life none and numbers still work; 0 is refused", () => {
@@ -60,7 +66,9 @@ test("CLI: --from-sales defaults to auto; --half-life none and numbers still wor
   const run = (...a) => execFileSync(process.execPath, [cli, "--from-sales", f, "--splh", "60", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   const auto = run(), none = run("--half-life", "none"), four = run("--half-life", "4");
   assert.notEqual(auto, none);
-  assert.ok(auto === four || auto === run("--half-life", "2") || auto === run("--half-life", "8"));
+  assert.ok(auto === four || auto === run("--half-life", "2") || auto === run("--half-life", "8") || auto === run("--last-weeks", "4"));
+  const old = run("--score-open-hours");
+  assert.ok(old === four || old === run("--half-life", "2") || old === run("--half-life", "8"));
   assert.throws(() => run("--half-life", "0"));
   assert.match(readFileSync(cli, "utf8"), /the default, auto, backtests/);
 });
@@ -90,9 +98,9 @@ test("--last-weeks plans from the last n weeks only, the same rows the backtest'
   assert.throws(() => demandShifts(text, { splh: 60, window: 0 }), /whole number of weeks/);
 });
 
-test("half-life auto offers the last 4 weeks only under --score-closed (measured: eval/window-auto.mjs)", () => {
+test("half-life auto offers the last 4 weeks only under the closure score, the default (measured: eval/window-auto.mjs)", () => {
   const text = shortened(20, 3);
-  const plain = pickHalfLife(text, { splh: 60 });
+  const plain = pickHalfLife(text, { splh: 60, scoreClosed: false });
   assert.equal(plain.window, undefined);
   const closed = pickHalfLife(text, { splh: 60, scoreClosed: true });
   assert.equal(closed.window, 4, closed.note);
@@ -100,14 +108,17 @@ test("half-life auto offers the last 4 weeks only under --score-closed (measured
   const r = demandShifts(text, { splh: 60, halfLife: "auto", scoreClosed: true });
   assert.equal(r.window, 4);
   assert.equal(r.scheduled, demandShifts(text, { splh: 60, window: 4 }).scheduled);
+  assert.equal(pickHalfLife(text, { splh: 60 }).window, 4, "the closure score is the default");
 });
 
-test("CLI: --last-weeks fixes the window and turns auto off; --score-closed lets auto pick it", () => {
+test("CLI: --last-weeks fixes the window and turns auto off; auto picks it by default, not under --score-open-hours", () => {
   const dir = mkdtempSync(join(tmpdir(), "lw-"));
   const f = join(dir, "s.csv");
   writeFileSync(f, shortened(20, 3));
   const cli = new URL("./cli.mjs", import.meta.url).pathname;
   const run = (...a) => execFileSync(process.execPath, [cli, "--from-sales", f, "--splh", "60", ...a], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] });
   assert.equal(run("--score-closed"), run("--last-weeks", "4"));
+  assert.equal(run(), run("--last-weeks", "4"));
+  assert.notEqual(run("--score-open-hours"), run("--last-weeks", "4"));
   assert.throws(() => run("--last-weeks", "0"));
 });

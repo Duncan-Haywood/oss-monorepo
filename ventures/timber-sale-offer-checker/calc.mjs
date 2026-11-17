@@ -123,7 +123,7 @@ export function check({ rows, prices = {}, offer, offerRule = "doyle", foresterF
 
 export function money(x) {
   const v = Math.round(x);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 
 export function sampleLogs() {

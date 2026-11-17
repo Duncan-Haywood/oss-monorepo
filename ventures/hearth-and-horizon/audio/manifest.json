@@ -39,6 +39,11 @@
     "seconds": 1228.6,
     "voice": "en_US-ljspeech-high"
   },
+  "pull-gently": {
+    "bytes": 13520224,
+    "seconds": 2253.3,
+    "voice": "kokoro-v1.0 af_bella"
+  },
   "ten-percent": {
     "bytes": 10930368,
     "seconds": 1821.6,
@@ -84,6 +89,11 @@
     "seconds": 1057.7,
     "voice": "en_US-ljspeech-high"
   },
+  "the-last-sun-comes-in-two-pieces": {
+    "bytes": 11991613,
+    "seconds": 1998.5,
+    "voice": "kokoro-v1.0 af_bella"
+  },
   "the-letter-in-the-wall": {
     "bytes": 7365605,
     "seconds": 1227.5,
@@ -103,6 +113,16 @@
     "bytes": 8578882,
     "seconds": 1429.7,
     "voice": "en_US-ljspeech-high"
+  },
+  "the-rising-shore": {
+    "bytes": 9855141,
+    "seconds": 1642.5,
+    "voice": "kokoro-v1.0 af_bella"
+  },
+  "the-slow-dial": {
+    "bytes": 12414090,
+    "seconds": 2069.0,
+    "voice": "kokoro-v1.0 af_bella"
   },
   "the-slowest-bell-on-the-moon": {
     "bytes": 8949259,

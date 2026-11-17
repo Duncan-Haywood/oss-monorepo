@@ -1,0 +1,123 @@
+D 3.75mm EA 150: DC 0.5093 steps 154 g/w 1.3e-06 272s
+D 3.75mm EA 800: DC 0.5365 steps 58 g/w 5.2e-09 105s
+D 3.75mm EA 1341: DC 0.5416 steps 35 g/w 1.1e-07 63s
+D 3.75mm EA 1896: DC 0.5447 steps 15 g/w 6.8e-06 27s
+A 3.75mm EA 150: DC 0.1664 steps 258 g/w 1.6e-06 488s
+D 3.75mm EA 3200: DC 0.5474 steps 18 g/w 3.0e-08 32s
+A 3.75mm EA 254: DC 0.1708 steps 30 g/w 3.5e-08 56s
+A 3.75mm EA 369: DC 0.1746 steps 30 g/w 8.6e-09 57s
+A 3.75mm EA 800: DC 0.1852 steps 45 g/w 3.8e-07 81s
+D 2.5mm EA 150: DC 0.5253 steps 166 g/w 4.4e-06 746s
+A 5mm EA 150: DC 0.1842 steps 368 g/w 7.3e-08 354s
+A 5mm EA 254: DC 0.1922 steps 47 g/w 1.0e-06 46s
+A 5mm EA 369: DC 0.2026 steps 16 g/w 1.6e-08 15s
+A 5mm EA 800: DC 0.2296 steps 81 g/w 5.5e-08 79s
+A 3.75mm EA 3200: DC 0.2156 steps 185 g/w 3.1e-07 332s
+D 5mm EA 150: DC 0.5131 steps 69 g/w 6.5e-07 64s
+D 5mm EA 800: DC 0.5459 steps 51 g/w 1.5e-06 49s
+A 5mm EA 3200: DC 0.2962 steps 148 g/w 7.1e-07 142s
+A 2.5mm EA 150: DC 0.1608 steps 237 g/w 5.5e-09 1137s
+D 5mm EA 1341: DC 0.5503 steps 21 g/w 1.3e-08 20s
+D 5mm EA 1896: DC 0.5522 steps 14 g/w 1.8e-09 14s
+D 5mm EA 3200: DC 0.5553 steps 14 g/w 4.3e-06 14s
+D 7.5mm EA 150: DC 0.4250 steps 73 g/w 9.3e-06 30s
+D 7.5mm EA 800: DC 0.4568 steps 63 g/w 3.7e-07 27s
+A 2.5mm EA 254: DC 0.1625 steps 20 g/w 1.2e-07 98s
+D 7.5mm EA 1341: DC 0.4677 steps 21 g/w 8.3e-09 9s
+A 7.5mm EA 150: DC 0.2201 steps 271 g/w 3.2e-09 111s
+D 7.5mm EA 1896: DC 0.4755 steps 29 g/w 4.6e-07 12s
+A 7.5mm EA 254: DC 0.2307 steps 22 g/w 6.2e-07 9s
+D 7.5mm EA 3200: DC 0.4900 steps 17 g/w 1.0e-08 7s
+A 7.5mm EA 369: DC 0.2412 steps 15 g/w 5.4e-09 6s
+A 7.5mm EA 800: DC 0.2730 steps 46 g/w 4.1e-06 19s
+A 2.5mm EA 369: DC 0.1640 steps 17 g/w 2.0e-08 82s
+A 7.5mm EA 3200: DC 0.3509 steps 105 g/w 7.6e-06 43s
+A 2.5mm EA 800: DC 0.1675 steps 25 g/w 5.1e-06 116s
+D 2.5mm EA 800: DC 0.5660 steps 170 g/w 1.0e-05 760s
+D 2.5mm EA 1341: DC 0.5754 steps 33 g/w 6.2e-06 145s
+A 2.5mm EA 3200: DC 0.1783 steps 51 g/w 4.4e-07 246s
+D 2.5mm EA 1896: DC 0.5807 steps 22 g/w 3.9e-06 98s
+D 2.5mm EA 3200: DC 0.5887 steps 23 g/w 4.8e-06 103s
+milestone 3b: EA continuation on milestone 3a's triangle element (Cusick, measured G)
+fabric EA a_mm nodes DC newton_steps gmax_over_node_weight converged folds sec cold3a_DC cold3a_converged
+A 150 7.5 1519 0.2201 271 3.2e-09 yes 13 111 0.2201 yes
+A 150 5 3365 0.1842 368 7.3e-08 yes 13 354 0.1842 yes
+A 150 3.75 5956 0.1664 258 1.6e-06 yes 11 488 0.1664 yes
+A 150 2.5 13245 0.1608 237 5.5e-09 yes 11 1137 0.1608 yes
+A 254 7.5 1519 0.2307 22 6.2e-07 yes 10 9 - -
+A 254 5 3365 0.1922 47 1.0e-06 yes 13 46 - -
+A 254 3.75 5956 0.1708 30 3.5e-08 yes 11 56 - -
+A 254 2.5 13245 0.1625 20 1.2e-07 yes 11 98 - -
+A 369 7.5 1519 0.2412 15 5.4e-09 yes 10 6 - -
+A 369 5 3365 0.2026 16 1.6e-08 yes 13 15 - -
+A 369 3.75 5956 0.1746 30 8.6e-09 yes 11 57 - -
+A 369 2.5 13245 0.1640 17 2.0e-08 yes 11 82 - -
+A 800 7.5 1519 0.2730 46 4.1e-06 yes 12 19 0.5072 yes
+A 800 5 3365 0.2296 81 5.5e-08 yes 13 79 0.3560 no
+A 800 3.75 5956 0.1852 45 3.8e-07 yes 11 81 0.1932 yes
+A 800 2.5 13245 0.1675 25 5.1e-06 yes 11 116 0.1752 no
+A 3200 7.5 1519 0.3509 105 7.6e-06 yes 13 43 0.5672 yes
+A 3200 5 3365 0.2962 148 7.1e-07 yes 13 142 0.6142 yes
+A 3200 3.75 5956 0.2156 185 3.1e-07 yes 11 332 0.3882 no
+A 3200 2.5 13245 0.1783 51 4.4e-07 yes 11 246 0.2303 no
+D 150 7.5 1519 0.4250 73 9.3e-06 yes 11 30 0.4250 yes
+D 150 5 3365 0.5131 69 6.5e-07 yes 8 64 0.5131 yes
+D 150 3.75 5956 0.5093 154 1.3e-06 yes 7 272 0.5093 yes
+D 150 2.5 13245 0.5253 166 4.4e-06 yes 7 746 0.5253 yes
+D 800 7.5 1519 0.4568 63 3.7e-07 yes 10 27 0.4547 yes
+D 800 5 3365 0.5459 51 1.5e-06 yes 8 49 0.5499 yes
+D 800 3.75 5956 0.5365 58 5.2e-09 yes 6 105 0.5651 yes
+D 800 2.5 13245 0.5660 170 1.0e-05 yes 7 760 0.5814 yes
+D 1341 7.5 1519 0.4677 21 8.3e-09 yes 11 9 - -
+D 1341 5 3365 0.5503 21 1.3e-08 yes 8 20 - -
+D 1341 3.75 5956 0.5416 35 1.1e-07 yes 6 63 - -
+D 1341 2.5 13245 0.5754 33 6.2e-06 yes 7 145 - -
+D 1896 7.5 1519 0.4755 29 4.6e-07 yes 11 12 - -
+D 1896 5 3365 0.5522 14 1.8e-09 yes 8 14 - -
+D 1896 3.75 5956 0.5447 15 6.8e-06 yes 6 27 - -
+D 1896 2.5 13245 0.5807 22 3.9e-06 yes 7 98 - -
+D 3200 7.5 1519 0.4900 17 1.0e-08 yes 9 7 0.4633 yes
+D 3200 5 3365 0.5553 14 4.3e-06 yes 8 14 0.5822 yes
+D 3200 3.75 5956 0.5474 18 3.0e-08 yes 6 32 0.5992 yes
+D 3200 2.5 13245 0.5887 23 4.8e-06 yes 7 103 0.6181 no
+
+fabric EA DC@7.5mm DC@5mm DC@3.75mm DC@2.5mm  (* = not converged)
+A 150 0.2201 0.1842 0.1664 0.1608
+A 254 0.2307 0.1922 0.1708 0.1625
+A 369 0.2412 0.2026 0.1746 0.1640
+A 800 0.2730 0.2296 0.1852 0.1675
+A 3200 0.3509 0.2962 0.2156 0.1783
+D 150 0.4250 0.5131 0.5093 0.5253
+D 800 0.4568 0.5459 0.5365 0.5660
+D 1341 0.4677 0.5503 0.5416 0.5754
+D 1896 0.4755 0.5522 0.5447 0.5807
+D 3200 0.4900 0.5553 0.5474 0.5887
+
+G1 A stages at EA <= 369 converged: 12 of 12: held
+G2 A DC(2.5) - DC(3.75): EA 254 -0.0082, EA 369 -0.0106: held
+G3 A at 2.5 mm DC(369) - DC(150) +0.0032: held
+G4 A at EA 800 converged on 4 of 4: held
+G5 A at EA 3200 converged on 4 of 4: held
+G6 cases converged both ways: 19; |cold - continued| >= 0.03 in 4: refuted
+   A EA 150 2.5 mm: cold 0.1608, continued 0.1608, diff -0.0000
+   D EA 150 2.5 mm: cold 0.5253, continued 0.5253, diff -0.0000
+   D EA 800 2.5 mm: cold 0.5814, continued 0.5660, diff -0.0154
+   A EA 150 3.75 mm: cold 0.1664, continued 0.1664, diff -0.0000
+   A EA 800 3.75 mm: cold 0.1932, continued 0.1852, diff -0.0080
+   D EA 150 3.75 mm: cold 0.5093, continued 0.5093, diff -0.0000
+   D EA 800 3.75 mm: cold 0.5651, continued 0.5365, diff -0.0286
+   D EA 3200 3.75 mm: cold 0.5992, continued 0.5474, diff -0.0518
+   A EA 150 5 mm: cold 0.1842, continued 0.1842, diff -0.0000
+   A EA 3200 5 mm: cold 0.6142, continued 0.2962, diff -0.3180
+   D EA 150 5 mm: cold 0.5131, continued 0.5131, diff +0.0000
+   D EA 800 5 mm: cold 0.5499, continued 0.5459, diff -0.0040
+   D EA 3200 5 mm: cold 0.5822, continued 0.5553, diff -0.0269
+   A EA 150 7.5 mm: cold 0.2201, continued 0.2201, diff -0.0000
+   A EA 800 7.5 mm: cold 0.5072, continued 0.2730, diff -0.2342
+   A EA 3200 7.5 mm: cold 0.5672, continued 0.3509, diff -0.2163
+   D EA 150 7.5 mm: cold 0.4250, continued 0.4250, diff +0.0000
+   D EA 800 7.5 mm: cold 0.4547, continued 0.4568, diff +0.0021
+   D EA 3200 7.5 mm: cold 0.4633, continued 0.4900, diff +0.0267
+G7 D DC(2.5) - DC(3.75): EA 1341 +0.0338, EA 1896 +0.0360; every D stage converged: True: refuted
+acceptance at sourced stiffness (G2 and G7's mesh clause): failed
+wall 1852s

@@ -117,7 +117,7 @@ test("the page runs the search in a worker, with a main-thread fallback and a tr
   assert.match(html, /new Worker\("\.\/carryover-worker\.mjs", \{ type: "module" \}\)/);
   assert.match(html, /id="carryOverPick"/);
   for (const v of ["balanced", "fair", "breaks"]) assert.match(html, new RegExp(`<option value="${v}"`));
-  assert.match(html, /bestCarryOverRounds\(n,/, "fallback when workers are unavailable");
+  assert.match(html, /carryOverTry\(n, i, \{ double: spec.double, seed: spec.seed, weighted: CARRY_WEIGHTED \}\)/, "fallback when workers are unavailable: the same tries on the page thread");
   const worker = readFileSync(new URL("./carryover-worker.mjs", import.meta.url), "utf8");
   assert.match(worker, /bestCarryOverRounds/);
   assert.match(worker, /type: "done"/);
@@ -136,11 +136,19 @@ test("splitCarryOverTries hands every try to exactly one thread, round robin", (
 test("a pool of any size, finishing in any order, returns exactly the serial search", () => {
   for (const double of [false, true]) {
     // A try depends on neither the pick nor the thread that runs it, so each is searched once here,
-    // apart from the serial runs, and every pool gets its own copy, as a worker message would (this
+    // apart from one serial run, and every pool gets its own copy, as a worker message would (this
     // test used to search the same 8 tries 9 times over: 245 s of the suite's critical path).
     const searched = Array.from({ length: 8 }, (_, i) => carryOverTry(8, i, { double, seed: 4 }));
+    // The serial search's tries do not depend on the pick either; only its last step,
+    // combineCarryOverTries over tries 0 to 7 in order, does. So one serial run per season shape
+    // (pick 0 for single, 40 for home and away) checks the whole serial path, and the other picks
+    // are checked against that last step over the in-order tries (this test ran the serial search
+    // six times: docs/history/ci-perf-2026-11-16-league-serial-once.md).
+    const fullAt = double ? 40 : 0;
     for (const pick of [0, 10, 40]) {
-      const serial = bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick });
+      const serial = pick === fullAt
+        ? bestCarryOverRounds(8, { double, seed: 4, tries: 8, pick })
+        : combineCarryOverTries(searched.map((t) => structuredClone(t)), pick, { among: 8 });
       for (const workers of [1, 3, 8]) {
         const done = splitCarryOverTries(8, workers).map((q) => q.map((i) => structuredClone(searched[i])));
         // threads report in reverse: the combine must not depend on arrival order
@@ -159,4 +167,37 @@ test("combineCarryOverTries refuses a missing try and survives a JSON round trip
   const viaJson = combineCarryOverTries(JSON.parse(JSON.stringify(all)), 10);
   assert.deepEqual(viaJson.rounds, bestCarryOverRounds(6, { double: true, seed: 2, tries: 4 }).rounds);
   assert.equal("index" in viaJson, false);
+});
+
+test("a huge typed seed still gives every try its own seed (redteam 2026-11-12)", async () => {
+  const { carryOverTrySeed } = await import("./carryover.mjs");
+  // the form keeps any finite seed (readSpec), so 1e21 reaches the search; seed * 7919 then swamps
+  // i * 104729 in floating point and tries 1 to 9 all used one seed
+  for (const seed of [1, 2 ** 31, 2 ** 40, 1e21, 1e300, -1e21]) {
+    const seen = new Set(Array.from({ length: 10 }, (_, i) => carryOverTrySeed(seed, i) >>> 0));
+    assert.equal(seen.size, 10, `seed ${seed}`);
+  }
+  // seeds that were already fine keep exactly the tries they had, so old share links reproduce
+  assert.deepEqual([1, 2, 3].map((i) => carryOverTrySeed(1, i)), [112648, 217377, 322106]);
+  assert.equal(carryOverTrySeed(2 ** 40, 3), ((2 ** 40 * 7919 + 3 * 104729) % 2147483647) || 1);
+});
+
+test("the read-out folds repeated tries: 19 teams' seven identical weighted tries list once", async () => {
+  const { carryOverCandidatesText, carryOverDistinct } = await import("./carryover.mjs");
+  const c = [[1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1311, 87], [1517, 84], [5741, 48], [3731, 59]].map(([coe, breaks]) => ({ coe, breaks }));
+  assert.equal(carryOverCandidatesText(c), "1311/87 ×7, 1517/84, 5741/48, 3731/59");
+  assert.equal(carryOverDistinct(c), 4);
+  // all different: the list is exactly the old one
+  const d = [{ coe: 1, breaks: 2 }, { coe: 3, breaks: 4 }];
+  assert.equal(carryOverCandidatesText(d), d.map((x) => x.coe + "/" + x.breaks).join(", "));
+  assert.equal(carryOverDistinct(d), 2);
+  assert.equal(carryOverCandidatesText([]), "");
+  // same carry-over, different breaks are different results
+  assert.equal(carryOverDistinct([{ coe: 5, breaks: 1 }, { coe: 5, breaks: 2 }]), 2);
+});
+
+test("the page's read-out uses the folded list", () => {
+  const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
+  assert.match(html, /carryOverCandidatesText\(s\.carryOverSearch\.candidates\)/);
+  assert.doesNotMatch(html, /candidates\.map\(\(c\) => c\.coe \+ "\/" \+ c\.breaks\)/);
 });

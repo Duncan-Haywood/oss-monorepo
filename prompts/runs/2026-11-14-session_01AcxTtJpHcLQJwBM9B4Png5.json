@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJpHcLQJwBM9B4Png5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T08:06:38Z",
+  "ended": "2026-11-14T08:24:30Z",
+  "wall_minutes": 18.9,
+  "tokens_in": 6399685,
+  "tokens_out": 28999,
+  "cost_usd": 2.9449,
+  "tool_calls": 57,
+  "task": "Deepen flagship shift-roster-builder: the caf\u00e9's 23 flagged vs 11 open call-out days (cover-price risk count)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15783",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Lost the einvoice-preflight claim to PR #15782 by 7 seconds; yielded and retitled to the next free flagship row (shift-roster-builder)."
+    },
+    {
+      "what": "First venture-preflight stopped on the post's front matter (description 200 > 160 chars, seo_title 75 > 70) and the unfilled run record; fixed both and reran."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "'Counting call-out risk with hand-over chains' quotes the 60-person priced pass at 3.5 s; at current main it took 13.6-14.7 s here, with or without this run's change (A/B in eval/cover-caller-takes-ab.out.txt). Either the machine is slower or a later commit slowed it; not chased."
+    },
+    {
+      "file": "ventures/shift-roster-builder/eval/cover-risk-joint.out.txt",
+      "issue": "The caf\u00e9's posted roster changed since the README's cover-price sections were measured (11 open days / 92 h exposure then, 12 / 100 h now), so the old tables no longer reproduce; re-run eval outputs before comparing against them."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "The preflight stops on an unfilled run record, but the record is supposed to be written after the PR exists and near the end; running preflight before filling the record wastes one 5-minute run. Fill the record (or at least outcome) before the preflight."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-shift-roster-the-swap-the-check-forgot.md",
+    "ventures/shift-roster-builder/README.md (The caller can take a later shift)"
+  ],
+  "goal": "Make the cheap call-out risk count closer to the slow rebuild without missing any open day, and measure what the priced pass buys with it.",
+  "notes": "Diagnosis (eval/cover-risk-gap.mjs): the rebuilds that covered falsely flagged caf\u00e9 days mostly used a swap in which the caller takes a stand-in's later shift; coverRisk forbade the caller taking any shift. Change: callerTakes (default on) in coverRisk/coverDayJoint/coverSlackPass, buildRoster option coverCallerTakes. Results: 202 person-days 72 -> 66 flagged, precision 68.1% -> 74.2%, 0 missed; retail and clinic exact. Big weeks: same moves and same time with the change on or off (A/B). Caf\u00e9 priced: 3 zero-cost moves, exposure 100 -> 92 h, but whole-week play left more hours open (8 -> 16, 155 -> 188) with fewer changes and lower premiums, reported as a trade. Chain 3 tried: 62 flagged / 79%, but 389 s on the 60-person week, so the default stays at 2. Verification: run_venture_tests.py shift-roster-builder ok (149 s); cover-price.test.mjs 18/18; venture-preflight shift-roster-builder clean on the rerun after the fixes (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d711a1be-befb-5e96-ad5d-490eeedaea2e",
+    "transcripts": 1,
+    "first": "2026-11-14T08:06:38Z",
+    "last": "2026-11-14T08:25:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 103,
+        "output": 28999,
+        "thinking": 8784,
+        "cache_read": 6260536,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139046,
+        "api_equivalent_usd": 2.9449,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 103,
+      "output": 28999,
+      "thinking": 8784,
+      "cache_read": 6260536,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139046,
+      "api_equivalent_usd": 2.9449,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 53,
+      "mcp__github__update_pull_request": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.9,
+      "active_minutes": 18.9,
+      "model_minutes": 5.67,
+      "tool_minutes": 13.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "diagnosing a scheduling heuristic's false positives, implementing and A/B-measuring the fix on five templates and seeded weeks, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 339.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

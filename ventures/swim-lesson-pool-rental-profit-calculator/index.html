@@ -39,7 +39,7 @@
 <body>
   <header>
     <p class="note">SWIM LESSON PROFIT AND POOL RENTAL CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
-    <h1>What does a swim lesson earn after you pay for the pool, and which class size pays the hour best?</h1>
+    <h1>What does a swim lesson earn after you pay for the pool?</h1>
     <p>Enter your private, semi-private and group lesson prices, class sizes, pool rental per hour and instructor pay. You get <strong>profit per lesson and per pool hour, the price each format needs for your target margin, the swimmers per class you need to break even, and what empty rented hours cost you</strong>.</p>
     <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Tips are left out on purpose. A planning estimate, not a contract or an estimate of record.</p>
   </header>
@@ -135,7 +135,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["privateClasses", "privatePrice", "privateMin", "privateSwimmers", "semiClasses", "semiPrice", "semiMin", "semiSwimmers", "groupClasses", "groupPrice", "groupMin", "groupSwimmers", "cancelPct", "poolRatePerHour", "poolHoursBooked", "instructorRate", "suppliesPerLesson", "cardFeePct", "fixedPerMonth", "targetMarginPct"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKnMCeF9UYuuyLDDp9L",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T02:19:50Z",
+  "ended": "2026-11-15T03:01:35Z",
+  "wall_minutes": 41.95,
+  "tokens_in": 8118333,
+  "tokens_out": 46073,
+  "cost_usd": 3.8859,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16060",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First report ranked five 5m/5n pools in Wh, not Wh/kg (those pools store Wh/kg with m = 1); fixed by recording stack mass in `tables`, no verdict changed, disclosed in LOG.md",
+    "The pre-registered condition-selection rule had the same unit slip: 9 of 17 conditions do not meet the rule as intended; results on the 8 that do are reported beside the registered verdicts",
+    "Post hoc 100-cycle diagnostic with 4 workers: 5 of 32 runs killed for memory (27 scored)"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/experiments/latefade/run.py",
+      "issue": "dev_conditions() mixes row conventions: 5m/5n pools carry wh in Wh/kg with m = 1.0, the rest Wh with a real mass; nothing in the row says which, and it cost this run a report fix and a disclosed selection slip"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "free-choice draw (pick_track 0.042); chose the open programme step cell-fidelity's README named next (5r -> predictor) rather than a new topic",
+      "did": "milestone 5s of cell-fidelity",
+      "result": "clean pre-registered negative with a diagnosis that narrows the next step"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-battery-map-was-right-the-extrapolation-was-not.md",
+    "research/cell-fidelity/LOG.md (5s plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "1,108 ten-cycle DFN runs (none failed, cycle-10 Wh/kg reproduces committed exactly) + 32 post hoc 100-cycle runs. H108-H111 refuted. Local checks: research/_homepage/build.py ok; test_mapscreen + test_balance unittest OK; check_md_links ok; research_live_links ok; post front matter/links/similarity ok; run_workflow_locally --for-changes: research-ci 3/3 run steps passed, cross-review and pages deploy jobs not run locally.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "80f3c5b5-196a-550a-9460-572a972aabed",
+    "transcripts": 1,
+    "first": "2026-11-15T02:19:50Z",
+    "last": "2026-11-15T03:01:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 116,
+        "output": 46073,
+        "thinking": 11189,
+        "cache_read": 7946377,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171840,
+        "api_equivalent_usd": 3.8859,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 116,
+      "output": 46073,
+      "thinking": 11189,
+      "cache_read": 7946377,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171840,
+      "api_equivalent_usd": 3.8859,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 58,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 41.95,
+      "active_minutes": 41.95,
+      "model_minutes": 8.08,
+      "tool_minutes": 33.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a battery-modelling researcher scripting 1,100 DFN runs, a diagnostic and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 411.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

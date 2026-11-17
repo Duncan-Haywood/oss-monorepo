@@ -31,6 +31,7 @@ import { xlsxToCsv, looksLikeXlsx } from "../xlsx.mjs";
 import { replay, fmt } from "./scotgov-card.mjs";
 import { MCC_MEMORY } from "../categorize.mjs";
 import { mccAccount, normaliseMccName } from "../mcc.mjs";
+import { pathToFileURL } from "node:url";
 
 // City G/L account (4 digits) -> chart accounts a careful bookkeeper could accept.
 // Supplies bought for repairs may be supplies or repairs; equipment may be
@@ -85,7 +86,7 @@ export function loadToronto(csv, { field = "both", division = null } = {}) {
   return out.sort((a, b) => a.date.localeCompare(b.date));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d = null) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const bytes = readFileSync(arg("--file"));
   const csv = looksLikeXlsx(bytes) ? await xlsxToCsv(new Uint8Array(bytes)) : bytes.toString("utf8");

@@ -1,0 +1,315 @@
+---
+number: 118
+slug: agabus-and-the-belt-in-the-house-at-caesarea
+title: Agabus and the Belt in the House at Caesarea
+published: 2026-11-14
+summary: Saint Paul sails past Cos and Rhodes and the fallen giant of the sun, kneels on a beach at Tyre with whole families, and comes to the house of Philip the evangelist and his four daughters at Caesarea, where an old prophet called Agabus borrows Paul's belt and ties himself up with it. Told straight from the Acts of the Apostles, chapter twenty-one.
+figures: Saint Paul the Apostle, Saint Luke, Saint Philip the Deacon and Evangelist and his four daughters, Saint Agabus the prophet, Mnason of Cyprus, the disciples of Tyre with their wives and children, the brothers at Ptolemais, and an invented girl of Tyre called Elissa, daughter of a purple-dyer
+tradition: Catholic and Orthodox; the account is Scripture for both; Paul, Luke and Philip are honoured as saints in both, and the Orthodox Church counts Agabus among the Seventy; we claim no feast for Mnason or for Philip's daughters by name
+feast: Saint Paul with Saint Peter on the twenty-ninth of June in both traditions; Saint Luke on the eighteenth of October in both; Philip the deacon on the eleventh of October in the Orthodox Church, with Western calendars differing, so check your own; Agabus with the Seventy at the Orthodox Synaxis of the Seventy on the fourth of January
+history: the account is in the Acts of the Apostles, chapter twenty-one, verses one to sixteen, which Catholic and Orthodox Christians read as Scripture; Agabus's earlier prophecy is in chapter eleven and Philip's earlier story in chapters six and eight; Cos, Rhodes, Patara, Tyre, Ptolemais and Caesarea are real places whose ruins can still be visited; the fallen Colossus is described by Pliny the Elder and Strabo, the dye-works of Tyre by Strabo, and Herod's harbour at Caesarea by Josephus
+legend: Saint Nicholas born at Patara is the tradition of his later Lives and is told as tradition; what became of Philip's daughters comes from second-century writers quoted by Eusebius, who seem to mix up Philip the evangelist with Philip the apostle, and is told as their report; the Orthodox Saint Hermione as one of the daughters is later tradition; the Colossus standing astride the harbour is a much later idea and is said to be wrong
+fiction: Elissa the dyer's girl, her murex shell, the smell on her hands, Paul looking at Cyprus and thinking of Barnabas, the household jobs of Philip's daughters, the food, the weather, everybody's thoughts and the small conversations round the verses are our own invention, told in the spirit of the original; what Acts says happened is kept, and the words of the disciples, of Agabus, of Paul and of the whole company are given in our own plain rendering with nothing added; why the Spirit's warning at Tyre came out as do not go is offered as a reading and not settled
+sources:
+  - The Acts of the Apostles, chapter twenty-one, verses one to sixteen (Catholic and Orthodox New Testament)
+  - The Acts of the Apostles, chapter twenty, verses sixteen and twenty-two to twenty-five, on Pentecost and the Spirit's warnings in every city
+  - The Acts of the Apostles, chapter eleven, verses nineteen and twenty-seven to thirty, on the scattering to Phoenicia and Agabus's famine prophecy, and chapter fifteen, verse three, on Paul and Barnabas passing through Phoenicia
+  - The Acts of the Apostles, chapter six, verse five, and chapter eight, on Philip, one of the seven, in Samaria and on the Gaza road, ending at Caesarea
+  - The Acts of the Apostles, chapter ten, on Cornelius at Caesarea; chapter thirteen, verse four, and chapter fifteen, verse thirty-nine, on Barnabas and Cyprus; chapter twenty-one, verse thirty-three, and chapters twenty-three to twenty-six, on Paul bound and held at Caesarea
+  - The Gospel according to Mark, chapter seven, verses twenty-four to thirty, on the woman of the region of Tyre
+  - The Gospel according to Luke, chapter twenty-two, verse forty-two, for not my will but yours be done
+  - The Book of Isaiah, chapter twenty, the Book of Jeremiah, chapters thirteen and twenty-seven, and the Book of Ezekiel, chapter four, for the prophets' acted signs
+  - The Book of Joel, chapter two, verse twenty-eight, as quoted by Peter in Acts, chapter two, on sons and daughters prophesying
+  - The First Letter of Paul to the Corinthians, chapter nine, verse six, the Letter to the Colossians, chapter four, verse ten, and the Second Letter to Timothy, chapter four, verse eleven, on Barnabas and Mark afterwards
+  - The Second Letter of Paul to the Thessalonians, chapter three, verse sixteen, for the closing blessing
+  - Codex Bezae, the Western text of Acts twenty-one, verse sixteen, which places Mnason in a village on the road
+  - Pliny the Elder, Natural History, book thirty-four, chapter eighteen, on the fallen Colossus of Rhodes
+  - Strabo, Geography, book fourteen, on Rhodes and the Colossus, and book sixteen, on Tyre, its dye-works and its smell
+  - Arrian, The Campaigns of Alexander, book two, on the siege of Tyre and the causeway
+  - Josephus, Jewish Antiquities, book fifteen, and The Jewish War, book one, on Herod's building of Caesarea and its harbour; Jewish Antiquities, book twenty, on the famine under Claudius
+  - Eusebius, Church History, book three, chapters thirty-one and thirty-nine, quoting Polycrates of Ephesus, Proclus and Papias on the daughters of Philip
+---
+
+It is evening, in a house near the sea, and the lamps have just been lit.
+
+The house is full. There is a family in it, a father with a grey beard and four grown daughters, and there are guests, travel-worn men who have come a very long way by ship. Supper is over. Somebody has just knocked at the door, and come in, and sat down. He is an old man, dusty from the road, who has walked down from the hills of Judea. He is a prophet, and everybody in the room knows it.
+
+He does not say anything for a moment. He looks round the room. Then he gets up, and goes over to one of the guests, a short man with a tired face, and he says, may I? And before anyone quite understands what is happening, he has unwound the long cloth belt from the short man's waist.
+
+And then the old prophet sits down on the floor, in front of all of them, and begins, very carefully, to tie up his own feet.
+
+But we're getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is from the Acts of the Apostles, chapter twenty-one, which Catholic and Orthodox Christians read as Scripture, and a girl of Tyre called Elissa, the jobs that Philip's daughters do about the house, and a few of the small conversations are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+Last time, if you were with us, we were on a beach at Miletus, on the coast of what is now Turkey. Saint Paul had called the elders of the church of Ephesus down to the harbour to say goodbye, and he had told them that he did not expect to see their faces again, and they had all knelt on the shingle and prayed, and wept, and held on to him. And Luke, who wrote the Acts of the Apostles and who was there, says that in the end they had to tear themselves away.
+
+Tonight we are back on the ship. And I should say at the start that tonight's story is, like the last one, a story about saying goodbye. It is a story about a journey that a man knows is taking him towards trouble, and about the people along the way who love him and wish he would not go, and about what you do when you have told someone the truth and they go anyway.
+
+That sounds sad. It is a little sad. But it is also, I promise you, full of islands and harbours and fallen giants and very bad smells, and one old man sitting on the floor with his feet tied up, which is not something you see every day, even in the Bible.
+
+First, where we are going. Paul is on his way to Jerusalem. He is carrying, with seven companions from the churches of Greece and Asia, a gift of money that he has spent years collecting for the poor Christians in the Holy City. And Luke tells us that he is in a hurry, because he wants, if he possibly can, to be in Jerusalem for the feast of Pentecost. Pentecost is fifty days after Passover, and Paul spent Passover at Philippi, in northern Greece, so the clock is ticking.
+
+He also knows, because he has told the elders at Miletus, that the Holy Spirit has been warning him in every city that chains and troubles are waiting for him in Jerusalem. He does not know exactly what they will be. He only knows they are coming. And he has decided to go on.
+
+And Luke is with him. We know this because, at this point in the book, Luke writes we. We set sail. We came. We stayed. These are called the we passages, and the early Church understood them to mean that Luke himself was on board, keeping notes. And it is a very good thing he was, because Luke has the habit of a man who keeps a ship's log. He tells us every island. He tells us how many days. He tells us who met them at the harbour. If you have ever travelled with somebody who writes down the time the train left and the time it arrived and what the sandwiches cost, you will know the type, and you will know that, years later, when everybody else has forgotten, that is the person you want.
+
+So let us get on the ship.
+
+* * *
+
+The ship left Miletus and ran, Luke says, by a straight course to Cos.
+
+A straight course is a sailor's phrase. It means the wind was behind them, and they did not have to tack about, and the ship simply went where it was pointed. Anybody who has spent time on small ships will tell you that this is rarer and more delightful than it sounds.
+
+Cos is an island, long and green, lying just off the coast. And it was famous, in Paul's day, for one man in particular, who had been born there five hundred years before. His name was Hippocrates, and the ancient writers called him the father of medicine. There was a great healing sanctuary on the island, and a medical school, and people came from all over the sea to be looked at by the doctors of Cos.
+
+Now, Paul, in one of his letters, calls Luke the beloved physician. Luke was a doctor. And so I like to imagine Luke, as the ship came in to Cos for the night, leaning on the rail and looking at the island with a professional interest, the way a gardener looks at someone else's garden. Luke does not say he did anything of the kind. He says they came to Cos, and the next day to Rhodes. That is all. But a doctor sailing past the home of Hippocrates and not even looking would be very unusual, and I think we may allow ourselves the picture.
+
+The next day, Rhodes.
+
+Rhodes is a bigger island, and in those days it had a great city at its northern tip, with a famous harbour. And in that harbour, or near it, there was something very strange lying on the ground.
+
+More than three hundred years before, the people of Rhodes had built a statue of the sun god, Helios, in bronze. It was enormous. It was the height of a large building, taller than most church towers you will ever see, and it took twelve years to make, and people counted it among the wonders of the world. They called it the Colossus.
+
+And then, only about fifty or sixty years after it was finished, there was an earthquake, and the Colossus snapped at the knees and fell over.
+
+The people of Rhodes did not put it back up. The story was that an oracle had told them not to. So it lay there. And it was still lying there, in great broken pieces, when Paul's ship came past. A Roman writer called Pliny, who lived at the same time as Paul and who wrote an enormous encyclopedia of everything, says that even lying on the ground it was a marvel. He says that very few people could get their arms round its thumb. He says its fingers were bigger than most statues. And where its limbs had broken open, you could look inside, and see great caverns, and the huge stones that the builders had packed in to keep it steady.
+
+I should say that you may have seen pictures of the Colossus standing with one foot on each side of the harbour mouth, with ships sailing between its legs. That is a much later idea, from long after it fell, and it is almost certainly wrong. A bronze statue that size could not have stood like that, and nobody in the ancient world describes it that way. It was much more likely standing on solid ground, looking out to sea. Or rather, by Paul's day, lying on solid ground, looking up at the sky.
+
+I find this a rather lovely thing for Saint Paul to have sailed past, on his way to Jerusalem. A great bronze god, fallen on his face, his fingers bigger than a man, and the goats of Rhodes grazing round his elbows. Paul had told the people of Athens, not long before, that God does not live in shrines made by human hands. And here was the proof, lying in the grass.
+
+Luke does not mention the Colossus. He does not need to. Everyone in his day knew it was there.
+
+From Rhodes the ship went on to Patara.
+
+Patara was a harbour on the mainland, on the south coast of what the Romans called Lycia. It had a famous temple of Apollo. And it has one more claim on our attention, which I cannot resist telling you, although it comes much later. A little over two hundred years after Paul passed through, according to the old Lives of the saint, a boy was born in Patara called Nicholas. He grew up to be the bishop of Myra, just along the coast, and he is the Saint Nicholas who threw three bags of gold through a window, if you remember that episode. That he was born at Patara is the tradition of his later Lives, and not something we can check. But I like to think of Paul's ship tying up at the quay in the town where, one day, Saint Nicholas would learn to walk.
+
+* * *
+
+At Patara, Luke says, they found a ship crossing over to Phoenicia, and they went aboard.
+
+This was a big decision. Up until now, they had been hopping along the coast, island to island, harbour to harbour, putting in every night. That is the safe, slow way to travel by sea in the ancient world. But Phoenicia, which is the coast of what is now Lebanon, is a long way from Patara, out across the open sea, with nothing in between but water and, about halfway, the island of Cyprus.
+
+A ship going straight across would be out of sight of land, some of the time, for several days. It would also be much quicker. And Paul, remember, was in a hurry. So they changed ships, and set out across the open sea.
+
+I should say here that I do not know exactly how long the crossing took. Luke does not tell us, which is unlike him. It is around four hundred miles, and with a fair wind behind, a merchant ship might have done it in four or five days. In the summer months the winds in that part of the sea blow steadily from the northwest, which is exactly the wind you would want for sailing from Patara to Tyre. But that is a sailor's estimate and not Luke's record.
+
+What Luke does tell us is one small detail. He says: when we came in sight of Cyprus, we left it on the left, and sailed on to Syria.
+
+That is to say, the ship passed to the south of Cyprus. They saw it as a long low shape on the horizon, perhaps with mountains, and then it slid past them on the left-hand side, and then it was behind them.
+
+Now, Cyprus meant something to Paul. Many years before, when he was a young man starting out, he had sailed to Cyprus with his great friend Barnabas, on the very first of his missionary journeys. Barnabas was from Cyprus. It was his island. They had walked the length of it together, preaching in the synagogues. And then, some years after that, Paul and Barnabas had quarrelled, about whether to take young Mark with them on the next journey, and the quarrel had been so sharp that they had gone their separate ways. Barnabas took Mark and sailed back to Cyprus. Paul went the other way.
+
+Luke does not say that Paul stood at the rail and looked at Cyprus going past and thought about Barnabas. That is our invention, and I want to be honest about it. But I would be surprised if he did not. And I like to think that, standing there in the wind, with the island going by on the left, he said a prayer for his old friend. Whatever the quarrel had been, Paul still speaks of Barnabas in his letters afterwards as a fellow worker. And he wrote warmly about Mark, too, in the end, and asked for him to be sent, because he was useful. People who quarrel are not always people who stop loving each other. Sometimes they are just people who are both very sure, and both very tired.
+
+So Cyprus went by, and the ship went on, and one morning the lookout saw the mountains of Lebanon rising out of the sea ahead of them, and below the mountains, a city on a peninsula, with two harbours and a great many rooftops.
+
+That was Tyre.
+
+* * *
+
+Tyre, Luke says, was where the ship was to unload its cargo.
+
+And so they had to wait. Unloading a merchant ship in the ancient world was not quick. There were no cranes. Everything came out on the backs of men, sack by sack and jar by jar, up a plank and down to the quay. And then, presumably, a new cargo had to go in. So Paul and his companions had some days on their hands, in a city where, as far as we know, Paul had never stayed before.
+
+Tyre was very old. It was old when King David was alive. Its king, Hiram, sent cedar wood from the mountains of Lebanon to Solomon, for the building of the temple in Jerusalem. The prophet Ezekiel wrote long, rolling chapters about Tyre, about its ships and its sailors and its trade with every nation under heaven, and about its pride. It had once been an island, just off the shore. And then, nearly four hundred years before Paul, Alexander the Great had besieged it, and to get at it, his army had built a great causeway of earth and stone out across the water, and taken the city. The causeway was still there, and the sand had piled up against it, and by Paul's day the island had become a peninsula, joined to the land for ever.
+
+And Tyre was famous, above all, for one thing. Purple.
+
+The purple dye of Tyre was the most expensive colour in the world. Emperors wore it. Senators had stripes of it on their togas. It was made from a sea snail, a spiky shell called the murex, which the fishermen of Tyre gathered in their thousands, and from each snail you got, after a great deal of work, a tiny amount of dye. You needed so many that the shells were piled up in mounds outside the city.
+
+And here is the thing about the dye-works of Tyre, which the history books do not always mention. They smelled terrible. Truly, appallingly terrible. Thousands of rotting sea snails, boiling in vats, in the hot sun. The Greek geographer Strabo, who wrote a description of the whole known world in the time of Augustus, says plainly that the great number of dye-works made the city unpleasant to live in, though it also made the city very rich.
+
+So that is where Paul arrived. A very old city, a very rich city, and a very smelly one.
+
+And Luke says: we sought out the disciples.
+
+That is a small phrase, but it tells us something. They had to look for them. Paul did not have a house to go to in Tyre, or a name on a slip of paper. He knew there were Christians there, because years before, after the death of Saint Stephen, believers who fled from Jerusalem had come up the coast as far as Phoenicia, telling the good news as they went. And Paul and Barnabas had passed through Phoenicia once, on the way to the great meeting in Jerusalem, and told the churches there about the Gentiles who were coming to believe. And long before any of that, the Lord himself had walked into the region of Tyre and Sidon, and a woman of that country had knelt at his feet and begged him to heal her little daughter, and he had. So there were believers in Tyre. Paul just had to find them.
+
+How do you find a small group of Christians in a big strange city, in the first century, when there are no church buildings and no signs? Probably you ask in the synagogue. Probably you ask in the market. Probably you ask anybody who looks as if they might know.
+
+And this, in our story, is where Elissa comes in.
+
+Elissa is our invention. She was about nine years old, and her father worked in the dye-works, and her mother had been baptised a few years before, and so had her father, and so, as soon as she was old enough to want it, had she. And Elissa's job, every morning, was to carry her father's lunch out to the dye-works, through the town, past the harbour. Which is how, in our story, she came to be standing on the quay watching the sacks come off the ship from Patara, when a small group of foreign men came down the gangplank and started asking the porters, politely, whether anybody knew where the followers of the Way met.
+
+The porters shrugged. The porters were busy. But Elissa put up her hand, the way you do in school, and said: I know.
+
+And that is how, in our story, Saint Paul the Apostle was taken through the streets of Tyre by a nine-year-old girl who smelled faintly, and quite unmistakably, of sea snails.
+
+They stayed seven days.
+
+Luke does not tell us much about those seven days. He does not tell us whose house they stayed in, or what Paul preached, or what they ate. But he tells us one thing, and it is a puzzling thing, and I want to look at it carefully.
+
+He says: and through the Spirit, they kept telling Paul not to go up to Jerusalem.
+
+Now, that is strange. Because Paul had just told the elders at Miletus that it was the Spirit who was sending him to Jerusalem. He said he was going there bound in the Spirit, not knowing what would happen to him, except that the Holy Spirit warned him in every city that chains were waiting. So which is it? Is the Spirit telling Paul to go, or to stay?
+
+People have thought about this for a very long time, and I will not pretend to settle it. But the reading that most people find most natural goes like this. The Spirit showed the Christians at Tyre something true: that suffering was waiting for Paul in Jerusalem. That part was from the Spirit. And then the Christians at Tyre, who loved him, drew the obvious conclusion that anyone who loved him would draw. Then do not go. That part was from their hearts. It was a good and loving conclusion. It just was not the one God was asking Paul to draw.
+
+Other readers put it a little differently, and some think the warnings were meant to test Paul, or to prepare him, or to let him choose with his eyes open. Luke does not explain, and we will not explain it for him. But whichever way you read it, the picture is a very human one. A group of people who have just met a man, and already love him, and can see that something terrible is coming for him, and keep saying, every evening, please. Please do not go. And Paul, every evening, thanking them, and saying, I know. And going anyway.
+
+In our story, Elissa listened to all of this from the doorway, the way children listen to grown-up conversations they are not supposed to be part of. And she did not understand all of it. But she understood that the short man was going somewhere dangerous, and that everybody wanted him not to, and that he was going to go.
+
+* * *
+
+At the end of the seven days, the ship was ready.
+
+And Luke tells us about the goodbye. I am going to give it to you nearly in his own words, because it is one of the most beautiful small scenes in the whole book, and it does not need anything from me.
+
+He says: when our days there were over, we left and went on our way. And all of them, with their wives and children, came with us until we were out of the city. And we knelt down on the beach and prayed, and said goodbye to one another. Then we went on board the ship, and they went home.
+
+With their wives and children. Whole families. Fathers and mothers and grandparents and small children with sticky hands, walking together out through the city gate and down to the shore, to see off a man they had known for one week.
+
+And then they all knelt down. On the beach. On the sand, by the water, among the fishing boats and the drying nets and, I suspect, a fair few murex shells. Grown men and small children together, kneeling to pray. It is the second time in two chapters that Luke shows us Christians kneeling on a beach to say goodbye to Paul. The first was at Miletus. This is the second. And I think Luke tells us both because he noticed, and was moved, that it happened twice. That in two different harbours, a long way apart, people who barely knew each other did exactly the same thing. They knelt, and they prayed, and they let him go.
+
+In our story, Elissa knelt too, between her mother and father, on the wet sand, with the hem of her tunic getting soaked. And when the prayer was over and the grown-ups were embracing and crying and saying the things grown-ups say, she wriggled her way to the front, and held something out to Luke, because Luke had been kind to her and asked her questions all week, and Paul was busy being hugged.
+
+It was a murex shell. A small one, spiky, the colour of old ivory, and quite clean. Well, nearly clean.
+
+It is for the journey, she said. So you remember Tyre.
+
+And Luke, in our story, who was a doctor and had a doctor's sense of smell, took it very gravely, and thanked her, and said he did not think he would ever forget Tyre. Which, given the dye-works, was certainly true.
+
+Then the ship cast off, and the families stood on the beach and waved, and then, Luke says, they went home. And that is the last we hear of the church at Tyre in the Acts of the Apostles. A whole community, wives and children and all, in one sentence. And then the sea.
+
+[pause]
+
+The next leg was short. Luke says: we finished the voyage from Tyre and arrived at Ptolemais, and we greeted the brothers, and stayed with them for one day.
+
+Ptolemais is the city now called Acre, or Akko, a little way down the coast, on a great curving bay. It is a very old harbour too. It had a Christian community, which Luke does not tell us anything about, except that they were brothers, and that Paul greeted them, and that he stayed one day. One day. You could fill a book with what happened in that one day, if anyone had written it down. But nobody did. It is one of those places in Scripture where a whole church of real people, with names and children and troubles and jokes, passes by in half a sentence. And I find that rather comforting. Most of us will be in the half sentence. And the half sentence is still in the Bible.
+
+The day after, they left Ptolemais and came to Caesarea.
+
+Luke does not say whether they went by sea or walked along the coast road. It is a long day's journey on foot, about forty miles, so it may well have been by ship again. We will leave it open, the way Luke does.
+
+* * *
+
+Caesarea was a new city, by the standards of that coast.
+
+It had been built only about seventy years before by Herod the Great, the same Herod who was king when the Lord was born. Herod was a dreadful man in many ways, but he was a tremendous builder. And on a stretch of coast where there was no natural harbour at all, he decided to make one. His engineers sank huge blocks into the open sea, and built great breakwaters out into the water, and made a harbour big enough for a fleet, and named it after the emperor Augustus. And round the harbour Herod built a whole Roman city, with a temple to the emperor, and a theatre, and a palace on a rock jutting out into the sea, and fresh water brought in from the hills by an aqueduct. The Jewish historian Josephus, who lived through the same years as Paul, describes it all in great detail, and with a certain grudging admiration.
+
+By Paul's day, Caesarea was where the Roman governors of Judea lived. Pontius Pilate had lived there. In the nineteen sixties, archaeologists digging in the theatre at Caesarea found a stone with Pilate's name carved on it, the first inscription from his own time ever found with his name on it. And Caesarea was where, many years before, a Roman centurion called Cornelius had seen an angel, and sent for Saint Peter, and become one of the very first Gentiles to be baptised. So it was a city where the Church had already done some surprising things.
+
+And in Caesarea, Luke says, we went into the house of Philip the evangelist, who was one of the seven, and stayed with him.
+
+Philip. Some of you will remember Philip. He has been in this podcast before.
+
+Philip was one of the seven men chosen by the apostles in the very early days in Jerusalem, to look after the daily distribution of food to the widows, so that the apostles could get on with praying and preaching. The seven were Stephen and Philip and five others. Then Stephen was killed, and the Christians were scattered, and Philip went north to the city of Samaria and preached there, and the whole city was full of joy. And then an angel told him to go and stand by the desert road that goes down from Jerusalem to Gaza, at noon, for no reason that he could see. And he did. And along came a chariot with an official from the court of the queen of Ethiopia, reading the prophet Isaiah out loud, and Philip ran alongside it and said, do you understand what you are reading? And he baptised him in a pool by the road. And then, Acts says, Philip found himself at Azotus, and went preaching through all the towns along the coast until he came to Caesarea.
+
+And there, apparently, he stopped. Because here he still is, about twenty years later, living in Caesarea, in a house with room for a whole party of travellers.
+
+Luke calls him Philip the evangelist. That is a lovely title. It means the man who tells the good news. And as far as I know, he is the only person in the whole New Testament who is called the evangelist by name, as if it were a job description. Which, for Philip, it was.
+
+And then Luke adds one more sentence, and it is one of my favourite sentences in Acts, because it is so short and raises so many questions. He says: Philip had four unmarried daughters, who prophesied.
+
+Four daughters. Unmarried. And they prophesied.
+
+On the day of Pentecost, Saint Peter had stood up in Jerusalem and quoted the prophet Joel. In the last days, says God, I will pour out my Spirit on all flesh, and your sons and your daughters shall prophesy. Here are the daughters. Four of them, in one house in Caesarea. Philip had been there on the day of Pentecost, or very near it. And now, twenty years on, the prophecy of Joel had come true in his own home.
+
+Luke does not tell us their names. He does not tell us how old they were, or what they looked like, or what their prophecies were about. He does not even tell us whether they said anything about Paul and Jerusalem. Which is curious, because in the very next verse a prophet comes and says something about Paul and Jerusalem, and it is not one of them. People have wondered about that silence, and I do not think anybody knows the reason. Perhaps they had already spoken, and Luke did not record it. Perhaps they had nothing to add. Perhaps Luke simply wanted to tell us that they were there, and what they were, and leave it.
+
+What I can tell you is what happened in the house, in our story, which is our invention. A house with four grown daughters and a father who has spent his whole life on the road telling people about the Lord is likely, I think, to be a busy house, and a hospitable one. In our story, the eldest ran the household, with a list in her head of who was sleeping where. The second baked, and the bread at Philip's house was the best bread Luke had eaten since Ephesus, and he said so, and she said, of course it is. The third had a gift for sitting with people who were sick or sad. And the youngest asked Paul questions all through supper, about Athens and Corinth and the shipwrecks he had been in, until her father said, let the man eat. They prayed together in the evenings, all of them, and sometimes, in the prayer, one of the daughters would speak a word that she said was from the Lord, and the others would be quiet, and listen.
+
+That is all invented, I want to be clear. Luke gives them one sentence and no words at all. But it was a real house, with four real women in it, and the Spirit at work in them. I hope they would not mind too much how we have filled it in.
+
+They stayed there many days, Luke says. So it seems that, after all that hurrying, Paul had some time in hand before Pentecost. People have tried to add up all of Luke's days, from Philippi to here, to see how much time was left, and the sum seems to say he had a little to spare. But there are a few gaps in Luke's log, and the sum is ours, not his, so I will not swear to it.
+
+* * *
+
+And then, Luke says, while we were staying there many days, a prophet named Agabus came down from Judea.
+
+Now, Paul had heard of Agabus before. Agabus had been in this story once already, long ago. When Paul was a younger man, working with Barnabas in the great city of Antioch, some prophets had come up from Jerusalem, and one of them was Agabus. And Agabus had stood up and foretold, by the Spirit, that there would be a great famine over all the world. And it came, Luke says, in the days of the emperor Claudius. The historian Josephus tells us about that famine too, in Judea, and how bad it was. And the Christians of Antioch, when they heard Agabus's prophecy, each gave what they could, and they sent their gift to the poor believers in Judea, by the hands of Barnabas and Saul.
+
+By the hands of Saul. That is Paul.
+
+So, many years ago, Agabus spoke, and Paul ended up carrying a collection of money to the poor in Jerusalem. And now, here is Paul, carrying another collection of money to the poor in Jerusalem, and here is Agabus, walking in through the door. Luke does not point this out. I may be seeing a pattern that is not there. But it is the kind of thing that makes you sit up.
+
+Agabus came in. And he did not make a speech. He did what the old prophets of Israel used to do, when words were not enough. He acted it out.
+
+The prophets of the Old Testament were great ones for this. Isaiah walked about Jerusalem barefoot, for three years, as a sign of what was going to happen to Egypt. Jeremiah bought a linen loincloth and buried it by a river until it rotted, as a sign of what would happen to the pride of his people, and later he walked about wearing a wooden yoke on his neck, like an ox. Ezekiel lay on his side next to a brick, for a very long time, with a little model of a siege drawn on it. These were called signs, and they were meant to be strange, and memorable, and a little uncomfortable to watch. You do not forget a prophet who lies on his side next to a brick.
+
+And so Agabus went over to Paul, and took Paul's belt.
+
+I should say what a belt was, in those days. It was not a strip of leather with a buckle. It was a long band of cloth, wound several times round the waist, over the tunic, and you could tuck things into it, money, or a knife, or a little bag of bread. It was quite long. Long enough, it turned out, to tie up a man's hands and feet.
+
+Agabus sat down. And there, on the floor of Philip's house, in front of Philip and his four daughters and Luke and Paul and all the rest, he tied up his own feet with Paul's belt. And then his own hands. Which, if you have ever tried to tie up your own hands, you will know is not easy, and I imagine it took a moment, and that nobody laughed, because they could all see what it meant.
+
+And then he said, from the floor, with his hands and feet bound:
+
+This is what the Holy Spirit says. This is how the Jews at Jerusalem will bind the man who owns this belt, and hand him over to the Gentiles.
+
+I want to pause on that for a moment, because it is a hard line and it is easy to hear it wrongly. Agabus was a Jew. Paul was a Jew. Philip was a Jew, and his daughters, and most of the people in that room. This was not a stranger talking about strangers. It was one member of a family warning another about trouble in the family, in the family's own holy city. And the trouble, when it came, came the way such things usually do: a crowd, and a rumour, and some people shouting, and a great many people who did not really know what was happening. And it was the Romans, in the end, who put the chains on Paul, and kept him. But the shape of what Agabus said came true. Paul was taken in Jerusalem, and bound, and handed over into Gentile hands.
+
+* * *
+
+When they heard this, Luke says, we and the people there begged him not to go up to Jerusalem.
+
+We. Luke includes himself. Luke, who had come all this way with Paul. Timothy, perhaps, and Trophimus, and the others. Philip, the old evangelist, who had seen his friend Stephen killed for the faith. The four daughters. All of them, begging. Please. Please do not go.
+
+And Paul, standing in the middle of the room with no belt on, and his tunic hanging loose, answered them. I will give you his answer in plain words, close to what Luke wrote, with nothing added.
+
+What are you doing, crying like this and breaking my heart? I am ready not only to be tied up, but even to die in Jerusalem, for the name of the Lord Jesus.
+
+Breaking my heart. That is the phrase. Paul is not saying, stop it, you are being silly. He is not saying, I am not afraid. He is saying, you are breaking my heart. It is hard enough to go. It is harder still when the people you love are holding on to your sleeves. Anybody who has had to leave for somewhere hard, a hospital, a war, a long way from home, knows exactly what he means. The tears of the people who love you do not make it easier. They make it harder. And you love them for it, and you go anyway.
+
+And then Luke tells us what they all said, when they saw that Paul would not be persuaded.
+
+He says: we stopped, and we said, the will of the Lord be done.
+
+Notice who says it. Not Paul. Them. Luke and Philip and the daughters and the rest. They are the ones who have to let go. And the words they find are words they would have known very well. Thy will be done, from the prayer the Lord taught. And, from the night in the garden of Gethsemane, the night before he died, which Luke himself tells in his Gospel: Father, not my will, but yours, be done. Whether they meant to echo the Lord in the garden is a reading, and Luke does not say. But it is hard to hear it and not think of it.
+
+It is a very small sentence. The will of the Lord be done. But I think it might be the bravest sentence in the chapter. Paul's courage is easy to see. He is the one walking towards the danger. But theirs is a quieter kind. They have done everything love can do to stop him. They have cried and begged and pleaded. And now they do the last thing love can do, which is to stop holding on, and put him into God's hands, and say: all right. Your will, not ours.
+
+[pause]
+
+After those days, Luke says, we got ready, and went up to Jerusalem.
+
+Got ready. That is all. They packed. Somebody found Paul his belt back, I suppose. I like to think that in our story the second daughter wrapped up a loaf for the road, and that Luke tucked a small spiky shell into the bottom of his bag, next to his notes. And they set off, up from the coast, into the hills, towards the Holy City.
+
+Some of the disciples from Caesarea went with them, Luke says, and brought them to a man they would stay with, called Mnason, from Cyprus. Luke calls him an early disciple, which means he had believed for a long time, perhaps since the very first days, perhaps since Pentecost itself. That is all we know of Mnason. A man from Cyprus with a spare room, who had been a Christian almost from the beginning, and who opened his door to Paul and a whole crowd of travellers at a dangerous time. One very old manuscript of Acts says that Mnason lived in a village on the road up to Jerusalem, and that they stopped with him on the way. Most manuscripts seem to mean his house in Jerusalem itself. Either way, there was a bed at the end of the road, and a man from Barnabas's island to welcome them. I like that, after the island went by on the left.
+
+And in Jerusalem, it all came true, just as Agabus had acted it out. A crowd in the temple, and a rumour, and Paul seized, and the Roman soldiers coming down at a run, and the commander ordering him to be bound with two chains. And then, because there was a plot against his life, the Romans took Paul by night, with a great many soldiers, back down the road to Caesarea. Back to the city by the sea he had just left. And he was kept there, under guard, for two whole years, while governors came and went and nobody decided what to do with him, until at last he appealed to the emperor and was sent off to Rome, and into the shipwreck off Malta that we have told on another night.
+
+So Paul came back to Caesarea, in chains, and stayed two years. And Philip's house was in Caesarea. I do not know whether Philip and his daughters visited him in his guardroom. Luke does not say. But it was the same small city, and they were the kind of people who walked their guests to the door. I would be surprised if they did not.
+
+And Luke? Some scholars have wondered whether Luke spent those two years in Caesarea too, near Paul, gathering the stories he would later put into his Gospel and into Acts, talking to the people who had been there at the beginning. And if he did, then one of the houses where he might have sat in the evenings, and asked questions, and written things down, is the house of Philip, who was there when Stephen was chosen, and who ran beside a chariot on the Gaza road. That is only a guess of the scholars, and it may be wrong. But it would explain how Luke knows so much about Philip. And I like to think of it.
+
+What became of Philip's daughters, we know only from writers a hundred years later, and they are a little muddled. A bishop of Ephesus called Polycrates, writing near the end of the second century, said that two of Philip's daughters grew old, unmarried, and were buried at Hierapolis, in Asia, beside their father, and that another daughter was buried at Ephesus. And a writer called Papias, who lived at Hierapolis, said that he had heard wonderful stories from the daughters of Philip with his own ears. The historian Eusebius quotes them both. The trouble is that these writers seem to have mixed up our Philip, Philip the evangelist, with Philip the apostle, one of the Twelve, who had the same name. So nobody can be quite sure which Philip went to Hierapolis, and the old writers' report is the best we have. In the Orthodox Church, by later tradition, one of the daughters is honoured as Saint Hermione, a healer. But the four women in the house at Caesarea are still, in Scripture, nameless. Four daughters, who prophesied.
+
+And Agabus? The Orthodox Church remembers him among the Seventy, the wider circle of the Lord's disciples. He comes into Acts twice, both times walking down from Judea with something true and hard to say, and both times what he said came to pass. And the second time, he borrowed someone's belt to say it. I hope Paul got it back.
+
+[pause]
+
+Caesarea is a ruin now, a beautiful one, by the sea. Herod's theatre has been dug out of the sand, and plays are put on in it again on summer evenings. You can walk along the top of the old aqueduct, where it runs along the beach, with the waves coming in beside it. And out in the water, under the surface, divers can still swim over the great sunken blocks of Herod's harbour, lying on the sea floor where the breakwaters used to be, with the fish going in and out of them.
+
+Tyre is still a city, and still by the sea, on its peninsula that used to be an island. The purple dye has not been made there for a very long time, and the smell, I am glad to say, has gone. But if you walk along the shore, you can sometimes still find a murex shell in the sand, spiky and pale, washed up by the tide.
+
+And somewhere, I like to think, at the bottom of a doctor's travelling bag, in a guardroom in Caesarea, or a lodging in Rome, there was a small spiky shell, that still smelled, very faintly, of Tyre. And when Luke sat down at last to write it all out, the islands and the harbours, and the families on the beach, and the old man on the floor with his feet tied up, he would take it out sometimes, and turn it over in his fingers, and remember.
+
+And on a beach in Phoenicia, a girl who was not quite ten walked home with her father's lunch basket, and said her prayers that night for a short man going up to Jerusalem. The will of the Lord be done, she said. Because that was what the grown-ups had said. And then she went to sleep.
+
+[pause]
+
+Here are the notes for the curious.
+
+Tonight's story comes from the Acts of the Apostles, chapter twenty-one, verses one to sixteen. Catholic and Orthodox Christians read it as Scripture. Everything Luke says happened is kept, and the words of the disciples, of Agabus, of Paul and of the whole company are in our own plain rendering, adding nothing to what Luke reports.
+
+Agabus's famine prophecy is in Acts, chapter eleven, and Philip's earlier story is in chapters six and eight. Why the Spirit's warning at Tyre came out as do not go is a puzzle, and the reading we gave, that the Spirit showed the danger and love drew the conclusion, is a reading, not settled. That the words, the will of the Lord be done, echo the garden of Gethsemane is a reading too. The link between Agabus's two prophecies and Paul's two collections is our own observation. That Luke stayed near Paul at Caesarea and heard Philip's stories there is a guess of some scholars. That Mnason lived in a village on the road comes from one ancient manuscript only.
+
+The fallen Colossus comes from Pliny the Elder and Strabo, the smell of Tyre from Strabo, Alexander's causeway from Arrian, and Herod's harbour and the famine under Claudius from Josephus. Saint Nicholas born at Patara is the tradition of his later Lives. What became of Philip's daughters comes from Polycrates and Papias, quoted by Eusebius, who seem to confuse the two Philips, and Saint Hermione is later tradition.
+
+Elissa and her shell, the smell on her hands, Paul thinking of Barnabas as Cyprus went by, the jobs of Philip's daughters, the bread, and every word not in Acts, are our own invention.
+
+[pause]
+
+That's the story of Agabus and the belt in the house at Caesarea for tonight. Saint Paul is remembered with Saint Peter on the twenty-ninth of June, and Saint Luke on the eighteenth of October, in East and West alike. The Orthodox Church remembers Philip the deacon on the eleventh of October, and Agabus among the Seventy on the fourth of January, and Western calendars differ, so do check your own. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here is a blessing, from one of Paul's own letters. Now may the Lord of peace himself give you peace, at all times and in every way. The Lord be with you all. Amen.
+
+Goodnight, and God bless.

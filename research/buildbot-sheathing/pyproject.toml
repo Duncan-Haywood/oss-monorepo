@@ -5,16 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "buildbot-sheathing"
 version = "0.1.0"
-description = "Research programme: can a robot hang and fasten wall sheathing to code tolerance; milestone 1, panel gap and sheet placement in the joint-nail budget."
+description = "Research programme: can a robot hang and fasten wall sheathing to code tolerance; milestone 1, panel gap and sheet placement in the joint-nail budget; milestone 2, as-built stud bow and twist; milestone 3, ledger seating and a stock humanoid at the ledger."
 requires-python = ">=3.9"
 dependencies = ["numpy"]
 license = { text = "MIT" }
 
 [project.optional-dependencies]
 figure = ["matplotlib"]
+sim = ["mujoco"]
+drake = ["drake"]
+frame = ["scipy"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.pytest.ini_options]
-pythonpath = ["src", "../buildbot-studfind/src"]
+pythonpath = ["src", "../buildbot-studfind/src", "../buildbot-payload/src", "../buildbot-fasten/src"]

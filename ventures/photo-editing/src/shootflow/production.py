@@ -4,7 +4,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
-from shootflow.raw_preview import is_dng_path, is_raw_path
+from shootflow.raw_preview import is_developable_path, is_raw_path
 from shootflow.deliverables import (
     DeliverableSpec,
     MediaAsset,
@@ -155,10 +155,11 @@ def _proxy_path(job_id: str, asset: MediaAsset) -> str:
 
 
 def _graded_path(job_id: str, asset: MediaAsset) -> str:
-    # A DNG still is developed from its sensor data (raw_develop.py) into a
-    # 16-bit TIFF master, so its graded file is named for what it holds.
+    # A DNG (or a Canon CR2, with a camera profile) is developed from its
+    # sensor data (raw_develop.py) into a 16-bit TIFF master, so its graded
+    # file is named for what it holds.
     path = _artifact_path("graded", job_id, asset)
-    if asset.media_type == "photo" and is_dng_path(Path(asset.path)):
+    if asset.media_type == "photo" and is_developable_path(Path(asset.path)):
         return path + ".tif"
     return path
 

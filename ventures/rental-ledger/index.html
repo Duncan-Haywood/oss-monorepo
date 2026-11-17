@@ -57,6 +57,15 @@
     code { overflow-wrap: anywhere; }
     footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.grid:has(#n-type) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -192,7 +201,7 @@
     const KEY = "rental-ledger-data";
     const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
     const uid = () => Math.random().toString(36).slice(2, 10);
-    const today = () => new Date().toISOString().slice(0, 10);
+    const today = () => new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     const BLANK = () => ({ properties: [], entries: [], settings: { year: TAX_YEAR, magi: "", prior: "", rate: "", active: true }, sale: { property: "", date: "", price: "", costs: "", mort: "", income: "", status: "single" } });
     let data = load();
 

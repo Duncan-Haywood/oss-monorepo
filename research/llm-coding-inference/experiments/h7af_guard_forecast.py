@@ -36,6 +36,8 @@ sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 import group_shift_reddit as R  # noqa: E402
 import h6r_rare_pilot as P  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 
 def goemo_coder(cat, model):
@@ -110,7 +112,7 @@ def cells():
             if x[1] == "neg_guard=3 alone":
                 n = int(x[0])
                 pooled = next(y for y in rs if y[0] == x[0] and y[1] == "pooled")
-                out.append((study, f"naija {'natural' if prev is None else prev}", h, f, len(h), round(A.PILOT_SHARE * n),
+                out.append((study, f"naija {'natural' if prev is None else prev}", h, f, len(h), round(A.PILOT_SHARE_PRE7AR * n),
                             n, len(h), reps, float(x[2]), float(x[4]) / float(pooled[4])))
     return out
 

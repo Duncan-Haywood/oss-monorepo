@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVMe54hNaosj5vuzd1v",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T11:05:39Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots (flagship 10): residual / standard-error check on the loop-command drop fit, tach jitter and ESC-lag plants in the simulator, hard tach IRQ",
+  "projects": [
+    "ventures/open-tennis-robots"
+  ],
+  "pr": 16550,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took the allocator's flagship row (open hardware, no direct revenue path) rather than a revenue venture, since the website-request queue had nothing from outside and the allocator assigns rows to avoid collisions.",
+      "did": "flagship row 7 open-tennis-robots",
+      "result": "landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-tennis-feeder-tach-jitter.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md"
+  ],
+  "goal": "Land the flagship's BUILDABLE item: a check that flags a wheel the first-order drop model does not fit, with tach jitter in the simulator.",
+  "notes": "Measured (simulated plants, not hardware): single wheels, tests/loop_residual_sweep.py: 67 of 72 drops >2% off marked by se>1%, 14 of 152 within 1%. Whole drills, tests/plant_drill_sweep.py (18 builds): first-order 0/432 marked, spin worst 1.6%; tach jitter 5/10/20 us spin worst 5.3/16.0/22.1%, warned 18/18; ESC lag 30/80 ms spin worst 23.8/19.9%, warned only 9/18 and 12/18 (some drills marked 0). Negative result: setting marked drops aside made the fit worse (5 us: 5.3 to 7.2%; 10 us: 89%), helped only on ESC 80 ms (19.9 to 12.2%), so the Pi warns and keeps all drops. Soft tach IRQ switched to hard=True (not measurable on the simulator). Tests: test_host.py 83 tests pass locally; run_venture_tests.py open-tennis-robots first run caught test_robots stub Pin.irq lacking **k, fixed.",
+  "corrections": [],
+  "redteam": null
+}

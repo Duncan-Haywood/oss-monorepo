@@ -62,3 +62,13 @@ test("summary gates on budget for the cheapest or a named provider", () => {
   assert.equal(summarize(rows, { budget: 50, provider: "algolia" }).overBudget, true);
   assert.equal(summarize(rows, { provider: "nope" }).status, "error");
 });
+
+test("Algolia rate card pinned to its published Grow plan (10K searches, 100K records free; $0.50/1K searches, $0.40/1K records)", () => {
+  // quality audit 2026-11-13: no test pinned a rate card, so a changed constant passed
+  assert.equal(D.algolia.includedSearchesK, 10);
+  assert.equal(D.algolia.includedRecordsK, 100);
+  assert.equal(D.algolia.perKSearches, 0.5);
+  assert.equal(D.algolia.perKRecords, 0.4);
+  // 500K records, 2,000K searches: 400 * 0.40 + 1990 * 0.50 = 1155
+  assert.equal(providerCost(D.algolia, 500, 2000), 1155);
+});

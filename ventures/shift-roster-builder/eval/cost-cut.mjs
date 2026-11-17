@@ -32,8 +32,8 @@ for (const [i, F] of FILES.entries()) {
   for (const splh of F.splh) for (const minShift of MIN_SHIFTS) for (const r of RS) {
     const base = { splh, shortCost: r, minShift };
     const p = q(backtestSales(text, base));
-    const plainB = backtestSales(text, { ...base, shifts: true, costCut: false });
-    const costB = backtestSales(text, { ...base, shifts: true });
+    const plainB = backtestSales(text, { scoreClosed: false, ...base, shifts: true, costCut: false });
+    const costB = backtestSales(text, { scoreClosed: false, ...base, shifts: true });
     const a = q(plainB), c = q(costB);
     // Paired differences week by week: every run scores the same weeks in the same order.
     const paired = (wx, wy) => {

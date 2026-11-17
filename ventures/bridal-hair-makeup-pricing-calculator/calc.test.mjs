@@ -244,3 +244,15 @@ test('headcounts, artists and the yes/no flags must be whole numbers', () => {
   // Prices, miles and clock times stay fractional.
   assert.doesNotThrow(() => calculateQuote({ ...DEFAULTS, startHour: 6.5, milesRoundTrip: 12.5, kidsPrice: 55.5 }));
 });
+
+test('artists are counted from whole looks, not pooled minutes (quality audit round 65)', () => {
+  // bride 105 + 10 buffer, five bridesmaids 75 + 10 buffer, 180-min window.
+  // Pooled: 540 / 180 = 3 artists. But 115 + 85 > 180, so the bride needs her
+  // own artist and the five bridesmaids pair up into three: 4 artists.
+  const r = calculateQuote({ ...DEFAULTS, brideCount: 1, fullServiceCount: 5, minutesPerFullService: 75,
+    brideExtraMinutes: 30, bufferMinutesPerPerson: 10, prepWindowMinutes: 180, artistsBooked: 1 });
+  close(r.totalServiceMinutes, 540);
+  assert.equal(r.artistsScheduled, 4);
+  assert.equal(r.additionalArtistsNeeded, 3);
+  assert.equal(r.artistsBooked, 1);
+});

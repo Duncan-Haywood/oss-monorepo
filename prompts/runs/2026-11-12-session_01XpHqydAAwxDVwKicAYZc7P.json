@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydAAwxDVwKicAYZc7P",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T22:38:47Z",
+  "ended": "2026-11-12T22:53:03Z",
+  "wall_minutes": 14.49,
+  "tokens_in": 5173617,
+  "tokens_out": 27473,
+  "cost_usd": 2.3108,
+  "tool_calls": 62,
+  "task": "perf: check_js_syntax.py one node start per file (11,238); landed by a parallel session first, so this run verified that version independently",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15284",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "/usr/bin/time is not installed in the cloud container; the first main_health before/after timing loop produced nothing and was rerun with date stamps",
+    "Duplicate work: another perf session landed the same fix (js_parse_batch.mjs, 58.6 s to 1.45 s) on main between this run's start and its merge; the merge conflicted in check_js_syntax.py. Open-PR search at the start found nothing because that PR did not exist yet.",
+    "Restoring the record after resetting the branch, it was first committed as prompts/runs/record.json (validate rejected it); renamed in the amended commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Item 3 names 'the session gate' but never says which script that is; main_health.py (which runs every check_*.py) was the slow thing an agent waits on, found by timing all check scripts by hand"
+    },
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Docstring said 'Takes 40 s to 3 min' without saying one script (check_js_syntax.py, 62 s) was most of it; updated to ~18 s idle"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "issue": "The open-PR search runs once before work starts; two perf runs drawn the same hour both took 'slowest check_*.py' from the same reading, and the first to merge won. Re-searching recent main commits just before opening the PR would have caught it about 20 minutes earlier."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'Most PRs also carry a new blog post': the parallel session's post (2026-11-12-eleven-thousand-processes-to-parse-javascript.md) already tells this story; a second post on the same fix would be filler",
+      "did": "dropped this run's drafted post and its own batch (js_syntax_batch.cjs); landed an independent equivalence sweep of main's batch as an addendum to its history doc, plus the main_health.py docstring timing",
+      "result": "main's batch confirmed one-sided on 4,514 texts (0 lenient, 5 stricter); no duplicate code or post"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-12-js-syntax-one-process.md (addendum: independent check)"
+  ],
+  "goal": "perf: shorten the slowest check an agent session waits on, same answers",
+  "notes": "Metric: check_js_syntax.py wall clock alone (warm, 4-core, date stamps): before 62.4 s (CPU 237 s). This run's version (Node check_syntax internals under --expose-internals, one process per core): 4.4 s. Main's version, landed first by a parallel session: 1.45 s (its doc). main_health.py wall clock, two runs each: before 78.8 s, 75.9 s; with this run's version 18.0 s, 18.4 s. Landed instead: equivalence sweep (seed 20261112) against main's batch_parses with the fallback off: 4,514 texts (1,500 tracked files + truncation and token-injection mutants + 14 hand cases), 2,244 failing node --check; batch passed 0 that node rejects, rejected 5 that node passes (these fall through to the per-file path). Reading of all check_*.py: check_conflict_markers.py 50 s cold / 1.7 s warm here. Venture suites (sales-agent 3.4 s, pick-path-optimizer 5.4 s, others under 2 s) had nothing to give.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "98ed435f-5031-5b5f-8349-a1bffa729fd9",
+    "transcripts": 1,
+    "first": "2026-11-12T22:38:47Z",
+    "last": "2026-11-12T22:53:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 112,
+        "output": 27473,
+        "thinking": 6280,
+        "cache_read": 5080399,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93106,
+        "api_equivalent_usd": 2.3108,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 112,
+      "output": 27473,
+      "thinking": 6280,
+      "cache_read": 5080399,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93106,
+      "api_equivalent_usd": 2.3108,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.49,
+      "active_minutes": 14.49,
+      "model_minutes": 5.33,
+      "tool_minutes": 9.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: time the checks, read Node's check_syntax internals, write batch + equivalence sweep + tests + write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 129.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

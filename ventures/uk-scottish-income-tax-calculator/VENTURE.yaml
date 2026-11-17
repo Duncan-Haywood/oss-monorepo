@@ -11,7 +11,7 @@ owner: duncan
 #
 # Path to revenue (payment rails stay off): lead magnet; GitHub Sponsors. Paid version, not built: salary-by-salary and city-by-city landing pages and an employer relocation/offer-comparison sheet behind an env-var switch.
 #
-# Liability: Scottish bands checked against gov.scot's 2026/27 page in the building session (proposed in the January 2026 Budget; the Parliament must still pass the Scottish Rate Resolution); student loan thresholds are 2025/26.
+# Liability: Scottish bands checked against gov.scot's 2026/27 page in the building session (set in the January 2026 Budget; GOV.UK publishes them as the 2026 to 2027 rates); student loan thresholds are 2026/27 (GOV.UK employer rates page, checked 2026-11-15).
 # Every result names gov.scot and GOV.UK as sources to verify, carries no-warranty and not-tax-advice clauses, and says what it does not decide. Ethical risk is an overstated take-home figure; mitigated by sourcing and listing what is unmodelled.
 hypotheses:
   - claim: >-

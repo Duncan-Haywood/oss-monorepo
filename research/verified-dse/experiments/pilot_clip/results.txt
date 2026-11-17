@@ -1,0 +1,194 @@
+# Milestone 116: the switch's timing pilot decides whether to clip the mapped score; s = 0.9 fixed by mechanism, tested blind on 5 new designs (cached tables plus one flow run)
+
+SW theta = 3, clip alpha = 1.25, pilot threshold s = 0.9; 200 draws per cell for the skip-r1 and random regrets; the pilot is integrated exactly.
+
+
+## Held-out cells of milestone 110 (seen): 52 cells
+
+table | clock | design | routed/r2 | routed delay/period | q(0.9) | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC % | SWCP %
+fanout_rich | relaxed | bcastadd64 | 4.68 | 0.982 | 0.86 | 0.00 | 0.00 | 3.04 | 0.00 | 0.00 | 0.00
+fanout_rich | tight | bcastadd64 | 5.62 | 1.000 | 1.00 | 0.36 | 0.36 | 1.03 | 0.36 | 0.36 | 0.36
+fanout_rich | relaxed | fanao96 | 2.87 | 0.549 | 0.06 | 10.67 | 0.00 | 0.65 | 0.65 | 0.65 | 0.65
+fanout_rich | tight | fanao96 | 2.88 | 0.790 | 0.24 | 11.56 | 0.00 | 0.52 | 0.52 | 0.52 | 0.52
+hostile | relaxed | bcastmix192 | 2.05 | 0.113 | 0.00 | 49.85 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | tight | bcastmix192 | 2.06 | 0.170 | 0.00 | 49.85 | 49.85 | 0.00 | 0.00 | 0.00 | 0.00
+hostile | relaxed | cmp128 | 1.53 | 0.934 | 0.58 | 0.00 | 0.00 | 3.03 | 3.03 | 3.03 | 3.03
+hostile | tight | cmp128 | 1.65 | 1.106 | 1.00 | 0.00 | 0.00 | 0.64 | 0.64 | 0.64 | 0.64
+hostile | relaxed | gf2mat48 | 2.69 | 0.995 | 1.00 | 1.14 | 1.14 | 0.10 | 0.10 | 0.10 | 0.10
+hostile | tight | gf2mat48 | 13.01 | 1.178 | 1.00 | 0.00 | 0.00 | 1.40 | 0.00 | 0.00 | 0.00
+hostile | relaxed | rotmix64 | 2.96 | 0.752 | 0.08 | 0.00 | 0.00 | 7.06 | 7.06 | 7.06 | 7.06
+hostile | tight | rotmix64 | 3.21 | 0.988 | 0.96 | 0.00 | 0.00 | 5.55 | 0.00 | 0.00 | 0.00
+hostile | relaxed | xbar16 | 3.16 | 1.000 | 1.00 | 0.00 | 0.00 | 2.87 | 0.00 | 0.00 | 0.00
+hostile | tight | xbar16 | 4.85 | 1.000 | 1.00 | 0.00 | 0.00 | 9.98 | 0.00 | 0.00 | 0.00
+large | relaxed | adder_op64 | 2.19 | 0.981 | 0.92 | 0.00 | 0.00 | 0.69 | 0.69 | 0.69 | 0.69
+large | tight | adder_op64 | 3.04 | 1.096 | 1.00 | 0.00 | 0.00 | 1.17 | 0.00 | 0.00 | 0.00
+large | relaxed | adder_ripple64 | 1.39 | 0.995 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+large | tight | adder_ripple64 | 2.33 | 1.194 | 1.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00 | 0.00
+large | relaxed | mult16 | 3.74 | 0.998 | 1.00 | 0.00 | 0.00 | 3.36 | 0.00 | 0.00 | 0.00
+large | tight | mult16 | 8.94 | 1.070 | 1.00 | 0.74 | 0.74 | 0.86 | 0.74 | 0.74 | 0.74
+large | relaxed | mult24 | 5.87 | 0.999 | 1.00 | 11.35 | 0.00 | 3.30 | 11.35 | 0.00 | 0.00
+large | tight | mult24 | 14.76 | 1.116 | 1.00 | 0.00 | 0.00 | 1.18 | 0.00 | 0.00 | 0.00
+large | relaxed | mult32 | 8.18 | 1.000 | 1.00 | 13.17 | 0.00 | 4.58 | 13.17 | 0.00 | 0.00
+large | tight | mult32 | 19.86 | 1.128 | 1.00 | 0.00 | 0.00 | 2.35 | 0.00 | 0.00 | 0.00
+nonarith | relaxed | alu32 | 1.91 | 0.791 | 0.42 | 0.00 | 12.26 | 1.25 | 1.25 | 1.25 | 1.25
+nonarith | tight | alu32 | 2.43 | 0.996 | 0.98 | 0.00 | 0.00 | 2.28 | 2.28 | 2.28 | 2.28
+nonarith | relaxed | barrel128 | 4.03 | 0.412 | 0.00 | 0.00 | 0.00 | 5.52 | 0.00 | 0.00 | 0.00
+nonarith | tight | barrel128 | 4.01 | 0.628 | 0.00 | 0.00 | 0.00 | 5.48 | 0.00 | 0.00 | 0.00
+nonarith | relaxed | barrel64 | 2.50 | 0.582 | 0.00 | 29.22 | 69.89 | 6.99 | 6.99 | 6.99 | 6.99
+nonarith | tight | barrel64 | 2.51 | 0.855 | 0.40 | 26.26 | 26.26 | 7.00 | 7.00 | 7.00 | 7.00
+nonarith | relaxed | popcount128 | 1.93 | 0.827 | 0.04 | 0.00 | 0.00 | 0.56 | 0.56 | 0.56 | 0.56
+nonarith | tight | popcount128 | 2.77 | 1.000 | 1.00 | 0.00 | 0.00 | 0.84 | 0.84 | 0.84 | 0.84
+nonarith | relaxed | popcount64 | 1.57 | 0.849 | 0.02 | 0.00 | 0.00 | 0.33 | 0.33 | 0.33 | 0.33
+nonarith | tight | popcount64 | 2.22 | 1.000 | 1.00 | 0.00 | 0.00 | 0.57 | 0.57 | 0.57 | 0.57
+unfaithful | relaxed | mult20 | 5.76 | 0.998 | 1.00 | 0.00 | 0.00 | 4.43 | 0.00 | 0.00 | 0.00
+unfaithful | tight | mult20 | 16.72 | 1.121 | 1.00 | 0.00 | 0.00 | 2.74 | 0.00 | 0.00 | 0.00
+unfaithful | relaxed | mult28 | 8.35 | 1.000 | 1.00 | 6.89 | 0.00 | 2.69 | 6.89 | 0.00 | 0.00
+unfaithful | tight | mult28 | 21.02 | 1.123 | 1.00 | 0.00 | 0.00 | 3.48 | 0.00 | 0.00 | 0.00
+unfaithful | relaxed | mult36 | 9.75 | 1.000 | 1.00 | 6.46 | 0.00 | 2.68 | 6.46 | 0.00 | 0.00
+unfaithful | tight | mult36 | 21.69 | 1.154 | 1.00 | 0.00 | 0.00 | 3.83 | 0.00 | 0.00 | 0.00
+unfaithful | relaxed | mult40 | 9.99 | 1.000 | 1.00 | 8.52 | 0.00 | 6.40 | 8.52 | 0.00 | 0.00
+unfaithful | tight | mult40 | 22.02 | 1.145 | 1.00 | 0.00 | 0.00 | 2.33 | 0.00 | 0.00 | 0.00
+unseen | relaxed | crc32 | 1.60 | 0.876 | 0.28 | 0.00 | 1.88 | 0.04 | 0.04 | 0.04 | 0.04
+unseen | tight | crc32 | 2.03 | 0.998 | 1.00 | 0.00 | 0.00 | 0.48 | 0.48 | 0.48 | 0.48
+unseen | relaxed | decmux64 | 1.24 | 0.912 | 0.69 | 0.00 | 12.92 | 0.53 | 0.53 | 0.53 | 0.53
+unseen | tight | decmux64 | 1.32 | 0.967 | 1.00 | 0.00 | 0.00 | 0.50 | 0.50 | 0.50 | 0.50
+unseen | relaxed | prio64 | 1.21 | 0.891 | 0.28 | 0.00 | 0.00 | 0.28 | 0.28 | 0.28 | 0.28
+unseen | tight | prio64 | 1.32 | 1.324 | 1.00 | 0.00 | 0.00 | 0.62 | 0.62 | 0.62 | 0.62
+unseen | relaxed | sbox | 1.68 | 0.790 | 0.04 | 1.59 | 0.00 | 0.37 | 0.37 | 0.37 | 0.37
+unseen | tight | sbox | 1.89 | 0.981 | 1.00 | 0.00 | 0.00 | 1.31 | 1.31 | 1.31 | 1.31
+unseen | relaxed | sort8x8 | 2.11 | 0.839 | 0.02 | 0.00 | 0.00 | 1.43 | 1.43 | 1.43 | 1.43
+unseen | tight | sort8x8 | 2.72 | 0.997 | 1.00 | 0.00 | 0.00 | 0.79 | 0.79 | 0.79 | 0.79
+
+mean: 52 cells; mean regret SW 1.66%, SWC 0.77%, SWCP 0.77%, skip-r1 4.38%, random 2.29%; SWCP vs SWC better 0, worse 0
+
+## Dear-pool cells of milestones 112, 113 (seen): 28 cells
+
+table | clock | design | routed/r2 | routed delay/period | q(0.9) | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC % | SWCP %
+fresh_dear | relaxed | barrel128 | 5.57 | 0.396 | 0.00 | 0.00 | 19.21 | 4.24 | 0.00 | 19.21 | 0.00
+fresh_dear | tight | barrel128 | 5.56 | 0.593 | 0.00 | 0.00 | 0.00 | 4.07 | 0.00 | 0.00 | 0.00
+fresh_dear | relaxed | bcastadd64 | 5.62 | 0.989 | 0.86 | 0.00 | 0.00 | 5.31 | 0.00 | 0.00 | 0.00
+fresh_dear | tight | bcastadd64 | 8.22 | 1.003 | 1.00 | 0.00 | 0.00 | 3.50 | 0.00 | 0.00 | 0.00
+fresh_dear | relaxed | gf2mat48 | 3.62 | 1.000 | 1.00 | 0.00 | 0.00 | 3.49 | 0.00 | 0.00 | 0.00
+fresh_dear | tight | gf2mat48 | 14.34 | 1.170 | 1.00 | 0.14 | 0.14 | 5.93 | 0.14 | 0.14 | 0.14
+fresh_dear | relaxed | mult16 | 4.75 | 0.998 | 1.00 | 0.17 | 0.00 | 0.71 | 0.17 | 0.00 | 0.00
+fresh_dear | tight | mult16 | 13.54 | 1.064 | 1.00 | 0.00 | 0.00 | 2.41 | 0.00 | 0.00 | 0.00
+fresh_dear | relaxed | mult24 | 7.76 | 0.999 | 1.00 | 6.46 | 0.00 | 3.17 | 6.46 | 0.00 | 0.00
+fresh_dear | tight | mult24 | 19.51 | 1.098 | 1.00 | 0.27 | 0.27 | 2.64 | 0.27 | 0.27 | 0.27
+fresh_dear | relaxed | xbar16 | 7.10 | 0.994 | 1.00 | 2.43 | 0.00 | 1.95 | 2.43 | 0.00 | 0.00
+fresh_dear | tight | xbar16 | 10.75 | 1.000 | 1.00 | 3.18 | 0.64 | 0.46 | 3.18 | 0.64 | 0.64
+fresh_designs | relaxed | adder_op32 | 2.01 | 0.978 | 0.74 | 0.00 | 4.52 | 0.22 | 0.22 | 0.22 | 0.22
+fresh_designs | tight | adder_op32 | 2.75 | 1.084 | 1.00 | 0.00 | 0.00 | 0.46 | 0.46 | 0.46 | 0.46
+fresh_designs | relaxed | barrel32 | 2.26 | 0.780 | 0.08 | 3.37 | 30.25 | 0.00 | 0.00 | 0.00 | 0.00
+fresh_designs | tight | barrel32 | 2.42 | 0.964 | 0.79 | 3.38 | 3.38 | 0.00 | 0.00 | 0.00 | 0.00
+fresh_designs | relaxed | gf2mat64 | 6.57 | 1.000 | 1.00 | 0.00 | 0.00 | 2.29 | 0.00 | 0.00 | 0.00
+fresh_designs | tight | gf2mat64 | 14.43 | 1.052 | 1.00 | 0.00 | 0.00 | 3.46 | 0.00 | 0.00 | 0.00
+fresh_designs | relaxed | mult18 | 5.48 | 0.998 | 1.00 | 10.48 | 0.00 | 1.00 | 10.48 | 0.00 | 0.00
+fresh_designs | tight | mult18 | 15.76 | 1.070 | 1.00 | 0.00 | 0.00 | 5.07 | 0.00 | 0.00 | 0.00
+fresh_designs | relaxed | mult22 | 7.00 | 0.999 | 1.00 | 0.00 | 0.00 | 3.57 | 0.00 | 0.00 | 0.00
+fresh_designs | tight | mult22 | 19.38 | 1.084 | 1.00 | 2.73 | 2.73 | 2.89 | 2.73 | 2.73 | 2.73
+fresh_designs | relaxed | popcount32 | 1.61 | 0.832 | 0.00 | 0.00 | 1.95 | 0.28 | 0.28 | 0.28 | 0.28
+fresh_designs | tight | popcount32 | 1.93 | 0.997 | 1.00 | 3.04 | 3.04 | 0.35 | 0.35 | 0.35 | 0.35
+fresh_designs | relaxed | sq20 | 5.90 | 0.998 | 1.00 | 0.00 | 0.00 | 4.48 | 0.00 | 0.00 | 0.00
+fresh_designs | tight | sq20 | 18.68 | 1.115 | 1.00 | 0.00 | 0.00 | 5.70 | 0.00 | 0.00 | 0.00
+fresh_designs | relaxed | xbar32x4 | 21.06 | 1.042 | 1.00 | 0.00 | 0.00 | 4.01 | 0.00 | 0.00 | 0.00
+fresh_designs | tight | xbar32x4 | 58.94 | 1.242 | 1.00 | 0.00 | 0.00 | 8.40 | 0.00 | 0.00 | 0.00
+
+mean: 28 cells; mean regret SW 0.97%, SWC 0.87%, SWCP 0.18%, skip-r1 1.27%, random 2.86%; SWCP vs SWC better 1, worse 0
+
+## Fresh pool of milestone 108 (seen): 20 cells
+
+table | clock | design | routed/r2 | routed delay/period | q(0.9) | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC % | SWCP %
+fresh_pool | relaxed | adder_op16 | 1.47 | 0.983 | 0.76 | 0.00 | 0.00 | 0.23 | 0.23 | 0.23 | 0.23
+fresh_pool | tight | adder_op16 | 1.70 | 1.120 | 1.00 | 1.56 | 1.56 | 0.09 | 0.09 | 0.09 | 0.09
+fresh_pool | relaxed | adder_ripple16 | 1.34 | 0.972 | 0.85 | 0.00 | 39.56 | 2.41 | 2.41 | 2.41 | 2.41
+fresh_pool | tight | adder_ripple16 | 1.59 | 1.137 | 0.99 | 0.00 | 0.00 | 4.58 | 4.58 | 4.58 | 4.58
+fresh_pool | relaxed | alu8 | 1.46 | 0.699 | 0.00 | 0.00 | 4.14 | 0.04 | 0.04 | 0.04 | 0.04
+fresh_pool | tight | alu8 | 1.48 | 0.976 | 0.94 | 2.20 | 0.00 | 0.78 | 0.78 | 0.78 | 0.78
+fresh_pool | relaxed | barrel16 | 1.53 | 0.866 | 0.24 | 0.00 | 0.00 | 0.79 | 0.79 | 0.79 | 0.79
+fresh_pool | tight | barrel16 | 1.63 | 0.984 | 1.00 | 0.00 | 0.00 | 1.52 | 1.52 | 1.52 | 1.52
+fresh_pool | relaxed | cmp_sat12 | 1.41 | 0.931 | 0.64 | 0.00 | 12.06 | 1.08 | 1.08 | 1.08 | 1.08
+fresh_pool | tight | cmp_sat12 | 1.65 | 0.994 | 1.00 | 0.00 | 0.00 | 0.57 | 0.57 | 0.57 | 0.57
+fresh_pool | relaxed | crc16 | 1.32 | 0.884 | 0.38 | 6.24 | 1.37 | 0.28 | 0.28 | 0.28 | 0.28
+fresh_pool | tight | crc16 | 1.45 | 1.111 | 1.00 | 2.22 | 2.22 | 0.00 | 0.00 | 0.00 | 0.00
+fresh_pool | relaxed | fifo8x4 | 2.94 | 0.888 | 0.40 | 5.19 | 5.19 | 3.28 | 3.28 | 3.28 | 3.28
+fresh_pool | tight | fifo8x4 | 3.11 | 0.991 | 1.00 | 3.35 | 3.35 | 1.02 | 3.35 | 3.35 | 3.35
+fresh_pool | relaxed | mac4 | 1.40 | 0.944 | 0.72 | 0.00 | 2.47 | 0.61 | 0.61 | 0.61 | 0.61
+fresh_pool | tight | mac4 | 2.04 | 1.152 | 1.00 | 0.00 | 0.00 | 2.24 | 2.24 | 2.24 | 2.24
+fresh_pool | relaxed | mult8 | 1.86 | 0.906 | 0.50 | 0.00 | 3.23 | 0.45 | 0.45 | 0.45 | 0.45
+fresh_pool | tight | mult8 | 3.40 | 1.037 | 1.00 | 0.00 | 0.00 | 1.78 | 0.00 | 0.00 | 0.00
+fresh_pool | relaxed | popcount16 | 1.36 | 0.798 | 0.00 | 0.00 | 12.30 | 1.24 | 1.24 | 1.24 | 1.24
+fresh_pool | tight | popcount16 | 1.46 | 0.995 | 1.00 | 0.00 | 0.00 | 0.67 | 0.67 | 0.67 | 0.67
+
+mean: 20 cells; mean regret SW 1.21%, SWC 1.21%, SWCP 1.21%, skip-r1 1.04%, random 1.18%; SWCP vs SWC better 0, worse 0
+
+## Blind cells of milestone 115 (seen): 14 cells
+
+table | clock | design | routed/r2 | routed delay/period | q(0.9) | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC % | SWCP %
+clip_score | relaxed | gf2mat40 | 2.34 | 0.957 | 0.94 | 3.67 | 0.00 | 1.07 | 1.07 | 1.07 | 1.07
+clip_score | tight | gf2mat40 | 3.64 | 1.013 | 1.00 | 1.60 | 1.60 | 0.90 | 1.60 | 1.60 | 1.60
+clip_score | relaxed | gf2mat56 | 4.58 | 1.000 | 1.00 | 1.42 | 0.00 | 0.30 | 1.42 | 0.00 | 0.00
+clip_score | tight | gf2mat56 | 13.68 | 1.117 | 1.00 | 0.00 | 0.00 | 4.40 | 0.00 | 0.00 | 0.00
+clip_score | relaxed | mult14 | 3.29 | 0.993 | 0.99 | 0.62 | 0.00 | 1.03 | 0.62 | 0.00 | 0.01
+clip_score | tight | mult14 | 11.28 | 1.078 | 1.00 | 3.78 | 3.78 | 3.53 | 3.78 | 3.78 | 3.78
+clip_score | relaxed | mult26 | 8.27 | 1.000 | 1.00 | 9.58 | 0.00 | 1.85 | 9.58 | 0.00 | 0.00
+clip_score | tight | mult26 | 20.73 | 1.094 | 1.00 | 1.57 | 1.57 | 2.58 | 1.57 | 1.57 | 1.57
+clip_score | relaxed | sq16 | 4.07 | 0.997 | 1.00 | 0.00 | 0.00 | 3.53 | 0.00 | 0.00 | 0.00
+clip_score | tight | sq16 | 11.57 | 1.096 | 1.00 | 0.00 | 0.00 | 4.14 | 0.00 | 0.00 | 0.00
+clip_score | relaxed | sq24 | 6.85 | 0.999 | 1.00 | 11.30 | 0.00 | 1.53 | 11.30 | 0.00 | 0.00
+clip_score | tight | sq24 | 18.35 | 1.076 | 1.00 | 0.00 | 0.00 | 3.27 | 0.00 | 0.00 | 0.00
+clip_score | relaxed | xbar32x2 | 5.56 | 0.993 | 1.00 | 3.64 | 0.00 | 3.39 | 3.64 | 0.00 | 0.00
+clip_score | tight | xbar32x2 | 14.70 | 1.105 | 1.00 | 3.59 | 3.59 | 5.53 | 3.59 | 3.59 | 3.59
+
+mean: 14 cells; mean regret SW 2.73%, SWC 0.83%, SWCP 0.83%, skip-r1 2.91%, random 2.65%; SWCP vs SWC better 0, worse 1
+
+## Blind test: five new designs (milestone 116 flow run): 10 cells
+
+table | clock | design | routed/r2 | routed delay/period | q(0.9) | skip-r1 % | clipped skip-r1 % | random % | SW % | SWC % | SWCP %
+pilot_clip | relaxed | barrel192 | 10.92 | 0.409 | 0.00 | 8.21 | 0.00 | 2.07 | 8.21 | 0.00 | 8.21
+pilot_clip | tight | barrel192 | 10.98 | 0.630 | 0.00 | 2.75 | 2.75 | 2.88 | 2.75 | 2.75 | 2.75
+pilot_clip | relaxed | barrel256 | 16.21 | 0.414 | 0.00 | 8.66 | 0.00 | 5.19 | 8.66 | 0.00 | 8.66
+pilot_clip | tight | barrel256 | 16.23 | 0.631 | 0.00 | 11.55 | 11.55 | 5.81 | 11.55 | 11.55 | 11.55
+pilot_clip | relaxed | barrel96 | 4.38 | 0.591 | 0.01 | 3.18 | 9.42 | 1.08 | 3.18 | 9.42 | 3.24
+pilot_clip | tight | barrel96 | 4.48 | 0.852 | 0.38 | 3.18 | 3.18 | 1.60 | 3.18 | 3.18 | 3.18
+pilot_clip | relaxed | mult30 | 9.81 | 1.000 | 1.00 | 10.47 | 0.00 | 4.38 | 10.47 | 0.00 | 0.00
+pilot_clip | tight | mult30 | 24.39 | 1.111 | 1.00 | 0.00 | 0.00 | 2.85 | 0.00 | 0.00 | 0.00
+pilot_clip | relaxed | sq28 | 8.40 | 0.999 | 1.00 | 7.79 | 0.00 | 3.35 | 7.79 | 0.00 | 0.00
+pilot_clip | tight | sq28 | 24.37 | 1.083 | 1.00 | 0.00 | 0.00 | 3.55 | 0.00 | 0.00 | 0.00
+
+mean: 10 cells; mean regret SW 5.58%, SWC 2.69%, SWCP 3.76%, skip-r1 5.58%, random 3.28%; SWCP vs SWC better 1, worse 2
+
+## Pooled (milestones 110 to 116; only the milestone 116 blind cells are a test of SWCP)
+
+seen tables: 114 cells; mean regret SW 1.54%, SWC 0.88%, SWCP 0.71%, skip-r1 2.85%, random 2.28%; SWCP vs SWC better 1, worse 1
+all tables: 124 cells; mean regret SW 1.87%, SWC 1.02%, SWCP 0.96%, skip-r1 3.07%, random 2.36%; SWCP vs SWC better 2, worse 3
+
+Sensitivity to s (descriptive, not a choice): mean SWCP regret % on the seen cells | blind cells
+  s = 0.6: 0.71 | 4.01
+  s = 0.7: 0.71 | 3.86
+  s = 0.8: 0.71 | 3.76
+  s = 0.85: 0.71 | 3.75
+  s = 0.9: 0.71 | 3.76
+  s = 0.95: 0.71 | 3.75
+  s = 0.97: 0.72 | 3.75
+
+design bootstrap 95% interval of mean (SWCP - SWC) on the blind cells: -1.24 to +3.42 points
+design bootstrap 95% interval of mean (SWCP - SW) on the blind cells: -3.91 to +0.01 points
+
+(1) blind relaxed barrel median share < 0.7 and q(0.9) = 0: False (barrel192 0.409 q 0.00, barrel256 0.414 q 0.00, barrel96 0.591 q 0.01)
+(2) blind mult30/sq28 q(0.9) >= 0.95: True (mult30 relaxed 1.00, mult30 tight 1.00, sq28 relaxed 1.00, sq28 tight 1.00)
+(3) at least two blind barrel designs above theta at the relaxed clock: True (barrel192 10.92, barrel256 16.21, barrel96 4.38)
+(4) on those cells clipped skip-r1 worse than unclipped in more cells than better: False (1 worse, 2 better)
+(5) blind SWCP below SW and SWC: False
+(6) blind SWCP below equal-cost random: False
+
+post hoc (lines added after the blind table was read):
+post hoc: blind SWC 2.69% against equal-cost random 3.28%; SWC vs random better 7, worse 3
+post hoc: barrel cells above the threshold, Kendall tau-b of mapped delay vs routed delay, of mapped area vs routed area x delay (what a fully binding clip ranks by) and of r2 vs routed area x delay; clipped and unclipped skip-r1 %:
+  fresh_dear relaxed barrel128: tau(md, rd) -0.43, tau(ma, y) +0.61, tau(r2, y) +0.24; clipped 19.21, unclipped 0.00
+  fresh_dear tight barrel128: tau(md, rd) -0.37, tau(ma, y) +0.55, tau(r2, y) +0.15; clipped 0.00, unclipped 0.00
+  pilot_clip relaxed barrel192: tau(md, rd) +0.09, tau(ma, y) +0.48, tau(r2, y) +0.31; clipped 0.00, unclipped 8.21
+  pilot_clip tight barrel192: tau(md, rd) +0.25, tau(ma, y) +0.55, tau(r2, y) +0.40; clipped 2.75, unclipped 2.75
+  pilot_clip relaxed barrel256: tau(md, rd) -0.12, tau(ma, y) +0.42, tau(r2, y) +0.20; clipped 0.00, unclipped 8.66
+  pilot_clip tight barrel256: tau(md, rd) -0.14, tau(ma, y) +0.41, tau(r2, y) +0.16; clipped 11.55, unclipped 11.55
+  pilot_clip relaxed barrel96: tau(md, rd) +0.20, tau(ma, y) +0.30, tau(r2, y) +0.44; clipped 9.42, unclipped 3.18
+  pilot_clip tight barrel96: tau(md, rd) +0.17, tau(ma, y) +0.39, tau(r2, y) +0.50; clipped 3.18, unclipped 3.18

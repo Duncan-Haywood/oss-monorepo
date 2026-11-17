@@ -24,7 +24,7 @@ export const TAX_YEAR = 2026;
 export const BRACKETS = {
   single: [[12400, 0.10], [50400, 0.12], [105700, 0.22], [201775, 0.24], [256225, 0.32], [640600, 0.35], [Infinity, 0.37]],
   mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]],
-  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201775, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
+  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
 };
 export const STANDARD_DEDUCTION = { single: 16100, mfj: 32200, hoh: 24150 };
 export const ADDITIONAL_65 = { single: 2050, mfj: 1650, hoh: 2050 };
@@ -41,6 +41,11 @@ const num = (v) => {
 const round2 = (n) => Math.round(n * 100) / 100;
 
 export function money(n) {
+  // The sign goes outside the symbol, and only on a nonzero amount: -$9.24, never $-9.24.
+  if (Number(n) < 0) {
+    const text = money(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  }
   const v = Math.round(n * 100) / 100;
   return "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }

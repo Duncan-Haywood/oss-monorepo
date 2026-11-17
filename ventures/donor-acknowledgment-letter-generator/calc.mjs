@@ -83,7 +83,7 @@ export const isoDay = (n) => new Date(n * DAY).toISOString().slice(0, 10);
 export const yearOf = (n) => new Date(n * DAY).getUTCFullYear();
 const LONG = { year: "numeric", month: "long", day: "numeric", timeZone: "UTC" };
 export const longDay = (n) => new Date(n * DAY).toLocaleDateString("en-US", LONG);
-export const dollars = (cents) => (cents < 0 ? "-" : "") + "$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const dollars = (cents) => ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + (Math.abs(cents) / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 
 // Cash, check, card, ACH and the like are money; anything that names property is non-cash.
 // A vehicle is non-cash with its own form; stock is non-cash. A pledge is not a gift yet.

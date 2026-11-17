@@ -9,9 +9,19 @@
     "seconds": 1998.8,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "anthony-and-the-sermon-to-the-fishes": {
+    "bytes": 9022895,
+    "seconds": 1804.5,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "brendan-and-the-island-that-moved": {
     "bytes": 10509063,
     "seconds": 2101.7,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "brigid-and-the-cloak-that-would-not-stop": {
+    "bytes": 8471559,
+    "seconds": 1694.2,
     "voice": "kokoro-v1.0 bm_george"
   },
   "columba-and-the-beast-in-the-river-ness": {
@@ -24,6 +34,11 @@
     "seconds": 2656.6,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "daniel-and-the-night-with-the-lions": {
+    "bytes": 10161754,
+    "seconds": 2032.3,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "elijah-and-the-still-small-voice": {
     "bytes": 13430728,
     "seconds": 2686.1,
@@ -32,6 +47,11 @@
   "francis-and-the-wolf-of-gubbio": {
     "bytes": 9948473,
     "seconds": 1989.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "gall-and-the-bear-who-brought-the-firewood": {
+    "bytes": 12047081,
+    "seconds": 2409.3,
     "voice": "kokoro-v1.0 bm_george"
   },
   "george-and-the-dragon-of-silene": {
@@ -54,14 +74,34 @@
     "seconds": 1969.6,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "jonah-and-the-city-that-listened": {
+    "bytes": 10793371,
+    "seconds": 2158.6,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "joseph-and-the-coat-with-long-sleeves": {
     "bytes": 13086831,
     "seconds": 2617.3,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "kentigern-and-the-four-signs-of-glasgow": {
+    "bytes": 10245458,
+    "seconds": 2049.0,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "kevin-and-the-blackbird": {
     "bytes": 10690082,
     "seconds": 2137.9,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "mary-of-egypt-and-the-three-loaves": {
+    "bytes": 10890933,
+    "seconds": 2178.1,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "melangell-and-the-hare-in-the-fold-of-her-robe": {
+    "bytes": 10085085,
+    "seconds": 2016.9,
     "voice": "kokoro-v1.0 bm_george"
   },
   "nicholas-and-the-grain-ships": {
@@ -74,9 +114,19 @@
     "seconds": 2709.1,
     "voice": "kokoro-v1.0 bm_george"
   },
+  "noah-and-the-boat-with-one-door": {
+    "bytes": 11266770,
+    "seconds": 2253.3,
+    "voice": "kokoro-v1.0 bm_george"
+  },
   "patrick-and-the-ship-that-was-ready": {
     "bytes": 9130975,
     "seconds": 1826.1,
+    "voice": "kokoro-v1.0 bm_george"
+  },
+  "ruth-and-the-barley-harvest-at-bethlehem": {
+    "bytes": 15066039,
+    "seconds": 3013.1,
     "voice": "kokoro-v1.0 bm_george"
   },
   "seraphim-of-sarov-and-the-bear": {

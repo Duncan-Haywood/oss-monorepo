@@ -51,7 +51,9 @@ not round-trip it. On `main` before this change it found 15 lines; after, none. 
 asks Node whether `Date.parse("2026-02-30")` is still a number, so the lint says when it is no
 longer needed. A sibling run today found the same rollover in the sales agent's reply sorter
 through `Date.UTC`, which this lint does not cover; that one builds dates from parts, a
-different shape.
+different shape. The next day's run found the hand-written shape of the same mistake, a
+day range of 1 to 31 for every month, in seven more tools:
+[Every month had 31 days](2026-11-12-every-month-had-31-days.md).
 
 What this does not show: the rule codes are this tool's own, not SdI's, and none of this was
 checked against SdI itself. It is an offline check of a file's shape and arithmetic, not

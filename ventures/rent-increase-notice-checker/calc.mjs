@@ -129,7 +129,7 @@ function headerMap(header) {
   const norm = header.map((h) => h.trim().toLowerCase());
   const map = {};
   for (const [key, names] of Object.entries(ALIASES)) {
-    const i = norm.findIndex((h) => names.includes(h));
+    const i = (names.map((n) => norm.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (i >= 0) map[key] = i;
   }
   return map;

@@ -1,0 +1,31 @@
+29 teams on 5 courts x 9 slots, 3 games a night (README, "29 teams on 5 x 9"), 2026-11-16.
+4-core cloud container, python-sat 1.9.dev22 (CaDiCaL 1.5 = cd15, 1.9 = cd19).
+
+Through the tool now (node eval/odd-cyclic-check.mjs 29:5:9, seeds 1 to 3, waits summed):
+29 teams on 5 x 9: waits 334 -> 334 (seeds 1-3), 3556 ms a build   (no stored design)
+
+1-rotational round robins (eval/odd-cyclic.py 29 --courts 5 --times 9 --random-only --seed S):
+patterned starter, spot check of 4 patterns ({0,1,2} {0,1,3} {0,5,11} {0,2,7}): none, 0.6-4.0 s each
+seed 101, 1st random starter: 126 patterns, 0 lay out (447.2 s)
+seed 102, 1st random starter: 126 patterns, 0 lay out (452.0 s)
+seed 103, 1st random starter: 126 patterns, 0 lay out (461.3 s)
+(with the 3 starters of eval/odd-cyclic.txt: 6 starters, 756 patterns, none lays out)
+
+One night, any round robin (eval/odd-night-sat.py 29 --courts 5 --times 9 --shape --nights 1):
+SAT, 574.7 s, 151,246 vars, 357,283 clauses
+row loads 4 4 5 5 5 5 5 5 4; windows (first row, games): (0,3) x8, (3,3) x7, (6,3) x8,
+(5,3) x2, (2,3) x1, and the three sitting-out teams (2,2) (3,2) (4,2)
+rows 0-1 are matches inside the 8 teams of rows 0-2, rows 7-8 inside the 8 (+2) of rows 6-8.
+
+Order-3 rename with fixed nights (eval/odd-triple.py, new):
+11 --courts 2              UNSAT 2.8 s (the round robin alone: two 3-cycles have 3 g-fixed
+                           cross matchings, the structure needs 5)
+17 --courts 3 --turned 1   UNSAT 47.4 s; layouts one at a time: night-orbit base 0.5 s SAT,
+                           turned night 0.7 s SAT, fixed night 0.9 s UNSAT, short night SAT
+29 --courts 5, round robin alone          SAT 0.1 s
+29 --courts 5, fixed night's layout alone SAT 3.0 s (plus ~2 min building the model in Python)
+29 --courts 5 --turned 2 (cd15)  no answer at 3000 s
+29 --courts 5 --turned 2 (cd19)  no answer at 3000 s
+29 --courts 5 --turned 5 (cd15)  no answer at 3000 s
+29 --courts 5 --turned 8 (cd15)  no answer at 3000 s
+second runs (turned 2 cd15, turned 8 cd15) stopped at 29 min with no answer, to land the run

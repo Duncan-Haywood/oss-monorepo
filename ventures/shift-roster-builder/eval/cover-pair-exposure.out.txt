@@ -1,0 +1,11 @@
+cafe default: single risk 164 h; 3 pairs of safe days played, 2 flagged (2 capped), 2 really open (10 h), flagged and open 2, missed 0, flagged hours 16, 1 s
+cafe priced 25: single risk 108 h; 45 pairs of safe days played, 45 flagged (22 capped), 26 really open (163 h), flagged and open 26, missed 0, flagged hours 360, 4 s
+spare default: single risk 192 h; 0 pairs of safe days played, 0 flagged (0 capped), 0 really open (0 h), flagged and open 0, missed 0, flagged hours 0, 0 s
+spare priced 25: single risk 167 h; 15 pairs of safe days played, 12 flagged (8 capped), 11 really open (36 h), flagged and open 9, missed 2, flagged hours 51, 2 s
+salon default: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 0 s
+salon priced 25: single risk 56 h; 15 pairs of safe days played, 6 flagged (0 capped), 4 really open (32 h), flagged and open 4, missed 0, flagged hours 48, 0 s
+retail default: single risk 36 h; 78 pairs of safe days played, 30 flagged (6 capped), 12 really open (72 h), flagged and open 12, missed 0, flagged hours 180, 2 s
+retail priced 25: single risk 0 h; 136 pairs of safe days played, 55 flagged (5 capped), 35 really open (210 h), flagged and open 27, missed 8, flagged hours 360, 3 s
+clinic default: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 1 s
+clinic priced 25: single risk 38 h; 15 pairs of safe days played, 15 flagged (0 capped), 12 really open (60 h), flagged and open 12, missed 0, flagged hours 79, 0 s
+ALL: 337 pairs, 186 flagged, 118 really open, precision 58.1%, recall 91.5%, missed 10

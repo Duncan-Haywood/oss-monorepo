@@ -11,6 +11,7 @@
 
 import fs from "node:fs/promises";
 import { parseInvoices, analyze, summarize, MODEL_NOTE } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const NUMERIC = { "--costs": "monthlyCosts", "--months": "windowMonths", "--warn-top1": "warnTop1", "--error-top1": "errorTop1", "--warn-top3": "warnTop3", "--error-top3": "errorTop3" };
 const PERCENT = new Set(["warnTop1", "errorTop1", "warnTop3", "errorTop3"]);
@@ -84,7 +85,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

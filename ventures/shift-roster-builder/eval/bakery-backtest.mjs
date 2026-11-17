@@ -25,8 +25,8 @@ console.log(k.shiftsText);
 for (const splh of [15000, 30000, 60000]) {
   for (const minStaff of [1, 2]) {
     console.log(`\n== --backtest --splh ${splh} --min-staff ${minStaff}`);
-    process.stdout.write(backtestReport(backtestSales(text, { splh, minStaff })));
+    process.stdout.write(backtestReport(backtestSales(text, { scoreClosed: false, splh, minStaff })));
   }
 }
-const kr = backtestSales(text, { splh: 30000, keepRare: true }).methods[0], df = backtestSales(text, { splh: 30000 }).methods[0];
+const kr = backtestSales(text, { scoreClosed: false, splh: 30000, keepRare: true }).methods[0], df = backtestSales(text, { scoreClosed: false, splh: 30000 }).methods[0];
 console.log(`\n== default plan, rare-day/hour rules off vs on (splh 30000): scheduled ${kr.scheduled.toFixed(2)} vs ${df.scheduled.toFixed(2)}, short ${kr.short.toFixed(2)} vs ${df.short.toFixed(2)}, over ${kr.over.toFixed(2)} vs ${df.over.toFixed(2)} person-hours/week`);

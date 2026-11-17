@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKdNKKGHtUeX6Zd7qH",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:07:02Z",
+  "ended": "2026-11-14T00:45:13Z",
+  "wall_minutes": 38.43,
+  "tokens_in": 7697503,
+  "tokens_out": 34654,
+  "cost_usd": 3.308,
+  "tool_calls": 67,
+  "task": "research/build-data session 85: year Y-3 selection set and truncated early stopping (session 84's Next)",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15660",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Launched the six runs at 00:10 UTC while the SF and Austin pulls were still writing (the pull loop's outer shell exited early because the pulls were backgrounded with &); noticed within minutes from a partial row count, stopped the runs before any result file was written, and reran after the pulls finished."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/src/permits.py",
+      "issue": "Pulling cities in parallel (one process per city, as the LOG recommends) races on results/manifest.json: the first finisher's merge was briefly the only fresh entry; later finishers merged correctly, but nothing says the merge is read-modify-write."
+    },
+    {
+      "file": "research/build-data/tests/test_baselines.py",
+      "issue": "Collection fails without xgboost, which aborts a plain `pytest tests` run; needed --ignore locally."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-build-data-three-years-back-and-the-early-stopping-cost.md",
+    "research/build-data/LOG.md (session 85)"
+  ],
+  "goal": "Advance the build-data programme by one pre-registered milestone",
+  "notes": "Fresh pull 2026-11-14 (SF 1,298,286, Austin 2,385,260, Seattle 194,248 rows). 12 cells, /usr/bin/python3.13, 00:17-00:43 UTC. R3, R4 held; R1, R2, R5 refuted. ipcw3 gated mean regret 0.31 days (10/12 within 0.2); truncated ES raises best-candidate loss 1.29 days on average. Local checks: build-data tests 126 passed (test_baselines ignored, needs xgboost); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f0c87aec-e5f6-5153-a9dc-70121fc0dce7",
+    "transcripts": 1,
+    "first": "2026-11-14T00:07:02Z",
+    "last": "2026-11-14T00:45:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 121,
+        "output": 34654,
+        "thinking": 6726,
+        "cache_read": 7559572,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137810,
+        "api_equivalent_usd": 3.308,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 121,
+      "output": 34654,
+      "thinking": 6726,
+      "cache_read": 7559572,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137810,
+      "api_equivalent_usd": 3.308,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.43,
+      "active_minutes": 38.43,
+      "model_minutes": 6.23,
+      "tool_minutes": 32.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a data scientist implementing the Y-3 set and truncated early stopping, running 12 cells and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 241.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

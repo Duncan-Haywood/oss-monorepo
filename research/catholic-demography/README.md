@@ -34,6 +34,57 @@ Full tables: [`experiments/m1_subgroups/`](experiments/m1_subgroups) (`t1` compo
 fertility, `t3` retention, `t4` practice, belief and politics by subgroup). Plan and hypotheses:
 [`PROPOSAL.md`](PROPOSAL.md). Research log: [`LOG.md`](LOG.md).
 
+## Did Catholic mothers have more children than surveys show? Siblings say no (milestone 5b, 2026-11-17)
+
+No. The missing Catholics are mothers, not extra children. m5m left adults born 1925-64 to two US-born parents with
+mothers 3.4 points more Catholic than the fertility model predicts. Every GSS respondent reports how many brothers and
+sisters they had, so the family each child came from can be measured from the child's side, and weighting children by
+1/(siblings + 1) recovers their mothers (Preston 1976). Children of Catholic mothers come from families no bigger,
+relative to what GSS Catholic women report, than children of other mothers (difference -0.06 children [-0.22, +0.09],
+sizes capped at 7 on both sides because `sibs` is top-coded at 6+). Among the mothers themselves, 24.4% were Catholic
+against 20.8% of GSS mothers of their cohorts (**+3.5 points [+2.1, +5.3]**), and the Catholic / other fertility ratio is
+1.10 by children's reports and 1.09 by women's. So 97% of the gap is the mothers' Catholic share and 3% [-25, +28]
+fertility. 3 of 5 predictions are refuted. Across all US-born adults born 1925-64, those raised Catholic come from
+families 1.07 [1.06, 1.08] times as large (by the same inversion), far from the 1.27 needed. Rerun with that sibling-based
+ratio, m5h's fertility channel falls to 0.13 points of the 1990s Catholic share (from 1.17) and -0.05 of the 1990-99 to
+2010-18 change, so H4 (immigration, not fertility) is stronger. Code `experiments/m5n_siblings/run.py`, tables `t39` to
+`t42`, details in `LOG.md`.
+
+## Do immigrant mothers explain the model's missing Catholics? (milestone 5b, 2026-11-14)
+
+Only for older immigrant families, and fixing them exposes a gap among US-born ones. The m5h model gave every US-born adult's mother
+the Catholic share of all US women of her cohort. Here immigrants' children get the share of foreign-born GSS women, and
+US-born mothers' children the share of US-born women. Children of immigrant mothers born 1925-64 then fit (mothers 52.7%
+Catholic, model 49.9%, gap +2.7 [-6.4, +12.0], down from +28). Children of US-born mothers do not: their mothers were 26.9%
+Catholic against a model of 22.8%, **+4.1 [+2.5, +5.7]**. The overall gap rises from +2.6 to **+4.1 [+2.5, +5.6]**, so 2 of 5
+predictions are refuted. In families where both parents were US-born the model would need Catholic mothers to have had 1.27
+times the children of others, against the 1.05 that GSS women report (post hoc). H4 is unaffected: fertility's
+contribution to the 1990-99 to 2010-18 change is -0.32 [-0.60, +0.04] with nativity-specific fertility (m5h: -0.37), and
+immigration's is +1.07. Code `experiments/m5m_mothers_nativity/run.py`, tables `t35` to `t38`, details in `LOG.md`.
+
+## Do children of mixed Catholic marriages explain the extra Catholics? (milestone 5b, 2026-11-13)
+
+Only a little. m5h's model (children take their mother's religion; Catholic mothers have more children) leaves 2-4 points
+more US-born adults raised Catholic than it predicts. Using what 5,714 US-born GSS respondents (1988-2018) said about their
+parents' religion: of children with only a Catholic **mother**, 72% [67, 77] were raised Catholic; with only a Catholic
+**father**, 42% [36, 48] (cohorts 1925-64; the gap is about 30 points in every cohort, before and after the Church dropped
+its mixed-marriage promise in 1970). Net, mixed marriages add **+0.56 points [-0.01, +1.01]** to the raised-Catholic share,
+**18%** of the gap. Most of the rest is immigrant mothers: the model gave the children of immigrants the Catholic share of
+all US women of their mothers' cohort (about 25%), but their mothers were 50% Catholic. The transmission channel's
+contribution to the 1990-99 to 2010-18 change is -0.07 [-0.44, +0.28], so H4 (immigration +1.07, fertility -0.37) stands, and
+m5h's fertility upper bound is loose. Code `experiments/m5l_parents/run.py`, tables `t32` to `t34`, details in `LOG.md`.
+
+## Did immigrants' contribution to the Catholic share really collapse after 2018? (milestone 5b, 2026-11-13)
+
+Mostly not: the collapse came from the web interviews. m5h found the first-generation contribution to the adult Catholic share
+falling from 3.37 points (2010-18) to 1.98 (2021-24), a change of -1.38 [-2.05, -0.72]. Rerunning the same accounting on the
+2022 and 2024 in-person respondents gives **-0.44 [-1.38, +0.49]**, and on the randomised face-to-face-first arm -0.63
+[-1.46, +0.21]. Neither can be told apart from zero. Web respondents are the reason: 20.9% of Catholics who answered by web are
+foreign-born, against 28.9% of those interviewed in person (+8.0 points [+3.6, +12.5]). The randomised arms are balanced on
+nativity (-0.2 [-4.0, +3.6]), so this is who completes by web, not an effect of the arm. Dropping the all-web 2021 wave alone
+moves the change by +0.51 [+0.14, +0.85]. The fertility channel does not move across samples (within 0.1 points), and H4
+(1990-99 to 2010-18, no web interviews) is unaffected. Code `experiments/m5k_inperson/run.py`, table `t31`, details in `LOG.md`.
+
 ## Can reweighting on demographics fix the 2021-24 web respondents? (milestone 5b, 2026-11-11)
 
 Mostly not. In the 2016-20 panel, everyone's first interview was in person, so the 11.1-point attendance gap between
@@ -62,11 +113,12 @@ reweighting (`experiments/m5h_fertility/`) gives first-generation immigrants **+
 the higher fertility of Catholic mothers **-0.37 [-0.69, -0.02]**: fertility added about 1 point to the level in both
 decades (1.17 in the 1990s, 0.81 in 2010-18; Catholic mothers born 1925-60 had about 1.1 times the children of other
 mothers), but that boost was shrinking, while immigrants added 2.3 then 3.4 points. Hypothesis H4 is supported and the
-result survives every sensitivity tried. From 2010-18 to 2021-24 the immigrant contribution fell (-1.38), the larger
-channel in the recent drop. Limits: survivors' fertility, religion at interview, children assumed to take the mother's
+result survives every sensitivity tried. From 2010-18 to 2021-24 the all-mode series shows the immigrant contribution falling
+(-1.38). **Corrected 2026-11-13 (m5k):** most of that fall is the web slice; in person it is -0.44 [-1.38, +0.49]. Limits: survivors' fertility, religion at interview, children assumed to take the mother's
 religion. The model under-explains the share raised Catholic by 2-4 points for cohorts born 1925-69; crediting all of
 that to fertility lifts the fertility level to about 2.2 points, but flat across decades, so its share of the 1990-2018
-change stays about zero (details in `LOG.md`).
+change stays about zero (details in `LOG.md`). **Update 2026-11-13 (m5l):** parents' religion shows about a fifth of
+that gap is mixed-marriage transmission and most of the rest immigrant mothers, so the bound overstates fertility.
 
 ## Retention models (milestone 4, 2026-11-04)
 
@@ -108,6 +160,8 @@ python3 experiments/m3b_randomised/run.py     # randomised mode arms, 2022 and 2
 python3 experiments/m5h_fertility/run.py      # fertility vs immigration channel (H4); about 10 min with the bootstrap
 python3 experiments/m5i_panel/run.py          # panels: test-retest of upbringing, web vs phone attendance; about 1 min
 python3 experiments/m5j_reweight/run.py       # demographic raking of web respondents, panel check + 2022-24; about 6 min
+python3 experiments/m5k_inperson/run.py       # m5h accounting with 2021-24 in person / by randomised arm / web; about 10 min
+python3 experiments/m5l_parents/run.py        # parents' religion: mixed-marriage transmission vs the m5h residual; about 4 min
 PY=$(python3 platform/ci/pyenv.py pytest numpy pandas)   # bare python3 lacks all three; scipy is not needed
 "$PY" -m pytest -q research/catholic-demography/test_cathdem.py   # from the repo root; no download needed
 ```

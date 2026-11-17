@@ -89,10 +89,25 @@ export function parseClimate(text, unit = "F") {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i].trim();
     if (!line || line.startsWith("#")) continue;
-    const cells = line.split(/[,;\t]+|\s{2,}/).map((s) => s.trim()).filter(Boolean);
-    if (cells.length && !Number.isFinite(Number(cells[0]))) cells.shift();
-    if (cells.length < 4) { errs.push(`Climate line ${i + 1}: need outdoor temperature, outdoor RH, indoor temperature, indoor RH`); continue; }
+    const cells = line.split(/[,;\s]+/).map((s) => s.trim()).filter(Boolean);
     const at = `Climate line ${i + 1}`;
+    // An optional month column: a name ("Jan", "January") or a number (1 to 12).
+    // Five values means the first is the month; reading it as the outdoor
+    // temperature would shift every column and silently give a wrong answer.
+    let month = null;
+    if (cells.length && !Number.isFinite(Number(cells[0]))) {
+      const name = cells.shift().slice(0, 3).toLowerCase();
+      const k = MONTH_NAMES.findIndex((m) => m.toLowerCase() === name);
+      if (k < 0) { errs.push(`${at}: "${name}" is not a month name`); continue; }
+      month = k;
+    } else if (cells.length === 5) {
+      const k = Number(cells.shift());
+      if (!Number.isInteger(k) || k < 1 || k > 12) { errs.push(`${at}: month ${k} is not 1 to 12`); continue; }
+      month = k - 1;
+    }
+    if (cells.length < 4) { errs.push(`${at}: need outdoor temperature, outdoor RH, indoor temperature, indoor RH`); continue; }
+    if (cells.length > 4) { errs.push(`${at}: too many values (want month, outdoor temperature, outdoor RH, indoor temperature, indoor RH)`); continue; }
+    if (month !== null && month !== months.length) { errs.push(`${at}: ${MONTH_NAMES[month]} is out of order (enter 12 months, January first)`); continue; }
     const tOut = num(cells[0], `${at} outdoor temperature`, errs, { min: unit === "F" ? -60 : -51, max: unit === "F" ? 130 : 55 });
     const rhOut = num(cells[1], `${at} outdoor RH`, errs, { min: 1, max: 100 });
     const tIn = num(cells[2], `${at} indoor temperature`, errs, { min: unit === "F" ? 40 : 4, max: unit === "F" ? 100 : 38 });
@@ -304,8 +319,8 @@ export const DEFAULTS = {
     "Dec, 26, 77, 70, 36",
   ].join("\n"),
   layers: [
-    "1/2 in gypsum board, 0.45, 50",
     "Latex primer and paint, 0, 5",
+    "1/2 in gypsum board, 0.45, 50",
     "R-21 fiberglass batt, 21, 20",
     "7/16 in OSB, 0.62, 1.5",
     "Polymer housewrap, 0, 50",

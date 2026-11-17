@@ -61,7 +61,7 @@ for (const bar of [-2, -1.5, -1]) {
 }
 // No detection at all: a share of answers always goes to the shipped selector.
 for (const share of [0.25, 0.5]) {
-  rows.push({ name: `staged, ${share * 100}% shipped`, policy: (i) => ((i.rand ?? Math.random)() < share ? selectNextPair({ ...i, answerAgreement: undefined }) : staged(i)), useAgreement: false });
+  rows.push({ name: `staged, ${+(share * 100).toFixed(4)}% shipped`, policy: (i) => ((i.rand ?? Math.random)() < share ? selectNextPair({ ...i, answerAgreement: undefined }) : staged(i)), useAgreement: false });
 }
 const chosen = only ? rows.filter((r) => only.split(";").includes(r.name)) : rows;
 

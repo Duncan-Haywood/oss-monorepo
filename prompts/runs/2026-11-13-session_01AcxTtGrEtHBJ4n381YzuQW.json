@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtGrEtHBJ4n381YzuQW",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:06:59Z",
+  "ended": "2026-11-13T22:23:06Z",
+  "wall_minutes": 16.45,
+  "tokens_in": 9323567,
+  "tokens_out": 44142,
+  "cost_usd": 3.9812,
+  "tool_calls": 77,
+  "task": "einvoice-preflight (flagship 5): read the single-file 1.0x NFS-e provider schemas (SimplISS/DBSeller item, widened to 12 layouts)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15631",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "My local 2.04 xsd copy kept minOccurs on CompNfse (the attributes sit on their own line, so the strip in the diff header missed one): 12 false disagreements until fixed.",
+    "eval/abrasf-xsd-diff.mjs serialised xsi:schemaLocation without xmlns:xsi, making xmllint refuse 4 valid files; fixed in the harness.",
+    "First version applied BHISS 1.00 to any Belo Horizonte file in the 2.x namespace, crashing the diff on a 2.x SubstituirNfseEnvio; now only for roots BHISS declares and files not stating 2.x.",
+    "ISSIntegra's one-slash namespace made an existing typo test resolve to ISSIntegra; a 2.x versao now keeps the typo reading."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/abrasf-xsd-diff.mjs",
+      "issue": "Header says to strip minOccurs/maxOccurs from 'that line' of nfse_v204.xsd; they span two lines (1355-1356), so a one-line sed silently leaves the schema uncompilable and every 2.04 file shows as an xmllint-only disagreement. Fixed in this PR (header now says where they sit)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The item named SimplISS/DBSeller 1.00; both turned out to be single-file schemas like ten other 1.0x systems (Rio, Salvador, BH, Curitiba), so I read all twelve in one slice instead of two.",
+      "did": "12 layouts + city-based choice among a shared namespace",
+      "result": "149/149 verdicts, 11,033/11,033 mutants vs xmllint"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-one-namespace-six-city-schemas.md",
+    "ventures/einvoice-preflight/eval/abrasf-1x-single-file-2026-11-13.md"
+  ],
+  "goal": "Deepen flagship 5 (einvoice-preflight)",
+  "notes": "Verification: node --test abrasf.test.mjs 38/38; python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (8.7s), 1 suite, 0 failed; eval/abrasf-xsd-diff.mjs on 427 public files (63 repos, 149 distinct elements): verdicts 149/149, mutants 11,033/11,033 agree with xmllint; portfolio/router/validate.py clean; post frontmatter/links/similarity checks pass. OpenAC.Net.NFSe read via blobless git clone (codeload and contents API 403).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c6555519-12b0-574b-ab91-d0ae7e055980",
+    "transcripts": 1,
+    "first": "2026-11-13T22:06:59Z",
+    "last": "2026-11-13T22:23:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 139,
+        "output": 44142,
+        "thinking": 10329,
+        "cache_read": 9165332,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158096,
+        "api_equivalent_usd": 3.9812,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 139,
+      "output": 44142,
+      "thinking": 10329,
+      "cache_read": 9165332,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158096,
+      "api_equivalent_usd": 3.9812,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 77,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.45,
+      "active_minutes": 16.45,
+      "model_minutes": 8.87,
+      "tool_minutes": 7.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: read 12 XSDs, dispatch logic, corpus collection and xmllint differential",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 251.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,367 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyd6zTMtYzeLB8Msuyd",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:38:03Z",
+  "ended": "2026-11-14T18:39:19Z",
+  "wall_minutes": 12.35,
+  "tokens_in": 7276664,
+  "tokens_out": 39753,
+  "cost_usd": 3.2544,
+  "tool_calls": 72,
+  "task": "redteam campaign on platform/ci/check_calendar_dates.py; widen it to the negated day range and fix the 12 tools it and a sibling Date.UTC shape found",
+  "projects": [
+    "platform/ci",
+    "ad-spend-saturation-optimizer",
+    "clearance-markdown-planner",
+    "customer-lifetime-value-predictor",
+    "demand-charge-interval-analyzer",
+    "economic-nexus-threshold-tracker",
+    "einvoice-preflight",
+    "final-paycheck-deadline-calculator",
+    "lien-waiver-checker",
+    "price-elasticity-estimator",
+    "qif-file-check",
+    "service-load-check",
+    "truck-detention-pay-calculator"
+  ],
+  "pr": 15943,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First target choice (league-schedule-generator/carryover.mjs) has an 83 s suite; switched to --under platform --probe 20.",
+      "cost_minutes": 2
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0: all 11 open entries are control-plane edits already sitting in owner-gated PRs (#15871, #14877, #15248, #14612...); the open list keeps showing them to every run with no way to mark them 'waiting on owner', so each run re-checks them."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets prints a random 20 of 5,400 files and grep of it for a recent file finds nothing; a 'targets --file X' check (is it guarded, how slow) would have saved the manual suite timing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4 prefers a lint for the class; the second shape (raw regex groups into Date.UTC) was not linted because a trial matched 71 lines with window false negatives and hits needing judgment.",
+      "did": "Fixed the five reproduced cases with tests and wrote the trial regex and its misses into docs/reports/redteam-2026-11-14-negated-day-range.md.",
+      "result": "Five tools fixed; the lint stays precise; next run has a starting point."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "Open PR #15942 (perf) edits the same lint with a prefilter that would silently disable the negated form after a clean git merge.",
+      "did": "Added an equivalent exact prefilter keyed on ' 31' to this PR and commented on #15942 with the evidence (3 tests fail with its literal).",
+      "result": "Whichever lands second now gets a textual conflict instead of a silent regression."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-thirty-february-twelve-tools.md",
+    "docs/reports/redteam-2026-11-14-negated-day-range.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 11 open entries, all control plane with open owner-gated PRs; none changed. Campaign: check_calendar_dates.py, 8 mutants, 3 caught -> 8/8 after. Guard added: check_calendar_dates now matches the negated day range (found 7 unguarded copies on first run; tree clean after fixes). Verification: run_venture_tests.py on the 12 slugs: 12 suites run, 0 failed; python3 -m unittest test_check_calendar_dates: 11 OK; check_calendar_dates.py exits 0 in 0.6 s. shift-roster-builder calc.mjs:348 utcDay did not reproduce through applyTimeOff and was left alone (noted in the report).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_calendar_dates.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_calendar_dates  (in platform/ci)",
+        "seed": 600768518,
+        "commit": "23ff72733",
+        "sites": 19,
+        "baseline_seconds": 4.2,
+        "mutants": [
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 27,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "ROOT = pathlib.Path(__file__).resolve().parents[2]",
+            "after": "ROOT = pathlib.Path(__file__).resolve().parents[3]",
+            "line_text": "ROOT = pathlib.Path(__file__).resolve().parents[2]",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_root_is_the_repository"
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 34,
+            "col": 9,
+            "operator": "const-plus-one",
+            "before": "WINDOW = 4",
+            "after": "WINDOW = 5",
+            "line_text": "WINDOW = 4",
+            "caught": false,
+            "seconds": 4.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "WINDOW changed 4 -> 12 this run, so rerun reported line changed; applied WINDOW = 13 by hand: test_the_calendar_check_must_sit_within_the_window fails (FAILED failures=1), restored."
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 44,
+            "col": 57,
+            "operator": "and-to-or",
+            "before": "if SHAPE.search(line) and NAN_CHECK.search(line) and not ROUND_TRIP.search(line):",
+            "after": "if SHAPE.search(line) and NAN_CHECK.search(line) or not ROUND_TRIP.search(line):",
+            "line_text": "        if SHAPE.search(line) and NAN_CHECK.search(line) and not ROUND_TRIP.search(line):",
+            "caught": true,
+            "seconds": 9.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 47,
+            "col": 58,
+            "operator": "minus-to-plus",
+            "before": "and not CALENDAR.search(\"\\n\".join(lines[i - 1:i + WINDOW])):",
+            "after": "and not CALENDAR.search(\"\\n\".join(lines[i + 1:i + WINDOW])):",
+            "line_text": "                and not CALENDAR.search(\"\\n\".join(lines[i - 1:i + WINDOW])):",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 47,
+            "col": 64,
+            "operator": "plus-to-minus",
+            "before": "and not CALENDAR.search(\"\\n\".join(lines[i - 1:i + WINDOW])):",
+            "after": "and not CALENDAR.search(\"\\n\".join(lines[i - 1:i - WINDOW])):",
+            "line_text": "                and not CALENDAR.search(\"\\n\".join(lines[i - 1:i + WINDOW])):",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 76,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "return 1",
+            "after": "return 2",
+            "line_text": "        return 1",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_cli_exit_codes_and_root_argument (subprocess on a temp dir with a hit and a clean one)"
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 78,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "return 0",
+            "after": "return 1",
+            "line_text": "    return 0",
+            "caught": false,
+            "seconds": 4.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_cli_exit_codes_and_root_argument (subprocess on a temp dir with a hit and a clean one)"
+          },
+          {
+            "file": "platform/ci/check_calendar_dates.py",
+            "line": 82,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "sys.exit(main(sys.argv[1:]))",
+            "after": "sys.exit(main(sys.argv[2:]))",
+            "line_text": "    sys.exit(main(sys.argv[1:]))",
+            "caught": false,
+            "seconds": 4.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test_cli_exit_codes_and_root_argument (subprocess on a temp dir with a hit and a clean one)"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/ci/check_calendar_dates.py",
+        "issue": "Matched only 'd >= 1 && d <= 31'; the negated 'd < 1 || d > 31' (31 copies in ventures/) and '> 12' month tests went unlinted, and the 4-line window missed round trips ~10 lines down. Widened patterns, window 12, more calendar-check names; tests for each.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/ad-spend-saturation-optimizer/calc.mjs",
+        "issue": "parseDay('2026-02-30') returned 2 March's day number (Date.UTC rollover).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/customer-lifetime-value-predictor/calc.mjs",
+        "issue": "parseDay('2026-02-30') returned 2 March's day number.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/economic-nexus-threshold-tracker/orders.mjs",
+        "issue": "parseDate('2026-02-30') and '02/30/2026' gave 2 March, and '2026-13-01' gave January 2027, so orders counted in the wrong month.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/einvoice-preflight/vat.mjs",
+        "issue": "CZ 10-digit birth-number VAT IDs accepted 31 February (CZ8502310003) and any day 1-31 in any month; now realDate on the decoded year/month.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/lien-waiver-checker/calc.mjs",
+        "issue": "extractDates reported '2026-02-30' as a through-date.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/qif-file-check/calc.mjs",
+        "issue": "validate did not flag 02/30/2026 as 'Impossible date'; repair with convertDates rewrote it.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/service-load-check/interval.mjs",
+        "issue": "parseTimestamp('2026-02-30 10:00') read as 2 March.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/clearance-markdown-planner/calc.mjs",
+        "issue": "a sales row dated 2026-02-30 or 02/30/2026 counted in the week of 2 March.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/price-elasticity-estimator/calc.mjs",
+        "issue": "parseDate('2026-02-30') returned 2 March.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/demand-charge-interval-analyzer/calc.mjs",
+        "issue": "parseTimestamp read 30 February as 2 March in both ISO and US branches.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/truck-detention-pay-calculator/calc.mjs",
+        "issue": "arrival '2026-02-30T08:00' read as 2 March and billed detention.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      },
+      {
+        "file": "ventures/final-paycheck-deadline-calculator/calc.mjs",
+        "issue": "separationDate '2026-02-30' produced a deadline of 2026-03-02 instead of refusing the date.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15943"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b301819e-43f6-51b6-a28b-95469e72c9f5",
+    "transcripts": 1,
+    "first": "2026-11-14T18:38:03Z",
+    "last": "2026-11-14T18:50:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 135,
+        "output": 39753,
+        "thinking": 7505,
+        "cache_read": 7147872,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128657,
+        "api_equivalent_usd": 3.2544,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 135,
+      "output": 39753,
+      "thinking": 7505,
+      "cache_read": 7147872,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128657,
+      "api_equivalent_usd": 3.2544,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 64,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__add_issue_comment": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.35,
+      "active_minutes": 12.35,
+      "model_minutes": 6.27,
+      "tool_minutes": 6.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "seed and triage 8 mutants, sweep 31+71 date sites, reproduce and fix 13 defects with tests across 12 ventures, post and report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 245.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

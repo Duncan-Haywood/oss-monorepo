@@ -87,3 +87,14 @@ test("morning: a reply read today removes that person from today's queue", () =>
 test("there is still no send path", () => {
   assert.doesNotMatch(readFileSync(new URL("./daily.mjs", import.meta.url), "utf8"), /\bfetch\(|nodemailer|sendmail|smtp|XMLHttpRequest/i);
 });
+
+test("sent mail keyed by bare address: a 'Name <addr>' to (the self-host agent's own sends) still marks the step sent", () => {
+  // Found 2026-11-14 on a real Postfix/Dovecot round trip (self-host/real-servers): the agent recorded its reply to
+  // "Pat Rivera <pat@...>" under the whole header, so the cadence step stayed due and would have been sent twice.
+  const t = "date,channel,step,prospect,company,email,subject\n2026-11-14,email,Email 2,Pat Rivera,Acme,pat@example.test,Route planning for your crews\n";
+  for (const to of [["pat@example.test"], ["Pat Rivera <pat@example.test>"], "a@b.example; Pat Rivera <PAT@example.test>"]) {
+    const d = runDaily({ tasks: t, prospects: "", today: "2026-11-14", sent: [{ date: "2026-11-14", to, subject: "Re: Route planning for your crews" }] });
+    assert.equal(d.summary.due, 0, JSON.stringify(to));
+    assert.equal(d.summary.alreadySent, 1, JSON.stringify(to));
+  }
+});

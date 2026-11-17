@@ -282,7 +282,7 @@ export function parseArms(text) {
   return { arms };
 }
 
-export const money = (x) => (Number.isFinite(x) ? (x < 0 ? "-" : "") + "$" + Math.abs(x).toFixed(Math.abs(x) < 10 ? 3 : 2) : "n/a");
+export const money = (x) => (Number.isFinite(x) ? ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(x).toFixed(Math.abs(x) < 10 ? 3 : 2)) : "n/a");
 
 export function priceSampleText() {
   return { n1: 4000, c1: 160, price1: 29, n2: 4000, c2: 138, price2: 39 };

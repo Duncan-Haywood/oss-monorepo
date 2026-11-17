@@ -243,7 +243,7 @@
     };
     $("#clear-all").onclick = () => { if (!confirm("Clear everything on this device? This cannot be undone.")) return; data = { ...DEFAULTS }; persist(); fill(); render(); };
     $("#load-example").onclick = () => {
-      const today = new Date().toISOString().slice(0, 10);
+      const today = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
       data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", title: "New marketing website", proposalDate: today,
         problem: "Most of your visitors arrive on a phone and leave before the pricing page loads. You want a site that turns them into booked calls.",
         approach: "Start with a short discovery call and a review of your analytics, then design and build mobile first.",

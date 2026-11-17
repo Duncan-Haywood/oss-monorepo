@@ -22,24 +22,26 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
   const src = String(text ?? "").replace(/^﻿/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -47,7 +49,7 @@ export function parseCsv(text, delim = ",") {
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -62,10 +64,10 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(.*)$/);
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -88,14 +90,18 @@ export function parseWhen(v, dmy = false) {
 
 // Day-first only when unambiguous: some first part above 12, no second above 12.
 export function detectDmy(values) {
-  let first = false, second = false;
+  // Dots ("03.06.2026") are the European day.month.year form; no locale
+  // writes month.day.year, so a dotted file is day-first unless a second part
+  // is above 12 (red team 2026-11-15).
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 
@@ -179,7 +185,7 @@ export function normalizeRows(table, { decimalComma = false, feeMode = "auto", f
   };
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i];
-    const lineNo = i + 1;
+    const lineNo = table[i].line ?? i + 1;
     if (line.every((x) => !String(x).trim())) continue;
     const first = String(line[0] ?? "").trim().toLowerCase();
     if (/^(total|totals|subtotal|grand total|summary|balance)\b/.test(first)) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
@@ -263,7 +269,7 @@ function blank(k, label) {
   return { key: k, label, orders: 0, gross: 0, fee: 0, net: 0, refundNet: 0, cost: 0, hours: 0, hoursKnown: 0 };
 }
 
-const usd = (n) => (n < 0 ? "-" : "") + Math.abs(n).toFixed(2);
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toFixed(2));
 const p1 = (x) => (x * 100).toFixed(1) + "%";
 
 // opts: { costPerOrder (your own cost per order: tools, revisions, ads),
@@ -438,7 +444,7 @@ function findings({ summary: s, byProduct, repeat, breakEven, hoursBad, unmatche
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 
@@ -473,4 +479,24 @@ export function sampleCsv() {
   lines.push("2026-06-15,W1,Withdrawal,Completed,,,300.00,1.00,299.00");
   lines.push("2026-08-15,W2,Withdrawal,Completed,,,250.00,1.00,249.00");
   return lines.join("\n") + "\n";
+}
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
 }

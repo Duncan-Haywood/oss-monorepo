@@ -38,10 +38,19 @@ const safeIso = (ms) => (Number.isFinite(ms) && ms >= 0 && ms <= LAST_DAY ? iso(
 const calDate = (y, m, d) => { const t = Date.UTC(y, m, d), x = new Date(t); return x.getUTCFullYear() === y && x.getUTCMonth() === m && x.getUTCDate() === d ? safeIso(t) : null; };
 const daysIn = (y, m) => new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
 export const toDay = (s) => { const t = Date.parse(String(s).slice(0, 10) + "T00:00:00Z"); return Number.isFinite(t) ? t : NaN; };
-export function addBusinessDays(day, n) {
+// isOff (optional): day => true for a holiday (holidays.mjs holidayChecker); weekends are always skipped.
+export function addBusinessDays(day, n, isOff) {
   let t = toDay(day), left = n;
-  while (left > 0) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6) left--; }
+  for (let guard = 0; left > 0 && guard < 4000; guard++) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6 && !(isOff && isOff(iso(t)))) left--; }
   return iso(t);
+}
+/** Business days from a to b: those after a, up to and including b (0 when b is not after a). */
+export function businessDaysBetween(a, b, isOff) {
+  let t = toDay(a), n = 0;
+  const end = toDay(b);
+  if (!Number.isFinite(t) || !Number.isFinite(end)) return 0;
+  while (t < end) { t += DAY; const w = new Date(t).getUTCDay(); if (w !== 0 && w !== 6 && !(isOff && isOff(iso(t)))) n++; }
+  return n;
 }
 const addDays = (day, n) => safeIso(toDay(day) + n * DAY);
 const MONTHS = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
@@ -279,7 +288,7 @@ export function parseCsv(text) {
 }
 
 // A cell that starts with = + - @ is run as a formula by spreadsheets; prefix it so it stays text.
-const cell = (v) => { let s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const cell = (v) => { let s = v == null ? "" : String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export const toCsv = (rows, cols) => [cols.join(","), ...rows.map((r) => cols.map((c) => cell(r[c])).join(","))].join("\n") + "\n";
 
 // ---------- triage ----------
@@ -513,7 +522,9 @@ const VETO = {
     // "I'll pass on SMU news to Chris", "I will pass it along", "I will pass your comments on", "pass it by your desk".
     /\b(i'?ll|i will|we'?ll|we will) pass (it|this|that|them|your|the) (on|along|to|by)\b|\b(i'?ll|i will|we'?ll|we will) pass (it |this |that |them |your \w+ |the \w+ )?(on|along)\b.{0,60}\bto\b|\bpass (it|this|that) along\b/i,
     // "the counterparty is not interested", "tell them you're not interested", "I will assume that you are not interested".
-    /\b(is|are|you'?re|your|they'?re|he'?s|she'?s|assume (that )?\w+ (is|are)) not interested\b/i,
+    // Not "we are not interested" (2026-11-12): the writer's own firm declining, the most common plain no; "we're" never
+    // matched here, so the two spellings were filed apart.
+    /\b(is|(?<!\bwe )are|you'?re|your|they'?re|he'?s|she'?s|assume (that )?\w+ (is|are)) not interested\b/i,
     // "we are fine with changing", "were fine with it", "we're all set on the language".
     /\b(we'?re|we are|were) (all )?(fine|good) with (?!(our|what we|the (current|one|tool|system|vendor|provider)))|\b(we'?re|we are|were) (all )?set on\b|\b\w+(,| and) \w+,? and \w+ were fine\b|\bwere set up\b/i],
   out_of_office: [DISCLAIMER,
@@ -808,6 +819,9 @@ VETO.left_company.push(
   /\b(if|any) (you have )?(any )?(questions|queries)\b.{0,40}\bspeak (with|to)\b/i,
   // "Unfortunately, these new dates don't work for me" (6*): a time that does not suit, not "I don't work for them".
   /\b(don'?t|doesn'?t|do not|does not|won'?t|will not) work for (me|us)\b/i,
+  // "Lay asked me to let you know that these dates don't work for him, either" (7*, both readers none, 2026-11-11): a date or
+  // time that does not suit someone else is scheduling too.
+  /\b(dates?|times?|days?|timing|schedule|week(end)?|morning|afternoon|evening|(mon|tues|wednes|thurs|fri|satur|sun)day)s? (don'?t|doesn'?t|do not|does not|won'?t|will not) work for\b/i,
   // "My husband is no longer with Koch" (6*): family, not a contact.
   // "I have passed it on to Dave and will let you know!" (5*): the writer's own handover with a promise to come back is a person
   // still on the thread. A bare "I passed it on to Stacey" still files as wrong person, by design (2026-11-04).
@@ -1063,7 +1077,7 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
 
   for (const [i, reply] of replies.entries()) {
     const known = byEmail.get(reply.failed || reply.from);
-    const p = known || { email: reply.failed || reply.from, first_name: reply.name.split(/\s+/)[0] || "", company: "", status: "" };
+    const p = known || { email: reply.failed || reply.from, first_name: reply.failed ? "" : reply.name.split(/\s+/)[0] || "" /* a bounce's name is the mail system's ("Mail Delivery System"), not the person's */, company: "", status: "" };
     if (!known && p.email) { table.push(p); byEmail.set(p.email, p); }
     const t = triageFn(reply, today);
     const applied = [];
@@ -1141,14 +1155,25 @@ export function runInbox(input, { triageFn = triage, guessFn = nbGuess } = {}) {
         // shown, and nothing else changes until the user picks the category.
         set("status", "paused", "Paused the cadence until you read it");
         // A guess outside the category list (a stray training label) is no guess: before 2026-11-11 it threw and the whole run failed.
-        const g0 = guessFn ? guessFn(reply) : null, g = g0 && Object.hasOwn(CATEGORIES, g0.category) ? g0 : null;
+        // A model's close the merge held back (ai.mjs, mergeTriage) is the guess shown: the person confirms it in one look.
+        const modelClose = t.modelSaid === "not_interested" || t.modelSaid === "left_company";
+        const g0 = modelClose ? { category: t.modelSaid, source: "model" } : guessFn ? guessFn(reply) : null, g = g0 && Object.hasOwn(CATEGORIES, g0.category) ? g0 : null;
         if (g && g.category !== "unclear") {
           t.guess = g;
           if (CATEGORIES[g.category]?.outbound) draft = draftReply({ ...t, category: g.category, subtype: g.category === "objection" ? "need" : null, dateText: null, evidence: reply.body.split(/\n/)[0].slice(0, 160) }, p, reply, offer);
         }
-        tasks.push({ email: p.email, task: g && g.category !== "unclear" ? `The rules could not read this reply. Best guess: ${CATEGORIES[g.category].label.toLowerCase()}. Check it before you act.` : "The agent could not tell what this reply means. Read it and decide." });
+        tasks.push({ email: p.email, task: g && g.category !== "unclear" ? `The rules could not read this reply. ${g.source === "model" ? "The model reads it as" : "Best guess:"} ${CATEGORIES[g.category].label.toLowerCase()}. Check it before you act.` : "The agent could not tell what this reply means. Read it and decide." });
       }
     }
+    // A model's stop is a flag, not an action (ai.mjs, mergeTriage): say what it read, so a real opt-out the rules missed
+    // reaches the suppression list through a person.
+    if (t.modelSaid === "unsubscribe" || t.modelSaid === "bounce") tasks.push({ email: p.email, task: t.modelSaid === "unsubscribe"
+      ? `The model reads this reply as a request to stop${t.modelEvidence ? ` ("${t.modelEvidence.slice(0, 120)}")` : ""}; the rules did not. If they asked to stop, add them to your suppression list and send nothing; otherwise carry on.`
+      : "The model reads this reply as a delivery failure; the rules did not. Check before you mark the address bounced." });
+    // A model's close is a flag too (mergeTriage, 2026-11-12): the reply stays in front of a person with the model's reading.
+    else if ((t.modelSaid === "not_interested" || t.modelSaid === "left_company") && t.category !== "unclear") tasks.push({ email: p.email, task: t.modelSaid === "not_interested"
+      ? "The model reads this reply as a plain no; the rules did not. If it is, mark it lost and send nothing; otherwise answer it."
+      : "The model reads this reply as \"left, or the wrong person\"; the rules did not. If so, stop the cadence and add anyone they name yourself." });
     const lint = draft ? checkDraft(draft, factsBase + "\n" + reply.body) : null;
     items.push({ n: i + 1, from: reply.from, name: reply.name, subject: reply.subject, body: reply.body, triage: t, applied, draft, lint, approval: draft ? (t.guess ? "guess_check_first" : "needs_approval") : "nothing_to_send", known: Boolean(known) });
   }

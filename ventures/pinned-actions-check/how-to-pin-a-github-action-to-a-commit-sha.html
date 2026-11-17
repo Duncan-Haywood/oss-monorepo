@@ -38,7 +38,7 @@
   <pre><code>- uses: actions/checkout@8f152de45cc393bb48ce5d89d36b731f54556e65 # v4</code></pre>
   <p>That line now resolves to exactly one commit, forever. Upgrading later is a deliberate, reviewable diff: look up the SHA for a newer tag and replace both the hash and the comment.</p>
   <h2>3. Do this for every third-party action, in every workflow</h2>
-  <p>A workflow can have several jobs, each with several steps, each `uses:`-ing a different action — and a single unpinned reference is enough to be the weak link. <a href="./">Paste your workflow YAML into Pinned Actions Check</a> to find every mutable reference across every workflow file at once, each with its own ready-to-run <code>git ls-remote</code> command, or run the CLI in your own repository:</p>
+  <p>A workflow can have several jobs, each with several steps, each <code>uses:</code>-ing a different action — and a single unpinned reference is enough to be the weak link. <a href="./">Paste your workflow YAML into Pinned Actions Check</a> to find every mutable reference across every workflow file at once, each with its own ready-to-run <code>git ls-remote</code> command, or run the CLI in your own repository:</p>
   <pre><code>python3 check.py --fail-on-risk</code></pre>
   <p class="note">That exits with a nonzero status if any third-party action is still referenced by a tag or branch instead of a commit SHA — wire it into your own CI to block a newly-added unpinned action before it merges.</p>
   <h2>Why this matters: it has already happened</h2>

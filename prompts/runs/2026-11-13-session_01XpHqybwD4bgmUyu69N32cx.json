@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqybwD4bgmUyu69N32cx",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T02:39:31Z",
+  "ended": "2026-11-13T02:44:29Z",
+  "wall_minutes": 5.22,
+  "tokens_in": 4327812,
+  "tokens_out": 27173,
+  "cost_usd": 2.3575,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15344",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/README.md",
+      "issue": "Header still says check_numbers checks 183 claims; it now checks 213. Left as is (cosmetic), noted for the next paper step."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "On a tag-spelling or length problem it prints the rule but the exit code stayed 0 here, so a violation is easy to miss; I fixed seo_title/description lengths by measuring by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land open research PRs first) skipped: 97 open PRs, none naming heavy-hydraulics; working through others' research PRs would have consumed the run.",
+      "did": "Claimed the drawn programme's next step after the CLAIM CHECK came back clear.",
+      "result": "No conflict observed."
+    },
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "why": "6b's Next (a), a sourced no-load engine fuel rate, was not achieved.",
+      "did": "One web search; found only a large-machine dealer table and PEMS papers giving ratios; used none, recorded the attempt.",
+      "result": "Still open; noted in LOG and README."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-generous-geometry.md",
+    "research/heavy-hydraulics/LOG.md (6c)",
+    "research/heavy-hydraulics/paper/draft.md section 3.7e"
+  ],
+  "goal": null,
+  "notes": "Milestone 6c of heavy-hydraulics: break-even rest-of-machine fuel rate over 384 geometry cases from raw folder-75 motion. Predictions D1-D6 registered and pushed before computation; D1,D3,D6 held, D2,D4,D5 refuted. Median 1.00 L/h vs central 2.46 (99th pct). Local checks: pytest 57 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; paper/check_numbers.py 213 claims 0 missing; check_post_frontmatter exit 0; programme_check ok. 6a rerun byte-identical.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "971dfa85-63f5-5390-a2f4-81bec8329bba",
+    "transcripts": 1,
+    "first": "2026-11-13T02:39:31Z",
+    "last": "2026-11-13T02:44:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 79,
+        "output": 27173,
+        "thinking": 4382,
+        "cache_read": 4206166,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121567,
+        "api_equivalent_usd": 2.3575,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 79,
+      "output": 27173,
+      "thinking": 4382,
+      "cache_read": 4206166,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121567,
+      "api_equivalent_usd": 2.3575,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.22,
+      "active_minutes": 5.22,
+      "model_minutes": 4.19,
+      "tool_minutes": 1.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "rerun of a 384-case sweep with registered predictions, write-up in README, LOG, paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 254.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

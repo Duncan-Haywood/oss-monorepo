@@ -57,6 +57,14 @@ class FakeVentures(unittest.TestCase):
         self.write("v/calc.mjs", bad)
         self.assertEqual([h[0] for h in ik.scan_slugs(["v"], self.root)], ["ventures/v/calc.mjs"])
 
+    def test_gitignored_build_output_is_skipped(self):
+        # `npm run verify` leaves .next/ behind; CI's clean checkout never has it.
+        bad = MAP + 'PROPERTY_TYPES[input.propertyType];\n'
+        for rel in ("v/.next/server/chunks/1.js", "v/dist/app.js", "v/build/x.mjs", "v/out/y.js", "v/.vercel/z.js"):
+            self.write(rel, bad)
+        self.write("v/src/calc.mjs", bad)
+        self.assertEqual([h[0] for h in ik.scan_slugs(["v"], self.root)], ["ventures/v/src/calc.mjs"])
+
     def test_baseline_entries_are_not_new(self):
         self.write("v/calc.mjs", MAP + 'PROPERTY_TYPES[input.propertyType];\n')
         old = {("ventures/v/calc.mjs", "PROPERTY_TYPES[input.propertyType]")}

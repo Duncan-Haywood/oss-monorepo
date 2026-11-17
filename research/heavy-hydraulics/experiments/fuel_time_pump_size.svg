@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Extra fuel of an open-centre circuit over load-sensing for the same 440 s of wheel-loader work, split into pump energy and the fuel burned over the extra time, against fixed pump displacement">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Measured loader: open-centre extra fuel by fixed pump size</text>
+<line x1="64" x2="624" y1="317.3" y2="317.3" stroke="#ddd"/><text x="58" y="321.3" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="240.6" y2="240.6" stroke="#ddd"/><text x="58" y="244.6" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="163.8" y2="163.8" stroke="#ddd"/><text x="58" y="167.8" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="87.1" y2="87.1" stroke="#ddd"/><text x="58" y="91.1" text-anchor="end" font-family="sans-serif" font-size="11">300</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">25</text>
+<text x="167.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
+<text x="285.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">40</text>
+<text x="432.4" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">50</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">63</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">fixed open-centre pump displacement (cc)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">extra fuel over load-sensing (mL per 440 s record)</text>
+<polyline points="624.0,223.4 520.8,233.8 432.4,233.0 358.7,226.0 285.1,211.2 226.1,191.8 167.2,163.3 108.2,121.6 64.0,77.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="223.4" r="3" fill="#c0392b"/>
+<circle cx="520.8" cy="233.8" r="3" fill="#c0392b"/>
+<circle cx="432.4" cy="233.0" r="3" fill="#c0392b"/>
+<circle cx="358.7" cy="226.0" r="3" fill="#c0392b"/>
+<circle cx="285.1" cy="211.2" r="3" fill="#c0392b"/>
+<circle cx="226.1" cy="191.8" r="3" fill="#c0392b"/>
+<circle cx="167.2" cy="163.3" r="3" fill="#c0392b"/>
+<circle cx="108.2" cy="121.6" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="77.8" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">total</text>
+<polyline points="624.0,223.2 520.8,247.9 432.4,265.7 358.7,279.4 285.1,292.1 226.1,301.4 167.2,310.2 108.2,318.3 64.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="223.2" r="3" fill="#1f6fb2"/>
+<circle cx="520.8" cy="247.9" r="3" fill="#1f6fb2"/>
+<circle cx="432.4" cy="265.7" r="3" fill="#1f6fb2"/>
+<circle cx="358.7" cy="279.4" r="3" fill="#1f6fb2"/>
+<circle cx="285.1" cy="292.1" r="3" fill="#1f6fb2"/>
+<circle cx="226.1" cy="301.4" r="3" fill="#1f6fb2"/>
+<circle cx="167.2" cy="310.2" r="3" fill="#1f6fb2"/>
+<circle cx="108.2" cy="318.3" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">pump energy part</text>
+<polyline points="624.0,317.5 520.8,303.4 432.4,284.6 358.7,263.9 285.1,236.4 226.1,207.6 167.2,170.4 108.2,120.6 64.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="317.5" r="3" fill="#2e8b57"/>
+<circle cx="520.8" cy="303.4" r="3" fill="#2e8b57"/>
+<circle cx="432.4" cy="284.6" r="3" fill="#2e8b57"/>
+<circle cx="358.7" cy="263.9" r="3" fill="#2e8b57"/>
+<circle cx="285.1" cy="236.4" r="3" fill="#2e8b57"/>
+<circle cx="226.1" cy="207.6" r="3" fill="#2e8b57"/>
+<circle cx="167.2" cy="170.4" r="3" fill="#2e8b57"/>
+<circle cx="108.2" cy="120.6" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">extra-time part</text>
+</svg>

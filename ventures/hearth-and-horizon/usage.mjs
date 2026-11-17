@@ -1,9 +1,22 @@
 // Anonymous, local-only event counts (portfolio/usage/README.md): nothing
 // leaves the browser, and Do Not Track / Global Privacy Control turn it off.
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const KEY = "hearth-and-horizon:usage";
 const OFF_KEY = "hearth-and-horizon:usage-off";
 
-export function usageAllowed(storage = globalThis.localStorage, navigatorLike = globalThis.navigator) {
+export function usageAllowed(storage = usageStorage(), navigatorLike = globalThis.navigator) {
   if (
     navigatorLike?.doNotTrack === "1" ||
     navigatorLike?.globalPrivacyControl === true ||
@@ -18,7 +31,7 @@ export function usageAllowed(storage = globalThis.localStorage, navigatorLike = 
   }
 }
 
-export function setUsageEnabled(enabled, storage = globalThis.localStorage) {
+export function setUsageEnabled(enabled, storage = usageStorage()) {
   try {
     if (!storage) return;
     if (enabled) storage.removeItem(OFF_KEY);
@@ -28,7 +41,7 @@ export function setUsageEnabled(enabled, storage = globalThis.localStorage) {
   }
 }
 
-export function countUsage(event, storage = globalThis.localStorage, navigatorLike = globalThis.navigator) {
+export function countUsage(event, storage = usageStorage(), navigatorLike = globalThis.navigator) {
   if (!usageAllowed(storage, navigatorLike) || !storage) return;
   try {
     let counts = JSON.parse(storage.getItem(KEY) || "{}");

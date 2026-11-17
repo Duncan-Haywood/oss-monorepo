@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKYe41vApzTuJqbVJM",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T20:06:34Z",
+  "ended": "2026-11-13T20:20:11Z",
+  "wall_minutes": 13.83,
+  "tokens_in": 12395765,
+  "tokens_out": 125897,
+  "cost_usd": 7.6975,
+  "tool_calls": 158,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15600",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/quality_mutate.py",
+      "issue": "--old matching twice errors out; needed --occurrence 1 for model.py's repeated 'mass * (n + 1)'. Clear message, cost one retry."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes hands off after 100 s and forbids edits until done; a frontmatter fix made just before it ran was fine, but the rule is easy to trip mid-run."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-72.md"
+  ],
+  "goal": null,
+  "notes": "mode sample, seed 2026-11-13-r-1b81, round 72. Subjects: ventures/lemonsqueezy-payout-to-journal, ventures/meta-ads-fatigue-analyzer, research/chip-sharesign, research/occupancy-twin (no flagship/platform drawn). Meets bar: 0 of 4 (cumulative sampled 33/302, Wilson 8-15%). Seeded bugs caught by subjects' tests: 9 of 22. One auditor agent per subject; I reran one recomputation per subject myself (lemonsqueezy LS fee example journals 1794 cents; meta Testimonial reel freq 4.6/ctr 0.5641%/79 clicks; occupancy theta*=0.509, err 1.45e-02, 2.58e-02; chip-sharesign awk shows 6 cells x depth flips) and all matched. Fix PRs: #15600 (same PR, separate commits) for all four: lemonsqueezy Patreon label/placeholder, parseAmount deposit, date_utc, known-gap disclosure; meta tab decimal commas + 5 threshold mutants now caught; chip-sharesign claim corrected, negative miter test (catches -verify mutant), run.py asserts equivalence; occupancy E[T] test (catches model.py:69 mutant). Each fix's new tests fail on the old code. Venture suites pass (42, 33); occupancy 8 tests, chip-sharesign 4 tests pass. Large gaps (LS real export parser, meta daily frequency model, sharesign $macc confound and k=4 control, occupancy prior work) recorded in README Known gaps/Limitations. No agent doc in docs/reports: nothing new the next run needs beyond the audit files.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2857b237-e613-5436-b436-362d4f26d0ba",
+    "transcripts": 5,
+    "first": "2026-11-13T20:06:34Z",
+    "last": "2026-11-13T20:20:24Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 150,
+        "input": 305,
+        "output": 125897,
+        "thinking": 31821,
+        "cache_read": 11900427,
+        "cache_write_5m": 387339,
+        "cache_write_1h": 107694,
+        "api_equivalent_usd": 7.6975,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 150,
+      "input": 305,
+      "output": 125897,
+      "thinking": 31821,
+      "cache_read": 11900427,
+      "cache_write_5m": 387339,
+      "cache_write_1h": 107694,
+      "api_equivalent_usd": 7.6975,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 158,
+    "tools": {
+      "Bash": 136,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "Read": 3,
+      "ToolSearch": 2,
+      "ReadNotifications": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.83,
+      "active_minutes": 9.04,
+      "model_minutes": 5.68,
+      "tool_minutes": 3.36,
+      "waiting_on_human_minutes": 4.78,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 22.62
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "four independent audits with recomputation and mutation testing (~3 h each) plus four small fixes with tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 207.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

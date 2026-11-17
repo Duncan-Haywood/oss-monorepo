@@ -199,13 +199,14 @@
     <p><strong>No warranty. This is an estimate, not engineering advice and not an ACCA Manual J report.</strong> It uses an open first-principles method with simplifications described on <a href="./how-it-works.html">how it works</a>. Many permits require a load calculation from approved software; buy equipment on a full calculation by a qualified designer.</p>
     <p>Nothing leaves your browser. <label class="check" style="display:inline-flex"><input type="checkbox" id="optOut"> Do not keep anonymous local usage counts</label></p>
     <p>Worried the same wall will get wet inside in winter? The <a href="../wall-condensation-check/">wall condensation check</a> runs a month-by-month dew point check on its layers &mdash; nothing uploaded.</p>
+    <p>Plumbing the same house? The <a href="../water-supply-sizing/">water supply pipe sizing calculator</a> works out peak water demand and copper or PEX sizes segment by segment &mdash; nothing uploaded.</p>
     <p>Pricing a ductless install once you know the load? The <a href="../mini-split-bid-calculator/">mini-split bid calculator</a> prices heads, line sets and labour &mdash; nothing uploaded.</p>
     <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hvac-load-calc">Source, CLI and README</a>. If it saved you a bad quote, <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the work</a>. <a href="../">More free tools</a>.</p>
   </footer>
 
   <script type="module">
     import { calculate, EXAMPLE, DEFAULTS, FACINGS } from './load.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
     const el = id => document.getElementById(id);
     const SITE = Object.keys(DEFAULTS.site);
@@ -343,7 +344,7 @@
       el('errors').textContent = '';
       last = r;
       show(r);
-      recordUsage(globalThis.localStorage, el('optOut').checked, 'load_calculated');
+      recordUsage(usageStorage(), el('optOut').checked, 'load_calculated');
     }
 
     function download(name, text, type) {
@@ -370,7 +371,7 @@
       download('room-loads.csv', lines.join('\n') + '\n', 'text/csv');
     });
     el('optOut').checked = readOptOut();
-    el('optOut').addEventListener('change', () => writeOptOut(globalThis.localStorage, el('optOut').checked));
+    el('optOut').addEventListener('change', () => writeOptOut(usageStorage(), el('optOut').checked));
 
     setForm(EXAMPLE);
     run();

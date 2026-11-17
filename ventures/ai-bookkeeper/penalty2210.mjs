@@ -8,7 +8,8 @@
 // Source, read 2026-11-11 (pdftotext of irs.gov/pub/irs-pdf/f2210.pdf, "Form 2210 (2025) Created
 // 10/21/25", and i2210.pdf, "Instructions for Form 2210 (2025)"): the line wording below, the
 // worksheet's four rate periods (Apr 16-Jun 30, Jul 1-Sep 30, Oct 1-Dec 31, Jan 1-Apr 15) each
-// multiplying "underpayment x days / 365 x 0.07", Table 2 (total days per period) and Examples 1,
+// multiplying "underpayment x days / 365 x 0.07" (366 in a leap year: the 2024 worksheet, i2210--2024.pdf
+// from irs.gov/pub/irs-prior, read 2026-11-13, and its Example 5), Table 2 (total days per period) and Examples 1,
 // 3 and 4, all reproduced in penalty2210.test.mjs. The quarterly underpayment rates are the IRS
 // page irs.gov/payments/quarterly-interest-rates, read the same day: 8% through 2024, 7% for every
 // quarter of 2025, 2026 Q1 7%, Q2 6%, Q3 7%, Q4 7%. A rate for a quarter not on file is taken as
@@ -19,11 +20,18 @@
 // show otherwise"); pass `withheld` [{ date, cents }] to treat it as paid on the dates actually
 // withheld, which is what checking box D does. Either way withholding never goes on the
 // worksheet's line 1b ("Do not enter any withheld federal income tax ... on line 1b").
-// Not modelled: the January 31 return-and-pay rule for column (d), waivers, fiscal
+// January 31 rule (added 2026-11-11, same instructions, "Line 11"): "If you file your return and pay
+// the tax due by January 31, 2026, include on line 11, column (d), the amount of tax you pay with
+// your tax return. In this case, you won't owe a penalty for the payment due on January 15, 2026."
+// A payment marked { withReturn: true } dated after the January due date and by January 31 goes in
+// column (d), and the worksheet applies what is left of it to earlier columns only. Filed later it
+// is an ordinary payment dated the filing day (Table 1). January 31 moves past a weekend or DC
+// holiday (IRC 7503, `fileAndPayDeadline`): for 2025 the last day is Monday, February 2, 2026.
+// Not modelled: waivers, fiscal
 // years, farmers and fishers, Form 1040-NR's two-column variant. Day counts use the printed dates
 // (4/15, 6/15, 9/15, 1/15) as the worksheet does; a payment made by the date moved for a weekend
 // or holiday (IRC 7503, `estimatedDueDates`) counts as on time. Amounts are cents.
-import { estimatedDueDates } from "./taxforms.mjs";
+import { estimatedDueDates, fileAndPayDeadline } from "./taxforms.mjs";
 
 // Underpayment rate per calendar quarter, "YYYY-Q" (IRC 6621(a)(2) for individuals).
 export const UNDERPAYMENT_RATES = {
@@ -58,12 +66,14 @@ export function ratePeriods(year, rates = {}) {
     let rate = rates[key] ?? UNDERPAYMENT_RATES[key];
     if (rate === undefined) {
       rate = UNDERPAYMENT_RATES[LAST_ON_FILE];
-      warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${rate * 100}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
+      warnings.push(`No IRS underpayment rate on file for ${key.replace("-", " Q")}; ${+(rate * 100).toFixed(4)}% (the last one on file, ${LAST_ON_FILE.replace("-", " Q")}) is used. Check irs.gov/payments/quarterly-interest-rates or pass rates.`);
     }
-    return { start, end, rate, key };
+    // Each period sits inside one calendar year and divides by that year's length: the 2024
+    // worksheet prints "÷ 366" for its three 2024 periods and "÷ 365" for January to April 2025.
+    const y = +end.slice(0, 4);
+    const yearDays = (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0 ? 366 : 365;
+    return { start, end, rate, key, yearDays };
   });
-  // The 2025 worksheet divides by 365; a leap day inside a period is not checked against a form.
-  if (periods.some((p) => { const y = +p.end.slice(0, 4); return (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0; })) warnings.push("A rate period falls in a leap year; this uses 365 days as the 2025 worksheet does, and that year's worksheet may divide by 366.");
   return { periods, warnings };
 }
 
@@ -91,7 +101,8 @@ export function sectionA(required, credits) {
 // [{ date: "YYYY-MM-DD", cents }]; an overpayment from last year's return is a payment dated
 // April 15 (instructions, Table 1). With `withheld` (box D, an array of the same shape) each
 // withholding counts in the column whose window holds its date, like a payment.
-const inColumn = (due, j) => (p) => p.date <= due[j] && (j === 0 || p.date > due[j - 1]);
+const withEarlyReturn = (due, p) => !!p.withReturn && p.date > due[3] && p.date <= fileAndPayDeadline(+due[3].slice(0, 4) - 1);
+const inColumn = (due, j) => (p) => (withEarlyReturn(due, p) ? j === 3 : p.date <= due[j] && (j === 0 || p.date > due[j - 1]));
 const total = (xs) => xs.reduce((s, p) => s + Math.max(0, p.cents || 0), 0);
 export function creditsByColumn(year, payments = [], withholding = 0, withheld = null) {
   const due = estimatedDueDates(year);
@@ -126,6 +137,7 @@ export function penaltyWorksheet(year, underpayments, payments = [], opts = {}) 
     let amount = p.cents;
     for (let j = 0; j < 4 && amount > 0; j++) {
       if (!(p.date > due[j]) || left[j] <= 0) continue;
+      if (j === 3 && withEarlyReturn(due, p)) continue; // already on line 11, column (d)
       const use = Math.min(left[j], amount);
       applied[j].push({ date: p.date, cents: use });
       left[j] -= use;
@@ -145,9 +157,10 @@ export function penaltyWorksheet(year, underpayments, payments = [], opts = {}) 
         const n = Math.max(0, days(from, to));
         if (!n) continue;
         dayCounts.push(n);
-        amount += (piece.cents * n * per.rate) / 365;
+        // One computation per payment, each rounded to the cent (instructions, "Line 4" and Example 5).
+        amount += Math.round((piece.cents * n * per.rate) / per.yearDays);
       }
-      return { period: `${iso(t(per.start) + DAY)} to ${per.end}`, rate: per.rate, days: dayCounts, cents: Math.round(amount) };
+      return { period: `${iso(t(per.start) + DAY)} to ${per.end}`, rate: per.rate, days: dayCounts, cents: amount };
     });
     return { due: printed[j], underpayment: Math.max(0, u), paidBy: applied[j], unpaid: left[j], lines, penalty: lines.reduce((s, l) => s + l.cents, 0) };
   });

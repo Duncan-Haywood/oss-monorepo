@@ -37,6 +37,7 @@
 import { carryOverFromOpponents, starterOpp, assignVenues, venueCost, shiftOrientation, shiftVenues, STARTERS, STARTERS_WEIGHTED } from "../carryover.mjs";
 import { mulberry32 } from "../calc.mjs";
 import { cyclicScore, toPairs } from "./starter-climb.mjs";
+import { pathToFileURL } from "node:url";
 
 const seqs = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((o) => o[t]).filter((u) => u < n));
 const pairsOf = ([step, ...flat]) => { const out = []; for (let i = 0; i < flat.length; i += 2) out.push([flat[i], flat[i + 1]]); return { step, pairs: out }; };
@@ -221,7 +222,7 @@ export function climbWeighted(N, odd, ms, seed, weight, poolSize = 400, seeds = 
   return { best, pool: [...pool.values()].sort((a, b) => a.cost - b.cost).slice(0, poolSize), restarts, moves, ms: Date.now() - t0 };
 }
 
-const isMain = import.meta.url === `file://${process.argv[1]}`;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const secs = Number(process.argv[2] || 30);
   const weight = Number(process.argv[3] || 10);

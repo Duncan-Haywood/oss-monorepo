@@ -230,6 +230,10 @@ class LocalPipelineTests(unittest.TestCase):
     def test_selected_grade_scope_masters_only_the_picked_clip(self) -> None:
         # Two 46 s takes of the same shot: the hero reel keeps one per scene and
         # the 45 s variants fit neither, so exactly one clip is ever rendered.
+        # A001's 1 s audio track only makes the takes differ; the container
+        # still runs 46 s (the video's length). A 46 s AAC track cost about
+        # 1.4 s per encode of it (ffmpeg's native AAC encoder) for nothing the
+        # test checks (docs/history/ci-perf-2026-11-12-photo-editing-fixture-audio.md).
         with tempfile.TemporaryDirectory() as tmp:
             base = Path(tmp)
             card = base / "card" / "DCIM"
@@ -237,7 +241,7 @@ class LocalPipelineTests(unittest.TestCase):
             for name, audio in (("A001.MOV", True), ("A002.MOV", False)):
                 _run(
                     "-f", "lavfi", "-i", "testsrc2=size=1280x720:rate=1:duration=46",
-                    *(("-f", "lavfi", "-i", "sine=duration=46", "-c:a", "aac", "-shortest") if audio else ()),
+                    *(("-f", "lavfi", "-i", "sine=duration=1", "-c:a", "aac") if audio else ()),
                     "-c:v", "libx264", "-pix_fmt", "yuv420p", str(card / name),
                 )
             _make_photo(card / "IMG_0001.JPG", color="red")
@@ -357,12 +361,17 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertEqual(dng_analysis["analysis_method"], "frame_metrics")
             self.assertEqual(_hidden_temp_files(workspace), [])
 
-    def test_non_dng_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
+    def test_unreadable_raw_with_a_preview_stops_at_grade_naming_the_dng_route(self) -> None:
+        # Every RAW extension ShootFlow ingests is developed since 2026-11-15 (CR3 then, C-RAW too, and C-RAW in
+        # several tiles since 2026-11-16), but a CR3 whose codec version is unknown is not read: it is scored from its
+        # preview and stops at the grade stage.
+        from test_cr3 import make_cr3
+
         with tempfile.TemporaryDirectory() as tmp:
             preview = Path(tmp) / "preview.jpg"
             _make_photo(preview, color="green")
-            fake_cr2 = b"II*\x00\x08\x00\x00\x00" + b"\x00" * 64 + preview.read_bytes() + b"\x00" * 16
-            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR2": fake_cr2})
+            c_raw = make_cr3(version=0x300, levels=3) + preview.read_bytes() + b"\x00" * 16
+            manifest = _ingested_shoot(Path(tmp) / "shoot", extra_files={"IMG_0003.CR3": c_raw})
 
             result = run_local_pipeline(manifest, clock=_ticking_clock())
 
@@ -370,7 +379,7 @@ class LocalPipelineTests(unittest.TestCase):
             self.assertTrue(any(job_id.startswith("grade_asset_") for job_id in result.needs_review_ids), result)
             status = json.loads((manifest.parent / "production_status.json").read_text())
             messages = [job["error_message"] for job in status["job_statuses"] if job.get("error_message")]
-            self.assertTrue(any("convert CR2 to DNG" in message for message in messages), messages)
+            self.assertTrue(any("codec version" in message and "DNG Converter" in message for message in messages), messages)
 
     def test_cli_exit_code_reports_review_needed(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

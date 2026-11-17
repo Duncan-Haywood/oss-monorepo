@@ -46,8 +46,15 @@ const AMOUNT_RE = new RegExp(
 // them is being parsed (parseStatement turns this on); elsewhere "1.5" is not money.
 let oneDecimal = false;
 
+// A whole number tagged CR or DR ("90,350 CR"): some statements drop the
+// decimals of a round balance. The tag is what makes it money; a bare "90,350"
+// is still not read as an amount.
+const WHOLE_TAGGED_RE = /^([-+]?)([$€£]?)(\d{1,3}(?:,\d{3})+|\d{1,9})(CR|DR|Cr|Dr)$/;
+
 /** Parses one word as an amount, or returns null. */
 export function parseAmountWord(word) {
+  const w = WHOLE_TAGGED_RE.exec(word);
+  if (w) return { abs: Number(w[3].replace(/,/g, '')) * 100, neg: w[1] === '-', tag: w[4].toUpperCase(), text: word, whole: true };
   const m = AMOUNT_RE.exec(word);
   if (!m) return null;
   if (m[7] !== undefined && !oneDecimal) return null;
@@ -110,7 +117,12 @@ function leadingDates(words) {
   return { dates, used: i };
 }
 
-const validDmy = (d, m) => m >= 1 && m <= 12 && d >= 1 && d <= 31;
+// Days in each month; February allows the 29th until the year is known.
+const MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const validDmy = (d, m) => m >= 1 && m <= 12 && d >= 1 && d <= MONTH_DAYS[m - 1];
+const leapYear = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+// 29 February exists only in a leap year; a missing year is not checked here.
+const realDay = (y, m, d) => validDmy(d, m) && !(m === 2 && d === 29 && y && !leapYear(y));
 
 // --- Input: lines of word-items ---------------------------------------------
 
@@ -153,7 +165,7 @@ function wordsOf(line) {
     const w = out[i];
     const next = out[i + 1];
     if (next && /^[$€£(+-]+$/.test(w.text) && /^[\d(]/.test(next.text)) { merged.push({ text: w.text + next.text, x: w.x, xEnd: next.xEnd }); i++; continue; }
-    if (merged.length && /^(CR|DR|Cr|Dr)$/.test(w.text) && AMOUNT_RE.test(merged[merged.length - 1].text)) {
+    if (merged.length && /^(CR|DR|Cr|Dr)$/.test(w.text) && (AMOUNT_RE.test(merged[merged.length - 1].text) || /^[-+]?[$€£]?(\d{1,3}(,\d{3})+|\d{1,9})$/.test(merged[merged.length - 1].text))) {
       const prev = merged[merged.length - 1];
       merged[merged.length - 1] = { text: prev.text + w.text, x: prev.x, xEnd: w.xEnd };
       continue;
@@ -233,6 +245,10 @@ const TOTAL_DEBIT_RE = /\btotal\s+(withdrawals?|debits?|checks?|cheques?|money\s
 // restart of the running balance just after it, a new account's table begins.
 const ACCOUNT_TITLE_RE = /\b(account|acct|konto|rekening|compte|cuenta|conto)\b/i;
 const CONTINUED_RE = /\(?\b(continued|cont'?d|suite|vervolg|fortsetzung|continuacion)\b\)?/gi;
+// A line that says the transaction list is over ("End of transactions",
+// "Transactions stop here"). Rows after it are left out, with a note, until a
+// new account's title starts another table.
+const END_RE = /^\W*(end\s+of\s+(your\s+)?(transactions?|transaction\s+(details|history|list)|statement)|transactions?\s+(stop|end)\s+here|no\s+(further|more)\s+transactions)\b/i;
 const SKIP_RE = /^(page\s+\d+|continued|statement\s+(period|date)|account\s+(number|summary)|\*+|total\b)/i;
 
 function lastAmount(words) {
@@ -277,6 +293,31 @@ function parseStatementInner(lines, opts) {
   }
   if (detected) note('info', 'Read as a credit card statement', 'The statement mentions a minimum payment, a payment due date or a credit limit, so a bare amount is read as a charge and a minus sign or CR as a payment. If this is a bank account, choose Bank account as the account type.');
 
+  // Lines with no amount that were read as the wrapped end of the row above
+  // can instead be the start of the row below, on statements that print a
+  // long description above its amount. The spacing says which: lines of one
+  // transaction sit closer together than two transactions do. When the widest
+  // gap between the row above's amount line, its wrapped lines and this row's
+  // line stands clearly above the rest, the wrapped lines after that gap move
+  // down to this row. Even spacing (most statements) moves nothing.
+  function takeWraps(prev, line) {
+    const wraps = prev.wraps || [];
+    if (!wraps.length || line.paste || prev.amtKey === undefined || line.key === undefined) return '';
+    if (wraps.some((w) => w.page !== line.page) || prev.amtPage !== line.page) return '';
+    const keys = [prev.amtKey, ...wraps.map((w) => w.key), line.key];
+    const gaps = keys.slice(1).map((k, i) => Math.abs(k - keys[i]));
+    let at = 0;
+    gaps.forEach((g, i) => { if (g > gaps[at]) at = i; });
+    if (at === gaps.length - 1) return '';
+    const rest = Math.max(...gaps.filter((_, i) => i !== at));
+    if (gaps[at] - rest < 0.5 || gaps[at] < rest * 1.04) return '';
+    const moved = wraps.slice(at).map((w) => w.text).join(' ');
+    if (!prev.description.endsWith(moved)) return '';
+    prev.description = prev.description.slice(0, prev.description.length - moved.length).trim();
+    prev.wraps = wraps.slice(0, at);
+    return moved;
+  }
+
   // A row with no date under the table's columns, after a dated row: many
   // banks print the date once per day. It becomes its own transaction on the
   // date above, if it has a description and an amount that is not zero.
@@ -289,10 +330,11 @@ function parseStatementInner(lines, opts) {
     const tol = prev.paste ? 2 : 12;
     if (prev.descX === null || words[0].x < prev.descX - tol || (prev.amtX !== null && words[0].x >= prev.amtX - tol)) return false;
     if (line.page !== prev.page && !prev.cols.length) return false;
+    const lead = takeWraps(prev, line);
     finish();
     current = {
-      line: line.lineNo || null, page: line.page, dates: prev.dates, dateText: prev.dateText, carried: true,
-      description: words.slice(0, descEnd).map((w) => w.text).join(' '), amts, key: line.key, cols: prev.cols, title: null,
+      line: line.lineNo || n, page: line.page, dates: prev.dates, dateText: prev.dateText, carried: true,
+      description: `${lead} ${words.slice(0, descEnd).map((w) => w.text).join(' ')}`.trim(), amtKey: line.key, amtPage: line.page, amts, key: line.key, cols: prev.cols, title: null,
       descX: prev.descX, amtX: amts[0].word.x, paste: Boolean(line.paste),
     };
     return true;
@@ -338,6 +380,8 @@ function parseStatementInner(lines, opts) {
   const isFurniture = (l) => !l.paste && l.items.length && furniture.has(furnitureKey(l));
   let pendingTitle = null;
   const totals = []; // { role: 'credit'|'debit', a, line }
+  let ended = null; // { line, text, skipped } after an end-of-transactions line
+  const endings = [];
 
   for (const line of lines) {
     n++;
@@ -345,6 +389,12 @@ function parseStatementInner(lines, opts) {
     const words = wordsOf(line);
     if (!words.length) continue;
     const text = words.map((w) => w.text).join(' ');
+
+    if (END_RE.test(text)) { finish(); if (!ended) { ended = { line: lineNo, text, skipped: 0 }; endings.push(ended); } continue; }
+    if (ended) {
+      if (ACCOUNT_TITLE_RE.test(text) && /\d{3,}/.test(text) && !words.some((w) => parseAmountWord(w.text))) ended = null;
+      else { if (leadingDates(words).dates.length) ended.skipped++; continue; }
+    }
 
     if (isHeadingLine(words)) {
       const c = headingColumns(words, kind);
@@ -395,6 +445,7 @@ function parseStatementInner(lines, opts) {
       current = {
         line: lineNo, page: line.page, dates: lead.dates.map((x) => x.d), dateText: lead.dates[0].text,
         description: rest.slice(0, descEnd).map((w) => w.text).join(' '), amts, key: line.key, cols, title: pendingTitle,
+        amtKey: amts.length ? line.key : undefined, amtPage: line.page,
         descX: descEnd > 0 ? rest[0].x : null, amtX: amts.length ? amts[0].word.x : null, paste: Boolean(line.paste),
       };
       pendingTitle = null;
@@ -423,6 +474,7 @@ function parseStatementInner(lines, opts) {
       for (let i = descEnd; i < words.length; i++) trailing.push({ ...parseAmountWord(words[i].text), word: words[i] });
       if (!current.amts.length && trailing.length) {
         current.amts = trailing;
+        current.amtKey = line.key; current.amtPage = line.page; current.wraps = [];
         const d = words.slice(0, descEnd).map((w) => w.text).join(' ');
         if (d) current.description = `${current.description} ${d}`.trim();
         continue;
@@ -434,18 +486,24 @@ function parseStatementInner(lines, opts) {
       if (isFurniture(line)) continue;
       if (!underDesc && !trailing.length) { finish(); continue; }
       if (!trailing.length && !allAmts && underDesc) {
-        const sameBlock = line.page === current.page;
+        const lastPage = current.lastPage !== undefined ? current.lastPage : current.page;
+        const sameBlock = line.page === lastPage;
+        // A row still waiting for its amount can run on to the next page.
+        const runsOn = !current.amts.length && line.page === lastPage + 1;
         const med = gaps.length ? [...gaps].sort((a, b) => a - b)[Math.floor(gaps.length / 2)] : null;
         const lastKey = current.lastKey !== undefined ? current.lastKey : current.key;
-        const near = line.paste || med === null || line.key === undefined || lastKey === undefined || Math.abs(line.key - lastKey) <= med * 1.7;
-        if (sameBlock && near && current.description.length < 240) {
+        const near = runsOn || line.paste || med === null || line.key === undefined || lastKey === undefined || Math.abs(line.key - lastKey) <= med * 1.7;
+        if ((sameBlock || runsOn) && near && current.description.length < 240) {
           current.description = `${current.description} ${text}`.trim();
-          current.lastKey = line.key;
+          current.lastKey = line.key; current.lastPage = line.page;
+          if (current.amtKey !== undefined) (current.wraps = current.wraps || []).push({ text, key: line.key, page: line.page });
         }
       }
     }
   }
   finish();
+
+  for (const e of endings) if (e.skipped) note('info', 'Rows after the end of the transactions left out', `Line ${e.line} says "${e.text.slice(0, 60)}", so ${e.skipped} dated line${e.skipped === 1 ? '' : 's'} after it ${e.skipped === 1 ? 'was' : 'were'} not read as transactions. If they belong to the statement, check the balance proof below.`, e.line);
 
   if (datedBalances.length >= 2) {
     if (!opening) opening = datedBalances[0];
@@ -479,6 +537,7 @@ function parseStatementInner(lines, opts) {
       else if (years.length === 1) y = years[0];
       else if (years.length >= 2) y = m >= 7 ? years[0] : years[years.length - 1];
     }
+    if (!realDay(y, m, day)) return { ok: false, y: y || null, m, d: day };
     return { ok: true, y, m, d: day, inferred: !d.y };
   };
 
@@ -570,13 +629,17 @@ function parseStatementInner(lines, opts) {
   }
 
   // 5. Findings.
-  const noDates = tx.filter((t) => !t.date || !t.date.ok);
-  if (noDates.length) note('error', `${noDates.length} date${noDates.length === 1 ? '' : 's'} could not be read`, `Not a real calendar day-month with the order used (${order || 'n/a'}): lines ${noDates.slice(0, 8).map((t) => t.line).join(', ')}${noDates.length > 8 ? ', …' : ''}. Try the other date order.`, noDates[0].line);
+  // Dates with no year anywhere take this year; 29 February is re-checked
+  // against it before the unreadable dates are counted.
   const noYear = tx.filter((t) => t.date && t.date.ok && !t.date.y);
   const yearFallback = new Date().getFullYear();
+  const fillYear = (d, y) => { d.y = y; if (!realDay(d.y, d.m, d.d)) d.ok = false; };
+  for (const t of noYear) fillYear(t.date, yearFallback);
+  // A value date printed without a year takes its row's year.
+  for (const t of tx) if (t.postDate && t.postDate.ok && !t.postDate.y) fillYear(t.postDate, (t.date && t.date.y) || yearFallback);
+  const noDates = tx.filter((t) => !t.date || !t.date.ok);
+  if (noDates.length) note('error', `${noDates.length} date${noDates.length === 1 ? '' : 's'} could not be read`, `Not a real calendar day-month with the order used (${order || 'n/a'}): lines ${noDates.slice(0, 8).map((t) => t.line).join(', ')}${noDates.length > 8 ? ', …' : ''}. Try the other date order.`, noDates[0].line);
   if (noYear.length) {
-    for (const t of noYear) t.date.y = yearFallback;
-    for (const t of tx) if (t.postDate && t.postDate.ok && !t.postDate.y) t.postDate.y = yearFallback;
     note('warning', 'The statement year was not found', `${noYear.length} date${noYear.length === 1 ? ' has' : 's have'} no year and no statement period was found to take it from, so ${yearFallback} was used. Enter the year below if that is wrong.`);
   } else if (tx.some((t) => t.date && t.date.inferred)) {
     note('info', 'Year taken from the statement period', `Dates printed without a year were given the year of the statement period (${years.join('–') || String(defaultYear)}).`);
@@ -584,6 +647,38 @@ function parseStatementInner(lines, opts) {
   if (guessedSign) note('warning', `${guessedSign} row${guessedSign === 1 ? '' : 's'} had no way to tell money in from money out`, 'These amounts have no minus sign, no CR/DR, no Debit/Credit column and no running balance to compare against. They are shown as money in. If the statement reconciles below, the guess was right; if not, the amounts in those rows are the first place to look.');
   if (signFixed) note('info', `${signFixed} sign${signFixed === 1 ? '' : 's'} set by the running balance`, 'The running balance showed that the money moved the other way to what the column or the printed sign suggested, and the balance was believed.');
   if (dropped.length) note('info', `${dropped.length} dated line${dropped.length === 1 ? '' : 's'} without an amount left out`, `Lines ${dropped.slice(0, 10).map((t) => t.line).join(', ')}${dropped.length > 10 ? ', …' : ''} start with a date but carry no amount, so they are not transactions.`, dropped[0].line);
+  // A printed balance that is itself wrong: the rows before it reach X, it
+  // prints Y, and the next printed balance follows on from X, not from Y. No
+  // row is missing; the statement misprinted one figure (a dropped digit, a
+  // typo). The break after it, measured from the misprint, is the same fault.
+  const misprints = [];
+  {
+    const brokenRows = new Set(balanceBreaks.map((b) => b.t.line));
+    for (const b of [...balanceBreaks]) {
+      const i = tx.findIndex((t) => t.line === b.t.line && t.balance === b.actual);
+      if (i < 1 || misprints.some((m) => m.next === tx[i])) continue;
+      let pi = i - 1;
+      while (pi >= 0 && tx[pi].balance === null) pi--;
+      if (pi < 0 || tx[pi].account !== tx[i].account) continue;
+      let reach = tx[pi].balance;
+      for (let k = pi + 1; k <= i; k++) reach += tx[k].delta;
+      if (reach === tx[i].balance) continue;
+      let j = i + 1, chain = reach;
+      while (j < tx.length && tx[j].balance === null && tx[j].account === tx[i].account) { chain += tx[j].delta; j++; }
+      if (j >= tx.length || tx[j].account !== tx[i].account) continue;
+      chain += tx[j].delta;
+      if (chain !== tx[j].balance) continue;
+      misprints.push({ t: tx[i], reach, next: tx[j] });
+      const k2 = balanceBreaks.findIndex((x) => x.t.line === tx[j].line && brokenRows.has(tx[j].line));
+      if (k2 >= 0) balanceBreaks.splice(k2, 1);
+      const k1 = balanceBreaks.findIndex((x) => x === b);
+      if (k1 >= 0) balanceBreaks.splice(k1, 1);
+    }
+  }
+  for (const m of misprints) {
+    m.t.misprint = m.reach;
+    note('warning', `The balance printed on line ${m.t.line} looks misprinted`, `Line ${m.t.line} ("${m.t.description.slice(0, 50)}") prints a balance of ${money(m.t.balance)}, but the rows before it reach ${money(m.reach)}, and the next printed balance (line ${m.next.line}, ${money(m.next.balance)}) follows on from ${money(m.reach)}, not from ${money(m.t.balance)}. So no row is missing: the statement's own figure is off by ${money(Math.abs(m.t.balance - m.reach))}. Check it against the paper or the bank's app before relying on that row's balance.`, m.t.line);
+  }
   if (balanceBreaks.length) {
     const b = balanceBreaks[0];
     note('error', `The running balance breaks at line ${b.t.line}`, `${balanceBreaks.length} row${balanceBreaks.length === 1 ? '' : 's'} where the balance printed on the statement is not the previous balance plus the amount. The first is line ${b.t.line} ("${b.t.description.slice(0, 50)}"): it prints ${money(b.actual)} but the rows before it reach ${money(b.expected)}, a difference of ${money(Math.abs(b.actual - b.expected))}. A row is probably missing or misread just before it.`, b.t.line);

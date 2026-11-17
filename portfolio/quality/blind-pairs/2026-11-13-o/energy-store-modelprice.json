@@ -1,0 +1,223 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/energy-store-modelprice",
+ "stratum": "research",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an energy-economics / power-systems researcher who reviews storage-valuation papers for Energy Economics or Applied Energy. They would check first that the price-taker charging rule is the optimum of its stated problem (cheapest hours under a charger-power limit), that the price model is truly out of sample, whether the storage-versus-heat-pump comparison prices both technologies against the same demand profile (timing and COP), and whether the result is placed against the forecast-error-in-storage-dispatch literature (Sioshansi, Denholm, Jenkin & Weiss 2009, Energy Economics 31(2), backcast dispatch captures most perfect-foresight arbitrage value; Walawalkar, Apt & Mancini 2007; for power-to-heat Bloess, Schill & Zerrahn 2018; for residual-load / merit-order price models Hirth 2013)",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every headline number reproduces and three parts of the pipeline recompute independently. Rerun of experiments/run.py (a copy that writes to the scratch dir, so the tree is untouched; /usr/bin/python3.13, 46 s) matches experiments/results.txt except one rounding digit: 2016 real weekly cheapest-quarter 0.0182 vs committed 0.0183 (the exact value is 0.01825, a half-way case that Python 3.12+'s compensated sum rounds down; every derived diff and verdict is unchanged). Independent scripts in the scratch dir energy/check.py, check2.py, check3.py (numpy 2.5 / scipy 1.18, reading the raw OPSD CSVs): (1) daily/weekly cheapest-quarter and Nov-Mar mean real prices 0.0216/0.0188, 0.0207/0.01825, 0.0230/0.0193, 0.0321/0.0276, 0.0265/0.0217 and hp 0.0319/0.0307/0.0388/0.0423/0.0391 equal section A; (2) a scipy HiGHS LP (buy 6 units in 24 h at <=1 unit/h) equals the cheapest-6 mean to 1e-17 on 10 real 2019 days, so the cheapest-quarter rule is the optimum of its window problem; (3) my own tie-averaged weighted PAVA isotonic fit, leave-one-year-out, gives resid means 0.0375/0.0397/0.0362/0.0328/0.0317 (README 0.036-0.040 over-, 2018-19 under-), house weekly diffs +0.0080/+0.0098/+0.0044/-0.0032/-0.0097 (section H), and agreement 32/37/21 of 40 for resid/resid+/merit (section C); (4) break-even by bisection 0.0375/0.0372/0.0386/0.0392/0.0387 equals section F. The cost model itself (energy-thermal-cost) was used as given, not re-derived.",
+  "completeness": "All four claimed analyses exist and run end to end: verdict agreement (sections B, C, G), weekly failure and oracle (H, G), break-even (F), executed charging (D, E); figure.py parses results.txt into weekly.svg; 6 tests pass; live page https://marisstella.app/research/energy-store-modelprice/ returns 200 and carries the 32-of-40 headline. Next steps (fuel/carbon regressor, cost CI, true forecast) are listed as open, not claimed.",
+  "verification": "`cd research/energy-store-modelprice && python3.13 -m pytest tests -q`: 6 passed in 1.35 s. Four mutations of model.py via quality_mutate.py: paying the planned instead of the actual price (line 41) and reversing the charge-hour sort (line 40) are caught; training on all five years instead of leave-one-year-out (line 24, the property the whole study rests on) survives, and changing the tie band from <= to < (line 56) survives. No test pins any headline number (32/40, 21/40, weekly 0/5) or the leave-one-out split.",
+  "craft": "Read model.py (57 lines), run.py (107), figure.py (28), test_model.py (40). Small, readable, stdlib only, reuses the sibling packages instead of copying them. Defects: run.py recomputes every diff three times (sections B, D, G, H call diff() again), which is why it takes 46 s here; it writes results.txt itself and the README also tells the reader to redirect stdout into the same file; verdict(d, 0.0) is called with a pre-subtracted diff, an awkward API; sys.path manipulation at import time in model.py.",
+  "claims": "Checked 11 README/project.json claims against results.txt and my recomputation: 32/40 vs 21/40, 30 of 30 non-weekly cells, weekly 0/5 house and 2/5 district, oracle restores 4/5, mean-level over/understatement ranges, break-even 0.038-0.039 vs 0.037-0.039, cheap-quarter offsets, executed gaps 0.0004-0.0011 and 0.0006-0.0010, merit gaps +0.0041/+0.0143, merit range 0.003-0.020 (project.json) all backed. One wrong: README line 15 says the pump wins the house weekly case 'in two [years] in the real series'; section B/H show one pump win (2018) and one tie (2019, -0.0005). Runtime 'about 20 s' was 46 s here (machine-dependent). Limitations are unusually candid (correlated cells, no significance test, tie band is a choice, LOYO sees later years, wholesale only). Disclaimer of AI assistance present.",
+  "fitness": "A researcher could rerun and extend it in minutes (stdlib, deterministic, data committed). The question (does a technology verdict survive a modelled price) is a sensible one, and the scheduling result (model-ranked charging costs 0.0007-0.0009 EUR/kWh over perfect foresight) agrees with Sioshansi et al. 2009's finding that backcast/forecast dispatch captures most arbitrage value, but no prior work is cited, so the reader cannot tell what is new. The 32/40 headline mixes 20 monthly/seasonal cells that every price source including the flat price gets right; on the 20 informative daily+weekly cells it is 12/20 vs 1/20 (the README does say all misses are weekly). The 'fails in sign' weekly finding is about a margin the README itself says is inside cost uncertainty. Tie-band sensitivity (my check3.py): resid 34/32/32/30/29 and merit 22/22/21/21/21 of 40 at tol 0/0.001/0.002/0.003/0.005, so the ranking is robust to the one free parameter.",
+  "domain": "The price-taker charging rule is correct for its stated problem (LP check). The isotonic residual-load price curve is a defensible merit-order proxy. Departures a reviewer would raise first: (a) the store is priced on the cheapest quarter of all 365 daily (or 52 weekly) windows, delivering heat year-round, while the heat pump pays the Nov-Mar mean, so the two technologies serve different demand profiles; restricting the store to heating-season days gives 0.0199/0.0200/0.0238/0.0285/0.0262 against 0.0216/0.0207/0.0230/0.0321/0.0265 (shifts of -0.004 to +0.001), comparable to the whole weekly margin; (b) the air-source heat pump has a constant COP (energy-thermal-cost cost.py:60), ignoring that COP falls in cold hours that coincide with high prices, which biases against the store and is not mentioned in this README; (c) no levies/grid fees (stated). Both (a) and (b) are inherited from energy-thermal-real, but they bear directly on the weekly verdict this project studies."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Real daily/weekly cheapest-quarter and Nov-Mar mean prices 2015-2019 (section A)",
+   "method": "independent numpy reshape/sort on raw OPSD price CSVs",
+   "command": "python3.13 -I scratchpad/energy/check.py",
+   "expected": "0.0216/0.0188/0.0319 ... 0.0265/0.0217/0.0391",
+   "observed": "identical to 4 dp (2016 weekly exactly 0.01825)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cheapest-quarter charging is optimal for a window with a charger-power limit",
+   "method": "scipy HiGHS LP: min c.x s.t. sum x = 6, 0<=x<=1, on 10 real 2019 days",
+   "command": "python3.13 -I scratchpad/energy/check.py",
+   "expected": "LP optimum = cheapest-6 mean",
+   "observed": "max abs gap 1.4e-17",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Leave-one-year-out isotonic residual-load price and verdict agreement 32/37/21 of 40",
+   "method": "own textbook PAVA (tie-averaged, weighted pooling), own cheapest-quarter and verdict, cost model as given",
+   "command": "python3.13 -I scratchpad/energy/check2.py",
+   "expected": "resid 32/40, resid+ 37/40, merit 21/40; house weekly resid +0.008/+0.010/+0.004/-0.003/-0.010",
+   "observed": "32, 37, 21 of 40; +0.0080/+0.0098/+0.0044/-0.0032/-0.0097",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "House daily break-even store electricity price (section F, real)",
+   "method": "bisection on store-minus-pump cost, not the two-point linear formula run.py uses",
+   "command": "python3.13 -I scratchpad/energy/check2.py",
+   "expected": "0.0375/0.0372/0.0386/0.0392/0.0387",
+   "observed": "0.0375/0.0372/0.0386/0.0392/0.0387",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Full rerun of experiments/run.py against committed results.txt",
+   "method": "rerun (copy writing to scratch), diff",
+   "command": "python3.13 scratchpad/energy/run_copy.py; diff results.new.txt results.orig.txt",
+   "expected": "identical",
+   "observed": "4 lines differ: 2016 weekly best price 0.0182 vs 0.0183 (half-way rounding); no diff or verdict changes",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/energy-store-modelprice && python3.13 -m pytest tests -q",
+   "expected": "6 tests pass",
+   "observed": "6 passed in 1.35 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:15 'the pump wins in all five years, against two in the real series' (house weekly)",
+   "method": "results.txt sections B and H",
+   "command": "grep weekly experiments/results.txt",
+   "expected": "two real pump wins",
+   "observed": "one pump win (2018 +0.011) and one tie (2019 -0.0005)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Daily, monthly, seasonal right in 30 of 30 cells; weekly 0/5 house, 2/5 district; oracle 4/5",
+   "method": "results.txt section G and own recomputation",
+   "command": "python3.13 -I scratchpad/energy/check2.py",
+   "expected": "30/30, 0/5, 2/5, 4/5",
+   "observed": "30/30, 0/5, 2/5, 4/5",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Executed-charging gaps 0.0004-0.0011 daily, 0.0006-0.0010 weekly; merit +0.0041/+0.0143; project.json merit 0.003-0.020",
+   "method": "results.txt sections D, E",
+   "command": "sed -n 54,92p experiments/results.txt",
+   "expected": "as stated",
+   "observed": "as stated (merit 0.0027-0.0196)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Runtime 'about 20 s'",
+   "method": "time the rerun",
+   "command": "time python3.13 run_copy.py",
+   "expected": "about 20 s",
+   "observed": "46 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Robustness of the 32/40 vs 21/40 ranking to the tie band (the free parameter)",
+   "method": "sweep tol 0 to 0.005",
+   "command": "python3.13 -I scratchpad/energy/check3.py",
+   "expected": "resid > merit at every band",
+   "observed": "resid 34/32/32/30/29, merit 22/22/21/21/21",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Store and heat pump priced against the same demand timing",
+   "method": "store cheapest quarter restricted to Nov-Mar days vs all-year",
+   "command": "python3.13 -I scratchpad/energy/check.py",
+   "expected": "same demand profile for both technologies",
+   "observed": "store uses all 365 days (0.0216/0.0207/0.0230/0.0321/0.0265), heating-season-only would be 0.0199/0.0200/0.0238/0.0285/0.0262",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Live page served",
+   "method": "curl",
+   "command": "curl -sS https://marisstella.app/research/energy-store-modelprice/",
+   "expected": "200 with headline",
+   "observed": "200, '32 of 40 scale x cycle x year cells' present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/energy_store_modelprice/model.py:24",
+   "change": "tr = [r for y in YEARS if y != test_year for r in rows[y]] -> tr = [r for y in YEARS for r in rows[y]] (train on the held-out year: leakage)",
+   "caught": false,
+   "test_cmd": "cd research/energy-store-modelprice && /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:56",
+   "change": "abs(d) <= tol -> abs(d) < tol",
+   "caught": false,
+   "test_cmd": "cd research/energy-store-modelprice && /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:41",
+   "change": "sum(actual[j] for j in idx) -> sum(plan[j] for j in idx)",
+   "caught": true,
+   "test_cmd": "cd research/energy-store-modelprice && /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/energy_store_modelprice/model.py:40",
+   "change": "key=lambda j: plan[j] -> key=lambda j: -plan[j]",
+   "caught": true,
+   "test_cmd": "cd research/energy-store-modelprice && /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The leave-one-year-out split, the property that makes 'resid' a model rather than a fit, is untested: training on all five years (including the held-out one) leaves all 6 tests green.",
+   "where": "research/energy-store-modelprice/src/energy_store_modelprice/model.py:24",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Store and heat pump serve different demand profiles: the store buys the cheapest quarter of all 365 daily / 52 weekly windows (heat delivered year-round) while the pump pays the Nov-Mar mean, and the air-source COP is constant. Heating-season-only store prices shift by -0.004 to +0.001 EUR/kWh, the size of the whole weekly margin the project studies. Inherited from energy-thermal-real and not stated in this README's limitations.",
+   "where": "research/energy-store-modelprice/experiments/run.py:27",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited: the forecast-error-in-storage-dispatch literature (Sioshansi et al. 2009; Walawalkar et al. 2007) already finds model/backcast-scheduled storage captures most perfect-foresight value, so the 'scheduling costs little' result is a confirmation, not new; the 32/40 headline also counts 20 monthly/seasonal cells every source gets right (informative cells 12/20 vs 1/20).",
+   "where": "research/energy-store-modelprice/README.md:12",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "README says the pump wins the house weekly case in two real years; results show one pump win (2018) and one tie (2019).",
+   "where": "research/energy-store-modelprice/README.md:15",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Tie-band boundary (<= vs <) and every headline count (32/40, 21/40, weekly 0/5) are unpinned by tests.",
+   "where": "research/energy-store-modelprice/src/energy_store_modelprice/model.py:56",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Runtime 'about 20 s' was 46 s (run.py recomputes each diff in three sections); results.txt line 8 2016 weekly 0.0183 reruns as 0.0182 on Python 3.13 (exact value 0.01825, half-way rounding).",
+   "where": "research/energy-store-modelprice/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
+ ],
+ "verdict": "A small, honest, reproducible study. Every headline number reproduces on rerun and independently: my own PAVA leave-one-year-out fit gives the same 32/37/21 of 40 agreement and weekly diffs, an LP confirms the cheapest-quarter charging rule is optimal for its window problem, and bisection matches the break-even prices. Limitations are candid. It does not meet the bar on verification (2): the leave-one-year-out split, the property the whole study rests on, can be removed without a test failing, and the tie band is unpinned. Fitness and domain are 2: no prior work is cited (Sioshansi et al. 2009 already shows model-scheduled storage captures most perfect-foresight value), and the store-versus-pump comparison prices the store on year-round cheapest hours against a heating-season pump with constant COP, a mismatch of the same size as the weekly margin under study. One small wrong count: README line 15 'against two in the real series' should be one (plus a tie). Finished: yes; meets the bar: no."
+}

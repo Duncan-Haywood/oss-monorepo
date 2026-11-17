@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVKdtqAM4CeF2WahvMw",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "Scheduled ventures brief: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (full stored prompt)",
+  "input_sha256": "a326ef6e1aaba33043813d3109314ce70e7d7929c7da89f1d4452a62f29ebe27",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T00:01:52Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight (flagship 5): AE volume-discount credit note, INV-033 vs PINT AE ibr-055-ae",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15656",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: still listed 'MY tourism tax read as flat' and 'JP-NTR/AE INV-018/038 step-asides' as open though both had landed (README, PR #15644); trimmed them to fit the 2000-char cap."
+    },
+    {
+      "file": "ventures/einvoice-preflight/llms.txt",
+      "issue": "Says NLCIUS, CIUS-RO and CIUS-PT examples carry placeholder VAT numbers/IBANs; correct, but eval/phive-corpus.mjs --good reports 0 of N clean on those sets with no hint why, which cost a detour reading files before realising it was known."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-einvoice-uae-volume-discount-credit-note.md",
+    "ventures/einvoice-preflight/README.md ('A UAE volume-discount credit note (2026-11-14)')"
+  ],
+  "goal": "Close the flagship's open AE volume-discount credit note item with a measured fix.",
+  "notes": "PINT AE ibr-055-ae requires BillingReference on 381 credit notes except reason code VD, and forbids it then. UBL readers (JS+Py) now keep header DiscrepancyResponse codes as credit_reason_codes; INV-033 steps aside under PINT AE on VD (aside.mjs/aside.py). eval/phive-corpus.mjs on phive-rules 37a2664, official sets on, all 300 example files: PINT AE 31->32 of 32; the other 11 sets identical per file. New tests: ae-volume-discount.test.mjs 5 (3 fail on old code), tests/test_ae_volume_discount.py 3. run_venture_tests.py einvoice-preflight: ok. venture-preflight.mjs einvoice-preflight: clean (after shortening the post front matter).",
+  "corrections": [],
+  "redteam": null
+}

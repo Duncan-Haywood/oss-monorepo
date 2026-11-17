@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>What Size Electrical Service Does a House Need? NEC 220.82 Worked Through</title>
+  <meta name="description" content="How the NEC 220.82 optional calculation sizes a new or replacement home service: general loads at 10 kVA plus 40%, the six heating and cooling selections, and an all-electric worked example where the backup heat strips decide between 125 A and 175 A.">
+  <meta property="og:title" content="What size electrical service does a house need?">
+  <meta property="og:description" content="NEC 220.82 step by step, with an all-electric worked example and a free browser tool.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23234e8c'/%3E%3Cpath d='M18 4L8 18h7l-2 10 11-15h-7z' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./what-size-electrical-service.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "What size electrical service does a house need? NEC 220.82 worked through", "datePublished": "2026-11-12", "author": {"@type": "Organization", "name": "Maris Stella open tools"}, "description": "How the NEC 220.82 optional calculation sizes a new or replacement dwelling service, with an all-electric worked example."}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #234e8c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #214984; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #214984; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #234e8c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #234e8c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #214984; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FOR HOMEOWNERS, BUILDERS AND ELECTRICIANS · A GUIDE TO THE FREE SERVICE LOAD CHECK</p>
+    <h1>What size electrical service does a house need?</h1>
+    <p>New all-electric houses are often specified at 200 A, or 400 A, by habit. The National Electrical Code's optional calculation for a dwelling, <strong>NEC 220.82</strong>, gives an actual figure from the house's own loads. This page walks through it and works one all-electric example; the <a href="./index.html">free service load check</a> does the arithmetic for your house.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>When 220.82 applies</h2>
+      <p>One dwelling unit on a 120/240 V or 208Y/120 V 3-wire service or feeder of 100 A or more. It works for a new house and for a replacement service on an existing one. It counts every load at once, existing and new. (For adding load to an existing service without replacing it, the code's methods are 220.83 and 220.87; the <a href="./ev-charger-without-panel-upgrade.html">EV charger guide</a> covers those.)</p>
+    </section>
+    <section class="card">
+      <h2>The calculation</h2>
+      <h3>220.82(B): general loads</h3>
+      <p>Add 3 VA per square foot for lighting and receptacles, 1,500 VA for each 20 A small-appliance and laundry circuit, and the nameplate of every appliance that is fastened in place, permanently connected or on its own circuit (range, oven, cooktop, dryer, water heater, dishwasher, EV charger) and of every permanently connected motor. Count the first 10,000 VA at 100% and the rest at 40%.</p>
+      <h3>220.82(C): heating and cooling, the largest of six</h3>
+      <ol>
+        <li>Air conditioning and cooling at 100%.</li>
+        <li>A heat pump with no supplemental electric heat at 100%.</li>
+        <li>A heat pump compressor at 100% plus supplemental heat at 65%. If the compressor cannot run while the strips are on, it is left out.</li>
+        <li>Electric space heat at 65%, with fewer than four separately controlled units.</li>
+        <li>Electric space heat at 40%, with four or more separately controlled units.</li>
+        <li>Electric thermal storage, or other heat expected to run continuously at full nameplate, at 100% (and not in any other selection).</li>
+      </ol>
+      <p>Add (B) and the chosen (C), divide by 240 V (or 208 V), and that is the calculated load in amps. The service needs a rating at least that large, and never less than 100 A.</p>
+    </section>
+    <section class="card">
+      <h2>A worked example</h2>
+      <p>The tool's second example: an invented 2,400 sq ft all-electric house with an induction range (12 kVA), dryer (5 kVA), water heater (4.5 kVA), dishwasher, disposal, a 48 A EV charger, a heat pump whose nameplate minimum circuit ampacity is 21 A at 240 V, and 10 kW of backup strips. It is a placeholder to show the method, not a real or typical house.</p>
+      <ul>
+        <li><strong>General loads:</strong> 7,200 VA + 4,500 VA circuits + 35,020 VA of appliances = 46,720 VA. 10,000 + 40% of 36,720 = 24,688 VA.</li>
+        <li><strong>Heating and cooling:</strong> (1) cooling 5,040 VA; (3) the compressor plus 65% of the strips, 5,040 + 6,500 = 11,540 VA; (4) the strips alone at 65%, 6,500 VA. The largest is 11,540 VA.</li>
+        <li><strong>Total:</strong> 36,228 VA, or 150.9 A. The smallest standard rating that covers it is 175 A.</li>
+        <li><strong>With the compressor locked out</strong> while the strips run (many heat pump controls do this), selection (3) falls to 6,500 VA: 31,188 VA, or 129.9 A, and 150 A covers it.</li>
+        <li><strong>Without backup strips</strong> (a cold-climate heat pump sized to carry the house alone): 29,728 VA, or 123.9 A, and 125 A covers it.</li>
+      </ul>
+      <p>So in this example the backup heat, not the EV charger or the range, decides whether the house needs 125 A or 175 A. 175 A panels are uncommon, so the practical choice may still be 200 A, now for a reason you can see; the gap between 150.9 A and 200 A is room for later loads, not a code requirement.</p>
+      <p><a href="./index.html">Run it on your house</a>: list the loads, choose the kinds, and the result shows each 220.82(C) selection, which one wins and the smallest standard service that covers the total, next to the 220.83 and 220.87 checks for an existing service.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided</h2>
+      <p>Which code edition and local amendments apply, whether the inspector or utility wants the standard method of Article 220 Part III instead, conductor and grounding sizes, panel spaces, the neutral calculation (220.61), the utility's transformer and service drop, and whether a given nameplate figure is right. A licensed electrician and the inspector decide. The factors are as I read the 2017 to 2023 editions from published section summaries, not checked line by line against a licensed copy.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This guide and tool are provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Verify with a qualified professional before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/service-load-check">source code</a>. If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>.</p>
+  </footer>
+</body>
+</html>

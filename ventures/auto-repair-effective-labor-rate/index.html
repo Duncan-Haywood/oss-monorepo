@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #2f5d50; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
@@ -194,7 +194,7 @@
 
   <script type="module">
     import { calculateEffectiveLaborRate, ALL_INPUT_IDS } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, usageStorage } from './usage.mjs';
     import { importRepairOrders } from './ro-import.mjs';
 
     // All twelve figures, on this device only. Deliberately no URL encoding and
@@ -353,7 +353,7 @@
       const result = calculateEffectiveLaborRate(readForm());
       showingExample = false;
       paint(result);
-      if (result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+      if (result.ok) recordUsage(usageStorage(), optedOut(), 'rate_calculated');
     });
 
 
@@ -387,7 +387,7 @@
         (imported.clockSeen ? '' : ' Clock hours, payroll, overhead and parts profit are not in repair orders; check those boxes yourself.');
       showingExample = false;
       paint(calculateEffectiveLaborRate(readForm()));
-      recordUsage(globalThis.localStorage, optedOut(), 'repair_orders_imported');
+      recordUsage(usageStorage(), optedOut(), 'repair_orders_imported');
     });
 
     el('saveScenario').addEventListener('click', () => {
@@ -395,7 +395,7 @@
         globalThis.localStorage.setItem(SCENARIO_KEY, JSON.stringify(readForm()));
         el('scenarioStatus').textContent = 'Saved on this device. It will be here next time.';
         el('forgetScenario').hidden = false;
-        recordUsage(globalThis.localStorage, optedOut(), 'scenario_saved');
+        recordUsage(usageStorage(), optedOut(), 'scenario_saved');
       } catch {
         el('scenarioStatus').textContent = 'This browser is not allowing site storage, so nothing was saved.';
       }

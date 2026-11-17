@@ -1,4 +1,4 @@
-import os, tempfile, unittest
+import os, sys, tempfile, unittest
 import contextlib, io
 import subprocess
 from wait_for import main, wait, wait_until, wait_pid, pid_alive
@@ -12,6 +12,36 @@ class WaitFor(unittest.TestCase):
             ok, lines = wait(p, timeout=1)
             self.assertTrue(ok)
             self.assertEqual(lines[-1], "DONE")
+
+    def test_earlier_phase_marker_in_a_held_log_is_stale(self):
+        # friction 2026-11-15: phase two appended to phase one's log; the old DONE ended both waits at once
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("phase 1\nDONE\nphase 2 running\n")
+            t = [0.0]
+            ok, _ = wait(p, timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s),
+                         held=lambda: [(1, "bash")])
+            self.assertFalse(ok)
+            # the writer has closed it: the job ended, so the marker stands
+            self.assertTrue(wait(p, timeout=1, held=lambda: [])[0])
+            self.assertTrue(wait(p, timeout=1, held=lambda: None)[0])
+            # a second marker ending the log ends the wait even while held
+            open(p, "a").write("DONE\n")
+            self.assertTrue(wait(p, timeout=1, held=lambda: [(1, "bash")])[0])
+
+    def test_real_holder_keeps_stale_marker_waiting(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("DONE\nphase 2\n")
+            proc = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"],
+                                    stdout=open(p, "a"))
+            try:
+                t = [0.0]
+                ok, _ = wait(p, timeout=2, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
+                self.assertFalse(ok)
+            finally:
+                proc.kill(); proc.wait()
+            self.assertTrue(wait(p, timeout=1)[0])
 
     def test_marker_must_be_whole_line(self):
         with tempfile.TemporaryDirectory() as d:
@@ -52,6 +82,35 @@ class WaitFor(unittest.TestCase):
             self.assertFalse(wait(p, marker="EXIT", timeout=3, clock=lambda: t[0], nap=nap)[0])
             self.assertFalse(wait(p, timeout=3, clock=lambda: t[0], nap=nap)[0])
 
+    def test_marker_ending_in_equals_or_colon_is_a_prefix(self):
+        from wait_for import is_marker
+        self.assertTrue(is_marker("rc=0", "rc="))
+        self.assertTrue(is_marker("exit: 1", "exit:"))
+        self.assertFalse(is_marker("the rc=0 line", "rc="))
+        self.assertFalse(is_marker("rc0", "rc="))
+
+    def test_bare_marker_matches_name_equals_value(self):
+        # friction 2026-11-16: --marker BUILD_EXIT timed out on a log ending BUILD_EXIT=0
+        from wait_for import is_marker
+        self.assertTrue(is_marker("BUILD_EXIT=0", "BUILD_EXIT"))
+        self.assertFalse(is_marker("BUILD_EXIT_CODE=0", "BUILD_EXIT"))
+        self.assertFalse(is_marker("the BUILD_EXIT=0 line", "BUILD_EXIT"))
+
+    def test_default_accepts_the_harness_task_file_ending_and_a_dash(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("78\nrc=0\n\n[exited with code 0]\n")
+            ok, lines = wait(p, timeout=1)
+            self.assertTrue(ok)
+            self.assertEqual(lines[-1], "[exited with code 0]")
+            open(p, "w").write("ran\nDONE-EXIT 3\n")
+            self.assertTrue(wait(p, timeout=1)[0])
+            t = [0.0]
+            nap = lambda s: t.__setitem__(0, t[0] + s)
+            # An explicit marker still waits for itself alone.
+            open(p, "w").write("[exited with code 0]\n")
+            self.assertFalse(wait(p, marker="DONE", timeout=3, clock=lambda: t[0], nap=nap)[0])
+
     def test_missing_file_times_out(self):
         t = [0.0]
         ok, _ = wait("/nonexistent/x.log", timeout=5, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s))
@@ -61,6 +120,21 @@ class WaitFor(unittest.TestCase):
         self.assertTrue(wait_until("true", timeout=1))
         t = [0.0]
         self.assertFalse(wait_until("false", timeout=3, clock=lambda: t[0], nap=lambda s: t.__setitem__(0, t[0] + s)))
+
+    def test_until_with_a_log_waits_for_its_marker_too(self):
+        # friction 2026-11-16: a log given with --until was ignored; "condition met" came before the job's last line
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            err = io.StringIO()
+            with contextlib.redirect_stderr(err), contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 1)
+            self.assertIn("no 'DONE' or 'EXIT' line", err.getvalue())
+            open(p, "a").write("timing 3.2 s\nDONE\n")
+            out = io.StringIO()
+            with contextlib.redirect_stderr(io.StringIO()), contextlib.redirect_stdout(out):
+                self.assertEqual(main([p, "--until", "true", "--timeout", "1", "--ignore-restart"]), 0)
+            self.assertIn("timing 3.2 s", out.getvalue())
 
     def test_until_runs_through_a_shell(self):
         self.assertTrue(wait_until("exit 0", timeout=1))
@@ -140,12 +214,12 @@ class WaitFor(unittest.TestCase):
             self.assertIn("does not exist yet", progress(p))
             open(p, "w").write("step 1\nstep 2\n\n")
             mtime = os.stat(p).st_mtime
-            live = progress(p, now=lambda: mtime + 5)
+            live = progress(p, now=lambda: mtime + 5, who=lambda _: None)
             self.assertIn("15 bytes", live)
             self.assertIn("5s ago", live)
             self.assertIn("'step 2'", live)
             self.assertIn("still being written", live)
-            self.assertIn("buffering", progress(p, now=lambda: mtime + 600))
+            self.assertIn("buffering", progress(p, now=lambda: mtime + 600, who=lambda _: None))
             code, _, err = self._main(p, "--timeout", "0")
             self.assertEqual(code, 1)
             self.assertIn("last line: 'step 2'", err)
@@ -194,6 +268,165 @@ class WaitFor(unittest.TestCase):
                     self.assertRaises(SystemExit) as e:
                 main(argv + ["--timeout", "0"])
             self.assertEqual(e.exception.code, 2)
+
+    def test_pid_one_is_the_smallest_accepted_pid(self):
+        # Red team 2026-11-13: `pid <= 0` -> `pid <= 1` survived, which would
+        # refuse pid 1 (the container's entry process, a real thing to wait
+        # on) with an argparse error. Pin the boundary at 1, not 0 or 2.
+        with contextlib.redirect_stderr(io.StringIO()):
+            self.assertEqual(main(["--pid", "1", "--timeout", "0"]), 1)
+
+
+class PidProbe(unittest.TestCase):
+    """Red team 2026-11-12: three mutants of the pid and progress probes escaped."""
+
+    def test_probing_a_job_never_signals_it(self):
+        # os.kill(pid, 0) only asks; any other signal number would hang up
+        # (or kill) the very job the session is waiting for.
+        p = subprocess.Popen(["sleep", "30"])
+        try:
+            for _ in range(3):
+                self.assertTrue(pid_alive(p.pid))
+            with self.assertRaises(subprocess.TimeoutExpired):
+                p.wait(timeout=0.3)
+        finally:
+            p.kill()
+            p.wait()
+
+    def test_another_users_process_counts_as_alive(self):
+        # EPERM means the pid exists but belongs to someone else.
+        import wait_for
+        from unittest import mock
+        with mock.patch.object(wait_for.os, "kill", side_effect=PermissionError):
+            self.assertTrue(pid_alive(12345))
+        with mock.patch.object(wait_for.os, "kill", side_effect=ProcessLookupError):
+            self.assertFalse(pid_alive(12345))
+
+    def test_a_live_pid_without_proc_counts_as_alive(self):
+        # macOS and BSD have no /proc: os.kill succeeding is all we know.
+        import builtins, wait_for
+        from unittest import mock
+        real_open = builtins.open
+        def no_proc(path, *a, **k):
+            if str(path).startswith("/proc/"):
+                raise FileNotFoundError(path)
+            return real_open(path, *a, **k)
+        with mock.patch.object(wait_for.os, "kill", return_value=None), \
+                mock.patch("builtins.open", no_proc):
+            self.assertTrue(pid_alive(12345))
+
+    def test_progress_calls_a_log_silent_from_60s(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("x\n")
+            mtime = os.stat(p).st_mtime
+            self.assertIn("still being written", progress(p, now=lambda: mtime + 59.9, who=lambda _: None))
+            self.assertIn("silent for a while", progress(p, now=lambda: mtime + 60, who=lambda _: None))
+
+    def test_progress_names_the_process_holding_a_quiet_log(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").close()
+            mtime = os.stat(p).st_mtime
+            msg = progress(p, now=lambda: mtime + 600, who=lambda _: [(4000, "bash -c ..."), (4242, "python3 bench.py")])
+            self.assertIn("0 bytes", msg)
+            self.assertIn("pid 4242", msg)
+            self.assertIn("running, quietly", msg)
+            self.assertNotIn("stuck", msg)
+
+    def test_progress_says_a_log_nobody_holds_is_finished(self):
+        from wait_for import progress
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("Traceback\nValueError: x\n")
+            mtime = os.stat(p).st_mtime
+            msg = progress(p, now=lambda: mtime + 5, who=lambda _: [])
+            self.assertIn("no process has it open", msg)
+            self.assertIn("read the log", msg)
+
+    @unittest.skipUnless(os.path.isdir("/proc/self/fd"), "needs Linux /proc")
+    def test_holders_finds_a_real_writer_and_not_a_closed_file(self):
+        import subprocess
+        from wait_for import holders
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            with open(p, "w") as f:
+                child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"], stdout=f)
+            try:
+                self.assertIn(child.pid, [pid for pid, _ in holders(p)])
+            finally:
+                child.kill()
+                child.wait()
+            self.assertEqual(holders(p), [])
+
+
+class LongerHint(unittest.TestCase):
+    def test_short_timeouts_name_the_longer_form(self):
+        import wait_for
+        self.assertIn("--timeout 540", wait_for.longer(100))
+        self.assertEqual(wait_for.longer(540), "")
+
+
+class Restart(unittest.TestCase):
+    """A container restart killed three background jobs in one run (2026-11-13),
+    each read as a hang; a log older than the boot, with no marker, is a dead job."""
+
+    def fake(self):
+        t = [0.0]
+        return t, (lambda: t[0]), (lambda s: t.__setitem__(0, t[0] + s))
+
+    def test_log_older_than_boot_ends_the_wait_after_the_grace(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("Published 11 showcase file(s)\n")
+            t, clock, nap = self.fake()
+            ok, lines = wait(p, timeout=540, clock=clock, nap=nap, boot=os.stat(p).st_mtime + 5, grace=20)
+            self.assertIsNone(ok)
+            self.assertEqual(lines[-1], "Published 11 showcase file(s)")
+            self.assertGreaterEqual(t[0], 20)
+            self.assertLess(t[0], 30)
+
+    def test_log_written_after_boot_or_finished_is_not_a_restart(self):
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("working\n")
+            _, clock, nap = self.fake()
+            ok, _ = wait(p, timeout=30, clock=clock, nap=nap, boot=os.stat(p).st_mtime - 5)
+            self.assertFalse(ok)
+            self.assertIsNotNone(ok)
+            open(p, "w").write("DONE\n")
+            ok, _ = wait(p, timeout=30, clock=clock, nap=nap, boot=os.stat(p).st_mtime + 5)
+            self.assertTrue(ok)
+
+    def test_main_exits_2_and_says_to_rerun(self):
+        import wait_for
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "o.log")
+            open(p, "w").write("half a li")
+            os.utime(p, (1000.0, 1000.0))
+            err = io.StringIO()
+            real = wait_for.boot_time
+            wait_for.boot_time = lambda: 2000.0
+            try:
+                with contextlib.redirect_stderr(err):
+                    code = main([p, "--timeout", "0"])
+                self.assertEqual(code, 2)
+                self.assertIn("container restarted", err.getvalue())
+                self.assertIn("Start it again", err.getvalue())
+                with contextlib.redirect_stderr(io.StringIO()):
+                    self.assertEqual(main([p, "--timeout", "0", "--ignore-restart"]), 1)
+            finally:
+                wait_for.boot_time = real
+
+    def test_boot_time_reads_btime(self):
+        from wait_for import boot_time
+        with tempfile.TemporaryDirectory() as d:
+            p = os.path.join(d, "stat")
+            open(p, "w").write("cpu 1 2 3\nbtime 1794568279\nprocesses 9\n")
+            self.assertEqual(boot_time(p), 1794568279.0)
+            self.assertIsNone(boot_time(os.path.join(d, "missing")))
 
 
 if __name__ == "__main__":

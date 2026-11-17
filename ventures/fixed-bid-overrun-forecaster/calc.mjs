@@ -2,7 +2,7 @@
 // Pure arithmetic over the numbers the user enters; nothing here is advice.
 
 export const money = (n) =>
-  (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+  ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const pct = (n, d = 1) => `${(n * 100).toFixed(d)}%`;
 const round2 = (n) => Math.round(n * 100) / 100;
 

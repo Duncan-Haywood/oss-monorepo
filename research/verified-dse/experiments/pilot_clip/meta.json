@@ -1,0 +1,56 @@
+{
+ "base_period_ns": {
+  "mult30": 5.32,
+  "sq28": 4.84,
+  "barrel256": 10.88,
+  "barrel192": 8.65,
+  "barrel96": 4.52
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "designs": {
+  "barrel96": [
+   "barrel_w",
+   "barrel_w",
+   {
+    "W": 96,
+    "SW": 7
+   },
+   ""
+  ],
+  "barrel192": [
+   "barrel_w",
+   "barrel_w",
+   {
+    "W": 192,
+    "SW": 8
+   },
+   ""
+  ],
+  "barrel256": [
+   "barrel_w",
+   "barrel_w",
+   {
+    "W": 256,
+    "SW": 8
+   },
+   ""
+  ],
+  "mult30": [
+   "mult_op",
+   "mult_op",
+   {
+    "W": 30
+   },
+   ""
+  ],
+  "sq28": [
+   "sq_op",
+   "sq_op",
+   {
+    "W": 28
+   },
+   ""
+  ]
+ }
+}

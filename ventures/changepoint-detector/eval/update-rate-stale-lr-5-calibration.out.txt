@@ -1,0 +1,14 @@
+calibration seed 31, 200 series a null cell; Markov carry-forward LR >= 6.56; round four's LR >= 5.41 on the same series for comparison
+cell  with a change  one tick  catchUp  share of one tick  round four  share  rounding  share of found
+R1              200       200        0              0.000           0  0.000       200           1.000
+R2              200       200        1              0.005           0  0.000       199           0.995
+R3              200       200        0              0.000           0  0.000       200           1.000
+X1              200       200        4              0.020           5  0.025       196           0.980
+X2              200       200        0              0.000           0  0.000       200           1.000
+R1: 200 one tick, 4 may clear tau, needs tau >= 3.03 (largest LRs 5.4, 4.22, 4.16, 4.11, 3.03)
+R2: 200 one tick, 4 may clear tau, needs tau >= 3.86 (largest LRs 7.19, 6.35, 4.23, 3.88, 3.86)
+R3: 200 one tick, 4 may clear tau, needs tau >= 3.39 (largest LRs 5.12, 4.22, 4.17, 4.1, 3.39)
+X1: 200 one tick, 4 may clear tau, needs tau >= 6.56 (largest LRs 9.97, 7.61, 7.5, 7.32, 6.56)
+X2: 200 one tick, 4 may clear tau, needs tau >= 3 (largest LRs 4.41, 4.07, 3.81, 3.66, 2.99)
+tau = 6.56
+(517 s)

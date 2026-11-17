@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { separate } from "./separation.mjs";
-import { indexSeparate, gridSize, sigmaAt, perceivedDeltaE, flatOnGrid, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, MAX_GRID, printLinear, gainFromPatch, calibrationFilms } from "./indexsep.mjs";
+import { indexSeparate, gridSize, sigmaAt, perceivedDeltaE, flatOnGrid, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, MAX_GRID, printLinear, gainFromPatch, calibrationFilms, cleanLoneDots, countLoneDots, loseLoneDots } from "./indexsep.mjs";
 
 const NONE = 255;
 /** w x h RGBA from f(x, y) -> [r, g, b]. */
@@ -149,4 +149,39 @@ test("dot gain, wet on wet: a later ink spreads over an earlier one, never the r
   const px = printLinear(labels, ["#ffff00", "#0000ff", "#ffffff"], "#ffffff", { w: 2, dotGainPct: 40, garmentIndex: 2, ranks: [1, 2, 0] });
   assert.ok(Math.abs(px[0] - 0.9) < 1e-6 && Math.abs(px[2] - 0.1) < 1e-6, `yellow cell takes 10% blue, got ${[...px.slice(0, 3)]}`);
   assert.deepEqual([...px.slice(3)], [0, 0, 1], "the later blue is untouched");
+});
+
+test("no single dots: the cleanup leaves every inked dot touching one of its own ink, and a grey ramp still matches", () => {
+  const ramp = img(200, 60, x => { const v = Math.round(255 * x / 199); return [v, v, v]; });
+  const idx = indexSeparate(ramp, oneInk(200, 60));
+  const before = countLoneDots(idx);
+  assert.ok(before > 100, `plain dots have many singles in the light end, got ${before}`);
+  const c = cleanLoneDots(idx, { metres: 4 / sigmaAt(1) }); // judged at the 4 mm blur it is scored at
+  assert.equal(countLoneDots(c), 0);
+  assert.equal(c.inks[0].loneDotPct, 0);
+  assert.deepEqual([...loseLoneDots(c)], [...c.labels], "a press that drops single dots prints the cleaned films unchanged");
+  assert.equal(c.loneCleanup.before, before);
+  assert.ok(c.loneCleanup.gaveUp + c.loneCleanup.grew <= before);
+  const plain = perceivedDeltaE(idx, idx.labels, 4), clean = perceivedDeltaE(idx, c.labels, 4), lost = perceivedDeltaE(idx, loseLoneDots(idx), 4);
+  assert.ok(clean < plain + 1, `cleanup costs little where the mesh holds single dots: ${plain} -> ${clean}`);
+  assert.ok(clean < lost - 1, `and much less than losing the singles on press: ${lost}`);
+  assert.match(c.notes.join(" "), /No single dots: \d+ single dots were cleaned up/);
+  assert.match(c.notes.join(" "), /the mesh must hold a pair/);
+  assert.doesNotMatch(c.notes.join(" "), /must hold a single dot/);
+  assert.equal(idx.inks[0].loneDotPct > 0, true, "the input is not modified");
+});
+
+test("no single dots with search passes: still none left, closer than the cleanup alone, background untouched", () => {
+  const ramp = img(120, 40, (x, y) => { const v = Math.round(255 * x / 119); return [v, Math.round(v * 0.8), 255 - v]; });
+  const base = separate(ramp, { colours: 3, garment: "#ffffff", widthCm: 12, minFeatureMm: 1 });
+  const idx = indexSeparate(ramp, base);
+  const c0 = cleanLoneDots(idx), c3 = cleanLoneDots(idx, { passes: 3 });
+  assert.equal(countLoneDots(c3), 0);
+  assert.ok(c3.loneCleanup.passes >= 1 && c3.loneCleanup.changed > 0);
+  const s = sigmaAt(1); // the search is judged at 1 m, so it is scored there
+  assert.ok(perceivedDeltaE(idx, c3.labels, s) < perceivedDeltaE(idx, c0.labels, s));
+  for (let i = 0; i < idx.labels.length; i++) if (idx.labels[i] === NONE) assert.equal(c3.labels[i], NONE);
+  const free = cleanLoneDots(idx, { passes: 2, keepSingles: true });
+  assert.equal(free.loneCleanup.before, countLoneDots(idx));
+  assert.equal(free.loneCleanup.gaveUp + free.loneCleanup.grew, 0, "keepSingles skips the cleanup");
 });

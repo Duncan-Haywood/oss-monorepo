@@ -1,0 +1,57 @@
+# Milestone 14: what an escaped missed nail does to racking capacity (buildbot-sheathing)
+rigid-plastic fully anchored model (Källsner and Girhammar 2009): pinned framing, rigid sheet, equal rigid-plastic fasteners; capacity = least plastic work over the sheet's rigid motions. 4x8 sheet, 6 in edge / 12 in field (62 nails). Capacities are ratios to the intact sheet.
+
+## A. Intact sheet against edge spacing (field 12 in), vs SDPWS Table 4.3A, 15/32 Structural I, 8d
+edge in   nails   model ratio   table ratio   model / table
+      6      62         1.000         1.000           1.000
+      4      86         1.442         1.536           0.939
+      3     110         1.884         1.964           0.959
+      2     158         2.769         2.607           1.062
+also: the 6 in sheet's capacity per nail-count share: work/nail = 0.163 (F units per nail per unit strain, over the sheet height)
+H60 (4, 3 and 2 in within 10% of the table's ratios): held
+
+## B. Every nail in the bottom 12 in omitted (Weiss 2017 simulated decay)
+z < 12 in  : 11 of 62 nails omitted (18%), capacity 0.796, loss 20.4%
+z <= 12 in : 13 of 62 nails omitted (21%), capacity 0.763, loss 23.7%
+H61 (loss at least 40% with z < 12 in omitted): refuted
+
+## C. One nail missed alone: capacity lost
+left joint edge  : mean 2.08%, min 2.00%, max 2.21%
+right joint edge : mean 2.08%, min 2.00%, max 2.21%
+field stud 1     : mean 0.85%, min 0.70%, max 1.02%
+field stud 2     : mean 0.85%, min 0.70%, max 1.02%
+bottom plate     : mean 1.42%, min 1.05%, max 1.83%
+top plate        : mean 1.42%, min 1.05%, max 1.83%
+joint edge by height (in): 0.4:2.21%, 6.3:2.16%, 12.3:2.12%, 18.2:2.08%, 24.2:2.05%, 30.1:2.03%, 36.1:2.01%, 42.0:2.00%, 48.0:2.00%, 54.0:2.00%, 59.9:2.01%, 65.9:2.03%, 71.8:2.05%, 77.8:2.08%, 83.7:2.12%, 89.7:2.16%, 95.6:2.21%
+sum of the 62 single losses: 1.024 (1.0 if each nail carried exactly its share)
+H62 (each joint nail <= 4%, mean of the 34 in 1-3%): max 2.21%, mean 2.08%: held
+
+## D. Every miss escapes: sheet and wall capacity (20,000 sheets, seed 7, measured studs, ledger)
+pipeline                       clean    missed   m12 check   mean cap   p1 cap    P(cap<0.95)  4-sheet wall p1
+single 2x, three reads         0.4253   1.095    0.4253      0.9766    0.8851    0.1338       0.9340
+single 2x, full stack          0.7707   0.301    0.7707      0.9937    0.9367    0.0132       0.9722
+doubled joints, single read    1.0000   0.000      -         1.0000    1.0000    0.0000       1.0000
+loss per escaped miss (three reads): 2.13% of the sheet; full stack: 2.09%
+H63 (three reads: mean loss < 3%, p99 loss < 10%, 4-sheet wall >= 95% in 99%): mean loss 2.34%, p99 loss 11.49%, wall p1 0.9340: refuted
+
+miss rate by joint height, three reads (left | right): 0:0.040|0.042, 6:0.038|0.038, 12:0.025|0.025, 18:0.033|0.035, 24:0.019|0.018, 30:0.028|0.027, 36:0.030|0.027, 42:0.041|0.043, 48:0.033|0.033, 54:0.044|0.042, 60:0.030|0.028, 66:0.029|0.029, 72:0.019|0.018, 78:0.035|0.033, 84:0.026|0.026, 90:0.040|0.039, 96:0.040|0.040
+field and plate nails: miss rate 0.0000
+misses a sheet on the joint edges: P(0) 0.425, P(1) 0.286, P(2) 0.155, P(3+) 0.134; worst sheet 11 misses
+
+## E. Joint edges nailed at 4 in (25 a side), plates 6 in, field 12 in; every miss escapes
+intact 4 in-joint sheet: 1.318 of the 6 in sheet; misses a sheet 1.572 (clean 0.3296); with misses: mean 1.2856, p1 1.1600, min 0.8675; 4-sheet wall p1 1.2310
+H64 (>= the intact 6 in sheet in 99% of sheets): P = 0.9998: held
+
+## F. Dollars a sheet at 100 houses a year (milestone 7's 4,000 draws, base robot)
+6 in, three reads, every miss re-driven     : median $7.10 [5-95%: $4.56, $11.13]
+4 in joint edges, three reads, misses left  : median $6.98 [5-95%: $4.47, $10.99]
+doubled joints, single read                 : median $12.17 [5-95%: $9.44, $16.34]
+4 in joint edges cheaper than doubled joints in 1.000 of draws (median saving $5.21); cheaper than 6 in with re-drives by a median $0.08
+(16 extra nails at milestone 7's per-nail robot seconds, t_nail / 62; nail material not priced, a few cents)
+
+## G. Post hoc, not registered: every loss scaled up by Weiss's ratio (H61 refuted)
+6 in, three reads  (k = 2.45): mean 0.9427, p1 0.7180, P(>= intact 6 in) 0.4253, 4-sheet wall p1 0.8369
+6 in, full stack   (k = 2.45): mean 0.9846, p1 0.8445, P(>= intact 6 in) 0.7707, 4-sheet wall p1 0.9321
+4 in joint edges   (k = 2.45): mean 1.2384, p1 0.9303, P(>= intact 6 in) 0.9759, 4-sheet wall p1 1.1034
+
+8.9 s

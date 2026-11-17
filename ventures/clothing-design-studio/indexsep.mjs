@@ -99,7 +99,9 @@ export function indexSeparate(image, base, o = {}) {
   const src = resampleLinear(image, w, h);
   // which grid cells are background in the flat separation (nearest cell of its smaller grid)
   const bgAt = (x, y) => base.labels[Math.min(base.height - 1, Math.floor(y * base.height / h)) * base.width + Math.min(base.width - 1, Math.floor(x * base.width / w))] === NONE;
-  const pal = [...base.inks.map(i => ({ hex: i.hex, ink: true })), { hex: base.garment, ink: false }];
+  // o.inks: the inks to dot with, one hex per flat ink in the same print order (e.g. from `chooseIndexInks`); default the flat inks
+  const inkHex = base.inks.map((ink, p) => (Array.isArray(o.inks) && /^#[0-9a-f]{6}$/i.test(o.inks[p] || "") ? o.inks[p].toLowerCase() : ink.hex));
+  const pal = [...inkHex.map(hex => ({ hex, ink: true })), { hex: base.garment, ink: false }];
   for (const p of pal) { p.lin = rgbOf(p.hex).map(lin); p.lab = toLab(...rgbOf(p.hex)); }
   const GARMENT = pal.length - 1;
   const serp = o.serpentine !== false;
@@ -155,20 +157,7 @@ export function indexSeparate(image, base, o = {}) {
       push(x + dir, y, 7 / 16); push(x - dir, y + 1, 3 / 16); push(x, y + 1, 5 / 16); push(x + dir, y + 1, 1 / 16);
     }
   }
-  let inked = 0;
-  for (let i = 0; i < w * h; i++) if (labels[i] !== NONE) inked++;
-  const inks = base.inks.map((ink, p) => {
-    const mask = new Uint8Array(w * h);
-    let area = 0, lone = 0;
-    for (let i = 0; i < w * h; i++) if (labels[i] === p) { mask[i] = 1; area++; }
-    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-      const i = y * w + x;
-      if (!mask[i]) continue;
-      if (!(x > 0 && mask[i - 1]) && !(x < w - 1 && mask[i + 1]) && !(y > 0 && mask[i - w]) && !(y < h - 1 && mask[i + w])) lone++;
-    }
-    return { order: ink.order, hex: ink.hex, coveragePct: +(100 * area / Math.max(1, inked)).toFixed(1), loneDotPct: area ? +(100 * lone / area).toFixed(1) : 0, mask };
-  });
-  const garmentPct = +(100 * labels.reduce((s, l) => s + (l === GARMENT ? 1 : 0), 0) / Math.max(1, inked)).toFixed(1);
+  const { inks, garmentPct } = inkStats(labels, w, h, base.inks.map((ink, p) => ({ order: ink.order, hex: inkHex[p], flatHex: ink.hex })), GARMENT);
   const heightCm = +(base.widthCm * h / w).toFixed(1);
   const dotMm = +((base.widthCm * 10) / w).toFixed(2);
   const notes = [
@@ -178,8 +167,187 @@ export function indexSeparate(image, base, o = {}) {
   if (dotMm > cellMm * 1.05) notes.push(`The source image limits the dot to ${dotMm} mm; a larger scan would allow ${cellMm} mm.`);
   if (sg) notes.push(`Compensated for ${+(sg * 400).toFixed(1)}% dot gain: fewer, more spaced dots where ink would spread. Check it against a proof of the calibration strip.`);
   else notes.push("Not compensated for dot gain. Ink spreads on press and darkens the dots; print the calibration strip on a proof and enter the gain it shows.");
+  if (inkHex.some((h, p) => h !== base.inks[p].hex)) notes.push("These inks were chosen for the dots, not for flat areas (inkfit.mjs): match them, not the flat separation's.");
   if (base.underbase) notes.push("The white underbase sits under every inked dot (not the bare-garment ones); index prints on dark garments need tight registration between it and the inks.");
-  return { method: "index", width: w, height: h, widthCm: base.widthCm, heightCm, garment: base.garment, dotMm, labels, palette: pal.map(p => p.hex), garmentIndex: GARMENT, inks, garmentPct, ranks: rank, dotGainPct: +(sg * 400).toFixed(1), underbase: base.underbase, screens: base.screens, notes, src };
+  return { method: "index", width: w, height: h, widthCm: base.widthCm, heightCm, garment: base.garment, dotMm, labels, palette: pal.map(p => p.hex), flatPalette: [...base.inks.map(i => i.hex), base.garment], inksRefit: inkHex.some((h, p) => h !== base.inks[p].hex), garmentIndex: GARMENT, inks, garmentPct, ranks: rank, dotGainPct: +(sg * 400).toFixed(1), underbase: base.underbase, screens: base.screens, notes, src };
+}
+
+/** True when cell i holds an ink (not bare, not background) with no 4-neighbour of the same ink: a single dot. */
+function isLone(labels, w, h, i, garmentIndex) {
+  const l = labels[i];
+  if (l === NONE || l === garmentIndex) return false;
+  const x = i % w, y = (i - x) / w;
+  return !((x > 0 && labels[i - 1] === l) || (x < w - 1 && labels[i + 1] === l) || (y > 0 && labels[i - w] === l) || (y < h - 1 && labels[i + w] === l));
+}
+
+/** Per-ink masks, coverage and single-dot share; bare-garment share. `inks` gives { order, hex, flatHex } per ink in palette order. */
+function inkStats(labels, w, h, inks, garmentIndex) {
+  let inked = 0, bare = 0;
+  for (let i = 0; i < w * h; i++) if (labels[i] !== NONE) { inked++; if (labels[i] === garmentIndex) bare++; }
+  const out = inks.map((ink, p) => {
+    const mask = new Uint8Array(w * h);
+    let area = 0, lone = 0;
+    for (let i = 0; i < w * h; i++) if (labels[i] === p) { mask[i] = 1; area++; if (isLone(labels, w, h, i, garmentIndex)) lone++; }
+    return { ...ink, coveragePct: +(100 * area / Math.max(1, inked)).toFixed(1), loneDotPct: area ? +(100 * lone / area).toFixed(1) : 0, mask };
+  });
+  return { inks: out, garmentPct: +(100 * bare / Math.max(1, inked)).toFixed(1) };
+}
+
+/** Count of single dots (inked cells with no same-ink 4-neighbour) in an index result's labels. */
+export function countLoneDots(idx, labels = idx.labels) {
+  let n = 0;
+  for (let i = 0; i < labels.length; i++) if (isLone(labels, idx.width, idx.height, i, idx.garmentIndex)) n++;
+  return n;
+}
+
+/**
+ * What a press that cannot hold single dots prints: every single dot (an inked cell with no 4-neighbour of the
+ * same ink) is lost to bare garment. The worst case of dot loss, for scoring; a real mesh may hold some of them.
+ */
+export function loseLoneDots(idx, labels = idx.labels) {
+  const out = labels.slice();
+  for (let i = 0; i < labels.length; i++) if (isLone(labels, idx.width, idx.height, i, idx.garmentIndex)) out[i] = idx.garmentIndex;
+  return out;
+}
+
+/**
+ * Minimum-dot cleanup: no ink keeps a single dot, so every dot on every film touches at least one more of its
+ * own (a 2-cell dot or larger), which a mesh that drops single dots can still hold.
+ *
+ * Each single dot gets the cheapest of these moves, judged by the change in squared error between the painting
+ * and the print once both are blurred as seen from `metres` (linear RGB, the same blur as `perceivedDeltaE`):
+ * - give it up: the cell takes the garment or the ink of a 4-neighbour (it then joins that neighbour's dot);
+ * - grow it: one 4-neighbour takes this ink, making a 2-cell dot, unless that would leave the neighbour's old
+ *   ink with a single dot of its own.
+ * No move creates a single dot, so one pass leaves none. The dot-gain spread is not modelled in the cleanup.
+ *
+ * @param idx  result of `indexSeparate`
+ * @param o    { metres } viewing distance the moves are judged at (default 1); { passes } search passes after the
+ *             cleanup (default 0); { keepSingles: true } skips the cleanup and the rule (the search alone, for comparison)
+ * @returns a new index result with cleaned labels and masks, plus `loneCleanup` { before, gaveUp, grew }
+ */
+export function cleanLoneDots(idx, o = {}) {
+  const { width: w, height: h, src, garmentIndex: G } = idx;
+  const labels = idx.labels.slice();
+  const pl = idx.palette.map(hx => rgbOf(hx).map(lin));
+  const sig = Math.max(0.3, sigmaAt(Number(o.metres) || 1) / idx.dotMm);
+  const r = Math.ceil(3 * sig), k1 = [];
+  let s1 = 0;
+  for (let k = -r; k <= r; k++) { const v = Math.exp(-(k * k) / (2 * sig * sig)); k1.push(v); s1 += v; }
+  for (let k = 0; k < k1.length; k++) k1[k] /= s1;
+  // a cell's own term: sum of the 2-D kernel squared (every move changes one cell)
+  const C0 = k1.reduce((a, v) => a + v * v, 0) ** 2;
+  // The score (perceivedDeltaE) is the mean CIE76 between the blurred painting and the blurred print. It is
+  // minimised Gauss-Newton style: at each cell x, e(x) = Lab(blurred print) - Lab(blurred painting) and J(x) the
+  // Jacobian of Lab at the blurred print, so changing cell i by d (linear RGB) moves e(x) by J(x) K(x - i) d.
+  // The squares are summed (weighing each cell by 1 / |e| to aim at the mean instead scored the same on four
+  // paintings, so it was left out). Linearised afresh before the cleanup and before each search pass. (Linearising at the painting's
+  // colour, or weighing linear RGB, made the search raise the true error: README "No single dots".)
+  const Pb = blurLinear(printLinear(labels, idx.palette, idx.garment, { garmentIndex: G }), w, h, sig);
+  const Sb = blurLinear(src, w, h, sig), LS = new Float32Array(w * h * 3);
+  for (let j = 0; j < w * h; j++) if (idx.labels[j] !== NONE) LS.set(labLin([Sb[j * 3], Sb[j * 3 + 1], Sb[j * 3 + 2]]), j * 3);
+  const M = new Float32Array(w * h * 6), g = new Float32Array(w * h * 3), eps = 1e-4;
+  const linearise = () => {
+    for (let j = 0; j < w * h; j++) {
+      if (idx.labels[j] === NONE) continue;
+      const c = [0, 1, 2].map(k => Math.min(1 - eps, Math.max(0, Pb[j * 3 + k]))), L0 = labLin(c), J = [];
+      for (let k = 0; k < 3; k++) { const cc = c.slice(); cc[k] += eps; const L1 = labLin(cc); J.push([0, 1, 2].map(m => (L1[m] - L0[m]) / eps)); }
+      const e = [0, 1, 2].map(m => L0[m] - LS[j * 3 + m]);
+      // J[k][m] = dLab_m / dRGB_k; M = J J^T stored as xx, yy, zz, xy, xz, yz; g = J e
+      const m = (a, b) => J[a][0] * J[b][0] + J[a][1] * J[b][1] + J[a][2] * J[b][2];
+      M.set([m(0, 0), m(1, 1), m(2, 2), m(0, 1), m(0, 2), m(1, 2)], j * 6);
+      for (let k = 0; k < 3; k++) g[j * 3 + k] = J[k][0] * e[0] + J[k][1] * e[1] + J[k][2] * e[2];
+    }
+  };
+  linearise();
+  const mq = (j, a, b) => { const o = j * 6; return a[0] * (M[o] * b[0] + M[o + 3] * b[1] + M[o + 4] * b[2]) + a[1] * (M[o + 3] * b[0] + M[o + 1] * b[1] + M[o + 5] * b[2]) + a[2] * (M[o + 4] * b[0] + M[o + 5] * b[1] + M[o + 2] * b[2]); };
+  // cross term 2 * sum_x K(x - i) g(x) . d over scored cells in the window
+  const cross = (i, d) => {
+    const cx = i % w, cy = (i - cx) / w;
+    let a = 0;
+    for (let dy = -r; dy <= r; dy++) {
+      const y = cy + dy; if (y < 0 || y >= h) continue;
+      for (let dx = -r; dx <= r; dx++) {
+        const x = cx + dx; if (x < 0 || x >= w) continue;
+        const j = y * w + x; if (idx.labels[j] === NONE) continue;
+        a += k1[dy + r] * k1[dx + r] * (g[j * 3] * d[0] + g[j * 3 + 1] * d[1] + g[j * 3 + 2] * d[2]);
+      }
+    }
+    return 2 * a;
+  };
+  // a change d at cell i: the blurred print moves by K d, and g by M K d (the linear model kept current)
+  const apply = (i, d) => {
+    const cx = i % w, cy = (i - cx) / w;
+    for (let dy = -r; dy <= r; dy++) {
+      const y = cy + dy; if (y < 0 || y >= h) continue;
+      for (let dx = -r; dx <= r; dx++) {
+        const x = cx + dx; if (x < 0 || x >= w) continue;
+        const j = y * w + x, kk = k1[dy + r] * k1[dx + r], o6 = j * 6;
+        const kd = [kk * d[0], kk * d[1], kk * d[2]];
+        Pb[j * 3] += kd[0]; Pb[j * 3 + 1] += kd[1]; Pb[j * 3 + 2] += kd[2];
+        g[j * 3] += M[o6] * kd[0] + M[o6 + 3] * kd[1] + M[o6 + 4] * kd[2];
+        g[j * 3 + 1] += M[o6 + 3] * kd[0] + M[o6 + 1] * kd[1] + M[o6 + 5] * kd[2];
+        g[j * 3 + 2] += M[o6 + 4] * kd[0] + M[o6 + 5] * kd[1] + M[o6 + 2] * kd[2];
+      }
+    }
+  };
+  const colour = l => (l === NONE || l === G ? pl[G] : pl[l]);
+  const diff = (from, to) => { const a = colour(from), b = colour(to); return [b[0] - a[0], b[1] - a[1], b[2] - a[2]]; };
+  const nbrs = i => { const x = i % w, y = (i - x) / w, n = []; if (x > 0) n.push(i - 1); if (x < w - 1) n.push(i + 1); if (y > 0) n.push(i - w); if (y < h - 1) n.push(i + w); return n; };
+  // may cell j give up its ink without leaving a neighbour of that ink alone?
+  const free = o.keepSingles === true; // search only, single dots allowed (for measuring what the rule costs)
+  const canTake = j => {
+    const l = labels[j];
+    if (l === NONE) return false;
+    if (l === G || free) return true;
+    return nbrs(j).every(k => labels[k] !== l || nbrs(k).some(m => m !== j && labels[m] === l));
+  };
+  const before = countLoneDots(idx);
+  let gaveUp = 0, grew = 0;
+  for (let i = 0; i < w * h && !free; i++) {
+    if (!isLone(labels, w, h, i, G)) continue;
+    const p = labels[i];
+    let best = null;
+    const opts = new Set([G]);
+    for (const j of nbrs(i)) if (labels[j] !== NONE && labels[j] !== p) opts.add(labels[j]);
+    for (const q of opts) {
+      const d = diff(p, q), cost = cross(i, d) + C0 * mq(i, d, d);
+      if (!best || cost < best.cost) best = { cost, moves: [[i, q]] };
+    }
+    for (const j of nbrs(i)) {
+      if (labels[j] === p || !canTake(j)) continue;
+      const d = diff(labels[j], p), cost = cross(j, d) + C0 * mq(j, d, d);
+      if (cost < best.cost) best = { cost, moves: [[j, p]], grow: true };
+    }
+    for (const [j, q] of best.moves) { apply(j, diff(labels[j], q)); labels[j] = q; }
+    if (best.grow) grew++; else gaveUp++;
+  }
+  // Then search: any cell may change to any palette entry when the blurred error falls and no single dot is
+  // created (a direct-binary-search pass under the minimum-dot rule). `passes` 0 skips it.
+  const passes = Math.max(0, Math.min(20, Math.round(o.passes ?? 0)));
+  let changed = 0, done = 0;
+  for (; done < passes; done++) {
+    linearise();
+    let n = 0;
+    for (let i = 0; i < w * h; i++) {
+      const l = labels[i];
+      if (l === NONE || !canTake(i)) continue;
+      let bq = -1, bc = -1e-12;
+      for (let q = 0; q < pl.length; q++) {
+        if (q === l) continue;
+        if (q !== G && !free && !nbrs(i).some(j => labels[j] === q)) continue; // it would be a single dot
+        const d = diff(l, q), cost = cross(i, d) + C0 * mq(i, d, d);
+        if (cost < bc) { bc = cost; bq = q; }
+      }
+      if (bq >= 0) { apply(i, diff(l, bq)); labels[i] = bq; n++; }
+    }
+    changed += n;
+    if (!n) { done++; break; }
+  }
+  const inkList = idx.inks.map(i => ({ order: i.order, hex: i.hex, flatHex: i.flatHex }));
+  const { inks, garmentPct } = inkStats(labels, w, h, inkList, G);
+  const notes = free ? [...idx.notes] : [...idx.notes.map(n => n.replace("The mesh must hold a single dot that size;", "No dot is smaller than two of these side by side (below), so the mesh must hold a pair;")), `No single dots: ${before} single dots were cleaned up (${gaveUp} given up to a neighbour or the garment, ${grew} grown into 2-dot pairs)${done ? `, then ${changed} cells moved in ${done} search passes` : ""}, so every dot on the films touches another of its own ink.`];
+  return { ...idx, labels, inks, garmentPct, notes, loneCleanup: { before, gaveUp, grew, passes: done, changed, metres: Number(o.metres) || 1 } };
 }
 
 /** Separable Gaussian blur of linear-RGB triples (sigma in cells); edges clamp. */
@@ -241,8 +409,8 @@ export function flatOnGrid(base, w, h) {
 }
 
 /** Mean CIE76 between painting and print after both are blurred by sigmaMm, over the cells that print; the print spread by `dotGainPct`. */
-export function perceivedDeltaE(idx, labels, sigmaMm, dotGainPct = 0) {
-  const { width: w, height: h, src, palette, garment } = idx;
+export function perceivedDeltaE(idx, labels, sigmaMm, dotGainPct = 0, palette = idx.palette) {
+  const { width: w, height: h, src, garment } = idx;
   const sig = sigmaMm / idx.dotMm;
   const a = blurLinear(src, w, h, sig), b = blurLinear(printLinear(labels, palette, garment, { w, dotGainPct, garmentIndex: idx.garmentIndex, ranks: idx.ranks }), w, h, sig);
   let s = 0, n = 0;
@@ -260,7 +428,7 @@ export const sigmaAt = metres => +(metres * 1000 * Math.tan(Math.PI / 180 / 60))
 /** Flat against index at the given viewing distances, same palette, same grid. */
 export function compareFlatIndex(base, idx, distances = [0.5, 1, 3], { dotGainPct = idx.dotGainPct || 0 } = {}) {
   const flat = flatOnGrid(base, idx.width, idx.height);
-  return distances.map(m => ({ metres: m, sigmaMm: sigmaAt(m), flat: perceivedDeltaE(idx, flat, sigmaAt(m), dotGainPct), index: perceivedDeltaE(idx, idx.labels, sigmaAt(m), dotGainPct) }));
+  return distances.map(m => ({ metres: m, sigmaMm: sigmaAt(m), flat: perceivedDeltaE(idx, flat, sigmaAt(m), dotGainPct, idx.flatPalette || idx.palette), index: perceivedDeltaE(idx, idx.labels, sigmaAt(m), dotGainPct) }));
 }
 
 /** Relative luminance (linear) of a hex colour. */
@@ -327,7 +495,7 @@ export function indexBrief(idx, comparison = []) {
   return [
     `Index separation: ${idx.inks.length} inks${idx.underbase ? " + white underbase" : ""} = ${idx.screens} screens, ${idx.widthCm} x ${idx.heightCm} cm on ${idx.garment}, square dots of ${idx.dotMm} mm (${idx.width} x ${idx.height}).`,
     idx.dotGainPct ? `Films compensated for ${idx.dotGainPct}% dot gain (a dot printing ${idx.dotGainPct}% larger in area than its film). Please keep press conditions as for the calibration proof.` : "Films not compensated for dot gain. Please print the calibration strip on a proof first if you can.",
-    ...idx.inks.map(i => `Screen ${i.order}: ${i.hex}, ${i.coveragePct}% of the artwork, ${i.loneDotPct}% single dots.`),
+    ...idx.inks.map(i => `Screen ${i.order}: ${i.hex}${i.flatHex && i.flatHex !== i.hex ? ` (chosen for the dots; the flat separation had ${i.flatHex})` : ""}, ${i.coveragePct}% of the artwork, ${i.loneDotPct}% single dots.`),
     ...comparison.map(c => `Seen from ${c.metres} m: flat inks ${c.flat} delta E from the painting, index ${c.index} (lower is closer; a rough blur model, judge a proof).`),
     ...idx.notes,
   ].join("\n");

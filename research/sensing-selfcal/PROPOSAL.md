@@ -177,13 +177,20 @@ planar vs non-planar scenes, mismatch rate.
    same real views (rotation-only and near-critical subsets), H4's first test.
 3. (a) Is the σ gap real, and does a cluster-robust or jackknife σ fix it (H8–H10,
    done 2026-11-11, see `LOG.md`); (b) natural features: SIFT matches on an openly
-   licensed multi-view set with a known calibration; H5.
-4. The accept/reject test and its false-accept rate across milestones 1–3.
+   licensed multi-view set with a known calibration; H5 **(done 2026-11-16 on TUM RGB-D
+   video, H104–H107: H5 refuted, rms z 9.3; 3c, a delete-one-keyframe jackknife makes it honest
+   overall, rms z 1.76, H124–H129; 3d, random-effects pooling, H130–H134; 3e, optical-axis spread from the solve does not predict the error, H135–H139; 3f, pinning k1 alone at the prior calibration makes the Kinect worse, H140–H143; see `LOG.md`)**.
+4. The accept/reject test and its false-accept rate across milestones 1–3
+   **(done 2026-11-12, H18–H22; 4b, a jackknife covariance and SB corners, H23–H27; 4c, its reference distribution, H28–H32; 4d, on unbiased 5×5 corners, H38–H42; 4e, a per-unit threshold from split-halves, H43–H47; 4f, the jackknife against set size, H48–H51; 4g, every disjoint split and a robust jackknife, H52–H55; 4h, a model reference for the robust jackknife, H56–H58; 4i, a reference from the unit's linearised twin, H59–H62; 4j, the twin reference on two TUM RGB-D cameras, H63–H67; 4k–4m, warm starts, predicted power and waiting, H68–H81; 4n, k1 + k2 on the TUM units, H82–H85; 4o, the twin's ranking and waiting with k1 + k2, H86–H91; 4p, the test on 13 fresh views per unit, H92–H95, see `LOG.md`)**.
 5. Unmodelled lens terms (k2, principal point) on real data, tying to
    `sensing-bak2` and `sensing-bapp`.
+   Milestone 6 and 6b (done 2026-11-11 and 2026-11-13; see `LOG.md`) took the corner
+   localiser apart: renders with a known camera at the real poses show the board's half-width
+   end squares bias the 11×11 window's f by +0.6–0.9% and SB's by −0.1 to −0.4%.
 6. Owner capture (owner step): a phone or machine-vision camera, a board and
    several scenes, to test across cameras.
-7. Paper draft.
+7. Paper draft. **(first full draft 2026-11-13: `paper/draft.md`, numbers checked by
+   `paper/check_numbers.py`; see `LOG.md`)**
 
 ## Target venue
 

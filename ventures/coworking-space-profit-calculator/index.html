@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">COWORKING SPACE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>Will your coworking or flex-office space break even, and how much cash does the ramp-up eat?</h1>
+    <h1>Will your coworking or flex-office space break even?</h1>
     <p>Enter the floor area you lease, your mix of private offices, dedicated desks and hot-desk memberships, the lease and staff cost, and how full you expect it to get. You get <strong>monthly profit</strong> once stabilized, <strong>break-even occupancy</strong>, the <strong>price change that hits your target margin</strong>, a sixty-month <strong>ramp-up</strong> with the lowest cash point and payback, and <strong>loan coverage</strong>.</p>
     <p class="note">It works from your own figures. It does not know what desks rent for near you, how fast a new space fills, or what your landlord will agree to.</p>
   </header>
@@ -163,7 +163,7 @@
     let last = null;
     const map = { sqft: "sqft", rentablepct: "rentablePct", offices: "offices", officesqft: "officeSqft", officerate: "officeRate", desks: "desks", desksqft: "deskSqft", deskrate: "deskRate", hot: "hot", hotsqft: "hotSqft", hotrate: "hotRate", daypasses: "dayPasses", dayrate: "dayRate", meetinghours: "meetingHours", meetingrate: "meetingRate", stabocc: "stabOcc", startocc: "startOcc", rampmonths: "rampMonths", leasepersqft: "leasePerSqft", otherleasecostpct: "otherLeaseCostPct", staffmonthly: "staffMonthly", utilitiesmonthly: "utilitiesMonthly", suppliesmonthly: "suppliesMonthly", softwaremarketingmonthly: "softwareMarketingMonthly", insuranceyear: "insuranceYear", feespct: "feesPct", baddebtpct: "badDebtPct", buildoutpersqft: "buildoutPerSqft", furniturepersea: "furniturePerSeat", depositmonths: "depositMonths", launch: "launch", contingencypct: "contingencyPct", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin" };
     const IDLE = "Fill in your space, then click Work out the space. Only square feet, stabilized occupancy and at least one office, desk or membership are required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     
     function download(name, body, type) {

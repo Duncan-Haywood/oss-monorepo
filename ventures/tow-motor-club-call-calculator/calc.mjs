@@ -172,7 +172,7 @@ export function rankCalls(text, i = {}) {
   return { rows, skipped };
 }
 
-export const money = (v) => (v === null || v === undefined ? "n/a" : (v < 0 ? "-" : "") + "$" + Math.abs(round2(v)).toFixed(2));
+export const money = (v) => (v === null || v === undefined ? "n/a" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(round2(v)).toFixed(2)));
 export const pct = (v) => (v === null || v === undefined ? "n/a" : v.toFixed(1) + "%");
 
 export function summaryText(e, batch) {

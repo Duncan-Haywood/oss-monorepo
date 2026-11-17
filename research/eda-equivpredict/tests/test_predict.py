@@ -51,6 +51,15 @@ class T(unittest.TestCase):
         self.assertTrue(P.predict_line_knn([a, b], {"kind": "lit", "line": 20, "note": ""}))
         self.assertFalse(P.predict_line_knn([a, b], {"kind": "lit", "line": 90, "note": ""}))
 
+    def test_headline_lolo_1nn(self):
+        # quality audit 2026-11-13: pins the README's nearest-line row
+        c = P.formal_policy_cost(self.rows, P.loo_by_line(self.rows, P.predict_line_knn))
+        self.assertEqual((c["formal_runs"], round(c["cpu_s"]), c["equiv_found"], c["kills_lost"]), (14, 3298, 14, 2))
+
+    def test_oracle_loses_both_formal_kills(self):
+        o = P.formal_policy_cost(self.rows, [P.label(r) for r in self.rows])
+        self.assertEqual(o["kills_lost"], 2)
+
 
 if __name__ == "__main__":
     unittest.main()

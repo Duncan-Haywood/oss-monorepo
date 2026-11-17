@@ -329,7 +329,7 @@ ${markdownToHtml(story.body)}
   <p class="small">More from <a href="./#${shelf.id}">${escapeHtml(shelf.title)}</a>, ${escapeHtml(shelf.audience.toLowerCase())}. New stories arrive in <a href="${SITE}${feedPath(shelf.id)}">its RSS feed</a>.</p>
 </section>`;
   return page({
-    title: `${story.title}: ${shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story'} (text and audio)`,
+    title: `${story.title}: ${shelf.title === 'Little Lamps' ? 'a Catholic bedtime story' : 'a free science fiction short story'}${a ? ' (text and audio)' : ''}`,
     description: `${story.summary}`.slice(0, 300),
     canonical: storyUrl(story),
     image: `${SITE}${coverPath(shelf.id)}`,

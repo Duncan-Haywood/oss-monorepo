@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydWjxtbsX1Ahcz4n5h",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T01:39:25Z",
+  "ended": "2026-11-14T02:17:28Z",
+  "wall_minutes": 38.28,
+  "tokens_in": 6864987,
+  "tokens_out": 30432,
+  "cost_usd": 2.855,
+  "tool_calls": 60,
+  "task": "Deepen flagship 9 (league-schedule-generator): a lower bound at 12 teams for the exact carry-over search",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15683",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first matching bound filled a full 2^n DP table at every round start: nodes fell 2.6x but time rose 10x at 10 teams",
+      "fix": "replaced with a memoised budgeted DFS (can_pair)"
+    },
+    {
+      "what": "pkill -f with the bracket trick was refused by the hook because the path appeared twice in the command",
+      "fix": "stopped the task with TaskStop"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "'a hook refuses pkill -f unless the first letter is bracketed' is incomplete: it also refuses when the pattern text appears elsewhere on the command line (e.g. in a following compile command); a separate call is needed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-twelve-teams-cannot-reach-122.md",
+    "ventures/league-schedule-generator/README.md ('12 teams cannot reach 122')"
+  ],
+  "goal": "flagship depth: exact carry-over bounds the page can state",
+  "notes": "eval/carryover-bnb.c: an exact per-round min-cost matching bound (costs of a round's pairs never share a cell, since each column is the team met) and round 1 placed once per alternating-cycle type. 10 teams at <=88: 33.5 s to 3.0 s, same answers at 6/8/10. 12 teams: none at 120 (4x~3 min) or 122 (4x~25 min), so PROVEN_LEAST[12] = {least:124, exact:false}; best known 136. Verified: node --test carryover.test.mjs 17/17, calc.test.mjs 180/180, eval/browser-proved-least.mjs 12 in Chromium (4 ok, output in eval/browser-proved-least-12.txt), portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fc987e75-fba7-5b6d-acaa-d85aee98abfa",
+    "transcripts": 1,
+    "first": "2026-11-14T01:39:25Z",
+    "last": "2026-11-14T02:17:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 143,
+        "output": 30432,
+        "thinking": 9365,
+        "cache_read": 6752945,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111899,
+        "api_equivalent_usd": 2.855,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 143,
+      "output": 30432,
+      "thinking": 9365,
+      "cache_read": 6752945,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111899,
+      "api_equivalent_usd": 2.855,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 51,
+      "TaskStop": 3,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 38.28,
+      "active_minutes": 12.45,
+      "model_minutes": 5.28,
+      "tool_minutes": 7.17,
+      "waiting_on_human_minutes": 25.83,
+      "human_prompts": 10,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an algorithms engineer designing, proving and measuring two pruning rules for an exact search and writing them up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 350.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

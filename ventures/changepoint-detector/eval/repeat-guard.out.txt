@@ -1,0 +1,106 @@
+Repeat guard (consensus.mjs repeatGuard: at least 15 every-setting changes in at least 8 of 10 tenths of the series).
+Pre-registered in eval/repeat-guard-prereg-2026-11-15.md. Covering is one-annotator (TSSB, HAS) or TCPD's all-annotator form.
+
+TSSB (seen: the guard was designed on its counts): 75 series, 359497 points.
+  guard fires on 14 (count-only arm: 14); agreed changes on those: 568 of 579
+  covering: every-setting 0.344, guarded 0.403, count-only 0.403, zero 0.401
+  guarded minus every-setting: mean +0.059 [95% 0.024, 0.100]; better on 14, worse on 0, sign test p 0.000
+    fires: CinCECGTorso                   n  7169  cps  2  agreed  43 in 10/10, gap ~179  cover every 0.104 -> zero 0.337  near a label 0
+    fires: Computers                      n 11250  cps  1  agreed  23 in 8/10, gap ~225  cover every 0.404 -> zero 0.500  near a label 0
+    fires: DodgerLoopDay                  n  3456  cps  0  agreed  23 in 10/10, gap ~146  cover every 0.091 -> zero 1.000  near a label 0
+    fires: EOGHorizontalSignal            n  5155  cps  3  agreed  48 in 10/10, gap ~103  cover every 0.107 -> zero 0.256  near a label 0
+    fires: EOGVerticalSignal              n  8014  cps  5  agreed  48 in 10/10, gap ~163  cover every 0.144 -> zero 0.170  near a label 0
+    fires: FaceFour                       n  8400  cps  3  agreed  50 in 10/10, gap ~171  cover every 0.091 -> zero 0.281  near a label 1
+    fires: FreezerRegularTrain            n 11286  cps  3  agreed  50 in 10/10, gap ~228  cover every 0.091 -> zero 0.260  near a label 0
+    fires: GunPoint                       n  1875  cps  1  agreed  45 in 10/10, gap ~41  cover every 0.060 -> zero 0.501  near a label 0
+    fires: Lightning7                     n  6539  cps  4  agreed  44 in 10/10, gap ~151  cover every 0.147 -> zero 0.215  near a label 1
+    fires: MedicalImages                  n  2474  cps  1  agreed  45 in 10/10, gap ~51  cover every 0.087 -> zero 0.580  near a label 1
+    fires: OliveOil                       n  7410  cps  2  agreed  49 in 10/10, gap ~148  cover every 0.075 -> zero 0.382  near a label 0
+    fires: Symbols                        n  1889  cps  3  agreed  24 in 10/10, gap ~85  cover every 0.190 -> zero 0.297  near a label 2
+    fires: Trace                          n  5086  cps  2  agreed  45 in 10/10, gap ~113  cover every 0.083 -> zero 0.344  near a label 2
+    fires: UMD                            n  1800  cps  0  agreed  31 in 10/10, gap ~59  cover every 0.057 -> zero 1.000  near a label 0
+
+TCPD: 38 univariate series (31 shipped, 7 held out); 84 every-setting changes, most on one series 30 (bank).
+  guard fires on 1: bank; count-only arm on 1. Every-setting F1 0.704, covering 0.653 (unchanged where the guard is quiet).
+
+HAS 2023 (fresh; accelerometer magnitude): 250 series, 1929951 points.
+  guard fires on 31 (count-only arm: 58); agreed changes on those: 898 of 2220
+  covering: every-setting 0.619, guarded 0.611, count-only 0.587, zero 0.444
+  guarded minus every-setting: mean -0.008 [95% -0.020, 0.003]; better on 11, worse on 20, sign test p 0.150
+    fires: has-1                          n  8330  cps  6  agreed  26 in 9/10, gap ~173  cover every 0.538 -> zero 0.158  indoor
+    fires: has-2                          n  4964  cps  5  agreed  37 in 9/10, gap ~102  cover every 0.353 -> zero 0.178  indoor
+    fires: has-26                         n  5718  cps  4  agreed  23 in 8/10, gap ~222  cover every 0.425 -> zero 0.238  indoor
+    fires: has-31                         n  8310  cps  6  agreed  15 in 8/10, gap ~504  cover every 0.587 -> zero 0.169  indoor
+    fires: has-35                         n  3298  cps  4  agreed  49 in 10/10, gap ~68  cover every 0.111 -> zero 0.213  indoor
+    fires: has-40                         n  8350  cps  3  agreed  22 in 9/10, gap ~180  cover every 0.336 -> zero 0.281  indoor
+    fires: has-44                         n 15700  cps  8  agreed  32 in 10/10, gap ~325  cover every 0.411 -> zero 0.130  indoor
+    fires: has-45                         n 13727  cps  6  agreed  37 in 10/10, gap ~283  cover every 0.303 -> zero 0.178  indoor
+    fires: has-47                         n  9086  cps  2  agreed  20 in 8/10, gap ~212  cover every 0.404 -> zero 0.377  indoor
+    fires: has-48                         n  5002  cps  2  agreed  23 in 8/10, gap ~110  cover every 0.449 -> zero 0.436  indoor
+    fires: has-49                         n  5340  cps  1  agreed  21 in 8/10, gap ~120  cover every 0.378 -> zero 0.550  indoor
+    fires: has-50                         n  7844  cps  2  agreed  30 in 10/10, gap ~164  cover every 0.166 -> zero 0.466  indoor
+    fires: has-53                         n 14798  cps  6  agreed  24 in 8/10, gap ~306  cover every 0.583 -> zero 0.170  indoor
+    fires: has-55                         n 11630  cps  4  agreed  23 in 9/10, gap ~414  cover every 0.383 -> zero 0.219  indoor
+    fires: has-56                         n 10138  cps  5  agreed  31 in 10/10, gap ~209  cover every 0.305 -> zero 0.188  indoor
+    fires: has-57                         n 13129  cps  4  agreed  26 in 10/10, gap ~313  cover every 0.282 -> zero 0.308  indoor
+    fires: has-115                        n  7700  cps  2  agreed  39 in 9/10, gap ~155  cover every 0.201 -> zero 0.394  outdoor
+    fires: has-116                        n 10149  cps  2  agreed  40 in 9/10, gap ~205  cover every 0.229 -> zero 0.646  outdoor
+    fires: has-120                        n  3144  cps  4  agreed  36 in 8/10, gap ~64  cover every 0.257 -> zero 0.261  outdoor
+    fires: has-123                        n  2905  cps  3  agreed  37 in 8/10, gap ~58  cover every 0.280 -> zero 0.252  outdoor
+    fires: has-134                        n 15650  cps  4  agreed  36 in 10/10, gap ~315  cover every 0.297 -> zero 0.238  outdoor
+    fires: has-142                        n 15730  cps  3  agreed  36 in 9/10, gap ~317  cover every 0.251 -> zero 0.366  outdoor
+    fires: has-160                        n  1774  cps  4  agreed  27 in 8/10, gap ~39  cover every 0.336 -> zero 0.227  outdoor
+    fires: has-182                        n  8740  cps  4  agreed  27 in 8/10, gap ~175  cover every 0.521 -> zero 0.298  outdoor
+    fires: has-183                        n 17305  cps 11  agreed  20 in 8/10, gap ~412  cover every 0.509 -> zero 0.102  outdoor
+    fires: has-187                        n 13275  cps  4  agreed  23 in 8/10, gap ~274  cover every 0.377 -> zero 0.389  outdoor
+    fires: has-189                        n  5170  cps  3  agreed  31 in 8/10, gap ~107  cover every 0.369 -> zero 0.253  outdoor
+    fires: has-191                        n  9183  cps  5  agreed  27 in 9/10, gap ~183  cover every 0.484 -> zero 0.218  outdoor
+    fires: has-195                        n 11795  cps  8  agreed  16 in 10/10, gap ~254  cover every 0.743 -> zero 0.117  outdoor
+    fires: has-199                        n  1705  cps  1  agreed  33 in 9/10, gap ~37  cover every 0.215 -> zero 0.714  outdoor
+    fires: has-203                        n  2820  cps  1  agreed  31 in 9/10, gap ~65  cover every 0.227 -> zero 0.502  outdoor
+    count-only, guard quiet: has-0                n  7791  agreed 21 in 7/10  cover every 0.653, zero 0.178
+    count-only, guard quiet: has-8                n  4648  agreed 17 in 5/10  cover every 0.592, zero 0.224
+    count-only, guard quiet: has-9                n  5766  agreed 22 in 6/10  cover every 0.383, zero 0.158
+    count-only, guard quiet: has-14               n  5952  agreed 22 in 7/10  cover every 0.333, zero 0.256
+    count-only, guard quiet: has-16               n  4387  agreed 15 in 5/10  cover every 0.369, zero 0.226
+    count-only, guard quiet: has-27               n  5456  agreed 15 in 6/10  cover every 0.531, zero 0.264
+    count-only, guard quiet: has-29               n 11229  agreed 18 in 7/10  cover every 0.552, zero 0.109
+    count-only, guard quiet: has-34               n  5440  agreed 19 in 4/10  cover every 0.370, zero 0.158
+    count-only, guard quiet: has-41               n  6958  agreed 16 in 7/10  cover every 0.525, zero 0.218
+    count-only, guard quiet: has-42               n  8276  agreed 20 in 7/10  cover every 0.513, zero 0.304
+    count-only, guard quiet: has-52               n 10382  agreed 25 in 7/10  cover every 0.504, zero 0.212
+    count-only, guard quiet: has-121              n 25498  agreed 21 in 7/10  cover every 0.731, zero 0.244
+    count-only, guard quiet: has-125              n 15180  agreed 29 in 7/10  cover every 0.507, zero 0.299
+    count-only, guard quiet: has-132              n  1680  agreed 20 in 5/10  cover every 0.577, zero 0.568
+    count-only, guard quiet: has-136              n 17183  agreed 30 in 7/10  cover every 0.526, zero 0.217
+    count-only, guard quiet: has-139              n  2530  agreed 26 in 7/10  cover every 0.283, zero 0.291
+    count-only, guard quiet: has-140              n  7700  agreed 15 in 4/10  cover every 0.774, zero 0.469
+    count-only, guard quiet: has-146              n  1739  agreed 17 in 5/10  cover every 0.385, zero 0.189
+    count-only, guard quiet: has-154              n  3048  agreed 19 in 5/10  cover every 0.622, zero 0.471
+    count-only, guard quiet: has-156              n  4609  agreed 27 in 6/10  cover every 0.474, zero 0.282
+    count-only, guard quiet: has-163              n  1694  agreed 19 in 5/10  cover every 0.676, zero 0.532
+    count-only, guard quiet: has-167              n  7124  agreed 32 in 7/10  cover every 0.374, zero 0.276
+    count-only, guard quiet: has-188              n  5143  agreed 17 in 7/10  cover every 0.616, zero 0.251
+    count-only, guard quiet: has-198              n  2900  agreed 21 in 5/10  cover every 0.503, zero 0.500
+    count-only, guard quiet: has-208              n  3820  agreed 19 in 6/10  cover every 0.624, zero 0.336
+    count-only, guard quiet: has-232              n  3016  agreed 18 in 5/10  cover every 0.447, zero 0.425
+    count-only, guard quiet: has-238              n  3069  agreed 20 in 7/10  cover every 0.454, zero 0.359
+
+HAS, every setting (deciding nothing): mean covering, cuts per 1,000 points.
+  level (default)                          0.131  194.68
+  level, following the over-cut warning    0.492  13.09
+  noise floor 2, local 25 (always)         0.492  13.09
+  level+volatility                         0.163  23.00
+  bocpd (default)                          0.151  47.00
+  consensus: every setting                 0.619  1.15
+  consensus: half or more                  0.193  5.35
+  zero                                     0.444  0.00
+  every-setting minus zero: mean +0.175 [95% 0.142, 0.207]; better on 160, worse on 32, sign test p 0.000
+  every-setting changes within 2% of the length of a labelled change: 527 of 2220 (24%)
+  indoor: 106 series; every-setting 0.612, guarded 0.596, zero 0.344; guard fires on 16
+  outdoor: 144 series; every-setting 0.624, guarded 0.622, zero 0.518; guard fires on 15
+
+Pre-registered lines:
+  G1 TSSB guarded every-setting covering 0.403 >= zero 0.401 - 0.02 = 0.381: MET
+  G2 TCPD guard fires on 1 of 38 (bar 0): NOT MET
+  G3 HAS guarded minus every-setting mean -0.008 (bar -0.005); where it fires (31): better on 11, worse on 20: NOT MET

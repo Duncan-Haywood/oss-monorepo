@@ -159,3 +159,28 @@ def test_trace_decomposition_sums_to_breakeven():
         r = trace_breakeven(_trace(rng), 0.002, rng.uniform(0, 12), rng.uniform(0, 4))
         assert r["main"] + r["cov"] + r["drop"] + r["idle"] == pytest.approx(r["m"], rel=1e-9)
         assert r["r"] * r["beta"] == pytest.approx(r["dm_ddrop"], rel=1e-9)
+
+
+def test_trace_surplus_pressure_folds_in_the_covariance():
+    """5v: m* = beta [(r - 1) p_s + r d_bar] + idle, and p_s is the surplus-flow-weighted pressure."""
+    rng = random.Random(12)
+    for _ in range(20):
+        r = trace_breakeven(_trace(rng), 0.002, rng.uniform(0, 12), rng.uniform(0, 4))
+        got = r["beta"] * ((r["r"] - 1) * r["p_s"] + r["r"] * r["d_bar"]) + r["idle"]
+        assert got == pytest.approx(r["m"], rel=1e-9)
+    # every positive-flow section with a pressure is moving for open-centre: p_s is a plain weighted mean
+    rng = random.Random(13)
+    s = []
+    for _ in range(300):
+        secs = tuple((q, rng.uniform(5, 250), q > 0, 0.0) for q in (rng.choice((0.0, rng.uniform(1, 60))) for _ in range(2)))
+        s.append((rng.uniform(40, 140), secs))
+    r = trace_breakeven(s, 0.01, 5.0)
+    num = den = 0.0
+    for q_fix, secs in s:
+        on = [(q, p) for q, p, o, _ in secs if o]
+        if on:
+            dem = sum(q for q, _ in on)
+            sur = max(q_fix, dem) - dem
+            num += sur * max(p for _, p in on)
+            den += sur
+    assert r["p_s"] == pytest.approx(num / den, rel=1e-9)

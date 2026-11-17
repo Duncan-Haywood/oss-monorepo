@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVQ2ieJxz2JNSEEYBmU",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T02:08:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight flagship: CST/cClassTrib against the published IBS/CBS classification table for NF-e, NFC-e and national NFS-e",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 15333,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "post front matter: description 185 chars, seo_title 71 (venture-preflight)",
+      "fix": "shortened both"
+    },
+    {
+      "what": "inherited_keys lint flagged three unguarded map lookups",
+      "fix": "Object.hasOwn guards"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Brazilian government hosts (svrs.rs.gov.br, nfe.fazenda.gov.br, gov.br) 403 at the proxy; the Outbound hosts note lists irs.gov/ssa.gov but not these"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-six-digit-code-the-schema-cannot-read.md"
+  ],
+  "goal": "Close the cClassTrib/rate tables item of flagship 5's next:",
+  "notes": "Table: Conformidade Facil classTrib JSON copy pinned by commit+SHA-256 (souzamonteiro/nfeemissor 3a1610e3), cross-checked with two independent copies (2026-04-15 lookup 156/156 names; 2025-05-19 spreadsheet CST+pRedIBS+pRedCBS agree on 138/138). Corpus: 286 GitHub files -> 196 distinct (113 NF-e, 70 NFS-e); 42 with classification findings, all placeholders; Unimake CST 200 60%/100% examples clean. Verification: run_venture_tests.py einvoice-preflight ok; node --test '*.test.mjs' 1716 tests, 1648 pass, 0 fail; brazil page test 10/10; venture-preflight rerun after front-matter fix (result in PR).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVLz63v3tNs6hpQmS5M",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo to develop, deploy, market, sell and support revenue-generating software products; merge when done.",
+  "input_sha256": "31d372f7289cc56efe49060a73bcaaaff21eb47fc0c6997bde298096df79c09b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T23:58:09Z",
+  "ended": "2026-11-15T00:22:04Z",
+  "wall_minutes": 24.2,
+  "tokens_in": 9828704,
+  "tokens_out": 52870,
+  "cost_usd": 4.2398,
+  "tool_calls": 76,
+  "task": "Deepen (flagship 7) photo-editing: Sony's in-file lens corrections (ARW 0x7032, 0x7035, 0x7037) against lensfun",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16023",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First develop of a real ARW applied no correction: parse_arw builds a synthetic raw IFD that dropped the 0x70xx tags; fixed by copying them through.",
+    "First version of the lensfun comparison had no free zoom and gave a misleading free fit (A5000 R=1.01); replaced by a zoom-aware fit before anything was written up."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The default route (draw) sent a scheduled run whose stored prompt asks for revenue products to the research track; only re-routing with --task gave ventures. The routine prompt could pass --task itself."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says 'PY=$(python3 platform/ci/pyenv.py pytest numpy)'; the printed interpreter (/usr/bin/python3.13) had pytest and PIL, but plain python3 lacks numpy, so develop of real ARWs runs the slow pure-Python engine (about 20 s per half-size frame)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/promptctl.py route",
+      "why": "The weighted draw picked research, but the scheduled routine's stored prompt asks for revenue-generating product work.",
+      "did": "Re-routed with --task from the routine prompt (ventures/1), as prompt.md's 'If the message that started the session names a specific task' allows.",
+      "result": "Flagship 7 slice landed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-sony-raw-files-carry-their-own-lens-correction.md",
+    "ventures/photo-editing/eval/sony-in-file-corrections-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py photo-editing -> ok (136.2 s, 8 skipped), 1 suites run, 0 failed. Targeted: 61 passed (test_sony_corrections, test_arw, test_raw_develop, test_sony_samsung_lens, test_lens_pipeline). validate.py ok. Real-data check: eval/sony_in_file_corrections.py on metadata-extractor-images ARWs vs lensfun master: decoded distortion within 9.0/7.3/3.4 px of lensfun on 411/222/84 px corrections; vignetting not applied.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "73cca291-5b51-5e9a-83f3-602ad432170d",
+    "transcripts": 1,
+    "first": "2026-11-14T23:58:09Z",
+    "last": "2026-11-15T00:22:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 142,
+        "output": 52870,
+        "thinking": 14395,
+        "cache_read": 9672648,
+        "cache_write_5m": 0,
+        "cache_write_1h": 155914,
+        "api_equivalent_usd": 4.2398,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 142,
+      "output": 52870,
+      "thinking": 14395,
+      "cache_read": 9672648,
+      "cache_write_5m": 0,
+      "cache_write_1h": 155914,
+      "api_equivalent_usd": 4.2398,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 76,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.2,
+      "active_minutes": 24.2,
+      "model_minutes": 9.37,
+      "tool_minutes": 14.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "format decode, lensfun comparison, warp fit, develop wiring and tests for a raw-processing engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 235.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

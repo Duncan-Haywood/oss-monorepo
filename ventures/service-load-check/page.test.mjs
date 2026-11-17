@@ -1,12 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { DEFAULT_HOUSE, EXAMPLE_HOUSE, EXAMPLE_LOADS, calc22083, calc22087, roomForOther } from "./calc.mjs";
+import { DEFAULT_HOUSE, EXAMPLE_HOUSE, EXAMPLE_LOADS, EXAMPLE_NEW_HOUSE, EXAMPLE_NEW_LOADS, calc22082, calc22083, calc22087, roomForOther } from "./calc.mjs";
 import { parseUsage, measuredDemand, exampleCsv } from "./interval.mjs";
 import { largestCharger } from "./report.mjs";
 
 const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "ev-charger-without-panel-upgrade.html"];
+const PAGES = ["index.html", "ev-charger-without-panel-upgrade.html", "what-size-electrical-service.html"];
 
 test("pages carry the disclaimer and sponsor link; the tool page the privacy line", () => {
   for (const p of PAGES) {
@@ -71,4 +71,24 @@ test("the guide's worked example matches the engine", () => {
 test("sitemap lists every page", () => {
   const sm = page("sitemap.xml");
   for (const p of PAGES) assert.match(sm, new RegExp(`<loc>./${p}</loc>`));
+});
+
+test("the 220.82 guide's worked example matches the engine", () => {
+  const html = page("what-size-electrical-service.html");
+  const fmt = (x) => Math.round(x).toLocaleString("en-US");
+  const r = calc22082(EXAMPLE_NEW_HOUSE, EXAMPLE_NEW_LOADS);
+  const lock = calc22082({ ...EXAMPLE_NEW_HOUSE, lockout: "yes" }, EXAMPLE_NEW_LOADS);
+  const bare = calc22082(EXAMPLE_NEW_HOUSE, EXAMPLE_NEW_LOADS.filter((l) => l.kind !== "heating"));
+  const sel = (n) => r.selections.find((x) => x.n === n).va;
+  for (const s of [
+    `= ${fmt(r.general)} VA`,
+    `${fmt(r.generalDemand)} VA.`,
+    `(1) cooling ${fmt(sel(1))} VA`,
+    `= ${fmt(sel(3))} VA`,
+    `65%, ${fmt(sel(4))} VA`,
+    `${fmt(r.totalVa)} VA, or ${r.amps.toFixed(1)} A. The smallest standard rating that covers it is ${r.minService} A`,
+    `${fmt(lock.totalVa)} VA, or ${lock.amps.toFixed(1)} A, and ${lock.minService} A covers it`,
+    `${fmt(bare.totalVa)} VA, or ${bare.amps.toFixed(1)} A, and ${bare.minService} A covers it`,
+  ]) assert.ok(html.includes(s), s);
+  assert.equal(r.chosen, 3);
 });

@@ -1,5 +1,18 @@
 // Anonymous, aggregate-only local counts: event name and day, in this browser.
 // Never stores prices, costs, or other inputs, and never leaves the device.
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function honorsBrowserSignal() {
   try {
     return globalThis.navigator?.doNotTrack === "1" || globalThis.navigator?.globalPrivacyControl === true;
@@ -8,14 +21,18 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, eventName = "brand_order_calculated") {
-  if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
-  const today = new Date().toISOString().slice(0, 10);
-  let current = JSON.parse(storage.getItem("faire-wholesale-usage") || "{}");
-  if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
-  current[eventName] = (current[eventName] || 0) + 1;
-  current.last_day = today;
-  storage.setItem("faire-wholesale-usage", JSON.stringify(current));
+export function recordUsage(storage = usageStorage(), optedOut = false, eventName = "brand_order_calculated") {
+  try {
+    if (optedOut || !storage || readOptOut(storage) || honorsBrowserSignal()) return;
+    const today = new Date().toISOString().slice(0, 10);
+    let current = JSON.parse(storage.getItem("faire-wholesale-usage") || "{}");
+    if (!current || typeof current !== "object" || Array.isArray(current)) current = {};
+    current[eventName] = (current[eventName] || 0) + 1;
+    current.last_day = today;
+    storage.setItem("faire-wholesale-usage", JSON.stringify(current));
+  } catch {
+    // A full or blocked store, or a corrupt counter, must never break the page.
+  }
 }
 
 // The opt-out choice is kept in its own key, not in the counters:
@@ -24,7 +41,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // directly as well as taking the caller's argument -- a stored preference
 // that only one line of page wiring reads is one line away from being
 // forgotten, which is the defect this change exists to fix.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem("faire-wholesale-usage-opt-out") === "1";
   } catch {
@@ -33,7 +50,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem
   // that throws on a full quota skips the delete entirely, and the

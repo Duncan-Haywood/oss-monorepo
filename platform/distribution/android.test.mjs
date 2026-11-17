@@ -32,8 +32,8 @@ test('buildAndroid writes a TWA manifest that points at the tool and requests no
   const p = await buildAndroid({ slug: 'demo-tool', dir });
   const m = JSON.parse(p.files['twa-manifest.json']);
   assert.equal(m.packageId, 'io.github.duncanhaywood.demotool');
-  assert.equal(m.host, 'duncan-haywood.github.io');
-  assert.equal(m.startUrl, '/oss-monorepo/demo-tool/');
+  assert.equal(m.host, 'marisstella.app');
+  assert.equal(m.startUrl, '/demo-tool/');
   assert.equal(m.enableNotifications, false);
   assert.equal(Buffer.from(p.files['icon-512.png']).subarray(1, 4).toString(), 'PNG');
   const links = JSON.parse(p.files['assetlinks.template.json']);

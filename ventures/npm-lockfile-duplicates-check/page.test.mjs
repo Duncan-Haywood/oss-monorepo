@@ -81,3 +81,8 @@ test('index links one hop to the dupehound sibling', () => {
   assert.match(index, /href="\.\.\/dupehound\/"/, 'index must link ../dupehound/');
   assert.match(index, /copy-pasted blocks/);
 });
+
+// Sibling: why a range resolved to the version the lockfile holds.
+test('index links one hop to the semver-range-explainer sibling', () => {
+  assert.match(index, /href="\.\.\/semver-range-explainer\/"/, 'index must link ../semver-range-explainer/');
+});

@@ -1,0 +1,280 @@
+{
+  "date": "2026-11-12",
+  "subject": "research/qual-hypothesis",
+  "stratum": "research",
+  "seed": "2026-11-12-l",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a statistician / NLP researcher reviewing for a workshop on hypothesis generation from text. They would check first that the selection-then-validate pipeline (sample splitting, two-proportion z, Benjamini-Hochberg) is implemented right, that the 'inflation' metric actually estimates shrinkage, that the null calibration has the stated error rate, and whether the work is positioned against the winner's-curse literature (Zhong & Prentice 2008) and LLM hypothesis proposers (Zhong et al. 2022, D3)",
+  "scores": {
+    "correctness": 3,
+    "completeness": 2,
+    "verification": 1,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Reran experiments/run.py in a scratch copy (the repo tree untouched): results.txt byte-identical to the committed file (46 s, GoEmotions goemotions_1.csv sha256 cac04903...af3, 14,174,600 bytes, downloaded from the authors' public bucket). Then my own pipeline (scratchpad indep.py: own CSV loader, numpy, statsmodels proportions_ztest for the pooled z and multipletests fdr_bh for BH): N 5,313, share 0.2469; on the E3 split (same permutation, random.Random(20261020+1)) all 20 words, discovery effects, held-out effects, p values and replicate flags equal results.txt E3 (11 replicate). BH vs the author's benjamini_hochberg on 20,000 random p-vectors (m 1-29, with ties): 0 disagreements. Independent Monte Carlo with my own seeds (200 splits per row) lands within Monte Carlo error: disc/held |effect| 0.0950/0.0124 (author 0.0948/0.0125) at n=100, 0.0212/0.0141 at 2,000 (0.0211/0.0141); replicated 0.62, 3.37, 10.19, 14.65 (author 0.80, 3.55, 10.31, 14.65); shuffled-label splits with any replicate 3.0/2.5/3.5/5.0% (author 2.5/3.0/2.5/5.5%), Wilson intervals all cover 5%. The arithmetic is right. What keeps it from 4: the 'held-out effect' is the mean of |d| on held-out data, which carries a noise floor (shuffled labels give 0.009 where the truth is 0); sign-aligned, the held-out effect at n=100 is 0.0028, so the inflation is about 34x, not the 7.6x reported. 3.",
+    "completeness": "README claims checked: run.py reproduces results.txt exactly; figure.py regenerates replication.svg byte-identical; tests run as documented; live page https://marisstella.app/research/qual-hypothesis/ returns 200 with the headline, 'not an LLM' and AI-assistance disclaimer. All worked. But the milestone the project exists for (PROJECTS.md:1398, marked 'done 2026-10-20') is 'LLM-proposed, human-readable hypotheses ... with a check for hypotheses that merely restate the label': no LLM proposer exists (a word counter stands in, disclosed), hypotheses are single tokens, and the restatement check is a fixed word list the README itself calls crude and incomplete. Running the project alone fails: it imports ../qual-real and ../qual-correction via sys.path. 2.",
+    "verification": "`cd research/qual-hypothesis && python3 -m unittest test_qualhyp`: 7 tests, OK, 0.004 s. Seeded 7 mutations in qualhyp.py with platform/ci/quality_mutate.py: caught 2 (BH cut off by one, p value erfc(|z|/2)); survived 5: BH replaced by Bonferroni (alpha*rank/m -> alpha/m; the only BH test vector gives the same set under both), the same-sign requirement for replication removed, min_count filter disabled, pooled proportion (a+b) -> (a+1), proposer ranking by |d| instead of |z|. The core of the method (BH step-up, sign check, ranking, variance) is essentially untested. 1.",
+    "craft": "Read qualhyp.py (90 lines), test_qualhyp.py, experiments/run.py, figure.py, and the reused qual-real/qualreal.py loader and run.py fetch. Small, stdlib, readable, seeded and deterministic. Defects: the reused tokenizer [a-z']+ splits on the curly apostrophe U+2019 used in 673 of 5,313 comments, so 'I’m' becomes 'i' + 'm' (106 of 113 comments with token 'm'), and 'm', 't', 'don' enter the hypothesis family; 'm' is reported as a confirmed hypothesis in E3. The download has no checksum pin. Cross-project sys.path imports (qualhyp.py:13, run.py:15) chain three research dirs. restates_label rebuilds set(r.NEGATIVE) per call (trivial). 3.",
+    "claims": "Backed: every number in the README tables equals results.txt and reproduces; the 'not an LLM' limit is up front; data is downloaded, not committed, and the Apache 2.0 licence matches the dataset card (huggingface go_emotions README: 'Apache License 2.0'); citations-from-memory are disclosed; the page carries the AI-assistance disclaimer. Not backed: (1) README:52 says the shuffled-label discovery effect of 0.09 'is really 0.01'; it is really 0, the 0.009 is the |d| noise floor (sign-aligned held-out mean -0.0002); (2) the headline '7.6 times too large' and '1.5 times' are ratios to a noise-inflated held-out |d|, so they understate the inflation at small n (sign-aligned 34x at n=100, 1.53x at 2,000); (3) the headline '36-59% of confirmed hypotheses are label vocabulary' omits the 6.9% at n=100 in its own table; (4) PROJECTS.md:1398 marks the LLM-proposer milestone done. 2.",
+    "fitness": "A researcher wanting to build an LLM hypothesis proposer gets a reusable held-out validation harness (split, two-proportion z, BH, null control) on a real corpus, which is useful. But the finding, that effects selected as the most extreme of thousands shrink on fresh data and that sample splitting plus BH controls error under the null, is the textbook winner's curse / selective inference result (Zhong & Prentice 2008, Biostatistics; Cox 1975 sample splitting; Wasserman & Roeder 2009), and the nearest NLP prior work is not cited: Zhong, Snell, Klein & Steinhardt 2022 'Describing differences between text distributions with natural language' (D3) proposes hypotheses with an LLM and validates them on held-out samples, the exact pipeline here with a real proposer; Zhong et al. 2023 (D5, goal-driven discovery); Monroe, Colaresi & Quinn 2008 'Fightin' words', the standard word-level two-corpus comparison that the counting proposer re-derives; Zhou et al. 2024 HypoGeniC. Only Ludwig & Mullainathan 2024 is cited. The restatement result (label words confirm) is expected when the hypothesis space is the label's vocabulary. Not new; sound in its arithmetic, not in its shrinkage metric. 2.",
+    "domain": "Against selective-inference practice: sample splitting with BH on the held-out family is the right design, the pooled two-proportion z is standard, and the global-null calibration is correct (FWER = FDR under the complete null; observed 2.5-5.5%). Departures: shrinkage should be measured by the sign-aligned held-out estimate (or a bias-corrected / conditional estimator, as in the winner's-curse literature), not mean |d|; FDR is checked only under the complete null, never in the mixed real-label setting (e.g. by planting known effects), which is where BH's guarantee matters; no Monte Carlo uncertainty is reported for any table entry; the restatement flag only covers negative-emotion words, so the confirmed words at n=100 ('people', 'are', 'love', 'good', 'lol' in my 200 splits) are mostly the label's positive antonyms and go uncounted. A reviewer would ask for these before accepting. 2."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "E3 split (discovery 1000, held-out 3000): all 20 hypotheses, effects, p, replicated",
+      "method": "own pipeline: own CSV loader and tokenizer, statsmodels proportions_ztest (pooled z) and multipletests fdr_bh, same permutation random.Random(20261021)",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/indep.py ~/.cache/qual-real/goemotions_1.csv /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis 200  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install numpy scipy statsmodels)",
+      "expected": "results.txt E3: sorry +0.060 +0.054 2.1e-21 yes ... lol -0.022 -0.024 0.00015 yes; 11 replicated",
+      "observed": "all 20 rows identical in word, both effects, p (2 s.f.) and flag; 11 replicated",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Benjamini-Hochberg step-up",
+      "method": "statsmodels.stats.multitest.multipletests(method='fdr_bh') vs qualhyp.benjamini_hochberg on 20,000 random p-vectors, m 1-29, 30% rounded to create ties",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/indep.py ~/.cache/qual-real/goemotions_1.csv /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis 200  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install numpy scipy statsmodels)",
+      "expected": "0 disagreements",
+      "observed": "0 disagreements",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E1 real labels, discovery vs held-out mean |effect| and replicated count, independent seeds",
+      "method": "own Monte Carlo, numpy default_rng(12345), 200 splits per size",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/indep.py ~/.cache/qual-real/goemotions_1.csv /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis 200  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install numpy scipy statsmodels)",
+      "expected": "author: n=100 0.0948/0.0125 rep 0.80; 300 0.0550/0.0119 3.55; 1000 0.0283/0.0132 10.31; 2000 0.0211/0.0141 14.65",
+      "observed": "0.0950/0.0124 0.62; 0.0537/0.0114 3.37; 0.0284/0.0131 10.19; 0.0212/0.0141 14.65",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E2 shuffled labels, share of splits with any replicate",
+      "method": "own Monte Carlo, Wilson 95% interval (statsmodels proportion_confint) against the BH guarantee FWER <= 5% under the complete null",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/indep.py ~/.cache/qual-real/goemotions_1.csv /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis 200  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install numpy scipy statsmodels)",
+      "expected": "<= 5% within MC error; author 2.5/3.0/2.5/5.5%",
+      "observed": "6/200, 5/200, 7/200, 10/200 (3.0, 2.5, 3.5, 5.0%); every interval covers 0.05",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "inflation ratio at n=100 ('7.6 times too large')",
+      "method": "sign-aligned held-out effect mean(sign(d_disc) * d_held), the unbiased shrinkage target, vs the author's mean |d_held|",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/indep.py ~/.cache/qual-real/goemotions_1.csv /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis 200  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install numpy scipy statsmodels)",
+      "expected": "ratio near 7.6 if mean |d_held| estimates the held-out effect",
+      "observed": "real labels: signed 0.0028 vs |d| 0.0124 (ratio 34x vs 7.7x); shuffled: signed -0.0002 vs |d| 0.0090; at 2000 signed 0.0138 vs 0.0141",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "headline experiment reproduces",
+      "method": "rerun the author's run.py in a scratch copy, diff",
+      "command": "cp -r research/qual-hypothesis research/qual-real research/qual-correction /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/ && cd /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis && python3 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/qual-hypothesis/experiments/results.txt",
+      "expected": "identical",
+      "observed": "byte-identical, 46 s; figure.py regenerates replication.svg byte-identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd research/qual-hypothesis && python3 -m unittest test_qualhyp",
+      "expected": "all pass",
+      "observed": "7 tests OK in 0.004 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "seeded mutations in qualhyp.py",
+      "method": "platform/ci/quality_mutate.py, 7 mutants",
+      "command": "python3 platform/ci/quality_mutate.py research/qual-hypothesis/qualhyp.py --old ... --new ... -- python3 -m unittest test_qualhyp",
+      "expected": "core changes caught",
+      "observed": "2 of 7 caught; BH->Bonferroni, sign check removed, min_count off, pooled p, rank by |d| all survive",
+      "result": "fail"
+    },
+    {
+      "dimension": "craft",
+      "what": "tokenizer on curly apostrophes",
+      "method": "count comments containing U+2019 and the source of token 'm' (author's loader, scratch copy)",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/extra.py /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research",
+      "expected": "'I’m' kept as one token as 'I'm' is",
+      "observed": "673 of 5,313 comments use U+2019; 106 of 113 comments with token 'm' get it from ’m; 'm' is a confirmed hypothesis in E3",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README tables vs results.txt",
+      "method": "read both",
+      "command": "diff of README:38-50 numbers against experiments/results.txt",
+      "expected": "equal",
+      "observed": "equal (8 rows, 5 columns); 7.6 = 0.0948/0.0125, 1.5 = 0.0211/0.0141",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'a discovery effect of 0.09 ... that is really 0.01' (README:52)",
+      "method": "shuffled labels have true effect 0; sign-aligned held-out mean",
+      "command": "/tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/sv/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/indep.py ~/.cache/qual-real/goemotions_1.csv /tmp/claude-0/-home-user-oss-monorepo/64a26cf7-11a6-5ac2-8c81-609a7f7e7d3d/scratchpad/rep/research/qual-hypothesis 200  (venv: /usr/bin/python3.13 -m venv sv && sv/bin/pip install numpy scipy statsmodels)",
+      "expected": "really 0.01",
+      "observed": "really 0 (signed held-out -0.0002); 0.009 is the |d| noise floor",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "'36-59% of confirmed hypotheses are label vocabulary' (README:3)",
+      "method": "README table",
+      "command": "sed -n 36,41p research/qual-hypothesis/README.md",
+      "expected": "range covers all sizes",
+      "observed": "6.9% at n=100 omitted from the headline range",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "data provenance and licence",
+      "method": "read qual-real README and run.py; Hugging Face go_emotions dataset card",
+      "command": "curl -sS https://huggingface.co/datasets/google-research-datasets/go_emotions/raw/main/README.md | grep -i license",
+      "expected": "downloaded not committed, Apache 2.0",
+      "observed": "fetched from storage.googleapis.com/gresearch/goemotions into ~/.cache, no text committed; card: Apache License 2.0; no checksum pinned",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "live page and disclaimer",
+      "method": "curl served page",
+      "command": "curl -sS https://marisstella.app/research/qual-hypothesis/",
+      "expected": "200 with limits and AI disclaimer",
+      "observed": "200; 'not an LLM' and 'Produced with AI assistance (Claude)' present",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "milestone 6 as written",
+      "method": "PROJECTS.md:1398 vs code",
+      "command": "sed -n 1398,1399p research/PROJECTS.md",
+      "expected": "LLM-proposed hypotheses with a restatement check",
+      "observed": "word-count proposer, list-based restatement flag; marked done",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "nearest prior work cited",
+      "method": "README References vs the literature",
+      "command": "sed -n 68,74p research/qual-hypothesis/README.md",
+      "expected": "Zhong et al. 2022 (D3), winner's curse / sample splitting, Fightin' words",
+      "observed": "only Ludwig & Mullainathan 2024, GoEmotions, BH 1995",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:64",
+      "change": "BH threshold alpha*rank/m -> alpha/m (Bonferroni)",
+      "caught": false,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    },
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:66",
+      "change": "BH rejects range(cut) -> range(cut-1)",
+      "caught": true,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    },
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:79",
+      "change": "replication sign check 'and d * d0 > 0' removed",
+      "caught": false,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    },
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:52",
+      "change": "min_count filter a+b >= min_count -> >= 0",
+      "caught": false,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    },
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:38",
+      "change": "pooled proportion (a+b)/(n1+n0) -> (a+1)/(n1+n0)",
+      "caught": false,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    },
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:44",
+      "change": "p value erfc(|z|/sqrt 2) -> erfc(|z|/2)",
+      "caught": true,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    },
+    {
+      "where": "research/qual-hypothesis/qualhyp.py:54",
+      "change": "proposer ranks by |d| instead of |z|",
+      "caught": false,
+      "test_cmd": "python3 -m unittest test_qualhyp"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "The held-out 'effect' is mean |d| over the 20 hypotheses, which includes a sampling-noise floor (0.009 with shuffled labels where the truth is 0). The headline inflation '7.6 times' at n=100 is therefore understated (sign-aligned held-out effect 0.0028, ratio about 34x), and README:52 misreads the null case as 'really 0.01'",
+      "where": "research/qual-hypothesis/experiments/run.py:45",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Nearest prior work not cited and novelty not positioned: Zhong et al. 2022 D3 (LLM proposer + held-out validation of hypotheses about two text distributions), winner's curse / sample splitting (Zhong & Prentice 2008; Cox 1975; Wasserman & Roeder 2009), Monroe et al. 2008 Fightin' words for the counting proposer",
+      "where": "research/qual-hypothesis/README.md:68",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests miss the method's core: replacing BH with Bonferroni, removing the same-sign requirement, disabling min_count, corrupting the pooled variance, or ranking by |d| all leave the 7 tests green (2 of 7 mutants caught)",
+      "where": "research/qual-hypothesis/test_qualhyp.py:18",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Milestone 6 marked done though its stated content (LLM-proposed hypotheses, a check for label restatement) is not built: the proposer is a word counter and the restatement check is a fixed negative-word list that cannot see positive antonyms ('love', 'good' dominate confirmations at n=100)",
+      "where": "research/PROJECTS.md:1398",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "Tokenizer [a-z']+ splits on the curly apostrophe (673 of 5,313 comments), so 'I’m', 'don’t' yield hypotheses 'm', 't', 'don'; 'm' is reported as a confirmed hypothesis without noting it is 'I'm'",
+      "where": "research/qual-real/qualreal.py:22",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Headline '36-59% of confirmed hypotheses are label vocabulary' omits the 6.9% at 100 discovery comments shown in its own table",
+      "where": "research/qual-hypothesis/README.md:3",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "FDR control is shown only under the complete null (where FDR = FWER); no planted-effect mixture checks BH in the real-label regime, and no Monte Carlo uncertainty is reported for any table entry",
+      "where": "research/qual-hypothesis/experiments/run.py:53",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "GoEmotions download is not checksum-pinned (observed sha256 cac049036bad5d68d1081f72b65f2cc51e4df82af05e3e22cfa747051cac1af3); a changed bucket file would change results silently",
+      "where": "research/qual-real/experiments/run.py:25",
+      "category": "repo-hygiene",
+      "origin": "build"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15198"
+  ],
+  "verdict": "The arithmetic is right and reproducible: run.py regenerates results.txt byte for byte, my own statsmodels-based pipeline reproduces every row of the E3 split exactly, BH agrees with statsmodels on 20,000 random vectors, and an independent Monte Carlo lands within error of every E1/E2 entry, with the shuffled-label any-discovery rate at 2.5-5% as BH promises. It does not meet the bar (verification 1, claims 2, median 2). The inflation metric divides by mean |held-out d|, a noise floor, so the headline '7.6 times' understates the winner's curse (about 34x sign-aligned at n=100) and the README misreads the null as 'really 0.01'; 5 of 7 seeded bugs in the BH step, sign check, ranking and variance survive the tests; the milestone (LLM proposer, restatement check) is marked done but not built; and the result is the textbook winner's curse / sample-splitting finding, without citing the closest NLP prior work (Zhong et al. 2022, D3)."
+}

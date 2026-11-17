@@ -129,3 +129,32 @@ test('slab perimeter accepts up to 2,000 ft and refuses more', () => {
   assert.match(validate(slab(2000.5)).join(), /slab perimeter must be between 0 and 2000/);
   assert.match(validate(slab(-1)).join(), /slab perimeter/);
 });
+
+// Every bounded envelope setting accepts its limits and refuses just past them
+// (redteam 2026-11-15: a widened interior-shade bound survived).
+test('every bounded envelope setting accepts its limits and refuses just past them', () => {
+  const bounds = [
+    ...['wallCavityR', 'wallContinuousR', 'ceilingR', 'floorR'].map(k => [k, 0, 100]),
+    ['studDepthIn', 1.5, 12], ['framingFraction', 0, 0.6], ['windowU', 0.1, 1.3], ['windowSHGC', 0.05, 0.9],
+    ['interiorShade', 0.3, 1], ['doorU', 0.05, 1.5], ['slabF', 0.05, 1.5], ['ach50', 0.3, 40], ['nFactor', 5, 40],
+    ['ventCFM', 0, 2000], ['ventSensibleRecovery', 0, 0.95], ['ventLatentRecovery', 0, 0.95],
+    ['ductHeatPct', 0, 60], ['ductCoolPct', 0, 60], ['supplyDeltaT', 10, 35], ['atticRiseF', 0, 80],
+  ];
+  const withEnv = (k, v) => ({ ...EXAMPLE, envelope: { ...EXAMPLE.envelope, [k]: v } });
+  for (const [k, min, max] of bounds) {
+    const eps = Math.max(1e-6, (max - min) * 1e-6);
+    assert.deepEqual(validate(withEnv(k, min)), [], `${k} = ${min}`);
+    assert.deepEqual(validate(withEnv(k, max)), [], `${k} = ${max}`);
+    assert.match(validate(withEnv(k, min - eps)).join(), /must be between/, `${k} below ${min}`);
+    assert.match(validate(withEnv(k, max + eps)).join(), /must be between/, `${k} above ${max}`);
+  }
+});
+
+test('a wall height is checked: text, zero or a skyscraper is refused, not turned into NaN or a huge load', () => {
+  const wall = heightFt => ({ ...EXAMPLE, rooms: [{ ...EXAMPLE.rooms[0], walls: [{ facing: 'N', lengthFt: 10, heightFt }] }] });
+  assert.deepEqual(validate(wall(1)), []);
+  assert.deepEqual(validate(wall(40)), []);
+  for (const h of ['abc', '9', 0, -8, 40.5, 1e6]) assert.match(validate(wall(h)).join(), /wall 1 height/, String(h));
+  assert.ok(Number.isFinite(calculate(wall(12)).house.heating.total));
+  assert.deepEqual(calculate(wall('abc')).errors.length > 0, true);
+});

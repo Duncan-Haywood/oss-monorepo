@@ -1,0 +1,278 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/llm-spend-guard",
+ "stratum": "venture",
+ "seed": "2026-11-13-h",
+ "drawn_by": "sample",
+ "round": 62,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a platform/SRE engineer who runs LLM API cost controls for a team shipping an AI feature; they check first that a dollar cap is actually hard (under concurrency, streaming, and for every input type their app sends: documents, images, n>1, server tools), that token counts are read from the providers' usage fields as billed, that the price model can express the provider's real rate card, and that every unknown fails closed",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard and node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/proxycheck.mjs /home/user/oss-monorepo/ventures/llm-spend-guard. Right: costUsd with Anthropic's published Sonnet 4.5 rates ($3 in / $15 out / $0.30 cache read / $3.75 5-minute cache write per MTok, rates I believe apply since 2025-09 and still in Nov 2026) on 10k in, 2k out, 50k cache read, 5k cache write gives $0.09375, matching hand arithmetic; OpenAI gpt-4o ($2.50 / $1.25 cached / $10) with prompt_tokens 12000 incl. cached_tokens 8000 and 500 completion gives $0.025 (cached split out, not double counted); an Anthropic SSE stream in the documented shape (message_start usage, cumulative message_delta output_tokens, CRLF lines) settles at input 472, cacheRead 1000, output 89; an OpenAI include_usage final chunk (choices [], usage) settles at 20/7. Proxy, 20 concurrent text calls against a $0.05 global budget with a 200 ms fake upstream: exactly 3 forwarded, 17 refused 402, spent $0.0462 <= $0.05, so holds do serialise concurrent calls. A client that aborts a stream mid-way is charged its full hold ($0.015414). Wrong: the hold prices only JSON bytes/3, so a Messages request with a 100-page PDF by URL (Anthropic docs: roughly 1,500-3,000 tokens per page plus page images) is held at $0.0155 (56 estimated tokens); through the proxy 20 concurrent such calls all pass a $1 per-user day budget and a $0.50 maxCostPerCallUsd, and settle at $15.31 (15x the cap; each call $0.765). OpenAI n=4 with max_completion_tokens 4000 is held at $0.040 and passes a $0.05 per-call limit, but its worst case is $0.16 (n is forwarded, never priced). A 1-hour cache write (usage.cache_creation.ephemeral_1h_input_tokens, $6/MTok on Sonnet 4.5) is charged $0.375 instead of $0.600; 20 web_search_requests ($10 per 1,000) are charged $0 ($0.0135 vs $0.2135); a 500k-input long-context call is charged at the flat rate ($1.56 vs $3.09). Held at 2: arithmetic and usage parsing are right and concurrency works for text, but the headline 'hard cap' fails on ordinary multimodal inputs.",
+  "completeness": "Every README feature checked: init/check-policy/simulate/proxy commands (cli.test.mjs, run), both routes plus bare paths, streams passed through and settled (proxy test and node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/proxycheck.mjs /home/user/oss-monorepo/ventures/llm-spend-guard), include_usage forced on OpenAI streams, 402 on budget and 429+Retry-After on breakers (proxy.test.mjs), x-guard-* scope headers, key fingerprint scope, held-key token gate and refusal to bind publicly without tokens, admin status/halt/resume, observe mode, state file with atomic rename, prefix price matching (C1 used claude-sonnet-4-5-20250929), Dockerfile present (not built). README line count claim: guard 453 + proxy 212 + providers 128 = 793 ('about 800 lines across three files') holds. Not end to end: holdTtlSec charging does not survive a restart (node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/restart.mjs /home/user/oss-monorepo/ventures/llm-spend-guard: an in-flight hold is still 'held' $0.015363 30 days later with holds 0, never charged or released, so a 'total' budget loses it forever). Webhook not exercised. No TODOs or stubs. Served page not loadable from this container (CONNECT 403), so the page was checked from source.",
+  "verification": "cd ventures/llm-spend-guard && node --test '*.test.mjs': 45 tests, 45 pass, 0 fail (337 ms); the README command 'node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs' also 45/45. Eight mutations via platform/ci/quality_mutate.py: 6 caught (holds dropped from the budget test, cached tokens double counted, hold TTL x10, upstream-rejection cancel removed, calls-per-minute off by one, hold never released on settle), 2 survived: proxy.mjs:177 settling an incomplete stream at its partial usage instead of the hold (the fail-closed rule for broken streams is untested), and guard.mjs:173 bytes/3 -> bytes/4 (the 'deliberately high' estimate is not pinned). No test sends an image, document, file_id, n>1, server tool or 1h cache write; no proxy-level concurrency test.",
+  "craft": "Read guard.mjs, providers.mjs, proxy.mjs, store-file.mjs, simulate.mjs, cli.mjs. Good: zero dependencies, pure engine with injected clock and store, provider-shaped errors, hop-by-hop headers dropped, content-encoding dropped after fetch decompresses, body size cap, corrupt state file refused rather than reset, notifier errors swallowed, backpressure honoured on streams. Defects: holds live only in a process Map (guard.mjs:201) while their reservations are persisted, so a restart orphans them; scope headers are taken from the caller (proxy.mjs:104-106) with no option to bind user to the proxy token; key scope uses a 32-bit FNV-1a of the credential (collisions merge budgets, rare); settle never reports actual > hold, so an overshoot is silent.",
+  "claims": "Backed: disclaimer and no-warranty on README, CLI help, both pages (page.test.mjs); 'fails closed' on unpriced model and missing cap (guard.test.mjs 'fails closed', run); 'A stream that ends early is charged at its hold' (run, P3); '402 ... 429 + Retry-After' (proxy.test.mjs); privacy statements match the code (no network in simulate.mjs; proxy talks only to upstreams and webhook); 'about 800 lines'. Not backed: README.md:49 'a budget is never promised twice', index.html:112 'Concurrent calls cannot all fit into the same remaining dollar', how-to page lines 40 and 83, guard.mjs:166-168 'never toward letting one through that would not', and VENTURE.yaml:25-26 hypothesis marked supported ('can never together spend past a dollar budget') while 20 concurrent PDF-by-URL calls spent $15.31 against $1 (P2). llms.txt:5 carries calculator boilerplate ('estimates from the numbers typed in ... tax ... advice') that does not describe a proxy. The llms.txt github.io host is rewritten by the Pages build (source-only, not filed).",
+  "fitness": "Job walked through: a team puts the proxy in front of a chat feature, sets per-user and per-run budgets, replays last month's log in observe mode, then enforces. For text-only Messages and Chat Completions traffic on one replica this works (P1, simulate test). It does not finish the job for: an app that sends PDFs or images (cap overshoots, P2), OpenAI Responses API traffic (/v1/responses is 404, proxy.mjs:51-57; OpenAI's recommended API for new work), several proxy replicas (one state file per process, no shared store), server-side tools (web search billed per request), or 1h prompt caching. All of these are listed or implied in ROADMAP.md as next steps, not hidden.",
+  "domain": "Compared against how LLM cost-control practitioners and gateways budget (LiteLLM/Portkey style per-key/user budgets, provider rate cards and usage docs). Reserve-then-settle with worst-case holds is the right method and better than the post-hoc counters most gateways use; failing closed on unpriced models and uncapped output is correct. Departs from the providers' billing model in ways a senior practitioner would catch: input estimate ignores non-text content and provider-added tokens (tool-use system prompt), n>1 not multiplied, single cacheWrite rate though Anthropic bills 5m and 1h writes differently, no per-request server-tool fees, no long-context tier, no batch discount. Prices are the deployer's, not shipped, so stale-price risk is pushed to the user (ROADMAP item 5 plans dated sheets)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Anthropic cost: 10k in, 2k out, 50k cache read, 5k cache write on claude-sonnet-4-5-20250929 (prefix match)",
+   "method": "Anthropic published pricing, Sonnet 4.5: $3/$15/$0.30/$3.75 per MTok (applies from 2025-09, believed current Nov 2026); by hand",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "$0.09375",
+   "observed": "$0.09375",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "OpenAI cost with cached prompt tokens: prompt 12000 incl. cached 8000, completion 500 on gpt-4o",
+   "method": "OpenAI usage docs (prompt_tokens includes prompt_tokens_details.cached_tokens) and gpt-4o pricing $2.50/$1.25 cached/$10 per MTok",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "input 4000, cacheRead 8000, $0.025",
+   "observed": "input 4000, cacheRead 8000, $0.025",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Anthropic streaming usage: message_start usage + cumulative message_delta output_tokens, CRLF",
+   "method": "Anthropic Messages streaming docs event shapes",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "input 472, cacheRead 1000, output 89",
+   "observed": "input 472, cacheRead 1000, cacheWrite 0, output 89",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "OpenAI streaming usage chunk with stream_options.include_usage",
+   "method": "OpenAI Chat Completions streaming docs: final chunk has empty choices and usage; others usage null",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "input 20, output 7",
+   "observed": "input 20, output 7",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "20 concurrent text calls through the proxy against a $0.05 global day budget",
+   "method": "by hand: worst case per call ~$0.0154, so 3 fit",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/proxycheck.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "3 forwarded, 17 x 402, spent <= $0.05",
+   "observed": "3 forwarded, 17 x 402, spent $0.046188",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "20 concurrent Messages calls with a 100-page PDF by URL, $1 per-user day budget, $0.50 per-call limit",
+   "method": "Anthropic PDF support docs: about 1,500-3,000 tokens per page plus page image; fake upstream reports 250,000 input tokens",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/proxycheck.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "refused once the $1 budget or $0.50 per-call limit is reached",
+   "observed": "all 20 forwarded (est 56 input tokens, hold $0.0155 each); spent $15.31 against $1; each call $0.765 past the $0.50 per-call limit",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "OpenAI n=4, max_completion_tokens 4000, maxCostPerCallUsd 0.05",
+   "method": "OpenAI Chat Completions: n choices, completion tokens billed across all choices",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "worst case $0.16, refused",
+   "observed": "held $0.04004, allowed, n=4 forwarded",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Anthropic 1-hour cache write of 100k tokens on Sonnet 4.5",
+   "method": "Anthropic pricing: 1h cache write 2x base input ($6/MTok); usage.cache_creation.ephemeral_1h_input_tokens",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "$0.60018",
+   "observed": "$0.37518 (single cacheWrite rate)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Anthropic web search server tool: 20 searches, 2000 in, 500 out",
+   "method": "Anthropic pricing: web search $10 per 1,000 searches, usage.server_tool_use.web_search_requests",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "$0.2135",
+   "observed": "$0.0135",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sonnet 4.5 long-context call: 500k input, 4k output",
+   "method": "Anthropic pricing: prompts over 200K input tokens billed $6 in / $22.50 out",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/check.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "$3.09",
+   "observed": "$1.56 (flat rate; no way to configure tiers)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "client aborts a stream after message_start",
+   "method": "README rule: a stream that ends early is charged at its hold",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/proxycheck.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "hold charged, 0 holds open",
+   "observed": "spent $0.015414 = hold, holds 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "hold in flight when the proxy restarts, holdTtlSec 1, 'total' run budget",
+   "method": "README: an unsettled hold is charged in full after holdTtlSec",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/restart.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "charged (or released) after the TTL",
+   "observed": "still held $0.015363 after 30 days, holds 0: orphaned forever",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/llm-spend-guard && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "45 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'never promised twice' / 'can never together spend past a dollar budget' (README.md:49, VENTURE.yaml:25, index.html:112)",
+   "method": "proxy run with document input",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/6bba1085-eeb3-5fbf-9f6b-b2fe51cf7ea4/scratchpad/llm-spend-guard/proxycheck.mjs /home/user/oss-monorepo/ventures/llm-spend-guard",
+   "expected": "spend <= budget",
+   "observed": "$15.31 spent on a $1 budget",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'About 800 lines across three files'",
+   "method": "wc -l",
+   "command": "wc -l ventures/llm-spend-guard/guard.mjs ventures/llm-spend-guard/proxy.mjs ventures/llm-spend-guard/providers.mjs",
+   "expected": "about 800",
+   "observed": "793",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "guard.mjs:302",
+   "change": "cur.spent + cur.reserved + estimateUsd > b.limitUsd -> cur.spent + estimateUsd > b.limitUsd",
+   "caught": true,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "proxy.mjs:177",
+   "change": "complete ? reader.usage() : null -> reader.usage()",
+   "caught": false,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "guard.mjs:173",
+   "change": "encode(text).length / 3) -> encode(text).length / 4)",
+   "caught": false,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "providers.mjs:74",
+   "change": "input: Math.max(0, prompt - cached), -> input: prompt,",
+   "caught": true,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "guard.mjs:214",
+   "change": "t - h.t > policy.holdTtlSec * 1000 -> t - h.t > policy.holdTtlSec * 10000",
+   "caught": true,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "proxy.mjs:149",
+   "change": "guard.cancel(decision.id) removed on upstream rejection",
+   "caught": true,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "guard.mjs:234",
+   "change": "lastMinute.length + 1 > br.maxCallsPerMinute -> lastMinute.length > br.maxCallsPerMinute",
+   "caught": true,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  },
+  {
+   "where": "guard.mjs:366",
+   "change": "reserved: Math.max(0, cur.reserved - h.estimateUsd) -> reserved: cur.reserved",
+   "caught": true,
+   "test_cmd": "node --test guard.test.mjs proxy.test.mjs cli.test.mjs page.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The worst-case hold counts only JSON bytes/3 of the request, so documents and images sent by URL or file id (and provider-added tokens) are held at almost nothing: 20 concurrent 100-page-PDF calls passed a $1 per-user budget and a $0.50 per-call limit and spent $15.31. The 'hard cap' is not hard for multimodal traffic, and settle never flags actual > hold.",
+   "where": "ventures/llm-spend-guard/guard.mjs:170",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "OpenAI n (number of choices) is forwarded but never priced: the hold is one choice's output cap while OpenAI bills completion tokens across all n, so n=4 passes a per-call limit at a quarter of its worst case.",
+   "where": "ventures/llm-spend-guard/providers.mjs:29",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Unbacked guarantee: 'a budget is never promised twice', 'Concurrent calls cannot all fit into the same remaining dollar', 'never toward letting one through that would not', and the VENTURE.yaml hypothesis marked supported; false for document/image input and n>1 (P2, C5).",
+   "where": "ventures/llm-spend-guard/README.md:49",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Price model has one cacheWrite rate and no per-request fees or tiers: Anthropic 1h cache writes (2x input) are charged at the 5m rate (37.5% under), web_search_requests ($10/1,000) are free, long-context (>200K input) is charged at the base rate (50% under).",
+   "where": "ventures/llm-spend-guard/providers.mjs:61",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No test pins the fail-closed rule for broken streams: settling an incomplete stream at its partial usage instead of the hold survives the suite; nor is the bytes/3 'errs high' ratio pinned (bytes/4 survives).",
+   "where": "ventures/llm-spend-guard/proxy.mjs:177",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Holds are process memory while their reservations persist in the state file: after a restart an in-flight hold is never charged or released (still held 30 days later), so a 'total' budget loses it permanently and status shows phantom holds.",
+   "where": "ventures/llm-spend-guard/guard.mjs:201",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "OpenAI Responses API (/v1/responses) is not routed; it fails closed with 404, but teams on OpenAI's recommended API cannot use the proxy (ROADMAP item 1).",
+   "where": "ventures/llm-spend-guard/proxy.mjs:51",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate ('Results are estimates from the numbers typed in, not legal, tax ... advice') that does not describe a proxy and omits that it is not a billing system.",
+   "where": "ventures/llm-spend-guard/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15417"
+ ],
+ "verdict": "LLM Spend Guard is a clean, small, zero-dependency reserve-then-settle guard whose arithmetic and usage parsing are right (Anthropic and OpenAI costs, cached-token split, both providers' streaming usage all recomputed correctly) and whose holds do serialise concurrent text calls (20 parallel, 3 forwarded on a $0.05 budget) and fail closed on aborted streams, unpriced models and uncapped output. It does not meet the bar: the hold estimates input from JSON bytes only, so 20 concurrent PDF-by-URL calls spent $15.31 against a $1 per-user cap and passed a $0.50 per-call limit; OpenAI n>1 is unpriced; 1h cache writes, web search fees and long-context tiers cannot be expressed; and the README, page and VENTURE.yaml state the 'never promised twice' guarantee without these limits. 45/45 tests pass and 6 of 8 seeded mutations were caught, but the broken-stream fail-closed rule and the estimate ratio are unpinned. Correctness 2, claims 2, verification 2."
+}

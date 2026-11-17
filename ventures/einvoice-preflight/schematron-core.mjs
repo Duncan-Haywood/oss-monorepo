@@ -11,13 +11,21 @@ export const ADDONS = {
   peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
   // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
   // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
-  "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, files: { ubl: "cius-ro-ubl.sef.json" } },
+  // CIUS-RO 1.0.9 sits on EN 16931 validation 1.3.8 (phive-rules-cius-ro's basedOn, and
+  // ANAF's own bundled EN16931-CIUS_RO-UBL-validation.xslt), not on the current base: the
+  // plain route runs that release under it (`base`). 1.3.14 added UBL-SR-51..59, and
+  // UBL-SR-53 fails ANAF's own non-VAT buyer (a PartyTaxScheme with an empty TaxScheme).
+  "cius-ro": { source: "cius-ro-schematron", match: /CIUS-RO/i, plainOnly: true, files: { ubl: "cius-ro-ubl.sef.json" }, base: { ubl: ["en16931-1.3.8-ubl.json", "en16931-1.3.8"] } },
   // The Netherlands' NLCIUS (SI-UBL 2.0) and its G-account variant. UBL only, plain route
   // only, like Romania: build-nl-rules.mjs. A Peppol BIS file does not match; its NL-R
   // rules already run in the Peppol add-on.
-  nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, files: { ubl: "nlcius-ubl.sef.json", cii: "nlcius-cii.sef.json" } },
+  nlcius: { source: "nlcius-schematron", match: /nen\.nl:(nlcius|gaccount)/i, plainOnly: true, files: { ubl: "nlcius-ubl.sef.json", cii: "nlcius-cii.sef.json" } },
   // Portugal's CIUS-PT (AMA / FEAP), the checks the EU base does not carry. Plain route only: build-pt-rules.mjs.
-  "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, files: { ubl: "cius-pt-ubl.sef.json" } },
+  "cius-pt": { source: "cius-pt-schematron", match: /CIUS-PT/i, plainOnly: true, files: { ubl: "cius-pt-ubl.sef.json" } },
+  // Croatia's HR-CIUS 2025 with the HR extension (Fiskalizacija 2.0, B2B since 1 January 2026):
+  // the Porezna uprava's HR-BR rules (OIB check digits, KPD classification, operator, issue
+  // time, process P1-P12). UBL only, plain route only: build-hr-rules.mjs.
+  "cius-hr": { source: "cius-hr-schematron", match: /urn:mfin\.gov\.hr:/i, plainOnly: true, files: { ubl: "cius-hr-ubl.sef.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
@@ -39,6 +47,20 @@ export const PROFILES = {
   "pint-sg-1": { source: "pint-sg-schematron", match: /^\s*urn:peppol:pint:billing-1@sg-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-sg-jur-ubl.json"] } },
   "pint-aunz-1": { source: "pint-aunz-schematron", match: /^\s*urn:peppol:pint:billing-1@aunz-1\b/i, files: { ubl: ["pint1-aunz-ubl.json", "pint1-aunz-jur-ubl.json"] } },
   "pint-aunz-sb-1": { source: "pint-aunz-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@aunz-1\b/i, files: { ubl: ["pint1-aunz-sb-ubl.json", "pint1-aunz-sb-jur-ubl.json"] } },
+  // Japan (JP 1.1.3, plus its non-tax-registered seller and self-billing profiles), Malaysia
+  // (MY 1.3.1), the UAE (AE 2026.5) and Oman (OM 1.0.1), added 2026-11-12: before then their
+  // ids fell to the EU base, which rejects a JPY consumption-tax or MYR SST invoice for EU
+  // reasons. Billing releases that ship the shared PINT-UBL stylesheet byte for byte use
+  // pint1-sg-ubl.json (build-pint-rules.mjs checks and records `sameAs` in the manifest).
+  "pint-jp-1": { source: "pint-jp-schematron", match: /^\s*urn:peppol:pint:billing-1@jp-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-jp-jur-ubl.json"] } },
+  "pint-jp-ntr-1": { source: "pint-jp-schematron", match: /^\s*urn:peppol:pint:nontaxinvoice-1@jp-1\b/i, files: { ubl: ["pint1-jp-ntr-ubl.json", "pint1-jp-ntr-jur-ubl.json"] } },
+  "pint-jp-sb-1": { source: "pint-jp-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@jp-1\b/i, files: { ubl: ["pint1-jp-sb-ubl.json", "pint1-jp-sb-jur-ubl.json"] } },
+  "pint-my-1": { source: "pint-my-schematron", match: /^\s*urn:peppol:pint:billing-1@my-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-my-jur-ubl.json"] } },
+  "pint-my-sb-1": { source: "pint-my-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@my-1\b/i, files: { ubl: ["pint1-my-sb-ubl.json", "pint1-my-sb-jur-ubl.json"] } },
+  "pint-ae-1": { source: "pint-ae-schematron", match: /^\s*urn:peppol:pint:billing-1@ae-1\b/i, files: { ubl: ["pint1-ae-ubl.json", "pint1-ae-jur-ubl.json"] } },
+  "pint-ae-sb-1": { source: "pint-ae-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@ae-1\b/i, files: { ubl: ["pint1-ae-sb-ubl.json", "pint1-ae-jur-ubl.json"] } },
+  "pint-om-1": { source: "pint-om-schematron", match: /^\s*urn:peppol:pint:billing-1@om-1\b/i, files: { ubl: ["pint1-sg-ubl.json", "pint1-om-jur-ubl.json"] } },
+  "pint-om-sb-1": { source: "pint-om-schematron", match: /^\s*urn:peppol:pint:selfbilling-1@om-1\b/i, files: { ubl: ["pint1-om-sb-ubl.json", "pint1-om-sb-jur-ubl.json"] } },
 };
 
 export function matchingProfile(xml, syntax) {
@@ -58,6 +80,18 @@ export function customizationId(xml) {
 export function matchingAddons(xml, syntax) {
   const id = customizationId(xml);
   return Object.entries(ADDONS).filter(([, a]) => a.match.test(id) && a.files[syntax]);
+}
+
+// Rule sets this file needs that have no Saxon form. build-schematron.mjs compiles the EU
+// base, XRechnung and Peppol BIS only; the PINT and ZATCA sets (which replace the EU base)
+// and the national add-ons marked plainOnly (CIUS-RO on its 1.3.8 base, NLCIUS, CIUS-PT)
+// ship as ./plain/ JSON alone. A Saxon runner given such a file would check it against
+// the current EU base and nothing else, so it hands the file to the plain route instead.
+export function plainOnlySets(xml, syntax) {
+  if (!syntax) return [];
+  const profile = matchingProfile(xml, syntax);
+  if (profile) return [profile[0]];
+  return matchingAddons(xml, syntax).filter(([, a]) => a.plainOnly).map(([name]) => name);
 }
 
 function decodeXml(text) {
@@ -81,7 +115,7 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
       message: withId ? withId[2] : text,
       fix: plainFix(rule),
       path: attr("location").replace(/\[namespace-uri\(\)='[^']*'\]/g, "").replace(/\/Q\{[^}]*\}/g, "/").replace(/\/\*:/g, "/"),
-      severity: attr("flag") || "fatal",
+      severity: attr("flag") || attr("role") || "fatal",
       source,
     });
   }

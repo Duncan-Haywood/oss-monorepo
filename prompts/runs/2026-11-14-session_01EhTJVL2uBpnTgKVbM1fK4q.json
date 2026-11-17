@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVL2uBpnTgKVbM1fK4q",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T09:07:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 7) photo-editing: CR2s with no usable lens name matched to lensfun by the maker note's focal range and aperture",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 15795,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 17,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable item asked for a Canon lens-number-to-name map; the public tables are in GPL/Artistic projects (Exiv2, ExifTool) and the numbers are shared, so the slice used the maker note's focal range and aperture instead; the item now says so."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The router drew the creative track, but the scheduled task's own prompt asks for revenue-oriented software products, the creative audio is over its 400 MB cap (474 MB: text only), and the shelves already hold several hundred pieces with six landed today. A flagship product slice was judged more valuable than another text-only story.",
+      "did": "Took allocate.py's pick, photo-editing (flagship 7), its BUILDABLE item on Canon lens identification.",
+      "result": "Merged a working lens-identification slice with real-file and whole-database measurements."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-lens-with-no-name.md",
+    "ventures/photo-editing/eval/canon-lens-from-range-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "photo-editing: cr2.lens_hint reads CameraSettings 22-26 (indexes from Exiv2 canonmn_int.cpp; aperture semantics, widest at the focal length shot, read off five real CR2s); lens_profiles.find_lenses_by_range + correction_for fallback. Real 70D '105mm' frame now corrected as Sigma 105mm f/2.8 EX DG OS HSM Macro; 350D 28-200 and 7D 10-17 still refused (not in lensfun on Canon mounts). tools/lens_from_range_check.py on lensfun master 52cf1a7: 581 cases on 366 Canon-mount lenses, 223 picked (38.4%), 358 tied, 0 lost. Checks: python3 platform/ci/run_venture_tests.py photo-editing -> ok (118.2s), 1 suites run, 0 failed; post front matter, links, similarity checks pass; validate.py passes.",
+  "corrections": [],
+  "redteam": null
+}

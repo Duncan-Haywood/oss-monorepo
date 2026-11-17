@@ -1,0 +1,19 @@
+# Job Shop Scheduler: shortest makespan for jobs routed through shared machines, with a Gantt chart and a proved bound
+
+> Free tool for production planners, machine shops, operations engineers and students: type each job's routing (machine and time for each operation, in order) and get a short schedule by Giffler-Thompson dispatch rules and tabu search on the Nowicki-Smutnicki N5 neighbourhood, a proved lower bound (longest job, busiest machine, preemptive one-machine bound), an exact branch and bound on shops of up to 64 operations, a Gantt chart, machine utilisation and job waiting times. On the 162 JSPLIB benchmark instances at 4 seconds each it matched the recorded optimum on 66 of 103 instances that have one, proved 54 of 162 optimal, and averaged 1.01% above the recorded optimum or upper bound (bench/jsplib.md). Nothing uploaded.
+
+Free and open source (MIT). Results are planning estimates, not engineering or operations advice; setups, transport, alternative machines, due dates and breakdowns are not modelled.
+
+## Pages
+
+- [The tool](https://marisstella.app/job-shop-scheduler/): job, machine, time table (or CSV, JSON, OR-Library / JSPLIB or Taillard file) in; makespan, proved bound, Gantt chart, machine and job tables and a CSV of the schedule out.
+- [How it works](https://marisstella.app/job-shop-scheduler/how-it-works.html): the disjunctive graph, dispatch rules, tabu search on critical blocks, the lower bounds, the exact search, and the benchmark results.
+
+## How to use the engine
+
+- `engine.mjs` exports `solve(instance, {ms, seed})` (makespan, lowerBound, optimal, proof, gap, method, bounds{job, machineLoad, oneMachine}, dispatch{rule: makespan}, schedule[{job, step, machine, start, end, time}], machineSummary[{machine, busy, idle, utilization, sequence}], jobSummary[{job, completion, work, waiting}]), `lowerBounds(instance)`, `checkSchedule(instance, schedule)`, `parseAny(text)`, `parseTable(text)`, `parseStandard(text)`, `formatTable(instance)`, `EXAMPLE`. An instance is `{machines?: [names], jobs: [{name, ops: [[machine, time], ...]}]}`.
+- `cli.mjs`: `node cli.mjs shop.csv`, `node cli.mjs ft10.txt --ms 15000`, `--example`, `--json`, `--gantt`, `--seed N`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-shop-scheduler): MIT licensed.

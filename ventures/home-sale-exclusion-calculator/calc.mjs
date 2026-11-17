@@ -143,7 +143,7 @@ export function sampleInput() {
   return { status: "single", income: "120000", price: "850000", sellingCosts: "51000", basis: "300000", improvements: "40000", depreciation: "", ownMonths: "180", useMonths: "180", nonqualMonths: "0", partial: "no", prior: "no" };
 }
 
-const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { let s = String(v); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export function reportCsv(a) {
   const r = a.r;
   const rows = [["Item", "Amount"], ["Sale price", round2(r.price)], ["Total gain", round2(r.gain)], ["Exclusion allowed", round2(r.used)], ["Taxable gain", round2(r.taxableGain)], ["Depreciation recapture", round2(r.recapture)], ["Long-term capital gain tax", round2(r.tax.ltcgTax)], ["Recapture tax", round2(r.tax.recapTax)], ["Net investment income tax", round2(r.tax.niit)], ["Estimated federal tax", round2(r.tax.total)], ["Tax without any exclusion", round2(a.noExclusion.tax.total)]];

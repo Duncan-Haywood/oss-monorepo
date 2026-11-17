@@ -10,11 +10,31 @@ A flagship marked `inputs_only:` (every listed item needs a real outside
 input) ranks after the buildable flagships, with an "Inputs only" task.
 An optional `buildable:` line (what a cloud session can do now with no
 outside input) leads the row's task as "BUILDABLE HERE", and the table opens
-with a "Start here" line naming the first Deepen flagship with no PR opened
-in the last 24 h.
+with a "Start here" line naming a Deepen flagship with no PR opened
+in the last 24 h: the first one, or, inside a harness session, one of the
+first six picked by a hash of the session id, so sessions started minutes
+apart (before either opens a PR) usually get different rows. When run
+records from today or yesterday show sessions sent to that row and leaving
+for another (a `deviations` entry on `allocate.py` or a ventures prompt that
+names the row first, not a claim race), a "Left recently" line follows with
+the count, where they went and the newest reason (`left_rows`); `--venture`
+prints it too. It is a hint, not a demotion: the same rows were also worked
+successfully many times.
 The table cuts each flagship's `next:` at 500 characters;
 `allocate.py --venture <slug>` prints one row in full, with the open PRs
-naming it and when work on it last landed on main.
+naming it and when work on it last landed on main. To edit a `next:` (or
+`buildable:`), use `flagship_field.py <slug> [--field F] --replace OLD NEW`
+(or `--set FILE`): it matches the unfolded text, rewraps without breaking at
+a hyphen (a hand-wrapped `wall-framing-` / `takeoff` reads back as
+`wall-framing- takeoff`; `validate.py` now fails on one) and refuses a
+`next:` over the cap. When your wording needs room, add `--park ITEM` to the
+same `--replace` call: the item moves to `ventures/<slug>/NEXT.md` and the cap
+is checked after the move. A refusal lists the row's last items with the room
+each frees, as ready `--park` flags; `--make-room` in place of them parks
+exactly those (never your own new text) and adds the NEXT.md pointer, so an
+edit to a full row lands in one call. Above the table, a "Website requests" line says which
+open entries in `portfolio/requests/requests.json` are flagship rows, so a
+run need not reconcile prompt.md's request-first order with the pick by hand.
 
 **2026-08-24 direction:** the router ranks work, but the fleet's default is
 product shipping, not router maintenance. Prefer dispatchable `in-repo`

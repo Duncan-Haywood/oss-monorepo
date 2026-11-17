@@ -2,6 +2,8 @@
 // Timestamps are read as wall-clock times (no timezone shifts), so the
 // results match what the utility's own bill period shows.
 
+import { isEspi, espiToCsv } from "./greenbutton.mjs";
+
 export const DEFAULTS = {
   unit: "kw",
   intervalMin: "",
@@ -47,11 +49,19 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
+// Date.UTC rolls a day the month does not have into the next month (30 February -> 2 March): refuse it.
+// Minutes past 59 roll into the next hour the same way (14:75 -> 15:15): refuse them too.
+const realUtc = (y, mo, d, h = 0, mi = 0) => {
+  if (h > 23 || mi > 59) return NaN;
+  const t = Date.UTC(y, mo - 1, d, h, mi);
+  const back = new Date(t);
+  return back.getUTCMonth() === mo - 1 && back.getUTCDate() === d ? t : NaN;
+};
 export function parseTimestamp(s) {
   const str = String(s ?? "").trim().replace(/^"|"$/g, "");
-  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:[T\s]+(\d{1,2}):(\d{2}))?/);
-  if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3], +(m[4] || 0), +(m[5] || 0));
-  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
+  let m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)(?:[T\s]+(\d{1,2}):(\d{2}))?/);
+  if (m) return realUtc(+m[1], +m[2], +m[3], +(m[4] || 0), +(m[5] || 0));
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})(?!\d)(?:[T\s]+(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?)?/i);
   if (m) {
     let y = +m[3];
     if (y < 100) y += 2000;
@@ -59,7 +69,7 @@ export function parseTimestamp(s) {
     const ap = (m[6] || "").toUpperCase();
     if (ap === "PM" && h < 12) h += 12;
     if (ap === "AM" && h === 12) h = 0;
-    return Date.UTC(y, +m[1] - 1, +m[2], h, +(m[5] || 0));
+    return realUtc(y, +m[1], +m[2], h, +(m[5] || 0));
   }
   return NaN;
 }
@@ -76,8 +86,33 @@ function splitLine(line) {
   return out.map((c) => c.trim());
 }
 
-/** Reads pasted CSV into [{t, v}] rows plus notes about what was guessed. */
+/** A bare time of day such as 14:15, 14:15:00 or 2:15 PM, in ms after midnight. */
+export function parseTimeOfDay(s) {
+  const m = String(s ?? "").trim().replace(/^"|"$/g, "").match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
+  if (!m) return NaN;
+  let h = +m[1];
+  const ap = (m[3] || "").toUpperCase();
+  if (ap === "PM" && h < 12) h += 12;
+  if (ap === "AM" && h === 12) h = 0;
+  return h < 24 && +m[2] < 60 ? (h * 60 + +m[2]) * 60000 : NaN;
+}
+const isDateOnly = (c) => /^"?(\d{4}-\d{1,2}-\d{1,2}|\d{1,2}\/\d{1,2}\/\d{2,4})"?$/.test(String(c ?? "").trim());
+
+/**
+ * Reads pasted CSV, or Green Button XML (ESPI), into [{t, v}] rows plus notes
+ * about what was guessed. `unitHint` is "kwh" or "kw" when the file says which.
+ */
 export function parseIntervals(text) {
+  if (isEspi(text)) {
+    const g = espiToCsv(text);
+    if (!g.csv) return { rows: [], notes: g.notes, unitHint: null, csv: "" };
+    const p = parseCsv(g.csv);
+    return { ...p, notes: [...g.notes, ...p.notes.filter((n) => !/^Using column/.test(n))], unitHint: g.unit, csv: g.csv };
+  }
+  return parseCsv(text);
+}
+
+function parseCsv(text) {
   const notes = [];
   const lines = String(text ?? "").split(/\r?\n/).filter((l) => l.trim());
   const cells = lines.map(splitLine);
@@ -87,7 +122,14 @@ export function parseIntervals(text) {
   const header = first > 0 ? cells[first - 1] : null;
   const body = cells.slice(first);
   const tsCol = body[0].findIndex((c) => Number.isFinite(parseTimestamp(c)));
-  const candidates = body[0].map((_, i) => i).filter((i) => i !== tsCol && Number.isFinite(num(body[0][i])) && body[0][i] !== "");
+  // Separate DATE and START TIME columns (the Opower layout behind many Green Button CSVs: PG&E, ComEd and others).
+  let timeCol = -1;
+  if (isDateOnly(body[0][tsCol])) {
+    const times = body[0].map((c, i) => i).filter((i) => i !== tsCol && Number.isFinite(parseTimeOfDay(body[0][i])));
+    timeCol = (header && times.find((i) => /start|time|from|begin/i.test(header[i] || "") && !/end|stop|to\b/i.test(header[i] || ""))) ?? times[0] ?? -1;
+    if (timeCol >= 0) notes.push(`Combined the date column with the "${(header && header[timeCol]) || "time"}" column.`);
+  }
+  const candidates = body[0].map((_, i) => i).filter((i) => i !== tsCol && i !== timeCol && Number.isFinite(num(body[0][i])) && body[0][i] !== "");
   let valCol = -1;
   if (header) {
     const named = candidates.find((i) => /kw|demand|usage|consum|energy|value|load/i.test(header[i] || ""));
@@ -99,7 +141,7 @@ export function parseIntervals(text) {
   const rows = [];
   let skipped = 0;
   for (const r of body) {
-    const t = parseTimestamp(r[tsCol]);
+    const t = timeCol >= 0 ? parseTimestamp(r[tsCol]) + parseTimeOfDay(r[timeCol]) : parseTimestamp(r[tsCol]);
     const v = num(r[valCol]);
     if (!Number.isFinite(t) || !Number.isFinite(v) || v < 0) { skipped++; continue; }
     rows.push({ t, v });
@@ -108,7 +150,14 @@ export function parseIntervals(text) {
   const dedup = rows.filter((r, i) => i === 0 || r.t !== rows[i - 1].t);
   if (dedup.length < rows.length) notes.push(`${rows.length - dedup.length} duplicate timestamps ignored.`);
   if (skipped) notes.push(`${skipped} lines skipped (not a timestamp and a non-negative number).`);
-  return { rows: dedup, notes };
+  // Unit from the reading column's header, or from a UNITS column (Opower layout: "kWh" on every row).
+  const head = String((header && header[valCol]) || "");
+  const unitsCol = header ? header.findIndex((h) => /^units?$/i.test(String(h).trim())) : -1;
+  const unitCell = unitsCol >= 0 ? String(body[0][unitsCol] || "") : "";
+  let unitHint = null;
+  if (/kwh/i.test(head) || /^kwh$/i.test(unitCell.trim())) unitHint = "kwh";
+  else if (/\bkw\b|demand/i.test(head) || /^kw$/i.test(unitCell.trim())) unitHint = "kw";
+  return { rows: dedup, notes, unitHint };
 }
 
 export function inferIntervalMin(rows) {
@@ -216,7 +265,12 @@ export function analyze(rows, s) {
   return { ok: true, warnings, intervalMin, months, yearly, monthsUsed: full.length, maxPeak, hourHits, topPeaks, caps, best, ratchet, rate, readings: pts.length };
 }
 
-export const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+export const money = (n) => {
+  const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const kw = (n) => n.toLocaleString("en-US", { maximumFractionDigits: 1 }) + " kW";
 
 export function toCsv(a) {

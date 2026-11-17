@@ -1,0 +1,18 @@
+Part A: synthetic streams, 10 seeds each, 500 points, first check (the baseline) at 100, then one check per new point (400 checks per stream). A step, where there is one, is at point 301; an alert dated within 5 points of it counts as reporting it. False alerts are all other alerts, per 1,000 checks. Delay = points from the change to the check that reported it.
+
+  detector      confirm  FA/1000 null iid      FA/1000 null ar1 0.5  FA/1000 null t3       FA/1000 null ar1 0.8  step 1sd iid found (median delay) step 2sd iid found (median delay) step 3sd iid found (median delay) step 2sd ar1 0.5 found (median delay)step 4sd ar1 0.8 found (median delay)
+  bocpd               5  0.00                  6.25                  3.75                  32.25                 0/10 (-)                          7/10 (5)                          10/10 (5)                         8/10 (5)                          10/10 (5)                         
+  bocpd-ar1           5  0.00                  0.75                  3.75                  1.00                  0/10 (-)                          7/10 (5)                          10/10 (5)                         3/10 (5)                          10/10 (5)                         
+  bocpd-ar1-win       5  0.50                  0.75                  6.75                  1.50                  2/10 (5.5)                        10/10 (5)                         10/10 (5)                         6/10 (5.5)                        10/10 (5)                         
+
+Round 3 rule, against bocpd (mean null false alerts 10.56 per 1,000, 35 steps found):
+  bocpd-ar1: (a) mean null false alerts 1.38, at or below: yes; (b) steps found 30, at least as many: no; fewer false alerts on both AR(1) nulls: yes.
+  bocpd-ar1-win: (a) mean null false alerts 2.38, at or below: yes; (b) steps found 38, at least as many: yes; fewer false alerts on both AR(1) nulls: yes.
+Adopted: bocpd-ar1-win becomes the default.
+
+Part B: TCPD replay, 31 univariate series that ship in the TCPD repository. Each series is watched from 20% of its length (the baseline check), then checked after every point. An alert is "marked" when an annotator put a change within 5 points of its date. Recall: of the locations a majority of annotators marked after the baseline, how many an alert reached. Delay: points from the nearest marked location to the check that reported it.
+
+  detector      confirm  alerts  marked (share)   per 1000 checks  majority locations reached  median delay
+  bocpd               5     193      63 (33%)          30.3         38/52                      5
+  bocpd-ar1           5      76      29 (38%)          11.9         23/52                      5
+  bocpd-ar1-win       5     103      39 (38%)          16.2         29/52                      5

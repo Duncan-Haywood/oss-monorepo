@@ -15,6 +15,7 @@
 
 import { walkChain } from './fetch-chain.mjs';
 import { classifyChain } from './engine.mjs';
+import { pathToFileURL } from 'node:url';
 
 const DEFAULT_MAX_HOPS = 10;
 
@@ -112,6 +113,6 @@ async function main() {
   process.exit(result.report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

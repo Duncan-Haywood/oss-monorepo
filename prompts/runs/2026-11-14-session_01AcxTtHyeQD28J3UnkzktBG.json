@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtHyeQD28J3UnkzktBG",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:06:35Z",
+  "ended": "2026-11-14T16:13:25Z",
+  "wall_minutes": 7.26,
+  "tokens_in": 4460502,
+  "tokens_out": 24584,
+  "cost_usd": 2.0792,
+  "tool_calls": 51,
+  "task": "quality track, fix mode: work the open-defect queue",
+  "projects": [
+    "platform/audio",
+    "ventures/mechanics-lien-deadline-calculator",
+    "portfolio/quality"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15903",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "Two non-working checks, both caught before commit: a missing `import subprocess` in the new audio tests (6 failures until added), and a baseline check that stashed the new tests along with the fix, so it proved nothing (redone by reverting only the fixed files: 2 of 13 page tests failed on the old files)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The `sample` NOTE for fix mode says 'fix the open-defect queue ... then re-audit', but the README and the track prompt both say not to raise a score for a fix in the same round and to re-audit in a later round. I followed the README: no re-audit file."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`queue` marked mechanics-lien's relative sitemap and github.io llms.txt defects as open, but the served site already has absolute marisstella.app URLs. Any defect whose `where` is sitemap.xml, robots.txt or llms.txt and mentions relative or github.io URLs could be checked against the served file automatically."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 5 assumes a sample round (a `quality-audit-round-<n>` post). The README covers fix-mode naming, but the prompt does not."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Today's seeded mode was `fix`, not the prompt's sample round (portfolio/quality/README.md, 'Four modes').",
+      "did": "Worked the medium queue (0 high open): 3 defects fixed with regression tests, 2 reclassified source-only with the served URL as evidence. No sample round.",
+      "result": "PR #15903"
+    },
+    {
+      "file": "portfolio/quality/audits/2026-11-07-audio.json",
+      "why": "Defect 2 (the audio suite is not run by CI) needs a .github/workflows edit, which is control-plane (CODEOWNERS) and waits for owner approval.",
+      "did": "Left it open and named it in the post; it was not mixed into this PR.",
+      "result": "still open in queue"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quality-fix-silence-at-plus-infinity-decibels.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode, 2026-11-14; 0 high defects open). Sample draw printed for reference, seed 2026-11-14-79d0, not audited. Fix PR: https://github.com/Duncan-Haywood/oss-monorepo/pull/15903. Fixed: audio#0 (the \u00b11 LU test band let a +0.8 dB error through; a new unit test pins the gain exactly and the end-to-end band is now -16.8..-15.8), audio#1 (silent input gave volume=inf dB; master() now raises below -50 LUFS, on -inf, on empty input and on NaN/inf), mechanics-lien#1 (the served llms.txt omitted Colorado, VENTURE.yaml said five states, and the page's project-type note named Georgia; tests now derive both from STATE_RULES). Reclassified source-only: mechanics-lien#2 and #3 (the served sitemap.xml and llms.txt have absolute marisstella.app URLs). Mutations (quality_mutate.py): gain+0.8 caught (also by the end-to-end test alone); silence floor -50 -> -200 caught; removing the empty guard survives, because the -inf floor raises the same error. Independent recompute after the fix: my numpy BS.1770-4 meter -16.18 LUFS vs ffmpeg ebur128 -16.2 on the delivered MP3; true peak -1.6 dBTP; ffprobe reports mp3, 32000 Hz, mono, 40 kbps. Local checks: platform/audio pytest 34 passed; mechanics-lien node --test 37 passed; quality_audit.py validate 346 files, 0 problems; check_post_frontmatter ok; portfolio/router/validate.py ok; run_workflow_locally --for-changes result below.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "23620a51-695d-5a22-bfb8-9cefb98889d4",
+    "transcripts": 1,
+    "first": "2026-11-14T16:06:35Z",
+    "last": "2026-11-14T16:13:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 24584,
+        "thinking": 4643,
+        "cache_read": 4371301,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89105,
+        "api_equivalent_usd": 2.0792,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 24584,
+      "thinking": 4643,
+      "cache_read": 4371301,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89105,
+      "api_equivalent_usd": 2.0792,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.26,
+      "active_minutes": 7.26,
+      "model_minutes": 5.47,
+      "tool_minutes": 1.79,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an audio engineer fixing and testing the gain guard plus a web dev fixing and testing the doc drift, with independent loudness checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 192.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

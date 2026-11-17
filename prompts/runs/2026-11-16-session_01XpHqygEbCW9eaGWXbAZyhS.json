@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqygEbCW9eaGWXbAZyhS",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T02:39:28Z",
+  "ended": "2026-11-16T03:11:18Z",
+  "wall_minutes": 32.1,
+  "tokens_in": 15245257,
+  "tokens_out": 74283,
+  "cost_usd": 6.2747,
+  "tool_calls": 97,
+  "task": "codesign-cant milestone 7q: check the endurance sizing closure against listed component data",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16424",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "first collect.py parse read 'GF5040' as a 40-inch propeller and voltages from misaligned columns; fixed (lookbehind in the propeller regex, voltage column dropped) before any fit",
+    "aero.size refactor first lost `wh` outside the loop (NameError caught by test_allocation); fixed so iter60 stays bit-identical (checked: 720 of 720 sizing points equal 7p)",
+    "LOG pre-registration first said 26 of 48 designs close and 17 pass the margin; corrected to 20 and 18 in a separate commit before flights ran",
+    "git fetch of main hit HTTP 503 once; retried"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "no note that retailer Shopify stores expose /products.json; it made sourcing component data quick (hobbyrc category pages render by JS and T-Motor/GetFPV 403), worth a line under 'Outbound hosts'"
+    },
+    {
+      "file": "research/codesign-cant/src/codesign_cant/aero.py",
+      "issue": "the 60-step damped closure iteration was undocumented; every milestone since 0 inherited it without a convergence check. A short comment now says so"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "milestone scope grew mid-run: building the sourced-constant check exposed the unconverged closure, which mattered more than the constants themselves",
+      "did": "added an opt-in exact solver and made it part of the pre-registered comparison (stated in the LOG before flights)",
+      "result": "the headline finding of the milestone (28 of 48 designs have no 15-min fixed point)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-can-a-5-inch-quadrotor-fly-15-minutes-on-lipo.md",
+    "research/codesign-cant/LOG.md (7q)",
+    "research/codesign-cant/README.md (7q section)"
+  ],
+  "goal": null,
+  "notes": "Verified locally: codesign-cant tests 55 passed 1 skipped; research/_homepage/build.py ok; research_live_links, check_md_links, programme_check, reproduce_names, post front matter, post links and similarity all clean. Flights: 980 s on 4 cores. Predictions Q1-Q5 held, Q6 refuted.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "feffac7b-8071-57a2-b0ab-be87265e7c41",
+    "transcripts": 1,
+    "first": "2026-11-16T02:39:28Z",
+    "last": "2026-11-16T03:11:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 89,
+        "input": 173,
+        "output": 74283,
+        "thinking": 20046,
+        "cache_read": 15022093,
+        "cache_write_5m": 0,
+        "cache_write_1h": 222991,
+        "api_equivalent_usd": 6.2747,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 89,
+      "input": 173,
+      "output": 74283,
+      "thinking": 20046,
+      "cache_read": 15022093,
+      "cache_write_5m": 0,
+      "cache_write_1h": 222991,
+      "api_equivalent_usd": 6.2747,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 86,
+      "Write": 8,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 32.1,
+      "active_minutes": 32.1,
+      "model_minutes": 12.14,
+      "tool_minutes": 19.96,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "data collection and curation of ~450 listings, closure audit and solver, 7-closure re-score and write-up by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 382.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -309,7 +309,10 @@ describe('the editor in a real browser', { concurrency: CONCURRENCY }, () => {
     assert.match(ridge, /\$[\d,.]+ less/);
     await page.selectOption('#new-design', '8x12 classic');
     await page.click('#design-tabs [data-design="0"]');
-    await page.waitForFunction(() => /Against the one you're editing/.test(document.querySelector('#compare-cards').textContent));
+    // Wait for the cards measured against design 0: adding the design already rendered
+    // "Against the one you're editing" cards measured against the new one, and under
+    // load the tab click's deferred render lands after them (flaky in a full sweep, 2026-11-13).
+    await page.waitForFunction(() => /walls [^→]+ → 8' 0"/.test(document.querySelector('#compare-cards').textContent), null, { timeout: 15000 }).catch(() => {});
     assert.match(await page.textContent('#compare-cards'), /walls [^→]+ → 8' 0"/);
   });
 
@@ -812,6 +815,15 @@ describe('the editor in a real browser', { concurrency: CONCURRENCY }, () => {
     const path = await dl.path();
     const head = readFileSync(/** @type {string} */ (path)).subarray(0, 8);
     assert.deepEqual([...head], [137, 80, 78, 71, 13, 10, 26, 10], 'a PNG file');
+  });
+
+  test('3D model downloads a glTF binary of the current design', { skip }, async (t) => {
+    const { page } = await open(t);
+    const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#save-model')]);
+    assert.match(dl.suggestedFilename(), /\.glb$/);
+    const bytes = readFileSync(/** @type {string} */ (await dl.path()));
+    assert.equal(bytes.subarray(0, 4).toString('latin1'), 'glTF');
+    assert.equal(bytes.readUInt32LE(8), bytes.length, 'the header carries the file length');
   });
 
   test('a first-time visitor opens on a gallery design (the balanced one, unless it costs more than the 8x12) with nothing to check', { skip }, async (t) => {

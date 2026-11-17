@@ -1,0 +1,151 @@
+# Milestone 3, second part: a stock humanoid at the ledger (buildbot-sheathing)
+sheet 1.2192 x 2.4384 m, 21.8 kg, weight 213.9 N; wall friction mu_w = 0.4
+Menagerie commit cda5236f98383f6fbaa4820c6b18dba892cd087f
+
+## A. Slide along the ledger: push height that tips the sheet (m above its bottom edge)
+Closed form h* = (m g W/2 + mu_w F_n h_press) / (mu_l m g + mu_w F_n); W/(2 mu_l) when h_press = h.
+MuJoCo: least push height whose slide tilts the sheet past 0.5 deg (bisection, 1 cm).
+mu_l  F_n  h_press | P_N   h*_closed  h*_mujoco  ratio | slid_m_at_0.8h* peak_tilt_deg_at_0.8h*
+ 0.3    50    = h |  84.2     2.032      2.018  0.993 | 0.096 0.0039
+ 0.3   100    = h | 104.2     2.032      2.046  1.007 | 0.095 0.0038
+ 0.4    50    = h | 105.5     1.524      1.516  0.995 | 0.095 0.0057
+ 0.4   100    = h | 125.5     1.524      1.534  1.007 | 0.094 0.0053
+ 0.5    50    = h | 126.9     1.219      1.215  0.996 | 0.094 0.0084
+ 0.5   100    = h | 146.9     1.219      1.224  1.004 | 0.093 0.0076
+ 0.6    50    = h | 148.3     1.016      1.005  0.989 | 0.093 0.0091
+ 0.6   100    = h | 168.3     1.016      1.014  0.998 | 0.092 0.0087
+ 0.7    50    = h | 169.7     0.871      0.858  0.986 | 0.092 0.0107
+ 0.7   100    = h | 189.7     0.871      0.868  0.996 | 0.091 0.0098
+ 0.5    50    0.6 | 126.9     1.122      1.114  0.993 | 0.094 0.0075
+ 0.5    50    1.2 | 126.9     1.216      1.205  0.991 | 0.094 0.0082
+ 0.7    50    0.6 | 169.7     0.839      0.831  0.991 | 0.092 0.0086
+ 0.7    50    1.2 | 169.7     0.910      0.895  0.984 | 0.092 0.0098
+(no MuJoCo threshold = the sheet did not tip even pushed at its top; the closed form is above H)
+
+## A2. Sliding through palm friction alone: the press needed, F_n >= mu_l m g / (mu_h - mu_w)
+mu_l  mu_h=0.5  0.6  0.8  1.0 (N; '-' impossible: mu_h <= mu_w)
+ 0.3     642     321     160     107
+ 0.4     855     428     214     143
+ 0.5    1069     535     267     178
+ 0.6    1283     642     321     214
+ 0.7    1497     749     374     250
+
+## B. Whole-body static checks (feet planted, torque limits, both soles loaded, no slip)
+carry = heaviest load held in both hands, no push (kg; sheet is 21.8);
+press = largest press into the seated sheet (N); slide mu_l = largest press while also
+pushing the slide force mu_l m g + 0.4 F_n sideways (N); '-' = even 0 N fails. Limit in brackets.
+
+g1, foot friction 0.3
+x_m z_m | carry_kg | press_N | slide0.3_N | slide0.5_N
+0.3 0.6 | (as mu 0.6) | 80 [left_wrist_pitch_joint] | 50 [slip] | - [slip]
+0.3 0.7 | (as mu 0.6) | 98 [slip] | 50 [slip] | - [slip]
+0.3 0.8 | (as mu 0.6) | 98 [slip] | 50 [slip] | - [slip]
+0.3 0.9 | (as mu 0.6) | 95 [right_wrist_pitch_joint] | 50 [slip] | - [slip]
+0.3 1.0 | (as mu 0.6) | 91 [right_wrist_pitch_joint] | 45 [left_wrist_pitch_joint] | - [slip]
+0.3 1.1 | (as mu 0.6) | 75 [waist_pitch_joint] | 50 [slip] | - [slip]
+0.3 1.2 | (as mu 0.6) | 69 [waist_pitch_joint] | 50 [slip] | - [slip]
+0.3 1.3 | (as mu 0.6) | 66 [waist_pitch_joint] | 42 [left_ankle_roll_joint] | - [slip]
+0.4 0.6 | (as mu 0.6) | 88 [left_wrist_pitch_joint] | 50 [slip] | - [slip]
+0.4 0.7 | (as mu 0.6) | 98 [slip] | 50 [slip] | - [slip]
+0.4 0.8 | (as mu 0.6) | 98 [slip] | 50 [slip] | - [slip]
+0.4 0.9 | (as mu 0.6) | 80 [right_wrist_pitch_joint] | 50 [slip] | - [slip]
+0.4 1.0 | (as mu 0.6) | 98 [slip] | 50 [slip] | - [slip]
+0.4 1.1 | (as mu 0.6) | 82 [right_wrist_pitch_joint] | 50 [slip] | - [slip]
+0.4 1.2 | (as mu 0.6) | 77 [waist_pitch_joint] | 50 [slip] | - [slip]
+0.4 1.3 | (as mu 0.6) | 72 [waist_pitch_joint] | 42 [right_ankle_roll_joint] | - [slip]
+
+g1, foot friction 0.6
+x_m z_m | carry_kg | press_N | slide0.3_N | slide0.5_N
+0.3 0.6 | 4.6 [waist_pitch_joint] | 80 [left_wrist_pitch_joint] | 67 [right_wrist_pitch_joint] | 27 [left_shoulder_roll_joint]
+0.3 0.7 | 5.7 [waist_pitch_joint] | 106 [left_wrist_pitch_joint] | 96 [right_wrist_pitch_joint] | 21 [left_shoulder_roll_joint]
+0.3 0.8 | 7.1 [waist_pitch_joint] | 107 [left_wrist_pitch_joint] | 81 [right_wrist_yaw_joint] | 41 [left_wrist_yaw_joint]
+0.3 0.9 | 7.8 [left_wrist_pitch_joint] | 95 [right_wrist_pitch_joint] | 52 [left_wrist_pitch_joint] | 30 [right_ankle_roll_joint]
+0.3 1.0 | 7.7 [left_wrist_pitch_joint] | 91 [right_wrist_pitch_joint] | 45 [left_wrist_pitch_joint] | - [right_ankle_roll_joint]
+0.3 1.1 | 8.0 [left_wrist_pitch_joint] | 75 [waist_pitch_joint] | 62 [left_wrist_pitch_joint] | - [right_ankle_roll_joint]
+0.3 1.2 | 8.7 [left_wrist_pitch_joint] | 69 [waist_pitch_joint] | 59 [left_wrist_pitch_joint] | - [right_ankle_roll_joint]
+0.3 1.3 | 8.0 [waist_pitch_joint] | 66 [waist_pitch_joint] | 42 [left_ankle_roll_joint] | - [right_ankle_roll_joint]
+0.4 0.6 | 2.8 [waist_pitch_joint] | 88 [left_wrist_pitch_joint] | 69 [right_wrist_pitch_joint] | 31 [left_shoulder_roll_joint]
+0.4 0.7 | 3.2 [waist_pitch_joint] | 133 [left_wrist_pitch_joint] | 110 [left_wrist_yaw_joint] | 27 [left_shoulder_roll_joint]
+0.4 0.8 | 3.9 [waist_pitch_joint] | 129 [left_wrist_pitch_joint] | 91 [left_wrist_yaw_joint] | 26 [left_shoulder_roll_joint]
+0.4 0.9 | 4.4 [waist_pitch_joint] | 80 [right_wrist_pitch_joint] | 65 [left_wrist_pitch_joint] | 30 [right_ankle_roll_joint]
+0.4 1.0 | 4.7 [waist_pitch_joint] | 110 [right_wrist_pitch_joint] | 60 [left_wrist_pitch_joint] | - [right_ankle_roll_joint]
+0.4 1.1 | 4.8 [waist_pitch_joint] | 100 [right_wrist_pitch_joint] | 63 [left_wrist_pitch_joint] | - [right_ankle_roll_joint]
+0.4 1.2 | 4.5 [waist_pitch_joint] | 77 [waist_pitch_joint] | 59 [left_wrist_pitch_joint] | - [right_ankle_roll_joint]
+0.4 1.3 | 2.9 [reach] | 72 [waist_pitch_joint] | 42 [right_ankle_roll_joint] | - [right_ankle_roll_joint]
+
+h1, foot friction 0.3
+x_m z_m | carry_kg | press_N | slide0.3_N | slide0.5_N
+0.3 0.6 | (as mu 0.6) | 129 [right_elbow] | 107 [slip] | 54 [left_shoulder_yaw]
+0.3 0.7 | (as mu 0.6) | 128 [right_elbow] | 107 [slip] | 60 [left_shoulder_yaw]
+0.3 0.8 | (as mu 0.6) | 128 [left_elbow] | 107 [slip] | 69 [slip]
+0.3 0.9 | (as mu 0.6) | 136 [left_elbow] | 107 [slip] | 59 [right_shoulder_yaw]
+0.3 1.0 | (as mu 0.6) | 141 [right_elbow] | 105 [right_shoulder_yaw] | 37 [right_shoulder_yaw]
+0.3 1.1 | (as mu 0.6) | 137 [right_elbow] | 107 [slip] | 34 [right_shoulder_yaw]
+0.3 1.2 | (as mu 0.6) | 128 [right_elbow] | 107 [slip] | 69 [slip]
+0.3 1.3 | (as mu 0.6) | 151 [slip] | 107 [slip] | 69 [slip]
+0.4 0.6 | (as mu 0.6) | 134 [left_elbow] | 107 [slip] | 45 [left_shoulder_yaw]
+0.4 0.7 | (as mu 0.6) | 133 [left_elbow] | 107 [slip] | 47 [left_shoulder_yaw]
+0.4 0.8 | (as mu 0.6) | 135 [left_elbow] | 107 [slip] | 48 [left_shoulder_yaw]
+0.4 0.9 | (as mu 0.6) | 149 [left_elbow] | 107 [slip] | 46 [left_shoulder_yaw]
+0.4 1.0 | (as mu 0.6) | 151 [slip] | 107 [slip] | 40 [left_shoulder_yaw]
+0.4 1.1 | (as mu 0.6) | 151 [slip] | 107 [slip] | 34 [left_shoulder_yaw]
+0.4 1.2 | (as mu 0.6) | 145 [right_elbow] | 107 [slip] | 49 [right_shoulder_yaw]
+0.4 1.3 | (as mu 0.6) | 151 [slip] | 107 [slip] | 69 [slip]
+
+h1, foot friction 0.6
+x_m z_m | carry_kg | press_N | slide0.3_N | slide0.5_N
+0.3 0.6 | 18.8 [right_elbow] | 129 [right_elbow] | 117 [right_elbow] | 54 [left_shoulder_yaw]
+0.3 0.7 | 17.6 [right_elbow] | 128 [right_elbow] | 123 [right_elbow] | 60 [left_shoulder_yaw]
+0.3 0.8 | 16.3 [right_elbow] | 128 [left_elbow] | 127 [left_elbow] | 70 [left_shoulder_yaw]
+0.3 0.9 | 14.9 [right_elbow] | 136 [left_elbow] | 125 [left_elbow] | 59 [right_shoulder_yaw]
+0.3 1.0 | 13.5 [right_elbow] | 141 [right_elbow] | 105 [right_shoulder_yaw] | 37 [right_shoulder_yaw]
+0.3 1.1 | 12.5 [right_elbow] | 137 [right_elbow] | 133 [left_elbow] | 34 [right_shoulder_yaw]
+0.3 1.2 | 12.4 [left_elbow] | 267 [reach] | 125 [right_elbow] | 118 [right_shoulder_yaw]
+0.3 1.3 | 13.5 [left_elbow] | 197 [right_shoulder_yaw] | 173 [right_shoulder_yaw] | 141 [right_shoulder_yaw]
+0.4 0.6 | 15.5 [right_elbow] | 134 [left_elbow] | 120 [right_elbow] | 45 [left_shoulder_yaw]
+0.4 0.7 | 14.9 [right_elbow] | 133 [left_elbow] | 124 [right_elbow] | 47 [left_shoulder_yaw]
+0.4 0.8 | 14.2 [right_elbow] | 135 [left_elbow] | 132 [right_elbow] | 48 [left_shoulder_yaw]
+0.4 0.9 | 13.5 [right_elbow] | 149 [left_elbow] | 131 [right_shoulder_yaw] | 46 [left_shoulder_yaw]
+0.4 1.0 | 12.8 [right_elbow] | 162 [right_elbow] | 114 [right_shoulder_yaw] | 40 [left_shoulder_yaw]
+0.4 1.1 | 12.5 [right_elbow] | 158 [right_elbow] | 157 [left_elbow] | 34 [left_shoulder_yaw]
+0.4 1.2 | 12.6 [right_elbow] | 281 [reach] | 141 [left_elbow] | 141 [left_elbow]
+0.4 1.3 | 13.4 [left_elbow] | 206 [right_shoulder_yaw] | 206 [left_elbow] | 120 [left_elbow]
+
+## C. Sheet rotational stiffness about the wall normal at the press pose (F_n = 50 N, x 0.35 m)
+Pivot = the landing corner on the ledger (sheet bottom at floor level, robot centred on the sheet).
+Limit (part one, mu_w 0.4, F_n 50 N): k* = (m g W/2 - mu F_n r_bar) / theta0 = 11281 at 0.5 deg, 5641 at 1.0 deg, 2820 at 2.0 deg N m/rad
+A holder above k* keeps part of its error. kp_scale* = factor on the sourced gains that reaches k* at 1 deg.
+robot z_m grip variant | K_corner  K_free_translation | kp_scale*(corner) | residual_deg at 1 deg, stock
+g1 0.7 rigid stock                |       1946       28.3 |       2.90 | 0.0000
+g1 0.7 rigid wrist roll released  |       1937       28.0 |       2.91 | 0.0000
+g1 0.7 rigid wrists released      |        417       26.8 |      13.54 | 0.0000
+g1 0.7 point stock                |        182       24.4 |      31.05 | 0.0000
+g1 0.7 point wrist roll released  |        148       10.0 |      38.19 | 0.0000
+g1 0.7 point wrists released      |         38        0.0 |     146.60 | 0.0000
+g1 1.0 rigid stock                |        778       23.5 |       7.25 | 0.0000
+g1 1.0 rigid wrist roll released  |        736       22.8 |       7.66 | 0.0000
+g1 1.0 rigid wrists released      |        534       17.0 |      10.57 | 0.0000
+g1 1.0 point stock                |        527       15.2 |      10.70 | 0.0000
+g1 1.0 point wrist roll released  |        475        8.1 |      11.87 | 0.0000
+g1 1.0 point wrists released      |          4        0.0 |    1339.89 | 0.0000
+g1 1.3 rigid stock                |       1149       26.3 |       4.91 | 0.0000
+g1 1.3 rigid wrist roll released  |       1148       25.7 |       4.91 | 0.0000
+g1 1.3 rigid wrists released      |       1121       23.4 |       5.03 | 0.0000
+g1 1.3 point stock                |       1101       24.4 |       5.12 | 0.0000
+g1 1.3 point wrist roll released  |       1043       24.3 |       5.41 | 0.0000
+g1 1.3 point wrists released      |          5        0.0 |    1058.26 | 0.0000
+h1 0.7 rigid stock                |      10423      195.0 |       0.54 | 0.4588
+h1 0.7 point stock                |        876      132.5 |       6.44 | 0.0000
+h1 1.0 rigid stock                |     613376      296.0 |       0.01 | 0.9908
+h1 1.0 point stock                |       1564      116.8 |       3.61 | 0.0000
+h1 1.3 rigid stock                |     262543      304.8 |       0.02 | 0.9785
+h1 1.3 point stock                |       2740       85.9 |       2.06 | 0.0000
+
+## C2. The other side of soft: rotation a stock-gain hold gives under the sheet's own gravity
+moment about the landing corner (m g W/2 = 130 N m) if nothing feeds the weight forward
+g1 rigid: 9.60 deg
+g1 point: 14.17 deg
+h1 rigid: 0.01 deg
+h1 point: 4.78 deg
+
+wrote results.json

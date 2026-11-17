@@ -111,6 +111,51 @@ balance check fails and names the line. Fixing the first would mean reading
 integers as money in a balance column, which the benchmark statements never
 need; it is left until a real statement needs it.
 
+## Round 2: the six transtractor rows, and a held-out twin (2026-11-14)
+
+The six transtractor rows still wrong above were looked at line by line. The
+earlier count of 62 rows was a coincidence: three true rows were missing and
+three rows from a decoy page after the statement's last line were read in
+their place. Four general rules fixed every row:
+
+1. **Glyph widths from the font.** The PDF places some text a few glyphs at
+   a time (`1` + `3 J` + `an` for "13 Jan", `20` + `.00`). The reader now
+   takes each glyph's width from the font (`/Widths`, a composite font's
+   `/W`, Courier's fixed 600), applies character and word spacing, and joins
+   two runs only when both widths are known and the second starts within a
+   fifth of the font size of where the first ends. Fonts without widths (the
+   other standard 14) keep the old estimate and are never joined.
+2. **A whole-number balance tagged CR or DR** (`90,350 CR`) is money. A bare
+   `90,350` still is not.
+3. **An end-of-transactions line** ("Transactions stop here", "End of
+   transactions") ends the table: dated lines after it are left out with a
+   note, until an account title starts another table.
+4. **A misprinted balance is told apart from a missing row.** The fixture
+   prints `3978.53 CR` where the rows reach 73,978.53. When the next printed
+   balance follows on from the rows and not from the printed figure, the
+   finding says the statement's own figure looks misprinted (a warning)
+   instead of "a row is probably missing" (an error), and the second break that
+   came from measuring against the misprint is no longer reported.
+
+Descriptions: a line with no amount between two rows goes with whichever
+row it sits closer to, when the widest gap stands clearly above the rest
+(lines of one transaction are 13.8 pt apart in this file, transactions 14.8 pt
+or more). Evenly spaced lines stay with the row above, as before. A row still
+waiting for its amount now runs on to the next page.
+
+| file | rows found | match on date and signed amount | descriptions exact | proved |
+|---|---|---|---|---|
+| transtractor test1 (before) | 62 / 62 | 56 | 52 | no, two errors |
+| transtractor test1 (after) | 62 / 62 | **62** | 59 (the other 3 keep the printed words "Annoying text", which transtractor's own config strips) | **yes**, with a misprint warning on line 47 |
+
+**Held out:** `tests/fixtures/test1a.pdf` from the same repository and commit
+(sha256 `40c750f00834`), never opened before these fixes: before, 63 rows and
+the balances 37,630.00 apart; after, 62 rows and opening plus rows equal the
+closing balance. It has no truth file, so only the proof is claimed.
+
+Unchanged after the rules: the five benchmark statements (5 of 5 proved) and
+the ICICI sample (100 of 100 rows matching).
+
 ## What is still not measured
 
 - A real customer's statement from a real bank. The benchmark's own ten

@@ -1,17 +1,14 @@
 // Behavioural tests for STICKY_FIT_JS (sticky-fit.mjs) in a real browser.
 // Playwright is not a dependency: the browser tests skip when it cannot load
 // (PLAYWRIGHT / CHROME_PATH, as in lab.test.mjs).
+import { loadPlaywright } from './load-playwright.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { STICKY_FIT_CSS, STICKY_FIT_JS } from './sticky-fit.mjs';
 import { renderChromeModule, renderChromeStyle } from './build.mjs';
 import { stripForInjection } from './jobs.mjs';
 
-let chromium = null;
-try {
-  const mod = await import(process.env.PLAYWRIGHT || 'playwright');
-  chromium = mod.chromium ?? mod.default?.chromium;
-} catch { /* skipped below */ }
+const chromium = (await loadPlaywright())?.chromium ?? null;
 const skip = !chromium && 'playwright not installed';
 
 test('pf-site.js carries the sticky fit, and it parses', () => {

@@ -17,7 +17,7 @@ This tool:
 Usage (from ``ventures/photo-editing``)::
 
     python3 -m venv /tmp/v && /tmp/v/bin/pip install rawpy numpy
-    PYTHONPATH=src /tmp/v/bin/python tools/cr2_ljpeg_check.py FILE.CR2 [--reference]
+    PYTHONPATH=src /tmp/v/bin/python tools/cr2_ljpeg_check.py FILE.CR2 [--reference] [--compare-python]
 
 The ShootFlow side runs on the standard library; numpy and rawpy are only for
 the LibRaw comparison (``--no-libraw`` skips it).
@@ -79,8 +79,20 @@ def main(argv: list[str] | None = None) -> int:
         default="auto",
         help="prediction pass on numpy when importable (auto), pure Python, or numpy only",
     )
+    parser.add_argument(
+        "--huffman-engine",
+        choices=("auto", "python", "native"),
+        default="auto",
+        help="Huffman pass in the optional C reader when it builds (auto), pure Python, or C only",
+    )
+    parser.add_argument(
+        "--compare-python",
+        action="store_true",
+        help="decode again with the pure-Python Huffman loop and check the samples are identical",
+    )
     args = parser.parse_args(argv)
     rd.DECODE_ENGINE = args.decode_engine
+    rd.HUFFMAN_ENGINE = args.huffman_engine
 
     stream, slices = cr2_stream(args.cr2.read_bytes())
     t = time.perf_counter()
@@ -94,7 +106,16 @@ def main(argv: list[str] | None = None) -> int:
         "samples": len(samples),
         "decode_s": round(decode_s, 2),
         "decode_engine": args.decode_engine,
+        "huffman_engine": args.huffman_engine,
     }
+    if args.compare_python:
+        rd.HUFFMAN_ENGINE = "python"
+        t = time.perf_counter()
+        _, _, _, pure = rd.decode_lossless_jpeg(stream)
+        result["python_huffman_decode_s"] = round(time.perf_counter() - t, 2)
+        result["python_huffman_identical"] = pure == samples
+        rd.HUFFMAN_ENGINE = args.huffman_engine
+        del pure
     if args.reference:
         keep = rd._decode_scan
         rd._decode_scan = rd._decode_scan_reference
@@ -125,7 +146,11 @@ def main(argv: list[str] | None = None) -> int:
             result["libraw_identical"] = not diff.any()
     json.dump(result, sys.stdout, indent=2)
     print()
-    ok = result.get("reference_identical", True) and result.get("libraw_identical", True)
+    ok = (
+        result.get("reference_identical", True)
+        and result.get("libraw_identical", True)
+        and result.get("python_huffman_identical", True)
+    )
     return 0 if ok else 1
 
 

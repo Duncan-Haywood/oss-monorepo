@@ -60,6 +60,8 @@ HERE = Path(__file__).resolve().parent
 ARGS, sys.argv = sys.argv[1:], sys.argv[:1]
 sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 TAUS = (0.0, 0.05, 0.1, 0.2)
 RULES = [("pooled", 2.0, 0, 0)] + [(f"tau={t}", t, 0, A.NEG_GUARD) for t in TAUS]
@@ -71,7 +73,7 @@ def naija_cells():
     for cname, prev, h, f in G.corpora():
         tp, fn, fp = G.counts(h, f)
         for n in G.NS:
-            yield dict(part="naija", label=f"{cname} {prev}", n=n, pilot=round(A.PILOT_SHARE * n), h=h, f=f,
+            yield dict(part="naija", label=f"{cname} {prev}", n=n, pilot=round(A.PILOT_SHARE_PRE7AR * n), h=h, f=f,
                        tp=tp, fn=fn, fp=fp, J=A.informedness(h, f), seed=G.SEED + n + int(1000 * prev))
 
 
@@ -124,7 +126,7 @@ def run_goemo(c, reps):
         for d, pilot in enumerate(draws):
             sb = random.Random(c["seed"] + 7 * d)
             labels = {i: h[i] for i in pilot}
-            plan = A.plan_audit(f, labels, n_aud, tau=tau, guard=g, neg_guard=ng)
+            plan = A.plan_audit_pre7ar(f, labels, n_aud, tau=tau, guard=g, neg_guard=ng, width_margin=None)
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb.sample([i for i in cell if i not in labels], t):
                     labels[i] = h[i]

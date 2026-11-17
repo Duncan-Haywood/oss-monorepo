@@ -18,7 +18,7 @@ questions that come next, so a session can spend its time on judgment:
     python3 platform/ci/quality_audit.py metrics [--md]
     python3 platform/ci/quality_audit.py coverage
     python3 platform/ci/quality_audit.py census [--n 6] [--seed <date>]
-    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git]   # flags subjects changed since audit
+    python3 platform/ci/quality_audit.py queue [--severity high] [--limit 30] [--no-git] [--no-prs] [--seed S | --oldest-first]   # flags subjects changed since audit or named by an open PR; shuffles subjects per session
     python3 platform/ci/quality_audit.py mode [--date <date>]
 
 Standard library only. Tests: platform/ci/test_quality_metrics.py.
@@ -31,6 +31,7 @@ import json
 import random
 import re
 import statistics
+import sys
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -125,6 +126,18 @@ def classify(defect: dict) -> tuple[str, str, str]:
     return "other", "audit", "rule"
 
 
+def defect_fixed(a: dict, d: dict) -> bool:
+    """Whether defect `d` of audit `a` has a recorded fix. A defect's own `fixed_by` (a PR URL) answers per defect;
+    once any defect of the audit carries one, the others are open until they do. An audit with no `fixed_by` on any
+    defect keeps the older reading: a non-empty `fix_prs` closes every defect. That older reading hid partial fixes:
+    PR #15848 fixed one of three medium defects in home-inspection-report-builder and the other two left the queue."""
+    if d.get("fixed_by"):
+        return True
+    if any(x.get("fixed_by") for x in a.get("defects") or []):
+        return False
+    return bool(a.get("fix_prs"))
+
+
 def defect_rows(audits: list[dict]) -> list[dict]:
     rows = []
     for a in audits:
@@ -133,7 +146,7 @@ def defect_rows(audits: list[dict]) -> list[dict]:
             rows.append({"key": f"{a['_file']}#{i}", "file": a["_file"], "subject": a.get("subject"),
                          "stratum": a.get("stratum"), "date": a.get("date"), "severity": d.get("severity"),
                          "what": d.get("what", ""), "category": cat, "origin": origin, "how": how,
-                         "fixed": bool(a.get("fix_prs"))})
+                         "fixed": defect_fixed(a, d)})
     return rows
 
 
@@ -282,30 +295,178 @@ def census(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str) -> 
     return [{"stratum": st, "subject": s, "last_audited": last.get(s)} for st, s in pool[:n]]
 
 
+def census_free(audits: list[dict], pop: dict[str, list[str]], n: int, seed: str,
+                prs: list[tuple[int, str]]) -> tuple[list[dict], list[tuple[str, list[tuple[int, str]]]]]:
+    """census(), passing over subjects an open PR title already names, so a second session on the
+    same day does not audit what the first is auditing: census had no claim check, unlike sample and
+    queue (run-record doc_friction on quality_audit.py, 2026-11-15T07:08). Returns (picks, skipped)."""
+    ranked = census(audits, pop, sum(len(v) for v in pop.values()), seed)
+    picks, skipped = [], []
+    for p in ranked:
+        if len(picks) >= n:
+            break
+        naming = prs_naming(p["subject"], prs)
+        if naming:
+            skipped.append((p["subject"], naming))
+        else:
+            picks.append(p)
+    return picks, skipped
+
+
 # --- the open-defect queue ---------------------------------------------------------
 
 SEV_RANK = {"high": 0, "medium": 1, "low": 2}
 
 
-def queue(audits: list[dict], severity: str = "medium") -> list[dict]:
-    """Defects from each subject's latest audit that no fix PR is recorded against, worst first. Source-only defects
-    (fixed by the build at deploy) are left out."""
+def queue(audits: list[dict], severity: str = "medium", seed: str | None = None) -> list[dict]:
+    """Defects from each subject's latest audit that no fix PR is recorded against (`defect_fixed`), worst first.
+    Source-only defects (fixed by the build at deploy) are left out.
+
+    With `seed`, subjects within a severity come in a seeded shuffle (a subject's defects stay together, in
+    index order) instead of oldest audit first: two fix sessions that started the same minute both took the
+    top medium row, research/sequential-slashing, before either had a PR to see (run-record doc_friction on
+    quality_audit.py, 2026-11-16T16:41). sample and census already add a random seed tail for this race."""
     latest: dict[str, dict] = {}
     for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
         latest[a["subject"]] = a
     out = []
     for a in latest.values():
-        if a.get("fix_prs"):
-            continue
         for i, d in enumerate(a.get("defects") or []):
+            if defect_fixed(a, d):
+                continue
             cat, origin, _ = classify(d)
             if cat == "source-only" or SEV_RANK.get(d.get("severity"), 3) > SEV_RANK[severity]:
                 continue
             out.append({"severity": d["severity"], "subject": a["subject"], "audit": a["_file"], "index": i,
                         "category": cat, "what": d.get("what", ""), "where": d.get("where", "")})
-    out.sort(key=lambda r: (SEV_RANK[r["severity"]], r["audit"], r["index"]))
+    if seed is None:
+        out.sort(key=lambda r: (SEV_RANK[r["severity"]], r["audit"], r["index"]))
+        return out
+    rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
+    subjects = sorted({r["subject"] for r in out})
+    rng.shuffle(subjects)
+    place = {s: i for i, s in enumerate(subjects)}
+    out.sort(key=lambda r: (SEV_RANK[r["severity"]], place[r["subject"]], r["index"]))
     return out
 
+
+def unmarked_fixes(audits: list[dict], severity: str = "medium") -> list[dict]:
+    """Latest audits whose `fix_prs` closes two or more defects at `severity` or worse with no `fixed_by` on any:
+    the whole-audit reading hides them all, though a fix PR may have closed only some (PR #15848 closed one of
+    three). Counted so the queue can say how much it cannot see; set `fixed_by` per defect to bring the rest back."""
+    latest: dict[str, dict] = {}
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        latest[a["subject"]] = a
+    out = []
+    for a in latest.values():
+        ds = a.get("defects") or []
+        if not a.get("fix_prs") or any(d.get("fixed_by") for d in ds):
+            continue
+        if sum(SEV_RANK.get(d.get("severity"), 3) <= SEV_RANK[severity] for d in ds) >= 2:
+            out.append(a)
+    return out
+
+
+OPEN_RX = re.compile(r"known gaps?|not yet fixed|still open|unfixed|open defects", re.I)
+
+
+def documented_open(a: dict, root: Path = ROOT) -> bool:
+    """Whether the subject's README names this audit file next to "known gaps" or "not yet fixed": the round's PR
+    wrote the defects down as open, and listing that PR in `fix_prs` then counted them all as fixed. On
+    2026-11-17, 56 of 186 such latest audits read this way, 49 high defects among them; gig-driver-net-pay-
+    calculator's missing depreciation and verifier-bribery's threshold were two (reflection 2)."""
+    readme = root / a.get("subject", "") / "README.md"
+    try:
+        text = readme.read_text(errors="ignore")
+    except OSError:
+        return False
+    return a.get("_file", "") in text and bool(OPEN_RX.search(text))
+
+
+def reaudit_due(audits: list[dict], seed: str | None = None, root: Path = ROOT) -> list[dict]:
+    """Subjects whose latest audit records a fix (a `fix_prs` entry or a defect's `fixed_by`) that no later audit
+    has checked: the "a later round re-audits" step of the fix loop. Nothing scheduled it before 2026-11-17, and
+    sample and census skip a subject audited in the last 90 days, so 250 audits with fix PRs had no re-audit
+    (reflection 2, portfolio/quality/reflections/2026-11-17-the-fix-loop-is-open.md). Subjects whose recorded
+    fixes include a high-severity defect come first, then the oldest audit; with `seed`, subjects are shuffled
+    within those two groups so parallel sessions spread out (as `queue` does). Subjects whose README still lists the
+    audit's defects as open (`documented_open`) and that hold a high go first of all."""
+    latest: dict[str, dict] = {}
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        latest[a["subject"]] = a
+    out = []
+    for a in latest.values():
+        ds = a.get("defects") or []
+        if a.get("status") != "audited" or not (a.get("fix_prs") or any(d.get("fixed_by") for d in ds)):
+            continue
+        fixed = [d for d in ds if defect_fixed(a, d)]
+        out.append({"subject": a["subject"], "audit": a["_file"], "date": a.get("date", ""),
+                    "fix_prs": list(a.get("fix_prs") or []), "defects": len(ds), "fixed": len(fixed),
+                    "explicit": sum(bool(d.get("fixed_by")) for d in ds),
+                    "high_fixed": sum(d.get("severity") == "high" for d in fixed),
+                    "documented_open": documented_open(a, root)})
+    rank = {}
+    if seed is not None:
+        rng = random.Random(int(hashlib.sha256(seed.encode()).hexdigest()[:16], 16))
+        subjects = sorted(r["subject"] for r in out)
+        rng.shuffle(subjects)
+        rank = {s: i for i, s in enumerate(subjects)}
+    out.sort(key=lambda r: (not (r["documented_open"] and r["high_fixed"]), r["high_fixed"] == 0,
+                            rank.get(r["subject"], 0), r["date"], r["subject"]))
+    return out
+
+
+def mutation_kill(audits: list[dict]) -> dict:
+    """Per-mutation outcome over structured `mutations` rows. The per-audit share ("at least one survived")
+    saturates once auditors seed several mutants each: 193 of 196 structured audits had a survivor on 2026-11-17,
+    at about six mutants an audit, so it can no longer move. The kill rate per mutant can."""
+    rows = [m for a in audits if a.get("status") == "audited" for m in (a.get("mutations") or [])]
+    killed = sum(bool(m.get("caught")) for m in rows)
+    n_audits = sum(bool(a.get("mutations")) for a in audits if a.get("status") == "audited")
+    return {"mutants": len(rows), "killed": killed, "audits": n_audits,
+            "kill_rate": round(killed / len(rows), 3) if rows else None,
+            "per_audit": round(len(rows) / n_audits, 1) if n_audits else None}
+
+
+def fix_confirmation(audits: list[dict]) -> dict:
+    """How defects come to count as fixed in the latest audits: marked one by one (`fixed_by`), or assumed because
+    the audit lists a fix PR and no defect is marked (`defect_fixed`'s older reading), and how many of the
+    subjects with a recorded fix a later audit has re-checked."""
+    latest: dict[str, dict] = {}
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        latest[a["subject"]] = a
+    explicit = assumed = open_ = 0
+    for a in latest.values():
+        ds = a.get("defects") or []
+        any_marked = any(d.get("fixed_by") for d in ds)
+        for d in ds:
+            if d.get("fixed_by"):
+                explicit += 1
+            elif not any_marked and a.get("fix_prs"):
+                assumed += 1
+            else:
+                open_ += 1
+    by_subject: dict[str, list[dict]] = defaultdict(list)
+    for a in sorted(audits, key=lambda x: (x.get("date", ""), x["_file"])):
+        if a.get("status") == "audited":
+            by_subject[a["subject"]].append(a)
+    rechecked = sum(any(x.get("fix_prs") for x in seq[:-1]) for seq in by_subject.values() if len(seq) > 1)
+    due = reaudit_due(audits)
+    return {"explicit": explicit, "assumed": assumed, "open": open_,
+            "rechecked_after_fix": rechecked, "awaiting_recheck": len(due),
+            "documented_open": sum(r["documented_open"] for r in due)}
+
+
+def bar_by_instrument(audits: list[dict], meets_bar) -> dict:
+    """The sampled share meeting the bar, split by whether the audit carries structured `mutations` (required from
+    2026-11-11). The two halves were measured differently, so a drop across the boundary is not by itself a fall
+    in the work's quality."""
+    out = {}
+    for label, structured in (("prose", False), ("structured", True)):
+        xs = [a for a in audits if a.get("status") == "audited" and a.get("stratum") in ("venture", "research", "platform")
+              and a.get("drawn_by", "sample") == "sample" and bool(a.get("mutations")) == structured]
+        out[label] = {"n": len(xs), "meets_bar": sum(meets_bar(a["scores"]) for a in xs)}
+    return out
 
 def _git(args: list[str], root: Path = ROOT) -> str:
     import subprocess
@@ -314,6 +475,63 @@ def _git(args: list[str], root: Path = ROOT) -> str:
         return r.stdout if r.returncode == 0 else ""
     except Exception:
         return ""
+
+
+def _shallow_boundary(git=_git) -> set[str]:
+    shallow_path = git(["rev-parse", "--git-path", "shallow"]).strip()
+    if not shallow_path:
+        return set()
+    p = Path(shallow_path)
+    if not p.is_absolute():
+        p = ROOT / p
+    try:
+        return set(p.read_text().split())
+    except OSError:
+        return set()
+
+
+def history_start(git=_git) -> str | None:
+    """Commit date (YYYY-MM-DD) where a shallow clone's history begins, or None when it is complete."""
+    dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in _shallow_boundary(git)]
+    dates = [d for d in dates if d]
+    return max(dates) if dates else None
+
+
+# A shallow-since fetch back to an audit a week old took 20 s in a cloud session (2026-11-14); older
+# audits mean bigger packs, so past this age the queue says what to fetch instead of fetching it.
+FETCH_MAX_DAYS = 30
+FETCH_TIMEOUT_S = 90
+
+
+def deepen_for(oldest: str, today: dt.date, git=_git, git_run=None) -> str:
+    """Fetch origin/main back to `oldest` when a shallow clone starts after it, so `changes_since`
+    can answer instead of printing "unknown" for every row (run-record doc_friction on this file,
+    2026-11-14T01:16 and 03:25: every queued high defect came out unknown on a cloud clone, and a
+    fix run searched open PRs by hand to learn one was already fixed). Returns a note for stderr,
+    or "" when nothing was needed."""
+    import subprocess
+    start = history_start(git)
+    if not start or start <= oldest:
+        return ""
+    if (today - dt.date.fromisoformat(oldest)).days > FETCH_MAX_DAYS:
+        return (f"(shallow clone starts {start}; oldest audit {oldest} is over {FETCH_MAX_DAYS} days old, "
+                f"so not fetching: run `git fetch --shallow-since={oldest} origin main` in the background)")
+    cmd = ["git", "fetch", "-q", f"--shallow-since={oldest}", "origin", "main"]
+
+    def default_run(c):
+        # shallow_repair drops the bogus .git/shallow entry an earlier --shallow-since fetch can
+        # leave; without it this fetch failed every time in a clone that had run one (2026-11-14).
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        import shallow_repair
+        return shallow_repair.fetch(c[2:], cwd=ROOT, timeout=FETCH_TIMEOUT_S).returncode
+    run = git_run or default_run
+    try:
+        ok = run(cmd) == 0
+    except (OSError, subprocess.SubprocessError):
+        ok = False
+    if ok:
+        return f"(shallow clone started {start}: fetched main since {oldest} to check changes since each audit)"
+    return f"(fetch of main since {oldest} failed or exceeded {FETCH_TIMEOUT_S}s; rows below may say unknown)"
 
 
 def changes_since(subject: str, date: str, git=_git) -> dict:
@@ -325,16 +543,7 @@ def changes_since(subject: str, date: str, git=_git) -> dict:
     Audit-round commits are kept: they only appear when they touched the subject itself, and round 30 (#14329)
     shipped a photo-editing page fix that way."""
     ref = "origin/main" if git(["rev-parse", "--verify", "-q", "origin/main"]).strip() else "HEAD"
-    shallow_path = git(["rev-parse", "--git-path", "shallow"]).strip()
-    boundary: set[str] = set()
-    if shallow_path:
-        p = Path(shallow_path)
-        if not p.is_absolute():
-            p = ROOT / p
-        try:
-            boundary = set(p.read_text().split())
-        except OSError:
-            boundary = set()
+    boundary = _shallow_boundary(git)
     if boundary:
         dates = [git(["log", "-1", "--format=%cs", b]).strip() for b in boundary]
         dates = [d for d in dates if d]
@@ -353,15 +562,93 @@ def changes_since(subject: str, date: str, git=_git) -> dict:
     return {"status": "changed" if commits else "untouched", "commits": commits}
 
 
+# --- open PRs that already name a queued subject -------------------------------------
+
+def _rest_open_prs() -> list[dict] | None:
+    """The REST pulls list via portfolio/router/claim_check.py, or None if unreadable."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "portfolio" / "router"))
+    try:
+        from claim_check import open_prs
+    except ImportError:
+        return None
+    return open_prs()
+
+
+def open_pr_titles(timeout: int = 20, pages: int = 3, run=None, pulls=None) -> list[tuple[int, str]] | None:
+    """(number, title) of open PRs in this repository, newest first, or None when the search failed.
+
+    The queue only knew fix PRs recorded in an audit's fix_prs, which happens at merge. Two fix
+    sessions took the same high defect (osrobot-pairprice) minutes apart on 2026-11-14, and two more
+    runs that day saw platform/agents listed as unfixed while PR #14674 sat open (run-record
+    doc_friction on this file and on duplicate-work.md). One `gh api` search per 100 PRs; it works
+    unauthenticated in cloud sessions.
+
+    The REST pulls list is read first (unless a test passes `run`): the search index can lag a new
+    PR by minutes (claim_check.py), and allocate.py missed 10- and 15-minute-old claims through it
+    on 2026-11-15. Fork PRs are dropped there, as claim_check.decide does."""
+    import subprocess
+
+    if run is None:
+        batch = (pulls or _rest_open_prs)()
+        if batch is not None:
+            own = "duncan-haywood/oss-monorepo"
+            rows = [(int(p["number"]), str(p.get("title", ""))) for p in batch
+                    if (((p.get("head") or {}).get("repo") or {}).get("full_name") or "").lower() == own]
+            return sorted(rows, reverse=True)
+
+    def default_run(page: int) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            ["gh", "api", "-X", "GET", "search/issues", "-f",
+             "q=repo:duncan-haywood/oss-monorepo is:pr is:open", "-f", "sort=created", "-f", "order=desc",
+             "-f", "per_page=100", "-f", f"page={page}", "--jq", '.items[] | "\\(.number)\\t\\(.title)"'],
+            capture_output=True, text=True, timeout=timeout)
+    run = run or default_run
+    out: list[tuple[int, str]] = []
+    for page in range(1, pages + 1):
+        try:
+            proc = run(page)
+        except Exception:
+            return out or None
+        if proc.returncode != 0:
+            return out or None
+        lines = [l for l in proc.stdout.splitlines() if "\t" in l]
+        for line in lines:
+            num, title = line.split("\t", 1)
+            if num.strip().isdigit():
+                out.append((int(num), title))
+        if len(lines) < 100:
+            break
+    return out
+
+
+def subject_names(subject: str) -> list[str]:
+    """Names a PR title would use for `subject`: the path itself, and its last part when that is
+    specific enough to mean it (a slug with a hyphen, or 8+ characters; "agents" alone is not)."""
+    names = [subject.rstrip("/")]
+    last = names[0].rsplit("/", 1)[-1]
+    if last != names[0] and ("-" in last or len(last) >= 8):
+        names.append(last)
+    return names
+
+
+def prs_naming(subject: str, prs: list[tuple[int, str]]) -> list[tuple[int, str]]:
+    """Open PRs whose title names `subject` (whole-word match on any of subject_names)."""
+    pats = [re.compile(r"(?<![\w/-])" + re.escape(n) + r"(?![\w-])", re.I) for n in subject_names(subject)]
+    return [(n, t) for n, t in prs if any(p.search(t) for p in pats)]
+
+
 # --- which mode is due ----------------------------------------------------------------
 
 MODES = {
     "sample": "the stratified random round (quality_audit.py sample): the unbiased share meeting the bar",
     "census": "the full-repository sweep (census): never-audited subjects first",
-    "fix": "fix the open-defect queue (queue), with a regression test per fix, then re-audit",
+    "fix": "fix the open-defect queue (queue), with a regression test per fix; a later round re-audits (not this one)",
+    "reaudit": "re-audit a subject whose recorded fix no later audit has checked (reaudit), in a new audit file",
     "reflect": "read the corpus (metrics) and the process, write a reflection with process fixes",
 }
-MODE_WEIGHTS = {"sample": 0.35, "census": 0.30, "fix": 0.25, "reflect": 0.10}
+# reaudit took 0.10 from census on 2026-11-17 (reflection 2): no subject had been re-audited after a fix since
+# 2026-11-10, so no recorded fix had been confirmed. It drops out of the draw when nothing awaits a re-check.
+MODE_WEIGHTS = {"sample": 0.35, "census": 0.20, "fix": 0.25, "reaudit": 0.10, "reflect": 0.10}
 REFLECT_EVERY_DAYS = 7
 
 
@@ -372,7 +659,8 @@ def last_reflection(directory: Path = REFLECTIONS) -> str | None:
     return max(dates) if dates else None
 
 
-def mode_for(date: str, seed: str | None = None, last_reflect: str | None = None, open_high: int = 0) -> dict:
+def mode_for(date: str, seed: str | None = None, last_reflect: str | None = None, open_high: int = 0,
+             reaudit_waiting: int | None = None) -> dict:
     """Software for the routine: which mode today's quality session runs. A reflection is forced when none has been
     written for a week; otherwise a seeded draw by MODE_WEIGHTS, with `fix` doubled while high defects are open."""
     day = dt.date.fromisoformat(date)
@@ -381,6 +669,8 @@ def mode_for(date: str, seed: str | None = None, last_reflect: str | None = None
     weights = dict(MODE_WEIGHTS)
     if open_high:
         weights["fix"] *= 2
+    if reaudit_waiting == 0:
+        del weights["reaudit"]
     rng = random.Random(int(hashlib.sha256((seed or date).encode()).hexdigest()[:16], 16))
     pick = rng.random() * sum(weights.values())
     for mode, w in weights.items():
@@ -455,9 +745,11 @@ def metrics(audits: list[dict], pop: dict[str, list[str]], today: dt.date, meets
         "mutations": {"survived": muts["survived"], "caught": muts["caught"], "unknown": muts["unknown"],
                       "survival_rate": round(muts["survived"] / known, 3) if known else None,
                       "ci": [round(lo, 3), round(hi, 3)]},
+        "mutation_kill": mutation_kill(audits),
         "fixes": {"audits_with_defects": len(with_defects),
                   "audits_with_fix_prs": sum(bool(a.get("fix_prs")) for a in with_defects),
-                  "open_high_in_latest": high_open},
+                  "open_high_in_latest": high_open, **fix_confirmation(audits)},
+        "bar_by_instrument": bar_by_instrument(audits, meets_bar),
         "persistence": persistence(audits),
         "agreement": agreement(audits, meets_bar),
         "evidence": {"median_chars": statistics.median(e["chars"] for e in ev) if ev else None,
@@ -496,9 +788,18 @@ def render_md(m: dict) -> str:
     L += ["", f"**Seeded mutations.** In {mu['survived'] + mu['caught']} audits that report the outcome, at least one seeded "
           f"bug in core logic survived the subject's own tests in {mu['survived']} ({100 * (mu['survival_rate'] or 0):.0f}%, Wilson 95% "
           f"{100 * mu['ci'][0]:.0f}% to {100 * mu['ci'][1]:.0f}%); {mu['unknown']} audits do not say."]
+    mk = m.get("mutation_kill") or {}
+    if mk.get("mutants"):
+        L.append(f"Per mutant (structured rows, all audits): {mk['killed']} of {mk['mutants']} seeded bugs failed a test "
+                 f"({100 * mk['kill_rate']:.0f}% killed) over {mk['audits']} audits, {mk['per_audit']} an audit. The per-audit "
+                 "share above saturates at several mutants an audit; the kill rate is the one that can move.")
     fx, ps = m["fixes"], m["persistence"]
     L += ["", f"**Fixes.** {fx['audits_with_fix_prs']} of {fx['audits_with_defects']} audits with defects list a fix PR; "
           f"{fx['open_high_in_latest']} high-severity defects are open in the latest audits.",
+          f"Of the latest audits' defects, {fx['explicit']} are marked fixed one by one (`fixed_by`), {fx['assumed']} are "
+          f"assumed fixed because their audit lists a fix PR and marks none, and {fx['open']} are open. "
+          f"{fx['rechecked_after_fix']} subjects have been re-audited after a recorded fix; {fx['awaiting_recheck']} await one "
+          f"(`quality_audit.py reaudit`), {fx['documented_open']} of them with a README that still lists the audit's defects as open.",
           f"Of {ps['earlier_defects']} defects in an audit that was later repeated, {ps['reappeared']} "
           f"({100 * (ps['share'] or 0):.0f}%) reappear in the next audit of the same subject "
           f"({ps['subjects_reaudited']} subjects re-audited)."]
@@ -520,6 +821,13 @@ def render_md(m: dict) -> str:
     for st in ("venture", "research", "platform"):
         c = cv[st]
         L.append(f"| {st} | {c['population']} | {c['audited_ever']} | {c['audited_recently']} |")
+    bi = m.get("bar_by_instrument") or {}
+    if bi:
+        L += ["", "**Sampled share by instrument.** Audits before 2026-11-11 are prose; after it they carry structured "
+              "checks and mutations. A change across the boundary is partly the instrument.", "",
+              "| instrument | sampled audits | meets bar |", "|---|---|---|"]
+        for k, v in bi.items():
+            L.append(f"| {k} | {v['n']} | {v['meets_bar']} ({pct(v['meets_bar'], v['n'])}) |")
     L += ["", "| week | audited | meets bar |", "|---|---|---|"]
     for w, v in m["weeks"].items():
         L.append(f"| {w} | {v['n']} | {v['meets_bar']} |")
@@ -534,14 +842,43 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
     elif args.cmd == "coverage":
         print(json.dumps(coverage(audits, pop, today), indent=1))
     elif args.cmd == "census":
-        for p in census(audits, pop, args.n, args.seed):
+        import sys
+        prs = None if getattr(args, "no_prs", False) else open_pr_titles()
+        if prs is None and not getattr(args, "no_prs", False):
+            print("(open-PR search failed: search open PRs by subject before auditing one)", file=sys.stderr)
+        picks, skipped = census_free(audits, pop, args.n, args.seed, prs or [])
+        print(f"seed {args.seed}  (--seed {args.seed} repeats this draw)")
+        for p in picks:
             print(f"  {p['stratum']:<9} {p['subject']}  last audited: {p['last_audited'] or 'never'}")
+        for subject, naming in skipped:
+            print(f"  skipped   {subject}: open PR " + "; ".join(f"#{n} {t[:70]}" for n, t in naming[:2]))
     elif args.cmd == "queue":
-        rows = queue(audits, args.severity)
+        seed = getattr(args, "seed", None)
+        rows = queue(audits, args.severity, seed)
         seen: dict[tuple[str, str], dict] = {}
         changed = 0
+        if rows and not getattr(args, "no_git", False) and not getattr(args, "no_fetch", False):
+            note = deepen_for(min(r["audit"][:10] for r in rows[: args.limit]), today)
+            if note:
+                import sys
+                print(note, file=sys.stderr)
+        prs = None if getattr(args, "no_prs", False) else open_pr_titles()
+        if prs is None and not getattr(args, "no_prs", False):
+            import sys
+            print("(open-PR search failed: rows below may already have a PR in flight; search open PRs by subject)",
+                  file=sys.stderr)
+        if prs:  # rows an open PR already names go last, so the top row is one nobody has claimed
+            rows.sort(key=lambda r: (SEV_RANK[r["severity"]], bool(prs_naming(r["subject"], prs))))
+        if seed:
+            print(f"seed {seed}  (subjects shuffled within a severity so parallel fix sessions spread out;"
+                  f" --seed {seed} repeats this order, --oldest-first gives the fixed one)")
+        in_flight = 0
         for r in rows[: args.limit]:
             print(f"[{r['severity']}] {r['subject']} ({r['audit']}#{r['index']}, {r['category']}): {r['what'][:200]}")
+            naming = prs_naming(r["subject"], prs or [])
+            if naming:
+                in_flight += 1
+                print("    open PR naming it: " + "; ".join(f"#{n} {t[:80]}" for n, t in naming[:3]))
             if getattr(args, "no_git", False):
                 continue
             key = (r["subject"], r["audit"][:10])
@@ -555,10 +892,36 @@ def main_metrics(args, audits, pop, meets_bar, wilson) -> int:
             elif c["status"] == "unknown":
                 print(f"    changed since audit: unknown ({c['why']})")
         print(f"{len(rows)} open defects at {args.severity} or worse (no fix PR recorded; source-only left out)")
+        if in_flight:
+            print(f"{in_flight} shown already have an open PR naming the subject: extend or wait for that PR,"
+                  " or pick another row (a fix PR that has not merged is not yet in fix_prs)")
         if changed:
             print(f"{changed} shown sit under a subject changed since its audit: check whether a commit already fixed"
-                  " it, and if so record that PR in the audit's fix_prs instead of fixing it again")
+                  " it, and if so record that PR in the audit's fix_prs (and the defect's fixed_by) instead of fixing"
+                  " it again")
+        hidden = unmarked_fixes(audits, args.severity)
+        if hidden:
+            print(f"{len(hidden)} audits list fix_prs with no per-defect fixed_by, so all their defects are treated as"
+                  " fixed and are not shown; when you fix some of an audit's defects, set fixed_by on each one you"
+                  " fixed (portfolio/quality/README.md, 'Fix forward')")
     elif args.cmd == "mode":
         open_high = len(queue(audits, "high"))
-        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high), indent=1))
+        print(json.dumps(mode_for(args.date, args.seed, last_reflection(), open_high, len(reaudit_due(audits))), indent=1))
+    elif args.cmd == "reaudit":
+        prs = None if getattr(args, "no_prs", False) else open_pr_titles()
+        rows = reaudit_due(audits, args.seed)
+        if prs:  # subjects an open PR already names go last
+            rows.sort(key=lambda r: bool(prs_naming(r["subject"], prs)))
+        print(f"seed {args.seed}  (--seed {args.seed} repeats this order)")
+        for r in rows[: args.limit]:
+            print(f"  {r['subject']}  audit {r['audit']}  {r['fixed']} of {r['defects']} defects counted fixed"
+                  f" ({r['explicit']} marked, {r['high_fixed']} high)  fix PRs: {', '.join(str(p) for p in r['fix_prs'][:3])}")
+            if r["documented_open"]:
+                print("      its README lists this audit under known gaps / not yet fixed: the fix PR may only have"
+                      " written the defects down")
+            for n, t in prs_naming(r["subject"], prs or [])[:2]:
+                print(f"      open PR naming it: #{n} {t[:80]}")
+        print(f"{len(rows)} subjects have a recorded fix no later audit has checked. Re-audit one in a new file with"
+              ' "drawn_by": "reaudit": check every earlier defect (fixed or not) against the code as it is now and say'
+              " which the fix closed (portfolio/quality/README.md, \"Five modes\").")
     return 0

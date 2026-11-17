@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVL5PkWKoJFesjgKPW3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T04:22:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder (flagship row 4): make the second-call-out price's pair walks cheaper so it can run past 120 copies",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 16083,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "first comparison flagged a 'different' roster on the 40x112 week 2",
+      "cause": "buildRoster is time-gated on that week, so builds with different options started the pass from different rosters; the eval now runs the pass on one fixed roster"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-stop-the-walk-early.md",
+    "ventures/shift-roster-builder/README.md#only-the-walks-a-move-can-pass-2026-11-15-later"
+  ],
+  "goal": "flagship deepen: pair price past 120 copies",
+  "notes": "Landed two exact cuts in coverSlackPass: pair walks stop at the clashing hours that would refuse the move (stopAt), walking the last accepted roster's clashing pairs first (first), plus a zero-floor skip of the confirm walk. Same rosters on all 10 measured weeks (eval/pair-stop.out.txt, eval/pair-stop-60.out.txt); 40x112 week 0 32.3->16.1 s, week 1 6.8->2.6 s, 60x168 week 0 89.7->46.8 s (vs 1.7 s without the pair price), so the 120-copy cap stays: partial against the flagship's goal. The named approach (reuse verdicts of pairs whose search read no changed person) was built, exact, and lost (4-17% hit rate, 8.1 vs 7.0 s); documented as tried and dropped. Verification: node --test pair-stop/pair-confirm/cover-price/cover-pair-risk/cli 59/59 pass; full venture suite and venture-preflight run locally (results in PR body).",
+  "corrections": [],
+  "redteam": null
+}

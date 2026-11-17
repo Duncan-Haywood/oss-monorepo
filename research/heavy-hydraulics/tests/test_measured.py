@@ -1,9 +1,10 @@
 import math
 import pytest
-from heavy_hydraulics.measured import (inlet_pressure, load_pressure, energies,
+from heavy_hydraulics.measured import (slowed_time, inlet_pressure, load_pressure, energies,
                                        pump_torque, linfit, cycle_starts,
                                        stationary_samples, percentile,
-                                       moving_by_position,
+                                       moving_by_position, extra_fuel,
+                                       time_ratio_from_r, breakeven_rest_rate, pump_ratio,
                                        W_PER_BAR_LPM)
 
 
@@ -97,3 +98,296 @@ def test_percentile_matches_linear_rule():
 def test_moving_by_position():
     x = [0, 0, 0, 0.002, 0.004, 0.004, 0.004]
     assert moving_by_position(x, 1, 0.001) == [False, False, True, True, True, False, False]
+
+
+def test_slowed_time_stretches_only_short_samples():
+    # 2 still, 1 within capacity, 1 at twice the pump: time 1 + 1 + 1 + 2 steps of 0.5 s
+    t, share = slowed_time([(0, 10), (0, 0), (5, 10), (20, 10)], 0.5)
+    assert t == pytest.approx(2.5)
+    assert share == pytest.approx(0.5)
+    # pumped volume over the stretched sample equals the demanded volume
+    assert 10 * (2 * 0.5) == pytest.approx(20 * 0.5)
+    with pytest.raises(ValueError):
+        slowed_time([(1, 0)], 0.1)
+
+
+def test_extra_fuel_splits_energy_and_time():
+    # 3.6 MJ more hydraulic at eta 0.5 and 0.25 L/kWh -> 0.5 L; 360 s more at 5 L/h -> 0.5 L
+    h, t = extra_fuel(4.6e6, 1.0e6, 1360.0, 1000.0, 0.25, 0.5, 5.0)
+    assert h == pytest.approx(0.5)
+    assert t == pytest.approx(0.5)
+    # equal energy and time cost nothing; a faster open-centre is a credit
+    assert extra_fuel(1.0, 1.0, 10.0, 10.0, 0.2, 0.8, 4.0) == (0.0, 0.0)
+    assert extra_fuel(1.0, 1.0, 9.0, 10.0, 0.2, 0.8, 3.6)[1] == pytest.approx(-0.001)
+    with pytest.raises(ValueError):
+        extra_fuel(1, 1, 1, 1, 0.2, 0.0, 1)
+
+
+def test_central_speed_uneven_steps():
+    from heavy_hydraulics.measured import central_speed
+    t = [0.0, 0.1, 0.3, 0.4]
+    q = [0.0, 0.1, 0.3, 0.2]          # +1 rad/s, +1 rad/s, then -1 rad/s
+    v = central_speed(t, q)
+    assert v == pytest.approx([1.0, 1.0, 0.1 / 0.3, 1.0])
+    with pytest.raises(ValueError):
+        central_speed([0.0], [0.0])
+
+
+def test_highest_live_skips_dead_channels():
+    from heavy_hydraulics.measured import highest_live
+    assert highest_live([100.0, -60.0, 250.0, 300.0], [0, 1, 2]) == 250.0
+    with pytest.raises(ValueError):
+        highest_live([1.0], [])
+
+
+def test_cylinder_flow_cap_and_annulus():
+    import math
+    from heavy_hydraulics.measured import cylinder_flow
+    # 110 x 75 boom, 0.5 m/rad lever, 0.2 rad/s: rod speed 0.1 m/s
+    cap = math.pi * 0.11 ** 2 / 4
+    ann = cap - math.pi * 0.075 ** 2 / 4
+    assert cylinder_flow(0.2, 0.5, 0.11, 0.075, 1) == pytest.approx(cap * 0.1 * 60000)
+    assert cylinder_flow(-0.2, 0.5, 0.11, 0.075, 1) == pytest.approx(ann * 0.1 * 60000)
+    assert cylinder_flow(-0.2, 0.5, 0.11, 0.075, -1) == pytest.approx(cap * 0.1 * 60000)
+    assert cylinder_flow(0.0, 0.5, 0.11, 0.075, 1) == 0.0
+    with pytest.raises(ValueError):
+        cylinder_flow(0.1, 0.5, 0.07, 0.075, 1)
+
+
+def test_pump_ratio_identity_and_inverse():
+    from heavy_hydraulics.measured import pump_ratio, pump_for_ratio
+    q = [0.0, 10.0, 20.0, 30.0]
+    # pump 15: max(15, q) = 15, 15, 20, 30 -> 80 / 60
+    assert pump_ratio(q, 15.0) == pytest.approx(80 / 60)
+    # matches 5w's slowed time times pump flow over demand volume
+    t, _ = slowed_time([(x, 15.0) for x in q], 1.0)
+    assert 15.0 * t / sum(q) == pytest.approx(pump_ratio(q, 15.0))
+    # scale-free, tends to 1, inverse recovers the pump
+    assert pump_ratio([2 * x for x in q], 30.0) == pytest.approx(pump_ratio(q, 15.0))
+    assert pump_ratio(q, 0.0) == pytest.approx(1.0)
+    assert pump_for_ratio(q, 80 / 60) == pytest.approx(15.0, rel=1e-6)
+    assert pump_for_ratio(q, 2.0) == pytest.approx(30.0)   # above peak: 2 x mean 15
+    with pytest.raises(ValueError):
+        pump_for_ratio(q, 0.9)
+
+
+def test_time_ratio_from_r_matches_slowed_record():
+    # direct: each sample lasts max(1, q / q_p) dt; still samples (q 0) last dt
+    dem = [0.0, 0.0, 40.0, 80.0, 150.0, 260.0, 90.0, 30.0]
+    mv = [q for q in dem if q > 0]
+    def t(qp):
+        return sum(max(1.0, q / qp) for q in dem)
+    mu, phi = sum(mv) / len(mv), (len(dem) - len(mv)) / len(mv)
+    for qp in (35.0, 100.0, 180.0):
+        tau = time_ratio_from_r(pump_ratio(mv, qp), qp, pump_ratio(mv, 219.0), 219.0, mu, phi)
+        assert tau == pytest.approx(t(qp) / t(219.0))
+
+
+def test_breakeven_rest_rate_zeroes_the_fuel_gap():
+    f = breakeven_rest_rate(20.0, 8.0, 98.0, 1.23, 0.2332, 0.818)
+    gap = 0.2332 * (8.0 - 20.0) * 98.0 / (600 * 0.818) + f * 0.23
+    assert gap == pytest.approx(0.0, abs=1e-12)
+    assert breakeven_rest_rate(20.0, 25.0, 98.0, 1.1, 0.2332, 0.818) is None
+    assert breakeven_rest_rate(20.0, 8.0, 98.0, 1.0, 0.2332, 0.818) is None
+
+
+def test_geometry_breakeven_table_matches_results():
+    """6c: the committed 384-case table agrees with the results file it was written with."""
+    import csv
+    import os
+    import re
+    import statistics
+    here = os.path.join(os.path.dirname(__file__), "..", "experiments")
+    with open(os.path.join(here, "excavator_breakeven_geometry_cases.csv")) as f:
+        rows = list(csv.DictReader(f))
+    assert len(rows) == 384
+    assert len({(r["boom_lever"], r["arm_lever"], r["bucket_lever"], r["bucket_sign"], r["swing_share"]) for r in rows}) == 384
+    text = open(os.path.join(here, "excavator_breakeven_geometry_results.txt")).read()
+    med = float(re.search(r"central parameters: f_t,max min [\d.]+, p10 [\d.]+, median ([\d.]+)", text).group(1))
+    fs = [float(r["ft_max_central_lph"]) for r in rows]
+    assert abs(statistics.median(fs) - med) < 0.006
+    cen = next(r for r in rows if (r["boom_lever"], r["arm_lever"], r["bucket_lever"], r["bucket_sign"], r["swing_share"])
+               == ("1", "1", "1", "1", "0.5"))
+    assert abs(float(cen["ft_max_central_lph"]) - 2.462) < 0.001
+    for r in rows:     # each case's central value lies inside its own 108-point sweep
+        assert float(r["ft_max_sweep_min_lph"]) <= float(r["ft_max_central_lph"]) <= float(r["ft_max_sweep_max_lph"])
+
+
+def test_screening_ols_recovers_exact_plane_and_cv_is_out_of_sample():
+    from heavy_hydraulics.screening import ols, grouped_cv, r_squared
+    rows = [(x1, x2) for x1 in range(5) for x2 in (0.5, 1.5, 3.0)]
+    ys = [2.0 - 0.7 * a + 1.3 * b for a, b in rows]
+    coef = ols(rows, ys)
+    assert coef == pytest.approx([2.0, -0.7, 1.3])
+    assert r_squared(coef, rows, ys) == pytest.approx(1.0)
+    # an exact plane is predicted exactly even out of sample
+    groups = [a for a, _ in rows]
+    assert grouped_cv(rows, ys, groups) == pytest.approx(ys)
+    # a point that sits off the plane is not used to predict itself
+    ys2 = list(ys); ys2[0] += 5.0
+    cv = grouped_cv(rows, ys2, list(range(len(rows))))
+    assert cv[0] == pytest.approx(ys[0] + 0.0, abs=1.5)
+    assert abs(cv[0] - ys2[0]) > 3.0
+
+
+def test_no_load_line_recovers_intercept_speed_slope_and_marginal_rate():
+    from heavy_hydraulics.measured import no_load_line
+    import random
+    rng = random.Random(1)
+    rpm = [rng.uniform(1200, 2300) for _ in range(400)]
+    p = [rng.uniform(0, 40) for _ in range(400)]
+    fuel = [2.0 + 0.0015 * (n - 2100) + 0.24 * q for n, q in zip(rpm, p)]
+    a, c, b = no_load_line(fuel, rpm, p, 2100)
+    assert abs(a - 2.0) < 1e-9 and abs(c - 0.0015) < 1e-12 and abs(b - 0.24) < 1e-12
+    # the break-even fuel rate scales linearly in b, which 6e relies on
+    from heavy_hydraulics.measured import breakeven_rest_rate
+    f1 = breakeven_rest_rate(20, 5, 98, 1.2, 0.2332, 0.818)
+    f2 = breakeven_rest_rate(20, 5, 98, 1.2, 0.30, 0.818)
+    assert abs(f2 / f1 - 0.30 / 0.2332) < 1e-12
+
+
+def test_asabe_fuel_reproduces_the_factsheet_worked_example():
+    """Milestone 6f: Grisso et al. 2010 (VCE 442-073) table 2 gives 7.236 gal/h for the
+    JD7610 (115.96 hp rated PTO) at full load and full throttle from eqs 2 and 3, and
+    6.162 / 5.397 gal/h at 75% pull full / reduced throttle (X 0.787, the equivalent PTO
+    power ratio of its appendix A, and N = 1665/2190)."""
+    from heavy_hydraulics.measured import asabe_fuel_lph, GAL_L, HP_KW
+    p_kw = 115.96 * HP_KW
+    assert asabe_fuel_lph(1.0, 1.0, p_kw) / GAL_L == pytest.approx(7.236, abs=0.002)
+    x = 0.787
+    assert asabe_fuel_lph(x, 1.0, p_kw) / GAL_L == pytest.approx(6.162, abs=0.005)
+    assert asabe_fuel_lph(x, 1665 / 2190, p_kw) / GAL_L == pytest.approx(5.397, abs=0.01)
+    # no load at full throttle: 0.019 gal/h per rated hp
+    assert asabe_fuel_lph(0.0, 1.0, HP_KW) == pytest.approx(0.019 * GAL_L)
+
+
+def test_part_stroke_eta_and_two_eta_breakeven():
+    """Milestone 6g: bilinear efficiency table and the two-efficiency break-even."""
+    from heavy_hydraulics.measured import (eta_table, part_stroke_eta, breakeven_rest_rate,
+                                           breakeven_rest_rate_two_eta)
+    rows = [{"temperature_c": "60", "pressure_bar": "100", "cap_12": "0.6", "cap_45": "0.8"},
+            {"temperature_c": "60", "pressure_bar": "200", "cap_12": "0.5", "cap_45": "0.9"},
+            {"temperature_c": "25", "pressure_bar": "100", "cap_12": "0.1", "cap_45": "0.2"}]
+    t = eta_table(rows, 60)
+    assert t[0] == pytest.approx([12 / 45, 1.0]) and t[1] == [100.0, 200.0]
+    assert part_stroke_eta(t, 1.0, 100) == pytest.approx(0.8)
+    assert part_stroke_eta(t, 1.0, 150) == pytest.approx(0.85)
+    assert part_stroke_eta(t, 0.05, 100) == pytest.approx(0.6)       # held below the smallest stroke
+    x = (12 / 45 + 1) / 2
+    assert part_stroke_eta(t, x, 200) == pytest.approx(0.7)
+    assert part_stroke_eta(t, 1.3, 400) == pytest.approx(0.9)        # clipped
+    # equal efficiencies reduce to 6b's formula, with m* = m* and p cancelling
+    a = breakeven_rest_rate(20, 5, 98, 1.2, 0.2332, 0.818)
+    b = breakeven_rest_rate_two_eta(20, 5, 130, 98, 1.2, 0.2332, 0.818, 0.818)
+    assert b == pytest.approx(a, rel=1e-12)
+    # a part-stroke penalty on load-sensing raises the threshold; none if open-centre burns more
+    assert breakeven_rest_rate_two_eta(20, 5, 130, 98, 1.2, 0.2332, 0.75, 0.84) > a
+    assert breakeven_rest_rate_two_eta(20, 60, 130, 98, 1.2, 0.2332, 0.84, 0.84) is None
+
+
+def test_pump_loss_fit_recovers_a_known_model_and_the_shortfall_formula():
+    from heavy_hydraulics.measured import fit_pump_loss, loss_model_eta, flat_hold_shortfall
+    true = (3.0, 0.02, 1e-4, 0.05)
+    fr = [12 / 45, 0.5, 0.75, 1.0]
+    ps = [50.0, 100.0, 150.0, 250.0]
+    grid = [[loss_model_eta(true, x, p) for x in fr] for p in ps]
+    got = fit_pump_loss((fr, ps, grid))
+    for a, b in zip(got, true):
+        assert a == pytest.approx(b, rel=1e-6, abs=1e-9)
+    assert loss_model_eta(true, 0.0, 150.0) == 0.0
+    # shortfall: A = 3 + 3 + 2.25 = 8.25 bar; b/600 * 219 * 8.25 * 0.1 / 0.144
+    assert flat_hold_shortfall(true, 150.0, 219.0, 0.2203, 0.1, 1.144) == pytest.approx(
+        0.2203 * 219 * 8.25 * 0.1 / (600 * 0.144))
+    with pytest.raises(ValueError):
+        flat_hold_shortfall(true, 150.0, 219.0, 0.2203, 0.1, 1.0)
+
+
+def test_continued_loss_modes_and_stroke_shortfall():
+    from heavy_hydraulics.measured import (continued_loss, stroke_shortfall, loss_model_eta,
+                                           part_stroke_eta)
+    true = (3.0, 0.02, 1e-4, 0.05)
+    fr = [12 / 45, 0.5, 0.75, 1.0]
+    ps = [50.0, 100.0, 150.0, 250.0]
+    tab = (fr, ps, [[loss_model_eta(true, x, p) for x in fr] for p in ps])
+    x0, p = fr[0], 150.0
+    l0 = x0 * p * (1 / part_stroke_eta(tab, x0, p) - 1)
+    # continuous at x0 in every mode, and equal to the table above it
+    for mode in ("flat", "anchored", "model"):
+        assert continued_loss(tab, 0.05, x0, p, mode, true) == pytest.approx(l0)
+        assert continued_loss(tab, 0.05, x0 - 1e-9, p, mode, true) == pytest.approx(l0, rel=1e-6)
+    # flat: loss proportional to stroke (efficiency held); anchored on an exact linear table = the model
+    assert continued_loss(tab, 0.05, x0 / 2, p, "flat") == pytest.approx(l0 / 2)
+    a = 3.0 + 0.02 * p + 1e-4 * p * p
+    assert continued_loss(tab, 0.05, 0.0, p, "anchored") == pytest.approx(a)
+    assert continued_loss(tab, 0.05, 0.1, p, "model", true) == pytest.approx(a + 0.05 * 0.1 * p)
+    with pytest.raises(ValueError):
+        continued_loss(tab, 0.05, 0.1, p, "nope")
+    g, s = stroke_shortfall([0.0, x0 / 2, x0, 0.9], [1, 1, 1, 1], x0)
+    assert g == pytest.approx(1.5 / 4) and s == pytest.approx(0.5)
+
+
+def test_idle_pump_power_and_idle_breakeven():
+    from heavy_hydraulics.measured import (idle_pump_power, idle_hours_per_work_hour,
+                                           breakeven_rest_rate_idle, breakeven_rest_rate_two_eta)
+    coef = (8.0, 0.01, 1e-3, 0.04)
+    p_oc, p_ls = idle_pump_power(coef, 100.0, 10.0, 200.0, 20.0, 2.0)
+    assert abs(p_oc - 100 * (10 + 8 + 0.1 + 0.1 + 0.4) / 600) < 1e-12
+    assert abs(p_ls - (200 * (8 + 0.2 + 0.4) + 40) / 600) < 1e-12
+    h_oc, h_ls = idle_pump_power(coef, 100.0, 10.0, 200.0, 20.0, 0.0, speed_ratio=0.5)
+    assert abs(h_oc - p_oc / 2) < 1e-12 and abs(h_ls - 200 * 8.6 / 1200) < 1e-12
+    assert idle_hours_per_work_hour(0.1, 0.1) == 0.1
+    assert abs(idle_hours_per_work_hour(0.5, 0.0) - 1.0) < 1e-12
+    # with no idle the formula is 6g's
+    m, ms, p, q, tau, b, el, eo = 20.0, 8.0, 130.0, 90.0, 1.2, 0.22, 0.75, 0.84
+    sm = b / 600 * q * ((p + m) / el - (p + ms) / eo)
+    assert abs(breakeven_rest_rate_idle(sm, tau, b, 3.0, 4.0, 0.0)
+               - breakeven_rest_rate_two_eta(m, ms, p, q, tau, b, el, eo)) < 1e-12
+    # idle hours where open-centre idles worse lower the threshold linearly
+    f1 = breakeven_rest_rate_idle(sm, tau, b, 3.0, 4.0, 0.5)
+    assert abs(f1 - (sm - b * 0.5) / 0.2) < 1e-12
+    assert breakeven_rest_rate_idle(sm, tau, b, 0.0, 100.0, 1.0) is None
+
+
+def test_gear_pump_point_recovers_a_known_pump():
+    from heavy_hydraulics.measured import gear_pump_point
+    V, c_leak, drag, eta_hm = 50.0, 0.02, 1.5, 0.8          # cm3/r, L/min per bar, kW at 0 bar, constant
+    rows = []
+    for n in (1000, 1100, 2000, 2100, 2200):
+        for p in (20, 230):
+            rows.append((51, "flow", p, n, V * n / 1000 - c_leak * p))
+        for p in (50, 100, 150, 230):
+            rows.append((51, "power", p, n, drag * n / 2000 + V * n / 1000 * p / 600 / eta_hm))
+    flow, power = gear_pump_point(rows, 51, 2150)
+    assert abs(flow(150) - (V * 2.15 - c_leak * 150)) < 1e-9
+    assert abs(power(0) - drag * 2150 / 2000) < 1e-9          # zero-pressure drag by extrapolation
+    assert abs(power(120) - (drag * 1.075 + V * 2.15 * 120 / 600 / eta_hm)) < 1e-9
+    assert abs(power(300) - (drag * 1.075 + V * 2.15 * 300 / 600 / eta_hm)) < 1e-9
+    try:
+        gear_pump_point(rows, 51, 3000)          # power curves are not extended
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass
+
+
+def test_gear_pump_point_skip_short_drops_a_curve_not_drawn_at_the_speed():
+    from heavy_hydraulics.measured import gear_pump_point
+    V, eta_hm, drag = 44.0, 0.85, 1.2
+    rows = []
+    for n in (700, 800, 900, 1000, 1100, 2100):
+        for p in (7, 250):
+            rows.append((44, "flow", p, n, V * n / 1000 - 0.03 * p))
+        for p in (100, 150, 250):
+            if p == 250 and n < 1000:            # the rated curve starts at 1000 r/min, as Danfoss draws it
+                continue
+            rows.append((44, "power", p, n, drag * n / 2100 + V * n / 1000 * p / 600 / eta_hm))
+    try:
+        gear_pump_point(rows, 44, 850)
+        raise AssertionError("expected ValueError")
+    except ValueError:
+        pass
+    _, power = gear_pump_point(rows, 44, 850, skip_short=True)
+    assert abs(power(0) - drag * 850 / 2100) < 1e-9
+    assert abs(power(250) - (drag * 850 / 2100 + V * 0.85 * 250 / 600 / eta_hm)) < 1e-9
+    _, p_full = gear_pump_point(rows, 44, 2100)
+    _, p_skip = gear_pump_point(rows, 44, 2100, skip_short=True)
+    assert p_full(180) == p_skip(180)

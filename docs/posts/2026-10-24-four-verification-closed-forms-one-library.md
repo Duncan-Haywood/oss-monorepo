@@ -16,7 +16,7 @@ each without using the formula.
 - Inspection game: the cheat rate `k/(lam S + h)` and check rate `s/(s+S)` come out of a 2x2
   equilibrium solver fed the payoff matrices (81 parameter points, matching to 1e-12).
 - Audit threshold `g/(g+S)`: found by bisection on the worker's best response.
-- Bribe floor and the collusion-proof stake, which falls as 1/m with m verifiers.
+- Bribe floor and the collusion-proof stake, which falls as 1/m with m verifiers. (Corrected 2026-11-17: only until it reaches the stake at which checking pays at all. Below that stake verifiers stay silent unbribed, so more of them buy nothing. See `research/verifier-bribery/paper/whitepaper.md`, Result 1.)
 - Brier effort rent: `(n-1)/(a+b)` times the effort cost, from exact beta-binomial sums.
 
 All 14 tests pass and agree with the earlier projects' own code. Nothing contradicted a prior

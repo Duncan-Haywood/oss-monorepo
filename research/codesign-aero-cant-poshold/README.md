@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant-bound`, and five sibling READMEs that all defer
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-poshold/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, the side force per unit roll torque used here, tan α / r, is √2 too large; the correct form is sin α / (L cos α − κ sin α).
+
 ![Left: held-out position error of each co-designed vehicle; right: yaw error. One dot per seed.](experiments/poshold.png)
 
 **Correction (2026-11-10).** `rollout_pos` multiplied a (N,1) drag coefficient into a (N,E,2) array. When the number of designs equals the number of episodes (CMA-ES training: population 16, 16 episodes) NumPy broadcast it without error over the wrong axis, so each training rollout used another design's drag coefficient. Held-out scoring (one design, 64 episodes) was unaffected, but the optimiser was misled. Fixed, a regression test added (it fails on the old code), and `run.py` and `run_restart.py` rerun. The numbers below are the rerun; the earlier ones (J 3.33/2.61 etc., restart J 3.73 to 2.99) are superseded. The qualitative findings hold; two claims change and are marked.
@@ -33,6 +35,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - Episodes are 2 s long (the parents' length), enough for the initial offset and a few yaw steps but not for slow position drift; the objective weights (0.1 m ↔ 10°) are a choice, so the position and yaw parts are reported separately.
 - Seven of the 25 trained designs sit well above the best (optimiser local optima at 3200 evaluations); means are therefore dominated by those seeds and per-seed values are given. The paired seed counts are small (5).
 - One arm/spin layout; the lateral force is the linear closed form for a symmetric vehicle at hover (no airflow interaction, no loss from rotors fighting each other beyond the earlier tilt loss, no vertical part of the force). Altitude hold is perfect. Noise levels, the offset size and drag coefficient are assumed.

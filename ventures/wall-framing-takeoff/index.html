@@ -35,6 +35,13 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .edit td { padding: 3px 3px; }
     .edit input, .edit select { padding: 5px 6px; font-size: 14px; min-width: 64px; }
+    /* A select in a table row sizes to its longest option, so "window", "Front" and "2x10" are never
+       cut to "windo", "Fron" and "2x1" (measured 2026-11-14: 57 clipped selects here). The table
+       already scrolls inside its card on a phone. The cap keeps a long typed wall name from widening the column. */
+    .edit select { min-width: max-content; min-width: calc-size(max-content, min(size, 14em)); }
+    /* Settings whose default option is longer than one grid track take two tracks, from the width
+       at which the grid has two columns (below it, span 2 would add a column). */
+    @media (min-width: 480px) { .grid > .wide { grid-column: span 2; } }
     .big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 8px 0 12px; }
     .big div { background: #f5f2ea; border-radius: 9px; padding: 10px; }
     .big strong { display: block; font-size: 1.35rem; color: #33302a; }
@@ -49,6 +56,15 @@
     a.cta.alt { background: #dfeaf0; color: #14465e; }
     a.cta:focus-visible { outline: 3px solid #14465e; outline-offset: 2px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 440px) { div.grid:has(#plateLaps) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 532px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -62,7 +78,7 @@
   <section class="card" aria-labelledby="h-settings">
     <h2 id="h-settings">1. Wall settings</h2>
     <div class="grid">
-      <div><label for="height">Wall height</label>
+      <div class="wide"><label for="height">Wall height</label>
         <select id="height"><option value="8ft">8 ft wall (92-5/8" precut studs)</option><option value="9ft">9 ft wall (104-5/8" precut)</option><option value="10ft">10 ft wall (116-5/8" precut)</option><option value="custom">Custom stud length</option></select></div>
       <div><label for="studLength">Stud length</label><input id="studLength" value="92-5/8"></div>
       <div><label for="spacing">Stud spacing on center</label>
@@ -76,8 +92,8 @@
       <div><label for="cornerStuds">Extra studs at a corner</label><input id="cornerStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="teeStuds">Extra studs where a wall meets this one</label><input id="teeStuds" type="number" min="0" max="4" step="1" value="2"></div>
       <div><label for="blockRows">Rows of blocking between studs</label><input id="blockRows" type="number" min="0" max="6" step="1" value="0"></div>
-      <div><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
-      <div><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
+      <div class="wide"><label for="plateLaps">Plates at corners</label><select id="plateLaps"><option value="">Every plate ends at the wall end</option><option value="lap">Lap plates at corners (top plate runs through, cap laps the other way)</option></select></div>
+      <div class="wide"><label for="advFrame">Advanced framing</label><select id="advFrame"><option value="">Standard (3-stud corners, 2 backing studs at tees)</option><option value="corners">Two-stud corners (drywall clips; engineer's call)</option><option value="tees">Ladder blocking at tees instead of backing studs</option><option value="both">Both</option><option value="single">Single top plate (framing stacks over studs; engineer's call)</option></select></div>
       <div><label for="cullPct">Spare boards for culls (% of each size)</label><input id="cullPct" type="number" min="0" max="50" step="0.5" value="0"></div>
       <div><label for="fireBlock">Fire blocking</label><select id="fireBlock"><option value="">Only the rows above</option><option value="fire">Add rows so no stud run passes 10 ft</option></select></div>
     </div>
@@ -567,8 +583,9 @@
   </section>
 
   </main>
-  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
+  <nav class="more-tools" aria-label="More building calculators"><h2>More free building calculators</h2><ul><li><a href="sheathing-calculator.html">Wall sheathing calculator (sheets, cut-outs, cheapest length)</a></li><li><a href="soffit-fascia-calculator.html">Soffit and fascia calculator (soffit panels, fascia, J-channel, frieze)</a></li><li><a href="retaining-wall-calculator.html">Retaining wall block calculator (blocks, caps, gravel, fabric, geogrid)</a></li><li><a href="paver-calculator.html">Paver patio calculator (pavers, base, sand, edge restraint)</a></li><li><a href="board-foot-calculator.html">Board foot calculator (board feet, cubic feet and cost)</a></li><li><a href="dormer-calculator.html">Dormer framing calculator (gable and shed: cheek studs, rafters, valleys, roof opening)</a></li><li><a href="cmu-calculator.html">Concrete block (CMU) wall calculator (blocks, mortar, grout, rebar)</a></li><li><a href="foundation-calculator.html">Foundation calculator (footing, stem wall and slab concrete, rebar)</a></li><li><a href="floor-calculator.html">Floor joist and subfloor calculator (joists, rim, blocking, sheets)</a></li><li><a href="nail-calculator.html">Framing nail calculator (nails and boxes by connection)</a></li><li><a href="opening-schedule-calculator.html">Door and window schedule (marks, rough openings, headers)</a></li><li><a href="header-calculator.html">Header size checker (windows and doors against your own span table)</a></li><li><a href="paint-calculator.html">Paint calculator (gallons of paint and primer)</a></li><li><a href="fireblock-calculator.html">Fireblocking calculator (blocks and boards for tall wall cavities)</a></li><li><a href="order-by-date-calculator.html">Order-by date calculator (when to order long-lead items)</a></li><li><a href="electrical-calculator.html">Electrical rough-in calculator (receptacle and switch boxes, cable)</a></li><li><a href="how-many-studs-for-a-wall.html">How many studs for a wall</a></li><li><a href="vs-stud-per-foot-rule.html">Takeoff vs. the stud-per-foot rule</a></li><li><a href="stair-stringer-calculator.html">Stair stringer calculator</a></li><li><a href="drywall-calculator.html">Drywall calculator</a></li><li><a href="concrete-calculator.html">Concrete calculator</a></li><li><a href="siding-calculator.html">Siding calculator</a></li><li><a href="insulation-calculator.html">Insulation calculator (bags and effective R)</a></li><li><a href="schedule-calculator.html">Construction schedule (critical path)</a></li><li><a href="bid-leveling-calculator.html">Bid leveling (compare subcontractor bids)</a></li><li><a href="change-order-calculator.html">Change order (what a design change costs)</a></li><li><a href="ventilation-calculator.html">Attic ventilation calculator</a></li><li><a href="deck-lumber-calculator.html">Deck lumber calculator</a></li><li><a href="trim-calculator.html">Baseboard and casing calculator</a></li><li><a href="roof-calculator.html">Roof calculator (rafters, sheathing, shingles)</a></li><li><a href="gutter-calculator.html">Gutter calculator (sections, downspouts, hangers)</a></li><li><a href="flooring-calculator.html">Flooring calculator (boxes, tile, grout, carpet)</a></li><li><a href="plumbing-calculator.html">Plumbing rough-in calculator (pipe, PEX, traps)</a></li><li><a href="water-supply-sizing-calculator.html">Water supply pipe sizing (peak gpm, pipe size, pressure at each fixture)</a></li><li><a href="walltile-calculator.html">Shower and wall tile calculator (tiles, backer board, membrane)</a></li><li><a href="hvac-calculator.html">HVAC duct rough-in calculator (trunk, flex, boots, registers)</a></li><li><a href="price-sensitivity-calculator.html">Bid price sensitivity (what a lumber or labor swing does to the bid)</a></li><li><a href="stud-drilling-checker.html">Can I drill this hole in a stud? (hole and notch limits)</a></li><li><a href="fence-calculator.html">Fence calculator (posts, rails, pickets, concrete)</a></li></ul></nav>
   <footer>
+    <p>Got the house as an IFC model and a client's IDS? <a href="../ids-model-check/">IDS Model Check</a> checks the model against it in your browser.</p>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, construction, building-code, legal or financial advice, and it does not replace a qualified professional, your plans or your building department. Header sizes, jack counts and stud spacing are your inputs and are not checked against any span table or code. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every length before you cut. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Independent.</strong> Not affiliated with any lumberyard, builder, code body or software company. No lumber price is stated or implied; prices are what you type.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record: save your plan file. Your last entries stay in this browser's local storage only.</p>
@@ -1172,7 +1189,7 @@
       if (pb.bad.length) { $("#bidsOut").innerHTML = `<div class="err"><ul>${pb.bad.map((e) => `<li>${esc(e)}</li>`).join("")}</ul></div>`; return; }
       if (!pb.bids.length) { $("#bidsOut").innerHTML = ""; return; }
       const lv = levelBids(last.budget, pb.bids);
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#bidsOut").innerHTML = `<table><thead><tr><th>Bidder</th><th class="n">As bid</th><th class="n">Added to level</th><th class="n">Leveled</th></tr></thead><tbody>${lv.bidders.map((b) => `<tr><td>${esc(b.bidder)}</td><td class="n">${m(b.bidTotal)}</td><td class="n">${m(b.additions)}</td><td class="n">${m(b.leveledTotal)}</td></tr>`).join("")}</tbody></table>
         <ul>${lv.bidders.flatMap((b) => b.flags.map((f) => `<li>${esc(b.bidder)}: ${esc(f.kind)} ${esc(f.item)}: ${esc(f.note)}</li>`)).join("")}</ul>
         ${lv.bidders.some((b) => b.unleveled.length) ? `<p class="note">No price anywhere, so not leveled: ${esc(lv.bidders.filter((b) => b.unleveled.length).map((b) => `${b.bidder} (${b.unleveled.join(", ")})`).join("; "))}.</p>` : ""}
@@ -1210,7 +1227,7 @@
       const b = budget(res, pr.prices, pr.allowances);
       last.budget = b;
       renderPriceSheet(b, pr.prices);
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#budgetOut").innerHTML = `<table><thead><tr><th>Section</th><th>Item</th><th class="n">Qty</th><th>Unit</th><th class="n">Price</th><th class="n">Amount</th></tr></thead><tbody>${b.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td class="n">${l.qty}</td><td>${esc(l.unit)}</td><td class="n">${l.unitPrice == null ? "no price" : m(l.unitPrice)}</td><td class="n">${l.amount == null ? "" : m(l.amount)}</td></tr>`).join("")}</tbody></table>
         <p><strong>Materials ${m(b.materials)}</strong>${b.taxRate ? `; tax ${m(b.tax)}` : ""}${b.contingencyRate ? `; contingency ${m(b.contingency)}` : ""}${b.labor ? `; labor ${m(b.labor)}` : ""}; <strong>total ${m(b.total)}</strong>${b.overheadRate || b.profitRate ? `; overhead ${m(b.overhead)}; profit ${m(b.profit)}; <strong>bid price ${m(b.bid)}</strong> (profit ${b.marginPct}% of the bid)` : ""}</p>
         ${b.unpriced.length ? `<p class="note">Not in the total, no price typed: ${esc(b.unpriced.join("; "))}.</p>` : ""}
@@ -1227,7 +1244,7 @@
       const card = $("#sensCard");
       if (!last?.budget) { card.hidden = true; return; }
       card.hidden = false;
-      const m = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       const sg = (v) => (v >= 0 ? "+" : "") + m(v);
       let sv;
       try { sv = sensitivity(last.budget, Number($("#sensPct").value)); } catch (e) { $("#sensOut").innerHTML = `<div class="err">${esc(e.message)}</div>`; return; }
@@ -1244,7 +1261,7 @@
       $("#coClear").hidden = !coBase;
       if (!coBase) { $("#coState").textContent = ""; $("#coOut").innerHTML = ""; return; }
       const d = budgetDiff(coBase, last.budget);
-      const m = (v) => (v >= 0 ? "+" : "") + v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const m = (v) => (v >= 0 ? "+" : "") + v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       const t = d.totals;
       $("#coState").textContent = d.lines.length ? `${d.lines.length} line${d.lines.length === 1 ? "" : "s"} changed against the saved original.` : "No line differs from the saved original.";
       $("#coOut").innerHTML = (d.lines.length ? `<table><thead><tr><th>Section</th><th>Item</th><th>Change</th><th class="n">Before</th><th class="n">After</th><th>Unit</th><th class="n">Amount</th></tr></thead><tbody>${d.lines.map((l) => `<tr><td>${esc(l.section)}</td><td>${esc(l.item)}</td><td>${esc(l.status)}</td><td class="n">${l.qtyBefore}</td><td class="n">${l.qtyAfter}</td><td>${esc(l.unit)}</td><td class="n">${l.dAmount == null ? "no price" : m(l.dAmount)}</td></tr>`).join("")}</tbody></table>` : "")
@@ -1256,7 +1273,7 @@
     function buildProposal() {
       if (!last?.budget) return null;
       const lines = (id) => $(id).value.split(/\n/).map((x) => x.trim()).filter(Boolean);
-      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date().toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), payments: lines("#propPay").map((x) => { const i = x.lastIndexOf(","); return { name: x.slice(0, i < 0 ? x.length : i).trim() || x, pct: i < 0 ? NaN : Number(x.slice(i + 1)) }; }), partial: $("#propPartial").checked });
+      return proposal(last.budget, { client: $("#propClient").value.trim(), project: $("#propProject").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10), validDays: Math.max(1, Math.round(Number($("#propDays").value) || 30)), inclusions: lines("#propIncl"), exclusions: lines("#propExcl"), terms: lines("#propTerms"), payments: lines("#propPay").map((x) => { const i = x.lastIndexOf(","); return { name: x.slice(0, i < 0 ? x.length : i).trim() || x, pct: i < 0 ? NaN : Number(x.slice(i + 1)) }; }), partial: $("#propPartial").checked });
     }
     function showProposal() {
       if (!run()) return null;
@@ -1356,7 +1373,7 @@
       }
       last = { plan, result, nailers, floor, deck, stairs, roof, foundation, drywall, insulation, trim, siding, eaves, gutters, dormer, fasteners };
       const s = result.summary;
-      const money = (v) => v.toLocaleString(undefined, { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+      const money = (v) => v.toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       $("#summary").innerHTML = `<div class="big">
         <div><strong>${money(s.cost)}</strong>order cost at your prices</div>
         <div><strong>${s.boards}</strong>boards for ${s.pieces} pieces</div>

@@ -1,0 +1,225 @@
+[
+ {
+  "case": "case300_ieee",
+  "kind": "typ",
+  "nbus": 300,
+  "ref_moved": null,
+  "ref": "PIPS",
+  "ac": 565219.99224243,
+  "start_rule": "DC+ang",
+  "mu_star": 0.8546875,
+  "V": {
+   "stages": [
+    {
+     "k": 1,
+     "mu": 0.8546875,
+     "at": {
+      "mu": 0.8546875,
+      "sigma": 0.0024437277525280604,
+      "vmin": 0.717976724183476
+     },
+     "rs_secs": 1.648075819015503,
+     "stop": "reactive stage has no solution"
+    }
+   ],
+   "mu_end": 0.8546875,
+   "reached": false
+  },
+  "V_secs": 3.664088726043701,
+  "W": {
+   "mu_opf": 0.8546875,
+   "frac": 1.0,
+   "mean_dv": 0.037853263160849464,
+   "max_dv": 0.05999999901699349,
+   "mean_v": 1.028061846547838,
+   "mu_star_w": 0.8921875,
+   "at": {
+    "mu": 0.8921875,
+    "sigma": 0.0031983350024679686,
+    "vmin": 0.7448825487907718
+   }
+  },
+  "W_secs": 5.90554666519165,
+  "secs": 9.569639444351196
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "typ",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 1402500.0,
+  "start_rule": "DC+ang",
+  "mu_star": 0.7984375,
+  "V": {
+   "stages": [
+    {
+     "k": 1,
+     "mu": 0.7984375,
+     "at": {
+      "mu": 0.7984375,
+      "sigma": 0.00011688406844120783,
+      "vmin": 0.7768984841143458
+     },
+     "rs_secs": 8.020774364471436,
+     "stop": "reactive stage has no solution"
+    }
+   ],
+   "mu_end": 0.7984375,
+   "reached": false
+  },
+  "V_secs": 11.20406198501587,
+  "W": {
+   "stop": "no reduced-load AC optimum"
+  },
+  "W_secs": 49.125568866729736,
+  "secs": 60.32963418960571
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "api",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2019700.0,
+  "start_rule": "DC, no ang",
+  "mu_star": 0.47500000000000003,
+  "V": {
+   "stages": [
+    {
+     "k": 1,
+     "mu": 0.47500000000000003,
+     "at": {
+      "mu": 0.47500000000000003,
+      "sigma": 0.00018959278966495982,
+      "vmin": 0.7870636969122531
+     },
+     "rs_secs": 6.839463949203491,
+     "stop": "reactive stage has no solution"
+    }
+   ],
+   "mu_end": 0.47500000000000003,
+   "reached": false
+  },
+  "V_secs": 12.74595046043396,
+  "W": {
+   "stop": "no reduced-load AC optimum"
+  },
+  "W_secs": 42.1772735118866,
+  "secs": 54.9232280254364
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "sad",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 1413900.0,
+  "start_rule": "DC+ang",
+  "mu_star": 0.7984375,
+  "V": {
+   "stages": [
+    {
+     "k": 1,
+     "mu": 0.7984375,
+     "at": {
+      "mu": 0.7984375,
+      "sigma": 0.00017595800492740949,
+      "vmin": 0.7837097142206019
+     },
+     "rs_secs": 30.695554494857788,
+     "stop": "reactive stage has no solution"
+    }
+   ],
+   "mu_end": 0.7984375,
+   "reached": false
+  },
+  "V_secs": 34.00790357589722,
+  "W": {
+   "stop": "no reduced-load AC optimum"
+  },
+  "W_secs": 48.9927442073822,
+  "secs": 83.00065279006958
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "typ",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2085600.0,
+  "start_rule": "DC+ang",
+  "mu_star": 0.571875,
+  "V": {
+   "stages": [
+    {
+     "k": 1,
+     "mu": 0.571875,
+     "at": {
+      "mu": 0.571875,
+      "sigma": 0.00014162481298467798,
+      "vmin": 0.7765560717917604
+     },
+     "rs_secs": 7.327343940734863,
+     "stop": "reactive stage has no solution"
+    }
+   ],
+   "mu_end": 0.571875,
+   "reached": false
+  },
+  "V_secs": 11.086519241333008,
+  "W": {
+   "stop": "no reduced-load AC optimum"
+  },
+  "W_secs": 15.946806192398071,
+  "secs": 27.033326625823975
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "sad",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "ref": "PGLib IPOPT",
+  "ac": 2092400.0,
+  "start_rule": "DC, no ang",
+  "mu_star": 0.571875,
+  "V": {
+   "stages": [
+    {
+     "k": 1,
+     "mu": 0.571875,
+     "at": {
+      "mu": 0.571875,
+      "sigma": 0.00014162481303253013,
+      "vmin": 0.7765560717962676
+     },
+     "rs_secs": 7.466029405593872,
+     "stop": "reactive stage has no solution"
+    }
+   ],
+   "mu_end": 0.571875,
+   "reached": false
+  },
+  "V_secs": 12.85202169418335,
+  "W": {
+   "stop": "no reduced-load AC optimum"
+  },
+  "W_secs": 15.5938241481781,
+  "secs": 28.445846557617188
+ }
+]

@@ -29,7 +29,7 @@ Rows come from `aws rds describe-db-instances` and CloudWatch `CPUUtilization`.
 
 ## What it is not
 
-List prices (US East, on-demand, MySQL/MariaDB/PostgreSQL) are illustrative and editable. Aurora, Oracle,
+List prices (US East, on-demand, at MySQL/MariaDB rates; PostgreSQL lists a few percent higher) are illustrative and editable with the CLI's `--prices` file. Aurora, Oracle,
 SQL Server, backups, data transfer and existing Reserved Instance or Savings Plan discounts are not
 modelled. Class, Multi-AZ and storage changes affect availability and performance: test on a copy first.
 Not a bill, not advice, no warranty. Amazon Web Services and Amazon RDS are trademarks of their owner,
@@ -43,3 +43,12 @@ locally and never uploads it.
 ## Licence
 
 MIT, no warranty. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+
+## Known gaps
+
+From quality audit [`2026-11-13-rds-instance-cost-advisor.json`](../../portfolio/quality/audits/2026-11-13-rds-instance-cost-advisor.json):
+
+- One price table (MySQL/MariaDB) serves every engine, so PostgreSQL compute reads a few percent low; the table carries no checked-on date or source link.
+- io1 above the gp3 baseline gets no finding, though gp3 can buy extra IOPS for far less than io1 on volumes of 400 GB or more.
+- No m6i, r6i, m7g, r7g or r7i prices, so those classes are skipped; quoted CSV fields are skipped; environment matching is exact ("staging-eu" counts as production).
+- The idle saving counts compute only, not the storage a deleted instance also stops paying for.

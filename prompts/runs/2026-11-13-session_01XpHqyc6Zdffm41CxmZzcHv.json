@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyc6Zdffm41CxmZzcHv",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T18:39:18Z",
+  "ended": "2026-11-13T18:55:59Z",
+  "wall_minutes": 16.85,
+  "tokens_in": 3158371,
+  "tokens_out": 13779,
+  "cost_usd": 1.4383,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15581",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/backlog/P066-open-tennis-cad-ci-timeout.json",
+      "issue": "Said the fix waits for the owner (CODEOWNERS), but its own second option (a test/code-side cache) needed no owner; profiling showed the cause was 60 repeated 18 s part builds, not the timeout value."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "minor: I guessed platform/pages/ for check_post_frontmatter.py; it is in platform/ci/. No doc was wrong, a short pointer in the posts guide would save a lookup."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-the-cad-suite-was-rebuilding-the-feeder-sixty-times.md"
+  ],
+  "goal": null,
+  "notes": "Backlog P066 solved without touching .github/. Cached otr_cad.feeder.all_parts (last 4, keyed by equal Feeder params). Local 4-CPU, build123d 0.13.0: sweeps 433 s -> 33 s; unittest discover -s tests: Ran 80 tests in 322.560s OK (baseline 1636.6 s), both committed-package freshness tests pass. Verify on the next open-tennis-robots PR's cad check run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "604c8abb-2b59-58ae-b959-61b3ef126f95",
+    "transcripts": 1,
+    "first": "2026-11-13T18:39:18Z",
+    "last": "2026-11-13T18:56:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 80,
+        "output": 13779,
+        "thinking": 2711,
+        "cache_read": 3090246,
+        "cache_write_5m": 0,
+        "cache_write_1h": 68045,
+        "api_equivalent_usd": 1.4383,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 80,
+      "output": 13779,
+      "thinking": 2711,
+      "cache_read": 3090246,
+      "cache_write_5m": 0,
+      "cache_write_1h": 68045,
+      "api_equivalent_usd": 1.4383,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 39,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.85,
+      "active_minutes": 16.85,
+      "model_minutes": 2.49,
+      "tool_minutes": 14.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile a CAD test suite, add a safe cache, rerun the 27 min suite, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 208.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

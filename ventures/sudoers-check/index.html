@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23166534'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%23%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>sudoers Check — NOPASSWD, Shell Escapes, ALL Minus su, and Who Can Become Root</title>
+  <meta name="description" content="Paste /etc/sudoers and sudoers.d: find NOPASSWD ALL, vim, less or find that give a root shell, ALL minus su, env_keep LD_PRELOAD, NOPASSWD rules that never apply and skipped .conf files. Free, in your browser.">
+  <meta property="og:title" content="Who can become root through your sudoers file?">
+  <meta property="og:description" content="Paste sudoers and its drop-ins, get every risky rule with its file, line and fix, and who can get root. Nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">
+  {"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "sudoers Check", "applicationCategory": "DeveloperApplication", "operatingSystem": "Any modern browser; CLI needs Node 18+, no dependencies", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "A static read of /etc/sudoers and its @include and @includedir files for NOPASSWD ALL, ALL minus a command, editors, pagers, shells and interpreters that hand out a root shell, commands in user-writable directories, wildcard arguments, SETENV, env_keep LD_PRELOAD, !env_reset, NOPASSWD rules a later rule overrides and sudoers.d files sudo skips, with who can become root and how. Its parser matches sudo 1.9.15p5's own cvtsudoers on 41 test cases. Runs in the browser or as a zero-dependency Node CLI; nothing is uploaded."}
+  </script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why does my NOPASSWD rule in sudoers not work?", "acceptedAnswer": {"@type": "Answer", "text": "sudo uses the last rule that matches, not the most specific one. If your NOPASSWD line sits above %sudo ALL=(ALL:ALL) ALL (or %wheel) and you are in that group, the group rule matches later and asks for a password. Put the NOPASSWD rule after the group rule, which a file in /etc/sudoers.d does, because the @includedir line comes at the end of /etc/sudoers."}}, {"@type": "Question", "name": "Why is my file in /etc/sudoers.d ignored?", "acceptedAnswer": {"@type": "Answer", "text": "sudo skips every file in an @includedir directory whose name contains a dot or ends in a tilde, so /etc/sudoers.d/deploy.conf is never read and none of its rules apply. Rename it to deploy or 90-deploy and check it with visudo -cf."}}, {"@type": "Question", "name": "Is ALL, !/bin/su a safe way to stop a user becoming root?", "acceptedAnswer": {"@type": "Answer", "text": "No. The sudoers manual says subtracting commands from ALL is generally not effective: the user can copy su to another name, or start a shell from an editor or script. List the commands the user needs instead."}}, {"@type": "Question", "name": "Why is allowing vim, less or find through sudo dangerous?", "acceptedAnswer": {"@type": "Answer", "text": "Those programs can start a shell or write any file. vim runs :!sh and can save over /etc/sudoers, less and man run !sh, and find runs any command with -exec, all as root. Use sudoedit for editing, a group such as adm or systemd-journal for reading logs, and pinned arguments or a root-owned wrapper script for the rest."}}, {"@type": "Question", "name": "Does a clean result mean my sudo setup is secure?", "acceptedAnswer": {"@type": "Answer", "text": "No. It reads only the patterns listed on this page. It does not know your group memberships, the contents or permissions of the programs a rule allows, your sudo version, or LDAP and SSSD rules. Have a qualified person review anything that protects valuable data."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 1000px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.7rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #17324a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #17324a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    .card { background: #fff; border: 1px solid #d5dbe3; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #17324a10; margin: 18px 0; }
+    textarea { width: 100%; min-height: 170px; box-sizing: border-box; padding: 10px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    input[type=text] { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid #a8b3c1; border-radius: 7px; font: 13px ui-monospace, monospace; margin-bottom: 6px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font-weight: 700; cursor: pointer; margin: 0 8px 8px 0; }
+    button.secondary { background: #e3e9ef; color: #17324a; }
+    button.small { padding: 6px 10px; font-size: .8rem; font-weight: 600; }
+    .file-block { border: 1px solid #e6eaf0; border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+    .file-block-head { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+    .file-block-head input { margin-bottom: 0; }
+    .verdict { font-size: 1.35rem; font-weight: 800; margin: 0 0 6px; color: #166534; }
+    .verdict.risk { color: #9a3412; }
+    table { width: 100%; border-collapse: collapse; font-size: .88rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #e6eaf0; vertical-align: top; }
+    th { color: #55606f; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em; }
+    .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 999px; background: #fde8e8; color: #9a3412; }
+    .pill.low { background: #e8eef5; color: #17324a; }
+    .pill.ok { background: #e7f5ec; color: #166534; }
+    pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .84rem; line-height: 1.55; overflow-x: auto; }
+    code { overflow-wrap: anywhere; word-break: break-word; }
+    .error { color: #9a3412; font-weight: 600; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+    .tableWrap { overflow-x: auto; }
+    @media (max-width: 640px) {
+      #report-card table, #report-card tbody, #report-card tr, #report-card td { display: block; }
+      #report-card thead { display: none; }
+      #report-card tr { border-bottom: 1px solid #e6eaf0; padding: 10px 0; }
+      #report-card td { border: 0; padding: 3px 0; }
+    }
+  </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #files:empty{min-height:241px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
+</head>
+<body>
+  <header>
+    <p class="note">SUDOERS CHECK · RUNS IN YOUR BROWSER</p>
+    <h1>Who can become root through your sudoers file?</h1>
+    <p>A sudoers rule that allows one editor, one pager or one <code>find</code> allows a root shell. <code>ALL, !/usr/bin/su</code> stops nobody. A <code>NOPASSWD</code> line above <code>%sudo</code> never takes effect, and a drop-in named <code>deploy.conf</code> is never read. <code>visudo</code> accepts all of these without a word. Paste <code>/etc/sudoers</code> and the files in <code>/etc/sudoers.d</code> below: this page lists each risky rule with its file, line and fix, and who can get root and how.</p>
+    <p class="note">Nothing is uploaded. What you paste is read in this browser and never leaves your device, and the tool makes no network calls of its own. It reads the files, not a running system: it is not <code>visudo -c</code> and not a security audit.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Paste your sudoers files</h2>
+    <p class="note">Name each block like its path. A block named <code>sudoers</code> is read first, and its <code>@includedir /etc/sudoers.d</code> pulls in every block named <code>sudoers.d/something</code> in sorted order, skipping names with a dot, the way <code>sudo</code> does. On the server, <code>sudo cat /etc/sudoers /etc/sudoers.d/*</code> shows them.</p>
+    <div id="files"></div>
+    <p><button type="button" class="secondary small" id="add-file">+ Add a sudoers.d file</button></p>
+    <p>
+      <button type="button" id="check">Check</button>
+      <button type="button" class="secondary" id="load-example">Load worked example</button>
+      <button type="button" class="secondary" id="clear">Clear</button>
+    </p>
+    <p class="note" id="status">Paste at least one sudoers file above and click Check.</p>
+  </section>
+
+  <section class="card" id="report-card" aria-live="polite" hidden>
+    <h2>Findings</h2>
+    <p class="verdict" id="verdict"></p>
+    <div class="tableWrap">
+      <table>
+        <thead><tr><th>File : Line</th><th>Type</th><th>Risk</th><th>Fix</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+    <h2 style="margin-top:18px">Who can become root</h2>
+    <p class="note">Every rule that grants <code>ALL</code> as root, or a command this tool rates a root shell. Group members are not expanded: check them with <code>getent group sudo</code>.</p>
+    <ul id="rootpaths"></ul>
+    <ul class="note" id="notes"></ul>
+  </section>
+
+  <section class="card">
+    <h2>What it checks</h2>
+    <ul>
+      <li><strong>High:</strong> <code>NOPASSWD: ALL</code>; <code>ALL</code> for every user; <code>ALL</code> minus a command; editors (<code>vim</code>, <code>nano</code>), pagers (<code>less</code>, <code>man</code>, <code>journalctl</code>) and interactive clients with a shell escape; shells, interpreters and tools like <code>find</code>, <code>tar</code>, <code>systemctl</code>, <code>docker</code> with open arguments; file writers like <code>tee</code>, <code>cp</code>, <code>chown</code> with open arguments; programs or scripts under <code>/home</code>, <code>/tmp</code>, <code>/var/www</code>; a directory or pattern as the command; <code>SETENV</code>; <code>!env_reset</code>; <code>env_keep</code> of <code>LD_PRELOAD</code>, <code>PYTHONPATH</code>, <code>BASH_ENV</code> and similar; <code>!authenticate</code>; <code>Defaults setenv</code>.</li>
+      <li><strong>Medium:</strong> file readers like <code>cat</code> with open arguments; other wildcard arguments; <code>env_keep</code> of <code>PATH</code> without <code>secure_path</code>; <code>timestamp_timeout</code> below zero. A rule whose target user is not root drops one level.</li>
+      <li><strong>Low:</strong> a <code>NOPASSWD</code> rule a later rule overrides; a <code>sudoers.d</code> file <code>sudo</code> skips; no <code>secure_path</code>; shared or long credential caching; <code>!use_pty</code>; <code>visiblepw</code>; <code>pwfeedback</code>.</li>
+    </ul>
+    <p class="note">The parser reads the grammar the way <code>sudo</code> does: aliases, tag and runas inheritance, <code>: Host =</code> groups, escapes, digests, option specs, regular-expression arguments and include order. On 41 test cases its reading matches <code>cvtsudoers</code>, <code>sudo</code>'s own parser (1.9.15p5). Which programs give a shell is our own list; <a href="https://gtfobins.github.io/" rel="noopener">GTFOBins</a> catalogues the exact escapes, and this tool is not affiliated with it. Every type, with the <code>sudo</code> behaviour behind it: <a href="sudoers-mistakes-explained.html">sudoers mistakes explained</a>.</p>
+  </section>
+
+  <section class="card">
+    <h2>Prefer a CLI, or want this in your own CI?</h2>
+    <p>Same engine, zero dependencies, Node 18 or later:</p>
+    <pre class="cmd"><code>sudo node check.mjs /etc/             # /etc/sudoers and /etc/sudoers.d/*
+node check.mjs ./sudoers.d/90-app      # one drop-in from your repo
+node check.mjs /etc --format json      # machine-readable
+node check.mjs . --fail-on-risk        # exit 2 on any high or medium finding</code></pre>
+    <p class="note">Get <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sudoers-check" rel="noopener">check.mjs and scan.mjs from the repo</a>: nothing to install, no network calls, and it never runs <code>sudo</code>. Run <code>visudo -cf</code> as well, for syntax.</p>
+  </section>
+
+  <section class="card">
+    <h2>Common questions</h2>
+    <h3>Why does my NOPASSWD rule in sudoers not work?</h3>
+    <p><code>sudo</code> uses the last rule that matches, not the most specific one. If your <code>NOPASSWD</code> line sits above <code>%sudo ALL=(ALL:ALL) ALL</code> (or <code>%wheel</code>) and you are in that group, the group rule matches later and asks for a password. Put the <code>NOPASSWD</code> rule after the group rule, which a file in <code>/etc/sudoers.d</code> does, because the <code>@includedir</code> line comes at the end of <code>/etc/sudoers</code>.</p>
+    <h3>Why is my file in /etc/sudoers.d ignored?</h3>
+    <p><code>sudo</code> skips every file in an <code>@includedir</code> directory whose name contains a dot or ends in a tilde, so <code>/etc/sudoers.d/deploy.conf</code> is never read and none of its rules apply. Rename it to <code>deploy</code> or <code>90-deploy</code> and check it with <code>visudo -cf</code>.</p>
+    <h3>Is ALL, !/bin/su a safe way to stop a user becoming root?</h3>
+    <p>No. The sudoers manual says subtracting commands from <code>ALL</code> is generally not effective: the user can copy <code>su</code> to another name, or start a shell from an editor or script. List the commands the user needs instead.</p>
+    <h3>Why is allowing vim, less or find through sudo dangerous?</h3>
+    <p>Those programs can start a shell or write any file. <code>vim</code> runs <code>:!sh</code> and can save over <code>/etc/sudoers</code>, <code>less</code> and <code>man</code> run <code>!sh</code>, and <code>find</code> runs any command with <code>-exec</code>, all as root. Use <code>sudoedit</code> for editing, a group such as <code>adm</code> or <code>systemd-journal</code> for reading logs, and pinned arguments or a root-owned wrapper script for the rest.</p>
+    <h3>Does a clean result mean my sudo setup is secure?</h3>
+    <p>No. It reads only the patterns listed on this page. It does not know your group memberships, the contents or permissions of the programs a rule allows, your <code>sudo</code> version, or LDAP and SSSD rules. Have a qualified person review anything that protects valuable data.</p>
+  </section>
+
+  </main>
+<footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is a static read of the files you paste, not a security audit, a penetration test or a guarantee of any system's security, and it does not replace a qualified security professional. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> Test a sudoers change with <code>visudo -c</code> while a root shell is open, so a mistake cannot lock you out.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record. If a tool needs to survive, get the CLI from the repo and run it yourself.</p>
+    <p>Everything runs in your browser. What you paste is never uploaded; there are no accounts, cookies, or analytics vendors, and the tool makes no network calls. Anonymous feature events (<code>check_run</code>, <code>example_loaded</code>) are counted only in local storage and can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Related checks: <a href="../systemd-unit-hardening-check/">systemd Unit Hardening Check</a> reads the services sudo often restarts, <a href="../nginx-config-security-check/">nginx Config Security Check</a> reads the web server config, <a href="../docker-compose-security-check/">Docker Compose Security Check</a> covers containers that run as root, and <a href="../sshd-config-check/">sshd_config Check</a> shows who can log in over SSH in the first place.</p>
+    <p class="support">Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { scanFiles, hasRisk, summaryLine } from "./scan.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+    const $ = (sel) => document.querySelector(sel);
+    const els = {
+      files: $("#files"), status: $("#status"), reportCard: $("#report-card"),
+      verdict: $("#verdict"), rows: $("#rows"), notes: $("#notes"), rootpaths: $("#rootpaths"),
+    };
+
+    const EXAMPLE = [
+      {"name": "sudoers", "text": "# /etc/sudoers on a small web server\nDefaults env_reset\nDefaults secure_path=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin\"\nDefaults env_keep += \"LD_PRELOAD\"\n\nCmnd_Alias LOGS = /usr/bin/journalctl, /usr/bin/less /var/log/*\n\nroot    ALL=(ALL:ALL) ALL\nalice   ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart nginx\n%sudo   ALL=(ALL:ALL) ALL\nsupport ALL=(root) LOGS\ncarol   ALL=(ALL) ALL, !/usr/bin/su, !/bin/bash\ndeploy  ALL=(root) NOPASSWD: /usr/bin/vim /etc/nginx/nginx.conf, /home/deploy/release.sh\n\n@includedir /etc/sudoers.d\n"},
+      {"name": "sudoers.d/90-cloud-init-users", "text": "# added by cloud-init\nubuntu ALL=(ALL) NOPASSWD:ALL\n"},
+      {"name": "sudoers.d/backup.conf", "text": "backup ALL=(root) NOPASSWD: /usr/bin/rsync\n"},
+    ];
+
+    function escapeHtml(s) {
+      return String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    }
+
+    function fileBlock(name = "", text = "") {
+      const wrap = document.createElement("div");
+      wrap.className = "file-block";
+      wrap.innerHTML = `
+        <div class="file-block-head">
+          <input type="text" class="fname" aria-label="File name" placeholder="sudoers or sudoers.d/90-app" value="${escapeHtml(name)}">
+          <button type="button" class="secondary small remove-file">Remove</button>
+        </div>
+        <textarea aria-label="Paste the sudoers file here" class="ftext" spellcheck="false" placeholder="root ALL=(ALL:ALL) ALL&#10;%sudo ALL=(ALL:ALL) ALL&#10;@includedir /etc/sudoers.d"></textarea>
+      `;
+      wrap.querySelector(".ftext").value = text;
+      wrap.querySelector(".remove-file").addEventListener("click", () => {
+        if (els.files.children.length > 1) wrap.remove();
+      });
+      return wrap;
+    }
+
+    function addFile(name = "", text = "") {
+      els.files.appendChild(fileBlock(name, text));
+    }
+
+    function collectFiles() {
+      return [...els.files.querySelectorAll(".file-block")]
+        .map((block, i) => ({
+          name: block.querySelector(".fname").value.trim() || (i ? `sudoers.d/file${i + 1}` : "sudoers"),
+          text: block.querySelector(".ftext").value,
+        }))
+        .filter((f) => f.text.trim().length > 0);
+    }
+
+    function runCheck(files) {
+      if (!files.length) {
+        els.status.innerHTML = `<span class="error">Paste at least one sudoers file first.</span>`;
+        return;
+      }
+      let result;
+      try {
+        result = scanFiles(files);
+      } catch (err) {
+        els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
+        els.reportCard.hidden = true;
+        return;
+      }
+      const { findings, notes, rootPaths } = result;
+      els.verdict.className = `verdict ${hasRisk(findings) ? "risk" : ""}`;
+      els.verdict.textContent = summaryLine(findings);
+      els.rows.innerHTML = findings.map((f) => `
+        <tr>
+          <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
+          <td><span class="pill ${f.severity === "low" ? "low" : ""}">${escapeHtml(f.type)}</span> <span class="note">${f.severity}</span></td>
+          <td>${escapeHtml(f.detail)}</td>
+          <td>${escapeHtml(f.remediation)}</td>
+        </tr>`).join("");
+      els.rootpaths.innerHTML = rootPaths.length
+        ? rootPaths.map((r) => `<li><strong>${escapeHtml(r.who)}</strong>: ${escapeHtml(r.how)} <span class="pill ${r.password ? "ok" : ""}">${r.password ? "password" : "no password"}</span> <span class="note"><code>${escapeHtml(r.file)}:${r.line}</code></span></li>`).join("")
+        : "<li>No rule in what was pasted grants ALL as root or a command rated a root shell.</li>";
+      els.notes.innerHTML = notes.map((n) => `<li>${escapeHtml(n)}</li>`).join("");
+      els.reportCard.hidden = false;
+      els.status.textContent = "";
+      record("check_run");
+      els.reportCard.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+
+    $("#add-file").addEventListener("click", () => addFile());
+    $("#check").addEventListener("click", () => runCheck(collectFiles()));
+
+    $("#load-example").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      for (const f of EXAMPLE) addFile(f.name, f.text);
+      runCheck(EXAMPLE);
+      record("example_loaded");
+      els.status.textContent = "Worked example: a web server's sudoers that keeps LD_PRELOAD, gives a support group journalctl and less, subtracts su from ALL, lets deploy edit with vim and run a script from its home directory, and puts alice's NOPASSWD rule above %sudo; plus cloud-init's drop-in and a backup.conf that sudo never reads.";
+    });
+
+    $("#clear").addEventListener("click", () => {
+      els.files.innerHTML = "";
+      addFile("sudoers");
+      els.reportCard.hidden = true;
+      els.status.textContent = "Paste at least one sudoers file above and click Check.";
+    });
+
+    $("#optout").addEventListener("click", (event) => {
+      setUsageOptOut(true);
+      event.target.textContent = "Usage counting is off";
+      event.target.disabled = true;
+    });
+
+    addFile("sudoers");
+
+    if (usageOptedOut()) {
+      const usageControl = document.getElementById("optout");
+      if (usageControl) {
+        usageControl.textContent = "Usage counting is off";
+        usageControl.disabled = true;
+      }
+    }
+  </script>
+</body>
+</html>

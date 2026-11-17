@@ -44,14 +44,18 @@ test("every input has a label and nothing is sent anywhere", () => {
     const id = tag.match(/\sid="([^"]+)"/)?.[1];
     assert.ok(/aria-label=/.test(tag) || (id && html.includes(`<label for="${id}">`)), `unlabelled: ${tag}`);
   }
-  assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
-  for (const f of ["engine.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
+  // One read is allowed: the watch's optional CSV link, a GET of the address the visitor typed, without cookies.
+  // It sends none of their data; the result stays in the tab.
+  const reads = html.match(/fetch\([^)]*\)/g) ?? [];
+  assert.deepEqual(reads, ['fetch(url, { credentials: "omit" })']);
+  assert.doesNotMatch(html.replace('fetch(url, { credentials: "omit" })', ''), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|importScripts/);
+  for (const f of ["engine.mjs", "watch-core.mjs", "example-data.mjs", "example-fx.mjs", "usage.mjs", "report.mjs", "multivariate.mjs", "multi-view.mjs"]) assert.doesNotMatch(page(f), /fetch\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|import\(/);
   assert.doesNotMatch(html, /<form[^>]+action=/i);
 });
 
 test("the module script imports only local files and parses", () => {
   const html = page("index.html");
-  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs"]);
+  assert.deepEqual([...html.matchAll(/from "([^"]+)"/g)].map((m) => m[1]).sort(), ["./analyze-job.mjs", "./checkout.mjs", "./consensus.mjs", "./drift-report.mjs", "./drift-view.mjs", "./engine.mjs", "./licence.mjs", "./multi-report.mjs", "./multi-view.mjs", "./multivariate.mjs", "./report.mjs", "./usage.mjs", "./watch-core.mjs"]);
   assert.doesNotMatch(html, /<script[^>]+src=["']https?:/);
   const src = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
   assert.doesNotThrow(() => new Function(src.replace(/^\s*import .*$/gm, "")));
@@ -104,6 +108,8 @@ test("footer links the sibling research-algorithm tools", () => {
   assert.match(html, /href="\.\.\/conformal-prediction-intervals\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
   assert.match(html, /href="\.\.\/survival-analysis\/"/);
+  assert.match(html, /href="\.\.\/fdr-multiple-testing\/"/);
+  assert.match(html, /href="\.\.\/stl-decomposition\/"/);
 });
 
 test("the trend box offers one bend and several, and passes the choice to the engine", () => {
@@ -120,10 +126,11 @@ test("the page has a switch for scoring every pair of knots and passes it to the
   assert.match(html, /knotMargin: Number\(\$\("#knotMargin"\)\.value\)/);
 });
 
-test("the counts box offers the negative-binomial cost and passes 'nb' to the engine", () => {
+test("the counts box offers the negative-binomial costs and passes 'nb' or 'nb1' to the engine", () => {
   const html = page("index.html");
-  assert.match(html, /<select id="overdispersion">[^]*?<option value="1">[^]*?<option value="nb">/);
-  assert.match(html, /overdispersion: \$\("#overdispersion"\)\.value === "nb" \? "nb" : \$\("#overdispersion"\)\.value === "1"/);
+  assert.match(html, /<select id="overdispersion">[^]*?<option value="1">[^]*?<option value="nb">[^]*?<option value="nb1">/);
+  assert.match(html, /overdispersion: \$\("#overdispersion"\)\.value === "nb" \|\| \$\("#overdispersion"\)\.value === "nb1" \? \$\("#overdispersion"\)\.value : \$\("#overdispersion"\)\.value === "1"/);
+  assert.match(html, /"clumpingWarning"\]\.filter/);
 });
 
 test("page offers known holidays for counts", () => {
@@ -162,4 +169,11 @@ test("index page has a growth-rate (slope break) box wired to the engine", () =>
   assert.match(html, /slopeBreaks: \$\("#slopeBreaks"\)\.checked/);
   assert.match(html, /id="slopeResult"/);
   assert.match(html, /for="slopeBreaks"/);
+});
+
+test("the replay card is wired: button, worker job kind and replayText from watch-core.mjs", () => {
+  const html = page("index.html");
+  assert.match(html, /id="replay-run"/);
+  assert.match(html, /kind: "replay"/);
+  assert.match(page("analyze-job.mjs"), /job\.kind === 'replay'/);
 });

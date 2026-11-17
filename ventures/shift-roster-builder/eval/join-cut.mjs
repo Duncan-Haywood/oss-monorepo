@@ -36,7 +36,7 @@ for (const [i, F] of FILES.entries()) {
   console.log("splh   min  r     | fractile: per-run short over cost | joined short over cost | joined - per run (95% CI) | average: per-run cost joined cost | joined - per run (95% CI)");
   for (const splh of F.splh) for (const minShift of MIN_SHIFTS) for (const r of RS) {
     const base = { splh, shortCost: r, minShift, shifts: true };
-    const A = backtestSales(text, base), B = backtestSales(text, { ...base, join: true });
+    const A = backtestSales(text, base), B = backtestSales(text, { scoreClosed: false, ...base, join: true });
     const qa = A.methods.find((m) => m.id === "q-all"), qb = B.methods.find((m) => m.id === "q-all");
     const dq = paired(B.perWeek["q-all"], A.perWeek["q-all"]), da = paired(B.perWeek.all, A.perWeek.all);
     for (const d of [dq, da]) { n++; if (d.hi < 0) wins++; else if (d.lo > 0) losses++; else ties++; }

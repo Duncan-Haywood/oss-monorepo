@@ -30,6 +30,8 @@ export const SECTORS = [
   ["Sport or recreation", 8.5], ["Transport or storage, including couriers, freight and removals", 10],
   ["Travel agency", 10.5], ["Veterinary medicine", 11], ["Wholesaling agricultural products", 8],
   ["Wholesaling food", 7.5], ["Wholesaling not listed elsewhere", 8.5],
+  // Appended (ids are positions): both are in the HMRC flat rate table and were missing (quality audit 2026-11-13).
+  ["Catering services including restaurants and takeaways", 12.5], ["Any other activity not listed elsewhere", 12],
 ].map(([label, rate], i) => ({ id: String(i), label, rate }));
 
 export const SAMPLE = {
@@ -63,7 +65,9 @@ export function compute(raw) {
   const lctLimit = Math.max(LCT_PCT_OF_TURNOVER * grossTurnover, 0);
   const isLct = goodsInc < lctLimit || goodsInc < LCT_MIN_GOODS;
   const sectorRate = sector.rate;
-  const frsRate = isLct ? LCT_RATE : round2(sectorRate - (firstYear ? 1 : 0));
+  // The 1% first-year discount applies to the limited cost rate too: 16.5% becomes 15.5%
+  // (Value Added Tax (Amendment) Regulations 2017, SI 2017/295, and VAT Notice 733).
+  const frsRate = round2((isLct ? LCT_RATE : sectorRate) - (firstYear ? 1 : 0));
 
   const frsPayable = round2(grossTurnover * frsRate / 100);
   // Under the FRS you can still reclaim VAT on a single capital asset costing £2,000 or more inc VAT.
@@ -80,8 +84,8 @@ export function compute(raw) {
 
   const findings = [];
   if (isLct) {
-    findings.push({ severity: "high", title: `Limited cost trader: your goods spend of ${money(goodsInc)} (VAT-inclusive) is under 2% of your ${money(grossTurnover)} turnover or under £1,000, so you pay ${LCT_RATE}% rather than the ${sectorRate}% sector rate.` });
-    findings.push({ severity: "info", title: `At ${LCT_RATE}% the scheme costs ${money(grossTurnover * LCT_RATE / 100)} a year before any reclaim. This is why service businesses with few costs often do worse on the scheme.` });
+    findings.push({ severity: "high", title: `Limited cost trader: your goods spend of ${money(goodsInc)} (VAT-inclusive) is under 2% of your ${money(grossTurnover)} turnover or under £1,000, so you pay ${frsRate}%${firstYear ? " (16.5% less the 1% first-year discount)" : ""} rather than the ${sectorRate}% sector rate.` });
+    findings.push({ severity: "info", title: `At ${frsRate}% the scheme costs ${money(frsPayable)} a year before any reclaim. This is why service businesses with few costs often do worse on the scheme.` });
   } else {
     findings.push({ severity: "info", title: `Your goods spend is ${((goodsInc / grossTurnover) * 100).toFixed(1)}% of turnover, above the 2% limited cost trader line, so the ${sectorRate}% sector rate${firstYear ? " less the 1% first-year discount" : ""} applies.` });
   }
@@ -89,7 +93,6 @@ export function compute(raw) {
   else if (better === "standard") findings.push({ severity: "high", title: `Standard VAT accounting leaves ${money(-saving)} a year more in your pocket than the Flat Rate Scheme.` });
   else findings.push({ severity: "info", title: "The two methods come out the same on these figures." });
   if (f.turnover > JOIN_LIMIT) findings.push({ severity: "high", title: `Expected taxable turnover over ${money(JOIN_LIMIT)} (excluding VAT) means you cannot join the Flat Rate Scheme, and an existing member must leave once total income including VAT passes ${money(LEAVE_LIMIT)}.` });
-  if (firstYear && isLct) findings.push({ severity: "medium", title: "Assumption to verify: this tool does not apply the 1% first-year discount to the 16.5% limited cost trader rate. Check GOV.UK VAT Notice 733." });
   if (f.capitalSpend > 0 && capitalReclaim === 0) findings.push({ severity: "info", title: `Capital spend under ${money(CAPITAL_RECLAIM_MIN)} including VAT cannot be reclaimed under the Flat Rate Scheme.` });
   if (stdNet < 0) findings.push({ severity: "medium", title: "Standard accounting gives you a VAT refund on these figures, which the Flat Rate Scheme cannot (you always pay a positive amount)." });
 

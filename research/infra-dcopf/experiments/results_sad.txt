@@ -1,0 +1,71 @@
+PGLib-OPF v23.07 SAD cases (angle-difference limits 4.7-16.2 deg): held-out test of successive linearisation.
+Each dispatch run through an AC power flow, generator voltages at the AC optimum's schedule.
+Cell: branches over 100 %, worst loading %, slack MW outside limits, angle-limit violations, worst angle
+excess (deg), buses out of V band, generators outside Q limits, AC cost vs the AC optimum.
+
+case                  AC (ours)     AC (pub)    dAC%  DC-MP angle     DC (pub)
+case14_ieee              2776.8       2776.8  -0.000   infeasible          nan
+case24_ieee_rts         76918.0      76918.0  -0.000   infeasible      78122.0
+case30_ieee              8208.5       8208.5   0.000       7504.4          nan
+case39_epri            148340.5     148340.0   0.000   infeasible     150670.0
+case57_ieee             38663.3      38663.0   0.001      38404.2          nan
+case73_ieee_rts        227603.8     227600.0   0.002   infeasible     232680.0
+case118_ieee           105155.1     105160.0  -0.005   infeasible          nan
+case162_ieee_dtc       108690.7     108690.0   0.001     103829.2     106290.0
+case179_goc            762532.5     762530.0   0.000   infeasible          nan
+case200_activ           27557.6      27558.0  -0.002   infeasible          nan
+case240_pserc         3405363.8    3405400.0  -0.001   infeasible          nan
+case300_ieee       AC OPF did not converge (published 5.6570e+05)
+
+case               method              status nOv  maxLd%  slkMW nAng angExc   V   Q      cost
+case14_ieee        AC opt                       0   59.34    0.0    0  0.000   0   0   +0.000%
+case14_ieee        start           DC, no ang   0   64.61    0.0    1  0.857   0   2  -21.484%
+case14_ieee        C-frozen     thermal ok @1   0   64.61    0.0    1  0.857   0   2  -21.484%
+case14_ieee        C-ang             clean @2   0   59.34    0.0    0  0.000   0   0   -0.000%
+case24_ieee_rts    AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case24_ieee_rts    start           DC, no ang   0   96.54    0.0    7  4.238   0   7  -17.519%
+case24_ieee_rts    C-frozen     thermal ok @1   0   96.91    0.0    6  4.023   0   7  -17.576%
+case24_ieee_rts    C-ang             clean @3   0  100.00    0.0    0  0.000   0   0   -0.000%
+case30_ieee        AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case30_ieee        start               DC+ang   1  107.87    0.0    0  0.000   0   1   -4.961%
+case30_ieee        C-frozen     thermal ok @2   0  100.00    0.0    0  0.000   0   0   -0.000%
+case30_ieee        C-ang             clean @2   0  100.00    0.0    0  0.000   0   0   -0.000%
+case39_epri        AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case39_epri        start           DC, no ang   2  102.48   39.6    5  2.684   1   3   -7.376%
+case39_epri        C-frozen     thermal ok @2   0  100.00    0.0    5  2.115   1   3   -6.481%
+case39_epri        C-ang             clean @2   0  100.00    0.0    0  0.000   0   1   -0.000%
+case57_ieee        AC opt                       0   36.59    0.0    0  0.000   0   0   +0.000%
+case57_ieee        start               DC+ang   0   32.50   16.2    0  0.000   1   2   +0.041%
+case57_ieee        C-frozen    not clean (10)   0   38.38    1.1    2  0.309   0   1   -0.315%
+case57_ieee        C-ang             clean @2   0   36.59    0.0    0  0.000   0   0   +0.000%
+case73_ieee_rts    AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case73_ieee_rts    start           DC, no ang   0   96.66   22.5   15  5.879   0  15  -16.404%
+case73_ieee_rts    C-frozen     thermal ok @1   0   96.74    0.0   16  4.875   0   9  -16.547%
+case73_ieee_rts    C-ang       not clean (10)   1  100.00    0.0    0  0.000   1  13   -0.002%
+case118_ieee       AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case118_ieee       start           DC, no ang   4  114.75    0.0    6  6.789   1  21   -7.209%
+case118_ieee       C-frozen    not clean (10)   1  100.00    0.0    6  4.529   1  17   -7.002%
+case118_ieee       C-ang       not clean (10)   0   98.69    0.0    3  0.019   0   4   +0.005%
+case162_ieee_dtc   AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case162_ieee_dtc   start               DC+ang   9  130.10    0.0    1  0.675   1   1   -3.488%
+case162_ieee_dtc   C-frozen     thermal ok @5   0  100.00    0.0    0  0.000   0   0   -0.000%
+case162_ieee_dtc   C-ang             clean @5   0  100.00    0.0    0  0.000   0   0   -0.000%
+case179_goc        AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case179_goc        start           DC, no ang PF failed
+case179_goc        C-frozen     not clean (1) PF failed
+case179_goc        C-ang        not clean (1) PF failed
+case200_activ      AC opt                       0   71.26    0.0    0  0.000   0   0   +0.000%
+case200_activ      start           DC, no ang   0   71.26    0.0    0  0.000   0   0   -0.000%
+case200_activ      C-frozen     thermal ok @1   0   71.26    0.0    0  0.000   0   0   -0.000%
+case200_activ      C-ang             clean @1   0   71.26    0.0    0  0.000   0   0   -0.000%
+case240_pserc      AC opt                       0  100.00    0.0    0  0.000   0   0   +0.000%
+case240_pserc      start           DC, no ang  16  124.68 1556.0   14  1.767   4  15   -2.348%
+case240_pserc      C-frozen    not clean (10)   8  100.01    0.3    1  0.002   1  10   +0.007%
+case240_pserc      C-ang       not clean (10)   8  100.01    0.3    0  0.000   1  10   +0.010%
+
+Summary (12 SAD cases, 11 with an AC optimum and a start):
+  H1 AC within 0.01 % of published: 11 of 11
+  H2 DC-MP with angle limits infeasible: 8 of 11; feasible DC dispatches breaking an AC angle limit: 1 of 3
+  H3 C-frozen thermal-and-slack clean: 7 of 11; also angle-clean: 3 of 11
+  H4 C-ang fully clean (thermal, slack, angle): 7 of 11
+Run time: case14_ieee 0s, case24_ieee_rts 1s, case30_ieee 1s, case39_epri 1s, case57_ieee 1s, case73_ieee_rts 10s, case118_ieee 10s, case162_ieee_dtc 2s, case179_goc 2s, case200_activ 2s, case240_pserc 44s, case300_ieee 1s

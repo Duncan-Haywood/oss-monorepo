@@ -13,7 +13,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1b2430; background: #eceef4; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 760px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #1f5c35; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
@@ -241,7 +241,7 @@
 
   <script type="module">
     import { effectiveReimbursement } from './calc.mjs';
-    import { recordUsage } from './usage.mjs';
+    import { recordUsage, usageStorage } from './usage.mjs';
     import { resolvePlanRows, parsePlanReport } from './form.mjs';
 
     const SCENARIO_KEY = 'dental-ppo-writeoff-scenario';
@@ -489,7 +489,7 @@
     function recompute(counted) {
       const result = effectiveReimbursement(readForm());
       render(result);
-      if (counted && result.ok) recordUsage(globalThis.localStorage, optedOut(), 'rate_calculated');
+      if (counted && result.ok) recordUsage(usageStorage(), optedOut(), 'rate_calculated');
     }
 
     buildRows();
@@ -522,7 +522,7 @@
       fillForm({ ...readForm(), plans: parsed.plans });
       showingExample = false;
       el('pasteState').textContent = `Filled ${parsed.plans.length} plan${parsed.plans.length === 1 ? '' : 's'}.${parsed.skipped.length ? ` Skipped ${parsed.skipped.length} line${parsed.skipped.length === 1 ? '' : 's'} it could not read.` : ''}`;
-      recordUsage(globalThis.localStorage, optedOut(), 'report_pasted');
+      recordUsage(usageStorage(), optedOut(), 'report_pasted');
       recompute(false);
     });
 
@@ -530,7 +530,7 @@
       try {
         globalThis.localStorage.setItem(SCENARIO_KEY, JSON.stringify(readForm()));
         el('saveState').textContent = 'Saved to this browser.';
-        recordUsage(globalThis.localStorage, optedOut(), 'scenario_saved');
+        recordUsage(usageStorage(), optedOut(), 'scenario_saved');
       } catch {
         el('saveState').textContent = 'This browser is not allowing site data, so nothing was saved.';
       }

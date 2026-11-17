@@ -20,30 +20,36 @@ every score (so a reader can check it).
 Posts go in `docs/posts/` tagged `quality-audit`; the blog files them under
 the topic "Quality audits" (`platform/pages/writing.mjs`, `TOPICS`).
 
-## Four modes
+## Five modes
 
 The owner, 2026-11-10: "direct a lot more work to quality audits. more detail
 in it. and also reflections on what parts of the process seem to make the
 quality drop off and suggested fixes to the process. ongoing thing full repo
 quality reviews. detailed metrics on quality and correctness."
 
-A quality session runs one of four modes. `python3
+A quality session runs one of five modes. `python3
 platform/ci/quality_audit.py mode` picks it: `reflect` whenever no reflection
 has been written for seven days, otherwise a draw seeded by the date (sample
-35%, census 30%, fix 25%, reflect 10%; `fix` doubles while high-severity
-defects are open). Software decides the routine; the session's time goes to
+35%, census 20%, fix 25%, reaudit 10%, reflect 10%; `fix` doubles while
+high-severity defects are open, and `reaudit` drops out when no fix awaits a
+re-check). Software decides the routine; the session's time goes to
 the audit.
 
 | mode | what it does | command |
 |---|---|---|
 | `sample` | the stratified random round below: the unbiased share meeting the bar | `sample` |
 | `census` | the full-repository sweep: never-audited subjects first, so every venture, research project and platform directory gets a first audit | `census --n 6` |
-| `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`; a later round re-audits the subject in a new file. `queue` flags rows whose subject has commits since the audit: check those first, since a fix may have landed unrecorded (PR #14329 did) | `queue --severity high` |
+| `fix` | work the open-defect queue: fix, add the test that would have caught it, record the PR in the audit's `fix_prs`; a later round re-audits the subject in a new file. `queue` flags rows whose subject has commits since the audit: check those first, since a fix may have landed unrecorded (PR #14329 did). It also marks rows an open PR's title already names ("open PR naming it"): a fix PR reaches `fix_prs` only at merge, so take another row or extend that PR. Subjects come in a per-session shuffled order (seed printed; `--oldest-first` for the fixed one), so parallel fix sessions start on different rows | `queue --severity high` |
+| `reaudit` | confirm recorded fixes: take a subject whose latest audit lists a fix PR and that no later audit has checked (fixed highs first), re-check *every* earlier defect against the code as it is now, and write a new audit file with `"drawn_by": "reaudit"` that says which defects the fix closed. Added 2026-11-17: no subject had been re-audited after a fix since 2026-11-10, 248 awaited one, and 1,313 defects counted as fixed only because their audit listed some fix PR ([reflection 2](reflections/2026-11-17-the-fix-loop-is-open.md)) | `reaudit` |
 | `reflect` | read the corpus and the process, write `reflections/<date>-<slug>.md`: where quality drops, why, and process fixes with the metric each should move | `metrics --md` |
 
+`sample` prints a NOTE first when today's mode is another one. The track
+prompt's step 5 (the `quality-audit-round-<n>` post) is for a sample round; a
+fix session names its post for the fix instead (`2026-11-14-quality-fix-*`).
+
 Census audits use stratum `venture`, `research` or `platform` like sampled
-ones, and the full rubric, and set `"drawn_by": "census"` (a fix-mode
-re-audit sets `"fix"`). They are not uniform draws, so `summary` shows them in
+ones, and the full rubric, and set `"drawn_by": "census"` (a re-audit that
+checks a fix sets `"reaudit"`; older fix-mode files use `"fix"`). They are not uniform draws, so `summary` shows them in
 the per-stratum rows but leaves them out of the sampled share and its
 interval, which stays an estimate from `sample` rounds alone; the
 `metrics` coverage table tracks the sweep (159 of 2,423 subjects audited by
@@ -78,10 +84,16 @@ the rotation working, not a bug. From 2026-11-10 a flagship audited in the last
 7 days is not drawn (`FLAGSHIP_REAUDIT_DAYS`): daily re-audits of unchanged
 flagships were returning identical scores. `sample` picks the seed and round
 number itself: the date, or the date with the first `-b`, `-c` ... suffix no
-audit on disk or on `origin/main` has used, and one more than the highest
-`quality-audit-round-N` post (fetch `origin main` first). Two rounds in flight
-at once can still draw the same subjects; pass `--seed <date>-<next letter>`
-when an open `quality:` PR lists a subject you drew. Because the non-flagship strata are uniform random, the share of
+audit on disk, on `origin/main` or in an open `quality: round N (seed S)` PR
+title has used, plus a four-character random tail (`2026-11-13-p-17e6`), and
+one more than the highest round in those places. The tail exists because the
+letter alone let two sessions that started minutes apart draw the same seed
+before either claim PR was visible: seeds `2026-11-13-e`, `-h` and `-o` were
+each audited twice ([`blind-pairs/`](blind-pairs/)). Two sessions can still
+share a round number; the second renames its post. It
+fetches `origin main` itself and prints the open round PRs it skipped
+(`--offline` skips both). Keep that title shape so the next run sees your
+claim, and open the PR as soon as you have drawn. Because the non-flagship strata are uniform random, the share of
 them that meets the bar is an unbiased estimate for that stratum, and
 `summary` reports it with a Wilson 95% interval. Flagships are reported apart:
 they are chosen, not sampled.
@@ -143,7 +155,16 @@ easy failure is grading the README instead of the thing. So:
   author believed. Check at least one output against a source the author did
   not write.
 - **Seed one bug.** Change one comparison or constant in the core logic,
-  run the tests, record whether they caught it, revert.
+  run the tests, record whether they caught it. Use
+  `python3 platform/ci/quality_mutate.py <file> --old "<text>" --new "<text>" -- <test command>`:
+  it runs a baseline and the mutant in a private copy of the subject and
+  prints the `mutations` row, so parallel auditors never see each other's
+  mutants in the shared tree and nothing needs reverting (four run records,
+  2026-11-12, hit that race). The test command runs in the subject root, so
+  write `tests`, not `ventures/<slug>/tests` (or start it with `cd <path> &&`);
+  a red baseline from a repo-relative path now prints a hint. By hand, set `PYTHONDONTWRITEBYTECODE=1`: a
+  revert of the same size in the same second leaves the mutated `.pyc` in
+  use (round 45).
 - **Name the professional.** Write who the senior reviewer is ("a licensed
   structural engineer", "a payroll specialist") and what they would check
   first, then check that.
@@ -151,8 +172,14 @@ easy failure is grading the README instead of the thing. So:
   below a 3-file one that is right.
 - **Fix forward, separately.** A defect you find gets its own fix PR (or a
   line in the subject's ROADMAP if it is large); the audit records the
-  score *before* the fix, and `fix_prs` lists the fixes. Re-auditing after a
-  fix is a new audit file, so the trend is honest.
+  score *before* the fix, and `fix_prs` lists the fixes. Mark each defect a
+  PR fixed with `"fixed_by": "<that PR's URL>"` (`python3
+  platform/ci/quality_audit.py mark-fixed <audit file> <index...> --pr <url>`
+  adds it and the `fix_prs` entry without reformatting the hand-indented
+  file; `--all` marks every unmarked defect): once one defect carries it,
+  `queue` shows the rest as open. An audit with `fix_prs` and no `fixed_by`
+  counts every defect as fixed, which hid the two a partial fix left (PR
+  #15848). Re-auditing after a fix is a new audit file, so the trend is honest.
 
 - **Check what ships, not only the source.** The Pages build rewrites hosts
   in `llms.txt`, sitemaps and canonical links at deploy
@@ -160,7 +187,11 @@ easy failure is grading the README instead of the thing. So:
   defect about a URL in those files, load the served page at
   `https://marisstella.app/<slug>/`. On 2026-11-10 about 8% of all recorded
   defects were of this kind and none were on the served page (category
-  `source-only` below).
+  `source-only` below). Some cloud sessions get a proxy 403 for that host;
+  then `node platform/pages/served-copy.mjs <slug>` (under a second) writes the
+  product's files as the deploy rewrites them and lists any placeholder or
+  retired origin left in its `llms.txt`, sitemap, `robots.txt` or canonicals
+  (none of 1,369 products on 2026-11-15).
 - **Don't re-audit what nobody changed.** A re-audit is worth its cost after a
   fix or a substantial change. Before re-auditing a subject, check `git log`
   for commits under it since the last audit; with none, take the next subject.
@@ -270,7 +301,8 @@ audit of each subject unless noted:
 - the **weekly trend**.
 
 `queue` lists open defects worst first (source-only left out); `census`
-draws the sweep; `coverage` prints the coverage table as JSON.
+draws the sweep (its seed takes a random tail like `sample`'s, and it passes
+over subjects an open PR title names, printing them as `skipped`); `coverage` prints the coverage table as JSON.
 
 ## Reflections
 

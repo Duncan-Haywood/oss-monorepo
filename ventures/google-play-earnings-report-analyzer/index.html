@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -163,7 +163,7 @@
       last = r;
       const s = r.summary, b = s.base, est = s.feeEstimated ? " (estimated)" : "";
       $("#report-stats").innerHTML = `${dateStr(s.first)} to ${dateStr(s.last)}: <strong>net ${money(s.net, b)}</strong>${est} from ${money(s.charges, b)} charged, less ${money(s.refunds, b)} refunded and ${money(s.fees, b)} Google fee${est}. Effective fee ${pct(s.feeRate)}${est}; refund rate ${pct(s.refundRate)}. ${s.chargeCount} charges, ${s.refundCount} refunds.` + (s.taxNet ? ` Tax rows net to ${money(s.taxNet, b)}.` : "");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       rows("#by-type", r.byType.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${money(g.fees, b)}</td><td class="n">${pct(g.feeRate)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 6);
       rows("#by-product", r.byProduct.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.refunds, b)}</td><td class="n">${pct(g.refundRate)}${g.enough ? "" : " (few)"}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 5);
       rows("#by-country", r.byCountry.map((g) => `<tr><th scope="row">${esc(g.label)}</th><td class="n">${money(g.charges, b)}</td><td class="n">${money(g.net, b)}</td></tr>`).join(""), 3);

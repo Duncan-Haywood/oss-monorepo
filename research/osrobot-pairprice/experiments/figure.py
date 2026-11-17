@@ -15,8 +15,8 @@ TEXT = (HERE / "results.txt").read_text().splitlines()
 def main():
     xs, ys = table(TEXT, "# Sweep 3", 0, [1, 2, 3])
     names = ["one inline robot", "scout + treater (unheld)", "scout + treater (held)"]
-    write_lines(HERE, "usd_per_ha.svg", "Cost per hectare against field size (assumed prices)",
-                "Line plot of assumed cost per hectare for one inline weeding robot, a scout plus treater charged by minutes worked, and a pair held for the whole job; the unheld pair crosses below the inline robot near 0.5 hectare",
+    write_lines(HERE, "usd_per_ha.svg", "Cost per hectare against field size (assumed prices, pilot paid)",
+                "Line plot of assumed cost per hectare for one inline weeding robot, a scout plus treater charged by minutes worked, and a pair held for the whole job, with the drone pilot's flight time paid; both pair lines stay above the inline robot at every field size, at 2.3 to 3.3 times its cost",
                 "field size (hectares, log scale; 5 and 20 ha extrapolated)", "USD per hectare", list(zip(names, [xs] * 3, ys)),
                 logx=True, logy=True)
 

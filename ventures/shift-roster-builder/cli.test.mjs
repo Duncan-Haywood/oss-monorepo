@@ -279,8 +279,8 @@ test("--tips splits a pot to the cent and --short-under lists short shifts", () 
   assert.equal(t.code, 0);
   const cents = [...t.out.matchAll(/ h\s+\$(\d+)\.(\d\d)\s/g)].reduce((a, m) => a + +m[1] * 100 + +m[2], 0);
   assert.equal(cents, 20001);
-  const s = run(staff, shifts, { shortUnder: 6 });
-  assert.match(s.out, /shift\(s\) under 6 h/);
+  const s = run(staff, shifts, { shortUnder: 9 }); // since 2026-11-12 the default roster leaves the 3 h lunch shifts open
+  assert.match(s.out, /shift\(s\) under 9 h/);
   assert.match(run(staff, shifts, { shortUnder: 0.5 }).out, /No assigned shift/);
 });
 

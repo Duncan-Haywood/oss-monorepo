@@ -1,0 +1,30 @@
+# HDBSCAN clustering: find the groups in a CSV, and the rows in none
+
+> Free online HDBSCAN (Campello, Moulavi & Sander 2013) for density-based clustering of the rows of a table with numeric columns. Finds the number of clusters itself (no k to choose), labels rows in no dense group as noise, gives each clustered row a membership strength (lambda_p / lambda_max, McInnes & Healy 2017) and every row a GLOSH outlier score (Campello, Moulavi, Zimek & Sander 2015), and describes each cluster: the columns that set it apart and how text columns such as a category or region split across it. Excess-of-mass or leaf selection; z-score, robust or no scaling. Labels and membership agree row for row with scikit-learn 1.9.1's HDBSCAN (with its edge sort made stable) on 18 reference cases; GLOSH scores agree with the hdbscan package to 1e-10. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A cluster is a group of similar rows, not proof of a real category.
+
+## Pages
+
+- [The tool](https://marisstella.app/hdbscan-clustering/)
+
+## Use it from code
+
+- `node cli.mjs measurements.csv [--columns a,b,c] [--label id] [--min-cluster-size 5] [--min-samples N] [--method eom|leaf] [--allow-single-cluster] [--scale standard|robust|none] [--top 10] [--csv|--json]`
+- `node platform/agents/tools.mjs call hdbscan-clustering analyze --input '{"csv":"id,x,y\n1,0.1,0.2\n...","minClusterSize":10}'`
+- `node platform/agents/tools.mjs call hdbscan-clustering analyze --input '{"rows":[{"x":0.1,"y":0.2},...],"method":"leaf"}'`
+- From JavaScript: `hdbscan(X, {minClusterSize, minSamples, method, allowSingleCluster})` on an already scaled numeric matrix returns labels, probabilities, outlierScores and the condensed tree.
+
+## What it answers
+
+- Which groups are in this table, and how many are there?
+- Which rows belong to no group (noise), and how far out is each row (outlier score)?
+- What sets each cluster apart, and how does a category column split across the clusters?
+
+## Example
+
+- Palmer penguins (344 birds, CC0): with the defaults, 2 clusters (all 122 Gentoo; 151 Adelie with 67 Chinstrap) and 2 noise rows; with leaf selection, minimum cluster size 15 and min samples 5, the three species separate (122 Gentoo; 108 Adelie with 4 Chinstrap; 42 Chinstrap) with 66 noise rows.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/hdbscan-clustering): MIT licensed.

@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtJt1r5QisaftqaU7LC",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T05:07:05Z",
+  "ended": "2026-11-12T05:14:12Z",
+  "wall_minutes": 7.25,
+  "tokens_in": 2757093,
+  "tokens_out": 32596,
+  "cost_usd": 2.0255,
+  "tool_calls": 31,
+  "task": null,
+  "projects": [],
+  "pr": 15013,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'git log -15 -- ventures/saints-by-candlelight' to find the stalest project gives misleading results in the shallow clone (it showed an unrelated sales-agent commit as the last saints change); the episode list in PRODUCTION.md and the open-PR list were the reliable signal."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-john-of-damascus-and-the-baskets.md"
+  ],
+  "goal": null,
+  "notes": "Saints by Candlelight, episode 99, slug john-of-damascus-and-the-baskets-at-the-market, text only (audio du 423 MB > 400). check-script ok 7582 words; venture node tests 14/14; generate.mjs re-run; platform/pages link and heading-order tests 75/75; check_post_frontmatter clean. Hearth & Horizon had three pieces on 2026-11-11, so the saints podcast was the longer-starved project.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "236bdaed-e898-563d-ae0d-9b0e878a6975",
+    "transcripts": 1,
+    "first": "2026-11-12T05:07:05Z",
+    "last": "2026-11-12T05:14:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 28,
+        "input": 53,
+        "output": 32596,
+        "thinking": 10254,
+        "cache_read": 2651657,
+        "cache_write_5m": 0,
+        "cache_write_1h": 105383,
+        "api_equivalent_usd": 2.0255,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 28,
+      "input": 53,
+      "output": 32596,
+      "thinking": 10254,
+      "cache_read": 2651657,
+      "cache_write_5m": 0,
+      "cache_write_1h": 105383,
+      "api_equivalent_usd": 2.0255,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 31,
+    "tools": {
+      "Bash": 24,
+      "Write": 2,
+      "ToolSearch": 1,
+      "Read": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.25,
+      "active_minutes": 7.25,
+      "model_minutes": 6.45,
+      "tool_minutes": 0.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researched 7,600-word scripted episode plus post, at a writer's pace",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 296.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

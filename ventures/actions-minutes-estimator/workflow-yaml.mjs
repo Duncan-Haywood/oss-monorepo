@@ -42,7 +42,11 @@ function stripComment(line) {
       if (ch === quote) quote = null;
       continue;
     }
-    if (ch === '"' || ch === "'") {
+    // A quote only opens a quoted scalar where one can start (line start,
+    // after a space, or after `[ { ,`). The apostrophe in a bare
+    // `note: it's here # comment` is text, and treating it as a quote kept
+    // the comment in the value.
+    if ((ch === '"' || ch === "'") && (i === 0 || /[\s[{,]/.test(line[i - 1]))) {
       quote = ch;
       continue;
     }
@@ -185,11 +189,32 @@ function parseSequence(lines, start, indent) {
       continue;
     }
     // `- key: value` starts a mapping whose keys align after the dash.
-    const dashOffset = line.code.indexOf('-');
-    const itemIndent = dashOffset + line.code.trim().indexOf(rest) - line.code.trim().indexOf('-');
+    // Measured from the end, so a `rest` that also occurs earlier in the
+    // line (`- - x`) cannot pull the item's column left.
+    const itemIndent = line.indent + line.code.trim().length - rest.length;
+    if (/^-(\s|$)/.test(rest)) {
+      // `- - x`: a sequence nested inline, its siblings aligned after the dash.
+      const synthetic = lines.slice();
+      synthetic[i] = { ...line, indent: itemIndent, code: ' '.repeat(itemIndent) + rest };
+      const [value, next] = parseSequence(synthetic, i, itemIndent);
+      out.push(value);
+      i = next;
+      continue;
+    }
+    if (isUnclosedFlow(rest)) {
+      // `- [a,` with the rest of the flow collection on following lines.
+      let buffer = rest;
+      i++;
+      while (i < lines.length && isUnclosedFlow(buffer)) {
+        buffer += ' ' + lines[i].code.trim();
+        i++;
+      }
+      out.push(parseFlow(buffer));
+      continue;
+    }
     if (KEY_RE.test(rest) && !/^[[{]/.test(rest)) {
       const synthetic = lines.slice();
-      synthetic[i] = { indent: itemIndent, code: ' '.repeat(itemIndent) + rest };
+      synthetic[i] = { ...line, indent: itemIndent, code: ' '.repeat(itemIndent) + rest };
       const [value, next] = parseMapping(synthetic, i, itemIndent);
       out.push(value);
       i = next;
@@ -224,7 +249,19 @@ function parseMapping(lines, start, indent) {
     const inline = (match[4] ?? '').trim();
     i++;
 
-    if (inline === '' ) {
+    if (inline === '') {
+      // A "compact" sequence sits at the key's own indent (`args:` then
+      // `- --foo` directly beneath it), the style kubectl and many charts and
+      // workflows use. parseBlock(indent + 1) would see a shallower line,
+      // return null and end the mapping, silently dropping every key after it.
+      let j = i;
+      while (j < lines.length && lines[j].code.trim() === '') j++;
+      if (j < lines.length && lines[j].indent === indent && /^-(\s|$)/.test(lines[j].code.trim())) {
+        const [value, next] = parseSequence(lines, j, indent);
+        out[key] = value;
+        i = next;
+        continue;
+      }
       const [value, next] = parseBlock(lines, i, indent + 1);
       out[key] = value;
       i = next;

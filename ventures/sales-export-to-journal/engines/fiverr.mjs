@@ -51,8 +51,8 @@ export function parseMapping(text) {
 }
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
-const dollars = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
-export const money = (c, cur = "USD") => (c < 0 ? "-" : "") + Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur;
+const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -96,8 +96,8 @@ export function parseDate(s, order = "mdy") {
   if ((x = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) [y, m, d] = [x[1], x[2], x[3]];
   else if ((x = t.match(/^([A-Za-z]{3})[a-z]*\.?\s+(\d{1,2}),?\s+(\d{4})/)) && MONTHS[x[1].toLowerCase()]) [m, d, y] = [MONTHS[x[1].toLowerCase()], x[2], x[3]];
   else if ((x = t.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?,?\s+(\d{4})/)) && MONTHS[x[2].toLowerCase()]) [d, m, y] = [x[1], MONTHS[x[2].toLowerCase()], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/))) [d, m, y] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
+  else if ((x = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?!\d)/))) [d, m, y] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
   else return null;
   const dt = new Date(Date.UTC(+y, +m - 1, +d));
   if (dt.getUTCFullYear() !== +y || dt.getUTCMonth() !== +m - 1 || dt.getUTCDate() !== +d) return null;
@@ -352,7 +352,7 @@ export function buildReport({ currency = "USD", opening = 250, items, skip = [],
   const rows = items.map(([date, type, desc, amt], n) => {
     const cents = Math.round(amt * 100);
     bal += cents;
-    const amtText = mangle[n] ?? (cents < 0 ? "-" : "") + (Math.abs(cents) / 100).toFixed(2);
+    const amtText = mangle[n] ?? ((t) => (cents < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(cents) / 100).toFixed(2));
     return [date, `FO${2000000 + n}`, type, desc, amtText, currency, (bal / 100).toFixed(2)].map(csv).join(",");
   });
   const kept = rows.filter((_, n) => !skip.includes(n));

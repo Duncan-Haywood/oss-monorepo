@@ -158,7 +158,7 @@ export function readProspects(text) {
   const head = rows[0].map(norm);
   const columns = {};
   for (const [field, names] of Object.entries(ALIASES)) {
-    const i = head.findIndex((h) => names.includes(h));
+    const i = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (i >= 0) columns[field] = i;
   }
   const used = new Set(Object.values(columns));
@@ -428,7 +428,7 @@ export function buildPlan(prospectsCsv, sender, opts = {}) {
 
 // ---------- exports ----------
 
-const guard = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; };
+const guard = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; };
 const csvCell = (v) => { const s = guard(v); return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 
 export function toCsv(tasks) {

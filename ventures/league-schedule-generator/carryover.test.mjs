@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost } from "./carryover.mjs";
+import { carryOverFromOpponents, carryOver, lowCarryOverRounds, circleOpp, assignVenues, venueCost, PROVEN_LEAST, bestCarryOverRounds, carryOverPure, carryOverTry, combineCarryOverTries, withSearchMemo } from "./carryover.mjs";
 import { roundRobin, buildSchedule, validateSchedule, countBreaks, readSpec, encodeFields, decodeFields } from "./calc.mjs";
 
 const teams = (n) => Array.from({ length: n }, (_, i) => `T${i + 1}`);
@@ -66,6 +66,7 @@ test("circle method values (cyclic) and the exhaustive K6 optimum", () => {
   assert.equal(count, 720);
   assert.equal(best.true, 60);
   assert.equal(best.false, 42);
+  assert.equal(best.false, PROVEN_LEAST[6].least, "the proved least matches the enumeration");
   const r = lowCarryOverRounds(6, { cyclic: true });
   assert.equal(r.coe, 60, "the search reaches the K6 optimum");
 });
@@ -247,4 +248,112 @@ test("lower bound counts the diagonal only when a schedule meets a side twice ru
   assert.equal(r.total, 5);
   assert.equal(r.lowerBound, 5); // 5 steps over 9 cells (the diagonal counts), all ones
   assert.equal(carryOverFromOpponents([[1, 2], [0, 2], [0, 1]]).repeats, 0);
+});
+
+test("a two-team league (one round, no bye) goes through the carry-over search (redteam 2026-11-12)", () => {
+  // byeStretches sizes its table from opp[0]: a league with one round has no opp[1]
+  const r = lowCarryOverRounds(2);
+  assert.equal(r.rounds.length, 1);
+  assert.deepEqual(r.rounds[0].matches.map((m) => [...m].sort()), [[0, 1]]);
+  assert.equal(assignVenues(circleOpp(2), 2).length, 1);
+});
+
+test("assignVenuesDouble starts its first restart from the host it is given (redteam 2026-11-12)", async () => {
+  // lowCarryOverDoubleRounds hands over leg one's hosts so the venue search only improves on them;
+  // with one restart, two opposite hosts must give two different seasons, not one that ignores both
+  const { assignVenuesDouble } = await import("./carryover.mjs");
+  for (const n of [4, 6, 8]) {
+    const leg = circleOpp(n), opp = [...leg, ...leg];
+    const host = (pick) => {
+      const h = new Int16Array(n * n).fill(-1);
+      for (const o of leg) for (let t = 0; t < n; t++) { const u = o[t]; if (t < u) h[t * n + u] = pick(t, u); }
+      return h;
+    };
+    const a = assignVenuesDouble(opp, n, 1, 1, host((t) => t)).map((x) => [...x]);
+    const b = assignVenuesDouble(opp, n, 1, 1, host((t, u) => u)).map((x) => [...x]);
+    assert.notDeepEqual(a, b, `${n} teams`);
+  }
+});
+
+test("proved least carry-over: only on single non-cyclic round robins, and never beaten", () => {
+  const opps = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((row) => row[t]));
+  for (const n of [6, 8, 10]) {
+    const c = carryOverFromOpponents(opps(circleOpp(n), n));
+    assert.deepEqual(c.proven, PROVEN_LEAST[n]);
+    assert.ok(c.value >= c.proven.least);
+    const r = lowCarryOverRounds(n, { seed: 1, effort: 0.3 });
+    assert.ok(r.coe >= PROVEN_LEAST[n].least, `${n} teams: ${r.coe} below a proved least`);
+    assert.equal(carryOverFromOpponents(opps(circleOpp(n), n), { cyclic: true }).proven, null);
+    const twice = opps(circleOpp(n), n).map((s) => [...s, ...s]);
+    assert.equal(carryOverFromOpponents(twice).proven, null, "a double round robin has no proved least");
+  }
+  // 12 teams: a proved lower bound (eval/carryover-bnb.c: none at 120 or 122), not a reached value
+  const c12 = carryOverFromOpponents(opps(circleOpp(12), 12));
+  assert.deepEqual(c12.proven, { least: 124, exact: false });
+  assert.ok(c12.value >= 124 && c12.lowerBound === 120);
+  assert.ok(lowCarryOverRounds(12, { seed: 1, effort: 0.3 }).coe >= 124, "12 teams: no search goes below the bound");
+  assert.equal(carryOverFromOpponents(opps(circleOpp(14), 14)).proven, null, "14 teams: nothing proved yet");
+  // 8 teams: the proved least is the floor itself (the search above reaches it)
+  assert.equal(carryOverFromOpponents(opps(circleOpp(8), 8)).lowerBound, PROVEN_LEAST[8].least);
+});
+
+test("10 teams: the least is 94 (eval/carryover-bnb.c), its timetable scores 94, and the page's search reaches it", () => {
+  // The first timetable eval/carryover-bnb.c finds at E <= 7 (eval/carryover-bnb.txt); none exists at 92.
+  const found = [[1, 0, 3, 2, 5, 4, 7, 6, 9, 8], [2, 3, 0, 1, 6, 8, 4, 9, 5, 7], [4, 6, 5, 9, 0, 2, 1, 8, 7, 3],
+    [5, 2, 1, 7, 9, 0, 8, 3, 6, 4], [3, 8, 4, 0, 2, 7, 9, 5, 1, 6], [8, 5, 9, 6, 7, 1, 3, 4, 0, 2],
+    [6, 9, 7, 5, 8, 3, 0, 2, 4, 1], [7, 4, 6, 8, 1, 9, 2, 0, 3, 5], [9, 7, 8, 4, 3, 6, 5, 1, 2, 0]];
+  const n = 10;
+  for (const row of found) for (let t = 0; t < n; t++) assert.equal(row[row[t]], t);
+  const opp = Array.from({ length: n }, (_, t) => found.map((row) => row[t]));
+  for (let t = 0; t < n; t++) assert.equal(new Set(opp[t]).size, n - 1, "every team meets every other once");
+  const c = carryOverFromOpponents(opp);
+  assert.equal(c.value, 94);
+  assert.deepEqual(c.proven, { least: 94, exact: true });
+  assert.equal(lowCarryOverRounds(n, { seed: 1, effort: 0.3 }).coe, PROVEN_LEAST[n].least);
+});
+
+test("the carry-over-only season: 'the most even carry-over' reaches the proved 94 at 10 teams, the other choices are unchanged", () => {
+  const opts = { tries: 8, capped: 2, effort: 0.5 };
+  const fair = bestCarryOverRounds(10, { ...opts, pick: 0, pure: true });
+  assert.equal(fair.coe, PROVEN_LEAST[10].least, "kept the proved least");
+  assert.ok(fair.tries.length === 11 && fair.chosen === 10, "the pure season is numbered last and kept");
+  // The ten tries depend on neither the pick nor `pure` (carryOverTry takes neither), so the other
+  // five seasons are the same tries combined as bestCarryOverRounds combines them, searched once:
+  // five more full calls were 45 of this test's 54 s (docs/history/ci-perf-2026-11-15-league-tests-shared-tries.md).
+  // The fair season pins that this is what bestCarryOverRounds returns.
+  const searched = Array.from({ length: 10 }, (_, i) => carryOverTry(10, i, { seed: 1, effort: opts.effort, weighted: opts.tries }));
+  const withPure = [...searched, ...carryOverPure(10, searched, { seed: 1, effort: opts.effort })];
+  assert.deepEqual(combineCarryOverTries(withPure, 0, { among: Infinity }), fair, "the shared tries are bestCarryOverRounds' own");
+  // bestCarryOverRounds' own choice among the tries for a pick above 0, on a small search: at pick 1
+  // the pure season (94 / 14, score 108) would beat every try (110 / 10 at best, 120) if it could be
+  // kept, so this fails if a pick other than 0 ever chooses among the pure season
+  const small = { tries: 2, capped: 1, effort: 0.05 };
+  const smallTries = Array.from({ length: 3 }, (_, i) => carryOverTry(10, i, { seed: 1, effort: small.effort, weighted: small.tries }));
+  const smallPure = carryOverPure(10, smallTries, { seed: 1, effort: small.effort });
+  assert.equal(smallPure.length, 1);
+  const one = bestCarryOverRounds(10, { ...small, pick: 1, pure: true });
+  assert.deepEqual(one, combineCarryOverTries([...smallTries, ...smallPure], 1, { among: 3 }));
+  assert.ok(one.chosen < 3 && combineCarryOverTries([...smallTries, ...smallPure], 1).chosen === 3, "pick 1 does not keep the pure season");
+  const best = (pick, pure) => combineCarryOverTries(pure ? withPure : searched, pick, { among: pick === 0 && pure ? Infinity : opts.tries + opts.capped });
+  assert.ok(best(0, false).coe > fair.coe, "without it the weighted tries stop above 94");
+  for (const pick of [10, 40]) {
+    const a = best(pick, true), b = best(pick, false);
+    assert.deepEqual([a.coe, a.breaks, a.chosen], [b.coe, b.breaks, b.chosen], `pick ${pick} keeps what it kept`);
+    assert.ok(a.frontier.some((f) => f.coe === 94), "but the list offers the 94 season");
+  }
+  // nothing new: an earlier season at or under the pure one's carry-over means no extra season
+  assert.deepEqual(carryOverPure(10, [{ ...fair, pure: undefined, index: 0 }]), []);
+});
+
+test("withSearchMemo: a repeated search is a fresh copy of the unmemoised answer", () => {
+  const opts = { effort: 0.05, breakWeight: 10 };
+  const plain = lowCarryOverRounds(6, opts);
+  const [a, b, c] = withSearchMemo(() => {
+    const first = lowCarryOverRounds(6, opts);
+    first.rounds[0].matches[0][0] = -1; // a caller changing its copy does not reach the memo
+    return [first, lowCarryOverRounds(6, opts), lowCarryOverRounds(6, { ...opts, seed: 2 })];
+  });
+  assert.equal(a.rounds[0].matches[0][0], -1);
+  assert.deepEqual(b, plain);
+  assert.deepEqual(c, lowCarryOverRounds(6, { ...opts, seed: 2 }));
 });

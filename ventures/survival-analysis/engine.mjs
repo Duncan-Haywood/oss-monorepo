@@ -370,7 +370,7 @@ function strataRows(time, strata) {
 function coxPass(X, time, event, orders, beta, ties, wantResiduals = false) {
   const p = beta.length;
   const eta = X.map((x) => dot(x, beta));
-  const shift = Math.max(...eta);
+  const shift = eta.reduce((m, v) => (v > m ? v : m), -Infinity); // no spread: a 150k-row column overflows the call stack
   const r = eta.map((e) => Math.exp(e - shift));
   let ll = 0;
   const U = Array(p).fill(0);
@@ -660,7 +660,7 @@ export function analyze(input = {}) {
     const km = kaplanMeier(tg, eg, { confidence });
     return {
       name, n: tg.length, events: eg.reduce((a, b) => a + b, 0), censored: eg.filter((e) => !e).length,
-      maxTime: Math.max(...tg),
+      maxTime: tg.reduce((m, v) => (v > m ? v : m), -Infinity),
       median: quantileTime(km, 0.5), medianLo: quantileTime(km, 0.5, "lo"), medianHi: quantileTime(km, 0.5, "hi"),
       km,
     };

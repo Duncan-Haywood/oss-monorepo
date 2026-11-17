@@ -1,0 +1,16 @@
+seed 20261213, 200 series a cell, n 300, change at 150
+cell  with a change  one tick  catchUp  share of one tick  rounding  share of found
+R1              200       200        6              0.030       194           0.970
+R2              200       200        1              0.005       199           0.995
+R3              200       200       12              0.060       188           0.940
+T1              165       146      131              0.897        15           0.091
+T2              184        96       92              0.958         4           0.022
+T3               61        59       55              0.932         4           0.066
+F1              200         0        0                  -         0           0.000
+F2              200         0        0                  -         0           0.000
+F3              183         0        0                  -         0           0.000
+judged T cells: T1, T2, T3
+K1 (R: catchUp <= 0.05 of one tick, rounding >= 0.90): FAIL
+K2 (judged T: catchUp >= 0.80 of one tick, >= 2 judged): pass
+K3 (F: rounding <= 0.05): pass
+Verdict: does not ship

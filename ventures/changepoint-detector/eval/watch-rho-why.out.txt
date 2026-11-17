@@ -1,0 +1,40 @@
+Why the AR(1) watch loses marked TCPD changes. 31 univariate TCPD series, each watched from 20% of its length, one check per new point, --confirm 5; a majority-marked change is reached when an alert lies within 5 points of it. Both candidates sum the Bayesian probability over 5 neighbouring points; 'ar1-window' (the default) adds the AR(1) term with rho estimated from the window at each check. Smoothness: median |first difference| over the robust sd of the values (white noise about 1.35).
+
+  candidate              alerts  marked (share)  per 1000 checks  majority-marked changes reached
+  bocpd-window              307      85 (28%)       48.2         46/52
+  ar1-window                103      39 (38%)       16.2         29/52
+
+  series               n     smooth  rho base  rho end  majority  reached plain / ar1  lost by ar1 (rho at confirm)            alerts plain / ar1
+  bank                  581    0.01      0.00     0.95         0        0 / 0          -                                        45 / 32
+  brent_spot            500    0.07      0.95     0.95         4        4 / 0          217 (0.95), 227 (0.95), 286 (0.95), 379 (0.95) 25 / 0
+  businv                330    0.03      0.95     0.95         3        2 / 1          202 (0.95)                               15 / 1
+  centralia              15  too short to watch
+  children_per_woman    301    0.01      0.95     0.95         2        2 / 0          145 (0.95), 168 (0.78)                   10 / 7
+  co2_canada            215    0.02      0.95     0.95         5        4 / 1          107 (0.95), 144 (0.95), 163 (0.95)       12 / 5
+  construction          319    0.13      0.95     0.95         1        1 / 0          192 (0.95)                               15 / 0
+  debt_ireland           21    0.10      0.95     0.95         0        0 / 0          -                                        0 / 0
+  gdp_argentina          59    0.13      0.27     0.95         0        0 / 0          -                                        3 / 0
+  gdp_croatia            24    0.24      0.95     0.95         0        0 / 0          -                                        0 / 0
+  gdp_iran               58    0.15      0.95     0.95         1        0 / 0          -                                        2 / 0
+  gdp_japan              58    0.06      0.95     0.95         0        0 / 0          -                                        2 / 0
+  global_co2            104    0.04      0.95     0.95         0        0 / 0          -                                        8 / 2
+  homeruns              118    0.10      0.95     0.38         1        1 / 1          -                                        7 / 2
+  jfk_passengers        468    0.28      0.95     0.95         1        1 / 1          -                                        4 / 1
+  lga_passengers        468    0.29      0.45     0.54         3        3 / 2          382 (0.55)                               13 / 6
+  nile                  100    0.61      0.22     0.20         1        1 / 1          -                                        1 / 1
+  ozone                  54    0.10      0.95     0.95         1        1 / 0          28 (0.95)                                2 / 0
+  quality_control_1     313    0.34      0.00     0.03         1        1 / 1          -                                        2 / 2
+  quality_control_2     283    0.75      0.00     0.06         1        1 / 1          -                                        1 / 1
+  quality_control_3     366    0.63      0.43     0.17         1        1 / 1          -                                        2 / 1
+  quality_control_4     500    0.24      0.31     0.45         1        1 / 1          -                                        37 / 12
+  quality_control_5     325    0.88      0.00     0.00         0        0 / 0          -                                        0 / 0
+  rail_lines             37    0.17      0.95     0.95         1        1 / 1          -                                        1 / 1
+  seatbelts             192    0.50      0.95     0.87         2        1 / 0          169 (0.87)                               3 / 0
+  shanghai_license      205    0.16      0.68     0.95         2        2 / 1          146 (0.92)                               7 / 4
+  uk_coal_employ        105    0.02      0.95     0.95         4        3 / 2          68 (0.95)                                4 / 3
+  unemployment_nl       214    0.19      0.61     0.95         4        4 / 3          143 (0.95)                               12 / 4
+  us_population         816    0.00      0.95     0.95         0        0 / 0          -                                        45 / 0
+  usd_isk               247    0.07      0.95     0.95         2        1 / 1          -                                        14 / 2
+  well_log              675    0.40      0.14     0.35        10       10 / 10          -                                        15 / 16
+
+rho at the confirming check: the 17 changes the plain pass reaches and ar1 does not: median 0.95, range 0.55-0.95; the 29 ar1 reaches: median 0.48, range 0.02-0.95.

@@ -2,7 +2,7 @@
 # (dockerfile.test.mjs fails if a module the server imports is not copied below)
 FROM node:22-alpine
 WORKDIR /app
-COPY engine.mjs ai.mjs byok.mjs learn.mjs model.mjs research.mjs prep.mjs followup.mjs suppression.mjs slots.mjs invite.mjs voice.mjs mime.mjs mailfile.mjs daily.mjs ./
+COPY engine.mjs ai.mjs byok.mjs learn.mjs model.mjs research.mjs prep.mjs followup.mjs suppression.mjs slots.mjs invite.mjs voice.mjs mime.mjs mailfile.mjs daily.mjs holidays.mjs ./
 COPY self-host/agent.mjs self-host/imap.mjs self-host/smtp.mjs self-host/oauth.mjs self-host/crm.mjs ./self-host/
 RUN mkdir -p /data && chown node /data
 USER node

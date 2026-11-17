@@ -1,0 +1,485 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtLT7whs9eJW2wvn2WP",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T16:06:06Z",
+  "ended": "2026-11-14T16:09:53Z",
+  "wall_minutes": 7.75,
+  "tokens_in": 3026209,
+  "tokens_out": 22149,
+  "cost_usd": 1.6817,
+  "tool_calls": 39,
+  "task": "redteam campaign on ventures/pv-string-sizer/calc.mjs",
+  "projects": [
+    "pv-string-sizer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15906",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "campaign refused: target had uncommitted changes (my fix)",
+      "fix": "committed the fix first, then ran the second campaign"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 says `redteam.py targets --probe 20` lists a file's suite time; `targets` prints a random 21-file sample, so grepping it for a chosen target printed nothing. Timing the suite directly with node --test was quicker."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Nothing says campaign refuses a dirty target, so a run that fixes a defect between campaigns must commit first; one line would save the retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without a red-team run; the defect class (a range check written for one unit branch only) has no sound text lint, and no other venture takes an mV coefficient (grep).",
+      "did": "left the regression test in the venture suite (runs on every ventures/** PR) instead of a platform/ci lint",
+      "result": "defect guarded per-product only"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 has 11 open entries, all control-plane workflow edits already in owner-approval PRs (#14808, #14877, #15248, #15871, #14612...).",
+      "did": "fixed none and seeded the full campaign",
+      "result": "no duplicate control-plane PRs opened"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-a-unit-slip-that-allowed-666-volts.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen as never campaigned and safety-relevant (wash-sale-checker, the most-changed file, had 7 campaigns in 2 weeks). Seeded 22 mutants in 2 campaigns: 8/21 non-equivalent caught before, 21/21 after rerun. Real defect: mV/% coefficient plausibility gap allowed 12-module strings at 666 V on a 600 V inverter; patched with a failing-first test. Checks: run_venture_tests.py pv-string-sizer ok; node --test calc 27/27, page+usage pass.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/pv-string-sizer/calc.mjs",
+        "test": "node --test ventures/pv-string-sizer/**/*.test.mjs  (in .)",
+        "seed": 179986852,
+        "commit": "734738ba4",
+        "sites": 293,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 77,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "return unit === \"F\" ? ((t - 32) * 5) / 9 : t;",
+            "after": "return unit === \"F\" ? ((t - 32) * 6) / 9 : t;",
+            "line_text": "  return unit === \"F\" ? ((t - 32) * 5) / 9 : t;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 83,
+            "col": 63,
+            "operator": "plus-to-minus",
+            "before": "return unit === \"mV\" ? vStc + (beta / 1000) * dT : vStc * (1 + (beta / 100) * dT);",
+            "after": "return unit === \"mV\" ? vStc + (beta / 1000) * dT : vStc * (1 - (beta / 100) * dT);",
+            "line_text": "  return unit === \"mV\" ? vStc + (beta / 1000) * dT : vStc * (1 + (beta / 100) * dT);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 163,
+            "col": 62,
+            "operator": "const-plus-one",
+            "before": "const rise = p.cellRise !== null ? p.cellRise : ((p.noct ?? 45) - NOCT_REF_C) * (DESIGN_G / NOCT_REF_G);",
+            "after": "const rise = p.cellRise !== null ? p.cellRise : ((p.noct ?? 46) - NOCT_REF_C) * (DESIGN_G / NOCT_REF_G);",
+            "line_text": "  const rise = p.cellRise !== null ? p.cellRise : ((p.noct ?? 45) - NOCT_REF_C) * (DESIGN_G / NOCT_REF_G);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default NOCT 45 untested: added 'no NOCT and no rise' test"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 164,
+            "col": 61,
+            "operator": "neq-flip",
+            "before": "const riseBasis = p.cellRise !== null ? \"entered\" : p.noct !== null ? \"from NOCT\" : \"assumed NOCT 45 C\";",
+            "after": "const riseBasis = p.cellRise !== null ? \"entered\" : p.noct === null ? \"from NOCT\" : \"assumed NOCT 45 C\";",
+            "line_text": "  const riseBasis = p.cellRise !== null ? \"entered\" : p.noct !== null ? \"from NOCT\" : \"assumed NOCT 45 C\";",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "riseBasis string untested: same test asserts all three bases"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 172,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "if (!(vmpHot > 0)) return { error: \"The coefficients and temperatures give a Vmp at or below zero; check the coefficient units.\", errors: [] };",
+            "after": "if (!(vmpHot > 1)) return { error: \"The coefficients and temperatures give a Vmp at or below zero; check the coefficient units.\", errors: [] };",
+            "line_text": "  if (!(vmpHot > 0)) return { error: \"The coefficients and temperatures give a Vmp at or below zero; check the coefficient units.\", errors: [] };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test with 0<Vmp hot<1: added sub-1 V module test"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 181,
+            "col": 46,
+            "operator": "minus-to-plus",
+            "before": "const minLen = Math.ceil(p.mpptMin / vmpHot - EPS);",
+            "after": "const minLen = Math.ceil(p.mpptMin / vmpHot + EPS);",
+            "line_text": "  const minLen = Math.ceil(p.mpptMin / vmpHot - EPS);",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no exact-division case for minLen: added"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 193,
+            "col": 20,
+            "operator": "gt-to-ge",
+            "before": "} else if (minLen > maxLen) {",
+            "after": "} else if (minLen >= maxLen) {",
+            "line_text": "  } else if (minLen > maxLen) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "minLen == maxLen boundary untested: added one-length-window test"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 219,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "voltageMarginPct: round((1 - (n * vocCold) / binding.v) * 100, 1),",
+            "after": "voltageMarginPct: round((1 - (n * vocCold) / binding.v) * 101, 1),",
+            "line_text": "        voltageMarginPct: round((1 - (n * vocCold) / binding.v) * 100, 1),",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "voltageMarginPct never asserted: added hand number 7.5"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 222,
+            "col": 25,
+            "operator": "neq-flip",
+            "before": "stcKw: p.pmaxStc !== null ? round((n * p.pmaxStc) / 1000, 2) : null,",
+            "after": "stcKw: p.pmaxStc === null ? round((n * p.pmaxStc) / 1000, 2) : null,",
+            "line_text": "        stcKw: p.pmaxStc !== null ? round((n * p.pmaxStc) / 1000, 2) : null,",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "stcKw never asserted: added 1.2 and null cases"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 228,
+            "col": 38,
+            "operator": "gt-to-ge",
+            "before": "if (p.modules !== null && p.modules > 0 && lengths.length) {",
+            "after": "if (p.modules !== null && p.modules >= 0 && lengths.length) {",
+            "line_text": "  if (p.modules !== null && p.modules > 0 && lengths.length) {",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "opt('modules') uses positive:true, so parse() rejects 0 ('must be more than zero') and p.modules is never 0 at line 228; > 0 and >= 0 agree on every value that reaches it"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 234,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isFinite(used) || used < 1) continue;",
+            "after": "if (!Number.isFinite(used) || used < 2) continue;",
+            "line_text": "      if (!Number.isFinite(used) || used < 1) continue;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "single-string layout untested: added 10-module test"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 235,
+            "col": 35,
+            "operator": "div-to-times",
+            "before": "const base = Math.floor(used / mppts), extra = used % mppts;",
+            "after": "const base = Math.floor(used * mppts), extra = used % mppts;",
+            "line_text": "      const base = Math.floor(used / mppts), extra = used % mppts;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/pv-string-sizer/calc.mjs",
+        "test": "node --test ventures/pv-string-sizer/**/*.test.mjs  (in .)",
+        "seed": 547479053,
+        "commit": "6b9c9a77e",
+        "sites": 297,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 86,
+            "col": 73,
+            "operator": "const-plus-one",
+            "before": "return unit === \"mV\" ? vStc + (beta / 1000) * dT : vStc * (1 + (beta / 100) * dT);",
+            "after": "return unit === \"mV\" ? vStc + (beta / 1000) * dT : vStc * (1 + (beta / 101) * dT);",
+            "line_text": "  return unit === \"mV\" ? vStc + (beta / 1000) * dT : vStc * (1 + (beta / 100) * dT);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 156,
+            "col": 22,
+            "operator": "and-to-or",
+            "before": "if (p.noct !== null && (p.noct < 25 || p.noct > 70)) errors.push(\"NOCT is usually between 40 and 50 C; enter it in degrees C.\");",
+            "after": "if (p.noct !== null || (p.noct < 25 || p.noct > 70)) errors.push(\"NOCT is usually between 40 and 50 C; enter it in degrees C.\");",
+            "line_text": "  if (p.noct !== null && (p.noct < 25 || p.noct > 70)) errors.push(\"NOCT is usually between 40 and 50 C; enter it in degrees C.\");",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 175,
+            "col": 66,
+            "operator": "minus-to-plus",
+            "before": "const rise = p.cellRise !== null ? p.cellRise : ((p.noct ?? 45) - NOCT_REF_C) * (DESIGN_G / NOCT_REF_G);",
+            "after": "const rise = p.cellRise !== null ? p.cellRise : ((p.noct ?? 45) + NOCT_REF_C) * (DESIGN_G / NOCT_REF_G);",
+            "line_text": "  const rise = p.cellRise !== null ? p.cellRise : ((p.noct ?? 45) - NOCT_REF_C) * (DESIGN_G / NOCT_REF_G);",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 198,
+            "col": 81,
+            "operator": "plus-to-minus",
+            "before": "const perMpptIsc = p.mpptMaxIsc !== null ? Math.floor(p.mpptMaxIsc / iscDesign + EPS) : null;",
+            "after": "const perMpptIsc = p.mpptMaxIsc !== null ? Math.floor(p.mpptMaxIsc / iscDesign - EPS) : null;",
+            "line_text": "  const perMpptIsc = p.mpptMaxIsc !== null ? Math.floor(p.mpptMaxIsc / iscDesign + EPS) : null;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no exact-division case for strings per MPPT: added 25.75 A test"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 201,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "const mppts = p.mpptCount ?? 1;",
+            "after": "const mppts = p.mpptCount ?? 2;",
+            "line_text": "  const mppts = p.mpptCount ?? 1;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "default of one MPPT untested: added blank-count test"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 215,
+            "col": 17,
+            "operator": "neq-flip",
+            "before": "if (perMpptIsc !== null && perMpptIsc < 1) findings.push({ severity: \"high\", title: \"One string's current is above the MPPT short-circuit limit\", detail: `1.25 x Isc = ${round(iscDesign)} A is above the ${p.mpptMaxIsc} A the input accepts.` });",
+            "after": "if (perMpptIsc === null && perMpptIsc < 1) findings.push({ severity: \"high\", title: \"One string's current is above the MPPT short-circuit limit\", detail: `1.25 x Isc = ${round(iscDesign)} A is above the ${p.mpptMaxIsc} A the input accepts.` });",
+            "line_text": "  if (perMpptIsc !== null && perMpptIsc < 1) findings.push({ severity: \"high\", title: \"One string's current is above the MPPT short-circuit limit\", detail: `1.25 x Isc = ${round(iscDesign)} A is above the ${p.mpptMaxIsc} A the input accepts.` });",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 215,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (perMpptIsc !== null && perMpptIsc < 1) findings.push({ severity: \"high\", title: \"One string's current is above the MPPT short-circuit limit\", detail: `1.25 x Isc = ${round(iscDesign)} A is above the ${p.mpptMaxIsc} A the input accepts.` });",
+            "after": "if (perMpptIsc !== null || perMpptIsc < 1) findings.push({ severity: \"high\", title: \"One string's current is above the MPPT short-circuit limit\", detail: `1.25 x Isc = ${round(iscDesign)} A is above the ${p.mpptMaxIsc} A the input accepts.` });",
+            "line_text": "  if (perMpptIsc !== null && perMpptIsc < 1) findings.push({ severity: \"high\", title: \"One string's current is above the MPPT short-circuit limit\", detail: `1.25 x Isc = ${round(iscDesign)} A is above the ${p.mpptMaxIsc} A the input accepts.` });",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "finding's absence never asserted: added sample has no short-circuit finding"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 233,
+            "col": 32,
+            "operator": "eq-flip",
+            "before": "coldTracking: p.mpptMax === null ? null : n * vmpCold <= p.mpptMax + EPS,",
+            "after": "coldTracking: p.mpptMax !== null ? null : n * vmpCold <= p.mpptMax + EPS,",
+            "line_text": "        coldTracking: p.mpptMax === null ? null : n * vmpCold <= p.mpptMax + EPS,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 262,
+            "col": 106,
+            "operator": "or-to-and",
+            "before": "layouts.sort((a, b) => a.unused - b.unused || (b.coldTracking !== false) - (a.coldTracking !== false) || Number(a.currentClipped) - Number(b.currentClipped) || b.stringLength - a.stringLength);",
+            "after": "layouts.sort((a, b) => a.unused - b.unused || (b.coldTracking !== false) - (a.coldTracking !== false) && Number(a.currentClipped) - Number(b.currentClipped) || b.stringLength - a.stringLength);",
+            "line_text": "    layouts.sort((a, b) => a.unused - b.unused || (b.coldTracking !== false) - (a.coldTracking !== false) || Number(a.currentClipped) - Number(b.currentClipped) || b.stringLength - a.stringLength);",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tie-break order untested: added a tie where cold tracking must beat a longer string"
+          },
+          {
+            "file": "ventures/pv-string-sizer/calc.mjs",
+            "line": 271,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "temps: { tMinC: round(tMinC, 2), tHighC: round(tHighC, 2), rise: round(rise, 2), riseBasis, tCellHot: round(tCellHot, 2) },",
+            "after": "temps: { tMinC: round(tMinC, 3), tHighC: round(tHighC, 2), rise: round(rise, 2), riseBasis, tCellHot: round(tCellHot, 2) },",
+            "line_text": "    temps: { tMinC: round(tMinC, 2), tHighC: round(tHighC, 2), rise: round(rise, 2), riseBasis, tCellHot: round(tCellHot, 2) },",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "tMinC rounding untested in F: added 0 F -> -17.78"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/pv-string-sizer/calc.mjs",
+        "issue": "Temperature-coefficient plausibility was checked only in % units and only for too-large values. The sample's -0.27 typed with 'mV per degree' selected (or -0.0027 %) was accepted silently and the tool allowed 12-module strings whose real cold Voc is 666 V on a 600 V inverter: an overvoltage answer. Fixed: both coefficients are checked as % of STC voltage whatever the unit, refused below 0.1 %/C or beyond 2 %/C in magnitude; failing-first test 'a coefficient too small to be real is refused'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15906"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b87d9ef5-1dfc-505d-9b0f-df65a66bf2f6",
+    "transcripts": 1,
+    "first": "2026-11-14T16:06:06Z",
+    "last": "2026-11-14T16:13:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 37,
+        "input": 71,
+        "output": 22149,
+        "thinking": 6482,
+        "cache_read": 2944953,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81185,
+        "api_equivalent_usd": 1.6817,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 37,
+      "input": 71,
+      "output": 22149,
+      "thinking": 6482,
+      "cache_read": 2944953,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81185,
+      "api_equivalent_usd": 1.6817,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.75,
+      "active_minutes": 7.75,
+      "model_minutes": 4.54,
+      "tool_minutes": 3.2,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading the engine, finding and fixing the coefficient gap, 12 boundary tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 178.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

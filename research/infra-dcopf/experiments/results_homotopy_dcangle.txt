@@ -1,0 +1,12 @@
+Second after-the-run diagnostic (declared in LOG.md; not pre-registered): every cold Newton starts from
+DC power-flow angles (VM 1.0); load-scaling continuation (loads and the DC dispatch scaled by mu) from
+mu = 0, step 0.1 halved on failure to 1/1024, voltage setpoints at the file schedule, Q limits not enforced.
+
+case           kind      start mu=0 PF     mu* stop step  PFs Vmin@0 Vmin@.5 Vmin@mu*  direct from DC angles at mu
+case300_ieee   typ      DC+ang       y  0.8547   0.00078   19  0.951   0.946    0.718  0.1, 0.25, 0.5, 0.75
+   control: AC-optimum dispatch at the file setpoints reaches mu* 1.0000
+case1888_rte   typ      DC+ang       y  0.7984   0.00078   21  0.866   0.866    0.777  0.1, 0.25, 0.5, 0.75
+case1888_rte   api  DC, no ang       y  0.4750   0.00078   14  0.866       -    0.787  0.1, 0.25
+case1888_rte   sad      DC+ang       y  0.7984   0.00078   21  0.866   0.866    0.784  0.1, 0.25, 0.5, 0.75
+case1951_rte   typ      DC+ang       y  0.5719   0.00078   17  0.869   0.854    0.777  0.1, 0.25, 0.5
+case1951_rte   sad  DC, no ang       y  0.5719   0.00078   17  0.869   0.854    0.777  0.1, 0.25, 0.5

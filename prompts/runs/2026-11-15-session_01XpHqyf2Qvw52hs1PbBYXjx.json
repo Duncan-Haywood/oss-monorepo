@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyf2Qvw52hs1PbBYXjx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:38:49Z",
+  "ended": "2026-11-15T05:52:29Z",
+  "wall_minutes": 113.22,
+  "tokens_in": 9887557,
+  "tokens_out": 32642,
+  "cost_usd": 3.6791,
+  "tool_calls": 89,
+  "task": "Deepen flagship shift-roster-builder: the 40- and 60-person weeks' played result with the pair price (--second-callout-price)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16108",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "A python heredoc containing ${...} JS template text was refused by the rm-safety parser; switched to the Edit tool.",
+    "pkill -f '[p]air-played-big' refused by the hook when the same word appeared elsewhere in the command; split the call."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill/pgrep bracket hint does not say the hook also refuses the command when the unbracketed name appears anywhere else in the same command line (e.g. a later node eval/<name>.mjs); cost one retry."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The slice is an evaluation (a played-weeks study) plus a page-note change, not new solver code: the open item the flagship named first was this measurement, and it decides whether the pair price is worth the time-cap work next.",
+      "did": "New eval script, its output, README section, page note update, flagship next: rewritten.",
+      "result": "Pair price beat the cover price alone on open hours on 3 of 4 moved weeks (3 sign tests p<=0.004), wash on the 40-person week; the 60-person week was not played (about 10 h here)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-pair-price-played.md",
+    "ventures/shift-roster-builder/README.md#the-pair-price-in-played-weeks-20-to-40-people-2026-11-15-later"
+  ],
+  "goal": null,
+  "notes": "Tests: run_venture_tests.py shift-roster-builder ok (188.1 s, 0 failed). Runs: eval/pair-played-big.mjs, four processes in parallel for about 95 minutes; output in eval/pair-played-big.out.txt. 30x84 weeks 1-5 stopped unfinished (each build with the pair price ~240 s). Tests: run_venture_tests.py shift-roster-builder (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "32b7dae7-2b84-5dd2-952b-7b90a32123a9",
+    "transcripts": 1,
+    "first": "2026-11-15T05:38:49Z",
+    "last": "2026-11-15T07:32:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 157,
+        "output": 32642,
+        "thinking": 7064,
+        "cache_read": 9753019,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134381,
+        "api_equivalent_usd": 3.6791,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 157,
+      "output": 32642,
+      "thinking": 7064,
+      "cache_read": 9753019,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134381,
+      "api_equivalent_usd": 3.6791,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 79,
+      "Edit": 6,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 113.22,
+      "active_minutes": 113.22,
+      "model_minutes": 5.54,
+      "tool_minutes": 107.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an analyst writing the simulation harness, running ~3 h of sims and writing up the table and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 163.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

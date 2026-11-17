@@ -35,7 +35,11 @@ collision check and a wind-ballast figure) is in
    sends the base a new lateral target. The base drives there time-optimally
    (accelerate, cruise, brake).
 4. **Catch and recycle.** The ball hits the slack netting, drops into the
-   sloped trough along the bottom of the frame, and rolls into the hopper.
+   sloped trough along the bottom of the frame, and rolls to a sump at the
+   sump at the lift's foot. It cannot roll on into the hopper: the sump's
+   outlet is 80 mm above the court and the tub's rim about 2.27 m, so a
+   cleated-belt lift carries it up and a chute drops it into the tub
+   (2026-11-13, `cad/README.md`, "Catch trough" and "Ball lift").
 
 ## Main dimensions (v0.1)
 
@@ -85,14 +89,23 @@ column on the head. The gate is a printed shuttle between the head plates, not
 a servo gate at the hopper: it holds one ball in a pocket, slides it to the
 wheels with a linear actuator, and its solid back shuts the column meanwhile.
 A pusher is needed because the head tilts up to 45 degrees, where gravity alone
-would not deliver a ball uphill to the wheels. The agitator is not drawn.
+would not deliver a ball uphill to the wheels. *The agitator (2026-11-13):* a
+two-arm printed stirrer on a 25 mm gearmotor under the shelf, its arms sweeping
+over the outlet at a ball's centre height, run by the firmware while balls are
+being fed (`cad/README.md`, "Hopper agitator").
 
 **Catch net.** A frame of fibreglass or aluminium poles (tent-pole style
 sections for transport) holds knotless polyester netting, 25-35 mm mesh,
 hung with 10-15 cm of slack so it absorbs the ball rather than bouncing it
 back. The launcher fires through a padded sleeve in the net. Along the
-bottom, a trough sloped toward the centre feeds a flexible chute into the
-hopper inlet. Keep the net taut at the edges so balls do not snag.
+bottom, a trough sloped toward the centre (two runs of 125 mm half-round
+gutter on printed hangers, CAD since 2026-11-13) drops balls into a printed
+sump whose outlet passes under the net beam. From there a lift raises them
+about 2.3 m to the tub (a flexible chute alone cannot, since the tub has to
+sit that high for the feed hose to fall to the head): a cleated belt in a
+column between the mast rails, CAD since 2026-11-13 (`cad/README.md`, "Ball
+lift"). Keep the net taut at the
+edges so balls do not snag.
 
 ## Sensing
 
@@ -128,3 +141,9 @@ estimates for planning, not quotes; check current suppliers.
 - Will the stereo pair hold calibration on a frame that moves at 5 m/s^2?
   If not, mount the cameras on a separate tripod and track the base too.
 - Wind: measure tipping force on a 7.5 m^2 net and size the ballast.
+- Trough: tilt a length of half-round gutter with a ball in it and read the
+  angle at which a stopped ball starts to roll (the CAD assumes rolling
+  resistance 0.03, so a 3 deg fall starts it with 1.7x margin). Drop balls
+  down the net's face into it and count the ones that bounce out.
+- Recycle lift: what lifts balls 2.2 m from the sump to the tub (paddle belt,
+  rotating-disc elevator, auger) at up to 36 a minute, and where it stands.

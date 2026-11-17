@@ -66,3 +66,11 @@ test('the page offers the link and reads one back on arrival', () => {
   assert.match(index, /id="copyShareLink"/);
   assert.match(index, /location\.hash/);
 });
+
+test('zero and sub-dollar values are real inputs and survive the link', () => {
+  // A founder with no fixed costs, or a $0.99 app subscription, is a valid
+  // scenario the form accepts (min="0", step="0.01"); dropping those fields
+  // would reopen the page on its own defaults instead of the sender's numbers.
+  const sent = { customers: 1200, currentPrice: 0.99, proposedPrice: 0.5, monthlyCosts: 0 };
+  assert.deepEqual(decodeInputs(encodeInputs(sent)), sent);
+});

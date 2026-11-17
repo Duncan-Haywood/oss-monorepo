@@ -2,6 +2,19 @@
 // the current day, kept in the visitor's own browser. It never stores prices,
 // costs, channel rates, or any other calculator input, and never leaves the
 // device. There is no server to send it to.
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 const KEY = "where-to-sell-usage";
 
 function honorsBrowserSignal() {
@@ -12,7 +25,7 @@ function honorsBrowserSignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = "comparison_calculated") {
+export function recordUsage(storage = usageStorage(), optedOut = false, event = "comparison_calculated") {
   // The stored choice is consulted here as well as passed in. The page reads
   // it into the checkbox on load and hands the checkbox back, which works —
   // but it makes the promise depend on one line of page wiring, and a caller
@@ -32,7 +45,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
   }
 }
 
-export function readUsage(storage = globalThis.localStorage) {
+export function readUsage(storage = usageStorage()) {
   try {
     return JSON.parse(storage?.getItem(KEY) || "{}");
   } catch {
@@ -42,7 +55,7 @@ export function readUsage(storage = globalThis.localStorage) {
 
 // The opt-out choice is itself kept locally so the visitor does not have to
 // make it again on every visit.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem(`${KEY}-opt-out`) === "1";
   } catch {
@@ -50,7 +63,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   try {
     if (optedOut) {
       storage?.setItem(`${KEY}-opt-out`, "1");

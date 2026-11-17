@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVKjZu9NBqBKoPPVNSZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine 4: ventures brief",
+  "input_sha256": "b6b963bb60132ddd4e4e5f6850bf8df2ac08ee84f6edfe895842dcba903e97a5",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T08:10:43Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector: known-date test round 4 (pre-registered upper-bound rho generator)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 16502,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "ventures/changepoint-detector/eval/known-date-prereg-round3-2026-11-16.md",
+      "why": "Round 3 called a fourth round tuning to the simulation; ran one anyway because the change was the README's named next step, a standard construction, and seeds were fresh. Stated in the round 4 pre-registration.",
+      "did": "ran round 4 with fresh seed base 13000",
+      "result": "high-side size fixed everywhere (max 5.9%); one cell 1.8% under the 2% floor; not shipped"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-changepoint-known-date-round-four.md"
+  ],
+  "goal": "Ship the --known-date interrupted-time-series test if a fourth pre-registered round meets its size bar",
+  "notes": "Pre-registered round 4 (eval/known-date-prereg-round4-2026-11-16.md, committed before the confirmatory run). Bars: 1a holds (max 5.9%), 1b fails (n 40 rho 0.4 date 80%: 1.8%), 2 holds, 3 holds (62.8%, 27.3%), 4 holds (real A-D met, placebos 0 of 3). Nothing ships; CLI wiring written then removed. Local checks: node --test known-date.test.mjs 7/7; run_venture_tests.py changepoint-detector (see PR).",
+  "corrections": [],
+  "redteam": null
+}

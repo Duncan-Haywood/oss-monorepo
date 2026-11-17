@@ -7,7 +7,7 @@
 //   3. a team plays at the same venue as on its previous night where it can (fewer trips).
 // Each division keeps the circle-method round robin of calc.mjs (home/away balance and byes), so only
 // the dates, courts and times are decided here.
-import { csvCell, csvRows, roundRobin, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, seedOrder, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
+import { csvCell, csvRows, roundRobin, relabelPlan, mulberry32, parseDate, parseDateList, parseWeekdays, parseTimes, parseNameList, parseCourtClosures, parseOfficials, dayIso, dayOfWeek, courtClosedOn, dayLabel, htmlEsc, icsEscape, icsFold, icsAlarm, parseResults, standings, tieBreakNotes, standingsCsv, parsePointSystem, playoffBracket, seedOrder, bracketText, weeklyUpdate, playoffRace, remainingFixtures, raceText, forfeitReport } from "./calc.mjs";
 
 const MAX_NIGHTS = 800;
 const W_CLASH = 1000;
@@ -154,6 +154,32 @@ function playDays(start, weekdays, skip) {
 }
 
 /**
+ * Which rounds (or parts of rounds) the divisions play on a night with `slots` open court slots; advances the queues.
+ * Divisions with the most rounds left go first, so they all finish together. Depends only on how many matches each
+ * round has, never on who plays in them, so renaming a division's teams leaves every match position on the same night.
+ */
+function takeNight(queues, slots, split) {
+  const order = queues.map((q, i) => i).filter((i) => queues[i].next < queues[i].plan.length)
+    .sort((a, b) => (queues[b].plan.length - queues[b].next) - (queues[a].plan.length - queues[a].next) || a - b);
+  const todo = [];
+  let left = slots;
+  for (const i of order) {
+    const q = queues[i];
+    const mine = q.rem || q.plan[q.next].matches;
+    if (mine.length <= left) {
+      left -= mine.length;
+      todo.push({ i, matches: mine, idx: q.next, part: q.rem ? q.part + 1 : 0, last: Boolean(q.rem) });
+      q.next++; q.rem = null; q.part = 0;
+    } else if (split && left > 0) {
+      // a round that does not fit the slots still free tonight: play part of it now, the rest on the next night
+      todo.push({ i, matches: mine.slice(0, left), idx: q.next, part: q.part + 1, last: false });
+      q.rem = mine.slice(left); q.part++; left = 0;
+    }
+  }
+  return todo;
+}
+
+/**
  * spec: { divisions:[{name, teams[], double}], courts[], times[], venues{court: venueName}, start (day),
  *         weekdays[], skipDays[], courtClosures{court: days[]}, links:[[{d,t}...]], seed, optimize,
  *         venueFairness, venueHistory{"Division/Team": {venue: matches}} }
@@ -182,7 +208,9 @@ export function buildDivisions(spec) {
   const optimize = spec.optimize !== false;
   const split = Boolean(spec.splitRounds);
 
-  const queues = divs.map((d) => ({ plan: roundRobin(d.teams.length, { double: Boolean(d.double) }), next: 0, rem: null, part: 0 }));
+  // `perms[i]` (from `fitDivisionsToBlackouts`) renames division i's teams in its round robin: team perms[i][p] takes position p
+  const perms = Array.isArray(spec.perms) ? spec.perms : [];
+  const queues = divs.map((d, i) => { const base = roundRobin(d.teams.length, { double: Boolean(d.double) }); return { plan: perms[i] ? relabelPlan(base, perms[i]) : base, next: 0, rem: null, part: 0 }; });
   const biggest = Math.max(...queues.flatMap((q) => q.plan.map((r) => r.matches.length)));
   if (!split && biggest > courts.length * times.length) throw new Error(`A round of ${biggest} matches needs ${biggest} court slots, but ${courts.length} court(s) x ${times.length} time(s) give ${courts.length * times.length}.`);
 
@@ -210,24 +238,7 @@ export function buildDivisions(spec) {
     const open = [];
     for (let ti = 0; ti < times.length; ti++) for (let ci = 0; ci < courts.length; ci++) if (!courtClosedOn(cfg, courts[ci], day)) open.push({ ci, ti });
     if (!open.length) continue;
-    // divisions with the most rounds left go first, so they all finish together
-    const order = queues.map((q, i) => i).filter((i) => queues[i].next < queues[i].plan.length)
-      .sort((a, b) => (queues[b].plan.length - queues[b].next) - (queues[a].plan.length - queues[a].next) || a - b);
-    const todo = [];
-    let left = open.length;
-    for (const i of order) {
-      const q = queues[i];
-      const mine = q.rem || q.plan[q.next].matches;
-      if (mine.length <= left) {
-        left -= mine.length;
-        todo.push({ i, matches: mine, idx: q.next, part: q.rem ? q.part + 1 : 0, last: Boolean(q.rem) });
-        q.next++; q.rem = null; q.part = 0;
-      } else if (split && left > 0) {
-        // a round that does not fit the slots still free tonight: play part of it now, the rest on the next night
-        todo.push({ i, matches: mine.slice(0, left), idx: q.next, part: q.part + 1, last: false });
-        q.rem = mine.slice(left); q.part++; left = 0;
-      }
-    }
+    const todo = takeNight(queues, open.length, split);
     if (!todo.length) continue;
     const ms = todo.flatMap(({ i, matches, idx }) => matches.map(([h, a]) => ({ div: i, home: h, away: a, round: idx })));
 
@@ -249,25 +260,43 @@ export function buildDivisions(spec) {
       for (const t of [m.home, m.away]) { const o = tallyOf(`${m.div}/${t}`); n += o[v] - venueList.reduce((a, x) => a + o[x], 0) / venueList.length; }
       return n;
     };
-    const clashCost = (k, c, cells) => {
-      let s = 0;
+    // The annealing below rescores every move with `total`, so its pieces are tabled once per night: trip and fairness cost
+    // per (match, cell) (lastVenue and tally do not change until the night is placed), and the linked pairs as (match,
+    // match, count) with the clash cost per pair of cells. `total` adds the same terms in the same order as scoring each
+    // match directly, so the sums, and with them every accepted move, are unchanged.
+    const nc = open.length;
+    const tripW = new Float64Array(ms.length * nc), fairW = new Float64Array(ms.length * nc);
+    for (let k = 0; k < ms.length; k++) for (let c = 0; c < nc; c++) { tripW[k * nc + c] = W_TRIP * trip(ms[k], c); fairW[k * nc + c] = wFair * unfair(ms[k], c); }
+    const linked = ms.map((mk, k) => {
+      const out = [];
       for (let j = 0; j < ms.length; j++) {
         if (j === k) continue;
-        const cj = cells[j];
-        for (const ta of [ms[k].home, ms[k].away]) {
-          const partners = linkOf.get(`${ms[k].div}/${ta}`);
-          if (!partners) continue;
-          for (const tb of [ms[j].home, ms[j].away]) {
-            if (!partners.has(`${ms[j].div}/${tb}`)) continue;
-            const dt = Math.abs(open[c].ti - open[cj].ti);
-            if (dt === 0) s += W_CLASH;
-            else if (dt === 1 && venueOf(courts[open[c].ci]) !== venueOf(courts[open[cj].ci])) s += 50;
-          }
+        let mult = 0;
+        for (const ta of [mk.home, mk.away]) {
+          const partners = linkOf.get(`${mk.div}/${ta}`);
+          if (partners) for (const tb of [ms[j].home, ms[j].away]) if (partners.has(`${ms[j].div}/${tb}`)) mult++;
         }
+        if (mult) out.push(j, mult);
       }
+      return out;
+    });
+    const anyLink = linked.some((l) => l.length);
+    const pairCost = new Float64Array(anyLink ? nc * nc : 0);
+    if (anyLink) for (let a = 0; a < nc; a++) for (let b = 0; b < nc; b++) {
+      const dt = Math.abs(open[a].ti - open[b].ti);
+      pairCost[a * nc + b] = dt === 0 ? W_CLASH : dt === 1 && venueOf(courts[open[a].ci]) !== venueOf(courts[open[b].ci]) ? 50 : 0;
+    }
+    const clashCost = (k, c, cells) => {
+      const l = linked[k];
+      let s = 0;
+      for (let i = 0; i < l.length; i += 2) s += l[i + 1] * pairCost[c * nc + cells[l[i]]];
       return s;
     };
-    const total = (cells) => cells.reduce((s, c, k) => s + W_TRIP * trip(ms[k], c) + wFair * unfair(ms[k], c) + clashCost(k, c, cells) / 2, 0);
+    const total = (cells) => {
+      let s = 0;
+      for (let k = 0; k < cells.length; k++) { const c = cells[k]; s = s + tripW[k * nc + c] + fairW[k * nc + c] + clashCost(k, c, cells) / 2; }
+      return s;
+    };
     if (optimize) {
       let cur = total(cellOf);
       const iters = (travel ? 6000 : 600) + 40 * ms.length; // a travel table has more to gain from search (measured in divisions.test.mjs)
@@ -309,6 +338,110 @@ export function buildDivisions(spec) {
   schedule.conflicts = linkConflicts(schedule);
   schedule.stats = divisionStats(schedule);
   return schedule;
+}
+
+/**
+ * Every match of every division with the night it lands on, in the round robin's own team numbers (no renaming):
+ * the night loop of `buildDivisions` without the court assignment. A night depends only on how many matches each round
+ * has, so the same positions keep these nights under any renaming of a division's teams. Returns [[[home, away, day]...] per division].
+ */
+export function divisionMatchNights(spec) {
+  const divs = spec.divisions || [];
+  const courts = spec.courts || [];
+  const times = spec.times && spec.times.length ? spec.times : [""];
+  const cfg = { courts, times, closures: spec.courtClosures || {} };
+  const queues = divs.map((d) => ({ plan: roundRobin(d.teams.length, { double: Boolean(d.double) }), next: 0, rem: null, part: 0 }));
+  const out = divs.map(() => []);
+  for (const day of playDays(spec.start, spec.weekdays, spec.skipDays)) {
+    if (queues.every((q) => q.next >= q.plan.length)) break;
+    let open = 0;
+    for (let ti = 0; ti < times.length; ti++) for (const c of courts) if (!courtClosedOn(cfg, c, day)) open++;
+    if (!open) continue;
+    for (const { i, matches } of takeNight(queues, open, Boolean(spec.splitRounds))) for (const [h, a] of matches) out[i].push([h, a, day]);
+  }
+  return out;
+}
+
+/**
+ * Blackout fit for several divisions: for each division, the renaming of its teams (which team takes which position of
+ * its round robin) that puts the fewest matches on a night one of their teams cannot play. A seeded hill climb on pair
+ * swaps with sideways moves, each swap moving at least one team that has a blackout; the identity is the start, so it is
+ * never worse on that count. Skip dates, court closures and shared slots are already in the nights, because the nights
+ * come from the same loop the build runs. `blackouts` is what `parseDivisionBlackouts` returns ({"d/t": days[]}).
+ * Returns { perms[] (null for a division left as it was), displaced[{before, after}] per division, evals }.
+ */
+export function fitDivisionsToBlackouts(spec, blackouts, { seed = 1, evals = 3000 } = {}) {
+  const nights = divisionMatchNights(spec);
+  const rand = mulberry32((seed >>> 0) * 2654435761 + 11);
+  const perms = [], displaced = [];
+  let used = 0;
+  (spec.divisions || []).forEach((d, di) => {
+    const n = d.teams.length;
+    const off = Array.from({ length: n }, (_, t) => new Set(blackouts[`${di}/${t}`] || []));
+    const blocked = [];
+    for (let t = 0; t < n; t++) if (off[t].size) blocked.push(t);
+    const ms = nights[di];
+    const score = (perm) => { let k = 0; for (const [h, a, day] of ms) if (off[perm[h]].has(day) || off[perm[a]].has(day)) k++; return k; };
+    const perm = Array.from({ length: n }, (_, i) => i);
+    const s0 = score(perm);
+    let cur = s0, best = s0, bestPerm = perm.slice();
+    for (let e = 0; e < evals && best > 0 && blocked.length && n > 1; e++) {
+      const pa = perm.indexOf(blocked[Math.floor(rand() * blocked.length)]);
+      let pb = Math.floor(rand() * (n - 1));
+      if (pb >= pa) pb++;
+      [perm[pa], perm[pb]] = [perm[pb], perm[pa]];
+      const sc = score(perm);
+      used++;
+      if (sc <= cur) { cur = sc; if (sc < best) { best = sc; bestPerm = perm.slice(); } } else [perm[pa], perm[pb]] = [perm[pb], perm[pa]];
+    }
+    perms.push(best < s0 ? bestPerm : null);
+    displaced.push({ before: s0, after: best });
+  });
+  return { perms, displaced, evals: used };
+}
+
+/**
+ * Builds the league and moves every match that still lands on a team's unavailable date (`applyDivisionBlackouts`),
+ * after first fitting each division's team order to the blackouts (`fitDivisionsToBlackouts`, on by default;
+ * `spec.blackoutFit: false` turns it off). The fit tries a few seeds and keeps the season that, after the moves, leaves
+ * the fewest matches unplaced, then moves the fewest, then ends earliest, then has the fewest home/away breaks; the
+ * season built without the fit is one of the candidates, so the result is never worse on that order.
+ * Returns { schedule, moves, errors, fit: null | { tried, before{moves, lastDay, breaks}, after{...}, perms } }.
+ */
+export function buildDivisionsWithBlackouts(spec, blackouts, opts = {}) {
+  const any = blackouts && Object.values(blackouts).some((v) => v && v.length);
+  const run = (perms) => { const s = buildDivisions(perms ? { ...spec, perms } : spec); return any ? applyDivisionBlackouts(s, blackouts, opts) : { schedule: s, moves: [], errors: [] }; };
+  const base = run(null);
+  if (!any || spec.blackoutFit === false) return { ...base, fit: null };
+  const key = (r) => [r.errors.length, r.moves.length, r.schedule.stats.lastDay ?? 0, r.schedule.stats.homeAwayBreaks];
+  const less = (a, b) => { for (let i = 0; i < a.length; i++) if (a[i] !== b[i]) return a[i] < b[i]; return false; };
+  let best = base, bestKey = key(base), bestPerms = null;
+  const seen = new Set();
+  const seeds = Number.isInteger(spec.blackoutFitSeeds) && spec.blackoutFitSeeds > 0 ? spec.blackoutFitSeeds : 4;
+  for (let k = 0; k < seeds; k++) {
+    const f = fitDivisionsToBlackouts(spec, blackouts, { seed: (spec.seed ?? 1) * 31 + k });
+    if (f.perms.every((p) => !p)) continue;
+    const sig = JSON.stringify(f.perms);
+    if (seen.has(sig)) continue;
+    seen.add(sig);
+    const r = run(f.perms);
+    const kk = key(r);
+    if (less(kk, bestKey)) { best = r; bestKey = kk; bestPerms = f.perms; }
+  }
+  const b = key(base);
+  return { ...best, fit: { tried: seen.size, before: { moves: b[1], unplaced: b[0], lastDay: b[2], breaks: b[3] }, after: { moves: bestKey[1], unplaced: bestKey[0], lastDay: bestKey[2], breaks: bestKey[3] }, perms: bestPerms } };
+}
+
+/** One line for the page and the CLI saying what the blackout fit changed (or that it found nothing better), "" when it did not run or nothing clashed. */
+export function blackoutFitNote(fit) {
+  if (!fit) return "";
+  const { before: b, after: a } = fit;
+  if (!fit.perms) return b.moves ? `Blackout fit: no other team order in the round robins moved fewer than ${b.moves} match${b.moves === 1 ? "" : "es"} off a blackout date, so the order is unchanged.` : "";
+  const parts = [`${b.moves} -> ${a.moves} matches moved off a blackout date`];
+  if (a.unplaced !== b.unplaced) parts.push(`${b.unplaced} -> ${a.unplaced} left unplaced`);
+  if (a.lastDay !== b.lastDay) parts.push(`last night ${dayIso(b.lastDay)} -> ${dayIso(a.lastDay)}`);
+  if (a.breaks !== b.breaks) parts.push(`home/away breaks ${b.breaks} -> ${a.breaks}`);
+  return `Blackout fit: teams were given the places in their division's round robin that suit their blackout dates: ${parts.join(", ")}.`;
 }
 
 const BALANCE_WINDOW = 6; // nights a make-up may be weighed over when keeping home/away alternating
@@ -1118,7 +1251,7 @@ export function divisionsStandingsCsv(result) {
   for (const t of result.tables) {
     const rows = standingsCsv(t.rows).trim().split(/\r?\n/);
     if (!lines.length) lines.push(`Division,${rows[0]}`);
-    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
+    for (const r of rows.slice(1)) lines.push(`"${(/^[=+\-@\t\r]/.test(t.division) && !/^-?\d+(\.\d+)?$/.test(t.division) ? "'" + t.division : t.division).replace(/"/g, '""')}",${r}`);
   }
   return lines.join("\r\n") + "\r\n";
 }
@@ -1325,7 +1458,7 @@ export function divisionsDutiesText(result) {
   let day = null;
   for (const r of result.rows) {
     if (r.day !== day) { day = r.day; lines.push(dayIso(day)); }
-    lines.push(`  ${r.duty}: ${r.team} [${r.division}]`);
+    lines.push(`  ${r.duty}: ${r.team}${r.division ? ` [${r.division}]` : ""}`);
   }
   for (const u of result.unfilled) lines.push(`No team free: ${dayIso(u.day)} ${u.duty}`);
   const t = result.loads.map((l) => l.total);
@@ -1380,15 +1513,15 @@ export function divisionsScoreSheetsHtml(schedule, { title = "League score sheet
     const venues = [...new Set(night.matches.map((m) => m.venue))].sort();
     const tables = venues.map((v) => {
       const ms = night.matches.filter((m) => m.venue === v).sort((a, b) => String(a.time).localeCompare(String(b.time)) || String(a.court).localeCompare(String(b.court)));
-      const rows = ms.map((m) => `<tr><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.division)} R${m.round + 1}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td>${withOfficial ? `<td>${htmlEsc(m.official ?? "")}</td>` : ""}</tr>`);
+      const rows = ms.map((m) => `<tr><td class="s">${htmlEsc(m.time)}</td><td class="s">${htmlEsc(m.court)}</td><td class="s">${htmlEsc(m.division)} R${m.round + 1}</td><td class="n">${htmlEsc(m.homeName)}</td><td class="b"></td><td class="b"></td><td class="n">${htmlEsc(m.awayName)}</td><td class="f">&#9744;</td>${withOfficial ? `<td class="s">${htmlEsc(m.official ?? "")}</td>` : ""}</tr>`);
       return `<h3>${htmlEsc(v)}</h3><table><thead><tr><th>Time</th><th>Court</th><th>Division</th><th>Home</th><th colspan="2">Score</th><th>Away</th><th>Forfeit</th>${withOfficial ? "<th>Official</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>`;
     }).join("");
-    return `<section class="sheet"><h2>${htmlEsc(dayLabel(night.day))}</h2>${tables}<p class="sig">Scorekeeper: ____________________ &nbsp; Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
+    return `<section class="sheet"><h2>${htmlEsc(dayLabel(night.day))}</h2>${tables}<p class="sig">Scorekeeper: ____________________________</p><p class="sig">Notes (injuries, protests, rainouts): ______________________________________</p></section>`;
   }).join("\n");
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${t}</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.sheet{page-break-after:always;margin-bottom:2rem}.sig{margin-top:1.5rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}}@media print{body{background:#fff;color:#000}}</style></head>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.5rem;text-align:left}td.b{width:3.5rem;height:2.4rem}td.n{font-weight:600}td.f{text-align:center;font-size:1.3rem}.s{white-space:nowrap}h3{break-after:avoid}table{break-inside:avoid}.sheet{page-break-after:always;margin-bottom:2rem}.sheet:last-child{page-break-after:auto}.sig{margin-top:1.5rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}}@media print{body{background:#fff;color:#000}}</style></head>
 <body><h1>${t}</h1>
 ${pages}
 </body></html>
@@ -1401,10 +1534,30 @@ ${pages}
  * rota page (night by night, unfilled slots marked). `duties` is the result of assignDivisionDuties (optional).
  * Teams that share a name in two divisions get one sheet each. Every typed string is escaped. Pure; no network.
  */
+/**
+ * A one-division schedule from calc.mjs (`buildSchedule`, rounds with a bye) in the multi-division shape
+ * ({ divisions, nights }), so the duty rota and team sheets work on the single-league page too. Rounds on the
+ * same date share a night; a round's bye is kept as `night.byes`. `name` labels the division ("" by default,
+ * which the sheets and rota leave out). The input is not changed.
+ */
+export function singleAsDivisions(schedule, { name = "" } = {}) {
+  const byDay = new Map();
+  for (const r of schedule.rounds || []) {
+    if (!byDay.has(r.day)) byDay.set(r.day, { day: r.day, matches: [], byes: [] });
+    const night = byDay.get(r.day);
+    for (const m of r.matches) night.matches.push({ division: name, home: m.home, away: m.away, homeName: m.homeName, awayName: m.awayName, court: m.court, time: m.time, venue: m.court, round: r.label, ...(m.official !== undefined ? { official: m.official } : {}) });
+    if (r.bye !== null && r.bye !== undefined && schedule.teams[r.bye] !== undefined) night.byes.push({ division: name, team: schedule.teams[r.bye] });
+  }
+  const nights = [...byDay.values()].sort((a, b) => a.day - b.day);
+  return { divisions: [{ name, teams: [...schedule.teams] }], nights };
+}
+
 export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", contact = "", duties = null } = {}) {
   const t = htmlEsc(String(title || "").trim() || "Team sheets");
   const who = htmlEsc(String(contact || "").trim());
   const withOfficial = schedule.nights.some((n) => n.matches.some((m) => m.official !== undefined));
+  // A Venue column only when some venue differs from its court (a one-league schedule has none): an empty column takes width.
+  const withVenue = schedule.nights.some((n) => n.matches.some((m) => m.venue && m.venue !== m.court));
   const dutyOf = new Map(); // "division/team|day" -> [duty names]
   for (const r of duties?.rows || []) {
     const k = `${key2(r.division, r.team)}|${r.day}`;
@@ -1422,21 +1575,22 @@ export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", conta
     const k = key2(division, team);
     const rows = [];
     let games = 0, jobs = 0;
-    for (const night of schedule.nights) for (const m of night.matches) {
+    for (const night of schedule.nights) for (const m of [...night.matches, ...(night.byes || []).filter((b) => b.division === division && b.team === team).map(() => null)]) {
+      if (m === null) { rows.push(`<tr class="bye"><td class="s">${htmlEsc(dayLabel(night.day))}</td><td colspan="${4 + (withVenue ? 1 : 0) + (withOfficial ? 1 : 0) + (withDuties ? 1 : 0)}">Bye: no game this week</td></tr>`); continue; }
       if (m.division !== division || (m.homeName !== team && m.awayName !== team)) continue;
       const home = m.homeName === team;
       const dk = `${k}|${night.day}`, job = dutyOf.get(dk) || [];
       dutyOf.delete(dk); // a team with two games that night carries the duty on its first row only
       games++; jobs += job.length;
-      rows.push(`<tr><td>${htmlEsc(dayLabel(night.day))}</td><td>${htmlEsc(m.time)}</td><td>${htmlEsc(m.court)}</td><td>${htmlEsc(m.venue && m.venue !== m.court ? m.venue : "")}</td><td>${home ? "Home" : "Away"}</td><td class="n">${htmlEsc(home ? m.awayName : m.homeName)}</td>${withOfficial ? `<td>${htmlEsc(m.official ?? "")}</td>` : ""}${withDuties ? `<td class="d">${htmlEsc(job.join(", "))}</td>` : ""}</tr>`);
+      rows.push(`<tr><td class="s">${htmlEsc(dayLabel(night.day))}</td><td class="s">${htmlEsc(m.time)}</td><td class="s">${htmlEsc(m.court)}</td>${withVenue ? `<td>${htmlEsc(m.venue && m.venue !== m.court ? m.venue : "")}</td>` : ""}<td>${home ? "Home" : "Away"}</td><td class="n">${htmlEsc(home ? m.awayName : m.homeName)}</td>${withOfficial ? `<td class="s">${htmlEsc(m.official ?? "")}</td>` : ""}${withDuties ? `<td class="d s">${htmlEsc(job.join(", "))}</td>` : ""}</tr>`);
     }
     const summary = `${games} game${games === 1 ? "" : "s"}${withDuties ? `, ${jobs} dut${jobs === 1 ? "y" : "ies"}` : ""}`;
-    return `<section class="sheet"><h2>${htmlEsc(team)} <span>${htmlEsc(division)}</span></h2><p>${summary}</p><table><thead><tr><th>Date</th><th>Time</th><th>Court</th><th>Venue</th><th></th><th>Opponent</th>${withOfficial ? "<th>Official</th>" : ""}${withDuties ? "<th>Your duty</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>${who ? `<p class="contact">Questions: ${who}</p>` : ""}</section>`;
+    return `<section class="sheet"><h2>${htmlEsc(team)}${division ? ` <span>${htmlEsc(division)}</span>` : ""}</h2><p>${summary}</p><table><thead><tr><th>Date</th><th>Time</th><th>Court</th>${withVenue ? "<th>Venue</th>" : ""}<th></th><th>Opponent</th>${withOfficial ? "<th>Official</th>" : ""}${withDuties ? "<th>Your duty</th>" : ""}</tr></thead><tbody>${rows.join("")}</tbody></table>${who ? `<p class="contact">Questions: ${who}</p>` : ""}</section>`;
   }).join("\n");
   let rota = "";
   if (withDuties) {
     const byDay = new Map();
-    for (const r of duties.rows) { if (!byDay.has(r.day)) byDay.set(r.day, []); byDay.get(r.day).push(`<li>${htmlEsc(r.duty)}: ${htmlEsc(r.team)} <span>(${htmlEsc(r.division)})</span></li>`); }
+    for (const r of duties.rows) { if (!byDay.has(r.day)) byDay.set(r.day, []); byDay.get(r.day).push(`<li>${htmlEsc(r.duty)}: ${htmlEsc(r.team)}${r.division ? ` <span>(${htmlEsc(r.division)})</span>` : ""}</li>`); }
     for (const u of duties.unfilled || []) { if (!byDay.has(u.day)) byDay.set(u.day, []); byDay.get(u.day).push(`<li class="gap">${htmlEsc(u.duty)}: no team free, find a volunteer</li>`); }
     const days = [...byDay.keys()].sort((a, b) => a - b);
     rota = `<section class="sheet"><h2>Duty rota</h2>${days.map((d) => `<h3>${htmlEsc(dayLabel(d))}</h3><ul>${byDay.get(d).join("")}</ul>`).join("")}</section>`;
@@ -1444,7 +1598,7 @@ export function divisionsTeamSheetsHtml(schedule, { title = "Team sheets", conta
   return `<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${t}</title>
-<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.4rem .5rem;text-align:left}td.n{font-weight:600}td.d{font-weight:600}h2 span,li span{font-weight:400;color:#555}.gap{color:#a00}.sheet{page-break-after:always;margin-bottom:2rem}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,li span{color:#aaa}}@media print{body{background:#fff;color:#000}}</style></head>
+<style>body{font:16px/1.5 system-ui,sans-serif;margin:0 auto;max-width:56rem;padding:1rem;color:#1a1a1a;background:#fff}table{border-collapse:collapse;width:100%}th,td{border:1px solid #888;padding:.4rem .5rem;text-align:left}td.n{font-weight:600}td.d{font-weight:600}h2 span,li span{font-weight:400;color:#555}.gap{color:#a00}.s{white-space:nowrap}tr.bye td{color:#555;font-style:italic}.sheet{page-break-after:always;margin-bottom:2rem}.contact{margin-top:1.5rem}footer{color:#555;font-size:.85rem}@media(prefers-color-scheme:dark){body{background:#111;color:#eee}th,td{border-color:#666}h2 span,li span{color:#aaa}}@media print{body{background:#fff;color:#000;padding:0;font-size:15px}th,td{padding:.35rem .3rem}}</style></head>
 <body><h1>${t}</h1>
 ${sheets}
 ${rota}
@@ -1735,7 +1889,7 @@ export function rainoutOptions(f) {
 }
 
 // node divisions.mjs spec.json  ->  text read-out (add --csv for the CSV, --notices for the rainout change notices, --deadline DATE for whether the season ends in time (exit 2 if not), --bookings for a per-venue facility booking request, --cost rates.txt [--extra N] [--split games] for the season facility cost and a fee per team (exit 2 if a venue has no rate), --results results.txt --weekly for the group-chat update, --grid for the season grid CSV, --history for next season's venueHistory, or --suggest-weight to pick fairnessWeight). spec.json holds the form fields.
-if (typeof process !== "undefined" && process.argv && import.meta.url === `file://${process.argv[1]}`) {
+if (typeof process !== "undefined" && process.argv && process.argv[1] && import.meta.url === (await import("node:url")).pathToFileURL(process.argv[1]).href) {
   const { readFileSync } = await import("node:fs");
   const file = process.argv[2];
   if (!file) { console.error("usage: node divisions.mjs spec.json [--csv]"); process.exit(2); }
@@ -1744,12 +1898,13 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   if (errors.length) { console.error(errors.join("\n")); process.exit(1); }
   if (process.argv.includes("--suggest-weight")) {
     const r = suggestFairnessWeight(spec);
-    process.stdout.write(`Fairness weight by ${r.basis} (3 seasons, 4 seeds; travel kept within ${r.slack * 100}% of fairness off):\n` + r.rows.map((x) => `  ${String(x.weight).padStart(4)}  imbalance ${x.imbalance.toFixed(2)}  ${x.travel} ${r.basis}`).join("\n") + `\nSuggested fairnessWeight: ${r.weight} (${r.extraTravel >= 0 ? "+" : ""}${(r.extraTravel * 100).toFixed(0)}% ${r.basis}${r.overSlack ? ", more than the slack: nothing cheaper halves the imbalance" : ""})\n`);
+    process.stdout.write(`Fairness weight by ${r.basis} (3 seasons, 4 seeds; travel kept within ${+(r.slack * 100).toFixed(4)}% of fairness off):\n` + r.rows.map((x) => `  ${String(x.weight).padStart(4)}  imbalance ${x.imbalance.toFixed(2)}  ${x.travel} ${r.basis}`).join("\n") + `\nSuggested fairnessWeight: ${r.weight} (${r.extraTravel >= 0 ? "+" : ""}${(r.extraTravel * 100).toFixed(0)}% ${r.basis}${r.overSlack ? ", more than the slack: nothing cheaper halves the imbalance" : ""})\n`);
     process.exit(0);
   }
-  let s = buildDivisions(spec);
+  let s;
   const allMoves = [];
   const raw = JSON.parse(readFileSync(file, "utf8"));
+  if (raw.blackoutFit !== undefined && /^(0|false|no|off)$/i.test(String(raw.blackoutFit))) spec.blackoutFit = false;
   const csvIdx = process.argv.indexOf("--blackouts-csv");
   if (csvIdx > 0) {
     const f = process.argv[csvIdx + 1];
@@ -1761,11 +1916,14 @@ if (typeof process !== "undefined" && process.argv && import.meta.url === `file:
   if (raw.blackouts) {
     const pb = parseDivisionBlackouts(raw.blackouts, spec.divisions);
     if (pb.errors.length) { console.error(pb.errors.join("\n")); process.exit(1); }
-    const r = applyDivisionBlackouts(s, pb.blackouts, rainoutOptions(raw));
+    const r = buildDivisionsWithBlackouts(spec, pb.blackouts, rainoutOptions(raw));
+    const note = blackoutFitNote(r.fit);
+    if (note) console.error(note);
     for (const e of r.errors) console.error(`Unavailable: ${e}`);
     s = r.schedule;
     allMoves.push(...r.moves);
   }
+  if (!s) s = buildDivisions(spec);
   const rainouts = raw.rainouts;
   if (rainouts) {
     const r = applyDivisionRainouts(s, rainouts, rainoutOptions(raw));

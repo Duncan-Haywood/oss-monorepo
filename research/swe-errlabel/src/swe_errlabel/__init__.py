@@ -11,7 +11,8 @@ LABELS = ["collision", "timeout", "environment", "ci-or-tooling", "own-mistake",
 
 
 def read_tsv(path):
-    return [line.rstrip("\n").split("\t", 1) for line in open(path) if line.strip()]
+    with open(path) as f:
+        return [line.rstrip("\n").split("\t", 1) for line in f if line.strip()]
 
 
 def predict(text):

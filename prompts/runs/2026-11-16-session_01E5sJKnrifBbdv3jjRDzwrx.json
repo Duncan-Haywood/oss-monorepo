@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnrifBbdv3jjRDzwrx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T02:18:38Z",
+  "ended": "2026-11-16T02:25:40Z",
+  "wall_minutes": 7.4,
+  "tokens_in": 5232223,
+  "tokens_out": 27995,
+  "cost_usd": 2.4668,
+  "tool_calls": 52,
+  "task": "Deepen flagship 4 (changepoint-detector), item (2): a real count series for the NB1 law check",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16420",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "curl to vincentarelbundock.github.io dropped the connection (exit 56)",
+      "fix": "the same files at raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/<pkg>/<item>.csv answered 200"
+    },
+    {
+      "what": "venture-preflight failed check_cli_entry.py: eval/calls-law.mjs used a file:// string entry guard",
+      "fix": "pathToFileURL(process.argv[1]).href; preflight then clean"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/changepoint-detector/README.md",
+      "issue": "5,300 lines; finding the open item's context took grep on section headings, the NB1 section's last paragraph was the only place the needed series was described"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-bank-call-arrivals-are-poisson-around-a-wandering-rate.md",
+    "ventures/changepoint-detector/README.md (section 'The clumping-law check on real call-centre arrivals')"
+  ],
+  "goal": null,
+  "notes": "Pre-registered before running (commit 2 of the PR): across-day reference law on fpp2::calls (164 weekdays x 169 five-minute slots) read nb1 (top/bottom decile 0.83, bottom 1.60); clumpingLaw said 'either' on 164 of 164 days, L1 (>= 99 nb1) fails, wrong-law answers 0 (<= 16 holds). Scoring code checked first on simulated NB1/NB2/Poisson tables only (nb1->nb1, nb2->nb2, poisson->unclear). Post hoc, labelled: within-day first differences d^2/(2m) 1.005 pooled over 27,552 pairs; across-day residual dispersion 1.34/2.18/3.25/5.17/8.02 at 5/15/30/60/120 min; lag-1 0.31: Poisson round a wandering rate, the confound named in the pre-registration. No engine change. Verification: node --test calls-law.test.mjs (2 pass), nb1.test.mjs (6 pass), run_venture_tests.py changepoint-detector ok (757 tests, 238 s); venture-preflight clean after the entry-guard fix; post front-matter, link and similarity checks clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "696db74e-a4e1-55f9-a975-e421a22d4c2d",
+    "transcripts": 1,
+    "first": "2026-11-16T02:18:38Z",
+    "last": "2026-11-16T02:26:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 95,
+        "output": 27995,
+        "thinking": 6878,
+        "cache_read": 5121855,
+        "cache_write_5m": 0,
+        "cache_write_1h": 110273,
+        "api_equivalent_usd": 2.4668,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 95,
+      "output": 27995,
+      "thinking": 6878,
+      "cache_read": 5121855,
+      "cache_write_5m": 0,
+      "cache_write_1h": 110273,
+      "api_equivalent_usd": 2.4668,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 47,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.4,
+      "active_minutes": 7.4,
+      "model_minutes": 6.0,
+      "tool_minutes": 1.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a statistician sourcing a real series, pre-registering, scoring and diagnosing a failed check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 243.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

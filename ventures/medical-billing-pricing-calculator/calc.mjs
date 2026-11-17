@@ -29,7 +29,7 @@ export const num = (v) => {
   return t === "" ? NaN : Number(t);
 };
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 export const pct = (x) => `${(Math.round(x * 10) / 10).toFixed(1)}%`;
 
 // Monthly cost of serving the client at a given claim volume.

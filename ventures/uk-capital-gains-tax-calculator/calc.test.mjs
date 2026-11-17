@@ -74,3 +74,27 @@ test("2026/27 matches 2025/26 for the same inputs and is labelled", () => {
   assert.equal(b.label, "2026/27");
   assert.equal(b.tax, a.tax);
 });
+
+// Red-team 2026-11-12: three mutants escaped (tax === 0 flipped, the band line's rate text, and
+// an atHigh > 0 test raised to > 1). These pin the findings a reader sees.
+test("a gain inside the exempt amount says so and gives no tax figure", () => {
+  const r = run({ proceeds: 17000 });
+  const titles = r.findings.map((f) => f.title);
+  assert.ok(titles.some((t) => /covered by the .* annual exempt amount/.test(t)), titles.join("\n"));
+  assert.ok(!titles.some((t) => /^Capital Gains Tax for/.test(t)));
+  const taxed = run({}).findings.map((f) => f.title);
+  assert.ok(taxed.some((t) => /^Capital Gains Tax for/.test(t)));
+  assert.ok(!taxed.some((t) => /annual exempt amount: no Capital Gains Tax/.test(t)));
+});
+
+test("the band line prints the rates as 18% and 24%", () => {
+  const line = run({}).findings.map((f) => f.title).find((t) => / at 18% \(/.test(t));
+  assert.ok(line, "band line missing");
+  assert.match(line, / at 24% \(/);
+});
+
+test("50p over the basic band still gets the spread-the-sale tip", () => {
+  const r = run({ income: 12570, proceeds: SAMPLE.proceeds + 16200.5 });
+  assert.equal(r.atHigh, 0.5);
+  assert.ok(r.findings.some((f) => /^Only .* of gains fall in the 18% band/.test(f.title)));
+});

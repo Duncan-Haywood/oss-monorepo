@@ -89,6 +89,8 @@ export function toMin(hhmm) {
   if (!m) return NaN;
   let h = Number(m[1]);
   const min = Number(m[2] || 0);
+  // 8:75pm or 13pm is a typo, not 9:15pm or 1am the next day: refuse it (24:00 ends a day).
+  if (min > 59 || h > 24 || (h === 24 && min > 0) || (m[3] && h > 12)) return NaN;
   if (m[3]) {
     const pm = m[3].toLowerCase() === "pm";
     if (h === 12) h = pm ? 12 : 0;
@@ -446,7 +448,7 @@ export function taxSummary(desk, year, today = `${year}-12-31`) {
   }
   const appTotal = Object.entries(byMethod).filter(([m]) => /venmo|paypal|cash ?app|square|stripe/i.test(m));
   const appSum = appTotal.reduce((a, [, v]) => a + v, 0);
-  if (appSum > 0) flags.push(`$${r2(appSum)} came through payment apps. A Form 1099-K arrives only above $${FORM_1099K.amount.toLocaleString()} and ${FORM_1099K.count} payments, but every dollar is income whether or not a form arrives, cash too.`);
+  if (appSum > 0) flags.push(`$${r2(appSum)} came through payment apps. A Form 1099-K arrives only above $${FORM_1099K.amount.toLocaleString('en-US')} and ${FORM_1099K.count} payments, but every dollar is income whether or not a form arrives, cash too.`);
   if (sits.length && !totalMiles) flags.push("No miles logged. Driving between sits (not from home to your first sit if home is not your main place of business) can be deductible; log miles on each sit.");
   flags.push("Families who claim the child and dependent care credit (Form 2441) or a dependent-care FSA need your name, address and taxpayer ID. For a sole proprietor that is your Social Security number: the IRS instructions for Form W-10 say that for individuals and sole proprietors the taxpayer ID is an SSN, and Form 2441's instructions ask families for an individual provider's SSN. Form W-10 is the IRS form for giving it to them. The family statement below has the totals they need.");
   return { year, income, byMonth: byMonth.map(r2), byFamily, byMethod, expenses, expenseByCat, mileage, totalMiles, net, seTax, incomeTax, stateTax, setAside, setAsidePct, quarters, flags, sits: sits.length, unpaid: unpaid(desk, today) };

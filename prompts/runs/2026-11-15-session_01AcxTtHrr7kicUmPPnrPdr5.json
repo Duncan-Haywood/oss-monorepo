@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHrr7kicUmPPnrPdr5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T05:06:08Z",
+  "ended": "2026-11-15T05:19:30Z",
+  "wall_minutes": 13.7,
+  "tokens_in": 14449582,
+  "tokens_out": 69777,
+  "cost_usd": 6.1719,
+  "tool_calls": 86,
+  "task": "Deepen flagship einvoice-preflight (allocate.py row 3): the open item 'a real SdI rejection receipt'",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16100",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 15,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First full venture-test run failed: sample-audit-pack.html out of date (IT-003 message now names the SdI code) and 4 unguarded object-map lookups (inherited_keys.py)",
+      "fix": "Regenerated the sample pack with build-sample-pack.mjs; guarded the lookups with Object.hasOwn; rerun green"
+    },
+    {
+      "what": "venture-preflight.mjs: 218/222 checks passed; failures were the new build script's file:// entry guard (check_cli_entry) and the post's description/seo_title length (front matter, already fixed)",
+      "fix": "pathToFileURL guard; reran check_cli_entry.py, test_check_cli_entry.py, check_post_frontmatter.py and promptctl validate: all exit 0"
+    },
+    {
+      "what": "CI validate job: favicons.py found the new sdi-error-codes.html missing a tab icon (venture-preflight did not run favicons.py)",
+      "fix": "generator writes the venture's icon link; favicons.py 0 missing"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight's next: listed 'a real SdI rejection receipt' as needing an outside input, but public ones exist (AgID/EeISI deliverables D5_2/D5_5 hold real SdI test/production receipts with some of their invoices); a code search found them in minutes. Other 'needs a real file' items may be similarly findable."
+    },
+    {
+      "file": "ventures/einvoice-preflight/italy-sdi-e-invoice-mandate.html",
+      "issue": "Stated SdI does not take EN 16931 files and that the checker does not check the XSD in full (both stale); corrected in this PR."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-einvoice-sdi-rejection-receipts.md",
+    "ventures/einvoice-preflight/eval/sdi-receipts-2026-11-15.md"
+  ],
+  "goal": "Confirm the FatturaPA/SdI rules against real SdI answers and give users a way to read a rejection",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 1 suite, 0 failed (106 skipped, pre-existing optional deps). platform/ci/inherited_keys.py: 0 new unguarded lookups. portfolio/router/validate.py: all VENTURE.yaml valid. eval/sdi-receipts-corpus.mjs over 33 public receipts (SHA-256 pinned): all read; real SdI 00305 reproduced by INV-023 on the rejected UBL file; real 00300 not reproducible offline (id passes check digit). Spec 1.9 PDF (sha 549a68ac...) answered from agenziaentrate.gov.it this session; its Appendix 1 gave the 64 code texts. venture-preflight.mjs: 218/222 first pass; the 4 failures fixed and each rerun individually to exit 0.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6a627476-77a6-5535-9cf6-54d1608db07f",
+    "transcripts": 1,
+    "first": "2026-11-15T05:06:08Z",
+    "last": "2026-11-15T05:19:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 151,
+        "output": 69777,
+        "thinking": 15588,
+        "cache_read": 14207647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 241784,
+        "api_equivalent_usd": 6.1719,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 151,
+      "output": 69777,
+      "thinking": 15588,
+      "cache_read": 14207647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 241784,
+      "api_equivalent_usd": 6.1719,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 77,
+      "Write": 4,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.7,
+      "active_minutes": 13.7,
+      "model_minutes": 11.19,
+      "tool_minutes": 2.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "senior dev: find public SdI receipts, read spec 1.9 control list, write reader+pairing+page+tests+eval (~2 days)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 259.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

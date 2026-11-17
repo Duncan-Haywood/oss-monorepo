@@ -14,7 +14,7 @@ export const TAX_YEAR = 2026;
 export const BRACKETS = {
   single: [[12400, 0.10], [50400, 0.12], [105700, 0.22], [201775, 0.24], [256225, 0.32], [640600, 0.35], [Infinity, 0.37]],
   mfj: [[24800, 0.10], [100800, 0.12], [211400, 0.22], [403550, 0.24], [512450, 0.32], [768700, 0.35], [Infinity, 0.37]],
-  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201775, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
+  hoh: [[17700, 0.10], [67450, 0.12], [105700, 0.22], [201750, 0.24], [256200, 0.32], [640600, 0.35], [Infinity, 0.37]],
 };
 export const STANDARD_DEDUCTION = { single: 16100, mfj: 32200, hoh: 24150 };
 export const SS_WAGE_BASE = 184500;
@@ -30,7 +30,7 @@ export function num(v) {
   const n = Number(s);
   return Number.isFinite(n) ? n : NaN;
 }
-export const money = (v) => (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
 const statusOf = (s) => (BRACKETS[s] ? s : "single");
 
 export function incomeTax(taxable, status) {

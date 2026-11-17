@@ -72,3 +72,9 @@ test("the sample payouts load from the page and the account list defaults to the
   assert.match(html, /sampleReport/);
   assert.match(html, /mappingText\(\)/);
 });
+
+test("the bank deposit box reads 1,262.00 and 1.262,00 through parseAmount, not parseFloat (quality round 59)", () => {
+  const html = page("index.html");
+  assert.match(html, /parseAmount\(\$\("#expected"\)/);
+  assert.doesNotMatch(html, /parseFloat\(\$\("#expected"\)/);
+});

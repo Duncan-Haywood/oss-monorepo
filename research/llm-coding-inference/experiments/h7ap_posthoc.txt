@@ -1,0 +1,6 @@
+POST HOC (exploratory; chosen after reading the 7ap summary): no_info=inf sends a pilot the width forecast cannot read to pooled
+shipped: gain 7am cells 2.760, all 51 4.344; min coverage 93.4; GoEmotions above 1.010: []; guard-fail cells draws >= 50: []
+shipq: gain 7am cells 2.760, all 51 4.344; min coverage 93.4; GoEmotions above 1.010: []; guard-fail cells draws >= 50: []
+gtp2p: gain 7am cells 2.727, all 51 4.291; min coverage 93.4; GoEmotions above 1.010: [(('lr remorse', 500), 1.011)]; guard-fail cells draws >= 50: [(('1.5B gratitude', 2000), 163, 99.4), (('lr love', 2000), 50, 96.0)]
+gtp2q: gain 7am cells 2.747, all 51 4.322; min coverage 93.4; GoEmotions above 1.010: []; guard-fail cells draws >= 50: [(('1.5B gratitude', 2000), 163, 99.4), (('lr love', 2000), 50, 96.0)]
+gtn2q: gain 7am cells 2.734, all 51 4.303; min coverage 93.4; GoEmotions above 1.010: []; guard-fail cells draws >= 50: [(('1.5B gratitude', 1000), 170, 100.0), (('1.5B gratitude', 2000), 163, 100.0), (('lr love', 1000), 83, 100.0), (('lr love', 2000), 50, 96.0)]

@@ -35,7 +35,8 @@ const UNTRUSTED_SUFFIXES = new Set([
 ]);
 
 const CHECKOUT_UNTRUSTED_REF_RE =
-  /github\.event\.pull_request\.head\.(?:sha|ref|label)|github\.head_ref\b|github\.event\.workflow_run\.head_(?:sha|branch)\b/;
+  // A PR's merge commit and its refs/pull/<n>/merge and /head refs hold the fork's code too (same as check.py).
+  /github\.event\.pull_request\.head\.(?:sha|ref|label)|github\.event\.pull_request\.merge_commit_sha\b|github\.head_ref\b|github\.event\.workflow_run\.head_(?:sha|branch|commit\.id)\b|\brefs\/pull\//;
 
 function stripQuotes(value) {
   if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '"' || value[0] === "'")) {

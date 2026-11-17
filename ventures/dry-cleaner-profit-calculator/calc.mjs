@@ -84,7 +84,7 @@ export function compute(input) {
 
 export function money(n) {
   if (n === null || n === undefined || !Number.isFinite(n)) return "n/a";
-  return (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 }
 
 export const SAMPLE = {

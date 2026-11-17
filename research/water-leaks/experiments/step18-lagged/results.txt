@@ -1,0 +1,82 @@
+# water-leaks step 18: tracking baseline. Residual = 24 h mean from the localisation hour t minus the 24 h mean
+# from t - L; P = published pressures (no model, no leak list), D = published - leak-free L-TOWN_Real.inp run;
+# A = nominal L-TOWN.inp signatures at q = 5, argmax Pearson; M = most-affected sensor; rule 300 m along pipes
+
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m), primary L = 168 h
+  A on P-lag(168), data only           12 of 32 (0.0000;   841); abrupt 8 of 15, incipient 4 of 17
+  A on D-lag(168), demand removed      11 of 32 (0.0000;   742); abrupt 8 of 15, incipient 3 of 17
+  M on P-lag(168)                      12 of 32 (0.0000;   402); abrupt 10 of 15, incipient 2 of 17
+  M on D-lag(168)                      12 of 32 (0.0000;   402); abrupt 10 of 15, incipient 2 of 17
+  ref: A on D1 regression (step 11)    15 of 32 (0.0000;   436); abrupt 10 of 15, incipient 5 of 17
+  ref: A on one-leak oracle (step 17)  28 of 32 (0.0000;    68); abrupt 13 of 15, incipient 15 of 17
+
+## sweep over the lag L (no verdicts)
+  A on P-lag(24)                       12 of 32 (0.0000;   963); abrupt 11 of 15, incipient 1 of 17
+  A on D-lag(24)                       11 of 32 (0.0000;   902); abrupt 10 of 15, incipient 1 of 17
+  A on P-lag(72)                        8 of 32 (0.0001;   782); abrupt 7 of 15, incipient 1 of 17
+  A on D-lag(72)                       10 of 32 (0.0000;   660); abrupt 8 of 15, incipient 2 of 17
+  A on P-lag(168)                      12 of 32 (0.0000;   841); abrupt 8 of 15, incipient 4 of 17
+  A on D-lag(168)                      11 of 32 (0.0000;   742); abrupt 8 of 15, incipient 3 of 17
+  A on P-lag(336)                      11 of 32 (0.0000;   729); abrupt 8 of 15, incipient 3 of 17
+  A on D-lag(336)                      10 of 32 (0.0000;   560); abrupt 7 of 15, incipient 3 of 17
+  M on P-lag(24)                       12 of 32 (0.0000;   676); abrupt 12 of 15, incipient 0 of 17
+  M on P-lag(72)                       12 of 32 (0.0000;   421); abrupt 11 of 15, incipient 1 of 17
+  M on P-lag(168)                      12 of 32 (0.0000;   402); abrupt 10 of 15, incipient 2 of 17
+  M on P-lag(336)                      12 of 32 (0.0000;   451); abrupt 11 of 15, incipient 1 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  A on P-lag only 3, M on P-lag only 3: P = 1.000
+  A on P-lag only 2, A on D1 only 5: P = 0.453
+  A on P-lag only 0, A on oracle only 16: P = 0.000
+  A on D-lag only 0, A on P-lag only 1: P = 1.000
+
+## contamination, from the published leak flows (m3/h; other = summed |change| of every other leak)
+  abrupt   : own change over 168 h median 20.30, others  2.76; since onset own 20.30, others  0.28; ratio others/own 168 h 0.19, onset 0.01
+  incipient: own change over 168 h median  2.34, others  2.66; since onset own  6.71, others 17.84; ratio others/own 168 h 0.61, onset 2.57
+  all      : own change over 168 h median  5.42, others  2.71; since onset own 10.62, others  0.95; ratio others/own 168 h 0.46, onset 0.09
+  share of the leak's own change since onset left in the 168 h window: median 0.95 (abrupt 1.00, incipient 0.32)
+  Pearson r of D-lag(168) with O-inc: median 0.808 (range -0.626 to 1.000)
+  best Pearson score of A on P-lag(168): median 0.8962 (range 0.1673 to 0.9981)
+
+  pipe  kind       t                 q m3/h | P168 A | D168 A | P168 M | D1 A | oracle A | own168 | oth168 | own_on | oth_on | best r P
+   p232 incipient  2018-02-02T15      18.7 |    118 |    186 |    404 |  157 |      246 |  18.73 |   0.79 |  18.73 |   0.50 | 0.9977
+   p673 abrupt     2018-03-05T16      28.4 |    150 |     22 |     66 |   22 |      200 |  28.40 |   4.17 |  28.40 |   0.68 | 0.9871
+   p461 incipient  2018-03-09T04      15.5 |   2142 |   2164 |   2080 | 2164 |       20 |   4.37 |  28.59 |  15.52 |  30.18 | 0.9801
+   p427 incipient  2018-04-18T21       2.6 |   1577 |   1481 |   1646 | 1214 |       25 |   0.53 |   0.01 |   2.61 |   4.16 | 0.9876
+   p628 incipient  2018-05-12T08      19.5 |    201 |    101 |    399 |   28 |       28 |  17.56 |   0.73 |  19.51 |   1.08 | 0.9882
+   p538 abrupt     2018-05-18T09      32.4 |    215 |    215 |    989 |  266 |       59 |  32.43 |  19.10 |  32.43 |   0.08 | 0.9887
+   p866 abrupt     2018-06-01T09      20.3 |    103 |    103 |    198 |  198 |       19 |  20.30 |  38.58 |  20.30 |   3.87 | 0.4733
+    p31 incipient  2018-07-23T18       8.4 |   1474 |    796 |    302 |  275 |      507 |   3.95 |   0.22 |   8.44 |   0.37 | 0.7182
+   p183 abrupt     2018-08-07T03      16.3 |    818 |    729 |    128 |   31 |       31 |  16.26 |   2.76 |  16.26 |   0.15 | 0.8588
+   p654 incipient  2018-08-26T14       2.8 |   2300 |   2187 |   2300 | 2017 |      125 |   0.69 |   0.28 |   2.80 |  17.84 | 0.9221
+   p810 incipient  2018-10-05T14       3.5 |    865 |    918 |    918 |  438 |      125 |   0.66 |  11.70 |   3.50 |  29.32 | 0.9679
+   p158 abrupt     2018-10-06T03      24.5 |     31 |    136 |     83 |   83 |      136 |  24.48 |   0.69 |  24.48 |   0.12 | 0.9947
+   p369 abrupt     2018-10-26T02      20.5 |    573 |    688 |    435 |  435 |      299 |  20.51 |  25.34 |  20.51 |   0.17 | 0.5971
+   p523 abrupt     2019-01-15T23      28.2 |    130 |    129 |     86 |   22 |       76 |  28.19 |   0.02 |  28.19 |   0.03 | 0.9841
+   p827 abrupt     2019-01-24T19      26.2 |    280 |    127 |    229 |  893 |      280 |  26.18 |   0.08 |  26.18 |   0.07 | 0.9981
+   p280 abrupt     2019-02-10T13       5.2 |   1118 |   1118 |    381 |  460 |      381 |   5.18 |  26.26 |   5.18 |   0.05 | 0.6128
+   p710 abrupt     2019-03-24T14       5.5 |    979 |   2027 |   1761 |  128 |       28 |   5.46 |   1.91 |   5.46 |   0.34 | 0.2902
+   p514 abrupt     2019-04-02T21      15.5 |    157 |     26 |     77 |  244 |       26 |  15.45 |   2.89 |  15.45 |   0.49 | 0.7937
+   p653 incipient  2019-04-07T12       9.4 |    662 |    662 |   1368 |  662 |       28 |   3.32 |  15.51 |   9.39 |  21.06 | 0.9748
+   p331 abrupt     2019-04-20T10      10.5 |    869 |    751 |    277 |  799 |      360 |  10.54 |   4.79 |  10.54 |   0.72 | 0.9696
+   p142 abrupt     2019-06-12T20      26.6 |    281 |    281 |    281 |  289 |       79 |  26.59 |   0.99 |  26.59 |   0.28 | 0.6217
+   p193 incipient  2019-07-05T22       5.3 |   2002 |   1953 |   2682 | 1811 |       31 |   1.43 |   0.81 |   5.29 |  44.13 | 0.9870
+   p680 abrupt     2019-07-10T09       5.4 |   1460 |   1509 |    109 |  439 |       47 |   5.36 |   2.46 |   5.36 |   0.60 | 0.5700
+   p277 incipient  2019-07-21T22       3.8 |   2788 |   2788 |   2223 | 2788 |      407 |   0.98 |  28.73 |   3.80 |  14.69 | 0.5286
+   p586 incipient  2019-08-18T21      10.7 |     80 |    237 |    193 |   82 |      107 |   5.37 |   1.34 |  10.71 |   4.84 | 0.7901
+   p800 incipient  2019-09-01T10      11.7 |    246 |    393 |     97 |  991 |       30 |   7.86 |   4.82 |  11.69 |  15.67 | 0.8086
+   p721 incipient  2019-09-08T03       6.7 |   1073 |   1122 |   1140 |  875 |      117 |   2.26 |  10.64 |   6.71 |  43.12 | 0.7625
+   p426 abrupt     2019-10-25T13      13.0 |    732 |    732 |    387 |   25 |       25 |  12.98 |   2.51 |  12.98 |   0.81 | 0.9654
+   p123 incipient  2019-11-07T22       4.7 |    865 |    822 |    599 | 1033 |      182 |   1.10 |   3.27 |   4.69 |  66.31 | 0.8041
+   p762 incipient  2019-11-17T03       8.0 |   2256 |   2414 |   2414 |  969 |       49 |   2.59 |   2.66 |   7.99 |  22.80 | 0.8704
+   p455 incipient  2019-11-24T22       5.6 |   1618 |   1618 |   1309 | 2001 |       23 |   1.39 |   5.11 |   5.63 |  32.39 | 0.9651
+   p879 incipient  2019-12-19T21       5.7 |   3404 |   3404 |   3086 |  195 |       25 |   2.34 |   1.17 |   5.66 |  14.56 | 0.1673
+
+## pre-registered predictions (LOG.md, step 18 plan)
+  (a) A on P-lag(168) puts more than 15 of 32 within 300 m: 12: FAILED
+  (b) A on D-lag(168) puts more than 5 of 17 incipient leaks within 300 m: 3: FAILED
+  (c) hits(A on D-lag(168)) - hits(A on P-lag(168)) <= 3: 11 - 12 = -1: HELD
+  (d) A on P-lag(168) puts at most 23 of 32 within 300 m: 12: HELD
+  (e) A beats M on P-lag(168) at P < 0.05: A only 3, M only 3, P = 1.000: FAILED

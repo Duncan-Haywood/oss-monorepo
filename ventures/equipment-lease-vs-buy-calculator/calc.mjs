@@ -191,7 +191,7 @@ export function compareLeaseVsBuy(raw) {
 
 function csvCell(v) {
   const s = String(v);
-  const safe = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; // neutralise spreadsheet formulas
+  const safe = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; // neutralise spreadsheet formulas
   return /[",\r\n]/.test(safe) ? `"${safe.replaceAll('"', '""')}"` : safe;
 }
 

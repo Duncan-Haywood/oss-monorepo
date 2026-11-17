@@ -9,7 +9,7 @@
 
 import { mileageDeduction, homeOfficeDeduction } from "./deductions.mjs";
 import { journal } from "./engine.mjs";
-import { payeeKey } from "./categorize.mjs";
+import { payeeKey, legacyPayeeKey } from "./categorize.mjs";
 import { nextBusinessDay } from "./salestaxreturn.mjs";
 import { accountMap, profitAndLoss } from "./ledger.mjs";
 
@@ -181,7 +181,9 @@ export function contractors1099(books, { year, threshold, codes = CONTRACT_CODES
   const byKey = new Map();
   const warnings = [];
   const get = (t) => {
-    const raw = payeeKey(t.desc) || t.desc.toLowerCase();
+    const now = payeeKey(t.desc) || t.desc.toLowerCase(), was = legacyPayeeKey(t.desc) || t.desc.toLowerCase();
+    // A W-9 flag or merge saved before 2026-11-14 sits under the old payee key (glued digits dropped).
+    const raw = !books.vendors?.[now] && books.vendors?.[was] ? was : now;
     const key = books.vendors?.[raw]?.mergeInto ?? raw;
     if (!byKey.has(key)) byKey.set(key, { key, names: new Map(), cents: 0, count: 0, cardCents: 0 });
     const p = byKey.get(key);
@@ -473,6 +475,17 @@ export function estimatedDueDates(year) {
     while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6 || dcHoliday(dt)) dt.setUTCDate(dt.getUTCDate() + 1);
     return dt.toISOString().slice(0, 10);
   });
+}
+
+// The last day to file the year's return and pay in full so the January
+// installment owes no penalty (IRC 6654(h); Form 2210 instructions, "Line 11":
+// "by January 31"). It is a "last day prescribed ... for performing any act", so
+// IRC 7503 moves it past a weekend or DC holiday like the dates above: for tax
+// year 2025, January 31, 2026 is a Saturday and the day is Monday, February 2.
+export function fileAndPayDeadline(year) {
+  const dt = new Date(Date.UTC(year + 1, 0, 31));
+  while (dt.getUTCDay() === 0 || dt.getUTCDay() === 6 || dcHoliday(dt)) dt.setUTCDate(dt.getUTCDate() + 1);
+  return dt.toISOString().slice(0, 10);
 }
 
 // Quarter-by-quarter set-aside for the self-employment part: the year's Schedule C

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHqU2jnq6oc4aEbwF9",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T21:06:25Z",
+  "ended": "2026-11-15T21:20:42Z",
+  "wall_minutes": 14.49,
+  "tokens_in": 3720961,
+  "tokens_out": 50627,
+  "cost_usd": 2.6325,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16345",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Craft checklist item 8 says to work quantities again at the minute a character says them; my own basin routing reported time from rain start, and I first wrote the empty time as if from rain end. Worth a line: say what clock a simulation's time is on."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/creative_due.py",
+      "why": "It drew little-lamps; I had already checked the open PRs and worked the numbers for the bible's only open Hearth & Horizon proposal (the headline shelf) before running the draw.",
+      "did": "Wrote the Hearth & Horizon culvert story instead of a Little Lamps piece.",
+      "result": "One finished story landed; the Little Lamps draw is left for the next run."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio is at 474 MB, over the 400 MB cap.",
+      "did": "Text only, no MP3.",
+      "result": "Page and feeds regenerated without audio."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-field-that-held-the-water-back-culvert.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: the-field-that-held-the-water-back. All numbers (rational method, Kirpich, Manning, Gumbel return periods, orifice-routed basin) recomputed in Python; adversarial reread fixed basin empty time, green size vs pitch, and lane overtopping depth. node --test 17/17; pages.yml local 6/6 run steps ok. Added next H&H proposal (c\u00e8il\u00ed floor natural frequency).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa745860-cb0b-53dd-9935-fc627f4b5de1",
+    "transcripts": 1,
+    "first": "2026-11-15T21:06:25Z",
+    "last": "2026-11-15T21:20:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 76,
+        "output": 50627,
+        "thinking": 21764,
+        "cache_read": 3608647,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112238,
+        "api_equivalent_usd": 2.6325,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 76,
+      "output": 50627,
+      "thinking": 21764,
+      "cache_read": 3608647,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112238,
+      "api_equivalent_usd": 2.6325,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.49,
+      "active_minutes": 14.49,
+      "model_minutes": 9.99,
+      "tool_minutes": 4.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a technical writer researching drainage sums and drafting a 5,300-word story",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 379.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,217 @@
+capture-sync step 3: Learn-then-Test PSR gate on LibriWASN phones (alpha 1% failure among accepted, delta 0.1)
+windows: 96000 usable of 96000 (each scored for 5 weightings); grid 241 thresholds, PSR 2 to 400, geometric
+
+== Replay check: raw failure shares (all noise levels) vs step 1's results.txt cells ==
+  (per-cell shares in summary.json 'replay'; compare with real-devices/summary.json 'fail')
+
+== S1 exchangeable: random 5/5 session split within a room, 50 splits; share of splits with test failure|kept > alpha (LTT bound: <= delta = 0.10 if windows were i.i.d.) ==
+  room 200 0.5 s psr:1.0 : viol 0.08 (>2a 0.00), mean kept 0.32, mean fail|kept 0.0073 | naive viol 0.46 kept 0.34
+  room 200 0.5 s psr:0.25: viol 0.26 (>2a 0.00), mean kept 0.45, mean fail|kept 0.0074 | naive viol 0.46 kept 0.47
+  room 200 0.5 s agree   : viol 0.18 (>2a 0.00), mean kept 0.54, mean fail|kept 0.0076 | naive viol 0.38 kept 0.57
+  room 200 1.0 s psr:1.0 : viol 0.30 (>2a 0.00), mean kept 0.66, mean fail|kept 0.0076 | naive viol 0.38 kept 0.70
+  room 200 1.0 s psr:0.25: viol 0.28 (>2a 0.00), mean kept 0.78, mean fail|kept 0.0067 | naive viol 0.38 kept 0.81
+  room 200 1.0 s agree   : viol 0.16 (>2a 0.00), mean kept 0.82, mean fail|kept 0.0076 | naive viol 0.54 kept 0.82
+  room 200 2.0 s psr:1.0 : viol 0.16 (>2a 0.00), mean kept 0.88, mean fail|kept 0.0073 | naive viol 0.40 kept 0.89
+  room 200 2.0 s psr:0.25: viol 0.26 (>2a 0.00), mean kept 0.98, mean fail|kept 0.0082 | naive viol 0.36 kept 0.98
+  room 200 2.0 s agree   : viol 0.00 (>2a 0.00), mean kept 0.92, mean fail|kept 0.0053 | naive viol 0.00 kept 0.92
+  room 200 4.0 s psr:1.0 : viol 0.00 (>2a 0.00), mean kept 0.96, mean fail|kept 0.0072 | naive viol 0.28 kept 0.96
+  room 200 4.0 s psr:0.25: viol 0.10 (>2a 0.00), mean kept 0.99, mean fail|kept 0.0076 | naive viol 0.58 kept 0.99
+  room 200 4.0 s agree   : viol 0.00 (>2a 0.00), mean kept 0.96, mean fail|kept 0.0038 | naive viol 0.00 kept 0.96
+  room 800 0.5 s psr:1.0 : viol 0.08 (>2a 0.00), mean kept 0.29, mean fail|kept 0.0066 | naive viol 0.52 kept 0.31
+  room 800 0.5 s psr:0.25: viol 0.06 (>2a 0.00), mean kept 0.36, mean fail|kept 0.0067 | naive viol 0.40 kept 0.38
+  room 800 0.5 s agree   : viol 0.28 (>2a 0.00), mean kept 0.44, mean fail|kept 0.0081 | naive viol 0.54 kept 0.47
+  room 800 1.0 s psr:1.0 : viol 0.24 (>2a 0.00), mean kept 0.56, mean fail|kept 0.0081 | naive viol 0.44 kept 0.60
+  room 800 1.0 s psr:0.25: viol 0.24 (>2a 0.00), mean kept 0.66, mean fail|kept 0.0079 | naive viol 0.46 kept 0.69
+  room 800 1.0 s agree   : viol 0.10 (>2a 0.00), mean kept 0.74, mean fail|kept 0.0073 | naive viol 0.22 kept 0.74
+  room 800 2.0 s psr:1.0 : viol 0.00 (>2a 0.00), mean kept 0.80, mean fail|kept 0.0072 | naive viol 0.30 kept 0.81
+  room 800 2.0 s psr:0.25: viol 0.30 (>2a 0.00), mean kept 0.96, mean fail|kept 0.0084 | naive viol 0.44 kept 0.97
+  room 800 2.0 s agree   : viol 0.00 (>2a 0.00), mean kept 0.88, mean fail|kept 0.0071 | naive viol 0.00 kept 0.88
+  room 800 4.0 s psr:1.0 : viol 0.00 (>2a 0.00), mean kept 0.92, mean fail|kept 0.0063 | naive viol 0.08 kept 0.93
+  room 800 4.0 s psr:0.25: viol 0.08 (>2a 0.00), mean kept 1.00, mean fail|kept 0.0075 | naive viol 0.32 kept 1.00
+  room 800 4.0 s agree   : viol 0.00 (>2a 0.00), mean kept 0.96, mean fail|kept 0.0031 | naive viol 0.00 kept 0.96
+
+== S2 room shift: calibrate on all of one room (noise pooled), test on the other, by test noise ==
+  200->800 0.5 s psr:1.0  pooled  : lam   12.0 kept 0.27 fail|kept 0.0043 (all 0.434) | naive kept 0.28 fail|kept 0.0056
+  200->800 0.5 s psr:1.0  as rec. : lam   12.0 kept 0.69 fail|kept 0.0051 (all 0.144) | naive kept 0.71 fail|kept 0.0067
+  200->800 0.5 s psr:1.0  +0 dB   : lam   12.0 kept 0.12 fail|kept 0.0000 (all 0.361) | naive kept 0.14 fail|kept 0.0000
+  200->800 0.5 s psr:1.0  -10 dB  : lam   12.0 kept 0.00 fail|kept 0.0000 (all 0.798) | naive kept 0.00 fail|kept 0.0000
+  200->800 0.5 s psr:0.25 pooled  : lam   10.7 kept 0.36 fail|kept 0.0065 (all 0.253) | naive kept 0.37 fail|kept 0.0076
+  200->800 0.5 s psr:0.25 as rec. : lam   10.7 kept 0.60 fail|kept 0.0091 (all 0.138) | naive kept 0.62 fail|kept 0.0109
+  200->800 0.5 s psr:0.25 +0 dB   : lam   10.7 kept 0.44 fail|kept 0.0034 (all 0.176) | naive kept 0.46 fail|kept 0.0033
+  200->800 0.5 s psr:0.25 -10 dB  : lam   10.7 kept 0.04 fail|kept 0.0000 (all 0.444) | naive kept 0.04 fail|kept 0.0067
+  200->800 0.5 s agree    pooled  : lam    8.0 kept 0.46 fail|kept 0.0096 (all 0.253) | naive kept 0.48 fail|kept 0.0112
+  200->800 0.5 s agree    as rec. : lam    8.0 kept 0.74 fail|kept 0.0085 (all 0.138) | naive kept 0.76 fail|kept 0.0095
+  200->800 0.5 s agree    +0 dB   : lam    8.0 kept 0.56 fail|kept 0.0107 (all 0.176) | naive kept 0.58 fail|kept 0.0133
+  200->800 0.5 s agree    -10 dB  : lam    8.0 kept 0.09 fail|kept 0.0117 (all 0.444) | naive kept 0.11 fail|kept 0.0118
+  200->800 1.0 s psr:1.0  pooled  : lam    6.0 kept 0.60 fail|kept 0.0097 (all 0.249) | naive kept 0.63 fail|kept 0.0124
+  200->800 1.0 s psr:1.0  as rec. : lam    6.0 kept 0.97 fail|kept 0.0146 (all 0.025) | naive kept 0.98 fail|kept 0.0164
+  200->800 1.0 s psr:1.0  +0 dB   : lam    6.0 kept 0.73 fail|kept 0.0041 (all 0.118) | naive kept 0.77 fail|kept 0.0071
+  200->800 1.0 s psr:1.0  -10 dB  : lam    6.0 kept 0.10 fail|kept 0.0025 (all 0.605) | naive kept 0.13 fail|kept 0.0134
+  200->800 1.0 s psr:0.25 pooled  : lam    7.4 kept 0.71 fail|kept 0.0122 (all 0.094) | naive kept 0.73 fail|kept 0.0147
+  200->800 1.0 s psr:0.25 as rec. : lam    7.4 kept 0.95 fail|kept 0.0152 (all 0.029) | naive kept 0.96 fail|kept 0.0182
+  200->800 1.0 s psr:0.25 +0 dB   : lam    7.4 kept 0.91 fail|kept 0.0119 (all 0.043) | naive kept 0.92 fail|kept 0.0142
+  200->800 1.0 s psr:0.25 -10 dB  : lam    7.4 kept 0.28 fail|kept 0.0035 (all 0.208) | naive kept 0.32 fail|kept 0.0055
+  200->800 1.0 s agree    pooled  : lam    4.7 kept 0.74 fail|kept 0.0120 (all 0.094) | naive kept 0.75 fail|kept 0.0148
+  200->800 1.0 s agree    as rec. : lam    4.7 kept 0.96 fail|kept 0.0018 (all 0.029) | naive kept 0.96 fail|kept 0.0018
+  200->800 1.0 s agree    +0 dB   : lam    4.7 kept 0.88 fail|kept 0.0071 (all 0.043) | naive kept 0.88 fail|kept 0.0071
+  200->800 1.0 s agree    -10 dB  : lam    4.7 kept 0.40 fail|kept 0.0467 (all 0.208) | naive kept 0.41 fail|kept 0.0616
+  200->800 2.0 s psr:1.0  pooled  : lam    4.8 kept 0.82 fail|kept 0.0111 (all 0.122) | naive kept 0.82 fail|kept 0.0111
+  200->800 2.0 s psr:1.0  as rec. : lam    4.8 kept 0.99 fail|kept 0.0030 (all 0.005) | naive kept 0.99 fail|kept 0.0030
+  200->800 2.0 s psr:1.0  +0 dB   : lam    4.8 kept 0.96 fail|kept 0.0031 (all 0.025) | naive kept 0.96 fail|kept 0.0031
+  200->800 2.0 s psr:1.0  -10 dB  : lam    4.8 kept 0.50 fail|kept 0.0422 (all 0.336) | naive kept 0.50 fail|kept 0.0422
+  200->800 2.0 s psr:0.25 pooled  : lam    4.4 kept 0.98 fail|kept 0.0145 (all 0.029) | naive kept 0.98 fail|kept 0.0145
+  200->800 2.0 s psr:0.25 as rec. : lam    4.4 kept 1.00 fail|kept 0.0030 (all 0.004) | naive kept 1.00 fail|kept 0.0030
+  200->800 2.0 s psr:0.25 +0 dB   : lam    4.4 kept 0.99 fail|kept 0.0075 (all 0.010) | naive kept 0.99 fail|kept 0.0075
+  200->800 2.0 s psr:0.25 -10 dB  : lam    4.4 kept 0.95 fail|kept 0.0338 (all 0.072) | naive kept 0.95 fail|kept 0.0338
+  200->800 2.0 s agree    pooled  : lam    2.0 kept 0.88 fail|kept 0.0070 (all 0.029) | naive kept 0.88 fail|kept 0.0070
+  200->800 2.0 s agree    as rec. : lam    2.0 kept 0.99 fail|kept 0.0003 (all 0.004) | naive kept 0.99 fail|kept 0.0003
+  200->800 2.0 s agree    +0 dB   : lam    2.0 kept 0.97 fail|kept 0.0008 (all 0.010) | naive kept 0.97 fail|kept 0.0008
+  200->800 2.0 s agree    -10 dB  : lam    2.0 kept 0.68 fail|kept 0.0257 (all 0.072) | naive kept 0.68 fail|kept 0.0257
+  200->800 4.0 s psr:1.0  pooled  : lam    4.6 kept 0.94 fail|kept 0.0109 (all 0.046) | naive kept 0.94 fail|kept 0.0109
+  200->800 4.0 s psr:1.0  as rec. : lam    4.6 kept 1.00 fail|kept 0.0015 (all 0.002) | naive kept 1.00 fail|kept 0.0015
+  200->800 4.0 s psr:1.0  +0 dB   : lam    4.6 kept 0.99 fail|kept 0.0030 (all 0.012) | naive kept 0.99 fail|kept 0.0030
+  200->800 4.0 s psr:1.0  -10 dB  : lam    4.6 kept 0.83 fail|kept 0.0317 (all 0.124) | naive kept 0.83 fail|kept 0.0317
+  200->800 4.0 s psr:0.25 pooled  : lam    4.2 kept 0.99 fail|kept 0.0065 (all 0.011) | naive kept 1.00 fail|kept 0.0083
+  200->800 4.0 s psr:0.25 as rec. : lam    4.2 kept 1.00 fail|kept 0.0013 (all 0.001) | naive kept 1.00 fail|kept 0.0013
+  200->800 4.0 s psr:0.25 +0 dB   : lam    4.2 kept 1.00 fail|kept 0.0018 (all 0.003) | naive kept 1.00 fail|kept 0.0018
+  200->800 4.0 s psr:0.25 -10 dB  : lam    4.2 kept 0.98 fail|kept 0.0168 (all 0.030) | naive kept 0.99 fail|kept 0.0220
+  200->800 4.0 s agree    pooled  : lam    2.0 kept 0.96 fail|kept 0.0031 (all 0.011) | naive kept 0.96 fail|kept 0.0031
+  200->800 4.0 s agree    as rec. : lam    2.0 kept 1.00 fail|kept 0.0003 (all 0.001) | naive kept 1.00 fail|kept 0.0003
+  200->800 4.0 s agree    +0 dB   : lam    2.0 kept 0.99 fail|kept 0.0005 (all 0.003) | naive kept 0.99 fail|kept 0.0005
+  200->800 4.0 s agree    -10 dB  : lam    2.0 kept 0.88 fail|kept 0.0093 (all 0.030) | naive kept 0.88 fail|kept 0.0093
+  800->200 0.5 s psr:1.0  pooled  : lam   10.9 kept 0.35 fail|kept 0.0111 (all 0.368) | naive kept 0.37 fail|kept 0.0130
+  800->200 0.5 s psr:1.0  as rec. : lam   10.9 kept 0.79 fail|kept 0.0148 (all 0.138) | naive kept 0.81 fail|kept 0.0176
+  800->200 0.5 s psr:1.0  +0 dB   : lam   10.9 kept 0.25 fail|kept 0.0000 (all 0.284) | naive kept 0.28 fail|kept 0.0000
+  800->200 0.5 s psr:1.0  -10 dB  : lam   10.9 kept 0.01 fail|kept 0.0000 (all 0.681) | naive kept 0.02 fail|kept 0.0000
+  800->200 0.5 s psr:0.25 pooled  : lam   10.5 kept 0.47 fail|kept 0.0090 (all 0.201) | naive kept 0.49 fail|kept 0.0103
+  800->200 0.5 s psr:0.25 as rec. : lam   10.5 kept 0.73 fail|kept 0.0117 (all 0.122) | naive kept 0.74 fail|kept 0.0125
+  800->200 0.5 s psr:0.25 +0 dB   : lam   10.5 kept 0.60 fail|kept 0.0071 (all 0.150) | naive kept 0.61 fail|kept 0.0090
+  800->200 0.5 s psr:0.25 -10 dB  : lam   10.5 kept 0.10 fail|kept 0.0000 (all 0.331) | naive kept 0.10 fail|kept 0.0024
+  800->200 0.5 s agree    pooled  : lam    8.6 kept 0.53 fail|kept 0.0069 (all 0.201) | naive kept 0.56 fail|kept 0.0088
+  800->200 0.5 s agree    as rec. : lam    8.6 kept 0.77 fail|kept 0.0042 (all 0.122) | naive kept 0.80 fail|kept 0.0060
+  800->200 0.5 s agree    +0 dB   : lam    8.6 kept 0.66 fail|kept 0.0095 (all 0.150) | naive kept 0.68 fail|kept 0.0118
+  800->200 0.5 s agree    -10 dB  : lam    8.6 kept 0.16 fail|kept 0.0094 (all 0.331) | naive kept 0.19 fail|kept 0.0103
+  800->200 1.0 s psr:1.0  pooled  : lam    6.4 kept 0.65 fail|kept 0.0065 (all 0.178) | naive kept 0.67 fail|kept 0.0079
+  800->200 1.0 s psr:1.0  as rec. : lam    6.4 kept 0.96 fail|kept 0.0083 (all 0.041) | naive kept 0.97 fail|kept 0.0093
+  800->200 1.0 s psr:1.0  +0 dB   : lam    6.4 kept 0.80 fail|kept 0.0044 (all 0.087) | naive kept 0.83 fail|kept 0.0057
+  800->200 1.0 s psr:1.0  -10 dB  : lam    6.4 kept 0.18 fail|kept 0.0068 (all 0.406) | naive kept 0.23 fail|kept 0.0098
+  800->200 1.0 s psr:0.25 pooled  : lam    8.0 kept 0.77 fail|kept 0.0068 (all 0.067) | naive kept 0.78 fail|kept 0.0074
+  800->200 1.0 s psr:0.25 as rec. : lam    8.0 kept 0.95 fail|kept 0.0079 (all 0.032) | naive kept 0.95 fail|kept 0.0087
+  800->200 1.0 s psr:0.25 +0 dB   : lam    8.0 kept 0.92 fail|kept 0.0073 (all 0.043) | naive kept 0.93 fail|kept 0.0078
+  800->200 1.0 s psr:0.25 -10 dB  : lam    8.0 kept 0.43 fail|kept 0.0035 (all 0.126) | naive kept 0.45 fail|kept 0.0039
+  800->200 1.0 s agree    pooled  : lam    5.1 kept 0.82 fail|kept 0.0053 (all 0.067) | naive kept 0.82 fail|kept 0.0061
+  800->200 1.0 s agree    as rec. : lam    5.1 kept 0.95 fail|kept 0.0021 (all 0.032) | naive kept 0.95 fail|kept 0.0021
+  800->200 1.0 s agree    +0 dB   : lam    5.1 kept 0.91 fail|kept 0.0055 (all 0.043) | naive kept 0.91 fail|kept 0.0063
+  800->200 1.0 s agree    -10 dB  : lam    5.1 kept 0.59 fail|kept 0.0102 (all 0.126) | naive kept 0.59 fail|kept 0.0123
+  800->200 2.0 s psr:1.0  pooled  : lam    4.9 kept 0.88 fail|kept 0.0066 (all 0.080) | naive kept 0.88 fail|kept 0.0066
+  800->200 2.0 s psr:1.0  as rec. : lam    4.9 kept 0.97 fail|kept 0.0036 (all 0.033) | naive kept 0.97 fail|kept 0.0036
+  800->200 2.0 s psr:1.0  +0 dB   : lam    4.9 kept 0.96 fail|kept 0.0042 (all 0.038) | naive kept 0.96 fail|kept 0.0042
+  800->200 2.0 s psr:1.0  -10 dB  : lam    4.9 kept 0.70 fail|kept 0.0140 (all 0.169) | naive kept 0.70 fail|kept 0.0140
+  800->200 2.0 s psr:0.25 pooled  : lam    4.8 kept 0.97 fail|kept 0.0057 (all 0.025) | naive kept 0.97 fail|kept 0.0058
+  800->200 2.0 s psr:0.25 as rec. : lam    4.8 kept 0.98 fail|kept 0.0036 (all 0.009) | naive kept 0.98 fail|kept 0.0036
+  800->200 2.0 s psr:0.25 +0 dB   : lam    4.8 kept 0.98 fail|kept 0.0038 (all 0.016) | naive kept 0.98 fail|kept 0.0041
+  800->200 2.0 s psr:0.25 -10 dB  : lam    4.8 kept 0.95 fail|kept 0.0098 (all 0.050) | naive kept 0.95 fail|kept 0.0100
+  800->200 2.0 s agree    pooled  : lam    2.0 kept 0.92 fail|kept 0.0053 (all 0.025) | naive kept 0.92 fail|kept 0.0053
+  800->200 2.0 s agree    as rec. : lam    2.0 kept 0.97 fail|kept 0.0010 (all 0.009) | naive kept 0.97 fail|kept 0.0010
+  800->200 2.0 s agree    +0 dB   : lam    2.0 kept 0.96 fail|kept 0.0018 (all 0.016) | naive kept 0.96 fail|kept 0.0018
+  800->200 2.0 s agree    -10 dB  : lam    2.0 kept 0.84 fail|kept 0.0143 (all 0.050) | naive kept 0.84 fail|kept 0.0143
+  800->200 4.0 s psr:1.0  pooled  : lam    4.7 kept 0.95 fail|kept 0.0058 (all 0.040) | naive kept 0.95 fail|kept 0.0058
+  800->200 4.0 s psr:1.0  as rec. : lam    4.7 kept 0.97 fail|kept 0.0051 (all 0.026) | naive kept 0.97 fail|kept 0.0051
+  800->200 4.0 s psr:1.0  +0 dB   : lam    4.7 kept 0.97 fail|kept 0.0064 (all 0.035) | naive kept 0.97 fail|kept 0.0064
+  800->200 4.0 s psr:1.0  -10 dB  : lam    4.7 kept 0.92 fail|kept 0.0057 (all 0.058) | naive kept 0.92 fail|kept 0.0057
+  800->200 4.0 s psr:0.25 pooled  : lam    4.1 kept 0.99 fail|kept 0.0098 (all 0.016) | naive kept 0.99 fail|kept 0.0113
+  800->200 4.0 s psr:0.25 as rec. : lam    4.1 kept 0.99 fail|kept 0.0030 (all 0.005) | naive kept 0.99 fail|kept 0.0033
+  800->200 4.0 s psr:0.25 +0 dB   : lam    4.1 kept 0.99 fail|kept 0.0053 (all 0.009) | naive kept 0.99 fail|kept 0.0055
+  800->200 4.0 s psr:0.25 -10 dB  : lam    4.1 kept 0.98 fail|kept 0.0211 (all 0.035) | naive kept 0.99 fail|kept 0.0253
+  800->200 4.0 s agree    pooled  : lam    2.0 kept 0.96 fail|kept 0.0037 (all 0.016) | naive kept 0.96 fail|kept 0.0037
+  800->200 4.0 s agree    as rec. : lam    2.0 kept 0.97 fail|kept 0.0008 (all 0.005) | naive kept 0.97 fail|kept 0.0008
+  800->200 4.0 s agree    +0 dB   : lam    2.0 kept 0.97 fail|kept 0.0023 (all 0.009) | naive kept 0.97 fail|kept 0.0023
+  800->200 4.0 s agree    -10 dB  : lam    2.0 kept 0.95 fail|kept 0.0082 (all 0.035) | naive kept 0.95 fail|kept 0.0082
+
+== S3 phone shift: calibrate on the 6 pairs without phone P (both rooms, noise pooled), test on its 4 ==
+  0.5 s psr:1.0  Nexus   : lam   10.0 kept 0.32 fail|kept 0.0251 (all 0.436) | naive kept 0.33 fail|kept 0.0272
+  0.5 s psr:1.0  Pixel6a : lam   11.7 kept 0.32 fail|kept 0.0061 (all 0.381) | naive kept 0.34 fail|kept 0.0071
+  0.5 s psr:1.0  Pixel6b : lam   12.0 kept 0.32 fail|kept 0.0036 (all 0.376) | naive kept 0.33 fail|kept 0.0054
+  0.5 s psr:1.0  Pixel7  : lam   12.0 kept 0.33 fail|kept 0.0037 (all 0.364) | naive kept 0.35 fail|kept 0.0060
+  0.5 s psr:1.0  Xiaomi  : lam   11.4 kept 0.27 fail|kept 0.0078 (all 0.450) | naive kept 0.28 fail|kept 0.0089
+  0.5 s psr:0.25 Nexus   : lam   10.2 kept 0.42 fail|kept 0.0125 (all 0.250) | naive kept 0.43 fail|kept 0.0141
+  0.5 s psr:0.25 Pixel6a : lam   11.2 kept 0.41 fail|kept 0.0033 (all 0.213) | naive kept 0.43 fail|kept 0.0046
+  0.5 s psr:0.25 Pixel6b : lam   11.2 kept 0.42 fail|kept 0.0032 (all 0.205) | naive kept 0.45 fail|kept 0.0051
+  0.5 s psr:0.25 Pixel7  : lam   10.7 kept 0.44 fail|kept 0.0073 (all 0.206) | naive kept 0.46 fail|kept 0.0097
+  0.5 s psr:0.25 Xiaomi  : lam   10.0 kept 0.38 fail|kept 0.0180 (all 0.260) | naive kept 0.41 fail|kept 0.0213
+  0.5 s agree    Nexus   : lam    7.9 kept 0.49 fail|kept 0.0111 (all 0.250) | naive kept 0.50 fail|kept 0.0140
+  0.5 s agree    Pixel6a : lam    8.6 kept 0.51 fail|kept 0.0053 (all 0.213) | naive kept 0.52 fail|kept 0.0058
+  0.5 s agree    Pixel6b : lam    8.6 kept 0.51 fail|kept 0.0059 (all 0.205) | naive kept 0.53 fail|kept 0.0067
+  0.5 s agree    Pixel7  : lam    8.2 kept 0.53 fail|kept 0.0078 (all 0.206) | naive kept 0.55 fail|kept 0.0086
+  0.5 s agree    Xiaomi  : lam    7.5 kept 0.47 fail|kept 0.0139 (all 0.260) | naive kept 0.47 fail|kept 0.0143
+  1.0 s psr:1.0  Nexus   : lam    6.0 kept 0.61 fail|kept 0.0092 (all 0.237) | naive kept 0.62 fail|kept 0.0096
+  1.0 s psr:1.0  Pixel6a : lam    6.6 kept 0.63 fail|kept 0.0052 (all 0.198) | naive kept 0.65 fail|kept 0.0069
+  1.0 s psr:1.0  Pixel6b : lam    6.3 kept 0.65 fail|kept 0.0081 (all 0.192) | naive kept 0.67 fail|kept 0.0090
+  1.0 s psr:1.0  Pixel7  : lam    6.2 kept 0.66 fail|kept 0.0083 (all 0.185) | naive kept 0.68 fail|kept 0.0096
+  1.0 s psr:1.0  Xiaomi  : lam    5.9 kept 0.59 fail|kept 0.0114 (all 0.257) | naive kept 0.61 fail|kept 0.0129
+  1.0 s psr:0.25 Nexus   : lam    7.5 kept 0.74 fail|kept 0.0112 (all 0.091) | naive kept 0.75 fail|kept 0.0119
+  1.0 s psr:0.25 Pixel6a : lam    8.2 kept 0.72 fail|kept 0.0046 (all 0.081) | naive kept 0.74 fail|kept 0.0059
+  1.0 s psr:0.25 Pixel6b : lam    8.0 kept 0.75 fail|kept 0.0061 (all 0.063) | naive kept 0.76 fail|kept 0.0067
+  1.0 s psr:0.25 Pixel7  : lam    7.9 kept 0.75 fail|kept 0.0080 (all 0.067) | naive kept 0.77 fail|kept 0.0092
+  1.0 s psr:0.25 Xiaomi  : lam    7.4 kept 0.70 fail|kept 0.0134 (all 0.099) | naive kept 0.72 fail|kept 0.0160
+  1.0 s agree    Nexus   : lam    4.8 kept 0.76 fail|kept 0.0089 (all 0.091) | naive kept 0.76 fail|kept 0.0102
+  1.0 s agree    Pixel6a : lam    5.1 kept 0.79 fail|kept 0.0043 (all 0.081) | naive kept 0.79 fail|kept 0.0054
+  1.0 s agree    Pixel6b : lam    4.9 kept 0.81 fail|kept 0.0063 (all 0.063) | naive kept 0.81 fail|kept 0.0078
+  1.0 s agree    Pixel7  : lam    4.8 kept 0.81 fail|kept 0.0095 (all 0.067) | naive kept 0.81 fail|kept 0.0104
+  1.0 s agree    Xiaomi  : lam    4.7 kept 0.74 fail|kept 0.0127 (all 0.099) | naive kept 0.74 fail|kept 0.0165
+  2.0 s psr:1.0  Nexus   : lam    4.9 kept 0.82 fail|kept 0.0069 (all 0.119) | naive kept 0.83 fail|kept 0.0098
+  2.0 s psr:1.0  Pixel6a : lam    4.9 kept 0.86 fail|kept 0.0067 (all 0.094) | naive kept 0.86 fail|kept 0.0067
+  2.0 s psr:1.0  Pixel6b : lam    4.9 kept 0.87 fail|kept 0.0057 (all 0.080) | naive kept 0.87 fail|kept 0.0057
+  2.0 s psr:1.0  Pixel7  : lam    4.9 kept 0.87 fail|kept 0.0069 (all 0.080) | naive kept 0.88 fail|kept 0.0097
+  2.0 s psr:1.0  Xiaomi  : lam    4.8 kept 0.80 fail|kept 0.0131 (all 0.133) | naive kept 0.80 fail|kept 0.0131
+  2.0 s psr:0.25 Nexus   : lam    4.6 kept 0.97 fail|kept 0.0094 (all 0.033) | naive kept 0.97 fail|kept 0.0114
+  2.0 s psr:0.25 Pixel6a : lam    4.6 kept 0.97 fail|kept 0.0093 (all 0.030) | naive kept 0.97 fail|kept 0.0093
+  2.0 s psr:0.25 Pixel6b : lam    4.8 kept 0.97 fail|kept 0.0049 (all 0.020) | naive kept 0.98 fail|kept 0.0052
+  2.0 s psr:0.25 Pixel7  : lam    4.7 kept 0.98 fail|kept 0.0074 (all 0.020) | naive kept 0.98 fail|kept 0.0083
+  2.0 s psr:0.25 Xiaomi  : lam    4.5 kept 0.97 fail|kept 0.0130 (all 0.032) | naive kept 0.98 fail|kept 0.0148
+  2.0 s agree    Nexus   : lam    2.0 kept 0.89 fail|kept 0.0068 (all 0.033) | naive kept 0.89 fail|kept 0.0068
+  2.0 s agree    Pixel6a : lam    2.0 kept 0.91 fail|kept 0.0065 (all 0.030) | naive kept 0.91 fail|kept 0.0065
+  2.0 s agree    Pixel6b : lam    2.0 kept 0.92 fail|kept 0.0040 (all 0.020) | naive kept 0.92 fail|kept 0.0040
+  2.0 s agree    Pixel7  : lam    2.0 kept 0.92 fail|kept 0.0052 (all 0.020) | naive kept 0.92 fail|kept 0.0052
+  2.0 s agree    Xiaomi  : lam    2.0 kept 0.87 fail|kept 0.0084 (all 0.032) | naive kept 0.87 fail|kept 0.0084
+  4.0 s psr:1.0  Nexus   : lam    4.6 kept 0.94 fail|kept 0.0101 (all 0.051) | naive kept 0.94 fail|kept 0.0101
+  4.0 s psr:1.0  Pixel6a : lam    4.7 kept 0.94 fail|kept 0.0061 (all 0.042) | naive kept 0.95 fail|kept 0.0084
+  4.0 s psr:1.0  Pixel6b : lam    4.7 kept 0.96 fail|kept 0.0060 (all 0.034) | naive kept 0.96 fail|kept 0.0060
+  4.0 s psr:1.0  Pixel7  : lam    4.7 kept 0.96 fail|kept 0.0063 (all 0.034) | naive kept 0.96 fail|kept 0.0087
+  4.0 s psr:1.0  Xiaomi  : lam    4.6 kept 0.93 fail|kept 0.0123 (all 0.052) | naive kept 0.93 fail|kept 0.0123
+  4.0 s psr:0.25 Nexus   : lam    4.1 kept 0.99 fail|kept 0.0126 (all 0.016) | naive kept 1.00 fail|kept 0.0151
+  4.0 s psr:0.25 Pixel6a : lam    4.2 kept 0.99 fail|kept 0.0067 (all 0.015) | naive kept 0.99 fail|kept 0.0084
+  4.0 s psr:0.25 Pixel6b : lam    4.2 kept 0.99 fail|kept 0.0055 (all 0.011) | naive kept 0.99 fail|kept 0.0055
+  4.0 s psr:0.25 Pixel7  : lam    4.2 kept 0.99 fail|kept 0.0067 (all 0.011) | naive kept 1.00 fail|kept 0.0081
+  4.0 s psr:0.25 Xiaomi  : lam    4.1 kept 1.00 fail|kept 0.0122 (all 0.015) | naive kept 1.00 fail|kept 0.0122
+  4.0 s agree    Nexus   : lam    2.0 kept 0.95 fail|kept 0.0040 (all 0.016) | naive kept 0.95 fail|kept 0.0040
+  4.0 s agree    Pixel6a : lam    2.0 kept 0.96 fail|kept 0.0038 (all 0.015) | naive kept 0.96 fail|kept 0.0038
+  4.0 s agree    Pixel6b : lam    2.0 kept 0.97 fail|kept 0.0027 (all 0.011) | naive kept 0.97 fail|kept 0.0027
+  4.0 s agree    Pixel7  : lam    2.0 kept 0.97 fail|kept 0.0025 (all 0.011) | naive kept 0.97 fail|kept 0.0025
+  4.0 s agree    Xiaomi  : lam    2.0 kept 0.95 fail|kept 0.0042 (all 0.015) | naive kept 0.95 fail|kept 0.0042
+
+== S4 noise shift: calibrate on as recorded + 0 dB, test on -10 dB, same room ==
+  room 200 0.5 s psr:1.0 : lam   12.0 kept 0.01 fail|kept 0.0000 (all 0.681) | naive kept 0.01 fail|kept 0.0000
+  room 200 0.5 s psr:0.25: lam   10.9 kept 0.08 fail|kept 0.0000 (all 0.331) | naive kept 0.10 fail|kept 0.0000
+  room 200 0.5 s agree   : lam    8.0 kept 0.19 fail|kept 0.0094 (all 0.331) | naive kept 0.21 fail|kept 0.0128
+  room 200 1.0 s psr:1.0 : lam    6.0 kept 0.23 fail|kept 0.0098 (all 0.406) | naive kept 0.28 fail|kept 0.0081
+  room 200 1.0 s psr:0.25: lam    7.9 kept 0.45 fail|kept 0.0039 (all 0.126) | naive kept 0.52 fail|kept 0.0048
+  room 200 1.0 s agree   : lam    2.0 kept 0.62 fail|kept 0.0466 (all 0.126) | naive kept 0.62 fail|kept 0.0466
+  room 200 2.0 s psr:1.0 : lam    4.5 kept 0.80 fail|kept 0.0448 (all 0.169) | naive kept 0.84 fail|kept 0.0611
+  room 200 2.0 s psr:0.25: lam    3.8 kept 1.00 fail|kept 0.0465 (all 0.050) | naive kept 1.00 fail|kept 0.0503
+  room 200 2.0 s agree   : lam    2.0 kept 0.84 fail|kept 0.0143 (all 0.050) | naive kept 0.84 fail|kept 0.0143
+  room 200 4.0 s psr:1.0 : lam    4.6 kept 0.93 fail|kept 0.0084 (all 0.058) | naive kept 0.94 fail|kept 0.0128
+  room 200 4.0 s psr:0.25: lam    2.0 kept 1.00 fail|kept 0.0345 (all 0.035) | naive kept 1.00 fail|kept 0.0345
+  room 200 4.0 s agree   : lam    2.0 kept 0.95 fail|kept 0.0082 (all 0.035) | naive kept 0.95 fail|kept 0.0082
+  room 800 0.5 s psr:1.0 : lam   10.9 kept 0.00 fail|kept 0.0000 (all 0.798) | naive kept 0.00 fail|kept 0.0000
+  room 800 0.5 s psr:0.25: lam   10.5 kept 0.04 fail|kept 0.0067 (all 0.444) | naive kept 0.04 fail|kept 0.0062
+  room 800 0.5 s agree   : lam    8.6 kept 0.07 fail|kept 0.0075 (all 0.444) | naive kept 0.09 fail|kept 0.0107
+  room 800 1.0 s psr:1.0 : lam    6.6 kept 0.06 fail|kept 0.0000 (all 0.605) | naive kept 0.09 fail|kept 0.0000
+  room 800 1.0 s psr:0.25: lam    8.2 kept 0.19 fail|kept 0.0013 (all 0.208) | naive kept 0.23 fail|kept 0.0033
+  room 800 1.0 s agree   : lam    2.0 kept 0.44 fail|kept 0.1134 (all 0.208) | naive kept 0.44 fail|kept 0.1134
+  room 800 2.0 s psr:1.0 : lam    4.3 kept 0.74 fail|kept 0.1731 (all 0.336) | naive kept 0.80 fail|kept 0.2145
+  room 800 2.0 s psr:0.25: lam    2.0 kept 1.00 fail|kept 0.0725 (all 0.072) | naive kept 1.00 fail|kept 0.0725
+  room 800 2.0 s agree   : lam    2.0 kept 0.68 fail|kept 0.0257 (all 0.072) | naive kept 0.68 fail|kept 0.0257
+  room 800 4.0 s psr:1.0 : lam    2.0 kept 1.00 fail|kept 0.1245 (all 0.124) | naive kept 1.00 fail|kept 0.1245
+  room 800 4.0 s psr:0.25: lam    2.0 kept 1.00 fail|kept 0.0302 (all 0.030) | naive kept 1.00 fail|kept 0.0302
+  room 800 4.0 s agree   : lam    2.0 kept 0.88 fail|kept 0.0093 (all 0.030) | naive kept 0.88 fail|kept 0.0093

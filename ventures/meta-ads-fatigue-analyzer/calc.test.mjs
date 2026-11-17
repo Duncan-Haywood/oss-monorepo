@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, parseNumber, parseDate, detectDmy, detectDelimiter, decodeBuffer, normalizeRows, analyze, clicksNeeded, median, adsCsv, sampleCsv } from "./calc.mjs";
+import { detectDecimalComma, parseCsv, parseNumber, parseDate, detectDmy, detectDelimiter, decodeBuffer, normalizeRows, analyze, clicksNeeded, median, adsCsv, sampleCsv } from "./calc.mjs";
 
 const HEAD = "Campaign name,Ad set name,Ad name,Amount spent (USD),Impressions,Reach,Frequency,Link clicks,Purchases,Purchases conversion value\n";
 const load = (body, head = HEAD) => normalizeRows(parseCsv(head + body));
@@ -160,4 +160,37 @@ test("the synthetic example is readable and produces every section", () => {
   const csv = adsCsv(r).split("\n");
   assert.equal(csv.length, 14);
   assert.match(csv[0], /^campaign,ad_set,ad,spend/);
+});
+
+// Boundary fixtures (quality audit round 72): four seeded changes to the
+// fatigue thresholds in analyze() survived the earlier tests.
+const refs = "C,S,R1,200,20000,10000,2,200,20,400\nC,S,R2,200,20000,10000,2,200,20,400\nC,S,R3,200,20000,10000,2,200,20,400\nC,S,R4,200,20000,10000,2,200,20,400\n";
+const flagged = (line, opts = {}) => analyze(load(refs + line).rows, opts).fatigued.map((a) => a.ad).includes("H");
+
+test("fatigue thresholds hold at their boundaries: frequency 3, CTR 80% and CPA 125% of the median", () => {
+  assert.equal(flagged("C,S,H,200,20000,6667,3,158,20,400"), true, "freq exactly 3 with CTR at 79% of the median");
+  assert.equal(flagged("C,S,H,200,20000,6667,2.99,158,20,400"), false, "just under the frequency threshold");
+  assert.equal(flagged("C,S,H,200,20000,6667,3,162,20,400"), false, "CTR at 81% of the median");
+  assert.equal(flagged("C,S,H,252,20000,6667,3,200,20,400"), true, "cost per result at 126% of the median");
+  assert.equal(flagged("C,S,H,248,20000,6667,3,200,20,400"), false, "cost per result at 124% of the median");
+});
+
+test("a daily CTR fall of 30% is flagged and one of 20% is not", () => {
+  const dhead = "Day," + HEAD;
+  const days = (ad, freq, clicks) => clicks.map((c, i) => `2026-09-0${i + 1},C,S,${ad},30,3000,${3000 / freq},${freq},${c},3,60`).join("\n");
+  const ref = ["R1", "R2", "R3", "R4"].map((r) => days(r, 2, [30, 30, 30, 30, 30, 30])).join("\n");
+  const run = (late) => analyze(load(ref + "\n" + days("H", 3, [30, 30, 30, 30, late, late]), dhead).rows, {}).fatigued.map((a) => a.ad).includes("H");
+  assert.equal(run(21), true);
+  assert.equal(run(24), false);
+});
+
+test("a tab export with decimal commas is read as decimals, and thousands separators are not mistaken for them", () => {
+  const eu = "Ad name\tAmount spent (EUR)\tImpressions\tFrequency\tPurchases\nA\t512,40\t10000\t1,25\t4\n";
+  assert.equal(detectDecimalComma(eu, "\t"), true);
+  const n = normalizeRows(parseCsv(eu, "\t"), { decimalComma: detectDecimalComma(eu, "\t") });
+  assert.equal(n.rows[0].spend, 512.4);
+  assert.equal(n.rows[0].freq, 1.25);
+  assert.equal(detectDecimalComma("Ad name\tAmount spent\nA\t1,234\n", "\t"), false);
+  assert.equal(detectDecimalComma("a,b\n1,25\n", ","), false);
+  assert.equal(detectDecimalComma("a;b\n1;2\n", ";"), true);
 });

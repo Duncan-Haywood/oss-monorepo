@@ -210,7 +210,7 @@ function expenseDetail(desk, year) {
     .sort((a, b) => a.date.localeCompare(b.date));
 }
 
-const csvCell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+const csvCell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `"'${s.replace(/"/g, '""')}"` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
 export const toCSV = (rows) => rows.map((r) => r.map(csvCell).join(",")).join("\r\n") + "\r\n";
 
 // One CSV a tax preparer can open: the Schedule C lines, then each receipt and miles entry.
@@ -225,7 +225,11 @@ export function scheduleCCSV(desk, year, today) {
 }
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[ch]);
-const $ = (x) => `$${r2(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+const $ = (x) => {
+  const format = (x) => `$${r2(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = format(Math.abs(x));
+  return x < 0 && /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 // A printable one-page year summary: Schedule C lines, the federal estimate beside the
 // set-aside, the quarterly plan and the payments made. A standalone HTML document.

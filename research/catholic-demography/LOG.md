@@ -2,6 +2,201 @@
 
 Newest first. Hypotheses and planned analyses are written before the numbers are run.
 
+## 2026-11-17 · Milestone 5b, thirteenth GSS-only step: children's sibling counts say the missing Catholics are mothers, not extra children
+
+Run: `experiments/m5n_siblings/run.py` (output `results.txt`, tables `t39` to `t42`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1; women's tables re-estimated in every draw). Data from `data/download_gssr.sh` (checksums passed; outside
+hosts for NSFG/Census refused here, so the outside check of m5m's "Next" was not possible and this step uses an inside one).
+**Order of events:** one 1-draw smoke run with stdout discarded (only the exit code seen); the script with P1-P5 was then
+committed (870c61069) and pushed before the full run. After the full run one output-only fix: rows whose names contain
+"rho" (the module gap and the channel's sibling-rho rows) had been printed as fractions, not points. The unit rule was
+fixed and the run repeated with the same seed. The 84 changed rows differ by exactly x100 and no other number moved.
+
+Question. m5m left children of two US-born parents (cohorts 1925-64) with mothers 3.4 points more Catholic than the model
+says, and two readings: (a) Catholic mothers had more children than GSS women report, or (b) the mothers were more
+Catholic than GSS women of their cohort. Each respondent reports `sibs`, so k = sibs + 1 is their family's size seen from
+the child's side, independent of whether the mother survived to be interviewed. Weighting children by 1/k recovers mothers
+(Preston 1976). `sibs` is top-coded at 6+ in this release (22.5% of these respondents), `childs` at 8+, so (1) family sizes
+are compared size-biased and capped at 7 on both sides (no tail assumption), and (2) the 1/k inversion puts the 7+ class
+at t = 8 (swept 7, 10, 12).
+
+- **P1 refuted: children do not see bigger Catholic families than Catholic women report.** Both-parents-US-born, 1925-64
+  (n 3,188): children of Catholic mothers come from families of 4.53 (capped, size-biased), against 4.42 implied by GSS
+  Catholic women of the mothers' cohorts (+0.12 [-0.01, +0.26]). Children of other mothers: +0.18 [+0.10, +0.27]. The
+  diff-in-diff is **-0.06 [-0.22, +0.09]**. Children see slightly bigger families than women report on both sides
+  (step-siblings are counted in `sibs`, and mothers who died early are missing from the women's side), but not more so for
+  Catholics. Cohorts 1965-99: DD -0.06 [-0.24, +0.13].
+- **P2 refuted: the gap is the mothers' Catholic share.** Among mothers (1/k-weighted), 24.4% were Catholic against
+  20.8% of GSS mothers 45+ of the same cohorts: **+3.5 [+2.1, +5.3]**. The fertility ratio among mothers is 1.10 [1.06,
+  1.14] from children's reports and 1.09 [1.06, 1.13] from women's (+0.01 [-0.05, +0.07]). Of the gap M - f(P_m, rho_m) =
+  3.84 [2.26, 5.45] points, the share part is 3.71 [2.19, 5.54] and the ratio part 0.13 [-0.83, +1.07] (**3% [-25, +28]**).
+  Cohorts 1965-99: gap 5.37, share part 4.96, ratio part 8%.
+- **P3 refuted.** Full file (US-born adults surveyed 1977-2024, cohorts 1925-64, n 34,697), raised Catholic in place of
+  mother Catholic: rho_sib_raised **1.070 [1.055, 1.083]**, below the 1.15 predicted, and -0.025 [-0.059, +0.011] from the
+  women's ratio among mothers. For cohorts 1965-99 it is 1.004 [0.989, 1.020]. Children raised Catholic had at most 7%
+  more siblings' worth of family than others, by the size-bias inversion; nowhere near m5m's needed 1.27.
+- **P4 supported, and the fertility channel shrinks.** With rho = rho_sib_raised x the GSS motherhood ratio (Catholic women
+  45+ are slightly less often mothers: 0.92-0.97 for mothers born 1910-30), fertility's contribution to the level is 0.13
+  [-0.22, +0.42] points in 1990-99 (m5h main 1.17) and its contribution to the 1990-99 -> 2010-18 change -0.05 [-0.29,
+  +0.20] (m5h -0.37). Immigration minus |fertility| +1.02 [+0.35, +1.56]. H4 stands.
+- **P5 supported.** At t = 7 and 12, the ratio part is 2% and 6% of the gap and rho_sib (mothers) 1.10-1.11; P3's full-file
+  rho is 1.069 and 1.073.
+- **Implication.** Reading (a) is out: the 1.27 fertility ratio that would close m5m's gap is not in the children's own
+  family sizes, which agree with what GSS women report. What is left is (b): the women who raised these respondents were
+  about 3.5 points more Catholic (when the child was young) than GSS mothers of their cohort are when interviewed at 45+.
+  Two candidates remain, and they are different claims: religious change of mothers between child-rearing and interview
+  (P_m uses current religion; m5m's raised-Catholic p also left a gap, so converts at marriage who later left would fit
+  both), and children's recall attributing their own upbringing to their mother.
+- **Side result.** m5h's fertility channel (level 1.2 points in 1990-99) rests on the women's rho including childless
+  women; the sibling-based version puts it near zero. H4 is stronger for it, and m5h's level figure should be read as an
+  upper end.
+- **Limits.** `sibs` counts step and adopted siblings and the father's other children; the cap at 7 discards the tail of
+  large families on both sides. The motherhood ratio in the channel is from GSS women. Mothers' religion is recall.
+- **Next.** Test the switching reading from GSS women's own life course: women 45+ of the mothers' cohorts with religion at
+  16 and now (and, where asked, religion at marriage or of spouse) to bound their Catholic share during child-rearing.
+
+## 2026-11-14 · Milestone 5b, twelfth GSS-only step: giving immigrant mothers their own Catholic share fits them but opens a gap for US-born mothers
+
+Run: `experiments/m5m_mothers_nativity/run.py` (output `results.txt`, tables `t35` to `t38`; 500-draw stratified PSU bootstrap
+over the whole file, seed 1; p and rho re-estimated by nativity in every draw, m5h's channels on the same draws). Data from
+`data/download_gssr.sh` (checksums passed). Mother's nativity is read from `parborn` with the gssrdoc codebook (2, 4, 8 =
+mother foreign-born; 0, 1, 3 = mother US-born). **Order of events:** the script with P1-P5 was committed (f912ce1f0) and
+pushed before its first run; it ran once without changes. `posthoc.py` (`posthoc.txt`, point estimates) was written after
+reading the results and tests no prediction.
+
+Question. m5l found that the m5h model check residual is mainly in mothers who were more Catholic than the model's p, and
+(post hoc) that this sits in the second generation. Here the model gets separate p and rho for foreign-born and US-born
+GSS women, and each respondent uses those of their mother's nativity. Does the model check then pass?
+
+- **P2 supported: immigrant mothers fit once they get their own p.** Children of foreign-born mothers, cohorts 1925-64
+  (n 160): mothers 52.7% Catholic, model 49.9%, gap **+2.7 [-6.4, +12.0]** (pooled model: 24.6%, gap +28.1). For cohorts
+  1965-99 (n 152) it does not fit: mothers 70.0%, model 47.6%, gap +22.4 [+15.3, +29.6]. Foreign-born GSS women of those
+  mothers' cohorts are 41-45% Catholic, so the recent immigrants who raised US-born children were more Catholic than all
+  foreign-born women of their age.
+- **P1 refuted: the overall gap gets larger.** Cohorts 1925-64, M - M_gen is **+4.07 [+2.50, +5.63]**, against +2.64 with
+  the pooled p. With US-born women's own p (21.9% for these mothers' cohorts; the pooled model gave this group 25.6%), children of US-born
+  mothers (n 3,318) report mothers 26.9% Catholic against a model of 22.8%: **+4.14 [+2.53, +5.70]**. The pooled model fit
+  this group only because its p included foreign-born women. So m5l's reading (the residual is immigrant mothers) is half
+  right.
+- **P3 refuted.** Full-file model check (all US-born adults surveyed 1977-2024, cohorts 1925-64): R - R_gen **+4.63
+  [+3.62, +5.66]**, against R - R_model +3.34 [+2.34, +4.42] with pooled p. The gap is positive in every 5-year cohort from
+  1930 to 1984.
+- **P4 supported as written, but it mostly tests the fill.** The mean rho_FB - rho_US over mothers' cohorts 1900-39 is
+  +0.16 [-0.01, +0.37]. But GSS foreign-born women reach the coverage rule (80 Catholic mothers, 300 women per 10-year
+  window) only at window centres 1940-60, where rho_FB is 1.27, 1.16, 1.35 against rho_US 1.08, 1.09, 1.00. Earlier windows take
+  the nearest covered value. So "immigrant Catholic women had larger families" holds where it is measured, for mothers
+  born about 1935-65.
+- **P5 supported; H4 stands.** With generation-specific rho, fertility's contribution to the 1990-99 -> 2010-18 change
+  is -0.32 [-0.60, +0.04] (m5h main -0.37; difference +0.05 [-0.28, +0.43]). Immigration minus |fertility| is +0.75
+  [+0.11, +1.38]. Fertility's contribution to the level is lower: 0.90 points in 1990-99 against 1.17.
+- **Where the new gap is (post hoc, point estimates, `posthoc.txt`).** Of the 3,318 children of US-born mothers (1925-64),
+  122 have a foreign-born father. Their mothers were 45.7% Catholic against p_US 21.5%: US-born women who married
+  immigrants were twice as Catholic. In the 3,196 families where both parents were US-born the gap is still **+3.4 points**
+  (M 26.2% against model 22.8%). To match it with p_US the model would need a Catholic / other fertility ratio of **1.27**,
+  against the 1.05 measured among GSS women aged 45+. The same holds for cohorts 1965-99 (+3.7, needed 1.28 against 1.06).
+- **Implication.** The m5h residual is not one thing. For immigrant mothers of the older cohorts it was the wrong p, and
+  that part is now fixed. For US-born families the mothers were more Catholic than GSS women of their cohort, by 3 to 4
+  points. Either Catholic mothers had more surviving, reporting children than GSS women's completed fertility shows (the
+  mothers' cohorts born 1897-1936 are seen only at ages 41-80+ from 1977 on, so differential survival and the `childs`
+  measure are both candidates), or the GSS undercounts Catholics among the oldest women. This step cannot tell which. The
+  m5h fertility channel uses only rho, and its change estimate barely moves, so H4 is not affected. The m5h model check,
+  though, cannot be made to pass this way.
+- **Sensitivities.** g 24 or 32: M - M_gen 1925-64 +3.7 to +4.5. p from women raised Catholic instead of Catholic now:
+  +3.85. The US-mother gap appears in all of them.
+- **Limits.** Mothers' religion is recall. Foreign-born p and rho for mothers born before about 1935 are filled from the
+  1940 window, because `born` is asked only from 1977. The foreign-born-mother cells have 150-160 respondents. `parborn` 4
+  and 6 (one parent foreign-born, the other unknown) count as foreign-born mother and unknown here, while `gen` in
+  `recode.py` leaves them out of the second generation; they are 52 US-born respondents in all years.
+- **Next.** Check rho against an outside source on completed fertility by religion and nativity for women born 1900-40
+  (the Growth of American Families and National Fertility Studies series behind Westoff & Jones 1979, or NSFG for later
+  cohorts), to decide between "fertility understated" and "p understated". Then H5, or milestone 2.
+
+
+## 2026-11-13 · Milestone 5b, eleventh GSS-only step: m5h's model-check residual is immigrant mothers, not mixed marriages or missed fertility
+
+Run: `experiments/m5l_parents/run.py` (output `results.txt`, tables `t32` to `t34`; 500-draw stratified PSU bootstrap over the
+whole file, seed 1; rho, p and the m5h channels re-estimated in every draw). Data from `data/download_gssr.sh` (checksums
+passed); item codes read from the gssrdoc codebook. **Order of events:** a 2-draw smoke run happened before the commit; only its
+last three printed lines were seen (the m5h replication rows for 2010-18 -> 2021-24: fertility -0.146, immigration -1.380, no
+prediction depends on them) and the output was deleted unread. The script with P1-P5 was then committed (c24fd0ccd) and pushed
+unchanged, and the full run followed. One column was added after it (second generation only), labelled post hoc; it reuses
+the same seed and leaves every other number unchanged.
+
+Question. m5h's fertility channel assumes children take their mother's religion, R = p rho / (p rho + 1 - p), with p the
+Catholic share of US women in the mothers' cohort. Its model check failed: for US-born adults born 1925-69, R is 2.4 to 4.2
+points above what p and rho imply, and m5h bounded the fertility channel by crediting the whole gap to fertility. The GSS
+asked mother's and father's religion when the respondent was a child in 1988, 2008, 2012 and the ISSP modules of 1991, 1998,
+2008 and 2018 (`marelig`/`parelig`, `marelkid`/`parelkid`): n 5,714 US-born adults, 5,236 with both parents. Because each
+respondent is one child, M (share whose mother was Catholic) already carries fertility and survival, so the residual splits
+as R - M_model = (R - M) [net transmission] + (M - M_model) [what the p, rho model misses about the mothers].
+
+- **P1 refuted (narrowly).** Net transmission for cohorts 1925-64 is **+0.56 points [-0.01, +1.01]**, below the predicted +1
+  and its interval touches zero. Born 1945-64 alone: +0.92 [+0.27, +1.48]. Gains (raised Catholic, mother not) 2.45 points
+  against losses (mother Catholic, not raised Catholic) 1.89. Born 1900-24 it is negative, -1.98 [-3.33, -0.48].
+- **P2 supported.** In mixed couples (1925-64), 72.1% [66.9, 76.6] of children with only a Catholic mother were raised
+  Catholic, 41.8% [35.6, 48.0] with only a Catholic father; difference **+30.3 [+22.4, +38.2]**. The same in every cohort
+  group (+30.1, +25.9, +28.6). Two Catholic parents: 97-99%; neither: 0.6-1.7%.
+- **P3 refuted.** Net transmission is not smaller after the 1970 rule change: +0.80 [-0.35, +1.90] for cohorts 1965-99 against
+  +0.56 for 1925-64, and the father-only rate stays at 42% (44.8% for 1945-64). Respondents' reports show no trace of the
+  pre-1970 canonical promise that all children of mixed marriages be raised Catholic: even then only 42% of children with a
+  Catholic father and a non-Catholic mother were.
+- **P4 refuted.** Transmission is **18% [-1, 38]** of the residual (1925-64: residual +3.20 [+1.57, +4.84], of which R - M
+  +0.56 and M - M_model **+2.64 [+1.03, +4.20]**). Most of the residual is that the mothers were more Catholic than the model's p.
+- **Where M - M_model sits (post hoc, point estimates).** Third-plus generation, 1925-64: M - M_model +0.62 and the residual
+  +1.26, half of it transmission. Second generation (n 282): mothers 49.8% Catholic against the model's 24.7%. The model
+  assigns the children of immigrant mothers the Catholic share of US women of that cohort, and those mothers were twice as
+  Catholic. So the m5h residual is mainly a composition effect of immigration, the second-generation part of it.
+- **P5 supported.** The transmission channel (children re-raised in their mother's religion) adds 0.2 to 0.3 points to the
+  level in each period, and its contribution to the 1990-99 -> 2010-18 change is **-0.07 [-0.44, +0.28]**, against
+  immigration +1.07 and fertility -0.37 on the same draws; immigration minus |transmission| +1.00 [+0.26, +1.54]. H4 stands.
+- **Implication for m5h.** Its upper bound (whole residual credited to fertility) is not supported: about a fifth of the
+  residual is transmission and most of the rest is immigrant mothers, which belongs to the immigration channel. The m5h main
+  fertility estimate stays the primary one; the upper bound should be read as a loose one.
+- **Sensitivities.** R from `religkid` (same ISSP instrument as `marelkid`): 1925-64 transmission +0.53, share 14%. Mean age
+  at birth g 24 or 32: residual 2.6 to 3.7, share 15-22%. The mixed-couple gap holds in all.
+- **Limits.** Parents' religion is the child's recall of it, years later; recall that aligns the parent with one's own
+  upbringing would inflate the "both Catholic" and "neither" cells and shrink R - M. About 10% of children have exactly one
+  Catholic parent, so the mixed-couple rates rest on 150-175 respondents per cell. Mothers of the 1900-24 cohort are mostly before the
+  GSS's coverage of mothers' cohorts (m5h fills them from the nearest window). The second-generation split is post hoc.
+- **Next.** Rebuild the fertility channel's p by generation (immigrant mothers' p from foreign-born GSS women), so the
+  model check can pass; then the outside ACS check of m5k when census.gov is reachable, H5, or milestone 2.
+
+## 2026-11-13 · Milestone 5b, tenth GSS-only step: the post-2018 fall in the immigrant contribution is mostly the web slice
+
+Run: `experiments/m5k_inperson/run.py` (output `results.txt`, table `t31`; 500-draw stratified PSU bootstrap over the whole
+file, seed 1, every variant on the same draw so contrasts are paired). Data from `data/download_gssr.sh` (gss.norc.org
+returned 403 through the proxy; the gssr copy passed its checksums). **Order of events:** the script, with predictions P1-P4
+in its docstring, was committed (bbf16fc78) and pushed before its first run. It ran once, without changes.
+
+Question. m5h's last period said immigrants' contribution to the adult Catholic share fell from 3.37 points (2010-18) to 1.98
+(2021-24), change -1.38 [-2.05, -0.72], the largest part of the recent drop. 2021 was all web and 2022-24 mostly web, and
+m5f-m5j showed web respondents are a different slice. The m5h main specification was rerun with the 2021-24 slot replaced by
+V1 2022+24 all modes (n 6,274), V2 in person (2,482), V3 face-to-face-first arm (2,772), V4 web-first arm (3,502), V5 web
+(3,137); V0 is m5h as published (9,843). Earlier periods and rho are unchanged.
+
+- **P1 (in person gives a larger immigrant contribution) not refuted, weak.** Level, first generation: V1 2.50, V2 **2.92
+  [2.04, 3.76]**, V2 - V1 +0.42 [-0.17, +1.02]. The underlying composition difference is clear: foreign-born share of
+  Catholics 28.9% in person vs 20.9% web (+8.0 [+3.6, +12.5]); of all adults 18.5% vs 15.2% (+3.3 [+0.6, +5.8]).
+- **P2 supported.** The randomised arm contrast for the immigrant contribution is +0.32 [-0.62, +1.32], against +1.49 [+0.41,
+  +2.60] by completed mode. The arms are balanced on nativity (foreign-born share of Catholics -0.2 [-4.0, +3.6]). So the gap
+  is who completes by web, as for attendance (m3b, m5i) and upbringing (m5g).
+- **P3 supported.** The fertility contribution moves by at most 0.10 points across V1-V5 (level 0.61-0.72; change from 2010-18
+  -0.09 to -0.19).
+- **P4 refuted.** In person, the 2010-18 -> 2021-24 change in the immigrant contribution is **-0.44 [-1.38, +0.49]** (F2F-first
+  arm -0.63 [-1.46, +0.21]); both intervals include zero, and immigration minus fertility is -0.25 [-1.16, +0.72]. So m5h's
+  "immigration fell by 1.38, the larger channel in the recent drop" does not survive. About a third of the -1.38 is the 2021
+  wave alone (V1 - V0 +0.51 [+0.14, +0.85]) and the rest of the gap to in person is the 2022-24 web completers (V5: -1.93).
+- **Side result, borderline.** The adult Catholic share itself is 23.7% in the F2F-first arm and 21.8% in the web-first arm,
+  +1.98 [-0.13, +4.09]; m3b's design-based check on a slightly different sample gave +1.0 [-1.9, +3.9]. Not established.
+- **What stands.** H4 is decided on 1990-99 -> 2010-18, which has no web interviews, and is unaffected. Over 1990-99 ->
+  2022-24 in person, immigration contributes +0.63 [-0.39, +1.52] and fertility -0.56 [-0.90, -0.20].
+- **Corrections made.** README (m5h section) and the 2026-11-11 post now say the -1.38 is an all-mode figure and give the
+  in-person one.
+- **Limits.** In-person 2022-24 respondents are themselves selected (they answered the face-to-face attempt), and the in-person
+  sample is a quarter of V0, so the intervals are about 40% wider. The arms are intention-to-treat. The 2021-24 slot here is
+  2022+2024 only.
+- **Next.** An outside nativity check: the ACS foreign-born share of adults against V1-V5,
+  when census.gov is reachable; then H5 or milestone 2.
 
 ## 2026-11-11 · Milestone 5b, ninth GSS-only step: reweighting on demographics removes about 40% of the web selection, and none of it among Catholics
 

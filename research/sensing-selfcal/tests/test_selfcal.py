@@ -185,3 +185,93 @@ def test_column_clustered_sandwich_sees_column_offsets():
         s = selfcal_fixed_analytic(b.reshape(8, 54, 2), SIZE, 1.3 * TRUE[0], nk=1, ref=0)
         ratio.append(s["sf_cr_viewcol"] / s["sf"])
     assert np.median(ratio) > 1.05
+
+
+def test_disturbance_is_an_exact_model_change():
+    # Milestone 4: re-solving the disturbed corners gives the transformed solution, so the
+    # disturbance experiments can transform the undisturbed solutions instead of re-solving.
+    from selfcal import selfcal_fixed_best, disturb_obs, disturb_solution
+    obs = synth(n=6, seed=3)
+    a = selfcal_fixed_best(obs, SIZE, 1.3 * TRUE[0], nk=1, refs=(0,))
+    for s, du in ((1.02, 0.0), (1.0, 5.0), (0.97, -3.0)):
+        b = selfcal_fixed_best(disturb_obs(obs, SIZE, s, du), SIZE, 1.3 * TRUE[0], nk=1, refs=(0,))
+        th, cov = disturb_solution([a["f"], a["cx"], a["cy"]], np.array(a["cov_intr"])[:3, :3], SIZE, s, du)
+        assert np.allclose([b["f"], b["cx"], b["cy"]], th, atol=1e-4)
+        assert abs(b["k1"] - a["k1"]) < 1e-7
+        assert np.allclose(np.array(b["cov_intr"])[:3, :3], cov, rtol=1e-4, atol=1e-8)
+
+
+def test_update_test_and_decision():
+    from selfcal import update_test, decide, CHI2_3_99
+    cov = np.diag([1.0, 4.0, 4.0])
+    assert update_test([500, 320, 240], cov, [500, 320, 240], cov) == 0.0
+    # f moves by 2: d^2 / (1 + 1) = 2; with kappa 2 it is a quarter of that
+    assert np.isclose(update_test([500, 320, 240], cov, [502, 320, 240], cov), 2.0)
+    assert np.isclose(update_test([500, 320, 240], cov, [502, 320, 240], cov, kappa=2.0), 0.5)
+    assert decide(CHI2_3_99 - 1, 1.0, 500) == "keep"
+    assert decide(CHI2_3_99 + 1, 2.0, 500) == "adopt"
+    assert decide(CHI2_3_99 + 1, 3.0, 500) == "flag"
+
+
+def test_view_clustered_covariance_matrix_matches_scalar_and_is_psd():
+    # Milestone 4b: the 3x3 (here 4x4) view-clustered sandwich generalises sf_cr_view.
+    from selfcal import selfcal_fixed_analytic
+    obs = synth(n=6, noise=0.2, seed=5)
+    s = selfcal_fixed_analytic(obs, SIZE, 1.3 * TRUE[0], nk=1, ref=0)
+    C = np.array(s["cov_intr_cr_view"])
+    assert C.shape == (4, 4)
+    assert np.allclose(C, C.T)
+    assert np.isclose(np.sqrt(C[0, 0]), s["sf_cr_view"], rtol=1e-8)
+    assert np.linalg.eigvalsh(C).min() > -1e-9 * np.abs(C).max()
+
+
+def test_jackknife_cov_known_values():
+    # (m - 1)/m sum of outer products of deviations; non-finite rows are dropped.
+    from selfcal import jackknife_cov
+    t = np.array([[1.0, 0.0], [3.0, 2.0], [2.0, 1.0], [np.nan, 5.0]])
+    d = t[:3] - t[:3].mean(axis=0)
+    assert np.allclose(jackknife_cov(t), 2 / 3 * d.T @ d)
+    assert np.isnan(jackknife_cov(t[:1])).all()
+    # Leave-one-out means of iid draws: the jackknife variance of the mean is the usual s^2 / n.
+    x = np.random.default_rng(0).normal(size=(20, 1))
+    loo = np.array([(x.sum() - x[i]) / 19 for i in range(20)])
+    assert np.isclose(jackknife_cov(loo)[0, 0], x.var(ddof=1) / 20)
+
+
+def test_satterthwaite_and_hotelling_reference():
+    from selfcal import satterthwaite_nu, hotelling_crit, CHI2_3_99
+    # one variance only: nu is that estimate's own degrees of freedom
+    assert abs(satterthwaite_nu(2.0, 0.0, 7, 5) - 6.0) < 1e-12
+    # equal variances and counts: nu = 2 (m - 1)
+    assert abs(satterthwaite_nu(1.0, 1.0, 5, 5) - 8.0) < 1e-12
+    # Hotelling tends to chi^2_3 for large nu, is larger for small nu, and is undefined at nu <= 2
+    assert abs(hotelling_crit(3, 1e7) - CHI2_3_99) < 1e-3
+    assert hotelling_crit(3, 6.0) > 2 * CHI2_3_99
+    assert np.isnan(hotelling_crit(3, 2.0))
+    # p = 1: the square of Student's t
+    from scipy.stats import t
+    assert abs(hotelling_crit(1, 5.0) - t.ppf(0.995, 5) ** 2) < 1e-9
+
+
+def test_m4e_self_scale_recovers_per_view_spread():
+    """Milestone 4e: if each view adds an independent offset to f, the old set's 4 + 3 split-half
+    scale tau recovers the per-view sd, so tau^2 (1/7 + 1/k) is the update's variance."""
+    import importlib.util, itertools
+    root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    spec = importlib.util.spec_from_file_location("m4e", os.path.join(root, "experiments", "m4e_selfscale", "analyse.py"))
+    m4e = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m4e)
+    rng = np.random.default_rng(3)
+    sd, taus = 0.01, []
+    for _ in range(400):
+        e = rng.normal(0, sd, 7)
+        old = tuple(range(7))
+        sols = {("m", "c", old): dict(f=500 * (1 + e.mean()), status=1)}
+        for n in (3, 4):
+            for a in itertools.combinations(old, n):
+                sols[("m", "c", a)] = dict(f=500 * (1 + e[list(a)].mean()), status=1)
+        t2, npart, _ = m4e.self_scale(sols, "m", "c", old)
+        assert npart == 35
+        taus.append(t2)
+    # the median-based estimate from 7 views is noisy but centred near the truth
+    assert 0.7 < np.sqrt(np.median(taus)) / sd < 1.3

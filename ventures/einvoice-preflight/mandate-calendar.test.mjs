@@ -30,7 +30,7 @@ test("hub yields France's 1 Sep 2026 and 1 Sep 2027 and Germany's 2025 receive d
 test("ICS is well-formed: CRLF, folded at 75 bytes, escaped, one UID per event", () => {
   const ics = toIcs([{ date: "2027-01-01", country: "A", page: "a.html", status: "Planned", note: "x, y; z" }]);
   assert.ok(ics.startsWith("BEGIN:VCALENDAR\r\n") && ics.endsWith("END:VCALENDAR\r\n"));
-  assert.match(ics, /SUMMARY:A: x\\, y\; z/);
+  assert.match(ics, /SUMMARY:A: x\\, y\\; z/);
   const full = build().ics;
   for (const l of full.split("\r\n")) assert.ok(Buffer.byteLength(l) <= 75, l);
   const uids = full.match(/^UID:.*$/gm);

@@ -1,0 +1,272 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/au-redundancy-pay-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-17-d24f",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an Australian employment lawyer or senior payroll specialist who signs off NES termination payments; first checks: the s119(2) redundancy table, the s117(3) notice table and when service is measured (the day notice is given), who Division 11 excludes entirely (s123(1): casuals, fixed-term) versus only from redundancy pay (s123(4): apprentices), the s23 small business headcount, and the rate each payment uses (base vs full rate)",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Source the author did not write: Fair Work Act 2009 compilation in force 2026-07-07, fetched from legislation.gov.au (C2009A00028/2026-07-07 epub document_1.html, sha256 1439791d...b0; fairwork.gov.au reset the connection and AustLII returned 403 through the proxy). ss117(3), 119(2), 121(1), 123 and 23 quoted from it into /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/dl/vol1.txt. Oracle script probes.mjs: s119(2) table at every band 0-12 years: 0 mismatches; the worked example (2017-03-06 to 2026-10-30, A$1,850, age 47, 12 leave days) hand-recomputes to 9 years, 16 weeks, 4+1 notice weeks, A$43,290, matching the live page; small business boundary 14 -> A$0, 15 -> paid (s23(1) 'fewer than 15'). Wrong: for a casual or fixed-term employee the tool reports minimum notice and pays it out (8 years, A$1,000/wk casual -> noticePay A$4,000; live page with the example as casual: 'Unworked notice (5 weeks) A$9,250.00', total A$13,690), but s123(1)(a) and (c) take those employees out of the whole Division 11, notice included: the NES notice owed is A$0. Service is measured only at the last day: s117(3) measures notice service 'at the end of the day the notice is given' and s121(1)(a) applies the 12-month exclusion at notice or termination 'whichever happened first'; with no notice date input, notice at 11 months and a last day at 13 months gives A$4,000 redundancy where the Act gives none (boundary.mjs B2), and notice at 4y11m with a last day after 5 years gives 4 weeks where the Act gives 3 (B3). Notice payout uses weekly base pay, but s117(2)(b) requires the full rate of pay.",
+  "completeness": "Claims on the page, each run in headless Chrome over CDP against a local static server (page.mjs): Load an example fills all nine fields and renders 'A$43,290.00 total before tax' with the three-row breakdown; changing type to casual zeroes redundancy with the exclusion finding; blank weekly pay shows the validation message and hides the report; summary text, download and print handlers present (download not clicked). Small business, under-1-year, casual, fixed-term and apprentice paths all produce a reason line (probes C4, C5). The 'Not decided' list (LSL, awards, tax, s120 reductions) is honest. No TODOs, stubs or dead links; the sibling-link test passes. Everything it says it covers runs; some of it gives the wrong number (see correctness).",
+  "verification": "`cd ventures/au-redundancy-pay-calculator && node --test '*.test.mjs'`: 20 tests, 20 pass, 0.48 s. Six mutants with platform/ci/quality_mutate.py: 4 caught (s119 table 9:16 -> 9:15; small business < -> <=; age >= 45 -> > 45; unworked = nWeeks ignoring worked notice), 2 survived (leave day rate weekly/dpw -> weekly/5, because every test uses 5 days; exclusion type !== 'permanent' -> === 'casual', so fixed-term and apprentice are never tested). No test touches notice for an excluded employee, so the casual-notice defect is unguarded. page.test.mjs greps the HTML, no DOM run. Tests check the author's own reading (e.g. calc.test.mjs:16 pins the '45 or over' reading).",
+  "craft": "Read calc.mjs (113 lines), index.html script, calc.test.mjs, page.test.mjs. Small, pure engine imported directly by the page; date parsing rejects impossible dates and works in UTC days. Defects: the header comment says unworked notice is paid 'at the full rate of pay' (calc.mjs:12) while the code multiplies weekly base pay (calc.mjs:94); a blank or non-numeric age silently becomes 0 and drops the age-45 week without an error (calc.mjs:70; age 'abc' -> errors []); num() strips every letter A and $ (calc.mjs:61), fine for 'A$1,850' but silent on other text; money() is duplicated in index.html:136. Nothing serious beyond the logic issues.",
+  "claims": "Checked: disclaimer, no-warranty and 'not legal or employment advice' on page, README and summary text (page.test.mjs passes); 'written from memory / without a live lookup' disclosed (index.html:62, README:11); FAQ redundancy table (index.html:108) matches s119(2); small business 'fewer than 15 employees at the time of notice' (index.html:110) matches s121(1)/s23. Failing: 'Covers ... casual, fixed-term and apprentice exclusions ... unworked notice payout' (index.html:99) while showing notice pay for casuals and fixed-term; 'Apprentice / trainee' excluded wholesale (index.html:76, calc.mjs:81) and FAQ 'trainees are excluded' (index.html:112), but s123(1)(d) excludes a trainee only when the employment is for a specified period or the duration of the training arrangement; FAQ and finding say '45 or over' (index.html:114, calc.mjs:95), the Act says 'over 45 years old' (s117(3)(b)), a reading the page does not flag. Served copy (`node platform/pages/served-copy.mjs au-redundancy-pay-calculator`): no placeholder or retired origin in llms.txt, sitemap, robots or canonicals, so the github.io link in source llms.txt is rewritten at deploy (not filed).",
+  "fitness": "Job walked: an HR manager working out a final payment for a 9-year permanent employee aged 47 (the example). The redundancy weeks and the 9-to-10-year cliff warning are right and useful. A payroll specialist would still need: a notice-date field (both notice and the 12-month exclusion depend on it), notice at the full rate, the ATO tax-free genuine redundancy limit (the biggest question an employee asks; listed as not included), LSL, and industry-specific award schemes (s123(4)(b)). A casual user would be told notice is owed when it is not. Usable as a first estimate for a permanent employee, not as a payroll sign-off. Nearest tools: the Fair Work Ombudsman's own Notice and Redundancy Calculator (free, official) and the repo's sibling uk-redundancy-pay-calculator.",
+  "domain": "Against Fair Work Act 2009 (compilation 2026-07-07): s119(2) table exact (pass); s23 count threshold exact (pass), though the input label omits that regular casuals and the employees being terminated are counted (s23(2)(b), (4)); s117(3) bands right when measured at the right day, but measured at the last day instead of the notice day (departs); s121(1) 'whichever happened first' not modelled (departs); s123(1) whole-Division exclusions applied only to redundancy pay (departs); s123(4)(a) apprentice handled correctly (redundancy excluded, notice kept); s123(1)(d) trainee condition missing (departs); s117(2)(b) full rate vs base (departs); s119(3)/s117(4) casual service excluded from continuous service not mentioned; s121(4) insolvency exception to the small business exemption not mentioned; s90(2) leave payout at base rate per day (pass, leave loading disclosed as excluded). An employment lawyer would accept the table and reject the casual notice payout and the missing notice date."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "s119(2) redundancy pay period at every band, 0 to 12 completed years",
+   "method": "Fair Work Act 2009 s119(2) table, legislation.gov.au compilation 2026-07-07, encoded independently in probes.mjs",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/probes.mjs",
+   "expected": "0,4,6,7,8,10,11,13,14,16,12,12,12 weeks; 0 mismatches",
+   "observed": "C1 s119 table y=0..12 mismatches 0",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Worked example: 2017-03-06 to 2026-10-30, A$1,850/wk, 5 days, age 47, 62 employees, 0 notice worked, 12 leave days",
+   "method": "hand: 9 completed years -> s119(2) 16 wks = 29,600; s117(3) >5 yrs 4 wks + 1 (over 45, 2+ yrs) = 5 wks = 9,250; 12 x 1,850/5 = 4,440",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/probes.mjs",
+   "expected": "A$43,290",
+   "observed": "C3 years 9, weeks 16, notice 5, total 43290; live page 'A$43,290.00 total before tax'",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Casual and fixed-term employees, 8 years, A$1,000/wk: notice pay",
+   "method": "s123(1)(a),(c): Division 11 (Subdivision A notice and B redundancy) does not apply to fixed-term or casual employees",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/probes.mjs",
+   "expected": "redundancy 0, NES notice pay 0",
+   "observed": "C4 casual redundancy 0, noticeWeeks 4, noticePay 4000; C4b fixed-term noticePay 4000; live page example as casual: 'Unworked notice (5 weeks) A$9,250.00'",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Apprentice: redundancy excluded, notice still owed",
+   "method": "s123(4)(a) excludes apprentices from Subdivision B only",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/probes.mjs",
+   "expected": "redundancy 0, notice 4 wks = 4,000",
+   "observed": "C4c redundancy 0, noticePay 4000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Small business threshold at 14 and 15 employees",
+   "method": "s23(1) 'fewer than 15 employees'; s121(1)(b)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/probes.mjs",
+   "expected": "14 -> 0; 15 -> paid",
+   "observed": "C5 employees 14 redundancy 0; employees 15 redundancy 14000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "12-month exclusion measured at notice: start 2024-03-01, notice 2025-02-01 (11 months), last day 2025-03-31",
+   "method": "s121(1)(a): service less than 12 months at notice or termination, whichever happened first -> no redundancy pay",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/boundary.mjs",
+   "expected": "redundancy 0",
+   "observed": "B2 years 1, weeks 4, redundancy 4000 (no notice-date input exists)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Notice service measured on the notice day: start 2020-03-01, notice 2025-02-15 (4y11m), last day 2025-03-20",
+   "method": "s117(3)(a): service 'at the end of the day the notice is given'; more than 3 but not more than 5 years -> 3 weeks",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/boundary.mjs",
+   "expected": "3 weeks",
+   "observed": "B3 tool 4 weeks",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Last day the day before the first anniversary (2020-03-01 to 2021-02-28 inclusive, 365 days)",
+   "method": "s119(2) 'at least 1 year'; counting the first and last day inclusive this is a full year; interpretive, so recorded as partial",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/boundary.mjs",
+   "expected": "4 weeks under inclusive counting",
+   "observed": "B1 years 0, redundancy 0",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page: example, casual switch, blank-pay validation",
+   "method": "headless Chrome over CDP against python3 -m http.server in the venture dir",
+   "command": "cd ventures/au-redundancy-pay-calculator && python3 -m http.server 8765 & node /tmp/claude-0/-home-user-oss-monorepo/b2968675-933a-541b-8835-9a181e723712/scratchpad/au-redundancy/page.mjs",
+   "expected": "report renders; casual zeroes redundancy; blank pay shows an error",
+   "observed": "example A$43,290.00; casual A$13,690.00 with redundancy A$0.00; blank pay 'Enter weekly base pay...' hidden=true",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/au-redundancy-pay-calculator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "20 tests, 20 pass, 0 fail, 0.48 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty and verify-with-FWO line",
+   "method": "read index.html footer, README, summaryText; page.test.mjs",
+   "command": "grep -n 'No warranty\\|not legal or employment advice\\|Fair Work Ombudsman' ventures/au-redundancy-pay-calculator/index.html ventures/au-redundancy-pay-calculator/README.md ventures/au-redundancy-pay-calculator/calc.mjs",
+   "expected": "present",
+   "observed": "present on page (index.html:62,120), README:11, summary text (calc.mjs:111)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Apprentice / trainee' excluded and FAQ 'trainees are excluded'",
+   "method": "s123(1)(d): a trainee is excluded only if the employment is for a specified period or limited to the duration of the training arrangement",
+   "command": "grep -n 'trainee' ventures/au-redundancy-pay-calculator/index.html ventures/au-redundancy-pay-calculator/calc.mjs",
+   "expected": "trainee exclusion stated with its condition",
+   "observed": "unconditional (index.html:76, 112; calc.mjs:4, 85)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Age loading: page says '45 or over'",
+   "method": "s117(3)(b) 'over 45 years old'",
+   "command": "grep -n '45' ventures/au-redundancy-pay-calculator/index.html ventures/au-redundancy-pay-calculator/calc.mjs",
+   "expected": "the statute's wording, or the reading flagged",
+   "observed": "'aged 45 or over' (index.html:114), age >= 45 (calc.mjs:44), not flagged",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt and canonicals",
+   "method": "platform/pages/served-copy.mjs (deploy rewrite)",
+   "command": "node platform/pages/served-copy.mjs au-redundancy-pay-calculator",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Notice payout rate",
+   "method": "s117(2)(b): payment in lieu at the full rate of pay for the hours the employee would have worked",
+   "command": "sed -n '12p;94p' ventures/au-redundancy-pay-calculator/calc.mjs",
+   "expected": "full rate (base plus loadings, allowances, penalty rates) or a separate input",
+   "observed": "comment says full rate; code uses weekly base pay (unworked * weekly)",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:96",
+   "change": "const leavePay = leaveDays * (weekly / dpw); -> const leavePay = leaveDays * (weekly / 5);",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:81",
+   "change": "const excluded = type !== \"permanent\"; -> const excluded = type === \"casual\";",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:80",
+   "change": "employees < SMALL_BUSINESS_LIMIT -> employees <= SMALL_BUSINESS_LIMIT",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:44",
+   "change": "age >= 45 -> age > 45",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:93",
+   "change": "Math.max(0, nWeeks - worked) -> nWeeks",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:16",
+   "change": "WEEKS_BY_YEAR 9: 16 -> 9: 15",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Casual and fixed-term employees are shown minimum notice and an unworked-notice payout (e.g. the example as casual: 5 weeks, A$9,250 of a A$13,690 total), but s123(1)(a) and (c) exclude them from all of Division 11, notice included. Only redundancy pay is zeroed; notice is computed regardless of the exclusion.",
+   "where": "ventures/au-redundancy-pay-calculator/calc.mjs:92",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "medium",
+   "what": "No notice-date input: notice weeks are measured at the last day instead of 'the end of the day the notice is given' (s117(3)), and the under-12-months exclusion ignores 'whichever happened first' (s121(1)). Notice at 11 months with a last day at 13 months yields A$4,000 redundancy where the Act gives none; notice at 4y11m yields 4 weeks where the Act gives 3.",
+   "where": "ventures/au-redundancy-pay-calculator/calc.mjs:78",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Unworked notice is paid at weekly base pay, but s117(2)(b) requires the full rate of pay; the file's own header comment (calc.mjs:12) says full rate. Underpays employees with loadings, allowances or penalty rates.",
+   "where": "ventures/au-redundancy-pay-calculator/calc.mjs:94",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "'Apprentice / trainee' is one option that excludes redundancy pay outright, and the FAQ says trainees are excluded; s123(1)(d) excludes a trainee only when the employment is for a specified period or the duration of the training arrangement. An ongoing trainee is entitled.",
+   "where": "ventures/au-redundancy-pay-calculator/index.html:76",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never exercise fixed-term or apprentice types, notice for an excluded employee, or a days-per-week other than 5: mutants weekly/dpw -> weekly/5 and type !== 'permanent' -> === 'casual' both survive.",
+   "where": "ventures/au-redundancy-pay-calculator/calc.test.mjs:30",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"
+  },
+  {
+   "severity": "low",
+   "what": "A blank or non-numeric age silently becomes 0 and drops the age-45 extra notice week with no error or warning (age 'abc' -> errors []).",
+   "where": "ventures/au-redundancy-pay-calculator/calc.mjs:70",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Page and code use 'aged 45 or over' (age >= 45); the Act says 'over 45 years old' (s117(3)(b)). The reading is defensible but not flagged, so a 45-year-old gets the extra week with no note.",
+   "where": "ventures/au-redundancy-pay-calculator/index.html:114",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Not modelled or mentioned: casual service excluded from continuous service (s119(3), s117(4)), the s121(4) insolvency exception to the small business exemption, industry-specific redundancy schemes in awards (s123(4)(b)), transfer of business (s122), and that the s23 headcount includes regular casuals and every employee being terminated (the input label omits both).",
+   "where": "ventures/au-redundancy-pay-calculator/index.html:73",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Completed years count anniversaries exclusively: a last day of 2021-02-28 after a 2020-03-01 start (365 days inclusive) is 0 years, so no redundancy pay; under inclusive day counting this is a full year. Interpretive; the page does not say which convention it uses.",
+   "where": "ventures/au-redundancy-pay-calculator/calc.mjs:37",
+   "category": "domain-rule",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16773"],
+ "verdict": "A small, honest NES estimator whose core table is right and whose exclusions are half applied. Against the Fair Work Act 2009 compilation in force 2026-07-07 (fetched from legislation.gov.au), the s119(2) redundancy table matches at every band, the small business threshold is right at 14/15, apprentices correctly keep notice but lose redundancy pay, and the worked example reproduces to the cent (A$43,290). But casual and fixed-term employees, whom s123(1) takes out of the whole Division, are still shown a notice payout (A$9,250 for the example as casual); notice and the 12-month exclusion are measured at the last day rather than the notice day; notice is paid at base rather than the full rate the Act and the file's own comment require; and trainees are excluded unconditionally. Tests pass 20/20 and caught 4 of 6 mutants; the two survivors (day rate, exclusion types) are exactly where the high defect sits. Disclaimer, verify line and 'written from memory' are present. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in one session: zero notice for casual and fixed-term, add a notice-date field, a full-rate input for notice, split apprentice from trainee with the s123(1)(d) condition, and tests for each."
+}

@@ -1,6 +1,6 @@
 ---
 kind: polish
-topics: [seo, content]
+topics: [seo]
 date: 2026-11-11
 ---
 # Polish 2026-11-11: /guides/ lists only guides (1,636 to 1,161 pages)

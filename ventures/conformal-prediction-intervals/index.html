@@ -44,6 +44,15 @@
     pre { background: #f5f7f9; border: 1px solid #e1e6eb; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
     code { font-size: .9em; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 480px) { div.grid:has(#method) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 335px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -202,7 +211,7 @@
     <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>predict_run</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
     <p>Free command line and agent access: <code>node cli.mjs data.csv --coverage 0.9 --method cqr</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/conformal-prediction-intervals" rel="noopener">source</a>.</p>
-    <p>More research algorithms on your own data: the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed level or volatility, and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios.</p>
+    <p>More research algorithms on your own data: the <a href="../probability-calibration/">probability calibration check</a> says whether forecast probabilities can be taken at face value, the <a href="../changepoint-detector/">changepoint detector</a> finds when a series changed level or volatility, and the <a href="../matrix-profile-explorer/">matrix profile explorer</a> finds repeated patterns and anomalies. For time-to-event data (churn, failures, relapse), the <a href="../survival-analysis/">survival analysis tool</a> gives Kaplan-Meier curves, log-rank tests and Cox hazard ratios. To check which of many test results survive multiple-testing correction, use <a href="../fdr-multiple-testing/">Benjamini-Hochberg and q-values</a>.</p>
     <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
 

@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHaLwJozsMCK1EbM4U",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T20:07:27Z",
+  "ended": "2026-11-13T20:16:03Z",
+  "wall_minutes": 8.94,
+  "tokens_in": 5255434,
+  "tokens_out": 39505,
+  "cost_usd": 3.0153,
+  "tool_calls": 45,
+  "task": "heavy-hydraulics milestone 6j: idle and still time charged to both pumps on the excavator break-even (6i's Next (b))",
+  "projects": [
+    "heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15601",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First run of excavator_idle_standby.py crashed on np.percentile of an empty array (no geometry crossed the idle-share threshold); fixed the summary to report counts, rerun clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Landing work step 2 asks to land open research PRs first; several open research drafts (#15599, #15595, #15572) are other sessions' live WIP opened minutes earlier, so 'land before build' has no safe action for them; the step could say to skip PRs updated in the last few hours."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Did not try to land other open research PRs: all were active drafts of concurrent sessions.",
+      "did": "Advanced the drawn programme directly.",
+      "result": "No collisions; claim check showed no sibling on 6j."
+    },
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6i Next (c))",
+      "why": "Paper sections 3.7j/3.7k not written this run; check_numbers ties every quoted number to a results file and the step was already a full result.",
+      "did": "Left as Next (c) in the 6j log entry.",
+      "result": "Paper stays current to 6i in README terms; no number checks broken."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-an-idle-pump-is-not-free.md",
+    "research/heavy-hydraulics/LOG.md (6j)",
+    "research/heavy-hydraulics/README.md (Milestone 6j)"
+  ],
+  "goal": null,
+  "notes": "Route: research/0, pick_track drew track 25 -> heavy-hydraulics. huggingface.co answered (200); 6i rerun reproduced byte for byte. 6j: J1,J2,J3,J5,J6 held, J4 refuted in the other direction (fixed-pump win share at 3.99 L/h 66.7% -> 74.0% at 38% idle). Checks: 64 tests pass (python3.13), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, cite_check ok, paper/check_numbers 253 claims 0 missing, post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3987ff62-fbab-51ea-a7c9-f4d52e90c060",
+    "transcripts": 1,
+    "first": "2026-11-13T20:07:27Z",
+    "last": "2026-11-13T20:16:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 77,
+        "output": 39505,
+        "thinking": 13377,
+        "cache_read": 5104863,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150494,
+        "api_equivalent_usd": 3.0153,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 77,
+      "output": 39505,
+      "thinking": 13377,
+      "cache_read": 5104863,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150494,
+      "api_equivalent_usd": 3.0153,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Edit": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.94,
+      "active_minutes": 8.94,
+      "model_minutes": 7.4,
+      "tool_minutes": 1.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer extending an existing break-even model with idle losses, sourcing an idle share, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 331.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

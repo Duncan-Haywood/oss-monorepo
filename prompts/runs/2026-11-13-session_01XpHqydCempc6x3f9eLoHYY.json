@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqydCempc6x3f9eLoHYY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T01:38:01Z",
+  "ended": "2026-11-13T02:08:23Z",
+  "wall_minutes": 30.61,
+  "tokens_in": 7850887,
+  "tokens_out": 40330,
+  "cost_usd": 3.4711,
+  "tool_calls": 64,
+  "task": "research/grid-linopf milestone 2: analytic power-flow Jacobian sensitivities for the J-m repair, checked against central differences and re-run on 36 PGLib cases",
+  "projects": [
+    "research/grid-linopf",
+    "research/infra-dcopf"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15326",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pip install pandapower via a direct python -m pip call was denied by the auto-mode classifier",
+      "fix": "used platform/ci/pyenv.py with the package list, which installed it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/infra-dcopf/src/infra_dcopf/__init__.py",
+      "issue": "importing the light pypower-only modules (vlin, pglib) pulls pandapower through the package __init__, so the vlin experiments need pandapower installed though they never use it"
+    },
+    {
+      "file": "research/grid-linopf/PROPOSAL.md",
+      "issue": "milestone 2 assumed power flows were the repair's bottleneck ('fewer power flows'); profiling shows the dense PIPS QP is 98-99 % of the time, so the milestone's speed goal could not be met by derivatives alone"
+    },
+    {
+      "file": "research/infra-dcopf/experiments/run_vlin.py",
+      "issue": "Pool.imap prints results in submission order, so one slow case (case300 API, ~10 min) hides all later progress and wait_for reported the job as possibly stuck"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-exact-derivatives-did-not-speed-up-the-grid-repair.md",
+    "research/infra-dcopf/LOG.md (plan + outcome entries)",
+    "research/grid-linopf/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Pre-registered plan committed first (claim PR). H1 (analytic = central FD to 1e-4 scaled) held: 2.3e-6 on 32/34, 1.26e-3 on case118 TYP/SAD falling to 1.26e-5 with a 10x smaller step (FD truncation). H2 held: J-m-a fully clean 19/34 (FD 18), 29/34 with reactive stage (FD 28). H3 refuted: finished-repair cost differs >0.05 pp on 6/17, worst 3.08 pp (case14 SAD), because the method stops at the first clean round. H4 refuted: 1.1x faster (1491 s -> 1353 s), PIPS QP 98-99 % of repair time (profile_vlin.py on case118 API, case240 SAD, case73 SAD). Checks run here: infra-dcopf pytest 40 passed; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; programme_check ok; check_post_frontmatter ok; run_workflow_locally --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "44c69e9e-ad09-594d-991e-abad371d08ad",
+    "transcripts": 1,
+    "first": "2026-11-13T01:38:01Z",
+    "last": "2026-11-13T02:08:37Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 123,
+        "output": 40330,
+        "thinking": 9114,
+        "cache_read": 7710529,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140235,
+        "api_equivalent_usd": 3.4711,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 123,
+      "output": 40330,
+      "thinking": 9114,
+      "cache_read": 7710529,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140235,
+      "api_equivalent_usd": 3.4711,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.61,
+      "active_minutes": 30.61,
+      "model_minutes": 6.33,
+      "tool_minutes": 24.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "implementing and verifying analytic power-flow sensitivities, rerunning a 36-case benchmark, profiling and write-up for a power-systems PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 288.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

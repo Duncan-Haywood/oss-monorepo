@@ -406,3 +406,349 @@ def test_default_screen_admits_a_rare_informative_coder_the_6am_screen_refused()
     assert S.screen(y, weak) == "pooled"
     plan = S.plan_audit(f, {i: y[i] for i in range(1000)}, 2000)
     assert plan["design"] == "cells"
+
+
+def test_predicted_ratio_prices_floor_lambda_and_fpc():
+    # LOG.md 7ak: predicted_ratio = sqrt(var_cells / var_pooled) at the planned sizes, pooled at the pilot's fitted
+    # lambda, cells at the floored allocation, both with the finite-population correction
+    from llmci import audit_design as S
+    rng = random.Random(3)
+    N, n = 4000, 800
+    y = [int(rng.random() < 0.1) for _ in range(N)]
+    good = [a if rng.random() < 0.9 else 1 - a for a in y]  # sens 0.9, spec 0.9
+    noise = [int(rng.random() < 0.1) for _ in range(N)]  # independent of y
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    # brute-force arithmetic for the good coder
+    idx = sorted(pilot); ys = [pilot[i] for i in idx]; fs = [good[i] for i in idx]; m = len(idx)
+    my, mf = sum(ys) / m, sum(fs) / m
+    lam = min(1.0, max(0.0, sum((a - my) * (b - mf) for a, b in zip(ys, fs)) / (m - 1)
+                       / (sum((b - mf) ** 2 for b in fs) / (m - 1))))
+    r = [a - lam * b for a, b in zip(ys, fs)]; mr = sum(r) / m
+    vp = (1 - n / N) * sum((x - mr) ** 2 for x in r) / (m - 1) / n
+    cells = [[i for i in range(N) if good[i] == k] for k in (0, 1)]
+    s2 = S._cell_s2(good, pilot, cells)
+    al = S.cell_allocation(n, [len(c) for c in cells], s2)
+    vc = sum((len(c) / N) ** 2 * (1 - a / len(c)) * v / a for c, a, v in zip(cells, al, s2))
+    assert abs(S.predicted_ratio(good, pilot, n) - (vc / vp) ** 0.5) < 1e-12
+    assert S.predicted_ratio(good, pilot, n) < 0.9
+    assert S.predicted_ratio(noise, pilot, n) > 1.0  # no variance to save, the floor still costs
+    assert S.predicted_ratio(good, {0: 1, 1: 0}, n) == 1.0  # too small a pilot to say
+
+
+def test_width_margin_sends_a_costly_plan_to_pooled_and_defaults_to_zero():
+    from llmci import audit_design as S
+    rng = random.Random(5)
+    N, n = 4000, 800
+    y = [int(rng.random() < 0.1) for _ in range(N)]
+    good = [a if rng.random() < 0.9 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    assert S.WIDTH_MARGIN == 0.0  # the default since 7ak
+    base = S.plan_audit(good, pilot, n)
+    assert base == S.plan_audit(good, pilot, n, width_margin=None)  # a coder that pays: the margin changes nothing
+    assert base["design"] == "cells"
+    pr = S.predicted_ratio(good, pilot, n)
+    assert S.plan_audit(good, pilot, n, width_margin=0.0)["design"] == "cells"
+    assert S.plan_audit(good, pilot, n, width_margin=1 - pr + 1e-9)["design"] == "pooled"
+    noise = [int(rng.random() < 0.1) for _ in range(N)]  # carries no information: the floor makes cells cost
+    assert S.predicted_ratio(noise, pilot, n) > 1.0
+    open_screen = dict(tau=-1.0, neg_guard=0)  # a screen that admits every coder, so only the margin decides
+    assert S.plan_audit(noise, pilot, n, **open_screen)["design"] == "pooled"
+    assert S.plan_audit(noise, pilot, n, width_margin=None, **open_screen)["design"] == "cells"
+
+
+def test_pseudo_floor_widens_only_a_thin_coder_negative_cell():
+    # LOG.md 7am: pseudo_var is p~(1 - p~), p~ = (k + a) / (m + 2a); 0 with a = 0. It floors a coder cell whose audit
+    # holds no positive, leaves a cell with plenty untouched, and never touches a pooled plan.
+    from llmci import audit_design as S
+    assert S.pseudo_var([0] * 98, 0) == 0.0
+    assert abs(S.pseudo_var([0] * 98, 1.0) - (1 / 100) * (99 / 100)) < 1e-15
+    assert abs(S.pseudo_var([1] * 2 + [0] * 98, 2.0) - (4 / 104) * (100 / 104)) < 1e-15
+    N = 2000
+    f = [1] * 200 + [0] * 1800
+    h = [1] * 120 + [0] * 80 + [0] * 1800  # coder-negative cell holds no positive at all
+    plan = {"design": "cells", "cells": [list(range(200, N)), list(range(200))]}
+    labels = {i: h[i] for i in list(range(0, 200, 2)) + list(range(200, N, 9))}
+    _, lo0, hi0 = S.audit_interval(dict(plan, pseudo=0.0), f, labels)
+    _, lo2, hi2 = S.audit_interval(dict(plan, pseudo=2.0), f, labels)
+    assert hi2 - lo2 > hi0 - lo0
+    pooled = {"design": "pooled", "cells": [list(range(N))], "pseudo": 2.0}
+    assert S.audit_interval(pooled, f, labels) == S.audit_interval(dict(pooled, pseudo=0.0), f, labels)
+    pilot = {i: h[i] for i in range(0, N, 4)}
+    assert S.plan_audit(f, pilot, 400, neg_guard=0)["pseudo"] == S.PSEUDO
+
+
+def test_guard_first_fallback_only_replans_a_pilot_the_miss_guard_refuses():
+    # LOG.md 7an: fallback_pseudo leaves a pilot with >= neg_guard coder misses planned exactly as before, and replans
+    # one with fewer at neg_guard 0 and that pseudo floor (flagged "fallback"); the default (None) changes nothing.
+    from llmci import audit_design as S
+    assert S.FALLBACK_PSEUDO is None
+    rng = random.Random(11)
+    N, n = 4000, 600
+    y = [int(rng.random() < 0.06) for _ in range(N)]
+    sharp = [a if rng.random() < 0.985 else 1 - a for a in y]  # misses few positives: thin pilots fail the guard
+    pilot = {i: y[i] for i in rng.sample(range(N), 300)}
+    misses = sum(1 for i in pilot if pilot[i] and not sharp[i])
+    assert misses < S.NEG_GUARD
+    assert S.plan_audit(sharp, pilot, n)["design"] == "pooled"
+    fb = S.plan_audit(sharp, pilot, n, fallback_pseudo=2.0)
+    assert fb.pop("fallback") is True
+    assert fb == S.plan_audit(sharp, pilot, n, neg_guard=0, pseudo=2.0)
+    assert fb["design"] == "cells" and fb["pseudo"] == 2.0
+    loose = [a if rng.random() < 0.8 else 1 - a for a in y]  # misses plenty: the guard passes, the fallback is idle
+    assert sum(1 for i in pilot if pilot[i] and not loose[i]) >= S.NEG_GUARD
+    assert S.plan_audit(loose, pilot, n, fallback_pseudo=2.0) == S.plan_audit(loose, pilot, n)
+    assert S.plan_audit(sharp, pilot, n, neg_guard=0, fallback_pseudo=2.0) == S.plan_audit(sharp, pilot, n, neg_guard=0)
+
+
+def test_two_phase_counts_the_pilot_exactly_and_estimates_only_the_rest():
+    # LOG.md 7ao: a two-phase cells plan labels fresh items only, sized by `two_phase_allocation` over each cell's
+    # unpiloted rest; its interval sums the pilot labels as known, so with the whole rest labelled it is exact.
+    from llmci import audit_design as S
+    assert S.FALLBACK_TWO_PHASE is False
+    rng = random.Random(12)
+    N, n = 3000, 800
+    y = [int(rng.random() < 0.08) for _ in range(N)]
+    f = [a if rng.random() < 0.9 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True, width_margin=None)
+    assert plan["design"] == "cells" and plan["two_phase"] and plan["pilot"] == sorted(pilot)
+    assert sum(plan["to_label"]) == n - len(pilot)
+    rest = [sum(1 for i in c if i not in pilot) for c in plan["cells"]]
+    assert all(t <= r for t, r in zip(plan["to_label"], rest))
+    full = dict(pilot); full.update({i: y[i] for i in range(N)})
+    est, lo, hi = S.audit_interval(plan, f, full)
+    assert abs(est - sum(y) / N) < 1e-12 and hi - lo < 1e-3  # FPC: nothing left to estimate
+    # a partial second phase: unbiased for the rest, pilot labels enter only as known counts
+    labels = dict(pilot)
+    for c, t in zip(plan["cells"], plan["to_label"]):
+        for i in rng.sample([i for i in c if i not in pilot], t):
+            labels[i] = y[i]
+    est, lo, hi = S.audit_interval(plan, f, labels)
+    known = sum(pilot.values())
+    hand = known
+    for c in plan["cells"]:
+        y2 = [labels[i] for i in c if i in labels and i not in pilot]
+        hand += sum(1 for i in c if i not in pilot) * sum(y2) / len(y2)
+    assert abs(est - hand / N) < 1e-12 and lo < est < hi
+    # the forecast prices the design: two-phase discards the pilot from the rest's estimate, so it is no narrower
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True) >= S.predicted_ratio(f, pilot, n, pseudo=2.0)
+
+
+def test_fallback_two_phase_applies_only_to_the_fallback_plan():
+    from llmci import audit_design as S
+    rng = random.Random(11)
+    N, n = 4000, 600
+    y = [int(rng.random() < 0.06) for _ in range(N)]
+    sharp = [a if rng.random() < 0.985 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 300)}
+    fb = S.plan_audit(sharp, pilot, n, fallback_pseudo=2.0, fallback_two_phase=True)
+    assert fb.pop("fallback") is True
+    assert fb == S.plan_audit(sharp, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True)
+    loose = [a if rng.random() < 0.8 else 1 - a for a in y]
+    assert S.plan_audit(loose, pilot, n, fallback_pseudo=2.0, fallback_two_phase=True) == S.plan_audit(loose, pilot, n)
+
+
+def test_neg_only_two_phase_reuses_the_coder_positive_pilot_and_is_exact_on_a_census():
+    # LOG.md 7ap: two_phase="neg" makes only the coder-negative cell two-phase; the coder-positive cell's pilot labels
+    # and its fresh ones estimate its whole mean together, so the plan labels fewer fresh items there than full two-phase
+    from llmci import audit_design as S
+    assert S.PRICE_FLOOR is False
+    rng = random.Random(21)
+    N, n = 3000, 800
+    y = [int(rng.random() < 0.08) for _ in range(N)]
+    f = [a if rng.random() < 0.9 else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 400)}
+    plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase="neg", width_margin=None)
+    assert plan["design"] == "cells" and plan["phase2"] == [True, False]
+    assert sum(plan["to_label"]) == n - len(pilot)
+    full = dict(pilot); full.update({i: y[i] for i in range(N)})
+    est, lo, hi = S.audit_interval(plan, f, full)
+    assert abs(est - sum(y) / N) < 1e-12 and hi - lo < 1e-3
+    labels = dict(pilot)
+    for c, t in zip(plan["cells"], plan["to_label"]):
+        for i in rng.sample([i for i in c if i not in pilot], t):
+            labels[i] = y[i]
+    est, lo, hi = S.audit_interval(plan, f, labels)
+    c0, c1 = plan["cells"]
+    y2 = [labels[i] for i in c0 if i in labels and i not in pilot]
+    ya = [labels[i] for i in c1 if i in labels]
+    hand = sum(pilot[i] for i in c0 if i in pilot) + sum(1 for i in c0 if i not in pilot) * sum(y2) / len(y2)
+    hand += len(c1) * sum(ya) / len(ya)
+    assert abs(est - hand / N) < 1e-12 and lo < est < hi
+    # keeping the coder-positive pilot can only help the forecast
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase="neg") <= \
+        S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=False) + 0.02
+
+
+def test_priced_floor_raises_the_forecast_when_the_second_phase_is_small():
+    # LOG.md 7ap: with a near-empty coder-negative cell in the pilot, the plus-four floor at the second-phase size is
+    # larger than at the pilot size, so the priced forecast is wider; with pseudo 0 pricing changes nothing
+    from llmci import audit_design as S
+    rng = random.Random(5)
+    N, n = 4000, 600
+    y = [int(rng.random() < 0.06) for _ in range(N)]
+    f = [a if (a and rng.random() < 0.97) or (not a and rng.random() < 0.97) else 1 - a for a in y]
+    pilot = {i: y[i] for i in rng.sample(range(N), 300)}
+    plain = S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True)
+    priced = S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=True)
+    assert priced >= plain - 1e-9
+    cells = [[i for i, c in enumerate(f) if c == k] for k in (0, 1)]
+    s2 = [0.01, 0.2]
+    d0 = S.priced_two_phase(n, cells, pilot, s2, pseudo=0.0)
+    rest, k = S.two_phase_allocation(n, cells, pilot, s2)
+    assert d0["to_label"] == k
+    # the plan built with pricing on matches the forecast's design
+    plan = S.plan_audit(f, pilot, n, neg_guard=0, pseudo=2.0, two_phase=True, price_floor=True, width_margin=None)
+    if plan["design"] == "cells":
+        assert sum(plan["to_label"]) == n - len(pilot)
+
+
+def test_no_info_sends_an_unreadable_pilot_to_pooled():
+    # LOG.md 7ap (post hoc): a pilot whose only positive the coder also labelled 1 has lambda 1 and every pooled
+    # residual 0, so `predicted_ratio` cannot forecast; its default 1.0 passes the margin-0 gate and the fallback
+    # opened cells at 3 times the pooled width. no_info=inf refuses it; the default keeps every earlier replay.
+    from llmci import audit_design as S
+    rng = random.Random(3)
+    N, n = 6000, 500
+    y = [int(rng.random() < 0.012) for _ in range(N)]
+    f = [a if rng.random() < 0.99 else 0 for a in y]
+    pos1 = next(i for i in range(N) if y[i] and f[i])
+    negs = [i for i in range(N) if not y[i] and not f[i]]
+    pilot = {i: 0 for i in rng.sample(negs, 249)}
+    pilot[pos1] = 1
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=True) == 1.0
+    assert S.predicted_ratio(f, pilot, n, pseudo=2.0, two_phase=True, price_floor=True, no_info=float("inf")) == \
+        float("inf")
+    kw = dict(fallback_pseudo=2.0, fallback_two_phase=True, price_floor=True, width_margin=0.0)
+    assert S.plan_audit(f, pilot, n, **kw)["design"] == "cells"
+    assert S.plan_audit(f, pilot, n, no_info=float("inf"), **kw)["design"] == "pooled"
+
+
+def test_budget_cap_keeps_cells_plan_within_n():
+    """LOG.md 7ar: a pilot that holds more of one coder cell than its Neyman allocation made an uncapped cells plan
+    label more than n items; budget_cap=True keeps the total at n and leaves an in-budget plan unchanged."""
+    from llmci import audit_design as A
+    assert A.cap_to_budget([10, 5], 20) == [10, 5]
+    assert A.cap_to_budget([30, 0], 20) == [20, 0]
+    assert sum(A.cap_to_budget([7, 7, 7], 10)) == 10
+    assert A.cap_to_budget([5, 5], -3) == [0, 0]
+    rng = random.Random(3)
+    N, n = 4000, 400
+    h = [1 if rng.random() < 0.3 else 0 for _ in range(N)]
+    f = [y if rng.random() < 0.85 else 1 - y for y in h]
+    over = 0
+    for seed in range(40):
+        pilot = random.Random(seed).sample(range(N), 280)
+        lab = {i: h[i] for i in pilot}
+        kw = dict(tau=A.TAU, guard=0, neg_guard=3, width_margin=None, pseudo=0.0, fallback_pseudo=None)
+        loose = A.plan_audit_pre7ar(f, lab, n, **kw)
+        tight = A.plan_audit(f, lab, n, **kw)  # BUDGET_CAP is on by default since 7ar
+        assert loose["design"] == tight["design"] == "cells"
+        assert len(lab) + sum(tight["to_label"]) <= n
+        over += len(lab) + sum(loose["to_label"]) > n
+        if len(lab) + sum(loose["to_label"]) <= n:
+            assert loose["to_label"] == tight["to_label"]
+    assert over > 0  # the uncapped plan does overspend at a 0.7n pilot here
+
+
+def test_post_stratified_estimate_equals_pooled_control_variate():
+    """LOG.md 7as: on the same simple random sample, the cells (post-stratified) estimate equals the pooled
+    control-variate estimate exactly. With a 0/1 coder code, the regression of y on f passes through both cell means, so
+    the regression estimator is the post-stratified one (when lambda is not clipped). A pilot of the whole audit
+    therefore buys nothing: the cells design gains only through the Neyman allocation of the unpiloted labels."""
+    from llmci import audit_design as A
+    rng = random.Random(1)
+    N = 5000
+    f = [int(rng.random() < 0.1) for _ in range(N)]
+    h = [int(rng.random() < (0.6 if x else 0.03)) for x in f]
+    cells = {"design": "cells", "cells": [[i for i in range(N) if f[i] == k] for k in (0, 1)], "pseudo": 0.0}
+    pooled = {"design": "pooled", "cells": [list(range(N))]}
+    for seed in range(20):
+        lab = {i: h[i] for i in random.Random(seed).sample(range(N), 500)}
+        assert abs(A.audit_interval(cells, f, lab)[0] - A.audit_interval(pooled, f, lab)[0]) < 1e-12
+
+
+def test_j_lower_bound_of_7at():
+    """LOG.md 7at: the l-rules' Wald lower bound on Youden's J equals informedness at z = 0, falls as z grows, and is
+    -1 when the pilot has no positive (J undefined), so such a pilot is never admitted."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    from llmci import audit_design as A
+    import h7at_weak_admit as W
+    rng = random.Random(3)
+    y = [int(rng.random() < 0.2) for _ in range(400)]
+    f = [int(rng.random() < (0.7 if t else 0.1)) for t in y]
+    assert abs(W.j_lower(y, f, 0.0) - A.informedness(y, f)) < 1e-12
+    assert W.j_lower(y, f, 1.645) < W.j_lower(y, f, 1.0) < W.j_lower(y, f, 0.0)
+    assert W.j_lower([0] * 50, [1] * 5 + [0] * 45, 1.0) == -1.0
+
+
+def test_rare_fallback_is_wilson_on_the_labels_and_defaults_to_three():
+    """LOG.md 7av: rare_fallback=m closes a pooled plan with under m audited positives by a Wilson interval on the
+    labels alone. LOG.md 7aw: the default is m = RARE_FALLBACK = 3; None gives the bare control-variate interval."""
+    import importlib.util
+    # a private copy: experiment modules imported by other tests set the shared module's RARE_FALLBACK to None
+    spec = importlib.util.spec_from_file_location("audit_design_fresh", Path(__file__).resolve().parent / "llmci" / "audit_design.py")
+    S = importlib.util.module_from_spec(spec); spec.loader.exec_module(S)
+    assert S.RARE_FALLBACK == 3
+    rng = random.Random(7)
+    y, f = corpus(4000, 0.003, 0.6, 0.97, rng)
+    plan = {"design": "pooled", "cells": [list(range(4000))]}
+    z, fired = 1.959964, 0
+    for seed in range(30):
+        aud = random.Random(seed).sample(range(4000), 400)
+        labels = {i: y[i] for i in aud}
+        x, a = sum(labels.values()), 400
+        base = S.audit_interval(plan, f, labels, rare_fallback=None)
+        assert S.audit_interval(plan, f, labels) == S.audit_interval(plan, f, labels, rare_fallback=3)
+        if x >= 3:
+            assert S.audit_interval(plan, f, labels) == base
+        est, lo, hi = S.audit_interval(plan, f, labels, rare_fallback=5)
+        assert est == base[0]
+        if x < 5:
+            fired += 1
+            q = x / a
+            mid = (q + z * z / (2 * a)) / (1 + z * z / a)
+            half = z * math.sqrt(q * (1 - q) / a + z * z / (4 * a * a)) / (1 + z * z / a)
+            assert abs(lo - max(0.0, mid - half)) < 1e-12 and abs(hi - (mid + half)) < 1e-12 and lo <= q <= hi
+        else:
+            assert (est, lo, hi) == base
+    assert fired >= 10  # about 1.2 expected positives per audit, so the fallback is exercised
+
+
+def test_neg_floor_default_is_the_7az_joint_trigger():
+    """LOG.md 7az: plan_audit's default NEG_FLOOR = (5, 0.40, 2) marks a one-phase cells plan whose pilot holds fewer
+    than 5 coder misses and has J_hat under 0.40, and audit_interval then floors the coder-negative cell at the
+    plus-two pseudo-count variance; the result equals the experiment's p5j40 interval (`h7au_neg_floor.interval`)."""
+    import importlib.util
+    sys.path.insert(0, str(Path(__file__).resolve().parent / "experiments"))
+    import h7au_neg_floor as U
+    # a private copy: experiment modules imported by other tests set the shared module's NEG_FLOOR to None
+    spec = importlib.util.spec_from_file_location("audit_design_7az", Path(__file__).resolve().parent / "llmci" / "audit_design.py")
+    S = importlib.util.module_from_spec(spec); spec.loader.exec_module(S)
+    assert S.NEG_FLOOR == (5, 0.40, 2)
+    rng = random.Random(11)
+    y, f = corpus(6000, 0.02, 0.7, 0.7, rng)
+    n, k, seen = 1000, 700, {"floored": 0, "cells": 0}
+    for seed in range(80):
+        aud = random.Random(seed).sample(range(6000), n)
+        pilot = {i: y[i] for i in aud[:k]}
+        plan = S.plan_audit(f, pilot, n, tau=0.10)
+        if plan["design"] != "cells":
+            assert "neg_pseudo" not in plan
+            continue
+        seen["cells"] += 1
+        py, pf = [pilot[i] for i in sorted(pilot)], [f[i] for i in sorted(pilot)]
+        on = sum(1 for a, b in zip(py, pf) if a and not b) < 5 and S.informedness(py, pf) < 0.40
+        assert ("neg_pseudo" in plan) == on
+        seen["floored"] += on
+        labels = dict(pilot)
+        sb = random.Random(1000 + seed)
+        for cell, t in zip(plan["cells"], plan["to_label"]):
+            for i in sb.sample([i for i in cell if i not in labels], t):
+                labels[i] = y[i]
+        lib = S.audit_interval(plan, f, labels)
+        mine = U.interval(plan, f, labels, ("neg", "pseudo", 2) if on else None)
+        assert max(abs(a - b) for a, b in zip(lib, mine)) < 1e-12
+        off = S.audit_interval({kk: v for kk, v in plan.items() if kk != "neg_pseudo"}, f, labels)
+        assert (off[2] - off[1]) <= (lib[2] - lib[1]) + 1e-15
+    assert seen["cells"] > 0 and 0 < seen["floored"] < seen["cells"], seen

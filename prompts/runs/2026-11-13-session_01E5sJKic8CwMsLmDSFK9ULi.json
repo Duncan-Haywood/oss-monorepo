@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKic8CwMsLmDSFK9ULi",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T00:23:08Z",
+  "ended": "2026-11-13T00:43:44Z",
+  "wall_minutes": 20.89,
+  "tokens_in": 8409469,
+  "tokens_out": 53281,
+  "cost_usd": 4.0323,
+  "tool_calls": 66,
+  "task": "buildbot-sheathing milestone 6b: the bowed bottom edge as a curve (pick_track draw)",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15308",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "figure.py first used key f_n for section D rows, which are keyed fn; fixed before commit",
+    "main run.py did not save per-seat tilts, so it was rerun (deterministic; results.txt identical apart from wall time) to draw panel A"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "promptctl route printed '2630/40 runs toward the next review': the review counter looks broken or stale (review_when_due never fires?), worth a look by the process track"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py installed mujoco into /usr/bin/python3.13 fine; drake is not in pyenv's list and needed a separate pip install (about a minute); a line saying so would save a probe"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/buildbot-sheathing/LOG.md",
+      "why": "H39 (single-seat convergence with the number of feet) was refuted, and the registered test could not say whether the discretisation or the soft contact was to blame",
+      "did": "added a post-hoc envelope check (envelope.py, labelled post hoc in code, LOG and README) across n = 25-401 in both engines",
+      "result": "Drake's envelope sits inside the friction band at every n; MuJoCo's exceeds it at 5 N at every n, so the excess is the soft contact, not the feet"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "the site-builder test in run_workflow_locally --for-changes detached after 100 s; the diff touches only research/ and a post",
+      "did": "relied on research tests, homepage build, link and front-matter checks run here and on CI for the site build",
+      "result": "see PR checks"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-bowed-sheet-edge-is-a-rocker-not-a-seesaw.md",
+    "research/buildbot-sheathing/LOG.md (milestone 6b planned + result)"
+  ],
+  "goal": "advance the buildbot-sheathing programme: close the model-dependent bowed-edge term milestone 6 left open",
+  "notes": "Pre-registered H37-H40 in LOG.md and pushed before running. Results (MuJoCo 4.0.1, Drake 1.51.1 SAP): H37 held 48/48 cells; H40 held (best single-2x pipeline 0.5602 -> 0.6250, two-2x <= 0.45 pts); H38 refuted (a kink at 5 N leaves 0.013-0.147 deg, approach-dependent); H39 refuted as registered. Local checks: pytest research/buildbot-sheathing/tests 63 passed; paper/check_numbers.py 78/78 ok; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; check_post_links ok; post_similarity 0 pairs; programme_check ok; cite_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "91472380-59f4-57f8-8b6f-21422b915b9d",
+    "transcripts": 1,
+    "first": "2026-11-13T00:23:08Z",
+    "last": "2026-11-13T00:44:01Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 119,
+        "output": 53281,
+        "thinking": 17136,
+        "cache_read": 8244692,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164658,
+        "api_equivalent_usd": 4.0323,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 119,
+      "output": 53281,
+      "thinking": 17136,
+      "cache_read": 8244692,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164658,
+      "api_equivalent_usd": 4.0323,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 58,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.89,
+      "active_minutes": 20.89,
+      "model_minutes": 10.33,
+      "tool_minutes": 10.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher deriving the rocker criterion, building the profile feet in two simulators, running the grid and rewriting the paper section: about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 396.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

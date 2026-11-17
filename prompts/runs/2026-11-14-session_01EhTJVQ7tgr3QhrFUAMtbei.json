@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVQ7tgr3QhrFUAMtbei",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (prompts/ventures/prompt-2.md)",
+  "input_sha256": "c9c02706da5277856d8276fd863a7b37bb29dd87287863efdb0cf7cd8bf29de6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T03:06:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2): ai-bookkeeper item (2), bank readers on real WF/Chase/US Bank downloads and a business account",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": 15702,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Outbound HTTPS to state tax sites, irs.gov and wikipedia refused (CONNECT 403) this session; only GitHub and package registries reachable",
+      "effect": "Item (8), the remaining states' sales tax pages, was not possible; switched to item (2), whose inputs are on raw.githubusercontent.com"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The row prints item (8) first in practice for recent runs but gives no hint that state-site reachability changes per session; a quick host probe line in the BUILDABLE note would save a few minutes."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-one-bill-payment-flipped-a-whole-bank-file.md"
+  ],
+  "goal": null,
+  "notes": "Probed 14 state DOR hosts: all refused through the proxy. Fetched 26 candidate US bank/card exports from public GitHub (gh search/code), kept 19 real or real-layout files in eval/us-bank-exports.mjs SOURCES (none committed). Faults fixed: (1) real Ally 528-row checking file fully sign-flipped by 'LIPA DIRECTPAY' rows matching the strong card-payment word; (2) Chase ACH addenda lines all keyed to payee 'orig name' and Stripe payouts suggested as transfers (achCompact); (3) pandas index column defeated sniffBank. Verification: node --test *.test.mjs in ventures/ai-bookkeeper: 2541 pass, 0 fail (2535 before plus 6 new). node eval/us-bank-exports.mjs: 41 files, 3284 rows, 41/41 named, 0 unexplained skips, 0 wrong signs. portfolio/router/validate.py: valid.",
+  "corrections": [],
+  "redteam": null
+}

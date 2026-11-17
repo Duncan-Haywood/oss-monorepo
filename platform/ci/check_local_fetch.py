@@ -33,7 +33,7 @@ def missing(text, base):
 def scan(root=ROOT):
     bad = []
     for f in sorted((root / "ventures").rglob("*")):
-        if f.suffix not in (".html", ".js", ".mjs") or "node_modules" in f.parts or ".test." in f.name:
+        if f.suffix not in (".html", ".js", ".mjs") or not {"node_modules", ".next"}.isdisjoint(f.parts) or ".test." in f.name:
             continue
         for line, u in missing(f.read_text(encoding="utf-8", errors="ignore"), f.parent):
             bad.append((f.relative_to(root), line, u))

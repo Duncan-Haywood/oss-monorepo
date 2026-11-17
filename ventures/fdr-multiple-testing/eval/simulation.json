@@ -1,0 +1,242 @@
+{
+ "generator": "eval/simulate.mjs",
+ "runs": [
+  {
+   "settings": {
+    "m": 1000,
+    "m1": 100,
+    "shift": 2.5,
+    "rho": 0,
+    "reps": 400,
+    "alpha": 0.05,
+    "seed": 20261111
+   },
+   "methods": {
+    "bonferroni": {
+     "name": "Bonferroni",
+     "fdr": 0.004679285991785992,
+     "fwer": 0.045,
+     "power": 0.08362499999999987,
+     "meanKept": 8.4075
+    },
+    "sidak": {
+     "name": "Šidák",
+     "fdr": 0.004882659007659007,
+     "fwer": 0.0475,
+     "power": 0.08457499999999986,
+     "meanKept": 8.505
+    },
+    "holm": {
+     "name": "Holm",
+     "fdr": 0.004896395271395271,
+     "fwer": 0.0475,
+     "power": 0.08394999999999987,
+     "meanKept": 8.4425
+    },
+    "hochberg": {
+     "name": "Hochberg",
+     "fdr": 0.004896395271395271,
+     "fwer": 0.0475,
+     "power": 0.08394999999999987,
+     "meanKept": 8.4425
+    },
+    "bh": {
+     "name": "Benjamini-Hochberg",
+     "fdr": 0.043579646536333144,
+     "fwer": 0.7675,
+     "power": 0.33972500000000005,
+     "meanKept": 35.5925
+    },
+    "by": {
+     "name": "Benjamini-Yekutieli",
+     "fdr": 0.005557536718527431,
+     "fwer": 0.0675,
+     "power": 0.0966499999999999,
+     "meanKept": 9.7325
+    },
+    "bky": {
+     "name": "Two-stage BKY",
+     "fdr": 0.04276814267183969,
+     "fwer": 0.7525,
+     "power": 0.33760000000000007,
+     "meanKept": 35.345
+    },
+    "storey": {
+     "name": "Storey q-value",
+     "fdr": 0.048835108624102286,
+     "fwer": 0.805,
+     "power": 0.36155000000000015,
+     "meanKept": 38.1075
+    }
+   },
+   "pi0": {
+    "truth": 0.9,
+    "q05": 0.854,
+    "q25": 0.882,
+    "median": 0.9,
+    "q75": 0.918,
+    "q95": 0.942,
+    "shareBelowHalf": 0,
+    "storeyFdrWhenBelowHalf": null
+   }
+  },
+  {
+   "settings": {
+    "m": 1000,
+    "m1": 100,
+    "shift": 2.5,
+    "rho": 0.5,
+    "reps": 400,
+    "alpha": 0.05,
+    "seed": 20261112
+   },
+   "methods": {
+    "bonferroni": {
+     "name": "Bonferroni",
+     "fdr": 0.00035760761757210697,
+     "fwer": 0.0075,
+     "power": 0.07552500000000002,
+     "meanKept": 7.585
+    },
+    "sidak": {
+     "name": "Šidák",
+     "fdr": 0.00035760761757210697,
+     "fwer": 0.0075,
+     "power": 0.07635000000000003,
+     "meanKept": 7.6675
+    },
+    "holm": {
+     "name": "Holm",
+     "fdr": 0.0003542552437641723,
+     "fwer": 0.0075,
+     "power": 0.07615000000000002,
+     "meanKept": 7.6475
+    },
+    "hochberg": {
+     "name": "Hochberg",
+     "fdr": 0.0003542552437641723,
+     "fwer": 0.0075,
+     "power": 0.07615000000000002,
+     "meanKept": 7.6475
+    },
+    "bh": {
+     "name": "Benjamini-Hochberg",
+     "fdr": 0.028650920184845618,
+     "fwer": 0.2275,
+     "power": 0.316475,
+     "meanKept": 38.9975
+    },
+    "by": {
+     "name": "Benjamini-Yekutieli",
+     "fdr": 0.00489750423869681,
+     "fwer": 0.055,
+     "power": 0.12020000000000004,
+     "meanKept": 12.735
+    },
+    "bky": {
+     "name": "Two-stage BKY",
+     "fdr": 0.031105730930291425,
+     "fwer": 0.2275,
+     "power": 0.3156999999999999,
+     "meanKept": 41.6925
+    },
+    "storey": {
+     "name": "Storey q-value",
+     "fdr": 0.1090199201890802,
+     "fwer": 0.325,
+     "power": 0.3761750000000001,
+     "meanKept": 103.6075
+    }
+   },
+   "pi0": {
+    "truth": 0.9,
+    "q05": 0.116,
+    "q25": 0.462,
+    "median": 0.908,
+    "q75": 1,
+    "q95": 1,
+    "shareBelowHalf": 0.2625,
+    "storeyFdrWhenBelowHalf": 0.4098924880835901
+   }
+  },
+  {
+   "settings": {
+    "m": 1000,
+    "m1": 400,
+    "shift": 2.5,
+    "rho": 0,
+    "reps": 400,
+    "alpha": 0.05,
+    "seed": 20261113
+   },
+   "methods": {
+    "bonferroni": {
+     "name": "Bonferroni",
+     "fdr": 0.0009672873848180324,
+     "fwer": 0.0325,
+     "power": 0.08313124999999998,
+     "meanKept": 33.285
+    },
+    "sidak": {
+     "name": "Šidák",
+     "fdr": 0.0009556165716329379,
+     "fwer": 0.0325,
+     "power": 0.08400624999999996,
+     "meanKept": 33.635
+    },
+    "holm": {
+     "name": "Holm",
+     "fdr": 0.000951991341052901,
+     "fwer": 0.0325,
+     "power": 0.08442499999999997,
+     "meanKept": 33.8025
+    },
+    "hochberg": {
+     "name": "Hochberg",
+     "fdr": 0.000951991341052901,
+     "fwer": 0.0325,
+     "power": 0.08442499999999997,
+     "meanKept": 33.8025
+    },
+    "bh": {
+     "name": "Benjamini-Hochberg",
+     "fdr": 0.02965063902289928,
+     "fwer": 0.9975,
+     "power": 0.6008625,
+     "meanKept": 247.74
+    },
+    "by": {
+     "name": "Benjamini-Yekutieli",
+     "fdr": 0.0040189911712357786,
+     "fwer": 0.3,
+     "power": 0.23644375000000012,
+     "meanKept": 94.9625
+    },
+    "bky": {
+     "name": "Two-stage BKY",
+     "fdr": 0.037531347891577124,
+     "fwer": 1,
+     "power": 0.6469250000000001,
+     "meanKept": 268.9475
+    },
+    "storey": {
+     "name": "Storey q-value",
+     "fdr": 0.049767578829535204,
+     "fwer": 1,
+     "power": 0.7022437499999998,
+     "meanKept": 295.72
+    }
+   },
+   "pi0": {
+    "truth": 0.6,
+    "q05": 0.56,
+    "q25": 0.586,
+    "median": 0.604,
+    "q75": 0.62,
+    "q95": 0.644,
+    "shareBelowHalf": 0,
+    "storeyFdrWhenBelowHalf": null
+   }
+  }
+ ]
+}

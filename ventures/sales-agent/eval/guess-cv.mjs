@@ -6,6 +6,7 @@
 import { readFileSync, readdirSync } from "node:fs";
 import { triage, CATEGORIES, stripQuoted } from "../engine.mjs";
 import { train, guess, TRAINING_FILE, trainingLabel } from "../learn.mjs";
+import { pathToFileURL } from "node:url";
 
 const dir = new URL("./", import.meta.url);
 export const REPLY_FILES = readdirSync(dir).filter((f) => TRAINING_FILE.test(f)).sort();
@@ -44,7 +45,7 @@ export function crossValidate({ minMargin = 0, files = REPLY_FILES } = {}) {
   return { minMargin, per, totals: { cv: sum("cv", (p) => p.cv), cvFresh: sum("cv", (p) => (p.shipped ? p.cv : null)), shippedFresh: sum("shipped", (p) => p.shipped) }, freshFiles: fresh.length };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const m = Number((process.argv.find((a) => a.startsWith("--min-margin=")) || "=0").split("=")[1]);
   const r = crossValidate({ minMargin: m });
   if (process.argv.includes("--json")) console.log(JSON.stringify(r, null, 2));

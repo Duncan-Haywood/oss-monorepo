@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKnH6F2h1PaEGK6CGr",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T09:06:27Z",
+  "ended": "2026-11-12T09:16:58Z",
+  "wall_minutes": 10.67,
+  "tokens_in": 3298993,
+  "tokens_out": 17790,
+  "cost_usd": 1.61,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15075",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--workflow-timeout is accepted by the by-name path but ignored there (only --for-changes passes a budget); I tried a by-name budgeted run to verify and it ran the 300 s suite unbudgeted."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; the doc-friction table led to an ungated tool fix in minutes (Critique mode worked as described)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-one-second-check-behind-a-five-minute-suite.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode from measure 'Doc friction by file' (run_workflow_locally.py, 2026-11-12T08:50 report). Fix: budgeted sweeps run argument-free platform/ci/check_*.py steps first. Verified: test_run_workflow_locally 138 OK; real portfolio-pages sweep at 30 s budget ran the front-matter check [ok 0.2s] (was UNRUN). main_health.py on main: 58/58 pass. portfolio-validate.yml by name: 100/100 pass, 10 unrun (pytest absent, no base ref). No backlog ids touched (only owner rows open).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a9aaf312-255d-5bff-a9aa-2a650f046ae2",
+    "transcripts": 1,
+    "first": "2026-11-12T09:06:27Z",
+    "last": "2026-11-12T09:17:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 39,
+        "input": 77,
+        "output": 17790,
+        "thinking": 6505,
+        "cache_read": 3222744,
+        "cache_write_5m": 0,
+        "cache_write_1h": 76172,
+        "api_equivalent_usd": 1.61,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 39,
+      "input": 77,
+      "output": 17790,
+      "thinking": 6505,
+      "cache_read": 3222744,
+      "cache_write_5m": 0,
+      "cache_write_1h": 76172,
+      "api_equivalent_usd": 1.61,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 37,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.67,
+      "active_minutes": 10.67,
+      "model_minutes": 4.07,
+      "tool_minutes": 6.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose budget starvation, patch scheduler, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 124.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

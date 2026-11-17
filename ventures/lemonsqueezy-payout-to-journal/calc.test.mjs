@@ -102,7 +102,8 @@ test("dates parse ISO with a time suffix, dotted European, and slashed per the c
 test("a file without the sales columns is refused with a pointer to the right export", () => {
   const r = validate("date,amount\n2026-01-01,5\n");
   assert.equal(r.findings[0].severity, "error");
-  assert.match(r.findings[0].detail, /Insights \/ Payouts/);
+  assert.match(r.findings[0].detail, /subtotal, fee and net/);
+  assert.doesNotMatch(r.findings[0].detail, /Insights \/ Payouts/);
 });
 
 test("two payouts in one file are journalled separately", () => {
@@ -171,4 +172,9 @@ test("Lemon Squeezy's separate platform and processing fee columns are both book
   const fees = r.journals[0].lines.find((l) => l.category === "fees");
   assert.equal(fees.debit, 224);
   assert.equal(r.reconciliation[0].agrees, true);
+});
+
+test("the date_utc column of a Lemon Squeezy export is read as the order date", () => {
+  const r = parsePayouts("Order ID,date_utc,Subtotal,Fee,Net\n1,2026-10-04 10:00:00,20.00,1.50,18.50\n");
+  assert.equal(r.payouts[0].rows[0].created, "2026-10-04");
 });

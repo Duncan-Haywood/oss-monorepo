@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVKvpZbyfegVKyj6Abq",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T08:03:54Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship ai-bookkeeper item (4): check the loan register against a named lender's own numbers",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": 16142,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co refused by the proxy (403) when looking for a LendingClub copy; GitHub LFS media URL worked"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook blocks a whole command when pkill -f '[x]' appears alongside the unbracketed name elsewhere in the same command, so a heredoc in that command was silently not written; worth naming in the 'Small things that bite' note."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-lenders-round-the-payment-up.md",
+    "ventures/ai-bookkeeper/eval/lendingclub-loans-2026-11-15.md"
+  ],
+  "goal": "Loan payments match a real lender's to the cent",
+  "notes": "LendingClub's public 2007-2014 loan book (466,285 loans, sha256 43ecf2dc...) shows the instalment is rounded UP to the cent: 98.6% overall, 445,325/445,471 (99.97%) for 2011-2014, against 50.2% for the register's nearest-cent rounding. Shipped levelPayment(...,'up'), loan add --round up, a page select, and a loan check note. Verified: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (23.7s), 1 skipped (tesseract missing); headless Chromium on the loans card: round up 885.46, nearest 885.45, no page errors. Interest-on-schedule comparison was not clean (payment timing unknown) and is reported as such. run_workflow_locally --for-changes: 13/13 selected workflows passed, no step failed; agent-cross-review.yml and pages.yml reached no verdict (uses: steps not run locally; pages.yml hub-link checks only lacked the skipped build output). venture-preflight.mjs ai-bookkeeper: clean.",
+  "corrections": [],
+  "redteam": null
+}

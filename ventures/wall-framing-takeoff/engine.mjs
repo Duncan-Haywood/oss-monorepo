@@ -1029,6 +1029,9 @@ export function boundedKnapsack(weights, values, bounds, cap) {
   return boundedKnapsackMulti(weights, values, bounds, [cap])[0];
 }
 
+// Scratch for boundedKnapsackMulti's keep rows (see there); grows, never shrinks.
+let keepScratch = new Uint8Array(0);
+
 /**
  * The same knapsack for several capacities at once: one table filled to the largest
  * capacity holds the best value for every smaller one (best[c] is the best within c),
@@ -1036,6 +1039,14 @@ export function boundedKnapsack(weights, values, bounds, cap) {
  * order of `caps`.
  */
 export function boundedKnapsackMulti(weights, values, bounds, caps) {
+  // Every weight is a multiple of g, so only multiples of g are reachable and best[c] is a
+  // step function of floor(c / g): fill the table on weights / g and look each capacity up at
+  // floor(cap / g). The same additions run in the same order, so values and counts are
+  // identical; the table is g times shorter (g is 2 when every piece is a whole number of
+  // eighths and the kerf is 1/8 in, the default).
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const g = weights.reduce(gcd, 0) || 1;
+  if (g > 1) return boundedKnapsackMulti(weights.map((w) => w / g), values, bounds, caps.map((c) => Math.floor(c / g)));
   const top = Math.max(...caps);
   const chunks = [];
   weights.forEach((w, i) => {
@@ -1047,22 +1058,35 @@ export function boundedKnapsackMulti(weights, values, bounds, caps) {
     }
   });
   const best = new Float64Array(top + 1);
-  const keep = chunks.map(() => new Uint8Array(top + 1));
-  chunks.forEach((ch, k) => {
-    if (ch.v <= 0) return;
-    for (let c = top; c >= ch.w; c--) {
-      const cand = best[c - ch.w] + ch.v;
+  // The keep rows live in one shared scratch buffer, row k at k * (top + 1), reused across
+  // calls and never cleared: the fill writes every cell c >= w of a row (1 if it improved
+  // best[c], else 0) and the walk back reads only those cells, so stale bytes are never
+  // read. A fresh zeroed Uint8Array per chunk was a third of this function's time.
+  // A chunk with no positive value never improves best[], so it has no row (has[k] = 0).
+  const stride = top + 1;
+  if (keepScratch.length < chunks.length * stride) keepScratch = new Uint8Array(Math.max(chunks.length * stride, keepScratch.length * 2));
+  const keep = keepScratch;
+  const has = chunks.map((ch) => ch.v > 0);
+  for (let k = 0; k < chunks.length; k++) {
+    if (!has[k]) continue;
+    const base = k * stride;
+    const w = chunks[k].w;
+    const v = chunks[k].v;
+    for (let c = top; c >= w; c--) {
+      const cand = best[c - w] + v;
       if (cand > best[c] + 1e-12) {
         best[c] = cand;
-        keep[k][c] = 1;
+        keep[base + c] = 1;
+      } else {
+        keep[base + c] = 0;
       }
     }
-  });
+  }
   return caps.map((cap) => {
     const counts = new Array(weights.length).fill(0);
     let c = cap;
     for (let k = chunks.length - 1; k >= 0; k--) {
-      if (keep[k][c]) {
+      if (has[k] && c >= chunks[k].w && keep[k * stride + c]) {
         counts[chunks[k].i] += chunks[k].n;
         c -= chunks[k].w;
       }
@@ -1358,6 +1382,48 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
   const tooLong = items.find((it) => !boards.some((b) => b.cap >= it.w));
   if (tooLong) throw new Error(`a ${formatInches(tooLong.length)} piece is longer than every board listed`);
 
+  const core = solveStockMemo(items, boards);
+  const { bars, method, exactCost, firstBound, lpCost, ffdCost } = core;
+  const cost = costOf(bars, boards);
+  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
+  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(firstBound - 1e-6) : firstBound;
+  const refsLeft = items.map((it) => [...it.refs]);
+  const out = bars.map((b) => {
+    const bd = boards[b.board];
+    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
+    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
+    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
+  });
+  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
+  return { bars: out, cost, bound: exactCost !== null ? exactCost : bound, lpBound: firstBound, proven: exactCost !== null || cost <= bound + 1e-9, method, ffdCost, lpCost };
+}
+
+// The solver below reads only each item's integer width `w` and demand `d` and each board's
+// integer capacity `cap` and `price`, in order, so its answer (which board each bar is and
+// which item indices it holds) is a pure function of those numbers. A takeoff re-solves the
+// same problem whenever an edit leaves a lumber size's cut list alone (the page recomputes
+// on every keystroke; the mutation sweep test runs ~800 takeoffs of one plan), so recent
+// answers are kept. Entries are frozen and read-only; labels, refs and lengths are mapped
+// on afterwards by the caller. (perf, 2026-11-13)
+const STOCK_MEMO_MAX = 128;
+const stockMemo = new Map();
+function solveStockMemo(items, boards) {
+  const key = `${items.map((it) => `${it.w}x${it.d}`).join(",")}|${boards.map((b) => `${b.cap}@${b.price}`).join(",")}`;
+  const hit = stockMemo.get(key);
+  if (hit) {
+    stockMemo.delete(key);
+    stockMemo.set(key, hit);
+    return hit;
+  }
+  const res = solveStock(items, boards);
+  res.bars.forEach((b) => Object.freeze(b.pieces));
+  Object.freeze(res.bars);
+  stockMemo.set(key, Object.freeze(res));
+  if (stockMemo.size > STOCK_MEMO_MAX) stockMemo.delete(stockMemo.keys().next().value);
+  return res;
+}
+
+function solveStock(items, boards) {
   const first = columnGeneration(items, boards);
   // Sequential rounding: take the whole part of the LP, re-solve what is left.
   const demand = items.map((it) => it.d);
@@ -1420,18 +1486,14 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
     bars = exact.bars.map((b) => shrink(b, boards));
     method = "exact";
   }
-  const cost = costOf(bars, boards);
-  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
-  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(first.bound - 1e-6) : first.bound;
-  const refsLeft = items.map((it) => [...it.refs]);
-  const out = bars.map((b) => {
-    const bd = boards[b.board];
-    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
-    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
-    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
-  });
-  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
-  return { bars: out, cost, bound: exact ? exact.cost : bound, lpBound: first.bound, proven: Boolean(exact) || cost <= bound + 1e-9, method, ffdCost, lpCost };
+  return {
+    bars: bars.map((b) => ({ board: b.board, pieces: [...b.pieces] })),
+    method,
+    exactCost: exact ? exact.cost : null,
+    firstBound: first.bound,
+    lpCost,
+    ffdCost,
+  };
 }
 
 /**

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, parseNumber, parseWhen, detectDelimiter, normalizeRows, analyze, summaryText, sampleCsv } from "./calc.mjs";
+import { parseCsv, parseNumber, parseWhen, detectDelimiter, normalizeRows, analyze, summaryText, sampleCsv, detectDmy, detectDecimalComma } from "./calc.mjs";
 
 const HEAD = "Unit,Due Date,Amount Due,Amount Paid,Date Paid\n";
 const load = (body, head = HEAD, o) => normalizeRows(parseCsv(head + body), o);
@@ -120,4 +120,36 @@ test("the example loads, names its own trouble units, and the summary is plain t
   const t = summaryText(r);
   assert.match(t, /nothing uploaded/);
   assert.match(t, /not legal advice/);
+});
+
+// Red team 2026-11-16: five seeded faults passed this suite.
+test("a time with seconds keeps its AM/PM", () => {
+  const w = parseWhen("09/01/2026 10:30:15 PM");
+  assert.equal(w.t, Date.UTC(2026, 8, 1, 22, 30));
+  assert.equal(parseWhen("2026-09-01 12:05:00 am").t, Date.UTC(2026, 8, 1, 0, 5));
+});
+
+test("day-first is chosen only when no second part is above 12, dots included", () => {
+  assert.equal(detectDmy(["13/01/2026"]), true);
+  assert.equal(detectDmy(["03.06.2026"]), true);
+  assert.equal(detectDmy(["03.13.2026"]), false);
+  assert.equal(detectDmy(["13/01/2026", "01/13/2026"]), false);
+});
+
+test("a payment dated on the as-of day had happened", () => {
+  const n = load("1A,2026-09-01,1000,1000,2026-09-15\n");
+  const r = analyze(n.items, { asOf: AS_OF });
+  near(r.summary.owed, 0);
+});
+
+test("the example has one on-time unit that missed its last month", () => {
+  const n = normalizeRows(parseCsv(sampleCsv()));
+  const last = n.items.filter((x) => x.due === Math.max(...n.items.map((y) => y.due)));
+  assert.deepEqual(last.filter((x) => x.paid === 0).map((x) => x.unit).sort(), ["2B", "3A"]);
+});
+
+test("decimal point or comma is read from the amounts", () => {
+  assert.equal(detectDecimalComma([["Rent"], ["1450.5"]], ";"), false);
+  assert.equal(detectDecimalComma([["Rent"], ["1450,5"]], ","), true);
+  assert.equal(detectDecimalComma([["Rent"], ["1450"]], ";"), true);
 });

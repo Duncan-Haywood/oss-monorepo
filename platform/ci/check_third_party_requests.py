@@ -57,7 +57,7 @@ def main(argv=None):
     a = ap.parse_args(argv)
     bad = 0
     for f in sorted(Path(a.root).rglob("*.html")):
-        if "node_modules" in f.parts:
+        if not {"node_modules", ".next"}.isdisjoint(f.parts):
             continue
         for host, url in hosts(f.read_text(encoding="utf8", errors="replace")):
             bad += 1

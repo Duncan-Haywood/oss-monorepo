@@ -1821,12 +1821,12 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
                         {
                             "sequence_id": "carousel_main",
                             "deliverable_type": "instagram_carousel",
-                            "asset_paths": ["graded/grade_asset_00000/IMG_0001.CR3"],
+                            "asset_paths": ["graded/grade_asset_00000/IMG_0001.CR3.tif"],
                         },
                         {
                             "sequence_id": "photo_set_main",
                             "deliverable_type": "instagram_photo_set",
-                            "asset_paths": ["graded/grade_asset_00000/IMG_0001.CR3"],
+                            "asset_paths": ["graded/grade_asset_00000/IMG_0001.CR3.tif"],
                         },
                     ],
                 },
@@ -1837,7 +1837,7 @@ class DryRunProductionSchedulerTests(unittest.TestCase):
             + "\n",
             encoding="utf-8",
         )
-        grade_path = workspace / "graded/grade_asset_00000/IMG_0001.CR3"
+        grade_path = workspace / "graded/grade_asset_00000/IMG_0001.CR3.tif"
         grade_path.parent.mkdir(parents=True, exist_ok=True)
         grade_path.write_bytes(b"trusted scheduler package photo grade")
         return cls._package_ready_manifest(

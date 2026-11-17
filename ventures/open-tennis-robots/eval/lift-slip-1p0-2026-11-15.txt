@@ -1,0 +1,189 @@
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py   (2026-11-15), lift_slip_nm = 1.0, the hub setting before cad/README.md "Slip hub back to 0.9 N m"
+# The real firmware on the simulated feeder; every motor, belt and ball figure is an assumption (cad params).
+trip 1.64 A (1.51-1.77), blanking 400 ms, soft start 100 ms, plate allows 156 N, weld 282 N
+slip hub 1 N m set (0.80-1.20 sticking, 0.64-0.96 sliding; 2.52 A sliding at the lowest)
+jaw coupling 20 N m/rad, 1 deg play, zeta 0.06 (swept (5.0, 20.0, 80.0) N m/rad, (0.0, 1.0, 3.0, 5.0) deg); inertias: rotor 2.70e-03, shaft side 1.24e-06, belt side 2.31e-04 kg m^2; modes 49 Hz hub stuck, 640 Hz sliding; rated 2 N m
+
+Start, every flight loaded, hub at its lowest, nominal coupling (1.5 s):
+corner        J x trip  tripped  over ms  speed  slid ms  coupler
+29.2 V cold   0.5   lo    False       73    91%      0.0     0.23
+29.2 V cold   0.5   hi    False       46    91%      0.0     0.23
+29.2 V cold     1   lo    False      106    91%      0.0     0.24
+29.2 V cold     1   hi    False       89    91%      0.0     0.24
+29.2 V cold     2   lo    False      179    91%      0.0     0.24
+29.2 V cold     2   hi    False      148    91%      0.0     0.24
+24 V hot      0.5   lo    False       65    86%      0.0     0.23
+24 V hot      0.5   hi    False       30    86%      0.0     0.23
+24 V hot        1   lo    False      104    86%      0.0     0.24
+24 V hot        1   hi    False       79    86%      0.0     0.24
+24 V hot        2   lo    False      184    86%      0.0     0.24
+24 V hot        2   hi    False      143    86%      0.0     0.24
+
+Starts over the coupling's stiffness and play (2 packs x 3 rotors each; hub 0.80 N m, its lowest): largest coupling torque, starts that slipped the hub of 6, longest ms over the trip
+  switched, loaded belt:
+       5 N m/rad   0 deg   0.45 N m ( 56% of the hub)  slipped 0  over 159 ms
+       5 N m/rad   1 deg   0.45 N m ( 56% of the hub)  slipped 0  over 159 ms
+       5 N m/rad   3 deg   0.45 N m ( 56% of the hub)  slipped 0  over 159 ms
+       5 N m/rad   5 deg   0.45 N m ( 56% of the hub)  slipped 0  over 159 ms
+      20 N m/rad   0 deg   0.36 N m ( 45% of the hub)  slipped 0  over 159 ms
+      20 N m/rad   1 deg   0.36 N m ( 45% of the hub)  slipped 0  over 159 ms
+      20 N m/rad   3 deg   0.36 N m ( 45% of the hub)  slipped 0  over 159 ms
+      20 N m/rad   5 deg   0.36 N m ( 45% of the hub)  slipped 0  over 159 ms
+      80 N m/rad   0 deg   0.53 N m ( 67% of the hub)  slipped 0  over 159 ms
+      80 N m/rad   1 deg   0.53 N m ( 67% of the hub)  slipped 0  over 159 ms
+      80 N m/rad   3 deg   0.53 N m ( 67% of the hub)  slipped 0  over 159 ms
+      80 N m/rad   5 deg   0.53 N m ( 67% of the hub)  slipped 0  over 159 ms
+  switched, empty belt:
+       5 N m/rad   0 deg   0.29 N m ( 36% of the hub)  slipped 0  over 124 ms
+       5 N m/rad   1 deg   0.34 N m ( 42% of the hub)  slipped 0  over 125 ms
+       5 N m/rad   3 deg   0.40 N m ( 50% of the hub)  slipped 0  over 125 ms
+       5 N m/rad   5 deg   0.45 N m ( 56% of the hub)  slipped 0  over 127 ms
+      20 N m/rad   0 deg   0.32 N m ( 41% of the hub)  slipped 0  over 124 ms
+      20 N m/rad   1 deg   0.50 N m ( 62% of the hub)  slipped 0  over 124 ms
+      20 N m/rad   3 deg   0.68 N m ( 84% of the hub)  slipped 0  over 123 ms
+      20 N m/rad   5 deg   0.78 N m ( 98% of the hub)  slipped 0  over 125 ms
+      80 N m/rad   0 deg   0.37 N m ( 46% of the hub)  slipped 0  over 124 ms
+      80 N m/rad   1 deg   0.80 N m (101% of the hub)  slipped 1  over 124 ms
+      80 N m/rad   3 deg   0.81 N m (101% of the hub)  slipped 4  over 125 ms
+      80 N m/rad   5 deg   0.81 N m (102% of the hub)  slipped 6  over 126 ms
+  100 ms soft start, loaded belt:
+       5 N m/rad   0 deg   0.25 N m ( 31% of the hub)  slipped 0  over 181 ms
+       5 N m/rad   1 deg   0.25 N m ( 31% of the hub)  slipped 0  over 181 ms
+       5 N m/rad   3 deg   0.25 N m ( 31% of the hub)  slipped 0  over 181 ms
+       5 N m/rad   5 deg   0.25 N m ( 31% of the hub)  slipped 0  over 181 ms
+      20 N m/rad   0 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      20 N m/rad   1 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      20 N m/rad   3 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      20 N m/rad   5 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      80 N m/rad   0 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      80 N m/rad   1 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      80 N m/rad   3 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+      80 N m/rad   5 deg   0.24 N m ( 30% of the hub)  slipped 0  over 184 ms
+  100 ms soft start, empty belt:
+       5 N m/rad   0 deg   0.06 N m (  8% of the hub)  slipped 0  over 141 ms
+       5 N m/rad   1 deg   0.10 N m ( 13% of the hub)  slipped 0  over 141 ms
+       5 N m/rad   3 deg   0.17 N m ( 21% of the hub)  slipped 0  over 140 ms
+       5 N m/rad   5 deg   0.22 N m ( 27% of the hub)  slipped 0  over 142 ms
+      20 N m/rad   0 deg   0.07 N m (  9% of the hub)  slipped 0  over 141 ms
+      20 N m/rad   1 deg   0.15 N m ( 19% of the hub)  slipped 0  over 141 ms
+      20 N m/rad   3 deg   0.28 N m ( 35% of the hub)  slipped 0  over 141 ms
+      20 N m/rad   5 deg   0.38 N m ( 48% of the hub)  slipped 0  over 140 ms
+      80 N m/rad   0 deg   0.12 N m ( 15% of the hub)  slipped 0  over 141 ms
+      80 N m/rad   1 deg   0.26 N m ( 33% of the hub)  slipped 0  over 141 ms
+      80 N m/rad   3 deg   0.53 N m ( 66% of the hub)  slipped 0  over 141 ms
+      80 N m/rad   5 deg   0.71 N m ( 89% of the hub)  slipped 0  over 141 ms
+
+Jam after 1 s at speed, a ball fed every second, nominal coupling (6 s):
+where corner        J x case              cut ms  first N  peak N  winding J  hub J  coupler gave up ms
+boot  29.2 V cold   0.5 hub lo, trip hi       39       60      60          8    1.9     0.80       2449
+boot  29.2 V cold   0.5 hub hi, trip lo       29       84      86         14    1.4     1.20       2439
+boot  29.2 V cold   0.5 rigid, trip lo        29       91     115         25    0.0     0.00       2439
+boot  29.2 V cold     1 hub lo, trip hi       49       56      56          8    2.2     0.80       2459
+boot  29.2 V cold     1 hub hi, trip lo       29       87      87         12    1.8     1.20       2439
+boot  29.2 V cold     1 rigid, trip lo        29      103     139         24    0.0     0.00       2439
+boot  29.2 V cold     2 hub lo, trip hi       79       53      53         10    2.8     0.80       2489
+boot  29.2 V cold     2 hub hi, trip lo       39       91      91         12    2.3     1.20       2449
+boot  29.2 V cold     2 rigid, trip lo        39      139     173         21    0.0     0.00       2449
+boot  24 V hot      0.5 hub lo, trip hi       39       66      66          9    1.2     0.80       2449
+boot  24 V hot      0.5 hub hi, trip lo       29       78      90         15    0.3     1.20       2439
+boot  24 V hot      0.5 rigid, trip lo        29       84      98         17    0.0     0.00       2439
+boot  24 V hot        1 hub lo, trip hi       59       56      56          9    1.6     0.80       2469
+boot  24 V hot        1 hub hi, trip lo       39       85      85         11    1.1     1.20       2449
+boot  24 V hot        1 rigid, trip lo        39      111     123         16    0.0     0.00       2449
+boot  24 V hot        2 hub lo, trip hi       99       53      53         10    2.2     0.80       2509
+boot  24 V hot        2 hub hi, trip lo       49       89      89         11    1.6     1.20       2459
+boot  24 V hot        2 rigid, trip lo        39      131     147         13    0.0     0.00       2449
+hood  29.2 V cold   0.5 hub lo, trip hi       39       58      58          8    1.8     0.80       2449
+hood  29.2 V cold   0.5 hub hi, trip lo       29       62      88         14    1.2     1.20       2439
+hood  29.2 V cold   0.5 rigid, trip lo        29       66     107         24    0.0     0.00       2439
+hood  29.2 V cold     1 hub lo, trip hi       49       60      60          9    2.0     0.80       2459
+hood  29.2 V cold     1 hub hi, trip lo       39       83      91         13    1.5     1.20       2449
+hood  29.2 V cold     1 rigid, trip lo        39       87     121         22    0.0     0.00       2449
+hood  29.2 V cold     2 hub lo, trip hi       79       52      52         10    2.7     0.80       2489
+hood  29.2 V cold     2 hub hi, trip lo       49       83      88         12    2.1     1.20       2459
+hood  29.2 V cold     2 rigid, trip lo        39       99     147         19    0.0     0.00       2449
+hood  24 V hot      0.5 hub lo, trip hi       39       56      56          9    1.1     0.80       2449
+hood  24 V hot      0.5 hub hi, trip lo       39       68      85         15    0.3     1.20       2449
+hood  24 V hot      0.5 rigid, trip lo        39       71      86         17    0.0     0.00       2449
+hood  24 V hot        1 hub lo, trip hi       59       58      58          9    1.4     0.80       2469
+hood  24 V hot        1 hub hi, trip lo       39       77      86         12    0.6     1.20       2449
+hood  24 V hot        1 rigid, trip lo        39       81     104         15    0.0     0.00       2449
+hood  24 V hot        2 hub lo, trip hi      109       52      59         11    2.1     0.80       2519
+hood  24 V hot        2 hub hi, trip lo       49       89      89         11    1.2     1.20       2459
+hood  24 V hot        2 rigid, trip lo        49      105     118         14    0.0     0.00       2459
+
+Jams over the coupling's stiffness and play (rotor 1x; both packs, boot and hood): peak N on a flight, largest coupling torque, slowest cut, latest give-up
+  hub lo, trip hi:
+       5 N m/rad   0 deg  peak   54 N  coupler 0.80 N m  cut by   69 ms  gave up by  2479 ms
+       5 N m/rad   1 deg  peak   54 N  coupler 0.80 N m  cut by   69 ms  gave up by  2479 ms
+       5 N m/rad   3 deg  peak   54 N  coupler 0.80 N m  cut by   69 ms  gave up by  2479 ms
+       5 N m/rad   5 deg  peak   54 N  coupler 0.80 N m  cut by   69 ms  gave up by  2479 ms
+      20 N m/rad   0 deg  peak   60 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      20 N m/rad   1 deg  peak   60 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      20 N m/rad   3 deg  peak   60 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      20 N m/rad   5 deg  peak   60 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      80 N m/rad   0 deg  peak   61 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      80 N m/rad   1 deg  peak   61 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      80 N m/rad   3 deg  peak   61 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+      80 N m/rad   5 deg  peak   61 N  coupler 0.80 N m  cut by   59 ms  gave up by  2469 ms
+  hub hi, trip lo:
+       5 N m/rad   0 deg  peak   91 N  coupler 1.20 N m  cut by   49 ms  gave up by  2459 ms
+       5 N m/rad   1 deg  peak   91 N  coupler 1.20 N m  cut by   49 ms  gave up by  2459 ms
+       5 N m/rad   3 deg  peak   91 N  coupler 1.20 N m  cut by   49 ms  gave up by  2459 ms
+       5 N m/rad   5 deg  peak   91 N  coupler 1.20 N m  cut by   49 ms  gave up by  2459 ms
+      20 N m/rad   0 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      20 N m/rad   1 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      20 N m/rad   3 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      20 N m/rad   5 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      80 N m/rad   0 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      80 N m/rad   1 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      80 N m/rad   3 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+      80 N m/rad   5 deg  peak   91 N  coupler 1.20 N m  cut by   39 ms  gave up by  2449 ms
+
+The same jam with no cutoff, hub at its set torque, nominal coupling (6 s; the run-on is 16 s and restarts with every ball):
+boot  29.2 V cold  peak    80 N, winding   245 J, hub    46 J, coupler 1.00 N m
+boot  24 V hot     peak    77 N, winding   322 J, hub    28 J, coupler 1.00 N m
+hood  29.2 V cold  peak    69 N, winding   245 J, hub    46 J, coupler 1.00 N m
+hood  24 V hot     peak    69 N, winding   321 J, hub    27 J, coupler 1.00 N m
+
+Belt stretch (each strand c_spec / centre; 4/pi^2 of the belt's mass on the strands, the rest on the pulley):
+  c_spec 0.5x (30000 N): strand 12729 N/m, belt mass alone 33 Hz; hub stuck 30 and 69 Hz (rigid belt 49 Hz); slack strand goes slack past 21 N net
+  c_spec 1x (60000 N): strand 25458 N/m, belt mass alone 47 Hz; hub stuck 38 and 78 Hz (rigid belt 49 Hz); slack strand goes slack past 21 N net
+  c_spec 2x (120000 N): strand 50917 N/m, belt mass alone 67 Hz; hub stuck 43 and 97 Hz (rigid belt 49 Hz); slack strand goes slack past 21 N net
+
+Starts, hub at its lowest, trip lo (2 packs x 3 rotors): largest coupling torque, starts that slipped the hub of 6, largest net belt pull; columns rigid, 0.5x, 1x, 2x
+  switched    nominal              loaded 0.36 N m s0   0 N | 0.39 N m s0  21 N | 0.41 N m s0  21 N | 0.37 N m s0  21 N
+  switched    nominal              empty  0.50 N m s0   0 N | 0.36 N m s0  18 N | 0.39 N m s0  21 N | 0.42 N m s0  22 N
+  switched    80 N m/rad 3 deg     loaded 0.53 N m s0   0 N | 0.37 N m s0  20 N | 0.37 N m s0  20 N | 0.36 N m s0  21 N
+  switched    80 N m/rad 3 deg     empty  0.81 N m s4   0 N | 0.81 N m s2  18 N | 0.81 N m s2  24 N | 0.81 N m s2  29 N
+  switched    80 N m/rad 5 deg     loaded 0.53 N m s0   0 N | 0.37 N m s0  20 N | 0.37 N m s0  20 N | 0.36 N m s0  21 N
+  switched    80 N m/rad 5 deg     empty  0.81 N m s6   0 N | 0.81 N m s3  20 N | 0.81 N m s3  25 N | 0.81 N m s3  30 N
+  100 ms ramp nominal              loaded 0.24 N m s0   0 N | 0.21 N m s0  13 N | 0.21 N m s0  15 N | 0.22 N m s0  16 N
+  100 ms ramp nominal              empty  0.15 N m s0   0 N | 0.12 N m s0   6 N | 0.12 N m s0   7 N | 0.13 N m s0   7 N
+  100 ms ramp 80 N m/rad 3 deg     loaded 0.24 N m s0   0 N | 0.22 N m s0  12 N | 0.22 N m s0  12 N | 0.20 N m s0  13 N
+  100 ms ramp 80 N m/rad 3 deg     empty  0.53 N m s0   0 N | 0.40 N m s0   9 N | 0.41 N m s0  12 N | 0.41 N m s0  17 N
+  100 ms ramp 80 N m/rad 5 deg     loaded 0.24 N m s0   0 N | 0.22 N m s0  12 N | 0.22 N m s0  12 N | 0.20 N m s0  13 N
+  100 ms ramp 80 N m/rad 5 deg     empty  0.71 N m s0   0 N | 0.54 N m s0  12 N | 0.55 N m s0  17 N | 0.56 N m s0  22 N
+
+Jams, rotor 1x, nominal coupling: peak N on a flight, ms to the cut, ms to give up, largest net belt pull, ms the slack strand spent slack
+  boot 29.2 V cold hub lo, trip hi  56 N cut  49 gave 2459 belt   0 N slack   0 |  60 N cut  49 gave 2459 belt  15 N slack   0 |  59 N cut  49 gave 2459 belt  16 N slack   0 |  59 N cut  49 gave 2459 belt  19 N slack   0
+  boot 29.2 V cold hub hi, trip lo  87 N cut  29 gave 2439 belt   0 N slack   0 |  87 N cut  29 gave 2439 belt  15 N slack   0 |  94 N cut  29 gave 2439 belt  16 N slack   0 |  91 N cut  29 gave 2439 belt  19 N slack   0
+  boot 24 V hot    hub lo, trip hi  56 N cut  59 gave 2469 belt   0 N slack   0 |  58 N cut  59 gave 2469 belt  14 N slack   0 |  58 N cut  59 gave 2469 belt  16 N slack   0 |  58 N cut  59 gave 2469 belt  18 N slack   0
+  boot 24 V hot    hub hi, trip lo  85 N cut  39 gave 2449 belt   0 N slack   0 |  90 N cut  39 gave 2449 belt  15 N slack   0 |  91 N cut  39 gave 2449 belt  16 N slack   0 |  88 N cut  39 gave 2449 belt  18 N slack   0
+  hood 29.2 V cold hub lo, trip hi  60 N cut  49 gave 2459 belt   0 N slack   0 |  62 N cut  59 gave 2469 belt  68 N slack 503 |  62 N cut  49 gave 2459 belt  66 N slack 465 |  63 N cut  49 gave 2459 belt  68 N slack 448
+  hood 29.2 V cold hub hi, trip lo  91 N cut  39 gave 2449 belt   0 N slack   0 |  89 N cut  49 gave 2459 belt  97 N slack 480 |  93 N cut  39 gave 2449 belt 100 N slack 428 |  90 N cut  39 gave 2449 belt  96 N slack 411
+  hood 24 V hot    hub lo, trip hi  58 N cut  59 gave 2469 belt   0 N slack   0 |  61 N cut  69 gave 2479 belt  68 N slack 432 |  61 N cut  59 gave 2469 belt  65 N slack 399 |  63 N cut  59 gave 2469 belt  67 N slack 384
+  hood 24 V hot    hub hi, trip lo  86 N cut  39 gave 2449 belt   0 N slack   0 |  87 N cut  49 gave 2459 belt  96 N slack 398 |  90 N cut  49 gave 2459 belt  97 N slack 358 |  89 N cut  39 gave 2449 belt  97 N slack 336
+
+Duty held to 24 V / battery: 1.00 at 24 V, 0.82 at 29.2 V; the trip in motor amps on a full pack is 1.77 A at most (the same as at the cut: high-side sense), a hot stall there 2.33x it (at 24 V 2.33x)
+duty   corner         pwm  speed  starts tripped  max over ms | jams: slowest cut  peak N  latest give-up  winding J
+held   29.2 V cold   0.82    91%            0/3          179 |          49      91            2459         13
+held   24 V hot      1.00    86%            0/3          184 |          59      86            2469         12
+fixed  29.2 V cold   1.00   114%            0/3          199 |          49      99            2459         16
+fixed  24 V hot      1.00    86%            0/3          184 |          59      86            2469         12
+
+sense corner         pwm      trip A slide A  starts tripped  max over ms | jams: slowest cut  peak N  latest give-up  winding J
+high  29.2 V cold   0.82   1.51-1.77    2.52            0/3          179 |          49      91            2459         13
+high  24 V hot      1.00   1.51-1.77    2.52            0/3          184 |          59      86            2469         12
+low   29.2 V cold   0.82   1.57-2.20    2.52            0/3          142 |          79      91            2489         13
+low   24 V hot      1.00   1.29-1.80    2.52            0/3          197 |          69      85            2479         12

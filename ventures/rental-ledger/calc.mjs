@@ -193,7 +193,7 @@ export function checks(data, year = TAX_YEAR) {
 // ---- CSV ---------------------------------------------------------------------------
 export function csvEscape(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 export function toCsv(rows) { return rows.map((r) => r.map(csvEscape).join(",")).join("\n") + "\n"; }

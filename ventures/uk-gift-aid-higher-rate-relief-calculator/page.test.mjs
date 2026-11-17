@@ -60,3 +60,11 @@ test("sibling tools linked from the page exist", () => {
   const html = page("index.html");
   for (const m of html.matchAll(/href="\.\.\/([a-z0-9-]+)\/"/g)) assert.ok(readFileSync(new URL(`../${m[1]}/VENTURE.yaml`, import.meta.url)), m[1]);
 });
+
+// Red team 2026-11-16: the FAQ (visible and JSON-LD) put the carry-back
+// deadline at 31 January after the tax year of the gift, a year late.
+test("the carry-back FAQ gives the previous year's 31 January deadline", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /31 January after the tax year of the gift/);
+  assert.equal(html.match(/31 January after the end of the previous tax year/g)?.length, 2);
+});

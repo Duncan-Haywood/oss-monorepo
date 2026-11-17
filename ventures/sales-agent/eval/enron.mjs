@@ -22,6 +22,7 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { parseReplies, triage } from "../engine.mjs";
 import { parseMessage, toReplyBlock } from "../self-host/imap.mjs";
+import { pathToFileURL } from "node:url";
 
 /**
  * Read one raw message the way the self-host server does (self-host/imap.mjs parseMessage, toReplyBlock), then the
@@ -37,14 +38,14 @@ export function readAsServer(raw) {
 
 const day = (d) => { const t = Date.parse(d || ""); return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : "2001-06-01"; };
 
-function* walk(dir) {
+export function* walk(dir) {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
     const p = path.join(dir, e.name), st = fs.statSync(p); // follows symlinks, so a dir of links to sample folders works
     if (st.isDirectory()) yield* walk(p);
     else if (st.isFile() && !(p.endsWith(".xz") && fs.existsSync(p.slice(0, -3)))) yield p; // `xz -dk` leaves both; read the plain one
   }
 }
-const read = (p) => (p.endsWith(".xz") ? execFileSync("xz", ["-dc", p], { maxBuffer: 1 << 26 }) : fs.readFileSync(p)).toString("latin1");
+export const read = (p) => (p.endsWith(".xz") ? execFileSync("xz", ["-dc", p], { maxBuffer: 1 << 26 }) : fs.readFileSync(p)).toString("latin1");
 
 // Messages that are machine notices by their own headers or subject, for the recall check (not used by the rules).
 // Subjects only an auto-responder writes, never with a reply or forward prefix ("Vacation" subjects are people asking for days off).
@@ -78,7 +79,7 @@ export function run(dir, { replies = false } = {}) {
   return { n, empty, counts, flagged, reached, auto, bounce };
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${path.resolve(process.argv[1])}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const args = process.argv.slice(2);
   const dir = args.find((a) => !a.startsWith("--") && !["--show", "--labels"].includes(args[args.indexOf(a) - 1]));
   if (!dir) { console.error("usage: node eval/enron.mjs <dir> [--replies] [--show <category>] [--json]"); process.exit(2); }

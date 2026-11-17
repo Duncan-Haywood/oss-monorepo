@@ -113,7 +113,7 @@ export function parseDate(v) {
   let m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
   let y, mo, d;
   if (m) [, y, mo, d] = m;
-  else if ((m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/))) [, d, mo, y] = m;
+  else if ((m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/))) [, d, mo, y] = m;
   else return null;
   const iso = `${y}-${String(mo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
   const t = new Date(`${iso}T00:00:00Z`);
@@ -145,7 +145,7 @@ export function parseTransactions(text) {
   const heads = rows[0].map(norm);
   const col = {};
   for (const [key, names] of Object.entries(ALIASES)) {
-    const i = heads.findIndex((h) => names.includes(h));
+    const i = (names.map((n) => heads.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (i >= 0) col[key] = i;
   }
   for (const need of ["date", "type", "asset", "quantity", "value"]) {
@@ -383,7 +383,7 @@ export function overview(transactions, opts = {}) {
 
 const csvCell = (v) => {
   let s = String(v);
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

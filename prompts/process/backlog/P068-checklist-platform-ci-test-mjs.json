@@ -1,0 +1,20 @@
+{
+  "id": "P068",
+  "title": "Name platform/ci/*.test.mjs in the merge checklist (coverage red on main)",
+  "status": "open",
+  "owner": "owner",
+  "effect": 3,
+  "cost": 1,
+  "problem": "PR 16739 added *.test.mjs files under platform/ci/ without the matching checklist line, so platform/ci/checklist_coverage.py (the 'coverage' job and one 'validate' job) fails on main and on every PR that merges main in.",
+  "evidence": [
+    "PR 16737 check runs 133702560586 (coverage) and 133702560240 (validate), 2026-11-16: 'platform/ci/  ->  add: node --test platform/ci/*.test.mjs'",
+    "python3 platform/ci/checklist_coverage.py on origin/main reproduces it"
+  ],
+  "change": "Add 'node --test platform/ci/*.test.mjs' to the checklist in .github/prompts/verify-and-merge.md, in its own small PR (control plane: .github/ is in CODEOWNERS).",
+  "touches": [
+    ".github/prompts/verify-and-merge.md"
+  ],
+  "metric": "checklist_coverage.py exit code on main",
+  "baseline": "exit 1 since PR 16739",
+  "opened": "2026-11-16"
+}

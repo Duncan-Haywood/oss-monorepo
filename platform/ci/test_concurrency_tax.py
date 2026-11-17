@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import tempfile
+import time
 import unittest
 
 import concurrency_tax as ct
@@ -40,6 +41,25 @@ def commit(repo, msg, name=None):
     return git(repo, "rev-parse", "HEAD")
 
 
+def empty_commits(repo, branch, parent, messages):
+    """Point `branch` at a chain of empty commits on `parent`, one per message,
+    in one `git fast-import` process. Same history `commit(repo, msg)` builds in
+    a loop (each commit keeps its parent's tree), at one process instead of two
+    per commit (docs/history/ci-perf-2026-11-14-calendar-dates-prefilter.md)."""
+    when = int(time.time())
+    stream = []
+    for i, msg in enumerate(messages):
+        body = msg.encode() + b"\n"
+        stream.append(f"commit refs/heads/{branch}\n".encode())
+        stream.append(f"author t <t@t> {when} +0000\ncommitter t <t@t> {when} +0000\n".encode())
+        stream.append(f"data {len(body)}\n".encode() + body)
+        if i == 0:
+            stream.append(f"from {parent}\n".encode())
+        stream.append(b"\n")
+    subprocess.run(["git", "-C", repo, "fast-import", "--quiet"], input=b"".join(stream),
+                   check=True, capture_output=True)
+
+
 _TEMPLATE = None
 
 
@@ -70,9 +90,7 @@ def _build_repo(tmp):
     git(tmp, "checkout", "-q", "-b", "pr6", base)
     commit(tmp, "feature", "d.txt")
     git(tmp, "update-ref", "refs/pull/6/head", "pr6")
-    git(tmp, "checkout", "-q", "-b", "pr7", base)
-    for i in range(51):
-        commit(tmp, f"import {i}")
+    empty_commits(tmp, "pr7", base, [f"import {i}" for i in range(51)])
     git(tmp, "update-ref", "refs/pull/7/head", "pr7")
     git(tmp, "update-ref", "refs/remotes/origin/main", "main")
     git(tmp, "checkout", "-q", "main")
@@ -109,9 +127,7 @@ class TestPrRounds(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             git(tmp, "init", "-q", "-b", "main")
             base = commit(tmp, "base", "a.txt")
-            git(tmp, "checkout", "-q", "-b", "pr8", base)
-            for i in range(ct.MAX_OWN_COMMITS):
-                commit(tmp, f"work {i}")
+            empty_commits(tmp, "pr8", base, [f"work {i}" for i in range(ct.MAX_OWN_COMMITS)])
             git(tmp, "update-ref", "refs/pull/8/head", "pr8")
             git(tmp, "update-ref", "refs/remotes/origin/main", "main")
             rows = ct.pr_rounds(tmp, 8, 8, local=True)

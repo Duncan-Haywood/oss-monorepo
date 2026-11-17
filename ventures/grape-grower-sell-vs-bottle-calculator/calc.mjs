@@ -39,7 +39,7 @@ export const num = (s) => {
   return t === "" ? NaN : Number(t);
 };
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 export const pct = (x) => `${(Math.round(x * 10) / 10).toFixed(1)}%`;
 
 const BOTTLES_PER_CASE = 12;
@@ -118,8 +118,8 @@ export function breakEvenAcres(o) {
 const row = (o, ov) => { const w = bottleWine(o, ov), g = sellGrapes({ ...o, tonsPerAcre: ov.tonsPerAcre ?? o.tonsPerAcre }, ov.grapePrice ?? o.grapePrice); return { ...ov, wine: w.net, fruit: g.net, gain: w.net - g.net }; };
 export const sellThroughLadder = (o, steps = [40, 55, 70, 85, 95, 100]) => steps.map((p) => ({ sellThroughPct: p, ...row(o, { sellThrough: p }) }));
 export const directShareLadder = (o, steps = [0, 15, 30, 50, 70, 90]) => steps.map((p) => ({ dtcSharePct: p, ...row(o, { share: p }) }));
-export const grapePriceLadder = (o, steps = [0.7, 0.85, 1, 1.2, 1.5]) => steps.map((k) => ({ grapePrice: Math.round(o.grapePrice * k), ...row(o, { grapePrice: o.grapePrice * k }) }));
-export const yieldLadder = (o, steps = [0.6, 0.8, 1, 1.2]) => steps.map((k) => ({ tonsPerAcre: Math.round(o.tonsPerAcre * k * 100) / 100, ...row(o, { tonsPerAcre: o.tonsPerAcre * k }) }));
+export const grapePriceLadder = (o, steps = [0.7, 0.85, 1, 1.2, 1.5]) => steps.map((k) => ({ ...row(o, { grapePrice: o.grapePrice * k }), grapePrice: Math.round(o.grapePrice * k) }));
+export const yieldLadder = (o, steps = [0.6, 0.8, 1, 1.2]) => steps.map((k) => ({ ...row(o, { tonsPerAcre: o.tonsPerAcre * k }), tonsPerAcre: Math.round(o.tonsPerAcre * k * 100) / 100 }));
 
 export function analyze(raw) {
   const o = { ...DEFAULTS };

@@ -156,7 +156,7 @@ export function leverOptions(design, prices) {
 }
 
 const escHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const usd = (n) => `${n < 0 ? '-' : ''}$${Math.abs(n).toFixed(2)}`;
+const usd = (n) => `${n < 0 && Math.abs(n).toFixed(2) !== '0.00' ? '-' : ''}$${Math.abs(n).toFixed(2)}`;
 
 /**
  * The table, as HTML: one table per group, the current choice first, each

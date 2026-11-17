@@ -122,7 +122,10 @@ export function depositorSchedule({ newEmployer = false, lookbackTotal } = {}) {
     : { schedule: "monthly", reason: `lookback total ${fmt(c)} is $50,000 or less` };
 }
 function fmt(c) {
-  return "$" + (c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const format = (c) => "$" + (c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  if (!(Number(c) < 0)) return format(c);
+  const text = format(Math.abs(c));
+  return /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 // End of the semiweekly period a payday falls in: Wed-Fri -> that Friday,

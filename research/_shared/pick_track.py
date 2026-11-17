@@ -11,8 +11,12 @@ programmes in FOCUS are drawn first that often (owner, 2026-10-31: deep tech ind
 real estate development and construction, construction data; widened 2026-11-01 to chips and
 robot co-design; prompts/goals.md, "Direction: research at PhD+ level, aimed at deep tech").
 Pass a number to map a draw you already have: pick_track.py 0.11
+It starts with LAND FIRST: the open PRs titled research/... (older than 3 h: land,
+finish or close them first; newer: a sibling's live claim); --land prints only that list.
 With no number the first draw is saved in .git (keyed by branch, 12 h) and
 reused, so a re-run in the same session gives the same programme; --new redraws.
+It first brings origin/main up to date (ls-remote, then a fetch reaching 7 h back when
+the ref is stale or too shallow; only the remote-tracking ref moves); --no-fetch skips that.
 
 A programme whose research/<slug>/HOSTS file lists a URL its next steps need is
 probed (HEAD, 6 s); when one does not answer through this session's proxy, the
@@ -21,11 +25,13 @@ draw moves on, so the run does not spend its start rediscovering a 403.
 A track with SATURATED or more projects is redrawn automatically among the
 tracks below that size, so a run does not spend its start on a finished chain.
 
-For a track it also lists that track's projects on this checkout (newest commit
+For a track it first names the track's open programmes (track_programmes) with a
+claim check each, or says none exists yet. It also lists that track's projects on this checkout (newest commit
 first), so the "Next steps" of the latest one is one `cat` away when the
-milestones in PROJECTS.md are all done. Fetch origin/main first: a stale
-checkout hides projects other runs landed.
+milestones in PROJECTS.md are all done. A stale checkout hides projects other
+runs landed: the WARNING line says when to merge origin/main.
 """
+import calendar
 import functools
 import math
 import re
@@ -117,6 +123,31 @@ def unreachable_hosts(slug, answers=host_answers):
     return [h for h, a in zip(hosts, ok) if not a]
 
 
+def host_recheck_lines(slug):
+    """stale_hosts.recheck_lines: the hosts the programme's LOG.md or README.md call refused,
+    probed again. Seven run records (2026-11-12..16) found such a note stale at the first
+    probe; HOSTS covers only the hosts a programme listed, so prose notes were trusted."""
+    try:
+        from stale_hosts import recheck_lines
+        return recheck_lines(slug, answers=host_answers)
+    except Exception as e:  # never let the recheck break the draw
+        return [f"HOSTS RECHECK {slug}: skipped ({type(e).__name__}); python3 research/_shared/stale_hosts.py {slug}"]
+
+
+def programme_label(slug, down):
+    """How the track listing names a programme: BLOCKED (its BLOCKED file), OFFLINE (a HOSTS entry did not
+    answer from this session), or the bare slug.
+
+    Friction 2026-11-16: a track draw (track 12 redrawn to 25) named heavy-hydraulics as the programme to
+    advance although its HOSTS host (huggingface.co) answered 403 at CONNECT; only the programme draw
+    (draw_programme) checked HOSTS, so the run found out by running the experiment."""
+    if is_blocked(slug):
+        return f"{slug} (BLOCKED)"
+    if down:
+        return f"{slug} (OFFLINE: needs {', '.join(down)}, research/{slug}/HOSTS)"
+    return slug
+
+
 def projects(prefix, limit=5):
     """(count, newest `limit` project dirs) for slugs starting `prefix-`."""
     dirs = sorted(d.name for d in RESEARCH.glob(prefix + "-*") if d.is_dir())
@@ -142,6 +173,18 @@ def commits_behind():
     return int(out.stdout) if out.returncode == 0 and out.stdout.strip().isdigit() else None
 
 
+def shallow_edge():
+    """Full hashes at this clone's shallow boundary. `git log -- <path>` lists a boundary
+    commit as touching every path (its parent is missing), so the claim check named an
+    unrelated venture commit (friction 2026-11-12)."""
+    out = subprocess.run(["git", "rev-parse", "--git-path", "shallow"], cwd=RESEARCH,
+                         capture_output=True, text=True).stdout.strip()
+    try:
+        return set((RESEARCH / out).read_text().split()) if out else set()
+    except OSError:
+        return set()
+
+
 def recent_programme_commits(slug, hours=6):
     """Subjects of origin/main commits in the last `hours` that touch research/<slug>.
 
@@ -149,9 +192,97 @@ def recent_programme_commits(slug, hours=6):
     sees) shows up in. Empty when none, or when origin/main is unknown.
     """
     out = subprocess.run(["git", "log", "origin/main", f"--since={hours} hours ago",
-                          "--format=%h %cr: %s", "--", f"research/{slug}"],
+                          "--format=%H %h %cr: %s", "--", f":(top)research/{slug}"],
                          cwd=RESEARCH, capture_output=True, text=True)
-    return out.stdout.strip().splitlines() if out.returncode == 0 else []
+    if out.returncode != 0:
+        return []
+    edge = shallow_edge()
+    return [line.split(" ", 1)[1] for line in out.stdout.strip().splitlines()
+            if line and line.split(" ", 1)[0] not in edge]
+
+
+def history_covers(hours):
+    """True when origin/main's history in this clone reaches back `hours` (always, unshallowed).
+
+    A --depth=40 fetch reached only ~3 h of main on 2026-11-12, so a "clear in 6h" verdict
+    read from it was really "clear in 3h"."""
+    if not is_shallow():
+        return True
+    out = subprocess.run(["git", "rev-list", "-1", f"--before={hours} hours ago", "origin/main"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    return out.returncode == 0 and bool(out.stdout.strip())
+
+
+def refresh_origin_main(hours=6, run=subprocess.run):
+    """Bring the origin/main ref up to date, deep enough for the claim check. None when done
+    (or already current), else one line saying why not.
+
+    A fresh cloud clone's origin/main ref can be hours older than its checkout (11 h on
+    2026-11-12), and runs that fetched by hand still raced siblings that merged minutes
+    earlier (friction 2026-11-12, buildbot-sheathing). ls-remote costs ~1 s; the fetch
+    ~2 s with --shallow-since. Only the remote-tracking ref moves: HEAD and the work tree
+    are untouched."""
+    def git(*args, timeout=60):
+        return run(["git", *args], cwd=RESEARCH, capture_output=True, text=True, timeout=timeout)
+
+    def fetch(cmd, timeout):
+        # Through platform/ci/shallow_repair.py: a first --shallow-since fetch can leave a bogus
+        # .git/shallow entry that makes every later one fail with "error in object: unshallow"
+        # (2026-11-14). With a stub `run` (tests), or if it cannot load, a plain git call.
+        if run is subprocess.run:
+            try:
+                sys.path.insert(0, str(RESEARCH.parent / "platform" / "ci"))
+                import shallow_repair
+                return shallow_repair.fetch(cmd[1:], cwd=RESEARCH, timeout=timeout)
+            except ImportError:
+                pass
+        return git(*cmd, timeout=timeout)
+    try:
+        remote = git("ls-remote", "origin", "refs/heads/main", timeout=20)
+        tip = remote.stdout.split()[0] if remote.returncode == 0 and remote.stdout.strip() else None
+        if tip is None:
+            return "could not reach origin to check origin/main is current"
+        local = git("rev-parse", "-q", "--verify", "origin/main").stdout.strip()
+        covered = bool(local) and history_covers(hours)
+        if local == tip and covered:
+            return None
+        cmd = ["fetch", "-q", "origin", "main"]
+        if is_shallow() and not covered:
+            cmd.insert(2, f"--shallow-since={hours + 1} hours ago")
+        if fetch(cmd, timeout=120).returncode != 0:
+            return "`git " + " ".join(cmd) + "` failed"
+        # A stale ref (a fresh clone's is often days old) reads as covered, so the plain fetch
+        # above can leave only the ~4 h it brought in; re-check and deepen once (friction
+        # 2026-11-13: CLAIM CHECK kept saying "shorter than 6h" after the fetch it suggested).
+        if len(cmd) == 4 and is_shallow() and not history_covers(hours):
+            cmd = ["fetch", "-q", f"--shallow-since={hours + 1} hours ago", "origin", "main"]
+            if fetch(cmd, timeout=120).returncode != 0:
+                return "`git " + " ".join(cmd) + "` failed"
+    except (OSError, subprocess.SubprocessError) as e:
+        return f"could not refresh origin/main ({type(e).__name__})"
+    return None
+
+
+# PR number -> head branch, filled by _open_pr_titles. A run that re-ran this script after
+# opening its own draft PR saw that PR as a sibling's claim: the draw skipped its programme
+# and the CLAIM CHECK named a different one (friction 2026-11-11..14, five reports).
+_HEADS = {}
+# PR number -> (created_at, draft), filled by _open_pr_titles for land_first_lines.
+_META = {}
+# PR number -> True when its head lives in a fork (research_log.py --prs skips those).
+_FORK = {}
+
+
+@functools.lru_cache(maxsize=None)
+def current_branch():
+    out = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True, text=True)
+    return out.stdout.strip()
+
+
+def is_own_pr(number):
+    """True when open PR `number` comes from the branch checked out here (this run's own PR)."""
+    branch = current_branch()
+    return bool(branch) and _HEADS.get(number) == branch
 
 
 @functools.lru_cache(maxsize=None)
@@ -168,6 +299,10 @@ def _open_pr_titles(repo, limit, pages=10):
             with urllib.request.urlopen(url, timeout=15) as r:
                 batch = json.load(r)
             found += [(p["number"], p.get("title", "")) for p in batch]
+            _HEADS.update({p["number"]: (p.get("head") or {}).get("ref", "") for p in batch})
+            _FORK.update({p["number"]: ((p.get("head") or {}).get("repo") or {}).get("full_name", "").lower()
+                          != repo.lower() for p in batch})
+            _META.update({p["number"]: (p.get("created_at") or "", bool(p.get("draft"))) for p in batch})
             if len(batch) < limit:
                 break
     except Exception:
@@ -181,7 +316,104 @@ def open_prs_for(slug, repo="duncan-haywood/oss-monorepo", limit=100):
     The commit check cannot see a sibling that has not merged yet: two runs drew the same
     programme milestone and one trained for 2 hours before the other landed (friction
     2026-10-25). Unauthenticated REST works from cloud sessions for this public repo."""
-    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t]
+    return [f"#{n} {t}" for n, t in (_open_pr_titles(repo, limit) or []) if slug in t and not is_own_pr(n)]
+
+
+LANDED_SUBJECT = re.compile(r"\(#(\d+)\)\s*$|^Merge pull request #(\d+)\b")
+
+
+@functools.lru_cache(maxsize=None)
+def _main_subjects(repo="duncan-haywood/oss-monorepo", pages=3):
+    """Subjects of main's recent commits: the local origin/main log plus up to `pages`
+    hundred from the API (the cloud clone is often depth 1). Best effort, [] on errors."""
+    out = subprocess.run(["git", "log", "origin/main", "-n", "500", "--format=%s"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    subjects = out.stdout.splitlines() if out.returncode == 0 else []
+    try:
+        for page in range(1, pages + 1):
+            url = f"https://api.github.com/repos/{repo}/commits?sha=main&per_page=100&page={page}"
+            with urllib.request.urlopen(url, timeout=15) as r:
+                batch = json.load(r)
+            subjects += [((c.get("commit") or {}).get("message") or "").split("\n")[0]
+                         for c in batch if isinstance(c, dict)]
+            if len(batch) < 100:
+                break
+    except Exception:
+        pass
+    return subjects
+
+
+def landed_on_main(numbers):
+    """The PR numbers among `numbers` whose squash or merge commit is already on main.
+
+    LAND FIRST listed #16494 as unlanded while its squash commit '(#16494)' sat on main
+    (two reports, 2026-11-16): the PR stayed open with a dirty merge state, and runs
+    tried to merge it before closing it by hand."""
+    wanted, found = set(numbers), set()
+    for subject in _main_subjects():
+        m = LANDED_SUBJECT.search(subject)
+        n = m and int(m.group(1) or m.group(2))
+        if n in wanted:
+            found.add(n)
+    return found
+
+
+RESEARCH_TITLE = re.compile(r"^\s*research[/:]|\bresearch/[a-z0-9]", re.I)
+
+
+def land_first_lines(fresh_hours=3, show=8, now=None):
+    """The open PRs research/prompt-0.md "Landing work" step 2 asks a run to land first.
+
+    That step says to work through open research PRs before building, but with 100+ open
+    PRs and no path filter in the GitHub list call, runs read every title by hand (three
+    reports in three days, 2026-11-16) to find two. Titles naming `research/<slug>` are
+    the research ones (the convention step 3 asks for). Split by age: one opened in the
+    last `fresh_hours` is a sibling's live claim (step 3's three hours), leave it; an
+    older one is what step 2 means: land it, finish it, or close it as superseded."""
+    titles = _open_pr_titles("duncan-haywood/oss-monorepo", 100)
+    if titles is None:
+        return ["LAND FIRST: could not list open PRs (GitHub API unreachable); search open PR titles "
+                "for 'research/' by hand (research prompt, 'Landing work' step 2)"]
+    now = time.time() if now is None else now
+
+    def age(n):
+        stamp = _META.get(n, ("", False))[0]
+        try:
+            return (now - calendar.timegm(time.strptime(stamp, "%Y-%m-%dT%H:%M:%SZ"))) / 3600
+        except ValueError:
+            return None
+
+    mine = [(n, t) for n, t in titles if RESEARCH_TITLE.search(t) and is_own_pr(n)]
+    ours = [(n, t, age(n)) for n, t in titles if RESEARCH_TITLE.search(t) and not is_own_pr(n)]
+    stale = sorted([x for x in ours if x[2] is None or x[2] >= fresh_hours], key=lambda x: -(x[2] or 0))
+    fresh = [x for x in ours if x[2] is not None and x[2] < fresh_hours]
+
+    landed = landed_on_main([x[0] for x in stale]) if stale else set()
+    stale = [x for x in stale if x[0] not in landed]
+
+    def fmt(n, t, a):
+        draft = ", draft" if _META.get(n, ("", False))[1] else ""
+        when = "age ?" if a is None else (f"{a:.1f}h" if a < 48 else f"{a / 24:.0f}d")
+        return f"  #{n} ({when}{draft}) {t[:110]}"
+
+    head = f"LAND FIRST ({len(ours)} other open PR(s) of {len(titles)} title research/...; research prompt, 'Landing work' step 2):"
+    if not ours:
+        return [head[:-1] + ": none, so nothing to land first; go on to the draw"]
+    lines = [head]
+    if stale:
+        lines.append(f"  {len(stale)} older than {fresh_hours}h, oldest first: land, finish, or close as superseded "
+                     "(a run-record-only branch: leave it)")
+        lines += [fmt(*x) for x in stale[:show]]
+        if len(stale) > show:
+            lines.append(f"  ... and {len(stale) - show} more (pick_track.py --land lists all)")
+    if landed:
+        lines.append(f"  {len(landed)} already on main (its squash or merge commit names it): close it, nothing to merge:")
+        lines += [fmt(*x) for x in ours if x[0] in landed]
+    if fresh:
+        lines.append(f"  {len(fresh)} opened in the last {fresh_hours}h: a sibling's live claim, leave it:")
+        lines += [fmt(*x) for x in fresh[:show]]
+    lines += [f"  #{n} is this branch's own PR" for n, _ in mine]
+    return lines
 
 
 def origin_main_age_hours():
@@ -200,24 +432,37 @@ def claim_check(slug, hours=6):
     lines = []
     recent = recent_programme_commits(slug, hours)
     if recent:
-        lines.append(f"CLAIM CHECK: origin/main touched research/{slug} in the last {hours}h; "
-                     "pick a milestone these do not cover:")
+        # These are merged commits, i.e. finished work, not claims: a run read "touched" as
+        # "someone is on it" and had to open LOG.md to tell (friction 2026-11-14).
+        lines.append(f"CLAIM CHECK: merged to origin/main under research/{slug} in the last {hours}h "
+                     "(finished work, not a claim; take the next milestone past these):")
         lines += [f"  {line}" for line in recent[:5]]
     age = origin_main_age_hours()
     if age is None:
-        lines.append("CLAIM CHECK: origin/main is not in this clone; run `git fetch --depth=40 origin main`, then re-run")
+        lines.append(f"CLAIM CHECK: origin/main is not in this clone; run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
     elif age > hours:
         lines.append(f"CLAIM CHECK: origin/main's newest commit is {age:.0f}h old, so the commit check may be stale; "
-                     "run `git fetch --depth=40 origin main`, then re-run")
+                     f"run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
     titles = _open_pr_titles("duncan-haywood/oss-monorepo", 100)
     if titles is None:
         lines.append(f"CLAIM CHECK: could not list open PRs (GitHub API unreachable); search open PRs for '{slug}' by hand")
     else:
-        prs = [f"#{n} {t}" for n, t in titles if slug in t]
+        named = [(n, t) for n, t in titles if slug in t]
+        prs = [f"#{n} {t}" for n, t in named if not is_own_pr(n)]
+        lines += [f"CLAIM CHECK: #{n} {t} is this branch's own PR ({current_branch()}), not a sibling's claim"
+                  for n, t in named if is_own_pr(n)]
         lines += [f"CLAIM CHECK: open PR names this programme (take a different milestone or help land it): {p}"
                   for p in prs]
+        if recent and not prs:
+            lines.append(f"CLAIM CHECK: no open PR names {slug} (none of {len(titles)}), so nothing is in flight "
+                         "that this check can see; a sibling that has not pushed yet is invisible to it")
         if not recent and not prs and age is not None and age <= hours:
-            lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; none of {len(titles)} open PRs names {slug})")
+            if history_covers(hours):
+                lines.append(f"CLAIM CHECK: clear (no origin/main commit in {hours}h; no other open PR of {len(titles)} names {slug}); "
+                             f"after opening your draft PR, `python3 portfolio/router/claim_check.py {slug}` says who keeps it if a sibling opened one too")
+            else:
+                lines.append(f"CLAIM CHECK: no commit in this clone's history and no open PR names {slug}, but the shallow "
+                             f"history is shorter than {hours}h; run `git fetch --shallow-since='{hours + 1} hours ago' origin main`, then re-run")
     return lines
 
 
@@ -231,14 +476,99 @@ def programmes():
     return [(slug, (RESEARCH / slug / "PROPOSAL.md").is_file()) for slug in rows]
 
 
+def track_programmes(t, text=None):
+    """Open programmes for track `t`: a row whose "Builds on" names the track ("track 15",
+    "tracks 12 and 20"), whose slug starts with the track's prefix (`sensing-selfcal`), or
+    whose "Builds on" names a project or glob with that prefix (`qual-*`).
+
+    Track draws printed milestones and project lists but never the programme the track
+    already has, so runs had to map the draw to a PROGRAMMES.md row by hand, and one took a
+    free milestone while the track's programme had a concrete next step (doc friction
+    2026-11-12, three reports).
+    """
+    if text is None:
+        f = RESEARCH / "PROGRAMMES.md"
+        text = f.read_text() if f.is_file() else ""
+    text = text.split("## Open programmes", 1)[-1]
+    out = []
+    for m in re.finditer(r"^\| *\[?`([\w-]+)`[^|]*\|[^|]*\|([^|]*)\|", text, re.M):
+        slug, builds_on = m.group(1), m.group(2)
+        named = set()
+        for phrase in re.findall(r"\btracks? ([\d ,and]+)", builds_on):
+            named.update(int(n) for n in re.findall(r"\d+", phrase))
+        # A backticked project or glob in "Builds on" (`qual-*`, `eda-*`, `mimic-twin*`)
+        # names the track whose prefix it starts with: before 2026-11-14 the qual track
+        # printed "no open programme" although llm-coding-inference builds on `qual-*`,
+        # and chip, eda, accel, mimic and osrobot draws missed theirs the same way.
+        globs = {re.split(r"[-*]", g)[0] for g in re.findall(r"`([\w*-]+)`", builds_on)}
+        if t in named or slug.split("-")[0] == PREFIX[t - 1] or PREFIX[t - 1] in globs:
+            out.append(slug)
+    return out
+
+
+def last_landed_hours(slug, now=None):
+    """Hours since origin/main's newest commit touching research/<slug>; None when none is
+    in this clone's history or it is the shallow edge (its date is the fetch's, not the work's)."""
+    out = subprocess.run(["git", "log", "origin/main", "-n1", "--format=%H %ct", "--", f":(top)research/{slug}"],
+                         cwd=RESEARCH, capture_output=True, text=True)
+    parts = out.stdout.split()
+    if out.returncode != 0 or len(parts) != 2 or parts[0] in shallow_edge():
+        return None
+    return max(0.0, ((now or time.time()) - int(parts[1])) / 3600)
+
+
+def contention_lines(slugs, show=5, prs=open_prs_for, recent=recent_programme_commits, last=last_landed_hours):
+    """The least contended open programmes first: open PRs naming it, then origin/main
+    commits touching it in the last 6 h, then the longest since anything landed.
+
+    Free choice listed 21 open programmes with no sign of which ones sibling runs were
+    on; every one had a LOG.md entry dated that day, so picking took several LOG reads
+    (doc friction 2026-11-16, research/_shared/pick_track.py)."""
+    rows = []
+    for s in slugs:
+        n_pr, n_recent, age = len(prs(s)), len(recent(s)), last(s)
+        rows.append(((n_pr, n_recent, -(age if age is not None else 1e9)), s, n_pr, n_recent, age))
+    rows.sort()
+    out = []
+    for _, s, n_pr, n_recent, age in rows[:show]:
+        since = "nothing in this clone's history" if age is None else f"last landed {age:.0f} h ago"
+        out.append(f"    {s}: {n_pr} open PR(s), {n_recent} commit(s) on main in 6 h, {since}")
+    return out
+
+
+def free_choice_lines(progs, contention=contention_lines):
+    """What a free-choice draw means and where its work goes.
+
+    The draw printed only "draw 0.022 -> free-choice", with no pointer to the
+    rules for where free work lives (doc friction 2026-11-13,
+    prompts/research/prompt-0.md)."""
+    open_ = [s for s, _ in progs if not is_blocked(s)]
+    ranked = contention(open_) if open_ else []
+    if ranked and contention is contention_lines and _open_pr_titles("duncan-haywood/oss-monorepo", 100) is None:
+        ranked.append("    (the open-PR list could not be read, so the PR counts above are not a claim check)")
+    return [
+        "free choice (about 1 run in 20, prompts/research/prompt-0.md): work on the question you find most "
+        "worth a session; the integrity rules and the bar are unchanged",
+        "  where it goes: a step of any open programme (research/<slug>/experiments/<step>/, LOG.md first), or a new "
+        "programme (PROPOSAL.md + a row in research/PROGRAMMES.md), or a standalone project whose project.json "
+        'says "programme": "none", "why_standalone": "<reason>" (PROGRAMMES.md, step 3; programme_check.py enforces it)',
+        f"  {len(open_)} open programme(s) not BLOCKED; `--new` draws again",
+    ] + (["  least contended first (open PRs, then commits in 6 h, then longest idle; a step of one of these "
+          "is least likely to collide with a sibling run):"] + ranked if ranked else [])
+
+
 def recent_landed(slug, n=3):
     """Newest commits on origin/main that touch research/<slug>, as 'age: subject' lines.
 
     Two runs drew the same programme in the same hours and both did the same milestone
     (run friction 2026-10-25): the PR list shows a sibling only until it merges, this does not."""
-    out = subprocess.run(["git", "log", "origin/main", f"-n{n}", "--format=%cr: %s", "--", f"research/{slug}"],
+    out = subprocess.run(["git", "log", "origin/main", f"-n{n + 1}", "--format=%H %cr: %s", "--", f":(top)research/{slug}"],
                          cwd=RESEARCH, capture_output=True, text=True)
-    return out.stdout.strip().splitlines() if out.returncode == 0 else []
+    if out.returncode != 0:
+        return []
+    edge = shallow_edge()
+    return [line.split(" ", 1)[1] for line in out.stdout.strip().splitlines()
+            if line and line.split(" ", 1)[0] not in edge][:n]
 
 
 def milestones(prefix):
@@ -258,8 +588,47 @@ def milestones(prefix):
     pat = r"^\d+\. `(%s-[\w-]+)`([^\n]*)" % re.escape(prefix)
     found = re.findall(pat, m.group(1), re.M)
     listed = [slug for slug, _ in found]
-    marked = {slug for slug, rest in found if re.match(r"\s*\((done|landed)\b", rest)}
+    # "(done ...)", "(landed in X)", and "(first run landed in X ...)": the last
+    # form marks every civ milestone, yet they were all printed as free
+    # (doc_friction 2026-11-11).
+    marked = {slug for slug, rest in found
+              if re.match(r"\s*\((done|landed)\b", rest) or re.match(r"\s*\([^)]*\blanded in\b", rest)}
     return listed, [x for x in listed if x not in marked and not (RESEARCH / x).is_dir()]
+
+
+def mentioned_in_logs(slug):
+    """research/<programme>/LOG.md files that name `slug`: a milestone run
+    inside a programme often leaves no mark in PROJECTS.md (aerolog-sizing
+    landed as aerolog-scaling 10a-10s and was still printed as free;
+    doc_friction 2026-11-11)."""
+    return sorted(str(f.relative_to(RESEARCH.parent)) for f in RESEARCH.glob("*/LOG.md")
+                  if f.parent.name != slug and slug in f.read_text(errors="ignore"))
+
+
+def newest_log_entries(slug, n=3, width=160, text=None):
+    """The `n` newest `## <date> · <title>` headings of research/<slug>/LOG.md, newest first.
+
+    Sorted by date, file order breaking ties, because a LOG.md is newest-first only near
+    the top: three logs had older entries above newer ones further down, and a run that
+    followed README 'Next steps' instead of the log's newest entries lost time
+    (doc_friction 2026-11-13). Each line is `<line number>: <date> · <title>`, cut to `width`.
+    """
+    if text is None:
+        log = RESEARCH / slug / "LOG.md"
+        if not log.is_file():
+            return []
+        text = log.read_text(errors="ignore")
+    found = []
+    for i, line in enumerate(text.splitlines(), 1):
+        m = re.match(r"^## +(\d{4}-\d{2}-\d{2})\b\s*[·:-]?\s*(.*)", line)
+        if m:
+            found.append((m.group(1), -i, m.group(2).strip()))
+    found.sort(reverse=True)
+    out = []
+    for date, neg_i, title in found[:n]:
+        entry = f"{-neg_i}: {date} · {title}"
+        out.append(entry if len(entry) <= width else entry[:width].rstrip() + "...")
+    return out
 
 
 def next_steps(name, width=400):
@@ -268,7 +637,17 @@ def next_steps(name, width=400):
     if not readme.is_file():
         return ""
     m = re.search(r"^#+ *Next steps[^\n]*\n(.*?)(?=^#|\Z)", readme.read_text(), re.M | re.S)
-    text = " ".join(m.group(1).split()) if m else ""
+    if not m:
+        return ""
+    # A numbered or bulleted list shows every item's head, so a cut never hides
+    # the later items (doc friction 2026-11-17: item 6's open threads were cut off).
+    items = [" ".join(x.split()) for x in
+             re.split(r"^\s*(?:\d+[.)]|[-*]) +", m.group(1), flags=re.M)[1:] if x.strip()]
+    if len(items) > 1:
+        each = max(80, width // len(items))
+        return " | ".join(f"{i}) " + (x if len(x) <= each else x[:each].rstrip() + "...")
+                          for i, x in enumerate(items, 1))
+    text = " ".join(m.group(1).split())
     return text if len(text) <= width else text[:width].rstrip() + "..."
 
 
@@ -309,8 +688,7 @@ def session_draw(new=False, ttl=12 * 3600):
     try:
         git = subprocess.run(["git", "rev-parse", "--git-dir"], cwd=RESEARCH, capture_output=True,
                              text=True, check=True).stdout.strip()
-        branch = subprocess.run(["git", "branch", "--show-current"], cwd=RESEARCH, capture_output=True,
-                                text=True).stdout.strip()
+        branch = current_branch()
         f = (RESEARCH / git).resolve() / "pick_track_draw.json"
     except (OSError, subprocess.CalledProcessError):
         return random.random()
@@ -328,9 +706,34 @@ def session_draw(new=False, ttl=12 * 3600):
     return r
 
 
+def reproduce_gap_line(slug):
+    """reproduce_names.brief_line, or None if it cannot run here."""
+    try:
+        from reproduce_names import brief_line
+        return brief_line(slug)
+    except Exception:  # a brief line is a hint; never let it break the draw
+        return None
+
+
+def post_limits_line():
+    """The blog post front-matter caps, printed at the end of the draw: nine research
+    sessions in three days (friction_rank.py --live, 2026-11-12..15) met the 160-character
+    description cap only when CI or the pre-push hook refused a first draft."""
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+    try:
+        from check_post_frontmatter import limits_line
+    except ImportError:  # a sparse checkout without platform/ci
+        return "post front matter: python3 platform/ci/check_post_frontmatter.py --limits"
+    return "post " + limits_line()
+
+
 if __name__ == "__main__":
     new = "--new" in sys.argv[1:]
-    args = [a for a in sys.argv[1:] if a != "--new"]
+    fetch = "--no-fetch" not in sys.argv[1:]
+    if "--land" in sys.argv[1:]:
+        print("\n".join(land_first_lines(show=10 ** 6)))
+        sys.exit(0)
+    args = [a for a in sys.argv[1:] if a not in ("--new", "--no-fetch")]
     if args and args[0] in ("-h", "--help"):
         print(__doc__)
         sys.exit(0)
@@ -340,6 +743,12 @@ if __name__ == "__main__":
     except ValueError:
         sys.exit(f"usage: pick_track.py [draw]  (draw is a number in [0,1), e.g. 0.42; got {sys.argv[1]!r}. "
                  "A bare call reuses this session's first draw; --new redraws.)")
+    if fetch:
+        problem = refresh_origin_main()
+        if problem:
+            print(f"note: {problem}; the commit checks below read the local origin/main")
+    for line in land_first_lines():
+        print(line)
     progs = programmes()
     if progs and random.Random(r).random() < PROGRAMME_SHARE:
         slug, has, skipped = draw_programme(r, progs)
@@ -354,10 +763,18 @@ if __name__ == "__main__":
                 print(f"  {line}")
         if has:
             print(f"read research/{slug}/PROPOSAL.md and the newest research/{slug}/LOG.md entries; land the next milestone")
+            gap = reproduce_gap_line(slug)
+            if gap:
+                print(gap)
+            for line in newest_log_entries(slug):
+                print(f"  LOG.md {line}")
         else:
             print(f"no proposal yet: write research/{slug}/PROPOSAL.md to the bar in PROGRAMMES.md")
         for line in claim_check(slug):
             print(line)
+        for line in host_recheck_lines(slug):
+            print(line)
+        print(post_limits_line())
         sys.exit(0)
     t = pick(r)
     focus = t != "free" and PREFIX[t - 1] in FOCUS
@@ -372,6 +789,9 @@ if __name__ == "__main__":
         if open_tracks:
             old, t = t, random.Random(r).choice(open_tracks)
             print(f"track {old} has {SATURATED}+ projects; redrawn -> track {t}")
+    if t == "free":
+        for line in free_choice_lines(programmes()):
+            print(line)
     behind = commits_behind()
     if behind:
         print(f"WARNING: this checkout is {behind} commit(s) behind origin/main, so the lists below may "
@@ -379,6 +799,26 @@ if __name__ == "__main__":
     if t != "free":
         print(f"track runs open a programme in this area or advance one (research/PROGRAMMES.md); "
               "the listed milestones are raw material, not separate projects")
+        progs_here = track_programmes(t)
+        if progs_here:
+            down = {s: unreachable_hosts(s) for s in progs_here if not is_blocked(s)}
+            print(f"open programme(s) for track {t}: "
+                  + ", ".join(programme_label(s, down.get(s)) for s in progs_here)
+                  + "; advancing one is the default: read research/<slug>/PROPOSAL.md and its "
+                  "newest LOG.md entries, and prefer its next step over a free milestone below")
+            if progs_here and all(is_blocked(s) or down.get(s) for s in progs_here):
+                print("  every open programme here is BLOCKED or OFFLINE in this session: `--new` draws again")
+            for s in progs_here:
+                if not is_blocked(s) and not down.get(s):
+                    for line in newest_log_entries(s, n=2):
+                        print(f"  {s}: LOG.md {line}")
+                    for line in claim_check(s):
+                        print(f"  {s}: {line}")
+                    for line in host_recheck_lines(s):
+                        print(f"  {line}")
+        else:
+            print(f"no open programme in research/PROGRAMMES.md names track {t} or starts with "
+                  f"`{PREFIX[t - 1]}-`: opening one (a PROPOSAL.md and a table row) is the default")
         n, newest = projects(PREFIX[t - 1])
         shallow = is_shallow()
         label = "some (shallow clone: commit dates are flattened, so this is not newest-first)" if shallow else "newest"
@@ -387,7 +827,9 @@ if __name__ == "__main__":
         if not listed:
             print("milestones: no list found in PROJECTS.md; take a 'Next steps' item or ask a new question")
         elif free:
-            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}")
+            logs = mentioned_in_logs(free[0])
+            seen = f" (named in {', '.join(logs[:3])}: check it has not already run there)" if logs else ""
+            print(f"milestones: {len(listed) - len(free)}/{len(listed)} on this checkout; next free: {free[0]}{seen}")
         else:
             print(f"milestones: all {len(listed)} listed are on this checkout; take a 'Next steps' item or ask a new question")
         if newest:
@@ -400,3 +842,4 @@ if __name__ == "__main__":
             if not free:
                 for name in newest[:3]:
                     print(f"  {name}: {next_steps(name) or '(no Next steps section)'}")
+    print(post_limits_line())

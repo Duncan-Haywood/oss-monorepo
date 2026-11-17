@@ -188,3 +188,40 @@ def test_rake_one_covariate_is_poststratification():
     # The selection the covariate carries is removed exactly: target-group mean is matched when outcome depends
     # only on the covariate.
     assert rake.kish_deff(np.ones(10)) == 1.0 and rake.kish_deff(r) > 1.0
+
+
+def test_mother_nativity_from_parborn():
+    # gssrdoc codes: 0 both US-born, 1 mother yes / father no, 2 mother no / father yes, 3 mother yes / father DK,
+    # 4 mother no / father DK, 5 mother DK / father yes, 6 mother DK / father no, 7 both DK, 8 neither US-born.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm5m', Path(__file__).parent / 'experiments' / 'm5m_mothers_nativity' / 'run.py')
+    m5m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m5m)
+    got = m5m.mother_nativity([0, 1, 2, 3, 4, 5, 6, 7, 8, np.nan])
+    assert list(got) == ['US mother', 'US mother', 'FB mother', 'US mother', 'FB mother', '', '', '', 'FB mother', '']
+
+
+def test_sibling_size_bias_recovers_mothers():
+    # Mothers with 1-6 children (below the top-code); each child is one respondent. Weighting children by 1/k must give
+    # back the mothers' Catholic share and the Catholic / other ratio of mean children (Preston 1976), and when the
+    # women's tables hold those true values the gap and both of its parts are zero.
+    import importlib.util
+    spec = importlib.util.spec_from_file_location(
+        'm5n', Path(__file__).resolve().parent / 'experiments' / 'm5n_siblings' / 'run.py')
+    m5n = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m5n)
+    mothers = [(1, 4)] * 30 + [(1, 2)] * 10 + [(0, 2)] * 60 + [(0, 1)] * 40 + [(0, 3)] * 20
+    X = np.array([c for c, k in mothers for _ in range(k)], float)
+    k = np.array([k for c, k in mothers for _ in range(k)], float)
+    w = np.ones(len(k))
+    s = np.ones(len(k), bool)
+    p_true = 40 / 160
+    rho_true = (140 / 40) / (220 / 120)
+    L = m5n.L
+    tab = {'P_m': np.full(L, p_true), 'rho_m': np.full(L, rho_true), 'SBw_C': np.zeros(L), 'SBw_N': np.zeros(L)}
+    out = m5n.children_side(w, k, X, s, tab, np.zeros(len(k), int))
+    assert math.isclose(out['M_mothers'], p_true)
+    assert math.isclose(out['rho_sib'], rho_true)
+    assert abs(out['gap M - f(P_m, rho_m)']) < 1e-12 and abs(out['ratio part']) < 1e-12
+    assert math.isclose(m5n.f(p_true, rho_true), X.mean())

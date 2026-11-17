@@ -17,7 +17,7 @@ error (rules too narrow) is what these sets show reliably.
 | `fresh-2026-10-30.jsonl` | 36 | Opt-out and edge cases, agent-written. Scored once before the change (26/36, 4 of 10 opt-outs missed: "take this address off", "cease all correspondence", "struck my name from", a CCPA delete / do-not-sell request), then those four were patched: now 30/36, 10/10 opt-outs. A tuned set |
 | `fresh-2026-11-03.jsonl` | 21 | Opt-out edge cases (16 unsubscribes, agent-written). Scored once before the change (15/21, 5 of 16 opt-outs missed: "remove it immediately", French "ne m'écrivez plus", Italian "non contattarmi più", a GDPR Article 21 objection, "I don't want to hear from you again"), then patched: now 20/21, 16/16. A tuned set; no other set changed |
 | `fresh-2026-11-03b.jsonl` | 50 | Non-opt-out replies (interested, not interested, not now, objections, questions, wrong person, out of office; 1 unsubscribe), agent-written. Scored once before the change (37/50): meeting asks read as questions ("are you free next Tuesday", "set up 20 minutes"), bare "Pass.", "different direction", legal-team and contract objections, "X left the company", and "interested ... so no" read as interested. Patched: now 50/50. A tuned set; the same patch moved 10-24b 36 to 37, 10-25 35 to 36, 10-30 30 to 32, none down |
-| `fresh-2026-11-03c.jsonl` | 30 | 24 opt-outs (court-style, GDPR, "do-not-contact list", "no-solicitation policy", ES/FR/IT/PT/NL/DE) and 6 near-miss non-opt-outs, agent-written. Scored once before the change: 16/30, 10 of 24 opt-outs missed (the legal-risk direction). Patched: all 24 caught, 26/30. The 4 misses are non-opt-outs ("remove the pricing section", "don't contact me until January", "remove Dana from this thread", "do you stop sending data") that stop or hand to a person, the safe direction. A tuned set, not real inboxes |
+| `fresh-2026-11-03c.jsonl` | 30 | 24 opt-outs (court-style, GDPR, "do-not-contact list", "no-solicitation policy", ES/FR/IT/PT/NL/DE) and 6 near-miss non-opt-outs, agent-written. Scored once before the change: 16/30, 10 of 24 opt-outs missed (the legal-risk direction). Patched: all 24 caught, 26/30 (27/30 since 2026-11-12, when a label typed `wrong_person`, not a category, was corrected to `left_company`). The 4 misses are non-opt-outs ("remove the pricing section", "don't contact me until January", "remove Dana from this thread", "do you stop sending data") that stop or hand to a person, the safe direction. A tuned set, not real inboxes |
 | `fresh-2026-11-04.jsonl` | 20 | Quoted footers, signatures and auto-replies, agent-written, scored with `stripQuoted` applied first as production does. 14/20 before: an unsubscribe-link line inside an away notice read as an opt-out, and "I'd rather not get any more of these" was missed; 2 more misses were my own label errors, relabelled. Patched: 20/20. A tuned set |
 | `fresh-2026-11-04b.jsonl` | 30 | Mixed replies (referrals, forwards, pricing and fit questions, not-now, declines, objections, auto-replies, 3 opt-outs), agent-written. Scored once before the change: 23/30, 0 overreach, 0 opt-outs missed, every miss handed to a person. Patched six phrasings ("check in again in six months", "not a priority this half", "isn't something we'd ever need", "drivers won't adopt another app, we tried that", "book me in", "open to a quick intro call / does Friday morning work"): now 28/30. Left on purpose: a forward plus a call ask reads as a handover, and "how did you get my email" goes to a person. A tuned set |
 | `fresh-2026-11-05.jsonl` | 30 | Terse and mobile-style replies across all nine categories ("yes - call me on 555-0142", "Sounds expensive", "I don't trust AI writing my emails", a dead-inbox notice, a non-profit decline), agent-written. Scored once before the change: 21/30, 0 overreach, 0 opt-outs missed. Two misses were my own label errors, relabelled ("take us off your target list" is an unsubscribe; "who's the best person to talk to" is a question), leaving 23/30. Patched the seven others: 30/30. Across the older sets only `fresh-2026-10-30` moved (32/36 to 33/36); none fell. A tuned set, so 30/30 is not a forecast on real mail. |
@@ -703,6 +703,360 @@ folded, an earlier half already fired on), 31 of `7*`'s 56 silent stops are repe
 12 wrong, 3 ambiguous), lower than the 64% with repeats: list mail and opt-out chains that repeat across halves are mostly right.
 Any further rule round should score on de-duplicated text only, and a 25-stop half is too small to measure a rule change against
 the ~1 per 1,000 reader effect. The useful next data is a second reader on these and real replies to outreach.
+
+### A third reader from another model family: a local 8B model is not a second reader (2026-11-12)
+
+Every Enron label so far came from agents of one model family. Item (1) of the flagship's `next:` asked for a reader from
+another family, run with no key. `eval/model-reader.mjs` does that: it gives a local model `enron-labels/READER.md` as the
+system prompt (its batch-file "Output" section swapped for "answer with one label"), then one reply at a time, at
+temperature 0, through any OpenAI-compatible server (llama.cpp, Ollama, vLLM). It never sees the rules, their answers or
+the other readers' labels. `compare` prints exact agreement, stop-or-not agreement and Cohen's kappa between label files.
+
+**Setup.** Meta-Llama-3.1-8B-Instruct, Q4_K_M GGUF (bartowski's build on Hugging Face, 4.9 GB), on a `llama-cpp-python`
+0.3.16 server, CPU only, 4 cores, `--n_ctx 4096`, 10 to 15 s per reply. It labelled every stop the three agent-labelled
+halves hold (298: `5*` 107, `6*` 101, `7*` 90; texts gathered by Message-ID with `model-reader.mjs texts`, since earlier
+rounds' stops that no longer fire are still labelled). Labels: `enron-labels/{sixth,seventh,eighth}-llama.json` (no text).
+Every answer parsed as a label; it never answered `ambiguous` and twice answered `bounce`.
+
+| Agreement, same Message-IDs | Exact | Stop or not | Kappa |
+|---|---|---|---|
+| `5*`: agent reader 1 vs agent reader 2 (107) | 87 (81%) | 89 | 0.71 |
+| `5*`: agent reader 1 vs Llama 8B | 58 (54%) | 67 | 0.39 |
+| `5*`: agent reader 2 vs Llama 8B | 65 (61%) | 75 | 0.49 |
+| `5*`: agent reader 1 vs Qwen2.5 7B | 71 (66%) | 79 | 0.52 |
+| `5*`: agent reader 2 vs Qwen2.5 7B | 79 (74%) | 85 | 0.64 |
+| `5*`: Llama 8B vs Qwen2.5 7B | 70 (65%) | 79 | 0.56 |
+| `6*`: agent reader vs Llama 8B (101) | 64 (63%) | 69 | 0.52 |
+| `7*`: agent reader vs Llama 8B (90) | 68 (76%) | 73 | 0.68 |
+
+**It disagrees in one direction: toward the rules.** On `5*` the commonest split (19 of 49) is agent `none`, Llama
+`not_interested`: a "no" in passing, someone else's no, reported speech, the very phrasings the rule rounds spent six rounds
+vetoing. Over the three halves the agent reader called 160 of the stops `none`; Llama gave 74 of those (46%) the category
+the rules fired, and called 79 `none`. On the 128 the agent reader called right, Llama agreed 111 times (87%). A reader that
+falls for the same surface cues as the rules is not an independent check: it makes the rules look better than they are.
+
+**A second small model, to tell the family from the size.** Qwen2.5-7B-Instruct (Q4_K_M, same server and brief) on the
+same 107 `5*` stops (`enron-labels/sixth-qwen.json`): closer to the agent readers than Llama (66% and 74%, kappa 0.52 and
+0.64) and the only small model that used `ambiguous` (5 times), but still under the 81% the agent readers reach with each
+other. Of the 68 `5*` stops the first agent reader called `none`, Qwen sided with the rules on 25 and Llama on 36. Two 7-8B
+models from two more families both lean the same way, so the lean looks like a small-model trait, not one family's.
+
+| Wrong silent stops on today's rules, per 1,000 `RE:` replies | Agent reader 1 | Agent reader 2 | Llama 8B |
+|---|---|---|---|
+| `5*` (9,538) | 2.3 (30 / 22 / 2) | 2.1 (34 / 20 / 0) | 1.7 (38 / 16 / 0) |
+| `6*` (9,592) | 0.9 (36 / 9 / 1) | | 1.1 (35 / 11 / 0) |
+| `7*` (9,428) | 1.6 (36 / 15 / 3) | | 1.8 (37 / 17 / 0) |
+
+(Right / wrong / ambiguous in brackets. `5*` and `6*` are tuning halves now, so their figures are low by construction.)
+On the stops today's rules still fire, the three readers land within 0.6 per 1,000 of one another, because most of the stops
+the readers fought over have since been vetoed or moved to a person by the away policy.
+
+**Where both families say wrong, the stop is wrong.** On `7*`'s 56 silent stops (before the veto below), the agent reader and
+Llama agree on 43: 31 right, 12 wrong. The 12 are plain phrasing faults: "I am not interested in climbing a mountain", "good
+teams don't need to change their uniforms", "these dates don't work for him", "the fuel valve replacement is scheduled", "if you
+do not have enough response from your list below". 9 of them are among the 25 de-duplicated stops (`--seen`), where the two
+readers agree on 18: 9 right, 9 wrong. That double-wrong list is the cleanest input a future rule round has, and it is now read.
+
+**One veto from it** (`engine.mjs`, after "don't work for (me|us)"): a date or time that "doesn't work for" anyone is
+scheduling ("Lay asked me to let you know that these dates don't work for him, either"). On the eight halves (`0*`-`7*`,
+76,565 `RE:` replies) it removes exactly the two copies of that message on `7*` and no other stop; auto-reply and bounce
+catches unchanged. `7*` is a read half, so this is tuning, not a score: wrong silent stops there go 17 to 15 under the agent
+reader.
+
+**What it means.** A 7-8B local model can't stand in for a second reader on this task: it agrees with the agent reader
+less than the two agent readers agree with each other, and its errors lean toward the rules. The agent-reader figures stay
+the reference. A person reading `READER.md`, or a larger model from another family, is still the missing second reader;
+`model-reader.mjs` runs either (a hosted one with `LLM_BASE_URL`/`LLM_API_KEY` on any OpenAI-compatible endpoint).
+
+```
+node eval/model-reader.mjs texts <dir of links to blobs/7?> --ids eval/enron-labels/eighth.json > 7-texts.json
+LLM_BASE_URL=http://localhost:8080/v1 LLM_MODEL=llama node eval/model-reader.mjs label 7-texts.json \
+  --ids eval/enron-labels/eighth.json --out eval/enron-labels/eighth-llama.json   # resumable
+node eval/model-reader.mjs compare eval/enron-labels/eighth.json eval/enron-labels/eighth-llama.json
+```
+
+## A free local model on every reply set (2026-11-12)
+
+ROADMAP M2 asked for a local model's score with `eval/model.mjs`. **Setup:** Qwen2.5-7B-Instruct, Q4_K_M GGUF
+(bartowski's build on Hugging Face, 4.7 GB), `llama-cpp-python[server]` 0.3.16 built from source in a venv (about 3 min),
+`--n_ctx 4096 --n_threads 4 --chat_format chatml`, CPU only, 4 cores, 15 GB RAM. 9 to 12 s a reply; 792 replies took about
+2.5 hours. The prompt is the product's own `TRIAGE_SYSTEM` (`ai.mjs`), one reply at a time, quoted history stripped as
+`parseReplies` does. Answers (category, subtype, return date; no text) are in `model-answers/qwen2.5-7b-q4km.json`, keyed by a
+hash of subject and body, so any change to the merge can be re-scored offline:
+
+```
+LLM_PROVIDER=llamacpp LLM_MODEL=qwen node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl \
+  --cache eval/model-answers/qwen2.5-7b-q4km.json            # resumable; retries transport failures
+node eval/model.mjs eval/fresh-*.jsonl --offline --cache eval/model-answers/qwen2.5-7b-q4km.json --misses
+```
+
+`model.mjs` now prints three scores per set on the same replies (rules, model alone, merged as the product runs it) and two
+harms beside overreach and missed opt-outs: **false stops** (a reply read as less contact than it asked for) and **false
+opt-outs** (a live lead that would be suppressed for good). 789 of 792 answers parsed; the other 3 were broken JSON and fall
+back to the rules. 9 more were misspelt labels ("unsubscribed", "unsubcribe", "uninterested"), now mapped by
+`CATEGORY_ALIASES` in `ai.mjs` and re-asked.
+
+| Set | Rules now | Rules before tuning | Model alone | Merged now |
+|---|---|---|---|---|
+| `fresh-2026-10-21` (honest) | 19/40 | 15 | 35 | 33 |
+| `fresh-2026-10-24` (honest) | 30/41 | 27 | 35 | 35 |
+| `fresh-2026-10-24b` | 37/41 | 34 | 36 | 36 |
+| `fresh-2026-10-25` | 39/42 | 25 | 41 | 41 |
+| `fresh-2026-10-30` | 33/36 | 26 | 28 | 32 |
+| `fresh-2026-11-03` | 21/21 | 15 | 21 | 21 |
+| `fresh-2026-11-03b` | 50/50 | 37 | 46 | 49 |
+| `fresh-2026-11-03c` | 27/30 | 16 | 28 | 27 |
+| `fresh-2026-11-04` | 20/20 | 14 | 17 | 19 |
+| `fresh-2026-11-04b` | 29/30 | 23 | 27 | 28 |
+| `fresh-2026-11-05` | 30/30 | 21 | 26 | 29 |
+| `fresh-2026-11-06` | 28/30 | 25 | 27 | 26 |
+| `fresh-2026-11-07` | 29/30 | 26 | 26 | 29 |
+| `fresh-2026-11-08` | 30/30 | 25 | 26 | 28 |
+| `fresh-2026-11-08b` (false opt-out probe) | 17/20 | 15 | 9 | 15 |
+| `fresh-2026-11-08c` (false interested) | 17/20 | 13 | 16 | 17 |
+| `fresh-2026-11-08d` (false bounce, away) | 16/20 | 9 | 11 | 17 |
+| `fresh-2026-11-08e` (false not-now) | 16/20 | 9 | 17 | 18 |
+| `fresh-2026-11-09` | 30/30 | 18 | 29 | 30 |
+| `fresh-2026-11-10` | 31/31 | 26 | 28 | 30 |
+| `fresh-2026-11-11` (false not-now, wrong person) | 18/20 | 9 | 13 | 17 |
+| `fresh-2026-11-12` | 20/20 | 19 | 18 | 20 |
+| `fresh-2026-11-13` | 19/20 | 17 | 18 | 18 |
+| **672 fresh replies** | **606** | **464** | **578** | **615** |
+| `replies` + `heldout` (tuning sets) | 120/120 | (66/72, 24/48) | 106 | 113 |
+
+"Rules before tuning" is each set's first score as recorded in the table at the top of this file (the rules as they stood the
+day the set was written); 11-05's is before its two relabels. It is the fair comparison for a model that was never tuned:
+**578 against 464, 86% against 69%.** The rules as they are now (90%) beat the model alone, because they were patched on
+these very replies. The two honest sets are the only ones neither was tuned on: model 70 of 81, rules 49.
+
+**Where the model goes wrong, it goes wrong in the costly direction.** Over all 792 it read 66 live replies as a stop (the
+rules: 19) and 10 as opt-outs that were not (rules: 2, both in the 11-03c near-miss set). Examples: "Do you handle unsubscribe
+links and suppression lists for us?" and "Can you stop the sequence for one account but keep sending to the rest?" as
+opt-outs; "Can you resend the attachment? It didn't open" and "I got a bounce when I tried your calendar link" as bounces;
+"Call me later today, around 3pm", "Now is actually a perfect time ... Can you do Wednesday at 10?" and "Not a good time this
+week, but I'm very interested. Can we do a call on the 18th?" as not now; four away notices as not now. On the five trap
+probes (100 replies written to bait exactly this) it scored 66, the rules before tuning 55, after 84.
+
+**The merge, before and after** (`ai.mjs`, `mergeTriage`). The old rule let the model lower contact freely, so every one of
+those errors went through: on all 792 the merged triage read 687 (below the rules alone), with 71 false stops and 12 false
+opt-outs. Three changes:
+
+1. A model's `unsubscribe` or `bounce` is a flag, not an action: the rules' answer stands, and `runInbox` adds a task saying
+   what the model read. The lead is paused or already out of the cadence, and nothing is sent without approval.
+2. A model may not move a reply the rules read as `interested`.
+3. A model may not move a no-draft category to a drafting one at the same rank (`out_of_office` to `not_now`). The comment
+   above the merge already said "never from a no-contact category to a drafting one"; equal ranks slipped through.
+
+| All 792 | Right | False stops | False opt-outs | Opt-outs not caught |
+|---|---|---|---|---|
+| Rules | 726 | 19 | 2 | 4 |
+| Model alone | 684 | 66 | 10 | 2 |
+| Merged, old rule | 687 | 71 | 12 | 0 |
+| Merged, now | 728 | 37 | 2 | 4 (all 4 flagged to a person) |
+
+All three were chosen after seeing these answers, so "merged, now" is a tuned figure; changes 2 and 3 were each better on the
+honest pair and on all 792 when compared offline (2: 66 vs 66 right on the honest pair with 6 false stops vs 7, 421 vs 407 of
+the first 472; 3: 68 vs 66 and 584 vs 574 of the first 638). Change 1 is a policy, not a score: on the honest sets it costs
+the four opt-outs the rules missed and the model caught ("Can you please not email this address in future", "we'd prefer not
+to receive further emails", "pls remove from ur list", "If I get one more of these I'm reporting it as spam"); each now pauses
+the lead and reaches a person as "the model reads this reply as a request to stop", where before it went straight to the
+suppression list. Of the 23 stop flags over all 792, 4 are right; a 7B model's stop reading is mostly noise.
+
+**What it means for a user.** A free local 7B model is worth running beside the rules: on unfamiliar replies it reads 86% where
+fresh keyword rules read 69%, and under the merge it adds 19 right answers on the honest pair and 2 over all 792 (it loses 17 on
+the sets the rules were tuned on) while adding no false opt-outs. It is not a replacement for the rules, and its stop readings must not act on their own. Still
+open: a hosted model (needs a key) and a larger local one (14B, about 9 GB) on the same sets; whether the 37 false stops the
+merge still lets through (mostly question to objection or not now) cost anything a person would notice.
+
+## The 37 false stops, by what a person would see (2026-11-12)
+
+The section above left one question open: whether the 37 false stops the merge still let through cost anything a person
+would notice. No model host answered this run (huggingface.co, registry.ollama.ai and modelscope.cn all 403 through the
+proxy), so this is offline, from the committed 7B answers. The way to answer it is by what each category *does* in
+`runInbox` (`engine.mjs`), not by its rank:
+
+- `not_interested` and `left_company` end the cadence with **no draft and no task**. A live reply that lands there is lost
+  without anyone reading it.
+- `unclear`, `question`, `objection`, `not_now` and `interested` all put the reply in front of a person (a task, a draft to
+  approve, or both). A wrong label among these is seen and fixed when the person reads the draft.
+- `question` and `objection` differ in one way that matters: `question` adds an "Answer their question" task and drafts an
+  answer; `objection` drafts a rebuttal.
+
+Tabulating every merged answer that differed from the rules' answer (`model right` means the model's label matched):
+
+| Rules -> merged | Model right | Model wrong | What the wrong ones cost |
+|---|---|---|---|
+| question -> objection | 3 | 11 | "What does it cost for a team of 12?", "Does it work with Xero?", "Is it GDPR compliant?" get a rebuttal and lose the answer task |
+| unclear -> not_interested | 5 | 6 | "ok", "Noted.", "Lol. Maybe. Sure, whatever, call my assistant.", "attached to the spreadsheet": closed unread |
+| unclear -> left_company | 5 | 2 | "I'm the wrong person to convince. Our CEO hates cold email tools", "he has been here 12 years. What is this about?": closed unread |
+| objection -> not_interested | 1 | 4 | "We already have Salesforce", "We renewed with a competitor", "no budget this year": closed unread |
+| objection -> left_company | 0 | 2 | "We switched to FleetPlan last year": closed unread |
+| unclear -> not_now | 4 | 8 | a draft and a 90-day pause; seen when the draft is read |
+| others (question -> interested, unclear -> objection, between the two closes, ...) | 16 | 10 | drafting categories, seen; or one close for another |
+
+So the replies a person would never see were the **16 lost silently** under the merge (`model.mjs` now counts them; the
+rules alone lose 3), and the costly-but-visible ones were the 11 questions answered as
+objections. The model's closes from a category a person reads were right 11 of 25 times: not reliable enough to act alone.
+
+**Two changes to `mergeTriage`, same shape as the stop flags:**
+
+1. A model's `not_interested` or `left_company` on a reply the rules read as `unclear`, `question` or `objection` is a flag.
+   The rules' answer stands; on an unclear reply the model's reading becomes the guess the person sees ("The model reads it
+   as not interested. Check it before you act."), on an objection it is a task ("The model reads this reply as a plain no").
+2. A model may not turn a rules `question` into an `objection`.
+
+```
+node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl --offline --cache eval/model-answers/qwen2.5-7b-q4km.json
+```
+
+| | Right | False stops | Lost silently | Overreach | False opt-outs | Close flags (right/wrong) |
+|---|---|---|---|---|---|---|
+| All 792, merge before | 728 | 37 | 16 | 4 | 2 | - |
+| All 792, merge now | 735 | 24 | 3 | 6 | 2 | 11 / 14 |
+| Honest pair (81), before | 68 | 6 | 1 | 1 | 0 | - |
+| Honest pair (81), now | 62 | 5 | 0 | 1 | 0 | 5 / 1 |
+| Rules alone, all 792 | 726 | 19 | 3 | 4 | 2 | - |
+
+**Read it honestly.** On the two honest sets the label score falls from 68 to 62: six correct closes there ("We have
+decided not to proceed. All the best.", "Thank you for reaching out, however this is not something our firm will be
+pursuing", "I'm not the one who decides on this. Our COO, Priya, handles all vendor choices") now wait for a person instead
+of closing on their own. That is the price, and it is paid in reading time: each is one look at a reply with the model's
+reading already written beside it. In return no live reply is closed unread by the model (16 to 3, the 3 being the rules'
+own). The two new overreaches are true "no"s the rules read as objections ("we've decided to build this in-house", "we just
+signed with another vendor"): each now gets a draft that waits for approval, plus a task saying the model reads a plain no,
+and nothing is sent. Both changes were chosen after seeing these answers, so the 735 is a tuned figure; the honest-pair drop
+is the untuned cost. The rules (`triage`) did not change, so the Enron re-score the rules' changes need does not apply here.
+
+Still open: a larger or hosted model, which may close well enough to act alone (a 14B, when a model host answers); and
+whether the 11-of-25 close accuracy holds on real replies.
+
+## A 14B local model on the same replies (2026-11-12): a pre-registered test, failed
+
+**Setup.** Qwen2.5-14B-Instruct, Q4_K_M, Qwen's own split GGUF (three files, 8.99 GB) from Hugging Face, which answered on
+the third run of 2026-11-12. Same `llama-cpp-python[server]` 0.3.16 venv build, `--n_ctx 4096 --n_threads 4 --chat_format
+chatml`, CPU only, 4 cores, 15 GB RAM. **Load it with `--use_mmap false`**: with mmap on, the AMX repack this CPU build does
+holds a second copy beside the mapped file and the kernel killed the server at about 15 GB; with mmap off it sits at 10 GB.
+21.3 s a reply. Same product prompt (`TRIAGE_SYSTEM`), same merge, answers in `model-answers/qwen2.5-14b-q4km.json`:
+
+```
+LLM_PROVIDER=llamacpp LLM_MODEL=qwen node eval/model.mjs eval/fresh-*.jsonl eval/replies.jsonl eval/heldout.jsonl \
+  --cache eval/model-answers/qwen2.5-14b-q4km.json
+```
+
+**First 181: the two honest sets and the five trap probes**, the replies the flagship's `next:` asked for first. The 7B
+column is the committed 7B cache re-scored offline on the same replies with today's merge.
+
+| Same 181 replies | Rules | 7B alone | 14B alone | 7B merged | 14B merged |
+|---|---|---|---|---|---|
+| Right | 133 | 136 | 144 | 147 | 146 |
+| Honest pair (81) right | 49 | 70 | 72 | 62 | 61 |
+| False stops | 12 | 30 | 26 | 11 | 12 |
+| False opt-outs | 0 | 6 | 9 | 0 | 0 |
+| Lost silently | 1 | 4 | 2 | 1 | 2 |
+| Stop flags for a person (right / wrong) | | | | 4 / 12 | 4 / 14 |
+| Close flags (right / wrong) | | | | 8 / 4 | 8 / 1 |
+
+Twice the size buys 8 replies alone (4%) and nothing merged. Its opt-out reading is no better: 9 false opt-outs to the 7B's
+6, among them "Who gave you my email?", "Do you handle unsubscribe links and suppression lists for us?" and "Our legal
+team asks: are you CAN-SPAM compliant", and it reads "Can you resend the attachment? It didn't open" and "I got a bounce
+when I tried your calendar link" as bounces just as the 7B did. A model's stop stays a flag, for the 14B too.
+
+The one place it differs is its closes. Of the replies the rules leave to a person as `unclear`, the 14B called 7 a plain
+no or the wrong person, and all 7 were ("We have decided not to proceed. All the best.", "We don't use outside software
+for this and don't plan to.", "You've got the wrong Sam, I work in finance not operations."); the 7B called 11 and was right
+on 7. Its one wrong close came from an objection ("we already pay for QuickBooks and I'm not adding a second tool").
+
+**Pre-registered, before the 14B saw the other 611 replies** (committed to PR #15142, commit `bde54ec`, and merged before that run finished): the hypothesis
+is that a 14B's `not_interested` or `left_company` on a reply the rules read as `unclear` is right often enough to act
+alone. It is accepted if, on the 611 replies not in the 181 (the other fresh sets and the two tuning sets), those closes
+are right at least 85% of the time and at most 2 of them lose a live reply silently. If accepted, it becomes an opt-in
+setting, not the default, since a deployer's model may be smaller. Closes from `question` or `objection` stay flags either
+way. The counterfactual is computed from the committed cache with the merge's close flag lifted for that one case.
+
+**The test failed (all 792 answered, 2026-11-12).** On the 611 replies outside the first 181, the 14B's closes on replies
+the rules read as `unclear` were right **2 of 7 (29%)**, against the bar of 85%, and **4 would have lost a live reply
+silently**, against the limit of 2: "Ok.", "Noted.", "Thanks." and "ok", each a reply a person should see. The 7 of 7 on the
+first 181 was a small sample, and the setting is not added. `eval/model-closes.mjs` re-scores it from the committed cache:
+
+```
+node eval/model-closes.mjs eval/model-answers/qwen2.5-14b-q4km.json <the 18 files outside the first 181>
+```
+
+| Closes held for a person | 14B, first 181 | 14B, other 611 | 7B, other 611 |
+|---|---|---|---|
+| From `unclear` (right / wrong / lost silently) | 7 / 0 / 0 | 2 / 5 / 4 | 3 / 4 / 4 |
+| From `objection` | 1 / 1 / 1 | 1 / 16 / 16 | 0 / 6 / 5 |
+
+On the 611 the 14B closes objections far more readily than the 7B: "We already use Salesforce and our team won't switch",
+"We built something in-house for this already", "We're a nonprofit with no budget for tools like this, so it's a pass from
+us" all came back as plain no's. The labels call these objections (a reply that names a reason can be answered), and the
+merge keeps them as objections with a task, which is why it matters that the flag holds.
+
+**All 792, both models** (offline from the two caches, today's merge):
+
+| All 792 | Right | False stops | False opt-outs | Lost silently | Stop flags (right / wrong) | Close flags (right / wrong) |
+|---|---|---|---|---|---|---|
+| Rules | 726 | 19 | 2 | 3 | | |
+| 7B alone | 684 | 66 | 10 | 13 | | |
+| 14B alone | 691 | 75 | 27 | 22 | | |
+| 7B merged | 735 | 24 | 2 | 3 | 4 / 19 | 11 / 14 |
+| 14B merged | 732 | 23 | 2 | 4 | 4 / 32 | 11 / 22 |
+
+On the 672 fresh replies the 14B alone reads 589 (88%) to the 7B's 578 (86%); merged, both 617. The 14B reads **27 live
+replies as opt-outs** to the 7B's 10, and the pattern is plain in its answers: it treats a stranger asking who they are
+as a request to stop ("Who is this?", "Who gave you my email?", "Who are you and how did you get my email", each several
+times), and "No thanks. Please don't follow up." as an opt-out where the labels say a decline. Under the merge none of
+those act; each is a flag a person dismisses, 32 wrong to 4 right.
+
+**What it means for a user.** On a 4-core machine with 16 GB, the 14B costs twice the memory and twice the time per reply
+of the 7B and buys nothing in the product: merged 732 against 735 on all 792, more flags to dismiss, the same right
+answers. Run the 7B. Larger models in the same family are not the next step; a hosted model of another family is (it needs
+a key), and the merge's limits stay as they are for every model: a model's stops and closes are flags, never actions.
+
+**The same 14B as the Enron third reader** (item (1) of the flagship's `next:`), on the 107 `5*` stops both agent readers
+labelled, with `eval/model-reader.mjs` and `READER.md` exactly as for Llama and the 7B (6.9 to 17 s a stop; labels in
+`enron-labels/sixth-qwen14b.json`, no text):
+
+| `5*`, 107 stops | Exact | Stop or not | Kappa |
+|---|---|---|---|
+| Agent reader 1 vs agent reader 2 | 87 (81%) | 89 | 0.71 |
+| Agent reader 1 vs Qwen2.5 14B | 75 (70%) | 78 | 0.56 |
+| Agent reader 2 vs Qwen2.5 14B | 80 (75%) | 82 | 0.64 |
+| Agent reader 1 vs Qwen2.5 7B (before) | 71 (66%) | 79 | 0.52 |
+| Qwen2.5 7B vs Qwen2.5 14B | 84 (79%) | 90 | 0.71 |
+
+On the 87 stops where the two agent readers agree, the 14B matches 69 and the 7B 67. On the 53 of those both call `none`
+(the rules' wrong stops), the 14B still calls a stop on 15 and the 7B on 13; on the 34 both call a stop, 31 and 32. So
+doubling the size moved agreement by four points and did not move the lean toward the rules at all: the 14B agrees with
+its own 7B (kappa 0.71) as well as the two agent readers agree with each other. A larger model of the same family is not
+the independent reader item (1) needs; a person, or a strong model of another family (a hosted one, on a key), still is.
+
+## "We are not interested": a veto narrowed with an Enron re-score (2026-11-12)
+
+A probe found that "We are not interested, thanks." went to a person as `unclear`, while "We're not interested, thanks." and
+"I am not interested, thanks." stopped as `not_interested`. The cause was a veto written in the second Enron round for
+someone else's no ("the counterparty is not interested", "tell them you're not interested"): its `are not interested` also
+matched "we are", and "we're" was never in it. So the plainest decline a firm writes depended on whether the writer used
+the contraction. Also caught: "Thanks but we are not interested.", "We are not interested at this time.", "Honestly we are
+not interested in this."
+
+**The change.** One lookbehind: `(?<!\bwe )are not interested` (engine.mjs, `VETO.not_interested`). "They are", "you're",
+"is" and "assume that X is" still veto.
+
+**The re-score.** `eval/enron.mjs --replies --json` on all eight halves (`0*` to `7*`, 76,565 RE: replies), with the old
+and new engine, compared by Message-ID: stops went from 414 to 417. The three new stops are two texts (one is filed twice):
+
+| Half | Text (paraphrased) | Right? |
+|---|---|---|
+| `5*` | "We are not interested in the sofa. Thanks." | Yes: a decline of an offer, exactly the reply this is for |
+| `5*`, `6*` | "We are the plaintiff but we are not interested in pursuing it." (internal note on a lawsuit) | No: a status note, not a decline |
+
+So one new wrong stop in 76,565 replies (0.013 per 1,000, against the 1.8 per 1,000 fresh wrong silent stops the away policy
+left on `7*`), and the cost of that error is a lead paused as "not interested", not suppressed. No stop was lost. Not
+narrowed further: "we are not interested in pursuing it" is also how a prospect declines, and one internal Enron note is not
+enough to tell the two apart. The agent-written sets (`eval/run.mjs`) and the model merge (`eval/model.mjs --offline` with
+the Qwen2.5 7B cache) score the same before and after (728/792 merged): none of their replies uses the phrase, which is why
+no earlier round saw it. Tests: `enron-eval.test.mjs`, "we are not interested is the writer's own decline".
 
 ## Mail files read as the server reads a mailbox (2026-11-11)
 

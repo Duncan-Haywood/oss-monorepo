@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNMGY6x9oyUTZKNddS",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "e4a3e7a17f446f0eaa59faa5ccd9a3acae14f792e3d61e0442a9ec5380052eef",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T22:04:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Hearth & Horizon story from the bible's open proposal (parish hall floor bouncing at a ceili)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": 16355,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The harness had already created the designated branch locally, so 'git checkout -b' failed; harmless, but 'branch first' could say to check git branch --show-current."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal had a dance at about two steps a second sitting near the floor's natural frequency; a floor that passes the static check (L/250 at 5 kN/m2) can't ring that low, so the story drives the floor through the second harmonic of the heels (4.1-4.4 a second) at 8.3 Hz.",
+      "did": "Changed the mechanism and said so in the DONE entry and the post",
+      "result": "The slower-band failed fix comes straight out of the numbers"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The scheduled prompt asked for revenue product work; the router drew the creative track (weight 0.1) and the run followed the router, which is the owner's way of splitting runs between tracks.",
+      "did": "Followed the route"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-wall-down-the-middle-dance-floor.md"
+  ],
+  "goal": null,
+  "notes": "Project hearth-and-horizon, piece the-wall-down-the-middle (H&H shelf, text only: creative audio at 474 MB, over the 400 MB cap). Saints episode 125 was already in flight (PR #16352), so this run took the H&H proposal instead. Numbers recomputed in Python (glulam 90x360 GL24h at 400 mm over 8 m: 51% bending, 29.2 mm vs 32 mm; 10.9 Hz empty, 8.28 Hz with 64x75 kg dancers; doubled joists 9.95 Hz; mid-span 152x89 UB on posts at 2 m, 33.1 Hz rigid, 19.9 Hz Dunkerley). Weekdays and Easter 2051 checked in Python. Verification: node --test in ventures/hearth-and-horizon 17/17 pass; check_post_frontmatter ok; check_post_links 0 broken; post_similarity 0 pairs >= 0.25. New H&H proposal added (the stair after Midnight Mass).",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,228 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/osrobot-mjface",
+ "stratum": "research",
+ "round": 56,
+ "seed": "2026-11-13-b",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), quality-audit round 56",
+ "status": "audited",
+ "professional": "a robotics simulation researcher working on physical human-robot interaction safety (MuJoCo contact modelling, ISO/TS 15066 power-and-force limiting, assistive feeding). They would check first that the contact parameters fed to the simulator are the physical quantities the README says they are (MuJoCo's direct solref (-k, -b) is a reference acceleration, so per unit effective mass, not N/m and N s/m), then that the simulated transient peak agrees with the standard's own Annex A energy-transfer model F = v*sqrt(k*mu), and only then the force-limit comparison and the missing pressure limits",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Reproducibility is fine: in a scratch copy (/tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/copy) `/usr/bin/python3.13 experiments/run.py` (mujoco 4.0.1) ran in 51 s and results.txt differs from the committed file only in the header's MuJoCo version (3.16.0 there); every data row is identical, and figure.py regenerates a byte-identical peak_force.svg. The physics is not what the README says. (1) Independent check of the upstream library's contact law with no subject code (/tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/units.py): a free sphere hitting a mocap box at 0.10 m/s with solref (-k, -0.001) peaks at 0.871/8.711 N (k=800, m=0.3/3 kg) and 8.296/82.955 N (k=75000), matching m*v*sqrt(k) (0.849/8.485/8.216/82.158) and not v*sqrt(k*m) (1.549/4.899/15.000/47.434): the peak scales with m, so MuJoCo's direct solref is a mass-normalised (acceleration) stiffness and damping, as MuJoCo's documented aref = -b*(Jv) - k*imp*r says. With the tip mass 0.30 kg against an immovable mocap lip, the simulated face stiffness is 0.3 x 75,000 = 22,500 N/m (22.5 N/mm, not ISO/TS 15066's 75 N/mm) and every b is 0.3x the stated N s/m. (2) ISO/TS 15066 Annex A transient model, F = v*sqrt(k*mu), mu = (1/0.30 + 1/4.4)^-1 = 0.281 kg (face/head effective mass 4.4 kg): 14.51 N at 0.10 m/s and 29.03 N at 0.20 m/s, against the reported 7.56 and 15.21 N. Re-running the subject's own trial with solref scaled by 1/M_TIP so k and b are the stated force-domain values (/tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/corrected.py) gives 11.86/23.82 N at b=4, 85.67/171.64 N blocked at b=1000 (reported 24.62/49.25), and for the camera arm at 0.20 m/s, b=1000: safe<=65 N share 0.48 (reported 1.00), mean 80.0 N, worst 203.7 N (reported 53.3 N, above the 130 N limit too). corrected2.py: at b=4/100 the 1.00 shares survive (worst 24-38 N); at the README's 'critical' b=300 worst is 68.3 N and safe<=65 is 0.98 at 0.20 m/s. (3) README 'critical value 300 N s/m for the 0.30 kg tip at 75,000 N/m' is 2*sqrt(k*m) = 300 in force units, but in the units actually fed to MuJoCo critical is 2*sqrt(k) = 547.7, so the sweep's 300 is zeta 0.55, not 1. (4) Hand arithmetic that does pass: KP*LEAD*v = 400*0.05*0.10 = 2.0 N steady push (test and results agree); 7.56/3.68 = 2.05 and 15.21/7.35 = 2.07 ('about 2x'); 75000/800 = 93.75 ('94-fold'); 53.3/65 = 0.82; 65/2 = 32.5 and 130/2 = 65 ('30 to 65x'). Numbers reproduce from the code, but the headline peaks are understated 1.6x (b=4) to 3.5x (b=1000) and the 'all safe' row flips: 1.",
+  "completeness": "Claimed and checked: '4 tests, about a second' (Ran 4 tests in 0.629s, OK); run.py writes results.txt (reproduced, 51 s against 'about 90 s'; run.py:4 docstring says 'a few minutes'); figure.py regenerates peak_force.svg byte-identically from results.txt; every number in README headline bullets 1-3 and project.json lede/summary matches results.txt (3.68/7.56, 7.35/15.21, 0.45->0.32, 1.00 rows, 53.3 N, 2.9-8.0 and 6.3-23.2 N means, 12.74-49.25 N); live page https://marisstella.app/research/osrobot-mjface/ returns 200 with the same numbers and 'not a safety case'. Next steps (pressure, measured damping, compliant lips) are listed as not done, not claimed. No stubs or TODOs. Everything it says it did, it did: 3.",
+  "verification": "`cd research/osrobot-mjface && /usr/bin/python3.13 -m unittest discover -s tests -v`: 4 tests OK in 0.63 s. The tests exercise osrobot-mjfeed's run_trial through mj.build, never experiments/run.py, and assert only ratios and orderings (steady push = KP*LEAD*v, stiffer > 1.5x softer, peak ratio 4 from 0.05 to 0.20 m/s, determinism); none anchors an absolute peak to an analytic value, which is what would have caught the solref unit error. quality_mutate.py on run.py: limit applied to peak_ax instead of peak (line 35) SURVIVED; K_FACE 75000 -> 7500 (line 14) SURVIVED; p95 index -> median (line 37) SURVIVED. In a scratch copy of the imported osrobot-mjfeed model: KD halved in the x controller (model.py:84) SURVIVED; build() passing k/10 (model.py:54) was CAUGHT by test_stiffer_face_raises_impact_peak (4.46 not > 4.60). 1 of 5 caught: 1.",
+  "craft": "Read experiments/run.py (40 lines), experiments/figure.py, tests/test_face.py, and the imported research/osrobot-mjfeed/src/osrobot_mjfeed/model.py (121 lines). Small, readable, deterministic, reuses the sibling model unchanged as intended. Defects: the dependency is a sys.path insert into a sibling project with no pyproject or pinned mujoco version (README says 3.16.0; 4.0.1 installed here and gave the same rows, by luck not by pin); K_FACE duplicated in run.py:14 and tests/test_face.py:6; experiment logic in run.py has no tests at all; the solref values are written as '-{k} -{b}' with a comment calling them N/m and N s/m (mjfeed model.py:13) with no conversion by effective mass; run.py:4 'a few minutes' vs README '90 s' vs 51 s measured: 2.",
+  "claims": "Backed: disclaimer and 'not a safety case', secondary-source caveat on the ISO table values, unsourced damping, pressure limits not applied, kinematic lips, AI-assistance note, all numbers in the README match results.txt. Not backed: README:3 title and project.json 'when the lips have the ISO/TS 15066 face stiffness' and README table 'Face effective spring constant 75,000 N/m' are false in physical units (simulated 22,500 N/m, see correctness); README:19 '300 N s/m is the critical value' is wrong for the units used (547.7); README:11 'nowhere near unsafe in this model' and 'worst case 53.3 N, 82% of 65 N' do not survive the unit correction (204 N, safe share 0.48 at b=1000) and are stated while pressure limits, which the README itself says may bind first for a 4 mm tip, were not checked; README:10 '2x, not 94x' sets up a strawman: no model predicts 94x, a linear spring impact (and ISO/TS 15066 Annex A) predicts sqrt(94) = 9.7x, so the right framing is 2x against the 9.7x the standard's own model gives. A reader would act on the safety reading: 1.",
+  "fitness": "Job: could a pHRI or assistive-feeding researcher build on 'with the standard's face stiffness the feeding arm stays under the face force limits'? No: the stiffness and damping are mis-scaled by the tip mass, so the conclusion holds only at low damping (b <= 100 force-domain, worst 38 N) and fails at the swept b=1000 (worst 204 N). The useful residue is the observation that the old 2 N limit, not the contact physics, drove osrobot-mjfeed's 'unsafe' reading, which is arithmetic on the limits (65/2 = 32.5x) and needs no simulation. Nearest prior work, none cited beyond the standard: ISO/TS 15066:2016 Annex A itself (the energy-transfer transient model F = v*sqrt(k*mu) that would have served as the baseline and exposed the factor), Haddadin, Albu-Schaeffer and Hirzinger (2009) 'Requirements for safe robots' (impact peaks vs speed and effective mass), Kirschner et al. on experimental ISO/TS 15066 power-and-force limiting, MuJoCo's own documentation of solref direct mode, and robot-assisted feeding work with contact-force limits (Gallenberger et al. 2019 bite transfer; Bhattacharjee et al. 2020; Erickson et al. 2020 Assistive Gym, whose feeding task penalises contact force). The result is not new (a parameter sweep of an existing toy model) and not sound as stated: 1.",
+  "domain": "Compared against MuJoCo contact-modelling practice (solref direct mode is per unit effective mass; practitioners convert a physical k by dividing by the effective mass, or calibrate against a drop test) and ISO/TS 15066 PFL practice (transient peak from the Annex A energy model with body-region effective mass, compared to the transient limit, plus the pressure limits). Right: using the standard's body-region force limits rather than an invented comfort threshold; sweeping the unsourced damping; flagging that the tables came from secondary sources; noting the rigid kinematic face is an upper-end case. Departures: physical k and b fed as acceleration-domain parameters (a 0.3x error on both); no comparison with the standard's own transient formula; face transient limit treated as ambiguous and both 65 and 130 N used without the pressure check that would bind first for a 4 mm sphere; the 75 N/mm body-region spring constant applied to a point contact (acknowledged). A practitioner would not sign off the method until the parameter mapping is fixed and validated against the analytic impact: 1."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "rerun experiments/run.py in a scratch copy and diff results.txt",
+   "method": "byte diff against the committed file",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/copy/research/osrobot-mjface && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/osrobot-mjface/experiments/results.txt",
+   "expected": "identical data rows",
+   "observed": "identical except header line 1 (mujoco 4.0.1 vs 3.16.0); 51 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "units of MuJoCo direct solref (-k, -b): does the stated k=75,000 act as 75,000 N/m?",
+   "method": "upstream library behaviour, own script with no subject code: free sphere impact peak vs mass; force-domain spring predicts v*sqrt(k*m), MuJoCo's documented aref = -b*(Jv) - k*imp*r (an acceleration) predicts m*v*sqrt(k)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/units.py",
+   "expected": "if N/m: 15.000 N at k=75000, m=0.3 kg; 47.434 N at m=3 kg",
+   "observed": "8.296 N and 82.955 N (= m*v*sqrt(k): 8.216, 82.158); effective face stiffness 0.3 x 75,000 = 22,500 N/m",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "blocked-arm impact peak at the ISO face stiffness, 0.10 and 0.20 m/s",
+   "method": "ISO/TS 15066:2016 Annex A transient energy model F = v*sqrt(k*mu), k = 75 N/mm, mu = (1/0.30 + 1/4.4)^-1 = 0.281 kg; plus the subject's trial re-run with solref divided by M_TIP",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/corrected.py",
+   "expected": "14.51 N and 29.03 N (analytic); 11.86 and 23.82 N with the controller and b=4 force-domain",
+   "observed": "results.txt 7.56 and 15.21 N",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "camera arm 0.20 m/s, 30 mm sway, b=1000 N s/m: share with peak <= 65 N and worst peak",
+   "method": "subject's trial re-run with k and b converted to MuJoCo's per-unit-mass units (divide by M_TIP = 0.30 kg), 200 seeds",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/corrected.py",
+   "expected": "README: 1.00 safe, worst 53.3 N",
+   "observed": "safe<=65 N 0.48, mean 80.0 N, worst 203.7 N",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'300 N s/m is the critical value for the 0.30 kg tip at 75,000 N/m'",
+   "method": "hand: critical damping 2*sqrt(k*m) in force units vs 2*sqrt(k) in MuJoCo's mass-normalised units",
+   "command": "python3 -c \"print(2*(75000*0.3)**0.5, 2*75000**0.5)\"",
+   "expected": "critical in the units fed to MuJoCo",
+   "observed": "300.0 force-domain, but 547.7 in the units used, so b=300 is zeta 0.55",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "steady push and README ratios",
+   "method": "hand arithmetic from the controller identity and results.txt",
+   "command": "python3 -c \"print(400*0.05*0.1, 7.56/3.68, 15.21/7.35, 75000/800, 53.3/65, 65/2, 130/2)\"",
+   "expected": "2.0 N; about 2x; 94-fold; 82%; 30 to 65x",
+   "observed": "2.0, 2.054, 2.069, 93.75, 0.82, 32.5, 65.0",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run as the README says",
+   "command": "cd research/osrobot-mjface && /usr/bin/python3.13 -m unittest discover -s tests -v",
+   "expected": "4 tests, about a second",
+   "observed": "Ran 4 tests in 0.629s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates from results.txt",
+   "method": "run figure.py in the scratch copy and cmp",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/copy/research/osrobot-mjface && python3 experiments/figure.py && cmp experiments/peak_force.svg /home/user/oss-monorepo/research/osrobot-mjface/experiments/peak_force.svg",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page serves the project",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/osrobot-mjface/",
+   "expected": "200 with the README numbers and disclaimer",
+   "observed": "200; contains 53.3 N, 75 N/mm and 'not a safety case'",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the lips have the ISO/TS 15066 face stiffness' (title, README table, project.json)",
+   "method": "units check above",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/units.py",
+   "expected": "75 N/mm",
+   "observed": "22.5 N/mm effective (0.30 kg x 75,000 1/s^2)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'nowhere near unsafe ... worst case 53.3 N, 82% of 65 N'",
+   "method": "corrected-units sweep, and README's own note that pressure limits were not applied",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/mjface/corrected2.py",
+   "expected": "all rows under 65 N",
+   "observed": "holds at force-domain b=4/100 (worst 24-38 N); b=300 worst 68.3 N (0.98 safe); b=1000 worst 203.7 N (0.48 safe)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'94-fold stiffer lip raises the impact peak about 2x, not 94x'",
+   "method": "linear-spring impact / ISO Annex A scaling F proportional to sqrt(k)",
+   "command": "python3 -c \"print(94**0.5)\"",
+   "expected": "the comparison point a reader should be given is sqrt(94) = 9.7x",
+   "observed": "README compares with 94x, a scaling no model predicts",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "runtime claims",
+   "method": "timed run",
+   "command": "time /usr/bin/python3.13 experiments/run.py",
+   "expected": "README about 90 s; run.py docstring 'a few minutes'",
+   "observed": "51 s",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "experiments/run.py:35",
+   "change": "r[\"peak\"] <= L -> r[\"peak_ax\"] <= L (limit applied to the axial component only)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:14",
+   "change": "K_FACE = 75000.0 -> 7500.0",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "experiments/run.py:37",
+   "change": "pk[int(0.95 * n)] -> pk[int(0.50 * n)] (p95 column becomes the median)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/osrobot-mjfeed/src/osrobot_mjfeed/model.py:84 (imported model, scratch copy)",
+   "change": "- KD * vx -> - 0.5 * KD * vx in the x controller",
+   "caught": false,
+   "test_cmd": "cd research/osrobot-mjface && /usr/bin/python3.13 -m unittest discover -s tests"
+  },
+  {
+   "where": "research/osrobot-mjfeed/src/osrobot_mjfeed/model.py:54 (imported model, scratch copy)",
+   "change": "build: xml(k, b) -> xml(k / 10, b)",
+   "caught": true,
+   "test_cmd": "cd research/osrobot-mjface && /usr/bin/python3.13 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Contact stiffness and damping are passed to MuJoCo's direct solref (-k, -b), which is mass-normalised (reference acceleration), as if they were N/m and N s/m. With the 0.30 kg tip against an immovable mocap lip the simulated face stiffness is 22,500 N/m, not ISO/TS 15066's 75,000, and every damping is 0.3x its label. Peaks are understated 1.6x (b=4: 7.56 vs 11.86 N at 0.10 m/s; ISO Annex A gives 14.5 N) to 3.5x (b=1000); the camera-arm 0.20 m/s b=1000 row becomes 0.48 safe at 65 N with a 204 N worst peak instead of 1.00 and 53.3 N.",
+   "where": "research/osrobot-mjface/experiments/run.py:23",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "high",
+   "what": "Headline safety reading 'nowhere near unsafe ... 1.00 in every row, worst 53.3 N' (README, project.json lede, live page) rests on the mis-scaled parameters and on force limits alone while the pressure limits, which the README says may bind first for a 4 mm tip, were not applied.",
+   "where": "research/osrobot-mjface/README.md:11",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "No baseline against the standard's own transient model F = v*sqrt(k*mu); the '2x, not 94x' framing compares with a scaling no model predicts (a spring impact predicts sqrt(94) = 9.7x). The analytic check would have exposed the units factor.",
+   "where": "research/osrobot-mjface/README.md:10",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "'300 N s/m is the critical value' is computed in force units (2*sqrt(k*m)) but fed to MuJoCo in per-unit-mass units, where critical is 2*sqrt(k) = 548; the swept b=300 is zeta 0.55.",
+   "where": "research/osrobot-mjface/README.md:19",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never touch experiments/run.py and pin no absolute force; 4 of 5 seeded mutations survived (limit applied to the axial component, K_FACE 10x lower, p95 as median, controller damping halved).",
+   "where": "research/osrobot-mjface/tests/test_face.py:10",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Runtime and version drift: run.py docstring 'a few minutes', README 'about 90 s', measured 51 s; mujoco version stated (3.16.0) but not pinned, no pyproject for this project.",
+   "where": "research/osrobot-mjface/experiments/run.py:4",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15312"
+ ],
+ "verdict": "Reproducible and honestly caveated, but wrong at the core: the 'ISO/TS 15066 face stiffness' is fed to MuJoCo's direct solref, which is per unit effective mass, so the simulated face is 22.5 N/mm and every damping is 0.3x its label (units.py: peak scales with m, 8.30 N at 0.3 kg and 82.96 N at 3 kg, not with sqrt(m)). Converting k and b by the 0.30 kg tip mass raises the 0.10 m/s blocked peak from 7.56 to 11.86 N (the standard's own Annex A model gives 14.5 N) and turns the b=1000 camera row from 1.00 safe/53.3 N worst to 0.48 safe/204 N worst. The low-damping rows still clear 65 N, and the point that the invented 2 N limit drove osrobot-mjfeed's 'unsafe' reading stands, but the README's safety reading, the critical-damping value and the '2x not 94x' framing do not. Tests check ratios of the imported model and never run run.py; 4 of 5 seeded mutations survived. Does not meet the bar."
+}

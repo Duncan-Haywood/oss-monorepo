@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231e3a8a'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3E%24%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>sshd_config Mistakes Explained — First Value Wins, Unread Drop-ins, Match Blocks, PAM Passwords</title>
+  <meta name="description" content="Why PasswordAuthentication no is ignored, why a drop-in without .conf does nothing, why a flush-left line after Match is not global, how PAM keeps passwords on, and the other sshd_config settings that let people in more easily than meant.">
+  <meta property="og:title" content="sshd_config mistakes explained: ignored lines, unread drop-ins, Match traps and the fix">
+  <meta property="og:description" content="The OpenSSH behaviour behind every finding the sshd_config Check reports, with a worked example.">
+  <link rel="canonical" href="./sshd-config-mistakes-explained.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "TechArticle", "headline": "sshd_config mistakes explained: ignored lines, unread drop-ins, Match traps and the fix", "about": "OpenSSH server configuration", "author": {"@type": "Organization", "name": "oss-monorepo contributors"}}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
+    body { max-width: 860px; margin: auto; padding: 28px 16px; }
+    h1 { font-size: clamp(1.6rem, 4.2vw, 2.4rem); line-height: 1.1; color: #17324a; }
+    h2 { font-size: 1.2rem; margin-top: 30px; color: #17324a; }
+    p, li { line-height: 1.6; }
+    code { overflow-wrap: anywhere; }
+    pre { background: #fff; border: 1px solid #d5dbe3; padding: 12px; border-radius: 8px; overflow-x: auto; font-size: .86rem; }
+    .note, footer { font-size: .86rem; color: #55606f; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dbe3; padding-top: 16px; }
+  </style>
+</head>
+<body>
+<header>
+  <p class="note"><a href="./">sshd_config Check</a> · guide</p>
+  <h1>sshd_config mistakes explained: ignored lines, unread drop-ins, Match traps and the fix</h1>
+  <p>Every file on this page passes <code>sshd -t</code> except the ones in the first section. <code>sshd</code> is doing exactly what the file says; the file says something its author did not mean. This guide gives the OpenSSH behaviour behind each finding the <a href="./">checker</a> reports. It is paraphrased from the <a href="https://github.com/openssh/openssh-portable/blob/V_9_6_P1/sshd_config.5" rel="noopener">sshd_config(5) manual of OpenSSH 9.6p1</a> and from the parser itself, <a href="https://github.com/openssh/openssh-portable/blob/V_9_6_P1/servconf.c" rel="noopener">servconf.c</a> of that release, the release Ubuntu 24.04 ships. Not affiliated with the OpenSSH project.</p>
+</header>
+<main>
+
+<h2>A worked example</h2>
+<p>An SFTP-only group is chrooted; root logs in with keys; passwords are off. Then someone appends two lines at the bottom:</p>
+<pre><code>PermitRootLogin prohibit-password
+UsePAM yes
+PasswordAuthentication no
+Subsystem sftp internal-sftp
+
+Match Group sftponly
+    ChrootDirectory /srv/sftp/%u
+    ForceCommand internal-sftp
+    AllowTcpForwarding no
+
+X11Forwarding no
+PermitRootLogin no</code></pre>
+<p>What <code>node check.mjs sshd_config</code> prints for it:</p>
+<pre><code>sshd_config Check: 3 findings: 3 medium.
+Read, in order: sshd_config
+
+[medium] kbd-interactive-pam  sshd_config:2
+  KbdInteractiveAuthentication is on by default and UsePAM is yes, so PAM asks for the Unix password through keyboard-interactive login, even though PasswordAuthentication is no.
+  fix: Set KbdInteractiveAuthentication no unless PAM drives a second factor (TOTP, Duo); then require keys first with AuthenticationMethods publickey,keyboard-interactive.
+
+[medium] looks-global-but-in-match  sshd_config:11  (Match Group sftponly)
+  X11Forwarding no is written flush left like a global setting, but sshd ignores indentation: it belongs to Match Group sftponly (sshd_config:6) and applies only to those connections.
+  fix: Move the line above the first Match block, or put Match all on the line before it.
+
+[medium] looks-global-but-in-match  sshd_config:12  (Match Group sftponly)
+  PermitRootLogin no is written flush left like a global setting, but sshd ignores indentation: it belongs to Match Group sftponly (sshd_config:6) and applies only to those connections.
+  fix: Move the line above the first Match block, or put Match all on the line before it.
+
+Login: root prohibit-password (sshd_config:1); passwords ON via keyboard-interactive (PAM); keys on
+  Match Group sftponly (sshd_config:6): ChrootDirectory /srv/sftp/%u; ForceCommand internal-sftp; AllowTcpForwarding no; X11Forwarding no; PermitRootLogin no</code></pre>
+<p>Both appended lines belong to the <code>Match Group sftponly</code> block, and the passwords are not off: PAM still asks for them through keyboard-interactive login. Adding <code>KbdInteractiveAuthentication no</code> near the top and moving the two lines above the <code>Match</code> clears all three.</p>
+
+<h2 id="sshd-will-not-start">Lines that stop sshd starting</h2>
+<p class="note">Types: <code>sshd-will-not-start</code>, <code>global-only-in-match</code></p>
+<p><code>sshd</code> reads its whole configuration before it accepts a connection, and a line it cannot use is fatal: an unknown keyword (<code>Bad configuration option</code>, often a typo such as <code>PasswordAuthenticaton</code>, or a keyword your older OpenSSH does not have), a value outside the keyword's list (<code>PermitRootLogin maybe</code>), a keyword with nothing after it, unbalanced quotes, or a bad <code>Match</code> line. <code>sshd-will-not-start</code> covers these. <code>global-only-in-match</code> is the same failure for a keyword that may not appear inside a <code>Match</code> block at all: <code>Port</code>, <code>ListenAddress</code>, <code>HostKey</code>, <code>Ciphers</code>, <code>MACs</code>, <code>KexAlgorithms</code>, <code>UsePAM</code>, <code>PermitUserEnvironment</code>, <code>StrictModes</code> and others (the manual lists the ones that are allowed). Restart <code>sshd</code> with such a line when it is your only way in and you are locked out, which is why every fix here says to run <code>sshd -t</code> first and keep a session open.</p>
+
+<h2 id="setting-ignored">Ignored lines: the first value wins</h2>
+<p class="note">Types: <code>setting-ignored</code></p>
+<p>The manual says it plainly: for each keyword, the first obtained value is used. Most config files work the other way, so people append a fix to the end of <code>sshd_config</code> and it does nothing. The common way this bites on Ubuntu and Debian: the stock file starts with <code>Include /etc/ssh/sshd_config.d/*.conf</code>, so every drop-in is read before the main file's own lines. A <code>PasswordAuthentication yes</code> in <code>50-cloud-init.conf</code> (cloud-init writes one when an image asks for password logins) beats <code>PasswordAuthentication no</code> anywhere below the Include. Drop-ins are read in byte order of their names, so <code>00-hardening.conf</code> beats <code>50-cloud-init.conf</code>, which beats <code>99-local.conf</code>. The checker reports the line that is ignored and the line that won; repeats with the same value are not reported. List keywords such as <code>Port</code>, <code>ListenAddress</code>, <code>HostKey</code>, <code>AcceptEnv</code> and <code>AllowUsers</code> add up across lines and are never ignored; <code>Subsystem</code> keeps the first definition of each name.</p>
+
+<h2 id="dropin-not-read">Drop-ins sshd never reads</h2>
+<p class="note">Types: <code>dropin-not-read</code></p>
+<p>An <code>Include</code> line is a glob. The stock one matches <code>*.conf</code>, so a file called <code>hardening</code>, <code>hardening.cfg</code> or <code>hardening.conf.bak</code> in <code>sshd_config.d</code> is never read, and every setting in it does nothing. The checker reports any drop-in you pasted that no <code>Include</code> reaches, medium when it holds a security setting. Relative <code>Include</code> paths resolve against <code>/etc/ssh</code>, not against the file that contains them.</p>
+
+<h2 id="looks-global-but-in-match">Match blocks do not end where the indentation does</h2>
+<p class="note">Types: <code>looks-global-but-in-match</code></p>
+<p>A <code>Match</code> line starts a block that runs until the next <code>Match</code> line or the end of the file. Indentation means nothing to <code>sshd</code>. So a setting written flush left after an indented block, usually added later at the bottom of the file, belongs to that block and applies only to the users, groups or addresses it selects. In the worked example above, <code>PermitRootLogin no</code> at the bottom only affects the <code>sftponly</code> group, and root keeps <code>prohibit-password</code>. The checker flags a flush-left line inside a block whose body is indented. That is a heuristic: it cannot know intent, only that the layout and the meaning disagree. The fix is to move global lines above the first <code>Match</code>, or to write <code>Match all</code>, which returns to global settings. An <code>Include</code> inside a <code>Match</code> puts the included file's lines in that block; a <code>Match</code> inside an included file ends at that file's end.</p>
+
+<h2 id="password-auth-on">Password logins</h2>
+<p class="note">Types: <code>password-auth-on</code>, <code>kbd-interactive-pam</code></p>
+<p><code>PasswordAuthentication</code> defaults to yes. If no line sets it, every account with a password can be guessed at from the network. <code>password-auth-on</code> reports the winning line or the default. <code>kbd-interactive-pam</code> is the second door: with <code>UsePAM yes</code>, which Ubuntu's and Debian's stock files set, keyboard-interactive login hands the conversation to PAM, and PAM's usual stack asks for the Unix password. <code>KbdInteractiveAuthentication</code> (formerly <code>ChallengeResponseAuthentication</code>, still accepted) defaults to yes in OpenSSH; Ubuntu's stock file sets it to no, but a file carried over from elsewhere may not. Turn both off once every user has a key, unless PAM is there for a second factor, in which case require the key too with <code>AuthenticationMethods publickey,keyboard-interactive</code>. A <code>Match</code> block that turns passwords back on (for an office range, say) is reported in that block's scope.</p>
+
+<h2 id="permit-root-login-yes">Root login</h2>
+<p class="note">Types: <code>permit-root-login-yes</code></p>
+<p>The OpenSSH default is <code>prohibit-password</code>: root may log in with a key, never with a password. <code>PermitRootLogin yes</code> reopens the password route for the one account name every scanner tries. It is high when passwords are on in any form, and low when they are off (it then acts like <code>prohibit-password</code>, until something turns passwords back on). <code>no</code> is stricter still; log in as a user and use <code>sudo</code>.</p>
+
+<h2 id="permit-empty-passwords">Empty passwords and user environment</h2>
+<p class="note">Types: <code>permit-empty-passwords</code>, <code>permit-user-environment</code></p>
+<p><code>PermitEmptyPasswords yes</code> lets an account whose password is empty log in with nothing. <code>PermitUserEnvironment yes</code> reads <code>~/.ssh/environment</code> and <code>environment=</code> options in <code>authorized_keys</code>, so a user can set <code>LD_PRELOAD</code> for the processes <code>sshd</code> starts for them, which defeats <code>ForceCommand</code> and restricted keys; the manual warns about this. Only lowercase <code>yes</code> and <code>no</code> are keywords for this option (OpenSSH compares them case-sensitively here, unlike the yes/no options): <code>Yes</code> is read as a pattern list of variable names. A short list of harmless names such as <code>LANG,LC_*</code> is reported as low.</p>
+
+<h2 id="weak-algorithm">Old algorithms</h2>
+<p class="note">Types: <code>weak-algorithm</code></p>
+<p>OpenSSH's default algorithm lists are strong, and the usual way weak ones come back is a line added for one old client: <code>Ciphers +aes128-cbc</code>, <code>HostKeyAlgorithms +ssh-rsa</code>. The checker reads explicit lists and <code>+</code> or <code>^</code> additions (a <code>-</code> removal only removes) for <code>Ciphers</code>, <code>MACs</code>, <code>KexAlgorithms</code>, <code>HostKeyAlgorithms</code>, <code>PubkeyAcceptedAlgorithms</code> and <code>CASignatureAlgorithms</code>. High: RC4 (<code>arcfour</code>). Medium: CBC-mode ciphers, MD5 MACs, the 1024-bit <code>diffie-hellman-group1-sha1</code>, DSA (<code>ssh-dss</code>). Low: SHA-1 MACs and key exchange, 64-bit-tag UMAC, and <code>ssh-rsa</code> (RSA keys keep working through <code>rsa-sha2-256</code> and <code>rsa-sha2-512</code>). The <a href="https://www.openssh.com/releasenotes.html" rel="noopener">OpenSSH release notes</a> record when each left the defaults.</p>
+
+<h2 id="strict-modes-off">Settings that trust more than they look</h2>
+<p class="note">Types: <code>strict-modes-off</code>, <code>rhosts-honoured</code>, <code>hostbased-auth-on</code></p>
+<p><code>StrictModes no</code> lets <code>sshd</code> use an <code>authorized_keys</code> file or home directory that other users can write, so any local user who can write there can add their own key. <code>IgnoreRhosts no</code> makes host-based login honour <code>~/.rhosts</code> and <code>~/.shosts</code>, files the user controls. <code>hostbased-auth-on</code> (<code>HostbasedAuthentication yes</code>) trusts whole client machines: root on any trusted host can log in here as anyone.</p>
+
+<h2 id="x11-forwarding-on">Forwarding and tunnels</h2>
+<p class="note">Types: <code>x11-forwarding-on</code>, <code>gateway-ports-on</code>, <code>tunnel-devices-on</code></p>
+<p><code>X11Forwarding yes</code> is on in Ubuntu's stock file; it lets graphical programs run over SSH, and a client that connects with <code>ssh -Y</code> lets root on the server read its screen and keystrokes. <code>GatewayPorts yes</code> or <code>clientspecified</code> lets <code>ssh -R</code> publish a port on the server's public address. <code>PermitTunnel</code> lets users create tun/tap devices, a full VPN. All three are low: often deliberate, worth knowing about.</p>
+
+<h2 id="max-auth-tries-high">Limits</h2>
+<p class="note">Types: <code>max-auth-tries-high</code>, <code>login-grace-unlimited</code></p>
+<p><code>MaxAuthTries</code> over 10 gives each connection more guesses (the default is 6). <code>LoginGraceTime 0</code> removes the time limit for unauthenticated connections, so a few idle ones can fill <code>MaxStartups</code> and keep real users out.</p>
+
+<h2 id="ignored-option">Options that do nothing</h2>
+<p class="note">Types: <code>ignored-option</code></p>
+<p>Options OpenSSH has removed, such as <code>UsePrivilegeSeparation</code>, <code>RSAAuthentication</code>, <code>RhostsRSAAuthentication</code> and <code>UseLogin</code>, are accepted and ignored with a log line. If a file relies on one, whatever it was meant to do is not happening.</p>
+
+<h2>What the checker cannot see</h2>
+<p>It reads files, not a server. It assumes OpenSSH 9.6's compiled-in defaults (a distribution can patch them, and older releases differ), and it does not see <code>authorized_keys</code>, the PAM stack, firewall rules, fail2ban or which accounts have passwords. <code>Match</code> blocks are shown one at a time on top of the global settings; to see what one login gets with several blocks applying, fill in the connection fields on the tool page, or run <code>sudo sshd -T -C user=deploy,addr=203.0.113.9,host=client</code> on the server.</p>
+
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This guide and the tool are provided free and as-is, without warranty of any kind. They are not a security audit and do not replace a qualified security professional; review and verify before relying on them. Test changes with <code>sudo sshd -t</code> and keep a session open until a new login works. <strong>Best-effort hosting, no SLA.</strong></p>
+  <p>Not affiliated with or endorsed by the OpenSSH project or OpenBSD. Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a> is optional.</p>
+</footer>
+</body>
+</html>

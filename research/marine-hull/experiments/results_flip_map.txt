@@ -1,0 +1,100 @@
+Milestone 6z: deck-solar boat against the 2015 Wave Glider, every month of 2024, along 150 W and 30 W
+Wave Glider law a_e 0.533, best state s 1.471, worst 0.882; central boat (4.0, 30.0, 0.2, 0.85)
+
+Kept transect point-months: 305 of 312
+  A-60: dropped months JJASOND
+
+A  winner by point and month: B = central boat (A) faster, W = Wave Glider best state faster, . = no data;
+   then months won by the boat, and 2024 mean km/day of central (A), (B), Wave Glider best, worst
+   point   JFMAMJJASOND   boat  (A)   (B)   WGb   WGw
+  P-60             BWWWWWWWWWWB     2  17.6  40.5  76.7  46.0
+  P-50             BWWWWWWWWWBB     3  30.7  53.7  74.0  44.4
+  P-40             BBBWWWWWWBBB     6  48.9  76.7  67.9  40.7
+  P-30             BBBWWWWWBBBB     7  59.1  97.2  63.0  37.8
+  P-20             BBBBBWWBBBBB    10  77.7 107.5  59.6  35.7
+  P-10             BBBBBBBBBBBB    12  99.2 118.3  57.1  34.3
+  P+0              BBBBBBBBBBBB    12 105.5 122.4  57.6  34.5
+  P+10             BBBBBBBBBBBW    11  85.0 109.3  63.8  38.3
+  P+20             BBBBBBBBBBBW    11  91.8 113.8  62.6  37.6
+  P+30             WWBBBBBBBBWW     8  63.2 101.6  59.4  35.6
+  P+40             WWWBBBBBWWWW     5  39.2  69.5  65.3  39.2
+  P+50             WWWWWBWWWWWW     1  15.2  48.3  70.7  42.4
+  P+60             WWWBBBBBWWWW     5  29.4  48.6  40.3  24.2
+  A-60             WWWWW.......     0   9.9  30.5  72.0  43.2
+  A-50             BWWWWWWWWWWB     2  23.7  50.9  75.4  45.2
+  A-40             BBWWWWWWWBBB     5  45.4  70.8  71.0  42.6
+  A-30             BBBWWWWWBBBB     7  56.0  96.7  62.6  37.5
+  A-20             BBBBBWBBBBBB    11  94.6 116.1  55.5  33.3
+  A-10             BBBBBBBBBBBB    12 100.2 119.0  59.2  35.5
+  A+0              BBBBBBBBBBBB    12  96.8 116.5  55.2  33.1
+  A+10             BBBBBBBBBBBB    12  89.7 112.1  56.4  33.8
+  A+20             BBBBBBBBBBBW    11  89.9 112.5  58.8  35.3
+  A+30             WWBBBBBBBBWW     8  69.5 104.6  57.0  34.2
+  A+40             WWWBBBBBBWWW     6  49.0  79.6  64.4  38.6
+  A+50             WWWWWBBWWWWW     2  25.5  52.3  72.6  43.6
+  A+60             WWWWWBWWWWWW     1  16.2  41.7  73.0  43.8
+  Equator-Pacific  BBBBBBBBBBBB    12  85.5 109.8  44.8  26.9
+  Florida-Straits  WBBBBBBBBWWW     8  70.4 104.9  50.0  30.0
+  Gulf-of-Maine    WWWBBBBBBWWW     6  43.6  77.0  52.5  31.5
+  North-Sea        WWWWBBBBWWWW     4  32.3  51.8  62.3  37.4
+  Gulf-of-Alaska   WWWWBBBWWWWW     3  23.6  46.9  54.5  32.7
+
+B  central (A) km/day and Wave Glider best-state km/day by point and month
+  P-60               78/73      0/75      0/74      0/82      0/83      0/78      0/77      0/81      0/72      0/76     56/77     77/71  
+  P-50               86/70     66/74      0/66      0/76      0/78      0/76      0/73      0/78      0/71     38/81     90/75     88/69  
+  P-40              103/63     99/63     61/60      0/72      0/73      0/80      0/72      0/71     40/65     84/70    102/65     98/60  
+  P-30              109/59     98/66     90/56     40/61      0/65      0/71      0/68      0/69     74/60     89/65    105/58    104/57  
+  P-20               85/55     96/59     99/53     79/63     70/61      0/63     46/64     79/62     86/61     97/62    100/57     95/55  
+  P-10              111/58    105/56    104/52     92/54     88/59     85/59     84/61     94/63    104/57    110/56    111/54    104/57  
+  P+0               100/61    105/58    103/56    107/56    104/57    102/56    103/58    108/58    111/55    110/57    110/56    103/61  
+  P+10               88/68     95/70     94/67    100/69     90/67     97/63     93/61     86/56     72/55     73/59     64/62     67/69  
+  P+20               67/64     86/66     91/65    100/66    104/63    103/61    109/60    107/62    106/60     90/60     76/63     62/63  
+  P+30                0/75      0/69     77/58     92/60    107/55    104/53    111/53    108/50     96/54     64/57      0/61      0/67  
+  P+40                0/80      0/75      0/73     65/62     89/53     87/61     90/48     86/52     54/58      0/69      0/69      0/85  
+  P+50                0/79      0/79      0/71     28/72     42/65     69/65     43/60      0/58      0/71      0/75      0/77      0/78  
+  P+60                0/43      0/50      0/40     61/38     75/38     96/34     80/33     41/35      0/38      0/43      0/45      0/47  
+  A-60               50/66      0/74      0/67      0/77      0/75       .         .         .         .         .         .         .    
+  A-50               79/74     48/74      0/72      0/74      0/79      0/78      0/78      0/78      0/76      0/78     68/73     89/71  
+  A-40              108/65     92/63     58/68      0/73      0/75      0/76      0/77      0/81      0/69     85/73     93/65    109/67  
+  A-30               95/60     96/53     86/61     51/61      0/67      0/63      0/65      0/67     76/62     80/68     99/61     89/62  
+  A-20              117/54    112/50    105/52     90/56     75/57     55/58     70/56     83/59     97/57    105/56    110/57    117/54  
+  A-10              113/53    109/55    102/56    100/54     90/60     83/66     82/66     93/64    101/63    109/58    111/58    110/58  
+  A+0               102/54     97/50     81/51     89/51     94/55     97/57     99/58     99/59    104/59    104/57    101/57     94/54  
+  A+10               77/58     96/55    102/60    105/56    104/56     96/55     84/54     81/57     90/54     78/55     84/58     81/58  
+  A+20               74/59     87/59    101/65    105/56    108/56    106/60     90/60     94/59     95/58     82/60     80/52     57/61  
+  A+30                0/64     34/60     82/63    101/59    113/50    112/51    112/49    109/54     94/52     77/57      0/60      0/65  
+  A+40                0/77      0/71     26/74     74/69     97/59    110/53    103/52    102/53     76/57      0/69      0/71      0/67  
+  A+50                0/84      0/84      0/81     62/70     65/66     65/62     76/63     39/68      0/65      0/78      0/76      0/75  
+  A+60                0/81      0/80      0/79      0/70     64/66     76/62     28/63     26/67      0/67      0/76      0/80      0/86  
+  Equator-Pacific    96/45     96/44    106/39    101/40     90/42     78/43     58/48     69/50     72/49     82/48     94/45     85/44  
+  Florida-Straits     0/54     64/51     86/50    107/53    111/45     92/47    103/44     92/47     88/44     51/53     51/54      0/56  
+  Gulf-of-Maine       0/60      0/59      0/61     78/50     90/49    105/47     96/46     90/41     63/48      0/51      0/60      0/58  
+  North-Sea           0/74      0/67      0/64     46/64     91/54     97/56     83/55     71/57      0/59      0/63      0/65      0/70  
+  Gulf-of-Alaska      0/58      0/64      0/58     49/50     73/52     90/47     72/45      0/47      0/54      0/58      0/56      0/65  
+
+C  flip latitude (smallest |lat| where the Wave Glider's best state wins), by month; none = boat wins at all
+   meridian side    J    F    M    A    M    J    J    A    S    O    N    D
+   P        N      30   30   40   50   50 none   50   50   40   40   30   10
+   P        S    none   50   50   30   30   20   20   30   40   50   60 none
+   A        N      30   30   40   50   50 none   60   50   50   40   30   20
+   A        S      60   50   40   30   30   20   30   30   40   50   50 none
+
+D  share of the 54 boats whose (A) beats the Wave Glider's best state, by |lat| band, all months and meridians
+   |lat|  0: 67.4% of boats over 24 point-months
+   |lat| 10: 61.0% of boats over 48 point-months
+   |lat| 20: 58.6% of boats over 48 point-months
+   |lat| 30: 46.3% of boats over 48 point-months
+   |lat| 40: 31.6% of boats over 48 point-months
+   |lat| 50: 16.6% of boats over 48 point-months
+   |lat| 60: 15.3% of boats over 41 point-months
+
+Predictions
+P1 central (A) 0 at |lat| >= 40 in the winter hemisphere (Jan N, Jul S): held (11 of 11 zero; max 0.0 km/day)
+P2 central (A) > 0 in >= 90% of point-months within 10 deg of the equator: held (100.0% of 72)
+P3 Spearman(|lat|, months the Wave Glider wins) >= 0.7: held (0.921, 26 points)
+P4 winter flip latitude in 20 to 40 (P N Jan, P S Jul, A N Jan, A S Jul): held (30, 20, 30, 30)
+P5 summer peak month: central (A) wins at >= 8 of 10 points at 10 to 50 deg, per hemisphere: held (north July 9 of 10, south January 10 of 10; 19 of 20 in all)
+P6 Wave Glider best wins in 35 to 65% of transect point-months: held (40.3%)
+P7 corridor months won by the boat (Equator-Pacific >= 9, North-Sea <= 5, Gulf-of-Alaska <= 4): held (Equator-Pacific 12, Florida-Straits 8, Gulf-of-Maine 6, North-Sea 4, Gulf-of-Alaska 3)
+P8 (B) in place of (A) moves 3 to 15 pp of point-months to the boat: held (14.8%; 0 moved the other way)
+P9 Wave Glider / 1.101 changes <= 10% of winners and no winter flip by > 10 deg: refuted (2.6% changed; largest winter flip shift 20)

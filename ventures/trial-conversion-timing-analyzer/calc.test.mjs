@@ -129,3 +129,21 @@ test("the sample data analyses and exports", () => {
   const csv = reportCsv(r);
   assert.equal(csv.split("\n").length, 1 + r.scenarios.length);
 });
+
+// Red-team 2026-11-14: Math.max(...rows.map()) overflowed the call stack past
+// about 125k trials.
+test("200,000 trials are analysed without a stack overflow", () => {
+  const rows = Array.from({ length: 200000 }, (_, i) => ({ start: 20000 + (i % 300), paid: i % 4 ? null : 20000 + (i % 300) + 10 }));
+  const r = analyze(rows, {});
+  assert.ok(!r.error);
+});
+
+// Perf run 2026-11-16: the per-day curve still spread Math.max(L, ...conv), so
+// 175k conversions threw RangeError even after the fix above.
+test("175,000 conversions are analysed without a stack overflow", () => {
+  const rows = Array.from({ length: 200000 }, (_, i) => ({ start: 20000 + (i % 300), paid: i % 8 ? 20000 + (i % 300) + (i % 15) : null }));
+  const r = analyze(rows, {});
+  assert.ok(!r.error);
+  assert.equal(r.conversions, 175000);
+  assert.equal(r.perDay.reduce((s, d) => s + d.conversions, 0), 175000);
+});

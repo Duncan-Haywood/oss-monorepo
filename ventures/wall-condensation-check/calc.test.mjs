@@ -126,3 +126,63 @@ test("CSV has a row per month and interface; the library has sane values", () =>
     assert.ok(v.name.length > 3, k);
   }
 });
+
+test("a month written as a number is a month, not the outdoor temperature (red team 2026-11-11)", () => {
+  const named = analyze(sampleInput());
+  const numbered = sampleInput().climate.split("\n").map((l, i) => l.replace(/^\w+/, String(i + 1))).join("\n");
+  const a = analyze({ climate: numbered });
+  assert.equal(a.error, undefined);
+  near(a.worst.peak, named.worst.peak, 1e-9);
+  // no month column at all still works
+  const bare = sampleInput().climate.split("\n").map((l) => l.replace(/^\w+, /, "")).join("\n");
+  near(analyze({ climate: bare }).worst.peak, named.worst.peak, 1e-9);
+  // single spaces between values (a paste from a table) parse the same
+  const spaced = sampleInput().climate.replace(/,/g, "");
+  near(analyze({ climate: spaced }).worst.peak, named.worst.peak, 1e-9);
+  assert.match(analyze({ climate: numbered.replace(/^1,/, "13,") }).error, /month/);
+  assert.match(analyze({ climate: sampleInput().climate.replace("Jan, 20, 75, 70, 35", "Jan, 20, 75, 70, 35, 9") }).error, /too many/);
+});
+
+test("months named out of order are refused, not relabelled", () => {
+  const lines = sampleInput().climate.split("\n");
+  const rotated = [...lines.slice(6), ...lines.slice(0, 6)].join("\n");
+  assert.match(analyze({ climate: rotated }).error, /January first/);
+  assert.equal(analyze({ climate: sampleInput().climate.replace(/^Jan/, "January") }).error, undefined);
+});
+
+test("indoor temperature limits are inclusive at both ends in both units", () => {
+  const set = (v) => sampleInput().climate.replace("Jan, 20, 75, 70, 35", `Jan, 20, 75, ${v}, 35`);
+  for (const v of [40, 100]) assert.equal(analyze({ climate: set(v) }).error, undefined, `${v} F`);
+  for (const v of [39.9, 100.1]) assert.match(analyze({ climate: set(v) }).error, /indoor temperature/, `${v} F`);
+  const c = (v) => parseClimate(Array.from({ length: 12 }, () => `0, 80, ${v}, 40`).join("\n"), "C").errors;
+  for (const v of [4, 38]) assert.deepEqual(c(v), [], `${v} C`);
+  for (const v of [3.9, 38.1]) assert.equal(c(v).length, 12, `${v} C`);
+});
+
+test("a dry interface has no peak month", () => {
+  const a = analyze(sampleInput());
+  const dry = a.interfaces.filter((f) => f.peak === 0);
+  assert.ok(dry.length > 0);
+  for (const f of dry) { assert.equal(f.peakMonth, null, f.label); assert.equal(f.wetMonths, 0, f.label); }
+});
+
+test("each row's change is the month's moisture difference in g/m²", () => {
+  const a = analyze(sampleInput());
+  const i = a.worst.index;
+  let prev = a.rows[a.rows.length - 1].moisture[i];
+  for (const r of a.rows) {
+    if (i in r.change) near(r.change[i], r.moisture[i] - prev, 1e-6, r.name);
+    prev = r.moisture[i];
+  }
+});
+
+test("the sample wall uses the library's own values, paint on the room side of the gypsum", () => {
+  const rows = sampleInput().layers.split("\n").map((l) => l.split(", "));
+  for (const [name, r, perm] of rows) {
+    const lib = Object.values(LIBRARY).find((l) => l.name === name || l.name.startsWith(`${name}, `));
+    assert.ok(lib, name);
+    assert.equal(Number(r), lib.r, `${name} R`);
+    assert.equal(Number(perm), lib.perm, `${name} perm`);
+  }
+  assert.equal(rows[0][0], "Latex primer and paint", "inside first: the paint is the room-side face");
+});

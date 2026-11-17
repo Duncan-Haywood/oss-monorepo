@@ -1,6 +1,6 @@
 # Bid the walk, not the bedroom count.
 
-> Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote.
+> Price a local moving job from inventory hours plus stairs, long carry, packing, and drive time — then see the walk-away price before you match a cheap bedroom-count quote. It also turns the bid into an hourly crew-and-truck rate with a break-even minimum, and shows the released-value liability (60 cents per pound per article) and a full value protection charge at your own rate.
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 

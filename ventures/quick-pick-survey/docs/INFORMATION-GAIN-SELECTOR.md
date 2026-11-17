@@ -1,10 +1,14 @@
-# Information-gain pair selector (measured, opt-in)
+# Information-gain pair selector (the default at every list length since 2026-11-13)
 
 `selectNextPairByInformation` in `src/lib/pairing.ts` picks the pair whose one
 answer is expected to shrink the two items' rating variance most under the
 Glicko model (`expectedVarianceReduction`: Fisher information
-`g(phi_opp)^2 p(1-p)` per side). The shipped `selectNextPair` stays the app's
-policy; this one is not wired in.
+`g(phi_opp)^2 p(1-p)` per side). Since 2026-11-12 the staged selector (this
+one from the first answer) is the server default up to 120 items ("Staged as
+the default up to 120 items"), and since 2026-11-13 at every length, with no
+120-answer warm-up on longer lists ("Lists over 120 items: the switch rule",
+the last section). The shipped `selectNextPair` stays available as
+"standard" and as the first-option fallback.
 
 ## Measurement
 
@@ -84,21 +88,28 @@ toggle).
 ## Switching it on
 
 `PAIR_SELECTOR=staged` in the deployment's environment makes
-`/api/trials/next` use `selectNextPairHybrid`. Unset, the shipped selector runs
-as before. It is a process-wide switch; a per-survey setting (column,
-migration, builder checkbox) is the next step.
+`/api/trials/next` use `selectNextPairHybrid`, and `PAIR_SELECTOR=standard`
+the shipped selector, on every survey that has not chosen. Unset, since
+2026-11-13, every survey gets staged (`defaultPairSelector`,
+`resolvePairSelector` in `pairing.ts`); from 2026-11-12 a survey of up to 120
+items got staged and a longer one standard, and before that, unset meant
+standard everywhere. Any other value is ignored with a warning in
+the log, not read as either.
 
 ## Choosing it per survey
 
 `Survey.pairSelector` (migration `20261021000000_survey_pair_selector`) is
 `null`, `"standard"` or `"staged"`. `POST /api/admin/surveys` accepts it as
 `pairSelector`, and the admin form has a "Question order" menu. `/api/trials/next`
-uses the survey's value when set and otherwise follows the `PAIR_SELECTOR`
-environment variable, so existing surveys behave as before. `staged` helps
-long lists answered at length (see above). Since 2026-11-10 it uses the
-information selector from the first answer on lists up to 120 items ("A
-switch point that depends on list length", below); before that it equalled
-the standard selector for the first 120 answers whatever the list length.
+uses the survey's value when set, otherwise the `PAIR_SELECTOR` environment
+variable, otherwise the length default above. A survey that never chose, on a
+deployment with the variable unset, moved to staged on 2026-11-12 if it has
+120 items or fewer, and on 2026-11-13 if it has more; set its menu to
+Standard to keep the old order. Since 2026-11-10 staged uses the information
+selector from the first answer on lists up to 120 items ("A switch point that
+depends on list length", below), and since 2026-11-13 on every list ("Lists
+over 120 items: the switch rule"); before 2026-11-10 it equalled the standard
+selector for the first 120 answers whatever the list length.
 
 ## Latency at long lists
 
@@ -117,6 +128,47 @@ few indexed queries on top, not run against a live database):
 At 220 items the worst case is under 20 ms, so a pair request is dominated by
 the database round trips, not the selector. At 500 items it is 67 ms; a list
 much beyond that should cap the pool before using `staged`.
+
+### Per-item terms (2026-11-12)
+
+The pair loop used to build a sorted key string for every pair and recompute
+terms that depend on one item only. It now computes those once per item and
+builds a key only when both ids occur in a recent key. The scores and the pair are
+unchanged (`src/lib/pairingInformationParity.test.ts` pins them against the
+old form), and the simulation MEASURE output is byte-identical. Selector compute
+by `pairLatency.test.ts`, median of 15 calls:
+
+| items | answers | information | staged |
+|---|---|---|---|
+| 220 | 300 | 10.4 to 4.1 ms | 9.7 to 4.0 ms |
+| 500 | 300 | 32.9 to 12.8 ms | 49.5 to 10.0 ms |
+
+The simulation suite went from 630 s to 151 s
+(`docs/history/ci-perf-2026-11-12-qps-information-selector-loop.md` at the
+repository root).
+
+### Bound skip (2026-11-15)
+
+Most pairs cannot win, and a cheap upper bound shows it without `exp`,
+`hypot` or `sqrt`. An answer's spread p(1 - p) is at most 1/4, and at most
+1 / (4 + x^2) for x = g mu (cosh x >= 1 + x^2/2). The pair's g is at least g
+at the pool's largest phi, so each item's drop is bounded too. A pair whose
+bound, with a margin far above float rounding, is under the best score so far
+is skipped. Its rand() is still drawn, so the stream and every pick are
+unchanged: `pairingInformationParity.test.ts` checks every pick of four
+seeded simulated runs against the original per-pair form, and a deliberately
+loose bound turns seven of its tests red. The simulation MEASURE output is
+byte-identical. Selector compute by `pairLatency.test.ts`, median of 15
+calls, one 4-core container:
+
+| items | answers | information | staged |
+|---|---|---|---|
+| 220 | 300 | 2.80 to 0.78 ms | 3.31 to 0.76 ms |
+| 500 | 300 | 9.63 to 3.15 ms | 8.50 to 3.10 ms |
+| 500 | 1000 | 8.87 to 2.78 ms | 8.53 to 2.62 ms |
+
+The simulation suite went from 77 s to 33 s
+(`docs/history/ci-perf-2026-11-15-qps-bound-skip.md` at the repository root).
 
 ### Pool cap (2026-10-21)
 
@@ -835,7 +887,8 @@ uses it unless a caller passes `switchAt`. The first-option fallback is
 unchanged: after 30 decided answers (`FIRST_OPTION_MIN_DECIDED`, now exported
 and used by both the route and the simulator), a share at or beyond 0.7 still
 gets the shipped selector. Lists over 120 items keep the 120-answer switch
-because they were not measured here.
+because they were not measured here (until 2026-11-13: "Lists over 120 items:
+the switch rule" drops the warm-up there too).
 
 **Simulator change.** `infoGainSim.ts` passed the first-option share from the
 first answer, while the route waits for 30. With a switch at 120 that never
@@ -1395,6 +1448,10 @@ What it shows:
   dissent cells, up in none) and backfired at 50% salience (-0.03 to -0.11), where the
   careless are the majority view. Agreement cannot tell a careless block from
   a camp: both score about the same.
+  (These `loo-w` figures came from a sweep that capped weights near 0.7.
+  Uncapped, both the gains and the camp tax are about twice as large, and at
+  60 people the weighting makes a camp's pool call 0.9-1.7% of clear pairs
+  the wrong way: "The weighted schemes at 8 and 60 respondents, uncapped".)
 - **Half-time carelessness (q = 0.5) is quieter and mostly invisible.** People
   who flip a coin on half their answers cost nothing (oracle-drop -0.010 to
   +0.012), as the lapse sections found. People who pick by salience on half
@@ -1402,6 +1459,8 @@ What it shows:
   panel, +0.27 to +0.29 at half), but only 5-13% of them fall under 0.2
   agreement, so the note will rarely fire for them; `loo-w` would recover a
   third to a half of oracle-drop (+0.005 to +0.034).
+  (Answer times see them when they are quick, but only read per answer:
+  "Half-time carelessness and answer times", 2026-11-13.)
 - **The median pool is no defence**: slightly worse than shipped on honest
   panels (-0.003 to -0.016) and against slot clickers (-0.07), a little better
   against salience (+0.015 to +0.047).
@@ -1515,3 +1574,2711 @@ from the first answer on). `biasedRespondent.simulation.test.ts` keeps the
 unshuffled form so its 2026-10-28 numbers reproduce; the tables above replace
 its reading. Reproduce: `npx tsx scripts/position-bias-shuffled-sweep.ts
 --seeds 60 [--seed0 50000] [--out rows.jsonl]` (about 10 minutes per seed set).
+
+## Answer times: telling a careless block from a camp (2026-11-12)
+
+The careless-pattern section ended on a gap: leave-one-out agreement cannot
+tell people who pick by a shared wrong reason from a camp with a genuine
+second taste, and a careless majority is invisible in the answers. Every
+answer's `Trial.msToAnswer` is stored, so this measures whether time per pick
+can say which is which (`scripts/answer-time-sweep.ts`; raw rows
+`docs/answer-time-2026-11-12.jsonl`, 171 cells).
+
+**Setup.** The careless-pattern sweep's panels (staged selector behind the
+slot shuffle, 15 and 30 items, 4 answers per item, 20 respondents, 40
+surveys per cell; 60 respondents and 30 surveys for the stress cells), with
+patterns `salience`, `random` and `dissent` (the honest camp, the control) at
+25%, 40% and 50% of the panel. Answer times are **simulated, and every part of
+the timing model is an assumption**, so the assumptions are swept, not trusted:
+
+- each person has their own pace, 2.5 s times exp(0.4 N) (0.6 in the stress cells);
+- an honest answer takes that pace times (1 + gamma x closeness), closeness =
+  exp(-|own taste gap| / 0.25), times exp(0.35 N) noise; gamma 0 (no slowing
+  on hard pairs) or 0.6;
+- a careless answer takes the pace times `ratio` (1: no faster than honest;
+  0.6; 0.4), with no slowing on hard pairs (the stress cells let salience
+  pickers slow on pairs close in salience, gamma 0.6).
+
+Two signals: **pace** (a person's median time over the panel's median of
+medians) and **slope** (Spearman of a person's times with how close each
+pair is in everyone else's pool). Pool schemes, each a paired Spearman
+difference from shipped: `pace-drop` (leave out pace < 0.6, or 0.5), `loo-drop`
+(rho < 0.2), `loo-pace` and `loo-slope` (rho < 0.2 and fast or flat),
+`oracle-drop` (leave out the careless; for dissent, the camp).
+
+| pattern, share | careless ratio | pace AUC | slope AUC (gamma 0.6) | pace-drop 0.5 | oracle-drop | honest flagged by pace 0.5 |
+|---|---|---|---|---|---|---|
+| salience, 25-50% | 1 | 0.50-0.56 | 0.60-0.86 | +0.002 to +0.013 | +0.065 to +0.331 | 1-2% |
+| salience, 25-50% | 0.6 | 0.83-0.90 | 0.60-0.86 | +0.027 to +0.067 | same | 0-1% |
+| salience, 25-50% | 0.4 | 0.95-0.98 | 0.60-0.86 | +0.053 to +0.151 | same | 0-1% |
+| random, 25-50% | 0.4 | 0.95-0.98 | 0.74-0.90 | +0.016 to +0.021 | +0.022 to +0.067 | 0-1% |
+| dissent (camp), 25-50% | n/a | **0.50-0.56** | **0.47-0.84** | **-0.002 to -0.005** | -0.043 to -0.298 | 3-4% |
+
+Stress cells (person pace spread 0.6, threshold 0.6, panels of 20 and 60):
+14-19% of honest respondents fall under the threshold when the careless are no faster (4-15% when they are, since they pull the panel median down); leaving them out costs
+a camp panel 0.005 to 0.019 and a salience panel where the careless are no
+faster up to 0.005, and still gains +0.03 to +0.20 where they are.
+
+What it shows:
+
+- **Pace separates careless from honest exactly as far as the careless are
+  quicker, and never mistakes a camp for them.** A camp answering at a normal
+  pace scores AUC 0.50-0.56 against the majority in every cell: pace has no
+  view on taste. That is the property agreement lacked.
+- **The answer-time slope is not a camp detector.** Honest people slow down on
+  pairs the *panel* finds close, but a camp's hard pairs are close in its own
+  taste, so the camp looks flat too (AUC up to 0.84 at 25%): the same confusion
+  as agreement. Not shipped.
+- **Pace reaches where agreement cannot.** At 50% salience pickers, agreement
+  flags 1-5% of them (they are the consensus) and `loo-drop` costs -0.011 to
+  -0.015; dropping fast people recovers +0.10 to +0.23 when the careless are at
+  0.4-0.6x pace.
+- **Dropping by pace has a price when the assumption fails.** When careless
+  people are no faster, or a panel's natural paces spread widely, `pace-drop`
+  removes fast honest people and costs up to 0.019.
+
+**Decision.** Shipped a note and a comparison, not a default:
+
+1. `respondentPace`, `fastAnswerers` and `paceSummary` in `groupRanking.ts`:
+   a respondent with 10+ timed answers (times at or above 120 s ignored) has a
+   pace against the panel's median of medians (5+ respondents needed);
+   under `FAST_PACE` = 0.5 is fast. The ranking route returns `pace`, and the
+   builder and report show its note: how many answered in under half the
+   typical time, and how many of the out-of-step respondents (agreement under
+   0.2) were among them; when none were, it says the out-of-step answered at a
+   normal pace, which looks like a different taste. Slot clickers, already
+   left out, are not timed.
+2. `?drop=fast` on the ranking route (parsed by `parseDrop`, anything else is a
+   400), the builder's "Rank without the fast answerers" button: the ranking
+   without them, with `leftOut.fast` and a sentence saying so. The default
+   ranking keeps everyone, because the cost when the assumption fails is real
+   and the gain depends on an assumption nobody has measured on this product.
+
+Caveats: the timing model is invented; no real answer times from this
+product exist yet. The first real survey's `msToAnswer` should be checked
+against it: the spread of honest paces (the 0.4 and 0.6 here), whether people
+slow on close pairs, and whether out-of-step respondents are in fact quicker.
+
+
+## Per-person intervals from a refit (2026-11-12, shipped on the insights screen)
+
+The Glicko lapse section above left one gap no lapse term closes: for an
+honest respondent the staged selector's 95% pairwise intervals held only about
+90% of the time (shipped 97%). The cause is the update, not the answers:
+Glicko-2 processes one game at a time against the opponent's point rating,
+and the information selector asks exactly the pairs the current ratings call
+even, so each answer is booked at the maximum information a game can carry
+while the pair's real gap is not even. A posterior computed from all of a
+person's answers at once does not have that problem: by the likelihood
+principle an adaptive design changes which answers arrive, not what they mean.
+
+**The refit** (`src/lib/btRefit.ts`, tests in `btRefit.test.ts`). Bradley-Terry
+with the Glicko-2 link (g = 1) and an independent N(0, phi0^2) prior per item,
+phi0 = 350 / 173.7 (the Glicko starting rd, so an unseen item reads as it does
+today); Newton's method to the mode, covariance from the inverse negative
+Hessian (Laplace). Ties ("about equal") count as half a win each way, the
+convention Glicko's score of 0.5 follows. The tests check the mode against a
+finite-difference gradient and the covariance against a finite-difference
+Hessian. Cost: 18 ms at 50 items and 3000 answers, 34 ms at 200, 190 ms at
+400; callers fall back to the stored states past `REFIT_MAX_ITEMS` = 300.
+
+**Coverage and width** (`scripts/refit-coverage-sweep.ts`, synthetic
+respondent of `infoGainSim.ts`; 8, 15 and 30 items x 2, 4 and 8 answers per
+item, 60 respondents per cell, seed sets from 1000 and 50000;
+`docs/refit-coverage-2026-11-12.jsonl`). "Refit, marginal" treats the two
+items as independent (what a stored per-item rd can carry); "refit, full"
+uses Var(a - b) with the covariance term. Means over the 9 cells, honest
+respondent (run 1 / run 2):
+
+| selector | 95% coverage: Glicko | refit, marginal | refit, full | half-width: Glicko | refit, marginal | refit, full | rank accuracy: Glicko / refit |
+|---|---|---|---|---|---|---|---|
+| staged | 0.910 / 0.904 | 0.971 / 0.972 | 0.947 / 0.947 | 2.35 | 2.75 | 2.34 | 0.788 / 0.791, 0.784 / 0.788 |
+| shipped | 0.972 / 0.971 | 0.989 / 0.990 | 0.968 / 0.972 | 2.62 | 2.82 | 2.42-2.43 | 0.758 / 0.767, 0.764 / 0.772 |
+| random pair | 0.975 / 0.977 | 0.989 / 0.990 | 0.972 / 0.975 | 2.68-2.69 | 2.87 | 2.49 | 0.744 / 0.759, 0.753 / 0.763 |
+
+For staged the refit's full-covariance intervals reach nominal at the same
+width as Glicko's (worst cell 0.88 / 0.87 against 0.82 / 0.80); for shipped
+and random pairs they keep Glicko's coverage 7-8% narrower. Rank accuracy is
+never worse by more than 0.02 in any of the 216 selector-cells and better by
+more than 0.02 in up to 3 cells per lapse for shipped and random. Restricted
+to pairs the person was actually asked, staged's coverage is 0.94 for Glicko
+and 0.96 for the refit, so most of Glicko's miss sits on pairs it never asked,
+whose difference it can only read from two independent rds.
+
+With careless answers neither is calibrated, since both assume none: at a
+true lapse of 0.2 staged reads Glicko 0.859 / 0.856 against refit 0.899 /
+0.899; shipped reads 0.944 / 0.948 against 0.919 / 0.933, and at 0.35 shipped
+reads 0.905 / 0.923 against 0.872 / 0.895 (the refit's narrower intervals cost
+it there).
+
+**Not for the couple bar or the selector.** The refit's marginal rd is wider
+than Glicko's, so the couple screen's bar (min(8, items) items under rd 200)
+would take longer (`--couple-bar`, median / p90 answers, 40 respondents):
+staged 8 items 19 / 20 to 31 / 63, 15 items 27 / 27 to 32 / 34, 30 items
+35 / 35 to 41 / 45; shipped 8 items 26 / 31 to 30 / 69. The stored states
+stay what the selector and the couple bar read; the refit is for reporting.
+
+## The clear-top-pick claim (2026-11-12, shipped)
+
+The insights screen's "top pick" and "bottom pick" cards called the leader
+clear when it was ahead of the runner-up by more than half its own rd, and
+otherwise said "still too close to call: it's between X, Y, Z". Measured on
+the same synthetic respondents (`scripts/clear-pick-sweep.ts`, 8/15/30 items x
+2/4/8 answers per item, 60 respondents per cell, 540 per row;
+`docs/clear-pick-2026-11-12.jsonl`), as the share of respondents the claim
+fires for and the share of those claims naming an item that is not the
+person's true favourite (run 1 / run 2):
+
+| truth spread, lapse | selector | old rule fires / wrong | highest-rated item wrong | z = 1 fires / wrong | z = 1.645 fires / wrong |
+|---|---|---|---|---|---|
+| 1, 0 | staged | 0.76 / 0.58, 0.78 / 0.57 | 0.59, 0.59 | 0.15 / 0.45, 0.15 / 0.32 | 0.022 / 0.17, 0.019 / 0.20 |
+| 1, 0 | shipped | 0.44 / 0.52, 0.45 / 0.50 | 0.63, 0.62 | 0.07 / 0.33, 0.10 / 0.27 | 0.006 / 0, 0.011 / 0.33 |
+| 1, 0.2 | staged | 0.77 / 0.70, 0.76 / 0.63 | 0.71, 0.66 | 0.17 / 0.57, 0.13 / 0.44 | 0.015 / 0.38, 0.015 / 0.38 |
+| 2, 0 | staged | 0.78 / 0.46, 0.78 / 0.42 | 0.50, 0.45 | 0.19 / 0.24, 0.20 / 0.25 | 0.041 / 0.05, 0.033 / 0.11 |
+
+(z rules: the refit's leader beats every other item by more than z sd of the
+difference, full covariance; comparing with the runner-up only moved nothing
+by more than 0.03. Spread 2 is a respondent with twice as strong likes and
+dislikes.)
+
+**Reading.** The old rule was close to no rule: three staged respondents in
+four were told they had a clear favourite, and that favourite was wrong about
+as often as simply naming the highest-rated item. At the lengths people answer
+here, the top two items of a list are usually too close for their answers to
+separate. **Shipped:** the route now refits each person's answers and calls a
+pick clear only when it beats every other item by 1.645 sd of the difference
+(`src/lib/clearPick.ts`, one-sided 95%; the same rule for the bottom pick).
+It fires rarely (2-4% of staged respondents), and its claims are wrong 5-20% of
+the time on 10-22 claims per row, so those rates are rough. Everyone else sees the card's
+"it's between X, Y, Z" line (the next section measured that line: as first
+shipped it held the true favourite only 68-74% of the time). Pinned by
+`src/app/api/insights/clearPick.integration.test.ts`, which fails on the old
+route (stored ratings 40 points apart at rd 70 with answers that do not back
+them: claimed clear before, contested now).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; 30 items or
+fewer; no real pairwise answers; the z = 1.645 wrong-claim rates rest on few
+claims. Next: whether the "between X, Y, Z" list holds the true favourite (a
+top-3 credible set from the refit is the natural replacement for "the three
+highest"), and the PrefLib panels (`scripts/real-rankings-eval.ts`) through the
+refit.
+
+## Who it's between (2026-11-12, shipped on the insights screen)
+
+When the clear-pick rule above declines to name a favourite, the card says
+"still too close to call: it's between X, Y, Z". X, Y, Z were the three
+highest-rated items. The question this section answers: how often does that
+list hold the person's true favourite?
+
+**Measured** (`scripts/favourite-set-sweep.ts`, the same synthetic
+respondents: 8/15/30 items x 2/4/8 answers per item, 60 respondents per cell,
+honest unless stated; counted only for respondents the card is shown to, i.e.
+the clear-pick rule did not fire, 518-540 of 540 per row;
+`docs/favourite-set-2026-11-12.jsonl`). "Set p" is the refit's credible set
+(`src/lib/favouriteSet.ts`): the fewest items whose posterior chances of
+being the favourite sum to p, the chances read by 4,000 seeded draws from
+the Laplace posterior (full covariance). Coverage is the share of lists
+holding the true favourite; size is the list length, mean / 90th percentile.
+Seeds from 1000, then 50000:
+
+| respondent | selector | three highest | set 0.9 | set 0.95 | set 0.95 size | worst cell, three highest / set 0.95 |
+|---|---|---|---|---|---|---|
+| spread 1 | staged | 0.741, 0.730 | 0.818, 0.819 | 0.879, 0.881 | 5.2 / 11 | 0.42 / 0.75 |
+| spread 1 | shipped | 0.680, 0.700 | 0.829, 0.833 | 0.896, 0.916 | 6.1 / 12 | 0.30 / 0.77 |
+| spread 2 | staged | 0.822 | 0.878 | 0.934 | 5.0 / 10 | 0.50 / 0.82 |
+| spread 2 | shipped | 0.799 | 0.906 | 0.962 | 5.6 / 12 | 0.57 / 0.90 |
+| lapse 0.2 | staged | 0.609 | 0.671 | 0.763 | 5.2 / 11 | 0.27 / 0.62 |
+| lapse 0.2 | shipped | 0.624 | 0.743 | 0.826 | 6.5 / 12 | 0.32 / 0.63 |
+| bottom pick | staged | 0.747 | 0.823 | 0.892 | 5.2 / 11 | 0.55 / 0.77 |
+| bottom pick | shipped | 0.636 | 0.813 | 0.897 | 6.3 / 12 | 0.28 / 0.82 |
+
+By cell (spread 1, staged, seeds from 1000), three highest against set 0.95
+(mean size): 8 items 0.77-0.97 against 0.92-0.98 (3.0-4.3); 15 items
+0.70-0.89 against 0.90-0.92 (3.3-6.3); 30 items 0.42-0.66 against 0.75-0.83
+(4.3-11.5). The three-highest list is worst exactly where it matters, long
+lists with few answers (0.30 for shipped at 30 items and 2 answers each),
+because three is too few names there; with many answers on a short list the
+set shrinks to two or three names and is right more often than the fixed
+three.
+
+**The set undercovers, and the prior is why.** At spread 1 the 0.95 set
+holds the favourite 88-92% of the time, at spread 2 (stronger likes and
+dislikes) 93-96%. The refit's prior sd (Glicko's 350, 2.0 on the logit
+scale) is wider than the simulated truth (uniform on [-1, 1] at slope 2,
+so sd 1.155 on the logit scale; this line said 0.58 until the next section
+caught the missing factor of two), so
+the posterior shrinks the leader too little and is too sure of it, a
+winner's curse that per-pair intervals (previous sections, calibrated) do
+not show because the favourite is a maximum over many items. Refitting with
+a narrower prior only for the set (`--prior-phi`): sd 1.0 gives 0.953-0.968
+at the 0.95 level (size 7.5 / 15), sd 0.58 (half the true spread, see
+above) overcovers (0.987-0.994, size 9.4-10.5 / 19-20). **Not shipped:**
+tuning the prior to the simulator's own truth would calibrate the set to an
+assumption, not to people; an empirical-Bayes prior sd estimated from each
+person's answers is the principled version and the next thing to try.
+
+**Shipped:** the card lists the 0.95 set, most likely first, never fewer than
+two names; past three it names the first three and counts the rest ("most
+likely A, B, C, or one of 4 more you rated near them"), so the card stays
+short without claiming a shorter list than the answers allow. No percentage
+is printed: the chances behind it are measurably overconfident (above).
+Items outside one refit (another survey's states, or past
+`REFIT_MAX_ITEMS`) enter as independent with their stored rd. Items more
+than 3.5 sd of the difference behind the leader are left out of the draws
+(a marginal of a Gaussian is exact, and such an item's chance against the
+leader alone is under 1 in 4,000); draws are seeded, so the same answers give
+the same card. Pinned by `src/lib/favouriteSet.test.ts` (the two-item closed
+form within 0.01, covariance, prefilter, determinism) and a case in
+`src/app/api/insights/clearPick.integration.test.ts` that fails on the old
+route: five items each beat a sixth and are never compared with each other,
+so all five could be the favourite; the old route named three.
+
+Caveats: synthetic Bradley-Terry respondents; with careless answers (lapse
+0.2) neither list is calibrated (0.61-0.62 and 0.76-0.83); 30 items or
+fewer; no real pairwise answers. Next: an empirical-Bayes prior sd for the
+refit (which would move the pairwise intervals too, so re-measure those);
+the PrefLib panels (`scripts/real-rankings-eval.ts`) through the refit and
+the set.
+
+## An empirical-Bayes prior (2026-11-12, later; shipped for the set only)
+
+The previous section found the favourite's credible set undercovering
+because the refit's prior sd (2.0, Glicko's 350) is wider than the simulated
+truth, and left the fix open: estimate the prior sd from each person's own
+answers rather than tune it to the simulator. This section does that, finds
+the textbook way of doing it fails under the staged selector, and fixes it.
+
+**Method** (`src/lib/btRefit.ts`). Type-II maximum likelihood: the prior sd
+phi that maximises the marginal likelihood (the evidence) of the person's
+answers, searched by golden section on log phi in [0.3, 2.0] (never wider
+than the fixed prior; the floor stops the known collapse to zero on a few
+mixed answers). Two evidence estimates:
+
+- `refitEvidence`, the Laplace form: log-likelihood and log-prior at the
+  mode plus half the log-determinant of the posterior covariance.
+- `sampledEvidence`, importance sampling from the Laplace posterior with
+  its covariance inflated 1.1^2, 2,000 seeded draws (the same seed for
+  every phi, so the search sees smooth noise). Exact on one answer (log 1/2
+  for any phi, by symmetry) and within 0.02 of quadrature on one pair
+  answered four ways (`src/lib/btRefitEb.test.ts`). Inflation matters: at
+  30 items an inflation of 1.5 gave an sd of 0.3 in the log evidence across
+  seeds, 1.1 gives 0.02, since a wider proposal multiplies the weights'
+  variance once per item.
+
+`pooledPriorPhi` sums the evidence over several respondents (one prior sd
+for a survey, each person with their own scores).
+
+**The Laplace evidence fails under the staged selector.** Summed over
+synthetic respondents, the Laplace and sampled log evidence on a grid of
+phi (`scripts/eb-laplace-check.ts`; the true spread is 1.155):
+
+| cell | selector | Laplace peak | sampled peak |
+|---|---|---|---|
+| 8 items x 2 answers, 40 people | shipped | 0.6 | 0.8 |
+| | staged | **0.3** | 1.2 |
+| 15 x 4, 30 people | shipped | 1.0 | 1.0 |
+| | staged | **0.45** | 1.2 |
+| 30 x 4, 20 people | shipped | 1.0 | 1.0 |
+| | staged | **0.45** | 1.2 |
+
+Staged asks pairs the current ratings call even. The posterior of those
+differences is far from Gaussian, and the Laplace curvature then rewards a
+small prior. Pooled over 60 respondents, the Laplace estimate still sat at or
+near the 0.3 floor (0.36 or less) in 4 and 5 of 9 staged cells (two seed
+bases). The sampled one gives 0.99-1.25 and 0.66-1.09 across the honest
+staged cells, and 1.10-1.39 for shipped. Every Laplace-era number is
+kept in `docs/eb-prior-2026-11-12.jsonl` (run names say which).
+
+**Favourite set, sampled evidence** (`scripts/favourite-set-sweep.ts --eb
+--pool`, the previous section's 8/15/30 items x 2/4/8 answers per item, 60
+respondents per cell, counted where the card is shown; coverage / mean size,
+seeds from 1000 then 50000):
+
+| respondent | selector | fixed prior, set 0.95 | own EB prior, set 0.95 | pooled EB prior, set 0.95 |
+|---|---|---|---|---|
+| spread 1 | staged | 0.879 / 5.2, 0.881 / 5.1 | 0.934 / 8.4, 0.955 / 8.7 | 0.949 / 7.1, 0.957 / 7.8 |
+| spread 1 | shipped | 0.896 / 6.1, 0.916 / 6.0 | 0.948 / 7.6, 0.953 / 7.4 | 0.950 / 7.2, 0.951 / 6.9 |
+| spread 2 | staged | 0.934 / 5.0 | 0.948 / 6.4 | 0.934 / 5.0 |
+| spread 2 | shipped | 0.962 / 5.6 | 0.966 / 5.8 | 0.962 / 5.6 |
+| lapse 0.2 | staged | 0.763 / 5.2 | 0.904 / 10.0 | 0.940 / 9.0 |
+| lapse 0.2 | shipped | 0.826 / 6.5 | 0.950 / 9.3 | 0.937 / 8.8 |
+
+(Pooled: one phi per cell, estimated on an independent panel of 60 with the
+same design, seeds + 100000.) At spread 2 the true sd (2.31) is past the
+2.0 ceiling, so the estimate mostly sits there and nothing changes.
+Careless answers look like a narrow spread, so the estimate shrinks and the
+set widens, which is the safe direction for this claim. The cost is length:
+staged lists grow from about 5 names to about 8.5, most of it in long lists
+with few answers (30 items x 2: 11.5 to 18.5 names, coverage 0.83 to 0.92).
+The card names three and counts the rest either way. Worst cells stay at
+0.85-0.92 (30 items x 8 answers under staged: 0.76 fixed, 0.86 own, 0.85
+pooled). Per person, 22-25% of staged respondents hit the 0.3 floor (honest
+answers) and 6-7% of shipped ones.
+
+**Pairwise intervals: not changed.** The same refit's 95% intervals for
+every pair of items (`scripts/refit-coverage-sweep.ts --eb | --pool`, 40
+respondents per cell, 8/15/30 items x 2/4/8 answers; mean over cells,
+full covariance, half-width on the logit scale):
+
+| selector, lapse | fixed prior | own EB prior | pooled EB prior |
+|---|---|---|---|
+| shipped, 0 | 0.967 / 2.41 | 0.835 / 1.78 | 0.934 / 1.88 |
+| staged, 0 | 0.948 / 2.34 | 0.769 / 1.71 | 0.926 / 1.78 |
+| shipped, 0.2 | 0.919 / 2.42 | 0.670 / 1.48 | 0.749 / 1.55 |
+| staged, 0.2 | 0.905 / 2.41 | 0.643 / 1.49 | 0.657 / 1.35 |
+
+At the right prior (pooled, honest) the intervals are 22-24% narrower and
+cover 0.93, slightly under nominal (a Gaussian prior on uniform truth
+over-shrinks the extreme items). One person's own estimate is too noisy for
+intervals (0.77-0.84), and careless answers break both (0.64-0.75), where the
+wide fixed prior keeps 0.90-0.92. Rank accuracy moves by 0.01 at most. The ratings, the intervals and the clear-pick rule keep the fixed prior.
+The clear-pick rule on the EB refit fired for 8 of 540 staged respondents
+(2 wrong) against 12 (2 wrong) on the fixed one.
+
+**Shipped:** the insights route refits each person's answers a second time
+at their own empirical-Bayes prior sd and draws the "it's between" set from
+that refit (`src/app/api/insights/route.ts`; `contenders(..., { score })` in
+`src/lib/favouriteSet.ts`). The rest of the screen is unchanged. The
+search takes about 60 ms at 15 items x 4 answers, 215 ms at 30 x 8 and 600 ms
+at 60 x 8, so past `EB_MAX_ITEMS` (40) answered items the set uses the
+fixed-prior refit as before. The shipped search uses 8 golden-section steps
+(phi within about 4.5%); the tables above ran 14, and a rerun at 8 (spread
+1 and lapse 0.2, seeds from 1000) matched every coverage to 0.001 and every
+mean size to 0.02. Pinned by
+`src/lib/btRefitEb.test.ts` (Laplace evidence against a one-pair closed
+form, sampled evidence against quadrature, the search's maximum on a grid,
+floor and ceiling cases, recovery of a known spread, pooling) and a case in
+`src/app/api/insights/clearPick.integration.test.ts` that fails on the old
+route: a six-item round robin where the earlier item wins two answers in
+three; the fixed prior lists four items, the person's prior keeps the fifth.
+
+Why the person's own estimate and not the pooled one, which is calibrated
+at shorter lengths: pooling needs other respondents' answers at request
+time (a survey-level estimate stored and refreshed is the way to do it),
+and its estimate mixes people whose spreads differ. Next: a stored per-survey
+pooled phi, refreshed when answers arrive, as the set's prior (sizes 7.1-7.8
+against 8.4-8.7 here); a heavier-tailed or uniform-aware prior for the
+pairwise intervals; real pairwise answers.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; 30 items or
+fewer in the sweeps; 60 respondents per cell, so a coverage differs by about
+0.01 between seed bases; no real pairwise answers.
+
+
+## A stored survey prior (2026-11-12, latest; shipped as a floor, not a replacement)
+
+The previous section left one step open: store a pooled prior sd per survey
+and draw the set from it, since in its sweep the pooled sd covered as well as
+the person's own at shorter lengths (7.1-7.8 names against 8.4-8.7). That
+sweep pooled over a panel that shared one spread of likes and one lapse rate,
+so the pooled value was the right answer for everyone in it. A real survey
+mixes people. This section measures the mixed case, finds pooling alone is
+wrong for the people whose likes are close together, and ships the pooled sd
+as a floor on the person's own.
+
+**Design** (`scripts/mixed-prior-sweep.ts`). Respondents cycle through
+spreads 0.5, 1 and 2 and lapse rates 0 and 0.2 (six equal groups); the
+pooled sd is estimated on an independent panel of the same mixture (120,
+seeds + 100000); 120 scored respondents per cell, the same 8/15/30 items x
+2/4/8 answers per item, both selectors, counted where the card is shown,
+the 95% set; seed bases 1000 and 50000. Five priors: the fixed 2.0; the
+person's own estimate (shipped earlier today); the pooled one; the
+geometric mean of own and pooled ("shrink"); the narrower of the two
+("min"). Coverage / mean size (raw rows: `docs/mixed-prior-2026-11-12.jsonl`):
+
+| selector | group | fixed | own | pool | shrink | min |
+|---|---|---|---|---|---|---|
+| shipped | all | 0.861 / 6.4, 0.868 / 6.3 | 0.943 / 8.8, 0.937 / 8.5 | 0.922 / 7.9, 0.937 / 7.9 | 0.935 / 8.3, 0.939 / 8.1 | **0.954 / 9.2, 0.956 / 9.0** |
+| | spread 0.5 | 0.744, 0.819 | 0.905, 0.947 | 0.833, 0.917 | 0.877, 0.936 | 0.911, 0.956 |
+| | spread 0.5, lapse 0.2 | 0.700, 0.783 | 0.883, 0.939 | 0.772, 0.889 | 0.839, 0.917 | 0.889, 0.939 |
+| | worst cell | 0.742, 0.750 | 0.892, 0.858 | 0.825, 0.867 | 0.875, 0.875 | 0.908, 0.892 |
+| staged | all | 0.813 / 5.2, 0.841 / 5.1 | 0.922 / 9.1, 0.926 / 9.0 | 0.914 / 7.8, 0.940 / 7.2 | 0.933 / 8.3, 0.941 / 8.1 | **0.957 / 10.1, 0.964 / 9.8** |
+| | spread 0.5 | 0.697, 0.764 | 0.881, 0.888 | 0.827, 0.888 | 0.881, 0.899 | 0.918, 0.938 |
+| | spread 0.5, lapse 0.2 | 0.670, 0.719 | 0.875, 0.854 | 0.813, 0.854 | 0.881, 0.854 | 0.920, 0.916 |
+| | worst cell | 0.683, 0.733 | 0.867, 0.875 | 0.795, 0.867 | 0.855, 0.892 | 0.889, 0.925 |
+
+The pooled sd lands near 1 (0.61-1.21 by cell), the middle of the mixture:
+too wide for the spread-0.5 people, whose coverage falls to 0.83-0.92
+(0.77-0.89 when they also answer carelessly), and too narrow for the
+spread-2 people, who over-cover (0.96-1.00). Pooling buys its shorter lists
+from exactly the people whose answers are hardest. Shrink sits between and
+is not clearly better than own on the shipped selector (0.935 and 0.939 against 0.943 and 0.937). The narrower of own and
+pooled is the only rule that reaches the 95% label overall on both
+selectors and both seed bases (0.954-0.964 against own's 0.922-0.943), and
+it lifts every worst cell (0.889-0.925 against 0.858-0.892) and the
+hardest group (spread 0.5 with lapses: 0.889-0.939 against 0.854-0.939). It
+costs 0.4-1.1 names on average, most of it in lists the card already cuts
+to three names and a count.
+
+Why min works: the person's own estimate errs in both directions, and the
+direction that hurts the claim is too wide (a wide prior shrinks the leader
+too little, the winner's curse of the previous sections). Taking the
+narrower of two noisy estimates removes most of the too-wide errors; it
+also makes some lists longer than they need be, which costs length, not
+correctness.
+
+**Shipped** (`src/lib/surveyPrior.ts`, `src/lib/surveyPriorStore.ts`,
+migration `20261112000000_survey_set_prior`): the Survey row stores the
+pooled sd (`setPriorPhi`), how many respondents it pooled and the survey's
+decided-answer count when it was estimated. The insights route reads it and
+draws the set at `min(own, stored)` once it pools at least 10 respondents;
+below that, own alone, as before. After its response (next/server `after`)
+the route refreshes the stored value when the answer count has grown by a
+quarter and by at least 20 since the last estimate (the first estimate
+waits for 40 answers). A refresh pools the 40 most recent respondents with
+at least 4 answers and at most 40 answered items (`EB_MAX_ITEMS`), searches
+with `pooledPriorPhiAsync`, which yields to the event loop after each
+respondent (2.5 s of CPU at 40 people x 15 items x 4 answers, 7.5 s at 30 x
+8, 11.5 s at 40 x 8), and writes only if no newer estimate landed in the
+meantime. The ratings, intervals and clear-pick rule are unchanged.
+
+Pinned by `src/lib/surveyPrior.test.ts` (eligibility, the minimum, the
+staleness rule, the async search equal to the synchronous one, the min
+rule) and `src/lib/surveyPriorStore.integration.test.ts` against Postgres:
+no estimate under 10 respondents; the stored estimate equals the pooled
+search; no recompute on a few new answers, a recompute after a quarter
+more; and on the route, a survey prior of 0.3 lengthens a six-item round
+robin's list from three names to four, while a wider one (2.0) or one
+behind 9 respondents changes nothing (fails with the route's old
+own-only rule).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; the
+mixture is equal thirds and halves, chosen, not measured; 30 items or
+fewer; group rows have about 175 respondents, so a group's coverage moves
+by about 0.02-0.05 between seed bases (the table shows both); the refresh
+pools the most recent respondents, so a survey whose audience changes
+follows it with a lag of a quarter of its answers. No real pairwise
+answers yet. Next: the PrefLib panels through the refit and the set, and a
+heavier-tailed prior for the pairwise intervals.
+
+
+## Staged as the default up to 120 items (2026-11-12)
+
+The insights card can name a person's single favourite 35-100% of the time
+under staged and 0.5-5.5% under standard on real people's rankings
+(REAL-RANKINGS.md, "The insights card on real people"), but standard was the
+server default, so every survey that never opened the "Question order" menu
+got the weaker one. The three sweeps that measured careless respondents had
+all run staged only. So before changing the default they were re-run under
+both selectors on the same seeds (`--selector staged|standard`, added to
+`careless-pattern-sweep.ts` and `answer-time-sweep.ts`; the position-bias
+sweep already compares them). Raw rows: `docs/staged-default-2026-11-12.jsonl`
+(284 cells, each tagged with its sweep and selector),
+`docs/staged-default-position-bias-2026-11-12.txt`, and the real-panel replay
+`docs/staged-default-real-rankings-2026-11-12.md`
+(`real-rankings-eval.ts --seeds 40 --selectors shipped,staged`).
+
+**Careless patterns** (15 and 30 items, 4 answers per item, panels of 8 and
+20, careless shares 0/25/40/50%, 40 surveys a cell; pooled Spearman with the
+common truth, standard / staged):
+
+| panel | standard | staged | difference |
+|---|---|---|---|
+| honest only (4 cells) | 0.938-0.966 | 0.940-0.970 | -0.001 to +0.004 |
+| slot clickers, 25-50% (12) | 0.834-0.952 | 0.837-0.960 | -0.007 to +0.025, up in 11 |
+| a favourite item, 25-50% (12) | 0.913-0.965 | 0.916-0.970 | -0.005 to +0.005 |
+| a camp with its own taste, 25-50% (12) | 0.884-0.960 | 0.888-0.963 | -0.010 to +0.012 |
+| pick by salience, 25-50% (12) | 0.616-0.908 | 0.613-0.912 | -0.023 to +0.007 |
+| whole-session coin flips, 25-50% (12) | 0.819-0.950 | 0.794-0.950 | **-0.025 to +0.005**, down in 9 |
+| half-time salience or coin flips (q = 0.5, 8) | 0.891-0.959 | 0.891-0.964 | -0.001 to +0.006, up in 6 |
+
+Across all 80 cells at q = 1 the mean difference is +0.0007 (staged ahead in
+48). Staged calls about 10% more pairs clear (109 against 99 a survey), and
+the share of those that are the wrong way round is 0.61% against 0.51%; in
+the salience cells the pool leans toward salience by 0.01-0.03 more (+0.26 to
++0.68 against +0.26 to +0.66). The one consistent cost is a panel where
+40-50% of people flip a coin on every answer: staged's pool is 0.012-0.025
+lower on 8-person panels and 0.006-0.014 on 20, because its pairs are the
+close ones, and a coin flip on a close pair moves the ratings more. The
+defences are no weaker: oracle-drop recovers more under staged (+0.063 to
++0.105 against +0.047 to +0.087 at 50%), leave-one-out agreement still tells
+coin flippers apart (AUC 0.96-1.00 under both), and the first-option rule
+still catches every slot clicker.
+
+**Position bias behind the slot shuffle** (30 items, 30 seeds, rank accuracy,
+standard / staged at the shipped 0.7 fallback): at bias 0, 0.776 / 0.809 (120
+answers) and 0.890 / 0.921 (300). Staged is ahead in 18 of 20 cells from
+-0.5 to +0.6; behind at 300 answers with bias -0.3 (0.800 / 0.796) and +0.5
+(0.674 / 0.658), where the fallback serves 77% of answers.
+
+**Answer times** (the 2026-11-12 grid, 54 cells): pace tells the careless
+from the honest as well under staged (AUC within 0.03 in every cell; 0.88-0.98
+when the careless are at 0.4-0.6x pace) and still never mistakes a camp for
+them (0.50-0.56 under both). `pace-drop` gains as much or more (+0.035 to
++0.227 against +0.033 to +0.201 for fast salience pickers). The slope signal
+is 0.00-0.06 weaker under staged, and it was not shipped. The coin-flip cost
+shows again (0.873-0.948 against 0.905-0.950 at 25-50%).
+
+**Real panels** (breakfast, 42 people x 15 items; T-shirts, 30 x 11; 40
+seeds): staged's Spearman against the people not asked is at least
+standard's in 22 of 25 cells and at most 0.01 below in the other three; its
+rank ranges hold 93-100% against 95-100%, up to 0.7 places narrower, with -1
+to +5 points of pairs ordered.
+
+**Decision.** Staged is the server default for lists up to 120 items
+(`defaultPairSelector`), lists above 120 keep standard (the 120-answer
+warm-up and the switch rule there are item (e) of the plan, not measured
+here; measured 2026-11-13, "Lists over 120 items: the switch rule", and staged
+is now the default at every length), and a survey's own setting or `PAIR_SELECTOR` still wins. The gain is
+the insights card's clear pick and a slightly better pooled ranking on real
+people; the cost is up to 0.025 of pooled Spearman when half of a small panel
+are whole-session coin flippers, a panel the agreement note already flags.
+
+
+## Self-consistency: a coin-flip check that does not tax camps (2026-11-12, measured, not shipped)
+
+The section above left one cost of the staged default: a panel where 40-50% of
+people flip a coin on every answer pools 0.006-0.025 lower than under standard.
+The defences measured so far either cannot see coin flippers (`first-flag`) or
+see them by disagreement with the rest of the panel (`loo-w`, `loo-drop`),
+which taxes a real camp with a taste of its own by 0.01-0.03. This section
+tried a check that looks only at a person's own answers.
+
+**The score** (`src/lib/selfConsistency.ts`, unit-tested). A person's answers
+are split into five interleaved folds; each fold is predicted by a
+Bradley-Terry refit (`btRefit.ts`, prior sd 1 on the logit scale) of the other
+four and scored in bits over a coin. `z` is the mean gain over its standard
+error; `logBayesFactor` is the Laplace evidence of a Bradley-Terry taste over a
+coin on all the answers. Someone answering by a stable taste, the panel's or
+their own, should score above zero; a coin flipper at or below it. Reversing a
+person's taste leaves every reading unchanged (a test checks this), so it
+cannot penalise a camp for disagreeing.
+
+**Two schemes** were added to `scripts/careless-pattern-sweep.ts`
+(`--self-z`, `--self-bf`): `self-drop` leaves out people whose own z is under a
+threshold, and `gate-drop` leaves out people only if they are under the 0.2
+agreement line *and* their own answers are inconsistent (z under 0.5 or 1, or
+log BF under 0). A new script, `scripts/coin-flip-gate-real.ts`, runs the same
+defences on the PrefLib panels of REAL-RANKINGS.md, with a share of the sampled
+real people swapped for whole-session coin flippers and scored against the
+people not asked (`--honest-lapse e` adds random answers to the real people
+too, since a replayed ranking answers without noise).
+
+Raw rows: `docs/self-consistency-2026-11-12.jsonl` (96 synthetic cells, tagged
+with their seed base) and `docs/self-consistency-real-2026-11-12.jsonl` (64 real
+cells, tagged with selector and honest lapse).
+
+**Synthetic panels** (staged selector, 15 and 30 items, 4 answers per item,
+panels of 8 and 20, 40 surveys a cell, seed bases 2000 and 50000; paired
+difference from the shipped pool, range over cells, cells beyond 2 SE up / down
+summed over both seed sets):
+
+| panel | loo-drop | gate-drop, z < 0.5 | gate-drop, z < 1 | gate-drop, log BF < 0 | oracle-drop |
+|---|---|---|---|---|---|
+| honest only (4 cells a seed set) | -0.001 to +0.000 | -0.000 to +0.001 | -0.001 to +0.000 | -0.000 to +0.001 | 0 |
+| coin flippers, 25% (8) | +0.004 to +0.032 (7 / 0) | -0.001 to +0.019 (5 / 0) | +0.002 to +0.025 (6 / 0) | +0.001 to +0.030 (5 / 0) | +0.011 to +0.038 |
+| coin flippers, 40-50% (16) | +0.021 to +0.103 (16 / 0) | +0.011 to +0.052 (15 / 0) | +0.015 to +0.081 (16 / 0) | +0.013 to +0.088 (16 / 0) | +0.028 to +0.134 |
+| a camp, 25% (8) | **-0.027 to -0.009** (0 / 6) | -0.006 to +0.001 (0 / 4) | -0.010 to -0.001 (0 / 4) | -0.013 to -0.001 (0 / 4) | -0.051 to -0.027 |
+| a camp, 40-50% (16) | **-0.050 to -0.002** (0 / 11) | -0.014 to +0.001 (0 / 3) | -0.019 to +0.002 (0 / 10) | -0.020 to +0.001 (0 / 8) | -0.275 to -0.100 |
+
+Slot clickers (seed base 2000, 12 cells): the gate recovers +0.004 to +0.040
+against `first-flag`'s +0.007 to +0.058, which already ships and matches
+oracle-drop. `self-drop` alone lost in every cell (-0.008 to -0.118, honest panels
+included). How well the scores tell coin flippers from honest people (AUC):
+own z 0.60-0.69, own log BF 0.67-0.80, agreement 0.96-1.00; camp members from
+honest people: own z 0.47-0.58, own BF 0.47-0.55 (blind, as intended),
+agreement 0.49-1.00.
+
+**Real panels** (breakfast 20 of 42 people at 30 and 60 answers, T-shirts 10
+of 30 at 20 and 44; 80 draws, staged; honest = the panel's own people, camps
+and all):
+
+| real people's own answers | panel | loo-drop | gate, z < 1 | oracle-drop | honest people under 0.2 agreement / also gated |
+|---|---|---|---|---|---|
+| as ranked (no noise) | honest only | -0.010 to +0.001 | -0.013 to +0.000 | 0 | 18-32% / 0.7-17% |
+| as ranked | 25% coin | +0.015 to +0.030 | +0.008 to +0.029 | +0.030 to +0.071 | |
+| as ranked | 40-50% coin | +0.023 to +0.048 | +0.041 to +0.078 | +0.081 to +0.149 | |
+| 20% random | honest only | -0.014 to -0.003 | -0.004 to +0.009 | 0 | 20-36% / 6.5-24% |
+| 20% random | 40-50% coin | -0.008 to +0.033 | -0.009 to +0.062 | +0.085 to +0.164 | |
+| 35% random | honest only | **-0.033 to -0.015** | **-0.035 to -0.007** | 0 | 25-46% / 13-32% |
+| 35% random | 40-50% coin | -0.020 to +0.027 | -0.065 to +0.036 | +0.097 to +0.153 | |
+
+With 4 answers per item (breakfast 60, T-shirts 44) and clean answers the gate
+left out 0.2-6% of real people and recovered 40-70% of oracle-drop at 40-50% coin flippers; at 2
+answers per item it gated 10-25% of them. Under the standard selector the gate
+gated 0-2% of real people at every budget (its pairs are spread, so a person's
+own answers show their consistency), and recovered +0.009 to +0.078.
+
+What it shows:
+
+- **Under staged, a person's own answers barely beat a coin.** An honest
+  synthetic respondent's log Bayes factor for a taste over a coin averages
+  -0.1 to +0.09 on 15-30 items x 4 answers (a coin flipper's, -0.5 to -1.1);
+  46-55% of honest people fall below zero. The selector
+  asks the pairs it is least sure of, so the answers carry little sign of
+  consistency, which is the anchor section's finding (AUC 0.56-0.72 without
+  anchors) seen from another side. Self-consistency alone cannot carry a
+  defence here.
+- **As a gate on the agreement drop it halves the camp tax**, on synthetic
+  panels (25% camps: -0.001 to -0.010 against -0.009 to -0.027) and keeps
+  about three quarters of loo-drop's gain against 40-50% coin flippers. Against
+  salience pickers it keeps less (25%: +0.022 to +0.026 against +0.035 to
+  +0.037), since they are self-consistent.
+- **Real disagreement is common.** With no careless people at all, 18-46% of
+  real respondents fall under the 0.2 agreement line, and leaving them out
+  costs the pool up to 0.033 (0.007-0.018 under standard). This is the first real-data confirmation that
+  agreement must not drop or weight people (`respondentAgreement` stays a note).
+- **On real panels the gate works only while honest answers are clean.** If
+  real people answer a fifth of pairs at random it still recovers up to +0.062
+  with 4 answers per item, costing honest panels nothing measurable; at a third
+  random it costs honest panels up to 0.035 and loses ground to coin flippers on
+  short sessions.
+
+**Decision.** Not shipped. The gate's cost to camps is smaller but not zero,
+and on real panels it turns on how noisy real pairwise answers are, which no
+data here measures; the first real survey's answers (item (c)) are what
+decide it. `selfConsistency` stays a tested library, unwired, and both scripts
+re-run in minutes once real answers exist. The coin-flip cost under staged
+stays as recorded in the section above: at most 0.025 when half of a small
+panel flips coins, a panel the agreement note already flags.
+
+Caveats: synthetic camps share one second taste; real panels are replayed
+rankings (no real pairwise noise, so `--honest-lapse` is a stand-in); two
+panels, 11 and 15 items; coin flippers on every answer.
+
+
+## A heavier-tailed prior for the pairwise intervals (2026-11-12, latest; not shipped)
+
+The empirical-Bayes section left the pairwise intervals on the fixed prior
+(sd 2.0, wide, 0.95-0.97 coverage at a half-width of about 2.4 logits) and
+named one reason the narrower pooled Gaussian fell short of 95%: "a Gaussian
+prior on uniform truth over-shrinks the extreme items". A Student-t prior
+is the textbook fix for that, since its pull toward the middle fades for an
+item far from it. This section builds it, measures it, and finds the
+diagnosis was wrong: the t narrows the intervals further but covers less,
+under every shape of truth tried, including the heavy-tailed one it is
+meant for.
+
+**Method** (`src/lib/btRefit.ts`, `priorDf` on `refitRatings`,
+`sampledEvidence` and `pooledPriorPhi`; tests in `btRefitT.test.ts`). Each
+item's score gets an independent Student-t prior with `df` degrees of freedom
+and scale phi; `df` Infinity is the Gaussian, so every existing caller is
+unchanged. The t's curvature turns negative past |m| = phi sqrt(df), so the
+Newton steps use its iteratively-reweighted majoriser (df + 1)/(df phi^2 +
+m^2) with the existing halving line search, and the covariance uses the true
+curvature at the mode (the majoriser only if that Hessian is indefinite).
+The sampled evidence uses the fully normalised t density, so a Gaussian
+and a t can be compared on one scale. Tests: the density against the
+closed form at df 3 and against numerical integration at df 1, 2.5 and 7;
+the mode against a finite-difference gradient of a posterior written out in
+the test; the covariance against a finite-difference Hessian; df 1e8
+against the Gaussian; the evidence against 2-D quadrature on one pair
+answered four ways and exactly log 1/2 on one answer.
+
+**Design** (`scripts/t-prior-interval-sweep.ts`, rows in
+`docs/t-prior-intervals-2026-11-12.jsonl`). Synthetic respondent of
+`infoGainSim.ts`, 8/15/30 items x 2/4/8 answers per item, lapse 0 and 0.2,
+shipped and staged selectors, 40 respondents per cell, seed bases 1000 and
+50000 (18 cells per row below). Three shapes of true likes, all with sd
+1.155 on the logit scale: uniform (the simulator's own, every earlier
+sweep), normal, and Laplace (double exponential: a few items far out, the
+case a t prior is for). Priors: the fixed Gaussian; the Gaussian with its sd
+from the pooled sampled evidence of an independent panel of 40 with the
+same design (as the empirical-Bayes section's `--pool`); t with df 7, 3 and
+1 (Cauchy), each with its scale from the same pooled evidence; and "by
+evidence", the family (Gaussian, t7, t3 or t1) whose pooled evidence at its
+own best scale is highest. Coverage of every pair's 95% interval (full
+covariance) / coverage over pairs with an item in the true top or bottom
+fifth ("ends") / half-width in logits, honest respondents:
+
+| truth | selector | fixed | Gaussian, pooled | t7, pooled | t3, pooled | t1, pooled | family by evidence | picked g / t7 / t3 / t1 |
+|---|---|---|---|---|---|---|---|---|
+| uniform | shipped | 0.969 / 0.968 / 2.42 | 0.942 / 0.930 / 1.90 | 0.920 / 0.899 / 1.80 | 0.880 / 0.847 / 1.70 | 0.801 / 0.758 / 1.67 | 0.942 / 0.930 / 1.90 | 18 / 0 / 0 / 0 |
+| uniform | staged | 0.948 / 0.947 / 2.34 | 0.866 / 0.830 / 1.63 | 0.812 / 0.762 / 1.54 | 0.755 / 0.697 / 1.50 | 0.751 / 0.711 / 1.68 | 0.864 / 0.827 / 1.62 | 17 / 1 / 0 / 0 |
+| normal | shipped | 0.968 / 0.966 / 2.42 | 0.930 / 0.910 / 1.86 | 0.912 / 0.885 / 1.77 | 0.879 / 0.838 / 1.67 | 0.809 / 0.758 / 1.66 | 0.930 / 0.909 / 1.86 | 17 / 1 / 0 / 0 |
+| normal | staged | 0.941 / 0.941 / 2.35 | 0.856 / 0.813 / 1.56 | 0.837 / 0.780 / 1.52 | 0.811 / 0.747 / 1.53 | 0.793 / 0.746 / 1.71 | 0.856 / 0.813 / 1.56 | 18 / 0 / 0 / 0 |
+| Laplace | shipped | 0.964 / 0.961 / 2.41 | 0.913 / 0.882 / 1.78 | 0.899 / 0.862 / 1.70 | 0.875 / 0.826 / 1.60 | 0.828 / 0.771 / 1.61 | 0.908 / 0.874 / 1.77 | 10 / 4 / 4 / 0 |
+| Laplace | staged | 0.922 / 0.924 / 2.35 | 0.888 / 0.853 / 1.69 | 0.882 / 0.839 / 1.62 | 0.871 / 0.821 / 1.61 | 0.855 / 0.810 / 1.75 | 0.883 / 0.842 / 1.67 | 10 / 6 / 2 / 0 |
+
+With careless answers (lapse 0.2) every pooled prior breaks, as the
+empirical-Bayes section found for the Gaussian: 0.65-0.77 for the pooled
+Gaussian, 0.61-0.77 for the t's, against 0.88-0.93 for the fixed prior.
+Rank accuracy moves by 0.01 at most between any two priors in any row.
+
+What it shows:
+
+- **The t covers less than the Gaussian of the same evidence, under every
+  truth.** Each step to a heavier tail (Gaussian, t7, t3, t1) costs coverage
+  on shipped in every row, 0.01-0.08 per step, and buys at most 0.10
+  logits of width per step. Under staged the order is the same except t1, whose Cauchy scale
+  sometimes lands wider. Even with Laplace truth the t3 holds 0.875 and
+  0.871 against the Gaussian's 0.913 and 0.888.
+- **The ends were never the main miss.** Pairs with an item in the top or
+  bottom fifth do miss more than the rest under the pooled Gaussian, but by
+  0.01-0.04, and the t widens that gap rather than closing it (t3 ends
+  0.03-0.06 under t3 overall).
+- **Why.** A heavier-tailed prior with the same spread is more peaked in
+  the middle. Its curvature at 0 is (df + 1)/(df phi^2), and the pooled
+  evidence gives it a smaller scale than the Gaussian's sd (on uniform truth
+  under shipped: Gaussian 1.06-1.37, t3 0.82-1.06; under staged with 8
+  answers per item the t3 scale falls to 0.34-0.80), so most items, which sit
+  in the middle, are pulled together harder and their Laplace intervals read
+  as more certain than the answers make them. The long tail helps the one
+  or two items far out; the peak costs every other pair.
+- **The evidence knows.** Choosing the family by pooled evidence picks the
+  Gaussian in 90 of 108 honest cells (35 of 36 on uniform truth; 20 of 36
+  on Laplace) and ends within 0.005 of the pooled Gaussian everywhere, so the
+  data do not ask for heavier tails even when the truth has them.
+- **The pooled Gaussian is not safe for intervals either.** On seed base
+  50000 the staged 15 items x 8 answers cell's pooled sd fell to 0.33 (near
+  the 0.3 floor) and its intervals held 0.39 of pairs; the staged rows
+  above are 0.86-0.89 rather than the empirical-Bayes section's 0.926
+  (seed base 1000 only, 8/15/30) for that reason. On seed base 1000 alone
+  the staged honest uniform cells give 0.88-0.95, matching it. The favourite
+  set is not hurt by such a collapse, since it takes the narrower of own and
+  stored sd and a narrower sd only lengthens the list.
+
+**Decision.** Not shipped. The pairwise intervals keep the fixed Gaussian
+prior, which is the only prior here that holds 0.92 or better in every honest
+row and 0.88 or better with careless answers. `priorDf` stays in `btRefit.ts`, tested and
+unwired (no caller passes it), so a later prior experiment can reuse it.
+Next for the intervals, if they are to get narrower: why the pooled
+Gaussian panel collapses under staged with many answers per item (a
+hyperprior on phi, or more than 40 people, are the obvious tries) and
+intervals from posterior draws rather than Laplace curvature, since staged
+asks exactly the pairs whose posterior is least Gaussian.
+
+Caveats: synthetic Bradley-Terry respondents; three chosen truth shapes,
+not measured ones; 30 items or fewer; 40 respondents per cell, so a cell's
+coverage moves by about 0.01-0.02 between seed bases (and by more when a
+pooled estimate collapses). The PrefLib panels give real orderings but no
+true logit gaps, so pairwise intervals on them cannot be scored; real
+pairwise answers would not either, which is why this stays a simulation
+question.
+
+
+## Why the pooled sd collapsed, and the upper end of its interval (2026-11-13; measured, not wired)
+
+The heavier-tailed prior section ended on one unexplained number: on seed
+base 50000 the staged 15 items x 8 answers cell's pooled Gaussian sd fell to
+0.33, near the 0.3 floor, against a true spread of 1.155, and its pairwise
+intervals held 0.39 of pairs. This section finds why, and measures a guard.
+
+**It is not the sampler.** `scripts/pooled-collapse-diagnose.ts` rebuilds
+that panel (40 respondents, seeds 150000 + 7i) and evaluates the pooled
+sampled evidence on a grid of phi with the shipped 2000 draws and with 20000
+draws on another seed. The two curves agree to 0.4 nats everywhere and have
+the same shape, so the importance sampler's bias and noise are far too small
+to move the maximum.
+
+**The evidence surface is flat under staged.** Pooled log evidence, summed
+over the 40 respondents of each panel, 15 items x 8 answers, uniform truth:
+
+| panel | phi 0.3 | 0.6 | 0.8 | 1.0 | 1.2 | 1.5 | 2.0 | maximum at |
+|---|---|---|---|---|---|---|---|---|
+| staged, seeds 150000+ (the collapse) | -3325.4 | -3325.7 | -3326.2 | -3327.6 | -3330.9 | -3339.7 | -3363.1 | 0.33 |
+| staged, seeds 101000+ | -3317.6 | -3308.6 | -3305.1 | -3304.1 | -3305.8 | -3313.2 | -3335.8 | 0.97 |
+| shipped, seeds 150000+ | -3165.4 | -2988.3 | -2926.4 | -2895.5 | -2884.7 | -2890.9 | -2930.7 | 1.26 |
+
+From phi 0.3 to 1.2 the shipped panel's evidence climbs 281 nats; the staged
+panels move 5 to 13. Staged asks close pairs (mean true gap 0.80 logits,
+against 1.25 under shipped; 56 distinct pairs per person against 74), and a
+close pair's answer is near a coin flip whatever the spread, so it says
+almost nothing about phi. On a plateau that flat, ordinary panel-to-panel
+noise can tip the maximum to either end.
+
+**How often, and which way it leans** (`scripts/pooled-phi-spread.ts`, rows
+in `docs/pooled-phi-spread-2026-11-13.jsonl`). Twelve fresh panels of 40 per
+selector, 15 x 8, plus the collapsed one:
+
+| truth | selector | pooled sd over panels | evidence drop from best to 1.2 |
+|---|---|---|---|
+| uniform | staged | 0.86-1.06 (12 panels); 0.33 on the 13th, the collapse | 0.7-4.1; 5.6 |
+| uniform | shipped | 1.06-1.26 (13 panels) | 0-2.5 |
+| normal | staged | 1.09-1.31 (8 panels) | 0-0.5 |
+| normal | shipped | 1.06-1.21 (8 panels) | 0-3.7 |
+
+Two things show. Under uniform truth staged's pooled sd leans low, 0.86-1.06
+where shipped finds 1.06-1.26; with normal truth of the same sd staged finds
+1.09-1.31. So the lean is the Gaussian prior misfitting uniform likes, which
+staged's neighbour comparisons expose (they read the spacing of adjacent
+items, and a uniform's ends are packed tighter than a Gaussian's tails), not
+a fault of the evidence. And the collapse is one panel in 13: its answers
+look ordinary (upsets 0.3315 of answers, 0.3308 predicted by the true gaps),
+so nothing in the raw answers flags it. It is the flat surface, not odd data.
+
+**A guard: the upper end of the likelihood interval** (`pooledPriorPhiUpper`
+in `src/lib/btRefit.ts`, tests in `btRefitUpper.test.ts`). The largest phi
+whose pooled evidence is within 1.92 nats (half the chi-square(1) 95% point)
+of the best, found by bisection on log phi. On a sharp surface it sits just
+above the maximum; on a flat one it rises toward the fixed prior. Tests: the
+same best phi as `pooledPriorPhi`; the drop at the upper end within 1.92 and
+past it beyond; a larger panel gives a narrower gap; the ceiling when the
+evidence never falls that far. Reverting the bisection (upper = best) fails
+two of the four.
+
+**Coverage** (`scripts/upper-phi-interval-sweep.ts`, rows in
+`docs/upper-phi-intervals-2026-11-13.jsonl`; the heavier-tailed section's
+design: 8/15/30 items x 2/4/8 answers per item, 40 respondents per cell,
+pooled on an independent panel of 40, uniform truth). Honest respondents on
+seed bases 1000 and 50000 (18 cells per row), careless (lapse 0.2) on 1000
+(9 cells). Mean coverage of every pair's 95% interval (worst cell) / mean
+half-width in logits:
+
+| answers | selector | fixed sd 2.0 | pooled maximum | upper end |
+|---|---|---|---|---|
+| honest | shipped | 0.969 (0.947) / 2.43 | 0.942 (0.908) / 1.90 | 0.957 (0.931) / 2.06 |
+| honest | staged | 0.948 (0.870) / 2.34 | 0.866 (0.389) / 1.63 | 0.955 (0.899) / 2.02 |
+| careless | shipped | 0.918 (0.862) / 2.33 | 0.750 (0.666) / 1.51 | 0.812 (0.716) / 1.68 |
+| careless | staged | 0.895 (0.811) / 2.33 | 0.667 (0.339) / 1.34 | 0.857 (0.761) / 1.81 |
+
+What it shows:
+
+- **With honest answers the upper end holds 95% at about 15% less width
+  than the fixed prior** (2.02-2.06 logits against 2.34-2.43), and it turns
+  the collapsed cell from 0.389 to 0.899 (its upper end is 0.96 where the
+  maximum was 0.33).
+- **Under staged with many answers it beats the fixed prior on coverage
+  too.** At 30 items x 8 answers the fixed prior holds 0.870-0.881 and the
+  upper end 0.937-0.939, narrower; at 15 x 8 on seed base 1000, 0.916
+  against 0.946. A prior of 2.0 is wider than the truth, which under-shrinks
+  the items staged compares least, and Laplace intervals for those are too
+  narrow.
+- **Careless answers break it**, as they break every pooled prior: worst
+  cells 0.72 and 0.76, where the fixed prior keeps 0.86 and 0.81. A lapse
+  looks like a smaller spread, so the evidence, honestly, asks for a
+  narrower prior that the intervals then cannot afford.
+
+**Decision.** Measured, not wired. The pairwise intervals keep the fixed
+prior, because a survey with careless respondents would lose 0.06-0.10 of
+coverage, and the route has no stored upper end yet (the Survey row holds
+only the pooled sd). `pooledPriorPhiUpper` stays tested in `btRefit.ts`.
+The obvious next step is to use it only for respondents the lapse estimate
+(`lapseEstimate.ts`) calls honest, which needs the upper end stored beside
+`setPriorPhi` and a sweep with a mixed honest and careless panel. Intervals
+from posterior draws rather than Laplace curvature were not tried here:
+the collapse turned out to be the prior, not the posterior's shape.
+
+Caveats: synthetic Bradley-Terry respondents; uniform truth for the
+coverage sweep (normal only for the spread check); 30 items or fewer; 40
+respondents per cell and per panel, so a cell moves by 0.01-0.02 between
+seed bases, more where the pooled maximum collapses; one collapse seen in
+13 staged panels, so its rate is roughly known at best.
+
+## A lapse gate for the upper end (2026-11-13, later; measured, not shipped)
+
+The section above left one step: give the pooled prior's upper end only to
+respondents the lapse estimate calls honest, pooled over those same people,
+and keep the fixed prior for everyone else. This measures whether any gate
+the answers can supply does that.
+
+**Design** (`scripts/gated-upper-sweep.ts`, rows in
+`docs/gated-upper-2026-11-13.jsonl`). The upper-end sweep's grid (8/15/30
+items x 2/4/8 answers per item, 40 respondents per panel, pooled on an
+independent panel of the same mix, uniform truth), with mixed panels: 0,
+25%, 50% or 100% of each panel answers carelessly (every 4th, 2nd or every
+respondent), at lapse 0.2 and 0.4, seed bases 1000 and 50000 (18 cells per
+row). Coverage of every pair's 95% interval is reported for honest and
+careless respondents separately. Rules:
+
+- **fixed**: sd 2.0 for everyone (shipped).
+- **upper-all**: the upper end pooled over the whole panel, for everyone.
+- **gate-own / gate-refit**: pool and apply only where a lapse estimate is
+  under 0.1: the prequential Glicko one (`estimateLapse`'s posterior mean,
+  Beta(1, 19) prior) or one read in-sample from the person's own refit at
+  the fixed prior (`refitLapse` in the script, which the insights route
+  could compute: it already has that refit).
+- **gate-half**: a rank gate. Pool the more consistent half of the panel by
+  `refitLapse`; give that half's upper end to respondents at or under its
+  cut, the fixed prior to the rest.
+- **oracle**: what a perfect detector would give: pooled over the truly
+  honest, applied to them; fixed for the careless.
+
+**The detectors barely see careless people.** Chance a careless respondent
+scores above an honest one (AUC), mean over 18 cells:
+
+| lapse | selector | own (Glicko, prequential) | refit (in-sample) |
+|---|---|---|---|
+| 0.2 | shipped | 0.67-0.69 | 0.65-0.68 |
+| 0.2 | staged | 0.58-0.59 | 0.63-0.64 |
+| 0.4 | shipped | 0.80 | 0.80 |
+| 0.4 | staged | 0.61-0.62 | 0.65-0.69 |
+
+A 0.1 threshold is useless with these: the refit estimate passes every
+respondent in every cell (its means sit near 0.02, honest or not), and the
+Glicko one passes most. So gate-refit is upper-all, and gate-own nearly so.
+
+**Coverage, lapse 0.2** (mean over 18 cells, worst cell in brackets, mean
+half-width in logits):
+
+| careless share | selector | rule | honest | careless |
+|---|---|---|---|---|
+| 0 | staged | fixed | 0.948 (0.870) / 2.34 | |
+| 0 | staged | upper-all | 0.955 (0.899) / 2.02 | |
+| 0 | staged | gate-half | 0.951 (0.895) / 2.33 | |
+| 50% | staged | fixed | 0.948 (0.872) / 2.34 | 0.896 (0.809) / 2.32 |
+| 50% | staged | upper-all | 0.927 (0.679) / 1.90 | 0.874 (0.664) / 1.89 |
+| 50% | staged | gate-half | 0.954 (0.915) / 2.33 | 0.898 (0.818) / 2.32 |
+| 50% | staged | oracle | 0.961 (0.944) / 2.14 | 0.896 (0.809) / 2.32 |
+| 50% | shipped | fixed | 0.970 (0.943) / 2.42 | 0.930 (0.868) / 2.35 |
+| 50% | shipped | upper-all | 0.937 (0.911) / 1.89 | 0.884 (0.807) / 1.86 |
+| 50% | shipped | gate-half | 0.969 (0.941) / 2.32 | 0.929 (0.866) / 2.31 |
+| 50% | shipped | oracle | 0.959 (0.934) / 2.08 | 0.930 (0.868) / 2.35 |
+
+At lapse 0.4 and half the panel careless, upper-all drops honest
+respondents to 0.900-0.903 (worst 0.679 staged), gate-half holds them at
+0.955-0.966, the oracle at 0.959-0.961. With every respondent careless at
+lapse 0.4, gate-half loses ground the fixed prior keeps (0.818 against
+0.865 under shipped, worst 0.683 against 0.770; staged worst 0.583 against
+0.697).
+
+What it shows:
+
+- **Careless respondents hurt honest ones through the pool**, not through
+  their own fit. A lapse looks like a smaller spread, so a panel half
+  careless pulls the upper end down to 0.61-1.43 and the honest people's
+  intervals with it (staged worst cell 0.679). The oracle, pooled over the
+  honest only, holds 0.957-0.961 with no cell under 0.93 at about 10-12%
+  less width than fixed. So the idea is sound; the missing part is the
+  detector.
+- **No detector from these answers is good enough.** The best AUC is 0.80
+  (shipped, lapse 0.4); under staged, the default, it is 0.58-0.69, because
+  staged's close pairs are near coin flips for everyone (the per-respondent
+  lapse section, 2026-11-11, saw the same).
+- **The rank gate is safe but buys almost nothing.** It never does worse
+  than fixed on a mixed panel, but its width is 2.22-2.39 against fixed's
+  2.34-2.42: 1-4% narrower, against 12-15% for upper-all and the oracle.
+  The more consistent half looks wider-spread than it is, so its upper end
+  sits near the fixed 2.0, and the other half keeps the fixed prior anyway.
+
+**Decision.** Not shipped. The pairwise intervals keep the fixed prior; the
+Survey row gets no stored upper end (it would only feed a gate that buys
+1-4%). A gate is worth revisiting only with a detector these answers do
+not give: anchor pairs (the 2026-11-11 anchor section measured the lapse
+estimate with them) or answer times (`msToAnswer`, "Answer times"), on a
+real survey's answers.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; careless
+means a constant lapse share from the first answer; 40 respondents per
+panel; one threshold (0.1) for the absolute gates and one cut (the median)
+for the rank gate.
+
+## Anchor pairs as the gate's detector (2026-11-13, latest; measured, not shipped)
+
+The section above ended on a detector the answers do not give, and named
+anchor pairs first: the 2026-11-11 anchor section lifted the lapse
+estimate's AUC under staged from 0.56-0.72 to 0.80-0.99. This puts anchors
+into the gated sweep and asks whether the gate now gets near the oracle.
+
+**Design** (`scripts/gated-upper-sweep.ts --every N`, rows in
+`docs/anchor-gated-upper-2026-11-13.jsonl`, 288 cells). The same grid as the
+section above (8/15/30 items x 2/4/8 per item, 40 respondents per panel,
+pooled on an independent panel, careless shares 0/25/50/100%, lapse 0.2 and
+0.4, seed bases 1000 and 50000), both selectors, with one answer in 10 or
+one in 5 an anchor pair (the anchor sweep's rule: the most lopsided pair by
+the person's own ratings, sides at random). Every respondent gets the
+anchors under every rule, so the fixed prior pays for them too. Three new
+gates read the lapse from the anchor answers only:
+
+- **anchor-half**: the rank gate with the anchor estimate (uniform prior).
+- **anchor-tau**: the anchor estimate against the panel's pooled anchor
+  lapse prior, under 0.15.
+- **anchor-mass**: keep the panel's lowest (1 - m) by the anchor estimate,
+  m the pooled anchor prior's mass at or above 0.1 (the panel's own reading
+  of its careless share).
+
+The sweep also reports `spreadRho`: among honest respondents, the Spearman
+correlation of each lapse estimate with the sd of the person's true logits.
+
+**Honest respondents, mean coverage (worst cell) / mean half-width**, over
+the 18 list-and-budget cells:
+
+| anchors | lapse | careless | selector | AUC anchor / own | fixed | gate-half | anchor-half | oracle |
+|---|---|---|---|---|---|---|---|---|
+| 1 in 10 | 0.2 | 50% | staged | 0.66 / 0.70 | 0.958 (0.920) / 2.38 | 0.962 (0.936) / 2.33 | 0.963 (0.939) / 2.33 | 0.960 (0.929) / 2.18 |
+| 1 in 10 | 0.4 | 50% | staged | 0.80 / 0.82 | 0.958 (0.920) / 2.38 | 0.962 (0.929) / 2.30 | 0.963 (0.940) / 2.29 | 0.960 (0.929) / 2.18 |
+| 1 in 10 | 0.4 | 50% | shipped | 0.81 / 0.87 | 0.972 (0.946) / 2.48 | 0.969 (0.945) / 2.30 | 0.966 (0.936) / 2.25 | 0.962 (0.930) / 2.18 |
+| 1 in 5 | 0.2 | 25% | staged | 0.73 / 0.73 | 0.965 (0.929) / 2.40 | 0.968 (0.946) / 2.34 | 0.968 (0.947) / 2.33 | 0.952 (0.923) / 1.98 |
+| 1 in 5 | 0.2 | 50% | staged | 0.76 / 0.76 | 0.964 (0.930) / 2.41 | 0.966 (0.934) / 2.29 | 0.966 (0.937) / 2.28 | 0.959 (0.933) / 2.08 |
+| 1 in 5 | 0.4 | 25% | staged | 0.85 / 0.85 | 0.965 (0.929) / 2.40 | 0.968 (0.946) / 2.33 | 0.968 (0.947) / 2.32 | 0.952 (0.923) / 1.98 |
+| 1 in 5 | 0.4 | 50% | staged | 0.87 / 0.88 | 0.964 (0.930) / 2.41 | 0.965 (0.934) / 2.24 | 0.965 (0.933) / 2.23 | 0.959 (0.933) / 2.08 |
+| 1 in 5 | 0.4 | 50% | shipped | 0.88 / 0.90 | 0.975 (0.959) / 2.53 | 0.969 (0.947) / 2.32 | 0.968 (0.946) / 2.28 | 0.965 (0.944) / 2.23 |
+
+(All 16 rows: run the table in the PR's run record notes, or re-read the
+jsonl.) anchor-tau and anchor-mass pass only 17-36% of honest respondents
+and pool them to an upper end of 1.9-2.0, so they come out at the fixed
+prior's width; with every respondent careless at lapse 0.4 they keep the
+fixed prior's coverage (0.855-0.863) where anchor-half drops to 0.797-0.825
+(worst 0.673).
+
+**The pooled upper end with nobody careless** (all-honest panels, lapse
+irrelevant):
+
+| anchors | selector | everyone (= oracle) | more consistent half (refit) | more consistent half (anchors) | spreadRho own / refit / anchor |
+|---|---|---|---|---|---|
+| 1 in 10 | staged | 1.38 | 1.94 | 1.90 | -0.24 / -0.27 / -0.22 |
+| 1 in 10 | shipped | 1.37 | 1.84 | 1.71 | -0.36 / -0.34 / -0.25 |
+| 1 in 5 | staged | 1.27 | 1.84 | 1.84 | -0.23 / -0.24 / -0.24 |
+| 1 in 5 | shipped | 1.40 | 1.84 | 1.78 | -0.22 / -0.24 / -0.14 |
+
+What it shows:
+
+- **Anchors do not add a separate signal; they add easy pairs.** With
+  anchors in the stream, the estimate from all answers (`own`) reaches the
+  same AUC as the anchor-only one, or higher (0.70-0.90 against
+  0.66-0.88). The 2026-11-11 gain was the anchor pairs making careless
+  answers visible to any estimate, at a mix with lapsers at 0.5; at lapse
+  0.2 the AUC here is 0.63-0.76.
+- **A better detector would not save the rank gate.** Even at AUC 0.85-0.88
+  the anchor rank gate is 4-10% narrower than fixed, the oracle 10-18%.
+  The cause shows on all-honest panels: the more consistent half pools to an
+  upper end of 1.71-1.94 against 1.27-1.40 for everyone, because a
+  consistent person is mostly a person whose items are far apart (every
+  estimate correlates -0.14 to -0.36 with the true spread). Gating on
+  consistency selects on the very spread being pooled. That holds for any
+  detector read from the person's own choices, anchors included.
+- **Anchors cost width.** One in five raises the fixed prior's honest width
+  from 2.34 (no anchors, the section above) to 2.40-2.41 under staged:
+  answers spent on settled pairs; the 2026-11-11 section priced the rank
+  accuracy (flat at 15 items, -0.01 to -0.03 at 30).
+
+**Decision.** Not shipped; no anchors are asked and the intervals keep the
+fixed prior. Gating the pool by a lapse estimate is closed: its failure is
+selection on spread, not detector quality. The way to keep careless people
+from shrinking the pool is to stop gating and model them: pool the spread
+with each person's likelihood carrying their own lapse share (p = e/2 +
+(1 - e) sigma(d), e integrated over the grid), so a coin flip widens the
+lapse term rather than shrinking the spread, and nobody is selected out.
+A detector from outside the choices (answer times) would also escape the
+selection, but needs real answers to test.
+
+Caveats: as the section above (synthetic Bradley-Terry respondents, uniform
+truth, constant lapse from the first answer, 40 per panel), plus one anchor
+rule, two anchor rates, one threshold for anchor-tau and one mass cut.
+
+## A pooled spread that models the lapse (2026-11-13, last; measured, not shipped)
+
+The section above closed gating and named the alternative: stop selecting
+people out and model them. Pool the prior sd with each person's lapse share
+in the likelihood, so a coin flip can be explained by a lapse term rather
+than by a smaller spread everyone shares. This builds that fit and scores it
+against the oracle on the gated sweep's mixed panels.
+
+**The fit** (`src/lib/lapsePool.ts`, tests in `lapsePool.test.ts`). Each
+answer has chance e/2 + (1 - e) sigma(mu_picked - mu_other), mu_i ~ N(0,
+phi^2), and each person's e sits on the grid 0, 0.1, 0.2, 0.3, 0.4, 0.6, 1
+(1 is a pure coin flipper, whose evidence is exactly n log 1/2). For each
+(phi, e), `lapseEvidenceGrid` importance-samples p(answers | phi, e) from a
+Gaussian at that posterior's mode with the Fisher information as precision
+(the lapse likelihood is not log-concave, so its Hessian need not be
+positive definite), 2,000 draws, inflated 1.1 at e = 0 (matches
+`sampledEvidence` to 0.1 nats) and 1.2 above it. Against 200,000 draws at 30
+items x 8 answers and phi 2, the e > 0 estimates land within -0.24 to +0.38
+nats per person; 1,000 draws at 1.1 were biased low (-0.35 to +0.04), which
+would pull phi down, so the sampler was set before the sweep. Two ways to
+combine the grid into a panel evidence:
+
+- **lapse-pool**: the panel's lapse weights over the grid fitted by EM at
+  each phi (`profiledPanelEvidence`), evidence profiled over them. Rules
+  `lapse-pool` (its upper end, 1.92 nats as `pooledPriorPhiUpper`) and
+  `lapse-pool-max` (its maximum).
+- **lapse-prior**: a fixed Beta(1, 19) prior on each person's e
+  (`beta19Weights`, `lapseEstimate.ts`'s default, floored at 0.001), no
+  fitting. Rule `lapse-prior` (its upper end).
+
+**Design** (`scripts/gated-upper-sweep.ts --lapse-pool`, rows in
+`docs/lapse-pool-2026-11-13.jsonl`, 72 cells). 8/15/30 items x 2/4/8 answers
+per item, 40 respondents per panel, pooled on an independent panel of the
+same mix, uniform truth, seed base 1000; careless share 0, 50% or 100% at
+lapse 0.4, and 50% at lapse 0.2; both selectors. No anchors.
+
+**Honest respondents, mean coverage (worst cell) / mean half-width**, over the
+9 list-and-budget cells (careless respondents in the second block):
+
+| lapse | careless | selector | fixed | upper-all | oracle | lapse-pool | lapse-pool-max | lapse-prior |
+|---|---|---|---|---|---|---|---|---|
+| any | 0 | staged | 0.948 (0.881) / 2.34 | 0.960 (0.937) / 2.12 | 0.960 (0.937) / 2.12 | 0.956 (0.933) / 2.32 | 0.954 (0.921) / 2.00 | 0.961 (0.939) / 2.14 |
+| any | 0 | shipped | 0.967 (0.948) / 2.41 | 0.952 (0.931) / 2.04 | 0.952 (0.931) / 2.04 | 0.966 (0.948) / 2.39 | 0.949 (0.926) / 2.04 | 0.956 (0.935) / 2.08 |
+| 0.2 | 50% | staged | 0.947 (0.878) / 2.34 | 0.953 (0.921) / 2.03 | 0.962 (0.944) / 2.26 | 0.956 (0.909) / 2.31 | 0.930 (0.840) / 1.89 | 0.956 (0.927) / 2.06 |
+| 0.2 | 50% | shipped | 0.968 (0.951) / 2.41 | 0.931 (0.911) / 1.87 | 0.954 (0.945) / 2.03 | 0.966 (0.943) / 2.37 | 0.945 (0.895) / 2.02 | 0.937 (0.912) / 1.90 |
+| 0.4 | 50% | staged | 0.947 (0.878) / 2.34 | 0.948 (0.903) / 2.05 | 0.962 (0.944) / 2.26 | 0.955 (0.904) / 2.32 | 0.945 (0.883) / 1.98 | 0.951 (0.912) / 2.08 |
+| 0.4 | 50% | shipped | 0.968 (0.951) / 2.41 | 0.891 (0.858) / 1.71 | 0.954 (0.945) / 2.03 | 0.967 (0.948) / 2.38 | 0.922 (0.872) / 1.84 | 0.903 (0.872) / 1.75 |
+
+| lapse | careless | selector | fixed | upper-all | lapse-pool | lapse-pool-max | lapse-prior |
+|---|---|---|---|---|---|---|---|
+| 0.4 | 100% | staged | 0.809 (0.697) / 2.32 | 0.726 (0.522) / 1.63 | 0.814 (0.738) / 2.31 | 0.614 (0.338) / 1.30 | 0.734 (0.528) / 1.66 |
+| 0.4 | 100% | shipped | 0.856 (0.770) / 2.29 | 0.617 (0.544) / 1.32 | 0.847 (0.755) / 2.27 | 0.661 (0.562) / 1.42 | 0.624 (0.551) / 1.34 |
+
+Pooled values, mean over cells (upper-all / oracle / lapse-pool maximum,
+upper end / lapse-prior upper end): all-honest staged 1.53 / 1.53 / 1.44,
+1.94 / 1.58; half careless at 0.4 under shipped 0.99 / 1.39 / 1.20, 1.87 /
+1.03; all careless at 0.4 under shipped 0.64 / - / 0.79, 1.86 / 0.65.
+
+**Why: spread and lapse are not identified from these answers**
+(`scripts/lapse-ridge.ts`: 20 respondents, 15 items x 8 answers, the panel
+evidence on a grid of phi three ways from the same per-person grids):
+
+| panel | e = 0 only: drop from best to phi 2 | Beta(1, 19) prior | EM-profiled | where the EM weight goes at phi 2 |
+|---|---|---|---|---|
+| shipped, honest | 17.6 | 12.3 | 3.0 | e = 0.1 (0.82) |
+| staged, honest | 17.8 | 15.4 | 4.2 | spread over 0.2-1 |
+| shipped, all careless at 0.4 | 114.7 | 81.2 | 1.7 | e = 0.4 (0.96) |
+| staged, all careless at 0.4 | 39.9 | 35.7 | 0.9 | 0.6 and 1 (0.90) |
+
+With free lapse weights the evidence has a ridge: any wider spread plus a
+matching lapse share fits about as well as the true spread with none, even
+for an all-honest panel (at phi 2 the EM puts honest shipped respondents at
+e = 0.1). A lapse caps a pair's chance at 1 - e/2, and only pairs far apart
+on the person's own scale can show that cap; at 2 to 8 answers per item there
+are too few of them, under shipped as well as staged. So:
+
+- **lapse-pool is safe and buys nothing.** Its upper end sits at 1.85-1.96
+  of the 2.02 ceiling in every row, so its intervals are the fixed prior's
+  (1-2% narrower, coverage within 0.01 of fixed; on all-careless staged
+  panels it is the best rule, 0.814 against 0.809, worst 0.738 against
+  0.697). With nobody careless it gives up the 9-15% that the plain pooled
+  upper end (upper-all, here the oracle) gets.
+- **Its maximum moves the right way but not far enough.** Half careless at
+  0.4 under shipped, the maximum is 1.20 against the blind pool's 0.99 and
+  the oracle's 1.39; with everyone careless it is 0.70-0.79, and its
+  intervals hold careless respondents to 0.61-0.66 (staged worst 0.338).
+- **A tight prior on the lapse is the lapse-blind pool again.** Beta(1, 19)
+  makes a 0.4 lapse cost more than a narrower spread, so lapse-prior tracks
+  upper-all within 0.012 everywhere: honest 0.903 half careless at 0.4
+  under shipped (upper-all 0.891, fixed 0.968), careless 0.624 when all are.
+  Any prior between the two moves along the same trade: loose enough to
+  absorb careless people is loose enough to absorb an honest panel's spread.
+
+**Decision.** Not shipped. The pairwise intervals keep the fixed prior;
+`lapsePool.ts` stays tested and unwired, and the sweep keeps the rules behind
+`--lapse-pool`. With the gates (two sections up) and the lapse model (here)
+both closed, the pooled prior can narrow the intervals only with information
+from outside the person's choices about who is careless: answer times
+(`msToAnswer`, "Answer times") on a real survey, or a survey that holds its
+respondents to a known-careful population. Until a real survey's answers
+exist, the honest-panel gain (9-15%) is not worth the careless-panel risk.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; constant
+lapse from the first answer; one seed base (1000), 40 respondents per panel;
+a 7-point lapse grid; importance-sampled evidence whose e > 0 terms carry
+about 0.1-0.4 nats of noise per person at 30 items (the ridge rows move by
+more than that between phi points only where the table says they do).
+
+
+## Lists over 120 items: the switch rule (2026-11-13; shipped)
+
+Item (e) of the plan. Since 2026-11-10 the staged selector used the
+information selector from the first answer on lists up to 120 items, and on
+longer lists ran the shipped selector for the first 120 answers before
+handing over. Since 2026-11-12 staged was the server default only up to 120
+items. Both rules for long lists rested on two cells from 2026-10-21 (220
+items at 90 and 300 answers) and on the rd 150 bar, which no screen uses.
+This run measured the long lists directly.
+
+`scripts/long-list-switch-sweep.ts` (synthetic respondent of
+`infoGainSim.ts`, 60 seeds per cell, the same seeds for every selector, so
+the differences below are paired; mean ± standard error). Rank accuracy is
+Spearman over every item, so a selector that leaves items untouched is not
+flattered. Raw rows: `docs/long-list-switch-2026-11-13.jsonl` (with each
+seed's rank) and, with the insights card's clear pick on the refit (30 seeds,
+150 to 300 items), `docs/long-list-switch-refit-2026-11-13.jsonl`.
+
+| items | answers | shipped | staged, 120-answer warm-up | staged from the first answer | first answer − warm-up | first answer − shipped |
+|---:|---:|---:|---:|---:|---:|---:|
+| 150 | 60 | 0.169 | 0.169 | 0.171 | +0.001 ± 0.006 | same |
+| 150 | 120 | 0.247 | 0.247 | 0.269 | **+0.021 ± 0.006** | same |
+| 150 | 300 | 0.475 | 0.504 | 0.502 | -0.002 ± 0.005 | +0.027 ± 0.006 |
+| 150 | 600 | 0.725 | 0.776 | 0.766 | **-0.010 ± 0.005** | +0.041 ± 0.005 |
+| 220 | 60 | 0.108 | 0.108 | 0.121 | **+0.013 ± 0.004** | same |
+| 220 | 120 | 0.174 | 0.174 | 0.189 | **+0.015 ± 0.004** | same |
+| 220 | 200 | 0.250 | 0.259 | 0.273 | **+0.014 ± 0.004** | +0.022 ± 0.004 |
+| 220 | 600 | 0.551 | 0.597 | 0.603 | +0.006 ± 0.005 | +0.052 ± 0.004 |
+| 300 | 120 | 0.121 | 0.121 | 0.130 | **+0.009 ± 0.003** | same |
+| 300 | 600 | 0.430 | 0.466 | 0.466 | +0.001 ± 0.005 | +0.036 ± 0.004 |
+| 500 | 120 | 0.076 | 0.076 | 0.085 | **+0.009 ± 0.002** | same |
+| 500 | 600 | 0.275 | 0.300 | 0.301 | +0.001 ± 0.003 | +0.026 ± 0.003 |
+
+The full grid is 4 lengths (150, 220, 300, 500) x 7 budgets (30 to 600) x
+two lapse rates (0 and 0.2, a fifth of answers at random). Over its 56 cells:
+
+- **From the first answer is ahead of the warm-up up to 120 answers**
+  (-0.001 to +0.021 in the 32 such cells, ahead by more than two standard
+  errors in 14; up to 120 answers the warm-up *is* the shipped selector), and is level with it from 200 answers on (-0.015 to
+  +0.014). It is behind by more than two standard errors in two cells, both
+  at 600 answers, which is 2.7 to 4 answers per item: 150 items without lapse
+  (-0.010 ± 0.005) and 220 items with lapse (-0.015 ± 0.007). Most people
+  on a long list answer far fewer than 600.
+- **It is ahead of the shipped selector in 54 of 56 cells**, by +0.002 to
+  +0.052; the other two are 30 answers with lapse (150 items -0.001 ± 0.007,
+  500 items -0.000 ± 0.002).
+- **The couple screen's bar** (8 items under rd 200, `couples.ts`) comes at a
+  median 35 answers at every length, against 38 to 40 for the shipped
+  selector and the warm-up.
+- **The hand-over costs items under rd 150 again** ("Switching part way costs
+  both", above): at 200 answers the warm-up has 12.5 to 15.3 items under rd
+  150, the shipped selector 21 to 22 and from-the-first-answer 46 to 47.
+  Before about 90 answers the shipped selector leads on that bar (3.8 to 4.7
+  items against 0.9 to 1.0 at 90), as on short lists; no screen reads it.
+- **Items under rd 200 stop at 133 for both staged variants** at 600 answers
+  on every length, against 105 for shipped: the information selector works
+  through admitted stages (`activeItems`), so it settles a subset well rather
+  than touching everything once.
+- **The insights card does not name a clear favourite on long lists under
+  either selector** (0 of 3,360 refits from 150 to 300 items at up to 600
+  answers; the true favourite was ranked first in 0 to 7%). The card's claim
+  is honest there by staying silent; the "it's between" set carries the
+  message. Above `REFIT_MAX_ITEMS` (300) there is no refit at all.
+
+**Pooled across a panel** (`careless-pattern-sweep.ts --items 150 --switch-at
+0 --no-self`, new flags; 30 surveys a cell, panels of 20 and 60, half an
+answer to one answer per item per person, a quarter or 40% of people careless
+at random or by a shared salience; raw rows
+`docs/long-list-pooled-2026-11-13.jsonl`): the pool's Spearman with the common
+truth is level with standard or ahead in 15 of 16 cells (-0.0005 to +0.0064;
+the coin-flip cost seen on short lists is gone at this sparsity), and the
+salience leak is the same within 0.015.
+
+**What the pooled run seemed to find that is not about the selector
+(withdrawn the same day).** It reported that on these sparse long lists 5.4 to
+14.3% of the pairs the pooled ranking calls "clearly above" were the wrong way
+round. That was the sweep, not the ranking: `careless-pattern-sweep.ts` capped
+every row's rd at 349 before pooling, which let each person's never-answered
+items (rating 1500, rd 350) into `groupRanking` as real ratings. On the same
+answers the shipped pool calls 0 to 0.4% of its clear pairs the wrong way round
+("The sparse long-list overclaim was the harness", below), and the pooled
+Spearman figures in this section are unchanged by the fix.
+
+**Decision.** `hybridSwitchAt` returns 0 at every length and
+`defaultPairSelector` returns "staged" at every length; a survey's own
+"Question order" setting and `PAIR_SELECTOR` still win, and
+`HYBRID_SWITCH_ANSWERS` stays as an explicit `switchAt` for anyone who wants
+the old warm-up. Latency: the information selector scores the admitted pool,
+capped at `INFO_POOL_CAP` (400), so the worst case stays near the 66 ms
+measured at 500 items ("Latency at long lists").
+
+Tests: `pairing.test.ts` (the rule at 121, 220 and 5,000 items; a 200-item
+list gets the information selector's pair at 50 answers; an explicit
+`HYBRID_SWITCH_ANSWERS` still gives the warm-up; the default at 500 items;
+four tests fail on the old rule), `infoGainPairing.simulation.test.ts` (the
+couple bar now also at 220 items, where the old default equalled shipped; the
+rd 150 assertion holds at 300 answers, not at 90).
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth; no real
+panel with more than 15 items exists here (REAL-RANKINGS.md), so the long
+lists are untested on people; one lapse pattern (constant random) per
+respondent in the per-person grid.
+
+## The sparse long-list overclaim was the harness (2026-11-13, last; no change to the ranking)
+
+The section above reported that on 150-item lists, at half to one answer per
+item per person, 5.4 to 14.3% of the pairs the pooled ranking calls "clearly
+above" were the wrong way round, with no one careless. That would have meant
+the admin ranking's rank ranges were dishonest exactly where a long survey
+needs them. Two suspects were named: per-person Glicko ratings from one or
+two answers per item not being on a common scale, and the DerSimonian-Laird
+spread estimated from one or two people per item.
+
+Neither. The figure came from the sweep. `careless-pattern-sweep.ts` (and
+`anchor-weight-sweep.ts`) pooled with
+
+    rows.push({ ...r, rd: Math.min(r.rd * scale, 349) })
+
+The cap was there so a down-weighted person's rows would not be scaled past
+350 and dropped as "never answered" by `groupRanking`. It also turned every
+never-answered row (rating 1500, rd exactly 350) into a real one. On a 15- or
+30-item list at 4 answers per item everyone answers about every item, so the
+cap changed nothing at equal weights. On a sparse 150-item list most rows are
+never-answered: each item gained a dozen or more phantom raters at 1500, its
+interval narrowed around a value pulled toward the middle, and pairs were
+called clear that the answers do not support.
+
+**Measured** (`scripts/sparse-pool-overclaim.ts`, new; honest panels only, so
+every wrong call is the estimator's; 150 items, 10 surveys a cell, both
+selectors; raw rows `docs/sparse-pool-overclaim-2026-11-13.jsonl`). Clear
+pairs per survey and the share of them that are the wrong way round:
+
+| selector | answers per item | people | raters per item | shipped | sweep's cap | thin items never clear | own-refit pool | joint fit |
+|---|---:|---:|---:|---|---|---|---|---|
+| standard | 0.5 | 20 | 3.6 | 174, 0.00% | 699, **7.14%** | 174, 0.00% | 156, 0.00% | 101, 0.00% |
+| standard | 0.5 | 60 | 10.9 | 252, 0.08% | 1,755, **12.94%** | 252, 0.08% | 237, 0.00% | 126, 0.00% |
+| standard | 1 | 20 | 5.5 | 477, 0.17% | 1,455, **5.15%** | 477, 0.17% | 449, 0.02% | 381, 0.00% |
+| standard | 1 | 60 | 16.6 | 637, 0.39% | 3,137, **11.01%** | 637, 0.39% | 613, 0.11% | 441, 0.00% |
+| staged | 0.5 | 20 | 3.7 | 207, 0.00% | 988, **7.53%** | 207, 0.00% | 196, 0.00% | 111, 0.00% |
+| staged | 0.5 | 60 | 11.2 | 275, 0.07% | 2,190, **14.47%** | 275, 0.07% | 268, 0.00% | 126, 0.00% |
+| staged | 1 | 20 | 5.7 | 566, 0.02% | 2,074, **6.47%** | 566, 0.02% | 553, 0.02% | 405, 0.00% |
+| staged | 1 | 60 | 17.2 | 689, 0.06% | 3,611, **11.61%** | 689, 0.06% | 685, 0.03% | 443, 0.00% |
+
+- **The cap alone reproduces the reported range** (5.2 to 14.5% here, 5.4 to
+  14.3% reported) on the same answers where `groupRanking` as the route calls
+  it says 0 to 0.4%. The ranking route reads `ParticipantItemRating`, which
+  holds a row only once a person has answered about the item (an undo puts
+  back the stored "before" rd, 350 for a first answer, which the filter still
+  drops), so the product never had this fault.
+- **The thin suspect is ruled out.** Never calling a pair clear when either
+  item has fewer than `THIN_RESPONDENTS` raters changes nothing: every clear
+  pair already sits between items with 6 or more raters. The DL spread from
+  one or two people produces intervals too wide to separate anything.
+- **The scale suspect is a small effect.** Pooling each person's own
+  Bradley-Terry refit (`btRefit.ts`) instead of their Glicko states trims the
+  wrong share from 0.39% to 0.11% in the worst cell and calls 0.6-10% fewer
+  pairs, which is the one-game-at-a-time update's known overconfidence
+  ("Per-person intervals from a refit"), not a scale problem.
+- **A joint fit is not an upgrade.** One Bradley-Terry fit of everyone's
+  answers (intervals for each item against the list's mean, model or
+  respondent-clustered sandwich; both the same here) makes no wrong calls but
+  calls 20 to 54% fewer pairs. The shipped pool already sits near 0.1%, so
+  that power is not worth a dense O(n^3) fit of the whole survey on every
+  ranking request.
+
+**The pooled long-list run, re-run with the harness fixed**
+(`careless-pattern-sweep.ts --items 150 --per-item 0.5,1 --respondents 20,60
+--careless 0,0.25,0.4 --patterns random,salience --surveys 30 --no-self`, each
+selector; 48 cells; raw rows `docs/long-list-pooled-uncapped-2026-11-13.jsonl`):
+wrong-way shares among clear pairs are 0.00-0.35% with no one careless and
+0.00-0.16% with a quarter or 40% coin-flippers, where the capped run said
+0.6-14.3%. People sharing a salience still make the pool confidently wrong,
+as on short lists ("Careless patterns that are not random"): 0.40-1.94% at a
+quarter, 2.96-8.13% at 40%. Spearman with the truth moved by at most 0.0005
+in the 32 cells the old file holds, so the selector comparison and the switch
+decision above stand. With the harness fixed, staged calls 4-25% more pairs
+clear than standard (not 18-70%), at -0.27 to +0.62 points of wrong share.
+
+**What the cap did to the weighted schemes.** The same cap stopped any weight
+below about 0.7 from taking effect (a 290 rd scaled past 349), so `loo-w`,
+`gate-w` and `self-w` were weaker than written. Re-run on 15 and 30 items, 20
+people, random, salience and dissent at 0/25/40% (40 surveys,
+`docs/careless-pattern-uncapped-2026-11-13.jsonl`): the shipped pool and
+every drop scheme are identical to the 2026-11-11 and 2026-11-12 rows; `loo-w`
+gains more against salience (+0.049 to +0.118, was +0.044 to +0.091) and
+costs a genuine camp more (-0.029 to -0.057, was -0.018 to -0.027); `gate-w
+z<1` the same way (+0.026 to +0.057 against salience, -0.005 to -0.023 for a
+camp). Each decision that rested on those columns (agreement is a note, not a
+weight; the self-consistency gate is not shipped) holds, and holds more
+strongly on the camp side. The 8- and 60-person cells are re-run in the
+next section.
+
+**Fixed.** Both sweeps now leave out never-answered rows themselves and pass
+weighted rows uncapped; `groupRanking` takes `{ answeredOnly: true }` for a
+caller that has done that, so a row scaled past 350 still counts
+(`groupRanking.test.ts`: the uncapped down-weighted row fails on the old
+filter). The route does not pass it.
+
+Caveats: synthetic Bradley-Terry respondents with uniform truth and person
+spread 0.25; no real panel with more than 15 items exists here.
+
+## The weighted schemes at 8 and 60 respondents, uncapped (2026-11-13, last; no change to the ranking)
+
+The section above fixed the sweep's rd cap and re-ran the 20-person cells.
+The 8- and 60-person cells of "Careless patterns that are not random" and
+"Self-consistency" still had their weighted columns (`loo-w`, `gate-w`,
+`self-w`) from the capped harness. Re-run here with the fixed sweep:
+
+    careless-pattern-sweep.ts --surveys 40 --items 15,30 --respondents 8 \
+      --careless 0,0.1,0.25,0.4,0.5 --patterns random,first,favourite,salience,dissent
+    (plus --q 0.5 --careless 0.25,0.5 --patterns random,salience at 8, and at 60:
+     every pattern at 0-50%, first/favourite/salience at 25/40/50%, dissent at 10-50%)
+
+Both seed bases (2000 and 50000), 188 cells, raw rows tagged with their seed
+base: `docs/careless-pattern-uncapped-panels-2026-11-13.jsonl`. The shipped
+pool, `first-flag`, every drop scheme and `oracle-drop` match the capped
+files exactly in all 69 cells the 2026-11-11 file holds and all 48 the
+2026-11-12 self-consistency file holds (they never scaled an rd). Only the
+weighted columns move. Paired difference from shipped (Spearman with the
+target, range over 15/30 items and both seed sets, 4 cells a row; "capped" is
+the same column in the old files where they hold that cell; up/down counts
+cells beyond 2 SE):
+
+| panel | pattern, share | shipped rho | oracle-drop | loo-w uncapped (up/down) | loo-w capped | gate-w z<1 uncapped | gate-w z<1 capped | self-w uncapped |
+|---|---|---|---|---|---|---|---|---|
+| 8 | honest only (20) | 0.935-0.944 | 0 | -0.002 to +0.002 (0/0) | -0.002 to +0.002 | -0.003 (0/5) | -0.003 to -0.002 | -0.017 to -0.003 (0/15) |
+| 8 | random, 25% | 0.889-0.903 | +0.026 to +0.038 | +0.023 to +0.036 (4/0) | +0.021 to +0.023 | +0.005 to +0.022 | +0.004 to +0.020 | -0.023 to -0.002 |
+| 8 | random, 50% | 0.770-0.803 | +0.101 to +0.134 | +0.079 to +0.114 (4/0) | +0.080 to +0.083 | +0.016 to +0.057 | +0.020 to +0.054 | -0.029 to +0.006 |
+| 8 | first, 50% | 0.837-0.859 | +0.046 to +0.065 | +0.044 to +0.055 (4/0) | +0.037 to +0.047 | +0.034 to +0.047 | +0.034 to +0.038 | +0.021 to +0.031 |
+| 8 | salience, 25% | 0.871-0.876 | +0.049 to +0.059 | +0.039 to +0.054 (4/0) | +0.040 to +0.043 | +0.015 to +0.036 | +0.011 to +0.024 | -0.013 to +0.002 |
+| 8 | salience, 40% | 0.772-0.792 | +0.124 to +0.146 | +0.082 to +0.113 (4/0) | +0.062 to +0.088 | +0.022 to +0.049 | +0.016 to +0.042 | -0.010 to +0.017 |
+| 8 | salience, 50% | 0.613-0.653 | +0.251 to +0.292 | **-0.081 to -0.048** (0/3) | -0.030 to -0.017 | -0.030 to +0.002 | -0.013 to -0.012 | -0.019 to +0.019 |
+| 8 | dissent, 25% | 0.904-0.923 | -0.034 to -0.027 | **-0.023 to -0.017** (0/4) | -0.014 to -0.011 | -0.014 to -0.008 | -0.011 to -0.006 | -0.019 to -0.007 |
+| 8 | dissent, 40% | 0.892-0.911 | -0.109 to -0.100 | **-0.052 to -0.041** (0/4) | -0.026 to -0.021 | -0.037 to -0.019 | -0.028 to -0.019 | -0.022 to -0.013 |
+| 8 | dissent, 50% | 0.888-0.902 | -0.261 to -0.229 | **-0.039 to -0.022** (0/4) | -0.020 to -0.009 | -0.056 to -0.038 | -0.039 to -0.019 | -0.019 to -0.013 |
+| 60 | honest only (4) | 0.981-0.987 | 0 | -0.001 to +0.001 (0/0) | -0.001 to -0.000 | -0.003 to +0.001 | | -0.003 to -0.001 |
+| 60 | random, 50% | 0.943-0.954 | +0.026 to +0.032 | +0.024 to +0.029 (4/0) | | +0.013 to +0.019 | | -0.001 to +0.001 |
+| 60 | first, 50% | 0.959-0.970 | +0.009 to +0.016 | +0.009 to +0.012 (4/0) | | +0.008 to +0.011 | | +0.005 to +0.006 |
+| 60 | salience, 25% | 0.906-0.927 | +0.057 to +0.073 | +0.048 to +0.060 (4/0) | +0.055 | +0.026 to +0.035 | | -0.003 to +0.008 |
+| 60 | salience, 40% | 0.778-0.807 | +0.170 to +0.197 | +0.086 to +0.115 (4/0) | +0.070 | +0.036 to +0.061 | | -0.004 to +0.015 |
+| 60 | salience, 50% | 0.647-0.672 | +0.302 to +0.333 | **-0.102 to -0.020** (0/3) | | -0.035 to +0.002 | | -0.002 to +0.029 |
+| 60 | dissent, 25% | 0.975-0.983 | -0.055 to -0.051 | **-0.034 to -0.020** (0/4) | -0.024 to -0.019 | -0.010 to -0.009 | | -0.006 to -0.001 |
+| 60 | dissent, 40% | 0.972-0.982 | -0.166 to -0.147 | **-0.059 to -0.036** (0/4) | -0.032 to -0.020 | -0.011 to -0.007 | | -0.002 to -0.001 |
+| 60 | dissent, 50% | 0.972-0.979 | -0.288 to -0.267 | -0.015 to -0.006 (0/4) | -0.010 to -0.002 | -0.008 to -0.003 | | -0.007 to -0.001 |
+
+Favourite pickers move nothing at either size (`loo-w` -0.004 to +0.002);
+10% shares and the q = 0.5 cells sit between honest and 25% as before.
+
+Wrong-way share among clear pairs, the column that decides whether a scheme
+is honest about its uncertainty:
+
+| panel | pattern, share | shipped | loo-w uncapped | gate-w z<1 |
+|---|---|---|---|---|
+| 8 | dissent, 25-50% | 0.00-0.25% | 0.00-0.35% | 0.25-0.67% |
+| 60 | dissent, 25-40% | 0.00-0.03% | **0.90-1.69%** | 0.03-0.18% |
+| 60 | salience, 25% | 1.34-1.97% | 0.01-0.23% | 0.61-0.83% |
+| 60 | salience, 40% | 7.55-8.54% | 2.01-3.79% | 4.45-6.71% |
+| 60 | salience, 50% | 15.16-16.33% | **16.48-21.10%** | 14.58-17.68% |
+| 8 | salience, 50% | 3.98-5.22% | 3.66-7.54% | 5.21-7.33% |
+
+What it shows:
+
+- **Uncapped, agreement weighting taxes a real camp about twice as hard as
+  the capped table said**, at both panel sizes: -0.017 to -0.052 at 8 people
+  (was -0.009 to -0.026) and -0.020 to -0.059 at 60 for 25-40% camps (was -0.019 to -0.032),
+  down beyond 2 SE in all 24 camp cells from 25% up. At 20 people the
+  previous section found the same direction (-0.029 to -0.057).
+- **At 60 people it also makes the camp's pool confidently wrong.** With a
+  quarter to 40% of the panel holding a second taste, `loo-w` calls 2-8% more
+  pairs clear than shipped and 0.9-1.7% of them are the wrong way round
+  against the panel's average taste, where shipped calls 0-0.03% wrong. A
+  big panel shrinks the intervals around the majority's order, and weighting
+  the minority down is the same as pretending it is not there.
+- **Its gains against careless minorities grow too**: up to +0.114 against
+  half-panel coin flippers at 8 (85% of oracle-drop; was +0.083) and +0.113
+  against 40% salience (was +0.088); at 60, +0.086 to +0.115 against 40%
+  salience (was +0.070), cutting the wrong-way share there from about 8% to
+  2-4%. Neither side of the trade changed sign; both got bigger.
+- **It backfires harder where the careless are the majority.** At 50%
+  salience `loo-w` costs -0.048 to -0.081 at 8 and -0.020 to -0.102 at 60
+  (8 people capped: -0.017 to -0.030), and at 60 people the pool's wrong-way share rises
+  from 15-16% to 16-21%. Shipped is already 15-16% wrong there: a 60-person
+  panel where half pick by a shared wrong reason is confidently wrong under
+  every scheme, which no answer-only defence can fix ("Careless patterns",
+  caveats).
+- **`gate-w z<1` costs a 60-person camp less than `loo-w`** (-0.007 to -0.011
+  against -0.036 to -0.059, with almost no wrong calls). The likely reason, not
+  measured here: on a 60-person panel the self-consistency gate passes more
+  camp members, so fewer of them are weighted by agreement. At 8 it costs as much as `loo-w` (-0.008 to
+  -0.056) and recovers less. `self-w` alone stays a small loss on honest
+  panels (-0.003 to -0.017 at 8), as it was.
+
+**Decision.** No change. Every decision the capped columns supported holds,
+and the camp side is stronger: agreement stays a note, never a weight
+(`respondentAgreement`), and the self-consistency gate stays unshipped. The
+first real survey's answer noise (item (c)) is still what would decide the
+gate.
+
+Caveats: the same synthetic Bradley-Terry panels as the two sections it
+re-runs (uniform truth, person spread 0.25, one salience trait at taste's
+strength); 40 surveys a cell; the 60-person grid skips 10% for first,
+favourite and salience and 0% except under random.
+
+
+## Half-time carelessness and answer times (2026-11-13, last; shipped as a comparison)
+
+Item (b) on the flagship list. The careless-pattern section found that
+people who pick by salience on half their answers (q = 0.5) still pull the
+pool toward salience, and that agreement rarely flags them. The answer-time
+section shipped a pace note and `?drop=fast`, both judged on each person's
+*median* time per pick. This section asks whether answer times see the
+half-time pickers too. Someone careless on half their picks has a median
+that moves only part of the way toward fast, so the question is whether
+the signal has to be read per answer rather than per person.
+
+**Setup.** `scripts/answer-time-sweep.ts` now takes `--q`. A careless person
+answers by their pattern on a share q of picks and honestly on the rest,
+using the same answer streams as the careless-pattern sweep's `--q`, and
+q = 1 reproduces the 2026-11-12 rows exactly. Careless answers are timed at
+`ratio` x the person's own pace and honest ones as an honest person's. Its
+other new signals and schemes:
+
+- `fastShare`: the share of a person's answers under 0.5x the panel's median
+  of medians; `share-drop` leaves out people whose share is 0.3 or more;
+- `answer-drop`: keep every person, leave out each *answer* under 0.5x the
+  panel's median of medians, and replay that person's Glicko states from the
+  answers kept (the script checks that a full replay reproduces the
+  simulator's own states);
+- `self-answer-drop`: the same against each person's own median;
+- `oracle-answers`: leave out exactly the careless answers, the ceiling.
+
+The person-level threshold is the shipped `FAST_PACE` (`--pace-min 0.5`).
+Each pattern (salience, random, and dissent, the honest camp) was run at
+0, 25, 40 and 50% of a 20-person panel, on 15 and 30 items, with 4 answers
+per item and 40 surveys per cell. Stress cells used a person pace spread of
+0.6, 20 and 60 people, and 30 surveys per cell. Raw rows:
+`docs/half-time-answer-time-2026-11-13.jsonl`, 132 cells (the q = 1 comparison cells included).
+
+| case | oracle-answers | pace-drop (shipped `?drop=fast`) | answer-drop | share of ceiling: pace / answers |
+|---|---|---|---|---|
+| salience q = 0.5, careless at 0.4x pace, spread 0.4 | +0.020 to +0.076 | +0.000 to +0.017 | **+0.014 to +0.049** | 0-35% / **55-75%** |
+| same, spread 0.6, 20 and 60 people | +0.019 to +0.079 | +0.002 to +0.021 | **+0.011 to +0.048** | 9-34% / **55-66%** |
+| salience q = 0.5, careless at 0.6x pace | +0.019 to +0.079 | -0.002 to +0.014 | +0.004 to +0.031 | 0-25% / 20-42% |
+| salience q = 0.5, careless no faster | +0.019 to +0.079 | -0.005 to +0.003 | -0.006 to +0.004 | none |
+| random q = 0.5, 0.4-0.6x pace | +0.008 to +0.020 | +0.000 to +0.004 | +0.001 to +0.011 | small either way |
+| nobody careless (cost) | 0 | -0.003 to -0.000 | **-0.006 to -0.000** | |
+| a 25-50% camp with a second taste (cost) | n/a | -0.013 to -0.001 | **-0.019 to -0.002** | |
+
+Detection, half-time salience with quicker careless answers: the
+person-level pace scores AUC 0.65-0.87. The share of fast answers scores
+0.69-0.96, and it beats pace in every one of those cells.
+Against a camp both score 0.48-0.56, so neither has a view on taste.
+`answer-drop` leaves out 50-72% of the careless answers at 0.4x and 27-45%
+at 0.6x. It also leaves out 3-9% of honest answers at spread 0.4 and
+7-16% at spread 0.6, and those honest answers are where its cost comes from.
+
+What it shows:
+
+- **Pace, read per person, mostly misses half-time pickers.** Their median
+  sits at 0.6-0.9 of the panel's, above the 0.5 cut, so `?drop=fast` leaves
+  out 7-34% of them and recovers at most a third of the ceiling.
+- **Read per answer, the same signal recovers most of it** when the careless
+  answers are quick: 55-75% of `oracle-answers` at 0.4x pace. Leaving out
+  only those answers also beats leaving out the people: `oracle-answers`
+  is 0.001-0.015 above `oracle-drop`, because the half-time pickers' honest
+  answers are information.
+- **It has no view when careless answers are no faster.** The pool still
+  leaks salience there (oracle-answers +0.020 to +0.076), and nothing timed
+  can see it.
+- **Against each person's own median it is weaker.** `self-answer-drop`
+  recovers a tenth to two-thirds as much as the panel-relative cut: a
+  half-time picker's own median is already pulled down.
+- **At q = 1 the answer cut matches the person cut** (salience +0.027 to
+  +0.158 against +0.027 to +0.151). `share-drop` beats both there (+0.034
+  to +0.229), but it taxes a camp at a 0.6 spread by up to 0.030. Not
+  shipped; noted for a real panel.
+- **The cost is the honest answers it drops.** Nobody careless: up to 0.006.
+  A camp: up to 0.019, about 1.5x what `pace-drop` costs, because it trims
+  everyone's fastest answers instead of a few whole people.
+
+**Decision.** Ship it as a comparison, the same footing as `?drop=fast`:
+
+1. `ratingsWithoutFastAnswers` and `fastAnswerCutMs` in `groupRanking.ts`.
+   The ranking route's `?drop=fast-answers` reads every answered trial in
+   answer order (`answeredAt`, then id). It leaves out each answer under half
+   the panel's typical time per pick and replays each person's Glicko states
+   from the rest, so everyone still counts. It returns `leftOut.fastAnswers`
+   and a sentence saying how many answers, from how many people, under what
+   time. With nothing under the cut, the replay reproduces the stored ranking
+   (integration test). A result that is not A, B or EQUAL is refused.
+2. The builder's "Rank without the fast answers" button, shown once 5+
+   respondents are timed. It sits beside "Rank without the fast answerers",
+   which still appears only when someone is fast as a whole.
+
+The default ranking still counts every answer. The gain depends on careless
+answers being quick, which nobody has measured on this product, and the
+cost when they are not is real.
+
+Caveats: the timing model is invented, as in the answer-time section. Each
+cell has one salience trait at taste's strength; careless answers arrive at
+random through the session rather than in a block (item d, position bias
+that starts mid-session, is the block case); the panels have 20 to 60
+people and 15 to 30 items. The first real survey's `msToAnswer` (item c)
+decides whether any of this applies.
+
+## Carelessness that starts mid-session (2026-11-13; shipped as a comparison)
+
+Item (d) on the flagship list. Every earlier careless model spread the
+carelessness evenly over a session: a person was careless on every answer or on
+a share q of them. Real respondents often answer properly at first, get bored or
+tired, and then click through. That is a block. Both shipped time checks miss
+part of it. The person's median is pulled only part of the way down, and
+`?drop=fast-answers` cuts against the panel's typical time. That cut misses
+careless answers that are quick for this person but not under half the panel's
+pace.
+
+**Setup.** `scripts/answer-time-sweep.ts` takes `--onset f`. A careless person
+answers honestly for their first share f of answers and by their pattern from
+then on, timed at `ratio` x their own pace. With f = 0 it draws nothing extra,
+and the q = 0.5 rows of "Half-time carelessness" reproduce to the last digit.
+Two options model things everyone does, which a block detector must not take
+for a block:
+
+- `--warmup n`: everyone's first n answers take twice as long (reading the
+  instructions);
+- `--drift d`: everyone speeds up as they learn the screen, by exp(-d x
+  progress), so d = 0.7 is half the time by the last answer.
+
+Two block detectors are compared. Both find the single split of a person's log
+times with the largest t between the earlier and later means (each side at least
+8 answers) and leave out every answer after it when the later side is at least
+0.5 faster on the log scale (40% quicker) with t >= 4:
+
+- `own-shift-drop`: each person's raw log times, against their own start;
+- `shift-drop`, what ships (`groupRanking.ts`, `fastBlockStarts`): each answer's
+  log time minus the panel's median log time at the same position (a running
+  median over five positions). The panel curve is rebuilt up to three times,
+  each time without the blocks the last pass found. A single pass found only
+  25% of the blocks at 0.6x when 40% of the panel turned at the same point (they
+  dragged the curve down); three passes found 54%.
+
+Patterns: salience, random, first-slot and the honest camp. Panels of 20, with
+0, 25 and 40% careless, on 15 and 30 items at 4 answers per item, 40 surveys per
+cell. Onsets were 0.25, 0.5 and 0.75. Stress cells used a pace spread of 0.6,
+60 people and a five-answer warm-up, 30 surveys. Raw rows:
+`docs/fast-blocks-2026-11-13.jsonl`, 179 cells.
+
+Shares are of `oracle-answers`, the ceiling, in cells where it is above 0.003.
+
+| case | oracle-answers | shift-drop (shipped) | answer-drop | own-shift-drop |
+|---|---|---|---|---|
+| salience block from halfway, 0.4x pace | +0.015 to +0.057 | **100-102%** | 64-82% | 100-101% |
+| same, with a warm-up and/or drift (0.6 spread and 60 people included) | +0.012 to +0.057 | **98-105%** | 51-93% | down to **-0.123** |
+| block from a quarter or three quarters in, 0.4x | up to +0.107 | 95-101% | 0-85% | 96-102% |
+| random or first-slot block, 0.4x | +0.004 to +0.015 | 87-102% | 0-57% | 91-102% |
+| salience block, 0.6x pace, 25% careless | up to +0.041 | 88-101% | up to 60% | 91-106%, but down to -0.131 with a warm-up |
+| salience block, 0.6x pace, 40% careless | +0.007 to +0.107 | 34-90% | 11-57% | 95-100%, but down to -0.082 with a warm-up |
+| half-time (q = 0.5, no block), 0.4x | +0.020 to +0.048 | 0-1% | **67-75%** | 0-2% |
+| careless answers no faster (1x) | +0.004 to +0.057 | -0.0003 to +0.0001 | -0.003 to +0.000 | -0.0006 to +0.0009 |
+| nobody careless (cost, every timing model) | 0 | **-0.0002 to 0** | -0.006 to -0.001 | **-0.304 to +0.001** |
+| a 25-40% camp with a second taste (cost) | n/a | **-0.0004 to +0.0003** | -0.013 to -0.005 | **-0.402 to +0.000** |
+
+`shift-drop` found 100% of the blocks at 0.4x pace in every cell. At 0.6x it
+found 81-95% when a quarter of the panel was careless and 27-60% at 40%. It
+flagged at most 0.2% of honest respondents, and at most 0.5% of all honest
+answers were left out.
+
+What it shows:
+
+- **A block is a different thing from part-time carelessness, and needs its own
+  reading.** Against a block at 0.4x, cutting after a change point recovers all
+  of the ceiling; cutting each fast answer recovers two-thirds to
+  four-fifths. Against carelessness spread through the session, the change point
+  sees nothing and the per-answer cut is the tool, so the two complement each other.
+  Their union (`shift-or-fast`) costs what `answer-drop` costs, so it ships as
+  two separate views, not one.
+- **Read against the person's own start, a change point is a trap.** With no
+  warm-up it matches the shipped rule, and it does a little better at 0.6x
+  pace. But when everyone's first ten answers take twice as long, it reads
+  every honest person's return to normal pace as a block and cuts the rest of
+  their answers: -0.30 Spearman with nobody careless and -0.40 against a camp. Any real survey has a warm-up, so
+  the shipped rule reads each answer against the panel at the same point.
+- **It costs nothing measurable when it is not needed**: at most 0.0004
+  Spearman in any cell, against up to 0.006 for `?drop=fast-answers` with
+  nobody careless and 0.013 against a camp. The flag rate on honest people
+  (at most 0.2%) is what keeps it cheap.
+- **Its weak spot is a large share turning quick at the same moment, at a
+  modest speed-up.** Then the panel's own curve moves with them. Three passes
+  recover part of this, from 25% to 54% found. A real panel's onsets will be
+  spread out, which helps, but that is unmeasured.
+
+**Decision.** Shipped `?drop=fast-blocks` on the ranking route and a builder
+button ("Rank without answers after someone sped up"), with the respondent and
+answer counts in `leftOut`. It is a comparison, not the default. It is the
+cheapest of the three time views by a wide margin, and the first candidate for
+a default once a real panel's times exist (item c): whether real people's
+blocks exist, how often and how quick they are decides that. The slot-shuffle
+seed in `ranking.integration.test.ts` was re-picked too. Against a local
+`scripts/test-db.sh` database, the old seed made an honest respondent pick the
+top slot 11 times in 40, and five of the file's tests failed, although CI
+passed with it. Why the two differ is not known. Under the new seed, both
+pass.
+
+## A panel curve the careless cannot drag down (2026-11-13; shipped)
+
+Item (d2) on the flagship list. `?drop=fast-blocks` reads each answer against
+the panel's time at the same point in the session. Until now that was the
+panel's median. When 40% of a panel turn quick at the same point, at a modest
+0.6x pace, they pull the median down with them, so their own residuals barely
+move. Three passes (each rebuilding the curve without the blocks the last pass
+found) helped, but the rule still found only 27-60% of them.
+
+**Change.** `fastBlockStarts` now reads against an upper quantile of the
+panel's log times at each position, `FAST_BLOCK_CURVE_Q = 0.75`, still smoothed
+by a running median over five positions and still with three passes. The
+reason it is safe is simple. A change point compares the mean residual before
+a split with the mean after it, so a constant offset in the curve cancels. Only
+the curve's shape over positions matters. With nobody careless, the 0.75
+quantile has the same shape as the median, plus a little more noise. With a
+share c of the panel well below the honest times, the 0.75 quantile of the
+mixture sits near the (0.75 - c)/(1 - c) quantile of the honest people. For
+c = 0.4 that is about the honest median, which is exactly the curve we wanted.
+
+**Setup.** `scripts/answer-time-sweep.ts` takes `--curve-q 0.6,0.7,...`, which
+adds a `shift-drop-qNN` scheme per quantile next to the shipped `shift-drop`,
+and `--onset-spread s`, which draws each careless person's onset uniform on
+onset +- s instead of everyone turning at the same answer. Both default to
+off, so earlier rows reproduce. Grid: salience and random patterns, 25% and
+40% careless at 0.4x and 0.6x pace, onsets 0.25, 0.5 and 0.75. Each was run
+with no warm-up, a five-answer warm-up, a 0.7 learning curve, both, and
+spread-out onsets (+-0.2) with and without both. Cost cells: nobody careless,
+careless but no faster (1x), and a 25-40% camp with a second taste. Stress
+cells: 60 people, pace spread 0.6, warm-up. Panels of 20 on 15 and 30 items at
+4 answers per item, 40 surveys per cell (30 for stress). Raw rows:
+`docs/fast-blocks-curve-q-2026-11-13.jsonl`, 133 cells. In that file
+`shift-drop` is the median curve, the default when it ran (`shiftDropCurveQ`).
+
+Shares are of `oracle-answers` (the ceiling), in cells where it is above
+0.003. "Found" is the share of careless people flagged.
+
+| case (cells) | median curve (old) | 0.75 quantile (shipped) | found: median / 0.75 |
+|---|---|---|---|
+| salience, 0.6x, 40% careless, same onset (12) | 34-90% | **76-110%** | 0.31-0.60 / **0.72-0.80** |
+| salience, 0.6x, 40%, onsets spread +-0.2 (4) | 63-85% | **89-90%** | 0.64-0.76 / 0.86-0.87 |
+| salience, 0.6x, 40%, stress (1) | 60% | 81% | 0.49 / 0.76 |
+| random, 0.6x, 40% careless (4) | 2-39% | 64-72% | 0.31-0.55 / 0.72-0.80 |
+| salience, 0.6x, 25% careless (16) | 88-101% | 91-102% | 0.81-0.96 / 0.83-0.96 |
+| random, 0.6x, 25% (4) | 81-89% | 78-107% | 0.81-0.94 / 0.83-0.94 |
+| any pattern, 0.4x, 25-40% (35) | 95-104% | 96-109% | 1.00 / 1.00 |
+| nobody careless (cost, 14) | -0.0002 to 0 | -0.0002 to 0 | |
+| a 25-40% camp with a second taste (cost, 25) | -0.0003 to +0.0001 | -0.0002 to 0 | |
+| careless but no faster, 1x (9) | -0.0003 to +0.0001 | -0.0003 to 0 | |
+
+The other quantiles tried, averaged over the 0.6x cells with a shared onset:
+at 40% careless, 0.6 recovers 66% of the ceiling, and 0.7, 0.75, 0.8 and 0.9
+all recover 81-82% (the median: 49%). At 25%, 0.7 and 0.75 average 97%, while
+0.8 and 0.9 fall to 91%, with single cells as low as 57% and 67%. With
+spread-out onsets at 40%, 0.6-0.75 recover 90-92% and 0.8-0.9 recover 81-84%.
+0.7 and 0.75 are level, and 0.75 ships because it has more room when the
+careless share is above 40%. At most 0.2% of honest respondents were flagged
+under any curve.
+
+What it shows:
+
+- **The weak spot named last time is mostly closed.** Where 40% of the panel
+  turned quick at once at 0.6x, the share of careless people found rose from
+  31-60% to 72-80%. The share of the ceiling recovered rose from 34-90% to
+  76-110% for the salience pattern, and from 2-39% to 64-72% for random
+  clicking, with no new cost.
+- **Spread-out onsets help both curves**, as expected, because the median is
+  dragged down less when people turn at different answers. Even then the 0.75
+  quantile recovers more (89-90% against 63-85%).
+- **One cell went down**: random pattern, 0.6x, 25% careless, 15 items,
+  onset 0.5, from 89% to 78% of a 0.005 ceiling. That is a difference of 0.0006
+  Spearman, inside the noise of a 40-survey cell. In the same cell the
+  quantile found the same share of careless people (0.92 against 0.94).
+- **What is still missed**: a block that is not quick (1x), and, at 0.6x,
+  40% careless, about a fifth of the people. These are the slowest turns, with
+  the gap closest to the 0.5 log threshold.
+
+**Decision.** `FAST_BLOCK_CURVE_Q = 0.75` ships as the curve for
+`?drop=fast-blocks`. A unit test pins the case that motivated it: four of ten
+people at 0.55x from answer 20. The median curve finds none of them, the 0.75
+quantile finds all four, and it flags no honest person. That test fails on the
+old default. The view stays a comparison, not the default ranking, until a
+real panel's times exist (item c).
+
+## A threshold from the panel's own slow turns, and a block that must be a step (2026-11-13, later; shipped)
+
+Item (d2) on the flagship list. After the 0.75-quantile curve, `?drop=fast-blocks`
+still missed about a fifth of the people who turned quick at 0.6x pace when 40%
+of a panel did. These are the slowest turns. Their gap sits near the fixed 0.5
+log threshold, so about half fall under it by noise. The flagship asked for a
+per-survey threshold from the panel's own residual spread.
+
+**The idea.** Nobody careless turns *slow* partway through. So the same split
+search run on each person's negated residuals (their best slow turn) shows how
+big a turn this panel's honest noise makes on its own. That is a null
+distribution measured on the survey itself (`autoFastBlockMinLog`). The
+threshold is a quantile of those mirrored gaps, kept between a floor and a cap.
+
+**A model the earlier sweeps lacked.** Every earlier cell gave everyone the
+same learning curve, which the panel curve removes. Real people also speed up or
+slow down *on their own*. `scripts/answer-time-sweep.ts --person-drift sd` adds
+exp(-d x progress) per person, with d ~ N(0, sd). At sd = 0.3, a one-sd person
+ends 26% quicker or slower than they started; at 0.6, 45%.
+
+That model found two problems, one of them in what already shipped:
+
+1. **The shipped rule flags honest people who speed up steadily.** At sd = 0.6,
+   the fixed rule flagged 19-26% of honest respondents and cost up to 0.0044
+   Spearman with nobody careless (0.0075 against a camp). At sd = 0.3 it
+   flagged 2.5-3.7%. About half of the 0.6 figure comes from the 0.75-quantile
+   curve: spread that grows over the session lifts an upper quantile, so
+   everyone's residuals drift down. Read against the median curve, 11% were
+   flagged, not 21-26% (a 20-survey check on 15 and 30 items with
+   `--curve-q 0.5`, not kept as a file). The rest is the split search itself, which cannot tell
+   a steady speed-up from a step.
+2. **A quantile threshold alone makes that worse.** When people drift, the
+   threshold falls to its floor, and with q = 0.9 about a tenth of honest people
+   clear a threshold set at their own null. At sd = 0.3, honest flags rose to
+   15-20% with a 0.3 floor (`docs/fast-blocks-auto-2026-11-13.jsonl`).
+   Reading the largest slow turn (q = 1), or lifting the 0.5 cap so a noisy
+   panel could raise the threshold, did not fix it
+   (`docs/fast-blocks-auto-max-2026-11-13.jsonl`). The mirrored null is biased
+   by the same curve effect.
+
+**The fix for the second half: a block must be a step.** `stepOverTrend(x, at)`
+compares a step at the split with a straight line fitted to the same residuals:
+the drop in squared error from the line to the step, over the step's residual
+variance. A bored respondent's block is a step. A steady speed-up is a line,
+and a step fits it no better (the ratio is near zero or negative). A split now
+also needs a ratio of at least `FAST_BLOCK_TREND_F = 1`.
+
+**Grid.** Salience and random patterns at 0.6x (onsets 0.25, 0.5, 0.75; no
+warm-up) and at 0.4x and 0.6x with a five-answer warm-up and a 0.7 shared
+learning curve; spread onsets; 25% and 40% careless. Cost cells: nobody
+careless, and a 25-40% camp with a second taste. Each grid ran at person drift
+0, 0.3 and 0.6. Stress cells: 60 people, pace spread 0.6. Panels of 20 on 15
+and 30 items, 4 answers per item, 40 surveys per cell (30 for stress). Three
+files, all from the same script: `docs/fast-blocks-auto-2026-11-13.jsonl`
+(368 cells, q = 0.8-0.95, floors 0.25-0.4), `docs/fast-blocks-auto-max-2026-11-13.jsonl`
+(170 cells, q = 1, cap 0.5 or 2) and `docs/fast-blocks-trend-2026-11-13.jsonl`
+(170 cells, the trend test alone and with the auto threshold). In each file
+`shift-drop` is the fixed rule that was shipped when it ran.
+
+From the last file. Shares are of `oracle-answers` (the ceiling) in cells where
+it is above 0.003, as means over cells; "honest" is the most honest
+respondents flagged in any cell of that row.
+
+| case (person drift) | fixed 0.5 (old) | step test only | auto 0.4-0.5 + step test (shipped) |
+|---|---|---|---|
+| salience, 0.6x, 40% careless (0) | 86%, honest 0% | 84%, 0% | **99%**, 0.6% |
+| random, 0.6x, 40% (0) | 64%, 0% | 70%, 0% | **95%**, 0.6% |
+| salience, 0.6x, 40%, onsets spread (0) | 90% | 86% | 96% |
+| stress: 60 people, spread 0.6, 0.6x, 40% (0) | 79% | 77% | **99%** |
+| salience, 0.6x, 25% (0) | 98% | 97% | 99% |
+| any pattern, 0.4x (0) | 98-101% | 92-100% | 92-100% |
+| salience, 0.6x, 40% (0.3) | 88%, honest 2.5% | 81%, 1.5% | 91%, 5.2% |
+| random, 0.6x, 40% (0.3) | 65% | 50% | 71% |
+| salience, 0.6x, 40% (0.6) | 79%, honest 19% | 64%, 6.7% | 68%, 10.6% |
+| nobody careless: cost and honest flagged (0) | 0, 0.1% | 0, 0.1% | 0, 0.1% |
+| nobody careless (0.3) | -0.0002, 3.4% | +0.0005 to -0.0001, 2.1% | -0.0008 to +0.0001, 4.9% |
+| nobody careless (0.6) | **-0.0044, 26%** | -0.0021, 5.8% | **-0.0009, 9.4%** |
+| a camp with a second taste (0.6) | **-0.0075, 25%** | -0.0033, 6.3% | -0.0027, 8.1% |
+
+The quantile that ships is 0.9 with a floor of 0.4 and a cap of 0.5
+(`FAST_BLOCK_AUTO_Q`, `FAST_BLOCK_AUTO_FLOOR`, `FAST_BLOCK_AUTO_CAP`). Floors
+of 0.3 and 0.35 found the same blocks with no person drift, but flagged up to
+3.3% and 2.3% of honest respondents when 40% were careless (0.4: 0.6%), and a
+0.3 floor flagged 10-12% at drift 0.3 even with the step test. Reading the
+largest slow turn (q = 1, floor 0.35, step test) did slightly worse than 0.9 at
+40% careless and no drift: 97% and 90% of the ceiling (salience, random)
+against 99% and 95%.
+
+What it shows:
+
+- **With no personal drift the gap is closed.** The cell the flagship named
+  (40% turning quick at once at 0.6x) went from 86% to 99% of the ceiling for
+  the salience pattern and from 64% to 95% for random clicking. Careless people
+  found went from 72-80% to 89-99%.
+- **A steady personal speed-up was the shipped rule's real blind spot**, and
+  nothing earlier had measured it. The step test cuts the honest flag rate at
+  drift 0.6 from 26% to 6-9% and the cost with nobody careless from 0.0044 to
+  0.0009. It cannot remove it all: over 40 answers a strong enough random
+  drift looks like a step.
+- **The price**: at moderate drift (0.3) the shipped rule flags up to 4.9% of
+  honest people where the fixed one flagged 3.4%, and costs up to 0.0008 more
+  with nobody careless. The step test alone is the cheapest rule there (2.1%),
+  but it gives back the gain where people do not drift (84% against 99%). At
+  0.4x pace the step test costs 0-9 points in the random pattern with 25%
+  careless (101% to 92%, two cells), because a careless random clicker's own
+  pace jitter sometimes reads as a line.
+
+**Decision.** `fastBlockStarts` now defaults to `minLog = "auto"` and
+`trendF = FAST_BLOCK_TREND_F`. Passing `FAST_BLOCK_MIN_LOG, 0` gives the old
+reading. The view stays a comparison, not the default ranking. How much real
+people drift on their own is the number that decides between the step test
+alone and the shipped combination. It comes from the first real survey's
+answer times (item c): fit each person's log times with a line and read the
+spread of the slopes.
+
+New unit tests: a 0.65x block that the fixed rule misses and the default finds;
+a steady speed-up to 0.3x that the fixed rule flags and the default does not;
+`autoFastBlockMinLog` at its floor for a quiet panel, at the cap when people
+slow down by 0.5 or more, in between otherwise, and not moved by people who
+turn quick; `stepOverTrend` large for a step and below 1 for a slope.
+
+## A later-pass curve that drift cannot lift (2026-11-13, last; shipped)
+
+Item (d4) on the flagship list. Since the 0.75-quantile curve, `?drop=fast-blocks`
+reads each answer against an upper quantile of the panel's log times at that
+point. When people speed up or slow down on their own, the panel's spread grows
+over the session. An upper quantile rises with the spread, so everyone's
+residuals drift downwards and honest people who sped up look like a block. The
+step test (previous section) removed most of that, but at a personal drift of
+0.6 log the shipped rule still flagged up to 9.4% of honest respondents with
+nobody careless.
+
+**The idea.** The upper quantile is there only so that a large share turning
+quick at once cannot drag the curve down. From the second pass on, the people
+the first pass found are already left out of the curve (from their split on).
+With them out, the median is not dragged down, and the median is the one
+location a symmetric growth in spread does not move. So `fastBlockStarts` now
+reads its first pass against the 0.75 quantile and its second and third passes
+against `laterQ`, the median of the people still in (`FAST_BLOCK_LATER_Q = 0.5`).
+
+**Grid.** `scripts/answer-time-sweep.ts --later-q 0.5,0.6` adds a
+`shift-drop-lNN` scheme per value: the shipped reading (auto threshold and step
+test) with passes after the first at that quantile. Each grid ran at person
+drift 0, 0.3 and 0.6: salience and random patterns, 25% and 40% careless at
+0.6x with onsets 0.25, 0.5 and 0.75; both patterns at 0.4x and 0.6x with a
+five-answer warm-up and a shared 0.7 learning curve; salience with onsets spread
++-0.2; and a stress cell (60 people, pace spread 0.6, warm-up, 30 surveys). Cost
+cells: nobody careless, and a 25-40% camp with a second taste, each with and
+without the warm-up and learning curve. Panels of 20 on 15 and 30 items, 4
+answers per item, 40 surveys per cell. Raw rows:
+`docs/fast-blocks-later-q-2026-11-13.jsonl`, 168 cells. In that file
+`shift-drop` is the rule as it shipped before this change (0.75 in every pass).
+
+Means over cells. "Ceiling" is the share of `oracle-answers` recovered, over
+cells where it is above 0.003; "honest" is the share of honest respondents
+flagged (mean, then the worst cell).
+
+| cells (person drift) | 0.75 every pass (old) | later passes at 0.5 (shipped) | later passes at 0.6 |
+|---|---|---|---|
+| careless share present (0), 44 cells | 98% ceiling, honest 0.1% / 0.6% | 98%, 0.0% / 0.2% | 97%, 0.1% / 0.4% |
+| careless share present (0.3) | 85%, 3.8% / 5.2% | 86%, 3.3% / 5.2% | 86%, 3.4% / 5.2% |
+| careless share present (0.6) | 66%, **8.3% / 11.2%** | 64%, **5.2% / 7.5%** | 65%, 6.2% / 7.9% |
+| nobody careless or a camp (0), 12 cells | Spearman +0.0001, honest 0.0% / 0.2% | 0.0000, 0.0% / 0.1% | 0.0000, 0.0% / 0.1% |
+| nobody careless or a camp (0.3) | -0.0011, 3.6% / 4.9% | -0.0012, 2.7% / 3.6% | -0.0009, 3.0% / 3.9% |
+| nobody careless or a camp (0.6) | -0.0016, **7.5% / 9.4%** | -0.0016, **4.8% / 6.3%** | -0.0016, 5.8% / 7.1% |
+
+Careless people found, mean over the careless cells: 0.96 / 0.85 / 0.68 (old)
+against 0.96 / 0.84 / 0.65 (shipped) at drift 0 / 0.3 / 0.6.
+
+What it shows:
+
+- **Under personal drift it flags about a third fewer honest people** (0.6:
+  7.5% to 4.8% with nobody careless, 8.3% to 5.2% with a careless share; 0.3:
+  3.6% to 2.7%), at the same Spearman cost and the same share of the ceiling,
+  within 2 points.
+- **With no personal drift nothing moves.** The 40%-at-0.6x cells that the
+  0.75 curve was brought in for keep 96-103% of the ceiling, because the first
+  pass still reads the upper quantile and finds them; the later passes only
+  read a curve with them already out.
+- **Single random-pattern cells swing both ways at drift 0.6** (for example
+  36% to 56% and 65% to 43% of a small ceiling). Those ceilings are 0.003-0.01
+  Spearman and the cells hold 40 surveys, so the swings are noise around a
+  level mean (66% against 64%).
+- **0.6 sits between** on every row, so the median ships.
+- **What is left**: at drift 0.6, 4.8% of honest people are still flagged, and
+  only 65% of the ceiling is recovered. That part is the split search on one
+  person's own noisy drift, which no panel curve can fix. Whether real people
+  drift this much is the open question (item c).
+
+**Decision.** `FAST_BLOCK_LATER_Q = 0.5` ships as the default `laterQ` of
+`fastBlockStarts`. The sweep's `autoBlockStarts` copy follows it, and the check
+that it agrees with the library still passes. `--curve-q` and `--trend-f` pass
+their own quantile as `laterQ`, so their earlier rows reproduce. A new unit test
+pins a case where it matters: twelve people whose own pace drifts from 2.7x
+quicker to 2.7x slower over 40 answers, four of whom turn 0.55x quick from
+answer 20. With 0.75 in every pass, two of the four are found. With the
+default, all four are found and no one else. That test fails with
+`FAST_BLOCK_LATER_Q` set back to 0.75. The view stays a comparison, not the
+default ranking.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --later-q 0.5,0.6
+--surveys 40 --person-drift 0.6 --patterns salience,random --careless 0.25,0.4
+--ratio 0.6 --onset 0.25,0.5,0.75` (a few minutes on 4 CPUs).
+
+## A step net of the person's own trend (2026-11-13; shipped)
+
+Item (d5) on the flagship list. After the later-pass median, `?drop=fast-blocks`
+still flagged about 5% of honest respondents when each person's own pace drifts
+by 0.6 log over the session. Those flags come from one person's sequence, so no
+panel curve can remove them. The split search finds a large gap in a steady
+speed-up. The step-over-line test (`FAST_BLOCK_TREND_F`) then asks whether a step
+fits better than a line. A steady speed-up with a small bump in it, which honest
+noise makes often, passes both.
+
+**The idea.** Ask the question the other way round: fit the person's own straight
+line *and* a step at the split together (least squares on a constant, the
+position and the step), and require what is left of the step to be a block on
+its own. `stepNetOfTrend` returns that coefficient (earlier minus later, so
+positive when the later side is faster). `fastBlockSplit` and `fastBlockStarts`
+take `netShare`: the split also needs a net step of at least `netShare` times
+the gap threshold. A bored respondent who also drifts keeps their whole step on
+top of the line. Someone who only drifts keeps whatever bump noise put there.
+
+A first check outside the panel, on bare sequences of 60 with N(0, 0.35)
+noise, a line drawn N(0, 0.6), and the shipped split, t, gap (0.45) and step
+tests: 4.3% of lines were flagged, and those flagged had a median net step of
+0.40. The flags were noise-made steps riding on a line, not the line itself.
+Requiring a net step of at least the gap cut lines flagged to 1.1% and kept 87%
+of the true 0.51-log steps the old rule found. The step's t in the same
+three-column fit (`stepNetOfTrendT`, kept for later work) at 2.5 or 3 cut more
+false flags but kept only 76-91% of true steps, so the size test was carried
+forward.
+
+**Grid.** `scripts/answer-time-sweep.ts --net-share 0.75,1,1.25` adds a
+`shift-drop-nNN` scheme per value. The sweep also gained `--person-walk sd`:
+each person's pace wanders as a random walk with N(0, sd) log per answer, which
+(unlike a straight line) can hold a step of its own. Cells, at person drift
+0, 0.3 and 0.6 and at walk 0.04 and 0.08: salience and random patterns, 25% and
+40% careless at 0.6x with onsets 0.25, 0.5 and 0.75; both patterns at 0.4x with
+a five-answer warm-up and a shared 0.7 learning curve (not run for the walk);
+cost cells with nobody careless and a 25-40% camp with a second taste. Panels of
+20 on 15 and 30 items, 4 answers per item, 40 surveys per cell. Raw rows:
+`docs/fast-blocks-net-step-2026-11-13.jsonl`, 204 cells; in that file
+`shift-drop` is the rule as it shipped before this change (no net-step test).
+
+Means over cells; "ceiling" is the share of `oracle-answers` recovered (cells
+where it is above 0.003), "found" the share of careless people found, "honest"
+the share of honest respondents flagged (mean / worst cell).
+
+| cells | before (no net test) | net 0.75 | **net 1 (shipped)** | net 1.25 |
+|---|---|---|---|---|
+| careless, drift 0 (32) | 99%, found 0.96, honest 0.0 / 0.2% | 99%, 0.96, 0.0 / 0.2% | **97%, 0.92, 0.0 / 0.2%** | 81%, 0.78, 0.0 / 0.0% |
+| careless, drift 0.3 (32) | 86%, 0.86, 3.4 / 5.2% | 87%, 0.85, 3.0 / 4.0% | **85%, 0.81, 1.6 / 2.8%** | 70%, 0.67, 0.5 / 1.0% |
+| careless, drift 0.6 (32) | 65%, 0.67, 5.4 / 7.1% | 66%, 0.67, 4.8 / 6.3% | **66%, 0.61, 2.0 / 3.3%** | 53%, 0.48, 0.4 / 1.0% |
+| no one careless or a camp, drift 0 (8) | Spearman 0.0000, 0.0 / 0.1% | 0.0000, 0.0 / 0.1% | **0.0000, 0.0 / 0.1%** | 0.0000, 0.0 / 0.1% |
+| same, drift 0.3 (8) | -0.0010, 2.6 / 3.6% | -0.0008, 2.3 / 3.3% | **-0.0004, 1.2 / 1.7%** | -0.0001, 0.4 / 0.7% |
+| same, drift 0.6 (8) | -0.0014, 4.9 / 6.3% | -0.0012, 3.7 / 5.5% | **-0.0006, 1.6 / 2.6%** | -0.0001, 0.3 / 0.7% |
+| careless, walk 0.04 (24) | 63%, 0.68, 7.3 / 13.2% | 62%, 0.67, 6.8 / 12.2% | **59%, 0.60, 4.5 / 7.8%** | 50%, 0.45, 1.8 / 4.7% |
+| no one careless or a camp, walk 0.04 (8) | -0.0015, 10.4 / 16.6% | -0.0014, 9.7 / 15.4% | **-0.0013, 5.5 / 8.7%** | -0.0006, 2.8 / 4.8% |
+| careless, walk 0.08 (24) | 23%, 0.52, 21.7 / 30.5% | 24%, 0.51, 21.2 / 29.7% | **29%, 0.47, 17.1 / 26.5%** | 30%, 0.38, 10.9 / 18.3% |
+| no one careless or a camp, walk 0.08 (8) | -0.0052, 25.1 / 31.4% | -0.0052, 24.6 / 30.5% | **-0.0043, 19.6 / 24.6%** | -0.0023, 12.6 / 18.6% |
+
+What it shows:
+
+- **Under straight-line drift, honest flags fall by more than half** (0.6 log:
+  5.4% to 2.0% with a careless share, 4.9% to 1.6% without; 0.3: 3.4% to 1.6%
+  and 2.6% to 1.2%) at the same share of the ceiling (66% against 65%, 85%
+  against 86%). The Spearman cost to an honest panel halves.
+- **It costs a little where nobody drifts**: 97% of the ceiling against 99%, and
+  0.92 of careless people found against 0.96. A careless block that starts late
+  has a short tail, and some of its step is taken by the line.
+- **1.25 goes too far**: it removes nearly every honest flag but loses 18 to 30
+  points of the ceiling with no drift. 0.75 barely differs from no test.
+- **A wandering pace is still the open case.** At walk 0.04 (about 0.3 log of
+  wander over 60 answers) the shipped value halves honest flags, 10.4% to 5.5%,
+  for 4 points of the ceiling. At walk 0.08 the detector does more harm than good
+  under any setting tried (20-25% of honest people flagged, a Spearman cost of
+  0.004-0.005 for nobody careless), because a random walk is a sequence of small
+  steps and a 40-60-answer walk can hold one as large as a bored person's.
+  Whether real people's pace wanders that much is for the first real survey
+  (item c); if it does, this view should not be offered.
+
+**Decision.** `FAST_BLOCK_NET_SHARE = 1` ships as the default `netShare` of
+`fastBlockStarts`; the sweep's `autoBlockStarts` copy follows it, and its check
+against the library still passes. The `--curve-q`, `--trend-f` and `--later-q`
+schemes pass `netShare` 0, so their earlier rows reproduce. A new unit test
+pins a case where it matters: one of ten people speeds up steadily by 0.5 log
+and turns 0.3 log quicker at answer 20, another turns 0.55x quick at answer 20
+with no trend. With `netShare` 0 both are flagged; with the default only the
+second, and a 0.45 step on the same line is still flagged. It fails with
+`FAST_BLOCK_NET_SHARE` set to 0. The view stays a comparison, not the default
+ranking.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --net-share
+0.75,1,1.25 --surveys 40 --items 15,30 --person-drift 0.6 --patterns
+salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (a few
+minutes on 4 CPUs).
+
+## A step a wandering pace cannot make (2026-11-14; shipped)
+
+Item (d6) on the flagship list. Under each person's own pace wandering as a
+random walk of N(0, 0.08) log per answer (`--person-walk 0.08`),
+`?drop=fast-blocks` flagged 17-20% of honest respondents under every earlier
+setting. A random walk is a run of small steps, and a 40-60-answer walk can hold
+one as large as a bored person's, so no gap, line or net-step test removes it.
+
+**The test.** `stepOverWalk(x, at)` compares two models of the person's log-time
+residuals, each with a straight-line trend and a level that may wander as a
+random walk: one with a step at the split and one without. Each is fitted at its
+own best walk-to-noise variance ratio (`WALK_RATIOS`: 0, then 0.001 to 1), and
+the score is twice the gain in log likelihood from adding the step. The fixed
+effects are fitted exactly by running each column through the same Kalman filter
+as the data (the gains depend only on the ratio) and regressing the filtered
+innovations, so ratio 0 is ordinary least squares on a line. A bored respondent
+holds still on either side of one step, which a walk can only take as one
+improbably large move, so the score is large. A wandering pace's "step" is
+absorbed by the walk, so the score stays small.
+
+**First check, bare sequences** (`scripts/walk-step-check.ts`, 2,000 sequences
+per row, N(0, 0.35) noise). Of the sequences the shipped rule flagged, a walk of
+0.08 at 60 answers scored a median of 7.7 and a 0.51 step with no wander 10.5 to
+11.3. A fixed bar of 12 still flagged 22-27% of the step sequences and 1.6% of the
+walks (the earlier rule alone: 63-65% and 13.8%). The scores grow
+with the sequence's length, so a fixed bar does not carry across list sizes.
+
+**The bar, from the panel's own slow turns** (`autoWalkMin`). Nobody careless
+turns slow partway through, so each respondent's best slow split, scored the
+same way, shows how strong a step honest wandering makes in this survey. Panels
+of 20 at 60 answers (bare): the 0.9 quantile of those scores was about 2 with no
+wander and 7.5 at walk 0.08.
+
+**Grid.** `scripts/answer-time-sweep.ts --walk q:floor[:engage]` adds a
+`shift-drop-wQQ-fFF[-eEEE]` scheme per triple. Cells as on 2026-11-13, at person
+drift 0 and 0.6 and walk 0.04 and 0.08: salience and random patterns, 25% and
+40% careless at 0.6x with onsets 0.25, 0.5 and 0.75; cost cells with nobody
+careless and a 25-40% camp with a second taste. Panels of 20 on 15 and 30 items,
+4 answers per item, 40 surveys per cell, 120 cells. Raw rows:
+`docs/fast-blocks-walk-2026-11-14.jsonl`; in that file `shift-drop` is the rule
+before this change.
+
+Means over cells, as in the last section ("ceiling", "found", "honest" mean /
+worst cell; for the cost cells the Spearman change and honest flags):
+
+| cells | before | q 0.9, always | q 1, always | **q 0.9, engage at 0.008 (shipped)** | q 1, engage at 0.008 |
+|---|---|---|---|---|---|
+| careless, drift 0 (24) | 97%, 0.90, 0.0 / 0.2% | 86%, 0.82, 0.0 / 0.2% | 69%, 0.62, 0.0 / 0.2% | **96%, 0.89, 0.0 / 0.2%** | 96%, 0.89, 0.0 / 0.2% |
+| no one careless or a camp, drift 0 (6) | 0.0000, 0.0 / 0.1% | 0.0000, 0.0 / 0.0% | 0.0000, 0.0 / 0.0% | **0.0000, 0.0 / 0.1%** | 0.0000, 0.0 / 0.1% |
+| careless, drift 0.6 (24) | 54%, 0.51, 1.8 / 2.7% | 47%, 0.46, 1.3 / 2.3% | 39%, 0.36, 0.8 / 1.9% | **54%, 0.50, 1.8 / 2.7%** | 54%, 0.49, 1.6 / 2.5% |
+| same, drift 0.6 (6) | -0.0006, 1.5 / 2.6% | -0.0005, 1.0 / 1.5% | -0.0001, 0.4 / 1.0% | **-0.0006, 1.5 / 2.6%** | -0.0006, 1.5 / 2.6% |
+| careless, walk 0.04 (24) | 59%, 0.60, 4.5 / 7.8% | 46%, 0.40, 1.8 / 3.2% | 30%, 0.23, 0.7 / 1.7% | **48%, 0.48, 2.3 / 4.0%** | 41%, 0.39, 1.5 / 3.2% |
+| same, walk 0.04 (6) | -0.0015, 5.4 / 8.7% | -0.0007, 2.0 / 3.5% | -0.0005, 0.9 / 1.6% | **-0.0016, 4.6 / 7.0%** | -0.0015, 4.3 / 6.3% |
+| careless, walk 0.08 (24) | 29%, 0.47, 17.1 / 26.5% | 19%, 0.18, 3.1 / 4.7% | 7%, 0.07, 1.2 / 2.1% | **18%, 0.18, 3.4 / 4.7%** | 6%, 0.07, 1.4 / 2.1% |
+| same, walk 0.08 (6) | -0.0045, 19.5 / 24.6% | -0.0014, 3.7 / 4.5% | -0.0006, 1.2 / 1.5% | **-0.0018, 4.1 / 4.5%** | -0.0010, 1.8 / 2.8% |
+
+(The drift-0.6 rows here have no warm-up cells, so they differ from the last
+section's 66%.)
+
+What it shows:
+
+- **Always on, the bar cost 11 points of the ceiling where nobody wanders**
+  (86% against 97%), most of it at 15 items with 40% careless. A large group
+  turning quick together moves the panel's curve, the honest then look like slow
+  turners, and their scores lift the bar over real blocks. A floor of 6 changed
+  nothing, and engaging only when the slow-turn quantile itself was high (4 to
+  11) did not separate the cases either (76-87% with no wander).
+- **So the switch reads the wander directly.** `panelWalkRatio` fits one
+  walk-to-noise ratio to every respondent's residuals at once (summed log
+  likelihoods, each with its own line). One sequence of 60 answers rarely tells
+  a 0.05 ratio from 0, and its own best ratio is 0 in over half of draws; twenty
+  together do. On bare panels it read 0 at every quantile with no wander, with
+  or without 8 of 20 holding a block, 0 to 0.010 at walk 0.04 and 0.010 to
+  0.063 at walk 0.08 (10th to 90th percentile) (60 answers; the estimate runs low, as variance-ratio
+  estimates do). The wander bar is set only when it is at least 0.008.
+- **Shipped (q 0.9, engage 0.008):** where nobody wanders 96% of the ceiling
+  against 97%, and under straight-line drift no change. Under walk 0.08 honest
+  flags fall from 17.1% to 3.4% (19.5% to 4.1% with nobody careless) and the
+  cost to an honest panel from 0.0045 to 0.0018 Spearman. Under walk 0.04
+  (often not detected at 60 answers) honest flags fall from 4.5% to 2.3%.
+- **What it gives up.** Under a wandering pace it finds far fewer of the
+  careless (0.47 to 0.18), and the share of the ceiling recovered falls from 29%
+  to 18%. The old 29% came with 17% of honest people named as having turned
+  careless, which is a claim to a survey owner that is wrong one time in five or
+  more. Under wander, a block test on timing alone is weak whatever is chosen.
+  q 1 is stricter still (1.4% honest flagged, 6% of the ceiling).
+
+**Decision.** `FAST_BLOCK_WALK_Q = 0.9` and `FAST_BLOCK_WALK_ENGAGE = 0.008`
+ship as the defaults of `fastBlockStarts`. The sweep's `autoBlockStarts` copy
+follows them, and its check against the library passes. The `--curve-q`,
+`--trend-f`, `--later-q` and `--net-share` schemes pass `walkQ` 0, so their
+earlier rows reproduce. A new unit test pins both sides on seeded panels of 20
+by 60 answers: with everyone wandering at 0.08 and nobody careless, the rule
+before this change flags three honest people and the default none; with nobody
+wandering and three turning 0.55x quick at answer 30, both find the same three.
+It fails with `FAST_BLOCK_WALK_Q` set to 0. The view stays a comparison, not the
+default ranking. Whether real people's pace wanders, and by how much, is still
+for the first real survey (item c); `panelWalkRatio` is the number to read off it.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --walk
+0.9:0:0.008 --surveys 40 --items 15,30 --person-walk 0.08 --patterns
+salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (about
+ten minutes on one CPU).
+
+## A block's picks as well as its times (2026-11-14, latest; shipped)
+
+Item (d7) on the flagship list. Under a pace that wanders (walk 0.08 log per
+answer), the wander bar above cut honest flags from 17% to 3.4%, but it also
+cut the careless found from 0.47 to 0.18. Timing alone cannot do better there,
+because a walk can hold a step as large as a bored person's. A bored person
+also changes *what* they pick: their picks stop following the panel. A
+wandering pace changes nothing about the picks.
+
+**The test.** `blockAgreementDrop(answers, at, rating)` takes the rest of the
+panel's pooled rating for each item, with the person left out (the same
+random-effects pool `groupRanking` uses, over everyone else's replayed ratings).
+It scores each of the person's decided answers as *agree* (1 if they picked the
+panel's higher-rated item) minus the chance of agreeing that the panel's own gap
+implies, 1 / (1 + 10^(-|gap| / 400)). The staged selector shows closer pairs
+late in a session, so raw agreement falls for everyone as a session goes on. The
+expected chance absorbs that. The score is the earlier side's mean residual
+minus the later side's, divided by the binomial standard error of the two means.
+
+**Where it applies.** In `fastBlockStarts`, only once the wander bar is engaged
+(`panelWalkRatio` >= 0.008), and only when the answers carry their items and
+results. The ranking route has always passed both, so it applies there. A
+timing split that passes every earlier test but fails the wander bar still
+counts when its pick score reaches `agreeZ` (`FAST_BLOCK_AGREE_Z`, mode "or").
+Mode "only" drops the wander bar and uses the pick test alone once engaged.
+Where nobody wanders, nothing changes.
+
+**Grid.** `scripts/answer-time-sweep.ts --agree 1.5,2,2.5,2:only` adds a
+`shift-drop-azNN[-only]` scheme per value. The cells are those of the last
+section at walk 0 (no wander, no drift), 0.04 and 0.08: salience and random
+patterns, 25% and 40% careless at 0.6x with onsets 0.25, 0.5 and 0.75, and cost
+cells with nobody careless or a 25-40% camp with a second taste (ratio 1). Panels
+of 20 on 15 and 30 items, 4 answers per item, 40 surveys per cell, 90 cells.
+Raw rows: `docs/fast-blocks-agree-2026-11-14.jsonl`. In that file, `shift-drop`
+is the shipped rule given times only, which is the rule before this change.
+"Ceiling" here is the summed Spearman gain over the summed gain from leaving out
+exactly the careless answers. That is why the "before" column at walk 0 reads
+93% where the last section's cells read 96%.
+
+| cells | before | z 1.5 | z 2 | **z 2.5 (shipped)** | z 2, only |
+|---|---|---|---|---|---|
+| careless, no wander (24): ceiling, found, honest mean / worst | 93%, 0.89, 0.0 / 0.2% | 94%, 0.90, 0.0 / 0.2% | 93%, 0.90, 0.0 / 0.2% | **93%, 0.89, 0.0 / 0.2%** | 90%, 0.85, 0.0 / 0.0% |
+| nobody careless or a camp, no wander (6): Spearman change, honest | 0.0000, 0.0 / 0.1% | same | same | **same** | same |
+| careless, walk 0.04 (24) | 46%, 0.48, 2.3 / 4.0% | 54%, 0.55, 2.8 / 4.8% | 53%, 0.53, 2.6 / 4.8% | **51%, 0.51, 2.5 / 4.3%** | 39%, 0.38, 1.0 / 3.2% |
+| same, walk 0.04 (6) | -0.0016, 4.6 / 7.0% | -0.0016, 4.6 / 7.0% | -0.0016, 4.6 / 7.0% | **-0.0016, 4.6 / 7.0%** | -0.0014, 3.9 / 5.4% |
+| careless, walk 0.08 (24) | 19%, 0.18, 3.4 / 4.7% | 31%, 0.32, 5.0 / 8.0% | 30%, 0.27, 4.3 / 6.3% | **27%, 0.24, 3.9 / 5.7%** | 16%, 0.15, 0.9 / 1.5% |
+| same, walk 0.08 (6) | -0.0018, 4.1 / 4.5% | -0.0027, 5.7 / 6.8% | -0.0022, 4.7 / 5.7% | **-0.0019, 4.3 / 4.6%** | -0.0007, 1.3 / 2.5% |
+
+What it shows:
+
+- **The picks add something under wander.** At walk 0.08 the shipped bar finds
+  a third more of the careless (0.18 to 0.24) and recovers 27% of the harm
+  instead of 19%. Honest flags go from 3.4% to 3.9%. In a panel of 20 with a
+  third careless, that is about 0.07 more honest people named per survey
+  against 0.4 more careless people found, roughly five to one.
+- **The bar is a trade, and 2.5 keeps it cheap.** At 1.5 the most careless are
+  found (0.32), but honest flags reach 5.0% (8.0% in the worst cell) and an
+  honest panel's cost grows by half (0.0018 to 0.0027 Spearman). At 2.5 the
+  honest panel's cost is 0.0019 against 0.0018.
+- **Picks alone are weaker than picks plus times.** "Only" flags almost no one
+  honest (0.9%), but it finds fewer of the careless than the wander bar alone did
+  (0.15). Most true blocks fail it. At 30 to 45 answers after a split, the
+  agreement gap between a coin flip and an honest pick is small, because the
+  staged selector's late pairs sit near 50/50 for an honest person too. One
+  pick there says little about the person, so the test has little power.
+- **Where nobody wanders, no change**, as designed: the test is not engaged.
+  Under walk 0.04 the bar is often not engaged at 60 answers, so the gain is
+  smaller (46% to 51%).
+
+**Decision.** `FAST_BLOCK_AGREE_Z = 2.5` in mode "or" ships as the default of
+`fastBlockStarts`. A list of times alone (no items or results) skips the test,
+so every earlier scheme in the sweep reproduces. Two new unit tests cover it.
+One pins `blockAgreementDrop` to its closed form on a hand-built sequence: 0.8
+against 0.5 agreeing gives 0.3 over the binomial standard error, and ties,
+unrated items and short sides are skipped. The other is a seeded panel of 20 by
+60 answers in which everyone's pace wanders 0.08 and four turn quick and pick at
+random at answer 30. Without the wander bar, two careless and three honest
+people are flagged. With it on times alone, one careless person is flagged. The
+default flags both careless people and no one honest. The test fails with
+`FAST_BLOCK_AGREE_Z` set to 0. The view stays a comparison, not the default
+ranking.
+
+**Next (d8).** The pick signal is weak because adaptive pairs are hard pairs.
+A few easy check pairs, far apart in the panel's ranking, could carry much more
+per answer. The anchor-pair work (2026-11-11 and 2026-11-13) measured them as a
+lapse detector. Whether they help a block test is open. Whether real people's
+pace wanders at all is still for the first real survey (item c).
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --agree
+1.5,2,2.5,2:only --surveys 40 --items 15,30 --person-walk 0.08 --patterns
+salience,random --careless 0.25,0.4 --ratio 0.6 --onset 0.25,0.5,0.75` (about
+fifteen minutes on one CPU).
+
+## Clicking one position from partway through (2026-11-14, latest; shipped as the default)
+
+Item (d3) on the flagship list. The ranking has always left out *slot clickers*
+(`slotClickers`): a first-slot share at or beyond 70% either way over 30+
+answers. That judges a whole session. A respondent who answers on the options
+for a while and then clicks the top (or bottom) slot from some point on is
+diluted by their own honest start: 20 top-slot clicks after 40 honest answers
+is a 67% share, under the bar, and all 20 clicks count. When the run is long
+enough to cross the bar, the opposite happens: the whole person is left out,
+honest start included.
+
+**The test** (`groupRanking.ts`, `slotBlockStarts`). Slots are shuffled per pair
+by a coin the respondent cannot see, so whatever an honest person prefers,
+which slot they pick is a fair coin on every answer, independent of the others.
+That gives an exact null, not a modelled one. Every tail of a person's decided
+answers at least 15 long is a candidate run; the one whose first-slot count a
+fair coin is least likely to give is kept when its two-sided binomial tail,
+times the number of candidates (Bonferroni), is at most 0.01 and its share is at
+or beyond 70% either way. The answers before the run count; the run does not.
+`slotFlags` puts it together for the route: a run that starts within the first
+8 answers is a whole-session clicker and is left out whole, as is anyone
+`slotClickers` flags without a run.
+
+Because the null is exact, the honest flag rate is bounded by 1% for any panel,
+list or taste. Measured on fair-coin sequences (`scripts/slot-block-null.ts`,
+20,000 people per length): 0.16% at 30 answers, 0.10% at 60, 0.055% at 120,
+0.01-0.02% at 240-480. `slotClickers`' own rate on the same sequences is 4.4% at
+30 answers and 0.27% at 60.
+
+**The sweep** (`scripts/slot-block-sweep.ts`; raw rows
+`docs/slot-blocks-2026-11-14.jsonl`, 107 cells, 100 surveys each, panels of
+20, the staged selector behind the route's slot shuffle). A share of the panel
+answers honestly for the first share `onset` of their answers and then, on a
+share `q` of answers, picks one slot. Schemes, as the paired Spearman
+difference from what shipped before (`slotClickers` alone):
+
+| case | none (count every answer) | the new default (`slotFlags`) | oracle: leave out exactly the run |
+|---|---|---|---|
+| whole-session clickers (onset 0, q = 1), 10-40% of the panel | -0.0008 to -0.0229 | -0.0001 to +0.0001 | -0.0001 to +0.0001 |
+| run from a quarter in, q = 1 | -0.0004 to -0.0118 | **+0.0005 to +0.0059** | +0.0005 to +0.0059 |
+| run from halfway, q = 1 (`slotClickers` caught 88-99% and dropped them whole) | -0.0075 to +0.0050 | **+0.0007 to +0.0091** | +0.0006 to +0.0096 |
+| run from three quarters in, q = 1 (`slotClickers` caught 1-13%) | -0.0005 to +0.0015 | **+0.0006 to +0.0082** (60 items, 240 answers: +0.0082 ± 0.0006) | +0.0006 to +0.0082 |
+| run with q = 0.8 (a 90% lean), onsets 0.25-0.75 | -0.0032 to +0.0023 | -0.0004 to +0.0034 | -0.0003 to +0.0032 |
+| second slot instead of first | -0.0054 to +0.0021 | +0.0007 to +0.0031 | +0.0009 to +0.0036 |
+| onsets spread +-0.25 around halfway | -0.0012 to +0.0023 | +0.0018 to +0.0034 | +0.0015 to +0.0037 |
+| nobody careless (cost) | 0 to +0.0001 | -0.0001 to 0 | 0 |
+| a 25-40% camp with a second taste (cost) | 0 to +0.0001 | 0 to +0.0002 | n/a (nobody to leave out) |
+
+Across all 94 cells with careless respondents the default sits within -0.0008
+to +0.0011 of the oracle. A second seed set (51000) agrees at 30 items. The
+first 52 cells (q1, q08, spread, second, dissent files) ran before the 8-answer
+whole-session rule was added and keep up to 7 answers of a run that starts at
+once; on the onset-0 rows the two differ by at most 0.0001.
+
+What it shows:
+
+- **Keeping the honest start is what pays.** Leaving the clickers out whole
+  (`oracle-drop`) is no better than what shipped and sometimes worse (-0.0075
+  to +0.0033 where the run starts partway), because it throws away good answers
+  with the bad. Cutting at the run's start recovers all of the ceiling.
+- **The gains are small in Spearman, as every slot result behind the shuffle
+  has been** ("Position bias behind the slot shuffle": shuffled slot clicks land
+  on both items about equally, so they mostly add noise). The largest is
+  +0.009, on 15-item lists with 40% of the panel turning at halfway. It costs
+  nothing measurable where nobody clicks, and leaves a camp alone because a
+  camp's slots are a fair coin too.
+- **The start lands close.** Mean distance from the true onset: 1-1.5 answers
+  at q = 1, 3-4 at q = 0.8.
+- **Weak runs are often missed, and missing them costs nothing measurable.** At
+  q = 0.6 (an 80% lean) from halfway it found 43-100% of runs; at q = 0.4 (a 70%
+  lean) 8-64%. But leaving out exactly those runs (`oracle-answers`) moved the
+  ranking by -0.0008 to +0.0016 there: most of a weak run's answers are honest.
+  So a more sensitive test is not worth building.
+
+**Decision.** Shipped as the default on the ranking route, not a comparison:
+`leftOut.slotBlocks` and `leftOut.slotBlockAnswers` count it, and the advice
+says the respondents' earlier answers count. The default ranking has always
+left slot clickers out; this refines who is left out and what of theirs, and
+its false-flag rate is bounded by construction rather than by a sweep.
+`ranking.integration.test.ts` has two respondents answer honestly for 20 picks
+and click the top slot for 20 through the real routes: the route now pools
+their first 20 answers; before, `slotClickers` caught one of the two whole and
+let the other's clicks count. Still synthetic: whether real respondents do this
+waits for item (c).
+
+## A slot run and a fast block in the same person (2026-11-14, later still; shipped as the default)
+
+Item (d9) on the flagship list: a bored respondent often turns quick *and*
+clicks one screen position. The default ranking reads only the slots
+(`slotFlags`); the time reading (`fastBlockStarts`) is a comparison behind
+`?drop=fast-blocks`, because under a wandering pace it flags some honest people.
+Does either test find such a person sooner when the other has?
+
+**The idea.** The slot run test (`slotBlockStarts`) has to look for a run at
+every possible start, so it pays a Bonferroni split over 25-100 starts and a 70%
+share floor. A fast turn names one start in advance. Tested from that point
+only, the slots need no split and no floor (`groupRanking.ts`,
+`slotRunsAtTurns`: an exact two-sided binomial tail at most 0.01 over 10+
+decided answers from the turn). And because slots are shuffled by a coin the
+respondent cannot see, an honest person's slots after the turn are a fair coin
+whatever their times or picks were. So the test adds at most 1% honest flags *no
+matter how often the turn was wrong*: the timing's false alarms cannot leak
+through. That lets the default ranking use timing evidence that is only a
+comparison on its own.
+
+**The sweep** (`scripts/slot-fast-joint-sweep.ts`; raw rows
+`docs/slot-fast-joint-2026-11-14.jsonl`, 153 cells, 30 surveys each (100 for
+the honest panels), panels of 20, the staged selector behind the route's slot
+shuffle, timed as the answer-time sweep times them). A share of the panel answers
+honestly for half their session, then answers at `ratio` x their pace; from a
+point `lag` (share of the session) after that they click the top slot on a share
+`q` of answers, and their other careless answers are a coin (or honest, `--rest
+honest`). `--walk` makes everyone's pace wander. Paired Spearman difference from
+the default before this change (`slot`):
+
+| case | fast-blocks comparison (slot + time cut) | the new default (slot + slot-at-turn) | oracle |
+|---|---|---|---|
+| strong run (q = 1), any lag, no wander | -0.0010 to +0.0082 | -0.0008 to +0.0079 | -0.0003 to +0.0082 |
+| strong run, pace wandering 0.08 log per answer | -0.0023 to +0.0046 | -0.0005 to +0.0053 | -0.0003 to +0.0082 |
+| 80% lean (q = 0.6), no wander | 0 to +0.0088 | 0 to +0.0076 | +0.0013 to +0.0088 |
+| 80% lean, wander 0.08 | -0.0019 to +0.0048 | -0.0007 to +0.0036 | +0.0013 to +0.0088 |
+| 65% lean (q = 0.3), no wander | +0.0013 to +0.0183 | -0.0007 to +0.0052 | +0.0015 to +0.0177 |
+| 65% lean, wander 0.08 | -0.0021 to +0.0082 | -0.0004 to +0.0026 | +0.0015 to +0.0177 |
+| no slot lean at all (q = 0) | -0.0026 to +0.0134 | -0.0001 to +0.0003 | +0.0023 to +0.0168 |
+| nobody careless, wander 0 to 0.12 | -0.0009 to 0 | 0 to +0.0001 | 0 |
+
+Detection of the careless, the default before and after (a selection):
+
+| case | slot test alone | with the slot-at-turn test | honest people flagged: by the time cut / added by the new test |
+|---|---|---|---|
+| 80% lean from the speed-up, 0.4x pace, 15 items | 53% | 74% | 0% / 0% |
+| 65% lean from the speed-up, 0.4x pace, 30 items | 9% | 35% | 0% / 0% |
+| 65% lean, 40% of the panel careless, 30 items | 10% | 36% | 0% / 0% |
+| 80% lean, 0.4x pace, wander 0.08, 15 items | 53% | 67% | 5.3% / 0% |
+| 65% lean, 0.4x pace, wander 0.08, 30 items | 9% | 25% | 4.0% / 0% |
+| honest panels, wander 0.08-0.12, 15-60 items | n/a | n/a | 5.2-7.4% / 0-0.2% |
+
+What it shows:
+
+- **Each test does find the person sooner when the other has, in one
+  direction.** When the slot run starts after the speed-up (a stretch of quick
+  coin-flip answers first, lag 0.25), the cut lands 3-35 answers earlier (24-35 on 30-item lists) with
+  the turn than with the slot run alone, and on 30-item lists with a strong run
+  that is worth +0.005 to +0.008 Spearman, all of what the time cut gets. When
+  the slot run starts first (lag -0.25), the slot test already has it and the
+  turn adds nothing.
+- **It is safe where the time cut is not.** Under a wandering pace the time cut
+  flags 2.4-7.4% of honest people and scores below the old default in 27 of 72
+  careless cells (13 by more than 0.001, down to -0.0031); the new default never
+  falls more than 0.0008 below it in any of the 144 careless cells, and the
+  honest people it adds are 0-0.2%. A second seed set (51000, 24 cells) agrees.
+- **It is not the time cut.** Where the careless lean on a slot weakly or not at
+  all, most of what `?drop=fast-blocks` recovers (up to +0.018) stays with the
+  comparison: the new test needs the slots to say so. Its job is to promote the
+  timing to the default only where a second, exact signal agrees.
+- **Honest rest or random rest.** When the careless answers off the slot are
+  honest (`--rest honest`, the slot-block sweep's model), there is little to
+  recover anyway (oracle at most +0.0024); the new default is within -0.0004 to
+  +0.0013 of the old.
+
+**Decision.** Shipped as the default on the ranking route: the route now runs
+`fastBlockStarts` on every request, tests each turn's slots
+(`slotRunsAtTurns`), and adds the ones that lean to the slot blocks, cut from
+the turn; `leftOut.slotBlocksAtTurns` counts them (also counted in
+`slotBlocks`). `ranking.integration.test.ts` has two respondents answer on the
+options for 30 picks, then turn quick and pick the top slot on 23 of their last
+30 (77%, under both the run test and `slotClickers`' whole-session bar): the
+route cuts both from the turn, and at an even pace leaves them alone. A caveat
+the simulation cannot see: if real people's *times* depend on which slot they
+click (the top one faster, say), the turn is no longer independent of the
+slots and the bound is no longer exact. Item (c), the first real survey,
+checks it: compare times on top-slot and bottom-slot picks.
+
+## A slot run's cut moved back to an earlier fast turn (2026-11-14, final; shipped as the default)
+
+Item (d10) on the flagship list, the other direction from (d9). A bored
+respondent who turns quick often answers on a coin for a while before they
+settle on one screen position. The slot run test (`slotBlockStarts`) sees only
+the run, so the coin-flip answers between the speed-up and the run stayed in
+the ranking. d9 covered this when a fast turn was found, but the turns it reads
+pass `fastBlockStarts`' wander bar, and under a wandering pace that bar throws
+most real turns out (its job is to stop the times alone cutting an honest
+person).
+
+**The idea.** When the slot run test has already flagged someone from answer
+`t_s`, a fast turn `t_f < t_s` read *without* the wander bar (`looseFastTurns`:
+`fastBlockStarts` with `walkQ` 0, every other bar as the default) moves their
+cut back to `t_f` (`slotBlocksBackToTurns`). Nobody is flagged who was not
+already, so honest people are exposed only at the run test's own rate
+(0.01-0.16%); what it risks is cutting some of a careless person's honest
+answers when the turn is really a wander step.
+
+A second variant was measured alongside: `loose`, d9's slot-at-turn test
+(`slotRunsAtTurns`) run at the loose turns too. Its honest bound holds however
+wrong the turn is, so the wander bar is not needed there either.
+
+**The sweep** (`scripts/slot-turn-back-sweep.ts`; raw rows
+`docs/slot-turn-back-2026-11-14.jsonl`, 110 cells; d9's panels, careless model
+and seeds: panels of 20, a quarter or 40% careless from half-way at 0.4x or
+0.7x pace, a slot run from `lag` of the session after the speed-up on a share
+`q` of answers, the rest of their careless answers a coin; 30 surveys per cell,
+100 for the honest panels; seed bases 9100 and 51000). Paired Spearman
+difference from today's default (`gated`, d9):
+
+| case (wander 0.08-0.12 log per answer) | cells | `back` mean (min, max) | cells above / below by 2 SE | `loose` mean (min, max) |
+|---|---|---|---|---|
+| slot run after the speed-up (lag 0.25) | 40 | +0.0008 (-0.0010, +0.0045) | 7 / 0 | +0.0003 (-0.0007, +0.0034) |
+| run starts with the speed-up (lag 0) | 24 | +0.0000 (-0.0011, +0.0009) | 2 / 0 | +0.0003 (-0.0010, +0.0019) |
+| run starts before the speed-up (lag -0.25) | 16 | -0.0001 (-0.0011, +0.0002) | 0 / 0 | -0.0000 (-0.0005, +0.0002) |
+| no wander (lag 0 and 0.25) | 24 | +0.0000 (-0.0008, +0.0008) | 0 / 0 | 0 (the bar is not engaged) |
+
+The largest gains are where d9 lost most to wander: 30-item lists with a strong
+run after a speed-up, e.g. wander 0.08, 0.7x pace, 40% careless: +0.0045 ± 0.0013
+(the oracle is +0.0138 above the default there); 0.4x pace, a quarter careless:
++0.0009 and +0.0014 on the two seed sets (30 items); wander 0.12: +0.0023 ± 0.0007.
+Where the run followed the speed-up and the cut moved, it took out 11-29 more
+careless answers per person and 0.1-10 honest ones (a turn read too early,
+mostly at 0.7x pace). Where the run started with or before the speed-up there
+were no coin-flip answers to recover and a moved cut only cost honest answers
+(up to 18 per person), but it moved for at most 25% of the careless, so the cost
+stayed within 0.0011.
+
+Honest people: `back` moved the cut of 0-0.2% (people the run test flagged
+anyway); `loose` added 0.1-0.4% honest flags on the honest panels (2,000 people
+per cell at wander 0.08 and 0.12, 15-60 items), inside its 1% bound. `back`
+never falls below the default before d9 (`slot`) by more than 0.0008 in any
+cell (`loose`: 0.0013).
+
+**Decision.** `back` ships as the default on the ranking route (`leftOut.
+slotBlocksMovedBack` counts the people whose cut moved; they are also counted
+in `slotBlocks`). `loose` does not: on the second seed set it was as often
+below the default as above it, and with `back` on it adds +0.00004 on average
+for honest flags `back` never makes. What is still open (d10's text named it):
+a turn read from the slot run's start backwards is still a search over splits;
+a turn scored only against the run's own start (one candidate, as d9 does for
+slots) would bound the wander step's chance of moving the cut, and real answer
+times (item c) will say how often wander steps happen at all.
+
+## A turn scored against the run's own start (2026-11-15; measured, not shipped)
+
+Item (d11) on the flagship list. Since d10 the default ranking moves a slot
+run's cut back to an earlier fast turn (`slotBlocksBackToTurns`), and it reads
+that turn with `fastBlockStarts`' wander bar off (`looseFastTurns`). That is a
+search over every split with nothing to bound it: under a wandering pace a
+large enough wander step passes as a turn. d10's text asked for a turn scored
+against the run's own start, so the wander step's chance of moving the cut has
+a bound.
+
+**The test** (`pinnedTurnsBeforeRuns`, `groupRanking.ts`). For someone the slot
+run test flagged from answer `s`:
+
+- Their log times are read against the panel's median at each point (the people
+  not flagged, as `fastBlockStarts`' later passes read them).
+- The null model is their pace as a random walk with a straight-line trend and a
+  step at `s`. The run is known to be careless, so it may be quicker; that step
+  is given, not searched for.
+- Each earlier split `t` (from `FAST_BLOCK_MIN_SEG` up to `s`) adds one more
+  step and scores twice the gain in log likelihood (`walkLogLik`, d's Kalman
+  filter).
+- The best split that is quicker after than before moves the cut when its
+  chi-square(1) tail (`chiSq1Tail`) times the number of splits tried is at most
+  `alpha`.
+
+Nobody is flagged who was not already.
+
+**The walk ratio has to come from the panel.** The first version profiled each
+person's own walk ratio in each model. On a pure 0.08-log-per-answer walk (20
+panels of 20, 120 answers, a made-up run from answer 90) it moved 3.25% of runs
+at alpha 0.01. Adding the step let the ratio shrink, so a wander step read as a
+turn. Fixing the ratio at the null model's own estimate held the bound (0.5%)
+but lost the real turns, because a person's own ratio grows to swallow their
+turn: a clear 0.6-log turn 15 answers before a run did not move. The ratio
+that shipped in the function is `panelWalkRatio` over the people not flagged,
+read together and used in both models. On the pure walk it moves 0-0.5% at
+alpha 0.01 (walk 0 to 0.12) and 1.5% at 0.05. On the seeded no-wander panel two
+of three real turns move back to the right answer (`groupRanking.test.ts`).
+
+**The sweep** (`scripts/slot-turn-back-sweep.ts`, with two variants and a null
+added; raw rows `docs/pinned-turn-2026-11-15.jsonl`).
+
+- Seed base 9100: 144 cells, wander 0, 0.08 and 0.12, q 1 and 0.6, 0.4x and
+  0.7x pace, lag -0.25, 0 and 0.25, 15 and 30 items, a quarter or 40% careless,
+  20 surveys each.
+- Seed base 51000: 32 cells, wander 0.08 and 0.12, lag 0 and 0.25, a quarter
+  careless.
+
+The null gives every honest person who was not flagged a made-up run from 3/4 of
+their session, and counts how often each rule would move it. Paired Spearman
+difference from the default without any move back (`gated`):
+
+| rule | seeds 9100, 144 cells: mean (min, max) | above / below by 2 SE | seeds 51000, 32 cells: lag 0.25 / lag 0 | above / below |
+|---|---|---|---|---|
+| `back` (today's default: loose turn) | +0.0004 (-0.0018, +0.0047) | 8 / 0 | +0.0006 / -0.0002 | 2 / 0 |
+| `pinned`, alpha 0.01 | +0.0002 (-0.0005, +0.0042) | 1 / 0 | +0.0002 / -0.0001 | 0 / 0 |
+| `pinned05`, alpha 0.05 | +0.0004 (-0.0016, +0.0069) | 7 / 0 | +0.0003 / -0.0006 | 0 / 1 |
+| oracle | +0.0034 | | | |
+
+Made-up runs moved (honest people, 6,480 per row; second seed set 9,600):
+
+| wander, items | loose turn (`back`) | pinned 0.01 | pinned 0.05 |
+|---|---|---|---|
+| 0, 15 or 30 | 0.0% | 0.6% | 2.7-2.8% |
+| 0.08, 15 | 11.2% | 3.2% | 6.6% |
+| 0.08, 30 | 19.5% | 1.3% | 5.1% |
+| 0.12, 15 | 19.7% | 1.7% | 4.9% |
+| 0.12, 30 | 32.1% | 0.9% | 4.7% |
+| second seed set, 0.08 and 0.12 | 22.3% | 2.2% | 6.6% |
+
+The bound is exact only for the walk the test models. The sweep's times also
+slow on close pairs, which the staged selector serves more of as a session goes
+on. So at 15 items (60 answers) alpha 0.01 lets through up to 3.2%, not 1%. It
+is still 3-35x fewer moves than the loose turn under wander. Where nobody
+wanders, the loose turn moves nothing (its other bars hold), and the pinned test
+moves 0.6-2.8%.
+
+Careless people under wander:
+
+- **Run after the speed-up (lag 0.25):** the pinned test moved 12-22% of them
+  (`back`: 33-35%). It took out 19-21 careless answers per move and cut 0.8-1.0
+  honest ones (`back`: 17-18 and 2.1-3.9). Its moves landed before the true
+  onset 12-13% of the time (`back`: 20-33%).
+- **Run starting with or before the speed-up:** every move is a loss. The
+  pinned test moved 1-2% (`back`: 7-9%).
+
+**Decision.** Not shipped. The bound does what d11 asked: wander-only moves
+fall 3-35x. But the ranking is what the product is for, and on it the bounded
+rule never beats the loose one. At alpha 0.01 it keeps half the gain (+0.0002
+against +0.0004) with no cell below. At 0.05 it matches the gain on the first
+seed set and falls 0.0004 short on the second, with one cell below by 2 SE.
+`back` stays the default.
+
+`pinnedTurnsBeforeRuns` is kept, with tests, for the first real survey. If real
+paces wander more than the sweep's 0.12, or in ways it does not model, the loose
+turn's 11-32% made-up-run moves would grow while the pinned test's would not.
+Item (c) can read both on real answer times: count how many of `back`'s moves
+the pinned test agrees with.
+
+## Check pairs for the pick test (2026-11-15; the weighting shipped, the check pairs did not)
+
+Item (d8) on the flagship list. d7's pick test (`blockAgreementDrop`) is weak
+because the staged selector's late pairs are close: an honest person agrees
+with the panel on them not much more often than a coin flip does. d7 named two
+ways to get more out of each answer, and this measures both.
+
+**Check pairs** (`scripts/answer-time-sweep.ts --anchors N`). Every N-th answer
+is the pair the person's own ratings call most lopsided instead of the
+selector's pair. It uses the 2026-11-11 anchor rule: both items shown at least
+twice, not a recent pair, sides at random. An honest person agrees with the
+panel on such a pair nearly always and a coin flip half the time, so one answer
+there says much more.
+
+**A lapse-weighted score** (`blockAgreementDrop(..., "lapse")`). A careless
+pick moves an answer's chance of agreeing from p to p - e (p - 1/2). So the
+earlier and later sides are each read as an estimate of e. Residuals are
+weighted by w = 2p - 1: e = -2 sum(w r) / sum(w^2), with variance 4 sum(w^2
+p (1 - p)) / sum(w^2)^2. The score is the later e minus the earlier e over
+their joint standard error. A disagreement on a clear pair now counts more than
+one on a close pair. When every pair has the same gap, the score equals the
+flat one exactly (unit-tested). This needs no new questions, so it also works
+on surveys already answered.
+
+**Grid.** d7's cells: salience and random patterns, 25% and 40% careless at
+0.6x, onsets 0.25, 0.5 and 0.75, plus cost cells (nobody careless, or a 25-40%
+camp with a second taste, ratio 1). Panels of 20 on 15 and 30 items, 4 answers
+per item, 40 surveys per cell, at walk 0, 0.04 and 0.08, and with no check
+pairs, one in 10 or one in 5. Raw rows: `docs/check-pairs-2026-11-15.jsonl.gz`
+(seed base 4000, 270 cells). With no check pairs, the `shift-drop` and
+`shift-drop-az25` rows reproduce d7's file to the digit. A second seed set at
+walk 0.04 and 0.08 with no check pairs (seed base 9000):
+`docs/check-pairs-seed9000-2026-11-15.jsonl.gz`.
+
+Each cell reads ceiling, careless found, honest flags mean / worst. For cost
+cells it reads Spearman change and honest flags. As in d7, the ceiling is the
+summed Spearman gain over the gain from leaving out exactly the careless
+answers.
+
+| check pairs, walk | flat z 2.5 (before) | lapse z 2.5 | lapse z 2 | **lapse z 3 (shipped)** |
+|---|---|---|---|---|
+| none, 0.08, careless (24) | 27%, 0.24, 3.9 / 5.7% | 33%, 0.30, 4.2 / 6.5% | 36%, 0.34, 4.8 / 8.3% | **30%, 0.27, 3.8 / 5.3%** |
+| none, 0.08, cost (6) | -0.0019, 4.3 / 4.6% | -0.0020, 4.5 / 5.2% | -0.0022, 5.4 / 6.8% | **-0.0019, 4.3 / 4.8%** |
+| none, 0.04, careless (24) | 51%, 0.51, 2.5 / 4.3% | 54%, 0.54, 2.7 / 4.7% | 56%, 0.56, 2.7 / 4.7% | **51%, 0.53, 2.6 / 4.7%** |
+| none, 0.04, cost (6) | -0.0016, 4.6 / 7.0% | same | -0.0016, 4.6 / 7.1% | **same** |
+| none, 0, careless and cost | 93%, 0.89, 0.0 / 0.2%; no change | same, 0.90 | same, 0.90 | **same** |
+| seed 9000, none, 0.08, careless | 18%, 0.23, 3.4 / 4.3% | 25%, 0.29, 3.7 / 5.6% | | **22%, 0.26, 3.4 / 4.8%** |
+| seed 9000, none, 0.08, cost | -0.0011, 5.1 / 7.6% | -0.0010, 5.3 / 7.7% | | **-0.0010, 5.0 / 7.6%** |
+| seed 9000, none, 0.04, careless | 46%, 0.50, 2.2 / 3.3% | 50%, 0.53, 2.4 / 3.3% | | **48%, 0.52, 2.2 / 3.3%** |
+| 1 in 10, 0.08, careless | 20%, 0.23, 3.9 / 5.7% | 26%, 0.29, 4.2 / 6.3% | 29%, 0.33, 4.5 / 6.9% | 21%, 0.25, 3.9 / 6.0% |
+| 1 in 5, 0.08, careless | 20%, 0.23, 3.7 / 5.7% | 25%, 0.28, 3.9 / 5.8% | 29%, 0.31, 4.1 / 6.2% | 22%, 0.25, 3.8 / 6.0% |
+
+The ranking itself, with every answer kept (mean Spearman with the truth,
+seed base 4000):
+
+| check pairs | nobody careless or a camp | careless cells | leaving out exactly the careless answers |
+|---|---|---|---|
+| none | 0.9604 | 0.9439 | 0.9651 |
+| 1 in 10 | 0.9562 | 0.9405 | 0.9614 |
+| 1 in 5 | 0.9513 | 0.9381 | 0.9563 |
+
+What it shows:
+
+- **Check pairs do not pay for themselves.** Every check pair replaces an
+  adaptive pair, and the ranking loses 0.004 Spearman at one in 10 and 0.009 at
+  one in 5, careless or not. Under walk 0.08 the whole careless-block filter
+  gains about 0.006 (27% of the 0.021 an oracle would recover), and the check
+  pairs' cost is paid on every survey, careless or not. The block test does
+  not get better either.
+  At walk 0.08 the flat test finds 0.23 of the careless with check pairs
+  against 0.24 without. One check pair in 10 is 3 to 4 answers on the later
+  side of a split, too few to make up for the adaptive answers they replace.
+  A likely second cause, not separately measured: a check pair is easy, so
+  honest people answer it quickly too (the sweep's times slow down on close
+  pairs), which adds noise to the timing split. The 2026-11-11 anchor work
+  scored the whole session. The block test has only the answers after a
+  split.
+- **Weighting by how clear a pair is helps, with no new questions.** The
+  staged selector's pairs are not all close, and the weight finds the clear
+  ones it already asks. At the same z, lapse weighting finds more of the
+  careless (0.30 against 0.24 at walk 0.08) and flags somewhat more honest
+  people (4.2% against 3.9%). Raising the bar to 3 keeps most of the gain (0.27,
+  30% of the ceiling against 27%) with honest flags at or under the flat
+  rule's on both seed sets: 3.8% against 3.9% (worst cell 5.3% against 5.7%),
+  then 3.4% against 3.4% (worst 4.8% against 4.3%). A cell holds 480 to 600
+  honest people, so half a point in the worst cell is two or three people. At walk 0.04 it is level
+  (51% either way, 0.53 against 0.51 found). Where nobody wanders the test is
+  not engaged, so nothing changes.
+
+**Decision.** `fastBlockStarts` now defaults to `FAST_BLOCK_AGREE_Z = 3` with
+`FAST_BLOCK_AGREE_WEIGHTING = "lapse"`. Flat at 2.5 (the rule before) is kept
+as `agreeWeighting` "flat". Check pairs are not added to the survey. The
+sweep's `--anchors` stays so a later run can retest them, for example with
+real answer times. Tests: `blockAgreementDrop`'s weighting equals the flat
+score on equal gaps, and with mixed gaps it reads a miss on the clear pair as a
+larger drop than a miss on a close one. The flat score cannot tell the two
+apart, so that test fails under the old code. The seeded wander panel flags the
+same two careless people and no one honest under both rules. The view stays a
+comparison, not the default ranking.
+
+Reproduce one row: `npx tsx scripts/answer-time-sweep.ts --agree
+2.5,2.5:lapse,2:lapse,3:lapse --surveys 40 --items 15,30 --person-walk 0.08
+--patterns salience,random --careless 0.25,0.4 --ratio 0.6 --onset
+0.25,0.5,0.75 [--anchors 10]` (about 10 minutes on one CPU).
+
+**Next.** The pick signal is still the weak half under wander: 30% of the
+ceiling against 93% with no wander. What is left is whether real paces wander
+at all (item c).

@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqydiridBhL7FifhRSBW",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T23:39:12Z",
+  "ended": "2026-11-16T23:48:57Z",
+  "wall_minutes": 11.2,
+  "tokens_in": 10515946,
+  "tokens_out": 51605,
+  "cost_usd": 4.4742,
+  "tool_calls": 80,
+  "task": "Deepen flagship 12 ids-model-check: editor offers the classes and sets a loaded model has; own property sets as editable rows",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16740",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First cut of ownSetName reserved Pset_/Qto_ case-insensitively, which hid Revit's PSet_Revit_* sets (88% of real-export pairs) as 'not standard'",
+      "fix": "made it case-sensitive to match audit.mjs pset-custom; test added"
+    },
+    {
+      "what": "editor.test.mjs test 30 encoded the old 'custom set kept as written' behaviour",
+      "fix": "updated to the new editable-row expectation"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight stopped before the build on main_health's test_checklist_coverage.py (CLAUDE.md's checklist lacks platform/ci, from #16739 on main); it is unrelated to the slug yet blocks the build steps, so I ran step 4 (site tests) and the privacy tests by hand. A repo-wide failure that names no slug could be reported without stopping the slug's own checks."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "test_checklist_coverage.py fails on main: the checklist needs a `node --test platform/ci/*.test.mjs` line; CLAUDE.md is CODEOWNERS-guarded, so a ventures run cannot fix it in its own PR."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "venture-preflight exited 1 on a repository check unrelated to this slug (see doc_friction)",
+      "did": "merged on venture tests + site/privacy tests + local browser check, with the preflight output noted here",
+      "result": "all slug-reachable checks green locally: venture tests 80/80, platform/pages site tests 1451/1451 (minus the two full-build tests), platform/privacy 119/119, validate.py ok; only main_health's test_checklist_coverage failed, as it does on main"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-ids-editor-writes-for-the-model-you-have.md",
+    "ventures/ids-model-check/eval/model-inventory-2026-11-16.md"
+  ],
+  "goal": "Flagship depth: make the IDS editor useful for a coordinator writing requirements for a real model",
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py ids-model-check -> ok (80 tests). venture-preflight exit 1 only on main_health test_checklist_coverage.py (CLAUDE.md checklist lacks platform/ci; fails on this branch identically to main after #16739; no output names ids-model-check). Site tests (platform/pages *.test.mjs + cloudflare/*.test.mjs minus build/custom-domain) 1451/1451; platform/privacy 119/119. Headless Chromium drive of editor.html: open model (tiny-house with Acme_Wall; HHS architect 13 MB read in 0.9 s), add spec from model card, own set, property -> dataType filled, value; no page errors; 390 px no horizontal scroll. eval/editor-open.mjs: 64/64, 12/12, 187/187 write back same; editable 75.0->79.4% public. eval/model-inventory.mjs on 39 models (35 buildingSMART Sample-Test-Files @80d976a, 4 opensourceBIM IFC-files @cb96c50): real exports 347 of 395 (class,set) pairs own sets; 21 of 122 standard props in non-template dataType.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d41fbd4-1574-519e-9cdb-d2c59c851285",
+    "transcripts": 1,
+    "first": "2026-11-16T23:39:12Z",
+    "last": "2026-11-16T23:50:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 142,
+        "output": 51605,
+        "thinking": 9155,
+        "cache_read": 10344213,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171591,
+        "api_equivalent_usd": 4.4742,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 142,
+      "output": 51605,
+      "thinking": 9155,
+      "cache_read": 10344213,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171591,
+      "api_equivalent_usd": 4.4742,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 72,
+      "Write": 3,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.2,
+      "active_minutes": 11.2,
+      "model_minutes": 7.94,
+      "tool_minutes": 3.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "senior JS dev: model inventory module, editor UI for model offers and own-set rows, tests, real-model eval and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 268.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

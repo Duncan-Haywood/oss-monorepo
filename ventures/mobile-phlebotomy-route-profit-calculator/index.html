@@ -42,7 +42,7 @@
 <body>
   <header>
     <p class="note">MOBILE PHLEBOTOMY ROUTE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
-    <h1>What does a mobile blood draw really earn once you count the drive, and is solo, an agency or a job the better way to run the route?</h1>
+    <h1>What does a mobile blood draw really earn once you count the drive?</h1>
     <p>Enter your weekly draws by type, fees, on-site and drive minutes, supplies, failed trips and fixed costs. You get <strong>profit per draw and per working hour including drive time, break-even draws per week, the fee each draw type needs for your target margin, what failed trips cost, what batching stops does to your hourly profit, and solo against an agency contractor against an employed job</strong>.</p>
     <p class="note">Calculated in this browser tab. No account, no upload. The example is made up. Arithmetic only: it does not model licensure, certification rules, CLIA or any state or payer rule, and it is not medical advice. A planning estimate, not an estimate of record.</p>
   </header>
@@ -162,7 +162,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["routineQty", "routinePrice", "routineMin", "routineMat", "routineBatch", "statQty", "statPrice", "statPremium", "statMin", "statMat", "facilityVisits", "facilityDraws", "facilityPrice", "facilityMin", "facilityMat", "tripFee", "driveMiles", "driveMin", "mileCost", "failedPct", "failedPayPct", "failedMin", "insuranceMonth", "certYear", "otherFixedMonth", "labRunHours", "ownerRate", "hoursAvailable", "targetMarginPct", "agencyTakePct", "agencyVolumePct", "agencySupplies", "employedWage", "employedMileReimb"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {

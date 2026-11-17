@@ -26,6 +26,9 @@ export const DESIGN_G = 1000; // irradiance assumed for the hot-afternoon case, 
 export const ISC_FACTOR = 1.25; // NEC 690.8(A)(1)
 export const AMPACITY_FACTOR = 1.25; // NEC 690.8(B), on top of ISC_FACTOR
 const EPS = 1e-9;
+// Smallest plausible temperature-coefficient magnitude, % per C. Crystalline, HJT and
+// CdTe modules sit near -0.22 to -0.5; below 0.1 is a unit slip or a typo.
+export const MIN_COEFF_PCT = 0.1;
 
 /** An invented module, inverter and site: example numbers only, not a real product. */
 export function sampleInput() {
@@ -131,8 +134,17 @@ function parse(input) {
   if (errors.length) return { errors };
   if (p.betaVoc >= 0) errors.push("The Voc temperature coefficient is negative on crystalline modules (voltage rises in the cold). Enter it with its minus sign, for example -0.27.");
   if (p.betaVmp !== null && p.betaVmp >= 0) errors.push("The Vmp temperature coefficient is negative (for example -0.35). Leave it blank to use the Voc coefficient, which understates the hot-day drop.");
-  if (p.betaVocUnit === "%" && p.betaVoc < -2) errors.push("A Voc coefficient below -2 % per degree is not plausible; is it in mV per degree?");
-  if (p.betaVmp !== null && p.betaVmpUnit === "%" && p.betaVmp < -2) errors.push("A Vmp coefficient below -2 % per degree is not plausible; is it in mV per degree?");
+  // Checked as % per degree whichever unit was typed: a % value entered with "mV"
+  // selected (or a slipped decimal) would otherwise barely raise the cold Voc and
+  // allow strings above the voltage limit.
+  const pctOf = (beta, unit, vStc) => (unit === "mV" ? beta / 1000 / vStc * 100 : beta);
+  for (const [name, beta, unit, vStc] of [["Voc", p.betaVoc, p.betaVocUnit, p.vocStc], ["Vmp", p.betaVmp, p.betaVmpUnit, p.vmpStc]]) {
+    if (beta === null || beta >= 0) continue;
+    const pct = pctOf(beta, unit, vStc);
+    const shown = unit === "mV" ? `${beta} mV per degree (${round(pct, 3)} % of ${vStc} V)` : `${beta} % per degree`;
+    if (pct < -2) errors.push(`A ${name} coefficient of ${shown} is not plausible; ${unit === "mV" ? "check it is in mV per degree for the whole module." : "is it in mV per degree?"}`);
+    else if (pct > -MIN_COEFF_PCT) errors.push(`A ${name} coefficient of ${shown} is too small to be real (modules run about -0.2 to -0.5 % per degree); ${unit === "mV" ? "is it in % per degree, or per cell rather than per module?" : "check the decimal point."} Too small a coefficient understates the cold voltage.`);
+  }
   if (p.vmpStc >= p.vocStc) errors.push("Vmp must be lower than Voc; check the two datasheet values.");
   if (p.impStc !== null && p.impStc > p.iscStc) errors.push("Imp must not be higher than Isc; check the two datasheet values.");
   if (p.mpptMax !== null && p.mpptMax <= p.mpptMin) errors.push("The MPPT maximum must be above the MPPT minimum.");
@@ -269,9 +281,9 @@ export function analyze(input = {}) {
   };
 }
 
-function csvCell(v) {
+export function csvCell(v) {
   const s = v === null || v === undefined ? "" : String(v);
-  const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d/.test(s) ? "'" + s : s;
+  const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?(e[-+]?\d+)?$/i.test(s) ? "'" + s : s;
   return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 }
 

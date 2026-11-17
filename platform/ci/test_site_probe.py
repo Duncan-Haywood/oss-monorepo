@@ -39,7 +39,8 @@ class PlainProbe(unittest.TestCase):
     def setUpClass(cls):
         cls.srv = http.server.HTTPServer(("127.0.0.1", 0), Handler)
         cls.port = cls.srv.server_address[1]
-        threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
+        # 0.05 s poll: shutdown() waits one poll, 0.5 s by default (perf run 2026-11-14).
+        threading.Thread(target=cls.srv.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True).start()
 
     @classmethod
     def tearDownClass(cls):

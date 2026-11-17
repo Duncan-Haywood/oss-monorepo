@@ -1,9 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, STARTERS_SHIFT, circleOpp, assignVenues, venueCost, TIMETABLES, storedTimetable, starterPartner, shiftOrientation, shiftVenues } from "./carryover.mjs";
+import { carryOverFromOpponents, lowCarryOverRounds, lowCarryOverDoubleRounds, starterOpp, starterApplies, STARTERS, STARTERS_WEIGHTED, STARTERS_SHIFT, circleOpp, assignVenues, venueCost, TIMETABLES, storedTimetable, starterPartner, shiftOrientation, shiftVenues, starterShiftVenues, pairHostsOf, venuesFromHosts } from "./carryover.mjs";
 
 // pinned values of the stored timetables (carryover.mjs TIMETABLES)
-const STORED_VALUES = { "12/even": 136, "10/odd": 69 };
+const STORED_VALUES = { "12/even": 132, "12/evenAlt": 136, "14/even": 210, "10/odd": 69, "26/even": 670, "28/even": 778, "28/odd": 773, "30/even": 894, "30/odd": 889 };
 
 const seqs = (opp, n) => Array.from({ length: n }, (_, t) => opp.map((o) => o[t]).filter((u) => u < n));
 const decode = ([step, ...flat]) => ({ step, pairs: Array.from({ length: flat.length / 2 }, (_, i) => [flat[2 * i], flat[2 * i + 1]]) });
@@ -69,7 +69,7 @@ test("with a starter built in, the search never scores worse than the circle sta
     const now = lowCarryOverRounds(n, { effort: 0.2, breakWeight });
     const old = lowCarryOverRounds(n, { effort: 0.2, breakWeight, field: false });
     assert.ok(now.coe + breakWeight * now.breaks <= old.coe + breakWeight * old.breaks, `${n} teams, weight ${breakWeight}`);
-    assert.ok(["starter", "timetable", "circle", "weighted starter", "shift starter"].includes(now.start.replace(/, shift venues$/, "")));
+    assert.ok(["starter", "timetable", "second timetable", "circle", "weighted starter", "shift starter"].includes(now.start.replace(/, shift venues(, capped)?$/, "")));
   }
   for (const n of [12, 20]) {
     const now = lowCarryOverDoubleRounds(n, { effort: 0.2 });
@@ -137,13 +137,13 @@ test("stored timetables (eval/round-refill.mjs) are round robins and beat the st
     const N = Number(key);
     assert.ok(starterApplies(N));
     for (const kind of Object.keys(entry)) {
-      const n = kind === "even" ? N : N - 1;
-      const opp = storedTimetable(N, n);
+      const n = kind.startsWith("even") ? N : N - 1;
+      const opp = storedTimetable(N, n, kind.endsWith("Alt"));
       checkTimetable(opp, N);
       const stored = carryOverFromOpponents(seqs(opp, n)).value;
       assert.equal(stored, STORED_VALUES[`${N}/${kind}`], `${N} ${kind}`);
       if (STARTERS[N]) {
-        const { step, pairs } = decode(STARTERS[N][kind]);
+        const { step, pairs } = decode(STARTERS[N][kind.replace("Alt", "")]);
         let best = Infinity;
         for (let start = 0; start < N - 1; start++) best = Math.min(best, carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), n)).value);
         assert.ok(stored < best, `${N} ${kind}: stored ${stored} vs starter ${best}`);
@@ -299,4 +299,144 @@ test("home-and-away season: shift-venue leg ones are kept only when strictly bet
   }
   // carry-over only: unchanged
   assert.ok(!String(lowCarryOverDoubleRounds(11, { effort: 0.2 }).start).endsWith("shift venues"));
+});
+
+test("starter shift venues at any step and start: valid, (p - 1)(E + 1) breaks, and the pair hosts reproduce them", () => {
+  for (const [N, e] of Object.entries(STARTERS).map(([k, v]) => [Number(k), v])) for (const kind of ["even", "odd"]) {
+    const entry = e[kind];
+    if (!entry) continue;
+    const p = N - 1, n = kind === "even" ? N : N - 1;
+    const { step, pairs } = decode(entry);
+    const { E } = shiftOrientation(starterPartner(N, entry), p);
+    for (const start of [0, 1, p - 1]) {
+      const opp = starterOpp(N, pairs, { step, start });
+      const v = starterShiftVenues(N, entry, start);
+      for (let r = 0; r < p; r++) for (let t = 0; t < N; t++) assert.notEqual(v[r][t], v[r][opp[r][t]], "the two sides of a match disagree");
+      assert.equal(venueCost(v, opp, n), n === N ? (p - 1) * (E + 1) : (p - 1) * E, `${N} ${kind} start ${start}`);
+      assert.deepEqual(venuesFromHosts(opp, pairHostsOf(opp, v)), v);
+    }
+  }
+});
+
+test("carried pair hosts: valid venues after moves, the seeded venue search never worse, and the search never worse with them", () => {
+  const N = 24, entry = STARTERS[N].odd, n = 23;
+  const { step, pairs } = decode(entry);
+  const opp = starterOpp(N, pairs, { step });
+  const hosts = pairHostsOf(opp, starterShiftVenues(N, entry));
+  const moved = opp.map((o) => o.slice()).reverse(); // a round permutation keeps every pair
+  [moved[0], moved[5]] = [moved[5], moved[0]];
+  const v = venuesFromHosts(moved, hosts);
+  for (let r = 0; r < moved.length; r++) for (let t = 0; t < N; t++) assert.notEqual(v[r][t], v[r][moved[r][t]]);
+  assert.ok(venueCost(assignVenues(moved, n, 1, 8, { hosts }), moved, n) <= venueCost(assignVenues(moved, n, 1), moved, n));
+  for (const size of [19, 23]) {
+    const off = lowCarryOverRounds(size, { breakWeight: 10, shiftCapped: false, effort: 0.3 });
+    const on = lowCarryOverRounds(size, { breakWeight: 10, shiftCapped: false, carryHosts: "seed", effort: 0.3 });
+    assert.ok(on.coe + 10 * on.breaks <= off.coe + 10 * off.breaks, `${size} teams`);
+  }
+});
+
+test("capped shift candidates: kept only when strictly better; 11 and 13 teams gain, and the season is valid", () => {
+  for (const n of [11, 13]) {
+    const off = lowCarryOverRounds(n, { breakWeight: 10, shiftCapped: false });
+    const on = lowCarryOverRounds(n, { breakWeight: 10 });
+    assert.ok(on.coe + 10 * on.breaks < off.coe + 10 * off.breaks, `${n} teams`);
+    assert.match(on.start, /shift venues, capped$/);
+    const met = new Set(), home = new Array(n).fill(0);
+    for (const r of on.rounds) for (const [h, a] of r.matches) { met.add(Math.min(h, a) * 100 + Math.max(h, a)); home[h]++; }
+    assert.equal(met.size, (n * (n - 1)) / 2, "every pair meets once");
+    for (const h of home) assert.ok(Math.abs(2 * h - (n - 1)) <= 1, "balanced");
+    assert.equal(carryOverFromOpponents(seqs(on.rounds.map((r) => { const o = new Int16Array(n + 1).fill(n); for (const [h, a] of r.matches) { o[h] = a; o[a] = h; } return o; }), n)).value, on.coe);
+  }
+});
+
+test("field sizes with a bye: 15 and 31 teams take a shift starter with a break weight; 16 and carry-over only unchanged", () => {
+  for (const [n, breaksBelow] of [[15, 35], [31, 100]]) {
+    const off = lowCarryOverRounds(n, { breakWeight: 10, shift: false, effort: 0.3 });
+    const on = lowCarryOverRounds(n, { breakWeight: 10, effort: 0.3 });
+    assert.ok(on.coe + 10 * on.breaks < off.coe + 10 * off.breaks, `${n} teams`);
+    assert.ok(on.breaks < breaksBelow, `${n} teams: ${on.breaks} breaks`);
+    assert.equal(on.start, "shift starter, shift venues");
+    const met = new Set();
+    for (const r of on.rounds) for (const [h, a] of r.matches) met.add(Math.min(h, a) * 100 + Math.max(h, a));
+    assert.equal(met.size, (n * (n - 1)) / 2);
+  }
+  assert.deepEqual(lowCarryOverRounds(15, { effort: 0.3 }).rounds, lowCarryOverRounds(15, { effort: 0.3, shift: false }).rounds);
+  assert.equal(lowCarryOverRounds(16, { breakWeight: 10, effort: 0.3 }).start, undefined);
+});
+
+test("home-and-away season: capped shift leg ones are kept only when strictly better (11 teams gains), and give a valid season", () => {
+  const SCORE = (r) => r.coe + 1000 * r.repeats + 10 * r.breaks;
+  const n = 11;
+  const off = lowCarryOverDoubleRounds(n, { breakWeight: 10, shiftCapped: false });
+  const on = lowCarryOverDoubleRounds(n, { breakWeight: 10 });
+  assert.ok(SCORE(on) < SCORE(off), `${SCORE(on)} vs ${SCORE(off)}`);
+  assert.match(on.start, /shift venues, capped$/);
+  const legOf = new Map(), home = new Array(n).fill(0);
+  for (const rd of on.rounds) for (const [h, a] of rd.matches) { assert.ok(!legOf.has(`${h}>${a}`)); legOf.set(`${h}>${a}`, rd.leg); home[h]++; }
+  assert.equal(legOf.size, n * (n - 1));
+  for (const [k, leg] of legOf) { const [h, a] = k.split(">"); assert.notEqual(legOf.get(`${a}>${h}`), leg); }
+  assert.ok(home.every((x) => x === n - 1));
+  // carry-over only: unchanged
+  assert.ok(!String(lowCarryOverDoubleRounds(n, { effort: 0.2 }).start).includes("shift venues"));
+});
+
+test("home-and-away season at a field size with a bye (15 teams): the 16-team shift starters, when asked for, are never worse", () => {
+  const SCORE = (r) => r.coe + 1000 * r.repeats + 10 * r.breaks;
+  const off = lowCarryOverDoubleRounds(15, { effort: 0.2, breakWeight: 10 });
+  const on = lowCarryOverDoubleRounds(15, { effort: 0.2, breakWeight: 10, fieldShift: true });
+  assert.ok(SCORE(on) <= SCORE(off));
+  if (on.start !== "field") assert.ok(SCORE(on) < SCORE(off));
+});
+
+// eval/starter-exhaust.c (2026-11-15) enumerates every starter at step 1 only, on the argument that a
+// start renames teams and starter S at step s is the starter s^-1 S at step 1 renamed. Checked here
+// by brute force where it is cheap: every starter, every step coprime to p and every start, against
+// the C program's least values at step 1.
+function allStarters(p) {
+  const out = [], used = new Uint8Array(p), diff = new Uint8Array(p), pairs = [];
+  const rec = () => {
+    let x = 1;
+    while (x < p && used[x]) x++;
+    if (x >= p) { out.push(pairs.map((q) => q.slice())); return; }
+    used[x] = 1;
+    for (let y = x + 1; y < p; y++) {
+      if (used[y]) continue;
+      const d = y - x, e = Math.min(d, p - d);
+      if (diff[e]) continue;
+      used[y] = diff[e] = 1; pairs.push([x, y]);
+      rec();
+      pairs.pop(); used[y] = diff[e] = 0;
+    }
+    used[x] = 0;
+  };
+  rec();
+  return out;
+}
+
+test("starter-exhaust's step-1 reduction: every step and start gives no lower carry-over (6 to 14 teams)", () => {
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  // N -> [starters in Z_(N-1), least value at step 1 from eval/starter-exhaust.c]
+  for (const [N, count, least] of [[6, 1, 42], [8, 3, 48], [10, 9, 94], [12, 25, 156], [14, 133, 212]]) {
+    const p = N - 1, starters = allStarters(p);
+    assert.equal(starters.length, count, `${N} teams: starters`);
+    let atOne = Infinity, any = Infinity;
+    for (const pairs of starters) for (let step = 1; step < p; step++) {
+      if (gcd(step, p) !== 1) continue;
+      for (let start = 0; start < (step === 1 ? p : 2); start++) {
+        const v = carryOverFromOpponents(seqs(starterOpp(N, pairs, { step, start }), N)).value;
+        any = Math.min(any, v);
+        if (step === 1) atOne = Math.min(atOne, v);
+      }
+    }
+    assert.equal(atOne, least, `${N} teams at step 1`);
+    assert.equal(any, least, `${N} teams over every step`);
+  }
+});
+
+test("26 teams: the stored timetable is a starter timetable at step 1 (each round the last shifted by one)", () => {
+  const opp = storedTimetable(26, 26), p = 25;
+  for (let r = 1; r < p; r++) for (let t = 0; t < p; t++) {
+    const prev = opp[r - 1][t], want = prev === p ? p : (prev + 1) % p;
+    assert.equal(opp[r][(t + 1) % p], want, `round ${r}, team ${t}`);
+  }
 });

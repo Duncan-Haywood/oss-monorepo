@@ -23,6 +23,12 @@ def test_hours():
     assert hours(k) == (6.9 + 20) / 5.0
 
 
+def test_hours_two_cameras_share_the_pooled_energy():
+    # Two mounts, so both bodies run at once: (5 + 12) Wh over (4.5 + 6) W (quality round 68).
+    k = Kit((CAMERAS[1], CAMERAS[3]), (), (MOUNTS[0], MOUNTS[1]), ())
+    assert abs(hours(k) - (5.0 + 12.0) / (4.5 + 6.0)) < 1e-9
+
+
 def test_illegal_pack_rejected():
     k = Kit((CAMERAS[0],), (), (), (PACKS[3],))
     assert not legal(k)

@@ -191,3 +191,22 @@ test("defaults leave the page empty, not pre-filled with someone's figures", () 
   assert.equal(SHARED_DEFAULTS.workingCapital, 0);
   assert.equal(expectedProfit([], []), 0);
 });
+
+// Quality audit 2026-11-17 (portfolio/quality/audits/2026-11-17-surety-bond-capacity-calculator.json):
+// two seeded bugs survived, dropping the aggregate check from "fits today" and
+// the backlog from the working capital a bid needs.
+test("a bid under the single limit but over aggregate headroom does not fit today, and its WC need counts the backlog", () => {
+  const jobs = [{ name: "big", contract: 3000000, pctComplete: 0, monthsLeft: 6 }];
+  const b = analyze(EXAMPLE_SHARED, jobs, [{ name: "x", directCost: 1500000, marginPct: 8, winPct: 50 }]).priced[0];
+  assert.equal(b.fitsSingle, true);
+  assert.equal(b.fitsNow, false);
+  near(b.wcNeeded, (3000000 + b.price) / 20, 1e-3);
+  assert.ok(b.wcNeeded > b.price / 10);
+});
+
+test("negative working capital says so instead of asking for a blank field", () => {
+  const r = analyze({ ...EXAMPLE_SHARED, workingCapital: -50000 }, EXAMPLE_JOBS, EXAMPLE_BIDS);
+  assert.equal(r.ok, false);
+  assert.ok(r.warnings.some((w) => /negative/.test(w)));
+  assert.ok(!r.warnings.some((w) => /^Enter your working capital/.test(w)));
+});
