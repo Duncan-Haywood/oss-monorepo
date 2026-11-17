@@ -569,6 +569,17 @@ jobs:
         working-directory: platform/ci
         run: python3 -m unittest test_check_money_sign
 
+      # Schedule SE: net earnings (profit x 92.35%) under 400 dollars owe no
+      # self-employment tax. On 2026-11-11 ten calculators charged it anyway,
+      # each a few lines in its own file (PR #14907), so the next copy of the
+      # formula fails here instead of waiting for a red-team run.
+      - name: Check every annual SE tax applies the 400-dollar Schedule SE floor
+        run: python3 platform/ci/check_se_tax_floor.py
+
+      - name: SE-floor checker unit tests
+        working-directory: platform/ci
+        run: python3 -m unittest test_check_se_tax_floor
+
       # Every check above asks whether the code that is HERE is correct. None of
       # them can see a product that is no longer here: deleting a venture
       # deletes its tests along with it, so the assertions leave with the
