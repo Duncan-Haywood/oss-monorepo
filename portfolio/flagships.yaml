@@ -187,16 +187,15 @@ flagships:
       non-sticky), test it on fresh labelled data; update-rate check: date a
       documented collection change. Stale feeds: clumped LR shipped; next a real
       documented carry-forward. joint drift (measured, not offered) and its 2x
-      penalty on fresh multi-column labelled data; TSSB/HAS/UTSA (README): count,
-      shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
-      model: t-walk increments, biweight on fresh data, why it absorbs seat belts
-      and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), given date: --known-date on CLI, page, engine;
-      in-time placebos ship beside it (README "In-time placebos": 0-4% false
-      warnings); control series: step-only rule calibrated in sims, but 11 of 13
-      annual state tobacco ratios refused as wanders (README "The step alone"): next
-      monthly state series, a synthetic control, a slope-path test. More open items:
-      NEXT.md.
+      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
+      increments, biweight on fresh data, why it absorbs seat belts and quality
+      control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship (refuse short
+      sticky series), given date: --known-date on CLI, page, engine; control series:
+      step-only rule calibrated in sims, but 11 of 13 annual state tobacco ratios
+      refused as wanders (README "The step alone"): synthetic control (README "A
+      synthetic control"): CA -26.5 packs at 2000 as published, rank 3 of 39 (MO, VA
+      fit too well): next a ratio robust to tiny before-gaps, monthly series. More
+      open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -369,13 +368,14 @@ flagships:
       waits (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41
       on 7x9 0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with
       the short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Next, most
-      valuable first: 47 on 8x9 (13 of 16: --resume eval/lns-states/47-8x9.json
-      --also 15); 49 on 8x9 (orbit, ~11 h est.); the rest of the 20-team gap (40 to
-      44 still ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a
-      starter family climbed with the floor as its score); 30 teams in the page
-      (README "Half the table": 104 s with the symmetric step, 2x 28 teams; next:
-      keep tables in the module, copy-in/out now as large as the step; 29 adds
-      nothing). More open items: NEXT.md.
+      valuable first: 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs,
+      night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night); 49
+      on 8x9 (orbit, ~11 h est.); the rest of the 20-team gap (40 to 44 still
+      ~444-550: four-round re-deals or a longer run, now ~4x cheaper; or a starter
+      family climbed with the floor as its score); 30 teams in the page (README
+      "Half the table": 104 s with the symmetric step, 2x 28 teams; next: keep
+      tables in the module, copy-in/out now as large as the step; 29 adds nothing).
+      More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
