@@ -10,10 +10,11 @@ import assert from "node:assert/strict";
 import { createRequire } from "node:module";
 import { readdirSync, readFileSync } from "node:fs";
 import { runPlain, plainAvailable } from "./plain-node.mjs";
-import { rewriteTimezone, rewriteCurrent } from "./plain-compile.mjs";
 
 const require = createRequire(import.meta.url);
 const skip = !plainAvailable() && "npm i --no-save slimdom fontoxpath (rules are in ./plain/)";
+// plain-compile.mjs imports slimdom, which CI's browser job does not install.
+const { rewriteTimezone, rewriteCurrent } = skip ? {} : await import("./plain-compile.mjs");
 const dir = new URL("./plain/", import.meta.url);
 const sets = readdirSync(dir).filter((f) => f.endsWith(".json") && f !== "manifest.json");
 const om = readFileSync(new URL("./examples/pint-current-jp-invoice.xml", import.meta.url), "utf8")
@@ -56,7 +57,7 @@ test("IBR-171-OM: an issue date in the future, by Oman time", { skip }, async ()
   assert.ok((await rules(future)).includes("IBR-171-OM"));
 });
 
-test("adjust-date(Time)-to-timezone calls are renamed; current() is bound to the context", () => {
+test("adjust-date(Time)-to-timezone calls are renamed; current() is bound to the context", { skip }, () => {
   assert.equal(rewriteTimezone("adjust-date-to-timezone(xs:date(.), ()) le fn:adjust-dateTime-to-timezone($x, $t)"),
     "u:adjust-date-to-timezone(xs:date(.), ()) le u:adjust-dateTime-to-timezone($x, $t)");
   assert.equal(rewriteTimezone("u:adjust-date-to-timezone(.)"), "u:adjust-date-to-timezone(.)");
