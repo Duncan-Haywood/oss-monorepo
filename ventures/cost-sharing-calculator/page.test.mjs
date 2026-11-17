@@ -130,5 +130,5 @@ test("the page cites every paper the engine implements, with BibTeX", async () =
     assert.ok(html.includes(`doi={${p.doi}}`), p.doi);
     assert.ok(html.includes(`https://doi.org/${p.doi}`), p.doi);
   }
-  for (const s of ["ranked-ballot-counter", "hdbscan-clustering"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
+  for (const s of ["ranked-ballot-counter", "hdbscan-clustering", "stable-matching"]) assert.match(html, new RegExp(`href="\\.\\./${s}/"`));
 });
