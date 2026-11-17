@@ -314,6 +314,8 @@ function matchCells(season, wk, m) {
   return [season.teams[m.a], season.teams[m.b]];
 }
 
+// Every cell goes through calc.mjs csvCell, the formula-injection guard (a cell starting =, +, -,
+// @, tab or CR gets an apostrophe), so a team named "=SUM(...)" stays text in a spreadsheet.
 export function bowlingCsv(season) {
   const lines = [["Week", "Date", "Lanes", "Team", "Opponent", "Note"].join(",")];
   for (const wk of season.weeks) {
