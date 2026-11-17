@@ -679,3 +679,18 @@ def test_shape_chosen_prefers_the_steepest_ramp_else_the_newest():
     assert localise.shape_chosen(steps, 19)[0] == 5
     # nothing dated in the window: latest onset of whatever is active
     assert localise.shape_chosen([{1: (6.0, 0)}] * 50, 49, window=10)[0] == 1
+
+
+def test_injected_leak_shape_and_size():
+    """Step 25's emitter schedule: an incipient leak's coefficient is a quarter of full at mid-rise
+    (diameter linear in time, as BattLeDIM's published flows show), and an orifice of 15 mm at
+    Cd 0.75 leaks about 15 m3/h at 49 m of pressure (checked against an EPANET run, LOG.md)."""
+    from water_leaks import simulate
+    assert simulate.leak_shape(99, 100, 200, 300, "incipient") == 0.0
+    assert abs(simulate.leak_shape(150, 100, 200, 300, "incipient") - 0.25) < 1e-12
+    assert simulate.leak_shape(250, 100, 200, 300, "incipient") == 1.0
+    assert simulate.leak_shape(300, 100, 200, 300, "incipient") == 0.0
+    assert simulate.leak_shape(100, 100, 100, 300, "abrupt") == 1.0
+    c = simulate.emitter_coef(0.015)
+    assert abs(c - 2.1134) < 1e-3
+    assert 14.5 < c * np.sqrt(49.2) < 15.1
