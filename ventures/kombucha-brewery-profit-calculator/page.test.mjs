@@ -54,3 +54,9 @@ test("every input id the script reads exists on the page", () => {
   const map = html.match(/const map = \{([^}]*)\}/)[1];
   for (const [, id] of map.matchAll(/(\w+): "/g)) assert.match(html, new RegExp(`id="${id}"`));
 });
+
+test("form status names this tool's required fields, not another venture's (quality audit 2026-11-17)", () => {
+  const html = page("index.html");
+  assert.doesNotMatch(html, /plants per square foot|Growing area|days to harvest/);
+  assert.match(html, /Fermenter capacity, batch fill, brew days/);
+});
