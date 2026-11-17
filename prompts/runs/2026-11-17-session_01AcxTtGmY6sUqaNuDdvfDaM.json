@@ -15,25 +15,43 @@
   "tokens_out": null,
   "cost_usd": null,
   "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "task": "quality census (mode draw), seed 2026-11-17-7681, six never-audited subjects",
+  "projects": [
+    "research/simdesign-gaugescatter",
+    "ventures/patio-door-bid-calculator",
+    "research/decentralized-verification-markets",
+    "ventures/fdr-multiple-testing",
+    "research/osrobot-dofbom",
+    "ventures/earthwork-cut-fill"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17050",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
   "ci_failures_before_green": null,
   "review_findings": null,
-  "tests_added": null,
-  "outcome": null,
+  "tests_added": 11,
+  "outcome": "success",
   "errors": [],
   "integrity_issues": [],
-  "doc_friction": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 says run `sample`, but `sample` itself prints that today's mode is census; the prompt never mentions modes, so a reader of only the track prompt would run the wrong mode. The README's 'Five modes' section is the real procedure."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`mode` printed weights summing to 1.25 (fix 0.5 doubled) without saying they are renormalised; harmless but confusing."
+    }
+  ],
   "deviations": [],
-  "writeups": [],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-a-mechanism-missing-its-penalty.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Mode census (seeded draw). Seed 2026-11-17-7681. Subjects: research/simdesign-gaugescatter, ventures/patio-door-bid-calculator, research/decentralized-verification-markets, ventures/fdr-multiple-testing, research/osrobot-dofbom, ventures/earthwork-cut-fill. Share meeting the bar: 1 of 6 (fdr-multiple-testing); 5 of 6 finished. Seeded mutants caught 21 of 38; correctness recomputations passed 32 of 45. One auditor agent per subject in parallel; I reran each headline recomputation (dofbom 66.38/121.94/1.837/57.9; fdr BH 0.035625; patio 6432.51; earthwork 9.375/3.8194 yd3; gaugescatter 99.97/131.14 MPa; dvm CA+penalty honest gap +153.36, plain b=2 Brier 0.0112) and all matched. Fix PRs: #17050 (this PR): fdr null->p=0, earthwork comma split + privacy claim, patio restore freezing kit prices + walk-away mislabel, dofbom test pins + target guard, gaugescatter mesh-artefact pointer + beam-bounded tip test (kills plane-strain and 0.8-load mutants), dvm four README claim corrections. Portfolio-wide patterns found, not fixed: the restore-marks-all-edited applyValues block in 38 venture index.html files, and 'Nothing is sent anywhere' on 163 venture pages despite the deployed page-view counter. Open: DVM CA needs the published penalty term implemented and follow-ups rerun. Local checks: run_venture_tests for the three ventures (all ok), research homepage build ok, check_md_links ok, research_live_links ok, quality_audit validate 454 files 0 problems, post front matter/links/similarity ok; run_workflow_locally --for-changes result below.",
   "corrections": [],
   "redteam": null
 }
