@@ -206,3 +206,45 @@ unconfirmed: the night check could not confirm a layout). Seeds 72, 74, 82, 84, 
 [  360.5s] start 10 of 16 nights good
 [ 2182.9s] step 7: freed [2, 15], sideways: 10 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
 [ 3083.5s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+
+After the container restart (07:09 UTC), all from the 11-of-16 state, --step 300:
+--- seed 101: default settings (stopped at ~1,300 s for 121)
+[  300.5s] start 11 of 16 nights good
+--- seed 103: --also 15
+[  300.5s] start 11 of 16 nights good
+[  371.8s] step 1: freed [12, 15], better: 12 of 16 good; failed repairs so far {'timeout': 0, 'unsat': 0, 'unconfirmed': 0}
+[ 1348.0s] step 5: freed [4, 15], better: 13 of 16 good; failed repairs so far {'timeout': 3, 'unsat': 0, 'unconfirmed': 0}
+[ 2849.0s] step 10: no step accepted yet; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3169.5s] step 12: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 103, "free": 2, "steps": 18, "seconds": 4970.6, "sat": null, "good": 13}
+--- seed 112: --sideways-after 2
+[  300.4s] start 11 of 16 nights good
+[  841.0s] step 2: freed [12, 2], better: 12 of 16 good; failed repairs so far {'timeout': 1, 'unsat': 0, 'unconfirmed': 0}
+[ 1982.4s] step 6: freed [4, 13], sideways: 12 of 16 good; failed repairs so far {'timeout': 4, 'unsat': 0, 'unconfirmed': 0}
+[ 2623.1s] step 9: freed [3, 12], sideways: 12 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2923.3s] step 10: no step accepted yet; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 3263.8s] step 12: freed [13, 11], sideways: 12 of 16 good; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3907.4s] step 15: freed [11, 3], sideways: 12 of 16 good; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 112, "free": 2, "steps": 17, "seconds": 4507.8, "sat": null, "good": 12}
+--- seed 114: --also 15 --sideways-after 2 (stopped at ~1,300 s for 122; seeds 102 and 104, the first pair with these numbers' slots, were stopped at ~60 s to start 112 and 114)
+[  300.4s] start 11 of 16 nights good
+[  921.8s] step 3: freed [2, 15], sideways: 11 of 16 good; failed repairs so far {'timeout': 2, 'unsat': 0, 'unconfirmed': 0}
+--- seed 121: --also 15, from 13
+[  180.3s] start 13 of 16 nights good
+[ 2002.8s] step 7: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2903.4s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+[ 3825.9s] step 14: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 121, "free": 2, "steps": 15, "seconds": 4126.1, "sat": null, "good": 13}
+--- seed 122: --also 15 --sideways-after 2, from 13
+[  180.3s] start 13 of 16 nights good
+[  801.6s] step 3: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 2, 'unsat': 0, 'unconfirmed': 0}
+[ 1422.3s] step 6: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 4, 'unsat': 0, 'unconfirmed': 0}
+[ 2043.6s] step 9: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2343.8s] step 10: no step accepted yet; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 2664.4s] step 12: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3285.9s] step 15: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+[ 3907.6s] step 18: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 122, "free": 2, "steps": 19, "seconds": 4207.8, "sat": null, "good": 13}
+
+Failed repairs over the instrumented runs (the last count each log printed, so a lower bound): at least 98, every one a timeout; 0 unsat, 0 unconfirmed.
+Best: 13 of 16 (seed 103), stored as eval/lns-states/47-8x9.json.

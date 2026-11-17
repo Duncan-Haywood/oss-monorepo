@@ -549,14 +549,16 @@ cores, about 4.5 hours, one container restart; full logs in `eval/odd-lns.txt`.
   reached 12 separately.
 - **Every failed repair ran out of time; none was proved impossible.** The script now counts failed
   repairs by cause (`timeout`, `unsat`, `unconfirmed`, printed with each step). Over the instrumented
-  runs: every failure a timeout, 0 UNSAT, 0 unconfirmed. That differs from 41 teams, whose last bad
+  runs: at least 98 failed repairs, every one a timeout, 0 UNSAT, 0 unconfirmed. That differs from 41 teams, whose last bad
   night was UNSAT on its own pairs (`eval/lns-bad-night.py`), and says the step budget, not the
   pairs, is what stops a step here.
 - **But a longer budget did worse.** Seed 92 with 900 s repairs made one sideways step in about
   6,500 s and never climbed; the 300 s runs climbed in the same time. Most climbs came within one to
   four repairs of a sideways step (as many good nights, pairs re-dealt), which the search tries only
   after 6 failures in a row. `--sideways-after N` (default 6) makes that number an option; seed 112
-  with 2 reached 12 from 11 at 841 s, seed 103 with 6 at 372 s, so there is no verdict yet.
+  with 2 reached 12 from 11 at 841 s, seed 103 with 6 at 372 s, so there is no verdict yet. The
+  last two runs, from 13 with `--also 15` (one with `--sideways-after 2`), took 8 sideways steps
+  between them in about 4,000 s each and no climb.
 - **Freeing the short night helps here.** At 41 teams `--also` (always free the short last night
   with a bad one) was untested. At 47, both of seed 103's climbs, 11 to 12 and 12 to 13, freed night
   15 with a bad night, so its 2 rounds (46 matches in 72 slots) took the pairs that did not fit.

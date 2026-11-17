@@ -38,8 +38,8 @@ restarted from it. That mattered: the container restarted once, and nothing was 
 
 The script used to log nothing when a repair failed, so you couldn't tell "the solver
 ran out of time" from "no such deal exists". It now counts both. Over every run that
-had the counter, **every failed repair was a timeout and none was proved
-impossible**. At 41 teams it was the other way round: the last bad night was impossible
+had the counter, **at least 98 repairs failed, every one a timeout, and none was
+proved impossible**. At 41 teams it was the other way round: the last bad night was impossible
 on its own pairs, and only re-dealing it could help.
 
 So you would expect more time per repair to help. It didn't. A run allowed 900 seconds
@@ -60,7 +60,8 @@ two wins.
 
 ## What's left
 
-Three nights. The state is in the repository
+Three nights. Two final runs from 13 made 8 sideways steps in about 70 minutes each
+and no climb, so the last nights will take longer. The state is in the repository
 (`ventures/league-schedule-generator/eval/lns-states/47-8x9.json`), and every log is in
 `eval/odd-lns.txt`. The next run picks up from 13, frees the short night every step and
 tries both sideways settings. Once all 16 nights lay out, the season is checked as a
