@@ -1,5 +1,19 @@
 # buildbot-sheathing research log
 
+## 2026-11-17 · Milestone 39 result: braking the waist takes the floor from 0.49 to 0.01 mm and a 1 arcmin waist to 0.11; locking roll and pitch, as on the base G1, changes nothing because the yaw is what flips; H146–H150 held
+
+`src/buildbot_sheathing/waist.py` (new: the per-joint gap of each waist case), `experiments/m39_waist/` (run, results, figure; imports milestone 38's run so every pose, plan and residual is the same code), `tests/test_waist.py` (3 tests), `reproduce.py` (m39 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card.
+
+- **Check.** 'stock' reproduces milestone 38's S = 10 N residuals exactly (largest difference 0.0 mm) and its stacks to the printed digit (G1 0–10 N 5.80, 0–20 N 0.05; H1 0.02 and 0.02).
+- **Braked (H146 held).** With the waist joints rigid and the FT 300 (|e| 0.2 N), the G1's worst residual along the wall at a 5 N drag falls from 0.485 to **0.012 mm**, at 0 N from 0.479 to 0.021. The H1 at 5 N 0.501 → 0.019, at 20 N 0.423 → 0.032.
+- **The base G1's lock does not help (H147 held, at full strength).** Making waist roll and pitch rigid (the G1 ships with only the yaw; unitree.com/g1) leaves 0.485 mm at 5 N and 5.80 points over 0–10 N: the waist joint that flips is the yaw, the one every G1 keeps.
+- **A precision waist gearbox nearly does it (H148 held).** 1 arcmin on the waist leaves the G1 0.106 mm at 5 N (0.099 at 0 N) and the H1 0.098 and 0.090. The floor scales with the waist gap, as the held-bias model says (gap / 2 on a flipped joint).
+- **The stacks close (H149 held).** G1 0–10 N: stock 5.80, yaw only 5.80, precision 0.11, **braked 0.04 points**; 0–20 N 0.05 → 0.03. The H1 stays at 0.02 in every case (its stacks were already set by other joints). The no-hose stack the loss is counted from rises slightly at the worst G1 pose (0.9081 → 0.9160) because a rigid waist adds no random error when loose.
+- **The old sensor (H150 held).** With |e| 2.4 N a braked waist still leaves 0.873 mm at 5 N (G1) and 0.818 mm at 0 N; the 2.4 N error flips arm and leg joints by more than any preload here.
+- **What it means.** With a current wrist F/T sensor, the leg preload (milestone 37) and a 10 N squeeze (milestone 38), the last 0.5 mm is the waist yaw's backlash. A spec can close it with a waist yaw holding brake (or lock) while nailing, or a waist gearbox at about 1 arcmin, which gives about 0.1 mm. Dropping the optional roll and pitch joints, as the base G1 does, buys nothing.
+- **Not measured.** The brake is ideal (no gap, no compliance); the lock holds at the posed angle (waist pitch up to ±29.8°, roll ±8°, yaw ±5° over the G1's poses), whereas the base G1's roll and pitch are fixed at zero, so its poses would differ; poses are not re-solved. No waist backlash figure is published for either robot; 1 and 5 arcmin are the low end and middle of the catalogue range already cited. Statics only.
+- **Next.** The paper's headline for a tool-point spec (sensor, leg preload, squeeze, waist brake) as one table; the nailer's recoil; the G1's over-limit wrist pitch at low poses.
+
 ## 2026-11-17 · Milestone 39 planned: the waist's gap, from stock to braked
 
 - **Why.** Milestone 38's squeeze cleared every arm flip and left a floor of 0.48–0.50 mm (G1 at 0 and 5 N of hose drag, H1 at 5 N) that sits in the waist (G1) and torso (H1) joints and two leg joints. No ground reaction and no squeeze moves a waist torque: the tool's wrench alone sets it. What is left to an engineer is the waist's own hardware: its gearbox backlash, or a lock. Unitree sells the G1 with one waist joint (yaw) and the roll and pitch joints as an option ("Waist Degrees of Freedom 1, 1+(Optional 2 additional waist degrees of freedom)", unitree.com/g1, read 2026-11-17); Menagerie's G1 model has all three.

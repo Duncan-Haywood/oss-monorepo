@@ -515,6 +515,17 @@ ideal force pair, statics only.
 
 ![Worst residual along the wall against the squeeze bound for two sensors, and which joints still flip](experiments/m38_squeeze/figure.png)
 
+**Milestone 39: what does the waist's backlash cost, and does a brake fix it?** Milestone 38 left up to 0.50 mm in the
+waist joints, whose torque only the tool's load sets. With its 10 N squeeze, milestone 37's leg preload and the FT 300,
+a **braked waist** (no gap) takes the G1's worst residual at a 5 N hose drag from 0.485 to **0.012 mm** (H146 held) and
+its 0–10 N stack loss from 5.80 to **0.04 points**; the H1 at 5 N goes from 0.501 to 0.019 mm. A **1 arcmin** waist
+gearbox gives 0.106 mm and 0.11 points (H148 held). Locking waist roll and pitch, as on the base G1 (one waist joint,
+unitree.com/g1), **changes nothing**: the joint that flips is the yaw (H147 held). With the pre-2017 sensor a braked
+waist still leaves 0.87 mm (H150 held). All five registered hypotheses held. The brake is ideal and locks at the posed
+angle (poses not re-solved); waist backlash is swept, not published; statics only.
+
+![Worst residual along the wall for each waist case and two sensors, and the clean-sheet loss over a drag range](experiments/m39_waist/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
