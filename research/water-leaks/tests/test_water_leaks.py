@@ -654,3 +654,28 @@ def test_shape_timed_picks_the_change_nearest_the_alarm():
     # start-timed, the ramp's change is day 10, far from an alarm at 19.5: the step is nearer
     assert localise.shape_timed(states, 29, alarm=19.5, half=False)[0] == 3
     assert localise.shape_timed([{1: (6.0, 0)}] * 50, 49, alarm=49, window=10)[0] == 1
+
+
+def test_shape_chosen_prefers_the_steepest_ramp_else_the_newest():
+    from water_leaks import localise
+    # atom 2: slow ramp from day 5; atom 4: steeper ramp from day 15; atom 3: step on day 25.
+    states = []
+    for d in range(30):
+        s = {}
+        if d >= 5:
+            s[2] = (0.1 * (d - 4), 5)
+        if d >= 15:
+            s[4] = (0.4 * (d - 14), 15)
+        if d >= 25:
+            s[3] = (9.0, 25)
+        states.append(s)
+    pick, info = localise.shape_chosen(states, 29)
+    assert pick == 4 and info[3][0] == "step" and info[2][0] == "ramp"
+    assert abs(info[4][2] - 0.4) < 1e-9 and info[4][1] == 15
+    assert localise.shape_chosen(states, 29, score="level")[0] == 4
+    assert localise.shape_chosen(states, 29, score="ls")[0] == 4
+    # no ramps: the newest step
+    steps = [{1: (2.0, 3), 5: (1.0, 8)} if d >= 8 else {1: (2.0, 3)} for d in range(20)]
+    assert localise.shape_chosen(steps, 19)[0] == 5
+    # nothing dated in the window: latest onset of whatever is active
+    assert localise.shape_chosen([{1: (6.0, 0)}] * 50, 49, window=10)[0] == 1
