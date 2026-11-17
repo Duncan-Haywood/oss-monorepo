@@ -529,6 +529,12 @@ test("RECEIPT_OCR_LEAD reads the photo with a second engine first, and its failu
   // a lead engine that fails, or prints nothing, leaves tesseract's readings
   const bad = (cmd, args) => (cmd === "pp" ? { status: 1, stdout: "" } : run(cmd, args));
   assert.equal(receiptPassesFromFile("slip.jpg", { run: bad, env: { RECEIPT_OCR_LEAD: "pp {file}" } }).length, 2);
+  // a lead function (cli.mjs --rapidocr --four-pass passes receiptTextRapid) leads the same way
+  calls.length = 0;
+  const viaFn = receiptPassesFromFile("slip.jpg", { run, env: {}, lead: (p) => `KEDAI MAJU\nTotal 31.000\n${p}` });
+  assert.equal(viaFn.length, 3);
+  assert.match(viaFn[0], /slip\.jpg/);
+  assert.equal(receiptPassesFromFile("slip.jpg", { run, env: {}, lead: () => { throw new Error("no python"); } }).length, 2);
   // a PDF is not given to the lead engine (pdftotext reads it, once)
   calls.length = 0;
   const pdf = (cmd, args) => { calls.push(cmd); return { status: 0, stdout: "KEDAI MAJU\nTotal 31.000" }; };

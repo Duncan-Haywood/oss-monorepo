@@ -5,7 +5,8 @@
 // follows the text operators (Tf, Td, TD, Tm, T*, Tj, TJ, ', ") and the
 // graphics state's cm/q/Q so that every run of text comes out with an x and a
 // "row" position, then groups runs into lines. It does not render anything and
-// does not do OCR: a scanned statement has no text to read, and says so.
+// does no OCR itself: a scanned statement has no text to read, says so, and
+// ocr.mjs reads its pictures when the visitor asks.
 //
 // Fonts: a ToUnicode CMap is used when the font has one (this is what makes
 // subset TrueType and Identity-H fonts readable). Without one, a simple font

@@ -121,12 +121,13 @@ flagships:
       here; keep this under 2,000 characters. More open items: NEXT.md.
     buildable: >-
       Receipts, item (5): SRD photos (eval/srd-fetch.mjs) and CORD photos
-      (eval/cord_images.py); tesseract via apt, PP-OCRv4 via `pip install
-      rapidocr_onnxruntime` (tools/rapidocr_receipt.py, RECEIPT_OCR_LEAD;
-      eval/second-ocr-engine-2026-11-17.md): CLI totals test 56 to 80 of 95, SRD 156
-      to 180 of 196. Next: PP-OCR in the page (onnxruntime-web, 16 MB models); rules
-      from PP-OCR's own misses on CORD train (75 of 583); PP-OCR on the grey 2,000
-      px copy as a sixth reading.
+      (eval/cord_images.py) read by `apt-get install tesseract-ocr` and
+      eval/srd-cli.mjs. CORD train, all 4 shards read
+      (eval/cord-train-shards-2026-11-17.md): CLI 362 of 583 (shards 1-3); test 56
+      of 95 (held out). Bottom crops dropped. `--rapidocr` (RapidOCR, one reading)
+      reads test 80 of 95 (eval/rapidocr-2026-11-17.md). Next: RapidOCR on shards
+      1-3; a vote weight to mix it with tesseract; its parser misses (Rp57,000; cash
+      taken as total); ONNX Runtime Web for the page. CORD test stays held out.
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
   # process" (prompts/goals.md, "AI sales agents, a long-term build"). Stages in ventures/sales-agent/ROADMAP.md.
@@ -202,33 +203,32 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: VERI*FACTU: AEAT's 247 error codes mapped,
-      VF-029..047, AEAT reply read, rate lists 1124/1127 from the validation
-      document as quoted, eval/verifactu-*-2026-11-15.md, 143/203; IGIC rules,
-      eval/verifactu-igic-*; open: a production SIF's records and replies, doc
-      v1.2.x). Open: a real HU report with NAV's businessValidationMessages or
-      SCHEMA_VIOLATION text; HU: open: a real chain with NAV's replies; a real
-      business's signed Facturae or FACe rejection (eval/facturae-gob-*); ZATCA: a
-      real KSA note; SdI: open: a real FatturaPA rejection with its file; HR: a real
-      HR invoice, cash accounting; CIUS-PT: which validator does AT run (AA/RED
-      codes)?; FA(3) KOR/ZAL/ROZ totals landed (README): open: a real KSeF
-      rejection, a business's real KOR/ZAL file; repair keeps PDF/A (veraPDF
-      155/155), PDF/A-3b writer passes Mustang; open: a real business's PINT file;
-      open: RO_CIUS on a real ANAF file; NLCIUS on a real Dutch file; India's INV-01
-      check on a real IRP payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan
-      open; SK landed (README): open: a real SK file; Mexico CFDI 4.0 landed: open:
-      SAT's CP error matrix to map MX-070..080 to CP codes (omawww blocked), a real
-      payroll or export file, a PAC rejection compared; cCredPres rules and
-      cClassTrib at IT 1.71 landed (README): RTC events (211110, 12 others incl.
-      112120, 110001) landed, 211120 (removed in v1.40) flagged (README): open: a
-      real event; a real reform NF-e from a SEFAZ test environment, a real SEFAZ
-      rejection for a cClassTrib; national NFS-e landed: open: a national rejection
-      compared; ISS: SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH
-      (hosts 403), a Rio rejection; ABRASF NFS-e 2.00-2.04 landed (README): open:
-      ISS retained on a real file, city provider schemas, 1.0x sets, DSF, 12
-      single-file 1.0x (Rio, BH, Curitiba,...) landed (README): open: a DSF
-      1.00/Abaco file. A run that lands a slice replaces its item here. More open
-      items: NEXT.md.
+      History: README and git (latest: France BR-FR (FNFE 1.4.0.04) on the plain
+      route, 264/264 vs Saxon (eval/br-fr-crosscheck-2026-11-17.md); open: FNFE's
+      Extended-CTC-FR base sets, CDAR, English BR-FR text, a real PA rejection;
+      VERI*FACTU (README): open: a production SIF's records and replies). Open: a
+      real HU report with NAV's businessValidationMessages or SCHEMA_VIOLATION text;
+      HU: open: a real chain with NAV's replies; a real business's signed Facturae
+      or FACe rejection (eval/facturae-gob-*); ZATCA: a real KSA note; SdI: open: a
+      real FatturaPA rejection with its file; HR: a real HR invoice, cash
+      accounting; CIUS-PT: which validator does AT run (AA/RED codes)?; FA(3)
+      KOR/ZAL/ROZ totals landed (README): open: a real KSeF rejection, a business's
+      real KOR/ZAL file; repair keeps PDF/A (veraPDF 155/155), PDF/A-3b writer
+      passes Mustang; open: a real business's PINT file; open: RO_CIUS on a real
+      ANAF file; NLCIUS on a real Dutch file; India's INV-01 check on a real IRP
+      payload; mandate texts: IL, ES, NRS, SRO 1852, Jordan open; SK landed
+      (README): open: a real SK file; Mexico CFDI 4.0 landed: open: SAT's CP error
+      matrix to map MX-070..080 to CP codes (omawww blocked), a real payroll or
+      export file, a PAC rejection compared; cCredPres rules and cClassTrib at IT
+      1.71 landed (README): RTC events (211110, 12 others incl. 112120, 110001)
+      landed, 211120 (removed in v1.40) flagged (README): open: a real event; a real
+      reform NF-e from a SEFAZ test environment, a real SEFAZ rejection for a
+      cClassTrib; national NFS-e landed: open: a national rejection compared; ISS:
+      SP, Rio, Curitiba rates, Rio codes (ABR-026) landed: open: BH (hosts 403), a
+      Rio rejection; ABRASF NFS-e 2.00-2.04 landed (README): open: ISS retained on a
+      real file, city provider schemas, 1.0x sets, DSF, 12 single-file 1.0x (Rio,
+      BH, Curitiba,...) landed (README): open: a DSF 1.00/Abaco file. A run that
+      lands a slice replaces its item here. More open items: NEXT.md.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -477,10 +477,10 @@ flagships:
     buildable: >-
       an IFC4X3 or real-exporter IFC4 ifcXML through ifcxml.mjs
       (eval/ifcxml-xbim-2026-11-16.md); cross-check more public models from
-      opensourceBIM/IFC-files and buildingSMART's Sample-Test-Files with
-      eval/crosscheck_ifctester.py; the IDS editor (editor.html; README): a tolerance hint on
-      exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more real exports
-      through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
+      opensourceBIM/IFC-files with eval/crosscheck_ifctester.py (buildingSMART's
+      Simple-Scene set done 2026-11-17); the IDS editor (editor.html; README): a
+      tolerance hint on exclusive bounds (eval/exclusive-bounds-2026-11-17.md); more
+      real exports through eval/model-inventory.mjs and eval/model-attr-ranges.mjs.
     hosts: [https://github.com]
     next: >-
       History and every measurement: README ("How it was checked"). Next, most
@@ -492,10 +492,10 @@ flagships:
       public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); IDS editor 2026-11-16 (203,433 offered specs
       audit clean, 15,102 valid in ids.xsd; found voids/fills token pair and
-      classification-system gaps, eval/editor-2026-11-16.md); an MEP and an IFC4X3
-      infrastructure model through the IfcTester cross-check; editor (opens an IDS,
-      eval/editor-open-2026-11-16.md; opens a model and offers its classes and sets,
-      own sets editable, 79.4% of public facets editable,
+      classification-system gaps, eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC
+      cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*); editor
+      (opens an IDS, eval/editor-open-2026-11-16.md; opens a model and offers its
+      classes and sets, own sets editable, 79.4% of public facets editable,
       eval/model-inventory-2026-11-16.md: 4 real exports, 347 of 395 class-set pairs
       own sets, 21 of 122 standard props in a non-template dataType): applicability
       rows 2026-11-17 (eval/applicability-rows-2026-11-17.md: counts equal the
@@ -506,6 +506,7 @@ flagships:
       numeric attributes; a dataType-mismatch hint, Accept any data type 2026-11-17
       (eval/model-any-type-2026-11-17.md); GitHub Action and ci-cli.mjs 2026-11-17
       (eval/ci-action-2026-11-17.md: 8 pairs on 4 real exports in 7.5 s, 9 of 9
-      annotations on the element's line; next: parse each model once for all its
-      IDS, a run on a GitHub runner and a team's repo); heap use on a 200 MB model;
-      a BIM coordinator's real IDS and model (needs a person).
+      annotations on the element's line; parsed once per model and failures capped
+      per spec 2026-11-17, eval/ci-scale-2026-11-17.md; next: a run on a GitHub
+      runner and a team's repo); heap use on a 200 MB model; a BIM coordinator's
+      real IDS and model (needs a person).

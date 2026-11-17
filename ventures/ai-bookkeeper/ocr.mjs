@@ -5,7 +5,8 @@
 // get it. `cleanOcr` repairs the digit look-alikes OCR leaves in amounts and dates.
 import { readFileSync, mkdtempSync, rmSync, readdirSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { extname, join } from "node:path";
+import { extname, join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
 import { cleanOcr } from "./cleanocr.mjs";
 import { decodeBytes } from "./textcodec.mjs";
@@ -60,19 +61,20 @@ export function receiptTextFromFile(path, { run = spawnSync, env = process.env, 
 // `--psm 4`. Text and PDF files, and an OCR command that is not tesseract, have one
 // reading. A second pass that fails is dropped, not an error.
 export const LOCAL_THRESHOLD = "-c thresholding_method=2";
-// RECEIPT_OCR_LEAD: a second engine's command (same shape as RECEIPT_OCR_CMD), read before
-// tesseract's readings and voted with them; a failure there is dropped. With PP-OCRv4 through
-// tools/rapidocr_receipt.py on 600 unseen CORD train photos, `--four-pass` went from 362 to 508
-// of 583 totals and tax from 135 to 202 of 267 (README, "A second OCR engine").
+// A lead reading by a second engine, read before tesseract's readings and voted with them
+// (receipts.mjs parseReceiptPasses); a failure there is dropped. `lead` is a function of the
+// photo's path (cli.mjs `--rapidocr --four-pass` passes receiptTextRapid), or RECEIPT_OCR_LEAD
+// names a command shaped like RECEIPT_OCR_CMD. RapidOCR first, then tesseract's four: on 600
+// unseen CORD train photos totals 362 to 508 of 583 and tax 135 to 202 of 267 against
+// tesseract's four, and 29 more taxes than RapidOCR alone (README, "RapidOCR and tesseract together").
 export function receiptPassesFromFile(path, opts = {}) {
-  const { run = spawnSync, env = process.env } = opts;
-  const lead = env.RECEIPT_OCR_LEAD && IMAGE.has(extname(path).toLowerCase()) ? leadReading(path, env.RECEIPT_OCR_LEAD, run, env) : null;
+  const { run = spawnSync, env = process.env, lead = null } = opts;
+  const image = IMAGE.has(extname(path).toLowerCase());
+  const read = lead ?? (env.RECEIPT_OCR_LEAD ? (p) => receiptTextFromFile(p, { run, env: { ...env, RECEIPT_OCR_CMD: env.RECEIPT_OCR_LEAD } }) : null);
+  let first = null;
+  if (read && image) try { const t = read(path); first = String(t ?? "").trim() ? t : null; } catch {}
   const rest = tesseractPasses(path, opts);
-  return lead ? [lead, ...rest] : rest;
-}
-
-function leadReading(path, cmd, run, env) {
-  try { const t = receiptTextFromFile(path, { run, env: { ...env, RECEIPT_OCR_CMD: cmd } }); return t.trim() ? t : null; } catch { return null; }
+  return first ? [first, ...rest] : rest;
 }
 
 function tesseractPasses(path, { run = spawnSync, env = process.env, grow = 0 } = {}) {
@@ -102,6 +104,21 @@ function tesseractPasses(path, { run = spawnSync, env = process.env, grow = 0 } 
     }
   } finally { copy.done(); }
   return copy.shrunk ? [...more, ...out] : [...out, ...more];
+}
+
+// A photo read by RapidOCR (rapidocr_rows.py next to this file: PaddleOCR's models through
+// ONNX Runtime, on this machine) instead of tesseract, for `receipts FILE --rapidocr`. Runs
+// `python3`, or the interpreter in RAPIDOCR_PYTHON. One reading: on 200 CORD train photos it
+// read 172 totals right where tesseract's four readings and their vote read 122 (README, "A
+// second OCR engine for photos"). Text and PDF files go the usual way.
+export const RAPIDOCR_SCRIPT = join(dirname(fileURLToPath(import.meta.url)), "rapidocr_rows.py");
+export function receiptTextRapid(path, { run = spawnSync, env = process.env } = {}) {
+  if (!IMAGE.has(extname(path).toLowerCase())) return receiptTextFromFile(path, { run, env });
+  const py = env.RAPIDOCR_PYTHON || "python3";
+  const r = run(py, [RAPIDOCR_SCRIPT, path], { encoding: "utf8", maxBuffer: 1 << 24 });
+  if (r.error) throw new Error(`could not read ${path} with RapidOCR: ${py} is needed (or set RAPIDOCR_PYTHON)`);
+  if (r.status !== 0) throw new Error(`could not read ${path} with RapidOCR: ${String(r.stderr || "").trim().split("\n").pop().slice(0, 160) || `${py} failed`}`);
+  return cleanOcr(r.stdout);
 }
 
 // The grey copy the page draws (photoocr.mjs greyCopy), made with ImageMagick:
