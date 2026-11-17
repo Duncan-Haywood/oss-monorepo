@@ -233,13 +233,12 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      R056-2's full reach landed 2026-11-17 (payee, deliver-to, line and second VAT
-      schemes; character references; trailing no-break space; oracle checked with
-      Saxon, eval/nl-vat-r056-2-payee-refs-2026-11-17.md). Next:
-      plain-schematron.mjs runs every rule set on fontoxpath, whose normalize-space
-      strips U+00A0 where XPath and Saxon do not: rewrite to a spec normalize-space
-      and cross-check with Saxon (Maven Central answers) on files with U+00A0 in
-      tested fields. No network beyond Maven.
+      The plain route reads whitespace as XPath does since 2026-11-17
+      (normalize-space, \s in replace/tokenize; SaxonC-HE oracle via pip saxonche,
+      eval/xml-whitespace-crosscheck-2026-11-17.md). Next: an amount or date holding
+      U+00A0 makes Saxon stop on the whole file (FORG0001) while the plain route
+      skips those rules: report it as a finding that Saxon-based validators reject
+      the file, and check it the same way. No network beyond PyPI.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
