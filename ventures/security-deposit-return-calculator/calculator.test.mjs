@@ -293,3 +293,9 @@ test("days held entered without an interest rate is flagged, not a silent zero",
   assert.equal(result.interestAmount, 0);
   assert.ok(findingIds(result).includes("interest-days-without-rate"));
 });
+
+test("interest under one dollar is still credited (red-team run 2026-11-17)", () => {
+  const r = computeDepositSettlement({ depositAmount: 1000, deductions: [], depositInterest: 0.5 });
+  assert.equal(r.depositInterest, 0.5);
+  assert.equal(r.refundDue, 1000.5);
+});
