@@ -52,7 +52,9 @@ the switching comparator; "active" = experts with weight > 1e-3.
 
 | b | LMSR regret | LMSR active | sparsemax regret | sparsemax active |
 |---|---|---|---|---|
+| 0.1 | 74.3 | 1.1 | 74.1 | 1.0 |
 | 0.25 | 74.8 | 1.2 | 74.2 | 1.0 |
+| 0.5 | 76.9 | 1.5 | 74.5 | 1.0 |
 | 1 | 84.4 | 2.6 | 75.0 | 1.1 |
 | 2 | 116.8 | 8.5 | 78.1 | 1.2 |
 | 4 | 228.1 | 15.9 | 86.5 | 1.4 |
@@ -64,7 +66,10 @@ Without forgetting both routers stay near 373 (b=1): they never switch.
 regret than any static router. (ii) At small `b` both routers are near
 argmax and indistinguishable. (iii) As `b` grows, the sparsemax market
 degrades much more slowly and keeps 1-2 active modules where LMSR spreads
-over all 16. Plausible mechanism (untested): decay bounds `q`, so softmax
+over all 16. The same `b` is a different learning rate for each market, so
+this is lower sensitivity to `b`, not a better router: tuned per method,
+both reach the same regret (LMSR 74.3 with 1.1 active at b=0.1, sparsemax
+74.1 with 1.0 active) ([quality audit](../../portfolio/quality/audits/2026-11-17-market-routing.json)). Plausible mechanism (untested): decay bounds `q`, so softmax
 of a bounded score vector stays diffuse at large `b`, whereas the
 projection thresholds low scores to exactly zero.
 

@@ -160,3 +160,24 @@ On the 31 cases the frozen repair finishes within 30 rounds (`results_theory.txt
 - R. Fletcher and E. Sainz de la Maza, "Nonlinear programming and nonsmooth optimization by
   successive linear programming", *Mathematical Programming* 43:235-256, 1989,
   doi:10.1007/BF01582292.
+
+## What the elastic QP's own penalty showed (2026-11-17, later)
+
+`research/infra-dcopf/experiments/run_elastic.py` re-ran the frozen repair on the two stalls with
+P<sub>&rho;</sub> logged per elastic round and the same QP re-solved with its box scaled by
+t = 1 to 10<sup>&minus;3</sup> (`results_elastic.txt`):
+
+- **case73 API satisfies Proposition 2's hypothesis to within 1.6 &times; 10<sup>&minus;5</sup>.** From
+  round 22 the l1 violation &psi; is 0.5424 (six PQ voltage rows, scaled by 100), and no box of any
+  tested size lets the model lower it by more than 8.8 &times; 10<sup>&minus;6</sup>; the returned step
+  is not zero, but it moves along a face where &psi; is flat (14 of 33 setpoints on their bound, lines
+  on their margins). The previous section's reading of Q7 (step proportional to the box, hence not
+  stationary) confused d &ne; 0 with a decrease of &psi;; the proposition needs only the second. A
+  sharper statement for the paper: if the elastic QP's best decrease of &psi; over the box is below
+  &epsilon; for every box, x&#772; is &epsilon;-stationary for &psi;, which is what a run can certify.
+- **case118 API does not:** the model still lowers &psi; by 5 % at round 30, and the steps are rejected
+  because &phi; scores the worst thermal excess while P<sub>&rho;</sub> sums them, the case the
+  paragraph after Proposition 2 describes. Accepting on P<sub>&rho;</sub> instead does not finish it
+  (one branch ends at 100.27 %), so matching the acceptance test to the QP is necessary there, not
+  sufficient.
+

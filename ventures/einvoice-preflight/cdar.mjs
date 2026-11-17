@@ -9,6 +9,8 @@
 // - when the invoice the status is about is in the same batch (matched on MDT-87 = BT-1),
 //   checks that the message's invoice type (MDT-91), invoice date (MDT-100) and seller
 //   SIREN (MDT-129) are the invoice's (BT-3, BT-2, BT-30): rules FR-CDV-101..103;
+// - catches what the official set cannot (FR-CDV-105..107): no creation date-time or an
+//   impossible one, no invoice number, a missing invoice date hidden by another reference's 501;
 // - lists every status the batch holds for one invoice in time order (the journey).
 // The official BR-FR-CDV rules (FNFE-MPE Schematron 1.4.0.04, plain/cdar-fr.json) run
 // beside this on the plain route (plain-schematron.mjs).
@@ -127,11 +129,41 @@ export function cdarEnvelope(msg, pairs = []) {
 const info = (rule, message, fix = "") => ({ rule, message, fix, severity: "information", source: "cdar" });
 const fault = (rule, message, fix) => ({ rule, message, fix, severity: "error", source: "cdar" });
 
+// A real calendar date-time in readStamp's output ("2025-02-30 10:00:00" is not one).
+const realStamp = (s) => {
+  const m = String(s).match(/^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}):(\d{2}))?$/);
+  if (!m) return false;
+  const [y, mo, d] = [+m[1], +m[2], +m[3]];
+  const days = [31, y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+  return mo >= 1 && mo <= 12 && d >= 1 && d <= days[mo - 1] && (m[4] === undefined || (+m[4] < 24 && +m[5] < 60 && +m[6] < 60));
+};
+
+// Gaps in the official set (eval/cdar-crosscheck-2026-11-17.md, second round): six BR-FR-CDV
+// rules can never fire (BR-FR-CDV-01, 04, 05, 06 and 10 put the element in the rule's context
+// and test "."; BR-FR-CDV-07_MDT-38_no tests count(...) ge 0), the date functions are declared
+// but never called, and BR-FR-CDV-11's 501 exemption reads every reference. These checks cover
+// what a platform relying on that set alone would let through.
+export function cdarGapFindings(msg) {
+  const out = [];
+  if (!msg.createdAt) out.push(fault("FR-CDV-105", "The message has no creation date-time (MDT-8, ExchangedDocument/IssueDateTime). FNFE-MPE's BR-FR-CDV-04 calls it mandatory but, as written, cannot fire when it is missing.", "Add ram:IssueDateTime with a format 204 DateTimeString (YYYYMMDDHHMMSS) to rsm:ExchangedDocument."));
+  else if (!realStamp(msg.createdAt)) out.push(fault("FR-CDV-105", `The message's creation date-time (MDT-8) "${msg.createdAt}" is not a real date and time. No BR-FR-CDV rule checks it.`, "Write MDT-8 as a real date-time in format 204 (YYYYMMDDHHMMSS)."));
+  if (msg.statusAt && !realStamp(msg.statusAt)) out.push(fault("FR-CDV-105", `The status date-time (MDT-78) "${msg.statusAt}" is not a real date and time. No BR-FR-CDV rule checks it.`, "Write MDT-78 as a real date-time in format 204 (YYYYMMDDHHMMSS)."));
+  const any501 = msg.refs.some((r) => r.status === "501");
+  msg.refs.forEach((ref, i) => {
+    const which = msg.refs.length > 1 ? `Reference ${i + 1} of ${msg.refs.length}` : "The referenced invoice";
+    if (!ref.invoiceId) out.push(fault("FR-CDV-106", `${which} has no invoice number (MDT-87, IssuerAssignedID = BT-1). FNFE-MPE's BR-FR-CDV-10 calls it mandatory but, as written, cannot fire when it is missing; without it nobody can tell which invoice the status is about.`, "Add ram:IssuerAssignedID with the invoice's BT-1 to ram:ReferenceReferencedDocument."));
+    if (ref.invoiceDate && !realStamp(ref.invoiceDate)) out.push(fault("FR-CDV-105", `${which}: invoice date (MDT-100) "${ref.invoiceDate}" is not a real date. No BR-FR-CDV rule checks it.`, "Write MDT-100 as the invoice's BT-2 in format 102 (YYYYMMDD)."));
+    if (!ref.invoiceDate && ref.status !== "501" && any501) out.push(fault("FR-CDV-107", `${which} (status ${ref.status || "none"}) has no invoice date (MDT-100). BR-FR-CDV-11 lets it through only because another reference in this message is 501 (Irrecevable): its exemption reads every reference, not this one.`, "Give every reference that is not 501 its invoice date (BT-2) in ram:FormattedIssueDateTime."));
+  });
+  return out;
+}
+
 // invoices: [{ name, invoice }] with invoice as inspectInvoiceSource gives it (invoice_number,
 // issue_date, document_code, supplier.legal_id). Returns { findings, pairs }.
 export function cdarFindings(msg, invoices = []) {
   const findings = [];
   const pairs = [];
+  findings.push(...cdarGapFindings(msg));
   for (const ref of msg.refs) {
     const reasons = ref.reasons.map((r) => `${r.code}${r.text ? ` (${r.text})` : ""}`).join("; ");
     findings.push(info("FR-CDV-100", `Invoice ${ref.invoiceId || "(no number)"}: status ${statusName(ref.status)}${reasons ? `, reason ${reasons}` : ""}.`,

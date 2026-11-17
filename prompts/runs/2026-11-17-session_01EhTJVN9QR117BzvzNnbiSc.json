@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVN9QR117BzvzNnbiSc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T08:31:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/codesign-cant milestone 7u: retune at the slow end (39.1 ms) of the identified motor lag and compare with 7t's 36 ms midpoint tunes across 33-45 ms",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": 16853,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The default python3 here is 3.11, which rejects the nested-quote f-strings in m7t_lag_src/run.py (PEP 701, 3.12+), and no interpreter on the box had numpy+scipy+cma. A python3.13 venv with those packages took about a minute."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled prompt asks for revenue product work; the master router drew the research track (weight 0.27), and the repository's routing is the standing system, so this run followed the draw.",
+      "did": "advanced research programme codesign-cant",
+      "result": "one milestone landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-tune-drone-at-slow-end-of-motor-lag.md"
+  ],
+  "goal": null,
+  "notes": "Predictions U1-U8 committed (2b PR commit) before the full run. Full run: 48 CMA-ES runs, 5075 s training + 233 s evaluation on 4 cores. 7 of 8 held (U8 refuted). Check: 7t's designs reproduce 7t's counts at 36 and 39.1 ms exactly. Post hoc Mann-Whitney per cell p 0.08-0.81 (not significant at 6 seeds); disclosed in LOG, README and post. Local checks: codesign-cant tests 58 passed 1 skipped; paper/check_numbers 35/35; research/_homepage/build.py ok; check_md_links ok; research_live_links --write ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null
+}

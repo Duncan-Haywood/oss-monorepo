@@ -15,7 +15,7 @@ function rng(seed) {
 const REPS = 1000;
 const rows = [];
 for (const phi of [0, 0.3, 0.6, 0.8]) {
-  for (const n of [50, 100, 200]) {
+  for (const n of [10, 20, 50, 100, 200]) {
     const r = rng(1000 * phi + n);
     const gauss = () => Math.sqrt(-2 * Math.log(r() || 1e-300)) * Math.cos(2 * Math.PI * r());
     const count = { none: 0, "yue-wang": 0, "hamed-rao": 0, "hamed-rao-3": 0, tfpw: 0, "yue-wang-all-lags": 0 };

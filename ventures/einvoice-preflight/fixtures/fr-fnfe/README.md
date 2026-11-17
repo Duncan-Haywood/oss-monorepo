@@ -6,6 +6,7 @@ Copied unchanged from github.com/fnfempe/France_RFE (commit 97ba0f3d4ef2abed5780
 - uc1-en16931-cii.xml: CII/EN16931/UC1_F202500003_00-INV_20250701_EN16931_FX_CII_Commentee.xml
 - uc10-multi-vendeur-extended-ctc-fr-ubl.xml: UBL/EXTENDED-CTC-FR/UC10_F202600004_MULTI-VENDEUR_EXTENDED-CTC-FR_UBL_Commentee.xml
 - uc10-multi-vendeur-extended-ctc-fr-cii.xml: CII/EXTENDED-CTC-FR/UC10_F202600004_MULTI-VENDEUR_EXTENDED-CTC-FR_CII_Commentee.xml
+- uc12-sous-ligne-extended-fx-cii.xml: FX/EXTENDED/UC12_F202600025_SOUS-LIGNE_EXTENDED_FX_CII_Commentee.xml (Factur-X EXTENDED; used by extended-base.test.mjs)
 
 Made-up example parties published by FNFE-MPE; used by br-fr.test.mjs.
 
