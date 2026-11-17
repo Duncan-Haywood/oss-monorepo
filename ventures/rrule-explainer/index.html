@@ -168,7 +168,7 @@
       const zoned = last.occurrences.some((o) => o.utc);
       $("#dates-title").textContent = last.tz ? `Dates (${last.tz})` : last.allDay ? "Dates (all day)" : "Dates";
       $("#rows").innerHTML = last.occurrences.map((o, i) => `<tr><td>${i + 1 + (last.skippedBefore || 0)}</td><td><code>${esc(o.date)}</code></td><td>${esc(o.weekday)}</td><td>${zoned ? `<code>${esc(o.utc)}</code>` : '<span class="note">floating</span>'}</td><td>${note(o)}</td></tr>`).join("") || '<tr><td colspan="5" class="note">No dates.</td></tr>';
-      $("#more").textContent = last.truncated ? `More dates follow; showing ${last.occurrences.length}. Raise "How many dates" or set "Show from" to see later ones.` : last.occurrences.length ? "That is every date in the recurrence." : "";
+      $("#more").textContent = last.searchStopped ? "The search stopped before the end of the rule; see the findings." : last.truncated ? `More dates follow; showing ${last.occurrences.length}. Raise "How many dates" or set "Show from" to see later ones.` : last.occurrences.length ? "That is every date in the recurrence." : "";
       $("#report").hidden = false;
       const errors = last.findings.filter((f) => f.level === "error").length;
       status.textContent = `${last.occurrences.length} date${last.occurrences.length === 1 ? "" : "s"} listed${errors ? `, ${errors} error${errors === 1 ? "" : "s"}` : ""}.`;
