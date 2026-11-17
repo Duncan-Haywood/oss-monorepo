@@ -192,10 +192,12 @@ flagships:
       drift model: t-walk increments, biweight on fresh data, why it absorbs seat
       belts and quality control 4, its AR(1) term; covariate balance of the outcome
       fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
-      richer than its synthetic, MA balanced yet 6th; covariate-shock sim (README
-      "Which imbalance biases the gap"): 0.25 flag fires on 84% of null fits;
-      placeboWarning (>=80% matched better) holds every false find; next CLI table,
-      2-covariate cell. More open items: NEXT.md.
+      richer than its synthetic, MA balanced yet 6th; placeboWarning (>=80% matched
+      better) holds every false find (README "Which imbalance biases the gap"); CLI
+      --donors/--covariates ships it 2026-11-17; two covariates (README "Two
+      covariates"): harmless one's warning 0 of 170 false finds, but 1.27x bias (bar
+      failed); next the table on the page, non-step shocks. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
