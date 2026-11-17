@@ -94,6 +94,10 @@ def main(argv=None):
     ap.add_argument("--root", default=str(ROOT))
     ap.add_argument("--strict", action="store_true", help="fail on a near-copy too")
     args = ap.parse_args(argv)
+    if not (Path(args.root) / "docs").is_dir():
+        # A wrong --root (or an empty one) would otherwise pass with "nothing to check".
+        print(f"check_posts: {args.root} has no docs/ directory; is --root the repository root?")
+        return 2
     files = args.files or changed_files(Path(args.root))
     return run(files, root=Path(args.root), strict=args.strict)
 
