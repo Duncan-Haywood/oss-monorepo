@@ -102,3 +102,11 @@ test('incomeGap cannot compute additional locations needed when the average prof
   assert.equal(gap.additionalLocationsNeeded, null);
   assert.equal(gap.meetsTarget, false);
 });
+
+test('effective hourly rate adds back the labor already charged at the target rate', () => {
+  // Defaults: net 123.53 after 66.67 of labor at $25/hr over 2.667 hrs.
+  // The operator's hours earn (123.53 + 66.67) / 2.667 = 71.33, not 46.33.
+  const r = calculate(DEFAULTS);
+  assert.ok(Math.abs(r.effectiveHourlyRate - 71.325) < 0.01, String(r.effectiveHourlyRate));
+  assert.ok(Math.abs(r.effectiveHourlyRate - DEFAULTS.targetHourlyRate - r.netProfit / r.laborHours) < 1e-9);
+});
