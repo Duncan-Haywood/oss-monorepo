@@ -414,13 +414,14 @@ const INCLUDED_TAX_RE = /total\s*includ\w*\s*(?:gst|tax|vat)\s*of\b|(?:gst|tax|v
 // A tax table row: net, tax and gross with net + tax = gross and the tax under half the net,
 // on a line with a tax word or under a header of tax words with no amount of its own
 // ("Net.Amt VAT Amount", "CODE HTVA TVA TTC", "[V.A.T Analysis]").
-function taxColumn(l, prev, comma) {
+function taxColumn(l, prev, comma, prevRow = false) {
   if (comma === "whole") return null;
   const taxWord = (x) => TAX_LINE_RE.test(x) && !/taxable|(?:tax|gst|vat)\s*(?:id\b|invoice|no\b|reg|#)/i.test(x);
   // "HT TIC TUA": a French net / gross / tax header with TVA (and TTC) bent by OCR
   const bentTva = (x) => /\bt[uv]a\b/i.test(x) && /\bht\b/i.test(x) && /\bt[it1l]c\b/i.test(x);
   const header = (x) => (taxWord(x) || /\bv\.a\.t\b/i.test(x) || bentTva(x)) && !/\d/.test(x);
-  if (!taxWord(l) && !header(prev)) return null;
+  // prevRow: the line above was a table row, so this line is under the same header
+  if (!taxWord(l) && !header(prev) && !prevRow) return null;
   if (/sub\s*-?\s*total|change|cash|tip/i.test(l)) return null;
   let a = amountsIn(l.replace(PCT_RE, " "), comma);
   // a row OCR read in both decimal styles ("LOCAL 412.50 20% 495,00"): every two-decimal
@@ -432,17 +433,22 @@ function taxColumn(l, prev, comma) {
   const rate = l.match(/(\d{1,2}(?:[.,]\d{1,2})?)\s*%/);
   if (a.length === 2 && rate) {
     const [n, g] = a, r = Number(rate[1].replace(",", ".")) / 100;
-    return r > 0 && r <= 0.3 && n > 0 && g > n && Math.abs(Math.round(n * r) - (g - n)) <= 1 ? g - n : null;
+    if (!(r > 0 && r <= 0.3 && n > 0 && g > n)) return null;
+    if (Math.abs(Math.round(n * r) - (g - n)) <= 1) return { tax: g - n, gross: g };
+    // rate, tax and gross with the net lost ("9966 12% 11,95 111,50", the net's mark gone):
+    // the gross split at that rate gives the tax
+    if (Math.abs(Math.round(g * r / (1 + r)) - n) <= 1 && n * 2 < g) return { tax: n, gross: g };
+    return null;
   }
   if (a.length < 3) return null;
   const [n, t, g] = a.slice(-3);
-  return n > 0 && t > 0 && n + t === g && t * 2 < n ? t : null;
+  return n > 0 && t > 0 && n + t === g && t * 2 < n ? { tax: t, gross: g } : null;
 }
 
 export function readTax(lines, comma, cents) {
   const amt = (l) => { const a = amountsIn(l, comma); return a.length ? a[a.length - 1] : null; };
   const cands = [], subtotals = [];
-  let note = null;
+  let note = null, prevRow = -2;
   lines.forEach((l, i) => {
     // "Subtotal(12%VAT) Php32.14" (Philippine VAT): the line's amount is the VAT inside the
     // total when the total split at that rate gives it; the subtotal is the rest
@@ -460,8 +466,9 @@ export function readTax(lines, comma, cents) {
     else if (HT_SUB_RE.test(l)) { const v = amt(l); if (v !== null && v > 0) subtotals.push(v); }
     // a net / tax / gross row ("VATABL 566.96 68.04 635.00", "A21,00% 5,45 1,15 6,60" under
     // "CODE HTVA TVA TTC"): the middle amount is the tax when the first two make the third
-    const col = taxColumn(l, lines[i - 1] ?? "", comma);
-    if (col !== null && (cents === null || col < cents)) { cands.push({ v: col, total: /total/i.test(l), lost: null, line: l }); return; }
+    const col = taxColumn(l, lines[i - 1] ?? "", comma, prevRow === i - 1);
+    if (col !== null) prevRow = i;
+    if (col !== null && (cents === null || col.tax < cents)) { cands.push({ v: col.tax, gross: col.gross, total: /total/i.test(l), lost: null, line: l }); return; }
     const included = INCLUDED_TAX_RE.test(l);
     if ((!TAX_LINE_RE.test(l) && !included) || NOT_TAX_LINE_RE.test(l)) return;
     if (TOTAL_RE.test(l) && !TAX_TOTAL_RE.test(l) && !/total\s+taxes/i.test(l) && !included) return;
@@ -521,6 +528,14 @@ export function readTax(lines, comma, cents) {
   lines.forEach((l, i) => { if (i > lastTax && TOTAL_RE.test(l) && !NOT_TOTAL_RE.test(l)) { const t = amt(l); if (t !== null && cents !== null && t < cents && subtotals.some((s) => t > s)) ends.add(t); } });
   let pick = printed.length ? printed[printed.length - 1] : cands[cands.length - 1];
   let v = pick.v;
+  // a VAT table with a row per rate ("TVA5.50% 10.26 0.56 10.82", "TVA10.00% 9.07 0.91 9.98"
+  // on a 20.80 receipt): each row checks itself, and when the rows' grosses make the total
+  // the tax is every row's tax added (WildReceipt train1, eval/wildreceipt-rescore-2026-11-17.md)
+  const rows = cands.filter((c) => c.gross !== undefined);
+  if (!printed.length && rows.length >= 2 && cents !== null && Math.abs(rows.reduce((a, c) => a + c.gross, 0) - cents) <= 1) {
+    const sum = rows.reduce((a, c) => a + c.v, 0);
+    if (sum !== v && sum < cents) { v = sum; pick = null; note = `${rows.length} VAT table rows added (their gross amounts make the total)`; }
+  }
   if (!printed.length && cands.length >= 2 && cents !== null) {
     const sum = cands.reduce((a, c) => a + c.v, 0);
     if (sum !== v && subtotals.some((s) => ends.has(s + sum)) && !subtotals.some((s) => ends.has(s + v))) { v = sum; note = `${cands.length} tax lines added (the subtotal plus their sum is the total)`; pick = null; }
