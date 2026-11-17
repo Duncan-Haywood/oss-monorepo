@@ -191,7 +191,9 @@ flagships:
       shape checks failed; next phase-tolerant shapes, 5th set. Open: (0) drift
       model: t-walk increments, biweight on fresh data, why it absorbs seat belts
       and quality control 4, its AR(1) term; (1) slopes: logs fail, 2 hinges ship
-      (refuse short sticky series), given date: --known-date on CLI, page, engine.
+      (refuse short sticky series), given date: --known-date on CLI, page, engine;
+      control series (README) passes sims, fails seat-belt placebos 3/3, not
+      shipped: next an in-time placebo check.
       More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]

@@ -1,0 +1,15 @@
+drivers       1974-01: joint p 0.001, step p 0.001, slope change -0.0039 p 0.002, rho 0.27
+drivers       1977-01: joint p 0.807, step p 0.537, slope change 0.0004 p 0.740, rho 0.52
+drivers       1980-01: joint p 0.827, step p 0.566, slope change 0.0013 p 0.594, rho 0.52
+front         1974-01: joint p 0.001, step p 0.001, slope change -0.0009 p 0.308, rho 0.26
+front         1977-01: joint p 0.027, step p 0.356, slope change 0.0027 p 0.026, rho 0.43
+front         1980-01: joint p 0.401, step p 0.772, slope change 0.0021 p 0.418, rho 0.49
+rear          1974-01: joint p 0.001, step p 0.001, slope change -0.0021 p 0.020, rho 0.06
+rear          1977-01: joint p 0.013, step p 0.167, slope change 0.0025 p 0.007, rho 0.14
+rear          1980-01: joint p 0.054, step p 0.690, slope change 0.0030 p 0.118, rho 0.17
+drivers-rear  1974-01: joint p 0.018, step p 0.675, slope change -0.0018 p 0.011, rho -0.01
+drivers-rear  1977-01: joint p 0.003, step p 0.114, slope change -0.0021 p 0.002, rho -0.05
+drivers-rear  1980-01: joint p 0.002, step p 0.055, slope change -0.0013 p 0.264, rho -0.04
+front-rear    1974-01: joint p 0.038, step p 0.258, slope change 0.0011 p 0.136, rho 0.14
+front-rear    1977-01: joint p 0.002, step p 0.001, slope change 0.0002 p 0.638, rho 0.05
+front-rear    1980-01: joint p 0.781, step p 0.669, slope change -0.0010 p 0.480, rho 0.20
