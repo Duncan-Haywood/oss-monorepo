@@ -319,7 +319,9 @@ export const ownSetName = (name) => typeof name === "string" && name.trim() !== 
 
 // The sets a loaded model's objects of these classes carry (modelInventory()
 // in inventory.mjs), merged: [{ name, count, of, standard, props: [{ name,
-// count, dataType }] }], where `count` of the `of` objects carry the set.
+// count, dataType, values, distinct, more, min, max }] }], where `count` of the
+// `of` objects carry the set and `values` are [[value, objects]], most common
+// first (see modelValueOffer).
 // `standard` says whether it is a template set the class can carry; the page
 // offers those as standard rows and the rest as the author's own.
 export function modelSets(inv, classes, standardSets = []) {
@@ -335,14 +337,63 @@ export function modelSets(inv, classes, standardSets = []) {
       if (!m) out.set(s.name, (m = { name: s.name, count: 0, props: new Map() }));
       m.count += s.count;
       for (const p of s.props) {
-        const q = m.props.get(p.name);
-        if (!q) m.props.set(p.name, { name: p.name, count: p.count, dataType: p.dataType });
-        else { q.count += p.count; q.dataType = q.dataType || p.dataType; }
+        let q = m.props.get(p.name);
+        if (!q) m.props.set(p.name, (q = { name: p.name, count: 0, dataType: p.dataType, vals: new Map(), distinct: 0, more: false, min: null, max: null }));
+        else q.dataType = q.dataType || p.dataType;
+        q.count += p.count;
+        // A class's list holds its MAX_LISTED commonest values; one that lists
+        // fewer than it holds (`distinct`) leaves the merged list incomplete.
+        for (const [v, n] of p.values || []) q.vals.set(v, (q.vals.get(v) || 0) + n);
+        q.distinct = Math.max(q.distinct, p.distinct || 0);
+        if (p.more || (p.distinct || 0) > (p.values || []).length) q.more = true;
+        if (p.min !== null && p.min !== undefined) q.min = q.min === null ? p.min : Math.min(q.min, p.min);
+        if (p.max !== null && p.max !== undefined) q.max = q.max === null ? p.max : Math.max(q.max, p.max);
       }
     }
   }
-  return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
+  const prop = (q) => { const values = [...q.vals.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])); return { name: q.name, count: q.count, dataType: q.dataType, values, distinct: Math.max(q.distinct, values.length), more: q.more, min: q.min, max: q.max }; };
+  return [...out.values()].map((m) => ({ name: m.name, count: m.count, of, standard: standardSets.includes(m.name), props: [...m.props.values()].map(prop).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name)) }))
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+}
+
+// What a model's values offer a property row of this value kind (number,
+// text, bool) and standard enumeration (or null): mp is one prop of
+// modelSets(). -> null when the model holds no value, else
+//   { values: [[v, n]] usable for the row, outside: [[v, n]] the standard's
+//     enumeration lacks (a check limited to it fails those objects),
+//     complete: every value the model holds is listed, min, max,
+//     oneOf: the values a "one of" restriction should list to pass the model
+//     as it is (null when the list is incomplete or the kind is not text) }
+export function modelValueOffer(mp, kind, enumVals = null) {
+  if (!mp || !mp.values || !mp.values.length || !kind) return null;
+  const isNum = (v) => v.trim() !== "" && Number.isFinite(Number(v));
+  const fits = kind === "number" ? (v) => isNum(v) : kind === "bool" ? (v) => v === "true" || v === "false" : () => true;
+  const usable = mp.values.filter(([v]) => fits(v));
+  const values = enumVals ? usable.filter(([v]) => enumVals.includes(v)) : usable;
+  const outside = enumVals ? usable.filter(([v]) => !enumVals.includes(v)) : [];
+  const complete = !mp.more && usable.length === mp.values.length && mp.values.length >= (mp.distinct || 0);
+  const oneOf = kind === "text" && complete && !outside.length && values.length ? values.map(([v]) => v).sort() : null;
+  const num = kind === "number" && typeof mp.min === "number" && typeof mp.max === "number";
+  return { values, outside, complete, min: num ? mp.min : null, max: num ? mp.max : null,
+    rangeMin: num ? outwardBound(mp.min, -1) : null, rangeMax: num ? outwardBound(mp.max, 1) : null, oneOf };
+}
+
+// The shortest decimal at or beyond v (dir -1: at or below, 1: at or above)
+// that stays within IDS's equality tolerance of it (|v| x 1e-6 + 1e-6). IDS
+// ranges take no tolerance (ImplementersDocumentation/tolerance.md), and unit
+// conversion leaves 0.254 m as 0.25399999999999995: a range from 0.254 fails
+// that object, one from 0.253999 passes it. Returned as a string.
+export function outwardBound(v, dir) {
+  if (!Number.isFinite(v)) return null;
+  const tol = Math.abs(v) * 1e-6 + 1e-6;
+  for (let k = 0; k <= 15; k++) {
+    const f = 10 ** k;
+    let d = Number(((dir < 0 ? Math.floor(v * f) : Math.ceil(v * f)) / f).toFixed(k));
+    if (dir < 0 && d > v) d = Number((d - 1 / f).toFixed(k));
+    if (dir > 0 && d < v) d = Number((d + 1 / f).toFixed(k));
+    if (Math.abs(d - v) <= tol && (dir < 0 ? d <= v : d >= v)) return String(d);
+  }
+  return String(v);
 }
 
 // What value modes the page offers for a requirement row, and the
@@ -372,7 +423,8 @@ export function valueChoices(L, cls, r) {
   const modes = [];
   if (kind) {
     modes.push("any", "equals");
-    if (enumVals) modes.push("oneOf");
+    // "one of" a standard's enumeration, or of values the author lists (text).
+    if (enumVals || kind === "text") modes.push("oneOf");
     if (kind === "number") modes.push("range");
     if (kind === "text" && !enumVals) modes.push("pattern");
     if (kind === "bool") modes.splice(1, 1, "true", "false");
@@ -463,7 +515,7 @@ function editableRow(L, classes, f) {
     else if (ch.modes.includes("equals") && (!ch.enumVals || ch.enumVals.includes(s))) { r.mode = "equals"; r.equals = s; }
     else return null;
   } else if (en) {
-    if (!ch.modes.includes("oneOf") || !en.every((x) => ch.enumVals.includes(x))) return null;
+    if (!ch.modes.includes("oneOf") || (ch.enumVals && !en.every((x) => ch.enumVals.includes(x)))) return null;
     r.mode = "oneOf"; r.oneOf = [...en];
   } else if (v.r.pattern.length === 1 && !v.r.enumeration.length && R_BOUNDS.every((k) => v.r[k] === undefined)) {
     if (!ch.modes.includes("pattern")) return null;
