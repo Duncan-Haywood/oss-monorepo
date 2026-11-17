@@ -77,8 +77,8 @@ def test_changes_drops_shallow_boundary(tmp_path):
 
 
 class _Done:
-    def __init__(self, out="", code=0):
-        self.stdout, self.returncode = out, code
+    def __init__(self, out="", code=0, err=""):
+        self.stdout, self.returncode, self.stderr = out, code, err
 
 
 def test_revs_adds_origin_main_only_when_it_exists():
@@ -112,6 +112,39 @@ def test_deepen_fetches_a_day_before_the_report_capped(tmp_path):
     def boom(*a, **k):
         raise fr.subprocess.TimeoutExpired("git", 1)
     assert fr.deepen("2026-11-10", root=tmp_path, run=boom, today=today) is False
+
+
+def test_deepen_waits_for_a_parallel_fetchs_lock_and_says_why_it_failed(tmp_path, capsys):
+    (tmp_path / ".git").mkdir()
+    lock = tmp_path / ".git" / "shallow.lock"
+    lock.write_text("")
+    seen, t = [], [0.0]
+
+    def sleep(s):
+        t[0] += s
+        if t[0] >= 10:
+            lock.unlink()  # the other fetch finishes after 10 s
+
+    def run(cmd, **kw):
+        seen.append(t[0])
+        return _Done()
+    today = dt.date(2026, 11, 17)
+    assert fr.deepen("2026-11-15", root=tmp_path, run=run, today=today, sleep=sleep, clock=lambda: t[0])
+    assert seen == [10.0]  # fetched only once the lock was gone
+
+    lost = iter([_Done(code=128, err="fatal: Unable to create '.git/shallow.lock': File exists."), _Done()])
+    assert fr.deepen("2026-11-15", root=tmp_path, run=lambda *a, **k: next(lost), today=today,
+                     sleep=sleep, clock=lambda: t[0])  # lost the race once, retried
+
+    lock.write_text("")
+    assert not fr.deepen("2026-11-15", root=tmp_path, run=run, today=today,
+                         sleep=lambda s: t.__setitem__(0, t[0] + s), clock=lambda: t[0])
+    assert "held .git/shallow.lock" in capsys.readouterr().err
+
+    gone = iter([_Done(code=128, err="fatal: unable to access: Could not resolve host")])
+    lock.unlink()
+    assert not fr.deepen("2026-11-15", root=tmp_path, run=lambda *a, **k: next(gone), today=today)
+    assert "fetch failed: fatal: unable to access" in capsys.readouterr().err
 
 
 def test_main_deepens_only_when_reports_predate_the_edge(tmp_path, monkeypatch):
