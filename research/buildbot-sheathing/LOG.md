@@ -1,5 +1,17 @@
 # buildbot-sheathing research log
 
+## 2026-11-17 · Milestone 39 planned: the waist's gap, from stock to braked
+
+- **Why.** Milestone 38's squeeze cleared every arm flip and left a floor of 0.48–0.50 mm (G1 at 0 and 5 N of hose drag, H1 at 5 N) that sits in the waist (G1) and torso (H1) joints and two leg joints. No ground reaction and no squeeze moves a waist torque: the tool's wrench alone sets it. What is left to an engineer is the waist's own hardware: its gearbox backlash, or a lock. Unitree sells the G1 with one waist joint (yaw) and the roll and pitch joints as an option ("Waist Degrees of Freedom 1, 1+(Optional 2 additional waist degrees of freedom)", unitree.com/g1, read 2026-11-17); Menagerie's G1 model has all three.
+- **Model.** Milestone 38's setup at its S* = 10 N squeeze and m = 0.1 N m leg preload (settle model, rubber hose, k_t 1e4, one calibration at milestone 30's pose in the same hose state and sensor error). New: the total gap is set per joint. Waist cases: 'stock' (5 arcmin on every joint, milestone 38), 'yaw only' (G1: waist roll and pitch rigid at the posed angle, as on the one-waist-joint G1; yaw 5 arcmin), 'precision' (1 arcmin on the waist joints, the low end of the 1–7 arcmin catalogue precision-planetary range the paper already cites) and 'braked' (0 on the waist joints: a holding brake or a lock at the posed angle). Every other joint keeps 5 arcmin. Torques do not depend on the gap, so milestone 38's flip census stands; what changes is what a flip costs. (B) the worst residual along the wall and vertically over poses, eight hose directions and six signed sensor axes, |e| 0.2 and 2.4 N, H 0, 5 and 20 N, per case; (D) the 0–10 and 0–20 N stacks with the FT 300 per case, and the no-hose stack the loss is counted from.
+- **Disclosed before registering.** Only milestone 38's published numbers, the code and the waist joint names and ranges in the two MJCFs have been read; no residual or stack with a per-joint gap has been computed. Locking at the posed angle is not the same as the one-waist-joint G1, whose roll and pitch are fixed at zero; the poses are not re-solved.
+- **Hypotheses, registered before the run.**
+  - **H146 (a braked waist clears the G1's floor).** 'braked', |e| 0.2 N, a 5 N drag: the G1's worst residual along the wall is at most 0.1 mm (milestone 38: 0.485). Refuted if more.
+  - **H147 (yaw alone keeps most of it).** 'yaw only', same cell: the G1's worst residual is at least half the 'stock' figure. Refuted if less.
+  - **H148 (a precision waist gearbox is nearly as good).** 'precision', same cell: at most 0.15 mm. Refuted if more.
+  - **H149 (the stacks close).** 'braked': the G1's 0–10 N stack loses at most 1 point (milestone 38: 5.80) and every other robot and range at most 0.1. Refuted if either fails.
+  - **H150 (the old sensor stays unusable).** 'braked', |e| 2.4 N, a 5 N drag: the G1 still leaves more than 0.5 mm. Refuted if 0.5 mm or less.
+
 ## 2026-11-17 · Milestone 38 result: a two-hand squeeze clears every arm flip and takes 0–20 N of hose drag from 1.6 points lost to 0.05; the waist joints set the floor that is left (0.48–0.50 mm); H141, H143, H144 and H145 held, H142 refuted
 
 `src/buildbot_sheathing/squeeze.py` (new: the squeeze's direction and generalised force, the controller's grid choice, the MJCF torque limits), `experiments/m38_squeeze/` (run, results, figure), `tests/test_squeeze.py` (4 tests), `reproduce.py` (m38 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card.
