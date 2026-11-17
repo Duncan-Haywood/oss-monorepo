@@ -34,7 +34,7 @@
   "doc_friction": [
     {
       "file": "platform/ci/check_posts.py",
-      "issue": "Landed in #17091 failing test_checks_refuse_empty_root.py (exit 0 on an empty --root), so main_health was red on main; fixed here."
+      "issue": "Landed in #17091 failing test_checks_refuse_empty_root.py (exit 0 on an empty --root), so main_health was red on main; fixed here. PR #17089 fixed it concurrently, found only at merge time."
     },
     {
       "file": "platform/ci/friction_rank.py",
@@ -50,7 +50,7 @@
     "docs/posts/2026-11-17-the-row-was-older-than-the-claim.md"
   ],
   "goal": null,
-  "notes": "Backlog: only owner rows, so Critique. main_health.py: 264/265 (check_posts empty-root red, fixed). Lens: allocate.py doc_friction in run records 2026-11-16/17. Fix: refresh_tip + main_flagships; test_allocate+test_flagship_field 122 OK under /usr/bin/python3.13; test_checks_refuse_empty_root OK; test_check_posts 8 OK; allocate.py --no-claims real run 47 s, fetched origin/main to tip. No backlog ids touched. No agent doc: the post and docstrings carry the finding.",
+  "notes": "Backlog: only owner rows, so Critique. main_health.py: 264/265 (check_posts empty-root red, fixed). Lens: allocate.py doc_friction in run records 2026-11-16/17. Fix: refresh_tip + main_flagships; test_allocate+test_flagship_field 122 OK under /usr/bin/python3.13; test_checks_refuse_empty_root OK; test_check_posts 8 OK; allocate.py --no-claims real run 47 s, fetched origin/main to tip. No backlog ids touched. No agent doc: the post and docstrings carry the finding. Merge of main: PR #17089 had landed the same check_posts.py empty-root fix concurrently; kept main's version, so this PR's lasting change is allocate.py.",
   "corrections": [],
   "redteam": null,
   "usage": {

@@ -56,6 +56,6 @@ the override reaching the loaders.
 The same run's `main_health.py` pass found one red check on main:
 `test_checks_refuse_empty_root.py` flagged `check_posts.py` (added in #17091
 a few hours earlier), which exited 0 when pointed at an empty `--root`. A
-wrong root would find no changed post and pass forever. It now exits 2 when
-the root has no `docs/posts`. All 265 argument-free checks pass with both
-changes.
+wrong root would find no changed post and pass forever. This run fixed it to
+exit 2 when the root has no `docs/posts`; a concurrent PR (#17089) landed the
+same fix first, so main carries that one. All 265 argument-free checks pass.

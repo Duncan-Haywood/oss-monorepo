@@ -1,6 +1,7 @@
 // One analysis request from the page, as plain data, so the same call runs in a
 // Web Worker (analyze-worker.mjs) or on the main thread when workers are missing.
-// job = { kind: 'one', opts }              -> analyze(opts)
+// job = { kind: 'one', opts, synth? }      -> analyze(opts); with synth (synth-cli.mjs synthResult's options) also a
+//                                            synthetic control, as result.synth or, if it fails, result.synthError
 //     | { kind: 'multi', csv, columns, opts } -> parseColumns + analyzeMulti
 //     | { kind: 'drift', opts }            -> driftResult(opts) (jumps on a wandering level)
 //     | { kind: 'replay', csv, column, opts } -> parseSeries + replayWatch (what a daily watch would have sent)
@@ -10,6 +11,7 @@ import { analyze, parseSeries } from './engine.mjs';
 import { parseColumns, analyzeMulti } from './multivariate.mjs';
 import { driftResult } from './drift-cli.mjs';
 import { replayWatch, eagernessReplay } from './watch-core.mjs';
+import { synthResult } from './synth-cli.mjs';
 
 export const MULTI_NEEDS_TWO = 'Several-columns mode needs two or more numeric columns; for one column pick “One column”.';
 
@@ -29,7 +31,12 @@ export function analyzeJob(job) {
       const { labels, values, column } = parseSeries(job.csv, job.column ?? null, null);
       return { result: { column, ...eagernessReplay(values, labels, job.opts) } };
     }
-    return { result: analyze(job.opts) };
+    const result = analyze(job.opts);
+    if (job.synth) {
+      // The page's donor and covariate boxes: an error here leaves the one-column result standing.
+      try { result.synth = synthResult(job.synth); } catch (e) { result.synthError = String((e && e.message) || e); }
+    }
+    return { result };
   } catch (e) {
     return { error: String((e && e.message) || e) };
   }

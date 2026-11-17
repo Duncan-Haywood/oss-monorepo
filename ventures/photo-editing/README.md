@@ -1049,6 +1049,11 @@ the two engines still write identical bytes, and the gap to LibRaw's render shri
 Leica T 0.136 to 0.035, Pentax Q-S1 0.160 to 0.047). Every develop's bytes change. How it was checked:
 `eval/srgb-table-interp-2026-11-17.md` (`tools/srgb_table_check.py`).
 
+What it buys in an edit (`eval/shadow-lift-banding-2026-11-17.md`, `tools/shadow_lift_check.py`): pushed +3
+stops in linear light and shown in 8 bits, the old masters never reached 1-39 of the codes a near-exact
+encode reaches per channel (up to 129 at +5 stops); the new ones miss none, on the same five DNGs. On a
+noise-free shadow ramp the old encode, lifted 3 stops, jumped 2-7 codes at a time below code 70: bands.
+
 ## Develop a Canon CR2 directly (2026-11-12)
 
 `shootflow develop IMG_0001.CR2 --dcp "Canon EOS 5D Mark II Adobe Standard.dcp" --out DIR`
