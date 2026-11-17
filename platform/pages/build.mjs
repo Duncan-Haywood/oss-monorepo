@@ -1960,6 +1960,10 @@ const CATEGORY_RULES = [
     test: (slug) =>
       /(break-even|reconciliation-check|reconciliation-workbench)$/.test(slug)
       || slug === '1099k-reconciliation-worksheet'
+      // `cash-application-matcher` joined 2026-11-17 on its first commit: it
+      // applies bank receipts to open invoices, the receivables side of the
+      // same reconciliation job as `payment-reconciliation-workbench`.
+      || slug === 'cash-application-matcher'
       // `nacha-file-validator` joined 2026-10-04 on its first commit: it checks the ACH payment file a bookkeeper
       // exports from payroll or AP before the bank sees it -- the same back-office money-movement job as
       // `payroll-tax-deposit-penalty-calculator` and `duplicate-payment-audit`.

@@ -189,6 +189,7 @@ ventures/card-surcharge-vs-cash-discount-calculator/usage.mjs
 ventures/cargo-audit-triage/usage.mjs
 ventures/carpet-cleaning-bid-calculator/usage.mjs
 ventures/carpet-install-bid-calculator/usage.mjs
+ventures/cash-application-matcher/usage.mjs
 ventures/cash-balance-plan-calculator/usage.mjs
 ventures/cash-flow-risk-forecaster/usage.mjs
 ventures/cat-adjuster-fee-calculator/usage.mjs
