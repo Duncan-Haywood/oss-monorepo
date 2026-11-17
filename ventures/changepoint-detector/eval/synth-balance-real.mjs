@@ -27,7 +27,7 @@ function covariatesFor(s, date) {
   return [Math.log(avg(col(income, s))), avg(col(price, s)), packs[yi(date - 14)], packs[yi(date - 9)], packs[yi(date - 1)], avg(packs, yi(1970))];
 }
 const f = (v, p = 2) => Number(v).toFixed(p);
-const log = new URL(import.meta.url).search === '?quiet' ? () => {} : console.log;
+const log = import.meta.url.endsWith('?quiet') ? () => {} : console.log; // the test imports it quietly
 export const rows = [];
 function run(tag, state, date, last) {
   const lo = years.indexOf(1970), hi = years.indexOf(last) + 1;
