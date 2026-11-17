@@ -106,6 +106,16 @@ open. MIT licensed, no dependencies, nothing uploaded.
   the sample house that kind of condition keeps 0 walls in this checker and 2
   in IfcTester 0.8.0; typed as IFCBOOLEAN `true`, both keep 2. The row and the
   audit's warning now say so. `eval/untyped-values-2026-11-17.md`.
+  **Accept any data type** (2026-11-17): where the open model writes a
+  standard property in another type (Revit's `Reference` as IFCLABEL, not
+  IFC2X3's IFCIDENTIFIER), the row offers to drop the dataType, which checks
+  the property whatever type it holds and still audits clean (the model's
+  type would be a template error). On two real exports, 791 of 966 objects
+  failed such checks only for their type; with no dataType, only the 175
+  that lack the set, property or value fail, and IfcTester 0.8.0 agrees on
+  21 of 21. A real-number value with no dataType is read apart (this checker
+  converts mm to m, IfcTester does not), so those rows keep presence only.
+  `eval/model-any-type-2026-11-17.md`.
   **A range for numeric attributes** (2026-11-17): OverallHeight, Elevation,
   NumberOfRiser and other real or integer attributes get a **between** mode
   and **Use the model's range**, written with an `xs:double` (or
