@@ -165,6 +165,19 @@ export function checkInvoice(invoice) {
       }
     }
   }
+  // Every other VAT number Peppol's R056-2 reads (a payee's, a deliver-to
+  // party's, a line party's, a second VAT scheme), kept by the readers as
+  // vat_registrations since 2026-11-17: INV-064, a warning as Peppol's is.
+  // EN 16931 gives these parties no VAT number, so INV-022/023 stay off them.
+  if (Array.isArray(invoice.vat_registrations)) {
+    invoice.vat_registrations.forEach((registration, index) => {
+      if (!registration || typeof registration !== "object") return;
+      const label = typeof registration.label === "string" && registration.label ? registration.label : "A party's";
+      for (const finding of inspectNlVatShape({ vat_id: registration.value }, `vat_registrations/${index}`, label)) {
+        fail(finding.rule, finding.message, finding.fix, `/vat_registrations/${index}/value`, finding.severity);
+      }
+    });
+  }
   for (const finding of inspectPaymentIban(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
