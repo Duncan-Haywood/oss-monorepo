@@ -168,6 +168,8 @@ test("one-factor fit recovers known loadings from an exact covariance", () => {
 
 test("Spearman-Brown and the CSV parser", () => {
   assert.equal(spearmanBrownItems(0.6, 10, 0.75).items, 20);
+  // 16.27 items rounds up, not to nearest (quality audit 2026-11-17: ceil -> round survived).
+  assert.equal(spearmanBrownItems(0.8236223352756988, 9, 0.9).items, 18);
   assert.equal(spearmanBrownItems(1, 10, 0.75), null);
   assert.deepEqual(parseCsv('a;b\n"1";2\n'), [["a", "b"], ["1", "2"]]);
   assert.deepEqual(parseCsv("a\tb\r\n1\t2"), [["a", "b"], ["1", "2"]]);

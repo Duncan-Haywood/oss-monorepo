@@ -79,7 +79,7 @@ population; the totals are not screening results.
   | 0.2 to 0.9 | 1000 | 0.771 | 0.734 | 0.733 | 0.771 | 11.3% | 11.3% | 94.3% |
 
   With 300 draws the standard error of a coverage near 95% is about 1.3 points. With equal
-  loadings every interval is within about 4 points of 95%. With unequal loadings alpha is
+  loadings every interval is within about 5 points of 95% (90.7% to 95.3%). With unequal loadings alpha is
   aimed at 0.734, not the true 0.771, so its intervals close in on the wrong number as the
   sample grows: they cover the true reliability 93% of the time at n = 50, 73% at 200 and 11%
   at 1,000. Omega's BCa interval stays at 93 to 95%.
