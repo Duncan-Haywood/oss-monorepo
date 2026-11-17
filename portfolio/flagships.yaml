@@ -229,11 +229,9 @@ flagships:
       passes Mustang; open: a real business's PINT file. A run that lands a slice
       replaces its item here. More open items: NEXT.md.
     buildable: >-
-      Python readers (src/einvoice_preflight/ubl.py, formats.py) fill legal_id and
-      party_ids so the CLI's INV-062 reads XML files, not only JSON; PayeeParty and
-      TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON contexts also match
-      (extend eval/party-id-peppol-differential.mjs's PLACES); R056-2 (an NL VAT
-      number in PartyTaxScheme, a warning). No network.
+      PayeeParty and TaxRepresentativeParty ids, which Peppol's PEPPOL-COMMON
+      contexts also match (extend eval/party-id-peppol-differential.mjs's PLACES);
+      R056-2 (an NL VAT number in PartyTaxScheme, a warning). No network.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
