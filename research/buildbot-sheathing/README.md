@@ -554,6 +554,17 @@ Statics; the lean's and the controller's side choice's shares of that loss are n
 
 ![Press range each stance balances, before and after re-leaning to stand at zero press, against the rigid-body width](experiments/m41_stance0/figure.png)
 
+**Milestone 42: is that 1.3-point loss the stance or the controller?** The stance. Re-leaning flipped four of the
+G1's six held leg-joint sides (both hip rolls, both ankle rolls), so a 2 × 2 (leans × sides) separates them: at the
+G1's worst pose the lean costs **1.30 points** and the sides **0.00**, with no interaction (H161–H163 held), and at
+every pose where both side choices solve they give the same stack to the printed digit, because a side says which way
+a joint is held, not whether. The flip still matters: with the old sides one re-leaned G1 pose has no controller
+solution (H164 refuted). A post hoc check also corrects milestone 41's per-pose figures, which compared stacks from
+two torque conventions: like for like, the re-lean costs the H1 **0.09–0.29 points** per pose (not 0.1–0.9), and the
+G1 loses 0.31–1.30 at four poses and gains 0.60–0.79 at two. Statics, 'hold-min' torques without the leg preload.
+
+![The no-hose clean-sheet stack at each re-leaned pose in the four lean × sides cells: the sides never move a bar](experiments/m42_sides/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
