@@ -45,7 +45,6 @@ def haar_blocks(c: np.ndarray, period: int, block: int = 24) -> tuple[np.ndarray
     h, w = c.shape
     hb, wb = h // block, w // block
     lvl = c[: hb * block, : wb * block].reshape(hb, block, wb, block).mean(axis=(1, 3))
-    vals = [[[] for _ in range(wb)] for _ in range(hb)]
     det_all, ys, xs = [], [], []
     for py in range(period):
         for px in range(period):

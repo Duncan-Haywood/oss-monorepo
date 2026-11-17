@@ -140,5 +140,5 @@ pre-registered hold-out. The scale itself was chosen on tune rows.
     head -30 files.txt | tr '\n' '\0' | PYTHONPATH=src xargs -0 python tools/noise_estimator_accuracy.py --bayer --cache /tmp/truths > acc.jsonl
     grep -E 'nef|cr2|arw' files.txt | head -16 | tr '\n' '\0' | PYTHONPATH=src xargs -0 python tools/noise_estimator_accuracy.py --binning > binning.jsonl
 
-The sweep took about 60 minutes on four processes (two per layout, files halved). The accuracy and binning runs
+The sweep took about 20 minutes on four processes (two per layout, files halved; 11:43 to 12:03 UTC). The accuracy and binning runs
 took a few minutes each.
