@@ -11,6 +11,7 @@ export const MAX_NOTE = 300;
 export const MAX_PER_ADDRESS = 5; // joins from one address per hour
 export const LEVELS = { 1: "New to the sport", 2: "Played a season or two", 3: "Experienced" };
 const HOUR = 60 * 60 * 1000;
+const levelLabel = (n) => (Object.hasOwn(LEVELS, n) ? LEVELS[n] : "");
 
 const tidy = (s) => String(s ?? "").normalize("NFC").replace(/\s+/g, " ").trim();
 const lower = (s) => String(s).toLocaleLowerCase();
@@ -50,7 +51,7 @@ export function parseFreeAgent(form, taken = []) {
   const phone = tidy(form.get("phone"));
   if (phone && !/^[0-9+()./ -]{6,30}$/.test(phone)) return { error: "Type the phone number with digits, spaces and + ( ) - only, or leave it blank." };
   const level = Number(form.get("level"));
-  if (!LEVELS[level]) return { error: "Pick how much you have played." };
+  if (!levelLabel(level)) return { error: "Pick how much you have played." };
   let withName = "";
   if (tidy(form.get("with"))) {
     const w = cleanName(form.get("with"));
@@ -203,7 +204,7 @@ export function placedEmails(state, agent, teams, { organiser = "", leagueUrl = 
       `${agent.name} joins ${agent.team} as a free agent.`,
       "",
       `Email: ${agent.email}${agent.phone ? `\nPhone: ${agent.phone}` : ""}`,
-      `Experience: ${LEVELS[agent.level]}`,
+      `Experience: ${levelLabel(agent.level)}`,
     ];
     if (agent.note) t.push(`Their note: ${agent.note}`);
     t.push("", `${agent.name} is on your roster on the league page now. Please get in touch before your next game.`);
@@ -222,8 +223,8 @@ const csvCell = (v) => {
 /** Every free agent, placed first then waiting, as CSV for the organiser's records. */
 export function freeAgentsCsv(state) {
   const rows = [["status", "name", "email", "phone", "experience", "with", "team", "signed_up_utc", "placed_utc", "note"]];
-  for (const a of state.placedAgents || []) rows.push(["placed", a.name, a.email, a.phone, LEVELS[a.level], a.with, a.team, new Date(a.at).toISOString(), new Date(a.placedAt).toISOString(), a.note]);
-  for (const a of state.freeAgents || []) rows.push(["waiting", a.name, a.email, a.phone, LEVELS[a.level], a.with, "", new Date(a.at).toISOString(), "", a.note]);
+  for (const a of state.placedAgents || []) rows.push(["placed", a.name, a.email, a.phone, levelLabel(a.level), a.with, a.team, new Date(a.at).toISOString(), new Date(a.placedAt).toISOString(), a.note]);
+  for (const a of state.freeAgents || []) rows.push(["waiting", a.name, a.email, a.phone, levelLabel(a.level), a.with, "", new Date(a.at).toISOString(), "", a.note]);
   return rows.map((row) => row.map(csvCell).join(",")).join("\r\n") + "\r\n";
 }
 
@@ -263,7 +264,7 @@ export function adminFreeAgentsHtml(state, key, teams) {
   const row = (a) => {
     const pick = picks.get(a.id);
     const opts = teams.map((t) => `<option${t === pick ? " selected" : ""} value="${esc(t)}">${esc(t)} (${size(t)})</option>`).join("");
-    return `<li><strong>${esc(a.name)}</strong> · ${esc(LEVELS[a.level])}${a.with ? ` · with ${esc(a.with)}` : ""} · <a href="mailto:${esc(a.email)}">${esc(a.email)}</a>${a.phone ? ", " + esc(a.phone) : ""}${a.note ? `<br><span class="note">${esc(a.note)}</span>` : ""}${pick ? "" : `<br><span class="note">No suggestion: ${esc(why.get(a.id) || "no teams yet")}.</span>`}
+    return `<li><strong>${esc(a.name)}</strong> · ${esc(levelLabel(a.level))}${a.with ? ` · with ${esc(a.with)}` : ""} · <a href="mailto:${esc(a.email)}">${esc(a.email)}</a>${a.phone ? ", " + esc(a.phone) : ""}${a.note ? `<br><span class="note">${esc(a.note)}</span>` : ""}${pick ? "" : `<br><span class="note">No suggestion: ${esc(why.get(a.id) || "no teams yet")}.</span>`}
 <form method="post" action="/admin/free-agent?key=${k}" style="display:inline"><input type="hidden" name="id" value="${a.id}"><select name="team" style="width:auto">${opts}</select><button name="act" value="place">Place</button><button name="act" value="remove">Remove</button></form></li>`;
   };
   const parts = [];
