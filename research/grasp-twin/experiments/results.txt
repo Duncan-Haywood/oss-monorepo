@@ -45,14 +45,14 @@ The best width depends on the (unknown) bias: a width that cancels delta=+0.3 is
   width 0.47 (tuned for +0.3), actual delta -0.15: regret 0.01114
   width 0.47 (tuned for +0.3), actual delta -0.30: regret 0.02017
 
-== 5. Calibration budget: plug-in force from n real friction measurements (2000 fits each)
+== 5. Calibration budget: plug-in force from n real friction measurements (40000 fits each)
 n      mean regret  s.e.      median regret  delta     delta/mean
-5      0.01094      0.00052   0.00327        0.00523   0.48      
-10     0.00389      0.00016   0.00141        0.00261   0.67      
-20     0.00153      0.00006   0.00060        0.00131   0.86      
-50     0.00055      0.00002   0.00025        0.00052   0.95      
-100    0.00027      0.00001   0.00012        0.00026   0.96      
-400    0.00007      0.00000   0.00003        0.00007   1.00      
+5      0.01184      0.00013   0.00347        0.00523   0.44      
+10     0.00388      0.00004   0.00142        0.00261   0.67      
+20     0.00159      0.00001   0.00065        0.00131   0.82      
+50     0.00057      0.00000   0.00025        0.00052   0.92      
+100    0.00027      0.00000   0.00012        0.00026   0.96      
+400    0.00007      0.00000   0.00003        0.00007   0.99      
 1000   0.00003      0.00000   0.00001        0.00003   0.99      
 n=5: fraction of fits whose real risk beats the too-clean twin (s_twin=0.1): 0.953
 n=10: fraction of fits whose real risk beats the too-clean twin (s_twin=0.1): 0.999

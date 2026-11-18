@@ -35,6 +35,16 @@ weighted average (total margin / total plates). Plowhorse price rise: the typed 
 price, the typed percentage fewer plates. Not modelled: shared ingredients, waste, labour,
 combos, seasonality, menu position.
 
+## Known gaps
+
+- **Classes are pooled across the whole file** (`calc.mjs`, the popularity and margin bars in
+  `analyze`). Kasavana and Smith class items within a competing category; run per category, 6 of
+  the 14 sample items change class and Cheesecake, a dessert Star, leaves the "review for cutting"
+  list. The page now says so; a per-category mode is the fix
+  ([quality audit 2026-11-15](../../portfolio/quality/audits/2026-11-15-restaurant-pos-menu-mix-analyzer.json)).
+- Toast's item-level `ItemSelectionDetails.csv` (`Net Price` column) is not read; only the
+  `AllItemsReport.csv` summary is.
+
 ## Run
 
 Open `index.html` through any static server. Tests: `node --test`.

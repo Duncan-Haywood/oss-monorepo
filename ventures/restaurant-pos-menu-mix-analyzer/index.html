@@ -106,9 +106,10 @@
       <li><strong>Popularity:</strong> an item's plates as a share of all plates. It is popular at or above 70% of an even share (100% divided by the number of items, times 0.7). The bar is shown in the summary.</li>
       <li><strong>Margin:</strong> net sales per plate minus plate cost, compared with the <em>weighted</em> average margin per plate (total margin over total plates), not the average of the item margins.</li>
       <li><strong>Classes:</strong> Star is popular and at or above the average margin, Plowhorse is popular and below it, Puzzle is unpopular and at or above it, Dog is neither. Classes compare items with each other; they are not a verdict on one dish.</li>
-      <li><strong>Plowhorse price rise:</strong> each Plowhorse goes up by the percentage you type and sells the percentage fewer plates you type; the change in total margin is the estimate. The volume loss is your assumption, not a forecast, and the table gives the loss at which the rise stops paying.</li>
+      <li><strong>Plowhorse price rise:</strong> each Plowhorse goes up by the percentage you type and sells the percentage fewer plates you type; the change in total margin is the estimate. The volume loss is your assumption, not a forecast, and the result gives the loss at which the rise stops paying.</li>
       <li><strong>Costs:</strong> export cost column, else your pasted list, else the default percentage. The default is a placeholder, not a measurement, and items using it are flagged. Items with a zero cost are flagged.</li>
       <li><strong>Reconciles.</strong> Item rows add to the category rows and to the totals at the top.</li>
+      <li><strong>Pooled classes:</strong> the bars are computed across every row in the file. Kasavana and Smith compare items that compete with each other, so for a strict reading drop one category (mains, desserts, drinks) at a time; a pooled file classes sides and drinks against mains.</li>
       <li><strong>Not modelled:</strong> shared ingredients and prep waste, labour, item bundles and combos, price tiers of the same item, seasonality and menu position, comps and discounts beyond what net sales already shows, delivery-app markups, sales tax and tips, and anything not in the file.</li>
       <li><strong>Unverified:</strong> column names are matched by alias and no real Toast, Square or Clover export was available when this was written.</li>
     </ul>
@@ -159,7 +160,7 @@
       const d = detectDelimiter(salesText);
       const s = normalizeSales(parseCsv(salesText, d), { decimalComma: detectDecimalComma(parseCsv(salesText, d), d) });
       if (s.error) { status.textContent = s.error; report.hidden = true; return false; }
-      const list = parseCostList(costText);
+      const list = parseCostList(costText, detectDecimalComma(parseCsv(salesText, d), d));
       const a = analyze(s.items, { costList: list.map, defaultCostPct: num("#fc", 32), priceIncreasePct: num("#rise", 5), volumeLossPct: num("#loss", 3), periodWeeks: num("#weeks", NaN) });
       if (a.invalid) { status.textContent = a.invalid; report.hidden = true; return false; }
       last = a;

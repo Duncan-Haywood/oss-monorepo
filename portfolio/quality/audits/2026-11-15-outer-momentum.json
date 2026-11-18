@@ -1,0 +1,239 @@
+{
+ "date": "2026-11-15",
+ "subject": "research/outer-momentum",
+ "stratum": "research",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a reviewer for the ICML/NeurIPS optimisation track or the OPT workshop who works on communication-efficient distributed optimisation (local SGD, DiLoCo, SlowMo). They would check first that the quadratic reduction and the 2x2 momentum maps are right, whether the tuned-vs-fixed comparison is a fair baseline, whether the wallclock model is physical at large H, and whether the reduction and the outer-momentum result are already in SlowMo, Lookahead or Charles & Konecny's surrogate-objective analysis",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every reported number recomputes with an independent numpy script that imports nothing from the package (indep.py): kappa_H by the closed form 1/(1-(1-1/kappa)^H) = 250.375, 16.12, 1.017 at H=4, 64, 4096 (paper: 250.4, 16.1, 1.02); Polyak's 1964 heavy-ball recurrence x+ = x - a g + b(x - x_prev) with numpy.linalg.eigvals over 401 curvatures at H=1 gives rate 0.93869, alpha 3.7585, beta 0.8811 (results.txt 0.9387, 3.76, 0.881), which also confirms the v-form heavy-ball map is Polyak's method; the PyTorch-convention Nesterov 2x2 map via numpy eigvals reproduces all five E3 default rates (0.9925, 0.9434, 0.9279, 0.8704, 0.7044) and slowdowns 8.45, 4.35, 6.8, 7.45, 6.28; a 4000-round literal numpy simulation of Nesterov at H=7 gives 0.9374 vs exact 0.9372, confirming the paper's 'transient' explanation of the 0.9411 E2 outlier; an own grid search reproduces every E4 H* and time (10/1380, 104/4331, 1697/12480, 10/4368, 100/13804, 1035/43319; plain 152, 579, 4000, 457, 1522, 5791). An integer-rounds variant (ceil(rounds)*(H+C)) keeps H* near C (11, 97, 1499, 10, 92, 1063), so the headline is robust. Not 4: the model's own wallclock is unphysical beyond the search cap (fractional rounds go to 0, best_H(1000,1000,1e-6,Hmax=40000) returns (35803, 0.0)), and one derived ratio in the paper is wrong (see claims).",
+  "completeness": "Claimed and checked: 9 tests in <1 s (`PYTHONPATH=src python3 -m unittest discover -s tests -v`: Ran 9 tests in 0.150s OK); `PYTHONPATH=src python3 experiments/run.py` reproduces experiments/results.txt byte for byte (0.19 s); figure.py in a scratch copy regenerates inner_steps.svg identically; live page https://marisstella.app/research/outer-momentum/ HTTP 200 (title 'How should the outer optimiser and sync...'), figure served at /research/outer-momentum/inner_steps.svg 200 image/svg+xml. E1-E4 all present. No TODOs or stubs. kappa_H_approx is exported but used nowhere (not in run.py, not in tests).",
+  "verification": "Test suite passes (9 OK). Five mutants via platform/ci/quality_mutate.py, 3 survived: kappa_H_approx replaced by kappa/H (untested function); plain-average rate (k-1)/(k+1) -> (k-1)/(k+2) (gd_optimal, which feeds the whole 'plain averaging' column of E1 and E4); and the Nesterov map's -alpha*beta^2 -> -alpha*beta (the DiLoCo comparison's core): the simulation test's tolerance 0.02*rho+5e-3 absorbs the 0.7% rate shift it causes at H=40 (0.8863 -> 0.8927). Caught: sync cost (H+C) -> (H+1.2C) and the search cap 4*kappa -> 40*kappa (which exposes the degenerate wallclock). Nothing pins results.txt, so a change that shifts the reported numbers inside the loose tolerances passes.",
+  "craft": "Read src/outer_momentum/model.py (108 lines), __init__.py, tests/test_model.py, experiments/run.py, experiments/figure.py. Pure stdlib, small pure functions, exact 2x2 spectral radius via trace/determinant, a literal simulator kept separate from the closed form (good practice), figure parsed from results.txt rather than retyped. Defects: rounds() returns continuous, sub-1 round counts and 0 when the rate underflows to 0, so wallclock() and best_H() silently return time 0.0 for H beyond about 35*kappa (model.py:74, :85); the default cap Hmax=int(4*kappa) (model.py:90) is what keeps the reported optima finite and is itself the reported plain-average optimum at kappa=1000, C=1000 (H=4000); run.py uses a different grid density (200 modes) from the tests (60) without comment; tests use `from outer_momentum import *`.",
+  "claims": "Checked against results.txt and recomputation: kappa_H 250.4/16.1/1.02 (backed); beta* 0.881 -> 0.012 and alpha* 3.76 -> 1.23 (backed); E2 'worst deviation 0.4%' (0.9372 vs 0.9411 is 0.42%, essentially backed); H* = 10, 100-104, 1035 and speedups 1.7, 5.1, 16.0 (backed; (1+C)/(2 sqrt C) = 1.74, 5.05, 15.8). Wrong or unbacked: (1) whitepaper.md:19 'the wallclock is 1.7-5.7x worse than the momentum optimum at kappa=10^4': E4's own rows give 72163/4368 = 16.5x, 78827/13804 = 5.7x, 99439/43319 = 2.3x, i.e. 2.3-16.5x. (2) whitepaper.md:6 and :19 say plain averaging 'has no interior optimum' / 'never interior' while E4 reports finite optima 152, 457, 579, 1522, 5791 well inside the search range, and the only boundary one (4000) is the arbitrary 4*kappa cap; the ceil-rounds model also finds interior optima (151, 481, 563, 1509, 5630). (3) README.md:3, whitepaper.md:6 and research/README.md:147 '4-8x' slower; E3 has 8.5x at H=1 (4.3-8.5x). (4) 'the setting popularised for DiLoCo' is right (Douillard et al. 2023 use Nesterov, lr 0.7, momentum 0.9) but uncited. No literature reference anywhere in the project. Limits (noise-free, shared Hessian, oracle s_min/s_max) are stated.",
+  "fitness": "Job: a researcher choosing DiLoCo's outer learning rate, momentum and sync interval. The code is a clean, reproducible base for that and the H* ~ C rule with speedup (1+C)/(2 sqrt C) is a useful rule of thumb. Nearest prior work, none cited: SlowMo (Wang, Tantia, Ballas & Rabbat, ICLR 2020) is exactly an outer momentum on the pseudo-gradient of local steps with convergence analysis; Lookahead (Zhang, Lucas, Hinton & Ba, NeurIPS 2019) analyses k inner steps plus an outer step on quadratics; Charles & Konecny (AISTATS 2021, 'Convergence and accuracy trade-offs in federated learning and meta-learning') show local update methods on quadratics minimise a surrogate with curvatures 1-(1-eta a)^H, which is this paper's reduction; I - (I - eta A)^H as a polynomial preconditioner is classical (Saad, Iterative Methods, ch. 12); FedAvgM (Hsu, Qi & Brown 2019) studies server momentum. The reduction, the kappa_H ~ kappa/H compression and Polyak tuning on [s_min, s_max] are therefore known or immediate; what is new is the worked tuning table and the H* = C wallclock rule on a noise-free shared-Hessian quadratic. Sound within that model, but not part of any programme in research/PROGRAMMES.md and short of the PhD bar.",
+  "domain": "Against standard optimisation practice: the heavy-ball tuning and 'every mode at sqrt(beta*)' are Polyak (1964) and correct (recomputed). Departures a reviewer would flag: (a) the headline 'fixed 0.7/0.9 Nesterov is 4-8x slower' compares a fixed setting with an oracle tuned on the exact spectrum edges; the fair baseline is a tuned Nesterov or a heavy ball tuned with estimated s_min, s_max; (b) H inner steps of fixed-step GD is not the best use of H steps on a quadratic (Chebyshev / polynomial acceleration in the inner loop), so 'inner steps precondition by kappa/H' understates what local acceleration does; (c) the wallclock objective uses continuous rounds and lets them fall below 1, which is unphysical for H >~ kappa and is held in check only by the 4*kappa search cap; (d) no gradient noise or worker heterogeneity, which is where DiLoCo's outer optimiser choices actually matter (disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "kappa_H compression at kappa=1000, eta=1/a_max, H=4/64/4096",
+   "method": "hand closed form 1/(1-(1-1/kappa)^H) evaluated in the auditor's script",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/outer-momentum/indep.py (numpy only; imports nothing from outer_momentum)",
+   "expected": "250.4, 16.1, 1.02 (whitepaper abstract)",
+   "observed": "250.375, 16.123, 1.017",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tuned heavy-ball rate, alpha*, beta* at H=1, kappa=1000",
+   "method": "Polyak (1964) three-term recurrence x+ = x - a g + b(x - x_prev), 2x2 companion matrix eigenvalues via numpy.linalg.eigvals over 401 curvatures",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/outer-momentum/indep.py (numpy only; imports nothing from outer_momentum)",
+   "expected": "rate 0.9387, alpha* 3.76, beta* 0.881 (results.txt E1/E3)",
+   "observed": "0.938693, 3.7585, 0.88114",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "DiLoCo Nesterov (0.7, 0.9) rates and slowdowns at H=1,16,64,256,1024",
+   "method": "PyTorch SGD nesterov update (buf = b buf + g; p -= lr (g + b buf)) as a numpy 2x2 matrix, eigvals over 401 curvatures between the spectrum edges",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/outer-momentum/indep.py (numpy only; imports nothing from outer_momentum)",
+   "expected": "0.9925/0.9434/0.9279/0.8704/0.7044; x8.5/4.3/6.8/7.5/6.3",
+   "observed": "0.9925/0.9434/0.9279/0.8704/0.7044; x8.45/4.35/6.80/7.45/6.28",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E2 Nesterov H=7 outlier (exact 0.9372 vs simulated 0.9411) is a transient",
+   "method": "independent numpy literal simulation, 4000 rounds, 1000-round window",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/outer-momentum/indep.py (numpy only; imports nothing from outer_momentum)",
+   "expected": "long-window rate approaches 0.9372",
+   "observed": "0.9374",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "E4 H*, times and speedups for kappa 1e3/1e4, C 10/100/1000",
+   "method": "auditor's own grid search over H in [1, 4 kappa]; speedup vs (1+C)/(2 sqrt C)",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/outer-momentum/indep.py (numpy only; imports nothing from outer_momentum)",
+   "expected": "H*=10,104,1697,10,100,1035; speedup 1.7,5.1,17.5,1.7,5.1,16.0",
+   "observed": "identical H* and times; speedups 1.74,5.09,17.51,1.74,5.05,15.96; (1+C)/(2 sqrt C)=1.74,5.05,15.83",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "robustness of H* ~ C to integer rounds",
+   "method": "ceil(rounds)*(H+C) model, search to 50 kappa",
+   "command": "cd research/outer-momentum && PYTHONPATH=src python3.13 -c '<ceil-model loop over best H>' (in transcript)",
+   "expected": "H* near C",
+   "observed": "H*mom 11, 97, 1499 (kappa 1e3); 10, 92, 1063 (kappa 1e4)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "whitepaper.md:19 'wallclock is 1.7-5.7x worse than the momentum optimum at kappa=10^4' (plain averaging)",
+   "method": "ratio of E4's own committed times",
+   "command": "sed -n '/E4/,$p' research/outer-momentum/experiments/results.txt; 72163/4368, 78827/13804, 99439/43319",
+   "expected": "1.7-5.7x",
+   "observed": "16.5x, 5.7x, 2.3x (2.3-16.5x)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "plain averaging 'has no interior optimum' / 'never interior' (whitepaper.md:6, :19)",
+   "method": "E4 table plus ceil-rounds model searched to 50 kappa",
+   "command": "cd /tmp && /usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/0970fe12-d0d1-573c-988f-e9e5f825e910/scratchpad/outer-momentum/indep.py (numpy only; imports nothing from outer_momentum)",
+   "expected": "optimum at the boundary",
+   "observed": "finite interior optima 152, 579, 457, 1522, 5791 (4000 is the 4 kappa cap); ceil model 151, 563, 481, 1509, 5630",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'4-8x more rounds' for fixed Nesterov (README.md:3, whitepaper.md:6, research/README.md:147)",
+   "method": "read E3",
+   "command": "grep slowdown research/outer-momentum/experiments/results.txt",
+   "expected": "all within 4-8x",
+   "observed": "x8.5, 4.3, 6.8, 7.5, 6.3",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "wallclock model beyond the 4 kappa search cap",
+   "method": "call the package with a larger Hmax",
+   "command": "cd research/outer-momentum && PYTHONPATH=src python3.13 -c 'from outer_momentum import *; print(best_H(1000,1000,1e-6,Hmax=40000), wallclock(1000,40000,1000,1e-6))'",
+   "expected": "a finite positive time (at least one round of H+C)",
+   "observed": "(35803, 0.0) and 0.0",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "run.py and figure.py reproduce committed outputs; tests pass",
+   "method": "rerun and diff",
+   "command": "cd research/outer-momentum && PYTHONPATH=src python3.13 -m unittest discover -s tests -v; PYTHONPATH=src python3.13 experiments/run.py | diff - experiments/results.txt; figure.py in a scratch copy, diff svg",
+   "expected": "9 OK, no diff",
+   "observed": "Ran 9 tests in 0.150s OK; no diff; SVG identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page and figure",
+   "method": "HTTP fetch",
+   "command": "curl -sS -w '%{http_code}' https://marisstella.app/research/outer-momentum/ ; .../research/outer-momentum/inner_steps.svg",
+   "expected": "200",
+   "observed": "200 page; SVG 200 image/svg+xml",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "grep for SlowMo, Lookahead, Charles/Konecny, Douillard, Polyak, Chebyshev, arxiv, et al",
+   "command": "grep -rniE 'douillard|slowmo|lookahead|konecn|charles|polyak|chebyshev|arxiv|et al' research/outer-momentum",
+   "expected": "at least DiLoCo, SlowMo, Lookahead cited",
+   "observed": "no matches",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/outer_momentum/model.py:42",
+   "change": "Nesterov map -alpha*beta*beta -> -alpha*beta",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/outer_momentum/model.py:69",
+   "change": "plain-average rate (k - 1) / (k + 1) -> (k - 1) / (k + 2)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/outer_momentum/model.py:35",
+   "change": "kappa_H_approx closed form -> kappa / H",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/outer_momentum/model.py:85",
+   "change": "(H + C) -> (H + 1.2 * C)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/outer_momentum/model.py:90",
+   "change": "Hmax default int(4 * kappa) -> int(40 * kappa)",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Wrong derived ratio: 'the wallclock is 1.7-5.7x worse than the momentum optimum at kappa=10^4' for plain averaging; E4's own rows give 16.5x, 5.7x and 2.3x (range 2.3-16.5x)",
+   "where": "research/outer-momentum/paper/whitepaper.md:19",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "medium",
+   "what": "Claims plain averaging 'has no interior optimum' / 'never interior' and wants H of order kappa, but E4 reports finite optima 152, 457, 579, 1522, 5791 (0.05-0.6 kappa) inside the search range; the one boundary value (4000) is the arbitrary 4*kappa cap",
+   "where": "research/outer-momentum/paper/whitepaper.md:6",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "medium",
+   "what": "Wallclock model uses continuous rounds that fall below 1 and to 0 when the rate underflows, so wallclock/best_H silently return time 0.0 for H beyond about 35*kappa (best_H(1000,1000,1e-6,Hmax=40000) -> (35803, 0.0)); the reported optima are finite only because of the default search cap Hmax=int(4*kappa), which is itself the reported plain-average optimum at kappa=1000, C=1000",
+   "where": "research/outer-momentum/src/outer_momentum/model.py:74",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 5 seeded mutants survive: the Nesterov map's beta^2 term (the DiLoCo comparison's core) shifts rates by 0.7% inside the simulation test's 2% tolerance; gd_optimal's plain-average rate and kappa_H_approx are untested; nothing pins results.txt",
+   "where": "research/outer-momentum/tests/test_model.py:40",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "No prior work cited at all: SlowMo (Wang et al., ICLR 2020; outer momentum on local-step pseudo-gradients), Lookahead (Zhang et al., NeurIPS 2019; quadratic analysis of k inner steps plus outer step), Charles & Konecny (AISTATS 2021; local updates on quadratics minimise a surrogate with curvatures 1-(1-eta a)^H, this paper's reduction), DiLoCo itself (Douillard et al. 2023), Polyak (1964), FedAvgM (Hsu et al. 2019). The reduction and kappa/H compression are presented as findings when they are known or immediate",
+   "where": "research/outer-momentum/paper/whitepaper.md:21",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "The 4-8x slowdown of fixed DiLoCo Nesterov compares a fixed setting against an oracle tuned on the exact spectrum edges, with no tuned-Nesterov or estimated-spectrum baseline; inner Chebyshev acceleration (the optimal use of H steps on a quadratic) is not considered",
+   "where": "research/outer-momentum/experiments/run.py:20",
+   "category": "research-design",
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "'4-8x' slower understates E3's own range (x8.5 at H=1; 4.3-8.5x)",
+   "where": "research/outer-momentum/README.md:3",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+ ],
+ "verdict": "A compact, honest and fully reproducible derivation whose core numbers are right: an independent numpy recomputation (Polyak's recurrence and the PyTorch Nesterov update as 2x2 matrices, own grid search) reproduces kappa_H, the tuned heavy-ball rates, all five DiLoCo-Nesterov slowdowns and every E4 optimum, and an integer-rounds variant keeps H* near C. It misses the bar on claims, verification, fitness and domain: the paper's plain-averaging comparison is wrong (says 1.7-5.7x worse at kappa=1e4; its own table gives 2.3-16.5x) and calls the plain-average optimum non-interior while reporting interior optima; the wallclock model lets rounds fall to 0 so best_H returns time 0.0 once the 4*kappa search cap is lifted; 3 of 5 mutants survive, including one in the Nesterov map; and no literature is cited although SlowMo, Lookahead and Charles & Konecny's surrogate analysis already contain the reduction and outer momentum. A sound worked example, not yet a paper."
+}

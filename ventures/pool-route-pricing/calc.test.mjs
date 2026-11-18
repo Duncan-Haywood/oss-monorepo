@@ -76,3 +76,14 @@ test('current price of exactly the minimum meets target (no false negative at th
 test('rejects a negative current price', () => {
   assert.throws(() => calculate({ accounts: 1, visits: 1, serviceMinutes: 1, driveMinutes: 1, laborRate: 1, chemicalCost: 1, overhead: 1, targetMargin: 10, currentPrice: -5 }), /zero or greater/);
 });
+
+test('a cleared required field is an error, not a zero cost (quality audit 2026-11-15)', async () => {
+  const { calculate, DEFAULTS } = await import('./calc.mjs');
+  const assert = (await import('node:assert/strict')).default;
+  for (const key of ['laborRate', 'chemicalCost', 'overhead', 'accounts', 'visits']) {
+    assert.throws(() => calculate({ ...DEFAULTS, [key]: '' }), /required/);
+  }
+  assert.equal(calculate({ ...DEFAULTS, currentPrice: '' }).current, null);
+  // Weekly service averages 52/12 visits a month; the visits field takes decimals.
+  assert.ok(Math.abs(calculate({ ...DEFAULTS, visits: 52 / 12 }).minimumMonthlyPrice - 284.68) < 0.01);
+});

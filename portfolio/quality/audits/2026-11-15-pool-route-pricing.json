@@ -1,0 +1,247 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/pool-route-pricing",
+ "stratum": "venture",
+ "seed": "2026-11-15-census",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an owner-operator of a weekly residential pool-service route (40 to 80 accounts, one or two trucks) who sets the monthly rate. They would check first that 'weekly' is costed at 52/12 = 4.33 visits a month and not 4, that the truck (fuel, wear, insurance per mile) is costed and not only the tech's drive minutes, that the margin is taken on price rather than marked up on cost, and that the chemical allowance is realistic for their season",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The arithmetic recomputes exactly. Defaults (40 accounts, 4 visits, 35+12 min, $28/h, $18 chem/visit, $12 overhead, 35%): an independent Python one-liner gives 125.333 h, labour $3,509.33, cost $6,869.33 ($171.73/account), route revenue $10,568.21, $264.21/account; `node probes.mjs` on the shipped calc.mjs and the served page in headless Chrome at 375 px both show $264.21, 125.3 h, $6869.33. A hand case (1 account, 4 visits, 30+15 min, $20/h, $5 chem, $10 overhead, 20%, current price $100): 3 h, $60+$20+$10 = $90, /0.8 = $112.50, margin at $100 = 10%; engine returns 112.5 and 10. The markup trap on the guide page ($171.73 x 1.35 = $231.84, 0.35/1.35 = 25.9%) and the vs-flat-rate page's 25-minute route ($7,840, $301.54, $37.33 gap, 25.8% margin, $1,493.33/month, $17,920/year) recompute. What is wrong is what a user would act on: a blank field silently becomes 0 (calc.mjs:7, Number('') = 0); in the served page clearing 'Labor cost / hour' shows a $129.23 floor instead of $264.21 with no error. And the page is 'Built for recurring weekly pool service' with a default of 4 visits and an integer step: weekly is 52/12 = 4.33 visits a month, which at the defaults is $284.68, so the default floor is 7.2% ($20.48/account) low, and the browser flags 4.33 as invalid (validity.valid = false) though it still computes.",
+  "completeness": "Checked each feature README and page claim: route calculator (works), true monthly labour hours (works), optional current-price check with margin, profit and verdict (works: $95 shows 'losing $3069.33 a month'), local draft restored (code path tested in page.test.mjs), shareable hash link (share.test.mjs round trip), anonymous local usage counter with opt-out and DNT/GPC (usage.test.mjs), stale results hidden on invalid input (served page: -1 visits hides hours and cost, shows the error). Guide, vs-Skimmer and vs-flat-rate pages exist and the served guide responds (307 to the extensionless URL, as the served sitemap lists). No TODOs or stubs; every claimed feature runs. 3.",
+  "verification": "`cd ventures/pool-route-pricing && node --test '*.test.mjs'`: 53 tests, 53 pass, 0.15 s. Four mutants via platform/ci/quality_mutate.py: 1 caught (margin-on-price formula replaced by markup, calc.mjs:35) and 3 survived: a blank current price treated as $0 (calc.mjs:39, would show a 'losing $6,869 a month' box on every untouched form), the target check loosened by a full point (calc.mjs:55, a 34.1% margin reported as clearing 35%), and break-even moved from < 0 to <= 0 (calc.mjs:56, near-equivalent). No test covers a blank required field, a fractional visit count, or a margin just under target.",
+  "craft": "Read calc.mjs (65 lines), share.mjs (67), index.html (90), calc.test.mjs, page.test.mjs. Pure, dependency-free engine; one formula for floor and current margin; share decoding whitelists known fields and drops negatives; storage wrapped in try/catch; error path clears stale outputs. Defects: the number() helper accepts '' as 0 (calc.mjs:7) while share.mjs:25 correctly treats '' as missing, so the two modules disagree; '1,200' is rejected with 'must be zero or greater', a misleading message; money() prints $6869.33 with no thousands separator (index.html:24). Small and readable; a reviewer would accept it after the blank-field fix.",
+  "claims": "Disclaimer and MIT licence on every page; privacy claims match usage.mjs and share.mjs. The worked-example arithmetic on all pages is backed by calc.mjs. Unbacked: guide page says drive time is 'often a third of the route' (how-much-to-charge-for-pool-service.html:44, also the JSON-LD at :11) with no source, and its own example in the next sentence is 25.5% (12/47); 'the most common arithmetic error in route pricing' (:48, :11) has no source. The guide's worked-example rates ($28/h, $18 chemicals per visit, $12 overhead, 35% margin, :38) are neither cited nor labelled as illustrative assumptions; the index labels its defaults only as 'Use your own averages'. Served llms.txt and sitemap carry marisstella.app (the source-file hosts are rewritten at deploy, so not a defect).",
+  "fitness": "Walked the job: an operator enters a 40-stop weekly route and gets a floor and, with today's price, the gap. That answers 'what is my floor' for one uniform account profile. They would still have to know to enter 4.33 not 4, to fold truck cost into 'overhead / account' (the label does not say so), to average chemicals across summer and winter, and to run the tool once per account type (the FAQ says so). Per-account drive differences are deferred to a sibling tool (pool-service-route-calculator). Usable as a first-pass floor, not as the number a pro quotes from. 2.",
+  "domain": "Compared with how route operators price weekly service: margin on price (correct, and the page teaches the markup trap well) and drive time as paid labour (correct). Departs: weekly service is 52/12 = 4.33 visits a month; vehicle cost is not modelled, although the IRS 2025 business standard mileage rate is 70 cents a mile (IRS Notice 2025-5) and, at an assumed 25 mph, 12 drive minutes is 5 miles a visit, 800 miles a month for this route, about $560 or $14/account before margin, more than the whole $12 overhead default; no card-processing fee, callback/green-pool allowance or seasonal visit and chemical variation (the page tells the user to fold these in). 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Default route floor per account",
+   "method": "independent Python hand calculation (h = 40*4*47/60; cost = h*28 + 40*4*18 + 40*12; /0.65/40)",
+   "command": "python3 -c \"h=40*4*47/60; c=h*28+40*4*18+40*12; print(c, c/0.65/40)\"",
+   "expected": "6869.33, 264.21",
+   "observed": "engine 6869.333, 264.205; served page $6869.33, $264.21",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "One-account hand case with current price",
+   "method": "hand calculation: 4*45/60 = 3 h x $20 = $60, + $20 chem + $10 overhead = $90, /0.8 = $112.50; margin at $100 = 10/100",
+   "command": "node scratchpad/pool/probes.mjs (case 'acct 1 hand')",
+   "expected": "price 112.5, margin 10, meetsTarget false",
+   "observed": "price 112.5, margin 10, meetsTarget false, gap 12.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Markup-vs-margin figures on the guide page",
+   "method": "hand calculation: 171.73 x 1.35; 0.35/1.35",
+   "command": "python3 -c \"print(6869.3333/40*1.35, 0.35/1.35)\"",
+   "expected": "231.84, 25.9%",
+   "observed": "page states $231.84 and about 26%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Weekly service visits per month at the defaults",
+   "method": "calendar: 52 weeks / 12 months = 4.33 visits; recompute floor with visits = 52/12",
+   "command": "node scratchpad/pool/probes.mjs (case 'weekly 52/12')",
+   "expected": "a 'weekly' default near $284.68",
+   "observed": "default visits 4 (integer step) gives $264.21, 7.2% low; 4.33 marked invalid by the browser",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Blank required field",
+   "method": "served page in headless Chrome: clear 'Labor cost / hour'",
+   "command": "node scratchpad/pool/ui.cjs",
+   "expected": "an error, or the field treated as missing",
+   "observed": "silent floor of $129.23 (labour costed at $0), no error",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "vs-flat-rate page 25-minute route figures",
+   "method": "independent Python hand calculation",
+   "command": "python3 -c \"c=40*4*60/60*28+40*4*18+40*12; p=c/0.65/40; print(c,p,p-264.2051,(10568.205-c)/10568.205)\"",
+   "expected": "7840, 301.54, 37.33, 25.8%",
+   "observed": "page states $7,840.00, $301.54, $37.33, 25.8%",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "Vehicle cost of drive time",
+   "method": "IRS 2025 standard mileage rate 70 cents/mile (Notice 2025-5), 25 mph assumed",
+   "command": "python3 -c \"print(40*4*12/60*25*0.70/40)\"",
+   "expected": "a vehicle line or an overhead label that tells the user to include it (~$14/account here)",
+   "observed": "drive time costed at labour only; overhead label silent on vehicle",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run it",
+   "command": "cd ventures/pool-route-pricing && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "53/53 pass, 0.15 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'often a third of the route' (drive share)",
+   "method": "look for a source; compare with the page's own example",
+   "command": "grep -n 'often a third' how-much-to-charge-for-pool-service.html",
+   "expected": "a citation or an assumption label",
+   "observed": "no source; the same answer's example is 12/47 = 25.5%",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'the most common arithmetic error in route pricing'",
+   "method": "look for a source",
+   "command": "grep -n 'most common arithmetic' how-much-to-charge-for-pool-service.html",
+   "expected": "a citation or softer wording",
+   "observed": "no source",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Worked-example rates ($28/h, $18 chemicals, $12 overhead) labelled",
+   "method": "read the guide page",
+   "command": "sed -n 38p how-much-to-charge-for-pool-service.html",
+   "expected": "cited or marked illustrative",
+   "observed": "stated as plain inputs with no label",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer on index and guide",
+   "method": "read pages; page.test.mjs:38",
+   "command": "grep -c 'No warranty' index.html how-much-to-charge-for-pool-service.html",
+   "expected": "present on both",
+   "observed": "present on both",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Served page and URLs in llms.txt and sitemap",
+   "method": "load https://marisstella.app/pool-route-pricing/ and its llms.txt and sitemap.xml",
+   "command": "curl -sS https://marisstella.app/pool-route-pricing/llms.txt",
+   "expected": "200 and marisstella.app hosts",
+   "observed": "200; served llms.txt and sitemap use marisstella.app (source has old host / example.invalid, rewritten at deploy)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Current-price verdict and invalid-input clearing",
+   "method": "served page in headless Chrome",
+   "command": "node scratchpad/pool/ui.cjs",
+   "expected": "verdict at $95; error hides stale figures at -1 visits",
+   "observed": "'losing $3069.33 a month'; -1 shows error and clears hours and cost; no page errors; no horizontal scroll at 375 px",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:39",
+   "change": "input.currentPrice !== undefined && input.currentPrice !== '' -> input.currentPrice !== undefined",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:56",
+   "change": "belowBreakEven: profit < 0 -> belowBreakEven: profit <= 0",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:55",
+   "change": "margin >= targetMargin - 1e-9 -> margin >= targetMargin - 1",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:35",
+   "change": "totalCost / (1 - targetMargin / 100) -> totalCost * (1 + targetMargin / 100)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "A blank required field is silently costed as 0: clearing 'Labor cost / hour' on the served page shows a $129.23 floor instead of $264.21 with no error. number() uses Number('') = 0, unlike share.mjs which treats '' as missing.",
+   "where": "ventures/pool-route-pricing/calc.mjs:7",
+   "category": "input-handling",
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "medium",
+   "what": "Page says it is built for weekly service but defaults to 4 visits a month with step=1; weekly is 52/12 = 4.33, so the default floor is 7.2% low ($264.21 vs $284.68) and a fractional entry is flagged invalid.",
+   "where": "ventures/pool-route-pricing/index.html:16",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Vehicle cost is not modelled and the overhead label does not tell the user to include it; at the IRS 2025 70 cents/mile rate and an assumed 25 mph the default route's driving is about $14/account, more than the $12 overhead default.",
+   "where": "ventures/pool-route-pricing/calc.mjs:30",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 4 seeded mutants survive: blank current price as $0, target check loosened by one point, break-even boundary; no test for blank required fields or fractional visits.",
+   "where": "ventures/pool-route-pricing/calc.test.mjs:35",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Unbacked statistic: drive time is 'often a third of the route', contradicted by the page's own 25.5% example in the next sentence (also in the FAQ JSON-LD).",
+   "where": "ventures/pool-route-pricing/how-much-to-charge-for-pool-service.html:44",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "Unbacked claim that markup-for-margin is 'the most common arithmetic error in route pricing' (also in JSON-LD at :11).",
+   "where": "ventures/pool-route-pricing/how-much-to-charge-for-pool-service.html:48",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+  },
+  {
+   "severity": "low",
+   "what": "Worked-example rates ($28/h loaded labour, $18 chemicals per visit, $12 overhead) are neither cited nor labelled as illustrative assumptions.",
+   "where": "ventures/pool-route-pricing/how-much-to-charge-for-pool-service.html:38",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'1,200' is rejected with 'must be zero or greater', a misleading message; money() prints $6869.33 without thousands separators.",
+   "where": "ventures/pool-route-pricing/calc.mjs:8",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/16116"
+ ],
+ "verdict": "A small, clean, honest route-floor calculator whose arithmetic is right: every figure on its four pages recomputes by hand, and it teaches margin-on-price correctly. It falls short of what a route owner would quote from. A blank field silently prices labour or chemicals at $0, 'weekly' defaults to 4 visits instead of 4.33 (7.2% low), the truck is not costed, and 3 of 4 seeded mutants survive the 53 tests. The guide page carries two unsourced statistics. Finished (all claimed features work) but below the bar on correctness, verification and claims."
+}
