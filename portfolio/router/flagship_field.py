@@ -74,6 +74,18 @@ down to FLAGSHIP_NEXT_TARGET (1,700), leaving room for the next few runs'
 edits, and a `--replace`/`--set` on `next:` that would pass the cap parks by
 itself (as --make-room did) instead of refusing; `--no-make-room` keeps the
 refusal. `--trim` parks a row that is over the target down to it now.
+
+That overshot the other way. In the day after it (2026-11-17..18), ten run
+records said an edit that only passed the cap parked four to eight items
+(one parked about 900 characters for a 120-character replacement), that it
+happened without --make-room although allocate.py's hint said it was
+opt-in, and that it moved landed results into NEXT.md as if they were open
+items. An implicit park (a `--replace`/`--set` with no --make-room) now
+parks only until the row fits under the cap, so it moves one or two items,
+not eight; FLAGSHIP_NEXT_TARGET's headroom is what an explicit --make-room
+or --trim asks for. A clause reporting landed work is never parked (cut it,
+`--landed` lists them). Every park says up front how many items and
+characters it moves, and `--dry-run` shows that without writing.
 """
 from __future__ import annotations
 
@@ -300,6 +312,7 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
         j = len(items) - 1 - i
         body = _body(item)
         if (j == 0 or j in held or _mine(item) or not body or POINTER.match(body)
+                or LANDED.search(body)
                 or len(body) < 12 or not _balanced(body) or SENTENCE.search(body)):
             continue
         gain = len(body) + 2
@@ -419,19 +432,21 @@ def park_text(existing: str | None, venture: str, items: list[str], day: str) ->
 
 
 def make_room(value: str, keep: tuple[str, ...] = (),
-              trigger: int = FLAGSHIP_NEXT_MAX) -> tuple[str, list[str]]:
+              trigger: int = FLAGSHIP_NEXT_MAX,
+              target: int = FLAGSHIP_NEXT_TARGET) -> tuple[str, list[str]]:
     """(`value` with items parked from the end, the items parked). Unchanged
     when it is at most `trigger` characters; otherwise items go until it and
-    the NEXT.md pointer fit under FLAGSHIP_NEXT_TARGET, or, when the parkable
-    items cannot free that much, under the cap. Raises ValueError when even
-    the cap cannot be reached."""
+    the NEXT.md pointer fit under `target` (FLAGSHIP_NEXT_TARGET for an
+    explicit --make-room or --trim, the cap for an edit's implicit park), or,
+    when the parkable items cannot free that much, under the cap. Raises
+    ValueError when even the cap cannot be reached."""
     value = " ".join(value.split())
     if len(value) <= trigger:
         return value, []
     parked: list[str] = []
     for _ in range(50):
         room = 0 if PARK_POINTER in value else len(PARK_POINTER) + 1
-        over = len(value) + room - FLAGSHIP_NEXT_TARGET
+        over = len(value) + room - target
         if over <= 0:
             return value, parked
         cands = [c for c, _ in park_candidates(value, over, keep)]
@@ -442,7 +457,8 @@ def make_room(value: str, keep: tuple[str, ...] = (),
     if len(value) <= FLAGSHIP_NEXT_MAX:
         return value, parked
     raise ValueError(f"--make-room: parking every item it may move still leaves `next:` at "
-                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text")
+                     f"{len(value)} of {FLAGSHIP_NEXT_MAX} characters; shorten the new text, or cut "
+                     "landed clauses (`--landed` lists them; they are never parked)")
 
 
 def with_pointer(value: str) -> str:
@@ -516,7 +532,7 @@ def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
     rc = _main(argv)
     writes = {"--set", "--replace", "--park", "--make-room", "--trim"}
-    if rc != 0 and any(a.split("=", 1)[0] in writes for a in argv):
+    if rc != 0 and "--dry-run" not in argv and any(a.split("=", 1)[0] in writes for a in argv):
         print(f"NOT WRITTEN: exit {rc}, no file was changed", file=sys.stderr)
     return rc
 
@@ -542,6 +558,8 @@ def _main(argv: list[str]) -> int:
     ap.add_argument("--trim", action="store_true",
                     help=f"park items from the end of `next:` until it is at most "
                          f"{FLAGSHIP_NEXT_TARGET} characters (no other edit needed)")
+    ap.add_argument("--dry-run", action="store_true",
+                    help="say what a `next:` edit would park and how long the row would be; write nothing")
     ap.add_argument("--file", type=Path, default=FLAGSHIPS_PATH)
     ap.add_argument("--ventures-dir", type=Path, default=REPO_ROOT / "ventures", help=argparse.SUPPRESS)
     args = ap.parse_args(argv)
@@ -565,6 +583,7 @@ def _main(argv: list[str]) -> int:
         mine = tuple(" ".join(rep.split()) for _, rep in args.replace or [])
         # A `next:` edit that would pass the cap parks by itself unless told
         # not to (FLAGSHIP_NEXT_TARGET, docstring); a fitting edit is unchanged.
+        explicit = args.make_room or args.trim
         if (args.field == "next" and current is not None and not args.no_make_room
                 and (args.set is not None or args.replace)):
             args.make_room = True
@@ -598,11 +617,24 @@ def _main(argv: list[str]) -> int:
             if parks:
                 new = remove_items(new, parks)
             if args.make_room:
+                before = len(" ".join(new.split()))
                 new, auto = make_room(new, mine,
-                                      FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX)
+                                      FLAGSHIP_NEXT_TARGET if args.trim else FLAGSHIP_NEXT_MAX,
+                                      FLAGSHIP_NEXT_TARGET if explicit else FLAGSHIP_NEXT_MAX)
+                if auto:
+                    how = ("--make-room" if explicit else
+                           "the edit passes the cap, so it parks by itself (--no-make-room refuses instead)")
+                    print(f"{'would park' if args.dry_run else 'parking'} {len(auto)} item(s), "
+                          f"{sum(len(i) + 2 for i in auto)} chars: `next:` was {before} of "
+                          f"{FLAGSHIP_NEXT_MAX} after the edit; {how}", file=sys.stderr)
                 for item in auto:
                     print(f"--make-room parked ({len(item) + 2} chars): {item}", file=sys.stderr)
                 parks += auto
+            if args.dry_run:
+                shown = with_pointer(new) if parks else " ".join(new.split())
+                print(f"dry run: {args.venture}.next would be {len(shown)}"
+                      f"{cap_note('next', len(shown))}; {len(parks)} item(s) to NEXT.md; nothing written")
+                return 0
             if not parks:
                 # it already fitted: an ordinary edit, no NEXT.md entry
                 new = " ".join(new.split())
@@ -643,6 +675,11 @@ def _main(argv: list[str]) -> int:
                 return 1
             new = new.replace(old, rep, 1)
         out = set_value(text, args.venture, args.field, new, mine)
+        if args.dry_run:
+            n = len(" ".join(new.split()))
+            print(f"dry run: {args.venture}.{args.field} would be {n}{cap_note(args.field, n)}; "
+                  "nothing written")
+            return 0
     except (KeyError, ValueError) as e:
         print(e, file=sys.stderr)
         return 1
