@@ -32,7 +32,7 @@ Needs Python 3.10+ and `ffmpeg`. Run from `ventures/photo-editing/` in a clone:
 
 ## Raw formats it develops
 
-DNG, Canon CR3 (full quality and C-RAW), CR2 and CRW, Sony ARW, Nikon NEF and Coolpix NRW, Fujifilm RAF (X-Trans, lossless and lossy compressed), Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF and Samsung SRW. Every format but DNG needs the camera's `.dcp` profile. The long first bullet under Limits below has the per-format detail and the measurements.
+DNG, Canon CR3 (full quality and C-RAW, every body from the 2018 EOS R and M50 to the R6 Mark III, tiled files included), CR2 and CRW, Sony ARW, Nikon NEF and Coolpix NRW, Fujifilm RAF (X-Trans, lossless and lossy compressed), Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF and Samsung SRW. Every format but DNG needs the camera's `.dcp` profile. The long first bullet under Limits below has the per-format detail and the measurements.
 
 ## Limits
 

@@ -422,11 +422,17 @@ class TiledTests(unittest.TestCase):
             rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(96, 100)))  # 48 + 12 plane sensels
         with self.assertRaisesRegex(rd.DevelopError, "tile size .* not valid"):
             rd.parse_raw(make_cr3(values=values, size=TILED_SIZE, tile=(40, 100)))  # 20-sensel plane tiles
-        flags = bytearray(make_cr3(values=values, size=TILED_SIZE, tile=(64, 52)))
+
+    def test_several_tiles_flags_are_not_needed(self):
+        # The real EOS M200, M50, RP, 250D and 90D RAWs store two tiles side by side with both of CMP1's
+        # several-tiles flags 0; LibRaw reads the grid from the sizes, and so does this reader
+        # (eval/canon-cr3-every-body-2026-11-18.md).
+        values = sensor(width=TILED_SIZE[0], height=TILED_SIZE[1])
+        sample, header_size = tiled_sample(values, *TILED_SIZE, (64, 52))
+        flags = bytearray(make_cr3(values=values, size=TILED_SIZE, tile=(64, 52), sample=sample, header_size=header_size))
         at = flags.index(b"CMP1") + 4 + 27
-        flags[at] = 0x80  # rows flag missing
-        with self.assertRaisesRegex(rd.DevelopError, "several-tiles flags"):
-            rd.parse_raw(bytes(flags))
+        flags[at] = 0x00
+        self.assertEqual(list(rd.parse_raw(bytes(flags)).values), values)
 
 
 class ReadTests(unittest.TestCase):
@@ -484,7 +490,22 @@ class ReadTests(unittest.TestCase):
         self.assertEqual(cr3._stated_black(self._cd(1, 2, 3, 4), 14, "BGGR"), [4.0, 3.0, 2.0, 1.0])
         self.assertEqual(cr3._stated_black(self._cd(1, 2, 3, 4), 14, "RGGB"), [1.0, 2.0, 3.0, 4.0])
         self.assertIsNone(cr3._stated_black(self._cd(0, 0, 0, 0), 14, "RGGB"))  # not stated: measure instead
-        self.assertIsNone(cr3._stated_black((0,) * 3778, 14, "RGGB"))  # R8's ColorData11: place not known
+        self.assertIsNone(cr3._stated_black((0,) * 3778, 14, "RGGB"))  # version 0 of 3,778 entries: place not known
+
+    def test_stated_black_place_follows_the_colordata_version(self):
+        # One length, two layouts (eval/canon-cr3-every-body-2026-11-18.md): 3,778 entries is version 48 on the
+        # R7/R10/R50 (black at 0x16B) and 66 on the R6 Mark III (at 0x17F); 1,816 entries version 19 at 0x149.
+        def cd(length, version, at, value):
+            out = [0] * length
+            out[0] = version
+            out[at : at + 4] = [value] * 4
+            return tuple(out)
+
+        self.assertEqual(cr3._stated_black(cd(3778, 48, 0x16B, 2048), 14, "RGGB"), [2048.0] * 4)
+        self.assertEqual(cr3._stated_black(cd(3778, 66, 0x17F, 512), 14, "RGGB"), [512.0] * 4)
+        self.assertIsNone(cr3._stated_black(cd(3778, 66, 0x16B, 512), 14, "RGGB"))  # v66 does not look at 0x16B
+        self.assertEqual(cr3._stated_black(cd(1816, 19, 0x149, 511), 14, "RGGB"), [511.0] * 4)
+        self.assertIsNone(cr3._stated_black(cd(3778, 50, 0x16B, 512), 14, "RGGB"))  # an unseen version: measure
 
     @staticmethod
     def _cd(*black):

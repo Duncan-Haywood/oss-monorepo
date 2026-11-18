@@ -50,7 +50,16 @@ def check(path: Path, engines: list[str]) -> dict:
     ref = lib.raw_image
     out: dict = {"file": path.name, "camera": cr3.camera_model(data)}
     head = cr3.Container(data).head
-    out["cmp1"] = {"version": hex(head.version), "levels": head.levels, "bits": head.bits, "size": [head.width, head.height]}
+    out["cmp1"] = {"version": hex(head.version), "levels": head.levels, "bits": head.bits, "size": [head.width, head.height],
+                   "tile": [head.tile_width, head.tile_height]}
+    cd = cr3.colour_data(data, cr3.Container(data))
+    out["colordata_len"] = len(cd) if cd else None
+    out["colordata_version"] = int(cd[0]) if cd else None
+    bl = [int(v) for v in lib.black_level_per_channel]
+    # Where ColorData stores LibRaw's per-channel black as R, G, G, B (LibRaw's order is R, G, B, G2): the
+    # index a new ColorData length needs in cr3._BLACK_INDEX (eval/canon-cr3-r5-real-2026-11-18.md).
+    want = (bl[0], bl[1], bl[3], bl[2])
+    out["black_index_found"] = [hex(i) for i in range(len(cd) - 3) if tuple(cd[i : i + 4]) == want] if cd else None
     raw = None
     for engine in engines:
         t = time.perf_counter()
@@ -84,6 +93,7 @@ def check(path: Path, engines: list[str]) -> dict:
     out["white_ours"], out["white_libraw"] = int(e[rd.TAG_WHITE_LEVEL][0]), int(lib.white_level)
     out["crop_ours"] = [left, top, right - left, bottom - top]
     out["crop_libraw"] = [sz.left_margin, sz.top_margin, sz.width, sz.height]
+    out["notes"] = [n for n in raw.notes if not n.startswith("CR3: CFA ")]
     out["ok"] = (
         all(out[f"sensels_differing_{en}"] == 0 for en in engines)
         and wb_same

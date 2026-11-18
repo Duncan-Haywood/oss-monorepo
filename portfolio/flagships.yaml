@@ -333,9 +333,10 @@ flagships:
       (corners level after lensfun's vignetting?); a second maker-against-lensfun
       DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
       or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser; a CR3 a body
-      writes in tiles (R5, R5 II: one tile, eval/canon-cr3-r5-real-*). More open
-      items: NEXT.md.
+      corner edges; a real Adobe `.dcp` through the profile chooser; a real CR3 with
+      tiles stacked one above another (2018-23 bodies store two across, read since
+      2026-11-18 with their old C-RAW: 0 of 986.8 M sensels differ on 39 files,
+      eval/canon-cr3-every-body-*). More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
