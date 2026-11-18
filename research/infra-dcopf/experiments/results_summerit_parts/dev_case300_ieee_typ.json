@@ -1,0 +1,1 @@
+{"case": "case300_ieee", "kind": "typ", "ac": 565219.99224243, "secs": 0.14388298988342285, "statuses": ["PF failed at point"], "clean_at": null, "clean_cost": null, "n_differ": 0, "accepted": [null], "last": {"n_over": null, "max_load": null, "load_exc_sum": null, "slack_out_mw": null, "n_ang": null, "vviol": null, "v_exc_pu": null, "qviol": null, "q_exc_mvar": null}}

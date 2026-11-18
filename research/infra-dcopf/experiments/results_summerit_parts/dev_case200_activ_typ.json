@@ -1,0 +1,1 @@
+{"case": "case200_activ", "kind": "typ", "ac": 27557.57089589216, "secs": 0.23402142524719238, "statuses": ["clean/hard"], "clean_at": 1, "clean_cost": 27568.34767226746, "n_differ": 0, "accepted": [false], "last": {"n_over": 0, "max_load": 0.7144568983436523, "load_exc_sum": 0.0, "slack_out_mw": 0.0, "n_ang": 0, "vviol": 0, "v_exc_pu": 0.0, "qviol": 0, "q_exc_mvar": 0.0}}
