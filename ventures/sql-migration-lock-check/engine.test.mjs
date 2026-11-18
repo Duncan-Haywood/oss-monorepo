@@ -604,3 +604,58 @@ test('ROLLBACK undoes a SET lock_timeout made inside the block', () => {
   assert.ok(has(`BEGIN;\nSET lock_timeout='3s';\nROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
   assert.ok(!has(`SET lock_timeout='3s';\nBEGIN;\nRESET lock_timeout;\nROLLBACK;\n${RENAME}`, 'no-lock-timeout'));
 });
+
+test('VACUUM FULL and CLUSTER need a lock_timeout like any other ACCESS EXCLUSIVE statement', () => {
+  assert.ok(has('VACUUM FULL users;', 'no-lock-timeout'));
+  assert.ok(has('CLUSTER users USING idx;', 'no-lock-timeout'));
+});
+
+// Red-team 2026-11-18: lock classes the engine had wrong.
+test('DROP INDEX CONCURRENTLY is not reported as needing a lock_timeout; plain DROP INDEX is', () => {
+  assert.ok(!has('DROP INDEX CONCURRENTLY idx_users_email;', 'no-lock-timeout'));
+  assert.ok(!has('DROP INDEX CONCURRENTLY IF EXISTS idx_users_email;', 'no-lock-timeout'));
+  assert.ok(has('DROP INDEX idx_users_email;', 'no-lock-timeout'));
+});
+
+test('REFRESH MATERIALIZED VIEW, DROP MATERIALIZED VIEW and LOCK TABLE take ACCESS EXCLUSIVE', () => {
+  assert.ok(has('REFRESH MATERIALIZED VIEW mv;', 'no-lock-timeout'));
+  assert.ok(!has('REFRESH MATERIALIZED VIEW CONCURRENTLY mv;', 'no-lock-timeout'), 'readers pass the CONCURRENTLY form');
+  assert.ok(has('DROP MATERIALIZED VIEW mv;', 'no-lock-timeout'));
+  assert.ok(has('LOCK TABLE users;', 'no-lock-timeout'), 'no mode means ACCESS EXCLUSIVE');
+  assert.ok(has('LOCK TABLE users IN ACCESS EXCLUSIVE MODE;', 'no-lock-timeout'));
+  assert.ok(!has('LOCK TABLE users IN SHARE MODE;', 'no-lock-timeout'));
+  assert.ok(!has("SET lock_timeout='3s';\nLOCK TABLE users;", 'no-lock-timeout'));
+});
+
+test('BEGIN; LOCK TABLE a; LOCK TABLE b; COMMIT counts as two exclusive locks in one transaction', () => {
+  assert.ok(has("SET lock_timeout='3s';\nBEGIN;\nLOCK TABLE a;\nLOCK TABLE b;\nCOMMIT;", 'many-locks-one-transaction'));
+});
+
+test('a table created as public.t is the same table as t, either way round', () => {
+  const pre = "SET lock_timeout='3s';\n";
+  assert.ok(!has(`${pre}CREATE TABLE public.t (id int);\nCREATE INDEX i ON t (id);`, 'create-index-not-concurrent'));
+  assert.ok(!has(`${pre}CREATE TABLE t (id int);\nCREATE INDEX i ON public.t (id);`, 'create-index-not-concurrent'));
+  assert.ok(!has(`${pre}CREATE TABLE "public"."T" (id int);\nCREATE INDEX i ON "T" (id);`, 'create-index-not-concurrent'));
+  assert.ok(has(`${pre}CREATE TABLE other.t (id int);\nCREATE INDEX i ON t (id);`, 'create-index-not-concurrent'), 'another schema is another table');
+});
+
+test('CREATE INDEX ... ON ONLY t names t, so a table created here is still recognised', () => {
+  const pre = "SET lock_timeout='3s';\n";
+  assert.ok(!has(`${pre}CREATE TABLE t (id int);\nCREATE INDEX i ON ONLY t (id);`, 'create-index-not-concurrent'));
+  const f = analyzeSql(`${pre}CREATE INDEX i ON ONLY users (id);`).findings.find((x) => x.id === 'create-index-not-concurrent');
+  assert.equal(f.table, 'users');
+});
+
+test('a quoted schema-qualified name is one name to every check', () => {
+  const pre = "SET lock_timeout='3s';\n";
+  const typeChange = analyzeSql(`${pre}ALTER TABLE "public"."users" ALTER COLUMN "email" TYPE bigint;`).findings;
+  assert.ok(typeChange.some((f) => f.id === 'alter-column-type-rewrite'), 'a full rewrite must not pass silently');
+  const notNull = analyzeSql(`${pre}ALTER TABLE "public"."users" ALTER COLUMN "email" SET NOT NULL;`).findings
+    .find((f) => f.id === 'set-not-null-full-scan');
+  assert.equal(notNull.table, 'public.users');
+});
+
+test('plain DROP INDEX needs a lock_timeout and counts toward one transaction\'s locks', () => {
+  assert.ok(has('DROP INDEX i;', 'no-lock-timeout'));
+  assert.ok(has("SET lock_timeout='3s';\nBEGIN;\nDROP INDEX i;\nTRUNCATE b;\nCOMMIT;", 'many-locks-one-transaction'));
+});
