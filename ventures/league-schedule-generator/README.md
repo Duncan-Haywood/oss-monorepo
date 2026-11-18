@@ -231,7 +231,59 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Five or more limited teams: a refused week re-dealt (2026-11-18, latest)
+## Bowling: fewer weeks on the same pair running, balance kept (2026-11-18, latest)
+
+A bowler notices two things about lanes: getting one pair more often than the others, and getting
+the same pair two weeks running. The page put balance first, so its seasons with the hardest
+balance had the most repeats: the stored SAT answers (seasons where the weeks divide evenly by the
+pairs, so every team must bowl every pair exactly W/P times) came out of the solver with 9 to 39
+repeats against 6 to 21 for the search's own seasons. The polish could not fix that: it never lets
+a count leave its target, and when every count is pinned a single swap of two matches in a week
+moves four teams' counts. Two changes:
+
+- **A repeat anneal** (`cutRepeats` in `bowling.mjs`, on by default; `assignLanes(..., { anneal:
+  false })` turns it off). Same move (two matches of one week trade pairs), priced 1 per
+  out-of-bounds count plus 1 per back-to-back repeat, accepted by the Metropolis rule at a
+  temperature falling from 0.6 to 0.05 over 600,000 steps (`ANNEAL_STEPS`). Counts may leave the
+  target on the way; only seasons with every count back in target are kept, so the result is
+  never less balanced than the input (and with every count at floor or ceil, each team's squared
+  spread is fixed too). Weights and temperature were tuned on the 36-season grid (weight 3: 369
+  repeats; 2: 332; 1: 269, at 200,000 steps). Deterministic per seed, a step budget not a clock.
+  Lane limits stay hard: a move onto a banned pair is never taken.
+- **Stored answers re-solved with a cap on repeats** (`eval/bowling-repeat-sat.py`): the
+  encoding of `eval/bowling-lane-table.py` plus one indicator per team, week and pair for "this
+  pair this week and the next", counted by a totalizer, and the cap lowered one solve at a time
+  until UNSAT or a 400 s timeout. `eval/bowling-repeat-merge.mjs` keeps, per season, the answer
+  with fewer repeats, re-checked at the bound. Six seasons the search already reached at the
+  bound but with many repeats were added (6 x 30, 8 x 32, 10 x 30, 18 x 26, 20 x 32, 14 x 34).
+  Each entry was then judged on the season the page builds from it (`eval/bowling-repeat-table.mjs`
+  run on main and here): three were not kept (20 x 40, where the old entry's page season has
+  fewer; 24 x 26 and 24 x 34, where the search's own seasons beat the stored answers).
+
+**Measured** (`eval/bowling-repeat-sat.txt`, `eval/bowling-repeat-anneal.txt`,
+`eval/bowling-lanes.txt`):
+
+| | seasons | every team at the bound | back-to-back repeats |
+|---|---|---|---|
+| 36-season grid (6-24 teams x 26-34 weeks), before | 36 | 36 | 392 |
+| same, now | 36 | 36 | **148** (13 seasons with none) |
+| stored-answer and pinned seasons (38), before | 38 | 38 | 787 |
+| same, now | 38 | 38 | **439** (8 with none) |
+
+12 teams over 18, 24 and 30 weeks, and 10 teams over 30, now have every team on every pair exactly
+equally often **and never on the same pair two weeks running** (they had 12, 17, 13 and 25). The
+solver proved the least for this round-robin dealing on 9 seasons (0 on seven; 1 for 14 x 14; 4 for
+6 x 30, which had 23). The anneal costs about 0.1 to 0.35 s a season (625 ms to 744 ms on
+average over the grid, `eval/bowling-repeat-anneal.txt`).
+
+Not done: the seasons the solver did not move in 400 s (18 x 27, 20 x 30, 20 x 40, 22 x 23, 24 x
+35: still 18 to 44) need a longer run or a better model (symmetry breaking on the repeat
+indicators, or the count model of eval/bowling-count-model.py with repeats); lane-limit shape
+answers (`bowling-avoid-shapes.mjs`) were not re-solved for repeats; the lane-limit grids
+(`eval/bowling-lane-avoid.txt`, `eval/bowling-avoid-shapes.txt`) were not re-measured for
+repeats (their balance cannot change: the anneal keeps only in-target seasons).
+
+## Five or more limited teams: a refused week re-dealt (2026-11-18)
 
 The stored shape answers cover up to four limited teams; with five or more the page runs the
 search on slot t = team t of the circle method. That dealing can make a week impossible that
