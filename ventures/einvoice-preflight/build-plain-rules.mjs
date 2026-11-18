@@ -9,6 +9,8 @@
 // replaced: the PINT, ZATCA, CIUS-RO/PT and NLCIUS sets other build-*-rules.mjs
 // scripts add stay listed. EINVOICE_PLAIN_ONLY=peppol-ubl,peppol-cii rebuilds just
 // those sets and leaves the fontoxpath bundle alone (2026-11-14: Peppol BIS 3.0.22).
+// peppol-next-ubl/cii is the coming Peppol release (3.1.0, in force 2027-02-24) from
+// OpenPeppol's release branch, EINVOICE_PEPPOL_NEXT_BRANCH (schematron-core.mjs, PEPPOL_NEXT).
 import { execFileSync } from "node:child_process";
 import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
@@ -30,12 +32,14 @@ mkdirSync(out, { recursive: true });
 const en = process.argv[2] || clone("https://github.com/ConnectingEurope/eInvoicing-EN16931", join(work, "en16931"));
 const xr = clone("https://github.com/itplr-kosit/xrechnung-schematron", join(work, "xrechnung"));
 const pe = clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol"));
+const nextBranch = process.env.EINVOICE_PEPPOL_NEXT_BRANCH || "2026-Q4-QA2";
 // CIUS-RO 1.0.9 is built on EN 16931 validation 1.3.8, so a Romanian file gets that
 // release as its base (schematron-core.mjs, ADDONS["cius-ro"].base). Tag validation-1.3.8.
 const only = (process.env.EINVOICE_PLAIN_ONLY || "").split(",").map((s) => s.trim()).filter(Boolean);
 const want = (name) => !only.length || only.includes(name);
 const en138 = !want("en16931-1.3.8-ubl") ? null : process.env.EINVOICE_EN138 || clone("https://github.com/ConnectingEurope/eInvoicing-EN16931", join(work, "en16931-1.3.8"), "validation-1.3.8");
 
+const peNext = want("peppol-next-ubl") || want("peppol-next-cii") ? clone("https://github.com/OpenPEPPOL/peppol-bis-invoice-3", join(work, "peppol-next"), nextBranch) : null;
 const sets = [
   ["en16931-ubl", join(en, "ubl/schematron/preprocessed/EN16931-UBL-validation-preprocessed.sch"), en, "eInvoicing-EN16931 (EUPL-1.2)"],
   ["en16931-cii", join(en, "cii/schematron/preprocessed/EN16931-CII-validation-preprocessed.sch"), en, "eInvoicing-EN16931 (EUPL-1.2)"],
@@ -43,6 +47,8 @@ const sets = [
   ["xrechnung-cii", join(xr, "src/validation/schematron/cii/XRechnung-CII-validation.sch"), xr, "xrechnung-schematron (Apache-2.0)"],
   ["peppol-ubl", join(pe, "rules/sch/PEPPOL-EN16931-UBL.sch"), pe, "peppol-bis-invoice-3 (MPL-2.0)"],
   ["peppol-cii", join(pe, "rules/sch/PEPPOL-EN16931-CII.sch"), pe, "peppol-bis-invoice-3 (MPL-2.0)"],
+  ["peppol-next-ubl", join(peNext || "", "rules/sch/PEPPOL-EN16931-UBL.sch"), peNext, `peppol-bis-invoice-3 branch ${nextBranch}, BIS Billing 3.1.0 (MPL-2.0)`],
+  ["peppol-next-cii", join(peNext || "", "rules/sch/PEPPOL-EN16931-CII.sch"), peNext, `peppol-bis-invoice-3 branch ${nextBranch}, BIS Billing 3.1.0 (MPL-2.0)`],
   ["en16931-1.3.8-ubl", join(en138 || "", "ubl/schematron/preprocessed/EN16931-UBL-validation-preprocessed.sch"), en138, "eInvoicing-EN16931 validation-1.3.8 (EUPL-1.2), the base CIUS-RO 1.0.9 runs on"],
 ];
 const manifestFile = join(out, "manifest.json");

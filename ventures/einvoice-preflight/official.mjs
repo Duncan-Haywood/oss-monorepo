@@ -14,7 +14,7 @@ function textOrBytes(source) {
   return typeof source === "string" ? new TextEncoder().encode(source) : source;
 }
 
-export async function addOfficialFindings(result, inputs, { profile = "", fetchFn = globalThis.fetch, base = "", runner } = {}) {
+export async function addOfficialFindings(result, inputs, { profile = "", peppolNext = false, fetchFn = globalThis.fetch, base = "", runner } = {}) {
   if (runner === undefined) runner = await loadBrowserRunner({ base, fetchFn });
   const byName = new Map(inputs.map((i) => [i.name, i]));
   for (const report of result.reports) {
@@ -23,7 +23,7 @@ export async function addOfficialFindings(result, inputs, { profile = "", fetchF
     if (!input || /\.json$/i.test(report.file)) continue;
     if (runner) {
       try {
-        const local = await runner(typeof input.source === "string" ? input.source : new TextDecoder().decode(input.source), { profile });
+        const local = await runner(typeof input.source === "string" ? input.source : new TextDecoder().decode(input.source), { profile, peppolNext });
         if (local.status === "ok") {
           report.schematron = "ok";
           report.schematronWhere = "browser";
@@ -38,6 +38,7 @@ export async function addOfficialFindings(result, inputs, { profile = "", fetchF
     try {
       const query = new URLSearchParams({ schematron: "1", name: report.file });
       if (profile) query.set("profile", profile);
+      if (peppolNext) query.set("peppol", "next");
       const res = await fetchFn(`${base}v1/validate?${query}`, { method: "POST", body: textOrBytes(input.source) });
       if (!res.ok) continue;
       const body = await res.json();
