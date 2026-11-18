@@ -2,7 +2,7 @@
 // Subscriptions: read, and nothing else. This code never writes to Stripe.
 import { monthlyAmount } from "./metrics.mjs";
 
-// One Stripe subscription -> {id, customer, status, mrr, currency, created, endedAt}.
+// One Stripe subscription -> {id, customer, status, mrr, currency, created, endedAt, trialEnd}.
 // Every item is normalised to a month and summed; a percent-off discount is
 // netted. Fixed-amount coupons and metered usage are NOT included (README says so).
 export function normalizeSubscription(s) {
@@ -35,6 +35,8 @@ export function normalizeSubscription(s) {
     currency,
     created: (s.created || 0) * 1000,
     endedAt: s.ended_at ? s.ended_at * 1000 : null,
+    // When the free trial ended (or will end); history counts MRR from here.
+    trialEnd: s.trial_end ? s.trial_end * 1000 : null,
   };
 }
 

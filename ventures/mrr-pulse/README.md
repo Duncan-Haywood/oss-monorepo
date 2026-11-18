@@ -42,12 +42,16 @@ no multi-currency roll-up, no non-Stripe billing. It does not tell you what your
   quick ratio ((new + expansion + reactivation) ÷ (churn + contraction)).
 - **First sync is approximate.** Stripe has no price history, so the previous
   12 months are rebuilt from start and end dates at today's prices (marked `~`).
+  A subscription counts from the end of its free trial (Stripe's `trial_end`, or
+  a `Trial End` CSV column), so a trial canceled before it paid is neither new
+  MRR nor churn.
   Expansion and contraction appear from the first sync onward, which means the
   server must keep running with its state file kept to build them.
 - **Retention by signup month** (dashboard and `/v1/cohorts`): of each month's
   new subscriptions, the share still active at the end of month 0, 1, 2 ...
   Logo retention is exact from start and end dates; the revenue share uses
-  today's prices. Trials and paused subscriptions are left out, and a
+  today's prices. Trials and paused subscriptions are left out (a subscription
+  joins the cohort of the month its trial ended), and a
   customer with two subscriptions counts twice.
 - **MRR by plan and customer concentration** (dashboard and `/v1/plans`):
   MRR, subscriptions and share per plan (price nickname, else product id;
