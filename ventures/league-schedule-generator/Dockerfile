@@ -1,6 +1,6 @@
 FROM node:22-alpine
 WORKDIR /app
-COPY calc.mjs carryover.mjs orient.mjs nights.mjs session-designs.mjs odd-designs.mjs availability.mjs subs.mjs mailer.mjs registration.mjs changes.mjs confirm.mjs reschedule.mjs announcements.mjs server.mjs ./
+COPY calc.mjs carryover.mjs orient.mjs nights.mjs session-designs.mjs odd-designs.mjs availability.mjs subs.mjs mailer.mjs registration.mjs changes.mjs confirm.mjs reschedule.mjs announcements.mjs waivers.mjs server.mjs ./
 COPY wasm/minplus-wasm.mjs ./wasm/
 RUN mkdir /data && chown node /data
 USER node
