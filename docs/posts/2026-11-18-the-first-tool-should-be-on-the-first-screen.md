@@ -3,7 +3,7 @@ title: "The first tool should be on the first screen"
 seo_title: "Shorter intros put the first calculator on a phone's first screen"
 date: 2026-11-18
 tags: [polish, design, platform]
-description: "Four of the site's 31 'for' pages opened with an intro so long that the first tool started below a phone's first screen. Cutting about 30 words from each fixed it, and a test now holds the line."
+description: "Four of 31 audience pages opened with intros so long the first tool sat below a phone's first screen. Shorter intros fixed it; a test keeps it fixed."
 ---
 
 The site's "for" pages gather free tools by who uses them: [roofers](https://marisstella.app/c/for-roofers/),
