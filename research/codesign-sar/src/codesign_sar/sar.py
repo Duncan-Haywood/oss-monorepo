@@ -90,7 +90,8 @@ def run(x, policy, segs):
         h = size
         if kind == "up":
             P = min(T / R, mu * W)
-            ok = _climb_ok(R, h, W, P, T, mu) or 0.5 * RETAIN * vo ** 2 >= G * h * 1.0
+            # momentum helps only while the edge is below the axle: a step at or above R stops the wheel whatever its speed
+            ok = _climb_ok(R, h, W, P, T, mu) or (h < R and 0.5 * RETAIN * vo ** 2 >= G * h)
             if ok and h > 0:
                 # tip back: CoM passes behind the rear contact when tan(pitch) > xc/hc
                 pitch = math.asin(min(1.0, h / Leff))
@@ -137,34 +138,66 @@ def run(x, policy, segs):
     return dict(distance_m=dist, falls=falls, recoveries=rec, energy_J=energy, stuck=0)
 
 
+def objective(x, rs):
+    """J over a list of run() results: mean distance / 20 m - 0.05 falls - 0.02 recoveries - 0.002 x energy per metre."""
+    n = len(rs)
+    dist = sum(r["distance_m"] for r in rs) / n
+    falls = sum(r["falls"] for r in rs) / n
+    rec = sum(r["recoveries"] for r in rs) / n
+    en = sum(r["energy_J"] for r in rs) / n
+    epm = en / dist if dist > 0 else None
+    J = dist / (N_SEG * SEG_M) - 0.05 * falls - 0.02 * rec - (0.002 * epm if epm else 0.1)
+    return J, dist, falls, rec, epm
+
+
+_TERRAIN = {}
+
+
+def terrain(seed):
+    if seed not in _TERRAIN:
+        _TERRAIN[seed] = make_terrain(seed)
+    return _TERRAIN[seed]
+
+
 def policy_value(x, p, seeds):
-    tot = 0.0
-    for s in seeds:
-        r = run(x, p, make_terrain(s))
-        tot += r["distance_m"] - 2.0 * r["falls"] - 0.5 * r["recoveries"]
-    return tot / len(seeds)
+    """Training objective: the same J the design is scored on, over the training terrains only."""
+    return objective(x, [run(x, p, terrain(s)) for s in seeds])[0]
 
 
-def train_policy(x, seed, train_seeds=range(100, 106), iters=6, pop=8):
-    """Small evolution-strategies search over (v_cruise, v_obs, deploy_frac): 48 policy rollouts-sets per design
-    on 6 training terrains. Not PPO; README says so."""
-    rng = random.Random(seed)
-    lo, hi = (0.1, 0.05, 0.0), (1.5, 1.5, 1.2)
-    mean = [0.6, 0.4, 0.4]
-    sig = [0.3, 0.3, 0.3]
-    best = (policy_value(x, tuple(mean), train_seeds), tuple(mean))
-    for _ in range(iters):
-        cand = []
-        for _ in range(pop):
-            p = tuple(min(hi[i], max(lo[i], mean[i] + sig[i] * rng.gauss(0, 1))) for i in range(3))
-            cand.append((policy_value(x, p, train_seeds), p))
-        cand.sort(reverse=True)
-        top = cand[: pop // 2]
-        mean = [sum(c[1][i] for c in top) / len(top) for i in range(3)]
-        sig = [s * 0.8 for s in sig]
-        if cand[0][0] > best[0]:
-            best = cand[0]
-    return best[1]
+POLICY_LO, POLICY_HI = (0.1, 0.05, 0.0), (1.5, 1.5, 1.2)
+DEFAULT_POLICY = (0.6, 0.4, 0.4)
+
+
+def train_policy(x, seed=0, train_seeds=range(100, 106), refine=4):
+    """Policy search over (v_cruise, v_obs, deploy_frac) on 6 training terrains, maximising training J.
+    A coarse grid (3 cruise x 15 approach x 5 deploy speeds; deploy only when the design has a flipper), then
+    `refine` rounds of coordinate search with halving steps around the best point. Deterministic: `seed` is kept
+    for the optimisers' call signature only. Replaced a 6 x 8 evolution-strategies search on 2026-11-18 that
+    returned its start in 93% of feasible designs (portfolio/quality/audits/2026-11-17-codesign-sar.json)."""
+    lo, hi = POLICY_LO, POLICY_HI
+    vcs = (0.5, 1.0, 1.5)
+    vos = tuple(round(0.1 * k, 2) for k in range(1, 16))
+    ds = (0.0, 0.3, 0.6, 0.9, 1.2) if x[2] > 0 else (DEFAULT_POLICY[2],)
+    best_v, best_p = policy_value(x, DEFAULT_POLICY, train_seeds), DEFAULT_POLICY
+    for vc in vcs:
+        for vo in vos:
+            for d in ds:
+                v = policy_value(x, (vc, vo, d), train_seeds)
+                if v > best_v + 1e-12:
+                    best_v, best_p = v, (vc, vo, d)
+    step = [0.25, 0.05, 0.15]
+    dims = (0, 1, 2) if x[2] > 0 else (0, 1)
+    for _ in range(refine):
+        for i in dims:
+            for sgn in (1, -1):
+                p = list(best_p)
+                p[i] = min(hi[i], max(lo[i], p[i] + sgn * step[i]))
+                p = tuple(p)
+                v = policy_value(x, p, train_seeds)
+                if v > best_v + 1e-12:
+                    best_v, best_p = v, p
+        step = [s / 2 for s in step]
+    return best_p
 
 
 TEST_SEEDS = tuple(range(1000, 1012))
@@ -178,12 +211,7 @@ def evaluate(x, seed=0):
     if cost > COST_CAP:
         return dict(base, J=-1.0, feasible=False, distance_m=0.0, falls=0.0, stuck=0.0, energy_per_m=None, policy=None)
     pol = train_policy(x, seed)
-    rs = [run(x, pol, make_terrain(s)) for s in TEST_SEEDS]
-    dist = sum(r["distance_m"] for r in rs) / len(rs)
-    falls = sum(r["falls"] for r in rs) / len(rs)
-    rec = sum(r["recoveries"] for r in rs) / len(rs)
-    en = sum(r["energy_J"] for r in rs) / len(rs)
-    epm = en / dist if dist > 0 else None
-    J = dist / (N_SEG * SEG_M) - 0.05 * falls - 0.02 * rec - (0.002 * epm if epm else 0.1)
+    rs = [run(x, pol, terrain(s)) for s in TEST_SEEDS]
+    J, dist, falls, rec, epm = objective(x, rs)
     return dict(base, J=J, feasible=True, distance_m=dist, falls=falls, recoveries=rec, stuck=sum(r["stuck"] for r in rs) / len(rs),
                 energy_per_m=epm, policy=list(pol))
