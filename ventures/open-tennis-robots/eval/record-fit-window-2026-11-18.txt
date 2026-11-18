@@ -34,3 +34,34 @@ and 0.55 s; seed 11, launcher 2. PREDICTION: rms falls on every held-out jitter 
 them, worst jitter wheel lower; noise-free builds within 0.10 points. DECISION RULE: ship 24 (LOOP_FIT_AFTER) only if
 (a) pooled rms over all held-out fits is lower than with 8, (b) pooled jitter rms falls by at least 10%, (c) no build's
 rms rises by more than 0.10 points; else keep 8.
+
+## held out: --score --heldout (8 builds, seed 11, launcher 2), run after the pre-registration was committed (12ed51ffe)
+514 record fits at 1000 rpm and up, 8 builds (seed 11, launcher 2), ESC told; reading / true drop per window (revolutions after the anchor)
+sd = scatter of reading / true about 1 (rms of reading / true - 1), so it counts bias too; >0.5% = fits more than 0.5% off; worst = largest |reading / true - 1|
+
+build (plant, wheel lag s)            n | after  8: mean rms >0.5% worst | after 12: mean rms >0.5% worst | after 16: mean rms >0.5% worst | after 24: mean rms >0.5% worst
+first-order, 0.45                    64 | 0.9994 0.17%   2 0.59% | 0.9997 0.17%   1 0.74% | 0.9997 0.19%   2 0.84% | 0.9998 0.18%   2 0.84%
+first-order, 0.55                    64 | 0.9991 0.16%   0 0.48% | 0.9994 0.15%   0 0.46% | 0.9995 0.16%   0 0.46% | 0.9997 0.15%   0 0.46%
+tach 3 us, 0.45                      64 | 0.9984 0.69%  26 2.49% | 0.9988 0.62%  21 2.09% | 0.9985 0.64%  22 2.13% | 0.9988 0.54%  17 1.79%
+tach 3 us, 0.55                      63 | 0.9988 0.68%  25 2.01% | 0.9986 0.62%  22 2.19% | 0.9986 0.60%  23 1.98% | 0.9988 0.54%  25 1.18%
+ESC 100 ms told, 0.45                64 | 0.9991 0.15%   1 0.50% | 0.9995 0.14%   2 0.54% | 0.9994 0.15%   2 0.58% | 0.9994 0.16%   2 0.58%
+ESC 100 ms told, 0.55                65 | 0.9995 0.15%   0 0.31% | 0.9998 0.14%   0 0.44% | 0.9998 0.15%   0 0.45% | 0.9997 0.14%   0 0.45%
+ESC 120 ms + tach 3 us, 0.45         64 | 0.9989 0.54%  18 1.47% | 0.9996 0.39%  12 0.99% | 0.9998 0.39%  11 1.12% | 0.9995 0.37%  12 0.93%
+ESC 120 ms + tach 3 us, 0.55         66 | 0.9990 0.55%  18 2.26% | 0.9991 0.45%  16 1.35% | 0.9993 0.43%  13 1.37% | 0.9992 0.41%  12 1.12%
+all                                 514 | 0.9990 0.45%  90 2.49% | 0.9993 0.39%  74 2.19% | 0.9993 0.39%  73 2.13% | 0.9994 0.35%  70 1.79%
+
+by speed band (all builds)
+1000-2000 rpm                        64 | 0.9989 0.22%   2 0.55% | 0.9988 0.23%   2 0.77% | 0.9988 0.23%   2 0.77% | 0.9988 0.23%   2 0.77%
+2000-3000 rpm                        75 | 0.9995 0.25%   4 0.68% | 1.0000 0.23%   3 0.74% | 0.9999 0.26%   7 0.84% | 0.9999 0.25%   4 0.84%
+3000-4500 rpm                       183 | 0.9991 0.39%  33 1.53% | 0.9992 0.35%  26 1.26% | 0.9992 0.35%  27 1.17% | 0.9993 0.34%  24 1.17%
+4500-up rpm                         192 | 0.9989 0.60%  51 2.49% | 0.9993 0.50%  43 2.19% | 0.9994 0.49%  37 2.13% | 0.9994 0.42%  40 1.79%
+
+by drill (all builds)
+calibration                         170 | 0.9989 0.45%  29 2.49% | 0.9993 0.42%  28 2.09% | 0.9992 0.41%  30 2.13% | 0.9993 0.36%  24 1.79%
+slow                                344 | 0.9991 0.45%  61 2.26% | 0.9993 0.38%  46 2.19% | 0.9994 0.38%  43 1.98% | 0.9994 0.35%  46 1.45%
+
+snapshot revolutions 23-119 (median 64); fits with no reading per window: 8: 0, 12: 0, 16: 0, 24: 0
+
+pooled tach-jitter builds (tach 3 us and ESC 120 ms + tach 3 us, 257 fits): rms 0.62% with 8, 0.47% with 24 (-24%)
+
+RESULT: held. (a) pooled rms 0.45% -> 0.35%; (b) jitter builds 0.62% -> 0.47%, every jitter build lower (0.69/0.68/0.54/0.55% -> 0.54/0.54/0.37/0.41%), worst jitter wheel 2.49% -> 1.79%; (c) largest rise on any build +0.01 points (first-order 0.45 s, ESC 100 ms 0.45 s). The record's fit now reads 24 (controller.LOOP_FIT_AFTER).

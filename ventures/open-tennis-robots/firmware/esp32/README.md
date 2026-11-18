@@ -2362,8 +2362,8 @@ against the same unknowns, and what it could cost is more of whatever the model 
 
 `tests/record_fit_window.py` runs the calibration drill and min_fit_heldout's slow drill per build, keeps every board
 record fit's inputs (snapshot periods, ESC-lagged ticks) with the simulator's true drop, and refits each offline with
-8, 12, 16 and 24 revolutions after the anchor (eval/record-fit-window-2026-11-18.txt; inputs in
-eval/record-fit-window-rows-2026-11-18.jsonl.gz, wheels at 1,000 rpm and up). Design builds: first-order, tach 3 us
+8, 12, 16 and 24 revolutions after the anchor (eval/record-fit-window-2026-11-18.txt; wheels at 1,000 rpm and up).
+The captured inputs (5.6 MB compressed) are not kept: the capture is seeded and reruns in about 6 minutes on 4 cores. Design builds: first-order, tach 3 us
 jitter, ESC 50 ms told and ESC 150 ms told, wheel lags 0.35 and 0.6 s, seed 7, launcher 0, 513 fits. rms is reading /
 true drop about 1, bias included:
 
@@ -2391,3 +2391,36 @@ builds rms moves by 0.10 points or less either way. DECISION RULE: the record's 
 `controller.LOOP_FIT_AFTER`) only if (a) pooled rms over all held-out fits is lower with 24 than with 8, (b) the
 pooled jitter builds' rms falls by at least 10%, and (c) no held-out build's rms rises by more than 0.10 points.
 Otherwise it keeps 8 and this section reports the miss.
+
+**Held out** (run after the pre-registration was committed, 12ed51ffe; 514 fits):
+
+| build | after 8 | 12 | 16 | 24 |
+| --- | --- | --- | --- | --- |
+| first-order, 0.45 / 0.55 s | 0.17% / 0.16% | 0.17% / 0.15% | 0.19% / 0.16% | 0.18% / 0.15% |
+| tach 3 us, 0.45 s | 0.69% (worst 2.49%) | 0.62% | 0.64% | 0.54% (worst 1.79%) |
+| tach 3 us, 0.55 s | 0.68% (worst 2.01%) | 0.62% | 0.60% | 0.54% (worst 1.18%) |
+| ESC 100 ms told, 0.45 / 0.55 s | 0.15% / 0.15% | 0.14% / 0.14% | 0.15% / 0.15% | 0.16% / 0.14% |
+| ESC 120 ms + tach 3 us, 0.45 s | 0.54% | 0.39% | 0.39% | 0.37% |
+| ESC 120 ms + tach 3 us, 0.55 s | 0.55% (worst 2.26%) | 0.45% | 0.43% | 0.41% (worst 1.12%) |
+| all 514 | 0.45% (90 over 0.5%) | 0.39% (74) | 0.39% (73) | 0.35% (70) |
+
+It held on every clause: (a) pooled rms 0.45% to 0.35%; (b) the four jitter builds pooled (257 fits) 0.62% to 0.47%,
+24% lower, each of them lower, the worst jitter wheel 2.49% to 1.79%; (c) the largest rise on any build was 0.01
+points. The design's first-order 0.35 s loss (0.20% to 0.29%) did not recur at 0.45 s, so it reads as that build's
+own, not a cost of the window on noise-free wheels in general.
+
+**What shipped.** `controller.LOOP_FIT_AFTER = 24`, passed by `LaunchCheck._loop_fit`; `drop_from_commands_steps`
+keeps its default of 8 for every other caller. The take survey (`TAKE_SURVEY_LEVELS`) still reads 8: its picks were
+measured with 8 and are not retested here. `tests/test_host.py` checks a 4,500 rpm wheel with a 3 us edge timer reads
+closer with 24 than with 8 (rms 0.51% to 0.44% over 24 ball moments).
+
+**The cost.** A record fit has about 29 rows instead of 13, so each of its ~36 steps does about 2.2 times the
+arithmetic; on the simulator each step is one control tick, so nothing moved. On a real ESP32 a step that outlasts
+its tick delays the record's re-send, not the stroke; time it there with the survey's 16-revolution step (the section
+above) before trusting either. When the snapshot is shorter than 24 revolutions after the ball (23-119 here) the
+window stops at its end, as before.
+
+**Not known.** All simulated, one seed per set: a first-order wheel, a first-order ESC and the simulator's Gaussian
+edge jitter. A real Hall tach's jitter may be larger, or correlated with the wheel's angle (a magnet's position),
+which averaging over more revolutions would not remove. Next: whether the take survey gains the same with 24, and a
+real tach's edge jitter logged on a spinning wheel.

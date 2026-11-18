@@ -383,13 +383,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Long ESC lags: the survey read too
-      little of the recovery" (survey refits read 16 revolutions after the ball, not
-      8: held out 28 of 28 drills, ESC 0-230 ms, within 15%, was 21;
-      eval/esc-survey-window-2026-11-18.txt). Next: the record fit's window on slow
-      wheels (same script); short lags read ~10% low with 16; SURVEY_QUEUE 3's heap;
-      ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own
-      speed loop.
+      see firmware/esp32/README.md, latest "The record's drop fit and its window"
+      (record fit reads 24 revolutions after the ball, LOOP_FIT_AFTER: held out,
+      jittery-tach rms 0.62% to 0.47%, noise-free unchanged;
+      eval/record-fit-window-2026-11-18.txt). Next: the take survey with 24
+      (tests/record_fit_window.py); short ESC lags read ~10% low with 16;
+      SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels;
+      an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

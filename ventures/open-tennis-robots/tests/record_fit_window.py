@@ -78,8 +78,8 @@ def capture(args):
                 if item is not None:
                     res = item[1]
                 yield item
-            # the record's fit is the only caller that passes neither `after` nor `refine` (the surveys pass both)
-            if "after" not in k and "refine" not in k and res is not None and balls:
+            # the record's fit passes neither `refine` (the ESC survey does) nor `levels` (the take survey does)
+            if "refine" not in k and "levels" not in k and res is not None and balls:
                 before, after = balls[-1]
                 w = min((0, 1), key=lambda i: abs(before[i] - res[1]))
                 if abs(before[w] - res[1]) < 0.05 * before[w]:
