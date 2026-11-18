@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtJH6PUjFVoDvWqdY5W",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T23:07:19Z",
+  "ended": "2026-11-18T23:13:57Z",
+  "wall_minutes": 6.88,
+  "tokens_in": 3730455,
+  "tokens_out": 24922,
+  "cost_usd": 1.9567,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17459",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps 1-5 describe a sample round only; on a fix-mode day `sample` redirects to `queue`, so the prompt's own procedure does not apply and the README's 'Five modes' table is the real guide."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to search open PRs with search_pull_requests (MCP), which is not available here; the gh api search/issues route from the session guidance worked."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-the-rover-policy-trains.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw; 10 high defects open). Queue seed 2026-11-18-ef30. Subject: research/codesign-sar (2026-11-17 audit defects 0,1,2,3,5,7 marked fixed_by PR 17459; defect 4, tip-back unreachable, left open in README Known gaps). train_policy replaced by grid + coordinate search on training J; rerun results.txt reproducible (run twice, identical). Best J 0.783 -> 0.863; audit's independent 0.862 for [90,320,0,0.6,5] reproduced and pinned. Tests 8 -> 13, all pass; quality_mutate: return DEFAULT_POLICY caught, h<R guard removed caught, tip-forward disabled caught. Share meeting the bar: not measured this round (fix mode; scores unchanged until re-audit). Fix PRs: 17459.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d6901e1a-f161-5799-935f-222c39477ee6",
+    "transcripts": 1,
+    "first": "2026-11-18T23:07:19Z",
+    "last": "2026-11-18T23:14:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 24922,
+        "thinking": 6097,
+        "cache_read": 3639113,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91263,
+        "api_equivalent_usd": 1.9567,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 24922,
+      "thinking": 6097,
+      "cache_read": 3639113,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91263,
+      "api_equivalent_usd": 1.9567,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.88,
+      "active_minutes": 6.88,
+      "model_minutes": 4.89,
+      "tool_minutes": 2.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a research engineer diagnosing the policy search, rewriting it, rerunning, re-deriving the claims and writing tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 306.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
