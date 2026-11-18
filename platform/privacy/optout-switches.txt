@@ -252,6 +252,7 @@ ventures/concrete-bid-calculator/usage.mjs
 ventures/concrete-lifting-bid-calculator/usage.mjs
 ventures/concrete-maturity/usage.mjs
 ventures/conformal-prediction-intervals/usage.mjs
+ventures/conjoint-analysis/usage.mjs
 ventures/consent-change-record/tool/usage.mjs
 ventures/consent-change-record/usage.mjs
 ventures/consignment-markdown-planner/usage.mjs
