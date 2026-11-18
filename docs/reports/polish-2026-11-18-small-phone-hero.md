@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design, accessibility]
+date: 2026-11-18
+---
 # Polish: the page hero on a 320 px phone
 
 Date: 2026-11-18. Track: polish/0. PR #17273. Picked item 2 of "Still weakest" in
