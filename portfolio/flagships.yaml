@@ -196,19 +196,19 @@ flagships:
       on 5 fresh bee dances (0.244 vs 0.337, README; muted note ships); update-rate:
       pegs 4 of 7 dated; JHU state switches to weekly reporting 20 of 27, returns to
       more days 0 of 8 (README "A provider's own schedule changes"); short returns:
-      weekday cost 0 to 116 of 200, bar 120 (README "Short returns, with the day of
-      the week"); next per-stretch dow-or-chain choice. Stale feeds: clumped LR
+      per-stretch weekday-or-chain test passes sims (200 of 200, 0 false) but dates
+      3 of 8 JHU returns, bar 4 (README "the model chosen per stretch"); next a
+      same-count day-shift null and a real-drop guard. Stale feeds: clumped LR
       shipped; next a real documented carry-forward. joint drift (measured, not
       offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
       drift model: t-walk increments, biweight on fresh data, why it absorbs seat
       belts and quality control 4, its AR(1) term; two covariates: harmless one's
       warning 0 of 170 false finds, 1.27x bias (bar failed); slope and pulse shocks
       2026-11-18: warning holds 42 of 43 false finds (README "Shocks that are not
-      steps"); the note quotes it; two shocked donors 2026-11-18 (README "Two
-      shocked donors"): 54-56% to 27-28%, both left out 53-56%, one 35%; notes quote
-      it. Shape word vs the panel's trend (README, 2026-11-18): compounding panels'
-      wrongly worded units 80% to 22%, bar 1 failed by 0.4 points on a wandering
-      line; next re-test scored where it switches. More open items: NEXT.md.
+      steps"); the note quotes it; notes quote it. Shape word vs the panel's trend
+      (README, 2026-11-18): compounding panels' wrongly worded units 80% to 22%, bar
+      1 failed by 0.4 points on a wandering line; next re-test scored where it
+      switches. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,

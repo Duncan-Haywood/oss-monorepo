@@ -37,3 +37,4 @@
 - (2026-11-18) gapShape word on listed units (pulse faded 90%, 20% false)
 - (2026-11-18) donor slope or pulse 2026-11-18 (README "A donor's own event that is not a step"): pulse 12-14%, slope 29-35%, step 37-40%
 - (2026-11-18) anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55% backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A shock before the date")
+- (2026-11-18) two shocked donors 2026-11-18 (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one 35%
