@@ -1,5 +1,19 @@
 # build-data log
 
+## Session 102, 2026-11-18: test years 2017 and 2018, with a 4- and 6-year cut beside the four rules (pre-registration)
+
+Why: session 100's next step (3) asked whether 2021 and 2022 or 2019 and 2020 are the unusual pair of test years, and session 101 added a finer staleness grid (4 and 6 years) to see whether the 5-year cut sits on a plateau. Test years 2017 and 2018 come before every year any of the four source rules or the target-cohort selector was looked at.
+- Method: unchanged `rounds.py` (`CPIN_TARGET_SEL=1`, `CPIN_TAUS=0.9`, `CPIN_ROWS_DIR`), with two new variants `cpin_es3_nc4` and `cpin_es3_nc6` (the staleness rule at 1,461 and 2,191 days). `src/tfol_boot.py RESULTS ROWS_DIR --early` (`early_summary`) picks by k6_loss among the four session-98 candidates only, scores the pick on the test year, resamples rows (B = 2,000, iid, seed 100) and reports nc4 and nc6 beside them, outside the pick and the oracle.
+Design (fixed before any model run): cascade2 class; variants nc3, nc4, nc5, nc6, nc5_stamp, nc5_stamp_len; H = sf, seattle (sources: the other two of SF, Seattle, Austin); Y = 2017, 2018; 3 seeds; q0.9 only; fresh pull 2026-11-18; `--score --keep-open --status-dir`; one process per cell at 1 thread; output `results/rounds_score_early_i2c.json` and `_boot.json`. Oracle = the lowest test q0.9 among the four candidates.
+Predictions (q0.9 = cascade2's mean pinball loss over 3 seeds on completed test rows, days):
+- (E0, check) The saved rows reproduce every JSON mean within 0.001.
+- (E1) In both Seattle cells the oracle is a 5-year rule (nc5, stamp or stamp_len), as in all four Seattle years so far.
+- (E2) In both SF cells nc5 minus nc3 on the test year is below zero with its 95% row-bootstrap interval below zero: 2021 and 2022 are the unusual pair.
+- (E3) k6_loss picks nc3 in at least 3 of the 4 cells (the selector's bias toward the shorter tail persists).
+- (E4) The fixed nc5 rule's mean regret over the 4 cells is at most 0.5 days and below nc3's.
+- (E5, plateau) nc4's and nc6's mean test q0.9 over the 4 cells are each within 0.5 days of nc5's.
+Refuted if any part fails. Risks named in advance: the Y-6 cohorts are 2011 and 2012 and the sources' training years reach back into the 2008 to 2012 slump, so cohort drift may be larger than in later cells; Seattle's older cohorts may be thin; the 6-year cut keeps permits issued before 2011 (Y = 2017) that the feeds may hold few of, so nc6 may equal nc5 where nothing is open between 5 and 6 years.
+
 ## Session 101, 2026-11-17: the row bootstrap session 100 asked for: the target-cohort selector is stable and wrong, not noisy; in all 8 SF and Seattle city-years at least 96% of 2,000 permit resamples keep the Y-6 pick on the same side, and the test-year preference for the 5-year cut in 2019 and 2020 has every 95% interval below zero; an independent rerun reproduces session 100's 2019 and 2020 fits to the digit; R0, R5 held, R1 to R4 refuted (as session 100 found)
 
 Why: this run was pre-registered in parallel with session 100 (commit 74d901bd4, 04:28 UTC, before any model run and before session 100's PR #16810 merged; neither run saw the other). It tested the same new cells (SF and Seattle, Y = 2019, 2020) and added what session 100 lacked and named as its next step (2): per-row predictions, so a paired bootstrap can say whether the selector's picks are noisy (right on average, flipping on resampled permits) or biased (stable and wrong). It also refit session 99's 2021 and 2022 cells to save their rows.
