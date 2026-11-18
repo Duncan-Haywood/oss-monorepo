@@ -548,9 +548,35 @@ export function energyTest(X, Y, { permutations = 199, seed = 42 } = {}) {
 // --------------------------------------------------------------------- CSV
 
 const isMissing = (s) => /^\s*(|na|n\/a|nan|null|none|\?|-)\s*$/i.test(String(s ?? ""));
-const numText = (s) => String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£,%\s]/g, "");
-const isNum = (s) => {
-  const t = numText(s);
+// In a decimal-comma file (detectDecimalComma: most European Excel exports,
+// semicolon- or tab-delimited) "1,5" is one and a half and "1.234,5" has a
+// thousands dot. Elsewhere a comma groups thousands.
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
+const numText = (s, decimalComma = false) => {
+  const t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
+  return decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t) ? t.replace(/\./g, "").replace(",", ".") : t.replace(/[$€£,%\s]/g, "");
+};
+const isNum = (s, decimalComma = false) => {
+  const t = numText(s, decimalComma);
   return t !== "" && Number.isFinite(Number(t));
 };
 
@@ -590,7 +616,7 @@ export function parseCsv(text) {
     rows.push(cells[i]);
   }
   if (!rows.length) return { error: "The CSV has a header but no data rows." };
-  return { columns, rows, delimiter: delim };
+  return { columns, rows, delimiter: delim, decimalComma: detectDecimalComma(cells, delim) };
 }
 
 /** Describe each column: numeric or not, and its distinct values (a group column has few). */
@@ -598,7 +624,7 @@ export function profileColumns(parsed) {
   return parsed.columns.map((name, j) => {
     const cells = parsed.rows.map((r) => r[j]);
     const present = cells.filter((c) => !isMissing(c));
-    const numeric = present.length > 0 && present.every(isNum);
+    const numeric = present.length > 0 && present.every((c) => isNum(c, parsed.decimalComma));
     const values = [...new Set(present)];
     const dateLike = present.length > 0 && present.slice(0, 50).every((c) => /^\d{4}-\d{2}-\d{2}/.test(c));
     return { name, numeric, missing: cells.length - present.length, distinct: values.length, values: values.slice(0, 50), dateLike };
@@ -692,7 +718,7 @@ export function analyze(input = {}) {
     const g = groups.indexOf(r[gi]);
     if (g < 0) continue;
     if (fi.some((j) => isMissing(r[j]))) { dropped++; continue; }
-    pts[g].push(fi.map((j) => Number(numText(r[j]))));
+    pts[g].push(fi.map((j) => Number(numText(r[j], parsed.decimalComma))));
   }
   if (dropped) warnings.push(`${dropped.toLocaleString("en-US")} row${dropped === 1 ? " has" : "s have"} a missing value in a chosen column and ${dropped === 1 ? "was" : "were"} left out.`);
   for (let g = 0; g < 2; g++) if (pts[g].length < 2) return { error: `Group "${groups[g]}" has ${pts[g].length} complete row${pts[g].length === 1 ? "" : "s"}; at least 2 are needed.` };

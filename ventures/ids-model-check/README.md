@@ -484,6 +484,17 @@ element, and reads property sets only where a name matches. The 68 files take
 39.4 s on the 219 MB federated model, where it took 63.1 s (71.3 s under a
 1 GB heap, where it took 105.0 s). Every report is identical.
 
+Since 2026-11-18 (`eval/file-order-candidates-2026-11-18.md`) a
+specification with no entity facet no longer walks every entity when one of
+its facets names a short list: the index its prefilter reads (property set
+holders, classification, material and relationship maps, the classes with a
+named attribute) gives the candidates, and they are put back in file order
+(an array of positions built once per model, since real exports do not number
+their entities in file order). On HHS MEP the 24 public specifications that
+take a list go from 896 to 305 ms of `applies`, and on the 219 MB federated
+model from 6.1 to 2.2 s (whole run 56.2 to 49.6 s); those that apply to most
+of the model still walk. Every report is identical.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones

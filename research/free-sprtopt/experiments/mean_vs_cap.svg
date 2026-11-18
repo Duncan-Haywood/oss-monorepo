@@ -34,7 +34,7 @@
 <circle cx="344.0" cy="192.3" r="3" fill="#1f6fb2"/>
 <circle cx="484.0" cy="197.9" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="197.4" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">grid-tuned SPRT (free-sprtcut)</text>
+<rect x="271.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="291.6" y="41" font-family="sans-serif" font-size="11">grid-tuned SPRT (free-sprtcut)</text>
 <polyline points="64.0,71.2 120.0,71.2 176.0,71.2 232.0,71.2 288.0,71.2 344.0,71.2 484.0,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="120.0" cy="71.2" r="3" fill="#2e8b57"/>
@@ -44,5 +44,5 @@
 <circle cx="344.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="484.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">fixed-size test</text>
+<rect x="491.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="511.6" y="41" font-family="sans-serif" font-size="11">fixed-size test</text>
 </svg>

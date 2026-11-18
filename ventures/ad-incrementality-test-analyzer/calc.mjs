@@ -26,6 +26,31 @@ export function parseDate(s) {
 }
 export const isoDay = (n) => new Date(n * 864e5).toISOString().slice(0, 10);
 
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
+// In a decimal-comma file (detectDecimalComma: most European Excel exports)
+// "1,5" is one and a half and "1.234,50" has a thousands dot, so those cells are
+// rewritten with a point before any number parsing strips commas as thousands
+// separators.
+const decimalCommaCell = (c) => c.replace(/^(\s*[-+(]?\s*[$€£]?\s*-?)(\d{1,3}(?:\.\d{3})+|\d+),(\d+)(\s*[%)$€£]?\s*)$/, (_, a, i, f, b) => `${a}${i.replace(/\./g, "")}.${f}${b}`);
 const cleanNum = (s) => {
   const v = Number(String(s).replace(/[$,\s]/g, ""));
   return Number.isFinite(v) && String(s).trim() !== "" ? v : NaN;
@@ -38,7 +63,8 @@ export function parseTable(text) {
   const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (lines.length < 2) return { error: "Paste or upload a table with a header row and at least two rows of data." };
   const delim = [",", "\t", ";"].map((d) => [d, lines[0].split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
-  const split = (l) => l.split(delim).map((c) => c.trim().replace(/^"|"$/g, ""));
+  const dc = detectDecimalComma(lines.map((l) => l.split(delim)), delim);
+  const split = (l) => l.split(delim).map((c) => c.trim().replace(/^"|"$/g, "")).map((c) => (dc ? decimalCommaCell(c) : c));
   const head = split(lines[0]).map((h) => h.toLowerCase());
   if (head.length < 3) return { error: "Need a date column and at least two more columns: either one column per store or region, or long rows of date, unit, value." };
   const warnings = [];

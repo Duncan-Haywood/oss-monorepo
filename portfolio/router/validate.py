@@ -170,6 +170,12 @@ def check_flagships(errors, path=FLAGSHIPS_PATH):
                 f"flagships.yaml: {entry.get('venture')} `hosts:` must be a list of http(s) URLs "
                 f"(allocate.py --venture probes each one), got {hosts!r}."
             )
+        when = entry.get("not_before")
+        if when is not None and not isinstance(when, date):
+            errors.append(
+                f"flagships.yaml: {entry.get('venture')} `not_before:` must be a bare "
+                f"YYYY-MM-DD date (allocate.py ranks the row as waiting until then), got {when!r}."
+            )
         n = len(str(entry.get("buildable") or "").strip())
         if n > FLAGSHIP_BUILDABLE_MAX:
             errors.append(

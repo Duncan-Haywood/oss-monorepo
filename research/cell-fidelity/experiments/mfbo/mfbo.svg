@@ -1,40 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of median charged wall time to reach within 1% of the best 100-cycle DFN design against candidate-pool size: co-kriging with five random full-model starts is slowest, the same search started from cheap runs stays close to the best screen at every size and beats GP-EI">
-<rect width="640" height="380" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Line plot of median charged wall time to reach within 1% of the best 100-cycle DFN design against candidate-pool size: co-kriging with five random full-model starts is slowest, the same search started from cheap runs stays close to the best screen at every size and beats GP-EI">
+<rect width="640" height="394" fill="#fff"/>
 <text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Co-kriging multi-fidelity search against screens and GP-EI, by pool size</text>
-<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
-<line x1="64" x2="624" y1="276.7" y2="276.7" stroke="#ddd"/><text x="58" y="280.7" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
-<line x1="64" x2="624" y1="229.4" y2="229.4" stroke="#ddd"/><text x="58" y="233.4" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
-<line x1="64" x2="624" y1="182.0" y2="182.0" stroke="#ddd"/><text x="58" y="186.0" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
-<line x1="64" x2="624" y1="134.7" y2="134.7" stroke="#ddd"/><text x="58" y="138.7" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
-<line x1="64" x2="624" y1="87.4" y2="87.4" stroke="#ddd"/><text x="58" y="91.4" text-anchor="end" font-family="sans-serif" font-size="11">250</text>
-<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
-<text x="176.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
-<text x="400.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">64</text>
-<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">96</text>
-<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">designs in the candidate pool</text>
-<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">median seconds to within 1% (30 seeds)</text>
-<polyline points="64.0,184.9 176.0,138.6 400.0,115.4 624.0,115.4" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="184.9" r="3" fill="#c0392b"/>
-<circle cx="176.0" cy="138.6" r="3" fill="#c0392b"/>
-<circle cx="400.0" cy="115.4" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="115.4" r="3" fill="#c0392b"/>
+<line x1="64" x2="624" y1="338.0" y2="338.0" stroke="#ddd"/><text x="58" y="342.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="290.7" y2="290.7" stroke="#ddd"/><text x="58" y="294.7" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
+<line x1="64" x2="624" y1="243.4" y2="243.4" stroke="#ddd"/><text x="58" y="247.4" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="196.0" y2="196.0" stroke="#ddd"/><text x="58" y="200.0" text-anchor="end" font-family="sans-serif" font-size="11">150</text>
+<line x1="64" x2="624" y1="148.7" y2="148.7" stroke="#ddd"/><text x="58" y="152.7" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="101.4" y2="101.4" stroke="#ddd"/><text x="58" y="105.4" text-anchor="end" font-family="sans-serif" font-size="11">250</text>
+<text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">16</text>
+<text x="176.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">32</text>
+<text x="400.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">64</text>
+<text x="624.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">96</text>
+<text x="344.0" y="382" text-anchor="middle" font-family="sans-serif" font-size="12">designs in the candidate pool</text>
+<text x="14" y="204.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 204.0)">median seconds to within 1% (30 seeds)</text>
+<polyline points="64.0,198.9 176.0,152.6 400.0,129.4 624.0,129.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="198.9" r="3" fill="#c0392b"/>
+<circle cx="176.0" cy="152.6" r="3" fill="#c0392b"/>
+<circle cx="400.0" cy="129.4" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="129.4" r="3" fill="#c0392b"/>
 <rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">GP-EI on DFN@100</text>
-<polyline points="64.0,261.7 176.0,234.1 400.0,179.0 624.0,135.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
-<circle cx="64.0" cy="261.7" r="3" fill="#1f6fb2"/>
-<circle cx="176.0" cy="234.1" r="3" fill="#1f6fb2"/>
-<circle cx="400.0" cy="179.0" r="3" fill="#1f6fb2"/>
-<circle cx="624.0" cy="135.4" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">SPM@100 screen (best screen at 64-96)</text>
-<polyline points="64.0,175.4 176.0,167.1 400.0,130.4 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
-<circle cx="64.0" cy="175.4" r="3" fill="#2e8b57"/>
-<circle cx="176.0" cy="167.1" r="3" fill="#2e8b57"/>
-<circle cx="400.0" cy="130.4" r="3" fill="#2e8b57"/>
-<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">coKrig MF-UCB DFN@2]  (planned start)</text>
-<polyline points="64.0,288.1 176.0,238.5 400.0,187.7 624.0,159.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
-<circle cx="64.0" cy="288.1" r="3" fill="#8e44ad"/>
-<circle cx="176.0" cy="238.5" r="3" fill="#8e44ad"/>
-<circle cx="400.0" cy="187.7" r="3" fill="#8e44ad"/>
-<circle cx="624.0" cy="159.4" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">coKrig MF-UCB DFN@2 cheap-start] </text>
+<polyline points="64.0,275.7 176.0,248.1 400.0,193.0 624.0,149.4" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="275.7" r="3" fill="#1f6fb2"/>
+<circle cx="176.0" cy="248.1" r="3" fill="#1f6fb2"/>
+<circle cx="400.0" cy="193.0" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="149.4" r="3" fill="#1f6fb2"/>
+<rect x="197.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="217.2" y="41" font-family="sans-serif" font-size="11">SPM@100 screen (best screen at 64-96)</text>
+<polyline points="64.0,189.4 176.0,181.1 400.0,144.4 624.0,85.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="189.4" r="3" fill="#2e8b57"/>
+<circle cx="176.0" cy="181.1" r="3" fill="#2e8b57"/>
+<circle cx="400.0" cy="144.4" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="85.2" r="3" fill="#2e8b57"/>
+<rect x="64" y="46" width="14" height="10" fill="#2e8b57"/><text x="84" y="55" font-family="sans-serif" font-size="11">coKrig MF-UCB DFN@2]  (planned start)</text>
+<polyline points="64.0,302.1 176.0,252.5 400.0,201.7 624.0,173.4" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="302.1" r="3" fill="#8e44ad"/>
+<circle cx="176.0" cy="252.5" r="3" fill="#8e44ad"/>
+<circle cx="400.0" cy="201.7" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="173.4" r="3" fill="#8e44ad"/>
+<rect x="327.4" y="46" width="14" height="10" fill="#8e44ad"/><text x="347.4" y="55" font-family="sans-serif" font-size="11">coKrig MF-UCB DFN@2 cheap-start] </text>
 </svg>

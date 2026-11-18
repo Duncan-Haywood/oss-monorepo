@@ -34,13 +34,26 @@ export const TWO_SHOCK = [
 export function twoShockRow(units) {
   return TWO_SHOCK.reduce((best, r) => (Math.abs(r.units - units) < Math.abs(best.units - units) ? r : best));
 }
+// DONOR_SHAPE: one donor's own event a slope from the date (slope) or a pulse that fades after four points (pulse), each
+// averaging the step's size over the after-period, and that donor left out beforehand (pulseLeftOut, slopeLeftOut)
+// (eval/synth-donor-shape-confirm.out.txt, pre-registered eval/synth-donor-shape-prereg-2026-11-18.md, all bars passed).
+// SHAPE_RATES: how often gapShape named a shocked donor's own gap right when it was listed above the treated unit
+// (pooled over 11 and 16 units), and how often a unit with no event of its own listed above got a shape anyway.
+export const DONOR_SHAPE = [
+  { units: 11, step: 40.3, slope: 34.8, pulse: 12.3, slopeLeftOut: 58.8, pulseLeftOut: 51.5 },
+  { units: 16, step: 37.3, slope: 29.3, pulse: 14.3, slopeLeftOut: 55.5, pulseLeftOut: 55.3 },
+];
+export const SHAPE_RATES = { pulseFaded: 90.4, stepHeld: 91.9, slopeGrew: 41.8, bigSlopeGrew: 75.0, cleanShaped: 20.2 };
+export function donorShapeRow(units) {
+  return DONOR_SHAPE.reduce((best, r) => (Math.abs(r.units - units) < Math.abs(best.units - units) ? r : best));
+}
 // A donor listed above the treated unit that also carries this much of its synthetic control's weight moves the
 // estimated gap as well as the rank (README "Two shocked donors, and a shocked best match").
 export const HEAVY_WEIGHT = 0.2;
 export function fewDonorsNote(h) {
   if (!(h.minP > 0.05)) return null;
-  const pw = fewPowerRow(h.donors + 1), tw = twoShockRow(h.donors + 1), pc = (v) => `${Math.round(v)}%`;
-  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. In simulation with ${pw.units} units (eval/synth-few-power-confirm.out.txt, pre-registered), a real step of two noise sd reached rank 1 ${pc(pw.clean)} of the time; when one donor had its own shock of the same size after the date, ${pc(pw.oneShocked)}; twice the size, ${pc(pw.twiceShocked)}; with that donor left out of the pool before the fit, ${pc(pw.excluded)}. With two donors shocked (eval/synth-two-shock-confirm.out.txt, ${tw.units} units), ${pc(tw.twoShocked)}; leaving out only one of the two, ${pc(tw.oneLeftOut)}; both, ${pc(tw.bothLeftOut)}: leaving out the one event you know of is not enough when another donor had one too. So leave out of --donors, before fitting, any unit whose own event after the date you already know of, and say so; dropping one after seeing the ranks is not a test. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
+  const pw = fewPowerRow(h.donors + 1), tw = twoShockRow(h.donors + 1), ds = donorShapeRow(h.donors + 1), pc = (v) => `${Math.round(v)}%`;
+  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. In simulation with ${pw.units} units (eval/synth-few-power-confirm.out.txt, pre-registered), a real step of two noise sd reached rank 1 ${pc(pw.clean)} of the time; when one donor had its own shock of the same size after the date, ${pc(pw.oneShocked)}; twice the size, ${pc(pw.twiceShocked)}; with that donor left out of the pool before the fit, ${pc(pw.excluded)}. With two donors shocked (eval/synth-two-shock-confirm.out.txt, ${tw.units} units), ${pc(tw.twoShocked)}; leaving out only one of the two, ${pc(tw.oneLeftOut)}; both, ${pc(tw.bothLeftOut)}: leaving out the one event you know of is not enough when another donor had one too. When the one donor's own event was not a step but of the same average size (eval/synth-donor-shape-confirm.out.txt, ${ds.units} units), a slope from the date left ${pc(ds.slope)} and a pulse that wore off after four points ${pc(ds.pulse)} (a step, ${pc(ds.step)}); with that donor left out beforehand, ${pc(ds.slopeLeftOut)} and ${pc(ds.pulseLeftOut)}: a short burst in one donor (a promotion, a strike) takes the rank more often than a lasting step of the same average size. So leave out of --donors, before fitting, any unit whose own event after the date you already know of, and say so; dropping one after seeing the ranks is not a test. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
 }
 
 // The placebos whose statistic is at least the treated unit's (synthResult's h.above), largest first: a description,
@@ -48,8 +61,17 @@ export function fewDonorsNote(h) {
 // treated unit; naming them lets a reader check, which is not a licence to drop them after seeing the result.
 export function aboveNote(h, max = 5) {
   if (!h.above?.length) return null;
-  const shown = h.above.slice(0, max).map((q) => `${q.name} ${f(q.statistic, 1)} (before-gap ${g(q.preRmspe)}, after ${g(q.postRmspe)})`).join(', ');
-  return `Ranked at or above ${h.treated} (statistic ${f(h.tests[h.statistic].value, 1)}; before-gap ${g(h.preRmspe)}, after ${g(h.postRmspe)}): ${shown}${h.above.length > max ? `, +${h.above.length - max} more` : ''}. If one of these had a change of its own after the date, the test counts it against ${h.treated}; that is a reason to look into it and say so, not to drop it from the pool after seeing the result (a pool chosen after the result is not a test).${heavyNote(h, h.above)}`;
+  const shapeWord = { faded: '; its own gap faded after the first points', grew: '; its own gap grew towards the end' };
+  const shown = h.above.slice(0, max).map((q) => `${q.name} ${f(q.statistic, 1)} (before-gap ${g(q.preRmspe)}, after ${g(q.postRmspe)}${shapeWord[q.gapShape] ?? ''})`).join(', ');
+  return `Ranked at or above ${h.treated} (statistic ${f(h.tests[h.statistic].value, 1)}; before-gap ${g(h.preRmspe)}, after ${g(h.postRmspe)}): ${shown}${h.above.length > max ? `, +${h.above.length - max} more` : ''}. If one of these had a change of its own after the date, the test counts it against ${h.treated}; that is a reason to look into it and say so, not to drop it from the pool after seeing the result (a pool chosen after the result is not a test).${shapeNote(h.above.slice(0, max), h.placeboShapes)}${heavyNote(h, h.above)}`;
+}
+// What the shape words mean and how far to trust them (README "A donor's own event that is not a step").
+function shapeNote(list, counts) {
+  if (!list.some((q) => q.gapShape === 'faded' || q.gapShape === 'grew')) return '';
+  const r = SHAPE_RATES, pc = (v) => `${Math.round(v)}%`;
+  const n = counts ? counts.faded + counts.grew + counts.held : 0;
+  const base = n ? ` Of all ${n} donors' own gaps, ${counts.faded} faded, ${counts.grew} grew and ${counts.held} held${['faded', 'grew'].some((k) => counts[k] > n / 2) ? `: most share the word, so it singles out no one here (on long series that compound, such as GDP, gaps that grow are the rule)` : ''}.` : '';
+  return `${base} "Faded" and "grew" describe a unit's own gap after the date (its first third against its last), a hint of what kind of event to look for, not evidence that it had one: in simulation (eval/synth-donor-shape-confirm.out.txt) a donor's own pulse that wore off was called faded ${pc(r.pulseFaded)} of the time when it was listed here and a step was left unlabelled ${pc(r.stepHeld)}; a slope of the effect's size was called grew only ${pc(r.slopeGrew)} (twice the size, ${pc(r.bigSlopeGrew)}), and ${pc(r.cleanShaped)} of listed units with no event of their own got a word anyway (often from a shocked donor in their own synthetic control).`;
 }
 function heavyNote(h, list) {
   const heavy = list.filter((q) => q.weight >= HEAVY_WEIGHT);

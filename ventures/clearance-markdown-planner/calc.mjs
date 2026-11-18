@@ -58,6 +58,31 @@ function parseDate(s) {
 
 const weekStart = (ms) => { const dow = (new Date(ms).getUTCDay() + 6) % 7; return ms - dow * DAY; };
 const isoDay = (ms) => new Date(ms).toISOString().slice(0, 10);
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
+// In a decimal-comma file (detectDecimalComma: most European Excel exports)
+// "1,5" is one and a half and "1.234,50" has a thousands dot, so those cells are
+// rewritten with a point before any number parsing strips commas as thousands
+// separators.
+const decimalCommaCell = (c) => c.replace(/^(\s*[-+(]?\s*[$€£]?\s*-?)(\d{1,3}(?:\.\d{3})+|\d+),(\d+)(\s*[%)$€£]?\s*)$/, (_, a, i, f, b) => `${a}${i.replace(/\./g, "")}.${f}${b}`);
 const cleanNumber = (s) => {
   const t = String(s).trim().replace(/[$€£,\s]/g, "").replace(/^\((.*)\)$/, "-$1");
   if (t === "" || !/^-?\d*\.?\d+$/.test(t)) return null;
@@ -69,6 +94,7 @@ export function parseSales(text) {
   const lines = String(text || "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   if (!lines.length) return { error: "Paste or upload rows of date, price, units first.", weeks: [], warnings };
   const delim = [",", "\t", ";"].map((d) => [d, lines[0].replace(/"[^"]*"/g, "").split(d).length]).sort((a, b) => b[1] - a[1])[0][0];
+  let dc = false;
   const split = (l) => {
     const out = [];
     let cur = "", q = false;
@@ -78,8 +104,9 @@ export function parseSales(text) {
       else cur += ch;
     }
     out.push(cur.trim());
-    return out;
+    return dc ? out.map(decimalCommaCell) : out;
   };
+  dc = detectDecimalComma(lines.map(split), delim);
   let cols = { date: 0, price: 1, units: 2 };
   let start = 0;
   const first = split(lines[0]);

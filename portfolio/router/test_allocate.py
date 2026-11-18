@@ -23,6 +23,7 @@ from allocate import (
     load_flagships,
     load_flagship_field,
     load_inputs_only,
+    load_not_before,
     load_flagship_hosts,
     row_hosts,
     start_here,
@@ -763,6 +764,33 @@ class FlagshipTests(unittest.TestCase):
         self.assertIn("draw schedule", task)
         self.assertTrue(next_task(buildable).startswith("Deepen (flagship 2)"))
 
+    def test_not_before_row_waits_like_inputs_only_until_its_date(self):
+        from datetime import date
+        waiting = self.flag("waiting", 0)
+        waiting.flagship_not_before = date(2026, 11, 24)
+        buildable = self.flag("buildable", 1)
+        small = make("tiny-csv-check", merit=0.9)
+        ordered = [v.name for v in rank([small, waiting, buildable])]
+        self.assertEqual(ordered, ["buildable", "waiting", "tiny-csv-check"])
+        task = next_task(waiting)
+        self.assertTrue(task.startswith("Waiting (flagship 1)"), task)
+        self.assertIn("2026-11-24", task)
+        # Start here names only Deepen rows, so the waiting row is skipped.
+        queue = work_queue([waiting, buildable])
+        self.assertEqual(start_here(queue, {})[1], "buildable")
+
+    def test_load_not_before_keeps_only_dates_still_ahead(self):
+        from datetime import date
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            self.assertEqual(load_not_before(p), {})
+            p.write_text("flagships:\n  - venture: a\n    not_before: 2026-11-24\n"
+                         "  - venture: b\n    not_before: 2026-11-01\n"
+                         "  - venture: c\n    not_before: soon\n  - venture: d\n")
+            self.assertEqual(load_not_before(p, date(2026, 11, 18)), {"a": date(2026, 11, 24)})
+            # On the date itself the row is buildable again.
+            self.assertEqual(load_not_before(p, date(2026, 11, 24)), {})
+
     def test_load_inputs_only_reads_marked_flagships(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "flagships.yaml"
@@ -944,6 +972,37 @@ class StartHereTests(unittest.TestCase):
                          start_here(queue, {}, now=now, session="abc"))
         # One free row: every session gets it.
         self.assertEqual(start_here(queue[:2], {}, now=now, session="abc"), (1, "v0"))
+
+
+class DateGateTests(unittest.TestCase):
+    """A `buildable:` item dated after today is not buildable yet (2026-11-18:
+    Start here kept sending runs to einvoice-preflight's 'After 2026-11-23' item)."""
+
+    def test_future_gates_reads_only_future_dates(self):
+        from allocate import future_gates, gate_note
+        text = ("Preview landed (in force 2027-02-24). After 2026-11-23: rebuild from the tag; "
+                "from 2026-11-01 the old branch is gone; not before 2026-12-01 diff again.")
+        self.assertEqual(future_gates(text, today="2026-11-18"), ["2026-11-23", "2026-12-01"])
+        self.assertEqual(future_gates(text, today="2026-11-23"), ["2026-12-01"])
+        self.assertEqual(future_gates(text, today="2026-12-01"), [])
+        self.assertIn("NOT YET", gate_note(text, today="2026-11-18"))
+        self.assertEqual(gate_note("no dates here", today="2026-11-18"), "")
+
+    def test_start_here_puts_dated_rows_after_undated_ones(self):
+        from datetime import datetime, timezone
+        now = datetime(2026, 11, 18, 10, 0, tzinfo=timezone.utc)
+        dated = ("Deepen (flagship 1): BUILDABLE HERE: y (NOT YET: an item here is dated after "
+                 "2026-11-23, so ...) -- Context: z")
+        queue = [{"venture": "dated", "flagship": True, "task": dated},
+                 {"venture": "ok", "flagship": True, "task": "Deepen (flagship 2): BUILDABLE HERE: y -- Context: z"},
+                 {"venture": "ctx", "flagship": True,
+                  "task": "Deepen (flagship 3): BUILDABLE HERE: y -- Context: (NOT YET: in next: only)"}]
+        self.assertEqual(start_here(queue, {}, now=now), (2, "ok"))
+        picks = {start_here(queue, {}, now=now, session=f"s{n}", spread=2) for n in range(40)}
+        self.assertEqual(picks, {(2, "ok"), (3, "ctx")})
+        # With nothing else free, the dated row is still named.
+        self.assertEqual(start_here(queue[:1], {}, now=now), (1, "dated"))
+        self.assertEqual(start_here(queue[:1], {}, now=now, session="s1"), (1, "dated"))
 
 
 class LeastClaimedTests(unittest.TestCase):

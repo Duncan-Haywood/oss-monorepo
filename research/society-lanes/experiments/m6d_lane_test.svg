@@ -1,43 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Change in people's lane order against the human side-bias multiplier: seed effect of crowd-side robots against a density-matched control, split into side-holding and extra bodies">
-<rect width="640" height="380" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Change in people's lane order against the human side-bias multiplier: seed effect of crowd-side robots against a density-matched control, split into side-holding and extra bodies">
+<rect width="640" height="394" fill="#fff"/>
 <text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Robots in a social-force crowd: people's lane-order change by cause</text>
-<line x1="64" x2="624" y1="291.0" y2="291.0" stroke="#ddd"/><text x="58" y="295.0" text-anchor="end" font-family="sans-serif" font-size="11">-0.1</text>
-<line x1="64" x2="624" y1="219.1" y2="219.1" stroke="#ddd"/><text x="58" y="223.1" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
-<line x1="64" x2="624" y1="147.3" y2="147.3" stroke="#ddd"/><text x="58" y="151.3" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
-<line x1="64" x2="624" y1="75.5" y2="75.5" stroke="#ddd"/><text x="58" y="79.5" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
-<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
-<text x="344.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
-<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
-<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">human side-bias multiplier (x fitted beta 0.1)</text>
-<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">change in people's lane order</text>
-<polyline points="64.0,191.8 344.0,183.2 624.0,181.8" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="191.8" r="3" fill="#c0392b"/>
-<circle cx="344.0" cy="183.2" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="181.8" r="3" fill="#c0392b"/>
+<line x1="64" x2="624" y1="305.0" y2="305.0" stroke="#ddd"/><text x="58" y="309.0" text-anchor="end" font-family="sans-serif" font-size="11">-0.1</text>
+<line x1="64" x2="624" y1="233.1" y2="233.1" stroke="#ddd"/><text x="58" y="237.1" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="161.3" y2="161.3" stroke="#ddd"/><text x="58" y="165.3" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="89.5" y2="89.5" stroke="#ddd"/><text x="58" y="93.5" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">0.25</text>
+<text x="344.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">0.5</text>
+<text x="624.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">0.75</text>
+<text x="344.0" y="382" text-anchor="middle" font-family="sans-serif" font-size="12">human side-bias multiplier (x fitted beta 0.1)</text>
+<text x="14" y="204.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 204.0)">change in people's lane order</text>
+<polyline points="64.0,205.8 344.0,197.2 624.0,195.8" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="205.8" r="3" fill="#c0392b"/>
+<circle cx="344.0" cy="197.2" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="195.8" r="3" fill="#c0392b"/>
 <rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">seed, 20% robots</text>
-<polyline points="64.0,170.3 344.0,167.4 624.0,186.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
-<circle cx="64.0" cy="170.3" r="3" fill="#1f6fb2"/>
-<circle cx="344.0" cy="167.4" r="3" fill="#1f6fb2"/>
-<circle cx="624.0" cy="186.8" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">seed, 30% robots</text>
-<polyline points="64.0,136.5 344.0,109.2 624.0,94.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
-<circle cx="64.0" cy="136.5" r="3" fill="#2e8b57"/>
-<circle cx="344.0" cy="109.2" r="3" fill="#2e8b57"/>
-<circle cx="624.0" cy="94.9" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">side, 20% robots</text>
-<polyline points="64.0,98.5 344.0,71.2 624.0,81.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
-<circle cx="64.0" cy="98.5" r="3" fill="#8e44ad"/>
-<circle cx="344.0" cy="71.2" r="3" fill="#8e44ad"/>
-<circle cx="624.0" cy="81.9" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">side, 30% robots</text>
-<polyline points="64.0,274.4 344.0,293.1 624.0,306.0" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="274.4" r="3" fill="#c0392b"/>
-<circle cx="344.0" cy="293.1" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="306.0" r="3" fill="#c0392b"/>
-<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">body, 20% robots</text>
-<polyline points="64.0,291.0 344.0,316.1 624.0,324.0" fill="none" stroke="#1f6fb2" stroke-width="2"/>
-<circle cx="64.0" cy="291.0" r="3" fill="#1f6fb2"/>
-<circle cx="344.0" cy="316.1" r="3" fill="#1f6fb2"/>
-<circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
-<rect x="914" y="32" width="14" height="10" fill="#1f6fb2"/><text x="934" y="41" font-family="sans-serif" font-size="11">body, 30% robots</text>
+<polyline points="64.0,184.3 344.0,181.4 624.0,200.8" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="184.3" r="3" fill="#1f6fb2"/>
+<circle cx="344.0" cy="181.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="200.8" r="3" fill="#1f6fb2"/>
+<rect x="197.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="217.2" y="41" font-family="sans-serif" font-size="11">seed, 30% robots</text>
+<polyline points="64.0,150.5 344.0,123.2 624.0,108.9" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="150.5" r="3" fill="#2e8b57"/>
+<circle cx="344.0" cy="123.2" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="108.9" r="3" fill="#2e8b57"/>
+<rect x="330.4" y="32" width="14" height="10" fill="#2e8b57"/><text x="350.4" y="41" font-family="sans-serif" font-size="11">side, 20% robots</text>
+<polyline points="64.0,112.5 344.0,85.2 624.0,95.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="112.5" r="3" fill="#8e44ad"/>
+<circle cx="344.0" cy="85.2" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="95.9" r="3" fill="#8e44ad"/>
+<rect x="463.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="483.6" y="41" font-family="sans-serif" font-size="11">side, 30% robots</text>
+<polyline points="64.0,288.4 344.0,307.1 624.0,320.0" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="288.4" r="3" fill="#222222"/>
+<circle cx="344.0" cy="307.1" r="3" fill="#222222"/>
+<circle cx="624.0" cy="320.0" r="3" fill="#222222"/>
+<rect x="64" y="46" width="14" height="10" fill="#222222"/><text x="84" y="55" font-family="sans-serif" font-size="11">body, 20% robots</text>
+<polyline points="64.0,305.0 344.0,330.1 624.0,338.0" fill="none" stroke="#d68910" stroke-width="2"/>
+<circle cx="64.0" cy="305.0" r="3" fill="#d68910"/>
+<circle cx="344.0" cy="330.1" r="3" fill="#d68910"/>
+<circle cx="624.0" cy="338.0" r="3" fill="#d68910"/>
+<rect x="197.2" y="46" width="14" height="10" fill="#d68910"/><text x="217.2" y="55" font-family="sans-serif" font-size="11">body, 30% robots</text>
 </svg>

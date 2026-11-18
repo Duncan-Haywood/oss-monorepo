@@ -8,6 +8,9 @@ work, in that file's order, with a "Deepen (flagship N)" task naming their
 next milestone. Edit that file to change what most venture runs work on.
 A flagship marked `inputs_only:` (every listed item needs a real outside
 input) ranks after the buildable flagships, with an "Inputs only" task.
+A flagship with `not_before: YYYY-MM-DD` (its only buildable work waits on
+a date, such as an upstream release tag) ranks there too, with a "Waiting"
+task, until that date; then it is a Deepen row again with no edit.
 An optional `buildable:` line (what a cloud session can do now with no
 outside input) leads the row's task as "BUILDABLE HERE", and the table opens
 with a "Start here" line naming a Deepen flagship with no PR opened

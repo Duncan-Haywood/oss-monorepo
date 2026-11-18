@@ -71,7 +71,7 @@
 <circle cx="579.2" cy="71.2" r="3" fill="#1f6fb2"/>
 <circle cx="601.6" cy="71.2" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">memory 9</text>
+<rect x="147.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="167.6" y="41" font-family="sans-serif" font-size="11">memory 9</text>
 <polyline points="64.0,324.0 86.4,324.0 108.8,324.0 131.2,324.0 153.6,324.0 176.0,324.0 198.4,324.0 220.8,323.7 243.2,323.7 265.6,323.5 288.0,323.0 310.4,322.5 332.8,319.7 355.2,301.0 377.6,71.2 400.0,71.2 422.4,71.2 444.8,71.2 467.2,71.2 489.6,71.2 512.0,71.2 534.4,71.2 556.8,71.2 579.2,71.2 601.6,71.2 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="324.0" r="3" fill="#2e8b57"/>
 <circle cx="86.4" cy="324.0" r="3" fill="#2e8b57"/>
@@ -99,7 +99,7 @@
 <circle cx="579.2" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="601.6" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">memory 17</text>
+<rect x="231.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="251.2" y="41" font-family="sans-serif" font-size="11">memory 17</text>
 <polyline points="64.0,324.0 86.4,324.0 108.8,324.0 131.2,324.0 153.6,324.0 176.0,324.0 198.4,324.0 220.8,324.0 243.2,324.0 265.6,324.0 288.0,323.7 310.4,324.0 332.8,323.2 355.2,322.0 377.6,318.9 400.0,241.1 422.4,71.2 444.8,71.2 467.2,71.2 489.6,71.2 512.0,71.2 534.4,71.2 556.8,71.2 579.2,71.2 601.6,71.2 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="324.0" r="3" fill="#8e44ad"/>
 <circle cx="86.4" cy="324.0" r="3" fill="#8e44ad"/>
@@ -127,5 +127,5 @@
 <circle cx="579.2" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="601.6" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">memory 25</text>
+<rect x="321" y="32" width="14" height="10" fill="#8e44ad"/><text x="341" y="41" font-family="sans-serif" font-size="11">memory 25</text>
 </svg>

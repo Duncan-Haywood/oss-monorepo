@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKkwS7sVLE6TmjLFhT6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T08:18:44Z",
+  "ended": "2026-11-18T08:34:11Z",
+  "wall_minutes": 15.75,
+  "tokens_in": 6275804,
+  "tokens_out": 41839,
+  "cost_usd": 3.1832,
+  "tool_calls": 58,
+  "task": "changepoint-detector (flagship row 2 by allocate.py): a donor whose own after-date event is a slope or a pulse, in the few-donor synthetic control",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17234",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "synth-donor-shape.test.mjs first read the excl column at split index 7 instead of 6, and a gapShape boundary case used sqrt(6)^2, which rounds below 6; both fixed before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "none blocking; the auto-park moved an item (shocked best match error) to NEXT.md without asking, which was fine but the README already holds it, so NEXT.md now duplicates README content"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "eval/synth-donor-shape-prereg-2026-11-18.md",
+      "why": "the real-panel run showed every listed unit as 'grew' because GDP gaps compound; added placeboShapes and a 'most share the word' sentence to the note outside the pre-registration",
+      "did": "labelled it in README and the post as a post-hoc description that changes no p, with its own test",
+      "result": "the note on West Germany now says the word singles out no one instead of implying two slope events"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-synthetic-control-donor-pulse-slope.md",
+    "ventures/changepoint-detector/README.md (A donor's own event that is not a step)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered simulation (explore base 86000 x100, confirm base 87000 x400, 22 cells): pulse donor of the step's average size leaves rank 1 at 12-14% vs step 37-40%, slope 29-35%; all six bars passed. gapShape (first vs last third mean square, ratio 6 frozen from the explore run) labels pulses faded 90.4%, steps held 91.9%, 2x slopes grew 75.0%, 20.2% false words on clean listed units. Ships: FEW DONORS note quotes the shapes; above note words faded/grew units with rates; --json above.gapShape and placeboShapes. Local verification: run_venture_tests.py changepoint-detector ok (866 tests before the last edits; rerun after, see PR), check_posts ok, validate.py ok, venture-preflight run.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "06be9aad-a56b-513b-91d5-c7ebc0254c31",
+    "transcripts": 1,
+    "first": "2026-11-18T08:18:44Z",
+    "last": "2026-11-18T08:34:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 95,
+        "output": 41839,
+        "thinking": 8125,
+        "cache_read": 6135846,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139863,
+        "api_equivalent_usd": 3.1832,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 95,
+      "output": 41839,
+      "thinking": 8125,
+      "cache_read": 6135846,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139863,
+      "api_equivalent_usd": 3.1832,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 51,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.75,
+      "active_minutes": 15.75,
+      "model_minutes": 7.61,
+      "tool_minutes": 8.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, running and writing up a pre-registered 8,800-panel simulation plus a CLI/page note change",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 314.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

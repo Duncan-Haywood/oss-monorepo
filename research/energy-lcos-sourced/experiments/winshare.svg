@@ -63,7 +63,7 @@
 <circle cx="479.0" cy="324.0" r="3" fill="#1f6fb2"/>
 <circle cx="525.7" cy="324.0" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="324.0" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">vanadium flow</text>
+<rect x="135.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="155.2" y="41" font-family="sans-serif" font-size="11">vanadium flow</text>
 <polyline points="64.0,318.9 126.5,293.7 188.9,227.9 225.5,195.1 251.4,192.5 271.5,190.0 287.9,195.1 350.4,255.7 412.8,311.4 479.0,324.0 525.7,324.0 624.0,324.0 64.0,321.5 126.5,296.2 188.9,250.7 225.5,230.5 251.4,240.6 271.5,253.2 287.9,268.4 350.4,316.4 412.8,324.0 479.0,324.0 525.7,324.0 624.0,324.0" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="318.9" r="3" fill="#2e8b57"/>
 <circle cx="126.5" cy="293.7" r="3" fill="#2e8b57"/>
@@ -89,7 +89,7 @@
 <circle cx="479.0" cy="324.0" r="3" fill="#2e8b57"/>
 <circle cx="525.7" cy="324.0" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="324.0" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">pumped hydro</text>
+<rect x="249.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="269.8" y="41" font-family="sans-serif" font-size="11">pumped hydro</text>
 <polyline points="64.0,324.0 126.5,316.4 188.9,286.1 225.5,276.0 251.4,255.7 271.5,235.5 287.9,217.8 350.4,139.4 412.8,83.8 479.0,71.2 525.7,71.2 624.0,71.2 64.0,324.0 126.5,316.4 188.9,248.2 225.5,222.9 251.4,192.5 271.5,157.1 287.9,129.3 350.4,78.8 412.8,71.2 479.0,71.2 525.7,71.2 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="324.0" r="3" fill="#8e44ad"/>
 <circle cx="126.5" cy="316.4" r="3" fill="#8e44ad"/>
@@ -115,31 +115,31 @@
 <circle cx="479.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="525.7" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">compressed air</text>
-<polyline points="64.0,324.0 126.5,324.0 188.9,324.0 225.5,324.0 251.4,324.0 271.5,324.0 287.9,324.0 350.4,324.0 412.8,324.0 479.0,324.0 525.7,324.0 624.0,324.0 64.0,324.0 126.5,324.0 188.9,324.0 225.5,324.0 251.4,324.0 271.5,324.0 287.9,324.0 350.4,324.0 412.8,324.0 479.0,324.0 525.7,324.0 624.0,324.0" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="126.5" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="188.9" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="225.5" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="251.4" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="271.5" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="287.9" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="350.4" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="412.8" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="479.0" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="525.7" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="64.0" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="126.5" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="188.9" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="225.5" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="251.4" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="271.5" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="287.9" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="350.4" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="412.8" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="479.0" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="525.7" cy="324.0" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="324.0" r="3" fill="#c0392b"/>
-<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">hydrogen</text>
+<rect x="358.2" y="32" width="14" height="10" fill="#8e44ad"/><text x="378.2" y="41" font-family="sans-serif" font-size="11">compressed air</text>
+<polyline points="64.0,324.0 126.5,324.0 188.9,324.0 225.5,324.0 251.4,324.0 271.5,324.0 287.9,324.0 350.4,324.0 412.8,324.0 479.0,324.0 525.7,324.0 624.0,324.0 64.0,324.0 126.5,324.0 188.9,324.0 225.5,324.0 251.4,324.0 271.5,324.0 287.9,324.0 350.4,324.0 412.8,324.0 479.0,324.0 525.7,324.0 624.0,324.0" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#222222"/>
+<circle cx="126.5" cy="324.0" r="3" fill="#222222"/>
+<circle cx="188.9" cy="324.0" r="3" fill="#222222"/>
+<circle cx="225.5" cy="324.0" r="3" fill="#222222"/>
+<circle cx="251.4" cy="324.0" r="3" fill="#222222"/>
+<circle cx="271.5" cy="324.0" r="3" fill="#222222"/>
+<circle cx="287.9" cy="324.0" r="3" fill="#222222"/>
+<circle cx="350.4" cy="324.0" r="3" fill="#222222"/>
+<circle cx="412.8" cy="324.0" r="3" fill="#222222"/>
+<circle cx="479.0" cy="324.0" r="3" fill="#222222"/>
+<circle cx="525.7" cy="324.0" r="3" fill="#222222"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#222222"/>
+<circle cx="64.0" cy="324.0" r="3" fill="#222222"/>
+<circle cx="126.5" cy="324.0" r="3" fill="#222222"/>
+<circle cx="188.9" cy="324.0" r="3" fill="#222222"/>
+<circle cx="225.5" cy="324.0" r="3" fill="#222222"/>
+<circle cx="251.4" cy="324.0" r="3" fill="#222222"/>
+<circle cx="271.5" cy="324.0" r="3" fill="#222222"/>
+<circle cx="287.9" cy="324.0" r="3" fill="#222222"/>
+<circle cx="350.4" cy="324.0" r="3" fill="#222222"/>
+<circle cx="412.8" cy="324.0" r="3" fill="#222222"/>
+<circle cx="479.0" cy="324.0" r="3" fill="#222222"/>
+<circle cx="525.7" cy="324.0" r="3" fill="#222222"/>
+<circle cx="624.0" cy="324.0" r="3" fill="#222222"/>
+<rect x="479" y="32" width="14" height="10" fill="#222222"/><text x="499" y="41" font-family="sans-serif" font-size="11">hydrogen</text>
 </svg>

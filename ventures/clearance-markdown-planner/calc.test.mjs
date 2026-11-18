@@ -256,3 +256,9 @@ test("a sales row dated 30 February is skipped, not counted in the week of 2 Mar
   assert.equal(s.weeks[0].units, 5);
   assert.equal(parseSales("date,price,units\n2024-02-29,10,5\n").weeks.length, 1);
 });
+
+test("a semicolon export reads decimal commas as decimals, not cents", () => {
+  const s = parseSales("date;price;units\n2026-01-05;19,99;10\n2026-01-12;1.014,99;20");
+  assert.deepEqual(s.weeks.map((w) => w.price), [19.99, 1014.99]);
+  assert.deepEqual(parseSales("date,price,units\n2026-01-05,\"1,019.99\",10").weeks.map((w) => w.price), [1019.99]);
+});

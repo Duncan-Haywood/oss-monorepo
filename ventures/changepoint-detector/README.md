@@ -6521,3 +6521,69 @@ estimated gap too, quotes the simulated error ratios, and says to report the gap
 
 **Limits.** One panel shape, step shocks only, independent loadings; the error ratios are averaged over random signs.
 **Next:** a real deployer's panel of stores or regions; a donor with a slope or pulse rather than a step.
+
+### A donor's own event that is not a step: a slope, a pulse, and a word for each listed unit's gap (2026-11-18, pre-registered; all six bars passed)
+
+"Two shocked donors" ended: "a donor with a slope or pulse rather than a step." A donor's own event is often neither
+a step nor lasting: a promotion or a strike that wears off, a competitor opening and taking share month by month.
+`eval/synth-donor-shape-sim.mjs` (pre-registration `eval/synth-donor-shape-prereg-2026-11-18.md`, committed after an
+exploratory run at base 86000 and before the confirmatory one): the same generator and N1 shape at 11 and 16 units,
+the treated unit dropping by 1.0 (two noise sd); one donor moved by a step, a **slope** ((h + 1) / 6.5, 0.15 at the
+first point after the date to 1.85 at the last) or a **pulse** (3 for four points, then 0), each averaging 1.0 (or
+2.0) over the 12 points, sign drawn per panel; in the PB cells the shocked donor is the treated fit's heaviest. Each
+panel refitted with that donor left out beforehand. Confirmatory, base 87000, 400 panels a cell
+(`eval/synth-donor-shape-confirm.out.txt`):
+
+| units | clean | step 1.0 | slope 1.0 | pulse 1.0 | slope 2.0 | pulse 2.0 | slope / pulse left out | no effect: slope / pulse |
+|---|---|---|---|---|---|---|---|---|
+| 11 | 54.0% | 40.3% | **34.8%** | **12.3%** | 10.8% | 3.0% | 58.8% / 51.5% | 6.0% / 1.8% |
+| 16 | 55.8% | 37.3% | **29.3%** | **14.3%** | 7.3% | 2.8% | 55.5% / 55.3% | 3.8% / 2.0% |
+
+Rank-1 shares (p = 1/units). Bars: (1) size at most 1/units + 4 with a slope or pulse donor and no effect: 1.8-6.0%,
+holds. (2) a pulse costs at least 8 points more than a step of the same average: 28.0 and 23.0, holds. (3) a slope
+costs at least as much as a step: 5.5 and 8.0 points more, holds. (4) twice the size leaves at most 20% (slope) and
+10% (pulse): 7.3-10.8% and 2.8-3.0%, holds. (5) leaving the donor out beforehand comes within 8 points of clean:
+51.5-60.8% against 54.0-55.8%, holds. (6) the gap-shape word, below: holds in all four parts.
+
+**What it says.**
+- **A short burst takes the rank more often than a lasting step.** A donor's pulse of the same average size as the
+  effect leaves rank 1 to the treated unit 12-14% of the time, against 37-40% for a step: the statistic reads the
+  after-gap's root mean square, and four points at three times the step have 1.73 times its RMS. A slope sits
+  between (29-35%). Size stays honest (1.8-6.0% with no effect), and leaving the donor out beforehand restores the
+  clean rate whatever the shape: the advice of "Few donors" holds for any kind of donor event.
+- **A light donor's shape leaves the estimate alone; a heavy donor's moves it, whatever the shape.** The mean gap
+  stays at -0.92 to -1.07 against the true -1 in every cell with an effect. With the heaviest donor shocked, the average gap's
+  error rises 1.4-1.6x for a step, slope or pulse alike (0.600-0.764 against 0.406-0.510); for a slope the
+  last-point error rises about as much (1.48x and 1.52x), not more, in these 12-point panels: reported, no bar.
+- **A word for the shape of each listed unit's own gap.** `gapShape` (synth-control.mjs) compares the mean square of
+  the first third of a placebo's after-gap with the last third's: 'faded' at 6x one way, 'grew' at 6x the other,
+  else 'held' (none under 6 points after the date). The ratio was read off the exploratory run (3, 4, 6, 9 and 16
+  compared; explore file, last lines) and frozen before the confirmatory run. Pooled over 11 and 16 units, of
+  shocked donors listed at or above the treated unit, a pulse was called 'faded' 90.4% of the time (2,383 of 2,635;
+  bar 85%), a step 'held' 91.9% (bar 85%), a slope of twice the effect 'grew' 75.0% (bar 65%), a slope of the
+  effect's size only 41.8% (reported). Of listed units with no event of their own, 20.2% got a word anyway (4,940 of
+  24,463; bar 25%), most in the pulse cells (up to 48% in PPE11), where they carry the shocked donor in their own
+  synthetic control: the word then points at a neighbour's event, not their own.
+
+**On the two real panels** (`eval/synth-donor-shape-real.mjs`, `eval/synth-donor-shape-real.out.txt`; a description
+run after the confirmatory one, nothing pre-registered): every unit listed above the treated one gets 'grew'
+(the Netherlands and Norway above West Germany; Asturias, Cantabria and Valencia above the Basque Country), and so
+does each treated unit's own gap. That is not five events found: 12 of West Germany's 16 placebos grew too, as gaps
+in GDP per head compound over 14 and 28 years after the date (the Basque panel: 5 grew, 10 held, 1 faded). So,
+outside the pre-registration and changing no p, `synthResult` also returns `placeboShapes` (how many of all the
+placebos' gaps faded, grew and held), and the note prints that count and, when more than half share a word, says it
+singles out no one. The simulation's 12 trendless points are the case where the word helps; a long compounding
+after-period is the case where it does not.
+
+**Ships (decided in the pre-registration).** The FEW DONORS note in the CLI and on the page quotes the slope and pulse
+rank-1 shares, and with the donor left out, at the nearest of 11 and 16 units (`DONOR_SHAPE`, `donorShapeRow` in
+`synth-view.mjs`), and says a short burst in one donor takes the rank more often than a lasting step of the same
+average size. The "ranked above" note gives each listed unit's own gap shape when it faded or grew, then says what
+the word means and quotes the rates, including the 1 in 5 units with no event that get one (`SHAPE_RATES`); `--json`'s
+`above` gains `gapShape`. `synth-donor-shape.test.mjs` pins the panels and `gapShape`, checks the numbers against
+the confirmatory file and re-checks every bar.
+
+**Limits.** One panel shape (N1, 12 points after the date; the thirds are 4 points each, so shorter after-periods
+label less reliably), two non-step shapes, independent loadings, one shocked donor. **Next:** a real deployer's panel
+of stores or regions (short after-periods, where the word should help); a slope or pulse on two donors; a shape word
+read against the panel's own trend (detrended thirds) for long compounding series.

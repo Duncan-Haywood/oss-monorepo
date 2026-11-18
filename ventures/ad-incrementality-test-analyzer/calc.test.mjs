@@ -135,3 +135,10 @@ test("planTest detects roughly the lift analyze can detect on the same history",
   const real = run(text);
   assert.ok(plan.rows[0].mde > real.mde / 3 && plan.rows[0].mde < real.mde * 3, `${plan.rows[0].mde} vs ${real.mde}`);
 });
+
+test("a semicolon export reads decimal commas as decimals, not thousands", () => {
+  const days = Array.from({ length: 20 }, (_, i) => new Date(Date.UTC(2026, 0, 1 + i)).toISOString().slice(0, 10));
+  const t = parseTable(["date;A;B", ...days.map((d, i) => `${d};${i},5;1.${String(i).padStart(3, "0")},25`)].join("\n"));
+  assert.equal(t.series.A[3], 3.5);
+  assert.equal(t.series.B[3], 1003.25);
+});

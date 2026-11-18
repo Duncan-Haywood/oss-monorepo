@@ -1,9 +1,11 @@
 {
+ "doi:10.1109/ICRA.2015.7140074": {
+  "checked": "2026-11-18",
+  "title": "PX4: A node-based multithreaded open source robotics framework for deeply embedded platforms (2015)"
+ },
  "doi:10.1175/2011BAMS3015.1": {
-  "checked": "2026-11-17",
-  "source": "doi.org/Crossref refused; DOI listed in JOSS 10.21105/joss.03313 Crossref deposit (openjournals/joss-papers), title/authors/BAMS 92(6) 704-708 in balajikesavan90/noaa-spec paper.bib, read via raw.githubusercontent.com 2026-11-17",
-  "title": "The Integrated Surface Database: Recent Developments and Partnerships (2011)",
-  "via": "hand"
+  "checked": "2026-11-18",
+  "title": "The Integrated Surface Database: Recent Developments and Partnerships (2011)"
  },
  "doi:10.1184/R1/12683453.v1": {
   "checked": "2026-11-12",

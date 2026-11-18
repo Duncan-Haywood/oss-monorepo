@@ -16,6 +16,11 @@
 # tells runs to take it only if they hold such an input. Remove the field when
 # a buildable item is added to `next:`.
 #
+# `not_before: YYYY-MM-DD` marks a row whose only buildable work waits on a date
+# (an upstream tag, a data release). Until then allocate.py ranks it with the
+# inputs_only rows and Start here skips it; from that date it is a Deepen row
+# again with no edit. Delete it if you find an item buildable sooner.
+#
 # Edit a `next:` or `buildable:` with `python3 portfolio/router/flagship_field.py
 # <venture> --replace OLD NEW`: it rewraps safely (a hand wrap after a hyphen
 # reads back as "word- rest", and validate.py rejects it).
@@ -196,11 +201,16 @@ flagships:
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
       shock before the date"); the note quotes it; two shocked donors 2026-11-18
       (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one
-      35%; a shocked best match raises gap error 1.3-1.6x, leaving it out 1.36x;
-      notes quote it; next a donor slope or pulse, a real deployer's panel. More
-      open items: NEXT.md.
+      35%; notes quote it; donor slope or pulse 2026-11-18 (README "A donor's own
+      event that is not a step"): pulse 12-14%, slope 29-35%, step 37-40%; gapShape
+      word on listed units (pulse faded 90%, 20% false); on West Germany 12 of 16
+      placebos grew (note says so); next a real deployer's panel. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
+    # Its buildable item is the Peppol BIS 3.1.0 rebuild from the release tag,
+    # due after 2026-11-23; four runs left the row on 2026-11-17/18 for that.
+    not_before: 2026-11-24
     why: >-
       Real EN 16931 validator (JSON, UBL, CII, Factur-X PDF; 54+ rules,
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
@@ -501,15 +511,14 @@ flagships:
       eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of
       348, eval/infra-mep-crosscheck-*); 65 public IDS vs IfcTester 2026-11-17
       (1,661 of 1,736 same; unchecked subclasses reported,
-      eval/corpus-crosscheck-*); duplicate GlobalIds in a model
-      (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
-      2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); several IFC
-      versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md: opened in the
-      schema that edits most, page audit in every named schema, false page errors 18
-      to 0 on 18 public files). attribute facets read geometry shallow 2026-11-18
+      eval/corpus-crosscheck-*); several IFC versions per spec 2026-11-17
+      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
+      audit in every named schema, false page errors 18 to 0 on 18 public files).
+      attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
       same reports); property sets indexed by name 2026-11-18
       (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
-      reports); next: lazy ifcXML, a file-order candidate list for specs with no
-      entity facet. More open items: NEXT.md.
+      reports); file-order candidate lists 2026-11-18
+      (eval/file-order-candidates-2026-11-18.md: pooled specs 2.9x on HHS MEP, same
+      reports); next: lazy ifcXML, a facet-result cache across specs that apply to
+      most of a model. More open items: NEXT.md.

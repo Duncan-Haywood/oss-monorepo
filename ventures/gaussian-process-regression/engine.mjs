@@ -768,9 +768,35 @@ export function leaveOneOut(name, theta, x, y, { jitter = DEFAULTS.jitter } = {}
 // ---------- CSV and dates ----------
 
 const isMissing = (s) => /^\s*(|na|n\/a|nan|null|none|\?|-)\s*$/i.test(String(s ?? ""));
-const numText = (s) => String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£,%\s]/g, "");
-const isNum = (s) => {
-  const t = numText(s);
+// In a decimal-comma file (detectDecimalComma: most European Excel exports,
+// semicolon- or tab-delimited) "1,5" is one and a half and "1.234,5" has a
+// thousands dot. Elsewhere a comma groups thousands.
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
+const numText = (s, decimalComma = false) => {
+  const t = String(s).trim().replace(/^\((.*)\)$/, "-$1").replace(/[$€£%\s]/g, "");
+  return decimalComma && /^[-+]?(\d{1,3}(\.\d{3})+|\d*),\d+$/.test(t) ? t.replace(/\./g, "").replace(",", ".") : t.replace(/[$€£,%\s]/g, "");
+};
+const isNum = (s, decimalComma = false) => {
+  const t = numText(s, decimalComma);
   return t !== "" && Number.isFinite(Number(t));
 };
 const DATE = /^(\d{4})-(\d{1,2})(?:-(\d{1,2}))?$/;
@@ -823,8 +849,9 @@ export function parseCsv(text) {
   if (!lines.length) return { error: "The data is empty. Paste a CSV with an x column and a y column." };
   const delim = ["\t", ";", ","].map((dl) => [dl, splitLine(lines[0], dl).length]).sort((a, b) => b[1] - a[1])[0][0];
   const cells = lines.map((l) => splitLine(l, delim));
+  const decimalComma = detectDecimalComma(cells, delim);
   let columns, start = 1;
-  const valueLike = (c) => isNum(c) || isMissing(c) || DATE.test(c);
+  const valueLike = (c) => isNum(c, decimalComma) || isMissing(c) || DATE.test(c);
   if (cells[0].every(valueLike)) {
     columns = cells[0].length === 2 ? ["x", "y"] : cells[0].map((_, i) => `c${i + 1}`);
     start = 0;
@@ -838,7 +865,7 @@ export function parseCsv(text) {
     rows.push({ line: i + 1, cells: cells[i] });
   }
   if (!rows.length) return { error: "The CSV has a header but no data rows." };
-  return { columns, rows };
+  return { columns, rows, decimalComma };
 }
 
 export const fmt = (v, digits = 3) => {
@@ -918,7 +945,7 @@ export function analyze(input = {}) {
     const kinds = columns.map((_, j) => {
       const present = rows.map((r) => r.cells[j]).filter((c) => !isMissing(c));
       if (present.length && present.every((c) => DATE.test(c))) return "date";
-      if (present.length && present.every(isNum)) return "num";
+      if (present.length && present.every((c) => isNum(c, parsed.decimalComma))) return "num";
       return "text";
     });
     const firstUsable = kinds.findIndex((k) => k !== "text");
@@ -935,9 +962,9 @@ export function analyze(input = {}) {
     for (const r of rows) {
       const cx = r.cells[xi], cy = r.cells[yi];
       if (isMissing(cx) || isMissing(cy)) { skipped++; continue; }
-      const xv = dateMode ? decimalYear(cx) : Number(numText(cx));
+      const xv = dateMode ? decimalYear(cx) : Number(numText(cx, parsed.decimalComma));
       if (!Number.isFinite(xv)) { skipped++; continue; }
-      xs.push(xv); ys.push(Number(numText(cy))); lines.push(r.line);
+      xs.push(xv); ys.push(Number(numText(cy, parsed.decimalComma))); lines.push(r.line);
     }
     if (skipped) warnings.push(`Skipped ${plural(skipped, "row")} with a missing or unreadable x or y.`);
     const others = columns.filter((_, j) => j !== xi && j !== yi && kinds[j] === "num");

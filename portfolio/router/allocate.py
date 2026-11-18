@@ -43,7 +43,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
 
@@ -107,6 +107,13 @@ class Venture:
     # friction_rank clusters on this file, 2026-11-13..15: raw.pixls.us and
     # archive.org each read both ways within a day).
     flagship_hosts: list = field(default_factory=list)
+    # flagships.yaml `not_before: YYYY-MM-DD`: nothing on the row is buildable
+    # before that date (an upstream tag, a dataset release). Set only while the
+    # date is still ahead; the row then ranks with the inputs_only ones and
+    # start_here skips it, and on the date it is a Deepen row again with no edit
+    # (four runs in two days left einvoice-preflight, whose only buildable
+    # item was dated "after 2026-11-23": run-record doc_friction, 2026-11-18).
+    flagship_not_before: Optional[date] = None
 
     @property
     def flagship(self) -> bool:
@@ -433,6 +440,30 @@ def hosts_line(urls: list[str], answers=host_answers) -> str:
             "in the row; reachability changes between sessions): " + "; ".join(parts))
 
 
+def load_not_before(path: Path = FLAGSHIPS_PATH, today: Optional[date] = None) -> dict[str, date]:
+    """{venture: date} for flagships whose `not_before:` date is still ahead of
+    `today` (UTC). A past date, or one that does not parse, is left out: the
+    row is buildable again (validate.py reports a malformed one)."""
+    if not path.is_file():
+        return {}
+    today = today or datetime.now(timezone.utc).date()
+    out = {}
+    for e in _load_yaml(path).get("flagships") or []:
+        if not (isinstance(e, dict) and e.get("venture") and e.get("not_before")):
+            continue
+        when = e["not_before"]
+        if isinstance(when, str):
+            try:
+                when = date.fromisoformat(when.strip())
+            except ValueError:
+                continue
+        if isinstance(when, datetime):
+            when = when.date()
+        if isinstance(when, date) and when > today:
+            out[e["venture"]] = when
+    return out
+
+
 def load_inputs_only(path: Path = FLAGSHIPS_PATH) -> dict[str, str]:
     """{venture: what is missing} for flagships marked `inputs_only:`."""
     return load_flagship_field("inputs_only", path)
@@ -443,6 +474,7 @@ def load_ventures(
     ledger_dir: Path = LEDGER_DIR,
     scores_path: Path = SCORES_PATH,
     flagships_path: Path = FLAGSHIPS_PATH,
+    today: Optional[date] = None,
 ) -> list[Venture]:
     ledger_counts = count_ledger_entries(ledger_dir)
     merit_scores = load_merit_scores(scores_path)
@@ -450,6 +482,7 @@ def load_ventures(
     inputs_only = load_inputs_only(flagships_path)
     buildable = load_flagship_field("buildable", flagships_path)
     hosts = load_flagship_hosts(flagships_path)
+    not_before = load_not_before(flagships_path, today)
     venture_dirs = sorted(p for p in ventures_dir.iterdir() if p.is_dir())
     names = []
     parsed = []
@@ -490,6 +523,7 @@ def load_ventures(
                 flagship_inputs_only=inputs_only.get(name) if flag_rank is not None else None,
                 flagship_buildable=buildable.get(name) if flag_rank is not None else None,
                 flagship_hosts=hosts.get(name, []) if flag_rank is not None else [],
+                flagship_not_before=not_before.get(name) if flag_rank is not None else None,
             )
         )
     return ventures
@@ -518,7 +552,8 @@ def rank(ventures: list[Venture]) -> list[Venture]:
          are exempt from the HOT_COMMITS demotion below, which exists to
          spread effort across shallow ventures, the opposite of what a
          flagship needs. A flagship marked `inputs_only:` (every listed
-         item needs a real outside input) ranks after the buildable ones.
+         item needs a real outside input) ranks after the buildable ones,
+         as does one whose `not_before:` date is still ahead.
       4. Not a calculator. Calculators are maintain-only (owner, 2026-10-21,
          `prompts/goals.md` "Direction: depth over calculators"), so they
          sink below every other dispatchable venture and their task says
@@ -549,7 +584,7 @@ def rank(ventures: list[Venture]) -> list[Venture]:
         return (
             0 if v.needs_decision else 1,
             0 if v.dispatchable else 1,
-            (1 if v.flagship_inputs_only else 0, v.flagship_rank)
+            (1 if v.flagship_inputs_only or v.flagship_not_before else 0, v.flagship_rank)
             if v.flagship_rank is not None else (2, 0),
             1 if v.maintain_only else 0,
             1 if v.awaits_visitors else 0,
@@ -620,6 +655,33 @@ FLAGSHIP_NEXT_MAX = 2000
 FLAGSHIP_BUILDABLE_MAX = 600
 
 
+# A `buildable:` item that waits for a date ("After 2026-11-23: rebuild ...")
+# is not buildable before it. On 2026-11-18 'Start here' kept sending runs to
+# einvoice-preflight, whose only open buildable item was dated after
+# 2026-11-23, and each run read the row and left it (run-record doc_friction on
+# this file and on portfolio/flagships.yaml, 4 runs in 2 days). The date is
+# read from the prose so the gate lifts by itself when the day comes, which an
+# `inputs_only:` edit would not.
+_DATE_GATE = re.compile(r"\b(?:after|from|once|on or after|not before|no earlier than)\s+"
+                        r"(20\d\d-\d\d-\d\d)\b", re.I)
+
+
+def future_gates(text: str, today: Optional[str] = None) -> list[str]:
+    """Sorted dates after `today` (YYYY-MM-DD, UTC today by default) that the
+    text gates an item on ("After 2026-11-23: ..."). Past dates gate nothing."""
+    today = today or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    return sorted({d for d in _DATE_GATE.findall(text or "") if d > today})
+
+
+def gate_note(text: str, today: Optional[str] = None) -> str:
+    """' (NOT YET: an item here waits until after DATE; ...)' or ''."""
+    dates = future_gates(text, today)
+    if not dates:
+        return ""
+    return (f" (NOT YET: an item here is dated after {', '.join(dates)}, so it is not "
+            "buildable today; take another item, or another row if none is left)")
+
+
 def next_budget(v: "Venture") -> str:
     """'1986 of 2000 characters' for a flagship's `next:`."""
     return f"{len(v.flagship_next or '')} of {FLAGSHIP_NEXT_MAX} characters"
@@ -641,11 +703,19 @@ def next_task(v: Venture) -> str:
                 f"outside input ({v.flagship_inputs_only}). Take it only if you hold one; "
                 "otherwise take a Deepen row above. Full list: portfolio/flagships.yaml."
             )
+        if v.flagship_not_before:
+            return (
+                f"Waiting (flagship {v.flagship_rank + 1}): nothing buildable before "
+                f"{v.flagship_not_before.isoformat()} (`not_before:` in portfolio/flagships.yaml); "
+                "take a Deepen row above. If you find an item buildable today, add it to "
+                "`buildable:` and delete `not_before:` in your PR."
+            )
         # A slice taken from `buildable:` is rewritten there, not in `next:`;
         # saying only `next:` cost a run a retry (run records, 2026-11-14 and -16).
         buildable_edit = ""
         if v.flagship_buildable:
-            milestone = f"BUILDABLE HERE: {v.flagship_buildable} -- Context: {milestone}"
+            milestone = (f"BUILDABLE HERE: {v.flagship_buildable}{gate_note(v.flagship_buildable)}"
+                         f" -- Context: {milestone}")
             buildable_edit = (
                 " If you landed a BUILDABLE HERE item, rewrite it in `buildable:` instead "
                 f"(same tool with `--field buildable`, capped at {FLAGSHIP_BUILDABLE_MAX} characters; "
@@ -1092,18 +1162,25 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
     started in the same few minutes (before either has opened a PR) usually
     get different rows: two sessions took the same sales-agent item in
     parallel three times on 2026-11-11/12 (doc_friction on this file), which
-    the open-PR read cannot see."""
+    the open-PR read cannot see. Rows whose `buildable:` waits on a future
+    date come after the rest (gate_note)."""
     now = now or datetime.now(timezone.utc)
-    free = []
+    free, dated = [], []
     for i, item in enumerate(queue, 1):
         if not (item["flagship"] and item["task"].startswith("Deepen")):
             continue
         hits = (claims or {}).get(item["venture"], [])
         if any(_age_hours(created, now) < CLAIM_FRESH_HOURS for _, _, created in hits):
             continue
+        # A row whose BUILDABLE HERE names an item not due yet (gate_note)
+        # comes after every free row that does not (see _DATE_GATE).
+        if "BUILDABLE HERE" in item["task"] and "(NOT YET: " in item["task"].split(" -- Context: ")[0]:
+            dated.append((i, item["venture"]))
+            continue
         free.append((i, item["venture"]))
         if session is None or len(free) >= spread:
             break
+    free = (free + dated)[:1 if session is None else spread]
     if not free:
         return None
     if session is None:
@@ -1355,7 +1432,9 @@ def venture_report(name: str, ventures: list[Venture],
              f"{v.recent_commits} commits in 7 days"]
     if v.flagship:
         lines.append(f"Flagship {v.flagship_rank + 1} (portfolio/flagships.yaml)"
-                     + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else ""))
+                     + (f", inputs only: {v.flagship_inputs_only}" if v.flagship_inputs_only else "")
+                     + (f", nothing buildable before {v.flagship_not_before.isoformat()} (`not_before:`)"
+                        if v.flagship_not_before else ""))
         if v.flagship_buildable:
             lines.append("buildable here: " + v.flagship_buildable)
         if probe is not None:
