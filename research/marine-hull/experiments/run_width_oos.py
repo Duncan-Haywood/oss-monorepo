@@ -57,12 +57,28 @@ def tag(h):
 
 TAG_ORDER = tuple(tag(h) for h in WIDTHS)
 KS = (1, 3, 5)
-# Reconfigure 6zzze's rule set in place, before the worker pool forks: only fixed clamps, only these k.
-oz.FIXED = {tag(h): h for h in WIDTHS}
-oz.KS = KS
-oz.TAGS = {k: TAG_ORDER for k in KS}
-oz.TAG_ORDER = TAG_ORDER
-oz.RULES = ("AT_90",) + tuple(oz.rname(t, s) for k in KS for t in TAG_ORDER for s in oz.SETS[k])
+_NAMES = ("FIXED", "KS", "TAGS", "TAG_ORDER", "RULES")
+
+
+def configure():
+    """Reconfigure 6zzze's rule set in place (before the worker pool forks): only fixed clamps, only these k.
+    Returns the previous values, for restore() (tests share the process with 6zzze's)."""
+    saved = {n: getattr(oz, n) for n in _NAMES}
+    oz.corrections.cache_clear()
+    oz.FIXED = {tag(h): h for h in WIDTHS}
+    oz.KS = KS
+    oz.TAGS = {k: TAG_ORDER for k in KS}
+    oz.TAG_ORDER = TAG_ORDER
+    oz.RULES = ("AT_90",) + tuple(oz.rname(t, s) for k in KS for t in TAG_ORDER for s in oz.SETS[k])
+    return saved
+
+
+def restore(saved):
+    for n, v in saved.items():
+        setattr(oz, n, v)
+    oz.corrections.cache_clear()
+
+
 YEARS, OOS = oc.YEARS, oc.OOS
 # 6zzzf (experiments/results_old_clim_2025.txt)
 CHECK_AT90 = {2020: 55.0, 2021: 43.0, 2022: 62.0, 2023: 57.0, 2024: 58.0, 2025: 61.0}
@@ -79,6 +95,7 @@ def best(scores):
 
 
 def main():
+    configure()
     assert fy.CLIM_YEARS == oc.OLD_CLIM
     oz.load_2025()
     pts = tuple(oz.bt.PTS)
