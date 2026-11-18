@@ -1,9 +1,9 @@
 ---
 title: "A table rewrite hidden by two pairs of quotes"
-seo_title: "Quoted schema names hid an ALTER COLUMN TYPE rewrite from a PostgreSQL migration checker"
+seo_title: "Quoted schema names hid a table rewrite from a migration checker"
 date: 2026-11-18
-tags: [redteam, testing, postgresql, migrations]
-description: "A red-team run on the PostgreSQL migration lock checker caught 29 of 38 seeded faults, and found that ALTER TABLE \"public\".\"users\" ALTER COLUMN TYPE was reported as clean."
+tags: [redteam, testing, postgresql, migration]
+description: "A red-team run on the PostgreSQL migration lock checker caught 29 of 38 seeded faults and found a quoted schema name hiding a full table rewrite."
 ---
 
 Today's red-team run aimed at the
