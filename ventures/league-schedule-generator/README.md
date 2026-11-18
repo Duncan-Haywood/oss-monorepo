@@ -27,8 +27,8 @@ third party: zero dependencies, one JSON file on a disk you own.
 
 - **Alternatives today:** TeamSnap, LeagueApps and SportsEngine hold your players' data behind per-team accounts and
   paid plans. This is the sign-up, publish-fixtures-and-table loop for one league, MIT-licensed. Team sign-ups take
-  the fee on the organiser's own payment link (it never handles a card), and it has no waivers or messaging; use one of
-  them if you need those.
+  the fee on the organiser's own payment link (it never handles a card); waivers, notices, availability and
+  sportsmanship ratings are below. It has no in-app chat or card processing; use one of them if you need those.
 - **Secrets:** `ADMIN_KEY` unlocks `/admin`; `LEAGUE_TOKEN` is the secret in the player link. The server refuses to
   serve without both. Put it behind HTTPS (Fly and Render do); keys are in the URL, so do not share admin links. Ten wrong links from one address lock it out for 15 minutes (HTTP 429); behind a proxy the last `X-Forwarded-For` hop is used.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
@@ -53,6 +53,27 @@ third party: zero dependencies, one JSON file on a disk you own.
   age at which a player signs for themselves depend on where you play: ask a lawyer or your league's insurer). Tested in
   `waivers.test.mjs` (versions, signatures, roster matching, the version cap and the full server flow); not yet used
   by a real league. Guide: `how-to-collect-player-waivers-for-a-rec-league.html`.
+- **Sportsmanship ratings (2026-11-18, latest, `spirit.mjs`):** off until the organiser picks a scale under
+  **Sportsmanship ratings** in `/admin`: five categories scored 0 to 4 (rules knowledge and use, fouls and body
+  contact, fair-mindedness, positive attitude and self-control, communication; the shape of the spirit sheet ultimate
+  leagues use, 2 each and 10 in all for a normal game) or one score from 1 to 5. Each captain's page then lists their
+  games from the last 21 days with a rating form for the other team, starting at a normal game, with an optional
+  comment for the organiser only (300 characters); a captain can change their rating while the game is in the window.
+  `/admin` shows the table (games rated, average, per-category averages, low ratings, ratings given and the average
+  each team gives, so a hard marker shows), the low ratings (a 0 anywhere or 6 or less in total; 2 or less on the 1-5
+  scale) with their comments, and per team the games it has not rated; **Download every rating (CSV)**
+  (`/admin/spirit.csv`) has one row per rating, formula cells guarded. Tick **Show the sportsmanship table** and the
+  league page gets each team's games rated and average, never comments. Ratings are keyed by fixture id and side, so
+  they follow a rained-out game; a withdrawn team's games are pruned; switching the scale starts the averages again
+  (old ratings stay in the state file).
+  - Alternatives: a paper or Google Form spirit sheet typed into a spreadsheet each week; the spirit-score features in
+    paid league platforms. This collects them from the captain link teams already use for scores, and points out the
+    hard marker as well as the low score.
+  - Checked: `spirit.test.mjs` (6 tests: settings, form checks, the table with categories, given averages and a changed
+    rating, scales kept apart, pruning, the unrated list and its window, escaping, the CSV and its formula guard, and
+    through the HTTP server: off by default, turned on from the admin form, two captains rating, a change, a third team
+    and the plain link refused, the admin table and CSV, the public table only when ticked and with no comments, and a
+    scale switch). The guide's worked table is recomputed in `page.test.mjs`. No real league has used it yet.
 - **Notices from the organiser (2026-11-18, `announcements.mjs`):** `/admin` has a **Notices** form: up to
   1,000 characters, **Who sees it** (everyone, on the league page under "From the organiser", or one team, on that
   team's captain page only), **Show until** (a date; blank means two weeks), and **Also email it to the team
@@ -146,7 +167,7 @@ third party: zero dependencies, one JSON file on a disk you own.
     and its formula guard; the per-address limit; the payment-link filter; the confirmation email; and through the
     HTTP server: closed by default, sign-up, waitlist, kept values on a bad form, admin approve, decline, paid and CSV,
     and saving the settings). No real league has used it yet.
-- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs`.
+- Tests: `node --test server.test.mjs deploy.test.mjs availability.test.mjs availability-roster.test.mjs registration.test.mjs confirm.test.mjs reschedule.test.mjs spirit.test.mjs`.
 
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
