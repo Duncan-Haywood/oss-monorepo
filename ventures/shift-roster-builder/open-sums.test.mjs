@@ -60,6 +60,9 @@ test("call-out week with Cleo off Saturday: coverage proven at 3 h open (2 h flo
   assert.equal(late.optimality.earlyFloor, null);
   assert.equal(late.optimality.openRow?.openFloor, 3);
   assert.equal(late.optimality.openRow?.proven, true);
+  // The row ran before the dual branch and proved the week, so the dual branch (8 s here) was skipped. `rowBeforeDual: false`
+  // gives the same roster, score, status and bounds after the dual branch's 8 s (docs/history/ci-perf-2026-11-18-shift-roster-row-before-dual.md).
+  assert.equal(late.optimality.openRow?.beforeDual, true);
   assert.ok(["optimal", "improved"].includes(late.optimality.status), late.optimality.status);
   assert.equal(late.optimality.bestScore, on.optimality.bestScore, "same proven score either way");
   const off = buildRoster(staff, slots, { exactMs: 1500, openSums: false });
