@@ -1,0 +1,9 @@
+draws 1000, n 2000, seed 7; population ATE 1.3372, ATT 1.6619 (1e6 draw)
+estimator  mean_estimate  bias  coverage_95  mean_ci_length
+ipw ate    1.3160 -0.0212 92.5% 1.3827
+ra ate     1.3332 -0.0040 94.3% 0.8298
+aipw ate   1.3346 -0.0026 94.0% 0.8698
+ipw att    1.6571 -0.0048 93.4% 1.0465
+ra att     1.6540 -0.0078 94.6% 0.8460
+match att  1.6581 -0.0038 95.2% 1.3980
+match1 att 1.1291 -0.5328 54.0% 1.1191
