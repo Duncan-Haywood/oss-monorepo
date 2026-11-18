@@ -47,3 +47,23 @@
 20 teams x 40 weeks, shape 0:0: 2 off after 1505.1 s, 55 steps
 24 x 13 0:0: start 2 off (2 cells); k 3 -> 8 over 35 steps; 2 off after 264.2 s (run with budget 240 s)
 LNS did not close either near miss; the symmetry-broken whole-season model closed both (above). Kept as a tool, not in the page.
+
+## 24 teams x 13 weeks, two teams off one pair, on other slots (SYMBREAK=1, 1800 s each, 3 at once; first answer kept)
+24 teams x 13 weeks, shape 0:0;23:0: SAT in 109.8 s
+24 teams x 13 weeks, shape 0:0;6:0 and 0:0;12:0: stopped unanswered at 110 s when 0:0;23:0 answered
+
+## The 142-season limit grid's misses that eval/bowling-lane-avoid-sat.py proved UNSAT on the page's own dealing
+## (6 teams on 3 pairs; eval/bowling-avoid-slots.py, 30 s per try, 60 s for 6 x 32)
+6 teams x 26 weeks, shape 0:0;2:0: UNSAT in 0.0 s
+6 teams x 26 weeks, shape 0:0;3:0: UNSAT in 0.0 s
+6 teams x 26 weeks, shape 0:0;4:0: UNSAT in 0.0 s
+6 teams x 26 weeks, shape 0:0;5:0: SAT in 0.0 s
+6 teams x 34 weeks, shape 0:0;3:0: SAT in 0.0 s
+6 x 32, two teams off the last pair: 23 slot pairs UNSAT, the other 6 orders (3 pairs of slots: 0-4, 3-5, 1-2) TIMEOUT at 60 s:
+6 teams x 32 weeks, shape 0:0;4:0: TIMEOUT after 60 s
+6 teams x 32 weeks, shape 3:0;5:0: TIMEOUT after 60 s
+6 teams x 32 weeks, shape 5:0;3:0: TIMEOUT after 60 s
+6 teams x 32 weeks, shape 1:0;2:0: TIMEOUT after 60 s
+6 teams x 32 weeks, shape 2:0;1:0: TIMEOUT after 60 s
+6 teams x 32 weeks, shape 4:0;0:0: TIMEOUT after 60 s
+6 x 32, one team off both ends: slots 0 and 5 UNSAT (23.8 s, 33.4 s), slots 1-4 TIMEOUT at 30 s:
