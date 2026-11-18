@@ -1,0 +1,6 @@
+reps 1000, permutations 199, alpha 0.05, seed 20261118; FDR columns: first 200 reps, 2n/alpha permutations (as the engine uses)
+map,values,moran_norm,moran_rand,moran_perm_two,moran_perm_one,geary_rand,geary_perm_two,geary_perm_one,G_norm,G_perm_two,local_mean_sig_two,local_mean_sig_one,local_maps_any_two,local_fdr_mean_sig,local_fdr_maps_any
+48 states (queen),normal,4.8,4.7,5.3,10.2,5.9,6.1,11.0,n/a,n/a,2.35,4.71,88.7,0.07,7.5
+48 states (queen),lognormal sd 1,2.7,3.9,4.4,9.6,3.9,3.8,10.3,3.6,5.4,2.40,4.83,89.8,0.12,9.0
+120 points (knn6),normal,5.3,5.3,4.9,10.4,5.6,5.1,10.0,n/a,n/a,5.98,12.04,99.0,0.08,6.0
+120 points (knn6),lognormal sd 1,3.2,4.6,5.8,9.1,4.8,5.1,12.0,4.3,4.4,6.17,12.20,99.0,0.13,4.5
