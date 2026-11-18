@@ -6,6 +6,21 @@ Research programme `codesign-cant` (track 14, `codesign`; proposal: [`PROPOSAL.m
 
 ![Left: held-out flights that diverged at a 20 degree tilt limit, out of 384, at centre-of-pressure levers 2 and 3. Centre of pressure above: 4, 9, 7 and 8 at lever 2 and 68, 73, 66 and 75 at lever 3 for milestone 7e's designs, milestone 7h's thrust-to-weight-free designs, and the lever-aware designs at thrust-to-weight 2 and free. Below: 45, 38, 20 and 14 at lever 2 and 159, 146, 87 and 86 at lever 3. Right: each design's mass against its diverged flights at lever 3: one falling curve from about 35 of 64 at 1.15 kg to 5 at 2 kg, whatever the arm.](experiments/m7i_aware/m7i_aware.png)
 
+## Milestone 7y: what does tuning a drone for a slower motor cost in step response and wind drift? A 10-20% slower rise, half the overshoot, millimetres of drift
+
+**Question.** Milestones 7u-7x found that tuning for a slower motor lag than the one flown keeps cutting crashes in a stress test (twice the centre-of-pressure lever, 45° tilt limit), with no knee by 60 ms. That test rewards a slow, heavy vehicle by construction. What does the slower tune cost in the units a builder writes into a requirement? 7x's 48 lever-aware designs (39.1, 45, 52 and 60 ms floors) were flown, without retraining, through a **1 m position step** and a **calm-to-wind step (3 and 6 m/s)** at the design lever, under the three identified lags (33, 36, 39.1 ms), with turbulence and yaw steps off.
+
+**Headline (`experiments/m7y_response/results.txt`, `verdicts.txt`, `posthoc.txt`; 137 s on 4 cores; simulated; 6 predictions committed first, 4 held).**
+
+- **The trade is rise time for overshoot.** Rise time to 90% of a 1 m step grows with every slower floor (1.44, 1.58, 1.64, 1.74 s with the centre of pressure above; 1.39, 1.47, 1.61, 1.77 s below), while overshoot shrinks (6.4, 5.9, 3.8, 3.2 cm; 9.7, 7.6, 5.5, 2.7 cm). Both orderings are monotone in all six cells. The 60 ms tune rises 10-20% slower than the 45 ms tune and overshoots a half to a third as much.
+- **Settle time barely moves:** to stay within 5 cm, 2.04 against 2.37 s above (+16%) and 2.56 against 1.95 s below (−24%). The slower rise is paid back by the smaller overshoot.
+- **Wind drift grows by millimetres:** peak drift after a 6 m/s wind step is 2.3, 1.9 cm (45 ms) against 2.8, 2.4 cm (60 ms), not separated at six seeds.
+- **The motor lag itself does not matter in calm air at the design lever** (every metric the same to three decimals at 33, 36 and 39.1 ms); it only matters near the torque limit, where the stress test lives. No flight diverged.
+- **A slow tail whatever the floor:** 8 of 48 designs (one to three per set) never settle inside 5 cm in 6 s; they park 5-8 cm short with position gains of 4.5-9.7 s⁻² against a set mean near 20. The stress objective never asks for a fast final approach.
+- **For a builder:** read along the four floors, each slower step trades about 0.1 s of rise time for 30-50 fewer stress-test crashes of 1152. If your mission can live with a 1.7-1.8 s rise to 90% on a 1 m step, the 60 ms tune is the recommendation; check the final approach (position gain) separately.
+
+![Left: stress-test crashes over the identified lags (of 1152) against rise time to 90% of a 1 m step, one point per tuning floor: centre of pressure above, 170 crashes at 1.44 s (39.1 ms tune) down to 36 at 1.74 s (60 ms); below, 178 at 1.39 s down to 51 at 1.77 s. Right: step overshoot falls from 6.4 and 9.7 cm (39.1 ms) to 3.2 and 2.7 cm (60 ms) while peak drift after a 6 m/s wind step stays between 1.9 and 2.8 cm.](experiments/m7y_response/m7y_response.png)
+
 ## Milestone 7x: is there a motor-lag tuning floor past which a drone stops gaining? Not by 60 ms: crashes keep falling; mass and gain pay
 
 **Question.** Milestone 7w found that tuning a 5-inch quadrotor for a 45 ms motor lag, slower than either published identification (33 and 39.1 ms), crashes less than tuning at 39.1 ms even when flown at 33 ms. Where is the knee? 7w's lever-aware objective was retuned at **52 ms** and **60 ms** (not sourced: tuning floors chosen to bracket a knee; training plants floor × U(1, 2)), with the stability certificate also required at 33 ms, and scored next to 7w's 45 ms and 7u's 39.1 ms designs under seven lag laws.
@@ -528,6 +543,8 @@ python3 experiments/m7q_closure/fit.py         # seconds, stdlib: closure consta
 "$PY" experiments/m7w_slow45/verdicts.py && "$PY" experiments/m7w_slow45/posthoc.py && "$PY" experiments/m7w_slow45/figure.py
 "$PY" experiments/m7x_knee/run.py             # about 2.6 h on 4 cores (48 CMA-ES runs at 52 and 60 ms, cached in .cache/; then 7 min of held-out flights)
 "$PY" experiments/m7x_knee/verdicts.py && "$PY" experiments/m7x_knee/posthoc.py && "$PY" experiments/m7x_knee/corner_bind.py && "$PY" experiments/m7x_knee/figure.py
+"$PY" experiments/m7y_response/run.py         # about 2.5 min on 4 cores (7x's 48 designs, no retraining; step and wind-step tests)
+"$PY" experiments/m7y_response/verdicts.py && "$PY" experiments/m7y_response/posthoc.py && "$PY" experiments/m7y_response/figure.py
 python3 paper/check_numbers.py                  # stdlib; every number the paper draft quotes against its results file
 ```
 

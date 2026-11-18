@@ -74,8 +74,8 @@ test("journal: every month balances, billings and recognition are separate entri
   const byMemo = {};
   for (const e of entries) { byMemo[e.memo] ||= 0; byMemo[e.memo] += Number(e.debit || 0) - Number(e.credit || 0); }
   for (const v of Object.values(byMemo)) assert.ok(Math.abs(v) < 1e-9);
-  assert.ok(entries.some((e) => e.memo === "Billings 2026-01" && e.account === "Accounts receivable" && e.debit === "1200.00"));
-  assert.ok(entries.some((e) => e.memo === "Billings 2026-03" && e.account === "Accounts receivable" && e.credit === "25.00"));
+  assert.ok(entries.some((e) => e.memo === "Billings 2026-01" && e.account === "Stripe balance" && e.debit === "1200.00"));
+  assert.ok(entries.some((e) => e.memo === "Billings 2026-03" && e.account === "Stripe balance" && e.credit === "25.00"));
 });
 
 test("journalCsv: header, quoting and trailing newline", () => {
@@ -147,4 +147,47 @@ test("only a negative line is re-spread over the line it credits; a positive one
     { id: "fee", credits: "il_a", billedAt: D(2026, 2, 1), start: D(2026, 2, 1), end: D(2026, 2, 1), amount: 5000 },
   ], { asOf: D(2026, 3, 1) });
   assert.equal(rows.find((r) => r.month === "2026-02").recognized, 2800 + 5000);
+});
+
+// Period lock (quality audit 2026-11-17, defect 4).
+test("schedule: a line billed after the close books its closed-month share as a catch-up in the first open month", () => {
+  const onTime = { id: "a", billedAt: D(2026, 1, 1), start: D(2026, 1, 1), end: D(2026, 4, 1), amount: 9000 };
+  const latePaid = { id: "b", billedAt: D(2026, 3, 10), start: D(2026, 1, 1), end: D(2026, 4, 1), amount: 9000 };
+  const asOf = D(2026, 3, 15);
+  const before = schedule([onTime], { asOf, closedThrough: "2026-02" });
+  const after = schedule([onTime, latePaid], { asOf, closedThrough: "2026-02" });
+  for (const m of ["2026-01", "2026-02"]) assert.deepEqual(after.find((r) => r.month === m), before.find((r) => r.month === m), m);
+  const mar = after.find((r) => r.month === "2026-03");
+  assert.equal(mar.recognized, 3100 + 9000); // onTime's March share (31 of 90 days) + all of the late line (Jan-Mar)
+  assert.equal(mar.billed, 9000);
+  const unlocked = schedule([onTime, latePaid], { asOf });
+  assert.equal(unlocked.find((r) => r.month === "2026-01").recognized, after.find((r) => r.month === "2026-01").recognized + 3100);
+  const tot = (rs) => rs.reduce((a, r) => a + r.recognized, 0);
+  assert.equal(tot(after), tot(unlocked));
+  assert.equal(after.at(-1).closing, unlocked.at(-1).closing);
+});
+
+test("schedule: the lock leaves future months alone and rejects a malformed month", () => {
+  const l = { id: "c", billedAt: D(2026, 3, 1), start: D(2026, 1, 1), end: D(2027, 1, 1), amount: 36500 };
+  const rs = schedule([l], { asOf: D(2026, 3, 5), closedThrough: "2026-02" });
+  assert.equal(rs[0].month, "2026-03");
+  assert.equal(rs.find((r) => r.month === "2026-03").recognized, 3100 + 2800 + 3100);
+  assert.equal(rs.find((r) => r.month === "2026-04").recognized, 3000);
+  assert.throws(() => schedule([l], { closedThrough: "2026-13" }));
+});
+
+test("journal: billings debit cash, so a paid invoice leaves no receivable", () => {
+  const rows = schedule([{ id: "x", billedAt: D(2026, 1, 5), start: D(2026, 1, 5), end: D(2026, 1, 5), amount: 1000 }], { asOf: D(2026, 1, 20) });
+  const e = journal(rows);
+  assert.ok(e.every((x) => x.account !== "Accounts receivable"));
+  assert.ok(e.some((x) => x.account === "Stripe balance" && x.debit === "10.00"));
+});
+
+// Defect 7: the remainder sort was an untested mutant. 100 over 3 equal months
+// of 1 day each gives remainders 1,1,1; over days 31/28/31 the two 31-day months
+// carry the larger remainders and must get the extra cents.
+test("spread: rounding remainder goes to the months with the largest fractional share", () => {
+  const s = spread({ amount: 1001, start: D(2026, 1, 1), end: D(2026, 4, 1) });
+  // exact shares: 1001*31/90 = 344.79, 1001*28/90 = 311.42, 344.79
+  assert.deepEqual(s, { "2026-01": 345, "2026-02": 311, "2026-03": 345 });
 });
