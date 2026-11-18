@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyfCpkRkUSYs2wB1wKv",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T04:56:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship: cull groups bursts panned 8-10% (flagships.yaml next item)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17179",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First pan_distance version (generator of 56 XORs) made grouping 2,000 frames 3.4 s -> 13.4 s",
+      "fix": "packed the 56 windows into 64-bit lanes and decide with one XOR plus a SWAR popcount (7.6 s); a bytes.translate popcount and a same-group skip were tried and did not pay"
+    },
+    {
+      "what": "tools/cull_showcase.py fails under the system python3 (PIL _imaging import error)",
+      "fix": "ran it with the interpreter platform/ci/pyenv.py returned for pytest numpy pillow"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A hook blocks a foreground `sleep N; check` while waiting on long background work; the Monitor until-loop route works but the CLAUDE.md long-commands note does not mention it, so the first wait attempt was refused."
+    },
+    {
+      "file": "ventures/photo-editing/tools/cull_crop_grouping_eval.py",
+      "issue": "Cutting ~24k variant frames with one ffmpeg process each takes about 40 min on 4 cores; nothing says so, and nothing caches the hashes between eval and tune scripts (each rehashes every frame)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-burst-grouping-that-survives-a-wide-pan.md",
+    "ventures/photo-editing/eval/cull-pan-windows-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Held-out (166 photos, scored once): burst-pair recall 0.914 -> 0.985, 8-10% pans 0.07-0.77 -> 0.86-1.00, false merges 25 -> 26 of 13,695. Tune pick rule unchanged from 2026-11-17 (highest tune recall within +2 tune false merges). Packed check: 0 disagreements with pan_distance on 20,000 random pairs x 12 limits. Showcase rerun identical. Local checks: photo-editing venture tests (run_venture_tests.py photo-editing), check_posts.py ok. Cost: grouping 2,000 frames 3.5 s -> 7.6 s; recorded as open in NEXT.md.",
+  "corrections": [],
+  "redteam": null
+}
