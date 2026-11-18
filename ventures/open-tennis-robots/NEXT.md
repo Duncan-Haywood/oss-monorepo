@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- Does the take survey's pick between its contact times (`ResidualSurvey.report`, still the three-point parabola) lean the way the ESC-lag survey's did? Refit stored take-survey wheels at a dense set of contact times and compare the least with `survey_pick` and `survey_spline_pick` (firmware/esp32/README.md, "The ESC-lag survey's pick between grid lags").
+- The take fit's least reads a half-sine take 0.2-0.4 ms high on the simulator, on both tachs and both sets (firmware/esp32/README.md, "The take survey's pick between contact times"; the pick between grid points was checked there and kept). Does a take model with more parts than `controller.take_offsets`' four, or a continuous one, remove it? Refit the stored rows of eval/take-survey-pick-*-rows-2026-11-18.jsonl.gz (they keep each wheel's periods and ticks) with `tests/take_survey_pick.py`'s dense refit.
