@@ -96,3 +96,36 @@ Predictions, bridge as frozen above:
    head, a hairline stem down its left side and the small note one step below under its right half.
 4. The bridge only adds liquescents where it changes anything: no note is moved to another pitch
    except the small note being read and the split piece it replaces.
+
+## Held-out result
+
+Run once each after the section above was committed (3a4ea7c21).
+
+**Aligned** (`node eval/one-step-check.mjs --before gap --out eval/one-step-hollow-fresh-report.md
+eval/one-step-hollow-fresh-pages.json`): GregoBase 3357, 219 notes agreeing and 0 differing either way,
+no note changed. Its one cephalicus (*e-* `gf~`, leaf 455, staff 2) is missed both ways, and not by
+this rule: `liquescentTail` claims the head first, as on 3439 in the table above.
+
+**Unaligned** (`node eval/one-step-hollow-leaves.mjs`, `one-step-hollow-leaves-report.md`): 31 leaves,
+258 staves, 8,356 notes. The bridge changes two places and only adds a liquescent at each, 101 to 103
+liquescents in all:
+
+| leaf, staff, x | added | looked at (4x crop) |
+|---|---|---|
+| 184, 7, 1571 | small note one step under the head | one-step cephalicus, head in a space, hollow small note on the line below, hairline stem (*impu-*) |
+| 348, 9, 1520 | small note one step under the head | one-step cephalicus, the same shape, above the top line but one (*bis*) |
+
+1. **Held.** Agreeing 219 to 219, differing 0 to 0.
+2. **Held.** Two places on 31 leaves, more than the one in 80 leaves the tuning lists suggested.
+3. **Held.** Both are one-step cephalici with a hollow small note, read at the right pitch.
+4. **Held.** Nothing moved or removed; each change is one added liquescent.
+
+The bridge stays on. With it the reader gets 77 of the 84 tuning-list one-step cephalici, up from 74,
+and no check, tuning or held-out, found a place where it reads something that is not one.
+
+## What is left
+
+Seven tuning misses: 3448 (broken stem), the Salve Regina (head falls 0.124 spaces, just over
+`maxFall`), 3439 and the held-out 3357 (`liquescentTail` reads the cephalicus first, the small note a
+step low or the head itself as the liquescent: two places with the same fault, the next item), 3524
+(cephalicus touching the head before it), and 3421, 3550 and 3741, not traced.
