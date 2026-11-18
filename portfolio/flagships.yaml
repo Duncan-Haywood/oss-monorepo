@@ -381,14 +381,14 @@ flagships:
       rainouts, standings, officials, duty rota, team sheets; carry-over and break
       floors, frontier picker, blackout fit, WebAssembly step: README 2026-11-11 to
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
-      schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
-      eval/platform-templates-2026-11-17.md; calendar ids per fixture,
-      eval/ics-stable-uids.txt; In/Maybe/Out per game and short teams on the league
-      page, availability.mjs 2026-11-18, subs, reminders, change emails, sign-ups,
-      captain score confirmation, move requests and organiser notices on the page or
-      emailed (confirm.mjs, reschedule.mjs, announcements.mjs; next: a real league's
-      use); bowling seasons, lane pairs rotated evenly: 36 of 36 at the bound,
-      repeats 392 to 148 (eval/bowling-repeat-sat.txt)). 3-game nights
+      schedule, eval/seed-balance.txt; TeamSnap/SportsEngine imports; 2026-11-18
+      limits kept exactly, impossible ones named, eval/limit-conflicts.txt;
+      In/Maybe/Out per game and short teams on the league page, availability.mjs
+      2026-11-18, subs, reminders, change emails, sign-ups, captain score
+      confirmation, move requests and organiser notices on the page or emailed
+      (confirm.mjs, reschedule.mjs, announcements.mjs; next: a real league's use);
+      bowling seasons, lane pairs rotated evenly: 36 of 36 at the bound, repeats 392
+      to 148 (eval/bowling-repeat-sat.txt)). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 5, 7 on
       1x9; 7 on 2x9. Night by night (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6;
