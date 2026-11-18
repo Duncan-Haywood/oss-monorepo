@@ -1,0 +1,65 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqycSN1hvF8BdsDAxe95",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T04:55:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "ai-bookkeeper flagship item (5): read cdek-ocr/receipt-ocr-ru train shard 2 (the last unread split) and fix what its misses show",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17178",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First version of the fallbacks (HTOI look-alike, card line without a repeat condition) scored 193 on shard 2, below main's 196",
+      "fix": "compared per-receipt gained/lost lists, dropped HTOI, required the card amount printed twice; 202 with none lost"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The hook that blocks foreground sleep also blocks a single `sleep 50` before a quick check; the cloud-session notes could say to use an until-loop in run_in_background from the start."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/receipt-ocr-ru-2026-11-18.md",
+      "issue": "Says RapidOCR runs at about 8 min per 233 photos on 4 cores; here it was about 20 to 30 min per split with other jobs on the box. Plan the OCR of all dev splits as a long background job, or read only the splits you need."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/receipt-ocr-ru-2026-11-18.md",
+      "why": "Re-reading all four dev splits (760 photos) for a no-regression check would have taken over two hours of OCR",
+      "did": "Re-read val and test only (300 photos) and compared main against the change on the same readings; train 0 and 1 not re-read",
+      "result": "val 138 -> 140, 0 lost; test see notes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ai-bookkeeper-the-card-terminal-knows-the-total.md",
+    "ventures/ai-bookkeeper/eval/receipt-ocr-ru-train2-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Clean held-out read of train shard 2 on main: 196/221 (88.7%; items-add-up subset 181/202). After changes written from its misses: 202/221 (185/202), 6 gained 0 lost. Val (re-read) 138 -> 140, 0 lost. CORD hand-corrected text unchanged (767/97/94). ai-bookkeeper suite: 3,388 tests pass (run_venture_tests.py). New regexes match 0 of 12,697 lines in the venture's other txt/jsonl/csv/json files.",
+  "corrections": [],
+  "redteam": null
+}
