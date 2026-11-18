@@ -8,6 +8,8 @@ One firmware for both robots; `config.py` picks the role (`feeder` or
 | `controller.py` | Board-independent logic: command dispatch, role filter, clamps, 300 ms watchdog, latched e-stop, bumper rule, 10 Hz telemetry. Unit-tested on CPython (`tests/test_robots.py`). |
 | `main.py` | Hardware layer (PWM, encoders, tachometers, ADC, UART) and the main loop. **Not yet run on a board.** |
 | `config.py` | Role, encoder scales, battery thresholds, azimuth and elevation drive settings. |
+| `capture.py` | Launcher tachs timed by MCPWM0's capture unit (opt-in, `TACH_CAPTURE`; "A tach timed in hardware"). **Not yet run on a board.** |
+| `tach_log.py` | Logs one wheel's tach periods from the REPL for `tennisbots tach-jitter`, by the pin interrupt or the capture unit. |
 | `../../src/tennisbots/protocol.py` | The serial protocol, shared byte-for-byte with the Pi. |
 
 ## Flash
@@ -15,7 +17,7 @@ One firmware for both robots; `config.py` picks the role (`feeder` or
 ```
 pip install mpremote
 # flash MicroPython for ESP32 first (https://micropython.org/download/ESP32_GENERIC/)
-mpremote cp ../../src/tennisbots/protocol.py controller.py config.py main.py :
+mpremote cp ../../src/tennisbots/protocol.py controller.py config.py main.py capture.py tach_log.py :
 mpremote reset
 ```
 
