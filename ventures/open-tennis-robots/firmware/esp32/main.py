@@ -204,7 +204,9 @@ class FeederHw:
         self.target_rpm = (0, 0)
         self.esc_cmd = [0.0, 0.0]
         rpm_full = getattr(config, "WHEEL_RPM_FULL", 9000)
-        self.wheel_loops = (controller.WheelLoop(rpm_full), controller.WheelLoop(rpm_full))
+        speed_esc = getattr(config, "ESC_SPEED_LOOP", False)    # README "An ESC with its own speed loop"
+        self.wheel_loops = (controller.WheelLoop(rpm_full, speed_esc=speed_esc),
+                            controller.WheelLoop(rpm_full, speed_esc=speed_esc))
         ramp = (getattr(config, "WHEEL_SPINUP_W", 100.0), getattr(config, "WHEEL_INERTIA_KGM2", 0.00155),
                 getattr(config, "WHEEL_RAMP_MAX_RPM_S", 1500.0))
         self.wheel_ramps = (controller.SpinupRamp(*ramp), controller.SpinupRamp(*ramp))
