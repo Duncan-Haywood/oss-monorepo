@@ -6,7 +6,22 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "..", "experiments"))
 sys.path.insert(0, os.path.join(HERE, "..", "src"))
 
-import run_width_oos as W  # noqa: E402
+W = None
+
+
+def setUpModule():
+    # Imported here, not at load time: importing it switches the shared climatology to 2005 to 2014, which would
+    # leak into the other test modules that unittest discover loads first.
+    global W
+    import run_width_oos
+    W = run_width_oos
+    import run_old_clim_2025 as oc
+    oc.use_clim(oc.OLD_CLIM)
+
+
+def tearDownModule():
+    import run_old_clim_2025 as oc
+    oc.use_clim(oc.DEFAULT_CLIM)
 
 
 class WidthOutOfSampleTests(unittest.TestCase):
