@@ -30,10 +30,16 @@ export function liveMap(subs, { countPastDue = true } = {}) {
 // What each sub was worth at instant t, using today's price: Stripe's list API
 // has no price history, so a backfill can show new and churned MRR but never
 // expansion or contraction. The server marks these months approximate.
+// A subscription counts from the end of its free trial (trialEnd, ms), not from
+// `created`: a trial is not revenue, and one canceled before it ever paid is
+// neither new MRR nor churn (red team 2026-11-18).
+export const paidFrom = (s) => Math.max(s.created || 0, s.trialEnd || 0);
+const neverPaid = (s) => Boolean(s.endedAt && s.endedAt <= paidFrom(s));
+
 export function mapAt(subs, t) {
   const out = {};
   for (const s of subs) {
-    if (!(s.mrr > 0) || !s.created || s.created > t) continue;
+    if (!(s.mrr > 0) || !s.created || paidFrom(s) > t) continue;
     if (s.endedAt && s.endedAt <= t) continue;
     if (!s.endedAt && !["active", "past_due", "canceled", "incomplete_expired"].includes(s.status)) continue;
     out[s.id] = s.mrr;
@@ -150,13 +156,14 @@ export function formatMoney(minor, currency = "usd") {
 // `months` months, how many (and how much of their MRR) were still alive at the
 // end of month 0, 1, 2 ... Uses start and end dates only, so logo retention is
 // exact; revenue retention uses today's price for every subscription (marked
-// approximate in the README). Trials and paused subscriptions are left out.
+// approximate in the README). Trials and paused subscriptions are left out; a
+// subscription joins the cohort of the month its trial ended (it started paying).
 export function cohorts(subs, now, months = 12) {
   const rows = [];
   const ends = monthEnds(now, months);
-  const eligible = subs.filter((s) => s.mrr > 0 && s.created && ["active", "past_due", "canceled", "incomplete_expired"].includes(s.status));
+  const eligible = subs.filter((s) => s.mrr > 0 && s.created && ["active", "past_due", "canceled", "incomplete_expired"].includes(s.status) && !neverPaid(s));
   for (let i = 0; i < ends.length; i++) {
-    const members = eligible.filter((s) => ym(s.created) === ends[i].month);
+    const members = eligible.filter((s) => ym(paidFrom(s)) === ends[i].month);
     if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }
     const mrr = members.reduce((a, s) => a + s.mrr, 0);
     const logo = [], revenue = [];

@@ -196,8 +196,9 @@ flagships:
       better) holds every false find (README "Which imbalance biases the gap"); CLI
       and page ship it 2026-11-17 (README "A synthetic control on the page", Prop 99
       example); two covariates: harmless one's warning 0 of 170 false finds, 1.27x
-      bias (bar failed); next non-step shocks, a real deployer's panel. More open
-      items: NEXT.md.
+      bias (bar failed); slope and pulse shocks 2026-11-18: warning holds 42 of 43
+      false finds (README "Shocks that are not steps"); next anticipation (a shock
+      before the date), a real deployer's panel. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -236,10 +237,10 @@ flagships:
       the publishers' examples: PINT/ZATCA, CIUS-RO/PT/HR, NLCIUS
       (eval/cius-whitespace-2026-11-17.md) and the French sets (BR-FR,
       EXTENDED-CTC-FR, Factur-X EXTENDED, CDAR, Flux 10), with INV-065 now in the
-      Flux 10 and CDAR readers (eval/french-whitespace-2026-11-17.md). Next:
-      xs:dateTime leaves (FA(3), NAV timestamps) now in CASTABLE: measure them as
-      eval/nbsp-other-formats-2026-11-17.md does. No network beyond PyPI, Maven and
-      GitHub.
+      Flux 10 and CDAR readers (eval/french-whitespace-2026-11-17.md). CASTABLE
+      matches SaxonC on all 1,695 leaf values of 113 files and 5,024 of 5,075 swept
+      dates (eval/datetime-leaves-2026-11-18.md): the whitespace line is done. No
+      network beyond PyPI, Maven and GitHub.
   - venture: shift-roster-builder
     inputs_only: >-
       a live deploy with real punches, a real payroll template, a manager's
@@ -383,12 +384,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a
-      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "A take that
-      lasts a few milliseconds" (a 6 ms ball contact reads 0.82% sd as a step and
-      puts spin 1.5% off; LOOP_TAKE contact-time term, off by default, 0.19%; the
-      least-rms pick of 7 contact times matches the truth,
-      eval/take-fit-2026-11-17.txt). Next: a contact-time survey on the board's
-      calibration drill, as the ESC-lag survey; ball hold: measure WHEEL_RPM_FULL
+      venv, about 2 min). Landed: see firmware/esp32/README.md, latest "The contact
+      time surveyed on the board" (calibration drills ask the board to refit each
+      ball at 7 contact times; half-sine picks within 1 ms of the truth; advice only
+      past a 0.6 rms margin, since instant takes picked 1.5-2.5 ms on the
+      first-order plant; eval/take-survey-*-2026-11-17). Next: trace that
+      first-order misfit (1 ms command steps?); ball hold: measure WHEEL_RPM_FULL
       error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
@@ -452,8 +453,9 @@ flagships:
       rhombi, quilismas, liquescents, lines at true thickness; tilted pages, curled
       staves straightened (eval/staff-curl-check.md); 3506/3679 fixed 2026-11-15
       (eval/broken-stroke-check.md); next: worn pages (new GABC needed), mottled
-      squares, one-step cephalici read (eval/one-step-cephalicus-check.md), 10 of 84
-      tuning misses left, 3408's strokes, 3464's cephalicus. More open items:
+      squares, hollow small notes bridged 2026-11-18 (77 of 84,
+      eval/one-step-hollow-check.md), next liquescentTail claiming a one-step
+      cephalicus (3439, 3357), 3408's strokes, 3464's cephalicus. More open items:
       NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
@@ -462,8 +464,9 @@ flagships:
       -um", "A /u/ release read as a nasal"). The cluster-onset -um misses are a
       synthesis fault (the murmur's darkness follows the closure's phase in the
       voices' beating, eval/cluster-um-report.md): a murmur dark in every phase,
-      sing.mjs. OMR (scan.mjs) items in next: one-step cephalici, 10 of 84 tuning
-      misses, 3408's strokes, 3464's cephalicus.
+      sing.mjs. OMR (scan.mjs) items in next: liquescentTail taking a one-step
+      cephalicus (3439, 3357; eval/one-step-hollow-check.md), 3408's strokes, 3464's
+      cephalicus.
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
   # checking of IFC models, in a browser tab or CI. Depth: a full IDS engine
   # scored on buildingSMART's 334 test pairs and cross-checked against IfcTester.

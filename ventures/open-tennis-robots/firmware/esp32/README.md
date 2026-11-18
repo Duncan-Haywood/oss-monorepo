@@ -2026,3 +2026,92 @@ real wheel's tach log around a ball, which names the contact time directly.
 **Not known.** All simulated. The take's profile is assumed (half-sine or linear); a real ball's grip includes
 compression and slip that may not be either, and a real contact time may change with speed (faster wheels, shorter
 contact), which a single `LOOP_TAKE` does not model. The offline refit covers one lag and one plant.
+
+## The contact time surveyed on the board (2026-11-17, after the take)
+
+**The item.** The section above gave the drop fit a contact-time term (`LOOP_TAKE`) but left it off, because a real
+ball's contact time is unknown and a wrong guess costs as much as the step. Offline, refitting each wheel at a few
+contact times and keeping the least summed squared rms named the take as well as knowing it. Now the board runs that
+survey itself, and the Pi turns it into a line saying what to set.
+
+**How.** `config.TAKE_US` (default 0, the step) sets the contact time the record's drop fit models, as a 4-part
+half-sine (`LaunchCheck(take_us=)`). The new SURVEY_TAKE command (0x15) turns on the contact-time survey. After the
+ESC-lag survey of each launched ball, `LaunchCheck._take_survey` refits each turning wheel at the seven contact times of
+`TAKE_SURVEY_GRID_US` (0 / 2 / 3 / 4 / 5 / 6 / 8 ms), using the board's own ESC lag. It sums the squared residuals
+through the same trimmed sum as the ESC-lag survey (`ResidualSurvey`), and refines the least by `survey_pick`'s
+parabola. The TAKE_SURVEY frame (0x84) carries the wheel count, the least and refined times, the board's own `TAKE_US`
+(0.1 ms units) and each candidate's mean rms. `host.run_drill(take_survey=True)` sends SURVEY_TAKE for a calibration
+drill (`run_file` does so whenever the drill says `"calibration": true`) and turns it off at the end. `tennisbots run`
+prints `host.take_survey_advice`, and the shot log keeps the survey (`last_take_survey_from_log`, also printed by
+`tennisbots esc-lag`).
+
+**Two things the first run showed.**
+
+1. *The survey needs the tau refinement.* The ESC-lag survey fits without it (15 steps a fit). Run that way, the take
+   survey picked an instant take on a 6 ms build. Without refinement the fit's misses were about 60 times the refined
+   fit's (775 against 13 ppm on the first ball), so every candidate scored alike. The take survey keeps the refinement
+   (36 steps a fit), about 5 s of control ticks for a two-wheel ball. Fitting the candidates at the record fit's own
+   tau instead (4 steps) was no better: offline it picked 0 on a 6 ms build.
+2. *A new stroke cut every survey.* At the calibration drill's 4 s interval the next ball's stroke started before the
+   survey was done (11 of 12 cut). For a calibration drill the Pi now holds each ball until the board's count has risen
+   by the last shot's turning wheels, or for `TAKE_WAIT_S` (8 s). With 12 balls that adds 41.8 s to the drill, and no
+   survey was cut.
+
+**The run.** `tests/take_survey_sweep.py` uses the first-order 8k and ESC 50 ms told plants at 0.1 ms with the 1 us
+timer, the three launchers of min_fit_heldout.py, a wheel lag of 0.3 s and seed 7, with four takes. Per build it runs
+the calibration drill with the survey on (its drops are the step's). Then a fresh board, told the advised `TAKE_US`,
+runs the calibration drill and the held-out slow drill again, and the step board runs the slow drill. Output is in
+eval/take-survey-sweep-2026-11-17.txt, with rows in the .jsonl.gz.
+
+The prediction, written before the run: half-sine picks within 1 ms of the truth, instant picks at 1 ms or less, and
+told the pick the 6 ms builds read better than as a step. The rule: an instant build advised over 1 ms, or a 6 ms
+build reading worse told its pick, means the advice needs a margin.
+
+| take | picks, ms (6 builds) | reading sd at 1,000 rpm and up (cal + slow): step, told | calibration spin error mean (worst): step, told |
+| --- | --- | --- | --- |
+| instant | 0, 0, 1.5, 2.5, 2.5, 2.5 | 0.14%, 0.33% | 0.25% (0.49), 0.57% (1.26) |
+| half-sine 3 ms | 3, 3, 3, 3.5, 3.5, 4 | 0.27%, 0.17% | 0.70% (1.83), 0.42% (0.84) |
+| half-sine 6 ms | 5, 6, 6, 6, 6.5, 6.5 | 0.68%, 0.24% | 0.96% (4.15), 0.68% (2.37) |
+| front 4 ms | 0, 4.5, 4.5, 4.5, 5, 5.5 | 0.50%, 0.26% | 1.26% (3.41), 0.47% (1.11) |
+
+**Half the prediction held.** Every half-sine pick landed within 1 ms of the truth, and told its pick, every spread
+take read with about a third to two thirds of the step's scatter. The front-loaded take, which no half-sine matches,
+picked 4.5-5.5 ms and gained as much. The rule fired twice, though. Four of six instant builds were advised 1.5-2.5
+ms, and told it they read worse (sd 0.14% to 0.33%). All three first-order instant builds did this, so on that plant
+the take term absorbs some misfit of the step model itself, not a take. One 6 ms ESC build picked 5 ms and its spin
+fit went from 0.21% to 2.37%.
+
+**The margin.** `host.TAKE_ADVISE_RATIO = 0.6`: the advice says "set TAKE_US" only when the best candidate's mean rms
+is at most 0.6 of the step's. Otherwise it says keep 0 and gives the share. The instant builds' best came in at
+0.66-0.76 of the step's. The spread takes mostly came in at 0.29-0.6, but the 3 ms builds reached 0.83, so no margin
+separates an instant take from a 3 ms one. With the margin at lag 0.3 s, no instant build is advised and 2 / 4 / 5 of 6 of
+the 3 ms / 6 ms / front-loaded builds are. Pooled scatter with the margin is 0.14% / 0.22% / 0.30% / 0.26%, against the
+step's 0.14% / 0.27% / 0.68% / 0.50%, and the 6 ms spin fit's worst is 0.66% (step 4.15%). The bad 6 ms build (0.67) is
+not advised. The 0.6 was chosen by looking at these builds. A second seed is no check here, because these plants have no noise and seed 8 matched seed 7 to the digit. So the check reruns everything at a wheel lag of 0.6 s (below).
+
+**Not known.** All of this is simulated, and the take's profile is assumed. The first-order plant's instant-take
+preference for 2.5-3 ms is a misfit not yet traced. Its cause may be the simulator's 1 ms command steps against the
+0.1 ms physics, which a real ESC would not share. The survey's 5 s a ball on a real ESP32 under MicroPython is not
+measured. A real wheel's tach log around a ball would name the contact time directly.
+
+**The held-out check** (`--lag 0.6`, eval/take-survey-heldout-2026-11-17.txt, the margin fixed beforehand): the same
+24 builds at a wheel lag of 0.6 s.
+
+| take | picks, ms | told every pick: sd, spin mean (worst) | with the margin: advised, sd, spin mean (worst) | step: sd, spin |
+| --- | --- | --- | --- | --- |
+| instant | 0, 0, 0, 0, 1, 2.5 | 0.20%, 0.39% (0.80) | 0 of 6, 0.12%, 0.15% (0.47) | 0.12%, 0.15% (0.47) |
+| half-sine 3 ms | 0, 0, 1.5, 3, 3.5, 4 | 0.22%, 0.40% (1.06) | 1 of 6, 0.21%, 0.44% (1.09) | 0.22%, 0.39% (1.09) |
+| half-sine 6 ms | 5.5, 6, 6, 6, 6, 6 | 0.21%, 0.76% (1.98) | 6 of 6, 0.21%, 0.76% (1.98) | 0.77%, 2.53% (4.87) |
+| front 4 ms | 0, 1.5, 3, 3, 4, 4.5 | 0.39%, 1.30% (5.03) | 0 of 6, 0.39%, 0.59% (1.64) | 0.39%, 0.59% (1.64) |
+
+The margin held. No instant build was advised, though two picked 1 and 2.5 ms and read worse when told. Every 6 ms
+build was advised, and its scatter fell to about a quarter and its spin error to about a third. At this lag the
+front-loaded take picked anywhere from 0 to 4.5 ms and would have read the spin worse told its pick (worst 5.03%). The
+margin advised none of those builds, so here it saved a re-flash that would have hurt. A 3 ms take is too short to
+matter at 0.6 s (0.22% as a step), and the survey mostly says so. One 6 ms ESC build told 5.5 ms read its scatter
+better but its spin worse (0.77% to 1.98%), the one advised build where a re-flash cost something.
+
+**What changes.** The firmware and the Pi now survey the contact time on every calibration drill (about 42 s longer for
+12 balls), and the advice is conservative. Nothing changes until a person re-flashes `TAKE_US`. Next: trace the
+first-order plant's lag-0.3 s preference for 2.5-3 ms on instant takes. Then time the survey on a real ESP32, and log
+a real wheel's tach around one ball.
