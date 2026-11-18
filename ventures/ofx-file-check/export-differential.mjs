@@ -94,7 +94,7 @@ export function generate(seed, writer, variations = []) {
 }
 
 const csvCell = (s) => (/[",\r\n]/.test(s) || /^\s|\s$/.test(s) ? `"${String(s).replace(/"/g, '""')}"` : s);
-const dec = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
+const dec = (c) => ((t) => (c < 0 && /[1-9]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
 const xml = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
 const SOURCES = {
