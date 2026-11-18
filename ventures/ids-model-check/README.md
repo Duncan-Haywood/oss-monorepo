@@ -869,8 +869,12 @@ faster than IfcTester; its point is needing no install.
   needed 2 GB before, `eval/no-entity-facet-2026-11-17.md`). Models well past 500 MB may need the command line with
   `--max-old-space-size`. The ifcXML reader reads each element as it streams
   and keeps geometry only as where its text starts and ends.
-- The IDS audit does not validate the file against the IDS XML schema
-  (cardinality attributes, element order); the IDS-Audit-tool does. Property
+- The IDS audit checks the file against the IDS 1.0 XML schema (element
+  order, allowed attributes, cardinality and other fixed-list values;
+  2026-11-18, `structure.mjs`, `eval/ids-structure-2026-11-18.md`: the same
+  verdict as IfcTester's `ids.xsd` validation on 145 of 145 public and
+  test files and 2,935 of 2,935 mutated copies), but not every rule of the
+  imported XMLSchema.xsd inside an `xs:restriction`. Property
   set templates are checked for names, data types and applicable classes, not
   for predefined types (`IfcSlab/TRACKSLAB` sets are allowed on any slab) or
   property set template types (occurrence versus type driven).

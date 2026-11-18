@@ -14,6 +14,7 @@ import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
 import { auditIds } from "./audit.mjs";
+import { structureIssues } from "./structure.mjs";
 import { temporalKind, temporalKey } from "./temporal.mjs";
 export { temporalKind, temporalKey };
 
@@ -917,7 +918,7 @@ function readFacets(node) {
 export const INFO_FIELDS = ["title", "copyright", "version", "description", "author", "date", "purpose", "milestone"];
 
 export function parseIds(text) {
-  const root = parseXml(text);
+  const root = parseXml(text, { spans: true });
   if (root.local !== "ids") throw new Error(`not an IDS file: root element is <${root.name}>`);
   const info = kid(root, "info");
   const title = info && kid(info, "title") ? kid(info, "title").text.trim() : null;
@@ -945,7 +946,11 @@ export function parseIds(text) {
       requirementsDescription: req && req.attrs.description,
     });
   }
-  return { title, info: infoFields, specs };
+  const out = { title, info: infoFields, specs };
+  // Where the file breaks ids.xsd (structure.mjs), for the audit; not
+  // enumerable, so JSON reports and the editor's state stay as they were.
+  Object.defineProperty(out, "structure", { value: structureIssues(root, text) });
+  return out;
 }
 
 function versionMatches(spec, model) {
@@ -1330,9 +1335,14 @@ export function checkIds(idsText, ifcText, opts = {}) {
     // (national requirement sets extend Pset_DoorCommon and the like), so the
     // specification runs and the finding is shown as a warning.
     const templateOnly = (x) => x.level === "error" && x.code.startsWith("pset-");
-    const warns = mine.filter((x) => x.level === "warning" || templateOnly(x)).map((x) => (templateOnly(x) ? "not standard IFC (an IDS audit rejects this): " : "") + x.message);
+    // A break of ids.xsd (structure.mjs) makes validating tools refuse the
+    // file, but this reader still reads what the author meant (IDS 0.9's
+    // minOccurs on <specification>, ifcVersion IFC4X3), so the specification
+    // runs and the finding is a warning, as for template errors.
+    const xsdOnly = (x) => x.level === "error" && x.structure;
+    const warns = mine.filter((x) => x.level === "warning" || templateOnly(x) || xsdOnly(x)).map((x) => (templateOnly(x) ? "not standard IFC (an IDS audit rejects this): " : xsdOnly(x) ? "not valid IDS 1.0, so validating tools refuse the file: " : "") + x.message);
     if (warns.length) s.auditWarnings = warns;
-    const errors = mine.filter((x) => x.level === "error" && !templateOnly(x));
+    const errors = mine.filter((x) => x.level === "error" && !templateOnly(x) && !xsdOnly(x));
     if (errors.length) {
       s.status = "invalid";
       s.invalid = errors.map((x) => x.message);
