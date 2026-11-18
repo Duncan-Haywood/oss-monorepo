@@ -1980,8 +1980,10 @@ class TakeSurveyTest(unittest.TestCase):
         self.assertLess(shares[controller.TAKE_SURVEY_BLIND], 0.4)
         rs = controller.ResidualSurvey(grid, 0, controller.TAKE_SURVEY_BLIND)
         rs.add(blind)
-        self.assertIsNone(rs.report(100))                           # only blind wheels: no verdict yet
-        self.assertEqual(rs.n, 1)
+        self.assertEqual(rs.report(100), (1, 0, 0, [0] * len(grid)))   # only blind wheels: the count, no verdict
+        sv = {"wheels": 20, "least_ms10": 0, "refined_ms10": 0, "board_ms10": 30, "rms_ppm": [0] * len(grid)}
+        self.assertIn("none told the contact times apart", host.take_survey_advice(sv))
+        self.assertIn("keep TAKE_US = 3000", host.take_survey_advice(sv))
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_grid=grid)
         self.assertEqual(lc.take_survey.blind, controller.TAKE_SURVEY_BLIND)
 

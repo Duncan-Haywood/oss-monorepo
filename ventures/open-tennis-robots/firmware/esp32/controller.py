@@ -472,6 +472,9 @@ class ResidualSurvey:
         if self.n == 0:
             return None
         sums = self.sums()
+        if self.wheels == [] and self.blind_n:
+            # every wheel so far take-blind: the count still goes out (the Pi waits on it), with no pick and no rms
+            return (min(255, self.n), 0, 0, [0] * len(self.grid))
         i, ref = survey_pick(self.grid, sums)
         if i is None:
             return None

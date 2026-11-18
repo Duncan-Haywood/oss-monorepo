@@ -30,7 +30,7 @@ def summary(rows, blind):
         left += rs.blind_n
         wheels += rs.n
         rep = rs.report(100)
-        if rep is None:
+        if rep is None or not any(rep[3]):          # (all wheels take-blind: the count with no verdict)
             none += 1
             continue
         _, least, ref, rms = rep
