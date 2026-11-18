@@ -208,15 +208,9 @@ export function skeletonGate(p, prog) {
   const rows = [];
   for (const row0 of [p.split.front, p.split.back]) {
     if (!row0.length) { rows.push(null); continue; }
-    let row = orderRow(row0, p.wetAt);
-    let widths = fitRowMemo(row, L);
-    if (!widths) {
-      // a linen closet takes up length the rooms cannot
-      row = p.wetAt === "start" ? ["linen", ...row] : [...row, "linen"];
-      widths = fitRowMemo(row, L);
-    }
-    if (!widths) return { fail: ["row does not fit"] };
-    rows.push({ row, widths });
+    const fitted = fitOrderedRow(row0, p.wetAt, L);
+    if (!fitted) return { fail: ["row does not fit"] };
+    rows.push(fitted);
   }
   if (endW) {
     const r = suiteReason(D, endW, p.suite.bedBack, [df, df + hw]);
@@ -225,18 +219,34 @@ export function skeletonGate(p, prog) {
   return { rows };
 }
 
-// fitRow is pure in (row, L), and the search asks for the same few rows at the
-// same few lengths across every D, df and wetAt; callers only read the widths.
-const fitMemo = new Map();
-function fitRowMemo(row, L) {
-  const key = `${row.join(",")}|${L}`;
-  let w = fitMemo.get(key);
-  if (w === undefined) {
-    if (fitMemo.size > 50000) fitMemo.clear();
-    w = fitRow(row, L);
-    fitMemo.set(key, w);
+/**
+ * A wing row ordered (orderRow) and fitted (fitRow) to length L, with a linen
+ * closet added when the rooms alone cannot stretch to L: { row, widths }, or
+ * null when it does not fit. Pure in (row0's cells, wetAt, L). The search asks
+ * for the same few row arrays (rowSplits makes them once per search) at the
+ * same few lengths across every D, df, suite and great-room option, so the
+ * answer is memoised on the row array itself: no key string, no re-sort.
+ * Callers only read the result; it is frozen so a write would throw.
+ */
+const fittedMemo = new WeakMap();
+export function fitOrderedRow(row0, wetAt, L) {
+  let m = fittedMemo.get(row0);
+  if (!m) { m = new Map(); fittedMemo.set(row0, m); }
+  const key = wetAt === "start" ? L : -1 - L; // L > 0, so the two never collide
+  let r = m.get(key);
+  if (r === undefined) {
+    r = null;
+    let row = orderRow(row0, wetAt);
+    let widths = fitRow(row, L);
+    if (!widths) {
+      // a linen closet takes up length the rooms cannot
+      row = wetAt === "start" ? ["linen", ...row] : [...row, "linen"];
+      widths = fitRow(row, L);
+    }
+    if (widths) r = Object.freeze({ row: Object.freeze(row), widths: Object.freeze(widths) });
+    m.set(key, r);
   }
-  return w;
+  return r;
 }
 
 let uid = 0;
