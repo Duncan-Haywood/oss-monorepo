@@ -861,6 +861,16 @@ text is now copied in runs. Every report is identical.
    a 670 MB federated model (11.0 million entities) checks against the
    starter IDS in 13.9 s. Checks are about 5% slower (each read decodes its
    record). Reports from 68 IDS files hash the same on four models.
+15. **ifcXML read from the file's bytes** (2026-11-18,
+   `eval/ifcxml-bytes-2026-11-18.md`). The XML reader runs over the bytes,
+   decoding each name, attribute value and text run on its own, and lazy
+   geometry is read again from its byte span, so an ifcXML file is no longer
+   one string on the heap. The smallest heap that parses HHS MEP as ifcXML
+   fell from 336 to 192 MB; the 374 MB federated ifcXML parses in 448 MB
+   (was 800) and checks against all 68 IDS files in 448 MB (was 832). A
+   680 MB ifcXML, which main refused (string length limit), checks against
+   the starter IDS in 25.6 s. Reports from 68 IDS files hash the same on
+   three models; times are unchanged within noise.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -920,16 +930,17 @@ faster than IfcTester; its point is needing no install.
   points written flat are cut into rows from its knot counts, and left flat
   (with a note) when the counts do not multiply out. The ifcXML reader streams
   (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
-  1 GB heap, about twice the time of the same model as STEP; an ifcXML file
-  past about 537 MB cannot be read at all (a JavaScript string's length
-  limit; a STEP file can since 2026-11-18, `eval/step-bytes-2026-11-18.md`). In the
+  1 GB heap, about twice the time of the same model as STEP. Since
+  2026-11-18 both forms are read from the file's bytes, so files past a
+  JavaScript string's 537 MB limit open (`eval/step-bytes-2026-11-18.md`,
+  `eval/ifcxml-bytes-2026-11-18.md`: a 680 MB ifcXML checks in 25.6 s). In the
   nested IFC4 layout every entity is read as its element closes
   (`eval/nested-early-2026-11-18.md`), so the tree under the root is not
   held; a 166 MB federated file still peaks about 1.4x higher than the same
   model as STEP, set by the records kept per entity.
 - The model's bytes are held in memory (outside the JavaScript heap since
-  2026-11-18, `eval/step-bytes-2026-11-18.md`; ifcXML is still decoded to one
-  string) with a small record per entity (48
+  2026-11-18, `eval/step-bytes-2026-11-18.md`; ifcXML too,
+  `eval/ifcxml-bytes-2026-11-18.md`) with a small record per entity (48
   bytes and 12 more in the number index, since 2026-11-18,
   `eval/entity-table-2026-11-18.md`); an
   entity's arguments are read when a check first needs them, and geometry's

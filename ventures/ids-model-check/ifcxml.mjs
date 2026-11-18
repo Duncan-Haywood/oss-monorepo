@@ -3,7 +3,10 @@
 // checker runs on it unchanged.
 //
 // ifcXMLSchemaId(text) -> "IFC2X3" | "IFC4" | "IFC4X3" | null
-// parseIfcXml(text, schema, { eager }) -> { schema, entities: Map<id, {id, type, args}>, errors, early }
+// parseIfcXml(text, schema, { eager }): text may be the file's bytes (a
+//   Uint8Array), read without ever becoming one string on the heap
+//   (eval/ifcxml-bytes-2026-11-18.md); offsets are then byte offsets.
+// parseIfcXml(...) -> { schema, entities: Map<id, {id, type, args}>, errors, early }
 //   early: nested entity elements read as they closed (see "Read as it
 //   closes" below)
 //   schema: a Schema (ids.mjs) for that version; it gives each attribute's
@@ -44,14 +47,18 @@ import { EMPTY_LIST, SKIPPED_LIST } from "./step.mjs";
 // Only when those tags name no version is the rest of the head searched.
 const versionIn = (s) => (/IFC4X3|IFC4_3|IFC4x3/i.test(s) ? "IFC4X3" : /IFC2X3/i.test(s) ? "IFC2X3" : /IFC4/i.test(s) ? "IFC4" : null);
 const ROOT_TAG = /<(?:[\w.-]+:)?(?:iso_10303_28|ifcXML|uos)(?=[\s>\/])[^>]*>/gi;
+// text may be the file's bytes (a Uint8Array): only its head is decoded.
+// 4,000 characters are at most 16,000 UTF-8 bytes; a character cut at the end
+// decodes to U+FFFD and is sliced off with the rest past 4,000.
+const headOf = (text, chars) => (text instanceof Uint8Array ? new TextDecoder().decode(text.subarray(0, chars * 4)) : text).slice(0, chars);
 export function ifcXmlSchemaId(text) {
-  const head = text.slice(0, 4000);
+  const head = headOf(text, 4000);
   if (!/^\s*(\uFEFF)?\s*</.test(head)) return null;
   return versionIn((head.match(ROOT_TAG) || []).join(" ")) || versionIn(head);
 }
 
 export function looksLikeXml(text) {
-  return /^\s*(\uFEFF)?\s*<[?!a-zA-Z]/.test(text.slice(0, 200));
+  return /^\s*(\uFEFF)?\s*<[?!a-zA-Z]/.test(headOf(text, 200));
 }
 
 // A nested element read as it closed (parseIfcXml, "Read as it closes"): in
@@ -156,7 +163,7 @@ export function parseIfcXml(text, schema, opts = {}) {
     toJSON() { return this.xmlId !== undefined ? { id: this.id, type: this.type, args: this.args, xmlId: this.xmlId } : { id: this.id, type: this.type, args: this.args }; }
   }
   function reread(e) {
-    const root = parseXml(text.slice(e._s, e._e), { spans: true });
+    const root = parseXml(text instanceof Uint8Array ? text.subarray(e._s, e._e) : text.slice(e._s, e._e), { spans: true });
     hrefToRef(root);
     const saved = re;
     re = { root, base: e._s, out: null, id: e.id };
