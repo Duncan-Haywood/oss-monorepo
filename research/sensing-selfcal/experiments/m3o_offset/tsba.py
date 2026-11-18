@@ -27,10 +27,10 @@ def interp(gs, gw, t):
 
 class TWindow(rsba.Window):
     def __init__(self, vi, pi, uv, nv, npt, tv0, gyro_s, gyro_w, kf_t, t_r, H=480,
-                 est_tr=False, est_delta=False, delta0=0.0):
+                 est_tr=False, est_delta=False, delta0=0.0, est_u=False):
         self.gs, self.gw, self.kf_t = np.asarray(gyro_s, float), np.asarray(gyro_w, float), np.asarray(kf_t, float)
         self.est_delta, self.delta = est_delta, float(delta0)
-        super().__init__(vi, pi, uv, nv, npt, tv0, self.rates(delta0), t_r, H, est_tr, False)
+        super().__init__(vi, pi, uv, nv, npt, tv0, self.rates(delta0), t_r, H, est_tr, est_u)
         self.nfull += int(est_delta)
 
     def rates(self, delta):
