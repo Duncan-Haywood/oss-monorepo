@@ -1,3 +1,8 @@
+---
+kind: note
+subjects: [hearth-and-horizon]
+date: 2026-11-18
+---
 # The Line on the Ceiling: the numbers behind the story
 
 Working notes for the Hearth & Horizon story *The Line on the Ceiling*
