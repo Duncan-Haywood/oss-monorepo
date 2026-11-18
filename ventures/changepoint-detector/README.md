@@ -6912,3 +6912,45 @@ JHU's eight returns, which are seen data.
 
 Test: `update-rate-returns.test.mjs` (the pass finds a planted return and its edges, looks only for fewer repeats,
 is off by default, and both rounds' committed verdicts).
+
+## Short returns, with the day of the week: a weekday cost, pre-registered (2026-11-18; round 3 fails R2 by 4 series, not offered)
+
+The round above ended on its own diagnosis: the two-state chain ignores the calendar, so a fixed weekly
+schedule looks like clumps, and the penalty that silences those clumps also buries a two-month return. This
+round replaces the region model with the calendar. `bestReturnCost` in `update-rate.mjs` takes a weekday per
+step and one of two costs: `'dow'`, one repeat probability per weekday in each region (7 inside, 7 shared by
+the parts before and after), and `'dowchain'`, a two-state chain per weekday (14 a region). Its `'chain'` kind
+reproduces the shipped pass's gain to 1e-6. `eval/update-rate-returns-dow.mjs` (header and module committed
+in cc37d9d05 before any cell ran) kept rounds 1 and 2's 15 null cells, 4 power cells, FOUND rule and R1-R3
+bars, and set the grid (m 2 to 6), fresh seeds and the choice: per cost the smallest m with at most 0.010 false
+returns a series in every null cell, then the cost with more R60 finds at its m.
+
+**Calibration (seed 20261222, `eval/update-rate-returns-dow.out.txt`).** The weekday cost finds what the chain
+cannot: at m 3, 199 of 200 sixty-day returns and 161 of 200 thirty-day ones, against 0 and 0 for round 2's
+chain on the same series. It fails the null budget on the clumpy chains, not the schedules: M60 still raises
+0.020 false returns a series at m 6 (W3, round 2's worst cell, is at 0.000 from m 3). A weekday Bernoulli has no
+memory, so a run of repeats in a series that clumps reads as a calendar stretch. The weekday chain adds that
+memory and pays for 14 parameters a region: it meets the budget only at m 5, where R60 is found in 123 of 200.
+
+| calibration, found of 200 (worst null cell) | m 3 | m 4 | m 5 | m 6 |
+|---|---|---|---|---|
+| `'dow'` R60 | 199 (M60 0.575) | 199 (0.225) | 198 (0.075) | 170 (0.020) |
+| `'dowchain'` R60 | 184 (B60 0.780) | 184 (B60 0.060) | **123 (0.005)** | 7 (0.000) |
+| round 2's `'chain'`, m 3 | 0 (0.000) | | | |
+
+**Confirmation (seed 20261223, `'dowchain'` at m 5): R1 passes (no false return in any null cell), R3 passes
+(116 more than the shipped check's 0), R2 fails: 116 of 200, bar 120.** So the pass is not offered, and the
+JHU check (J1, the eight documented returns, seen data) did not run, as pre-registered. `SHORT_RETURNS.mult` stays
+null; nothing the CLI or the page prints changes. The thirty-day return is found in 0 and the independent-repeats
+cell I60 in 0 (it has no weekly pattern for the weekday cost to use, and the chain reference finds 31).
+
+**What binds** (post hoc, read off the file, deciding nothing): the two costs fail on different cells. `'dow'` has
+the power (199 of 200 at every m to 5) and loses only the clumpy chains with no weekly schedule; `'dowchain'` holds
+every null but spends its margin on parameters a fixed schedule does not need. That points at choosing the model
+per stretch rather than one cost for all: the weekday cost where the stretch shows a weekly pattern (a weekday
+share test on the stretch, the same kind of test that already chooses "rounding" over a stale feed), the chain
+where it does not. Pre-registered on fresh seeds, with these cells.
+
+Test: `update-rate-returns-dow.test.mjs` (the generic chain cost equals `bestReturn`, the weekday costs find the
+planted return with about twice the chain's gain or more, a fixed weekly schedule gains nothing, weekdays from ISO
+dates, and the committed verdict).
