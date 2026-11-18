@@ -2084,10 +2084,10 @@ fit went from 0.21% to 2.37%.
 **The margin.** `host.TAKE_ADVISE_RATIO = 0.6`: the advice says "set TAKE_US" only when the best candidate's mean rms
 is at most 0.6 of the step's. Otherwise it says keep 0 and gives the share. The instant builds' best came in at
 0.66-0.76 of the step's. The spread takes mostly came in at 0.29-0.6, but the 3 ms builds reached 0.83, so no margin
-separates an instant take from a 3 ms one. With the margin on seed 7, no instant build is advised and 2 / 4 / 5 of 6 of
+separates an instant take from a 3 ms one. With the margin at lag 0.3 s, no instant build is advised and 2 / 4 / 5 of 6 of
 the 3 ms / 6 ms / front-loaded builds are. Pooled scatter with the margin is 0.14% / 0.22% / 0.30% / 0.26%, against the
 step's 0.14% / 0.27% / 0.68% / 0.50%, and the 6 ms spin fit's worst is 0.66% (step 4.15%). The bad 6 ms build (0.67) is
-not advised. The 0.6 was chosen by looking at seed 7, so seed 8 checks it (below).
+not advised. The 0.6 was chosen by looking at these builds. A second seed is no check here, because these plants have no noise and seed 8 matched seed 7 to the digit. So the check reruns everything at a wheel lag of 0.6 s (below).
 
 **Not known.** All of this is simulated, and the take's profile is assumed. The first-order plant's instant-take
 preference for 2.5-3 ms is a misfit not yet traced. Its cause may be the simulator's 1 ms command steps against the

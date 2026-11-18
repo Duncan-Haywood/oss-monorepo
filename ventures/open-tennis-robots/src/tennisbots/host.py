@@ -387,8 +387,8 @@ TAKE_SURVEY_MS = (0, 2, 3, 4, 5, 6, 8)   # the firmware's TAKE_SURVEY_GRID_US, i
 TAKE_SURVEY_S = 12.0          # a contact-time survey triples the board's work after the last ball
 # Advise a contact time only when the survey's best candidate misses by at most this share of the step's rms (README
 # "The contact time surveyed on the board"): on the simulator 4 of 6 builds with an instant take picked 1.5-2.5 ms at
-# 0.66-0.76 of the step's rms and read worse told it, while most spread takes fell to 0.29-0.6. Chosen on seed 7, checked
-# on seed 8 (eval/take-survey-heldout-2026-11-17.txt).
+# 0.66-0.76 of the step's rms and read worse told it, while most spread takes fell to 0.29-0.6. Chosen on wheel lag 0.3 s,
+# checked on 0.6 s (eval/take-survey-heldout-2026-11-17.txt).
 TAKE_ADVISE_RATIO = 0.6
 TAKE_WAIT_S = 8.0             # the longest a calibration drill holds a ball for the last one's surveys
 

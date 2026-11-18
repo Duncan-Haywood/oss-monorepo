@@ -21,7 +21,7 @@ Builds: the first-order 8k and ESC 50 ms told plants of min_fit_heldout.py at 0.
 plant, as tests/take_spread.py), its three launchers, wheel lag 0.3 s, seed 7; takes: instant, half-sine 3 ms,
 half-sine 6 ms, front 4 ms. 24 builds, four drills each.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_sweep.py [--raw rows.jsonl] [--procs N] [--seed 7]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_sweep.py [--raw rows.jsonl] [--procs N] [--seed 7] [--lag 0.3]
 
 One process per build; `--raw` appends each build as it finishes and a rerun skips the builds already there. The
 physics and the take's profile are the simulator's assumptions, not a real ball.
@@ -44,8 +44,10 @@ TAKES = (("instant", 0.0, "halfsine"), ("halfsine 3 ms", 3.0, "halfsine"), ("hal
          ("front 4 ms", 4.0, "front"))
 PLANTS = (0, 2)
 LAG, SEED = 0.3, 7
-if "--seed" in sys.argv:
+if "--seed" in sys.argv:          # changes nothing on these noise-free plants (seed 8 matched seed 7 to the digit)
     SEED = int(sys.argv[sys.argv.index("--seed") + 1])
+if "--lag" in sys.argv:           # the held-out check of the advice's margin: 0.6 s
+    LAG = float(sys.argv[sys.argv.index("--lag") + 1])
 
 
 def drill(true, plant, spec, take_us=0, survey=False):
