@@ -25,3 +25,25 @@
 24 teams x 13 weeks, shape 3:0: TIMEOUT after 120 s
 24 teams x 13 weeks, shape 1:0: TIMEOUT after 120 s
 24 teams x 13 weeks, shape 4:0: TIMEOUT after 120 s
+
+## The timeouts, whole season with the free-pair symmetry break (SYMBREAK=1 python3 eval/bowling-avoid-shapes.py;
+## same CaDiCaL model as before plus week 1's matches on the unnamed pairs in increasing order; 4 cores shared)
+24 teams x 13 weeks, shape 0:0: SAT in 365.2 s
+24 teams x 13 weeks, shape 0:0,1: SAT in 574.4 s
+20 teams x 40 weeks, shape 0:0: SAT in 88.4 s
+24 teams x 13 weeks, shape 0:0;1:0: TIMEOUT after 1800 s
+
+## Large neighbourhood search from the lane search's near miss (eval/bowling-avoid-lns.py, Glucose 4, 20 s per window)
+20 x 40 0:0: start 2 off (2 cells)
+  step 6, 4 s: k -> 11
+  step 12, 60 s: k -> 12
+  step 18, 180 s: k -> 13
+  step 24, 342 s: k -> 14
+  step 30, 549 s: k -> 15
+  step 36, 791 s: k -> 16
+  step 42, 977 s: k -> 17
+  step 48, 1213 s: k -> 18
+  step 54, 1465 s: k -> 19
+20 teams x 40 weeks, shape 0:0: 2 off after 1505.1 s, 55 steps
+24 x 13 0:0: start 2 off (2 cells); k 3 -> 8 over 35 steps; 2 off after 264.2 s (run with budget 240 s)
+LNS did not close either near miss; the symmetry-broken whole-season model closed both (above). Kept as a tool, not in the page.
