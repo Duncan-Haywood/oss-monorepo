@@ -159,7 +159,7 @@ export function analyze(rows, opts) {
 }
 
 export function reportCsv(result) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const head = ["product", "ingredients_per_unit", "full_cost_per_sellable_unit", "price_online", "price_market", "price_wholesale", "shelf_price_for_store", "current_price", "earned_per_hour"];
   const lines = result.rows.map((r) => [q(r.product), round2(r.groceryOnly), round2(r.costPerUnit), round2(r.prices.online), round2(r.prices.market), round2(r.prices.wholesale), round2(r.shelfPrice), r.price === null ? "" : round2(r.price), r.earnedPerHour == null ? "" : round2(r.earnedPerHour)].join(","));
   return [head.join(","), ...lines].join("\n") + "\n";

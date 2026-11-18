@@ -228,7 +228,7 @@ export function analyze(assets, options = {}) {
 }
 
 export function reportCsv(result) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const head = ["asset", "type", "age_years", "life_years", "repair_quote", "replacement_cost", "verdict", "break_even_repair_quote", "chance_fail_1yr", "chance_fail_3yr", "repair_cost_per_year", "replace_cost_per_year", "advantage_of_replacing"];
   const lines = [head.join(",")];
   for (const r of result.rows) {

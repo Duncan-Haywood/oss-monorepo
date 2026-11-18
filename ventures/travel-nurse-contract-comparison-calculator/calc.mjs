@@ -174,7 +174,7 @@ export function sampleInput() {
 }
 
 export function reportCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["Offer", "Weekly gross", "Contract gross", "Taxes", "Costs", "Take-home", "Weeks incl gap", "Take-home per week (whole period)", "Take-home per year"]];
   a.offers.forEach((o, i) => {
     const r = a.results[i];

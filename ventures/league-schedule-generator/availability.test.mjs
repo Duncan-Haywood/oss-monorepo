@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import http from "node:http";
 import { readSpec, buildSchedule, sampleFields, applyRainouts } from "./calc.mjs";
-import { upcomingGames, cleanName, parseAvailability, recordAvailability, teamAnswers, shortTeams, availabilityHtml, shortTeamsHtml, nudgeText, MAX_NAMES } from "./availability.mjs";
+import { upcomingGames, cleanName, parseAvailability, recordAvailability, teamAnswers, shortTeams, availabilityHtml, shortTeamsHtml, nudgeText, MAX_NAMES, notAnswered, rosterPickerHtml, parseRosters, availabilityCsv, parseContacts, remindersDue } from "./availability.mjs";
 import { handler, emptyState } from "./server.mjs";
 
 const sample = () => buildSchedule(readSpec(sampleFields()).spec);
@@ -136,4 +136,51 @@ test("server: unpublished leagues take no answers, and the minimum is saved from
     await fetch(base + "/admin/save?key=adm", { method: "POST", redirect: "manual", headers: { "content-type": "application/x-www-form-urlencoded" }, body: new URLSearchParams({ ...fields, minPlayers: "-3", act: "save" }) });
     assert.equal(state.fields.minPlayers, 0);
   } finally { srv.close(); }
+});
+
+test("no minimum set: the player page shows plain counts, never 'of N', 'enough' or 'short'", () => {
+  const s = sample(), games = upcomingGames(s, s.rounds[0].day, 1), g = games[0];
+  const store = {};
+  recordAvailability(store, { fixture: g.fixture, team: g.homeName, name: "Ann", status: "in" }, games);
+  for (const opts of [undefined, {}, { minPlayers: 0 }, { minPlayers: "" }, { minPlayers: "abc" }, { minPlayers: null }]) {
+    const html = availabilityHtml(store, games, opts);
+    assert.ok(html.includes(`${g.homeName}: 1 in, 0 maybe, 0 out · In: Ann`), JSON.stringify(opts));
+    assert.ok(!/class="ok">enough|short \d| of \d|needs \d+ players/.test(html), `${JSON.stringify(opts)}: ${html}`);
+  }
+  // with a minimum the same team is marked enough or short
+  assert.match(availabilityHtml(store, games, { minPlayers: 1 }), /1 in of 1, 0 maybe, 0 out <span class="ok">enough<\/span>/);
+});
+
+test("team names that are Object.prototype keys record, render and count like any other", () => {
+  for (const evil of ["constructor", "toString", "__proto__", "hasOwnProperty", "valueOf"]) {
+    const games = [{ fixture: "f1", day: 20000, time: "19:00", court: "", home: 0, away: 1, homeName: evil, awayName: "Owls" }];
+    const store = {};
+    // the opponent answers first: the page must still render for the oddly named team
+    assert.deepEqual(recordAvailability(store, { fixture: "f1", team: "Owls", name: "Bo", status: "in" }, games), { ok: true, replaced: false });
+    assert.deepEqual(teamAnswers(store, "f1", evil), { in: [], maybe: [], out: [] }, evil);
+    assert.match(availabilityHtml(store, games, { minPlayers: 2 }), new RegExp(`${evil}: 0 in of 2`), evil);
+    assert.deepEqual(shortTeams(store, games, 2).map((r) => [r.team, r.in]), [[evil, 0], ["Owls", 1]], evil); // biggest gap first
+    assert.deepEqual(recordAvailability(store, { fixture: "f1", team: evil, name: "Cy", status: "maybe" }, games), { ok: true, replaced: false }, evil);
+    assert.deepEqual(recordAvailability(store, { fixture: "f1", team: evil, name: "cy", status: "in" }, games), { ok: true, replaced: true }, evil);
+    assert.deepEqual(teamAnswers(store, "f1", evil), { in: ["cy"], maybe: [], out: [] }, evil);
+    assert.equal(Object.getPrototypeOf(store.f1), Object.prototype, "store stays a plain object");
+    // the state file round-trips the answers
+    assert.deepEqual(teamAnswers(JSON.parse(JSON.stringify(store)), "f1", evil), { in: ["cy"], maybe: [], out: [] }, evil);
+    assert.equal(({}).length, undefined, "Object.prototype untouched");
+    // rosters, contacts, the CSV export and reminders key by the same typed names
+    const noRoster = availabilityHtml(store, games, { minPlayers: 2, rosters: {} });
+    assert.match(noRoster, new RegExp(`${evil}: 1 in of 2`), evil);
+    assert.deepEqual(notAnswered(store, "f1", evil, {}), [], evil);
+    assert.equal(rosterPickerHtml(games, {}), "", evil);
+    const pr = parseRosters(`${evil}: Cy, Dee`, [evil, "Owls"]);
+    assert.deepEqual(pr.errors, [], evil);
+    assert.deepEqual(notAnswered(store, "f1", evil, pr.rosters), ["Dee"], evil);
+    assert.deepEqual(notAnswered(JSON.parse(JSON.stringify(store)), "f1", evil, JSON.parse(JSON.stringify(pr.rosters))), ["Dee"], evil);
+    assert.match(availabilityCsv(store, games, {}), new RegExp(`,${evil.replace(/_/g, "_")},Owls,cy,in,`), evil);
+    const pc = parseContacts(`${evil}: cap@example.org, cap@example.org`, [evil, "Owls"]);
+    assert.deepEqual([pc.errors, pc.contacts[evil]], [[], ["cap@example.org"]], evil);
+    const due = remindersDue(store, games, { minPlayers: 3, today: 20000, contacts: {}, organiser: "org@example.org" });
+    assert.deepEqual(due.map((d) => d.to), [["org@example.org"], ["org@example.org"]], evil);
+    assert.equal(remindersDue(store, games, { minPlayers: 3, today: 20000, contacts: {} }).length, 0, evil);
+  }
 });

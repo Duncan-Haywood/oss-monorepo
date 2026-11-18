@@ -412,3 +412,77 @@ test("string values keep their whitespace, as in the STEP file", () => {
   const p = parseIfcXml(xml, schemas.IFC2X3);
   assert.equal([...p.entities.values()].find((e) => e.xmlId === "i7").args[2], " Basic Wall ");
 });
+
+// The nested IFC4 layout at scale (eval/ifc4-layout-scale-2026-11-18.md):
+// geometry nested inside a larger element is cut to a stub as it closes and
+// parsed again when the walk reaches it.
+test("the nested IFC4 layout reads back every entity, and lazy, eager and stubbed reads agree", async () => {
+  const { writeIfc4Layout, roundTrip } = await import("./eval/ifc4-layout.mjs");
+  const { parseStep } = await import("./step.mjs");
+  const step = parseStep(file("samples/tiny-house.ifc"), { eager: true });
+  const parts = [];
+  writeIfc4Layout(step, schemas.IFC4, "IFC4", (s) => parts.push(s));
+  const xml = parts.join("");
+  // One element holds the model, as GeometryGymIFC writes it.
+  const top = parseXmlTop(xml);
+  assert.ok(top.largest / xml.length > 0.6, `largest top-level element ${(top.largest / xml.length).toFixed(2)} of the file`);
+  const r = roundTrip(step, schemas.IFC4, xml);
+  assert.equal(r.differ, 0, JSON.stringify(r.examples));
+  assert.equal(r.missing, 0);
+  assert.equal(r.same, step.entities.size);
+  const a = parseIfcXml(xml, schemas.IFC4, { eager: true }), b = parseIfcXml(xml, schemas.IFC4);
+  assert.deepEqual([...b.entities.keys()], [...a.entities.keys()]);
+  for (const [id, e] of a.entities) {
+    const x = b.entities.get(id);
+    assert.deepEqual([x.type, x.xmlId, x.args], [e.type, e.xmlId, e.args], `${id} ${e.type}`);
+  }
+  // Verdicts equal the STEP file's on the starter IDS files.
+  for (const f of ["coordination-basics", "quantities-and-naming"]) {
+    const ids = file(`samples/${f}.ids.xml`);
+    const v = (m) => check(ids, m).specs.map((s) => [s.name, s.status, s.applicable, s.passed, s.failed.length]);
+    assert.deepEqual(v(xml), v(file("samples/tiny-house.ifc")), f);
+  }
+});
+
+test("a stubbed geometry element keeps its nested inline entities, hrefs and ids", () => {
+  const xml = `<?xml version="1.0"?><ifcXML xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/final" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IfcCartesianPoint id="p0" Coordinates="9 9 9"/>
+  <IfcShapeRepresentation id="r1" RepresentationType="Curve"><Items>
+    <IfcPolyline id="l1"><Points><IfcCartesianPoint Coordinates="1 2 3"/><IfcCartesianPoint href="p0" xsi:nil="true"/><IfcCartesianPoint id="p2"><Coordinates>4 5 6</Coordinates></IfcCartesianPoint></Points></IfcPolyline>
+    <IfcPolyline id="l2"><Points><IfcCartesianPoint href="p2" xsi:nil="true"/><IfcCartesianPoint Coordinates="7 8 9"/></Points></IfcPolyline>
+  </Items></IfcShapeRepresentation></ifcXML>`;
+  const lazy = parseIfcXml(xml, schemas.IFC4), eager = parseIfcXml(xml, schemas.IFC4, { eager: true });
+  const rows = (p) => [...p.entities.values()].map((e) => [e.id, e.type, e.xmlId, e.args]);
+  assert.deepEqual(rows(lazy), rows(eager));
+  assert.equal(lazy.stubbed, 5, "the polylines and the points written in them");
+  assert.equal(eager.stubbed, 0);
+  assert.ok([...lazy.entities.values()].filter((e) => e._s !== undefined).length >= 5, "read lazily");
+  const pts = (p, x) => p.entities.get([...p.entities.values()].find((e) => e.xmlId === x).id).args[0].map((v) => p.entities.get(v.ref).args[0]);
+  for (let k = 0; k < 2; k++) {
+    assert.deepEqual(pts(lazy, "l1"), [[1, 2, 3], [9, 9, 9], [4, 5, 6]]);
+    assert.deepEqual(pts(lazy, "l2"), [[4, 5, 6], [7, 8, 9]]);
+  }
+  assert.deepEqual(lazy.errors, []);
+});
+
+function parseXmlTop(t) {
+  const re = /<(\/?)([A-Za-z][^\s>\/]*)[^>]*?(\/?)>|<!--[\s\S]*?-->|<\?[\s\S]*?\?>/g;
+  let m, d = 0, start = 0, largest = 0;
+  while ((m = re.exec(t))) {
+    if (m[2] === undefined) continue;
+    if (m[1]) { d--; if (d === 1) largest = Math.max(largest, re.lastIndex - start); }
+    else if (!m[3]) { if (d === 1) start = m.index; d++; }
+  }
+  return { largest };
+}
+
+test("the schema comes from the root element, not from an application name in the model", () => {
+  const ns = "http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2";
+  const xml = `<?xml version="1.0"?><ifc:ifcXML xmlns:ifc="${ns}" xmlns="${ns}" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><IfcProject GlobalId="2O2Fr$t4X7Zf8NOew3FLOH" Name="P"><OwnerHistory xsi:type="IfcOwnerHistory" id="i2"><OwningApplication xsi:type="IfcApplication" ApplicationFullName="ARCHICAD-64" ApplicationIdentifier="IFC2x3 add-on version: 4009 GER FULL" Version="20.0.0"/></OwnerHistory></IfcProject></ifc:ifcXML>`;
+  assert.equal(ifcXmlSchemaId(xml), "IFC4");
+  assert.equal(new Model(xml, schemas).schemaId, "IFC4");
+  // No version on the root: the rest of the head is still read.
+  assert.equal(ifcXmlSchemaId(`<?xml version="1.0"?><ifcXML><header><name>IFC2X3 export</name></header></ifcXML>`), "IFC2X3");
+  assert.equal(ifcXmlSchemaId(IFC2X3_XML), "IFC2X3");
+  assert.equal(ifcXmlSchemaId(file("samples/tiny-house.ifcxml")), "IFC4");
+});

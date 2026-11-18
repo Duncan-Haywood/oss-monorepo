@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnn7qWU3KmxVN9dW1j",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T12:21:45Z",
+  "ended": "2026-11-18T12:49:56Z",
+  "wall_minutes": 39.13,
+  "tokens_in": 14381754,
+  "tokens_out": 74272,
+  "cost_usd": 5.884,
+  "tool_calls": 102,
+  "task": "Deepen (flagship 12) ids-model-check: IFC4-layout ifcXML at scale",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17297",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "allocate.py's start-here row (ids-model-check) was claimed by PR #17296 one minute before this run's claim PR for the same item; claim_check.py said YIELD",
+      "fix": "took the row's other next item (IFC4-layout ifcXML at scale) and renamed the draft PR"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two sessions started a minute apart were sent to the same flagship row and both claimed its first 'next' item; the second found out only from claim_check.py after opening a PR. Naming the first item and the second item for alternate session ids would avoid the collision."
+    },
+    {
+      "file": "ventures/ids-model-check/eval/lazy-ifcxml-2026-11-18.md",
+      "issue": "Its Limits said only that the nested IFC4 layout was untimed; the real gap was that the streaming reader cannot stream it at all (one element holds 96-99.9% of the file), which a top-level share count shows in seconds."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-model-check-ifc2x3-add-on.md",
+    "ventures/ids-model-check/eval/ifc4-layout-scale-2026-11-18.md"
+  ],
+  "goal": "Measure and fix the ifcXML reader on the nested IFC4 layout at real-model scale",
+  "notes": "Real IFC4/IFC4X3 STEP exports from ThatOpen/engine_web-ifc@0a725942 tests/ifcfiles/public (C20-Institute-Var-2, FM_ARC_DigitalHub, ISSUE_159_kleine_Wohnung_R22, Viadotto Acerno) written as nested ifcXML by the new eval/ifc4-layout.mjs: 857,301 of 857,301 entities round-trip; 2,160 of 2,160 per-spec verdicts equal STEP on 68 IDS files. Found ifcXmlSchemaId reading ARCHICAD's 'IFC2x3 add-on' ApplicationIdentifier as the schema (19 of 539 verdicts wrong silently on main); fixed to read root start tags first (57 of 59 ifcXML files unchanged, the 2 ARCHICAD files now IFC4). Nested geometry stubbed at close: 166 MB federated 1,770 to 1,481 MB peak (main+schema fix vs this change), fits 768 MB heap where main+fix OOMs; reports hash-identical to main on all nested models and the flat xBIM layout (HHS MEP 7.2 s/500 MB both). Planted faults: 3 caught; 2 harmless changes documented as not caught. Verification: ifcxml.test.mjs 20/20; run_venture_tests.py ids-model-check: ok, 207 tests, 2 skipped (need fetched corpora); venture-preflight.mjs ids-model-check: 'preflight clean'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "eb9f008a-0336-52e6-a723-c2afc796fb61",
+    "transcripts": 1,
+    "first": "2026-11-18T12:21:45Z",
+    "last": "2026-11-18T13:00:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 184,
+        "output": 74272,
+        "thinking": 24155,
+        "cache_read": 14186504,
+        "cache_write_5m": 0,
+        "cache_write_1h": 195066,
+        "api_equivalent_usd": 5.884,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 184,
+      "output": 74272,
+      "thinking": 24155,
+      "cache_read": 14186504,
+      "cache_write_5m": 0,
+      "cache_write_1h": 195066,
+      "api_equivalent_usd": 5.884,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 102,
+    "tools": {
+      "Bash": 92,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "TaskStop": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 39.13,
+      "active_minutes": 39.13,
+      "model_minutes": 14.63,
+      "tool_minutes": 24.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: find real IFC4 exports, write a nested ifcXML writer with round-trip check, profile the streaming reader, diagnose the schema sniff, two fixes with tests, eval report",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 170.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

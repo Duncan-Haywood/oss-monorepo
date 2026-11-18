@@ -189,7 +189,7 @@ export function summaryText(r) {
 }
 
 export function checklistCsv(r) {
-  const q = (c) => `"${String(c).replace(/"/g, '""')}"`;
+  const q = (c) => { let v = String(c); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [];
   if (r.table.entered) for (const row of r.table.rows) rows.push(["unsold goods", row.label, `${row.units} units / ${row.kg} kg`, `${row.shareUnits}% of units / ${row.shareKg}% of kg`]);
   if (r.table.entered && r.input.reasons) rows.push(["unsold goods", "Reasons for discarding", r.input.reasons, ""]);

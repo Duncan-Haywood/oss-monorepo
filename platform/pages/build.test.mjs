@@ -3934,7 +3934,7 @@ test('every tool page declares the breadcrumb trail it shows', async () => {
     const crumb = [...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
       .map((m) => { try { return JSON.parse(m[1]); } catch { return null; } })
       .find((b) => b?.['@type'] === 'BreadcrumbList');
-    const visible = /class="pfs-crumbs"[^>]*>([\s\S]*?)<\/span><\/nav>/.exec(html);
+    const visible = /class="pfs-crumbs(?: [^"]*)?"[^>]*>([\s\S]*?)<\/span><\/nav>/.exec(html);
     if (!crumb || !visible) { mismatched.push(`${rel}: ${crumb ? 'no visible trail' : 'no BreadcrumbList'}`); continue; }
     const labels = [...visible[1].matchAll(/<(?:a|span aria-current="page")[^>]*>([^<]*)</g)].map((m) =>
       m[1].replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>'));

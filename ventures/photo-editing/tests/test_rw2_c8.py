@@ -89,9 +89,10 @@ def _counted(fmt, values, count):
 
 
 def make_c8(*, tiles=((24, 8), (16, 8)), tile_rows=1, bits=14, seed=1, initial=(500, 510, 520, 530),
-            shifts=None, curve=False, payloads=None, black=512, spread=None):
+            shifts=None, curve=False, payloads=None, black=512, spread=None, pack_top=True):
     """An RW2 with RawFormat 8: (file bytes, expected sensels, width, height). ``tiles`` lists
-    (width, height) per tile, row-major, ``tile_rows`` rows of them."""
+    (width, height) per tile, row-major, ``tile_rows`` rows of them. ``pack_top`` writes each tile's
+    top row into tag 0x45's high 16 bits, as the S1R II's 4 x 2 grid does; False leaves it 0."""
 
     rng = random.Random(seed)
     cols = len(tiles) // tile_rows
@@ -112,7 +113,7 @@ def make_c8(*, tiles=((24, 8), (16, 8)), tile_rows=1, bits=14, seed=1, initial=(
             vals.append(level if rng.random() > 0.02 else rng.choice((0, top)))
         for y in range(h):
             expected[(y0 + y) * width + left : (y0 + y) * width + left + w] = vals[y * w : (y + 1) * w]
-        lefts.append(left)
+        lefts.append(((y0 << 16) if pack_top else 0) | left)
         tops.append(y0)
         coded.append(encode_tile(vals, w, h, initial) if payloads is None else payloads[t])
 
@@ -171,6 +172,23 @@ class Format8Tests(unittest.TestCase):
                                        spread=40000, seed=4)
         for engine in engines():
             self.assertEqual(list(rw2.parse_rw2(data, engine=engine).values), expected, engine)
+
+    def test_a_4_by_2_grid_like_the_s1r_ii_high_resolution_mode(self):
+        # The S1R II's 177 MP mode: four tiles of unequal widths (4656, 3792, 3632, 4216) in two rows of
+        # unequal heights (5632, 5224), scaled down here; tag 0x45 carries (top << 16) | left.
+        tiles = ((10, 8), (8, 8), (6, 8), (12, 8), (10, 6), (8, 6), (6, 6), (12, 6))
+        data, expected, w, h = make_c8(tiles=tiles, tile_rows=2, seed=9)
+        for engine in engines():
+            raw = rw2.parse_rw2(data, engine=engine)
+            self.assertEqual(list(raw.values), expected, engine)
+        self.assertEqual((w, h), (36, 14))
+        self.assertIn("8 tiles", raw.notes[0])
+
+    def test_a_tile_whose_stored_top_disagrees_is_refused(self):
+        # A second row of tiles that says it starts at row 0 would overwrite the first row.
+        data, _, _, _ = make_c8(tiles=((12, 6), (20, 6), (12, 4), (20, 4)), tile_rows=2, pack_top=False)
+        with self.assertRaisesRegex(rd.DevelopError, "says it starts at row 0, the tiles above it end at 6"):
+            rw2.parse_rw2(data, engine="python")
 
     def test_levels_white_and_balance(self):
         for bits, white in ((12, 4079), (14, 16319), (16, 65535)):

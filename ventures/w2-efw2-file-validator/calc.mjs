@@ -288,7 +288,7 @@ export function sampleBrokenFile() {
 }
 
 export function maskedFindingsCsv(result) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const rows = [["severity", "code", "line", "title", "detail"].join(",")];
   for (const x of result.findings) rows.push([x.severity, x.code, x.line || "", q(x.title), q(x.detail)].join(","));
   return rows.join("\n") + "\n";

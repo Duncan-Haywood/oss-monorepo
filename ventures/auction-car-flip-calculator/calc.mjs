@@ -183,7 +183,7 @@ export function reportCsv(r) {
   out.push([]);
   out.push(["Max bid by repair overrun and resale drop", ...r.stress[0].cells.map((c) => `-${c.dropPct}% resale`)]);
   for (const row of r.stress) out.push([`+${row.overrunPct}% repairs`, ...row.cells.map((c) => (c.maxBid === null ? "none" : f2(c.maxBid)))]);
-  const q = (c) => { const s = String(c); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (c) => { let s = String(c); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 

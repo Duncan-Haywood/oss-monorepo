@@ -92,7 +92,7 @@ export function analyze(inputs) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["clinician", "delay_days", "unbillable_days", "lost_revenue", "deferred_revenue", "pay_during_gap"].join(",")];
   for (const r of a.rows) lines.push([q(r.name), r.days, r.gapDays, r.lost.toFixed(2), r.deferred.toFixed(2), r.compUnbilled.toFixed(2)].join(","));
   return lines.join("\n") + "\n";

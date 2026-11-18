@@ -175,7 +175,7 @@ function monthsUntilZero(p) {
   return (lo + hi) / 2;
 }
 
-const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
 export function reportCsv(r) {
   const lines = ["section,label,value"];
   const b = r.base;

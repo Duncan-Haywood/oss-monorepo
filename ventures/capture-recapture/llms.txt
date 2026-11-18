@@ -1,0 +1,28 @@
+# Capture-recapture calculator: population size from mark-recapture data (Lincoln-Petersen, Chapman, M0/Mt/Mb, Chao, jackknife)
+
+> Free online capture-recapture (mark-recapture) population size estimator for closed populations. Paste capture histories (one row per animal, a 0/1 column per occasion, or a history string such as 0101, optional frequency and group columns), two-sample counts (n1 caught and marked, n2 caught later, m of them marked), or capture frequencies (caught once, twice, ...) and get Lincoln-Petersen and Chapman estimates with Seber's variance, the Otis et al. (1978) models M0, Mt (Darroch 1958) and Mb (trap response, removal) by maximum likelihood with profile-likelihood confidence intervals and AIC weights, Chao's (1987) heterogeneity estimator with its log-transformed interval, and the Burnham-Overton (1978) jackknife. One estimate per group (year, site). Also used for multiple-list (multiple-systems) estimation and for estimating defects missed by code reviewers. Checked against scipy's multinomial on six simulated studies and against the cottontail example in Chao (1987). Example: 29 breeding seasons of USGS chorus frog capture histories. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). A statistical estimate, not wildlife-management, regulatory or other professional advice. Closed populations only: no births, deaths or movement between occasions.
+
+## Pages
+
+- [The tool](https://marisstella.app/capture-recapture/)
+
+## Use it from code
+
+- `node cli.mjs histories.csv [--group COL] [--history COL] [--occasions A,B,C] [--freq COL] [--confidence 0.95] [--json]`
+- `node cli.mjs --n1 60 --n2 55 --m 22` (two samples); `node cli.mjs --frequencies 43,16,8,6,0,2,1 --k 18`
+- `node platform/agents/tools.mjs call capture-recapture analyze --input '{"n1":60,"n2":55,"m":22}'` (or `{"histories":["101","011"]}`, `{"text":"id,o1,o2\n..."}`)
+- From JavaScript: `analyze({text | histories | n1,n2,m | frequencies,k, group, confidence})`, `report(result)`, `fitModel(name, summarize(histories))`, `chao(summary)`, `twoSample(n1, n2, m)`.
+
+## What it answers
+
+- How many animals are in the population, from a mark-recapture survey?
+- What is the Lincoln-Petersen or Chapman estimate and its confidence interval?
+- Which closed-population model fits best: M0, Mt or Mb (trap-happy or trap-shy)?
+- What if animals differ in catchability (Chao's estimator, the jackknife)?
+- How many defects did our reviewers miss? How many cases are on no list?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/capture-recapture): MIT licensed.

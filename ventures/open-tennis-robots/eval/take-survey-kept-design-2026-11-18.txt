@@ -1,0 +1,213 @@
+
+eval/take-survey-capture-design-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 35 right, 0 wrong, 0 invented, 0 held; prefixes 249 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 35 right, 0 wrong, 0 invented, 0 held; prefixes 249 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 35 right, 0 wrong, 0 invented, 0 held; prefixes 249 right, 0 wrong, 0 invented, 0 held
+  min kept 3: end of drill 35 right, 0 wrong, 0 invented, 0 held; prefixes 249 right, 0 wrong, 0 invented, 0 held
+  min kept 4: end of drill 35 right, 0 wrong, 0 invented, 0 held; prefixes 249 right, 0 wrong, 0 invented, 0 held
+    advised prefixes on 5 kept wheels: 16 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 233 right, 0 wrong, 0 invented
+
+eval/take-survey-capture-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 46 right, 0 wrong, 0 invented, 0 held; prefixes 267 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 46 right, 0 wrong, 0 invented, 0 held; prefixes 267 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 46 right, 0 wrong, 0 invented, 0 held; prefixes 267 right, 0 wrong, 0 invented, 0 held
+  min kept 3: end of drill 45 right, 0 wrong, 0 invented, 1 held; prefixes 264 right, 0 wrong, 0 invented, 3 held
+  min kept 4: end of drill 45 right, 0 wrong, 0 invented, 1 held; prefixes 258 right, 0 wrong, 0 invented, 9 held
+    advised prefixes on 2 kept wheels: 3 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 6 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 49 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 44 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 165 right, 0 wrong, 0 invented
+
+eval/take-survey-capture-sub1-fresh-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 298 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 298 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 298 right, 0 wrong, 0 invented, 0 held
+  min kept 3: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 298 right, 0 wrong, 0 invented, 0 held
+  min kept 4: end of drill 42 right, 0 wrong, 0 invented, 1 held; prefixes 285 right, 0 wrong, 0 invented, 13 held
+    advised prefixes on 3 kept wheels: 13 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 32 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 76 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 177 right, 0 wrong, 0 invented
+
+eval/take-survey-capture-sub1-third-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 301 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 301 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 297 right, 0 wrong, 0 invented, 4 held
+  min kept 3: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 289 right, 0 wrong, 0 invented, 12 held
+  min kept 4: end of drill 40 right, 0 wrong, 0 invented, 3 held; prefixes 257 right, 0 wrong, 0 invented, 44 held
+    advised prefixes on 1 kept wheels: 4 right, 0 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 8 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 32 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 84 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 104 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 69 right, 0 wrong, 0 invented
+
+eval/take-survey-capture-sub8-design-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+  min kept 1: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+  min kept 2: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+  min kept 3: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+  min kept 4: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+    advised prefixes on 6+ kept wheels: 303 right, 1 wrong, 0 invented
+
+eval/take-survey-capture-sub8-fresh-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 3: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 4: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+    advised prefixes on 4 kept wheels: 20 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 43 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 315 right, 0 wrong, 0 invented
+
+eval/take-survey-capture-sub8-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+  min kept 1: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+  min kept 2: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+  min kept 3: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+  min kept 4: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+    advised prefixes on 6+ kept wheels: 240 right, 26 wrong, 0 invented
+
+eval/take-survey-capture-sub8-third-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 47 right, 0 wrong, 0 invented, 0 held; prefixes 338 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 47 right, 0 wrong, 0 invented, 0 held; prefixes 338 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 47 right, 0 wrong, 0 invented, 0 held; prefixes 338 right, 0 wrong, 0 invented, 0 held
+  min kept 3: end of drill 47 right, 0 wrong, 0 invented, 0 held; prefixes 338 right, 0 wrong, 0 invented, 0 held
+  min kept 4: end of drill 47 right, 0 wrong, 0 invented, 0 held; prefixes 329 right, 0 wrong, 0 invented, 9 held
+    advised prefixes on 3 kept wheels: 9 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 25 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 96 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 208 right, 0 wrong, 0 invented
+
+eval/take-survey-jitter-design-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 17 right, 1 wrong, 0 invented, 0 held; prefixes 112 right, 6 wrong, 0 invented, 0 held
+  min kept 1: end of drill 17 right, 1 wrong, 0 invented, 0 held; prefixes 112 right, 6 wrong, 0 invented, 0 held
+  min kept 2: end of drill 17 right, 1 wrong, 0 invented, 0 held; prefixes 110 right, 6 wrong, 0 invented, 2 held
+  min kept 3: end of drill 16 right, 1 wrong, 0 invented, 1 held; prefixes 96 right, 3 wrong, 0 invented, 19 held
+  min kept 4: end of drill 14 right, 0 wrong, 0 invented, 4 held; prefixes 82 right, 0 wrong, 0 invented, 36 held
+    advised prefixes on 1 kept wheels: 2 right, 0 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 14 right, 3 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 14 right, 3 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 11 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 8 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 63 right, 0 wrong, 0 invented
+
+eval/take-survey-jitter-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 27 right, 0 wrong, 0 invented, 0 held; prefixes 146 right, 5 wrong, 0 invented, 0 held
+  min kept 1: end of drill 27 right, 0 wrong, 0 invented, 0 held; prefixes 146 right, 5 wrong, 0 invented, 0 held
+  min kept 2: end of drill 23 right, 0 wrong, 0 invented, 4 held; prefixes 127 right, 0 wrong, 0 invented, 24 held
+  min kept 3: end of drill 19 right, 0 wrong, 0 invented, 8 held; prefixes 98 right, 0 wrong, 0 invented, 53 held
+  min kept 4: end of drill 13 right, 0 wrong, 0 invented, 14 held; prefixes 62 right, 0 wrong, 0 invented, 89 held
+    advised prefixes on 1 kept wheels: 19 right, 5 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 29 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 36 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 17 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 9 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 36 right, 0 wrong, 0 invented
+
+eval/take-survey-blind-heldout-capture-sub8-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 1: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 2: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 3: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 4: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+    advised prefixes on 6+ kept wheels: 378 right, 0 wrong, 0 invented
+
+eval/take-survey-blind-heldout-jitter-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 26 right, 1 wrong, 0 invented, 0 held; prefixes 184 right, 7 wrong, 0 invented, 0 held
+  min kept 1: end of drill 26 right, 1 wrong, 0 invented, 0 held; prefixes 184 right, 7 wrong, 0 invented, 0 held
+  min kept 2: end of drill 26 right, 0 wrong, 0 invented, 1 held; prefixes 184 right, 0 wrong, 0 invented, 7 held
+  min kept 3: end of drill 25 right, 0 wrong, 0 invented, 2 held; prefixes 174 right, 0 wrong, 0 invented, 17 held
+  min kept 4: end of drill 24 right, 0 wrong, 0 invented, 3 held; prefixes 156 right, 0 wrong, 0 invented, 35 held
+    advised prefixes on 1 kept wheels: 0 right, 7 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 10 right, 0 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 18 right, 0 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 31 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 24 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 101 right, 0 wrong, 0 invented
+
+all 12 sets:
+  min kept 0: end of drill 478 right, 3 wrong, 0 invented, 0 held; prefixes 3194 right, 45 wrong, 0 invented, 0 held
+  min kept 1: end of drill 478 right, 3 wrong, 0 invented, 0 held; prefixes 3194 right, 45 wrong, 0 invented, 0 held
+  min kept 2: end of drill 474 right, 2 wrong, 0 invented, 5 held; prefixes 3169 right, 33 wrong, 0 invented, 37 held
+  min kept 3: end of drill 467 right, 2 wrong, 0 invented, 12 held; prefixes 3105 right, 30 wrong, 0 invented, 104 held
+  min kept 4: end of drill 454 right, 1 wrong, 0 invented, 26 held; prefixes 2977 right, 27 wrong, 0 invented, 235 held
+    advised prefixes on 1 kept wheels: 25 right, 12 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 64 right, 3 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 128 right, 3 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 269 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 420 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 2288 right, 27 wrong, 0 invented
+
+eval/take-survey-capture-design-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 35 right, 0 wrong, 0 invented, 0 held; prefixes 249 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 31 right, 0 wrong, 0 invented, 4 held; prefixes 183 right, 0 wrong, 0 invented, 66 held
+  min kept 16: end of drill 1 right, 0 wrong, 0 invented, 34 held; prefixes 1 right, 0 wrong, 0 invented, 248 held
+
+eval/take-survey-capture-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 46 right, 0 wrong, 0 invented, 0 held; prefixes 267 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 20 right, 0 wrong, 0 invented, 26 held; prefixes 97 right, 0 wrong, 0 invented, 170 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 46 held; prefixes 0 right, 0 wrong, 0 invented, 267 held
+
+eval/take-survey-capture-sub1-fresh-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 298 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 17 right, 0 wrong, 0 invented, 26 held; prefixes 58 right, 0 wrong, 0 invented, 240 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 43 held; prefixes 0 right, 0 wrong, 0 invented, 298 held
+
+eval/take-survey-capture-sub1-third-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 43 right, 0 wrong, 0 invented, 0 held; prefixes 301 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 4 right, 0 wrong, 0 invented, 39 held; prefixes 4 right, 0 wrong, 0 invented, 297 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 43 held; prefixes 0 right, 0 wrong, 0 invented, 301 held
+
+eval/take-survey-capture-sub8-design-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+  min kept 8: end of drill 44 right, 0 wrong, 0 invented, 0 held; prefixes 303 right, 1 wrong, 0 invented, 0 held
+  min kept 16: end of drill 43 right, 0 wrong, 0 invented, 1 held; prefixes 184 right, 0 wrong, 0 invented, 120 held
+
+eval/take-survey-capture-sub8-fresh-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 40 right, 0 wrong, 0 invented, 14 held; prefixes 178 right, 0 wrong, 0 invented, 200 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 54 held; prefixes 0 right, 0 wrong, 0 invented, 378 held
+
+eval/take-survey-capture-sub8-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+  min kept 8: end of drill 42 right, 1 wrong, 0 invented, 0 held; prefixes 240 right, 26 wrong, 0 invented, 0 held
+  min kept 16: end of drill 38 right, 0 wrong, 0 invented, 5 held; prefixes 129 right, 0 wrong, 0 invented, 137 held
+
+eval/take-survey-capture-sub8-third-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 47 right, 0 wrong, 0 invented, 0 held; prefixes 338 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 23 right, 0 wrong, 0 invented, 24 held; prefixes 62 right, 0 wrong, 0 invented, 276 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 47 held; prefixes 0 right, 0 wrong, 0 invented, 338 held
+
+eval/take-survey-jitter-design-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 17 right, 1 wrong, 0 invented, 0 held; prefixes 112 right, 6 wrong, 0 invented, 0 held
+  min kept 8: end of drill 7 right, 0 wrong, 0 invented, 11 held; prefixes 36 right, 0 wrong, 0 invented, 82 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 18 held; prefixes 0 right, 0 wrong, 0 invented, 118 held
+
+eval/take-survey-jitter-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 27 right, 0 wrong, 0 invented, 0 held; prefixes 146 right, 5 wrong, 0 invented, 0 held
+  min kept 8: end of drill 3 right, 0 wrong, 0 invented, 24 held; prefixes 9 right, 0 wrong, 0 invented, 142 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 27 held; prefixes 0 right, 0 wrong, 0 invented, 151 held
+
+eval/take-survey-blind-heldout-capture-sub8-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 8: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 378 right, 0 wrong, 0 invented, 0 held
+  min kept 16: end of drill 54 right, 0 wrong, 0 invented, 0 held; prefixes 265 right, 0 wrong, 0 invented, 113 held
+
+eval/take-survey-blind-heldout-jitter-2026-11-18.jsonl.gz: 72 survey drills
+  min kept 0: end of drill 26 right, 1 wrong, 0 invented, 0 held; prefixes 184 right, 7 wrong, 0 invented, 0 held
+  min kept 8: end of drill 10 right, 0 wrong, 0 invented, 17 held; prefixes 40 right, 0 wrong, 0 invented, 151 held
+  min kept 16: end of drill 0 right, 0 wrong, 0 invented, 27 held; prefixes 0 right, 0 wrong, 0 invented, 191 held
+
+all 12 sets:
+  min kept 0: end of drill 478 right, 3 wrong, 0 invented, 0 held; prefixes 3194 right, 45 wrong, 0 invented, 0 held
+  min kept 8: end of drill 295 right, 1 wrong, 0 invented, 185 held; prefixes 1588 right, 27 wrong, 0 invented, 1624 held
+  min kept 16: end of drill 136 right, 0 wrong, 0 invented, 345 held; prefixes 579 right, 0 wrong, 0 invented, 2660 held
+    advised prefixes on 1 kept wheels: 25 right, 12 wrong, 0 invented
+    advised prefixes on 2 kept wheels: 64 right, 3 wrong, 0 invented
+    advised prefixes on 3 kept wheels: 128 right, 3 wrong, 0 invented
+    advised prefixes on 4 kept wheels: 269 right, 0 wrong, 0 invented
+    advised prefixes on 5 kept wheels: 420 right, 0 wrong, 0 invented
+    advised prefixes on 6+ kept wheels: 2288 right, 27 wrong, 0 invented

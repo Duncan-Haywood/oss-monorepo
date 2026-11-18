@@ -146,7 +146,7 @@ export function reportCsv(r) {
   out.push([]);
   out.push(["Per month", "Member contribution", "Retail contribution", "Overhead", "Net", "Capacity used %"]);
   out.push(["", f2(r.store.memberContribution), f2(r.store.retailContribution), f2(r.store.overhead), f2(r.store.net), f2(r.store.utilization * 100)]);
-  const q = (c) => { const s = String(c); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (c) => { let s = String(c); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 

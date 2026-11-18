@@ -209,7 +209,7 @@ export function analyze(shared) {
 }
 
 export function toCsv(a) {
-  const q = (s) => `"${String(s).replace(/"/g, '""')}"`;
+  const q = (s) => { let v = String(s); if (/^[=+\-@\t\r]/.test(v) && !/^-?\d[\d,.]*$/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }; // formula injection guard (CWE-1236)
   const lines = [["plan", "suggested_price", "customers", "share_of_respondents", "revenue", "profit", ...(a.now ? ["current_price"] : [])].map(q).join(",")];
   a.names.forEach((n, t) => {
     const b = a.best.buyers[t], p = a.best.prices[t];

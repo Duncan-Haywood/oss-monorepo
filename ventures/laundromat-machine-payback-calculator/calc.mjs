@@ -109,7 +109,7 @@ export function reportCsv(r) {
   out.push([]);
   out.push(["Store per month", "Revenue", "Fees", "Utilities", "Contribution", "Overhead", "Net"]);
   out.push(["", f2(r.store.revenue), f2(r.store.feeCost), f2(r.store.utilCost), f2(r.store.contribution), f2(r.store.overhead), f2(r.store.net)]);
-  const q = (c) => { const s = String(c); return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
+  const q = (c) => { let s = String(c); if (/^[=+\-@\t\r]/.test(s) && !/^-?\d[\d,.]*$/.test(s)) s = "'" + s; return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; }; // formula injection guard (CWE-1236)
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
