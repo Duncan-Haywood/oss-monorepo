@@ -225,7 +225,8 @@
    "what": "The schedule is recomputed from all lines each request with no period lock: a late payment or a proration billed on a later invoice rewrites recognised revenue in months whose journal was already exported, and the billing entry debits Accounts receivable on the paid date so AR never clears.",
    "where": "ventures/rev-rec/revrec.mjs:64",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17212"
   },
   {
    "severity": "medium",
@@ -248,7 +249,8 @@
    "what": "Tests use midnight periods only and refund only fully recognised lines; mutants to the day count, the remainder sort and the sync overlap window all survive.",
    "where": "ventures/rev-rec/revrec.test.mjs:43",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17212"
   },
   {
    "severity": "low",
@@ -259,6 +261,6 @@
    "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17001"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17001", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17139", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17161"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17001", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17139", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17161", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17212"],
  "verdict": "Rev Rec gets the core ratable arithmetic right: annual and mid-month plans and Stripe proration upgrades recompute to the cent by hand, and the journal balances. It does not meet the bar for a revenue accountant. A refund of an unearned annual plan drives the issue month's revenue negative and keeps recognising the refunded amount for the rest of the term (Feb -960.00 and 1,006.03 Mar-Dec where ASC 606 gives 46.03 and nothing). Incremental sync never fetches an invoice paid more than about 3 days after it was created. Periods with a time of day get one extra day. Zero-decimal currencies are off by 100x. Setup fees and bundles skip SSP allocation, and closed months can be rewritten. Three of seven seeded mutants survive. Fix the credit-note treatment (reduce the remaining deferred schedule of the credited line) and the sync window before anything else."
 }
