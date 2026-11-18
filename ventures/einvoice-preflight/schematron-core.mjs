@@ -168,7 +168,7 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
 export function detectSyntax(xml) {
   // France's e-reporting file (Flux 10, root Report > ReportDocument): its own rule set. Checked
   // first, since its transactions report holds <Invoice> elements of its own (not UBL).
-  if (/^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/.test(xml)) return "flux10";
+  if (/^(?:\uFEFF)?\s*(?:<(?:\?[^?]*(?:\?(?!>)[^?]*)*\?>|!--[^-]*(?:-(?!->)[^-]*)*-->)\s*)*<Report\b[^>]*>\s*(?:<!--[^-]*(?:-(?!->)[^-]*)*-->\s*)*<ReportDocument\b/.test(xml)) return "flux10";
   // France's life-cycle status message (CDAR, "CDV" 200-228): its own rule set, no EN 16931 base.
   if (/<(?:\w+:)?CrossDomainAcknowledgementAndResponse\b/.test(xml)) return "cdar";
   if (/<(?:\w+:)?CrossIndustryInvoice\b/.test(xml)) return "cii";
