@@ -1187,7 +1187,13 @@ def start_here(queue: list[dict], claims: Optional[dict[str, list]],
         free.append((i, item["venture"]))
         if session is None or len(free) >= spread:
             break
-    free = (free + dated + later)[:1 if session is None else spread]
+    # Fall back tier by tier: a dated or declined row joins the session-hash
+    # pool only when no row of a better tier is free. Padding the pool with
+    # them (the old `free + dated + later`) sent sessions to declined rows
+    # whenever fewer than `spread` rows were free: chant-forge, declined with
+    # 19 leaves to 10 works, was still Start here for 18:52 on 2026-11-18
+    # (doc_friction on this file), since most rows held fresh claims.
+    free = (free or dated or later)[:1 if session is None else spread]
     if not free:
         return None
     if session is None:

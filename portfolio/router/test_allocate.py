@@ -1017,6 +1017,17 @@ class DateGateTests(unittest.TestCase):
         self.assertEqual(picks, {(2, "ok")})
         # Still named when nothing else is free.
         self.assertEqual(start_here(queue[:1], {}, now=now, declined={"left"}), (1, "left"))
+        # A spread wider than the free rows does not pull a declined or dated
+        # row into the session-hash pool (chant-forge, 2026-11-18).
+        dated = {"venture": "dated", "flagship": True,
+                 "task": "Deepen (flagship 3): BUILDABLE HERE: a (NOT YET: after 2099-01-01) -- Context: z"}
+        picks = {start_here(queue + [dated], {}, now=now, session=f"s{n}", spread=6,
+                            declined={"left"}) for n in range(40)}
+        self.assertEqual(picks, {(2, "ok")})
+        # With only declined and dated rows free, the dated one comes first.
+        picks = {start_here([queue[0], dated], {}, now=now, session=f"s{n}", spread=6,
+                            declined={"left"}) for n in range(40)}
+        self.assertEqual(picks, {(2, "dated")})
 
     def test_declined_rows_needs_more_leaves_than_works(self):
         from allocate import declined_rows
