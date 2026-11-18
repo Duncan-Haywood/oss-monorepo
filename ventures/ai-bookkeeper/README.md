@@ -3012,6 +3012,24 @@ move; the `voteTax` guard of the SRD run moves nothing on CORD. Details:
 [`eval/cord-shard0-lead-2026-11-17.md`](eval/cord-shard0-lead-2026-11-17.md). Tests:
 `receipt-shard0.test.mjs`.
 
+### Russian receipts: a fresh labelled source (2026-11-18)
+
+Two "new" receipt sets on Hugging Face turned out to be CORD and SRD again (167 of 192 and 199 of
+230 totals match), so the fresh source is [cdek-ocr/receipt-ocr-ru](eval/receipt-ocr-ru/README.md)
+(MIT): about 1,000 phone photos of Russian shop receipts with totals labelled. RapidOCR has no
+Cyrillic model and prints `ИТОГ` as `HTOr`, `MTOr`, `UTOr`; the parser knew no Russian total word
+and got 81-86% of totals right by taking the largest amount. Now `ИТОГ`, `ИТОГО`, `К ОПЛАТЕ` and
+their look-alikes are total words; `ИТОГО без скидки` (before the discount) is not; a dropped
+kopeck digit, an item's `119.00*1` or a tax amount on the ИТОГ row are handled; and an ИТОГ amount
+printed only once gives way to the amount the slip prints two or more times below it, or to the
+card line, or to cash less change, unless two payments below add up to it. On train shard 1, read
+only after the last change and scored once: **187 to 203 of 230 totals (81.3% to 88.3%)**, 20
+gained, 4 lost. Development sets: val 120 to 138 of 145, train shard 0 198 to 213 of 231; test 126
+to 136 of 148 (its misses were read, so not clean). CORD text unchanged. tesseract's default
+reading ran over 9 minutes on each of these textured photos without finishing: the CLI has no
+time limit on OCR, an open item. Details: [`eval/receipt-ocr-ru-2026-11-18.md`](eval/receipt-ocr-ru-2026-11-18.md).
+Tests: `receipt-russian.test.mjs`.
+
 ### WildReceipt: 472 held-out photos from a new source (2026-11-17)
 
 Every CORD photo had been read, so the reader was measured on a source no rule was written from:
