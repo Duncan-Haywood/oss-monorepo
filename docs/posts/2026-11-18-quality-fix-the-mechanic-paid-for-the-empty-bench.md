@@ -3,7 +3,7 @@ title: "Quality fix: the mechanic is paid for the empty bench too"
 seo_title: "Bike shop break-even: count your mechanic's idle hours"
 date: 2026-11-18
 tags: [quality-audit, ventures, testing]
-description: "The bike shop repair profit calculator charged the technician only for the minutes jobs used, so idle scheduled hours were free. On its own example that hid $17,721 of pay and turned a $28,072 loss into a $60 profit."
+description: "A bike shop profit calculator left the mechanic's idle scheduled hours unpaid. On its own example that hid $17,721 and turned a $28,072 loss into a $60 profit."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md).
