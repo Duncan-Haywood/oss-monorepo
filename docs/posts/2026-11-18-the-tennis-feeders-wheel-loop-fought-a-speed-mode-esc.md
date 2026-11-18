@@ -68,7 +68,9 @@ fast from a small one that recovers slowly. Searching the loop wheel by wheel
 read up to 40% off. The loop belongs to the build, not the ball, so a survey
 picked it from the sum over a whole 24-ball drill instead. The second was the
 current limit, and the survey could not fix that.
-SURVEY_SENTENCE A 10% drop at 6,000 rpm asks a 10 Hz loop for about 53,000
+On 16 simulated builds, only a slow 2 Hz loop on a light wheel read within 4%;
+at 5 Hz and faster the worst drop was 16 to 95% off. Over 768 balls, 592 read more than 2% off, and the
+unsure mark caught 571 of them. A 10% drop at 6,000 rpm asks a 10 Hz loop for about 53,000
 rpm/s, and a launcher motor gives 11,000 to 45,000. While the drive is clamped,
 the wheel recovers on a straight ramp that the PI curve doesn't have. So the
 fit stays in `tests/` and the board keeps only the loop fix.

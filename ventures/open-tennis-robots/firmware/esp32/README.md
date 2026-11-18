@@ -2819,7 +2819,16 @@ ESC-lag survey picks a lag, summing every wheel's squared rms over a drill of 24
 pick. On 16 builds (2-20 Hz, damping 0.4 and 0.7, drag 0.2 and 0.8 s, the current limit at the motor's stall
 acceleration 9,000 / tau rpm/s), exact and 5 us tachs (eval/speed-loop-survey-2026-11-18.txt):
 
-SURVEY_TABLE
+| builds (two tachs each) | worst drop error at the survey's pick | marked unsure | worst unmarked |
+| --- | --- | --- | --- |
+| 2 Hz, drag 0.2 s (4) | 1.2-4.0% | 6-21 of 24 | 2.2% |
+| 2 Hz, drag 0.8 s (4) | 3.4-18.5% | 21-24 of 24 | 0.8% |
+| 5 Hz (8) | 3.2-55.5% | 3-24 of 24 | 6.2% |
+| 10 and 20 Hz (16) | 26-95% | 24 of 24 | 0% |
+
+Over all 768 balls, 592 read more than 2% off and 571 of those were marked; 95 read within 1%. The board's own
+loop-command fit on the same drills read 215 drops, marked all 164 of those more than 2% off, and marked a drop in all
+16 drills. Only a slow (2 Hz) loop on a light-drag wheel reads well, and a real speed loop is rarely that slow.
 
 **Why it fails: the current limit.** A 10% drop at 6,000 rpm is 600 rpm of error; a 10 Hz loop at damping 0.7 asks
 for 88 x 600 = 53,000 rpm/s, over a motor's 11,000-45,000. While the drive is clamped the wheel recovers on a ramp

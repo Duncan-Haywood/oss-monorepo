@@ -1,0 +1,58 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyekFqF4FtYV9ced3SN",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T13:54:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "open-tennis-robots (flagship row 5): an ESC with its own speed loop",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17315",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first cut of the speed-loop drop fit returned None on every wheel with a constant setpoint (an all-zero W column made the normal equations singular)",
+      "fix": "drop the column when the setpoint never moves"
+    },
+    {
+      "what": "the simulator's 1 ms step advanced revolutions at the end-of-step speed, which read 1.5-3.5% low on a fit exact on its own model",
+      "fix": "speed-loop plants advance at the step's mean speed; other plants keep the old rule so their recorded sweeps stand (rechecked: unchanged)"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "the row's buildable list is a run-on of tiny sim refinements; 'an ESC with its own speed loop' was the one item that a builder would hit in practice and it sat last"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-wheel-loop-fought-a-speed-mode-esc.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (An ESC with its own speed loop)"
+  ],
+  "goal": null,
+  "notes": "Simulator: a speed-mode (PI) ESC under the board's WheelLoop rang on 48 of 144 wheels (worst 148% swing, no ball); config.ESC_SPEED_LOOP drops P and keeps 0.5 of I: 0 of 144, worst error 0.05% (tests/speed_esc_sweep.py, eval/speed-esc-sweep-2026-11-18.txt). The existing loop-command drop fit marks every >2% bad speed-mode drop unsure (75 of 75). A closed-form PI-recovery drop fit (tests/speed_loop_fit.py) is exact on its model and within 0.3% unsaturated, but fails once a ball drives the ESC into its current limit, even with the loop surveyed across a drill (eval/speed-loop-survey-2026-11-18.txt); kept off the board. Tests: venture suite via platform/ci/run_venture_tests.py open-tennis-robots (see PR).",
+  "corrections": [],
+  "redteam": null
+}
