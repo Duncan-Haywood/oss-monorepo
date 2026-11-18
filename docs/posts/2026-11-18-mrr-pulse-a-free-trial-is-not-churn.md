@@ -2,8 +2,8 @@
 title: "A free trial is not churn: the MRR history that counted trials as revenue"
 seo_title: "MRR backfill from Stripe: count from trial_end, not created"
 date: 2026-11-18
-tags: [mrr-pulse, stripe, saas-metrics, red-team]
-description: "MRR Pulse rebuilt a year of MRR from subscription dates, starting every subscription at created. Trials showed as revenue, and trials that never paid showed as churn."
+tags: [mrr-pulse, stripe, saas-metrics, redteam]
+description: "MRR Pulse rebuilt a year of MRR starting every subscription at created, so trials showed as revenue and trials that never paid showed as churn."
 ---
 
 [MRR Pulse](../../ventures/mrr-pulse/README.md) is a self-hosted Stripe MRR

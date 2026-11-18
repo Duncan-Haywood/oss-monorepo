@@ -1,0 +1,441 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKirMxdHsKM1wALDAaX",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T00:17:58Z",
+  "ended": "2026-11-18T00:19:41Z",
+  "wall_minutes": 4.38,
+  "tokens_in": 2463790,
+  "tokens_out": 13742,
+  "cost_usd": 1.2756,
+  "tool_calls": 33,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17115",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A heredoc with unquoted EOF ran a backticked word as a command while I was writing the record; caught and fixed."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks for fixing open defects first, but all 11 are control-plane (own PR, owner approval), so a normal run can take none of them. The list grows instead of shrinking."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all open entries are control-plane and need separate owner-approved PRs.",
+      "did": "Skipped them and went straight to seeding plus the hunt.",
+      "result": "1 real defect found and fixed in the product."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-mrr-pulse-a-free-trial-is-not-churn.md"
+  ],
+  "goal": null,
+  "notes": "Targets: ventures/mega-backdoor-roth-calculator/calc.mjs (10/10 caught), ventures/mrr-pulse/metrics.mjs (6/10, 10/10 after 4 gap tests). Real defect: trials counted as MRR in rebuilt history and cohorts; patched. Verification: node --test in ventures/mrr-pulse, 73 pass 0 fail. Guard: the new tests in metrics/csv/stripe suites run in ventures-tests.yml.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+        "test": "node --test ventures/mega-backdoor-roth-calculator/**/*.test.mjs  (in .)",
+        "seed": 1071781446,
+        "commit": "e04b8ad26",
+        "sites": 104,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 47,
+            "col": 2,
+            "operator": "const-plus-one",
+            "before": "2026: Object.freeze({",
+            "after": "2027: Object.freeze({",
+            "line_text": "  2026: Object.freeze({",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 58,
+            "col": 8,
+            "operator": "const-plus-one",
+            "before": "year: 2026,",
+            "after": "year: 2027,",
+            "line_text": "  year: 2026,",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 64,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "expectedAdditionalEmployerContributions: 6000,",
+            "after": "expectedAdditionalEmployerContributions: 6001,",
+            "line_text": "  expectedAdditionalEmployerContributions: 6000,",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 80,
+            "col": 48,
+            "operator": "div-to-times",
+            "before": "return Math.round((n + Number.EPSILON) * 100) / 100;",
+            "after": "return Math.round((n + Number.EPSILON) * 100) * 100;",
+            "line_text": "  return Math.round((n + Number.EPSILON) * 100) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 107,
+            "col": 33,
+            "operator": "plus-to-minus",
+            "before": "return limits.electiveDeferral + catchUpAmount(year, catchUpBand(age));",
+            "after": "return limits.electiveDeferral - catchUpAmount(year, catchUpBand(age));",
+            "line_text": "  return limits.electiveDeferral + catchUpAmount(year, catchUpBand(age));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 140,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "input.eligibleCompensation === '' || input.eligibleCompensation == null",
+            "after": "input.eligibleCompensation !== '' || input.eligibleCompensation == null",
+            "line_text": "    input.eligibleCompensation === '' || input.eligibleCompensation == null",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 151,
+            "col": 29,
+            "operator": "plus-to-minus",
+            "before": "ytdEmployerContributions + expectedAdditionalEmployerContributions;",
+            "after": "ytdEmployerContributions - expectedAdditionalEmployerContributions;",
+            "line_text": "    ytdEmployerContributions + expectedAdditionalEmployerContributions;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 154,
+            "col": 37,
+            "operator": "max-to-min",
+            "before": "const irsAfterTaxHeadroom = round2(Math.max(0, overallLimit - alreadyCounted));",
+            "after": "const irsAfterTaxHeadroom = round2(Math.min(0, overallLimit - alreadyCounted));",
+            "line_text": "  const irsAfterTaxHeadroom = round2(Math.max(0, overallLimit - alreadyCounted));",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 165,
+            "col": 8,
+            "operator": "min-to-max",
+            "before": ": Math.min(irsAfterTaxHeadroom, planAfterTaxHeadroom)",
+            "after": ": Math.max(irsAfterTaxHeadroom, planAfterTaxHeadroom)",
+            "line_text": "      : Math.min(irsAfterTaxHeadroom, planAfterTaxHeadroom)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mega-backdoor-roth-calculator/calc.mjs",
+            "line": 180,
+            "col": 48,
+            "operator": "times-to-div",
+            "before": "? round2((estimatedGrowthBeforeConversion * marginalTaxRatePercent) / 100)",
+            "after": "? round2((estimatedGrowthBeforeConversion / marginalTaxRatePercent) / 100)",
+            "line_text": "      ? round2((estimatedGrowthBeforeConversion * marginalTaxRatePercent) / 100)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/mrr-pulse/metrics.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 15275873,
+        "commit": "e04b8ad26",
+        "sites": 266,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 67,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "for (let i = n - 1; i >= 0; i--) {",
+            "after": "for (let i = n - 2; i >= 0; i--) {",
+            "line_text": "  for (let i = n - 1; i >= 0; i--) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 67,
+            "col": 24,
+            "operator": "ge-to-gt",
+            "before": "for (let i = n - 1; i >= 0; i--) {",
+            "after": "for (let i = n - 1; i > 0; i--) {",
+            "line_text": "  for (let i = n - 1; i >= 0; i--) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 74,
+            "col": 107,
+            "operator": "const-plus-one",
+            "before": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "after": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 1, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "line_text": "const emptyMonth = (month) => ({ month, mrr: 0, customers: 0, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, newCount: 0, churnCount: 0, reactivationCount: 0, startMrr: 0, startCustomers: 0, approximate: false });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 81,
+            "col": 83,
+            "operator": "const-plus-one",
+            "before": "let prev = mapAt(subs, Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() - months + 1, 1) - 1);",
+            "after": "let prev = mapAt(subs, Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() - months + 2, 1) - 1);",
+            "line_text": "  let prev = mapAt(subs, Date.UTC(d0.getUTCFullYear(), d0.getUTCMonth() - months + 1, 1) - 1);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: first month's starting map moved forward one month hides subs started in month 1 as new; test 'backfill's first month counts...'"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 119,
+            "col": 34,
+            "operator": "gt-to-ge",
+            "before": "growthPct: prior && prior.mrr > 0 ? (cur.mrr - prior.mrr) / prior.mrr : null,",
+            "after": "growthPct: prior && prior.mrr >= 0 ? (cur.mrr - prior.mrr) / prior.mrr : null,",
+            "line_text": "    growthPct: prior && prior.mrr > 0 ? (cur.mrr - prior.mrr) / prior.mrr : null,",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: prior.mrr 0 gives Infinity growth; test 'growth is null, not Infinity'"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 126,
+            "col": 122,
+            "operator": "plus-to-minus",
+            "before": "quickRatio: base.contraction + base.churn > 0 ? (base.new + base.expansion + base.reactivation) / (base.contraction + base.churn) : null,",
+            "after": "quickRatio: base.contraction + base.churn > 0 ? (base.new + base.expansion + base.reactivation) / (base.contraction - base.churn) : null,",
+            "line_text": "      quickRatio: base.contraction + base.churn > 0 ? (base.new + base.expansion + base.reactivation) / (base.contraction + base.churn) : null,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 160,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }",
+            "after": "if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 1, logo: [], revenue: [] }); continue; }",
+            "line_text": "    if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: empty cohort row with mrr 1; test 'an empty cohort carries zero MRR'"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 181,
+            "col": 24,
+            "operator": "eq-flip",
+            "before": "const ok = s.status === \"active\" || (countPastDue && s.status === \"past_due\");",
+            "after": "const ok = s.status !== \"active\" || (countPastDue && s.status === \"past_due\");",
+            "line_text": "    const ok = s.status === \"active\" || (countPastDue && s.status === \"past_due\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 239,
+            "col": 61,
+            "operator": "const-plus-one",
+            "before": "const share = (n) => v.slice(0, n).reduce((a, b) => a + b, 0) / total;",
+            "after": "const share = (n) => v.slice(0, n).reduce((a, b) => a + b, 1) / total;",
+            "line_text": "  const share = (n) => v.slice(0, n).reduce((a, b) => a + b, 0) / total;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 240,
+            "col": 24,
+            "operator": "ge-to-gt",
+            "before": "const risk = share(1) >= 0.25 ? \"high\" : share(1) >= 0.1 || share(5) >= 0.5 ? \"moderate\" : \"low\";",
+            "after": "const risk = share(1) > 0.25 ? \"high\" : share(1) >= 0.1 || share(5) >= 0.5 ? \"moderate\" : \"low\";",
+            "line_text": "  const risk = share(1) >= 0.25 ? \"high\" : share(1) >= 0.1 || share(5) >= 0.5 ? \"moderate\" : \"low\";",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: share exactly 0.25 boundary; test 'concentration: ... exactly a quarter'"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/mrr-pulse/metrics.mjs",
+        "issue": "backfill/mapAt and cohorts counted every subscription from `created`, ignoring trial_end: a converted trial showed as MRR during its free weeks and a trial canceled before paying showed as new MRR then churn (and a cohort member), contradicting the page's 'excludes trials'. Reproduced with a failing test (aug.mrr 1700 vs 200). Fixed: stripe.mjs and csv.mjs keep trialEnd; mapAt/cohorts count from max(created, trialEnd) and drop never-paid subs.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3cd80398-00ff-51ea-bcff-70657ea13f7c",
+    "transcripts": 1,
+    "first": "2026-11-18T00:17:58Z",
+    "last": "2026-11-18T00:22:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 65,
+        "output": 13742,
+        "thinking": 2830,
+        "cache_read": 2398625,
+        "cache_write_5m": 0,
+        "cache_write_1h": 65100,
+        "api_equivalent_usd": 1.2756,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 65,
+      "output": 13742,
+      "thinking": 2830,
+      "cache_read": 2398625,
+      "cache_write_5m": 0,
+      "cache_write_1h": 65100,
+      "api_equivalent_usd": 1.2756,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.38,
+      "active_minutes": 4.38,
+      "model_minutes": 2.89,
+      "tool_minutes": 1.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "read the product, find and fix the trial bug, write 6 tests and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 235.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
