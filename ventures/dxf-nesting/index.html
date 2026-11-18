@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%231d4e89'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EN%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Free DXF Nesting Online — Nest Laser, Plasma &amp; CNC Parts on a Sheet</title>
+  <meta name="description" content="Free DXF nesting in your browser: drop in DXF parts, set quantities, sheet size, gap and margin, and get nested sheets as DXF with utilisation, cut length and pierce counts. Parts go inside holes. Nothing is uploaded.">
+  <meta property="og:title" content="Free DXF nesting for laser, plasma and CNC router parts">
+  <meta property="og:description" content="True-shape nesting of DXF parts on sheets, in the browser: every gap checked, sheets out as DXF, utilisation, cut length and pierces per sheet.">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "DXF Nesting", "applicationCategory": "DesignApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Free true-shape nesting of DXF parts on rectangular sheets for laser, plasma, waterjet and CNC router shops. Reads LINE, ARC, CIRCLE, polylines with bulges, ELLIPSE, SPLINE and blocks; writes the nested sheets as R12 DXF; checks every gap independently."}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How do I nest DXF parts for free?", "acceptedAnswer": {"@type": "Answer", "text": "Open this page, drop in one or more ASCII DXF files, give each part a quantity, enter the sheet size, the gap between parts and the edge margin, and press Nest. You get each sheet as a picture and as a DXF file for your CAM, with utilisation, cut length and pierces per sheet. Nothing is uploaded."}}, {"@type": "Question", "name": "Will it put small parts inside the holes of big ones?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Holes in a part stay free, so washers, slugs and small brackets are placed inside large cut-outs when they fit with the gap you set."}}, {"@type": "Question", "name": "How is the gap between parts guaranteed?", "acceptedAnswer": {"@type": "Answer", "text": "Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap."}}, {"@type": "Question", "name": "Is it as good as SigmaNEST, ProNest or Deepnest?", "acceptedAnswer": {"@type": "Answer", "text": "Usually not quite. It is a greedy placement on a grid, so a commercial true-shape nester with search will often fit a few percent more parts per sheet. It is free, instant, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use."}}, {"@type": "Question", "name": "Which DXF entities are read?", "acceptedAnswer": {"@type": "Answer", "text": "LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF."}}, {"@type": "Question", "name": "Are my drawings uploaded?", "acceptedAnswer": {"@type": "Answer", "text": "No. The files are read and nested in your browser tab and never leave your computer."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #17202a; background: #f2f5f9; }
+    body { max-width: 1100px; margin: auto; padding: 24px; }
+    a { color: #0b4f9c; }
+    h1 { font-size: clamp(1.8rem, 4.6vw, 2.7rem); line-height: 1.08; margin: 0 0 14px; color: #0f2c4f; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #0f2c4f; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #46566a; }
+    .card { background: #fff; border: 1px solid #d5dfeb; border-radius: 14px; padding: 20px; box-shadow: 0 8px 24px #0b2e5510; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 10px 0 4px; }
+    input, select { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #aebdd0; border-radius: 7px; font: 15px system-ui, sans-serif; }
+    input[type=file] { padding: 14px; border-style: dashed; background: #f7fafd; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #0b4f9c; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e3ebf5; color: #0f2c4f; }
+    button:disabled { opacity: .55; cursor: default; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6edf5; vertical-align: middle; }
+    th { font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; color: #46566a; }
+    td input { width: 6em; }
+    .thumb svg { width: 64px; height: 48px; display: block; }
+    .sheet svg { width: 100%; height: auto; display: block; border-radius: 6px; }
+    .ok { color: #1c6b2f; font-weight: 600; }
+    .bad { color: #9a3412; font-weight: 600; }
+    .scroll { overflow-x: auto; }
+    footer { margin-top: 28px; border-top: 1px solid #d5dfeb; padding-top: 16px; }
+    #status { min-height: 1.4em; font-weight: 600; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">DXF NESTING · LASER, PLASMA, WATERJET, CNC ROUTER · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
+    <h1>Nest your DXF parts on a sheet, free</h1>
+    <p>Drop in the DXF files for a job, set how many of each, the sheet size, the gap between parts and the edge margin. You get <strong>nested sheets as DXF for your CAM, how much of each sheet is used, the cut length and the pierce count</strong>, with every gap checked. Small parts go inside the holes of big ones.</p>
+    <p class="note">For shops quoting or cutting small batches that do not have a nesting module, and for anyone checking how many sheets a job needs before buying them. A greedy nester, not an optimiser: see <a href="#limits">what it does not do</a>.</p>
+  </header>
+<main>
+  <section class="card">
+    <h2>1. Parts</h2>
+    <label for="files">DXF files (ASCII DXF, any number)</label>
+    <input type="file" id="files" accept=".dxf" multiple>
+    <div class="grid">
+      <div><label for="skipLayers">Ignore layers matching (optional)</label><input type="text" id="skipLayers" placeholder="e.g. DIM|TEXT|NOTES" spellcheck="false"></div>
+      <div><label for="defaultQty">Quantity for new parts</label><input type="number" id="defaultQty" min="0" step="1" value="1"></div>
+    </div>
+    <p><button type="button" class="secondary" id="load-example">Load the worked example (mm)</button><button type="button" class="secondary" id="clear">Clear parts</button></p>
+    <div class="scroll"><table id="partsTable" hidden>
+      <thead><tr><th scope="col">Shape</th><th scope="col">Part</th><th scope="col">Size</th><th scope="col">Holes</th><th scope="col">Quantity</th></tr></thead>
+      <tbody id="partRows"></tbody>
+    </table></div>
+    <p class="note" id="readNotes"></p>
+  </section>
+
+  <section class="card">
+    <h2>2. Sheet and spacing</h2>
+    <p class="note">Use the drawing's units. <span id="unitsNote"></span></p>
+    <div class="grid">
+      <div><label for="sheetW">Sheet length</label><input type="number" id="sheetW" min="0" step="any" value="2500"></div>
+      <div><label for="sheetH">Sheet width</label><input type="number" id="sheetH" min="0" step="any" value="1250"></div>
+      <div><label for="gap">Gap between parts</label><input type="number" id="gap" min="0" step="any" value="5"></div>
+      <div><label for="margin">Margin from sheet edge</label><input type="number" id="margin" min="0" step="any" value="10"></div>
+      <div><label for="rotations">Allowed turns</label>
+        <select id="rotations">
+          <option value="0,90,180,270" selected>0, 90, 180, 270°</option>
+          <option value="0,180">0 and 180° (keep grain or brushing)</option>
+          <option value="0">None</option>
+          <option value="every 45">Every 45°</option>
+          <option value="every 15">Every 15° (slower)</option>
+        </select></div>
+      <div><label for="res">Grid cell (blank = automatic)</label><input type="number" id="res" min="0" step="any" placeholder="auto"></div>
+      <div><label for="maxSheets">Most sheets to use</label><input type="number" id="maxSheets" min="1" step="1" value="50"></div>
+    </div>
+    <p><button type="button" id="nest">Nest</button></p>
+    <p id="status" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="card" id="report" hidden>
+    <h2>3. Nested sheets</h2>
+    <p id="summary"></p>
+    <p id="checkLine"></p>
+    <div class="scroll"><table>
+      <thead><tr><th scope="col">Sheet</th><th scope="col">Parts</th><th scope="col">Length used</th><th scope="col">Of sheet</th><th scope="col">Of length used</th><th scope="col">Cut length</th><th scope="col">Pierces</th></tr></thead>
+      <tbody id="sheetRows"></tbody>
+    </table></div>
+    <p id="unplaced" class="bad"></p>
+    <p><button type="button" id="dl-all">Download all sheets (DXF)</button><button type="button" class="secondary" id="dl-csv">Download report (CSV)</button></p>
+    <div id="sheets"></div>
+    <p class="note">Layers in the DXF: <code>CUT_OUTER</code> (part outlines), <code>CUT_INNER</code> (holes, cut first), <code>MARK</code> (open lines inside a part, such as engraving), <code>SHEET</code> (the sheet outline). The green strip is the remnant past the last part.</p>
+  </section>
+
+  <section class="card">
+    <h2>Worked example</h2>
+    <p>The example job is 72 mild steel parts in millimetres: 12 square flanges (200 mm, 110 mm bore, four bolt holes), 16 gussets, 10 L brackets, 30 washers (80 mm) and 4 base plates (600 × 140), on a 2500 × 1250 sheet with a 5 mm gap and a 10 mm margin. It nests on one sheet using about 1,912 mm of its length (about 80% of that length is parts), with washers placed inside the flange bores and gussets turned to pair up. Cut length is about 59.5 m and there are 206 pierces, which is what a laser or plasma quote is priced on.</p>
+  </section>
+
+  <section class="card" id="limits">
+    <h2>What it does and does not do</h2>
+    <p><strong>Does:</strong> true-shape nesting of closed outlines with their holes on rectangular sheets, parts inside holes, rotation in steps you choose, a minimum gap and edge margin, several sheets, the remnant left at the far end, an independent gap check, DXF out on separate cut and mark layers, utilisation, cut length and pierce counts, and the area bound (no nester can use fewer sheets than the parts' area divided by a sheet's usable area).</p>
+    <p><strong>Not modelled:</strong> common-line cutting, lead-ins and lead-outs, kerf compensation (your CAM does that; set the gap at least to the kerf plus what your material needs), cut order and heat, micro-joints and tabs, grain beyond 0/180° turns, remnant and non-rectangular sheets, mirroring parts, nesting the same job across different sheet sizes. Placement is greedy on a grid, so commercial nesters with search usually fit a few percent more; treat the sheet count as a cautious estimate.</p>
+    <p><strong>When to use something else:</strong> production runs where a few percent of material is worth a licence (SigmaNEST, ProNest, Lantek, your machine's own software), or when you need lead-ins and cut order in the same step.</p>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>How do I nest DXF parts for free?</h3>
+    <p>Open this page, drop in one or more ASCII DXF files, give each part a quantity, enter the sheet size, the gap between parts and the edge margin, and press Nest. You get each sheet as a picture and as a DXF file for your CAM, with utilisation, cut length and pierces per sheet. Nothing is uploaded.</p>
+    <h3>Will it put small parts inside the holes of big ones?</h3>
+    <p>Yes. Holes in a part stay free, so washers, slugs and small brackets are placed inside large cut-outs when they fit with the gap you set.</p>
+    <h3>How is the gap between parts guaranteed?</h3>
+    <p>Parts are placed on a fine grid that always covers the whole shape, and each placed part reserves extra cells for the gap plus the arc flattening error. After nesting, a separate check measures the distance between every pair of placed outlines from their edges and reports any pair closer than the gap.</p>
+    <h3>Is it as good as SigmaNEST, ProNest or Deepnest?</h3>
+    <p>Usually not quite. It is a greedy placement on a grid, so a commercial true-shape nester with search will often fit a few percent more parts per sheet. It is free, instant, private and its sheets come out as plain DXF; the page also shows the area bound, the fewest sheets any nester could use.</p>
+    <h3>Which DXF entities are read?</h3>
+    <p>LINE, ARC, CIRCLE, LWPOLYLINE and POLYLINE with bulges, ELLIPSE, SPLINE and INSERT of blocks (with scale, rotation, mirroring and arrays). Text, dimensions and hatches are skipped and counted. Binary DXF is not read; save as ASCII DXF.</p>
+    <h3>Are my drawings uploaded?</h3>
+    <p>No. The files are read and nested in your browser tab and never leave your computer.</p>
+    <p class="note">Command line: <code>node cli.mjs part.dxf:20 --sheet 2500x1250 --gap 5 --margin 10 --out nest.dxf</code> (in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dxf-nesting" rel="noopener">source</a>).</p>
+  </section>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not engineering, fabrication or financial advice, and it does not replace your CAM software's checks or a qualified operator. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including every nest before you cut it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+  <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you load is saved anywhere by this tool.</p>
+  <p>Everything runs in your browser. Your drawings are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>dxf_loaded</code>, <code>example_loaded</code>, <code>sheets_nested</code>, <code>dxf_downloaded</code>, <code>csv_downloaded</code>) are counted only in local storage on your device. Do Not Track and Global Privacy Control are honoured.</p>
+  <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+  <p>Related: <a href="../laser-cutting-engraving-job-price-calculator/">laser job price</a>, <a href="../cnc-machining-quote-calculator/">CNC machining quote</a>, <a href="../cut-list-optimizer/">cut list for sheet goods (saw cuts)</a>.</p>
+  <p class="support">Free and open source. The <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+</footer>
+
+<script type="module">
+  import { partsFromDxf, exampleParts, runJob, sheetSvg, sheetDxf, allSheetsDxf, reportCsv } from "./job.mjs";
+  import { previewPoints } from "./dxf.mjs";
+  import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const n = (x, d = 1) => Number(x).toLocaleString("en-US", { maximumFractionDigits: d });
+  const keys = ["sheetW", "sheetH", "gap", "margin", "rotations", "res", "maxSheets", "skipLayers", "defaultQty"];
+  let items = [], units = "unitless", insunits = 0, job = null;
+
+  function thumb(part) {
+    const tol = Math.max(part.width, part.height) / 200 || 0.01;
+    const s = 60 / Math.max(part.width, part.height, 1e-9);
+    const P = (pts) => pts.map(([x, y], i) => `${i ? "L" : "M"}${(x * s + 2).toFixed(1)} ${(46 - y * s).toFixed(1)}`).join("") + "Z";
+    const d = P(previewPoints(part.outer, tol)) + part.holes.map((h) => P(previewPoints(h, tol))).join("");
+    return `<svg viewBox="0 0 64 48" aria-hidden="true"><path d="${d}" fill="#cfe3f7" fill-rule="evenodd" stroke="#1d2b3a" stroke-width="0.8"/></svg>`;
+  }
+
+  function drawParts() {
+    $("#partsTable").hidden = items.length === 0;
+    $("#partRows").innerHTML = items.map((it, i) => `<tr><td class="thumb">${thumb(it.part)}</td><td>${esc(it.name)}</td><td>${n(it.part.width, 2)} × ${n(it.part.height, 2)}</td><td>${it.part.holes.length}</td><td><label class="note" for="q${i}" style="margin:0">Qty</label><input type="number" id="q${i}" data-i="${i}" min="0" step="1" value="${it.qty}"></td></tr>`).join("");
+    $("#unitsNote").textContent = units !== "unitless" ? `Your drawings say ${units}.` : "";
+  }
+  $("#partRows").addEventListener("input", (e) => {
+    const i = e.target.dataset.i;
+    if (i !== undefined) items[+i].qty = Math.max(0, Math.floor(+e.target.value || 0));
+  });
+
+  $("#files").addEventListener("change", async (e) => {
+    const notes = [];
+    for (const f of e.target.files) {
+      const text = await f.text();
+      const r = partsFromDxf(text, f.name, { skipLayers: $("#skipLayers").value.trim() || null });
+      if (!r.ok) { notes.push(`${f.name}: ${r.error}`); continue; }
+      if (r.units !== "unitless") {
+        if (units !== "unitless" && units !== r.units && items.length) notes.push(`${f.name} is in ${r.units} but the parts already loaded are in ${units}: scale it in your CAD program first, or the sizes will not match.`);
+        units = r.units; insunits = r.insunits;
+      }
+      for (const w of r.warnings) notes.push(`${f.name}: ${w}`);
+      const q = Math.max(0, Math.floor(+$("#defaultQty").value || 0));
+      for (const p of r.parts) items.push({ ...p, qty: q });
+      notes.push(`${f.name}: ${r.parts.length} part${r.parts.length > 1 ? "s" : ""}.`);
+      record("dxf_loaded");
+    }
+    $("#readNotes").textContent = notes.join(" ");
+    e.target.value = "";
+    drawParts();
+  });
+
+  $("#load-example").addEventListener("click", () => {
+    items = exampleParts();
+    units = "mm"; insunits = 4;
+    $("#sheetW").value = 2500; $("#sheetH").value = 1250; $("#gap").value = 5; $("#margin").value = 10;
+    $("#readNotes").textContent = "Worked example: made-up parts in mm.";
+    drawParts();
+    record("example_loaded");
+    run();
+  });
+  $("#clear").addEventListener("click", () => { items = []; job = null; $("#report").hidden = true; $("#readNotes").textContent = ""; drawParts(); });
+
+  function rotationsOf(v) {
+    const m = /^every (\d+)$/.exec(v);
+    if (m) { const out = []; for (let a = 0; a < 360; a += +m[1]) out.push(a); return out; }
+    return v.split(",").map(Number);
+  }
+
+  function run() {
+    if (!items.some((x) => x.qty > 0)) { $("#status").textContent = "Load a DXF (or the example) and give at least one part a quantity."; return; }
+    $("#status").textContent = "Nesting…";
+    $("#nest").disabled = true;
+    setTimeout(() => {
+      try {
+        const res = parseFloat($("#res").value);
+        job = runJob(items, {
+          sheetW: +$("#sheetW").value, sheetH: +$("#sheetH").value, gap: +$("#gap").value || 0, margin: +$("#margin").value || 0,
+          rotations: rotationsOf($("#rotations").value), res: res > 0 ? res : undefined, maxSheets: Math.max(1, Math.floor(+$("#maxSheets").value || 50)),
+        });
+        if (!job.ok) { $("#status").textContent = job.error; $("#report").hidden = true; return; }
+        show();
+        record("sheets_nested");
+      } finally { $("#nest").disabled = false; }
+    }, 30);
+  }
+  $("#nest").addEventListener("click", run);
+
+  function show() {
+    const r = job.report, u = units !== "unitless" ? " " + units : "";
+    $("#summary").innerHTML = `<strong>${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}</strong> (the area bound says no nester can use fewer than ${r.sheetLowerBound}). Parts are ${n(r.utilisation * 100)}% of the sheets bought. Cut length ${n(r.cutLength)}${u}, ${r.pierces} pierces. Grid ${job.result.res}${u}, ${job.result.ordersTried} orders tried in ${n(job.result.ms / 1000, 1)} s.`;
+    $("#checkLine").innerHTML = job.check.ok
+      ? `<span class="ok">Checked: every pair of parts is at least ${job.result.gap}${u} apart and every part at least ${job.result.margin}${u} from the edge.</span>`
+      : `<span class="bad">Check failed (please report this): ${esc(job.check.problems.slice(0, 5).join(" "))}</span>`;
+    $("#sheetRows").innerHTML = r.sheets.map((s) => `<tr><th scope="row">${s.sheet}</th><td>${s.parts}</td><td>${n(s.usedLength)}${u}</td><td>${n(s.utilisation * 100)}%</td><td>${n(s.utilisationOfUsed * 100)}%</td><td>${n(s.cutLength)}${u}</td><td>${s.pierces}</td></tr>`).join("");
+    $("#unplaced").textContent = job.result.unplaced.map((x) => `Not placed: ${x.count} × ${x.name} (${x.reason}).`).join(" ");
+    $("#sheets").innerHTML = r.sheets.map((s, i) => `<div class="sheet card"><h3>Sheet ${s.sheet}: ${Object.entries(s.counts).map(([k, v]) => `${v} × ${esc(k)}`).join(", ")}</h3>${sheetSvg(job, i)}<button type="button" class="secondary" data-sheet="${i}">Download sheet ${s.sheet} (DXF)</button></div>`).join("");
+    $("#report").hidden = false;
+    $("#status").textContent = `${r.totalParts} parts on ${r.totalSheets} sheet${r.totalSheets === 1 ? "" : "s"}.`;
+    $("#report").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+  }
+
+  function save(text, name, type) {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type }));
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  $("#sheets").addEventListener("click", (e) => {
+    const i = e.target.dataset && e.target.dataset.sheet;
+    if (i === undefined || !job) return;
+    save(sheetDxf(job, +i, insunits), `nest-sheet-${+i + 1}.dxf`, "application/dxf");
+    record("dxf_downloaded");
+  });
+  $("#dl-all").addEventListener("click", () => { if (job) { save(allSheetsDxf(job, insunits), "nest-all-sheets.dxf", "application/dxf"); record("dxf_downloaded"); } });
+  $("#dl-csv").addEventListener("click", () => { if (job) { save(reportCsv(job, units === "unitless" ? "" : units), "nest-report.csv", "text/csv"); record("csv_downloaded"); } });
+
+  $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+  if (usageOptedOut()) { const c = $("#optout"); c.textContent = "Usage counting is off"; c.disabled = true; }
+  void keys;
+</script>
+</body>
+</html>
