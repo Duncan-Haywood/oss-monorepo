@@ -3,7 +3,7 @@ title: "The same matrix, factored twice: a third off a Gaussian-process fit"
 seo_title: "Faster Gaussian process fitting in JavaScript, same answers"
 date: 2026-11-18
 tags: [gaussian-process-regression, perf, algorithms]
-description: "An L-BFGS line search factored the covariance matrix, then the gradient factored it again. Reusing it and tiling the loops cut a fit from 15.5 s to 10.7 s, output unchanged."
+description: "A line search factored the covariance matrix, then the gradient factored it again. Reusing it and tiling the loops cut a fit from 15.5 s to 10.7 s."
 ---
 
 The [Gaussian process regression tool](https://marisstella.app/gaussian-process-regression/)
