@@ -503,12 +503,12 @@ flagships:
       eval/corpus-crosscheck-*); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
-      rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
-      IfcTester 646); several IFC versions per spec 2026-11-17
-      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files).
-      attribute facets read geometry shallow 2026-11-18
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); several IFC
+      versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md: opened in the
+      schema that edits most, page audit in every named schema, false page errors 18
+      to 0 on 18 public files). attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); next: psetsOf on every-entity property specs, lazy ifcXML. More
-      open items: NEXT.md.
+      same reports); property sets read once per model, indexed by name 2026-11-18
+      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 9.0 to 5.6 s, same
+      reports); next: lazy ifcXML, a file-order candidate list for specs with no
+      entity facet. More open items: NEXT.md.

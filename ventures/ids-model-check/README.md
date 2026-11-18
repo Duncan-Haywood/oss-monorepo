@@ -476,6 +476,13 @@ The 68 files take 8.3 s there, where they took 13.3 s, at 646 MB RSS, down from
 114.3 s, and they now finish under a 1 GB heap, where main ran out of memory.
 Every report is identical.
 
+Since 2026-11-18 (`eval/psets-cache-2026-11-18.md`) each property set is read
+once per model and the model keeps, per set name, the elements that reach a
+set of that name, so a property facet on every entity tests each distinct name
+once and then costs one lookup per element. The 68 files take 5.6 s on the HHS
+MEP export, where they took 9.0 s on the same machine, FEDREADME Every report
+is identical.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones

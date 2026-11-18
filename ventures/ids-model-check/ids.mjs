@@ -42,12 +42,15 @@ export class Schema {
     return a;
   }
   isA(type, ancestor) {
-    const key = type + ">" + ancestor;
-    let r = this._sub.get(key);
+    // Keyed type, then ancestor: a joined string key cost 5-8% of a 68-file
+    // run in string building alone (eval/psets-cache-2026-11-18.md).
+    let row = this._sub.get(type);
+    if (!row) this._sub.set(type, (row = new Map()));
+    let r = row.get(ancestor);
     if (r !== undefined) return r;
     r = false;
     for (let t = type; t; t = this.entities[t] && this.entities[t].super) if (t === ancestor) { r = true; break; }
-    this._sub.set(key, r);
+    row.set(ancestor, r);
     return r;
   }
   // The primitive a type name resolves to: string, double, integer, boolean,
@@ -489,8 +492,12 @@ export class AttributeFacet {
   }
   test(e, model) {
     const S = model.schema;
-    const attrs = S.attrs(e.type);
-    const hits = attrs.map((a, i) => [a, i]).filter(([a]) => this.name.matchString(a.name));
+    // The attributes the name takes depend only on the class (and schema), so
+    // they are found once per class and kept (eval/psets-cache-2026-11-18.md).
+    let byType = this._hits;
+    if (!byType || this._hitsSchema !== S) { byType = this._hits = new Map(); this._hitsSchema = S; }
+    let hits = byType.get(e.type);
+    if (!hits) byType.set(e.type, (hits = S.attrs(e.type).map((a, i) => [a, i]).filter(([a]) => this.name.matchString(a.name))));
     if (!hits.length) return { ok: false, absent: true, why: `has no attribute ${this.name}` };
     // Nothing below reads inside a list (only whether it is empty), so a lazy
     // STEP entity may hand over its arguments with nested lists unread.
@@ -525,33 +532,85 @@ export const QUANTITY_MEASURE = {
   IFCQUANTITYNUMBER: ["NumberValue", "IFCNUMERICMEASURE"],
 };
 
-// Property sets of an element by name: {name -> {props: Map(name -> propEntity), entity}}
+// One property set's name and properties, read once per model and shared by
+// every element and specification that reaches it (a type's sets reach all
+// its occurrences; 68 public IDS files read each set hundreds of times,
+// eval/psets-cache-2026-11-18.md). {name, props: Map(name -> propEntity)};
+// name is null when the set has no string Name, which psetsOf skips.
+export function psetInfo(model, pset) {
+  let cache = model._psetInfo;
+  if (!cache) cache = model._psetInfo = new Map();
+  let info = cache.get(pset.id);
+  if (info) return info;
+  const name = model.attr(pset, "Name");
+  const props = new Map();
+  if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
+    const listName = pset.type === "IFCELEMENTQUANTITY" ? "Quantities" : pset.type === "IFCEXTENDEDMATERIALPROPERTIES" ? "ExtendedProperties" : pset.type === "IFCPROPERTYSET" ? "HasProperties" : "Properties";
+    for (const p of model.refs(pset, listName)) {
+      const pn = model.attr(p, "Name");
+      if (typeof pn === "string") props.set(pn, p);
+    }
+  } else if (model.isA(pset, "IFCPREDEFINEDPROPERTYSET")) {
+    const attrs = model.schema.attrs(pset.type);
+    for (let i = 4; i < attrs.length; i++) props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
+  }
+  info = { name: typeof name === "string" ? name : null, props };
+  cache.set(pset.id, info);
+  return info;
+}
+
+// The property sets psetsOf reads for an element, in its order (later ones
+// override earlier ones of the same name): the element's type's, a type
+// object's own, the property relationships', a material's.
+export function psetSources(model, e, visit) {
+  const ty = model.typeOf.get(e.id);
+  if (ty) for (const p of model.refs(ty, "HasPropertySets")) visit(p);
+  if (model.isA(e, "IFCTYPEOBJECT")) for (const p of model.refs(e, "HasPropertySets")) visit(p);
+  const rel = model.psetRels.get(e.id);
+  if (rel) for (const p of rel) visit(p);
+  if (e.type === "IFCMATERIAL" || model.isA(e, "IFCMATERIALDEFINITION")) for (const p of model.materialProps.get(e.id) || []) visit(p);
+}
+
+// The elements that reach a property set of each name, through the sources
+// psetsOf reads: Map(name -> [element]), built once per model. Sets with no
+// string Name are left out, as psetsOf leaves them out.
+export function psetHolders(model) {
+  if (model._psetHolders) return model._psetHolders;
+  const out = new Map();
+  const seen = new Set();
+  const consider = (e) => {
+    if (!e || seen.has(e.id)) return;
+    seen.add(e.id);
+    psetSources(model, e, (p) => {
+      const n = psetInfo(model, p).name;
+      if (n === null) return;
+      let l = out.get(n);
+      if (!l) out.set(n, (l = []));
+      if (l[l.length - 1] !== e) l.push(e);
+    });
+  };
+  for (const id of model.typeOf.keys()) consider(model.entities.get(id));
+  for (const id of model.psetRels.keys()) consider(model.entities.get(id));
+  for (const id of model.materialProps.keys()) consider(model.entities.get(id));
+  for (const [type, list] of model.byType) if (model.schema.isA(type, "IFCTYPEOBJECT")) for (const e of list) consider(e);
+  return (model._psetHolders = out);
+}
+
+// Property sets of an element by name: {name -> {props: Map(name -> propEntity), entities}}
 // Type psets are inherited and an occurrence's pset of the same name overrides
-// per property.
+// per property. A name held by one set returns that set's cached props Map,
+// which callers must not change; a second set of the same name gets a copy.
 export function psetsOf(model, e) {
   const out = new Map();
-  const add = (pset) => {
-    const name = model.attr(pset, "Name");
-    if (typeof name !== "string") return;
-    let slot = out.get(name);
-    if (!slot) out.set(name, (slot = { props: new Map(), entities: [] }));
+  psetSources(model, e, (pset) => {
+    const info = psetInfo(model, pset);
+    if (info.name === null) return;
+    const slot = out.get(info.name);
+    if (!slot) { out.set(info.name, { props: info.props, entities: [pset], shared: true }); return; }
+    if (slot.shared) { slot.props = new Map(slot.props); slot.shared = false; }
     slot.entities.push(pset);
-    if (pset.type === "IFCPROPERTYSET" || pset.type === "IFCELEMENTQUANTITY" || pset.type === "IFCMATERIALPROPERTIES" || pset.type === "IFCEXTENDEDMATERIALPROPERTIES" || pset.type === "IFCPROFILEPROPERTIES") {
-      const listName = pset.type === "IFCELEMENTQUANTITY" ? "Quantities" : pset.type === "IFCEXTENDEDMATERIALPROPERTIES" ? "ExtendedProperties" : pset.type === "IFCPROPERTYSET" ? "HasProperties" : "Properties";
-      for (const p of model.refs(pset, listName)) {
-        const pn = model.attr(p, "Name");
-        if (typeof pn === "string") slot.props.set(pn, p);
-      }
-    } else if (model.isA(pset, "IFCPREDEFINEDPROPERTYSET")) {
-      const attrs = model.schema.attrs(pset.type);
-      for (let i = 4; i < attrs.length; i++) slot.props.set(attrs[i].name, { predefined: true, owner: pset, attr: attrs[i], value: pset.args[i] });
-    }
-  };
-  const ty = model.typeOf.get(e.id);
-  if (ty) for (const p of model.refs(ty, "HasPropertySets")) add(p);
-  if (model.isA(e, "IFCTYPEOBJECT")) for (const p of model.refs(e, "HasPropertySets")) add(p);
-  for (const p of model.psetRels.get(e.id) || []) add(p);
-  if (e.type === "IFCMATERIAL" || model.isA(e, "IFCMATERIALDEFINITION")) for (const p of model.materialProps.get(e.id) || []) add(p);
+    for (const [pn, p] of info.props) slot.props.set(pn, p);
+  });
   return out;
 }
 
@@ -947,15 +1006,14 @@ function prefilter(f, model) {
       };
     }
     case "property": {
-      // psetsOf's sources: the element's type, a type object's own sets, the
-      // property relationships, a material's properties.
-      const typeObj = new Map();
-      return (e) => {
-        if (m.typeOf.has(e.id) || m.psetRels.has(e.id) || m.materialProps.has(e.id)) return true;
-        let ok = typeObj.get(e.type);
-        if (ok === undefined) typeObj.set(e.type, (ok = m.schema.isA(e.type, "IFCTYPEOBJECT")));
-        return ok;
-      };
+      // PropertyFacet.test fails (absent) when no set psetsOf reads for the
+      // element has a name the facet takes. Each set's name is tested once
+      // (psetInfo), and the elements that can match are gathered once from
+      // the relationship indexes, so most entities (geometry) cost one lookup
+      // (eval/psets-cache-2026-11-18.md).
+      const ids = new Set();
+      for (const [n, holders] of psetHolders(m)) if (f.propertySet.matchString(n)) for (const e of holders) ids.add(e.id);
+      return (e) => ids.has(e.id);
     }
     case "classification":
       // classificationsOf: own associations, external references, the type's.
