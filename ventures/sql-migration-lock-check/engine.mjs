@@ -114,7 +114,17 @@ function takesExclusiveLock(masked) {
     // direction for a warning about a timeout.
     return true;
   }
-  if (/^\s*DROP\s+(TABLE|INDEX|VIEW|SEQUENCE)\b/.test(s)) return true;
+  // DROP INDEX CONCURRENTLY takes SHARE UPDATE EXCLUSIVE, the same as
+  // CREATE INDEX CONCURRENTLY: warning it lacks a lock_timeout is a false
+  // finding on the statement written the safe way.
+  if (/^\s*DROP\s+INDEX\s+CONCURRENTLY\b/.test(s)) return false;
+  if (/^\s*DROP\s+(TABLE|INDEX|VIEW|MATERIALIZED\s+VIEW|SEQUENCE)\b/.test(s)) return true;
+  // REFRESH MATERIALIZED VIEW without CONCURRENTLY holds ACCESS EXCLUSIVE for
+  // the whole rebuild; the CONCURRENTLY form takes EXCLUSIVE, which readers
+  // pass.
+  if (/^\s*REFRESH\s+MATERIALIZED\s+VIEW\b/.test(s) && !/\bCONCURRENTLY\b/.test(s)) return true;
+  // LOCK TABLE with no mode is ACCESS EXCLUSIVE, PostgreSQL's default.
+  if (/^\s*LOCK\b/.test(s)) return !/\bIN\b/.test(s) || /\bIN\s+ACCESS\s+EXCLUSIVE\s+MODE\b/.test(s);
   if (/^\s*TRUNCATE\b/.test(s)) return true;
   if (/^\s*(VACUUM\s+FULL|CLUSTER)\b/.test(s)) return true;
   if (/^\s*REINDEX\b/.test(s) && !/\bCONCURRENTLY\b/.test(s)) return true;
@@ -149,8 +159,18 @@ function setsLockTimeout(raw) {
 function tableOf(masked) {
   const m = /^\s*(?:ALTER|DROP)\s+TABLE\s+(?:IF\s+EXISTS\s+)?(?:ONLY\s+)?([A-Za-z0-9_."]+)/i.exec(masked)
     || /^\s*TRUNCATE\s+(?:TABLE\s+)?([A-Za-z0-9_."]+)/i.exec(masked)
-    || /\bON\s+([A-Za-z0-9_."]+)/i.exec(masked);
+    || /\bON\s+(?:ONLY\s+)?([A-Za-z0-9_."]+)/i.exec(masked);
   return m ? m[1].replace(/"/g, '') : null;
+}
+
+/**
+ * One spelling per table for the created-in-this-file lookup: quotes gone,
+ * lowercased, and the default `public.` schema dropped, so
+ * `CREATE TABLE public.t` and a later `CREATE INDEX ... ON t` (or the other
+ * way round) name the same table, as they do on a default search_path.
+ */
+function relationKey(name) {
+  return String(name).replace(/"/g, '').toLowerCase().replace(/^public\./, '');
 }
 
 function finding(id, statement, extra = {}) {
@@ -285,13 +305,13 @@ export function analyzeSql(text) {
 
     // ---- remember facts later statements depend on -------------------------
     const created = /^\s*CREATE\s+(?:UNLOGGED\s+|TEMP(?:ORARY)?\s+)?TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z0-9_."]+)/i.exec(s);
-    if (created) createdHere.add(created[1].replace(/"/g, '').toLowerCase());
+    if (created) createdHere.add(relationKey(created[1]));
 
     // A statement against a table this file just created touches no existing
     // rows and contends with nothing, so none of the cost checks apply.
     const targetsNewTable = () => {
       const t = tableOf(s);
-      return t !== null && createdHere.has(t.toLowerCase());
+      return t !== null && createdHere.has(relationKey(t));
     };
 
     const concurrentIdx = /^\s*CREATE\s+(?:UNIQUE\s+)?INDEX\s+CONCURRENTLY\s+(?:IF\s+NOT\s+EXISTS\s+)?([A-Za-z0-9_."]+)/i.exec(s);
@@ -350,6 +370,9 @@ export function analyzeSql(text) {
         impact: 'Dropping an index takes an ACCESS EXCLUSIVE lock on its table, which blocks reads as well as writes. The drop itself is fast, so this is usually brief — but it still has to reach the front of the lock queue, and while it waits every later query queues behind it.',
         fix: 'Use `DROP INDEX CONCURRENTLY`, which takes a weaker lock. It cannot run inside a transaction block.',
       }));
+      // The lock it describes is ACCESS EXCLUSIVE, so it needs a lock_timeout
+      // and counts toward the locks one transaction holds, like TRUNCATE.
+      if (takesExclusiveLock(s)) noteExclusive(st);
       continue;
     }
 
