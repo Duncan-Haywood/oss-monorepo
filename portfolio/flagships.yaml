@@ -508,22 +508,21 @@ flagships:
       public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); 43 IFC4 STEP/ifcXML twins 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs,
-      decimal commas, flat point lists; B-spline rows from knot counts); IDS editor
-      2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found
-      voids/fills token pair and classification-system gaps,
-      eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of
-      348, eval/infra-mep-crosscheck-*); several IFC versions per spec 2026-11-17
-      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files).
-      attribute facets read geometry shallow 2026-11-18
-      (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374
-      MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep whitespace,
-      731 MEP labels). nested IFC4 ifcXML at scale 2026-11-18
-      (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3 exports nested,
-      857,301 entities and 2,160 of 2,160 verdicts as STEP; schema from the root,
-      not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB 1,770 to 1,481
-      MB, fits 768 MB). attribute (any) = X shares one shape read per entity
-      2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer kept as
-      per-character chains). next: nested property sets held until the root closes.
-      More open items: NEXT.md.
+      decimal commas, flat point lists; B-spline rows from knot counts); IFC 4.3
+      infra/HVAC cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*);
+      several IFC versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md:
+      opened in the schema that edits most, page audit in every named schema, false
+      page errors 18 to 0 on 18 public files). attribute facets read geometry
+      shallow 2026-11-18 (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS
+      MEP 13.3 to 8.3 s, same reports); ifcXML streams 2026-11-18
+      (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
+      fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
+      scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
+      exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema
+      from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
+      1,770 to 1,481 MB, fits 768 MB). attribute (any) = X shares one shape read per
+      entity 2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer
+      kept as per-character chains). nested ifcXML read as it closes 2026-11-18
+      (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). next: a smaller
+      record per entity. More open items: NEXT.md.

@@ -781,6 +781,18 @@ text is now copied in runs. Every report is identical.
    is cut to its span as it closes. A 166 MB federated file peaks at
    1,770 MB before and 1,481 MB after, and fits a 768 MB heap, which it did
    not before; reports are identical.
+10. **Nested ifcXML read as it closes** (2026-11-18,
+   `eval/nested-early-2026-11-18.md`). Property sets, relationships and the
+   rest of the model under the root are now read into records as each
+   element closes; nothing under the root is kept as XML. Entities still get
+   the old parent-first numbers: an early read gives provisional numbers,
+   and the walk replays them in the old order. On 57 ifcXML files (864,346
+   entities) every number, argument, map position and note equals main's,
+   and the reports from 68 IDS files hash the same on five models. The
+   smallest heap that parses each single-project model fell from 160 to
+   96 MB (C20), 144 to 128 MB and 128 to 112 MB, and stayed at 160 MB on
+   FM_ARC_DigitalHub. A six-project federated file is unchanged at 704 MB,
+   where the kept records, not the tree, set the peak.
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -842,9 +854,10 @@ faster than IfcTester; its point is needing no install.
   (2026-11-18, `eval/lazy-ifcxml-2026-11-18.md`): a 374 MB ifcXML checks under a
   1 GB heap, about twice the time of the same model as STEP; a file much past
   500 MB cannot be read at all (a JavaScript string's length limit). In the
-  nested IFC4 layout, property sets and relationships under the root are held
-  until it closes (geometry is not, `eval/ifc4-layout-scale-2026-11-18.md`):
-  a 166 MB federated file peaks 1.4x higher than the same model as STEP.
+  nested IFC4 layout every entity is read as its element closes
+  (`eval/nested-early-2026-11-18.md`), so the tree under the root is not
+  held; a 166 MB federated file still peaks about 1.4x higher than the same
+  model as STEP, set by the records kept per entity.
 - The model's text is held in memory with a small record per entity; an
   entity's arguments are read when a check first needs them, and geometry's
   are not kept (2026-11-17, `eval/heap-200mb-2026-11-17.md`). A 219 MB

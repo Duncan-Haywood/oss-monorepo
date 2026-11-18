@@ -1,7 +1,8 @@
-// For each ifcXML file: the streaming read (geometry lazy, nested geometry cut
-// to stubs as it closes) gives every entity the same id, type, arguments and
+// For each ifcXML file: the streaming read (geometry lazy, nested entities read
+// as they close, eval/nested-early-2026-11-18.md) gives every entity the same id, type, arguments and
 // order as the eager read, and the same notes; and, with --against
-// <dir/ifcxml.mjs>, the same as another copy of the reader (main's).
+// <dir/ifcxml.mjs>, the same entities and notes as another copy of the reader
+// (main's).
 // eval/ifc4-layout-scale-2026-11-18.md.
 //   node eval/ifcxml-lazy-eager.mjs [--against /path/ifcxml.mjs] file.ifcxml ...
 import { readFileSync } from "node:fs";
@@ -28,9 +29,11 @@ for (const f of args) {
   if (JSON.stringify(lazy.errors) !== JSON.stringify(eager.errors)) diff++;
   let vsOther = null;
   if (other) {
-    const o = rows(other(text, S));
+    const om = other(text, S);
+    const o = rows(om);
     vsOther = o.length === a.length ? 0 : Math.abs(o.length - a.length);
     for (let i = 0; i < Math.min(a.length, o.length); i++) if (a[i] !== o[i]) vsOther++;
+    if (JSON.stringify(om.errors) !== JSON.stringify(lazy.errors)) vsOther++;
   }
   files++; entities += a.length;
   for (const e of lazy.entities.values()) if (e._s !== undefined) lazyRead++;
