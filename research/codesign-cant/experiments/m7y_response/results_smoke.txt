@@ -1,0 +1,87 @@
+Milestone 7y: lever 1, 45 deg, cap, integrator feed-forward, plant 'wide', 8 episodes, seed 4242; no turbulence, no yaw steps. Per set and geometry: the median over seeds of each design's median over episodes; dead summed.
+
+== step ==
+     id 33 ms D^0 above aware lag39: settle 2.100 s (per seed 2.04, 2.16); rise90 1.712 s; overshoot 4.4 cm; rms 0.353 m; unsettled 0; dead 0
+     id 33 ms D^0 above aware lag45: settle 1.912 s (per seed 1.96, 1.86); rise90 1.599 s; overshoot 5.2 cm; rms 0.345 m; unsettled 0; dead 0
+     id 33 ms D^0 above aware lag52: settle 3.035 s (per seed 3.62, 2.45); rise90 1.858 s; overshoot 5.6 cm; rms 0.366 m; unsettled 0; dead 0
+     id 33 ms D^0 above aware lag60: settle 2.027 s (per seed 1.76, 2.29); rise90 1.917 s; overshoot 3.1 cm; rms 0.370 m; unsettled 0; dead 0
+     id 33 ms D^0 below aware lag39: settle 1.796 s (per seed nan, 1.80); rise90 1.466 s; overshoot 10.5 cm; rms 0.340 m; unsettled 8; dead 0
+     id 33 ms D^0 below aware lag45: settle 1.914 s (per seed 1.99, 1.84); rise90 1.617 s; overshoot 4.9 cm; rms 0.346 m; unsettled 0; dead 0
+     id 33 ms D^0 below aware lag52: settle 2.115 s (per seed 2.12, nan); rise90 1.519 s; overshoot 9.0 cm; rms 0.347 m; unsettled 8; dead 0
+     id 33 ms D^0 below aware lag60: settle 1.884 s (per seed 1.71, 2.06); rise90 1.776 s; overshoot 2.3 cm; rms 0.359 m; unsettled 0; dead 0
+
+    mid 36 ms D^0 above aware lag39: settle 2.100 s (per seed 2.04, 2.16); rise90 1.712 s; overshoot 4.3 cm; rms 0.353 m; unsettled 0; dead 0
+    mid 36 ms D^0 above aware lag45: settle 1.911 s (per seed 1.96, 1.86); rise90 1.599 s; overshoot 5.2 cm; rms 0.345 m; unsettled 0; dead 0
+    mid 36 ms D^0 above aware lag52: settle 3.035 s (per seed 3.62, 2.45); rise90 1.858 s; overshoot 5.6 cm; rms 0.366 m; unsettled 0; dead 0
+    mid 36 ms D^0 above aware lag60: settle 2.027 s (per seed 1.76, 2.29); rise90 1.917 s; overshoot 3.1 cm; rms 0.370 m; unsettled 0; dead 0
+    mid 36 ms D^0 below aware lag39: settle 1.796 s (per seed nan, 1.80); rise90 1.465 s; overshoot 10.5 cm; rms 0.340 m; unsettled 8; dead 0
+    mid 36 ms D^0 below aware lag45: settle 1.913 s (per seed 1.98, 1.84); rise90 1.617 s; overshoot 4.9 cm; rms 0.346 m; unsettled 0; dead 0
+    mid 36 ms D^0 below aware lag52: settle 2.115 s (per seed 2.12, nan); rise90 1.519 s; overshoot 9.0 cm; rms 0.347 m; unsettled 8; dead 0
+    mid 36 ms D^0 below aware lag60: settle 1.884 s (per seed 1.71, 2.06); rise90 1.776 s; overshoot 2.2 cm; rms 0.359 m; unsettled 0; dead 0
+
+   id 39.1 ms D^0 above aware lag39: settle 2.100 s (per seed 2.04, 2.16); rise90 1.711 s; overshoot 4.3 cm; rms 0.353 m; unsettled 0; dead 0
+   id 39.1 ms D^0 above aware lag45: settle 1.911 s (per seed 1.96, 1.86); rise90 1.599 s; overshoot 5.2 cm; rms 0.345 m; unsettled 0; dead 0
+   id 39.1 ms D^0 above aware lag52: settle 3.035 s (per seed 3.62, 2.45); rise90 1.858 s; overshoot 5.6 cm; rms 0.366 m; unsettled 0; dead 0
+   id 39.1 ms D^0 above aware lag60: settle 2.027 s (per seed 1.76, 2.29); rise90 1.917 s; overshoot 3.1 cm; rms 0.370 m; unsettled 0; dead 0
+   id 39.1 ms D^0 below aware lag39: settle 1.796 s (per seed nan, 1.80); rise90 1.465 s; overshoot 10.4 cm; rms 0.340 m; unsettled 8; dead 0
+   id 39.1 ms D^0 below aware lag45: settle 1.913 s (per seed 1.98, 1.84); rise90 1.617 s; overshoot 4.9 cm; rms 0.346 m; unsettled 0; dead 0
+   id 39.1 ms D^0 below aware lag52: settle 2.114 s (per seed 2.11, nan); rise90 1.519 s; overshoot 9.0 cm; rms 0.347 m; unsettled 8; dead 0
+   id 39.1 ms D^0 below aware lag60: settle 1.884 s (per seed 1.71, 2.06); rise90 1.776 s; overshoot 2.2 cm; rms 0.358 m; unsettled 0; dead 0
+
+== wind3 ==
+     id 33 ms D^0 above aware lag39: peak 1.0 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+     id 33 ms D^0 above aware lag45: peak 0.9 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+     id 33 ms D^0 above aware lag52: peak 1.0 cm (per seed 0.9, 1.0); rms 0.6 cm; resid 0.6 cm; dead 0
+     id 33 ms D^0 above aware lag60: peak 1.0 cm (per seed 1.0, 1.0); rms 0.6 cm; resid 0.7 cm; dead 0
+     id 33 ms D^0 below aware lag39: peak 0.8 cm (per seed 0.8, 0.8); rms 0.5 cm; resid 0.5 cm; dead 0
+     id 33 ms D^0 below aware lag45: peak 0.9 cm (per seed 0.9, 1.0); rms 0.5 cm; resid 0.6 cm; dead 0
+     id 33 ms D^0 below aware lag52: peak 0.9 cm (per seed 0.8, 0.9); rms 0.5 cm; resid 0.6 cm; dead 0
+     id 33 ms D^0 below aware lag60: peak 0.9 cm (per seed 1.0, 0.8); rms 0.6 cm; resid 0.6 cm; dead 0
+
+    mid 36 ms D^0 above aware lag39: peak 1.0 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+    mid 36 ms D^0 above aware lag45: peak 0.9 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+    mid 36 ms D^0 above aware lag52: peak 1.0 cm (per seed 0.9, 1.0); rms 0.6 cm; resid 0.6 cm; dead 0
+    mid 36 ms D^0 above aware lag60: peak 1.0 cm (per seed 1.0, 1.0); rms 0.6 cm; resid 0.7 cm; dead 0
+    mid 36 ms D^0 below aware lag39: peak 0.8 cm (per seed 0.8, 0.8); rms 0.5 cm; resid 0.5 cm; dead 0
+    mid 36 ms D^0 below aware lag45: peak 0.9 cm (per seed 0.9, 1.0); rms 0.5 cm; resid 0.6 cm; dead 0
+    mid 36 ms D^0 below aware lag52: peak 0.9 cm (per seed 0.8, 0.9); rms 0.5 cm; resid 0.6 cm; dead 0
+    mid 36 ms D^0 below aware lag60: peak 0.9 cm (per seed 1.0, 0.8); rms 0.6 cm; resid 0.6 cm; dead 0
+
+   id 39.1 ms D^0 above aware lag39: peak 0.9 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+   id 39.1 ms D^0 above aware lag45: peak 0.9 cm (per seed 1.0, 0.9); rms 0.6 cm; resid 0.7 cm; dead 0
+   id 39.1 ms D^0 above aware lag52: peak 1.0 cm (per seed 0.9, 1.0); rms 0.6 cm; resid 0.6 cm; dead 0
+   id 39.1 ms D^0 above aware lag60: peak 1.0 cm (per seed 1.0, 1.0); rms 0.6 cm; resid 0.7 cm; dead 0
+   id 39.1 ms D^0 below aware lag39: peak 0.8 cm (per seed 0.8, 0.8); rms 0.5 cm; resid 0.5 cm; dead 0
+   id 39.1 ms D^0 below aware lag45: peak 0.9 cm (per seed 0.9, 1.0); rms 0.5 cm; resid 0.6 cm; dead 0
+   id 39.1 ms D^0 below aware lag52: peak 0.9 cm (per seed 0.8, 0.9); rms 0.5 cm; resid 0.6 cm; dead 0
+   id 39.1 ms D^0 below aware lag60: peak 0.9 cm (per seed 1.0, 0.8); rms 0.5 cm; resid 0.6 cm; dead 0
+
+== wind6 ==
+     id 33 ms D^0 above aware lag39: peak 2.5 cm (per seed 2.9, 2.2); rms 1.9 cm; resid 2.3 cm; dead 0
+     id 33 ms D^0 above aware lag45: peak 2.4 cm (per seed 2.9, 1.9); rms 1.8 cm; resid 2.1 cm; dead 0
+     id 33 ms D^0 above aware lag52: peak 2.4 cm (per seed 2.6, 2.3); rms 1.8 cm; resid 2.0 cm; dead 0
+     id 33 ms D^0 above aware lag60: peak 2.5 cm (per seed 2.7, 2.3); rms 1.8 cm; resid 2.2 cm; dead 0
+     id 33 ms D^0 below aware lag39: peak 1.9 cm (per seed 2.0, 1.9); rms 1.3 cm; resid 1.4 cm; dead 0
+     id 33 ms D^0 below aware lag45: peak 2.2 cm (per seed 2.5, 2.0); rms 1.6 cm; resid 1.8 cm; dead 0
+     id 33 ms D^0 below aware lag52: peak 1.9 cm (per seed 2.1, 1.7); rms 1.4 cm; resid 1.5 cm; dead 0
+     id 33 ms D^0 below aware lag60: peak 2.4 cm (per seed 2.8, 2.1); rms 1.9 cm; resid 2.1 cm; dead 0
+
+    mid 36 ms D^0 above aware lag39: peak 2.5 cm (per seed 2.9, 2.2); rms 1.9 cm; resid 2.3 cm; dead 0
+    mid 36 ms D^0 above aware lag45: peak 2.4 cm (per seed 2.9, 1.9); rms 1.8 cm; resid 2.1 cm; dead 0
+    mid 36 ms D^0 above aware lag52: peak 2.4 cm (per seed 2.6, 2.3); rms 1.8 cm; resid 2.0 cm; dead 0
+    mid 36 ms D^0 above aware lag60: peak 2.5 cm (per seed 2.7, 2.3); rms 1.8 cm; resid 2.2 cm; dead 0
+    mid 36 ms D^0 below aware lag39: peak 1.9 cm (per seed 2.0, 1.9); rms 1.3 cm; resid 1.4 cm; dead 0
+    mid 36 ms D^0 below aware lag45: peak 2.2 cm (per seed 2.5, 2.0); rms 1.6 cm; resid 1.8 cm; dead 0
+    mid 36 ms D^0 below aware lag52: peak 1.9 cm (per seed 2.1, 1.7); rms 1.4 cm; resid 1.5 cm; dead 0
+    mid 36 ms D^0 below aware lag60: peak 2.4 cm (per seed 2.8, 2.1); rms 1.9 cm; resid 2.1 cm; dead 0
+
+   id 39.1 ms D^0 above aware lag39: peak 2.5 cm (per seed 2.9, 2.2); rms 1.9 cm; resid 2.3 cm; dead 0
+   id 39.1 ms D^0 above aware lag45: peak 2.4 cm (per seed 2.9, 1.9); rms 1.8 cm; resid 2.1 cm; dead 0
+   id 39.1 ms D^0 above aware lag52: peak 2.4 cm (per seed 2.6, 2.3); rms 1.8 cm; resid 2.0 cm; dead 0
+   id 39.1 ms D^0 above aware lag60: peak 2.5 cm (per seed 2.7, 2.3); rms 1.8 cm; resid 2.2 cm; dead 0
+   id 39.1 ms D^0 below aware lag39: peak 1.9 cm (per seed 2.0, 1.9); rms 1.3 cm; resid 1.4 cm; dead 0
+   id 39.1 ms D^0 below aware lag45: peak 2.2 cm (per seed 2.5, 2.0); rms 1.6 cm; resid 1.8 cm; dead 0
+   id 39.1 ms D^0 below aware lag52: peak 1.9 cm (per seed 2.1, 1.7); rms 1.4 cm; resid 1.5 cm; dead 0
+   id 39.1 ms D^0 below aware lag60: peak 2.4 cm (per seed 2.8, 2.1); rms 1.9 cm; resid 2.1 cm; dead 0
+
+wall time 37 s
