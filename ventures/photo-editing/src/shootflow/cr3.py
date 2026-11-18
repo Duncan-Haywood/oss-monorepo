@@ -650,7 +650,9 @@ def _stated_black(cd: tuple | None, bits: int, phase: str) -> list[float] | None
     """ColorData's PerChannelBlackLevel, stored R, G (on red's rows), G (on blue's), B, laid out on the
     2x2 positions of ``phase`` (the CFA at the crop's origin), or None."""
 
-    idx = _BLACK_INDEX.get(len(cd)) if cd else None
+    if not cd:
+        return None
+    idx = _BLACK_INDEX.get(len(cd))
     if idx is None or idx + 4 > len(cd):
         return None
     r, g_red_row, g_blue_row, b = (float(v) for v in cd[idx : idx + 4])
