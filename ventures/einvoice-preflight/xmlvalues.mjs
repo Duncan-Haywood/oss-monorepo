@@ -14,9 +14,45 @@
 // Unicode space separators, U+0085, U+FEFF and zero-width spaces: what JavaScript's trim()
 // or \s takes (or a copy-paste leaves) and XML does not count as whitespace.
 export const NON_XML_SPACE = /[\u0085\u00A0\u1680\u2000-\u200B\u2028\u2029\u202F\u205F\u3000\uFEFF]/;
-// The leaf values a rule or receiver casts: a decimal, an ISO date, a CII 102 date, a
-// boolean, an xs:time or xs:dateTime (ZATCA's IssueTime, FA(3) and NAV timestamps; added 2026-11-17).
-export const CASTABLE = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|\d{4}-\d{2}-\d{2}|\d{8}|(?:\d{4}-\d{2}-\d{2}T)?\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?|true|false)$/;
+// The leaf values a rule or receiver casts: a decimal, a CII 102 date (eight digits, castable
+// as a decimal too), a boolean, an xs:date, xs:time or xs:dateTime (ZATCA's IssueTime, FA(3) and
+// NAV timestamps, FatturaPA's DataOraConsegna; added 2026-11-17). Since 2026-11-18 the date
+// forms take an optional timezone (`2024-01-31+01:00`, what JAXB's XMLGregorianCalendar writes
+// for a date) and a signed or five-digit year, and a date or time that XSD's ranges refuse
+// (month 13, 30 February, 25:00, a +15:00 zone) is not castable, so INV-065 never blames a space
+// for a value Saxon would refuse anyway. Checked against SaxonC-HE on every leaf of the corpus and
+// a lexical sweep (eval/datetime-leaves-2026-11-18.md). `CASTABLE.test(v)` as before.
+const PLAIN = /^(?:[+-]?(?:\d+(?:\.\d*)?|\.\d+)|true|false)$/;
+const TZ = "(Z|[+-](\\d{2}):(\\d{2}))?";
+const DATE = "(-?)([1-9]\\d{4,}|\\d{4})-(\\d{2})-(\\d{2})";
+const TIME = "(\\d{2}):(\\d{2}):(\\d{2})(\\.\\d+)?";
+const DATE_RE = new RegExp(`^${DATE}${TZ}$`);
+const TIME_RE = new RegExp(`^${TIME}${TZ}$`);
+const DATETIME_RE = new RegExp(`^${DATE}T${TIME}${TZ}$`);
+// Proleptic Gregorian with a year 0000 (1 BCE), as XSD 1.1 and Saxon count it.
+const leap = (y) => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+const dateOk = (sign, year, month, day) => {
+  const y = Number(sign + year), m = Number(month), d = Number(day);
+  if (m < 1 || m > 12 || d < 1) return false;
+  return d <= [31, leap(Math.abs(y)) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][m - 1];
+};
+const timeOk = (h, mi, s, frac) => {
+  if (h === "24") return mi === "00" && s === "00" && !/[1-9]/.test(frac || "");
+  return Number(h) < 24 && Number(mi) < 60 && Number(s) < 60;
+};
+const tzOk = (z, h, m) => !z || z === "Z" || (Number(m) < 60 && (Number(h) < 14 || (h === "14" && m === "00")));
+export const CASTABLE = {
+  test(value) {
+    if (PLAIN.test(value)) return true;
+    let m;
+    if ((m = DATE_RE.exec(value))) return dateOk(m[1], m[2], m[3], m[4]) && tzOk(m[5], m[6], m[7]);
+    if ((m = TIME_RE.exec(value))) return timeOk(m[1], m[2], m[3], m[4]) && tzOk(m[5], m[6], m[7]);
+    if ((m = DATETIME_RE.exec(value))) {
+      return dateOk(m[1], m[2], m[3], m[4]) && timeOk(m[5], m[6], m[7], m[8]) && tzOk(m[9], m[10], m[11]);
+    }
+    return false;
+  },
+};
 
 const NAMES = {
   "\u00A0": "no-break space (U+00A0)",
