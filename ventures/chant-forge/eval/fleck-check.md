@@ -75,3 +75,37 @@ precision, not recall. Predictions, rule frozen as above:
 3. Of the added notes, a random 20 (or all, if fewer), looked at as 4x crops, at least 18 are real
    heads the reader had lost, at the pitch read. Every liquescent that becomes a plain head is looked
    at, and at least all but one are podatus or other plain heads, not real liquescents.
+
+## Held-out result
+
+Run once after the section above was committed (f5722381a): `node eval/fleck-leaves.mjs`
+(`fleck-leaves-report.md`). 29 leaves, 236 staves; 7,693 notes without the join, 7,704 with it. The join
+adds 13 notes on 12 staves and turns two liquescents into plain heads at their pitch; nothing else
+changes.
+
+All 15 were looked at as 4x crops (`leaf, staff, x`):
+
+| what the join added | places |
+|---|---|
+| the upper head of a podatus (concave underside) | 326:9:512, 220:8:1062, 530:1:162, 530:6:675, 117:6:985 |
+| both heads of one podatus, neither read before | 766:9:930, 766:9:932 |
+| the lower head of a podatus (a white seam at its top) | 237:2:763 |
+| a quilisma | 100:1:282, 134:5:267, 292:3:910 |
+| a porrectus's last head | 100:8:1166 |
+| a quilisma podatus's notes, which had been read as a liquescent | 326:1:1598 |
+
+The two liquescents that became plain heads (292:3:914 and 326:1:1587) are both quilisma podatus: the
+reader had taken the upper head for a tail on the quilisma. With the join they read quilisma (or
+square) then upper head, bottom-up, as printed.
+
+1. **Held.** No note moved to another pitch or removed; the two liquescents became plain heads at
+   their pitch.
+2. **Held.** 13 added notes on 236 staves, one per 18 (one per 30 predicted as the floor).
+3. **Held.** 13 of 13 added notes are real heads the reader had lost; both liquescents that became
+   plain heads are quilisma podatus, not liquescents.
+
+## What is left
+
+The one-step cephalicus misses on the tuning lists are now six: 3524 *vir*, 3421 *non*, Salve Regina
+*con*, 3448 *in* (broken stem), 3550 *dán* (curled staff), 3741 *COR*. None is `liquescentTail`
+claiming the head first: 3439 was this fleck, and 3357 is a transcription slip (the print has `hg~`).
