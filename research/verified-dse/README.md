@@ -161,6 +161,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **No pre-routing signal flags the ladder's fast-corner losses well enough to pay (milestone 150, replay of 77 ff designs, one
+  of eight predictions held; the primary failed).** A signal read off the mapped pool has already spent the mapping, so its only
+  response is to route a different 8 mapped points. Chosen leave-one-milestone-out over eight features, every cut and three
+  responses, the detector has 3.61% against SWC's 2.98%, and the best in-sample searches sit inside their permutation nulls
+  (p = 0.25 and 0.88). SWC loses where its clip does not bind (median share 0.04 against 0.49). Post hoc, ranking by mapped area
+  alone beats SWC on its losers (6.25% against 13.06%) at a cost of 1.23 points elsewhere, 2.69% against 2.98% pooled
+  (interval -2.19 to +2.07, worst design 66.6%):
+  [`experiments/detector_ff/`](experiments/detector_ff/results.txt).
 - **Hedging the fall-back does not rescue the fast-corner guard (milestone 149, replay of 77 ff designs, two of seven predictions
   held; the primary failed).** Keeping the cheap score's best 1 to 3 points of a mapped 8 to 32-point subset when the pilot
   distrusts the ladder cuts what a false alarm costs from 9.89% to 7.07% regret but lifts the break-even ratio only from 0.17 to

@@ -296,6 +296,28 @@ def main(dst):
                    " | ".join(f"{R[k][a]:.2f}" for a in ("SWC", "free_rand") + REAL) + " | " +
                    " | ".join(f"{F[k][f]:.4f}" for f in FEATURES))
 
+    # Post hoc (added after the first run read (a); not a test, not predicted): the area-only response, always on, is a
+    # parameter-free rule (the clip's alpha -> 0 limit: every point scored by mapped area at the period). Price it as a rule of
+    # its own on all 77 designs: pooled, per milestone, interval, sign, and its worst designs.
+    ao = {k: R[k]["A_area"] for k in keys}  # below theta A_area was set to random, as SWC
+    dA = [ao[k] - R[k]["SWC"] for k in keys]
+    loA, hiA = boot(dA, seed=SEED)
+    bA, wA, tA, pA = sign({k: ao[k] - R[k]["SWC"] for k in keys})
+    bAr, wAr, tAr, pAr = sign({k: ao[k] - R[k]["free_rand"] for k in keys})
+    out += ["", "## Post hoc (added after the first run; not predicted): area-only ladder always on, as a rule of its own", "",
+            f"pooled: area-only {statistics.mean(ao.values()):.2f}%, SWC {sl:.2f}%; area-only - SWC {statistics.mean(dA):+.2f} points, "
+            f"design bootstrap 95% interval {loA:+.2f} to {hiA:+.2f}; better on {bA}, worse on {wA}, tied on {tA} (sign p = {pA:.4f}); "
+            f"against random better on {bAr}, worse on {wAr}, tied on {tAr}",
+            "milestone | designs | area-only % | SWC % | random %"]
+    for m in mss:
+        ks = [k for k in keys if k[0] == m]
+        out.append(f"{m} | {len(ks)} | {statistics.mean(ao[k] for k in ks):.2f} | {statistics.mean(R[k]['SWC'] for k in ks):.2f} | "
+                   f"{statistics.mean(R[k]['free_rand'] for k in ks):.2f}")
+    out.append("largest area-only regrets: " + ", ".join(f"{k[1]} (m{k[0]}) {ao[k]:.2f} (SWC {R[k]['SWC']:.2f})"
+                                                       for k in sorted(keys, key=lambda k: -ao[k])[:5]))
+    out.append(f"median over designs: area-only {statistics.median(ao.values()):.2f}%, SWC {statistics.median(R[k]['SWC'] for k in keys):.2f}%; "
+               f"worst: area-only {max(ao.values()):.2f}%, SWC {max(R[k]['SWC'] for k in keys):.2f}%")
+
     r2_ins = insample["free_rand"]
     hl2 = 0 if r2_ins[0] is None else sum(k in set(losers) for k in lad if flagged(F[k][r2_ins[0][0]], r2_ins[0][1], r2_ins[0][2]))
     best_auc = max(max(a, 1 - a) for a in aucs.values())
@@ -316,7 +338,8 @@ def main(dst):
     Path(dst).write_text("\n".join(out) + "\n")
     print("\n".join(out))
     return {"lomo": gl, "swc": sl, "ceiling": gf, "aucs": aucs, "be": be, "chosen": {m: rname(r) for m, r in chosen.items()},
-            "losers": len(losers), "others": len(others)}
+            "losers": len(losers), "others": len(others),
+            "area_only": statistics.mean(ao.values()), "area_ci": (loA, hiA)}
 
 
 if __name__ == "__main__":
