@@ -400,7 +400,7 @@ flagships:
       short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
       proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
       eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
-      eval/bowling-lane-avoid.txt; 5+ teams: evenest dealing). Limits per shape
+      eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
       (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
       teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py). More
