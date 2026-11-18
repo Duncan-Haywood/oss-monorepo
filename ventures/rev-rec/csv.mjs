@@ -68,7 +68,7 @@ export function linesFromCsv(text) {
   rows.slice(1).forEach((r, i) => {
     const get = (k) => (col[k] >= 0 ? (r[col[k]] ?? "").trim() : "");
     if (!get("amount")) return skipped.push({ line: i + 2, why: "amount is blank" });
-    const neg = /^\(.*\)$/.test(get("amount"));
+    const neg = /\([^()]*\d[^()]*\)/.test(get("amount")); // "($5)", "$(5)" (Excel accounting) and "(5) USD" alike
     const raw = parseAmount(get("amount"));
     const billedAt = toMs(get("billed")), start = toMs(get("start"));
     if (!Number.isFinite(raw)) return skipped.push({ line: i + 2, why: "amount is not a number" });
