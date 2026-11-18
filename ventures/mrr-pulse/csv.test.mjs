@@ -48,3 +48,9 @@ test("a JPY export is not multiplied by 100 (red team 2026-11-17)", () => {
   const { subs } = subsFromCsv("id,amount,interval,created,currency\na,5000,month,2026-01-01,jpy\nb,50,month,2026-01-01,usd\n");
   assert.deepEqual(subs.map((s) => s.mrr), [5000, 5000]);
 });
+
+test("a Trial End (UTC) column is read, so history starts MRR when the trial ends (red team 2026-11-18)", () => {
+  const csv = "id,Status,Amount,Interval,Created (UTC),Trial End (UTC),Ended At (UTC)\nsub_1,active,10,month,2026-08-20 10:00,2026-09-03 10:00,\nsub_2,active,5,month,2026-08-01,,";
+  const { subs } = subsFromCsv(csv);
+  assert.equal(subs[0].trialEnd, Date.UTC(2026, 8, 3, 10)); assert.equal(subs[1].trialEnd, null);
+});

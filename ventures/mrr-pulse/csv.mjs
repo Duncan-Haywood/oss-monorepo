@@ -29,6 +29,7 @@ const ALIASES = {
   quantity: ["quantity", "plan quantity", "seats"],
   currency: ["currency", "plan currency"],
   created: ["created", "start date", "start", "created utc"],
+  trialEnd: ["trial end", "trial ends", "trial end utc", "trial end date"],
   endedAt: ["ended at", "ended", "canceled at", "cancelled at", "end date", "ended utc", "canceled at utc"],
 };
 
@@ -62,7 +63,7 @@ export function subsFromCsv(text) {
     if (!mrr && amount > 0) return skipped.push({ line: i + 2, why: `unknown interval "${interval}"` });
     const endedAt = toMs(get("endedAt"));
     const status = (get("status") || (endedAt ? "canceled" : "active")).toLowerCase();
-    subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, currency });
+    subs.push({ id: get("id") || `row${i + 2}`, mrr, status, created, endedAt: status === "canceled" ? endedAt : null, trialEnd: toMs(get("trialEnd")), currency });
   });
   return { subs, skipped, missing: [] };
 }
