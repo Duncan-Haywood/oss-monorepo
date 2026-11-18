@@ -345,8 +345,11 @@ LOOP_TAKE = ()
 # The ESC-lag survey (2026-11-16, README "The ESC lag surveyed on the board"): after each launched stroke's record, every
 # turning wheel's snapshot is refitted with the commands through each of these ESC lags (esc_lagged_ticks) and the fit's
 # squared residual rms is summed per lag over the balls; the least is the build's lag. The Pi reads the sums from the
-# ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid.
-ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# ESC_SURVEY frame, so `ESC_TAU_US` can be set from a real drill. tests/esc_lag_pick.py's grid, plus 150 ms (2026-11-18,
+# README "The ESC-lag survey between 100 and 200 ms"): with nothing between 100 and 200 the log parabola read an untold
+# 150 ms ESC at 169-195 on 5 of 6 simulated drills; with 150, 148-155 on all 6 (tests/esc_grid_gap.py). One more refit a
+# wheel, about 17% more survey time a ball.
+ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 150000, 200000, 400000)
 # The ESC-lag survey's tau golden-section steps (2026-11-18, README "The ESC-lag survey's search, traced"). It ran with
 # none (tau only on LOOP_TAU_GRID_US's 100 / 200 / 400 / 800 / 1600 ms), harmless when the wheel's lag sat on that
 # grid, as every build of its first check did (0.2 / 0.4 / 0.8 s). Off the grid the ESC lag stood in for the tau the

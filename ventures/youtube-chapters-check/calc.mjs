@@ -20,6 +20,39 @@ const START_RE = new RegExp(String.raw`^[\s\-*•▶►>\[(]*(${TS})[\])]?[\s\-�
 const END_RE = new RegExp(String.raw`^(.*?)[\s\-–—:|(\[]+(${TS})[\])]?\s*$`);
 const AUDACITY_RE = /^(\d+(?:\.\d+)?)\t(\d+(?:\.\d+)?)\t(.*)$/;
 const FRAME_TC = /^\d{1,2}:\d{2}:\d{2}[:;]\d{2}$/;
+// CMX 3600 event line, as DaVinci Resolve writes it for Timeline > Export > Timeline Markers to EDL:
+// event, reel, track, transition, then source in/out and record in/out. The marker's name is on the next
+// line as " |C:ResolveColorBlue |M:Intro |D:1".
+const EDL_TC = String.raw`(\d{2}:\d{2}:\d{2}[:;]\d{2})`;
+const EDL_EVENT = new RegExp(String.raw`^\s*\d{1,6}\s+\S+\s+\S+\s+\S+(?:\s+\d+)?\s+${EDL_TC}\s+${EDL_TC}\s+${EDL_TC}\s+${EDL_TC}\s*$`);
+const EDL_NAME = /\|M:(.*?)(?=\s+\|[A-Z]:|\s*$)/;
+const EDL_HEADER = /^\s*(TITLE:|FCM:)/i;
+
+// Resolve marker EDL -> chapters at the record-in timecode, named from |M:, with the timeline start
+// (01:00:00:00 by default) taken off so the first marker reads 0:00.
+function parseEdl(lines, fps) {
+  const chapters = [], bad = [], events = [];
+  let drop = false, last = null;
+  lines.forEach((raw, i) => {
+    if (/^\s*FCM:\s*DROP FRAME/i.test(raw)) drop = true;
+    const ev = raw.match(EDL_EVENT);
+    if (ev) { last = { line: i + 1, tc: ev[3], title: "", raw }; events.push(last); return; }
+    const name = raw.match(EDL_NAME);
+    if (name && last && !last.title) last.title = clean(name[1]);
+  });
+  // The start is removed on the hour label, before the frame-rate conversion: at 29.97 non-drop the
+  // 01:00:00:00 label is 3603.6 s of real time, and that whole span is the timeline's origin, not video.
+  const startHour = events.length ? Math.min(...events.map((e) => Number(e.tc.slice(0, 2)))) : 0;
+  for (const e of events) {
+    let tc = String(Number(e.tc.slice(0, 2)) - startHour).padStart(2, "0") + e.tc.slice(2);
+    if (drop) tc = tc.replace(/:(\d{2})$/, ";$1");
+    const s = parseTimestamp(tc, fps);
+    if (s === null) bad.push({ line: e.line, text: e.raw.trim() });
+    else chapters.push({ line: e.line, seconds: s, title: e.title, format: "frames", raw: e.raw });
+  }
+  const timelineStart = startHour * 3600;
+  return { chapters, bad, prose: 0, lines: lines.length, edl: { timelineStart } };
+}
 
 // "1:02:03", "12:30", "0:05.5" or "00:01:23:12" (HH:MM:SS:FF, needs fps) -> seconds, or null when the
 // digits cannot be a time (minutes or seconds of 60 or more once a larger unit is present).
@@ -47,12 +80,13 @@ export function parseTimestamp(str, fps = 30) {
 const clean = (t) => String(t).replace(/\s+/g, " ").replace(/^[\s\-–—:|.)]+/, "").trim();
 
 // Text -> chapters. Understands "0:00 Title", "Title - 0:00", "[1:02:03] Title", Audacity label tracks
-// (seconds <tab> seconds <tab> label) and Premiere-style marker exports (a name column and an HH:MM:SS:FF
+// (seconds <tab> seconds <tab> label), DaVinci Resolve marker EDLs and Premiere-style marker exports (a name column and an HH:MM:SS:FF
 // In column). Lines with no timestamp are prose and are counted, not reported as errors.
 export function parseChapters(text, { fps = 30 } = {}) {
   const chapters = [], bad = [];
   let prose = 0;
   const lines = String(text).split(/\r\n|\n|\r/);
+  if (lines.some((l) => EDL_EVENT.test(l)) && lines.every((l) => !l.trim() || EDL_EVENT.test(l) || EDL_HEADER.test(l) || /^\s*(\||\*)/.test(l))) return parseEdl(lines, fps);
   lines.forEach((raw, i) => {
     const line = i + 1;
     if (!raw.trim()) return;
@@ -108,6 +142,7 @@ export function validate(text, opts = {}) {
   const chapters = parsed.chapters.map((c) => ({ ...c, seconds: c.seconds - offset }));
 
   for (const b of parsed.bad) add("error", "Not a valid time", `"${b.text.slice(0, 60)}" has digits that cannot be a time (minutes and seconds stop at 59).`, b.line);
+  if (parsed.edl) add("info", "Read as a DaVinci Resolve marker EDL", parsed.edl.timelineStart ? `Each marker's record-in time was used, named from its |M: field, and the ${formatTime(parsed.edl.timelineStart, true)} timeline start was taken off so the first marker reads from 0:00.` : "Each marker's record-in time was used, named from its |M: field.");
   if (offset) add("info", `All times shifted by ${offset}s`, "The offset you entered was subtracted from every timestamp before checking.");
   if (String(text).length > MAX_DESCRIPTION) add("warning", "Longer than a YouTube description", `The text is ${String(text).length} characters; descriptions are limited to ${MAX_DESCRIPTION}. Paste only the chapter lines into the description.`);
   if (!parsed.chapters.length && !parsed.bad.length) {
@@ -176,6 +211,7 @@ export function repair(text, opts = {}) {
   const changes = [];
   let chapters = parsed.chapters.map((c) => ({ ...c, seconds: c.seconds - offset }));
   for (const b of parsed.bad) changes.push(`Left out line ${b.line} ("${b.text.slice(0, 60)}"): its time is impossible. Correct it and check again.`);
+  if (parsed.edl?.timelineStart) changes.push(`Took the ${formatTime(parsed.edl.timelineStart, true)} Resolve timeline start off every marker.`);
   if (offset) changes.push(`Shifted every time by ${offset}s.`);
   const dropped = chapters.filter((c) => c.seconds < 0);
   if (dropped.length) { changes.push(`Dropped ${plural(dropped.length, "chapter")} that fell before 0:00 after the shift.`); chapters = chapters.filter((c) => c.seconds >= 0); }
@@ -223,11 +259,12 @@ export function toFfmetadata(chapters, duration) {
   return lines.join("\n") + "\n";
 }
 
-// WebVTT chapters track (kind="chapters"), each cue ending where the next begins.
+// WebVTT chapters track (kind="chapters"), each cue ending where the next begins. A cue payload may not
+// contain "-->" (W3C WebVTT, 4.1), so it is written as "->".
 export function toWebVtt(chapters, duration) {
   if (!chapters.length || !(duration > 0)) return null;
   const ts = (s) => { const t = Math.floor(s); return `${String(Math.floor(t / 3600)).padStart(2, "0")}:${String(Math.floor((t % 3600) / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}.000`; };
-  const cues = chapters.map((c, i) => `${i + 1}\n${ts(c.seconds)} --> ${ts(i + 1 < chapters.length ? chapters[i + 1].seconds : duration)}\n${c.title}`);
+  const cues = chapters.map((c, i) => `${i + 1}\n${ts(c.seconds)} --> ${ts(i + 1 < chapters.length ? chapters[i + 1].seconds : duration)}\n${c.title.replace(/-->/g, "->")}`);
   return "WEBVTT\n\n" + cues.join("\n\n") + "\n";
 }
 
