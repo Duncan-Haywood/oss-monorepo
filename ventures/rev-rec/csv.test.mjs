@@ -93,3 +93,9 @@ test("sample data: plan prices stay 29, 79, 249 monthly and 290 annual, with one
   const amounts = new Set(sampleCsv().split("\n").slice(1).map((r) => r.split(",")[4]));
   assert.deepEqual([...amounts].sort(), ["(79)", "249", "29", "290", "79"]);
 });
+
+test("a period end that is not a date is skipped, not read as a one-off (red team 2026-11-18)", () => {
+  const r = linesFromCsv("amount,date,period start,period end\n1200,2026-01-01,2026-01-01,2027-13-01\n5,2026-01-01,2026-01-01,\n");
+  assert.deepEqual(r.skipped, [{ line: 2, why: "period end is not a date" }]);
+  assert.equal(r.lines.length, 1, "a blank period end is still a one-off charge");
+});
