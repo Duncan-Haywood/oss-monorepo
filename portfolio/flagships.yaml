@@ -363,8 +363,9 @@ flagships:
       2026-11-15 sections; 2026-11-17 shorter seasons with even strength of
       schedule, eval/seed-balance.txt; TeamSnap and SportsEngine import files,
       eval/platform-templates-2026-11-17.md; calendar ids per fixture,
-      eval/ics-stable-uids.txt; bowling seasons, lane pairs rotated evenly: 30 of 36
-      at the bound, 6 misses SAT-feasible, eval/bowling-lanes.txt). 3-game nights
+      eval/ics-stable-uids.txt; bowling seasons, lane pairs rotated evenly: 36 of 36
+      at the bound 2026-11-18 via a focused walk and stored SAT answers, P-week
+      seasons proved UNSAT, eval/bowling-lane-table.txt). 3-game nights
       (eval/three-game-nights.txt): SAT session designs (session-designs.mjs) take
       every even 10-48 teams on 6 slots, 16 of 19 sizes on 9, to 0 waits; 8 on 2x6,
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
@@ -376,8 +377,10 @@ flagships:
       3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
       5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
-      waits (odd-orbit.py, 9,849 s). Next, most valuable first: bowling's 6 misses
-      (eval/bowling-lane-sat.txt). More open items: NEXT.md.
+      waits (odd-orbit.py, 9,849 s). Next, most valuable first: bowling lane-pair
+      preferences (a team that must avoid the end pair) as a hard constraint in the
+      walk; repeats in the SAT-table seasons (9-39 vs 6-21). More open items:
+      NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d installs from pypi in a

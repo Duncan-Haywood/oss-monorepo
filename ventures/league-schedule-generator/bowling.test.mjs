@@ -177,9 +177,9 @@ test("the bowling page's worked example matches bowlingSchedule(), its FAQ match
   }
   // The measured claims on the page are the ones in eval/bowling-lanes.txt.
   const ev = page("eval/bowling-lanes.txt");
-  assert.match(ev, /polished: every team at the bound in 30 of 36 seasons; worst spread 2/);
+  assert.match(ev, /polished: every team at the bound in 36 of 36 seasons; worst spread 1/);
   assert.match(ev, /rotate: every team at the bound in 1 of 36 seasons; worst spread 13/);
-  assert.match(html, /30 of the 36/);
+  assert.match(html, /all 36/);
   assert.equal((page("eval/bowling-lane-sat.txt").match(/: SAT$/gm) || []).length, 6);
   assert.match(page("sitemap.xml"), new RegExp(name));
   assert.match(page("index.html"), new RegExp(`href="\\./${name}"`));

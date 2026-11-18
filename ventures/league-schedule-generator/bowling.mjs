@@ -109,7 +109,7 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
   if (mode === "greedy" || plan.length < 2 || nPairs < 2) return plan;
   const kicks = iterations ?? kicksFor(plan.length, nPairs);
   const stored = tablePlan(rounds, nTeams, nPairs, seed);
-  if (stored) return polishLanes(stored, nTeams, nPairs, seed, Math.min(kicks, 60));
+  if (stored) return polishLanes(stored, nTeams, nPairs, seed, kicks);
   const polished = polishLanes(plan, nTeams, nPairs, seed, kicks);
   if (offBound(polished, nTeams, nPairs) === 0) return polished;
   // The week re-solves stall a few counts short of the bound on some sizes. A focused walk on the
@@ -117,7 +117,7 @@ export function assignLanes(rounds, nTeams, nPairs, { mode = "polished", seed = 
   // polish never lets an out-of-bounds count back in).
   const walked = walkLanes(polished, nTeams, nPairs, seed, walkStepsFor(plan.length, nPairs));
   if (offBound(walked, nTeams, nPairs) >= offBound(polished, nTeams, nPairs)) return polished;
-  return polishLanes(walked, nTeams, nPairs, seed, Math.min(kicks, 60));
+  return polishLanes(walked, nTeams, nPairs, seed, kicks);
 }
 
 // A season the search misses but a SAT solver solved ahead of time (bowling-lane-table.mjs, from
