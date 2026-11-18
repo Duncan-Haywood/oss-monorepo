@@ -88,3 +88,15 @@ test("quantity and blank amount get their own reasons; quantity 0 is a $0 subscr
     { line: 7, why: 'unknown interval "fortnight"' },
   ]);
 });
+
+test("a filled-in end or trial date that is not a date is skipped, not read as still alive (red team 2026-11-18)", () => {
+  const { subs, skipped } = subsFromCsv("id,status,amount,interval,created,ended at,trial end\na,canceled,10,month,2026-01-01,2026-02-30,\nb,canceled,10,month,2026-01-01,soon,\nc,active,10,month,2026-01-01,,2026-13-01\nd,canceled,10,month,2026-01-01,,\ne,canceled,10,month,2026-01-01,2026-03-01,\n");
+  assert.deepEqual(skipped.map((s) => [s.line, s.why]), [[2, "ended at is not a date"], [3, "ended at is not a date"], [4, "trial end is not a date"], [5, "canceled with no end date"]]);
+  assert.deepEqual(subs.map((s) => s.id), ["e"]);
+});
+
+test("an impossible created date is skipped, not rolled into the next month (red team 2026-11-18)", () => {
+  const { subs, skipped } = subsFromCsv("id,amount,interval,created\na,10,month,2025-02-29\nb,10,month,2024-02-29\n");
+  assert.deepEqual(skipped.map((s) => s.why), ["created is not a date"]);
+  assert.deepEqual(subs.map((s) => s.id), ["b"]);
+});

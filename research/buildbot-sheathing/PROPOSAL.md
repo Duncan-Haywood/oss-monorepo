@@ -454,6 +454,11 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    false negative. At the 50 N end of all 24 cells no force balances the base in the μ 0.5 cones (best slack
    &minus;23.77 to &minus;0.10 N); the robot tips back. 20 N of backward drag lowers the top of the press window by
    about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N press. Next: re-lean those poses for the drag.
+50. **Re-lean under drag** (done 2026-11-18, `experiments/m50_relean/`): no forward lean keeps the 8 poses balanced
+   at 25 and 50 N under all 17 hose loads (best worst cone slack &minus;0.69 to &minus;10.12 N); a forward lean trades
+   backward-drag headroom for forward. The drag each pose tolerates is linear in its press headroom (H206 held): the
+   G1 at 1.2 m grips 4.0 N straight back, 11.4 to 13.4 N in every direction at its best lean; every pose that has a
+   plan tolerates at least 20.1 N. Next: a hose-management rule (dragged length or reel tension per pose).
 
 ## Target venue
 

@@ -71,6 +71,10 @@ audit-ready revenue accounting.
   and the rest of Stripe's list) are whole units, the dinars (BHD, JOD, KWD,
   OMR, TND) thousandths, everything else cents. The journal CSV writes amounts
   with that many decimals.
+- **CSV import is strict** (browser demo): a row whose date does not exist
+  (2026-02-30) or whose amount has more decimals than its currency (`€ 1.000`,
+  which a European export means as a thousand) is listed as skipped with the
+  reason, never moved to another day or rounded to a different amount.
 
 ## Known gaps
 
