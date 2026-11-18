@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%233b2f63'/%3E%3Crect%20x='5'%20y='8'%20width='9'%20height='16'%20rx='2'%20fill='%23f2c14e'/%3E%3Crect%20x='18'%20y='8'%20width='9'%20height='16'%20rx='2'%20fill='none'%20stroke='%23f2c14e'%20stroke-width='2'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Conjoint Analysis Tool Online: Choice-Based Conjoint Design, Part-Worths, Willingness to Pay, Free</title>
+  <meta name="description" content="Free choice-based conjoint (CBC) tool: design a balanced survey, then paste the answers and get part-worth utilities, attribute importance, willingness to pay and a market share simulator, with confidence intervals. Multinomial logit checked against statsmodels. Runs in your browser.">
+  <meta property="og:title" content="Which feature is worth paying for? Choice-based conjoint in your browser">
+  <meta property="og:description" content="Design a CBC survey, paste the answers, get part-worths, attribute importance, willingness to pay and simulated market shares with intervals. Free, no signup, nothing uploaded.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Choice-based conjoint analysis: design, multinomial logit, willingness to pay and share simulator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Design a choice-based conjoint survey with balanced overlap and D-efficiency, then estimate an aggregate multinomial (conditional) logit by maximum likelihood: part-worth utilities, cluster-robust standard errors, attribute importance, willingness to pay against a price attribute, and a market share simulator, with respondent-bootstrap intervals. Runs in your browser.", "featureList": "choice-based conjoint, CBC, conjoint analysis, discrete choice experiment, multinomial logit, conditional logit, part-worth utilities, attribute importance, willingness to pay, WTP, market simulator, share of preference, none option, D-efficiency, balanced overlap design, survey design, sample size, cluster-robust standard errors, bootstrap", "citation": ["https://doi.org/10.1177/002224378302000403", "https://doi.org/10.1177/002224379603300305", "https://doi.org/10.1177/002224379403100408", "https://doi.org/10.1017/CBO9780511805271"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is choice-based conjoint?", "acceptedAnswer": {"@type": "Answer", "text": "Each respondent sees a few screens, each with two to five versions of a product described by the same attributes (price, size, plan, delivery) at different levels, and picks the one they would buy, or none. Because every screen forces a trade-off, the choices reveal how much each level is worth relative to the others, which a rating question cannot. It is the most common form of conjoint analysis in market research."}}, {"@type": "Question", "name": "How many respondents and tasks do I need?", "acceptedAnswer": {"@type": "Answer", "text": "A common rule of thumb (Johnson and Orme) is respondents times tasks times concepts per task, divided by the largest number of levels of any attribute, of at least 500, and 300 or more respondents for a study that will be acted on. The design step here also shows the expected standard error of every coefficient for a given number of respondents, and how many respondents bring them all under a target such as 0.05."}}, {"@type": "Question", "name": "What are part-worths and attribute importance?", "acceptedAnswer": {"@type": "Answer", "text": "A part-worth is the utility a level adds, on the logit scale. They are shown centred so the levels of each attribute average zero, which makes them easy to compare within an attribute; only differences matter. Importance is each attribute's range of part-worths (best level minus worst) as a share of the sum of ranges. It depends on the levels you tested: a wider price range makes price look more important."}}, {"@type": "Question", "name": "How is willingness to pay computed?", "acceptedAnswer": {"@type": "Answer", "text": "Mark price as numeric so it gets one coefficient per unit, then the willingness to pay for a level is its utility difference from the attribute's first level divided by minus the price coefficient. Stated-choice WTP usually runs higher than what people pay in a real market, and when the price coefficient's interval comes near zero the WTP interval becomes very wide; the page warns when it does."}}, {"@type": "Question", "name": "What does the market simulator show?", "acceptedAnswer": {"@type": "Answer", "text": "Shares of preference: for the products you describe, and optionally the none option, the logit probability that a respondent picks each one. They are not sales forecasts: they ignore awareness, distribution and how often people buy. An aggregate logit also has the IIA property, so a new product takes share from every rival in proportion to its share, even from rivals it does not resemble."}}, {"@type": "Question", "name": "Aggregate logit or hierarchical Bayes?", "acceptedAnswer": {"@type": "Answer", "text": "This page fits one set of utilities for everyone (aggregate multinomial logit). When people differ, that shrinks every coefficient toward zero; in the simulation on this page the clearly sized ones by 7 to 15 percent, while ratios such as willingness to pay moved less. Its standard errors are cluster-robust by respondent so they stay honest under that heterogeneity. Hierarchical Bayes or latent-class models estimate individual or segment utilities and are not here yet."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. The design, the answers and every estimate are computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1e1a2e; background: #f1eff6; }
+    body { max-width: 1040px; margin: auto; padding: 28px; }
+    a { color: #4a3b8a; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #2c2352; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #2c2352; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #555066; }
+    .card { background: #fff; border: 1px solid #dcd7e8; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #2c235210; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #7c7790; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #4a3b8a; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e9e5f3; color: #2c2352; }
+    button.small { padding: 6px 10px; margin: 6px 0 0; font-size: .85rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #ebe8f2; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #555066; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #dcd7e8; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 150px; padding: 9px 10px; border: 1px solid #7c7790; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    textarea.short { min-height: 100px; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .headline { font-size: 1.05rem; padding: 10px 14px; border-radius: 9px; margin: 6px 0 10px; background: #ece8f7; }
+    .product { border: 1px solid #dcd7e8; border-radius: 10px; padding: 10px 12px; margin: 10px 0; }
+    .product .grid label { font-weight: 500; font-size: .88rem; }
+    pre { background: #f5f3f9; border: 1px solid #e3dfee; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    details summary { cursor: pointer; font-weight: 600; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">CONJOINT ANALYSIS · CHOICE-BASED CONJOINT (CBC) · SURVEY DESIGN · PART-WORTHS · ATTRIBUTE IMPORTANCE · WILLINGNESS TO PAY · MARKET SIMULATOR · RUNS IN YOUR BROWSER</p>
+    <h1>Which features are worth paying for, and what would people pick?</h1>
+    <p>Show people a few versions of your product side by side and ask which they would choose. This page does both halves of a <strong>choice-based conjoint</strong> study: it <strong>designs the survey</strong> (balanced, D-efficient, with a sample-size estimate) and then turns the answers into <strong>part-worth utilities</strong>, <strong>attribute importance</strong>, <strong>willingness to pay</strong> and a <strong>market share simulator</strong>, each with a confidence interval. The kind of study usually run in paid survey suites, free and in the browser.</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from stated choices, not a sales forecast or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>1. Design the survey</h2>
+    <label for="attrs">Attributes and levels, one attribute per line: <code>Name: level, level, level</code>. Put <code>#</code> after a numeric attribute's name (price, size in GB) to give it one slope and enable willingness to pay. The first level is the reference.</label>
+    <textarea id="attrs" class="short" spellcheck="false">Price per month#: 9, 15, 25
+Plan: Starter, Team, Business
+Support: Email, Chat, Phone
+Contract: Monthly, Annual</textarea>
+    <div class="grid">
+      <div><label for="versions">Versions (blocks)</label><input id="versions" type="number" min="1" max="999" value="10"></div>
+      <div><label for="tasks">Tasks per respondent</label><input id="tasks" type="number" min="1" max="50" value="12"></div>
+      <div><label for="concepts">Concepts per task</label><input id="concepts" type="number" min="2" max="8" value="3"></div>
+      <div><label for="none">"None of these" option</label><select id="none"><option value="yes">Yes</option><option value="no">No (forced choice)</option></select></div>
+      <div><label for="target">Target standard error</label><select id="target"><option value="0.05">0.05 (Orme: robust)</option><option value="0.1">0.10 (Orme: minimum)</option></select></div>
+      <div><label for="dseed">Random seed</label><input id="dseed" type="number" value="1"></div>
+    </div>
+    <button type="button" id="make-design">Make the design</button>
+    <span class="note" id="design-status" role="status"></span>
+    <div id="design-out" hidden>
+      <p class="headline" id="design-summary"></p>
+      <div class="scroll"><table id="design-se"></table></div>
+      <h3>Level balance</h3>
+      <div class="scroll"><table id="design-freq"></table></div>
+      <h3>Version 1, first three tasks</h3>
+      <div class="scroll"><table id="design-preview"></table></div>
+      <button type="button" class="secondary" id="dl-design">Download the design (CSV)</button>
+      <button type="button" class="secondary" id="dl-questionnaire">Download the questionnaire (text)</button>
+      <p class="note">Build the screens in any survey or form tool: assign each respondent one version, ask its tasks in order, and record the option number picked. Then paste the design and a sheet of answers (respondent, version, then one column per task) below.</p>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>2. Analyse the answers</h2>
+    <label for="data">Answers in long format, CSV, tab or semicolon-separated: one row per concept shown, with respondent, task, chosen (1 or 0) and one column per attribute. A row whose attribute cells are all empty or "None" is the no-choice option.</label>
+    <textarea id="data" spellcheck="false" placeholder="respondent,task,concept,Price,Plan,chosen&#10;r1,1,1,15,Team,1&#10;r1,1,2,9,Starter,0&#10;r1,1,3,None,None,0&#10;..."></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+    <details>
+      <summary>My answers are one row per respondent (wide): merge them with the design</summary>
+      <label for="design-in">Design CSV (from step 1: version, task, concept, attributes)</label>
+      <textarea id="design-in" class="short" spellcheck="false"></textarea>
+      <label for="answers-wide">Answers: respondent, version, then one column per task with the option number picked (blank if skipped)</label>
+      <textarea id="answers-wide" class="short" spellcheck="false" placeholder="respondent,version,Q1,Q2,Q3&#10;ann,1,2,1,4&#10;bob,2,3,3,1"></textarea>
+      <button type="button" class="secondary" id="merge">Merge into long format above</button>
+    </details>
+    <div class="grid">
+      <div><label for="levels">Level order and numeric attributes (optional, same format as step 1)</label><textarea id="levels" class="short" spellcheck="false" placeholder="Price#: 9, 15, 25&#10;Plan: Starter, Team, Business"></textarea></div>
+      <div>
+        <label for="price">Price attribute for willingness to pay (a numeric attribute)</label><input id="price" type="text" placeholder="e.g. Price per month">
+        <label for="boot">Bootstrap resamples (intervals for importance, WTP, shares)</label><select id="boot"><option value="200">200</option><option value="500">500 (slower)</option><option value="0">Off</option></select>
+        <label for="conf">Confidence for intervals</label><select id="conf"><option value="0.95">95%</option><option value="0.9">90%</option><option value="0.99">99%</option></select>
+      </div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-meal">Example: meal-kit subscription, 300 simulated respondents with known utilities</button>
+    </div>
+    <button type="button" id="analyze">Analyse the answers</button>
+    <span class="note" id="status" role="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="headline" id="headline"></p>
+    <p id="counts" class="note"></p>
+    <div id="warnings"></div>
+    <h3>Attribute importance</h3>
+    <div id="imp-chart"></div>
+    <div class="scroll"><table id="importance"></table></div>
+    <h3>Part-worth utilities</h3>
+    <div id="pw-chart"></div>
+    <div class="scroll"><table id="partworths"></table></div>
+    <div id="wtp-wrap" hidden>
+      <h3>Willingness to pay</h3>
+      <div class="scroll"><table id="wtp"></table></div>
+      <p class="note">Each level against its attribute's first level, in units of the price attribute. Stated-choice WTP tends to run above what people pay in a real market: use it to rank features and set a range to test, not as a price.</p>
+    </div>
+    <h3>Market simulator</h3>
+    <p class="note">Describe up to eight products (yours and rivals') and see the share of preference each would get. Prices may sit between the tested levels; other attributes must use tested levels.</p>
+    <div id="sim-products"></div>
+    <label for="sim-none">Include the "none" option in the shares</label>
+    <select id="sim-none"><option value="yes">Yes</option><option value="no">No</option></select>
+    <button type="button" class="secondary" id="sim-add">Add a product</button>
+    <button type="button" id="sim-run">Simulate shares</button>
+    <div class="scroll"><table id="sim-table"></table></div>
+    <h3>Coefficients (multinomial logit)</h3>
+    <div class="scroll"><table id="coefs"></table></div>
+    <button type="button" class="secondary" id="download">Download the report (CSV-style text)</button>
+  </section>
+
+  <section class="card">
+    <h2>The example: does the tool get back what was put in?</h2>
+    <p>There is no public, freely licensed set of real conjoint answers to bundle, so the example is simulated, and that is what makes it a test: the true utilities are known. A meal-kit subscription is described by price per serving ($7 to $13), recipes per week (2 to 5), menu, delivery and packaging; 300 respondents each answer 12 tasks of three kits plus "none", and every respondent has their own utilities drawn around known means (the script is <code>simulate.mjs</code>; the page's example button runs it). The fit: price coefficient −0.392 per dollar, hit rate 55.1% against 25% by chance, McFadden R² 0.205. Price takes 60.0% of the importance and packaging 3.6%. People would pay $1.09 more per serving to pick their delivery day and $0.86 for the chef's premium menu.</p>
+    <p>Against the truth: the true mean price coefficient is −0.45, and across 200 repeated studies the estimate averages −0.381. That is not a bug but what one set of utilities for everyone does when people differ: every coefficient of clear size shrinks, here by 7 to 15 percent (the small vegetarian-menu effect and the none constant, which varies most between people, moved the other way). Willingness to pay is a ratio, so much of the shrinkage cancels: the delivery-day WTP averages $0.90 across studies against a true $0.89, and the others land within $0.01 to $0.10 of the truth, the none constant aside. The model-based standard errors understate the spread of estimates across studies by 5 to 19 percent; the cluster-robust ones, which the intervals here use, are within 6 percent (README, "Verification").</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Design.</strong> Each version draws every attribute's levels from a shuffled deck that refills when empty, taking distinct levels within a task whenever the attribute has enough of them (balanced overlap, close to minimal overlap) and redrawing identical concepts; of 30 candidate versions it keeps the one with the largest determinant of the information matrix at zero utilities (D-efficiency; Kuhfeld, Tobias and Garratt 1994; Huber and Zwerina 1996). The expected standard errors are from the inverse of that information matrix divided by the number of respondents; at real, non-zero utilities they are somewhat larger.</p>
+    <p><strong>Model.</strong> The conditional (multinomial) logit of McFadden (1974), as used for choice experiments since Louviere and Woodworth (1983): each concept's utility is the sum of its levels' part-worths (dummy coded against each attribute's first level, or a slope for a numeric attribute centred at its mean), plus a constant for "none", and the chance of each pick is the softmax of the utilities in its task. Fitted by Newton-Raphson with step halving to the exact maximum likelihood (Train 2009). Standard errors: model-based from the Hessian, and cluster-robust by respondent (sandwich, with G/(G−1)), which the intervals use because one person's twelve answers are not independent. Importance, willingness to pay and simulated shares get percentile intervals from a bootstrap that resamples respondents.</p>
+    <p><strong>One segment.</strong> Aggregate logit fits one set of utilities for everyone. It has the IIA property in the simulator, and under heterogeneity it shrinks coefficients toward zero (the example shows by how much). Hierarchical Bayes, mixed and latent-class logit are not here yet.</p>
+    <p><strong>Not here (yet):</strong> prohibited level pairs in the design, adaptive CBC, dual-response none, MaxDiff (the <a href="../quick-pick-survey/">quick-pick survey</a> has a best-worst mode), and individual-level utilities.</p>
+    <p><strong>Checked against:</strong> statsmodels 0.15.0 <code>ConditionalLogit</code> with its own dummy coding, and a numpy cluster-robust sandwich, on four simulated studies (forced choice, five concepts with two numeric attributes, with and without heterogeneity): coefficients to 1e-7, standard errors to 1e-6, log-likelihood to 1e-9; a hand-worked two-concept study; and a coverage simulation in which the 95% intervals covered the true utilities in 95.0% (model-based) and 94.8% (cluster-robust) of 2,400 intervals (README, "Verification").</p>
+<pre>@incollection{mcfadden1974conditional,
+  author = {McFadden, Daniel},
+  title = {Conditional logit analysis of qualitative choice behavior},
+  booktitle = {Frontiers in Econometrics}, editor = {Zarembka, Paul},
+  publisher = {Academic Press}, address = {New York}, pages = {105--142}, year = {1974}}
+@article{louviere1983design,
+  author = {Louviere, Jordan J. and Woodworth, George},
+  title = {Design and analysis of simulated consumer choice or allocation experiments: an approach based on aggregate data},
+  journal = {Journal of Marketing Research}, volume = {20}, number = {4}, pages = {350--367}, year = {1983},
+  doi = {10.1177/002224378302000403}}
+@article{huber1996utility,
+  author = {Huber, Joel and Zwerina, Klaus},
+  title = {The importance of utility balance in efficient choice designs},
+  journal = {Journal of Marketing Research}, volume = {33}, number = {3}, pages = {307--317}, year = {1996},
+  doi = {10.1177/002224379603300305}}
+@article{kuhfeld1994efficient,
+  author = {Kuhfeld, Warren F. and Tobias, Randall D. and Garratt, Mark},
+  title = {Efficient experimental design with marketing research applications},
+  journal = {Journal of Marketing Research}, volume = {31}, number = {4}, pages = {545--557}, year = {1994},
+  doi = {10.1177/002224379403100408}}
+@book{train2009discrete,
+  author = {Train, Kenneth E.},
+  title = {Discrete Choice Methods with Simulation}, edition = {2nd},
+  publisher = {Cambridge University Press}, year = {2009},
+  doi = {10.1017/CBO9780511805271}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is choice-based conjoint?</h3>
+    <p>Each respondent sees a few screens, each with two to five versions of a product described by the same attributes (price, size, plan, delivery) at different levels, and picks the one they would buy, or none. Because every screen forces a trade-off, the choices reveal how much each level is worth relative to the others, which a rating question cannot. It is the most common form of conjoint analysis in market research.</p>
+    <h3>How many respondents and tasks do I need?</h3>
+    <p>A common rule of thumb (Johnson and Orme) is respondents times tasks times concepts per task, divided by the largest number of levels of any attribute, of at least 500, and 300 or more respondents for a study that will be acted on. The design step here also shows the expected standard error of every coefficient for a given number of respondents, and how many respondents bring them all under a target such as 0.05.</p>
+    <h3>What are part-worths and attribute importance?</h3>
+    <p>A part-worth is the utility a level adds, on the logit scale. They are shown centred so the levels of each attribute average zero, which makes them easy to compare within an attribute; only differences matter. Importance is each attribute's range of part-worths (best level minus worst) as a share of the sum of ranges. It depends on the levels you tested: a wider price range makes price look more important.</p>
+    <h3>How is willingness to pay computed?</h3>
+    <p>Mark price as numeric so it gets one coefficient per unit, then the willingness to pay for a level is its utility difference from the attribute's first level divided by minus the price coefficient. Stated-choice WTP usually runs higher than what people pay in a real market, and when the price coefficient's interval comes near zero the WTP interval becomes very wide; the page warns when it does.</p>
+    <h3>What does the market simulator show?</h3>
+    <p>Shares of preference: for the products you describe, and optionally the none option, the logit probability that a respondent picks each one. They are not sales forecasts: they ignore awareness, distribution and how often people buy. An aggregate logit also has the IIA property, so a new product takes share from every rival in proportion to its share, even from rivals it does not resemble.</p>
+    <h3>Aggregate logit or hierarchical Bayes?</h3>
+    <p>This page fits one set of utilities for everyone (aggregate multinomial logit). When people differ, that shrinks every coefficient toward zero; in the simulation on this page the clearly sized ones by 7 to 15 percent, while ratios such as willingness to pay moved less. Its standard errors are cluster-robust by respondent so they stay honest under that heterogeneity. Hierarchical Bayes or latent-class models estimate individual or segment utilities and are not here yet.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. The design, the answers and every estimate are computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not a sales forecast or a substitute for professional market research. Results are statistical estimates from the stated choices you enter. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, or any survey or market-research software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>design_generated</code>, <code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs answers.csv --levels levels.txt --price "Price"</code>, <code>node cli.mjs design levels.txt</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/conjoint-analysis" rel="noopener">source</a>.</p>
+    <p>More pricing and survey tools: <a href="../van-westendorp-pricing-analyzer/">Van Westendorp price sensitivity</a>, <a href="../gabor-granger-price-analyzer/">Gabor-Granger price testing</a>, <a href="../price-elasticity-estimator/">price elasticity from sales data</a> and the <a href="../quick-pick-survey/">quick-pick ranking survey</a>.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, report, parseAttributes, generateDesign, designCsv, designText, mergeResponses, expectedSe, respondentsFor, simulateShares } from "./engine.mjs";
+    import { simulate, MEAL_KIT_ATTRIBUTES } from "./simulate.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const f = (x, d = 3) => (x == null || !Number.isFinite(x) ? "" : x.toFixed(d));
+    const pfmt = (p) => (p == null || !Number.isFinite(p) ? "" : p < 0.0001 ? "< 0.0001" : p.toFixed(4));
+    let last = null, lastDesign = null;
+
+    function save(name, text) {
+      const blob = new Blob([text + "\n"], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+
+    function makeDesign() {
+      try {
+        const attributes = parseAttributes($("#attrs").value);
+        const d = generateDesign({ attributes, versions: $("#versions").value, tasks: $("#tasks").value, concepts: $("#concepts").value, none: $("#none").value === "yes", seed: Number($("#dseed").value) || 1 });
+        lastDesign = d;
+        const target = Number($("#target").value);
+        const need = respondentsFor(d, target);
+        $("#design-out").hidden = false;
+        $("#design-status").textContent = "";
+        $("#design-summary").textContent = d.identified
+          ? `${d.versions} versions × ${d.tasks} tasks × ${d.concepts} concepts${d.none ? " + none" : ""}. D-error ${d.dError.toFixed(4)} per respondent. About ${need} respondents bring every coefficient's expected standard error to ${target} or below.`
+          : "This design cannot identify every coefficient: add tasks, concepts or versions.";
+        const ns = [100, 200, 300, 500];
+        $("#design-se").innerHTML = `<tr><th>Coefficient</th>${ns.map((n) => `<th class="n">Expected SE, ${n} resp.</th>`).join("")}</tr>` + (d.unitSe ? d.parameters.map((p, i) => `<tr><td>${esc(p)}</td>${ns.map((n) => `<td class="n">${f(expectedSe(d, n)[i])}</td>`).join("")}</tr>`).join("") : "");
+        $("#design-freq").innerHTML = `<tr><th>Attribute</th><th>Times each level is shown</th><th class="n">Tasks repeating a level</th></tr>` + d.frequencies.map((x, j) => `<tr><td>${esc(x.attr)}</td><td>${x.counts.map((c) => `${esc(c.level)}: ${c.n}`).join(" · ")}</td><td class="n">${(100 * d.overlap[j].share).toFixed(0)}%</td></tr>`).join("");
+        const v = d.design[0].slice(0, 3);
+        $("#design-preview").innerHTML = `<tr><th>Task</th><th>Option</th>${d.attributes.map((a) => `<th>${esc(a.name)}</th>`).join("")}</tr>` + v.map((t, ti) => t.map((c, ci) => `<tr><td>${ci === 0 ? ti + 1 : ""}</td><td>${ci + 1}</td>${c.map((l) => `<td>${esc(l)}</td>`).join("")}</tr>`).join("") + (d.none ? `<tr><td></td><td>${t.length + 1}</td><td colspan="${d.attributes.length}">None of these</td></tr>` : "")).join("");
+        $("#design-in").value = designCsv(d);
+        if (!$("#levels").value.trim()) $("#levels").value = $("#attrs").value.trim();
+        const num = d.attributes.find((a) => a.numeric && /price|cost|fee/i.test(a.name));
+        if (num && !$("#price").value.trim()) $("#price").value = num.name;
+        record("design_generated");
+      } catch (e) {
+        $("#design-out").hidden = true;
+        $("#design-status").textContent = e.message;
+      }
+    }
+
+    function barChart(rows, label, { zero = false, unit = "" } = {}) {
+      // rows: [{group, name, value, lower, upper}]
+      const W = 900, rowH = 24, L = 230, R = 70, T = 8, B = 28;
+      const groups = [...new Set(rows.map((r) => r.group))];
+      const H = T + B + rowH * rows.length + (groups.length - 1) * 8;
+      const vals = rows.flatMap((r) => [r.value, r.lower, r.upper]).filter(Number.isFinite);
+      let lo = Math.min(0, ...vals), hi = Math.max(0, ...vals);
+      if (hi - lo < 1e-9) hi = lo + 1;
+      const x = (v) => L + ((v - lo) / (hi - lo)) * (W - L - R);
+      let g = `<line x1="${x(0)}" x2="${x(0)}" y1="${T}" y2="${H - B}" stroke="#7c7790"/>`;
+      let y = T, prev = null;
+      for (const r of rows) {
+        if (prev !== null && r.group !== prev) y += 8;
+        prev = r.group;
+        const name = r.group && r.group !== r.name ? `${r.group}: ${r.name}` : r.name;
+        g += `<text x="${L - 8}" y="${y + 16}" font-size="12" text-anchor="end" fill="#1e1a2e">${esc(name.length > 34 ? name.slice(0, 33) + "…" : name)}</text>`;
+        const a = x(Math.min(0, r.value)), b = x(Math.max(0, r.value));
+        g += `<rect x="${a}" y="${y + 5}" width="${Math.max(1, b - a)}" height="14" fill="${r.value >= 0 ? "#4a3b8a" : "#c46a2f"}"/>`;
+        if (Number.isFinite(r.lower) && Number.isFinite(r.upper)) g += `<line x1="${x(r.lower)}" x2="${x(r.upper)}" y1="${y + 12}" y2="${y + 12}" stroke="#1e1a2e" stroke-width="1.5"/><line x1="${x(r.lower)}" x2="${x(r.lower)}" y1="${y + 7}" y2="${y + 17}" stroke="#1e1a2e"/><line x1="${x(r.upper)}" x2="${x(r.upper)}" y1="${y + 7}" y2="${y + 17}" stroke="#1e1a2e"/>`;
+        g += `<text x="${Math.max(x(Math.max(0, r.value)), Number.isFinite(r.upper) ? x(r.upper) : 0) + 5}" y="${y + 16}" font-size="11" fill="#1e1a2e">${f(r.value, zero ? 1 : 2)}${unit}</text>`;
+        y += rowH;
+      }
+      g += `<text x="${(L + W - R) / 2}" y="${H - 6}" font-size="11" text-anchor="middle" fill="#555066">${esc(label)}</text>`;
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(label)}">${g}</svg>`;
+    }
+
+    function productEditor(r, preset = {}) {
+      const box = document.createElement("div");
+      box.className = "product";
+      const n = $("#sim-products").children.length + 1;
+      const id = (s) => `p${n}-${s}`;
+      let h = `<div class="grid"><div><label for="${id("name")}">Product name</label><input id="${id("name")}" type="text" data-k="name" value="${esc(preset.name ?? `Product ${n}`)}"></div>`;
+      r.attributes.forEach((a, j) => {
+        const v = preset[a.name] ?? a.levels[(n - 1 + j) % a.levels.length];
+        h += a.numeric
+          ? `<div><label for="${id(j)}">${esc(a.name)}</label><input id="${id(j)}" type="number" step="any" data-k="${esc(a.name)}" value="${esc(v)}"></div>`
+          : `<div><label for="${id(j)}">${esc(a.name)}</label><select id="${id(j)}" data-k="${esc(a.name)}">${a.levels.map((l) => `<option${l === String(v) ? " selected" : ""}>${esc(l)}</option>`).join("")}</select></div>`;
+      });
+      h += `</div><button type="button" class="secondary small" data-remove>Remove</button>`;
+      box.innerHTML = h;
+      box.querySelector("[data-remove]").addEventListener("click", () => box.remove());
+      $("#sim-products").appendChild(box);
+    }
+
+    function readProducts() {
+      return [...$("#sim-products").children].map((box) => {
+        const p = {};
+        for (const el of box.querySelectorAll("[data-k]")) p[el.dataset.k] = el.value;
+        return p;
+      });
+    }
+
+    function runSim() {
+      if (!last) return;
+      try {
+        const rows = simulateShares(last, readProducts(), { includeNone: $("#sim-none").value === "yes" });
+        const cl = Math.round(last.confidence * 100);
+        $("#sim-table").innerHTML = `<tr><th>Product</th><th class="n">Share of preference</th><th class="n">${cl}% interval</th></tr>` + rows.map((s) => `<tr><td>${esc(s.name)}</td><td class="n">${f(s.share, 1)}%</td><td class="n">${s.lower == null ? "" : `${f(s.lower, 1)} to ${f(s.upper, 1)}`}</td></tr>`).join("");
+      } catch (e) {
+        $("#sim-table").innerHTML = `<tr><td class="warn">${esc(e.message)}</td></tr>`;
+      }
+    }
+
+    function render(r) {
+      last = r;
+      $("#results").hidden = false;
+      const cl = Math.round(r.confidence * 100);
+      const top = [...r.importance].sort((a, b) => b.importance - a.importance)[0];
+      $("#headline").textContent = `${top.attr} matters most (${f(top.importance, 1)}% of importance). The model picks the chosen option in ${f(100 * r.fit.hitRate, 1)}% of tasks against ${f(100 * r.fit.chance, 1)}% by chance.`;
+      $("#counts").textContent = `${r.counts.respondents} respondents, ${r.counts.tasks} tasks (${f(r.counts.tasksPerRespondent, 1)} each), ${f(r.counts.conceptsPerTask, 1)} concepts per task${r.hasNone ? " including none" : ""}, ${r.counts.parameters} parameters. Log-likelihood ${f(r.fit.logLik, 2)} (null ${f(r.fit.nullLogLik, 2)}), McFadden R² ${f(r.fit.mcfaddenR2)}, AIC ${f(r.fit.aic, 1)}, BIC ${f(r.fit.bic, 1)}.`;
+      $("#warnings").innerHTML = r.warnings.map((w) => `<p class="warn">${esc(w)}</p>`).join("");
+      $("#imp-chart").innerHTML = barChart(r.importance.map((x) => ({ group: "", name: x.attr, value: x.importance, lower: x.lower, upper: x.upper })), `importance, % of the sum of part-worth ranges${r.bootstrap ? `, with ${cl}% bootstrap intervals` : ""}`, { zero: true, unit: "%" });
+      $("#importance").innerHTML = `<tr><th>Attribute</th><th class="n">Importance</th><th class="n">${cl}% interval</th></tr>` + r.importance.map((x) => `<tr><td>${esc(x.attr)}</td><td class="n">${f(x.importance, 1)}%</td><td class="n">${x.lower == null ? "" : `${f(x.lower, 1)} to ${f(x.upper, 1)}`}</td></tr>`).join("");
+      const pwRows = r.partWorths.flatMap((pw) => pw.levels.map((lv) => ({ group: pw.attr, name: lv.level, value: lv.value, lower: lv.lower, upper: lv.upper })));
+      $("#pw-chart").innerHTML = barChart(pwRows, `part-worth utility, centred within each attribute, with ${cl}% intervals`);
+      $("#partworths").innerHTML = `<tr><th>Attribute</th><th>Level</th><th class="n">Part-worth</th><th class="n">SE</th><th class="n">${cl}% interval</th></tr>` + pwRows.map((x, i) => `<tr><td>${esc(x.group)}</td><td>${esc(x.name)}</td><td class="n">${f(x.value)}</td><td class="n">${f(r.partWorths.flatMap((p) => p.levels)[i].se)}</td><td class="n">${f(x.lower)} to ${f(x.upper)}</td></tr>`).join("");
+      $("#wtp-wrap").hidden = !r.wtp.length;
+      $("#wtp").innerHTML = r.wtp.length ? `<tr><th>Attribute</th><th>Level</th><th>Versus</th><th class="n">WTP (${esc(r.price)})</th><th class="n">${cl}% interval</th></tr>` + r.wtp.map((x) => `<tr><td>${esc(x.attr)}</td><td>${esc(x.level)}</td><td>${esc(x.vs ?? "")}</td><td class="n">${f(x.value, 2)}</td><td class="n">${x.lower == null ? "" : `${f(x.lower, 2)} to ${f(x.upper, 2)}`}</td></tr>`).join("") : "";
+      $("#coefs").innerHTML = `<tr><th>Coefficient</th><th class="n">Estimate</th><th class="n">SE</th><th class="n">Robust SE</th><th class="n">z</th><th class="n">p</th><th class="n">${cl}% interval (robust)</th></tr>` + r.coefficients.map((c) => `<tr><td>${esc(c.label)}</td><td class="n">${f(c.estimate, 4)}</td><td class="n">${f(c.se, 4)}</td><td class="n">${f(c.seRobust, 4)}</td><td class="n">${f(c.z, 2)}</td><td class="n">${pfmt(c.p)}</td><td class="n">${f(c.lower, 4)} to ${f(c.upper, 4)}</td></tr>`).join("");
+      $("#sim-products").innerHTML = "";
+      productEditor(r);
+      productEditor(r);
+      runSim();
+    }
+
+    function runAnalysis() {
+      try {
+        $("#status").textContent = "Fitting…";
+        const r = analyze({ text: $("#data").value, levels: $("#levels").value.trim(), price: $("#price").value.trim(), bootstrap: Number($("#boot").value), confidence: Number($("#conf").value) });
+        render(r);
+        $("#status").textContent = "";
+        return true;
+      } catch (e) {
+        $("#results").hidden = true;
+        $("#status").textContent = e.message;
+        return false;
+      }
+    }
+
+    $("#make-design").addEventListener("click", makeDesign);
+    $("#dl-design").addEventListener("click", () => { if (lastDesign) save("cbc-design.csv", designCsv(lastDesign)); });
+    $("#dl-questionnaire").addEventListener("click", () => { if (lastDesign) save("cbc-questionnaire.txt", designText(lastDesign)); });
+    $("#merge").addEventListener("click", () => {
+      try {
+        const m = mergeResponses($("#design-in").value, $("#answers-wide").value);
+        $("#data").value = m.csv;
+        $("#status").textContent = `Merged${m.missing ? `; ${m.missing} unanswered task(s) left out` : ""}. Now analyse.`;
+      } catch (e) { $("#status").textContent = e.message; }
+    });
+    $("#analyze").addEventListener("click", () => { setTimeout(() => { if (runAnalysis()) record("analysis_run"); }, 10); });
+    $("#file").addEventListener("change", async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      $("#data").value = await file.text();
+      $("#status").textContent = `Loaded ${file.name}.`;
+    });
+    $("#ex-meal").addEventListener("click", () => {
+      $("#data").value = simulate();
+      $("#levels").value = MEAL_KIT_ATTRIBUTES;
+      $("#price").value = "Price per serving";
+      setTimeout(() => { if (runAnalysis()) record("example_loaded"); }, 10);
+    });
+    $("#sim-add").addEventListener("click", () => { if (last && $("#sim-products").children.length < 8) productEditor(last); });
+    $("#sim-run").addEventListener("click", runSim);
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      save("conjoint-report.txt", report(last));
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>

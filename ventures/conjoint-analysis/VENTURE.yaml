@@ -1,0 +1,63 @@
+name: conjoint-analysis
+description: >-
+  Free browser tool, CLI and agent call for choice-based conjoint (CBC):
+  design a balanced, D-efficient survey with a sample-size estimate, then
+  fit an aggregate multinomial logit to the answers and get part-worth
+  utilities with cluster-robust intervals, attribute importance,
+  willingness to pay and a market share simulator with bootstrap
+  intervals. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-18 on an explore run. No venture offered general CBC design
+# and analysis: quick-pick-survey has a best-worst (MaxDiff) ranker and a
+# paired-comparison conjoint inside its own financial survey, and
+# saas-feature-packaging-optimizer names conjoint only as a paid
+# alternative. Implemented from McFadden 1974, Louviere & Woodworth 1983,
+# Kuhfeld, Tobias & Garratt 1994, Huber & Zwerina 1996 and Train 2009; no
+# third-party code was ported.
+#
+# Who pays for this today: product managers, founders, pricing consultants
+# and market-research students. Paid CBC suites and survey platforms with
+# conjoint modules are sold by annual licence or per study, often in the
+# thousands of dollars; R and Python routes need code. Differentiators here:
+# free, no install, design and analysis in one page, honest intervals
+# (cluster-robust, bootstrap) and a stated limit (one segment).
+#
+# First visitor: searches such as "conjoint analysis tool free", "choice
+# based conjoint calculator", "conjoint analysis excel", "willingness to pay
+# conjoint", "cbc design generator". Volume not measured with an external
+# tool.
+#
+# Path to revenue (payment rails stay off): lead magnet for the pricing
+# tools, donations; a paid hierarchical-Bayes or report add-on is a later
+# question, not built. Liability: an estimate from stated choices, not a
+# sales forecast; the page says so. Data never leave the browser (tests
+# assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Product managers and founders who want to price features will run a
+      CBC study with a free page that both designs the survey and analyses
+      the answers, instead of a paid suite or writing R.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports coefficients that differ from statsmodels, R mlogit or survival::clogit on the same data and coding, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/conjoint-analysis/
+  analytics: null
