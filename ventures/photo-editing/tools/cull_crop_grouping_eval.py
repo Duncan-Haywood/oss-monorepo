@@ -15,7 +15,8 @@ odd ones the held-out half.
 It reports, per half, burst-pair recall and false merges for the whole-frame
 rule alone (distance <= NEAR_DUPLICATE_MAX_DISTANCE), with the equal-size crop
 windows (2026-11-17, ``crop_match``) and for the shipped rule (``burst_match``:
-those, or the zoom windows of 2026-11-18), then recall by variant kind. Single linkage can
+those, the zoom windows of 2026-11-18 or the wide-pan window pairs of the same
+day), then recall by variant kind. Single linkage can
 chain merges in a real shoot; this scores pairs only. The pans and zooms are
 cut from one exposure, so subject motion, parallax and lens changes between
 real burst frames are not in it.

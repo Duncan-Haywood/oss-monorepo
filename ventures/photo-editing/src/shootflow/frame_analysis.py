@@ -36,6 +36,7 @@ is a proxy; the analysis payload says so.
 from __future__ import annotations
 
 import math
+import operator
 import re
 import subprocess
 from dataclasses import dataclass
@@ -449,6 +450,112 @@ def crop_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
     for a, b in zip(crops_a, crops_b):
         best = min(best, (a ^ centre_b).bit_count(), (centre_a ^ b).bit_count())
     return best
+
+
+def _pan_pairs() -> tuple[tuple[int, int], ...]:
+    """(window of a, window of b) for each window offset ``crop_distance`` cannot reach.
+
+    ``crop_distance`` holds one frame at its centre window, so it reaches
+    offsets of up to half the margin. A wider pan needs an off-centre window on
+    both sides: for each offset beyond that, the one pair nearest the middle of
+    both frames.
+    """
+
+    n, c = CROP_STEPS, CROP_STEPS // 2
+    out = []
+    for dy in range(1 - n, n):
+        for dx in range(1 - n, n):
+            if abs(dx) <= c and abs(dy) <= c:
+                continue
+            candidates = [
+                (ay * n + ax, (ay - dy) * n + (ax - dx))
+                for ay in range(n)
+                for ax in range(n)
+                if 0 <= ay - dy < n and 0 <= ax - dx < n
+            ]
+
+            def spread(pair: tuple[int, int]) -> int:
+                return sum(abs(k // n - c) + abs(k % n - c) for k in pair)
+
+            out.append(min(candidates, key=spread))
+    return tuple(out)
+
+
+_PAN_PAIRS = _pan_pairs()
+# itemgetter and map keep the comparison in C: the cull runs it for most pairs.
+_PAN_A = operator.itemgetter(*(x for x, _ in _PAN_PAIRS))
+_PAN_B = operator.itemgetter(*(y for _, y in _PAN_PAIRS))
+
+
+def pan_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
+    """Smallest Hamming distance over the window pairs offset further than ``crop_distance`` reaches.
+
+    A pan of s keeps 1 - s of the scene, so after scaling to the frame the
+    content moves s / (1 - s): 8.7% for an 8% pan and 11.1% for 10%, past the
+    6% the centre window reaches with a 12% margin. Both directions are covered
+    because ``_PAN_PAIRS`` holds every offset with its opposite. Returns 64 when
+    either frame has no crop hashes (eval/cull-pan-windows-2026-11-18.md).
+    """
+
+    if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
+        return 64
+    return min(map(int.bit_count, map(int.__xor__, _PAN_A(crops_a), _PAN_B(crops_b))))
+
+
+# Packed form for the cull's all-pairs scan: each frame's windows in _PAN_PAIRS
+# order as one integer of 64-bit lanes, so one XOR compares all 56 pairs and a
+# lane-wise (SWAR) popcount answers "is any lane within the limit" in about a
+# dozen big-integer operations instead of 56 Python-level ones.
+_PAN_LANES = len(_PAN_PAIRS)
+
+
+def _lanes(byte: int) -> int:
+    """``byte`` repeated in every byte of every lane."""
+
+    return int.from_bytes(bytes([byte]) * (8 * _PAN_LANES), "little")
+
+
+_M1, _M2, _M4 = _lanes(0x55), _lanes(0x33), _lanes(0x0F)
+_LANE_LOW = sum(0xFF << (64 * k) for k in range(_PAN_LANES))
+_LANE_ONE = _LANE_LOW // 0xFF  # 1 in each lane's low byte
+_LANE_HIGH = _LANE_ONE * 0x80
+
+
+def _pack(hashes: Sequence[int]) -> int:
+    out = 0
+    for k, h in enumerate(hashes):
+        out |= h << (64 * k)
+    return out
+
+
+def pan_pack(crops: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's crop hashes packed for ``pan_within``; () when incomplete."""
+
+    if len(crops) != CROP_STEPS * CROP_STEPS:
+        return ()
+    return (_pack(_PAN_A(crops)), _pack(_PAN_B(crops)))
+
+
+def pan_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: int) -> bool:
+    """Whether ``pan_distance`` of the two frames is at most ``limit`` (0-63), from ``pan_pack`` of each.
+
+    Same decision as ``pan_distance(a, b) <= limit``; False when either frame
+    has no crop hashes.
+    """
+
+    if not packed_a or not packed_b or limit < 0:
+        return False
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _M1
+    x = (x & _M2) + ((x >> 2) & _M2)
+    x = (x + (x >> 4)) & _M4
+    x += x >> 8
+    x += x >> 16
+    x += x >> 32
+    # Each lane's low byte is now its popcount (0-64). Adding 127 - limit sets
+    # the byte's top bit exactly when the count is above the limit.
+    counts = (x & _LANE_LOW) + _LANE_ONE * (127 - limit)
+    return counts & _LANE_HIGH != _LANE_HIGH
 
 
 # Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size
