@@ -178,3 +178,32 @@ def pick_threshold(psr, bad, max_fail=0.01, min_keep=20):
         if bad[keep].mean() <= max_fail:
             return float(th)
     return float("inf")
+
+
+def envelope_normalise(x, fs=FS, win_s=0.032, floor_rel=1e-3):
+    """Divide a signal by its own short-time RMS envelope (a centred moving RMS over win_s), step 3h.
+
+    An impulse (a key click, a door, a bite) is a short stretch far louder than its surroundings; after
+    division every stretch of win_s has about unit power, so one burst can no longer dominate the
+    correlation. The fine structure inside each stretch, which carries the delay, is kept. The floor
+    (floor_rel times the signal's overall RMS) stops digital silence from being blown up."""
+    x = np.asarray(x, float)
+    w = max(1, int(round(win_s * fs)))
+    p = np.convolve(x * x, np.ones(w) / w, mode="same")
+    env = np.sqrt(np.maximum(p, 0.0))
+    floor = floor_rel * np.sqrt(np.mean(x * x)) + 1e-20
+    return x / np.maximum(env, floor)
+
+
+def subwindow_delays(a, b, gamma, starts_s, sub_s, max_lag_s, centre_s, fs=FS):
+    """Delays (s) of sub-windows of a, each against the matching stretch of b, on the same lag axis as
+    gcc(a, b, ..., centre_s=centre_s): sub-window [s, s + sub_s) of a is searched in b[s, s + sub_s + 2 G),
+    G = centre_s * fs, so its delay is directly comparable with the full window's (step 3h)."""
+    m = int(round(sub_s * fs))
+    G = int(round(centre_s * fs))
+    out = []
+    for s in starts_s:
+        i = int(round(s * fs))
+        d, _ = gcc(a[i:i + m], b[i:i + m + 2 * G], gamma=gamma, fs=fs, max_lag_s=max_lag_s, centre_s=centre_s)
+        out.append(d)
+    return out
