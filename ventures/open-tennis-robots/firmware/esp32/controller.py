@@ -434,6 +434,7 @@ class ResidualSurvey:
         self.trim = trim
         self.blind = blind          # > 1: leave out a wheel whose worst candidate is within this of its best
         self.blind_n = 0            # wheels left out as take-blind
+        self.kept_n = 0             # wheels added to the sums (the TAKE_SURVEY frame's informative count, to 255)
         self.wheels = []
         self.n = 0
         self.trimmed = 0
@@ -447,6 +448,7 @@ class ResidualSurvey:
             self.n += 1
             return
         self.wheels.append(array("f", got))
+        self.kept_n += 1
         if len(self.wheels) > SURVEY_KEEP:
             self.wheels.pop(0)
         self.n += 1
