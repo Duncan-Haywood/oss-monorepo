@@ -508,7 +508,7 @@ flagships:
       schema that edits most, page audit in every named schema, false page errors 18
       to 0 on 18 public files). attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); property sets read once per model, indexed by name 2026-11-18
-      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 9.0 to 5.6 s, same
+      same reports); property sets indexed by name 2026-11-18
+      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
       reports); next: lazy ifcXML, a file-order candidate list for specs with no
       entity facet. More open items: NEXT.md.
