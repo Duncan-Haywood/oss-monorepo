@@ -450,7 +450,9 @@ Seasons that moved: 10 x 26 and 10 x 30 five off the last pair 8/10 -> 10/10, 18
 24 x 26 20/24 -> 21/24. No season got worse on teams in target; 0 limits broken. With no cap
 (six dealings everywhere) the totals were 26 of 28 and 18 of 20, at 1,959 ms per season and up to
 25 s on one season; the cap keeps the page's wait near what it was. The 142-season grid (at most
-three limited teams, `eval/bowling-lane-avoid.mjs`) keeps every in-target count; it uses stored
+three limited teams, `eval/bowling-lane-avoid.mjs`, before and after run the same day) keeps every
+in-target count (36, 35, 35 and 33 seasons by kind); repeats 528 -> 524 (two teams off the last
+pair) and 370 -> 366 (three random), the rest identical; 947 -> 1,103 ms per season. It uses stored
 shape answers almost everywhere, so the change touches it only on the few seasons without one.
 Tests: `bowling.test.mjs` ("the most even of several legal dealings": 10 x 26 five off the last
 pair, teams off target fall with the default against `dealings: 1`, limits kept, validated, same
