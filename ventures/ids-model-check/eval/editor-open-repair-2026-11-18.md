@@ -15,8 +15,7 @@ the CLI (`--fix`). The editor opened a file as written, so:
 
 Now `repairOnOpen(text, parseIds)` in `editor.mjs` runs the repair first and
 the editor opens the repaired text. The open message lists each change by
-line (folded under "N faults that break buildingSMART's ids.xsd were repaired
-as it opened"), and says how many faults are left for the author; the audit
+line (folded under "N faults repaired as it opened"), and says how many faults are left for the author; the audit
 under the editor names those. A file with no fault opens byte for byte as
 before. If the repaired text would not parse, the editor opens the original.
 

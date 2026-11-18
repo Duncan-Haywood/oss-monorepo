@@ -721,7 +721,7 @@
     msg += r.kept ? `; ${r.kept} are kept as written (shown as XML, written back unchanged, removable), because the page's controls would change them (a pattern on a class name, a range with two lower bounds, a non-standard Pset_ name...).` : ".";
     if (r.dropped) msg += ` <span class="warn">${r.dropped} requirement(s) of prohibited specification(s) (${esc(r.droppedIn.join(", "))}) are not kept: IDS 1.0 cannot evaluate them, so move the condition into the applicability.</span>`;
     if (rep.fixes.length) {
-      msg += ` <details><summary>${rep.fixes.length} fault${rep.fixes.length > 1 ? "s" : ""} that break${rep.fixes.length > 1 ? "" : "s"} buildingSMART's ids.xsd ${rep.fixes.length > 1 ? "were" : "was"} repaired as it opened${rep.remaining.length ? `; ${rep.remaining.length} left for you (the audit below names them)` : ""}</summary><ul>`;
+      msg += ` <details><summary>${rep.fixes.length} fault${rep.fixes.length > 1 ? "s" : ""} repaired as it opened (breaks of buildingSMART's ids.xsd, patterns written for another regex engine)${rep.remaining.length ? `; ${rep.remaining.length} left for you (the audit below names them)` : ""}</summary><ul>`;
       for (const x of rep.fixes.slice(0, 50)) msg += `<li>line ${x.line}: ${esc(x.message)}</li>`;
       if (rep.fixes.length > 50) msg += `<li>and ${rep.fixes.length - 50} more</li>`;
       msg += `</ul></details>`;
