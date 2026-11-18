@@ -19,4 +19,3 @@
 - (2026-11-17) 47 on 8x9 (13 of 16; LNS stalled: 5 runs from 13, 0 climbs, night 2 UNKNOWN at 1 h; next: a new model, orbit or symmetry-broken night)
 - (2026-11-18) repeats in the SAT-table seasons (9-39 vs 6-21)
 - (2026-11-18) SAT answers for the 27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt)
-- (2026-11-18) every 3k of 27-63 on the least 9-slot courts 0 waits
