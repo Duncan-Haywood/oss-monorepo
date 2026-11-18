@@ -29,7 +29,9 @@
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Full suite (run_venture_tests.py changepoint-detector, 205 s) failed 1 test: synth-page.test.mjs pinned the page's synth line ending at `|| 0 }`; my added shapeWord field broke the regex. Loosened to `|| 0[,}]`; synth-page + synth-shape-trend re-run 15/15 pass."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -50,7 +52,7 @@
     "ventures/changepoint-detector/README.md section 'The panel word as an option'"
   ],
   "goal": null,
-  "notes": "Default output and --json unchanged (pinned). --shape-word panel on West Germany 1990: centre 21.8, placebos 4 faded/2 grew/10 held vs plain 0/12/4; rank 3 of 17, p 0.176 under both. Basque 1970 centre 2.36, words unchanged. Every quoted rate pinned to eval/synth-shape-trend-confirm.out.txt. node --test synth-shape-trend.test.mjs: 8 of 8 pass.",
+  "notes": "Default output and --json unchanged (pinned). --shape-word panel on West Germany 1990: centre 21.8, placebos 4 faded/2 grew/10 held vs plain 0/12/4; rank 3 of 17, p 0.176 under both. Basque 1970 centre 2.36, words unchanged. Every quoted rate pinned to eval/synth-shape-trend-confirm.out.txt. node --test synth-shape-trend.test.mjs: 8 of 8 pass. Full venture suite: 1 failure (above), fixed; every other test passed.",
   "corrections": [],
   "redteam": null
 }
