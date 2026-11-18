@@ -25,3 +25,7 @@
 - (2026-11-17) (2) synthetic control (README "A floored ratio"): CA rank 1 of 39
 - (2026-11-17) 3 log n led on all TCPD post hoc (0.754 vs 0.697 on the 34 non-sticky), test it on fresh labelled data
 - (2026-11-17) (b) sticky series on a drifting level: four repeat treatments failed the frozen-juice bar
+- (2026-11-18) CLI and page ship it 2026-11-17 (README "A synthetic control on the page", Prop 99 example)
+- (2026-11-18) placeboWarning (>=80% matched better) holds every false find (README "Which imbalance biases the gap")
+- (2026-11-18) covariate balance of the outcome fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd richer than its synthetic, MA balanced yet 6th
+- (2026-11-18) ar1 alone led (0.353): a 6th set, a season and a trend term per column (README "Wide sets in print")

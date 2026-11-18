@@ -189,7 +189,61 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Bowling lanes: every measured season at the bound (2026-11-18, latest)
+## Bowling lane limits: a team that must never bowl on a pair (2026-11-18, latest)
+
+Some leagues have a team that cannot use one pair (the end pair by the wall where a bowler with a
+walker has no room, the pair by the bar). The bowling page now takes **lane limits**, one team per
+line (`Pin Pals: 7-8`, `Spare Me: last`, `Gutter Gang: ends`, a single lane number for its pair;
+`parseLaneAvoid` in `bowling.mjs`), and treats them as a hard constraint in every stage of the lane
+search, not a fix-up after it:
+
+- **Greedy and week re-solves:** a banned (match, pair) cell costs `FORBID` (2^26), above every
+  balance price, so the Hungarian step never takes one when the week has any legal deal. The step
+  is exact per week, so a banned cell in the greedy plan proves that week has no legal deal at all;
+  `bowlingSchedule` then refuses the season and names the week ("Week 3: the lane limits leave no
+  way ...") instead of building one that breaks a limit.
+- **Walk:** moves that would put a team on a banned pair are skipped.
+- **Stored SAT answers** are used only if they keep the limits (they never were built for them, so
+  in practice the search runs).
+- **Targets** (`laneTargets`): with no limits, floor..ceil(W/P) as before (byte-identical seasons;
+  all 20 old bowling tests pass unchanged). With limits, the avoided pairs still host a match every
+  week, so the other teams must bowl there more often. The fair share is the matrix scaling
+  (Sinkhorn) of the allowed cells to row sums W_t and pair sums sum(W)/P; the target is
+  floor..ceil of it, 0 on a banned cell. A rounding that keeps every row and pair total always
+  exists; the weekly one-match-per-pair rule can still rule it out (below). `offBound`,
+  `laneReport` (`inTarget`, `avoided`, `target` per row; spread and bound over the pairs a team may
+  use) and the page's highlighted cells all use it; the avoided cell shows a dash.
+
+**Measured** (`node eval/bowling-lane-avoid.mjs`, `eval/bowling-lane-avoid.txt`; 9 league sizes
+6-24 x 4 lengths 26-34 x 4 kinds of limit: one team off the last pair, two teams off the last pair,
+one team off both ends, three random teams off one random pair each). The baseline is the fix an
+organiser makes by hand: the page's unconstrained season, then each week a limited team lands on
+its pair, swap its match with the nearest match that may take that pair.
+
+| | seasons with every team in target | counts off target | back-to-back repeats | limits broken |
+|---|---|---|---|---|
+| hand fix | 0 of 142 | 3,345 | 3,438 | 3 weeks (no legal swap found) |
+| page | 133 of 142 | 24 | 2,338 | 0 |
+
+Two random-limit seasons (6 teams x 30 and 34 weeks) have a week with no legal deal; the page
+refuses them and they are left out. 0.81 s per season on average (3.5 s at 20 x 30).
+
+**The 9 misses** (`eval/bowling-lane-avoid-sat.py`, CaDiCaL on the exact weeks, bans hard, every
+count in target): 6x26, 6x32 and 6x34 with two teams off the last pair, and 6x32 with one team off
+both ends, are UNSAT: on 3 pairs those limits put the target out of reach for any deal, so the
+page's 1-5 off is the season's limit. 20x30 with one team off the last pair, two off the last pair
+and one off both ends are SAT: the search's fault, on the one length (P divides W) that already
+needed a stored SAT answer without limits. Two misses (20x30 and 6x26, random limits) were not
+SAT-checked. Next: closing 20x30 under limits (a SAT call at build time is too slow for the page;
+a stored answer keyed on the limits is too many keys; a longer walk on exact seasons is the
+cheapest thing to try).
+
+Position rounds put 1st v 2nd on the first pair; their teams are known only on the night, so the
+page tells the organiser to check a limited team's pair on those weeks. Browser check:
+`node eval/browser-bowling.mjs` (15 checks, 5 new: 8 of 8 in share, Pin Pals never on Lanes 7-8,
+a dash in the avoided cell, an unknown team reported).
+
+## Bowling lanes: every measured season at the bound (2026-11-18)
 
 The six seasons the lane search left short (below, 2026-11-17) are closed: **36 of 36** measured
 seasons now have every team at the bound (worst spread 1, down from 2), at 0.64 s per season.
@@ -319,7 +373,7 @@ Browser check: `node eval/browser-bowling.mjs` (`eval/browser-bowling.txt`, 10 c
 sample 8 of 8 at the bound, odd league with the Vacancy and a skip date, reshuffle, an error
 hiding the old schedule, no horizontal scroll, no console errors).
 
-Open (the 6 misses closed 2026-11-18, above): lane-pair preferences (a team that must avoid the end pair); a
+Open (the 6 misses closed 2026-11-18, above; lane limits landed 2026-11-18, above): a
 "switch lanes each frame" note per pair for printed sheets; feeding real standings into the
 position rounds.
 

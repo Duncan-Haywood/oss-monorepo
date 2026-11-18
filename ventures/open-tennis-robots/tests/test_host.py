@@ -1490,7 +1490,9 @@ class EscSurveyTest(unittest.TestCase):
         sv = res.esc_survey
         self.assertIsNotNone(sv)
         self.assertGreaterEqual(sv["wheels"], 16)
-        self.assertEqual(sim.hw.launch.survey_cut, 0)
+        # the refined survey (36 steps a fit) outlasts the gap between rally balls: some queued surveys give way
+        # (controller.SURVEY_QUEUE, README "The ESC-lag survey's search, traced"), never the records
+        self.assertLessEqual(sim.hw.launch.survey_cut, 8)
         self.assertEqual(sv["least_ms"], 100)
         self.assertAlmostEqual(sv["refined_ms"], 80, delta=12)
         self.assertEqual(len(sv["rms_ppm"]), P.ESC_SURVEY_LAGS)
@@ -1500,16 +1502,44 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(sv["refined_ms"], 0)
         self.assertIn("keep ESC_TAU_US = 0", host.esc_survey_advice(sv))
 
-    def test_a_new_stroke_cuts_the_survey_not_the_record(self):
+    def test_a_new_stroke_pauses_the_survey_not_the_record(self):
+        # 2026-11-18 (README "The ESC-lag survey's search, traced"): a new stroke no longer cuts the last ball's
+        # survey; no survey step runs while the stroke is under way, and it resumes once the stroke's verdict is in.
         import esc_survey_sweep as S
         sim = S.sim_for({}, 0.4, 0.95, 0.65)
         lc = sim.hw.launch
         S.drill(sim, "drill.rally.json")
-        n = lc.survey_n
-        lc.surveying = iter([None] * 1000)        # a survey under way ...
+        cut = lc.survey_cut
+        it = iter([None] * 10)
+        lc.surveying = it                         # a survey under way ...
         lc.start((3000, 2000), 0)                 # ... and a new stroke
-        self.assertIsNone(lc.surveying)
-        self.assertEqual((lc.survey_cut, lc.survey_n), (1, n))
+        self.assertIs(lc.surveying, it)
+        self.assertFalse(lc.step())               # paused during the stroke
+        self.assertEqual(len(list(iter(it))), 10)  # not one step was taken
+        it = iter([None] * 10)
+        lc.surveying = it
+        lc.cancel()                               # the stroke is over
+        self.assertTrue(lc.step())
+        self.assertEqual(len(list(it)), 9)
+        self.assertEqual(lc.survey_cut, cut)
+
+    def test_waiting_surveys_queue_and_the_oldest_gives_way(self):
+        import esc_survey_sweep as S
+        lc = S.sim_for({}, 0.4, 0.95, 0.65).hw.launch
+        ran = []
+
+        def survey(name, n):
+            for _ in range(n):
+                ran.append(name)
+                yield None
+        lc.queue_survey(survey("a", 2))
+        for name in "bcd":                        # b and c each give way to the next; d waits behind a
+            lc.queue_survey(survey(name, 1))
+        self.assertEqual((lc.survey_cut, len(lc.survey_queue)), (2, controller.SURVEY_QUEUE - 1))
+        while lc.step():
+            pass
+        self.assertEqual(ran, ["a", "a", "d"])
+        self.assertIsNone(lc.surveying)           # the running survey, then each waiting one, ran to the end
 
     def test_advice_waits_for_enough_wheels_and_frame_round_trips(self):
         self.assertIsNone(host.esc_survey_advice(None))

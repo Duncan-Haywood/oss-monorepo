@@ -41,7 +41,9 @@ audit-ready revenue accounting.
   service period (`period.start` to `period.end`) and summed by month. Parts
   are rounded so they add up to the line exactly.
 - **Net amounts:** line amount minus discounts, minus any tax that is included
-  in the price. Tax added on top is not in the line amount to begin with.
+  in the price (`tax_amounts[].inclusive`, or `taxes[].tax_behavior:
+  "inclusive"` on API versions from 2025-03-31). Tax added on top is not in
+  the line amount to begin with.
 - **One-off charges** (no period) are recognised on their date.
 - **Credit notes** are negative billings. When a credit note line names the
   invoice line it credits (Stripe's `invoice_line_item`; a `credits` column in
@@ -66,18 +68,18 @@ audit-ready revenue accounting.
 From the first quality audit
 ([`portfolio/quality/audits/2026-11-17-rev-rec.json`](../../portfolio/quality/audits/2026-11-17-rev-rec.json)):
 
-- **Late-paid invoices can be missed by incremental sync.** After the first
-  sync the server asks Stripe for paid invoices *created* since the last sync
-  minus three days, so an invoice paid more than about three days after it was
-  created (net-30 terms, dunning retries) is never fetched. Until this re-reads
-  open invoices or follows `invoice.paid` events, run a full resync each month.
-- **Periods with a time of day count one extra day** (32 for a month, 366 for
-  a year), pushing a sliver of revenue past the period end.
 - **No period lock:** a late payment or proration rewrites months whose
   journal was already exported, and the billing entry debits Accounts
   receivable on the paid date, so AR never clears.
 - **No standalone-selling-price allocation** for bundles or setup fees.
-- No `Stripe-Version` header is pinned.
+- No `Stripe-Version` header is pinned. Both tax shapes are read: the older
+  `tax_amounts[].inclusive` and the `taxes[].tax_behavior` that API version
+  2025-03-31 and later send.
+
+Fixed since the audit (red team, 2026-11-18): late-paid invoices and voided
+credit notes are picked up by a full re-read at least once a day (the other
+passes ask only for the last three days), and a period that carries a time of
+day counts whole days (31 for a month, not 32).
 
 ## Run it
 

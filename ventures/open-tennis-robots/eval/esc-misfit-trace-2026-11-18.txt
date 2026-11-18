@@ -1,0 +1,79 @@
+# tests/esc_misfit_trace.py part 1, 2026-11-18: the board's own ESC-survey inputs (board at refine 0, 3 t0 levels), calibration drill, take survey off, refit under one change at a time
+24 calibration drills; per build the ESC-lag survey's refined pick in ms under each change (grid 0, 20, 50, 100, 200, 400 ms; true ESC lag: first-order 0, ESC 50 ms 50)
+  lag  take          plant           launcher |            shipped |           levels 5 |           refine 1 |           refine 2 |           refine 3 |           refine 5 |  levels 5 refine 5 | tau at the plant's | shipped refit reproduces the board
+  0.3  instant       first-order 8k  0        |                 14 |                 14 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.3  instant       first-order 8k  1        |                 14 |                 14 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.3  instant       first-order 8k  2        |                 13 |                 14 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.3  halfsine 6 ms first-order 8k  0        |                 12 |                 12 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.3  halfsine 6 ms first-order 8k  1        |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.3  halfsine 6 ms first-order 8k  2        |                 11 |                 12 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.3  instant       ESC 50 ms told  0        |                 24 |                 24 |                 72 |                 72 |                 52 |                 52 |                 53 |                 54 | 22 of 22 wheels
+  0.3  instant       ESC 50 ms told  1        |                 24 |                 24 |                 76 |                 76 |                 53 |                 53 |                 53 |                 54 | 22 of 22 wheels
+  0.3  instant       ESC 50 ms told  2        |                 25 |                 25 |                 63 |                 62 |                 52 |                 54 |                 53 |                 53 | 22 of 22 wheels
+  0.3  halfsine 6 ms ESC 50 ms told  0        |                 23 |                 23 |                 74 |                 74 |                 53 |                 52 |                 53 |                 54 | 22 of 22 wheels
+  0.3  halfsine 6 ms ESC 50 ms told  1        |                 23 |                 23 |                 68 |                 66 |                 51 |                 50 |                 52 |                 54 | 22 of 22 wheels
+  0.3  halfsine 6 ms ESC 50 ms told  2        |                 23 |                 23 |                 59 |                 58 |                 53 |                 52 |                 52 |                 54 | 22 of 22 wheels
+  0.6  instant       first-order 8k  0        |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.6  instant       first-order 8k  1        |                 10 |                 12 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.6  instant       first-order 8k  2        |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.6  halfsine 6 ms first-order 8k  0        |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.6  halfsine 6 ms first-order 8k  1        |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.6  halfsine 6 ms first-order 8k  2        |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 |                  0 | 22 of 22 wheels
+  0.6  instant       ESC 50 ms told  0        |                 24 |                 24 |                 67 |                 67 |                 55 |                 52 |                 54 |                 54 | 22 of 22 wheels
+  0.6  instant       ESC 50 ms told  1        |                 23 |                 23 |                 66 |                 65 |                 52 |                 54 |                 52 |                 53 | 22 of 22 wheels
+  0.6  instant       ESC 50 ms told  2        |                 23 |                 24 |                 83 |                 83 |                 53 |                 55 |                 54 |                 54 | 22 of 22 wheels
+  0.6  halfsine 6 ms ESC 50 ms told  0        |                 23 |                 23 |                 36 |                 35 |                 43 |                 42 |                 52 |                 54 | 22 of 22 wheels
+  0.6  halfsine 6 ms ESC 50 ms told  1        |                 24 |                 24 |                 50 |                 46 |                 50 |                 54 |                 52 |                 54 | 22 of 22 wheels
+  0.6  halfsine 6 ms ESC 50 ms told  2        |                 23 |                 23 |                 35 |                 34 |                 45 |                 47 |                 52 |                 53 | 22 of 22 wheels
+
+Pooled per lag and plant: refined picks (sorted); builds meeting the bar (first-order <= 5 ms, ESC 50 ms within 10 ms)
+  lag 0.3 first-order 8k  shipped            | [0, 11, 12, 13, 14, 14] | 1 of 6
+  lag 0.3 first-order 8k  levels 5           | [0, 12, 12, 14, 14, 14] | 1 of 6
+  lag 0.3 first-order 8k  refine 1           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.3 first-order 8k  refine 2           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.3 first-order 8k  refine 3           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.3 first-order 8k  refine 5           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.3 first-order 8k  levels 5 refine 5  | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.3 first-order 8k  tau at the plant's | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.3 ESC 50 ms told  shipped            | [23, 23, 23, 24, 24, 25] | 0 of 6
+  lag 0.3 ESC 50 ms told  levels 5           | [23, 23, 23, 24, 24, 25] | 0 of 6
+  lag 0.3 ESC 50 ms told  refine 1           | [59, 63, 68, 72, 74, 76] | 1 of 6
+  lag 0.3 ESC 50 ms told  refine 2           | [58, 62, 66, 72, 74, 76] | 1 of 6
+  lag 0.3 ESC 50 ms told  refine 3           | [51, 52, 52, 53, 53, 53] | 6 of 6
+  lag 0.3 ESC 50 ms told  refine 5           | [50, 52, 52, 52, 53, 54] | 6 of 6
+  lag 0.3 ESC 50 ms told  levels 5 refine 5  | [52, 52, 53, 53, 53, 53] | 6 of 6
+  lag 0.3 ESC 50 ms told  tau at the plant's | [53, 54, 54, 54, 54, 54] | 6 of 6
+  lag 0.6 first-order 8k  shipped            | [0, 0, 0, 0, 0, 10] | 5 of 6
+  lag 0.6 first-order 8k  levels 5           | [0, 0, 0, 0, 0, 12] | 5 of 6
+  lag 0.6 first-order 8k  refine 1           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.6 first-order 8k  refine 2           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.6 first-order 8k  refine 3           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.6 first-order 8k  refine 5           | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.6 first-order 8k  levels 5 refine 5  | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.6 first-order 8k  tau at the plant's | [0, 0, 0, 0, 0, 0] | 6 of 6
+  lag 0.6 ESC 50 ms told  shipped            | [23, 23, 23, 23, 24, 24] | 0 of 6
+  lag 0.6 ESC 50 ms told  levels 5           | [23, 23, 23, 24, 24, 24] | 0 of 6
+  lag 0.6 ESC 50 ms told  refine 1           | [35, 36, 50, 66, 67, 83] | 1 of 6
+  lag 0.6 ESC 50 ms told  refine 2           | [34, 35, 46, 65, 67, 83] | 1 of 6
+  lag 0.6 ESC 50 ms told  refine 3           | [43, 45, 50, 52, 53, 55] | 6 of 6
+  lag 0.6 ESC 50 ms told  refine 5           | [42, 47, 52, 54, 54, 55] | 6 of 6
+  lag 0.6 ESC 50 ms told  levels 5 refine 5  | [52, 52, 52, 52, 54, 54] | 6 of 6
+  lag 0.6 ESC 50 ms told  tau at the plant's | [53, 53, 54, 54, 54, 54] | 6 of 6
+
+Mean rms per lag (ppm), first build of each lag and plant, shipped vs levels 5 refine 5:
+  lag 0.3 first-order 8k  shipped            | [540, 489, 776, 1028, 1186, 1272]
+  lag 0.3 first-order 8k  levels 5           | [535, 484, 772, 1024, 1183, 1269]
+  lag 0.3 first-order 8k  refine 5           | [64, 413, 672, 823, 914, 963]
+  lag 0.3 first-order 8k  levels 5 refine 5  | [34, 404, 669, 820, 912, 961]
+  lag 0.3 ESC 50 ms told  shipped            | [701, 394, 743, 1020, 1053, 1020]
+  lag 0.3 ESC 50 ms told  levels 5           | [696, 391, 739, 1017, 1052, 1019]
+  lag 0.3 ESC 50 ms told  refine 5           | [672, 281, 61, 196, 292, 345]
+  lag 0.3 ESC 50 ms told  levels 5 refine 5  | [671, 278, 42, 183, 281, 337]
+  lag 0.6 first-order 8k  shipped            | [308, 331, 391, 487, 554, 592]
+  lag 0.6 first-order 8k  levels 5           | [305, 318, 387, 485, 552, 591]
+  lag 0.6 first-order 8k  refine 5           | [43, 233, 366, 438, 482, 507]
+  lag 0.6 first-order 8k  levels 5 refine 5  | [28, 234, 369, 444, 490, 515]
+  lag 0.6 ESC 50 ms told  shipped            | [380, 240, 403, 540, 588, 594]
+  lag 0.6 ESC 50 ms told  levels 5           | [377, 229, 402, 538, 585, 593]
+  lag 0.6 ESC 50 ms told  refine 5           | [363, 165, 71, 122, 158, 194]
+  lag 0.6 ESC 50 ms told  levels 5 refine 5  | [360, 147, 33, 93, 141, 167]

@@ -19,7 +19,7 @@ Every story, by collection and newest first, with its reading time and whether i
 
 ### Hearth & Horizon (341 stories)
 
-- [The Line on the Ceiling](stories/the-line-on-the-ceiling.md) (2026-11-18; 28 min read, text only)
+- [The Line on the Ceiling](stories/the-line-on-the-ceiling.md) (2026-11-18; 23 min read, text only)
 - [A Metre Apart](stories/a-metre-apart.md) (2026-11-17; 23 min read, text only)
 - [As Cold as the Shed](stories/as-cold-as-the-shed.md) (2026-11-17; 31 min read, text only)
 - [Four Times the Wait](stories/four-times-the-wait.md) (2026-11-17; 26 min read, text only)

@@ -95,6 +95,7 @@
       <div><label for="twoHingeTest"><input id="twoHingeTest" type="checkbox"> Also test two changes of slope (30&ndash;300 points; a curve that speeds up and levels off, or rises, holds and falls; same guard, so it still refuses most sticky series under 60 points)</label></div>
       <div><label for="knownDate">Test a date you name (a law, launch or price change: the label of the first row after it; uses the seasonal period and &ldquo;take logs&rdquo; when set)</label><input id="knownDate" type="text" placeholder="e.g. 1983-02"></div>
       <div><label for="donors">Compare with other columns at that date (synthetic control): <code>all</code>, or column names, comma-separated. The column above is the treated one; the rest of the file must be complete series of the same thing elsewhere (other states, stores or regions)</label><input id="donors" type="text" placeholder="e.g. all, or UT, MT, NV"></div>
+      <div><label for="anticipation">Points people saw it coming (synthetic control; 0 = none): end the fit this many points before the date, for a law passed or a price rise announced before it took effect</label><input id="anticipation" type="number" min="0" step="1" value="0" inputmode="numeric"></div>
       <div><label for="covariates">Optional covariates for the balance table: one row per unit (its column name first, then numbers), a header naming them</label><textarea id="covariates" rows="3" placeholder="state,ln income,price&#10;CA,9.9,1.08&#10;UT,9.4,0.97"></textarea></div>
       <div><label for="bursts"><input id="bursts" type="checkbox"> Cut back isolated spikes before fitting (counts model; e.g. a post going viral)</label></div>
       <div><label for="drift"><input id="drift" type="checkbox"> Seasonal shape drifts (needs a period)</label></div>
@@ -468,7 +469,7 @@
       let synth = null;
       if (donorList.length) {
         if (!opts.knownDate || !opts.column) { stopMain(); $("#results").hidden = true; $("#error").textContent = "A synthetic control needs the date you name and the treated column's name in the Column box."; return; }
-        synth = { csv: opts.csv, column: opts.column, date: opts.knownDate, donors: donorList.map((d) => (d.toLowerCase() === "all" ? "all" : d)), log: opts.log, covariatesCsv: $("#covariates").value.trim() || null };
+        synth = { csv: opts.csv, column: opts.column, date: opts.knownDate, donors: donorList.map((d) => (d.toLowerCase() === "all" ? "all" : d)), log: opts.log, covariatesCsv: $("#covariates").value.trim() || null, anticipation: $("#anticipation").value.trim() || 0 };
       }
       startMain({ kind: "one", opts, ...(synth ? { synth } : {}) }, (out) => {
         if (out.error) { $("#results").hidden = true; $("#error").textContent = out.error; return; }
@@ -566,7 +567,7 @@
     function showSynth(r) {
       lastSynth = r.synth || null;
       if (!r.synth && !r.synthError) { $("#synth-results").hidden = true; return; }
-      $("#synth-body").innerHTML = r.synth ? synthHtml(r.synth) : `<p class="error" role="alert">Synthetic control not run: ${esc(r.synthError.replace(/--(known-date|donors|covariates|column|window)/g, (m, w) => ({ "known-date": "the date", donors: "the donor list", covariates: "the covariates box", column: "the Column box", window: "the window" })[w]))}</p>`;
+      $("#synth-body").innerHTML = r.synth ? synthHtml(r.synth) : `<p class="error" role="alert">Synthetic control not run: ${esc(r.synthError.replace(/--(known-date|donors|covariates|column|window|anticipation)/g, (m, w) => ({ "known-date": "the date", donors: "the donor list", covariates: "the covariates box", column: "the Column box", window: "the window", anticipation: "the points-seen-coming box" })[w]))}</p>`;
       $("#synth-chart").innerHTML = r.synth ? synthChartSvg(r.synth) : "";
       $("#synth-download").hidden = !r.synth;
       $("#synth-results").hidden = false;

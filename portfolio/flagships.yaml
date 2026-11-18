@@ -184,21 +184,18 @@ flagships:
       10-min: no rescue, delay 4h to 1h (Round 19); a real deployer's repository on
       GitHub Actions (Stripe source shipped 2026-11-16 on synthetic shops; next a
       real shop's series through --suggest); (a) ar1 + floor 2 failed on 5 fresh bee
-      dances (0.244 vs 0.337, README; muted note ships); ar1 alone led (0.353): a
-      6th set, a season and a trend term per column (README "Wide sets in print");
-      update-rate check: date a documented collection change. Stale feeds: clumped
-      LR shipped; next a real documented carry-forward. joint drift (measured, not
-      offered) and its 2x penalty on fresh multi-column labelled data. Open: (0)
-      drift model: t-walk increments, biweight on fresh data, why it absorbs seat
-      belts and quality control 4, its AR(1) term; covariate balance of the outcome
-      fit (covariateBalance, eval/synth-balance-real.out.txt) 2026-11-17: CA 1.66 sd
-      richer than its synthetic, MA balanced yet 6th; placeboWarning (>=80% matched
-      better) holds every false find (README "Which imbalance biases the gap"); CLI
-      and page ship it 2026-11-17 (README "A synthetic control on the page", Prop 99
-      example); two covariates: harmless one's warning 0 of 170 false finds, 1.27x
-      bias (bar failed); slope and pulse shocks 2026-11-18: warning holds 42 of 43
-      false finds (README "Shocks that are not steps"); next anticipation (a shock
-      before the date), a real deployer's panel. More open items: NEXT.md.
+      dances (0.244 vs 0.337, README; muted note ships); update-rate check: date a
+      documented collection change. Stale feeds: clumped LR shipped; next a real
+      documented carry-forward. joint drift (measured, not offered) and its 2x
+      penalty on fresh multi-column labelled data. Open: (0) drift model: t-walk
+      increments, biweight on fresh data, why it absorbs seat belts and quality
+      control 4, its AR(1) term; two covariates: harmless one's warning 0 of 170
+      false finds, 1.27x bias (bar failed); slope and pulse shocks 2026-11-18:
+      warning holds 42 of 43 false finds (README "Shocks that are not steps");
+      anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
+      backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
+      shock before the date"); next an uncertain lead (a range of backdates, no
+      best-p pick), a real deployer's panel. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -292,9 +289,10 @@ flagships:
       (sparse checkout; ARW, NEF, ORF, RW2, SRW, PEF, RAF and full-quality CR3 read,
       eval/*-reader-*.md); raw.pixls.us (CC0, `curl -L`; its CIFF CRWs all read).
       Interpolated sRGB encode 2026-11-17; a 3-stop lift loses 0 of the screen codes
-      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise-aware: a card
-      floor (sweep --card) on real multi-frame raw.pixls.us sets. DNG 1.7.1.0 spec
-      PDF: URL in eval/opcode-spec-audit-2026-11-12.md.
+      the old one lost 1-39 of (eval/shadow-lift-banding-*). Noise-aware card floor:
+      a 2nd-lowest or pre-white-balance floor on unseen raw.pixls.us bodies
+      (eval/noise-card-floor-real-2026-11-18.md). DNG 1.7.1.0 spec PDF: URL in
+      eval/opcode-spec-audit-2026-11-12.md.
     next: >-
       History and every measurement: README and eval/ (ingest to masters; DNG
       developer with DNG-spec colour, DCP tables, tone curves; Canon CR2; camera
@@ -379,20 +377,20 @@ flagships:
       5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
       alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
       waits (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32
-      teams x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Next, most
-      valuable first: bowling lane-pair preferences (a team that must avoid the end
-      pair) as a hard constraint in the walk; SAT answers for the 27 unanswered grid
-      seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt); repeats in the
-      SAT-table seasons (9-39 vs 6-21). More open items: NEXT.md.
+      teams x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits
+      (team avoids a pair, hard; eval/bowling-lane-avoid.txt). Next, most valuable
+      first: limits at 20x30 (SAT: deal exists, search misses); SAT answers for the
+      27 unanswered grid seasons (16x40, 22-28 teams; eval/bowling-lane-table.txt);
+      repeats in the SAT-table seasons (9-39 vs 6-21). More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The first-order take misfit traced" (not
-      the plant: the survey's 3-level t0 grid fell in wrong basins, so single
-      candidates' rms jumped 3-12x; the take survey now searches 5 levels: held out
-      at lag 0.45 s every spread take named to 0.5 ms, no instant advised;
-      eval/take-misfit-*-2026-11-18). Next: the ESC-lag survey's inputs at 4-5
-      levels (it picked 11-12 ms on a plant with none); ball hold: WHEEL_RPM_FULL
+      see firmware/esp32/README.md, latest "The ESC-lag survey's search, traced"
+      (the survey skipped the tau refinement, so off the tau grid the ESC lag stood
+      in for tau: 10-14 ms picked with none, 23-25 for 50; refined, held out at
+      0.4-0.45 s and on a jittery tach, 0 and 48-55 ms; surveys now pause and queue,
+      not cut: 18+ wheels a drill; eval/esc-misfit-*-2026-11-18). Next: a grid point
+      between 100 and 200 ms (untold 150 read 188); ball hold: WHEEL_RPM_FULL
       error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP

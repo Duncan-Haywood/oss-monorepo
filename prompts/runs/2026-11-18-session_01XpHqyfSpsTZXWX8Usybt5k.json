@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyfSpsTZXWX8Usybt5k",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T01:38:39Z",
+  "ended": "2026-11-18T01:52:19Z",
+  "wall_minutes": 23.08,
+  "tokens_in": 6640544,
+  "tokens_out": 44442,
+  "cost_usd": 3.2754,
+  "tool_calls": 59,
+  "task": "league-schedule-generator flagship 9 top item: bowling lane-pair limits (a team that must avoid a pair) as a hard constraint",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17133",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pip install python-sat from the repo directory left pysat unimportable; python3 -m pip install from /tmp worked",
+      "cost": "2 tool calls"
+    },
+    {
+      "what": "pysat Cadical153 has no interrupt, so the copied time-limit pattern raised NotImplementedError in a timer thread; removed the limit",
+      "cost": "1 rerun"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "A --replace that went over the 2000-char cap made room on its own (no --make-room passed) and parked six clauses from the end of next:, including landed results ('8 on 2x6, 12 on 2x9 UNSAT', 'proved impossible: 7, 9 on 2x6'), into NEXT.md as if they were open items. allocate.py's hint reads as if make-room is opt-in. Reverted and reran with --no-make-room and a shorter replacement. The parker should skip clauses that report landed work (--landed already finds them)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-bowling-league-team-that-must-avoid-a-lane-pair.md",
+    "ventures/league-schedule-generator/README.md (Bowling lane limits section)"
+  ],
+  "goal": null,
+  "notes": "Lane limits in bowling.mjs (parseLaneAvoid, laneTargets via Sinkhorn scaling, avoidViolations; FORBID price in greedy and polish, banned moves skipped in walk), page textarea + dash in counts, llms.txt. eval/bowling-lane-avoid.txt: 142 feasible seasons, page 133 in target vs hand fix 0, 24 vs 3,345 counts off, 0 vs 3 limits broken; SAT (eval/bowling-lane-avoid-sat.py): 4 misses UNSAT (6 teams), 3 at 20x30 SAT. No-limit seasons identical to main on 48 of 48 compared. Local checks: node --test bowling.test.mjs page.test.mjs 79 pass; eval/browser-bowling.mjs 15 of 15; check_posts ok; python3 platform/ci/run_venture_tests.py league-schedule-generator: ok, 603 tests, 0 failed (255 s); node platform/pages/venture-preflight.mjs league-schedule-generator: preflight clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d6eea3fc-352d-5682-8f69-50d21c5c4734",
+    "transcripts": 1,
+    "first": "2026-11-18T01:38:39Z",
+    "last": "2026-11-18T02:01:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 44442,
+        "thinking": 9014,
+        "cache_read": 6504796,
+        "cache_write_5m": 0,
+        "cache_write_1h": 135644,
+        "api_equivalent_usd": 3.2754,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 44442,
+      "thinking": 9014,
+      "cache_read": 6504796,
+      "cache_write_5m": 0,
+      "cache_write_1h": 135644,
+      "api_equivalent_usd": 3.2754,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.08,
+      "active_minutes": 23.08,
+      "model_minutes": 6.95,
+      "tool_minutes": 16.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "constraint added to a three-stage lane search, fair-share targets, SAT checks, 144-season eval, page, tests, post: a senior OR engineer's day plus",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 305.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
