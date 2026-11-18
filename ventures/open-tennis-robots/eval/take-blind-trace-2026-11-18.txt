@@ -1,0 +1,138 @@
+# tests/take_blind_trace.py and tests/take_survey_trim.py, 2026-11-18 (firmware/esp32/README.md "Take-blind rows traced")
+
+The item (README "Periods finer than a microsecond"): on the take survey's wheels several contact-time candidates
+reach the identical residual to four digits, 0 ms and 6 ms alike, and at 1/8 us the survey failed held out.
+
+## Part 1: where each candidate's take lands (tests/take_blind_trace.py)
+
+One held-out build (half-sine 6 ms take, "tach 3 us 10k" plant with the capture on and no jitter, launcher 0, wheel
+lag 0.45 s, seed 11), captured at sub 1 and sub 8, every take-survey wheel refitted at every candidate as the board
+fits it through a copy of drop_from_commands_steps that also returns t0. Per candidate: rms in ppm ("=" when within
+0.1% of the step's), the revolutions its four parts land in relative to the anchor k, and t0 + the mean offset minus
+the step's t0 in us. At these speeds a revolution lasts 10-27 ms, longer than any candidate's take.
+
+
+## h6_sub1.json: build [2, 1, 0, 0.45, 11, 1] (halfsine 6 ms), board survey {'wheels': 22, 'least_ms10': 60, 'refined_ms10': 62, 'board_ms10': 0, 'rms_ppm': [130, 130, 121, 99, 70, 47, 80]}
+wheel | per candidate (ms): rms ppm, revolutions its parts fall in relative to the anchor k, t0+mean offset - step t0 (us)
+   0 (rev 27094 us) | 0: 24 [-1] +0 | 2: 24= [-1] -0 | 3: 24 [-1] -2 | 4: 24= [-1] -1 | 5: 24= [-1] -1 | 6: 24= [-1] -2 | 8: 24 [-1] -0
+   1 (rev 27094 us) | 0: 24 [-1] +0 | 2: 24= [-1] -0 | 3: 24 [-1] -2 | 4: 24= [-1] -1 | 5: 24= [-1] -1 | 6: 24= [-1] -2 | 8: 24 [-1] -0
+   2 (rev 21721 us) | 0: 13 [-1] +0 | 2: 13= [-1] -0 | 3: 13= [-1] -0 | 4: 18 [-1] +8 | 5: 13= [-1] -1 | 6: 16 [-1] +6 | 8: 21 [-1] +9
+   3 (rev 21721 us) | 0: 13 [-1] +0 | 2: 13= [-1] -0 | 3: 13= [-1] -0 | 4: 18 [-1] +8 | 5: 13= [-1] -1 | 6: 16 [-1] +6 | 8: 21 [-1] +9
+   4 (rev 13791 us) | 0: 44 [-1] +0 | 2: 44= [-1] -0 | 3: 44= [-1] -0 | 4: 46 [-1] -7 | 5: 44= [-1] -1 | 6: 44= [-1] -2 | 8: 44= [-1] -3
+   5 (rev 26431 us) | 0: 24 [-1] +0 | 2: 24= [-1] -0 | 3: 29 [-1] -12 | 4: 24= [-1] -1 | 5: 24= [-1] -1 | 6: 24= [-1] -2 | 8: 30 [-1] +11
+   6 (rev 17408 us) | 0: 38 [-1] +0 | 2: 38= [-1] -0 | 3: 38= [-1] +0 | 4: 38= [-1] -1 | 5: 39 [-1] +4 | 6: 38= [-1] -2 | 8: 38= [-1] -3
+   7 (rev 17404 us) | 0: 29 [-1] +0 | 2: 29 [-1] -4 | 3: 28 [-1] -2 | 4: 28 [-1] -2 | 5: 28 [-1] -2 | 6: 28 [-1] -3 | 8: 28 [-1] -4
+   8 (rev 24543 us) | 0: 31 [-1] +0 | 2: 31 [-1] +1 | 3: 31= [-1] -0 | 4: 31= [-1] -1 | 5: 31= [-1] -1 | 6: 35 [-1] -13 | 8: 31= [-1] -3
+   9 (rev 14356 us) | 0: 229 [-1] +0 | 2: 229= [-1] +5 | 3: 229= [-1] +5 | 4: 199 [-1,+0] +78 | 5: 120 [-1,+0] +161 | 6: 46 [-1,+0] +232 | 8: 144 [-1,+0] +363
+  10 (rev 12265 us) | 0: 301 [-1] +0 | 2: 301= [-1] -0 | 3: 301= [-1] -0 | 4: 237 [-1,+0] +106 | 5: 149 [-1,+0] +191 | 6: 63 [-1,+0] +275 | 8: 203 [-1,+0] +439
+  11 (rev 26176 us) | 0: 18 [-1] +0 | 2: 18 [-1] +2 | 3: 18= [-1] -0 | 4: 18= [-1] -1 | 5: 21 [-1] -7 | 6: 18= [-1] -2 | 8: 19 [-1] +1
+  12 (rev 23494 us) | 0: 21 [-1] +0 | 2: 21= [-1] -0 | 3: 24 [-1] +6 | 4: 21= [-1] -1 | 5: 21= [-1] -1 | 6: 21= [-1] -2 | 8: 26 [-1] +7
+  13 (rev 12955 us) | 0: 66 [-1] +0 | 2: 67 [-1] -9 | 3: 66 [-1] +4 | 4: 66 [-1] +3 | 5: 66 [-1] +3 | 6: 66 [-1] +3 | 8: 72 [-2,-1] -92
+  14 (rev 14378 us) | 0: 123 [+0] +0 | 2: 123= [+0] -0 | 3: 123= [+0] -3 | 4: 123= [+0] -1 | 5: 123= [+0] -1 | 6: 110 [-1,+0] -71 | 8: 144 [-1,+0] -125
+  15 (rev 14503 us) | 0: 35 [-1] +0 | 2: 35= [-1] -0 | 3: 35= [-1] -0 | 4: 35= [-1] -1 | 5: 35= [-1] -1 | 6: 35= [-1] -2 | 8: 35= [-1] -3
+  16 (rev 11070 us) | 0: 65 [-1] +0 | 2: 65= [-1] -0 | 3: 65 [-1] -2 | 4: 65= [-1] -1 | 5: 65= [-1] -1 | 6: 65= [-1] -1 | 8: 53 [-1,+0] +81
+  17 (rev 25922 us) | 0: 21 [-1] +0 | 2: 22 [-1] +2 | 3: 23 [-1] +5 | 4: 21= [-1] -1 | 5: 21= [-1] -1 | 6: 21= [-1] -2 | 8: 22 [-1] +1
+  18 (rev 23363 us) | 0: 438 [+0] +0 | 2: 438= [+0] -0 | 3: 376 [-1,+0] -249 | 4: 280 [-1,+0] -292 | 5: 179 [-1,+0] -429 | 6: 76 [-1,+0] -303 | 8: 180 [-1,+0] -168
+  19 (rev 11629 us) | 0: 59 [-1] +0 | 2: 59= [-1] -0 | 3: 59= [-1] -0 | 4: 59 [-1] -4 | 5: 59= [-1] -1 | 6: 59= [-1] -2 | 8: 60 [-1] -9
+  20 (rev 10217 us) | 0: 53 [-1] +0 | 2: 55 [-1] -5 | 3: 53 [-1] +2 | 4: 53= [-1] -1 | 5: 53= [-1] -2 | 6: 53= [-1] -2 | 8: 53= [-1] -3
+  21 (rev 24903 us) | 0: 15 [-1] +0 | 2: 15 [-1] -2 | 3: 15= [-1] -0 | 4: 15= [-1] -1 | 5: 25 [-1] -12 | 6: 15= [-1] -2 | 8: 15 [-1] -5
+
+## h6_sub8.json: build [2, 1, 0, 0.45, 11, 8] (halfsine 6 ms), board survey {'wheels': 22, 'least_ms10': 50, 'refined_ms10': 46, 'board_ms10': 0, 'rms_ppm': [6, 7, 7, 5, 5, 6, 8]}
+wheel | per candidate (ms): rms ppm, revolutions its parts fall in relative to the anchor k, t0+mean offset - step t0 (us)
+   0 (rev 27094 us) | 0: 2 [-1] +0 | 2: 11 [-1] -9 | 3: 7 [-1] +5 | 4: 2= [-1] -1 | 5: 2= [-1] -1 | 6: 2= [-1] -2 | 8: 12 [-1] +7
+   1 (rev 27094 us) | 0: 2 [-1] +0 | 2: 11 [-1] -9 | 3: 7 [-1] +5 | 4: 2= [-1] -1 | 5: 2= [-1] -1 | 6: 2= [-1] -2 | 8: 12 [-1] +7
+   2 (rev 21721 us) | 0: 4 [-1] +0 | 2: 4= [-1] -0 | 3: 10 [-1] -7 | 4: 4= [-1] -1 | 5: 7 [-1] -5 | 6: 4= [-1] -2 | 8: 4= [-1] -3
+   3 (rev 21721 us) | 0: 4 [-1] +0 | 2: 4= [-1] -0 | 3: 10 [-1] -7 | 4: 4= [-1] -1 | 5: 7 [-1] -5 | 6: 4= [-1] -2 | 8: 4= [-1] -3
+   4 (rev 13791 us) | 0: 2 [-1] +0 | 2: 2= [-1] -0 | 3: 4 [-1] +2 | 4: 2= [-1] -1 | 5: 2= [-1] -1 | 6: 2 [-1] -2 | 8: 2= [-1] -3
+   5 (rev 26433 us) | 0: 5 [-1] +0 | 2: 8 [-1] +8 | 3: 4 [-1] +2 | 4: 11 [-1] +10 | 5: 4 [-1] +2 | 6: 8 [-1] +6 | 8: 6 [-1] -4
+   6 (rev 17408 us) | 0: 7 [-1] +0 | 2: 7= [-1] -0 | 3: 7= [-1] -0 | 4: 7= [-1] -1 | 5: 7 [-1] -2 | 6: 7= [-1] -2 | 8: 7= [-1] -3
+   7 (rev 17405 us) | 0: 13 [-1] +0 | 2: 4 [-1] -8 | 3: 4 [-1] -8 | 4: 4 [-1] -8 | 5: 4 [-1] -9 | 6: 10 [-1] -3 | 8: 11 [-1] -16
+   8 (rev 24546 us) | 0: 3 [-1] +0 | 2: 11 [-1] +7 | 3: 3= [-1] -0 | 4: 3= [-1] -1 | 5: 11 [-1] -9 | 6: 3= [-1] -2 | 8: 3= [-1] -3
+   9 (rev 14349 us) | 0: 313 [-1] +0 | 2: 313= [-1] -0 | 3: 308 [-1,+0] +58 | 4: 227 [-1,+0] +136 | 5: 146 [-1,+0] +220 | 6: 63 [-1,+0] +292 | 8: 216 [-1,+0] +475
+  10 (rev 12267 us) | 0: 280 [-1] +0 | 2: 280= [-1] -0 | 3: 280= [-1] -0 | 4: 229 [-1,+0] +92 | 5: 138 [-1,+0] +171 | 6: 47 [-1,+0] +249 | 8: 190 [-1,+0] +379
+  11 (rev 26183 us) | 0: 2 [-1] +0 | 2: 2= [-1] -0 | 3: 2= [-1] -0 | 4: 2= [-1] -1 | 5: 2= [-1] -1 | 6: 5 [-1] +1 | 8: 6 [-1] -6
+  12 (rev 23490 us) | 0: 3 [-1] +0 | 2: 3= [-1] -0 | 3: 3= [-1] -0 | 4: 9 [-1] +5 | 5: 3= [-1] -1 | 6: 3= [-1] -2 | 8: 18 [-1] +8
+  13 (rev 12957 us) | 0: 8 [-1] +0 | 2: 10 [-1] -3 | 3: 8= [-1] -0 | 4: 8= [-1] -1 | 5: 8= [-1] -1 | 6: 8= [-1] -2 | 8: 8= [-1] -3
+  14 (rev 14404 us) | 0: 195 [+0] +0 | 2: 195= [+0] -0 | 3: 195= [+0] -0 | 4: 195= [+0] -1 | 5: 163 [-1,+0] -98 | 6: 40 [-1,+0] -108 | 8: 211 [-1,+0] -174
+  15 (rev 14507 us) | 0: 3 [-1] +0 | 2: 3= [-1] -0 | 3: 3= [-1] -0 | 4: 3= [-1] -1 | 5: 3= [-1] -1 | 6: 3= [-1] -2 | 8: 3= [-1] -3
+  16 (rev 11071 us) | 0: 8 [-1] +0 | 2: 9 [-1] +1 | 3: 8= [-1] -0 | 4: 8= [-1] -1 | 5: 8= [-1] -1 | 6: 8= [-1] -2 | 8: 8= [-1] -3
+  17 (rev 25947 us) | 0: 7 [-1] +0 | 2: 2 [-1] -5 | 3: 17 [-1] -15 | 4: 2 [-1] -5 | 5: 2 [-1] -6 | 6: 2 [-1] -6 | 8: 2 [-1] -7
+  18 (rev 23425 us) | 0: 143 [-1] +0 | 2: 143= [-1] +0 | 3: 143= [-1] +0 | 4: 143= [-1] -0 | 5: 87 [-1,+0] +96 | 6: 31 [-1,+0] +185 | 8: 117 [-1,+0] +345
+  19 (rev 11628 us) | 0: 43 [-1] +0 | 2: 43= [-1] -0 | 3: 43= [-1] -0 | 4: 43= [-1] -1 | 5: 43= [-1] -1 | 6: 43= [-1] -1 | 8: 75 [-1,+0] +123
+  20 (rev 10216 us) | 0: 10 [-1] +0 | 2: 5 [-1] -5 | 3: 5 [-1] -6 | 4: 5 [-1] -6 | 5: 5 [-1] -6 | 6: 10 [-1] -4 | 8: 5 [-1] -8
+  21 (rev 24918 us) | 0: 3 [-1] +0 | 2: 3= [-1] -0 | 3: 3= [-1] -0 | 4: 3= [-1] -1 | 5: 3= [-1] -1 | 6: 3= [-1] -2 | 8: 3= [-1] -3
+
+Spread candidates on 44 wheels: whole take inside one revolution 231, of them tied with the step (rms within 0.1%) 143; straddling an edge 33, of them tied 0.
+
+So: a candidate whose parts all land in one revolution never fits better than the step by more than the search's own
+scatter, and 143 of its 231 cases tie the step to 0.1%, with t0 + its mean offset within 1-3 us of the step's t0 (a
+revolution's mean speed sees a take inside it only through its parts' mean time, to first order in p / tau, and every
+later revolution through the sum of e^(t_i / tau)). The other 88 differ by a few ppm either way, at t0s 2-16 us off
+the step's equivalent: the t0 grid's scatter, not the take. Every one of the 33 straddling cases differs from the step,
+and in both captures the informative wheels are the same four (9, 10, 14, 18: the half-sine 6 ms candidate 31-76 ppm
+against the step's 123-438). Even the right candidate fits those wheels 10-20 times worse than a take-blind wheel (the
+four-part take is not the simulator's continuous profile), so their best rms is the drill's highest.
+
+## Part 2: the trim (tests/take_survey_trim.py)
+
+ResidualSurvey leaves out a wheel whose best rms is over SURVEY_TRIM (5) times the median wheel's. At whole
+microseconds the median is 20-60 ppm and the straddling wheels (best 46-76) stay in; at 1/8 us the median falls to
+3-5 ppm and they are dropped. Rescored by the board's own ResidualSurvey and survey_pick from each stored capture's
+board rows, trim 5 (shipped), 10, 20 and none:
+
+
+sub8-design.jsonl: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 45 of 54, instant advised 0 of 18, within 1 ms 61 of 72, mean share 0.38; wheels trimmed 109 of 1584
+  trim 10: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.35; wheels trimmed 16 of 1584
+  trim 20: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.35; wheels trimmed 0 of 1584
+  trim inf: spread takes named within 1 ms and advised 44 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.35; wheels trimmed 0 of 1584
+
+sub8-heldout.jsonl: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 14 of 54, instant advised 1 of 18, within 1 ms 40 of 72, mean share 0.74; wheels trimmed 101 of 1584
+  trim 10: spread takes named within 1 ms and advised 35 of 54, instant advised 1 of 18, within 1 ms 57 of 72, mean share 0.48; wheels trimmed 60 of 1584
+  trim 20: spread takes named within 1 ms and advised 41 of 54, instant advised 1 of 18, within 1 ms 62 of 72, mean share 0.40; wheels trimmed 13 of 1584
+  trim inf: spread takes named within 1 ms and advised 42 of 54, instant advised 1 of 18, within 1 ms 63 of 72, mean share 0.39; wheels trimmed 0 of 1584
+
+eval/take-survey-capture-design-2026-11-18.jsonl.gz: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 25 of 54, instant advised 0 of 18, within 1 ms 69 of 72, mean share 0.58; wheels trimmed 0 of 1584
+  trim 10: spread takes named within 1 ms and advised 25 of 54, instant advised 0 of 18, within 1 ms 69 of 72, mean share 0.58; wheels trimmed 0 of 1584
+  trim 20: spread takes named within 1 ms and advised 25 of 54, instant advised 0 of 18, within 1 ms 69 of 72, mean share 0.58; wheels trimmed 0 of 1584
+  trim inf: spread takes named within 1 ms and advised 25 of 54, instant advised 0 of 18, within 1 ms 69 of 72, mean share 0.58; wheels trimmed 0 of 1584
+
+eval/take-survey-capture-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.49; wheels trimmed 0 of 1584
+  trim 10: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.49; wheels trimmed 0 of 1584
+  trim 20: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.49; wheels trimmed 0 of 1584
+  trim inf: spread takes named within 1 ms and advised 43 of 54, instant advised 0 of 18, within 1 ms 63 of 72, mean share 0.49; wheels trimmed 0 of 1584
+
+eval/take-survey-jitter-design-2026-11-18.jsonl.gz: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.81; wheels trimmed 0 of 1584
+  trim 10: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.81; wheels trimmed 0 of 1584
+  trim 20: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.81; wheels trimmed 0 of 1584
+  trim inf: spread takes named within 1 ms and advised 10 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.81; wheels trimmed 0 of 1584
+
+eval/take-survey-jitter-heldout-2026-11-18.jsonl.gz: 72 survey drills
+  trim 5: spread takes named within 1 ms and advised 9 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.82; wheels trimmed 0 of 1584
+  trim 10: spread takes named within 1 ms and advised 9 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.82; wheels trimmed 0 of 1584
+  trim 20: spread takes named within 1 ms and advised 9 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.82; wheels trimmed 0 of 1584
+  trim inf: spread takes named within 1 ms and advised 9 of 54, instant advised 0 of 18, within 1 ms 60 of 72, mean share 0.82; wheels trimmed 0 of 1584
+
+The 1/8 us held-out failure was the trim: 101 wheels dropped, named and advised 14 of 54; with no trim 42 of 54, against
+43 at whole microseconds on the same builds. The trimmed wheels are the informative ones (median spread across
+candidates, (max - min) / min: 5.4 against 2.0 for the kept). At whole microseconds the trim never fired on any of the
+432 stored drills (0 of 9,504 wheels), so leaving it out changes nothing there. The one instant build advised on the
+sub 8 held-out set (launcher 1, 0 us column: 3.5 ms, share 0.57) is advised with or without the trim.
+
+## Pre-registration (written and committed before the fresh held-out capture runs)
+
+Candidate: the take survey sums every wheel (`controller.TAKE_SURVEY_TRIM = 0`, no trim; the ESC-lag survey keeps
+SURVEY_TRIM 5, which this does not retest). Fresh held-out set no run has used: the same 72 builds at wheel lag
+0.38 s, seed 13, capture on, captured at sub 8 and at sub 1.
+
+PREDICTION: (a) at sub 8, trim 5 drops at least 30 wheels and no trim names and advises more spread takes than trim
+5; (b) at sub 1, trim 5 drops at most 5 wheels and the two trims name and advise within 2 of each other; (c) with no
+trim, instant builds advised at sub 8 are no more than at sub 1 plus 1.
+
+DECISION RULE: TAKE_SURVEY_TRIM = 0 ships if (a) and (b) hold. config.TACH_CAPTURE_SUB moves to 8 only if, with no
+trim, sub 8 names and advises at least as many spread takes as sub 1 on this set AND advises no instant build;
+otherwise it stays 1 (the earlier rule: a finer clock must not invent takes).
