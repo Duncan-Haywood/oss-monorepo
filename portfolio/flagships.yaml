@@ -520,11 +520,12 @@ flagships:
       audit in every named schema, false page errors 18 to 0 on 18 public files).
       attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); property sets indexed by name 2026-11-18
-      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
-      reports); facet-result cache 2026-11-18 (eval/applies-cache-2026-11-18.md: 68
-      IDS on HHS MEP 11.4M facet tests to 3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to
-      43.1 s, fits 1 GB); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md:
-      374 MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep
-      whitespace, 731 MEP labels). next: attribute value tests on every entity;
-      IFC4-layout ifcXML at scale. More open items: NEXT.md.
+      same reports); facet-result cache 2026-11-18
+      (eval/applies-cache-2026-11-18.md: 68 IDS on HHS MEP 11.4M facet tests to
+      3.7M, 6.3-7.0 to 5.0-5.3 s; 219 MB 60.4 to 43.1 s, fits 1 GB); ifcXML streams
+      2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5
+      GB peak, fits 1 GB; strings keep whitespace, 731 MEP labels). attribute (any)
+      = X shares one shape read per entity 2026-11-18
+      (eval/attribute-shape-2026-11-18.md; STEP strings no longer kept as
+      per-character chains). next: IFC4-layout ifcXML at scale. More open items:
+      NEXT.md.

@@ -508,6 +508,19 @@ it took 3.4 s, and 43.1 s on the 219 MB federated model, where it took 60.4 s
 off the JS heap, so the run fits as main's does). Every report is identical, and
 `check(..., { facetCache: false })` turns the caches off.
 
+Since 2026-11-18 (`eval/attribute-shape-2026-11-18.md`) attribute facets that
+differ only in their value share one reading of each entity: whether the name
+takes an attribute, whether it is set, empty, or a list or reference that IDS
+cannot compare. The verdict cache keeps that reading in the spare bits of the
+bytes it already holds, so it costs no memory. On HHS MEP the 68 files ran
+`AttributeFacet.test` 2,851,787 times and now run it 190,924 times, plus one
+reading per entity. They take 2.9-3.1 s there (main 4.1-4.5 s), 1.6-1.7 s on
+Schultz Residence (2.1-2.3 s), and 28.4-29.6 s on the 219 MB federated model
+(35.7-36.7 s), 35.4-36.6 s under a 1 GB heap (49.3-51.5 s). The same run found
+that the STEP reader kept every decoded string over 12 characters as a chain
+of one-character pieces, about 32 bytes a character (20 MB on HHS MEP). Plain
+text is now copied in runs. Every report is identical.
+
 ## How it was checked
 
 1. **buildingSMART's test suite.** `eval/fetch-testcases.sh` sparse-clones
