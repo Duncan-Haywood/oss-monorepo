@@ -152,3 +152,7 @@ test("the decision-level box goes to the engine as text, so 6,000 stays one leve
   assert.match(src, /o\.decisionLevels = \$\("#levels"\)\.value;/);
   assert.doesNotMatch(src, /#levels"\)\.value\.split\(/);
 });
+
+test("footer links the Gage R&R sibling", () => {
+  assert.match(readFileSync(new URL("./index.html", import.meta.url), "utf8"), /href="\.\.\/gage-rr\/"/);
+});
