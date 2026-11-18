@@ -57,7 +57,7 @@
 <circle cx="565.1" cy="183.0" r="3" fill="#1f6fb2"/>
 <circle cx="594.5" cy="131.3" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Chen2020</text>
+<rect x="135.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="155.2" y="41" font-family="sans-serif" font-size="11">Chen2020</text>
 <polyline points="64.0,302.7 93.5,302.4 122.9,301.9 152.4,301.0 181.9,299.9 211.4,298.3 240.8,296.3 270.3,296.3 299.8,294.9 329.3,291.5 358.7,286.6 388.2,280.2 417.7,271.8 447.2,261.0 476.6,247.4 506.1,231.0 535.6,209.6 565.1,183.1 594.5,133.0 624.0,71.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="302.7" r="3" fill="#2e8b57"/>
 <circle cx="93.5" cy="302.4" r="3" fill="#2e8b57"/>
@@ -79,7 +79,7 @@
 <circle cx="565.1" cy="183.1" r="3" fill="#2e8b57"/>
 <circle cx="594.5" cy="133.0" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="71.4" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">OKane2022</text>
+<rect x="218.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="238.8" y="41" font-family="sans-serif" font-size="11">OKane2022</text>
 <polyline points="64.0,262.7 93.5,262.9 122.9,263.2 152.4,263.6 181.9,264.1 211.4,264.7 240.8,265.2 270.3,265.6 299.8,265.9 329.3,266.0 358.7,265.8 388.2,266.6 417.7,265.6 447.2,261.9 476.6,260.0 506.1,256.4 535.6,251.6 565.1,245.0 594.5,236.0 624.0,225.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="262.7" r="3" fill="#8e44ad"/>
 <circle cx="93.5" cy="262.9" r="3" fill="#8e44ad"/>
@@ -101,5 +101,5 @@
 <circle cx="565.1" cy="245.0" r="3" fill="#8e44ad"/>
 <circle cx="594.5" cy="236.0" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="225.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">NCA_Kim2011</text>
+<rect x="308.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="328.6" y="41" font-family="sans-serif" font-size="11">NCA_Kim2011</text>
 </svg>

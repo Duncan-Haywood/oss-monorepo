@@ -10,6 +10,9 @@
 // and g4 hold whichever second reading the photo got (README, "Shaded photos: a local
 // threshold"):
 //   node eval/srd-cli.mjs <photos> <out> [shard of shards, e.g. 1/4]
+// RECEIPT_OCR_CMD, when set, is the base command the four readings are built from, as in
+// the CLI (RECEIPT_OCR_CMD='tesseract {file} stdout --psm 6 -l rus+eng' for Russian slips,
+// eval/receipt-ocr-ru-rus-vote-2026-11-18.md); nothing else from the environment is used.
 //   node eval/cord-receipts.mjs eval/srd/labels.jsonl --ocr <out>/psm6,<out>/psm4,<out>/g6,<out>/g4
 // Needs the tesseract binary and ImageMagick on PATH. Photos: eval/srd-fetch.mjs.
 import { readdirSync, mkdirSync, writeFileSync, existsSync } from "node:fs";
@@ -26,7 +29,7 @@ let done = 0;
 for (const f of files) {
   const id = f.replace(/\.[^.]+$/, "");
   if (existsSync(join(out, "g4", `${id}.txt`))) continue;
-  const texts = receiptPassesFromFile(join(dir, f), { env: {}, grow: 2000 });
+  const texts = receiptPassesFromFile(join(dir, f), { env: process.env.RECEIPT_OCR_CMD ? { RECEIPT_OCR_CMD: process.env.RECEIPT_OCR_CMD } : {}, grow: 2000 });
   names.forEach((d, i) => writeFileSync(join(out, d, `${id}.txt`), texts[i] ?? ""));
   if (++done % 10 === 0) console.error(`${shard}: ${done} of ${files.length}`);
 }

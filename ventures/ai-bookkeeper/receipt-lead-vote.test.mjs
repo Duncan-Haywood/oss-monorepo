@@ -55,3 +55,30 @@ test("a tax most readings agree on is not 'fixed' to the total less the subtotal
   const p = parseReceiptPasses(five, { lead: true });
   assert.equal(p.taxCents, 186);
 });
+
+test("a payment line read as a 0.00 item does not make one item 'the items' that outvote the lead", () => {
+  // tesseract's Cyrillic reading of a Russian slip (eval/receipt-ocr-ru-rus-vote-2026-11-18.md):
+  // one 15.00 item and the card line `БЕЗНАЛИЧНЫМИ -00.00` parsed as a second item at 0.00, so the
+  // items "added up" to its own largest-amount guess of 15.00 and outvoted RapidOCR's right 300.00
+  const lead = "KACCOBbM 4eK\nKOHTeMHep  =15.00\nCanaT  =285.00\nUTOr\nEE3HA0N4H6IMM  =14.28\nKaccup  =300.00";
+  const zero = "1 Kopo6ka 15.00%1 15.0 pa\ntra БЕЗНАЛИЧНЫМИ -00.00 BS Ae";
+  const blur = "КАССОВЫЙ ЧЕК\nКонтейнер 5.00\nСалат 285.0O";
+  assert.ok(!parseReceiptPasses([zero]).checks?.some(([, why]) => why === "the items"));
+  assert.equal(parseReceiptPasses([lead, blur, zero, blur, zero], { lead: true }).cents, 30000);
+  // two items that are not 0.00 still make the check
+  const two = "1 Kopo6ka 15.00\n1 CanaT 285.00\nИТОГ 300.00";
+  assert.ok(parseReceiptPasses([two]).checks.some(([c, why]) => why === "the items" && c === 30000));
+});
+
+test("one item beside noise read as 0.00 is no 'the items' check", () => {
+  // tesseract's noise on a Russian slip: a number read as 0.00 beside a fiscal number read as an
+  // amount; the two "added up" to the largest amount and outvoted RapidOCR's right 690.00
+  const lead = "MOJIOKO  =230.00\nXJIE6  =230.00\nCbIP  =230.00\n6E3HAnM4H6IMM  =690.00";
+  const noise = "ae rat 7153056 0.00 PY 4 rue\nPhot aL 974115.90. т";
+  const blur = "Молоко 89.00\nХлеб 2.30";
+  assert.ok(!parseReceiptPasses([noise]).checks.some(([, why]) => why === "the items"));
+  assert.equal(parseReceiptPasses([lead, noise, blur, noise, blur], { lead: true }).cents, 69000);
+  // a free item beside one priced item still adds the tax (SRD 1149's shape)
+  const free = "1No Beverage  0.00\n1 Milk Shake  3.99\nSubTotal  3.99\nTax  0.30\nTotal  4.29";
+  assert.ok(parseReceiptPasses([free]).checks.some(([c, why]) => why === "the items plus tax" && c === 429));
+});

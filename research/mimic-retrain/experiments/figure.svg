@@ -27,12 +27,12 @@
 <circle cx="344.0" cy="111.2" r="3" fill="#1f6fb2"/>
 <circle cx="484.0" cy="109.3" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="108.2" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">attacked (fresh attack)</text>
+<rect x="160" y="32" width="14" height="10" fill="#1f6fb2"/><text x="180" y="41" font-family="sans-serif" font-size="11">attacked (fresh attack)</text>
 <polyline points="64.0,132.2 204.0,94.1 344.0,96.2 484.0,96.5 624.0,96.8" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="132.2" r="3" fill="#2e8b57"/>
 <circle cx="204.0" cy="94.1" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="96.2" r="3" fill="#2e8b57"/>
 <circle cx="484.0" cy="96.5" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="96.8" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">attacked (stale round-0 edits)</text>
+<rect x="336.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="356.6" y="41" font-family="sans-serif" font-size="11">attacked (stale round-0 edits)</text>
 </svg>

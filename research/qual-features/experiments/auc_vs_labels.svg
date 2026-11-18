@@ -31,7 +31,7 @@
 <circle cx="437.3" cy="143.4" r="3" fill="#1f6fb2"/>
 <circle cx="530.7" cy="140.8" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="137.9" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">random-projection vector</text>
+<rect x="172.4" y="32" width="14" height="10" fill="#1f6fb2"/><text x="192.4" y="41" font-family="sans-serif" font-size="11">random-projection vector</text>
 <polyline points="64.0,132.5 157.3,123.2 250.7,103.3 344.0,88.0 437.3,78.7 530.7,76.0 624.0,71.2" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="132.5" r="3" fill="#2e8b57"/>
 <circle cx="157.3" cy="123.2" r="3" fill="#2e8b57"/>
@@ -40,7 +40,7 @@
 <circle cx="437.3" cy="78.7" r="3" fill="#2e8b57"/>
 <circle cx="530.7" cy="76.0" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">12 codebook codes</text>
+<rect x="355.2" y="32" width="14" height="10" fill="#2e8b57"/><text x="375.2" y="41" font-family="sans-serif" font-size="11">12 codebook codes</text>
 <polyline points="64.0,136.1 157.3,125.3 250.7,118.9 344.0,108.6 437.3,100.2 530.7,93.8 624.0,89.0" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="136.1" r="3" fill="#8e44ad"/>
 <circle cx="157.3" cy="125.3" r="3" fill="#8e44ad"/>
@@ -49,5 +49,5 @@
 <circle cx="437.3" cy="100.2" r="3" fill="#8e44ad"/>
 <circle cx="530.7" cy="93.8" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="89.0" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">words + codes</text>
+<rect x="494.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="514.6" y="41" font-family="sans-serif" font-size="11">words + codes</text>
 </svg>

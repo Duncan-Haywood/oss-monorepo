@@ -11,7 +11,7 @@ export function decodeBuffer(buf) {
   if (bytes[0] === 0xfe && bytes[1] === 0xff) return new TextDecoder("utf-16be").decode(bytes.subarray(2));
   let text;
   try { text = new TextDecoder("utf-8", { fatal: true }).decode(bytes); } catch { text = new TextDecoder("windows-1252").decode(bytes); }
-  return text.replace(/^﻿/, "");
+  return text.replace(/^\uFEFF/, "");
 }
 
 export function detectDelimiter(text) {
@@ -193,7 +193,7 @@ function guessTrnType(cents, desc) {
 export function convert(text, options = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || null });
-  const clean = String(text || "").replace(/^﻿/, "");
+  const clean = String(text || "").replace(/^\uFEFF/, "");
   const delimiter = options.delimiter || detectDelimiter(clean);
   let rows = parseCsv(clean, delimiter).filter((r) => r.some((c) => c.trim() !== ""));
   const result = { delimiter, columns: {}, transactions: [], findings, summary: { rows: 0, imported: 0, skipped: 0, credits: 0, debits: 0, net: 0, from: null, to: null, dateOrder: null } };

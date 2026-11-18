@@ -212,7 +212,7 @@ export function scheduleECsv(sch) {
 export function parseCsv(text) {
   const rows = [];
   let cur = [], field = "", q = false;
-  const s = String(text || "").replace(/^﻿/, "");
+  const s = String(text || "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"' && s[i + 1] === '"') { field += '"'; i++; } else if (c === '"') q = false; else field += c; }

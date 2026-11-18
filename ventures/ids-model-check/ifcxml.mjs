@@ -26,7 +26,7 @@ import { parseXml } from "./xml.mjs";
 
 export function ifcXmlSchemaId(text) {
   const head = text.slice(0, 4000);
-  if (!/^\s*(﻿)?\s*</.test(head)) return null;
+  if (!/^\s*(\uFEFF)?\s*</.test(head)) return null;
   if (/IFC4X3|IFC4_3|IFC4x3/i.test(head)) return "IFC4X3";
   if (/IFC2X3/i.test(head)) return "IFC2X3";
   if (/IFC4/i.test(head)) return "IFC4";
@@ -34,7 +34,7 @@ export function ifcXmlSchemaId(text) {
 }
 
 export function looksLikeXml(text) {
-  return /^\s*(﻿)?\s*<[?!a-zA-Z]/.test(text.slice(0, 200));
+  return /^\s*(\uFEFF)?\s*<[?!a-zA-Z]/.test(text.slice(0, 200));
 }
 
 const local = (n) => (n.includes(":") ? n.slice(n.indexOf(":") + 1) : n);

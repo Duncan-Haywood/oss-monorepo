@@ -38,7 +38,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 function headerTokens(text) {
   const line = String(text || "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
   const delim = line.includes("\t") ? "\t" : line.split(";").length > line.split(",").length ? ";" : ",";
-  return line.split(delim).map((h) => h.replace(/^﻿/, "").replace(/^"|"$/g, "").trim().toLowerCase());
+  return line.split(delim).map((h) => h.replace(/^\uFEFF/, "").replace(/^"|"$/g, "").trim().toLowerCase());
 }
 
 /**

@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVM8BigRbo37wNNdZ3Y",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled ventures brief)",
+  "input_sha256": "1380f9eea91bde311ad7325e3c2c41452af57fa9bead7b098a672fd19b3898b6",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T07:56:28Z",
+  "ended": "2026-11-18T08:12:57Z",
+  "wall_minutes": 16.86,
+  "tokens_in": 7332710,
+  "tokens_out": 38814,
+  "cost_usd": 3.3958,
+  "tool_calls": 61,
+  "task": "Deepen (flagship row 6) open-tennis-robots: periods finer than 1 us from the MCPWM capture",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17228",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "the anchor check first ran both subs in one process; take_misfit_trace patches SimFeeder.run_ms once and the second capture_survey raised KeyError 'run_ms'",
+      "fix": "one sub per process (noted in tests/take_survey_sub_anchor.py's docstring)"
+    },
+    {
+      "what": "two of my own unit-test expectations were wrong (a 3,000 us period under min_period; the window sum)",
+      "fix": "corrected before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/open-tennis-robots/tests/take_misfit_trace.py",
+      "issue": "capture_survey monkeypatches feeder_sim.SimFeeder.run_ms at call time, so it can run only once per process; nothing says so where it is defined"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-finer-clock-made-its-contact-survey-worse.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (Periods finer than a microsecond)",
+    "ventures/open-tennis-robots/eval/take-survey-capture-sub8-2026-11-18.txt"
+  ],
+  "goal": "land the flagship's buildable item: sub-microsecond capture periods",
+  "notes": "Built PeriodTach(sub)/CaptureClock(sub)/config.TACH_CAPTURE_SUB/tach_log sub, tach.read_periods keeps fractions. Clean capture jitter 0.40 -> 0.26 us (quadrature difference 0.29 = the floor's 1/sqrt(12)). Take survey pre-registered (commit 202d274ec): design 45 vs 25 of 54, held out 14 vs 43 and one instant advised; every clause failed, TACH_CAPTURE_SUB = 1 by the rule. Control: sub 1 through the new code reproduces the old held-out exactly. Trace: anchor same on 21 of 22 wheels; per-wheel rows hit identical residuals across take candidates, so the survey's verdicts are trimmed sums of largely take-blind fits (next item, written to flagships.yaml buildable). Verification: unittest test_capture/test_tach OK; run_venture_tests and venture-preflight output in PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9f5ebff6-7fe8-5c72-bf6a-87089a09ad73",
+    "transcripts": 1,
+    "first": "2026-11-18T07:56:28Z",
+    "last": "2026-11-18T08:13:19Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 115,
+        "output": 38814,
+        "thinking": 9830,
+        "cache_read": 7184828,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147767,
+        "api_equivalent_usd": 3.3958,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 115,
+      "output": 38814,
+      "thinking": 9830,
+      "cache_read": 7184828,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147767,
+      "api_equivalent_usd": 3.3958,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.86,
+      "active_minutes": 16.86,
+      "model_minutes": 7.62,
+      "tool_minutes": 9.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "firmware engineer: sub-us units through tach, capture and logger, tests, two pre-registered survey sets, a trace and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 294.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

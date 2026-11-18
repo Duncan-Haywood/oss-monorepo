@@ -23,7 +23,7 @@ export function decodeBuffer(buf) {
 // separator the 105th and the segment terminator the 106th. A file without an ISA
 // (a pasted fragment) falls back to * : ~ and says so.
 export function detectSeparators(text) {
-  const t = String(text ?? "").replace(/^﻿/, "").trimStart();
+  const t = String(text ?? "").replace(/^\uFEFF/, "").trimStart();
   if (/^ISA/.test(t) && t.length >= 106) {
     const el = t[3], comp = t[104], seg = t[105];
     if (el !== comp && el !== seg && comp !== seg) return { el, comp, seg, fromIsa: true };
@@ -32,7 +32,7 @@ export function detectSeparators(text) {
 }
 
 export function splitSegments(text) {
-  const t = String(text ?? "").replace(/^﻿/, "").trimStart();
+  const t = String(text ?? "").replace(/^\uFEFF/, "").trimStart();
   const sep = detectSeparators(t);
   const segs = [];
   for (const raw of t.split(sep.seg)) {

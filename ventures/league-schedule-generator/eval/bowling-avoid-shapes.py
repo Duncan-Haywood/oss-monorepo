@@ -14,7 +14,16 @@ bans hard, every team-pair count inside laneTargets() lo..hi (eval/bowling-avoid
 encoding of eval/bowling-lane-avoid-sat.py). Prints {"n,W|shape": "<pair of each match, week by
 week, base 36>"} for SAT, and the time and UNSAT shapes on stderr. pysat's CaDiCaL cannot be
 interrupted: cap a slow shape from outside (`timeout 600 python3 ...`).
+
+A shape's slots need not be 0, 1, ...: "0:0;7:0" puts the second limited team on slot 7 (the
+circle method's slot n-1 is the fixed one). A dealing can be UNSAT, or slow, on one choice of
+slots and easy on another (eval/bowling-avoid-slots.py tries them).
+
+SYMBREAK=1 adds a symmetry break that keeps at least one answer: the pairs no limit names are
+interchangeable (same bans, same targets), so week 1's matches may be put on them in increasing
+order (match on free pair q comes after the match on free pair q-1).
 """
+import os
 import json, subprocess, sys, time
 from pathlib import Path
 from pysat.card import CardEnc, EncType
@@ -44,6 +53,15 @@ for shape in shapes:
             cnf.extend(CardEnc.atmost(lits, hi[t][p], vpool=pool, encoding=EncType.seqcounter).clauses)
             if lo[t][p] > 0:
                 cnf.extend(CardEnc.atleast(lits, lo[t][p], vpool=pool, encoding=EncType.seqcounter).clauses)
+    if os.environ.get("SYMBREAK") == "1":
+        named = set(p for ps in avoid for p in ps)
+        free = [p for p in range(P) if p not in named]
+        for i in range(len(free) - 1):
+            p, q = free[i], free[i + 1]
+            # match m on q forbids any match m' >= m on p
+            for m in range(P):
+                for m2 in range(m, P):
+                    cnf.append([-x(0, m, q), -x(0, m2, p)])
     t0 = time.time()
     s = Cadical153(bootstrap_with=cnf.clauses)
     ok = s.solve()

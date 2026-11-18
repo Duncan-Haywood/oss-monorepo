@@ -125,9 +125,9 @@ flagships:
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt all
       read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
       (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): all shards read
-      (eval/receipt-ocr-ru-train2-2026-11-18.md); next: ИТОГ misreads (HTOI, HTOD)
-      checked by a second reading, tesseract -l rus+eng behind RapidOCR. CORD
-      leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      (eval/receipt-ocr-ru-train2-2026-11-18.md); rus+eng tesseract adds nothing
+      (eval/receipt-ocr-ru-rus-vote-2026-11-18.md); next: a Cyrillic RapidOCR model.
+      CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -194,13 +194,11 @@ flagships:
       warning holds 42 of 43 false finds (README "Shocks that are not steps");
       anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
-      shock before the date"); few donors 2026-11-18 (README "Few donors"): West
-      Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable
-      under 19 donors; FEW DONORS note and units-ranked-above ship); few-donor power
-      2026-11-18 (README "Few donors: size and power"): one donor shocked as much as
-      a 2 sd step cuts rank 1 from 54-60% to 35-40%, leaving it out beforehand
-      restores it; the note quotes it; next two shocked donors, a real deployer's
-      panel. More open items: NEXT.md.
+      shock before the date"); the note quotes it; two shocked donors 2026-11-18
+      (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one
+      35%; a shocked best match raises gap error 1.3-1.6x, leaving it out 1.36x;
+      notes quote it; next a donor slope or pulse, a real deployer's panel. More
+      open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -320,8 +318,10 @@ flagships:
       opcode run only on synthetic files so far, or the SDK to check them; lateral
       colour measured on a real frame with sharp corner edges; a real Adobe `.dcp`
       through the profile chooser; a real tiled CR3 (C-RAW tiles 2026-11-16,
-      eval/canon-cr3-*tiled-*); cull: zoom and 8-10% pan windows 2026-11-18
-      (eval/cull-pan-windows-*), next 6% pans (0.85, a 7x7 grid?) and a real shoot's
+      eval/canon-cr3-*tiled-*); cull: zoom, pan windows, the 44 crop gate and an
+      exact pair index 2026-11-18 (10,000 frames 251 to 42 s,
+      eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*),
+      next 10% pans (0.86-0.95, windows 6-11 bits: a finer grid) and a real shoot's
       picks. More open items: NEXT.md.
 
   - venture: quick-pick-survey
@@ -377,27 +377,28 @@ flagships:
       12 on 2x9 UNSAT. Odd leagues (eval/odd-night-sat.py, odd-designs.mjs): 11-25
       teams 0 waits on 6 slots; on 9 slots 11, 13 teams on 2 courts, 17 on 3; proved
       impossible: 7, 9 on 2x6; 5, 7 on 1x9; 7 on 2x9. Night by night
-      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; every 3k of 27-63 on the least
-      9-slot courts 0 waits; fails at <=3 spare slots (eval/odd-cyclic.txt). Fully
-      booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on 6x9 0 waits (eval/odd-orbit.py,
-      3 k-cycles); even 40, 46 on 3 sessions 0 waits (eval/session-orbit.py). 29 on
-      5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9 0 waits (last night UNSAT
-      alone, eval/lns-bad-night.py; re-dealt with the short night). 43 on 7x9 0
-      waits (odd-orbit.py, 9,849 s). Bowling seasons proved uneven (SAT, 44 of 4-32
-      teams x 1-60 weeks, page says so; eval/bowling-bound-proof.txt). Lane limits
-      (team avoids a pair, hard; eval/bowling-lane-avoid.txt). Limits per shape,
-      renamed (eval/bowling-avoid-shapes.txt): 106 of 112 hard. Next, most valuable
-      first: UNSAT shapes on other slots; 5 timeouts. More open items: NEXT.md.
+      (eval/odd-cyclic.py): 21, 23 on 4x9, 27 on 7x6; fails at <=3 spare slots
+      (eval/odd-cyclic.txt). Fully booked: 19 on 3x9, 25 on 4x9, 31 on 5x9, 37 on
+      6x9 0 waits (eval/odd-orbit.py, 3 k-cycles); even 40, 46 on 3 sessions 0 waits
+      (eval/session-orbit.py). 29 on 5x9, 35 on 6x9: 0 waits (odd-lns.py). 41 on 7x9
+      0 waits (last night UNSAT alone, eval/lns-bad-night.py; re-dealt with the
+      short night). 43 on 7x9 0 waits (odd-orbit.py, 9,849 s). Bowling seasons
+      proved uneven (SAT, 44 of 4-32 teams x 1-60 weeks, page says so;
+      eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
+      eval/bowling-lane-avoid.txt). Limits per shape
+      (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
+      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. Next,
+      most valuable first: 6x32 two teams, slots 0,4 open; 6x26 random limits on
+      other slots; shapes of 5+ limited teams. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The take survey's jitter limit" (both
-      sets: 14 of 18 spread takes advised on a clean tach, 4 at 0.5 us, 0 of 54 from
-      1.5 us; `tennisbots tach-jitter` reads a logged tach,
-      eval/take-survey-jitter-2026-11-18.txt). Next: a timer-capture tach (MCPWM
-      capture) in the simulator and firmware, opt-in; short ESC lags read ~10% low
-      with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2
-      s wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "Periods finer than a microsecond"
+      (sub-us capture periods failed held out, 14 vs 43 of 54;
+      eval/take-survey-capture-sub8-2026-11-18.txt). Next: why the take survey's
+      rows reach one residual at several candidates (take-blind fits); short ESC
+      lags read ~10% low with 16; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL
+      error's cost on 0.2 s wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -503,12 +504,12 @@ flagships:
       eval/corpus-crosscheck-*); duplicate GlobalIds in a model
       (eval/duplicate-globalids-2026-11-17.md) and across federated models in CI
       2026-11-17 (eval/federated-globalids-2026-11-17.md; allow list and followers,
-      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); number one-of
-      rows 2026-11-17 (eval/number-oneof-2026-11-17.md: 663 of 663 offers pass,
-      IfcTester 646); several IFC versions per spec 2026-11-17
-      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files).
-      attribute facets read geometry shallow 2026-11-18
+      eval/federation-allow-2026-11-17.md: Simple-Scene 35 to 23); several IFC
+      versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md: opened in the
+      schema that edits most, page audit in every named schema, false page errors 18
+      to 0 on 18 public files). attribute facets read geometry shallow 2026-11-18
       (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); next: psetsOf on every-entity property specs, lazy ifcXML. More
-      open items: NEXT.md.
+      same reports); property sets indexed by name 2026-11-18
+      (eval/psets-cache-2026-11-18.md: 68 IDS on HHS MEP 7.9 to 4.6 s, same
+      reports); next: lazy ifcXML, a file-order candidate list for specs with no
+      entity facet. More open items: NEXT.md.

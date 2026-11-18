@@ -616,9 +616,10 @@ def slowest_table(times, n, passes=None):
     `--slowest 30` over every venture makes that one command.
 
     `passes(slug)` (suite_file_times.perf_history) adds how many ci-perf
-    write-ups name each suite: the top three had 16 to 25 passes by
-    2026-11-17 and the 10-20 s tier one or two, where a run found a 7x win in
-    minutes (perf run records 2026-11-16/17)."""
+    write-ups are about each suite (file name or title; a body mention once
+    counted every top suite as passed by every run, 2026-11-18): the top four
+    had 6 to 10 by 2026-11-18 and most of the 10-20 s tier none, where a run
+    found a 7x win in minutes (perf run records 2026-11-16/17)."""
     rows = sorted(times.items(), key=lambda kv: (-kv[1], kv[0]))[:n]
     if passes is None:
         return "\n".join(["| venture | seconds |", "|---|---:|",

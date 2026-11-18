@@ -2109,6 +2109,25 @@ class TrackedContent(unittest.TestCase):
         self.run("commit", "-qm", "theirs")
         self.assertIn("theirs.md", runner.checkout_drift(before, self.fingerprint()))
 
+    def test_a_file_written_mid_sweep_says_when_to_write_it(self):
+        # 2026-11-18: a run record created after the sweep started, then
+        # committed, voided three workflows; the hand-off note had said
+        # committing written files was fine.
+        before = self.fingerprint(untracked=True)
+        self.write("record.json", "{}\n")
+        self.run("add", "record.json")
+        self.run("commit", "-qm", "the record")
+        drift = runner.checkout_drift(before, self.fingerprint())
+        self.assertIn("record.json", drift)
+        self.assertIn("before starting a sweep", drift)
+
+    def test_an_edit_of_a_file_that_existed_gets_no_written_hint(self):
+        before = self.fingerprint(untracked=True)
+        self.write("kept.txt", "edited\n")
+        drift = runner.checkout_drift(before, self.fingerprint())
+        self.assertIn("kept.txt", drift)
+        self.assertNotIn("before starting a sweep", drift)
+
     def test_an_edit_changes_the_path_it_touched(self):
         before = self.digest()
         self.write("kept.txt", "edited\n")
@@ -2289,7 +2308,8 @@ class Handoff(unittest.TestCase):
         # Editing mid-sweep voided eleven runs' verdicts: say so while it runs,
         # and say that committing (which they are told to do) is not an edit.
         self.assertIn("do not change tracked files", text)
-        self.assertIn("Committing files already written is fine", text)
+        self.assertIn("already written when this started is fine", text)
+        self.assertIn("created since, such as a new run record, is an edit", text)
 
     def test_the_child_ends_with_a_line_wait_for_accepts(self):
         import wait_for

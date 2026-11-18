@@ -63,7 +63,7 @@ test("start datetime / ends at style headers are read (2026-11-05)", () => {
 });
 
 // Header rows copied from two real exports (eval/real-schedule-exports.mjs); every data row below is invented.
-const WFM = "﻿Location,LocationID,Initial TM Employee Id,Initial TM First Name,Initial TM Last Name,Initial TM Job Title,Initial Shift Date,Initial Shift Start Time,Initial Shift End Time,Initial Shift Work Role,Final TM Employee Id,Final TM First Name,Final TM Last Name,Final TM Job Title,Final Shift Date,Final Shift Start Time,Final Shift End Time,Final Shift Worker Role,Initial equals Final,Location Type,LocationSubType";
+const WFM = "\uFEFFLocation,LocationID,Initial TM Employee Id,Initial TM First Name,Initial TM Last Name,Initial TM Job Title,Initial Shift Date,Initial Shift Start Time,Initial Shift End Time,Initial Shift Work Role,Final TM Employee Id,Final TM First Name,Final TM Last Name,Final TM Job Title,Final Shift Date,Final Shift Start Time,Final Shift End Time,Final Shift Worker Role,Initial equals Final,Location Type,LocationSubType";
 test("first-published and final shifts side by side: Final is read, Initial on request; a Sun-Sat file is one week (2026-11-13)", () => {
   const rows = [
     "Shop,S1,1,Ana,A,Advisor,2026/01/18,11:30,18:00,Selling,1,Ana,A,Advisor,2026/01/18,11:30,18:00,Selling,Yes,Real,Real",

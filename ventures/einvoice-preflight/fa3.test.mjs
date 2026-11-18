@@ -137,7 +137,7 @@ test("KSeF: the clean example as bytes draws nothing", () => {
 test("KSeF: a byte-order mark, a non-UTF-8 prolog, Windows-1250 bytes and a processing instruction are each PL-018", () => {
   const bom = new Uint8Array([0xef, 0xbb, 0xbf, ...enc(clean)]);
   assert.deepEqual(r2(bom), ["PL-018"]);
-  assert.deepEqual(r2("﻿" + clean), ["PL-018"]);
+  assert.deepEqual(r2("\uFEFF" + clean), ["PL-018"]);
   const decl = clean.startsWith("<?xml") ? clean.replace(/^<\?xml[^?]*\?>/, '<?xml version="1.0" encoding="ISO-8859-2"?>') : '<?xml version="1.0" encoding="ISO-8859-2"?>\n' + clean;
   assert.deepEqual(r2(decl), ["PL-018"]);
   assert.match(checkFa3(decl, TODAY).findings[0].message, /ISO-8859-2/);

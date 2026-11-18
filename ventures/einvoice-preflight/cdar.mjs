@@ -69,7 +69,7 @@ const party = (p) => p && {
 };
 
 export function readCdar(source) {
-  const raw = (typeof source === "string" ? source : new TextDecoder().decode(source)).replace(/^﻿/, "");
+  const raw = (typeof source === "string" ? source : new TextDecoder().decode(source)).replace(/^\uFEFF/, "");
   const tree = parseXmlTree(raw);
   const root = tree.children.find((c) => local(c.name) === "CrossDomainAcknowledgementAndResponse");
   if (!root) throw new Error("not a CDAR (CrossDomainAcknowledgementAndResponse) message");

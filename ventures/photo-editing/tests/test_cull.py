@@ -226,6 +226,35 @@ class NearDuplicateGroupingTest(unittest.TestCase):
 
 
 class BurstMatchTest(unittest.TestCase):
+    def test_window_match_is_crop_or_pan_match(self):
+        from shootflow.cull import crop_match, pan_match, window_match
+        from shootflow.frame_analysis import pan_pack, window_pack
+
+        rng = __import__("random").Random(7)
+        for _ in range(400):
+            a = tuple(rng.getrandbits(64) for _ in range(25))
+            b = tuple(a[rng.randrange(25)] ^ rng.getrandbits(64) & rng.getrandbits(64) & rng.getrandbits(64)
+                      for _ in range(25))
+            for distance in range(0, 50, 3):
+                self.assertEqual(
+                    window_match(distance, window_pack(a), window_pack(b)),
+                    crop_match(distance, a, b) or pan_match(distance, pan_pack(a), pan_pack(b)),
+                )
+
+    def test_a_six_percent_pan_far_apart_on_the_whole_frame_groups(self):
+        # 2026-11-18: crop windows within a few bits, whole frames 25-33 apart (past the old gate of 24).
+        from shootflow.cull import CROP_CANDIDATE_MAX_DISTANCE, CROP_MAX_DISTANCE, CROP_MIN_GAIN, crop_match
+
+        rng = __import__("random").Random(3)
+        a = tuple(rng.getrandbits(64) for _ in range(25))
+        b = list(rng.getrandbits(64) for _ in range(25))
+        b[0] = a[12] ^ 0b1  # a's centre window one bit from b's top-left window
+        self.assertGreaterEqual(CROP_CANDIDATE_MAX_DISTANCE, 33)
+        self.assertTrue(crop_match(30, a, b))
+        self.assertFalse(crop_match(CROP_CANDIDATE_MAX_DISTANCE + 1, a, b))
+        self.assertFalse(crop_match(CROP_MIN_GAIN, a, b))
+        self.assertLessEqual(1, CROP_MAX_DISTANCE)
+
     def test_pan_pass_needs_both_a_close_far_window_and_a_gain(self):
         from shootflow.cull import PAN_CANDIDATE_MAX_DISTANCE, PAN_MAX_DISTANCE, PAN_MIN_GAIN, pan_match
         from shootflow.frame_analysis import _PAN_PAIRS, pan_pack
@@ -284,3 +313,88 @@ class ZoomIndexTest(unittest.TestCase):
                 self.assertEqual(exact <= limit, pruned <= limit)
                 if exact <= limit:
                     self.assertEqual(pruned, exact)
+
+
+class GroupingIndexTest(unittest.TestCase):
+    """The candidate index (2026-11-18) must give the all-pairs scan's groups exactly."""
+
+    def _rows(self, seed: int, n: int):
+        import random
+        from types import SimpleNamespace
+
+        from shootflow.frame_analysis import CROP_STEPS, ZOOM_SCALES, ZOOM_STEPS
+
+        rng = random.Random(seed)
+
+        def flip(value: int, most: int) -> int:
+            for bit in rng.sample(range(64), rng.randint(0, most)):
+                value ^= 1 << bit
+            return value
+
+        crops_n, zooms_n = CROP_STEPS * CROP_STEPS, len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS
+        bases = []
+        for _ in range(12):
+            whole = rng.getrandbits(64)
+            bases.append((whole, [rng.getrandbits(64) for _ in range(crops_n)]))
+        rows = []
+        for k in range(n):
+            base, crops = rng.choice(bases)
+            # Whole frames from near (0-6 bits) to far past the window gate (up
+            # to 48), so every pass decides some pairs; zoom windows near the
+            # burst's base, so a near frame sits inside a far frame's window.
+            whole = flip(base, rng.choice((6, 20, 34, 48)))
+            crops = [flip(c, rng.choice((4, 8, 30))) for c in crops]
+            zooms = [flip(base, rng.choice((3, 9, 30))) for _ in range(zooms_n)]
+            if k % 7 == 0:
+                crops, zooms = [], []  # an old catalogue row: whole frame only
+            rows.append((Path(f"p{k:03d}.jpg"), SimpleNamespace(
+                dhash=f"{whole:016x}",
+                dhash_crops=tuple(f"{c:016x}" for c in crops),
+                dhash_zooms=tuple(f"{z:016x}" for z in zooms),
+            ), None))
+        return rows
+
+    def test_index_matches_the_all_pairs_scan(self):
+        from shootflow.cull import _group
+
+        for seed in range(4):
+            rows = self._rows(seed, 150)
+            plain = [[r[0] for r in g] for g in _group(rows, index=False)]
+            indexed = [[r[0] for r in g] for g in _group(rows, index=True)]
+            self.assertEqual(plain, indexed)
+            self.assertLess(len(plain), len(rows))
+            self.assertGreater(len(plain), 1)
+
+    def test_candidates_cover_every_linked_pair(self):
+        from shootflow import cull
+        from shootflow.frame_analysis import window_pack, zoom_index
+
+        rows = self._rows(9, 120)
+        hashes = [int(r[1].dhash, 16) for r in rows]
+        crops = [tuple(int(h, 16) for h in r[1].dhash_crops) for r in rows]
+        zoom_hashes = [tuple(int(h, 16) for h in r[1].dhash_zooms) for r in rows]
+        zooms = [zoom_index(z) for z in zoom_hashes]
+        windows = [window_pack(c) for c in crops]
+        near, win, zoom = cull._candidate_pairs(hashes, crops, zoom_hashes)
+        kinds = {"near": 0, "windows": 0, "zoom": 0}
+        for i in range(len(rows)):
+            for j in range(i + 1, len(rows)):
+                distance = (hashes[i] ^ hashes[j]).bit_count()
+                if distance <= cull.NEAR_DUPLICATE_MAX_DISTANCE:
+                    kinds["near"] += 1
+                    self.assertIn(j, near[i])
+                if cull.window_match(distance, windows[i], windows[j]):
+                    kinds["windows"] += 1
+                    self.assertIn(j, win[i])
+                if cull.zoom_match(distance, hashes[i], zooms[i], hashes[j], zooms[j]):
+                    kinds["zoom"] += 1
+                    self.assertIn(j, zoom[i])
+        for kind, count in kinds.items():
+            self.assertGreater(count, 0, kind)
+
+    def test_flips_and_chunks(self):
+        from shootflow.cull import _chunks, _flips
+
+        self.assertEqual(sum(bits for _s, _m, bits in _chunks(3)), 64)
+        self.assertEqual(len(_flips(22, 2)), 1 + 22 + 231)
+        self.assertEqual(len(_flips(21, 1)), 22)

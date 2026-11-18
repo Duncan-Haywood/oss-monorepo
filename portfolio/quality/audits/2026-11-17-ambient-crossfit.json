@@ -197,14 +197,16 @@
    "what": "fit_map is an undamped Newton iteration on a sigmoid clipped at +-30 with a 40-iteration cap and no convergence check; in the uninformed-prior regime it diverges and silently returns non-MAP weights (seed 0, eps 0.02: biased [-369.3, -69.1, -172.7, -554.3], objective 774,851 vs 743 at the start and 222 at the true MAP). With a converged damped Newton the uninformed cells become biased 11.44, clip10 12.51, plug5/cross5 12.50 instead of -13.08, -96.19, -29.56, -13.09.",
    "where": "research/ambient-crossfit/src/ambient_crossfit/core.py:52",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216"
   },
   {
    "severity": "high",
    "what": "README results 2-3 and every uninformed table row (and the research homepage line 'the unclipped collapse at eps = 0.002 persists (1.53 vs 0.26)') report optimiser failures as estimator behaviour. Converged: uninformed DR fits score 11.6-12.5 like the informed ones; unclipped informed eps 0.002 scores 9.27/9.12, not 0.26/1.53 (still below capped 11.7, so 'the cap helps' survives, 'collapse' does not). Result 3 (weak outcome model is the bottleneck) is refuted.",
    "where": "research/ambient-crossfit/README.md:50",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216"
   },
   {
    "severity": "medium",
@@ -225,21 +227,24 @@
    "what": "Nearest prior work not cited (Athey & Wager 2021 cross-fitted AIPW policy learning; Kennedy 2023 DR-learner; Robins, Rotnitzky & Zhao 1994; Zhan et al. 2021 / Kato et al. 2020 DR with adaptively collected data), and no a-priori argument: own-observation bias of a 4-parameter parametric outcome model is O(p/n), so a null was expected; DR pseudo-labels outside [0, 1] are regressed with logistic loss (unbounded below without the prior) rather than the squared loss of the DR-learner literature.",
    "where": "research/ambient-crossfit/README.md:9",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216"
   },
   {
    "severity": "low",
    "what": "Homepage summary and served page say both uninformed variants 'stay far below the biased fit', but results.txt has cross5 -13.09 against biased -13.08 at eps 0.02.",
    "where": "research/_homepage/projects.json:1983",
    "category": "overclaim",
-   "origin": "claims"
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216"
   },
   {
    "severity": "low",
    "what": "Weight-distance column reports L2 distances of 179-16,100 to the oracle without comment; these are impossible for a MAP under a unit-precision prior on 0/1 labels (bound about 38-140) and flag the divergence.",
    "where": "research/ambient-crossfit/experiments/results.txt:5",
    "category": "research-design",
-   "origin": "design"
+   "origin": "design",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216"
   },
   {
    "severity": "low",
@@ -257,6 +262,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17037"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17037", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17216"],
  "verdict": "A tidy, bit-reproducible (93 s) stylised simulation whose informed-prior finite-cap cells recompute exactly in an independent re-implementation, and whose oracle weights match the analytic posterior. But its MAP fitter (undamped Newton on a clipped sigmoid, 40 iterations, no convergence check, core.py:52) diverges across the whole uninformed-prior regime: the returned weights violate the MAP norm bound by a factor of 18 and have objective 1,000x the starting value. With a converged optimiser the uninformed prior behaves like the informed one (biased 11.44, DR fits 12.5 at eps 0.02 instead of -13 to -96), and the 'unclipped collapse' headline (0.26 / 1.53) becomes 9.27 / 9.12. Half the table and results 2-3 are optimiser artefacts; the informed finite-cap conclusion (cross-fitting changes little, now a small significant -0.05) survives. The same fitter is in nine sibling projects. Tests (5) miss it; 4 of 6 mutants survive. Prior work on cross-fitted AIPW policy learning is uncited and the null was predictable. Does not meet the bar."
 }

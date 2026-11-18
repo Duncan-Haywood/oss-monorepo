@@ -158,3 +158,16 @@ test('a second BEGIN does not nest, and ROLLBACK TO SAVEPOINT leaves the block o
   assert.equal(st[3].inTransaction, false, 'one COMMIT ends the block');
   assert.equal(st[7].inTransaction, true, 'ROLLBACK TO undoes work, not the block');
 });
+
+test('an unterminated quoted identifier keeps all its characters', () => {
+  assert.equal(maskNonCode('ALTER TABLE "users').masked, 'ALTER TABLE  users');
+  assert.equal(maskNonCode('ALTER TABLE "users"').masked, 'ALTER TABLE  users ');
+  assert.equal(maskNonCode('"a""b"').masked, ' a""b ');
+});
+
+test('quoted schema-qualified names come out as one dotted token in the masked text', () => {
+  const [st] = splitStatements('ALTER TABLE "public"."users" ADD COLUMN "n" int;');
+  assert.equal(st.masked, 'ALTER TABLE public.users ADD COLUMN n int');
+  const [lit] = splitStatements("SELECT 'a.b' AS x;");
+  assert.equal(lit.display, "SELECT 'a.b' AS x", 'the quoted text keeps the original spelling');
+});

@@ -128,7 +128,7 @@ function detectDelimiter(text) {
 const isBlankRow = (cells) => cells.every((c) => c.trim() === "");
 
 function prepare(input) {
-  const text = String(input || "").replace(/^﻿/, "");
+  const text = String(input || "").replace(/^\uFEFF/, "");
   const delim = detectDelimiter(text);
   const parsed = parseCsv(text, delim);
   const all = parsed.rows;

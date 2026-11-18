@@ -39,7 +39,7 @@ test("Navy Federal: unsigned Amount with a Credit Debit Indicator column, both h
   const newer = `Posting Date,Transaction Date,Amount,Credit Debit Indicator,${tail},Rewards Total,Rewards Type\n` +
     "12/30/2025,12/30/2025,120.00,Debit,ACH,Withdrawals,REF1,,,,POWER CO BILL PAY,Utilities,,,,\n" +
     "12/10/2025,12/10/2025,2500.00,Credit,ACH,Deposits,REF2,,,,ACME PAYROLL,Income,,,,\n";
-  const older = `﻿Booking Date,Amount,Credit Debit Indicator,${tail}\n` +
+  const older = `\uFEFFBooking Date,Amount,Credit Debit Indicator,${tail}\n` +
     "03/01/2025,15.25,Debit,Purchase,Purchase,,,,,CORNER DELI,Dining,,1234\n";
   for (const [csv, n] of [[newer, 2], [older, 1]]) {
     const r = readStatement(csv);

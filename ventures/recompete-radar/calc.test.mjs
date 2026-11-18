@@ -54,7 +54,7 @@ test("normalizeAwards also reads USAspending download-CSV column names", () => {
 });
 
 test("parseCsv ignores BOM and blank lines and returns [] for header-only input", () => {
-  assert.deepEqual(parseCsv("﻿a,b\n\n1,2\n"), [{ a: "1", b: "2" }]);
+  assert.deepEqual(parseCsv("\uFEFFa,b\n\n1,2\n"), [{ a: "1", b: "2" }]);
   assert.deepEqual(parseCsv("a,b\n"), []);
   assert.deepEqual(parseCsv(""), []);
 });

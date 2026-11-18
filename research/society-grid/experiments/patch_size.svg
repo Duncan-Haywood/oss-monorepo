@@ -33,7 +33,7 @@
 <circle cx="384.0" cy="71.2" r="3" fill="#1f6fb2"/>
 <circle cx="464.0" cy="137.7" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="305.0" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">k = 2</text>
+<rect x="129" y="32" width="14" height="10" fill="#1f6fb2"/><text x="149" y="41" font-family="sans-serif" font-size="11">k = 2</text>
 <polyline points="64.0,71.2 144.0,71.2 224.0,71.2 304.0,71.2 384.0,71.2 464.0,71.2 624.0,305.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="144.0" cy="71.2" r="3" fill="#2e8b57"/>
@@ -42,7 +42,7 @@
 <circle cx="384.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="464.0" cy="71.2" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="305.5" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">k = 3</text>
+<rect x="194" y="32" width="14" height="10" fill="#2e8b57"/><text x="214" y="41" font-family="sans-serif" font-size="11">k = 3</text>
 <polyline points="64.0,71.2 144.0,71.2 224.0,71.2 304.0,71.2 384.0,71.2 464.0,71.2 624.0,304.8" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="144.0" cy="71.2" r="3" fill="#8e44ad"/>
@@ -51,5 +51,5 @@
 <circle cx="384.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="464.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="304.8" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">k = 5</text>
+<rect x="259" y="32" width="14" height="10" fill="#8e44ad"/><text x="279" y="41" font-family="sans-serif" font-size="11">k = 5</text>
 </svg>

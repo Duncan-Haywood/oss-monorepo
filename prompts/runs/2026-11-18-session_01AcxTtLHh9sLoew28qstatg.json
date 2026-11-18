@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtLHh9sLoew28qstatg",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T08:06:17Z",
+  "ended": "2026-11-18T08:16:26Z",
+  "wall_minutes": 10.31,
+  "tokens_in": 5814074,
+  "tokens_out": 23809,
+  "cost_usd": 2.5306,
+  "tool_calls": 75,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17230",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "merge_pull_request rejected a 8-char expectedHeadSha (needs 40); retried without it",
+    "merge of two adopted-stranded PRs refused while still draft; marked ready first"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "LAND FIRST header '4 other open PR(s) of 104 title research/...' read as 104 research PRs (a 2026-11-18 run); fixed in this PR"
+    },
+    {
+      "file": "platform/ci/stalled_prs.py",
+      "issue": "Lists #16116/#16245 as orphan drafts to 'mark ready, merge'; both were sessions that died mid-census (run record outcome null, an '(in progress)' commit). Marking them ready turned them red on promptctl validate. The tool could read the branch's run record and say 'unfinished'."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; and filing a new backlog item is a CODEOWNERS path, so the stalled-PR routing gap went into docs/reports/ instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Critique findings normally become backlog rows; prompts/ is owner-gated, so a row would hold the PR",
+      "did": "wrote docs/reports/process-2026-11-18-stalled-pr-sweep.md with the finding and the proposed routing change",
+      "result": "PR stays unattended-mergeable"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-process-landing-what-other-sessions-left-open.md",
+    "docs/reports/process-2026-11-18-stalled-pr-sweep.md"
+  ],
+  "goal": null,
+  "notes": "Critique, lens leaked work. No backlog ids touched (only owner rows open). main_health 270/270 green. Fixed pick_track LAND FIRST header (78/78 test_pick_track). Swept stalled_prs.py: merged #14009, #14094, #16798, #12527, #14647 after a main merge each went green; #16116/#16245 returned to draft (unfinished censuses); #8509 left (reproducibility pin). Owner-held duplicates listed in the report.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3f47f3c8-cc95-50a5-999e-92486a869e7a",
+    "transcripts": 1,
+    "first": "2026-11-18T08:06:17Z",
+    "last": "2026-11-18T08:16:36Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 105,
+        "output": 23809,
+        "thinking": 5941,
+        "cache_read": 5699708,
+        "cache_write_5m": 0,
+        "cache_write_1h": 114261,
+        "api_equivalent_usd": 2.5306,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 105,
+      "output": 23809,
+      "thinking": 5941,
+      "cache_read": 5699708,
+      "cache_write_5m": 0,
+      "cache_write_1h": 114261,
+      "api_equivalent_usd": 2.5306,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 42,
+      "mcp__github__merge_pull_request": 8,
+      "mcp__github__update_pull_request_branch": 7,
+      "mcp__github__pull_request_read": 6,
+      "mcp__github__update_pull_request": 6,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.31,
+      "active_minutes": 10.31,
+      "model_minutes": 4.76,
+      "tool_minutes": 5.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "triage of ~40 PRs, one tool fix, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 118.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

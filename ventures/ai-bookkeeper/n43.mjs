@@ -8,7 +8,7 @@
 
 const LINE = /^(11|22|23|24|33|88)/;
 export function isN43(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   const head = lines.find((l) => /^11\d{18}\d{12}[12]\d{14}/.test(l));
   return !!head && lines.some((l) => /^22.{4}\d{4}\d{12}\d{5}[12]\d{14}/.test(l));
 }
@@ -27,7 +27,7 @@ const clean = (s) => s.replace(/\s+/g, " ").trim();
 export function readN43(text) {
   const problems = [], rows = [];
   let accounts = 0, statement = null, last = null, currency = null;
-  String(text).replace(/^﻿/, "").split(/\r?\n/).forEach((raw, i) => {
+  String(text).replace(/^\uFEFF/, "").split(/\r?\n/).forEach((raw, i) => {
     const l = raw.replace(/\s+$/, "");
     if (!l) return;
     const line = i + 1, kind = (LINE.exec(l) ?? [])[1];
@@ -61,7 +61,7 @@ export function readN43(text) {
   if (accounts > 1) problems.push(`The file holds ${accounts} accounts; all their lines were read into this one. Export one account at a time to keep them apart.`);
   // The 33 record has no date of its own; the statement ends on the header's end date.
   if (statement && accounts === 1) {
-    const h = String(text).replace(/^﻿/, "").split(/\r?\n/).find((l) => l.startsWith("11"));
+    const h = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).find((l) => l.startsWith("11"));
     statement.date = iso(h.slice(26, 32)) ?? (rows.length ? rows[rows.length - 1].date : null);
   }
   return { rows, problems, columns: null, bank: "n43", inferred: null, statement: accounts === 1 && statement?.date ? statement : null };

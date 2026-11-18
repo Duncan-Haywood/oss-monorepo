@@ -47,7 +47,7 @@ const HEADER_HINTS = {
 
 function normalizeHeader(value) {
   return String(value ?? "")
-    .replace(/^﻿/, "")
+    .replace(/^\uFEFF/, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
@@ -84,7 +84,7 @@ export function detectDelimiter(text) {
  * is mishandled.
  */
 export function parseDelimited(text, delimiter) {
-  const source = String(text ?? "").replace(/^﻿/, "");
+  const source = String(text ?? "").replace(/^\uFEFF/, "");
   const sep = delimiter || detectDelimiter(source);
   const rows = [];
   let row = [];

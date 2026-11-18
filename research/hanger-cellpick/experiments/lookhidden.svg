@@ -22,23 +22,23 @@
 <circle cx="157.3" cy="99.4" r="3" fill="#1f6fb2"/>
 <circle cx="344.0" cy="113.3" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="134.7" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">20% hidden</text>
+<rect x="153.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="173.8" y="41" font-family="sans-serif" font-size="11">20% hidden</text>
 <polyline points="64.0,116.4 157.3,123.9 344.0,137.0 624.0,155.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="116.4" r="3" fill="#2e8b57"/>
 <circle cx="157.3" cy="123.9" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="137.0" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="155.3" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">40% hidden</text>
+<rect x="249.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="269.8" y="41" font-family="sans-serif" font-size="11">40% hidden</text>
 <polyline points="64.0,139.2 157.3,145.3 344.0,157.4 624.0,172.7" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="139.2" r="3" fill="#8e44ad"/>
 <circle cx="157.3" cy="145.3" r="3" fill="#8e44ad"/>
 <circle cx="344.0" cy="157.4" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="172.7" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">60% hidden</text>
-<polyline points="64.0,159.6 157.3,164.9 344.0,174.8 624.0,187.4" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="64.0" cy="159.6" r="3" fill="#c0392b"/>
-<circle cx="157.3" cy="164.9" r="3" fill="#c0392b"/>
-<circle cx="344.0" cy="174.8" r="3" fill="#c0392b"/>
-<circle cx="624.0" cy="187.4" r="3" fill="#c0392b"/>
-<rect x="744" y="32" width="14" height="10" fill="#c0392b"/><text x="764" y="41" font-family="sans-serif" font-size="11">80% hidden</text>
+<rect x="345.8" y="32" width="14" height="10" fill="#8e44ad"/><text x="365.8" y="41" font-family="sans-serif" font-size="11">60% hidden</text>
+<polyline points="64.0,159.6 157.3,164.9 344.0,174.8 624.0,187.4" fill="none" stroke="#222222" stroke-width="2"/>
+<circle cx="64.0" cy="159.6" r="3" fill="#222222"/>
+<circle cx="157.3" cy="164.9" r="3" fill="#222222"/>
+<circle cx="344.0" cy="174.8" r="3" fill="#222222"/>
+<circle cx="624.0" cy="187.4" r="3" fill="#222222"/>
+<rect x="441.8" y="32" width="14" height="10" fill="#222222"/><text x="461.8" y="41" font-family="sans-serif" font-size="11">80% hidden</text>
 </svg>

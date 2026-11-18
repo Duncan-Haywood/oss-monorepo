@@ -160,7 +160,7 @@ test("a bad date is an error and the row is left out", () => {
 });
 
 test("tab-separated exports and a BOM are read", () => {
-  const tsv = "﻿" + sampleReport().replace(/,/g, "\t");
+  const tsv = "\uFEFF" + sampleReport().replace(/,/g, "\t");
   assert.equal(validate(tsv, sampleOpts()).journals.length, 2);
 });
 

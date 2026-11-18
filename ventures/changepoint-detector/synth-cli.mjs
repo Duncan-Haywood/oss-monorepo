@@ -105,7 +105,7 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
 export function placebosAbove(r) {
   const val = (q) => (r.statistic === 'post' ? q.postRmspe : q[r.statistic]), own = r.tests[r.statistic].value;
   return r.placebos.filter((q) => val(q) >= own - 1e-12 * Math.abs(own)).sort((a, b) => val(b) - val(a))
-    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe }));
+    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0 }));
 }
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);

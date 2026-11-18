@@ -69,7 +69,7 @@ def reference(episodes, seed, steps=None):
     return yaw, gust_n, gyro_n, ang_n, u0, off, pn, vn, wsign
 
 
-def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None):
+def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, plant="wide", couple=True, wind_step=WIND_STEP, sat=None, dist_sign=1.0, lever_scale=1.0, ff=0.0, tau_ff=TAU_FF, ff_mode="cmd", integ_clip=0.3, ffi_clip=1.0, steps=None, diag=None, dead_tilt_deg=60.0, mixer_ideal=False, torque_room=1.0, pos_scale=1.0, mix_mode="hover", tilt_cone=False, tilt_rate=None, perr_max=None, sp_rate=None, trace=None):
     """gains (N,9) physical: attitude PID roll/pitch kp, kd, ki; yaw kp, kd, ki; position kp, kd, ki.
     Hold the origin from a random offset while yaw steps +-30 deg and the mean wind steps at 3 s. Roll and pitch references come from
     the position loop; every torque request passes the attitude-priority mixer with the collective held at hover.
@@ -106,6 +106,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
     proportional term only (a cascade's velocity-setpoint limit in acceleration form); the derivative and integral terms are
     untouched. sp_rate (m/s) starts the setpoint at the vehicle's initial position and moves it toward the hold point at most that
     fast (a speed-limited trajectory generator); the score still measures the distance to the hold point.
+    trace (milestone 7y), if a list, receives each step's horizontal position (N, E, 2), NaN once the episode has diverged; inert
+    at its default.
     Returns per design: RMS position error (m) over the episode, over the last 3 s (after the wind step), RMS yaw error (deg),
     RMS roll/pitch tracking error (deg), the share of episodes that diverged, and (dead_ep, (N, E)) which ones, with each episode's position RMS (pos_ep, (N, E))."""
     if steps is None:
@@ -227,6 +229,8 @@ def rollout(sz, gains, kappa, episodes=8, seed=0, gust_std=4.0, gust_mean=3.0, p
             why = np.where(alive & ~tilt_ok, 1, np.where(alive & tilt_ok & ~pos_ok, 2, why))
         alive &= tilt_ok & pos_ok
         dead = ~alive
+        if trace is not None:
+            trace.append(np.where(alive[:, :, None], pos, np.nan))
         if diag is not None:
             t_dead = np.where(dead & (t_dead < 0), t, t_dead)
         p2 = np.where(dead, DEAD_POS ** 2, (pos ** 2).sum(axis=2))

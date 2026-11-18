@@ -30,7 +30,7 @@ const httpsOnly = u => { try { const x = new URL(String(u).trim()); return x.pro
 /** RFC-4180-ish: quoted fields may hold commas, doubled quotes and newlines. */
 export function parseCsv(text) {
   const rows = []; let row = [], cur = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) { if (c === '"' && s[i + 1] === '"') { cur += '"'; i++; } else if (c === '"') q = false; else cur += c; }

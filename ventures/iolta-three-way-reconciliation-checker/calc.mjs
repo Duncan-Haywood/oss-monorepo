@@ -57,7 +57,7 @@ export function money(cents) {
 
 // Small CSV reader: quotes, escaped quotes, commas or tabs.
 export function parseTable(text) {
-  const src = String(text || "").replace(/^﻿/, "");
+  const src = String(text || "").replace(/^\uFEFF/, "");
   const first = src.split(/\r?\n/).find((l) => l.trim()) || "";
   const delim = first.includes("\t") ? "\t" : ",";
   const rows = [];

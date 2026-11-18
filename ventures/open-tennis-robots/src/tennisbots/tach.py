@@ -34,15 +34,17 @@ SURVEY_SPEAKS_US = 0.55       # below: the simulator's clean tach (reads 0.40)
 SURVEY_BLIND_US = 1.35        # from here: 1.5 us and up (reads 1.59 and more), none advised
 
 
-def read_periods(path: str) -> list[int]:
-    """Periods in microseconds from a text file: whitespace- or comma-separated integers (tach_log.py's output), lines
-    starting with '#' skipped."""
+def read_periods(path: str) -> list[float]:
+    """Periods in microseconds from a text file: whitespace- or comma-separated numbers (tach_log.py's output: whole
+    microseconds, or fractions of one from a capture log with sub > 1), lines starting with '#' skipped. Fractions are
+    kept (2026-11-18, README "Periods finer than a microsecond"): truncating them would put the whole-microsecond floor
+    back."""
     out = []
     with open(path) as f:
         for line in f:
             line = line.split("#", 1)[0]
             for tok in line.replace(",", " ").split():
-                out.append(int(float(tok)))
+                out.append(float(tok))
     return out
 
 
@@ -81,8 +83,22 @@ def edge_jitter(periods: list[float]) -> dict:
             "periods": len(kept), "dropped": dropped}
 
 
+# A capture-timed tach (2026-11-18, firmware/esp32/capture.py, README "A tach timed in hardware"): with the edge times
+# latched by MCPWM capture the handler's own jitter never reached the periods, and on the simulator the survey named and
+# advised 36 of 54 spread takes at 1.5-3 us of handler jitter (0 of 54 by the pin interrupt). It cannot help a sensor's
+# own error, so the advice names it as a test: log again with capture=True and compare.
+CAPTURE_HINT = ("If this log came from the pin interrupt, log the same wheel again with "
+                "tach_log.run(pin, 600, capture=True): if that reads lower, the jitter was the handler's and "
+                "config.TACH_CAPTURE = True removes it (simulator: 36 of 54 spread takes advised at 1.5-3 us of "
+                "handler jitter, 0 of 54 without); if not, it is the sensor's own")
+
+
 def jitter_advice(jitter_us: float) -> str:
     """One line: what the contact-time survey can do at this edge jitter (the simulator's bands)."""
+    return _band_advice(jitter_us) + ("" if jitter_us < SURVEY_SPEAKS_US else ". " + CAPTURE_HINT)
+
+
+def _band_advice(jitter_us: float) -> str:
     if jitter_us < SURVEY_SPEAKS_US:
         return (f"edge jitter {jitter_us:g} us: the contact-time survey can name a spread take (on the simulator a "
                 f"clean tach, reading 0.4 us, named and advised 14 of 18 spread takes); trust its TAKE_US advice")

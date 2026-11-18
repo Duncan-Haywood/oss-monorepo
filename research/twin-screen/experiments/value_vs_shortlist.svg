@@ -34,7 +34,7 @@
 <circle cx="492.8" cy="130.1" r="3" fill="#1f6fb2"/>
 <circle cx="572.9" cy="159.8" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="184.1" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">rho = 0.6</text>
+<rect x="153.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="173.8" y="41" font-family="sans-serif" font-size="11">rho = 0.6</text>
 <polyline points="64.0,114.1 163.2,92.9 221.3,86.8 294.4,87.1 361.7,94.3 419.7,106.4 492.8,128.7 572.9,161.1 624.0,183.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="114.1" r="3" fill="#2e8b57"/>
 <circle cx="163.2" cy="92.9" r="3" fill="#2e8b57"/>
@@ -45,7 +45,7 @@
 <circle cx="492.8" cy="128.7" r="3" fill="#2e8b57"/>
 <circle cx="572.9" cy="161.1" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="183.3" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">rho = 0.8</text>
+<rect x="243.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="263.6" y="41" font-family="sans-serif" font-size="11">rho = 0.8</text>
 <polyline points="64.0,74.0 163.2,71.2 221.3,73.5 294.4,81.3 361.7,93.0 419.7,106.8 492.8,129.2 572.9,162.0 624.0,183.5" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="74.0" r="3" fill="#8e44ad"/>
 <circle cx="163.2" cy="71.2" r="3" fill="#8e44ad"/>
@@ -56,5 +56,5 @@
 <circle cx="492.8" cy="129.2" r="3" fill="#8e44ad"/>
 <circle cx="572.9" cy="162.0" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="183.5" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">rho = 0.95</text>
+<rect x="333.4" y="32" width="14" height="10" fill="#8e44ad"/><text x="353.4" y="41" font-family="sans-serif" font-size="11">rho = 0.95</text>
 </svg>

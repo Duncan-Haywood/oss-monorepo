@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Simulated drape coefficient against the measured Cusick drape coefficient of Petrak et al. (2021)'s nine woven fabrics, for the isotropic triangle FEM of milestone 4a and the orthotropic element of milestone 4b">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Cusick drape coefficient: isotropic and orthotropic FEM against measured</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="261.6" y2="261.6" stroke="#ddd"/><text x="58" y="265.6" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="199.1" y2="199.1" stroke="#ddd"/><text x="58" y="203.1" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="136.7" y2="136.7" stroke="#ddd"/><text x="58" y="140.7" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="74.2" y2="74.2" stroke="#ddd"/><text x="58" y="78.2" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.222</text>
+<text x="147.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.285</text>
+<text x="230.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.348</text>
+<text x="353.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.442</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.647</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">measured drape coefficient</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">simulated drape coefficient</text>
+<polyline points="64.0,254.7 70.6,253.1 147.0,235.0 191.8,224.4 230.0,215.3 302.5,198.2 353.9,186.0 493.6,152.9 624.0,122.0" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="254.7" r="3" fill="#c0392b"/>
+<circle cx="70.6" cy="253.1" r="3" fill="#c0392b"/>
+<circle cx="147.0" cy="235.0" r="3" fill="#c0392b"/>
+<circle cx="191.8" cy="224.4" r="3" fill="#c0392b"/>
+<circle cx="230.0" cy="215.3" r="3" fill="#c0392b"/>
+<circle cx="302.5" cy="198.2" r="3" fill="#c0392b"/>
+<circle cx="353.9" cy="186.0" r="3" fill="#c0392b"/>
+<circle cx="493.6" cy="152.9" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="122.0" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">y = x</text>
+<polyline points="64.0,201.6 70.6,220.1 147.0,201.6 191.8,166.1 230.0,175.2 302.5,132.1 353.9,122.5 493.6,112.4 624.0,77.6" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="201.6" r="3" fill="#1f6fb2"/>
+<circle cx="70.6" cy="220.1" r="3" fill="#1f6fb2"/>
+<circle cx="147.0" cy="201.6" r="3" fill="#1f6fb2"/>
+<circle cx="191.8" cy="166.1" r="3" fill="#1f6fb2"/>
+<circle cx="230.0" cy="175.2" r="3" fill="#1f6fb2"/>
+<circle cx="302.5" cy="132.1" r="3" fill="#1f6fb2"/>
+<circle cx="353.9" cy="122.5" r="3" fill="#1f6fb2"/>
+<circle cx="493.6" cy="112.4" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="77.6" r="3" fill="#1f6fb2"/>
+<rect x="129" y="32" width="14" height="10" fill="#1f6fb2"/><text x="149" y="41" font-family="sans-serif" font-size="11">isotropic (4a)</text>
+<polyline points="64.0,183.4 70.6,200.1 147.0,200.9 191.8,156.0 230.0,176.7 302.5,132.6 353.9,110.8 493.6,105.5 624.0,104.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="183.4" r="3" fill="#2e8b57"/>
+<circle cx="70.6" cy="200.1" r="3" fill="#2e8b57"/>
+<circle cx="147.0" cy="200.9" r="3" fill="#2e8b57"/>
+<circle cx="191.8" cy="156.0" r="3" fill="#2e8b57"/>
+<circle cx="230.0" cy="176.7" r="3" fill="#2e8b57"/>
+<circle cx="302.5" cy="132.6" r="3" fill="#2e8b57"/>
+<circle cx="353.9" cy="110.8" r="3" fill="#2e8b57"/>
+<circle cx="493.6" cy="105.5" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="104.5" r="3" fill="#2e8b57"/>
+<rect x="249.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="269.8" y="41" font-family="sans-serif" font-size="11">orthotropic B only</text>
+<polyline points="64.0,187.3 70.6,204.9 147.0,197.6 191.8,157.1 230.0,177.3 302.5,136.0 353.9,118.7 493.6,112.8 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="187.3" r="3" fill="#8e44ad"/>
+<circle cx="70.6" cy="204.9" r="3" fill="#8e44ad"/>
+<circle cx="147.0" cy="197.6" r="3" fill="#8e44ad"/>
+<circle cx="191.8" cy="157.1" r="3" fill="#8e44ad"/>
+<circle cx="230.0" cy="177.3" r="3" fill="#8e44ad"/>
+<circle cx="302.5" cy="136.0" r="3" fill="#8e44ad"/>
+<circle cx="353.9" cy="118.7" r="3" fill="#8e44ad"/>
+<circle cx="493.6" cy="112.8" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
+<rect x="395.4" y="32" width="14" height="10" fill="#8e44ad"/><text x="415.4" y="41" font-family="sans-serif" font-size="11">orthotropic B and EA</text>
+</svg>

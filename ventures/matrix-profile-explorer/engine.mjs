@@ -84,7 +84,7 @@ function splitLine(line, delim) {
  * non-numeric, non-missing cell).
  */
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = src.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
   if (!lines.length) return { error: "No data found. Paste one number per line, or a CSV with a header row." };
   const first = lines[0];

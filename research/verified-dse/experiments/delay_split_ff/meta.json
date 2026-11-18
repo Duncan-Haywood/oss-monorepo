@@ -1,0 +1,244 @@
+{
+ "corner": "ff_n40C_1v95",
+ "util": 40,
+ "liberty_sha256": "fb61d91c55a7f85b1989e8149d040b13ba5e7f5478f5bf0c3c16c5da30720139",
+ "tools": {
+  "yosys": "Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)",
+  "openroad": "26Q3"
+ },
+ "candidate_base_period_ns": {
+  "sad16": 8.02,
+  "csum32": 34.17,
+  "wsum14w20": 9.79,
+  "wsum20w24": 9.94,
+  "sad12": 15.22,
+  "sad20": 13.7,
+  "csum14": 18.17,
+  "csum40": 41.76,
+  "wsum8w32": 9.21,
+  "csum18": 21.17,
+  "sad8": 11.45,
+  "wsum10w16": 9.85,
+  "dot20r": 8.26,
+  "csum24": 26.14,
+  "amin4": 9.91,
+  "max5": 18.56,
+  "clamp1r": 17.62,
+  "div4r": 14.67,
+  "amin3": 10.43,
+  "amin5": 7.23,
+  "max2": 10.9,
+  "rng2r": 10.69,
+  "div5r": 20.28,
+  "max3": 19.06,
+  "rng3r": 11.45,
+  "amin6": 13.13,
+  "mod8": 23.61,
+  "max4": 19.28
+ },
+ "order": [
+  "csum32",
+  "amin4",
+  "csum14",
+  "div4r",
+  "csum40",
+  "amin3",
+  "csum18",
+  "amin5",
+  "csum24",
+  "max2",
+  "rng2r",
+  "rng3r",
+  "amin6"
+ ],
+ "clock": {
+  "csum32": "tight",
+  "csum14": "relaxed",
+  "csum40": "tight",
+  "csum18": "relaxed",
+  "csum24": "tight",
+  "amin4": "tight",
+  "div4r": "relaxed",
+  "amin3": "tight",
+  "amin5": "relaxed",
+  "max2": "tight",
+  "rng2r": "relaxed",
+  "rng3r": "tight",
+  "amin6": "relaxed"
+ },
+ "group": {
+  "csum32": "ADDS",
+  "csum14": "ADDS",
+  "csum40": "ADDS",
+  "csum18": "ADDS",
+  "csum24": "ADDS",
+  "amin4": "CTRLF",
+  "div4r": "CTRLF",
+  "amin3": "CTRLF",
+  "amin5": "CTRLF",
+  "max2": "CTRLF",
+  "rng2r": "CTRLF",
+  "rng3r": "CTRLF",
+  "amin6": "CTRLF"
+ },
+ "base_period_ns": {
+  "csum32": 34.17,
+  "amin4": 9.91,
+  "csum14": 18.17,
+  "div4r": 14.67,
+  "csum40": 41.76,
+  "amin3": 10.43,
+  "csum18": 21.17,
+  "amin5": 7.23,
+  "csum24": 26.14,
+  "max2": 10.9,
+  "rng2r": 10.69,
+  "rng3r": 11.45,
+  "amin6": 13.13
+ },
+ "n_sequences": 120,
+ "seed": 108,
+ "select_seed": 146,
+ "designs": {
+  "csum32": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 32
+   },
+   ""
+  ],
+  "amin4": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 4,
+    "NB": 6
+   },
+   ""
+  ],
+  "csum14": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 14
+   },
+   ""
+  ],
+  "div4r": [
+   "divsh_w",
+   "divsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "NA": 4,
+    "NB": 4,
+    "R": 1
+   },
+   ""
+  ],
+  "csum40": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 40
+   },
+   ""
+  ],
+  "amin3": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 3,
+    "NB": 6
+   },
+   ""
+  ],
+  "csum18": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 18
+   },
+   ""
+  ],
+  "amin5": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 5,
+    "NB": 6
+   },
+   ""
+  ],
+  "csum24": [
+   "csumsh_w",
+   "csumsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "K": 24
+   },
+   ""
+  ],
+  "max2": [
+   "maxsh_w",
+   "maxsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 2
+   },
+   ""
+  ],
+  "rng2r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 2,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "rng3r": [
+   "rngsh_w",
+   "rngsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 3,
+    "NB": 8,
+    "R": 1
+   },
+   ""
+  ],
+  "amin6": [
+   "argminsh_w",
+   "argminsh_w",
+   {
+    "W": 128,
+    "SW": 7,
+    "N": 6,
+    "NB": 6
+   },
+   ""
+  ]
+ }
+}

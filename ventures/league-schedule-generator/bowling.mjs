@@ -255,16 +255,19 @@ function parseShape(shape) {
 }
 
 /**
- * Match the organiser's limits against a shape: returns { slotTeam, pairOf } (slotTeam[i] is the
- * team dealt shape slot i, pairOf[j] the real pair standing for shape pair j) or null. Slots are
- * 0..k-1 and shape pairs 0..m-1, in order.
+ * Match the organiser's limits against a shape: returns { slotTeam, pairOf, slots } (slotTeam[i]
+ * is the team dealt the shape's i-th slot, slots[i] that circle-method slot, pairOf[j] the real
+ * pair standing for shape pair j) or null. Shape pairs are 0..m-1. Slots are usually 0..k-1; a
+ * dealing that is UNSAT or too slow there is stored on other slots (`0:0;5:0`,
+ * eval/bowling-avoid-slots.py), since which slots meet in the first weeks depends on them.
  */
 export function matchShape(avoid, shape, nPairs) {
   const limited = [];
   avoid.forEach((l, t) => { if (l && l.length) limited.push(t); });
   const spec = parseShape(shape);
   if (limited.length !== spec.length || limited.length > SHAPE_MAX_TEAMS) return null;
-  if (spec.some(([t], i) => t !== i)) return null;
+  const slots = spec.map(([t]) => t);
+  if (new Set(slots).size !== slots.length || slots.some((t) => !(t >= 0 && t < avoid.length))) return null;
   const used = [...new Set(limited.flatMap((t) => avoid[t]))].sort((a, b) => a - b);
   const shapePairs = new Set(spec.flatMap(([, ps]) => ps));
   if (used.length !== shapePairs.size || used.length > SHAPE_MAX_PAIRS || used.some((p) => p >= nPairs)) return null;
@@ -273,7 +276,7 @@ export function matchShape(avoid, shape, nPairs) {
   for (const order of permutations(limited)) {
     if (order.some((t, i) => avoid[t].length !== spec[i][1].length)) continue;
     for (const pairOf of permutations(used)) {
-      if (spec.every(([, ps], i) => key(ps.map((j) => pairOf[j])) === key(avoid[order[i]]))) return { slotTeam: order, pairOf };
+      if (spec.every(([, ps], i) => key(ps.map((j) => pairOf[j])) === key(avoid[order[i]]))) return { slotTeam: order, pairOf, slots };
     }
   }
   return null;
@@ -292,13 +295,16 @@ function shapeEntry(nTeams, weeks, avoid, nPairs) {
 
 /**
  * The team dealt each circle-method slot, for a season whose limits have a stored shape answer
- * (the limited teams take the shape's slots, the rest keep their order), or null.
+ * (the limited teams take the shape's slots, the rest fill the other slots in order), or null.
  */
 export function avoidShapeSlots(nTeams, weeks, avoid, nPairs) {
   const e = shapeEntry(nTeams, weeks, avoid, nPairs);
   if (!e) return null;
   const rest = Array.from({ length: nTeams }, (_, t) => t).filter((t) => !e.slotTeam.includes(t));
-  return [...e.slotTeam, ...rest];
+  const out = new Array(nTeams).fill(-1);
+  e.slots.forEach((slot, i) => { out[slot] = e.slotTeam[i]; });
+  for (let slot = 0, r = 0; slot < nTeams; slot++) if (out[slot] < 0) out[slot] = rest[r++];
+  return out;
 }
 
 // The stored shape answer laid onto these rounds: used only if the rounds are the circle method

@@ -1,0 +1,102 @@
+# Milestone 146: add-chain structure or short mapped delay, slow add chains and fast control chains at SKY130 ff_n40C_1v95 (flow run)
+
+theta = 3
+
+tools: {'yosys': 'Yosys 0.71+post (git sha1 v0.71, Release, GNU /nix/store/ii6p6kc1brz3vycqg88q4zb4xd2dmqwp-gcc-wrapper-16.2.0/bin/g++ 16.2.0)', 'openroad': '26Q3'}
+
+## Candidates (seed-146 order; eligible: ADDS base >= 16.7 ns, CTRLF base <= 14.8 ns)
+
+group | candidate | ff base period ns | selected
+ADDS | sad16 | 8.02 | no
+ADDS | csum32 | 34.17 | yes
+ADDS | wsum14w20 | 9.79 | no
+ADDS | wsum20w24 | 9.94 | no
+ADDS | sad12 | 15.22 | no
+ADDS | sad20 | 13.70 | no
+ADDS | csum14 | 18.17 | yes
+ADDS | csum40 | 41.76 | yes
+ADDS | wsum8w32 | 9.21 | no
+ADDS | csum18 | 21.17 | yes
+ADDS | sad8 | 11.45 | no
+ADDS | wsum10w16 | 9.85 | no
+ADDS | dot20r | 8.26 | no
+ADDS | csum24 | 26.14 | yes
+CTRLF | amin4 | 9.91 | yes
+CTRLF | max5 | 18.56 | no
+CTRLF | clamp1r | 17.62 | no
+CTRLF | div4r | 14.67 | yes
+CTRLF | amin3 | 10.43 | yes
+CTRLF | amin5 | 7.23 | yes
+CTRLF | max2 | 10.90 | yes
+CTRLF | rng2r | 10.69 | yes
+CTRLF | div5r | 20.28 | no
+CTRLF | max3 | 19.06 | no
+CTRLF | rng3r | 11.45 | yes
+CTRLF | amin6 | 13.13 | yes
+CTRLF | mod8 | 23.61 | no
+CTRLF | max4 | 19.28 | no
+
+complete designs (order prefix): 13 of 13
+
+design | group | clock | base period ns | routed/r2 | tau-b r2 vs routed | random % | SWC % | d
+csum18 | ADDS | relaxed | 21.170 | 5.23 | 0.296 | 9.54 | 0.00 | -9.54
+csum32 | ADDS | tight | 34.170 | 13.23 | 0.518 | 8.95 | 0.00 | -8.95
+csum40 | ADDS | tight | 41.760 | 14.95 | 0.456 | 5.93 | 0.00 | -5.93
+csum24 | ADDS | tight | 26.140 | 11.84 | 0.526 | 4.03 | 0.00 | -4.03
+csum14 | ADDS | relaxed | 18.170 | 5.29 | 0.354 | 2.60 | 0.00 | -2.60
+rng2r | CTRLF | relaxed | 10.690 | 6.16 | 0.395 | 7.45 | 0.00 | -7.45
+div4r | CTRLF | relaxed | 14.670 | 3.64 | 0.639 | 6.78 | 0.00 | -6.78
+amin6 | CTRLF | relaxed | 13.130 | 3.59 | 0.530 | 5.29 | 0.00 | -5.29
+amin5 | CTRLF | relaxed | 7.230 | 3.10 | 0.446 | 3.64 | 0.00 | -3.64
+amin3 | CTRLF | tight | 10.430 | 2.41 | 0.553 | 5.47 | 5.47 | +0.00
+amin4 | CTRLF | tight | 9.910 | 2.83 | 0.466 | 0.69 | 0.69 | +0.00
+rng3r | CTRLF | tight | 11.450 | 6.60 | 0.526 | 3.77 | 5.21 | +1.44
+max2 | CTRLF | tight | 10.900 | 5.04 | 0.141 | 11.61 | 22.87 | +11.25
+
+ADDS: 5 designs; mean regret SWC 0.00%, random 6.21%; mean d -6.21; SWC better on 5, worse on 0, tied on 0; sign p = 0.0625; median tau-b r2 vs routed 0.456
+CTRLF: 8 designs; mean regret SWC 4.28%, random 5.59%; mean d -1.31; SWC better on 4, worse on 2, tied on 2; sign p = 0.6875; median tau-b r2 vs routed 0.496
+all: SWC better on 9, worse on 2, tied on 2; sign p = 0.0654; mean regret SWC 2.63%, random 5.83%
+difference of mean d, ADDS - CTRLF: -4.90 points; permutation p = 0.1216
+ladder branch: 11 of 13 (lowest routed/r2 2.41)
+
+## 2 x 2 pool with milestone 145 (ADDF = its ADD, CTRLS = its CTRL)
+
+cell | designs | base period ns | mean d | SWC losses | median tau-b r2 vs routed
+ADDF | 10 | 6.94 to 14.79 | -1.57 | 3 | 0.270
+ADDS | 5 | 18.17 to 41.76 | -6.21 | 0 | 0.456
+CTRLF | 8 | 7.23 to 14.67 | -1.31 | 2 | 0.496
+CTRLS | 10 | 16.72 to 30.20 | -8.83 | 0 | 0.471
+
+structure effect: +1.18 points, 95% design-bootstrap interval -2.43 to +4.69
+delay effect: +6.08 points, 95% design-bootstrap interval +2.58 to +9.73
+interaction effect: -2.89 points, 95% design-bootstrap interval -9.99 to +4.34
+Spearman(log base period, d) over 33 designs: -0.437
+Spearman(log base period, tau-b r2 vs routed): +0.257
+
+## Failed points
+
+design | usable points | failed
+csum32 | 103 | 17
+amin4 | 103 | 17
+csum14 | 103 | 17
+div4r | 103 | 17
+csum40 | 103 | 17
+amin3 | 103 | 17
+csum18 | 103 | 17
+amin5 | 103 | 17
+csum24 | 103 | 17
+max2 | 103 | 17
+rng2r | 103 | 17
+rng3r | 103 | 17
+amin6 | 103 | 17
+
+## Predictions
+
+(1) every cell on the ladder branch: False (11 of 13)
+(2) PRIMARY, structure: mean d ADDS > CTRLF with permutation p < 0.05: False (-4.90, p = 0.1216)
+(3) delay: mean d CTRLF > ADDS with permutation p < 0.05: False
+(4) structure main effect > 0, interval excludes 0: False
+(5) delay main effect > 0, interval excludes 0: True
+(6) median tau-b r2 vs routed lower on ADDS than CTRLF: True (0.456 against 0.496)
+(7) SWC better on more designs than worse here: True (9 to 2)
+(8) Spearman(log base period, d) < 0 over the pool: True (-0.437)

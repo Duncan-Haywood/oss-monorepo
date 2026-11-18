@@ -25,17 +25,17 @@
 <circle cx="279.0" cy="164.6" r="3" fill="#1f6fb2"/>
 <circle cx="344.0" cy="153.7" r="3" fill="#1f6fb2"/>
 <circle cx="624.0" cy="107.6" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">p_n 40 bar</text>
+<rect x="209.6" y="32" width="14" height="10" fill="#1f6fb2"/><text x="229.6" y="41" font-family="sans-serif" font-size="11">p_n 40 bar</text>
 <polyline points="64.0,149.5 279.0,121.0 344.0,113.6 624.0,86.5" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="64.0" cy="149.5" r="3" fill="#2e8b57"/>
 <circle cx="279.0" cy="121.0" r="3" fill="#2e8b57"/>
 <circle cx="344.0" cy="113.6" r="3" fill="#2e8b57"/>
 <circle cx="624.0" cy="86.5" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">p_n 20 bar</text>
+<rect x="305.6" y="32" width="14" height="10" fill="#2e8b57"/><text x="325.6" y="41" font-family="sans-serif" font-size="11">p_n 20 bar</text>
 <polyline points="64.0,91.2 279.0,80.8 344.0,78.4 624.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="64.0" cy="91.2" r="3" fill="#8e44ad"/>
 <circle cx="279.0" cy="80.8" r="3" fill="#8e44ad"/>
 <circle cx="344.0" cy="78.4" r="3" fill="#8e44ad"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">p_n 8 bar</text>
+<rect x="401.6" y="32" width="14" height="10" fill="#8e44ad"/><text x="421.6" y="41" font-family="sans-serif" font-size="11">p_n 8 bar</text>
 </svg>

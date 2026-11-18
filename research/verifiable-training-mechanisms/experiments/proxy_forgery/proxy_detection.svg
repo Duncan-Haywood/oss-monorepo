@@ -1,61 +1,61 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of the share of segments caught against the share of the segment's compute the forger saves by computing its last step's gradient on b of 64 rows, for plain SGD, momentum and two Adam rates under warmup-cosine; values are in results.txt">
-<rect width="640" height="380" fill="#fff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Line plot of the share of segments caught against the share of the segment's compute the forger saves by computing its last step's gradient on b of 64 rows, for plain SGD, momentum and two Adam rates under warmup-cosine; values are in results.txt">
+<rect width="640" height="394" fill="#fff"/>
 <text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">A sub-batch forger is caught unless it saves almost nothing (one forged step of 20, warmup-cosine, 40 seeds)</text>
-<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
-<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
-<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
-<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
-<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
-<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
-<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.078</text>
-<text x="251.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.312</text>
-<text x="438.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1.25</text>
-<text x="587.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3.75</text>
-<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4.922</text>
-<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">compute saved, % of the segment</text>
-<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of segments caught</text>
-<polyline points="624.0,77.0 608.1,75.2 587.3,76.0 532.5,78.8 438.8,92.9 345.2,122.7 251.3,190.5 157.7,243.6 64.0,274.4" fill="none" stroke="#c0392b" stroke-width="2"/>
-<circle cx="624.0" cy="77.0" r="3" fill="#c0392b"/>
-<circle cx="608.1" cy="75.2" r="3" fill="#c0392b"/>
-<circle cx="587.3" cy="76.0" r="3" fill="#c0392b"/>
-<circle cx="532.5" cy="78.8" r="3" fill="#c0392b"/>
-<circle cx="438.8" cy="92.9" r="3" fill="#c0392b"/>
-<circle cx="345.2" cy="122.7" r="3" fill="#c0392b"/>
-<circle cx="251.3" cy="190.5" r="3" fill="#c0392b"/>
-<circle cx="157.7" cy="243.6" r="3" fill="#c0392b"/>
-<circle cx="64.0" cy="274.4" r="3" fill="#c0392b"/>
+<line x1="64" x2="624" y1="338.0" y2="338.0" stroke="#ddd"/><text x="58" y="342.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="287.4" y2="287.4" stroke="#ddd"/><text x="58" y="291.4" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<line x1="64" x2="624" y1="236.9" y2="236.9" stroke="#ddd"/><text x="58" y="240.9" text-anchor="end" font-family="sans-serif" font-size="11">0.4</text>
+<line x1="64" x2="624" y1="186.3" y2="186.3" stroke="#ddd"/><text x="58" y="190.3" text-anchor="end" font-family="sans-serif" font-size="11">0.6</text>
+<line x1="64" x2="624" y1="135.7" y2="135.7" stroke="#ddd"/><text x="58" y="139.7" text-anchor="end" font-family="sans-serif" font-size="11">0.8</text>
+<line x1="64" x2="624" y1="85.2" y2="85.2" stroke="#ddd"/><text x="58" y="89.2" text-anchor="end" font-family="sans-serif" font-size="11">1</text>
+<text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">0.078</text>
+<text x="251.3" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">0.312</text>
+<text x="438.8" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">1.25</text>
+<text x="587.3" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">3.75</text>
+<text x="624.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">4.922</text>
+<text x="344.0" y="382" text-anchor="middle" font-family="sans-serif" font-size="12">compute saved, % of the segment</text>
+<text x="14" y="204.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 204.0)">share of segments caught</text>
+<polyline points="624.0,91.0 608.1,89.2 587.3,90.0 532.5,92.8 438.8,106.9 345.2,136.7 251.3,204.5 157.7,257.6 64.0,288.4" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="624.0" cy="91.0" r="3" fill="#c0392b"/>
+<circle cx="608.1" cy="89.2" r="3" fill="#c0392b"/>
+<circle cx="587.3" cy="90.0" r="3" fill="#c0392b"/>
+<circle cx="532.5" cy="92.8" r="3" fill="#c0392b"/>
+<circle cx="438.8" cy="106.9" r="3" fill="#c0392b"/>
+<circle cx="345.2" cy="136.7" r="3" fill="#c0392b"/>
+<circle cx="251.3" cy="204.5" r="3" fill="#c0392b"/>
+<circle cx="157.7" cy="257.6" r="3" fill="#c0392b"/>
+<circle cx="64.0" cy="288.4" r="3" fill="#c0392b"/>
 <rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">plain SGD, weights checked</text>
-<polyline points="624.0,71.2 608.1,71.2 587.3,71.2 532.5,71.2 438.8,71.2 345.2,78.8 251.3,131.8 157.7,207.7 64.0,254.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
-<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
-<circle cx="608.1" cy="71.2" r="3" fill="#1f6fb2"/>
-<circle cx="587.3" cy="71.2" r="3" fill="#1f6fb2"/>
-<circle cx="532.5" cy="71.2" r="3" fill="#1f6fb2"/>
-<circle cx="438.8" cy="71.2" r="3" fill="#1f6fb2"/>
-<circle cx="345.2" cy="78.8" r="3" fill="#1f6fb2"/>
-<circle cx="251.3" cy="131.8" r="3" fill="#1f6fb2"/>
-<circle cx="157.7" cy="207.7" r="3" fill="#1f6fb2"/>
-<circle cx="64.0" cy="254.5" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">momentum, weights or first moment</text>
-<polyline points="624.0,71.2 608.1,71.2 587.3,71.2 532.5,71.4 438.8,71.7 345.2,80.0 251.3,114.7 157.7,180.6 64.0,238.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
-<circle cx="624.0" cy="71.2" r="3" fill="#2e8b57"/>
-<circle cx="608.1" cy="71.2" r="3" fill="#2e8b57"/>
-<circle cx="587.3" cy="71.2" r="3" fill="#2e8b57"/>
-<circle cx="532.5" cy="71.4" r="3" fill="#2e8b57"/>
-<circle cx="438.8" cy="71.7" r="3" fill="#2e8b57"/>
-<circle cx="345.2" cy="80.0" r="3" fill="#2e8b57"/>
-<circle cx="251.3" cy="114.7" r="3" fill="#2e8b57"/>
-<circle cx="157.7" cy="180.6" r="3" fill="#2e8b57"/>
-<circle cx="64.0" cy="238.3" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">Adam 1e-3, weights or moments</text>
-<polyline points="624.0,75.0 608.1,72.9 587.3,73.4 532.5,77.0 438.8,101.0 345.2,155.4 251.3,212.2 157.7,258.5 64.0,286.6" fill="none" stroke="#8e44ad" stroke-width="2"/>
-<circle cx="624.0" cy="75.0" r="3" fill="#8e44ad"/>
-<circle cx="608.1" cy="72.9" r="3" fill="#8e44ad"/>
-<circle cx="587.3" cy="73.4" r="3" fill="#8e44ad"/>
-<circle cx="532.5" cy="77.0" r="3" fill="#8e44ad"/>
-<circle cx="438.8" cy="101.0" r="3" fill="#8e44ad"/>
-<circle cx="345.2" cy="155.4" r="3" fill="#8e44ad"/>
-<circle cx="251.3" cy="212.2" r="3" fill="#8e44ad"/>
-<circle cx="157.7" cy="258.5" r="3" fill="#8e44ad"/>
-<circle cx="64.0" cy="286.6" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">Adam 4e-3, weights or moments</text>
+<polyline points="624.0,85.2 608.1,85.2 587.3,85.2 532.5,85.2 438.8,85.2 345.2,92.8 251.3,145.8 157.7,221.7 64.0,268.5" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="624.0" cy="85.2" r="3" fill="#1f6fb2"/>
+<circle cx="608.1" cy="85.2" r="3" fill="#1f6fb2"/>
+<circle cx="587.3" cy="85.2" r="3" fill="#1f6fb2"/>
+<circle cx="532.5" cy="85.2" r="3" fill="#1f6fb2"/>
+<circle cx="438.8" cy="85.2" r="3" fill="#1f6fb2"/>
+<circle cx="345.2" cy="92.8" r="3" fill="#1f6fb2"/>
+<circle cx="251.3" cy="145.8" r="3" fill="#1f6fb2"/>
+<circle cx="157.7" cy="221.7" r="3" fill="#1f6fb2"/>
+<circle cx="64.0" cy="268.5" r="3" fill="#1f6fb2"/>
+<rect x="259.2" y="32" width="14" height="10" fill="#1f6fb2"/><text x="279.2" y="41" font-family="sans-serif" font-size="11">momentum, weights or first moment</text>
+<polyline points="624.0,85.2 608.1,85.2 587.3,85.2 532.5,85.4 438.8,85.7 345.2,94.0 251.3,128.7 157.7,194.6 64.0,252.3" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="624.0" cy="85.2" r="3" fill="#2e8b57"/>
+<circle cx="608.1" cy="85.2" r="3" fill="#2e8b57"/>
+<circle cx="587.3" cy="85.2" r="3" fill="#2e8b57"/>
+<circle cx="532.5" cy="85.4" r="3" fill="#2e8b57"/>
+<circle cx="438.8" cy="85.7" r="3" fill="#2e8b57"/>
+<circle cx="345.2" cy="94.0" r="3" fill="#2e8b57"/>
+<circle cx="251.3" cy="128.7" r="3" fill="#2e8b57"/>
+<circle cx="157.7" cy="194.6" r="3" fill="#2e8b57"/>
+<circle cx="64.0" cy="252.3" r="3" fill="#2e8b57"/>
+<rect x="64" y="46" width="14" height="10" fill="#2e8b57"/><text x="84" y="55" font-family="sans-serif" font-size="11">Adam 1e-3, weights or moments</text>
+<polyline points="624.0,89.0 608.1,86.9 587.3,87.4 532.5,91.0 438.8,115.0 345.2,169.4 251.3,226.2 157.7,272.5 64.0,300.6" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="624.0" cy="89.0" r="3" fill="#8e44ad"/>
+<circle cx="608.1" cy="86.9" r="3" fill="#8e44ad"/>
+<circle cx="587.3" cy="87.4" r="3" fill="#8e44ad"/>
+<circle cx="532.5" cy="91.0" r="3" fill="#8e44ad"/>
+<circle cx="438.8" cy="115.0" r="3" fill="#8e44ad"/>
+<circle cx="345.2" cy="169.4" r="3" fill="#8e44ad"/>
+<circle cx="251.3" cy="226.2" r="3" fill="#8e44ad"/>
+<circle cx="157.7" cy="272.5" r="3" fill="#8e44ad"/>
+<circle cx="64.0" cy="300.6" r="3" fill="#8e44ad"/>
+<rect x="277.8" y="46" width="14" height="10" fill="#8e44ad"/><text x="297.8" y="55" font-family="sans-serif" font-size="11">Adam 4e-3, weights or moments</text>
 </svg>
