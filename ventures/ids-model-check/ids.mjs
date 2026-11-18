@@ -86,8 +86,12 @@ const SI_PREFIX = { EXA: 1e18, PETA: 1e15, TERA: 1e12, GIGA: 1e9, MEGA: 1e6, KIL
 
 export class Model {
   constructor(text, schemas) {
+    // The file's bytes (a Uint8Array) are read as they are when they hold
+    // STEP, so the file is never one string on the heap
+    // (eval/step-bytes-2026-11-18.md); ifcXML is decoded first.
+    if (text instanceof Uint8Array && looksLikeXml(new TextDecoder().decode(text.subarray(0, 800)))) text = new TextDecoder().decode(text);
     // An ifcXML model is read by its schema's attribute order (ifcxml.mjs).
-    const xmlId = looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
+    const xmlId = typeof text !== "string" ? null : looksLikeXml(text) ? ifcXmlSchemaId(text) || "(not found in the ifcXML header)" : null;
     const xs = xmlId && schemas[xmlId];
     const p = xmlId ? (xs ? parseIfcXml(text, xs instanceof Schema ? xs : new Schema(xs)) : { entities: new Map(), errors: [] }) : parseStep(text);
     if (xmlId) p.schema = xmlId;

@@ -15,7 +15,10 @@ async function json(name) {
   return cache[name];
 }
 
-function schemaOf(ifcText) {
+// ifc is the model's bytes (a Uint8Array, read without becoming one string
+// on the heap: eval/step-bytes-2026-11-18.md) or its text.
+function schemaOf(ifc) {
+  const ifcText = ifc instanceof Uint8Array ? new TextDecoder().decode(ifc.subarray(0, 20000)) : ifc;
   if (looksLikeXml(ifcText)) return ifcXmlSchemaId(ifcText);
   const m = ifcText.slice(0, 20000).match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
   const raw = m ? m[1].toUpperCase() : "";

@@ -149,17 +149,19 @@
     let text, inner = null;
     try {
       const bytes = new Uint8Array(await file.arrayBuffer());
+      // A model stays bytes: the worker reads STEP from them without one
+      // string of the whole file on its heap (eval/step-bytes-2026-11-18.md).
       if (kind === "ifc" && isZip(bytes)) {
-        const m = await unzipModel(bytes, inflateRawStream);
-        text = m.text;
+        const m = await unzipModel(bytes, inflateRawStream, { bytes: true });
+        text = m.bytes;
         inner = m.name;
         record("ifczip_read");
-      } else text = new TextDecoder().decode(bytes);
+      } else text = kind === "ifc" ? bytes : new TextDecoder().decode(bytes);
     } catch (e) {
       $(kind + "-name").textContent = `Could not read ${file.name}: ${e.message}`;
       return;
     }
-    if (kind === "ifc" && /^\s*(\ufeff)?\s*</.test(text.slice(0, 200))) record("ifcxml_read");
+    if (kind === "ifc" && /^\s*(\ufeff)?\s*</.test(new TextDecoder().decode(text.subarray(0, 200)))) record("ifcxml_read");
     state[kind] = text;
     state[kind + "Name"] = inner ? inner.split("/").pop() : file.name;
     $(kind + "-name").textContent = `${file.name}${inner ? ` (${inner} inside)` : ""} (${(file.size / 1e6).toFixed(file.size > 1e6 ? 1 : 3)} MB)`;
@@ -187,7 +189,7 @@
   $("starter").addEventListener("click", loadStarter);
   $("sample").addEventListener("click", async () => {
     const r = await fetch("samples/tiny-house.ifc");
-    state.ifc = await r.text();
+    state.ifc = new Uint8Array(await r.arrayBuffer());
     state.ifcName = "tiny-house.ifc";
     $("ifc-name").textContent = "tiny-house.ifc (sample)";
     await loadStarter();
