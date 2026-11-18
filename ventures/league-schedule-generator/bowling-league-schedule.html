@@ -62,6 +62,8 @@ Rolling Thunder</textarea>
       <input id="skip" style="width:100%;box-sizing:border-box" placeholder="2026-11-24, 2026-12-29">
       <label for="positions">Position-round weeks <small>week numbers; 1st v 2nd, 3rd v 4th by the standings that night</small></label>
       <input id="positions" style="width:100%;box-sizing:border-box" value="16" placeholder="8, 16">
+      <label for="avoid">Lane limits <small>optional; one team per line, the pairs it must never bowl on: "Pin Pals: 7-8", "Spare Me: last", "ends" for both end pairs</small></label>
+      <textarea id="avoid" style="min-height:3.5em" placeholder="Pin Pals: last"></textarea>
       <button type="button" id="build">Build the schedule</button>
       <button type="button" class="secondary" id="again">Try another lane deal</button>
     </form>
@@ -71,7 +73,7 @@ Rolling Thunder</textarea>
       <p id="summary"></p>
       <div class="scroll"><table id="sched"></table></div>
       <h2>Weeks on each lane pair, by team</h2>
-      <p>Highlighted counts are more than one away from the team's other pairs.</p>
+      <p>Highlighted counts are outside the team's fair share (more than one away from its other pairs, or, with lane limits, outside its share once the avoided pairs are taken out). A dash is a pair the team never bowls on.</p>
       <div class="scroll"><table id="counts"></table></div>
       <p class="noprint">
         <button type="button" id="csv">Download CSV</button>
@@ -127,6 +129,10 @@ Rolling Thunder</textarea>
   <p>When a schedule shows a team two off, "Try another lane deal" runs the search from a different start; the round robin itself stays the same.</p>
   <p>Some seasons cannot be made even at all, and the page says so when it meets one. A SAT solver checked every season the search missed for leagues of 4 to 32 teams and 1 to 60 round-robin weeks, and proved 44 of them out of reach: no lane deal gives every team its even split. The most common is a season exactly as long as the lane pairs (8 teams on 4 pairs for 4 weeks, 16 teams for 8): each team would need every pair once, and the round robin's first weeks never allow it at any size from 4 to 30 teams. A 4-team league is out of reach whenever its round-robin weeks are 2, 3 or 4 more than a multiple of 6. The list is in the project's <code>eval/bowling-bound-proof.txt</code>.</p>
 
+  <h2>A team that must never bowl on a pair</h2>
+  <p>Some leagues have a team that cannot use one pair: the end pair by the wall where a bowler with a walker has no room on the approach, the pair nearest the bar, or the pair with the ball return that jams. Type it under "Lane limits", one team per line (<code>Pin Pals: 7-8</code>, <code>Spare Me: last</code>, <code>Gutter Gang: ends</code> for both end pairs). The page then never puts that team on that pair, in any week; it is a hard rule inside the search, not a fix-up afterwards. The team rotates evenly over the pairs it may use, and the other teams take the avoided pair a little more often, as evenly as the weeks allow. If a week has no deal at all (in a 4-team league three teams avoiding the same pair, say), the page names the week instead of building a schedule that breaks a limit.</p>
+  <p>We measured it on 144 seasons (6 to 24 teams, 26 to 34 weeks, four kinds of limit) against the fix an organiser makes by hand: build the even schedule, then each week the team lands on its pair, swap its match with the nearest one. The page put every team inside its fair share in 133 of the 142 seasons where the limits can hold every week, and never broke a limit. The hand fix got every team inside its share in none of them, left 3,345 counts off it in total (the page: 24), and in 3 weeks found no swap that kept the limit at all. Of the page's 9 misses, a SAT solver proved 4 out of reach (6 teams on 3 pairs with two teams off the end pair, for example) and found that 4 others, all 20 teams over 30 weeks, have a deal the search did not find. The numbers are in the project's <code>eval/bowling-lane-avoid.txt</code>. Position rounds put 1st v 2nd on the first pair, and their teams are known only on the night, so check a limited team's pair on those weeks.</p>
+
   <h2>Questions</h2>
   <h3>How do you make a bowling league schedule?</h3>
   <p>List the teams, pick the first league night and the number of weeks, and say where your lanes start. The page plays a round robin, repeats it until the weeks run out, and puts every match on a lane pair so each team bowls on each pair as evenly as the season allows. Download it as a CSV or copy the text for the league sheet.</p>
@@ -160,7 +166,7 @@ Rolling Thunder</textarea>
     const skip = parseDateList($("#skip").value);
     const pos = parseWeekList($("#positions").value, Number.isInteger(weeks) && weeks > 0 ? weeks : 60);
     const start = parseDate($("#start").value);
-    const s = bowlingSchedule({ teams: $("#teams").value, weeks, start, skipDays: skip.days, positionWeeks: pos.weeks, firstLane: Number($("#firstLane").value || 1), seed });
+    const s = bowlingSchedule({ teams: $("#teams").value, weeks, start, skipDays: skip.days, positionWeeks: pos.weeks, firstLane: Number($("#firstLane").value || 1), seed, laneAvoid: $("#avoid").value });
     const errors = [...(s.errors || []), ...skip.errors, ...pos.errors];
     if (errors.length) { status.innerHTML = errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); $("#out").hidden = true; return false; }
     const problems = validateBowling(s);
@@ -170,11 +176,12 @@ Rolling Thunder</textarea>
       s.weeks.map((wk) => `<tr><td>${wk.week}</td><td>${esc(dayLabel(wk.day))}${wk.kind === "position" ? "<br><small>position round</small>" : ""}</td>` +
         s.labels.map((_, p) => { const m = wk.matches.find((x) => x.pair === p); return `<td>${esc(wk.kind === "round" ? `${s.teams[m.a]} v ${s.teams[m.b]}` : `${m.a} v ${m.b}`)}</td>`; }).join("") + "</tr>").join("") + "</tbody>";
     $("#counts").innerHTML = `<thead><tr><th>Team</th>${s.labels.map((l) => `<th>${esc(l)}</th>`).join("")}<th>Spread</th><th>Same pair two weeks running</th></tr></thead><tbody>` +
-      r.rows.map((row) => { const mn = Math.min(...row.counts); return `<tr><td>${esc(row.name)}</td>${row.counts.map((c) => `<td${c - mn > 1 ? ' class="off"' : ""}>${c}</td>`).join("")}<td>${row.spread}${row.spread > row.bound ? (r.boundProvedOutOfReach ? ` (an even ${row.bound} is out of reach this season)` : ` (best possible ${row.bound})`) : ""}</td><td>${row.repeats}</td></tr>`; }).join("") + "</tbody>";
+      r.rows.map((row) => `<tr><td>${esc(row.name)}</td>${row.counts.map((c, p) => (row.avoided.includes(p) ? "<td>&ndash;</td>" : `<td${c < row.target.lo[p] || c > row.target.hi[p] ? ' class="off"' : ""}>${c}</td>`)).join("")}<td>${row.spread}${row.spread > row.bound ? (r.boundProvedOutOfReach ? ` (an even ${row.bound} is out of reach this season)` : ` (best possible ${row.bound})`) : ""}</td><td>${row.repeats}</td></tr>`).join("") + "</tbody>";
     const rr = s.weeks.filter((w) => w.kind === "round").length;
     const cycles = (rr / s.cycleLength).toFixed(rr % s.cycleLength ? 1 : 0);
     $("#summary").textContent = `${s.teams.length} teams${s.odd ? " (with the Vacancy)" : ""} on ${s.nPairs} lane pairs, ${s.weeks.length} weeks: ${rr} round-robin weeks (${cycles} times through) and ${s.weeks.length - rr} position round(s).` +
-      ` ${r.atBound} of ${r.teams} teams have the most even lane split a team's weeks allow; the worst spread between a team's most- and least-used pair is ${r.worstSpread}.` +
+      (s.avoid ? ` Lane limits kept: no team bowls on a pair it avoids, every week. ${r.atBound} of ${r.teams} teams are inside their fair share once the avoided pairs are taken out (the other teams bowl a little more on the pairs some teams avoid); the worst spread between a team's most- and least-used pair it may use is ${r.worstSpread}.` + (s.weeks.some((w) => w.kind === "position") ? " Position rounds put places on pairs in order and their teams are known only on the night, so check a limited team's pair then." : "")
+        : ` ${r.atBound} of ${r.teams} teams have the most even lane split a team's weeks allow; the worst spread between a team's most- and least-used pair is ${r.worstSpread}.`) +
       (r.boundProvedOutOfReach && r.atBound < r.teams ? " For this many teams and round-robin weeks a solver has proved that no lane deal gives every team that split, so the teams off it are the season's limit, not a missed deal." : "") +
       (s.skipped.length ? ` No bowling on ${s.skipped.map(dayLabel).join(", ")}.` : "") + (problems.length ? ` Check failed: ${problems.join(" ")}` : " Checked: every team bowls once a week, every pair is used once a week and every pair of teams meets as evenly as the weeks allow.");
     status.textContent = "";

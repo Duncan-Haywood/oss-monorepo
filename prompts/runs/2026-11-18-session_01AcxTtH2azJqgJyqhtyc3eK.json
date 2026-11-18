@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtH2azJqgJyqhtyc3eK",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:06:57Z",
+  "ended": "2026-11-18T02:25:20Z",
+  "wall_minutes": 18.57,
+  "tokens_in": 4343656,
+  "tokens_out": 28987,
+  "cost_usd": 2.2839,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17141",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/tests",
+      "issue": "7 of the project's test modules fail to import under the bare python3 (numpy absent); the stdlib-only ones (135 tests) pass. Not run with pyenv.py since this milestone is stdlib and CI covers the rest."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the session branch claude/magical-faraday-5elf25 already existed locally at origin/main, so `git checkout -b` failed harmlessly; no doc covers a pre-created branch."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/cell-fidelity/tests",
+      "why": "did not install numpy to run the 7 numpy-dependent test modules; my change touches none of them",
+      "did": "ran the stdlib suite and the new tests; relied on research CI for the rest",
+      "result": "pending CI"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-what-bends-a-plating-forecasts-line.md",
+    "research/cell-fidelity/LOG.md (5zp plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Milestone 5zp of cell-fidelity: plan committed first (H212-H215), then a stdlib analysis of 5zk's unused eta_pl_node records. Measured plating overpotential + measured charge-capacity factor straighten the law's line on LG M50 (ten-cycle error 1.4/1.5% vs 3.8/3.4%); H212 supported narrowly (third set a tie), H213/H214 inconclusive, H215 supported. run_workflow_locally --for-changes: 9/9 selected workflows passed (cross-review and deploy jobs not runnable locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f1e2b82-3066-50d7-b5a9-320201f4b1d4",
+    "transcripts": 1,
+    "first": "2026-11-18T02:06:57Z",
+    "last": "2026-11-18T02:25:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 84,
+        "output": 28987,
+        "thinking": 7274,
+        "cache_read": 4236508,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107064,
+        "api_equivalent_usd": 2.2839,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 84,
+      "output": 28987,
+      "thinking": 7274,
+      "cache_read": 4236508,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107064,
+      "api_equivalent_usd": 2.2839,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 18.57,
+      "active_minutes": 18.57,
+      "model_minutes": 5.58,
+      "tool_minutes": 12.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an analyst reading 5zo's code, designing four diagnostics, coding, testing and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 262.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

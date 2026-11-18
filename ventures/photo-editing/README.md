@@ -1509,6 +1509,16 @@ test keeps, and how much the reading drops when the mosaic is binned), always cl
 frame statistics cannot tell from noise, so 0.8 stays. `tools/noise_aware_estimated.py adapt`,
 `eval/noise-scale-per-frame-2026-11-17.md`.
 
+**A card-level noise floor was tested on real cards and did not ship (2026-11-18).** Frames from one body at one
+ISO share the sensor's noise and not their texture, so the lowest reading across a card should expose a frame
+that reads its own fine detail as noise. On 454 scenes from 182 bodies on raw.pixls.us, three rules were each
+committed before the rows they judged existed, and none passed: the floor alone understates noisy frames, and
+capping what ships at 1.5x the floor, on 153 bodies no rule had seen, removed 17 of 24 rows worse than
+directional (none added) but cost 0.015 dB of mean luma against a 0.01 bar. The run also found that what ships
+is worse than directional by over 0.1 dB on 0.8% of real full-size rows (worst -0.53 dB, all near clean), and
+that most raw.pixls.us multi-file sets are one scene saved several ways (`tools/card_scenes.py` finds them).
+`eval/noise-card-floor-real-2026-11-18.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,

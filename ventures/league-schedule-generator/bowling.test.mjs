@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY } from "./bowling.mjs";
+import { bowlingSchedule, laneReport, validateBowling, hungarian, bowlingCsv, bowlingText, parseWeekList, pairLabels, teamLaneGrid, assignLanes, offBound, boundOutOfReach, VACANCY, laneTargets, parseLaneAvoid } from "./bowling.mjs";
 import { LANE_TABLE } from "./bowling-lane-table.mjs";
 import { OUT_OF_REACH } from "./bowling-proofs.mjs";
 import { toDay, roundRobin } from "./calc.mjs";
@@ -261,4 +261,63 @@ test("the season polish keeps back-to-back repeats low (12 teams, 30 weeks: 17 r
   const r = laneReport(s);
   assert.ok(r.worstSpread <= 2, `spread ${r.worstSpread}`);
   assert.ok(r.repeats <= 17, `repeats ${r.repeats}`);
+});
+
+test("lane limits: a team never bowls on a pair it avoids, and every team lands in its fair share", () => {
+  const s = bowlingSchedule({ teams: names(8), weeks: 30, start: START, laneAvoid: "Team 1: last\nteam 2: 1-2, 3" });
+  assert.deepEqual(s.errors, []);
+  assert.deepEqual(validateBowling(s), []);
+  assert.deepEqual(s.avoid[0], [3]);
+  assert.deepEqual(s.avoid[1], [0, 1]);
+  for (const wk of s.weeks) for (const m of wk.matches) {
+    for (const t of [m.a, m.b]) assert.ok(!(s.avoid[t] ?? []).includes(m.pair), `week ${wk.week}: ${s.teams[t]} on pair ${m.pair}`);
+  }
+  const r = laneReport(s);
+  assert.equal(r.atBound, 8);
+  assert.equal(r.rows[0].counts[3], 0);
+  assert.deepEqual(r.rows[0].avoided, [3]);
+  for (const row of r.rows) assert.ok(row.spread <= row.bound, row.name);
+  assert.equal(s.boundProvedOutOfReach, false);
+});
+
+test("laneTargets is the old floor..ceil bound with no limits, and keeps row and pair totals with some", () => {
+  const plain = laneTargets([30, 30, 30, 30], 2);
+  assert.deepEqual(plain.lo, [[15, 15], [15, 15], [15, 15], [15, 15]]);
+  const g = new Array(10).fill(30);
+  const t = laneTargets(g, 5, [[4], [], [], [], [], [], [], [], [], []]);
+  assert.deepEqual(t.hi[0], [8, 8, 8, 8, 0]);
+  for (let p = 0; p < 5; p++) {
+    const share = t.share.reduce((s, row) => s + row[p], 0);
+    assert.ok(Math.abs(share - 60) < 1e-6);
+    assert.ok(t.lo.reduce((s, row) => s + row[p], 0) <= 60 && t.hi.reduce((s, row) => s + row[p], 0) >= 60);
+  }
+  for (let i = 1; i < 10; i++) assert.ok(t.hi[i][4] > t.hi[i][0] || t.lo[i][4] > t.lo[i][0]); // the shunned pair is shared out
+});
+
+test("lane limits that leave a week with no deal are refused with the week named, and bad input is reported", () => {
+  const s = bowlingSchedule({ teams: names(4), weeks: 6, start: START, laneAvoid: "Team 1: 1\nTeam 2: 1\nTeam 3: 1" });
+  assert.equal(s.weeks, undefined);
+  assert.match(s.errors[0], /^Week \d+: the lane limits leave no way/);
+  const p = parseLaneAvoid("Nobody: 1\nTeam 1 7-8\nTeam 2: 2-3\nTeam 3: 1-2, 3-4", names(4), 2, 1);
+  assert.equal(p.errors.length, 4);
+  assert.match(p.errors[0], /"Nobody" is not one of the teams/);
+  assert.match(p.errors[1], /colon/);
+  assert.match(p.errors[2], /not a lane pair/);
+  assert.match(p.errors[3], /cannot avoid every lane pair/);
+  const q = parseLaneAvoid("Team 1: ends\nTeam 2: lanes 15-16\nTeam 3: first", names(6), 3, 13);
+  assert.deepEqual(q.errors, []);
+  assert.deepEqual(q.avoid, [[0, 2], [1], [0], [], [], []]);
+});
+
+test("the search with limits honours them on every week of a grid, and an odd league's Vacancy is not a team to limit", () => {
+  for (const [n, weeks] of [[6, 20], [10, 33], [12, 26], [16, 34]]) {
+    const s = bowlingSchedule({ teams: names(n), weeks, start: START, laneAvoid: `Team 1: last\nTeam ${n}: first`, positionWeeks: [weeks] });
+    assert.deepEqual(s.errors, [], `${n}x${weeks}`);
+    assert.deepEqual(validateBowling(s), []);
+    for (const wk of s.weeks) if (wk.kind === "round") for (const m of wk.matches) assert.ok(!(s.avoid[m.a] ?? []).includes(m.pair) && !(s.avoid[m.b] ?? []).includes(m.pair));
+  }
+  const odd = bowlingSchedule({ teams: names(7), weeks: 10, start: START, laneAvoid: "Vacancy: 1" });
+  assert.match(odd.errors[0], /"Vacancy" is not one of the teams/);
+  const none = bowlingSchedule({ teams: names(8), weeks: 15, start: START, laneAvoid: "  \n" });
+  assert.equal(none.avoid, null);
 });

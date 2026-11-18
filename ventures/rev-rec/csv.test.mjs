@@ -88,3 +88,8 @@ test("zero-decimal amounts are not multiplied by 100 (red team 2026-11-17)", () 
   const r = linesFromCsv("id,date,period start,amount,currency\na,2026-01-01,2026-01-01,1200,JPY\nb,2026-01-01,2026-01-01,1200,usd\nc,2026-01-01,2026-01-01,1.5,kwd\n");
   assert.deepEqual(r.lines.map((l) => l.amount), [1200, 120000, 1500]);
 });
+
+test("sample data: plan prices stay 29, 79, 249 monthly and 290 annual, with one 79 refund", () => {
+  const amounts = new Set(sampleCsv().split("\n").slice(1).map((r) => r.split(",")[4]));
+  assert.deepEqual([...amounts].sort(), ["(79)", "249", "29", "290", "79"]);
+});

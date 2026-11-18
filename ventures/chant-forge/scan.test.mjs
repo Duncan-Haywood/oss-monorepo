@@ -318,6 +318,24 @@ test('a one-step cephalicus whose small note has a white counter is read', () =>
   const off = at(readPage(pgm, { oneStepGap: false })[0]); assert.ok(!off.some((n) => n.endsWith('~')), `without the bridge the counter hides it: ${off}`);
 });
 
+// A worn square on a line, split by a white fleck below the line into two
+// halves each narrower than the 0.25-space cut: the halves are joined
+// (FLECK; GregoBase 3439 nae, leaf 598; eval/fleck-check.md).
+test('a head split by a white fleck is read', () => {
+  const img = canvas(1600, 400);
+  const bottom = 120 + 3 * S;
+  const cy = (pos) => bottom - (pos * S) / 2;
+  drawStaff(img, 120, [[200, 4]]);
+  const x = 300;
+  rect(img, x, cy(2) - H / 2, 20, H); // a narrow square on the second line
+  rect(img, x + 8, cy(2) + 2, 4, 5, 225); // the fleck: 4 white columns under the line
+  rect(img, 420, cy(3) - H / 2, 22, H); // a plain head after it, one step up
+  const pgm = readPgm(toPgm(img));
+  const rels = (st) => st.notes.map((n) => n.rel + 6);
+  assert.deepEqual(rels(readPage(pgm)[0]), [4, 2, 3]);
+  assert.deepEqual(rels(readPage(pgm, { fleck: false })[0]), [4, 3], 'without the join the halves are both too narrow');
+});
+
 // turn a drawn page by `deg` degrees about its centre (bilinear, as a
 // scanner's slightly turned page would come out)
 function rotate(img, deg) {
