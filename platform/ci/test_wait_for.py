@@ -1,7 +1,7 @@
 import os, sys, tempfile, unittest
 import contextlib, io
 import subprocess
-from wait_for import main, wait, wait_until, wait_pid, pid_alive
+from wait_for import main, wait, wait_until, wait_pid, pid_alive, matching, wait_gone, ancestors
 
 
 class WaitFor(unittest.TestCase):
@@ -444,3 +444,47 @@ class Restart(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Gone(unittest.TestCase):
+    """--gone NAME: wait on a job by name without matching wait_for or its shell
+    (friction 2026-11-18: `pgrep -f '[b]owling...'` in a line naming the script matched itself)."""
+
+    def test_waits_for_a_named_process_then_returns(self):
+        tag = f"gone-test-{os.getpid()}"
+        p = subprocess.Popen(["sh", "-c", f"sleep 30 # {tag}"])
+        try:
+            self.assertTrue(wait_until(f"grep -q {tag} /proc/{p.pid}/cmdline", timeout=5, interval=0.05))
+            self.assertIn(p.pid, [pid for pid, _ in matching(tag)])
+            with contextlib.redirect_stderr(io.StringIO()) as err:
+                self.assertEqual(main(["--gone", tag, "--timeout", "0"]), 1)
+            self.assertIn(str(p.pid), err.getvalue())
+        finally:
+            p.kill()
+            p.wait()
+        self.assertEqual(matching(tag), [])
+        with contextlib.redirect_stdout(io.StringIO()) as out:
+            self.assertEqual(main(["--gone", tag, "--timeout", "1"]), 0)
+        self.assertIn("no process matches", out.getvalue())
+
+    def test_never_matches_itself_or_its_parents(self):
+        # The shell that runs wait_for has NAME on its command line, and so does wait_for.
+        tag = f"self-match-{os.getpid()}"
+        code = ("import sys; sys.path.insert(0, %r); from wait_for import main; "
+                "sys.exit(main(['--gone', %r, '--timeout', '0']))") % (os.path.dirname(os.path.abspath(__file__)), tag)
+        r = subprocess.run(["sh", "-c", f"{sys.executable} -c \"{code}\"; echo {tag}"],
+                           capture_output=True, text=True, timeout=30)
+        self.assertIn("no process matches", r.stdout)
+        self.assertIn(os.getpid(), ancestors())
+
+    def test_times_out_while_a_match_lives(self):
+        ticks = iter(range(100))
+        self.assertFalse(wait_gone("x", timeout=3, clock=lambda: next(ticks), nap=lambda s: None,
+                                   find=lambda n: [(1, "x")]))
+        self.assertTrue(wait_gone("x", timeout=0, find=lambda n: []))
+
+    def test_rejects_an_empty_name(self):
+        # "" is in every command line: the wait could never end.
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit) as e:
+            main(["--gone", " ", "--timeout", "0"])
+        self.assertEqual(e.exception.code, 2)

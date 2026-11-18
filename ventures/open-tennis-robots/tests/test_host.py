@@ -46,8 +46,23 @@ class DrillOnSimulatedFeederTest(unittest.TestCase):
         sim.run_ms(20)
         self.assertEqual(sim.hw.target_rpm, (0, 0))      # wheels told to stop at the end
         self.assertFalse(sim.ctl.estop)
-        # the ball lift runs on for the balls still coming back, at the duty held to 24 V / the 25.6 V pack reading
-        self.assertEqual(sim.hw.lift_pwm.duty, int(24000 / sim.pack_mv * 65535))
+        # the ball lift runs on for the balls still coming back, at the duty held to 24 V / the 25.6 V pack reading.
+        # Checked inside the run-on: since 2026-11-18 (SURVEY_QUEUE 3, README "A queued survey's heap") the Pi's wait
+        # for the last balls' surveys can outlast the 16 s after the last ball, and the lift has then rightly stopped.
+        on_s = sim.clock() - sim.released[-1][0]
+        if on_s < 15.9:
+            self.assertEqual(sim.hw.lift_pwm.duty, int(24000 / sim.pack_mv * 65535))
+        else:
+            self.assertEqual(sim.hw.lift_pwm.duty, 0)
+            sim2, wait = SimFeeder(elev_mode=mode), host.ESC_SURVEY_S
+            host.ESC_SURVEY_S = 0.0                  # the same drill without the end wait: the lift still running
+            try:
+                r2, _ = run(sim2, drill())
+            finally:
+                host.ESC_SURVEY_S = wait
+            self.assertTrue(r2.ok, r2.aborted)
+            self.assertLess(sim2.clock() - sim2.released[-1][0], 15.9)
+            self.assertEqual(sim2.hw.lift_pwm.duty, int(24000 / sim2.pack_mv * 65535))
         sim.run_ms(3100)
         self.assertEqual(sim.hw.agit_pwm.duty, 0)        # the agitator stops once no ball is wanted
 
@@ -1576,6 +1591,37 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(len(list(it)), 9)
         self.assertEqual(lc.survey_cut, cut)
 
+    def test_packed_ticks_read_back_as_the_tuples(self):
+        # 2026-11-18 (README "A queued survey's heap"): a queued survey's tick logs are packed into arrays; they must
+        # iterate as the very tuples they were made from, and an empty log stays falsy.
+        log = [(12, 340, 0.4125), (13, 0, 0.5), (15, 1999, 0.0)]
+        packed = controller.PackedTicks(log)
+        self.assertEqual(list(packed), log)
+        self.assertEqual(len(packed), 3)
+        self.assertFalse(controller.PackedTicks([]))
+        both = controller.pack_ticks([log, packed])
+        self.assertIs(both[1], packed)
+        self.assertEqual(list(both[0]), log)
+
+    def test_queued_surveys_hold_packed_ticks(self):
+        import esc_survey_sweep as S
+        sim = S.sim_for({}, 0.4, 0.95, 0.65)
+        lc = sim.hw.launch
+        held = []
+        orig = controller.LaunchCheck.queue_survey
+
+        def queue(self, survey):
+            held.append(survey.gi_frame.f_locals["ticks"])
+            return orig(self, survey)
+        controller.LaunchCheck.queue_survey = queue
+        try:
+            S.drill(sim, "drill.example.json")
+        finally:
+            controller.LaunchCheck.queue_survey = orig
+        self.assertTrue(held)
+        self.assertTrue(all(isinstance(t, controller.PackedTicks) for ticks in held for t in ticks))
+        self.assertTrue(all(isinstance(t, controller.PackedTicks) for t in lc.last_ticks))
+
     def test_waiting_surveys_queue_and_the_oldest_gives_way(self):
         import esc_survey_sweep as S
         lc = S.sim_for({}, 0.4, 0.95, 0.65).hw.launch
@@ -1586,12 +1632,13 @@ class EscSurveyTest(unittest.TestCase):
                 ran.append(name)
                 yield None
         lc.queue_survey(survey("a", 2))
-        for name in "bcd":                        # b and c each give way to the next; d waits behind a
+        names = [chr(ord("b") + i) for i in range(controller.SURVEY_QUEUE + 1)]
+        for name in names:                        # the first two give way to later ones; the rest wait behind a
             lc.queue_survey(survey(name, 1))
         self.assertEqual((lc.survey_cut, len(lc.survey_queue)), (2, controller.SURVEY_QUEUE - 1))
         while lc.step():
             pass
-        self.assertEqual(ran, ["a", "a", "d"])
+        self.assertEqual(ran, ["a", "a"] + names[2:])
         self.assertIsNone(lc.surveying)           # the running survey, then each waiting one, ran to the end
 
     def test_advice_waits_for_enough_wheels_and_frame_round_trips(self):

@@ -407,11 +407,12 @@ flagships:
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
       see firmware/esp32/README.md, latest "An ESC with its own speed loop" . Landed
-      2026-11-18: a ramp-then-PI drop fit for a speed-mode ESC, limit from a
-      spin-up, loop from a step train (firmware/esp32/README.md, host-side). Next: a
+      2026-11-18: SURVEY_QUEUE 3 with packed tick logs (README "A queued survey's
+      heap"); a ramp-then-PI drop fit for a speed-mode ESC, limit from a spin-up,
+      loop from a step train (firmware/esp32/README.md, host-side). Next: a
       drill-level check of one-wheel verdicts on more fresh sets; the sub-8 advised
-      instant build; short ESC lags read ~10% low with 16; SURVEY_QUEUE 3's heap;
-      ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels.
+      instant build; short ESC lags read ~10% low with 16; ball hold: WHEEL_RPM_FULL
+      error's cost on 0.2 s wheels.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -509,23 +510,17 @@ flagships:
       faults in 21 of 64 public IDS, eval/audit-corpus.mjs); ids.xsd repair
       2026-11-18 (eval/fix-structure-2026-11-18.md: one-answer faults fixed in the
       file's own text, 6 of 12 failing public IDS then valid; IDS 0.9
-      name/datatype/bare text read as written). attribute facets read geometry
-      shallow 2026-11-18 (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS
-      MEP 13.3 to 8.3 s, same reports); ifcXML streams 2026-11-18
+      name/datatype/bare text read as written). ifcXML streams 2026-11-18
       (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
       fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
       scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
       exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema
       from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
-      1,770 to 1,481 MB, fits 768 MB). attribute (any) = X shares one shape read per
-      entity 2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer
-      kept as per-character chains). nested ifcXML read as it closes 2026-11-18
+      1,770 to 1,481 MB, fits 768 MB). nested ifcXML read as it closes 2026-11-18
       (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
-      heap 160 to 96 MB on C20, federated unchanged at 704 MB). smaller record per
-      entity 2026-11-18 (eval/entity-table-2026-11-18.md: STEP records in a
-      number-indexed array, 3 fields; kept after parse 444 to 350 MB on 219 MB,
-      smallest heap 704 to 576 MB, same reports). checks' own memory 2026-11-18
-      (eval/shared-values-2026-11-18.md, eval/pset-records-2026-11-18.md:
-      exact-length lists, shared values, relationships and property sets not kept,
-      one record per set; 219 MB with 68 IDS 896 to 608 MB, same speed and reports).
-      next: the parse's own 512 MB. More open items: NEXT.md.
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). memory 2026-11-18:
+      README 'How it was checked' 11-14; STEP from bytes
+      (eval/step-bytes-2026-11-18.md: the file never one string; 219 MB parses in
+      512 to 304 MB, 68 IDS 640 to 448 MB; a 670 MB STEP past V8's string limit now
+      checks). next: ifcXML from bytes (one string still, capped near 537 MB). More
+      open items: NEXT.md.

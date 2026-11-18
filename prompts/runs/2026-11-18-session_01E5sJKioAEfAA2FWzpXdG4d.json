@@ -1,0 +1,72 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKioAEfAA2FWzpXdG4d",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T17:37:56Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: build a spatial autocorrelation tool (Moran's I, Geary's C, General G, LISA, Gi*, correlogram), verified against PySAL",
+  "projects": [
+    "ventures/spatial-autocorrelation"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17372",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 48,
+  "outcome": "success",
+  "errors": [
+    "First reference run: Gi* z differed in sign from esda on a column with a negative sum; traced to esda dividing by sum(y), documented and tested rather than matched.",
+    "First calibration run showed the folded permutation p (esda/GeoDa convention) rejecting ~10% at 0.05; switched the engine to report the two-sided (doubled) p and kept the one-sided as p_sim_one.",
+    "FDR option could never flag anything with 999 permutations for 48 places (min p 0.002 > 0.05/48); engine now raises local permutations to 2n/alpha with a warning.",
+    "Permutation streams were seeded by column position, so one column gave different borderline clusters alone vs in the full table; now seeded by column name (tested).",
+    "Own test bugs (a line-wrapped phrase, commas inside calibration CSV labels) and a post front matter over the length limits, all fixed.",
+    "Local CI sweep: sibling-links failed (new tool had no sibling linking it; kriging-interpolation now links it, with a page test) and check_hidden_unicode flagged a literal U+FEFF in engine.mjs's BOM strip (now an escape). My own post edit mid-sweep voided the first sweep; voided workflows re-run clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "Census, BLS and USDA ERS hosts all 403 through the proxy; PyPI works, so data bundled inside a PyPI package (libpysal's us_income, BEA data) was the only route to real areal data. Worth adding to 'Outbound hosts' as a general fallback."
+    },
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Finding an uncovered method took README and code greps; grep -w over READMEs missed instrumental-variables, which exists. A one-line-per-tool method index would be faster than the long table."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "run_workflow_locally.py --for-changes takes ~20 min and voids itself if any tracked file changes; I edited the post (front-matter fix) mid-sweep and lost it. The warning is printed only at the end; printing it at the start would have saved a re-run."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "why": "Matching the reference implementation would mean esda's one-sided folded permutation p, which miscalibrates at 0.05.",
+      "did": "Report the two-sided p by default, keep esda's value as p_sim_one, test the relationship and publish the calibration.",
+      "result": "Two-sided permutation p rejects 3.8-6.1% under the null vs 9.1-12.0% for the folded p."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-one-sided-p-value-hiding-in-every-lisa-map.md",
+    "ventures/spatial-autocorrelation/README.md",
+    "ventures/spatial-autocorrelation/eval/README.md"
+  ],
+  "goal": "Direction: research algorithms as tools",
+  "notes": "Explore idea: spatial autocorrelation (Moran's I / LISA / Gi* hot spots) as a research-algorithm tool; 0 of 1,406 ventures mentioned Moran, Geary, Getis-Ord or LISA. Reference: esda 2.9.0 / libpysal 4.14.1, 9 cases, analytic numbers to 1e-9. Calibration (eval/calibration-output.txt, seeded, 1,000 null maps x 4 set-ups): folded permutation p 9.1-12.0% false positives at 0.05, doubled 3.8-6.1%; uncorrected LISA flags >=1 cluster on 88.7-99.0% of null maps, FDR 4.5-9.0%. Example: BEA state per-capita income 1929-2009 via libpysal's bundled example (proxy refused census/bls); Moran's I 0.667 (1934) -> 0.248 (1981) -> 0.429 (2009). Local checks: run_venture_tests.py spatial-autocorrelation 48/48 ok + site page checks ok; Chromium render desktop+phone, no console errors, no external requests, no horizontal scroll. GitHub showed 0 check runs on the PR (starved); verified locally with run_workflow_locally.py: sibling-links, ventures-tests, page-integrity, doc-refs, conflict-markers, duplicate-symbols, link-contrast, readme-live-links all pass on d280c9f; portfolio-validate 99/99 and pages.yml 6/6 passed in the first sweep; portfolio-pages' only failure was the orphan check, fixed (siblings.test.mjs 20/20).",
+  "corrections": [],
+  "redteam": null
+}

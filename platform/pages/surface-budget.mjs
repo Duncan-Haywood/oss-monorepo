@@ -56,7 +56,7 @@
 //   node platform/pages/surface-budget.mjs --for overtime-pay-calculator
 //   node platform/pages/surface-budget.mjs --check    # exit 1 if over budget
 //   node platform/pages/surface-budget.mjs            # the whole table
-import { promises as fs } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
 
@@ -250,14 +250,22 @@ function isMarketingPage(name) {
   return name.endsWith('.html') && name !== 'index.html';
 }
 
-/** Every marketing surface each venture publishes, keyed by slug. */
+/**
+ * Every marketing surface each venture publishes, keyed by slug.
+ *
+ * The directory listings and page reads are synchronous on purpose: about
+ * 1,400 listings and 2,600 small files, each awaited one after another, left
+ * the process idle on the thread pool for most of a 610 ms scan; the sync
+ * calls do the same reads in about a quarter of that
+ * (docs/history/pages-test-perf-2026-11-18-surface-budget-sync-scan.md).
+ */
 export async function surfacesByVenture(venturesDir = path.join(REPO_ROOT, 'ventures')) {
   const out = new Map();
   for (const { slug, sourceDir } of await discoverSurfaces(venturesDir)) {
-    const names = (await fs.readdir(sourceDir)).filter(isMarketingPage).sort();
+    const names = readdirSync(sourceDir).filter(isMarketingPage).sort();
     const pages = [];
     for (const name of names) {
-      const html = await fs.readFile(path.join(sourceDir, name), 'utf8');
+      const html = readFileSync(path.join(sourceDir, name), 'utf8');
       const comparison = COMPARISON_FILE_PATTERN.test(name);
       pages.push({
         file: name,
@@ -305,15 +313,17 @@ function printVenture(slug, pages) {
 }
 
 async function main(argv) {
+  const forIndex = argv.indexOf('--for');
+  // A missing slug is a usage error; answer it before scanning the tree.
+  if (forIndex !== -1 && !argv[forIndex + 1]) {
+    console.error('--for needs a venture slug');
+    return 2;
+  }
+
   const bySlug = await surfacesByVenture();
 
-  const forIndex = argv.indexOf('--for');
   if (forIndex !== -1) {
     const slug = argv[forIndex + 1];
-    if (!slug) {
-      console.error('--for needs a venture slug');
-      return 2;
-    }
     if (!bySlug.has(slug)) {
       console.error(`no venture with a published entry point: ${slug}`);
       return 2;

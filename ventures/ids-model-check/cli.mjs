@@ -50,7 +50,7 @@ if (flag("--fix") && files.length === 1) {
   try {
     const t0 = Date.now();
     const model = await readModel(ifcPath);
-    report = check(readFileSync(idsPath, "utf8"), model.text, { audit: !flag("--no-audit") });
+    report = check(readFileSync(idsPath, "utf8"), model.bytes, { audit: !flag("--no-audit") });
     if (model.name !== ifcPath) report.modelFile = model.name;
     report.seconds = (Date.now() - t0) / 1000;
   } catch (e) {
