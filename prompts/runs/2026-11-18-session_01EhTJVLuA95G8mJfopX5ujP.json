@@ -27,11 +27,13 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 0,
   "review_findings": null,
   "tests_added": 10,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "venture-preflight caught availabilityCsv defusing plain negative numbers (check_csv_formula_guard); fixed in the PR"
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -52,7 +54,7 @@
     "ventures/league-schedule-generator/README.md (Rosters, answers CSV and reminders)"
   ],
   "goal": null,
-  "notes": "availability-roster.test.mjs 10/10 and availability.test.mjs 9/9 pass locally; deploy.test.mjs passes (Dockerfile copies mailer.mjs). Chromium: the name box's datalist follows the picked team's roster, teams without one take free text, answer saved, no page errors. Not checked: TLS/STARTTLS against a real SMTP provider, real inbox delivery.",
+  "notes": "availability-roster.test.mjs 10/10 and availability.test.mjs 9/9 pass locally; deploy.test.mjs passes (Dockerfile copies mailer.mjs). Chromium: the name box's datalist follows the picked team's roster, teams without one take free text, answer saved, no page errors. Not checked: TLS/STARTTLS against a real SMTP provider, real inbox delivery. run_venture_tests.py league-schedule-generator: ok (626 tests, 276.8 s). venture-preflight: first run failed check_csv_formula_guard (plain negative numbers were defused), fixed; second run 'preflight clean'. PR check runs: none triggered (0 check runs), so merged on local verification.",
   "corrections": [],
   "redteam": null,
   "usage": {

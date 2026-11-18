@@ -86,6 +86,12 @@ not eight; FLAGSHIP_NEXT_TARGET's headroom is what an explicit --make-room
 or --trim asks for. A clause reporting landed work is never parked (cut it,
 `--landed` lists them). Every park says up front how many items and
 characters it moves, and `--dry-run` shows that without writing.
+
+Landed results without the word still went: five records on 2026-11-18 saw
+"proved impossible: 7, 9 on 2x6" and "8 on 2x6, 12 on 2x9 UNSAT" (fragments
+of one landed sentence) parked as open items. Every row names where its open
+items start ("Next:", "Open:", "Wanted, ...:"), so nothing before that marker
+is offered for parking (`open_start`).
 """
 from __future__ import annotations
 
@@ -282,6 +288,27 @@ def _balanced(text: str) -> bool:
 SENTENCE = re.compile(r"[a-z0-9)\]]\. (?=[A-Za-z(])")
 
 
+# Where a row's open items begin ("Next:", "Open:", "next:", "Next, most
+# valuable first:", "Open items, most valuable first:", "Wanted, all needing
+# real inputs:"). Text before the first
+# one is history (results, landed work) however it is worded. On 2026-11-18
+# implicit parks moved "proved impossible: 7, 9 on 2x6" and "8 on 2x6, 12 on
+# 2x9 UNSAT" into league-schedule-generator's NEXT.md as open items: they were
+# `; `-fragments of one landed sentence, and only the first fragment said
+# "landed" (six run records that day; PRs #17133, #17193, #17254, #17272,
+# #17275). Every row on main carries such a marker; one with none is parked as
+# before.
+OPEN_MARK = re.compile(r"\b(?:[Nn]ext|[Oo]pen|Wanted)\b(?:,[^:;.]{0,40}| items\b[^:;.]{0,30})?:")
+
+
+def open_start(value: str) -> int:
+    """Offset in the space-normalised `value` where open items begin: the
+    first OPEN_MARK outside the NEXT.md pointer, or 0 when there is none."""
+    v = " ".join(value.split()).replace(PARK_POINTER, " " * len(PARK_POINTER))
+    m = OPEN_MARK.search(v)
+    return m.start() if m else 0
+
+
 def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[tuple[str, int]]:
     """(item, room it frees) for the `; `-separated items of `value`, last first,
     until together they free `over` characters. The history pointer that opens
@@ -296,7 +323,15 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
     control ...: CA rank 1 of 39" and left the run's "MA, AZ, OR ranks 6-13;
     covariates ... failed" under the previous item's "its AR(1) term", so
     the run needed a second --replace to restore the heading."""
-    items = [i for i in split_items(value) if i]
+    start = open_start(value)
+    items, pos, history = [], 0, set()
+    for item in split_items(value):
+        pos += len(item) + 2
+        if item:
+            # an item ending before the first open marker is history: never offered
+            if pos - 2 <= start:
+                history.add(len(items))
+            items.append(item)
 
     def _body(item: str) -> str:
         return ROW_NOTE.sub("", item.replace(PARK_POINTER, "")).strip().rstrip(". ")
@@ -311,7 +346,7 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
     for i, item in enumerate(reversed(items)):
         j = len(items) - 1 - i
         body = _body(item)
-        if (j == 0 or j in held or _mine(item) or not body or POINTER.match(body)
+        if (j == 0 or j in history or j in held or _mine(item) or not body or POINTER.match(body)
                 or LANDED.search(body)
                 or len(body) < 12 or not _balanced(body) or SENTENCE.search(body)):
             continue

@@ -532,3 +532,33 @@ def test_dry_run_writes_nothing(tmp_path, capsys):
     assert f.read_text() == doc and not (tmp_path / "ventures" / "b" / "NEXT.md").exists()
     assert ff.main(base + ["--field", "buildable", "--replace", "x", "y"]) in (0, 1)
     assert f.read_text() == doc
+
+
+def test_park_candidates_never_offer_history_before_the_open_marker():
+    # 2026-11-18: "proved impossible: 7, 9 on 2x6" and "8 on 2x6, 12 on 2x9
+    # UNSAT" were `; `-fragments of one landed sentence, before the row's
+    # "next:", and were parked into NEXT.md as open items.
+    hist = ("History: README. Odd leagues landed (eval/odd.txt): proved impossible: "
+            "7, 9 on 2x6; on 9 slots 11, 13 teams on 2 courts, 17 on 3; 8 on 2x6, "
+            "12 on 2x9 UNSAT; ")
+    v = hist + "Next: (a) a real league's blackout list; (b) printed sheets on real paper."
+    got = [c for c, _ in ff.park_candidates(v, 10**6)]
+    assert got and not any("2x6" in c or "on 2 courts" in c for c in got)
+    assert any("printed sheets" in c for c in got)
+    # the NEXT.md pointer's "open items:" is not the marker
+    assert ff.open_start("a; b. More open items: NEXT.md.") == 0
+    # "Wanted, ...:" opens items too (wall-framing-takeoff)
+    w = "History: README (x; y). Wanted, all needing real inputs: a real DXF; a deck plan."
+    assert ff.open_start(w) == w.index("Wanted")
+
+
+def test_real_rows_offer_no_item_before_their_open_marker():
+    text = ff.FLAGSHIPS_PATH.read_text()
+    import yaml
+    for e in ff._entries(yaml.safe_load(text)):
+        v = ff.read_value(text, e["venture"], "next")
+        if not v:
+            continue
+        norm, start = " ".join(v.split()), ff.open_start(v)
+        for c, _ in ff.park_candidates(v, 10**6):
+            assert norm.find(c) + len(c) > start, (e["venture"], c)
