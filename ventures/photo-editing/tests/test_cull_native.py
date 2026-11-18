@@ -140,6 +140,13 @@ class CullNativeTest(unittest.TestCase):
         self.assertLess(len(want), 200)
         self.assertEqual(cull_native.linked_pairs(hashes, crops, zooms, fines), want)
 
+    def test_thread_count_changes_nothing(self):
+        parsed = _parsed(self.rows(5, 600))
+        one = cull_native.linked_pairs(*parsed, threads=1)
+        self.assertEqual(one, _reference(*parsed))
+        for threads in (2, 3, 7, 64):
+            self.assertEqual(cull_native.linked_pairs(*parsed, threads=threads), one, threads)
+
     def test_edge_sizes(self):
         self.assertEqual(cull_native.linked_pairs([], [], [], []), [])
         self.assertEqual(cull_native.linked_pairs([5], [()], [()], [()]), [])

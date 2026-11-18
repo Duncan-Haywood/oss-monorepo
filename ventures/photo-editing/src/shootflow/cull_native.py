@@ -41,6 +41,7 @@ C_SOURCE = r"""
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 /* One row per frame, ROW uint64 values: [whole, crops 0..24, fines 0..23, zooms 0..99], so the 49 grid
    windows (crops then fines, frame_analysis._FINE_GRID's order) sit side by side.
@@ -179,6 +180,59 @@ static int linked(const uint64_t *rows, const uint8_t *flags, long i, long j, co
     return 0;
 }
 
+#define MAX_THREADS 16
+
+typedef struct {
+    long n; const uint64_t *rows; const uint8_t *flags; const int *cfg;
+    const int *pan_a, *pan_b, *fine_a, *fine_b;
+    const chunk_index *whole, *crop, *zoom, *fine, *pan; const int *pan_keys; int ntab; int unused;
+} shared_t;
+
+typedef struct { const shared_t *sh; long first, step; int32_t *pairs; long used, cap; int rc; } worker_t;
+
+/* Frames first, first + step, ...: look each one up in every table, check every frame found against it
+   (as earlier, later), keep the linked pairs. Crop and zoom lookups are one-sided and pan lanes ordered,
+   so a pair may be found from either frame or both; the caller sorts and makes the pairs unique. */
+static void *query(void *arg) {
+    worker_t *w = arg;
+    const shared_t *sh = w->sh;
+    long n = sh->n;
+    const uint64_t *rows = sh->rows;
+    const uint8_t *flags = sh->flags;
+    const int *cfg = sh->cfg;
+    found_t fd = {malloc((n ? n : 1) * sizeof(int32_t)), malloc((n ? n : 1) * sizeof(int32_t)), 0, 0};
+    w->cap = 1024; w->used = 0;
+    w->pairs = malloc(w->cap * 2 * sizeof *w->pairs);
+    if (!fd.stamp || !fd.list || !w->pairs) { w->rc = -1; free(fd.stamp); free(fd.list); return NULL; }
+    for (long f = 0; f < n; f++) fd.stamp[f] = -1;
+    for (long i = w->first; i < n; i += w->step) {
+        const uint64_t *r = rows + i * ROW;
+        fd.q = (int32_t)i; fd.count = 0;
+        ci_near(sh->whole, r[0], &fd);
+        ci_near(sh->zoom, r[0], &fd);
+        if (flags[i] & 1) {
+            ci_near(sh->crop, r[CROP0 + cfg[CENTRE]], &fd);
+            for (int t = 0; t < sh->ntab; t++) ci_near(&sh->pan[t], r[CROP0 + sh->pan_keys[t]], &fd);
+        }
+        if ((flags[i] & 5) == 5) for (int k = 0; k < NCROP + NFINE; k++) ci_near(sh->fine, r[GRID0 + k], &fd);
+        for (long e = 0; e < fd.count; e++) {
+            long j = fd.list[e];
+            if (j == i) continue;
+            long lo = j < i ? j : i, hi = j < i ? i : j;
+            if (!linked(rows, flags, lo, hi, cfg, sh->pan_a, sh->pan_b, sh->fine_a, sh->fine_b)) continue;
+            if (w->used == w->cap) {
+                int32_t *grown = realloc(w->pairs, w->cap * 4 * sizeof *w->pairs);
+                if (!grown) { w->rc = -1; break; }
+                w->pairs = grown; w->cap *= 2;
+            }
+            w->pairs[2 * w->used] = (int32_t)lo; w->pairs[2 * w->used + 1] = (int32_t)hi; w->used++;
+        }
+        if (w->rc) break;
+    }
+    free(fd.stamp); free(fd.list);
+    return NULL;
+}
+
 static int by_pair(const void *x, const void *y) {
     const int32_t *a = x, *b = y;
     if (a[0] != b[0]) return a[0] < b[0] ? -1 : 1;
@@ -187,11 +241,12 @@ static int by_pair(const void *x, const void *y) {
 
 /* Every linked pair (i < j) of the n frames, once each, written to *out as 2 * (*count) int32 (caller
    frees with shootflow_cull_free). pan_a/pan_b: _PAN_PAIRS (crop window indices); fine_a/fine_b:
-   _FINE_PAIRS as indices into the 49 grid windows (crops then fines). Returns 0, or -1 when memory runs
-   out. Runs without the GIL (ctypes). */
+   _FINE_PAIRS as indices into the 49 grid windows (crops then fines). threads: how many threads share the
+   lookups (each frame's are independent; the answer does not depend on it). Returns 0, or -1 when memory
+   runs out. Runs without the GIL (ctypes). */
 long shootflow_cull_pairs(long n, const uint64_t *rows, const uint8_t *flags, const int *cfg,
                           const int *pan_a, const int *pan_b, const int *fine_a, const int *fine_b,
-                          int32_t **out, long *count) {
+                          int threads, int32_t **out, long *count) {
     *out = NULL; *count = 0;
     int whole_pick[1] = {0}, zoom_pick[NZOOM], crop_pick[NCROP], grid_pick[NCROP + NFINE];
     for (int k = 0; k < NZOOM; k++) zoom_pick[k] = ZOOM0 + k;
@@ -216,40 +271,36 @@ long shootflow_cull_pairs(long n, const uint64_t *rows, const uint8_t *flags, co
         ci_build(&fine, cfg[FINE_MAX], n, rows, flags, 5, grid_pick, NCROP + NFINE)) rc = -1;
     for (int t = 0; t < ntab && !rc; t++, built++)
         if (ci_build(&pan[t], cfg[PAN_MAX], n, rows, flags, 1, pan_bs[t], pan_nb[t])) rc = -1;
-    found_t fd = {malloc((n ? n : 1) * sizeof(int32_t)), malloc((n ? n : 1) * sizeof(int32_t)), 0, 0};
-    long cap = 1024, used = 0;
-    int32_t *pairs = malloc(cap * 2 * sizeof *pairs);
-    if (!fd.stamp || !fd.list || !pairs) rc = -1;
-    if (!rc) for (long f = 0; f < n; f++) fd.stamp[f] = -1;
-    for (long i = 0; i < n && !rc; i++) {
-        const uint64_t *r = rows + i * ROW;
-        fd.q = (int32_t)i; fd.count = 0;
-        ci_near(&whole, r[0], &fd);
-        ci_near(&zoom, r[0], &fd);
-        if (flags[i] & 1) {
-            ci_near(&crop, r[CROP0 + cfg[CENTRE]], &fd);
-            for (int t = 0; t < ntab; t++) ci_near(&pan[t], r[CROP0 + pan_keys[t]], &fd);
+    shared_t sh = {n, rows, flags, cfg, pan_a, pan_b, fine_a, fine_b, &whole, &crop, &zoom, &fine, pan, pan_keys,
+                   ntab, 1};
+    int nthreads = threads < 1 ? 1 : threads > MAX_THREADS ? MAX_THREADS : threads;
+    if (n < 256) nthreads = 1;
+    worker_t w[MAX_THREADS];
+    memset(w, 0, sizeof w);
+    for (int t = 0; t < nthreads; t++) { w[t].sh = &sh; w[t].first = t; w[t].step = nthreads; }
+    long used = 0;
+    int32_t *pairs = NULL;
+    if (!rc) {
+        pthread_t tid[MAX_THREADS];
+        int started[MAX_THREADS] = {0};
+        for (int t = 1; t < nthreads; t++) started[t] = pthread_create(&tid[t], NULL, query, &w[t]) == 0;
+        query(&w[0]);
+        for (int t = 1; t < nthreads; t++) {
+            if (started[t]) pthread_join(tid[t], NULL);
+            else query(&w[t]); /* no thread: run its share here */
         }
-        if ((flags[i] & 5) == 5) for (int k = 0; k < NCROP + NFINE; k++) ci_near(&fine, r[GRID0 + k], &fd);
-        for (long e = 0; e < fd.count; e++) {
-            long j = fd.list[e];
-            if (j == i) continue;
-            /* Crop and zoom lookups are one-sided and pan lanes ordered, so a pair may be found from
-               either frame or both; it is checked as (earlier, later) each time, and the output is sorted and
-               made unique below. */
-            long lo = j < i ? j : i, hi = j < i ? i : j;
-            if (!linked(rows, flags, lo, hi, cfg, pan_a, pan_b, fine_a, fine_b)) continue;
-            if (used == cap) {
-                int32_t *grown = realloc(pairs, cap * 4 * sizeof *pairs);
-                if (!grown) { rc = -1; break; }
-                pairs = grown; cap *= 2;
-            }
-            pairs[2 * used] = (int32_t)lo; pairs[2 * used + 1] = (int32_t)hi; used++;
+        for (int t = 0; t < nthreads; t++) { if (w[t].rc) rc = -1; used += w[t].used; }
+        pairs = malloc((used ? used : 1) * 2 * sizeof *pairs);
+        if (!pairs) rc = -1;
+        long at = 0;
+        for (int t = 0; t < nthreads && !rc; t++) {
+            memcpy(pairs + 2 * at, w[t].pairs, w[t].used * 2 * sizeof *pairs);
+            at += w[t].used;
         }
     }
+    for (int t = 0; t < nthreads; t++) free(w[t].pairs);
     ci_free(&whole); ci_free(&crop); ci_free(&zoom); ci_free(&fine);
     for (int t = 0; t < built; t++) ci_free(&pan[t]);
-    free(fd.stamp); free(fd.list);
     if (rc) { free(pairs); return -1; }
     qsort(pairs, used, 2 * sizeof *pairs, by_pair);
     long kept = 0;
@@ -266,7 +317,7 @@ void shootflow_cull_free(int32_t *p) { free(p); }
 
 _STATE: dict[str, object] = {}
 _LOCK = threading.Lock()
-_FLAGS = ["-O2"]
+_FLAGS = ["-O2", "-pthread"]
 
 
 def _load():
@@ -299,7 +350,7 @@ def _load():
     fn = lib.shootflow_cull_pairs
     fn.restype = ctypes.c_long
     P = ctypes.c_void_p
-    fn.argtypes = [ctypes.c_long, P, P, P, P, P, P, P, ctypes.POINTER(ctypes.POINTER(ctypes.c_int32)),
+    fn.argtypes = [ctypes.c_long, P, P, P, P, P, P, P, ctypes.c_int, ctypes.POINTER(ctypes.POINTER(ctypes.c_int32)),
                    ctypes.POINTER(ctypes.c_long)]
     free = lib.shootflow_cull_free
     free.restype = None
@@ -345,12 +396,13 @@ def _config() -> tuple[array, array, array, array, array]:
 
 def linked_pairs(
     hashes: Sequence[int], crops: Sequence[Sequence[int]], zooms: Sequence[Sequence[int]],
-    fines: Sequence[Sequence[int]],
+    fines: Sequence[Sequence[int]], threads: int | None = None,
 ) -> list[tuple[int, int]] | None:
     """Every linked pair (i < j), sorted: the pairs of ``cull._linked_pairs_all``. None without the C path.
 
     ``crops``, ``zooms`` and ``fines`` are each frame's parsed window hashes (ints); a frame whose list is
-    not complete (25, 100, 24) takes no part in that pass, as in the Python checks.
+    not complete (25, 100, 24) takes no part in that pass, as in the Python checks. ``threads`` (default:
+    ``$SHOOTFLOW_THREADS``, else the CPU count, at most 16) share the lookups; the answer does not depend on it.
     """
 
     loaded = functions()
@@ -381,6 +433,11 @@ def linked_pairs(
             flag |= 2
         flags[i] = flag
     cfg, pan_a, pan_b, fine_a, fine_b = _config()
+    if threads is None:
+        try:
+            threads = int(os.environ.get("SHOOTFLOW_THREADS", "0")) or (os.cpu_count() or 1)
+        except ValueError:
+            threads = os.cpu_count() or 1
     flag_buf = (ctypes.c_uint8 * max(1, n)).from_buffer(flags if n else bytearray(1))
 
     def addr(buf: array) -> int:
@@ -389,7 +446,7 @@ def linked_pairs(
     out = ctypes.POINTER(ctypes.c_int32)()
     count = ctypes.c_long(0)
     rc = fn(n, addr(rows) if n else None, ctypes.addressof(flag_buf), addr(cfg), addr(pan_a), addr(pan_b),
-            addr(fine_a), addr(fine_b), ctypes.byref(out), ctypes.byref(count))
+            addr(fine_a), addr(fine_b), threads, ctypes.byref(out), ctypes.byref(count))
     if rc != 0:
         return None
     try:
