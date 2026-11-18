@@ -59,7 +59,7 @@ audit-ready revenue accounting.
   receivable would never clear) and `Dr Deferred revenue / Cr Subscription
   revenue` for recognition, dated month end. Account names: `ACCOUNT_CASH`
   (the older `ACCOUNT_RECEIVABLE` is still read), `ACCOUNT_DEFERRED`,
-  `ACCOUNT_REVENUE`. `?through=YYYY-MM` limits the range.
+  `ACCOUNT_REVENUE`. `?through=YYYY-MM` limits the range (any other form, such as `2026-3`, is a 400 rather than a journal of every month).
 - **Period lock:** set `CLOSED_THROUGH=YYYY-MM` (or pass
   `?closed_through=YYYY-MM` on any endpoint) once you have exported a month.
   A line paid after the close (a net-30 invoice, a proration billed later)

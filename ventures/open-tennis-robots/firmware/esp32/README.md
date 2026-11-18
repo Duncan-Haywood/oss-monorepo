@@ -3175,3 +3175,36 @@ that. The jittery tach's reading is still high on the design set for every model
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --score eval/take-survey-pick-heldout-rows-2026-11-18.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --drops eval/take-fit-2026-11-17.jsonl.gz
+
+## A fresh take survey with the stretched offsets live (2026-11-18, after "The take fit's four parts and its high reading"; `TAKE_SURVEY_SPLINE` built, kept off by its pre-registered rule)
+
+**The item.** The section above refitted stored survey wheels offline. Do fresh survey drills, with the stretched
+offsets live on the simulated board, still read 7 ms takes at the grid's end (8 ms), and the 3 ms takes low?
+
+**How it was checked.** `tests/take_survey_pick.py --capture` (unchanged) on three sets no earlier run used: A (wheel
+lag 0.35 s, seed 37), B (0.8 s, seed 43) and C (0.5 s, seed 47), 54 drills each, none aborted. Four clauses were
+committed before A and B were captured (2ef796e6d); a second prediction and a decision rule for the pick were
+committed after A and B were scored and before C was captured (334f5ca1e). Everything is in
+`eval/take-survey-fresh-2026-11-18.md`.
+
+**What it found.** All four first clauses held. On the capture tach none of the six 7 ms builds read 8.0 (before the
+stretch every 7 ms take on the design set did); the residual's own least sat on the true take (+0.08 and -0.12 ms
+off-grid); the 3 ms takes came within 0.5 ms on 5 of 6; no instant build was advised. The stretch exposed the pick's
+own lean: the three-point parabola reads about 0.4-0.5 ms below the residual's least (off-grid, capture tach: -0.51,
+-0.50 and -0.38 ms against the true take on A, B and C). Before the stretch that low lean was partly hiding the fit's
+high reading.
+
+**The spline, held out on C.** The natural spline (`survey_spline_pick`, already shipped for the ESC-lag survey) leaned
+less (-0.27 against -0.38 on C) but tied the parabola once the Pi rounds to 0.5 ms: within 0.5 ms 48 of 54 each,
+within 1 ms 53 each, spread takes named and advised 38 of 48 each, no instant build advised. The rule needed more
+builds within 0.5 ms, so `TAKE_SURVEY_SPLINE` (`ResidualSurvey.report`'s pick) ships built and off. It also read the
+7 ms takes lower than the parabola (-0.54 against -0.42 on C).
+
+**The nine-point grid** (0-8 ms by 1, scored offline from the dense refits, not decided): within 0.5 ms 47, 52 and 49
+against the shipped grid's 43, 46 and 48; within 1 ms never worse. Adding 7 alone changed nothing; the likely source is
+the 1 ms point (1 ms takes read 0 on 16 of 18 builds on the shipped grid, all still within 1 ms and none advised).
+
+**Not known.** All simulated, with the simulator's continuous half-sine; one seed per set.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-fresh-c-2026-11-18.jsonl.gz
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-fresh-c-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"

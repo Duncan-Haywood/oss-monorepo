@@ -56,9 +56,18 @@
 
 ## From the Hasselblad 3FR reader (2026-11-18, eval/hasselblad-3fr-reader-2026-11-18.md)
 
-- Phocus `.fff` files (raw.pixls.us has H4D-40, H5D-40, H5D-50c, CFV-50, H6D-100c MS and X2D ones; also TIFFs)
-  through the 3FR reader, checked against LibRaw the same way.
+- (landed 2026-11-18) Phocus `.fff` files read as 3FRs: eval/hasselblad-fff-reader-2026-11-18.md.
+
+## From the Phocus .fff reader (2026-11-18, eval/hasselblad-fff-reader-2026-11-18.md)
+
+- The H4D-40 and H6D-100c `.fff` files carry no colour matrix and no public 3FR of those bodies exists to
+  read one from: a 3FR (or a camera-written DNG) of either body would add them to `OWN_MATRICES`.
+- Older exports (CFV-50, H4D-40, H5D-40, H5D-50c) have empty codes of other sizes (H5D-40: half of R and B,
+  a quarter of G; H5D-50c: 11% of R): some other digital step. A 3FR and `.fff` pair of one of those bodies
+  would say what it is and whether their neutral needs anything.
+- An Adobe or Phocus render of a `.fff` frame to settle which neutral reading Phocus itself uses.
 - Rerun `tools/mrw_develop_check.py` with LibRaw's output in linear light (`gamma=(1, 1)`): it undid LibRaw's
   BT.709 curve with the sRGB curve, so its 0.003-0.016 colour gaps are overstated. Needs the nine MRW files again.
   (The CR2 and camera-DNG checks pass `gamma=(2.4, 12.92)` and are not affected.)
 - A real 3FR written with predictor 11 (all five compressed files at hand use 8).
+- (2026-11-18) a real Adobe `.dcp` through the profile chooser

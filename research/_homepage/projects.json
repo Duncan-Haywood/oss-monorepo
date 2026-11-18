@@ -155,7 +155,7 @@
     {
      "slug": "decentralized-verification-markets",
      "title": "Peer-prediction markets for decentralized ML training verification",
-     "summary": "Proper scoring rules, Peer Truth Serum, Correlated Agreement and LMSR aggregation, with eight follow-ups on mechanism-aware adversaries (trust farming, whitewashing, closed-loop attackers) and defences. Pure-Python, dependency-free."
+     "summary": "Proper scoring rules, Peer Truth Serum, Correlated Agreement and LMSR aggregation. Published multi-task Correlated Agreement keeps honest reporting ahead of a simultaneous lazy/colluding block on 10 of 10 seeds; a bonus-only variant without the penalty term does not. Eight follow-ups on mechanism-aware adversaries (trust farming, whitewashing, closed-loop attackers) and defences. Pure-Python, dependency-free."
     },
     {
      "slug": "effort-elicitation",
