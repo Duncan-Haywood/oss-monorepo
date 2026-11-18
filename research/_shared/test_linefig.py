@@ -1,3 +1,4 @@
+import re
 import subprocess
 import sys
 import unittest
@@ -79,6 +80,26 @@ class LineFig(unittest.TestCase):
         svg = linefig.svg_lines("t", "a", "x", "y", [("s", [1, 2], [-1.0, 1.0])], hline=0)
         self.assertIn('stroke-dasharray="4 3"', svg)
         self.assertNotIn('stroke-dasharray="4 3"', linefig.svg_lines("t", "a", "x", "y", [("s", [1, 2], [-1.0, 1.0])]))
+
+    def test_five_series_get_five_colours_inside_the_width(self):
+        names = ["real (HERMES)", "SF", "CFSM", "ORCA", "Vadere OSM"]
+        series = [(n, [1, 2], [k, k + 1]) for k, n in enumerate(names)]
+        svg = linefig.svg_lines("t", "a", "x", "y", series)
+        strokes = re.findall(r'<polyline [^>]*stroke="(#[0-9a-f]+)"', svg)
+        self.assertEqual(len(set(strokes)), 5)
+        for x, text in re.findall(r'<text x="([\d.]+)" y="\d+" [^>]*font-size="11">([^<]+)</text>', svg):
+            if text in names:
+                self.assertLessEqual(float(x) + linefig.CHAR_W * len(text), 640)
+
+    def test_short_legends_keep_the_original_pitch(self):
+        self.assertEqual(linefig.legend_slots(["a", "b", "c"], 64, 624), [(64, 0), (234, 0), (404, 0)])
+
+    def test_long_legends_wrap_and_grow_the_figure(self):
+        names = ["a rather long series label %d" % i for i in range(5)]
+        slots = linefig.legend_slots(names, 64, 624)
+        self.assertGreater(max(r for _, r in slots), 0)
+        svg = linefig.svg_lines("t", "a", "x", "y", [(n, [1, 2], [1, 2]) for n in names])
+        self.assertNotIn('viewBox="0 0 640 380"', svg)
 
 
 if __name__ == "__main__":
