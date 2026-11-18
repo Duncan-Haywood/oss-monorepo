@@ -64,7 +64,7 @@ def check(path: Path) -> dict:
         theirs = lr.postprocess(use_camera_wb=True, no_auto_bright=True, output_bps=16, user_flip=0)
     raw = mrw.parse_mrw(data)
     t = time.perf_counter()
-    w, h, rgb, report = rd.develop(raw, rd.DevelopSettings(dcp=stand_in_profile(matrix, camera)))
+    w, h, rgb, _report = rd.develop(raw, rd.DevelopSettings(dcp=stand_in_profile(matrix, camera)))
     secs = time.perf_counter() - t
     ours = np.frombuffer(rgb, dtype=np.uint16).reshape(h, w, 3).astype(np.float64)
     theirs = theirs.astype(np.float64)

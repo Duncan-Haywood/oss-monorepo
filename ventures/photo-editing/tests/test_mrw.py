@@ -64,7 +64,7 @@ def make_mrw(values=None, w=W, h=H, packed=True, bayer=1, gains=(400, 256, 256, 
     if with_wbg:
         blocks += block(b"\0WBG", bytes((2, 2, 2, 2)) + struct.pack(">4H", *gains))
     blocks += block(b"\0RIF", bytes(56)) + block(b"\0TTW", ttw(make, model, orientation)) + block(b"\0PAD", bytes(12))
-    data = pack12(values, w) if packed else struct.pack(">%dH" % len(values), *values)
+    data = pack12(values, w) if packed else struct.pack(f">{len(values)}H", *values)
     return b"\0MRM" + struct.pack(">I", len(blocks)) + blocks + data + extra
 
 
