@@ -551,3 +551,46 @@ test("STEP: an apostrophe after \\S\\ is the directive's character, not the clos
   assert.equal(m.entities.get(2).args[2], "a\\S\\", "an escaped backslash before S\\ is not a directive");
   assert.equal(m.entities.get(3).args[2], "it's");
 });
+
+// eval/attribute-any-geometry-2026-11-18.md: the attribute facet reads
+// geometry with nested lists unread. Every verdict and reason must equal a
+// run on fully read arguments.
+test("attribute facets on geometry read shallow arguments with the same verdicts as full ones", async () => {
+  const { parseModel } = await import("./node.mjs");
+  const text = ifc("IFC4", [
+    "#1=IFCCARTESIANPOINT((0.,1.,2.));",
+    "#2=IFCCARTESIANPOINT(());",
+    "#3=IFCPOLYLOOP((#1,#2));",
+    "#4=IFCCARTESIANPOINTLIST3D(((0.,0.,0.),(1.,0.,0.)),$);",
+    "#5=IFCCARTESIANPOINTLIST3D((()),());",
+    "#6=IFCINDEXEDPOLYCURVE(#4,(IFCLINEINDEX((1,2))),.F.);",
+    "#7=IFCTEXTLITERAL('a)b(''c',#8,.LEFT.);",
+    "#8=IFCAXIS2PLACEMENT3D(#1,$,$);",
+    "#9=IFCPOLYLINE((#1 /* ) */,#2));",
+    "#10=IFCWALL('2O2Fr$t4X7Zf8NOew3FLOH',$,'W',$,$,$,$,$,$);",
+    "#11=IFCDIRECTION((1.,0.,0.));",
+  ]);
+  const anyName = `<name><xs:restriction base="xs:string"><xs:pattern value=".*"/></xs:restriction></name>`;
+  const attr = (name, value) => `<attribute>${name}${value}</attribute>`;
+  const val = (p) => `<value><xs:restriction base="xs:string"><xs:pattern value="${p}"/></xs:restriction></value>`;
+  const reqs = [attr(anyName, ""), attr(anyName, val(".*")), attr(anyName, val("a.*")), attr(`<name><simpleValue>Coordinates</simpleValue></name>`, ""), attr(`<name><simpleValue>Literal</simpleValue></name>`, val("a.*"))];
+  const specs = [];
+  for (const r of reqs) for (const card of ['cardinality="required"', 'cardinality="optional"', 'cardinality="prohibited"'])
+    specs.push(`<specification name="s" ifcVersion="IFC4"><applicability minOccurs="0" maxOccurs="unbounded">${attr(anyName, "")}</applicability><requirements>${r.replace("<attribute>", `<attribute ${card}>`)}</requirements></specification>`);
+  const idsText = ids(specs.join(""));
+  const shallow = parseModel(text);
+  const full = parseModel(text);
+  for (const e of full.entities.values()) e.args = e.args; // keep every read: shallowArgs is then args
+  for (const e of shallow.entities.values()) {
+    const s = e.shallowArgs, f = full.entities.get(e.id).args;
+    assert.equal(s.length, f.length, `#${e.id}`);
+    s.forEach((v, i) => {
+      if (Array.isArray(f[i])) assert.equal(v.length === 0, f[i].length === 0, `#${e.id} arg ${i} emptiness`);
+      else assert.deepEqual(v, f[i], `#${e.id} arg ${i}`);
+    });
+  }
+  const strip = (r) => { delete r.seconds; return r; };
+  const a = strip(check(idsText, shallow)), b = strip(check(idsText, full));
+  assert.deepEqual(a, b);
+  assert.ok(a.specs.some((s) => s.failed.length) && a.specs.some((s) => s.passed), "the cases both pass and fail");
+});
