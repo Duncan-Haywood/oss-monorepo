@@ -62,6 +62,13 @@ test("mixed currencies: the demo keeps the most common one and reports the rest"
   assert.deepEqual(oneCurrency([]), { currency: "usd", lines: [], left: {} });
 });
 
+test("mixed currencies: the most common one wins even when another comes first", () => {
+  const { lines } = linesFromCsv("id,date,period start,amount,currency\na,2026-01-01,2026-01-01,10,usd\nb,2026-01-01,2026-01-01,20,eur\nc,2026-01-01,2026-01-01,30,eur");
+  const r = oneCurrency(lines);
+  assert.equal(r.currency, "eur");
+  assert.deepEqual(r.left, { usd: 1 });
+});
+
 test("sample periods follow Stripe's billing anchor: each end is the anchor day, clamped to short months", () => {
   const rows = parseCsv(sampleCsv()).slice(1).filter((r) => r[4] !== "(79)");
   assert.equal(rows.length, 296, "40 demo subscriptions");

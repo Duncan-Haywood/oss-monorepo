@@ -112,6 +112,31 @@ function splitRows(text, delim) {
   return rows;
 }
 
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
+}
+
+// In a decimal-comma file (detectDecimalComma: most European Excel exports)
+// "1,5" is one and a half and "1.234,50" has a thousands dot, so those cells are
+// rewritten with a point before any number parsing strips commas as thousands
+// separators.
+const decimalCommaCell = (c) => c.replace(/^(\s*[-+(]?\s*[$€£]?\s*-?)(\d{1,3}(?:\.\d{3})+|\d+),(\d+)(\s*[%)$€£]?\s*)$/, (_, a, i, f, b) => `${a}${i.replace(/\./g, "")}.${f}${b}`);
 function num(s) {
   if (s === undefined || s === null) return NaN;
   const t = String(s).replace(/[$£€,\s]/g, "").replace(/^\((.*)\)$/, "-$1");
@@ -133,7 +158,8 @@ export function parseManifest(text) {
   const first = src.split(/\r?\n/, 1)[0];
   const counts = [["\t", (first.match(/\t/g) || []).length], [";", (first.match(/;/g) || []).length], [",", (first.match(/,/g) || []).length]].sort((x, y) => y[1] - x[1]);
   const delim = counts[0][1] > 0 ? counts[0][0] : ",";
-  const rows = splitRows(src, delim);
+  const raw = splitRows(src, delim);
+  const rows = detectDecimalComma(raw, delim) ? raw.map((r) => r.map(decimalCommaCell)) : raw;
   if (!rows.length) return { error: "No rows found." };
   const head = rows[0].map((c) => c.trim().replace(/[_-]+/g, " ").replace(/\s+/g, " "));
   const hasHeader = head.some((c) => Object.values(HEADERS).some((re) => re.test(c)) ) && !head.some((c) => num(c) > 0 && /^[\d.,$ ]+$/.test(c));

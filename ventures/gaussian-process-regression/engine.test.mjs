@@ -309,3 +309,10 @@ test("a regular grid (repeated distances) gives the same likelihood and gradient
     a.grad.forEach((g, i) => assert.ok(Math.abs(g - b.grad[i]) < 1e-6 * (1 + Math.abs(b.grad[i])), `${name} grad[${i}] ${g} vs ${b.grad[i]}`));
   }
 });
+
+test("a semicolon CSV reads decimal commas as decimals, not thousands", () => {
+  const rows = Array.from({ length: 12 }, (_, k) => `${k + 1},5;${k % 3},25`);
+  const r = analyze({ csv: ["x;y", ...rows].join("\n") });
+  assert.ok(!r.error, r.error);
+  assert.deepEqual(r.points.slice(0, 3).map((p) => [p.x, p.y]), [[1.5, 0.25], [2.5, 1.25], [3.5, 2.25]]);
+});

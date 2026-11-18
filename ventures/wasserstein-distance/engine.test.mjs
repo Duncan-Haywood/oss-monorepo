@@ -223,3 +223,26 @@ test("PAPERS cite the method papers with what was implemented", () => {
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], `${p.title} ${k}`);
   assert.ok(PAPERS.some((p) => /Cuturi/.test(p.authors) && p.year === 2013));
 });
+
+test("a semicolon CSV reads decimal commas as decimals, not thousands", () => {
+  const r = analyze({ csv: "g;x\na;1,5\na;2,5\nb;3,5\nb;4,5", permutations: 9, energyPermutations: 9 });
+  assert.ok(!r.error, r.error);
+  assert.deepEqual(r.columns[0].mean, [2, 4]);
+  assert.equal(r.columns[0].w1, 2);
+  // European thousands dots with a decimal comma, and plain dot decimals, in one file.
+  const s = analyze({ csv: "g;x\na;1.234,5\na;0.5\nb;2.234,5\nb;1.5", permutations: 9, energyPermutations: 9 });
+  assert.deepEqual(s.columns[0].mean, [617.5, 1118]);
+  // A comma file keeps "1,234" as one thousand two hundred and thirty-four.
+  const c = analyze({ csv: 'g,x\na,"1,234"\na,1\nb,"2,234"\nb,2', permutations: 9, energyPermutations: 9 });
+  assert.deepEqual(c.columns[0].mean, [617.5, 1118]);
+});
+
+test("a date column stays out of the group guess on its first 50 cells, even when a later cell is not a date", () => {
+  const rows = Array.from({ length: 50 }, (_, i) => `2026-01-0${(i % 5) + 1},${i}`);
+  assert.equal(guessGroupColumn(parseCsv(["day,v", ...rows, "later,51"].join("\n"))), null);
+});
+
+test("a tab-delimited European export reads decimal commas too; a semicolon file with dot decimals keeps them", () => {
+  assert.deepEqual(analyze({ csv: "g\tx\na\t1,5\na\t2,5\nb\t3,5\nb\t4,5", permutations: 9, energyPermutations: 9 }).columns[0].mean, [2, 4]);
+  assert.deepEqual(analyze({ csv: "g;x\na;1,234.5\na;0.5\nb;2,234.5\nb;1.5", permutations: 9, energyPermutations: 9 }).columns[0].mean, [617.5, 1118]);
+});

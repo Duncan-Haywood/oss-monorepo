@@ -227,3 +227,13 @@ test("PAPERS carries both papers with what was implemented and how it differs", 
   assert.equal(PAPERS[1].doi, "10.1145/2133360.2133363");
   for (const p of PAPERS) for (const k of ["authors", "title", "venue", "year", "url", "implemented", "deviations"]) assert.ok(p[k], k);
 });
+
+test("a semicolon CSV reads decimal commas as decimals, not thousands", () => {
+  const rows = Array.from({ length: 12 }, (_, k) => `${k + 1},5;${k % 3},25`);
+  const r = analyze({ csv: ["x;y", ...rows].join("\n") });
+  assert.ok(!r.error, r.error);
+  assert.deepEqual(r.matrix.slice(0, 3), [[1.5, 0.25], [2.5, 1.25], [3.5, 2.25]]);
+  assert.deepEqual(r.medians, [7, 1.25]);
+  // A comma file keeps a quoted "1,234" as one thousand two hundred and thirty-four.
+  assert.deepEqual(analyze({ csv: 'a,b\n"1,234",0.5\n2,0.2\n3,0.9\n4,0.4\n5,0.1\n6,0.6\n7,0.3\n8,0.8' }).matrix[0], [1234, 0.5]);
+});
