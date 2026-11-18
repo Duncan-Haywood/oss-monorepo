@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtLnQZMDfRkJE6Tjz54",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T09:18:11Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 12 (ids-model-check): a facet-result cache across specs that apply to most of a model",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17244",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/psets-cache-2026-11-18.md",
+      "issue": "The model fetch steps live in model-attr-codes-2026-11-17.md, two hops from the eval notes that use them; a fetch-models.sh next to fetch-audit-corpus.sh would save the lookup."
+    },
+    {
+      "file": "(my own bench script)",
+      "issue": "Building the IDS list with `ls | tr '\\n' ' '` split the public files whose names hold spaces (idsErrors 19 instead of 1); pass the globs directly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No venture-preflight run: the change is engine-internal (ids.mjs), with no page, sitemap or front-matter change, and the preflight checks site-wide surfaces this diff does not touch.",
+      "did": "Ran the venture's full node test suite, the new cache test with seven planted faults, report-hash comparisons against main on five models, check_posts and validate.py.",
+      "result": "Reports identical on all five models."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-checks-stop-repeating-the-same-test.md",
+    "ventures/ids-model-check/eval/applies-cache-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}
