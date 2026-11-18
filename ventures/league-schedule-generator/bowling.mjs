@@ -193,10 +193,22 @@ function polishLanes(plan, nTeams, nPairs, seed, kicks) {
  */
 export function bowlingSchedule(spec) {
   const errors = [];
-  let teams = Array.isArray(spec.teams) ? spec.teams.slice() : parseTeams(spec.teams).teams;
-  if (!Array.isArray(spec.teams)) errors.push(...parseTeams(spec.teams).errors);
-  if (teams.length < 2) errors.push("Enter at least two teams.");
-  if (teams.length > 64) errors.push("Up to 64 teams are supported.");
+  let teams;
+  if (Array.isArray(spec.teams)) {
+    teams = spec.teams.slice();
+    if (teams.length < 2) errors.push("Enter at least two teams.");
+    if (teams.length > 64) errors.push("Up to 64 teams are supported.");
+  } else {
+    // parseTeams already says "at least two" and "up to 64"; repeating them printed each twice.
+    const parsed = parseTeams(spec.teams);
+    teams = parsed.teams;
+    errors.push(...parsed.errors);
+  }
+  // An odd league adds a team called "Vacancy"; a real team of that name would be two teams
+  // the schedule, the CSV and the lane report could not tell apart.
+  if (teams.length % 2 === 1 && teams.some((t) => String(t).trim().toLowerCase() === VACANCY.toLowerCase())) {
+    errors.push(`An odd league bowls against a "${VACANCY}", so a team cannot use that name: rename it (or add a team).`);
+  }
   const weeks = Number(spec.weeks);
   if (!Number.isInteger(weeks) || weeks < 1 || weeks > 60) errors.push("Weeks must be a whole number from 1 to 60.");
   if (!Number.isInteger(spec.start)) errors.push("Pick the first league night.");
@@ -231,7 +243,9 @@ export function bowlingSchedule(spec) {
   for (let w = 1; w <= weeks; w++) {
     const day = days[w - 1];
     if (positionSet.has(w)) {
-      out.push({ week: w, day, kind: "position", matches: labels.map((_, p) => ({ pair: p, a: `${ordinal(2 * p + 1)} place`, b: `${ordinal(2 * p + 2)} place` })) });
+      // An odd league of N teams has no (N+1)th place: the last-placed team bowls the Vacancy.
+      const real = odd ? n - 1 : n;
+      out.push({ week: w, day, kind: "position", matches: labels.map((_, p) => ({ pair: p, a: `${ordinal(2 * p + 1)} place`, b: 2 * p + 2 > real ? VACANCY : `${ordinal(2 * p + 2)} place` })) });
       continue;
     }
     const info = roundOf[ri];
