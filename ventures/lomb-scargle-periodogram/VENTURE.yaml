@@ -1,0 +1,62 @@
+name: lomb-scargle-periodogram
+description: >-
+  Free browser tool, CLI and agent call for astronomers, ecologists,
+  hydrologists, clinicians and anyone with measurements taken at uneven
+  times: paste times and values (with errors and an instrument column if you
+  have them) and the generalised Lomb-Scargle periodogram finds the strongest
+  periods with Baluev false alarm probabilities, pre-whitens to find more,
+  and flags sampling aliases from the spectral window. Matches astropy.
+  Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-15 on an explore run, as the seventeenth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md). No venture in the
+# tree computed a periodogram for uneven sampling (stl-decomposition and
+# matrix-profile-explorer need even spacing).
+# Implemented from the papers' mathematics; no third-party code was ported.
+# astropy 6.1.4 (BSD-3-Clause) was used only to produce eval/reference.json.
+# Example data: Fulton et al. (2016) radial velocities of HD 164922, from the
+# radvel package (MIT, notice kept in data/SOURCE.md).
+#
+# First visitor: searches such as "lomb scargle periodogram online",
+# "periodogram uneven sampling", "find period in irregular time series",
+# "false alarm probability periodogram"; students and researchers with
+# variable-star photometry or radial velocities, field scientists with
+# irregular readings. Volume not measured with an external tool.
+#
+# Alternatives: astropy.timeseries.LombScargle, scipy.signal.lombscargle,
+# R's lomb package, NASA Exoplanet Archive's periodogram service (all need
+# code or an upload). Differentiators here: no install and no upload,
+# per-instrument offsets, pre-whitening and an alias check in one view.
+#
+# Liability: statistical output from supplied data, not advice; the page says
+# a significant period is not a cause. Data never leave the browser (tests
+# assert no network calls).
+
+hypotheses:
+  - claim: >-
+      People with unevenly sampled measurements will use a no-install
+      periodogram that reports false alarm probabilities and aliases, over
+      writing astropy code themselves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a periodogram that disagrees with astropy's on the same data and settings beyond rounding, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/lomb-scargle-periodogram/
+  analytics: null

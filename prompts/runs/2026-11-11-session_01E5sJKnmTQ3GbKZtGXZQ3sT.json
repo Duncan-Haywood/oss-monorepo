@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnmTQ3GbKZtGXZQ3sT",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T20:18:31Z",
+  "ended": "2026-11-11T20:30:52Z",
+  "wall_minutes": 23.39,
+  "tokens_in": 23694079,
+  "tokens_out": 77046,
+  "cost_usd": 8.0056,
+  "tool_calls": 147,
+  "task": "Flagship 8 quick-pick-survey: non-random carelessness on the shared-truth pool (allocate.py row 2 sales-agent was blocked: huggingface.co refused by the proxy)",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14879",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    "huggingface.co CONNECT refused (403) by the agent proxy, though the flagship's next: said it answered 200 on 2026-11-11; sales-agent's local-model items (1) and (3) could not run",
+    "A first full sweep grid was projected at hours (60-person cells, O(R^2) leave-one-out pooling); killed and re-run trimmed with 60-person spot checks",
+    "groupRanking.ts importing ./pairing broke scripts/build-sample-report.mjs (Node type stripping needs explicit extensions); fixed by copying the two constants with a drift test"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "sales-agent next: says huggingface.co answered 200 through the proxy on 2026-11-11; in this session it was refused (connect_rejected), so the BUILDABLE HERE items were not buildable"
+    },
+    {
+      "file": "ventures/quick-pick-survey/src/lib/infoGainSim.ts",
+      "issue": "positionBias applies to the policy's first id without the route's slot shuffle; earlier position-bias measurements (2026-10-28 table, the 0.421 in pairing.ts) used it and overstate the harm. Caution added; table not re-measured"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "the pkill/pgrep bracket hook also refuses a bracketed pattern when the same string appears elsewhere in the command line; cost one retry"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Took the next Deepen flagship (quick-pick-survey, row 7) instead of sales-agent (row 2), whose buildable items needed huggingface.co, refused this session; changepoint-detector, shift-roster-builder and league-schedule-generator had landed within the last hour",
+      "did": "Landed the quick-pick-survey careless-pattern item end to end",
+      "result": "Shipped a ranking change and a data-quality note backed by 236 measured cells"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-careless-answers-that-point-the-same-way.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (section 'Careless patterns that are not random')"
+  ],
+  "goal": "Deepen a flagship with a hard measured problem and ship the safe part",
+  "notes": "Local verification: tsc 0, eslint 0, npm run test:fast 365/365, npm run test:integration 113/113 on scripts/test-db.sh Postgres; the new route test fails with the slot-clicker filter reverted; build-sample-report.mjs regenerates the sample byte-identical; npm run test:simulations 53/53; venture-preflight clean. No check runs were created on the PR head within ~15 min (starved), so merged on these local checks. No new agent doc in docs/reports: the flagship next: and the INFORMATION-GAIN-SELECTOR.md section carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7f1993ce-b605-59f2-9ef7-1497cabe15de",
+    "transcripts": 1,
+    "first": "2026-11-11T20:18:31Z",
+    "last": "2026-11-11T20:41:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 144,
+        "input": 283,
+        "output": 77046,
+        "thinking": 17842,
+        "cache_read": 23472669,
+        "cache_write_5m": 0,
+        "cache_write_1h": 221127,
+        "api_equivalent_usd": 8.0056,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 144,
+      "input": 283,
+      "output": 77046,
+      "thinking": 17842,
+      "cache_read": 23472669,
+      "cache_write_5m": 0,
+      "cache_write_1h": 221127,
+      "api_equivalent_usd": 8.0056,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.991,
+    "tool_calls": 147,
+    "tools": {
+      "Bash": 136,
+      "Monitor": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.39,
+      "active_minutes": 20.6,
+      "model_minutes": 14.8,
+      "tool_minutes": 5.79,
+      "waiting_on_human_minutes": 2.79,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior survey-methods engineer: design and run a 236-cell simulation study, implement two ranking changes with unit and DB integration tests, write-up and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 174.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

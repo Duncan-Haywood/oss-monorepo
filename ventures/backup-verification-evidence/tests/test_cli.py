@@ -12,6 +12,16 @@ from backup_evidence.cli import main
 
 
 class RecordCommandTests(unittest.TestCase):
+    def test_record_refuses_a_nan_or_infinite_max_age(self):
+        # A NaN threshold written into the record switched the freshness check off.
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp) / "run.json"
+            for bad in ("nan", "inf", "-1"):
+                with self.assertRaises(SystemExit) as cm:
+                    main(["record", "--tool", "restic", "--output", str(out), "--max-age-hours", bad, "--", "true"])
+                self.assertEqual(cm.exception.code, 2)
+                self.assertFalse(out.exists(), f"a record was written for --max-age-hours {bad}")
+
     def test_record_observes_real_exit_code_and_artifact(self):
         with tempfile.TemporaryDirectory() as directory:
             artifact = Path(directory) / "backup.tar"

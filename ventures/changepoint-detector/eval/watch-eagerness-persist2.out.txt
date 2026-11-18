@@ -1,0 +1,75 @@
+Replayed with persist 2 (WATCH_PERSIST); round 6 as published used persist 1.
+
+Round 6, the 31 shipped univariate TCPD series (the rule): 23 series scored; skipped (h < 30): centralia (n=15), debt_ireland (n=21), gdp_argentina (n=59), gdp_croatia (n=24), gdp_iran (n=58), gdp_japan (n=58), ozone (n=54), rail_lines (n=37).
+
+  series                       n    h  hist rate q/m/e (per 100)   fut rate q/m/e        hint@2  future marks
+  bank                         581  290    6.0   7.3  13.8            6.5   8.2  13.4   quiet   0
+  brent_spot                   500  250    0.5   4.5  11.5            0.4   3.2  10.0   quiet   2
+  businv                       330  165    0.8   4.5  12.1            0.6   4.2  11.5   quiet   2
+  children_per_woman           301  150    1.7   1.7  11.7            2.0   3.3  14.6   middle  1
+  co2_canada                   215  107    3.5   2.3  15.1            1.9   5.6  13.9   quiet   4
+  construction                 319  159    0.0   4.7  12.5            1.3   3.8   9.4   quiet   1
+  global_co2                   104   52    6.3   6.3   9.4            1.9   0.0  17.3   quiet   0
+  homeruns                     118   59    2.6   5.1  12.8            3.4   3.4  11.9   quiet   1
+  jfk_passengers               468  234    0.0   0.0   8.0            0.4   0.4   8.1   middle  1
+  lga_passengers               468  234    1.6   1.1   6.9            1.3   2.6   9.8   middle  2
+  nile                         100   50    3.3   3.3   3.3            0.0   0.0   2.0   quiet   0
+  quality_control_1            313  156    1.6   0.0   2.4            0.0   0.0   1.3   middle  0
+  quality_control_2            283  141    0.9   0.0   0.9            0.0   0.7   0.0   eager   0
+  quality_control_3            366  183    0.7   0.0   4.8            0.5   0.5   8.2   middle  0
+  quality_control_4            500  250    2.5   5.5  10.0            2.8   5.6  10.0   quiet   1
+  quality_control_5            325  162    0.0   0.0   0.0            0.0   0.0   0.0   eager   0
+  seatbelts                    192   96    0.0   1.3   9.2            0.0   2.1   5.2   middle  1
+  shanghai_license             205  102    3.7   3.7   8.5            1.9   2.9  14.6   quiet   2
+  uk_coal_employ               105   52    6.3   9.4   9.4            1.9   1.9   7.5   quiet   2
+  unemployment_nl              214  107    1.2   5.8  12.8            3.7   5.6  14.0   quiet   4
+  us_population                816  408    0.0   0.0  16.5            0.0   0.0  16.7   middle  0
+  usd_isk                      247  123    1.0   9.1  10.1            1.6   4.8   8.9   quiet   1
+  well_log                     675  337    2.6   2.2   3.0            2.7   2.1   3.0   quiet   6
+
+  policy                        future alerts  at a mark (share)  per 1000 checks  majority-marked reached  picks q/m/e
+  fixed quiet (default)               61         26 (43%)           15.7           16/31              23/0/0
+  fixed middle                       106         35 (33%)           27.3           23/31              0/23/0
+  fixed eager                        364         79 (22%)           93.9           31/31              0/0/23
+  hint, B = 2 (pre-registered)        68         27 (40%)           17.5           17/31              14/7/2
+  hint, B = 1                         61         26 (43%)           15.7           16/31              17/4/2
+  hint, B = 5                        108         36 (33%)           27.8           21/31              7/10/6
+  hint, B = 1.64                      66         27 (41%)           17.0           17/31              15/6/2
+  hint, B = 3.29                      75         32 (43%)           19.3           19/31              12/7/4
+  hint, B = 14.3                     287         73 (25%)           74.0           29/31              0/2/21
+
+  Spearman, history rate vs future rate across series:
+    quiet   0.616
+    middle  0.600
+    eager   0.767
+
+  Rule: (a) more marks than quiet: 17 vs 16 PASS; (b) per 1000 at most middle's: 17.5 vs 27.3 PASS; (c) share at most 5 points below quiet's: 39.7% vs 42.6% PASS.
+  The hint SHIPS. Forecast claim (quiet Spearman >= 0.5): 0.616 SHIPS.
+
+Held out (deciding nothing): 6 series scored; skipped (h < 30): robocalls (n=52).
+
+  series                       n    h  hist rate q/m/e (per 100)   fut rate q/m/e        hint@2  future marks
+  bitcoin                      774  387    1.9   4.2  11.0            1.3   3.4  13.7   quiet   3
+  iceland_tourism              199   99    2.5   2.5  17.7            0.0   2.0  12.0   quiet   0
+  measles                      991  495    2.8   3.0   9.8            2.0   4.6   9.9   quiet   0
+  ratner_stock                 600  300    1.3   4.6  11.3            0.7   3.0   5.3   quiet   0
+  scanline_126007              481  240    1.6   5.7   7.3            5.4   6.6   8.7   quiet   1
+  scanline_42049               481  240    3.1   2.6   9.4            3.7   4.1   9.1   quiet   5
+
+  policy                        future alerts  at a mark (share)  per 1000 checks  majority-marked reached  picks q/m/e
+  fixed quiet (default)               39         20 (51%)           22.1            6/9              6/0/0
+  fixed middle                        73         25 (34%)           41.4            8/9              0/6/0
+  fixed eager                        173         38 (22%)           98.0            9/9              0/0/6
+  hint, B = 2 (pre-registered)        39         20 (51%)           22.1            6/9              6/0/0
+  hint, B = 1                         39         20 (51%)           22.1            6/9              6/0/0
+  hint, B = 5                         70         22 (31%)           39.7            8/9              1/5/0
+  hint, B = 1.64                      39         20 (51%)           22.1            6/9              6/0/0
+  hint, B = 3.29                      55         19 (35%)           31.2            6/9              3/3/0
+  hint, B = 14.3                     163         37 (23%)           92.4            9/9              0/1/5
+
+  Spearman, history rate vs future rate across series:
+    quiet   0.200
+    middle  0.486
+    eager   0.314
+
+104 s on 4 cores.

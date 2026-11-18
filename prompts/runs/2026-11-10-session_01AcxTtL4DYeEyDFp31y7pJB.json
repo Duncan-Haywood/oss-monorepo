@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtL4DYeEyDFp31y7pJB",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T03:13:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14419",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Seed 2026-11-10 was already taken by round 32 earlier the same day; the prompt only mentions -b when an open quality PR exists, not when a merged same-day round used the seed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-quality-audit-round-33.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-10-b (draw reused plain seed subjects of 2026-11-10 only partially; used the printed sample). Subjects: league-schedule-generator (flagship), time-off-request-planner, garmin-world-traveler-watchface, interval-elicitation, qual-lowrate. Share of sampled subjects meeting the bar: 0 of 4. Fix PRs: none (defects listed in audit files). One auditor claim spot-checked: time-off tie-break '- it.idx' exists in calc.mjs:188.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,214 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyeArf8CmmDPWymjYMu",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T01:39:15Z",
+  "ended": "2026-11-13T01:51:23Z",
+  "wall_minutes": 12.39,
+  "tokens_in": 4882432,
+  "tokens_out": 36046,
+  "cost_usd": 2.4688,
+  "tool_calls": 57,
+  "task": "polish: reserve starting-row height on tools that build rows in a module script (item 1 of polish-2026-11-13-band-gap.md 'Still weakest')",
+  "projects": [
+    "platform/pages",
+    "ventures/actions-artifact-poisoning-check",
+    "ventures/actions-cache-poisoning-check",
+    "ventures/actions-checkout-credentials-check",
+    "ventures/actions-injection-check",
+    "ventures/actions-permissions-check",
+    "ventures/actions-runtime-deprecation-check",
+    "ventures/actions-schedule-check",
+    "ventures/actions-secret-leak-check",
+    "ventures/actions-secrets-inherit-check",
+    "ventures/actions-self-hosted-exposure-check",
+    "ventures/actions-timeout-check",
+    "ventures/app-listing-metadata-check",
+    "ventures/asphalt-sealcoat-bid-calculator",
+    "ventures/attic-insulation-bid-calculator",
+    "ventures/backflow-test-fee-calculator",
+    "ventures/carpet-cleaning-bid-calculator",
+    "ventures/cheap-meal-plan-optimizer",
+    "ventures/chimney-sweep-bid-calculator",
+    "ventures/concrete-bid-calculator",
+    "ventures/contractor-bid-readiness",
+    "ventures/course-platform-fee-calculator",
+    "ventures/deck-bid-calculator",
+    "ventures/dns-configuration-evidence",
+    "ventures/docker-base-image-eol-check",
+    "ventures/docker-base-image-pin-check",
+    "ventures/docker-build-secrets-check",
+    "ventures/docker-compose-security-check",
+    "ventures/drywall-bid-calculator",
+    "ventures/fbar-8938-checker",
+    "ventures/fence-bid-calculator",
+    "ventures/flaky-test-finder",
+    "ventures/flooring-bid-calculator",
+    "ventures/good-faith-estimate-generator",
+    "ventures/gutter-cleaning-bid-calculator",
+    "ventures/hood-cleaning-bid-calculator",
+    "ventures/interview-content-studio",
+    "ventures/investor-update-builder",
+    "ventures/irrigation-winterization-bid-calculator",
+    "ventures/janitorial-bid-calculator",
+    "ventures/junk-removal-bid-calculator",
+    "ventures/jwt-verification-misuse-check",
+    "ventures/k8s-pod-security-check",
+    "ventures/lawn-care-bid-calculator",
+    "ventures/moving-bid-calculator",
+    "ventures/music-distribution-fee-calculator",
+    "ventures/overtime-pay-calculator",
+    "ventures/painting-bid-calculator",
+    "ventures/pest-control-bid-calculator",
+    "ventures/pinned-actions-check",
+    "ventures/pressure-washing-bid-calculator",
+    "ventures/required-checks-drift-check",
+    "ventures/roofing-bid-calculator",
+    "ventures/safe-dilution-calculator",
+    "ventures/security-deposit-return-calculator",
+    "ventures/siding-bid-calculator",
+    "ventures/skill-manifest-check",
+    "ventures/snow-removal-bid-calculator",
+    "ventures/soc2-readiness-checker",
+    "ventures/systemd-unit-hardening-check",
+    "ventures/tree-service-bid-calculator",
+    "ventures/vendor-rate-break-even",
+    "ventures/vsme-report-builder",
+    "ventures/wedding-videographer-profit-calculator",
+    "ventures/where-to-sell-calculator",
+    "ventures/window-cleaning-bid-calculator",
+    "ventures/window-replacement-bid-calculator",
+    "ventures/worker-classification-checker"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15329",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "janitorial-bid-calculator page.test.mjs 'swallowed document' fixture failed after adding a second <style> to the head",
+      "fix": "fixture now deletes the last </style>; 239/239 pass"
+    },
+    {
+      "what": "first background build command chained `git checkout -b` on an existing branch and exited 128 before building",
+      "fix": "re-ran the build alone"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/reports/polish-2026-11-13-band-gap.md",
+      "issue": "'Still weakest' item 1 called the fix per tool across ~70 ventures; it was one pattern (empty host + module-script rows) that a single measuring script fixed on 67 pages"
+    },
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "the build-command recipe writes build.log in the repo root; fine, but nothing says to keep it out of `git add -A` (I wrote it to /tmp instead)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "docs/reports/polish-2026-11-13-band-gap.md",
+      "why": "it proposed per-tool fixes (render rows in HTML or a min-height per tool by hand); I generated the min-heights from browser measurement with a reusable script",
+      "did": "platform/pages/rows-reserve.mjs + test, 67 pages",
+      "result": "CLS sum 2.954 -> 0.073 at 1280 px and 1.807 -> 0 at 390 px over 3 loads; no page worse"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-rows-arrive-late.md",
+    "docs/reports/polish-2026-11-13-rows-reserve.md"
+  ],
+  "goal": null,
+  "notes": "Measured on a full local build served from dist/ (before) and the same dist with the block spliced in (after), Chromium, third-party blocked, buffered layout-shift observer 500 ms after load, 3 loads x 74 pages x 2 widths. Seven pages with no change were reverted and put in SKIP. Tests: rows-reserve.test.mjs 4/4; every changed venture's *.test.mjs pass; platform/pages suite result in the PR follow-up commit.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "70acc055-3c4e-50b4-8e53-13cd137fc0ff",
+    "transcripts": 1,
+    "first": "2026-11-13T01:39:15Z",
+    "last": "2026-11-13T01:51:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 96,
+        "output": 36046,
+        "thinking": 11079,
+        "cache_read": 4783492,
+        "cache_write_5m": 0,
+        "cache_write_1h": 98844,
+        "api_equivalent_usd": 2.4688,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 96,
+      "output": 36046,
+      "thinking": 11079,
+      "cache_read": 4783492,
+      "cache_write_5m": 0,
+      "cache_write_1h": 98844,
+      "api_equivalent_usd": 2.4688,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "Write": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.39,
+      "active_minutes": 12.39,
+      "model_minutes": 6.04,
+      "tool_minutes": 6.35,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior front-end engineer: diagnose CLS across 74 pages, build measuring script, verify before/after",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 405.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

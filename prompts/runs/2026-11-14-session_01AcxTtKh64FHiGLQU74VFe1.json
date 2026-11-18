@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtKh64FHiGLQU74VFe1",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T07:13:06Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "marine-hull milestone 6zx: 6zv's tau table and 6zw's adaptive rule, frozen, on NASA POWER 2005-2014 (new to the programme)",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15769",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/project.json",
+      "issue": "the card summary stops at milestone 6zk while README and LOG run to 6zx; no run since has extended it, and it is already 11.8k characters, so it was left alone rather than grown further"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "'change its headline results' implies updating the project card; the summary covers milestones 1 to 6zk only and is already very long",
+      "did": "updated README (question paragraph, reproduce line, results line) and LOG; left project.json unchanged",
+      "result": "build.py ok; card unchanged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-marine-hull-solar-boat-rule-on-unseen-years.md",
+    "research/marine-hull/LOG.md (6zx entry)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed (a80116001) before the 2005-2014 data were fetched. NASA POWER reachable through the proxy (30 requests, under a minute, no fill values). Experiment 46 s on 4 cores. All 7 predictions held: AT_60 48/56, AT_90 51, oracle 47, PS 37, PSS 44; realised/climatology 0.9954 and 0.9926. Two descriptive counts in my first LOG draft (AT_60 and oracle failure breakdowns) were wrong and corrected against the results table before commit. Checks: tests.test_fresh_years + test_self_bias + test_bias_sweep 16 OK; research/_homepage/build.py ok; research_live_links 0 updated; check_md_links ok; post frontmatter/links/similarity ok; run_workflow_locally --for-changes see below.",
+  "corrections": [],
+  "redteam": null
+}

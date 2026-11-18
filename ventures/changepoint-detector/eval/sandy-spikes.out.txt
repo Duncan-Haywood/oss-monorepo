@@ -1,0 +1,2 @@
+registered: 16 labels in 731 days; Sandy label rank 1 at 15.7 sd; next largest 7.8 sd; labels over 3, 5, 7 sd: 16, 6, 3
+casual: 27 labels in 731 days; Sandy label rank none; next largest 8.2 sd; labels over 3, 5, 7 sd: 27, 12, 2

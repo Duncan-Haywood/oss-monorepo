@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23b8860b'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EV%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>How Many Solar Panels per String? The Cold-Voc and Hot-Vmp Check, Worked</title>
+  <meta name="description" content="Why 600 V divided by the datasheet Voc gives the wrong string length, and how to size a PV string from the coldest site temperature, the hot-day cell temperature and the inverter's MPPT window, with a worked example and a free calculator.">
+  <meta property="og:title" content="How many solar panels per string? A worked example">
+  <meta property="og:description" content="The datasheet says 12 modules fit under 600 V. At -20 C only 10 do. The arithmetic, step by step.">
+  <link rel="canonical" href="./how-many-solar-panels-per-string.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why can't I just divide the inverter's maximum voltage by the module's Voc?", "acceptedAnswer": {"@type": "Answer", "text": "The datasheet Voc is measured at 25 C. Module voltage rises as cells get colder, so on the coldest morning each module makes more than its rating. In the example on this page, 600 V divided by 49.5 V says 12 modules, but at -20 C each module makes 55.51 V and only 10 fit."}}, {"@type": "Question", "name": "What sets the minimum number of modules in a string?", "acceptedAnswer": {"@type": "Answer", "text": "The inverter's MPPT minimum voltage against the module's maximum-power voltage on the hottest afternoon, when cells run well above the air temperature. Divide the MPPT minimum by the hot-day Vmp per module and round up."}}, {"@type": "Question", "name": "Does this apply to microinverters or DC optimisers?", "acceptedAnswer": {"@type": "Answer", "text": "No. With module-level power electronics the device's own rules set the string length, so use the maker's sizing guidance instead."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #1f1d18; background: #f6f4ee; }
+    body { max-width: 820px; margin: auto; padding: 28px; }
+    a { color: #6b4e00; }
+    h1 { font-size: clamp(1.7rem, 4.4vw, 2.5rem); line-height: 1.1; color: #4a3600; }
+    h2 { font-size: 1.2rem; margin-top: 28px; color: #4a3600; }
+    p, li { line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e2dccb; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .scroll { overflow-x: auto; }
+    .cta { display: inline-block; background: #6b4e00; color: #fff; padding: 11px 16px; border-radius: 8px; font-weight: 700; text-decoration: none; }
+    footer, .note { font-size: .86rem; color: #5a5446; }
+    footer { margin-top: 32px; border-top: 1px solid #e2dccb; padding-top: 16px; }
+    @media (max-width: 720px) { body { padding: 16px; } }
+  </style>
+</head>
+<body>
+<main>
+  <p class="note">FOR SOLAR INSTALLERS, DESIGNERS AND DIY BUILDERS</p>
+  <h1>How many solar panels per string?</h1>
+  <p>The quick answer people reach for is the inverter's maximum DC voltage divided by the module's Voc. With a 600 V limit and a 49.5 V module that gives 12. On a -20 C morning those 12 modules make about 666 V, and the right answer is 10.</p>
+  <p><a class="cta" href="./index.html">Size your strings with the free calculator</a></p>
+
+  <h2>Who this is for</h2>
+  <p>Anyone laying out string inverters: installers checking a design before the permit set, designers comparing inverters, and people building their own system who want to know why the inverter maker's tool rejected a string. If your system uses microinverters or DC optimisers, the module-level electronics set the string rules instead, and this check is not the one you need.</p>
+
+  <h2>Two limits, two temperatures</h2>
+  <p>Module voltage goes up as cells get colder and down as they get hotter. A string has to satisfy both ends:</p>
+  <ul>
+    <li><strong>The longest string</strong> is set by the open-circuit voltage on the coldest morning, when the sun first hits cold cells and nothing is drawing current yet. It must stay under the lowest of the inverter's maximum DC input, the module's maximum system voltage and the limit that applies to the installation. This one is a hard limit: exceeding it can damage the inverter.</li>
+    <li><strong>The shortest string</strong> is set by the maximum-power voltage on the hottest afternoon, when cells run 25 to 35 C above the air. It must stay above the inverter's MPPT minimum, or the inverter loses the maximum power point and the array underproduces.</li>
+  </ul>
+
+  <h2>Worked example</h2>
+  <p>An invented module, inverter and site (example numbers, not a real product): Voc 49.5 V, Vmp 41.4 V, Isc 10.3 A, Voc coefficient -0.27 %/C, Vmp coefficient -0.35 %/C, NOCT 45 C; inverter 600 V maximum, MPPT 100 to 550 V, two MPPT inputs that each accept 26 A short-circuit; site extreme minimum -20 C, hot-day air 35 C.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Step</th><th>Arithmetic</th><th class="n">Result</th></tr></thead>
+    <tbody>
+      <tr><td>Voc per module at -20 C</td><td>49.5 x (1 + -0.0027 x (-20 - 25))</td><td class="n">55.51 V</td></tr>
+      <tr><td>Longest string</td><td>600 / 55.51, rounded down</td><td class="n">10 modules</td></tr>
+      <tr><td>Hot-day cell temperature</td><td>35 + (45 - 20) x 1000/800</td><td class="n">66.25 C</td></tr>
+      <tr><td>Vmp per module at 66.25 C</td><td>41.4 x (1 + -0.0035 x 41.25)</td><td class="n">35.42 V</td></tr>
+      <tr><td>Shortest string</td><td>100 / 35.42, rounded up</td><td class="n">3 modules</td></tr>
+      <tr><td>Vmp per module at -20 C</td><td>41.4 x (1 + 0.0035 x 45)</td><td class="n">47.92 V</td></tr>
+      <tr><td>Longest string that stays under the 550 V MPPT maximum when cold</td><td>550 / 47.92, rounded down</td><td class="n">11 (not binding)</td></tr>
+      <tr><td>Design current per string</td><td>1.25 x 10.3 (NEC 690.8(A)(1))</td><td class="n">12.88 A</td></tr>
+      <tr><td>Strings per MPPT input</td><td>26 / 12.88, rounded down</td><td class="n">2</td></tr>
+      <tr><td>Minimum conductor ampacity per string</td><td>1.25 x 12.88 (690.8(B)), before corrections</td><td class="n">16.09 A</td></tr>
+    </tbody>
+  </table></div>
+  <p>With 24 modules on the job, two layouts use every module: three strings of 8 (two on one input, one on the other) or four strings of 6 (two per input). Two strings of 12 would be over the cold-voltage limit. The calculator lists every option with its DC/AC ratio and flags lengths that leave the MPPT window when cold.</p>
+
+  <h2>Where the inputs come from</h2>
+  <ul>
+    <li><strong>Coldest temperature:</strong> installers commonly use the ASHRAE extreme annual mean minimum dry-bulb for the nearest station. Your AHJ may name a source.</li>
+    <li><strong>Hot-day temperature:</strong> a high design dry-bulb (for example the 2 percent value). The tool adds the cell's rise above the air from NOCT; roof-flush mounts with little air gap run hotter than NOCT suggests, so enter a larger rise if you know it.</li>
+    <li><strong>Coefficients:</strong> on the module datasheet, in % per degree or mV per degree. If only a Pmax coefficient is given, it is a reasonable stand-in for Vmp.</li>
+  </ul>
+
+  <h2>When to use something else</h2>
+  <p>The inverter maker's own string-sizing tool knows its equipment's limits better than a datasheet does; use it for the final design. Microinverter and optimiser systems follow the module-level device's rules. And the code edition your jurisdiction adopted, not this page, decides the voltage limit and the conductor rules.</p>
+  <h2>Common questions</h2>
+  <h3>Why can't I just divide the inverter's maximum voltage by the module's Voc?</h3>
+  <p>The datasheet Voc is measured at 25 C. Module voltage rises as cells get colder, so on the coldest morning each module makes more than its rating. In the example on this page, 600 V divided by 49.5 V says 12 modules, but at -20 C each module makes 55.51 V and only 10 fit.</p>
+  <h3>What sets the minimum number of modules in a string?</h3>
+  <p>The inverter's MPPT minimum voltage against the module's maximum-power voltage on the hottest afternoon, when cells run well above the air temperature. Divide the MPPT minimum by the hot-day Vmp per module and round up.</p>
+  <h3>Does this apply to microinverters or DC optimisers?</h3>
+  <p>No. With module-level power electronics the device's own rules set the string length, so use the maker's sizing guidance instead.</p>
+  <p><a class="cta" href="./index.html">Open the PV string sizer</a></p>
+</main>
+<footer>
+  <p><strong>No warranty.</strong> This page and tool are provided free and as-is, without warranty of any kind, express or implied. They are not engineering, electrical, legal or code-compliance advice, and they do not replace a qualified professional, the inverter maker's sizing tool or a plan review. You are responsible for reviewing and verifying any result before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+  <p><strong>Independent.</strong> Not affiliated with any module or inverter manufacturer, installer, utility or code body.</p>
+  <p>Free and open source under the <a href="LICENSE" rel="noopener">MIT licence</a>. Optional <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a>.</p>
+</footer>
+</body>
+</html>

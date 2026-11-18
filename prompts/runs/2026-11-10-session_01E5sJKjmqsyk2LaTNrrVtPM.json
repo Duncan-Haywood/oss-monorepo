@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKjmqsyk2LaTNrrVtPM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T23:09:29Z",
+  "ended": "2026-11-10T23:20:06Z",
+  "wall_minutes": 11.0,
+  "tokens_in": 4785066,
+  "tokens_out": 29706,
+  "cost_usd": 2.5268,
+  "tool_calls": 46,
+  "task": "llm-coding-inference milestone 7af: forecast how often the neg_guard=3 rule uses coder cells, checked on all 36 committed cells",
+  "projects": [
+    "research/llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14629",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 platform/ci/run_workflow_locally.py --for-changes` outlasted the 120 s foreground timeout on a research-only diff; it needs run_in_background like the long test suites."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "`gh api ... search/issues` for open PRs returned nothing silently in this cloud session; list_pull_requests via MCP worked. The claim-check step could name the MCP route first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 asks to land open research PRs first; the only one (#12154, lowcomm-training draft from 2026-10-31) is a stale draft from another session with no recent activity.",
+      "did": "Left it alone and advanced the drawn programme.",
+      "result": "No conflict; noted here for the next run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-forecasting-the-audit-guard.md",
+    "research/llm-coding-inference/LOG.md (7af)",
+    "research/llm-coding-inference/paper/paper.md Section 6"
+  ],
+  "goal": null,
+  "notes": "Pre-registered prediction committed (9ffaad4d) before the first run. Result: P1 refuted 31/36 cells (guard-only hypergeometric tail runs high at small pilots with weak coders, up to 15.9 points), P2 supported 5/5, P3 refuted (rho -0.34 vs -0.57 for n/N). Post-hoc: the screen with tau 0 also needs J_hat >= 0; the exact probability of both (new audit_design.cells_probability, stdlib, tested against brute-force enumeration of screen) matches all 36 cells within 3.2 points, labelled post-hoc in log, paper and post. Also added guard_fire_probability and pilot_for_guard. Checks: test_llmci.py 26 passed (/usr/bin/python3.13), research/_homepage/build.py ok, research_live_links 0 updated, check_md_links ok, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9de7c1d2-15a5-517e-af05-885eb0a144c6",
+    "transcripts": 1,
+    "first": "2026-11-10T23:09:29Z",
+    "last": "2026-11-10T23:20:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 85,
+        "output": 29706,
+        "thinking": 8342,
+        "cache_read": 4659935,
+        "cache_write_5m": 0,
+        "cache_write_1h": 125046,
+        "api_equivalent_usd": 2.5268,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 85,
+      "output": 29706,
+      "thinking": 8342,
+      "cache_read": 4659935,
+      "cache_write_5m": 0,
+      "cache_write_1h": 125046,
+      "api_equivalent_usd": 2.5268,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.0,
+      "active_minutes": 11.0,
+      "model_minutes": 5.63,
+      "tool_minutes": 5.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a methods researcher deriving and coding the hypergeometric guard forecast, checking 36 cells, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 237.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

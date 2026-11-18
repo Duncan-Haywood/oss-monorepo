@@ -57,9 +57,31 @@ been measured yet.
 - *Import-graph and cycle checkers* (madge, dependency-cruiser): JavaScript
   tools that parse every module. On a large monorepo they are slow; a Rust
   version built on oxc's parser is plausible. Check first whether oxc or
-  biome already ships the check.
+  biome already ships the check. *Done 2026-11-13:* `ventures/cyclehound`
+  (no oxc; a lexer is enough for imports). madge 8.0.0 took 14 to 18 s on
+  11,422 `.mjs` files, dependency-cruiser 52 s and 2.3 GB; cyclehound 0.2 s
+  and 20 MB, with madge's graph matched edge for edge
+  ([`ventures/cyclehound/BENCHMARK.md`](../../ventures/cyclehound/BENCHMARK.md)).
+  *Unused exports 2026-11-15:* `cyclehound --unused-exports` took 0.3 s and
+  30 MB where ts-unused-exports 11.0.1 took 11 s and 380 MB on the same
+  11,736 files, agreeing on 5,419 findings with every difference explained.
+  *Path aliases 2026-11-16:* tsconfig and jsconfig `paths`/`baseUrl`
+  (with `extends`) resolve by TypeScript's rules; on 16 configs in
+  `ventures/` cyclehound and TypeScript 5.9.3's `resolveModuleName` agree on
+  all 1,436 alias imports, at no measurable time cost. Next: a CI gate.
 - *yamllint*: Python, run on every YAML file in a repository (this one has
-  550 workflow files). Check first for an existing Rust port.
+  550 workflow files). *Checked 2026-11-12: taken.* `ryl` and `yamllint-rs`
+  are Rust ports of yamllint on crates.io already; skip unless a measured
+  gap shows up.
+- *Unused-CSS finders* (PurgeCSS, uncss): PurgeCSS is Node and works per
+  bundle; no Rust port of its rules was found (crates.io has css-purify
+  0.0.15, purifycss-style). *First slice 2026-11-16:* `ventures/csshound`
+  judges each page's own CSS by PurgeCSS 9.1.0's rules, following script
+  imports: 3,915 pages in 0.5 s, 8,815 unused rules (8.0% of the CSS).
+  *Measured 2026-11-16:* on the same input PurgeCSS 9.1.0 and csshound
+  reject the same 15,632 selectors on 3,923 pages; PurgeCSS took 4.7 s and
+  123 MB, csshound 0.33 s (1.1 s on one thread) and 10 MB, a modest win since
+  PurgeCSS was never slow here ([`ventures/csshound/BENCHMARK.md`](../../ventures/csshound/BENCHMARK.md)).
 - *License scanners* (licensee, scancode): scancode is thorough and slow.
   askalono is a Rust licence-text matcher already; the gap, if any, is the
   whole-tree scan and report.
@@ -85,6 +107,10 @@ reason than "the existing one is slow".
   the 1,283 ventures that ship a `usage.mjs`, and in all 121 that ship a
   `proposal.test.mjs`. A tool that groups copies into families and proposes the shared
   module is the next step beyond detection, and nobody ships one.
+  *First slice 2026-11-12:* `dupehound --families` groups clones into
+  families ranked by removable lines (PR #15063). *Second slice 2026-11-12:*
+  `--guarded FILE` folds copies a sync test keeps identical into one, so the
+  ranking shows what nobody watches; next is suggesting guard lines.
 
 **Distribution.** `cargo install` from crates.io is the natural channel, and
 publishing there under the portfolio's name is the owner's decision

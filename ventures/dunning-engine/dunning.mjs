@@ -11,6 +11,9 @@
 const CLASS_OF = {
   stolen_card: "hard", lost_card: "hard", pickup_card: "hard", fraudulent: "hard",
   restricted_card: "hard", invalid_account: "hard", new_account_information_failed: "hard",
+  // Stripe's docs say not to retry these: the customer or bank revoked the mandate or blocked the merchant.
+  stop_payment_order: "hard", revocation_of_authorization: "hard", revocation_of_all_authorizations: "hard",
+  do_not_try_again: "hard", merchant_blacklist: "hard", security_violation: "hard",
   expired_card: "update", incorrect_number: "update", invalid_number: "update",
   invalid_expiry_month: "update", invalid_expiry_year: "update", invalid_cvc: "update",
   incorrect_cvc: "update", incorrect_zip: "update", card_not_supported: "update",
@@ -120,13 +123,22 @@ export function replan(existing, { declineCode, now, policy = {} }) {
   return { class: next.class, steps: [...kept, ...fresh.filter((s) => !ids.has(s.id))].sort((a, b) => a.at - b.at) };
 }
 
+// Stripe's zero-decimal currencies (amounts are whole units), plus ISK, which
+// this engine has always shown without decimals.
+const ZERO_DECIMAL = ["BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW", "MGA", "PYG", "RWF", "UGX", "VND", "VUV", "XAF", "XOF", "XPF"];
 export function formatMoney(amountMinor, currency) {
   const cur = String(currency || "usd").toUpperCase();
-  const zero = ["JPY", "KRW", "VND", "CLP", "ISK", "UGX", "XAF", "XOF", "PYG", "RWF"].includes(cur);
+  const zero = ZERO_DECIMAL.includes(cur);
   const n = zero ? amountMinor : amountMinor / 100;
   try {
     return new Intl.NumberFormat("en", { style: "currency", currency: cur, maximumFractionDigits: zero ? 0 : 2 }).format(n);
   } catch {
     return `${n.toFixed(zero ? 0 : 2)} ${cur}`;
   }
+}
+
+// {usd: 400, eur: 250} -> "$4.00 + €2.50" (sorted by currency), or "nothing".
+export function formatMoneyMap(m) {
+  const parts = Object.entries(m || {}).sort(([a], [b]) => (a < b ? -1 : 1)).map(([cur, minor]) => formatMoney(minor, cur));
+  return parts.length ? parts.join(" + ") : "nothing";
 }

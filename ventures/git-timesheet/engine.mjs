@@ -11,7 +11,8 @@ export function parseLog(text) {
   const bad = [];
   String(text).split(/\r?\n/).forEach((line, i) => {
     if (!line.trim()) return;
-    const m = /^([0-9a-f]{4,40})\|([^|]*)\|(\d{4}-\d\d-\d\dT[\d:.]+(?:Z|[+-]\d\d:?\d\d))\|(.*)$/.exec(line);
+    // 4 to 64 hex: abbreviated, SHA-1 (40) and SHA-256 repositories (64).
+    const m = /^([0-9a-f]{4,64})\|([^|]*)\|(\d{4}-\d\d-\d\dT[\d:.]+(?:Z|[+-]\d\d:?\d\d))\|(.*)$/.exec(line);
     const t = m && Date.parse(m[3]);
     if (!m || Number.isNaN(t)) return bad.push({ line: i + 1, text: line.slice(0, 80) });
     // Local calendar day as written in the timestamp, not UTC, so late-evening work stays on its day.
@@ -112,6 +113,8 @@ const defuse = (s) => (/^[=+\-@\t\r]/.test(s) && !/^[+-]?\d[\d.,]*$/.test(s) ? "
 export function gate(sum, { maxHours = null, maxAmount = null } = {}) {
   const fails = [];
   if (maxHours != null && sum.hours > maxHours) fails.push(`${sum.hours} h exceeds --max-hours ${maxHours}`);
-  if (maxAmount != null && sum.amount != null && sum.amount > maxAmount) fails.push(`${sum.amount.toFixed(2)} exceeds --max-amount ${maxAmount}`);
+  // No rate means no amount: fail rather than wave a budget gate through unchecked.
+  if (maxAmount != null && sum.amount == null) fails.push(`--max-amount ${maxAmount} cannot be checked without --rate`);
+  else if (maxAmount != null && sum.amount > maxAmount) fails.push(`${sum.amount.toFixed(2)} exceeds --max-amount ${maxAmount}`);
   return { ok: !fails.length, text: fails.length ? fails.join("; ") : `${sum.hours} h within limits` };
 }

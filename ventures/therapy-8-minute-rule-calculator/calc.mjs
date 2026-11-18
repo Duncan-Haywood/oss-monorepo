@@ -28,8 +28,8 @@ export const EXAMPLE_SHARED = {
   defaultRate: "28",
 };
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
-export const money2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
+export const money2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 
 const num = (t) => {
   const s = String(t ?? "").replace(/[$\s,]/g, "");
@@ -121,7 +121,7 @@ export function analyze(inputs) {
   const sum = (f) => rows.reduce((s, r) => s + f(r), 0);
   return {
     ok: true, warnings, rows,
-    totals: { visits: rows.length, units: sum((r) => r.units), perCodeUnits: sum((r) => r.perCodeUnits), revenue: sum((r) => r.revenue), revenuePerCode: sum((r) => r.revenuePerCode), over: sum((r) => r.over), nearMisses: rows.filter((r) => r.nearMiss).length },
+    totals: { visits: rows.length, units: sum((r) => r.units), perCodeUnits: sum((r) => r.perCodeUnits), revenue: sum((r) => r.revenue), revenuePerCode: sum((r) => r.revenuePerCode), over: sum((r) => r.over), overVisits: rows.filter((r) => r.over > 0).length, overAmount: sum((r) => (r.over > 0 ? Math.max(0, r.revenuePerCode - r.revenue) : 0)), nearMisses: rows.filter((r) => r.nearMiss).length },
   };
 }
 

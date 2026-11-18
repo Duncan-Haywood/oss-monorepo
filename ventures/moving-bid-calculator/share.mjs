@@ -88,6 +88,15 @@ export const PROPOSAL_TERM_TEXT = Object.freeze([
 // where a document travels.
 export const MAX_TERM_TEXT = 512;
 
+// The cleaning a term gets before it is measured or carried. One function,
+// because `overlongTerms` must measure the same text `usableText` keeps:
+// measured raw, a clause with a few pasted control characters rode in the
+// link while the note told the sender it stayed behind (red team, 2026-11-17).
+function cleanTermText(value) {
+  // eslint-disable-next-line no-control-regex
+  return value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+}
+
 // Prose is carried as typed, newlines included — these are textareas and a
 // three-line exclusions list is three lines on the customer's sheet. Only two
 // things are taken out: the control characters no textarea produces and no
@@ -100,8 +109,7 @@ export const MAX_TERM_TEXT = 512;
 // stayed behind instead of finding out from the customer.
 function usableText(value) {
   if (typeof value !== 'string') return null;
-  // eslint-disable-next-line no-control-regex
-  const clean = value.replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, '').trim();
+  const clean = cleanTermText(value);
   if (!clean) return null;
   return clean.length > MAX_TERM_TEXT ? null : clean;
 }
@@ -173,7 +181,7 @@ export function readProposalTerms(values, lookup) {
 export function overlongTerms(values) {
   return PROPOSAL_TERM_TEXT.filter((id) => {
     const raw = values?.[id];
-    return typeof raw === 'string' && raw.trim().length > MAX_TERM_TEXT;
+    return typeof raw === 'string' && cleanTermText(raw).length > MAX_TERM_TEXT;
   });
 }
 
@@ -201,8 +209,10 @@ export function overlongTermsNote(values) {
   const named = left.length === 1
     ? left[0]
     : `${left.slice(0, -1).join(', ')} and ${left[left.length - 1]}`;
-  return `your ${named} ${left.length === 1 ? 'is' : 'are'} too long to fit in a link `
-    + `and stayed behind — send ${left.length === 1 ? 'it' : 'them'} separately if the wording matters`;
+  // "payment terms" and "notes" are plural nouns: only the list takes "is".
+  const one = left.length === 1 && left[0] === TERM_LABELS.proposalExclusions;
+  return `your ${named} ${one ? 'is' : 'are'} too long to fit in a link `
+    + `and stayed behind — send ${one ? 'it' : 'them'} separately if the wording matters`;
 }
 
 // A select's value is a string in the DOM, so this used to test `typeof value
@@ -282,8 +292,23 @@ function specRowGroups(spec) {
 
 const MAX_TEXT = 80;
 
+// A lone half of a UTF-16 surrogate pair makes encodeURIComponent throw
+// "URI malformed", which took the whole link and save down with it. Two ways
+// one appears: a name cut at MAX_TEXT code units through the middle of an
+// emoji, and pasted text that already holds one. So the cut never splits a
+// pair, and any stray half left over becomes U+FFFD.
+const LONE_SURROGATE = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+
+function clipText(text) {
+  let clipped = text.slice(0, MAX_TEXT);
+  if (clipped.length === MAX_TEXT && /[\uD800-\uDBFF]$/.test(clipped) && /^[\uDC00-\uDFFF]/.test(text.slice(MAX_TEXT))) {
+    clipped = clipped.slice(0, -1);
+  }
+  return clipped.replace(LONE_SURROGATE, '\uFFFD');
+}
+
 function encodeText(value) {
-  const raw = String(value ?? '').trim().slice(0, MAX_TEXT);
+  const raw = clipText(String(value ?? '').trim());
   if (!raw) return '';
   // URI-encode so a typed name can contain ":" or "," without splitting the row.
   return encodeURIComponent(raw);
@@ -292,7 +317,7 @@ function encodeText(value) {
 function decodeText(raw) {
   if (!raw) return null;
   try {
-    const text = decodeURIComponent(raw).trim().slice(0, MAX_TEXT);
+    const text = clipText(decodeURIComponent(raw).trim());
     return text || null;
   } catch {
     return null;

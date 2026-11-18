@@ -4,6 +4,14 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## Key facts (2026/27, England, Wales and Northern Ireland; as of 2026-11-13)
+
+- Taking all profit out, a sole trader keeps more than a one-director limited company at every profit from £10,000 to £300,000 in this calculator. At £50,000 profit: sole trader £40,268; company with a £12,570 salary and dividends £37,994 after £1,200 of running costs, £38,862 with none. Closest gap: £20, at £60,000 with no running costs.
+- The best director salary for a one-director company without Employment Allowance is £12,570 at most profits; salary plus employer NI on it can never exceed the company's profit after costs.
+- Rates: corporation tax 19% to £50,000, 25% from £250,000 (marginal relief between); employer NI 15% above £5,000; dividend tax 10.75% / 35.75% / 39.35% above a £500 allowance; Class 4 NI 6% from £12,570 to £50,270, 2% above.
+- Sources: GOV.UK "Corporation Tax rates and reliefs", "Tax on dividends", "Self-employed National Insurance rates", "Rates and thresholds for employers 2026 to 2027".
+- Not modelled: Scottish bands, student loans, pension contributions, VAT, IR35. Leaving profit in the company defers dividend tax and can change the answer.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-sole-trader-vs-limited-company-calculator/)

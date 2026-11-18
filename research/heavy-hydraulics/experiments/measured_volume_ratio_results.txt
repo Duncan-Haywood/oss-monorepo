@@ -1,0 +1,72 @@
+record 220099 samples, 440.2 s; spools E, E; q_sb 0
+m* = beta [(r-1) p_q + r (p_Q - p_q) + r d_bar] + I/B; R2 = (r-1) p_q + r d_bar; R1 = all but covariance
+check: numpy split equals stdlib trace_breakeven (all 5u fields) on the first 50,000 samples
+
+whole record
+  (a) floor, no drop, p_n 5: m* 82.9; r 1.793, p_Q 118.7, p_q 133.9, d_bar 0.00 bar, beta 0.995
+      terms: beta(r-1)p_q 105.6, covariance -27.1, drop 0.0, idle 4.4 bar (sum gap 0.0e+00); R2 106.1 (1.281 of m*), R1 110.0 (1.327 of m*)
+  (b) PVG 32 orifice floor, p_n 5: m* 87.0; r 1.793, p_Q 118.7, p_q 133.9, d_bar 2.32 bar, beta 0.995
+      terms: beta(r-1)p_q 105.6, covariance -27.1, drop 4.1, idle 4.4 bar (sum gap 0.0e+00); R2 110.3 (1.268 of m*), R1 114.1 (1.312 of m*)
+  (c) 10 bar spool drop, p_n 10: m* 105.5; r 1.793, p_Q 118.7, p_q 133.9, d_bar 10.00 bar, beta 0.995
+      terms: beta(r-1)p_q 105.6, covariance -27.1, drop 17.8, idle 9.2 bar (sum gap 1.3e-16); R2 124.1 (1.176 of m*), R1 132.7 (1.257 of m*)
+
+per Y-cycle (18 cycles): median (min to max)
+  (a) floor, no drop, p_n 5
+      m        76.87 (  54.86 to  139.43)
+      r         1.74 (   1.54 to    2.12)
+      p_Q     119.51 ( 108.61 to  132.91)
+      p_q     136.11 ( 120.80 to  150.09)
+      d_bar     0.00 (   0.00 to    0.00)
+      beta      1.00 (   0.99 to    1.00)
+      main    107.99 (  65.24 to  164.58)
+      cov     -29.38 ( -49.45 to    2.43)
+      drop      0.00 (   0.00 to    0.00)
+      idle      3.78 (   2.22 to    8.16)
+      rule2   108.39 (  65.59 to  165.61)
+      per-cycle |R2 - m*|/m* median 0.321; |R1 - m*|/m* median 0.350
+      Spearman(r, m*) 0.920; Spearman(p_q, m*) 0.243; Spearman(R2, m*) 0.901
+      p_q per cycle mean 95% bootstrap 131.6 to 141.0 bar
+  (b) PVG 32 orifice floor, p_n 5
+      m        81.22 (  58.96 to  142.98)
+      r         1.74 (   1.54 to    2.12)
+      p_Q     119.51 ( 108.61 to  132.91)
+      p_q     136.11 ( 120.80 to  150.09)
+      d_bar     2.32 (   1.75 to    3.11)
+      beta      1.00 (   0.99 to    1.00)
+      main    107.99 (  65.24 to  164.58)
+      cov     -29.38 ( -49.45 to    2.43)
+      drop      4.16 (   3.37 to    4.97)
+      idle      3.78 (   2.22 to    8.16)
+      rule2   112.77 (  69.98 to  169.41)
+      per-cycle |R2 - m*|/m* median 0.305; |R1 - m*|/m* median 0.332
+      Spearman(r, m*) 0.920; Spearman(p_q, m*) 0.243; Spearman(R2, m*) 0.891
+      p_q per cycle mean 95% bootstrap 131.6 to 141.0 bar
+  (c) 10 bar spool drop, p_n 10
+      m        98.99 (  75.34 to  168.93)
+      r         1.74 (   1.54 to    2.12)
+      p_Q     119.51 ( 108.61 to  132.91)
+      p_q     136.11 ( 120.80 to  150.09)
+      d_bar    10.00 (  10.00 to   10.00)
+      beta      1.00 (   0.99 to    1.00)
+      main    107.99 (  65.24 to  164.58)
+      cov     -29.38 ( -49.45 to    2.43)
+      drop     17.30 (  15.35 to   21.04)
+      idle      7.91 (   4.89 to   17.32)
+      rule2   125.65 (  81.02 to  186.79)
+      per-cycle |R2 - m*|/m* median 0.216; |R1 - m*|/m* median 0.279
+      Spearman(r, m*) 0.924; Spearman(p_q, m*) 0.220; Spearman(R2, m*) 0.907
+      p_q per cycle mean 95% bootstrap 131.6 to 141.0 bar
+
+synthetic (5u, d 0) to loader (a): r 1.433 -> 1.793; p_q 33 -> 133.9 bar; m* 20.5 -> 82.9 bar
+  (r-1) p_q: synthetic 14.3; loader r with synthetic p_q 26.2; synthetic r with loader p_q 58.0; loader 106.1 bar
+
+surplus-flow pressure p_s = (r p_Q - p_q) / (r - 1); then m* = beta [(r-1) p_s + r d_bar] + I/B exactly
+  (a) whole record p_s 99.5 bar (p_q 133.9, p_Q 118.7); per cycle median 96.5 (79.2 to 125.9); (r-1) p_s 78.9 bar
+  (b) whole record p_s 99.5 bar (p_q 133.9, p_Q 118.7); per cycle median 96.5 (79.2 to 125.9); (r-1) p_s 78.9 bar
+  (c) whole record p_s 99.5 bar (p_q 133.9, p_Q 118.7); per cycle median 96.5 (79.2 to 125.9); (r-1) p_s 78.9 bar
+
+V6 REFUTED (p_q in 90 to 115 bar: 133.9; covariance positive: -27.1 bar)
+V7 REFUTED (R1 within 10% of whole-record m* under b: 114.1 against 87.0, 31.2%)
+V8 HOLDS (Spearman(r, m*_c) > Spearman(p_q, m*_c) under b: 0.920 against 0.243)
+V9 HOLDS (whole-record beta > 0.9: 0.995)
+V10 REFUTED (median per-cycle |R2 - m*_c| / m*_c <= 0.25 under b: 0.305)

@@ -38,6 +38,12 @@ lives, so:
 - The unit config sets `testTimeout` to 20s explicitly. Nothing here should
   come close to that; if something does, make the run cheaper rather than
   raising the ceiling.
+- A simulation file that holds several independent seeded runs can spread
+  them over worker threads: `cellParallel` in `src/lib/poolCapCell.ts` does
+  this for the deep pool-cap cells, and `poolCapCell.test.ts` pins it equal to
+  the single-threaded `cell`. Each run shares nothing, so the numbers cannot
+  change; only the wall time does (the simulation suite went from 127 s to
+  66 s on 4 cores, 2026-11-13).
 
 `scripts/test-db.sh` finds the Postgres server binaries even when only `psql`
 is on PATH, and drops to the `postgres` system user when run as root — both of
@@ -80,7 +86,7 @@ what to install. See [decisions/0008](decisions/0008-integration-tests-against-a
 | File | Tests | Guards |
 | --- | --- | --- |
 | `api/trials/trials.integration.test.ts` | 10 | The swipe loop: an answer moves both items and stores the snapshot undo replays, a resent answer is acknowledged and applied once, two submits racing on one trial apply once, one participant's answers never touch another's ratings, undo restores exactly, and a reload returns the pending question instead of minting a row |
-| `api/admin/surveys/ranking.integration.test.ts` | 4 | The admin ranking route: 401 without a session, 404 for an unknown slug, empty coverage with no answers, six respondents answering through the real next/answer routes recover a hidden order (Spearman > 0.8; fails when the order is reversed), and the CSV has one row per option |
+| `api/admin/surveys/ranking.integration.test.ts` | 11 | The admin ranking route: 401 without a session, 404 for an unknown slug, empty coverage with no answers, six respondents answering through the real next/answer routes recover a hidden order (Spearman > 0.8; fails when the order is reversed), slot clickers and partway slot runs, a weak slot lean cut from where the person turned quick (slotRunsAtTurns), the pace note and the three `?drop=` comparisons, and the CSV has one row per option |
 | `api/session/session.integration.test.ts` | 8 | Participant creation and reuse: switching perspective and back lands on the same rows, the six removed profile fields cannot be written, the per-IP throttle counts and exempts accounts, and the status fan-out stays capped |
 | `api/couple/couple.integration.test.ts` | 9 | The couple screen: an invite is claimable exactly once under a race, no raw answer or participant id crosses between two people, and the actionable sections stay shut while the data is thin and open when it is not |
 | `api/couple/earned.integration.test.ts` | 2 | The couple screen on ratings that were *earned* rather than planted: two linked accounts answer through the real trial routes, and the actionable sections open on a session someone would sit through — plus the one-sided case, where the screen names the partner who has not answered. The measurement it prints is what `docs/CONVERGENCE.md` quotes |

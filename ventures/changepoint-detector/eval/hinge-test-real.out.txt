@@ -1,0 +1,7 @@
+A. GCAG 1880-2024: n 145, knot 1976, F 72.0 (bootstrap bar 11.7), p 0.001, rho 0.49 (line 0.76), slope 0.44 -> 2.03 per 100 steps; differences test p 0.800
+B. GISTEMP 1880-2024: n 145, knot 1976, F 85.6 (bootstrap bar 13.2), p 0.001, rho 0.52 (line 0.80), slope 0.35 -> 2.12 per 100 steps; differences test p 0.746
+C. GCAG 1850-2024: n 175, knot 1976, F 93.1 (bootstrap bar 13.0), p 0.001, rho 0.56 (line 0.83), slope 0.30 -> 2.16 per 100 steps; differences test p 0.763
+D. log US real GDP: REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.97 (bias-corrected), above 0.9: too close to a unit root for a level test; use the test on differences (slopeBreaks))
+D. log US labour productivity: REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.98 (bias-corrected), above 0.9: too close to a unit root for a level test; use the test on differences (slopeBreaks))
+E. GCAG 1910-2024: n 115, knot 1985, F 47.8 (bootstrap bar 11.3), p 0.001, rho 0.46 (line 0.74), slope 0.59 -> 2.30 per 100 steps; differences test p 0.907
+E. GCAG 1930-2024: REFUSED (the residuals about a straight line have lag-1 autocorrelation 0.76 (bias-corrected), above 0.7: too close to a unit root for a level test; use the test on differences (slopeBreaks))

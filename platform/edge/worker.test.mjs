@@ -255,3 +255,25 @@ test('the per-slug daily cap defaults to 20000 and MAX_PER_SLUG_PER_DAY override
   assert.equal(caps[0], 20000);
   assert.equal(caps.at(-1), 5);
 });
+
+test('/inbox routes only GET (read) and DELETE (erase); any other method or path with a valid token is a 404 that touches nothing', async () => {
+  let touched = 0;
+  const db = { prepare: () => { touched++; return { bind: () => ({ async run() { touched++; return { meta: { changes: 1 } }; }, async all() { touched++; return { results: [] }; } }) }; } };
+  const e = { DB: db, ALLOWED_ORIGIN: ORIGIN, INBOX_TOKEN: 's3cret-token' };
+  const auth = { authorization: 'Bearer s3cret-token' };
+  // wrong method on /inbox must reach neither handler
+  for (const method of ['POST', 'PUT']) {
+    const res = await worker.fetch(req('/inbox?id=1', { method, body: method === 'POST' ? '{}' : undefined, headers: auth }), e);
+    assert.equal(res.status, 404, `${method} /inbox`);
+  }
+  // right method on another path must reach neither handler
+  for (const method of ['GET', 'DELETE']) {
+    const res = await worker.fetch(req('/elsewhere?id=1', { method, headers: auth }), e);
+    assert.equal(res.status, 404, `${method} /elsewhere`);
+  }
+  assert.equal(touched, 0);
+  // and the real routes do reach their handlers
+  assert.equal((await worker.fetch(req('/inbox', { method: 'GET', headers: auth }), e)).status, 200);
+  const del = await worker.fetch(req('/inbox?id=1', { method: 'DELETE', headers: auth }), e);
+  assert.deepEqual(await del.json(), { deleted: 1 });
+});

@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNqon29hGXrHdSApCx",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T06:04:51Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0003 AI sales agents: self-host agent against real Dovecot IMAP and Postfix SMTP",
+  "projects": [
+    "ventures/sales-agent"
+  ],
+  "pr": 15749,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "prompt.md says website requests come before flagships, but allocate.py's 'Start here' line only names a flagship; a run has to reconcile the two by hand"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate named shift-roster-builder (flagship row 4); prompt.md puts website requests first, and R-0003 (sales-agent) had no open PR while R-0001/R-0005 had active work today",
+      "did": "took R-0003",
+      "result": "real-server round trip, two user-facing bugs fixed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-sales-agent-meets-a-real-mail-server.md",
+    "ventures/sales-agent/self-host/real-servers/README.md"
+  ],
+  "goal": null,
+  "notes": "Installed Dovecot 2.3.21 and Postfix 3.8.6 via apt in the container (self-host/real-servers/setup.sh); real-servers.mjs: 32 of 32 (first run 25/29, two failures were harness errors, one a header misuse in the harness that showed buildMessage accepted a URI badly, one a wrong check). Found and fixed: agent's own sends to a 'Name <addr>' reply never matched the Today's queue (daily.mjs sentRows + agent.mjs own), bounced prospect first_name 'Mail', List-Unsubscribe doubled on a URI. Checks run: node --test self-host/*.test.mjs *.test.mjs in ventures/sales-agent: 573/573 pass; run_venture_tests.py sales-agent ok; venture-preflight.mjs sales-agent (see PR).",
+  "corrections": [],
+  "redteam": null
+}

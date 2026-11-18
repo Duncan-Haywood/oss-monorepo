@@ -82,10 +82,13 @@ export function fillSensitivity(i, steps = [50, 75, 100]) {
 
 export function money(x) {
   const v = Math.round(x);
-  return (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US");
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US"));
 }
 export function money2(x) {
-  return "$" + x.toFixed(2);
+  const format = (x) => "$" + x.toFixed(2);
+  if (!(Number(x) < 0)) return format(x);
+  const text = format(Math.abs(x));
+  return /[1-9]/.test(text) ? `-${text}` : text;
 }
 
 export function sampleInputs() {

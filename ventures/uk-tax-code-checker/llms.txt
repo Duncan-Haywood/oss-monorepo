@@ -4,6 +4,12 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it models
+
+- Cumulative and week 1 / month 1 tax to date on the 2026/27 England/Wales/NI and Scottish bands, flat codes (BR, D0, D1, Scottish SD codes), 0T, NT and K codes.
+- K codes are capped at 50% of pay (the overriding limit), so a payslip held at half its pay is not flagged as a payroll error.
+- The code builder gives no M or N code above the basic-rate limit (Scotland: the intermediate-rate limit), since a higher-rate taxpayer can neither give nor receive Marriage Allowance.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/uk-tax-code-checker/)

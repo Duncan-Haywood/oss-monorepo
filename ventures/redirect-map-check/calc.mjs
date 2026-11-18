@@ -204,7 +204,7 @@ export function validate(input, options = {}) {
   if (read.notes.includes("bom")) add("info", "bom", "File starts with a UTF-8 byte-order mark", "Harmless to most importers; the cleaned file drops it.", 1);
   if (read.delim !== ",") add("warning", "delimiter", `The file is ${delimName(read.delim)}-separated`, read.delim === " " ? "Read as one 'old new' pair per line. Importers want a CSV or a platform's own syntax; the cleaned output is written in the format you pick." : `Importers expect commas (Shopify) or their own syntax. The cleaned output is written in the format you pick.`, 1);
   if (read.notes.includes("guessed-header")) add("warning", "header", "No old/new URL headers recognised", "The first row was treated as a header and the first two columns as old URL and new URL. Name them Redirect from and Redirect to if that is wrong.", 1);
-  if (read.rows.length > LIMITS.rows) add("error", "too-many", `${read.rows.length.toLocaleString()} rows`, `Shopify's URL-redirect limit is 100,000 (from memory of its help pages); most hosts cap rules far lower. Split or collapse the map.`, 0);
+  if (read.rows.length > LIMITS.rows) add("error", "too-many", `${read.rows.length.toLocaleString('en-US')} rows`, `Shopify's URL-redirect limit is 100,000 (from memory of its help pages); most hosts cap rules far lower. Split or collapse the map.`, 0);
 
   // 1. Per-row parse and shape checks.
   const items = [];
@@ -357,7 +357,7 @@ export function validate(input, options = {}) {
       const finalPath = res && res.final && !res.loop ? res.final : key(it.to.path);
       if (!have.has(noSlash(finalPath))) {
         summary.missingTargets++;
-        add("error", "target-missing", "Target is not in your new-site URL list", `${it.from.path} ends at ${finalPath}, which is not among the ${newList.length.toLocaleString()} URLs you pasted. That is a redirect to a 404.`, it.line);
+        add("error", "target-missing", "Target is not in your new-site URL list", `${it.from.path} ends at ${finalPath}, which is not among the ${newList.length.toLocaleString('en-US')} URLs you pasted. That is a redirect to a 404.`, it.line);
       }
     }
   }
@@ -372,8 +372,8 @@ export function validate(input, options = {}) {
       if (!covered.has(k)) missing.push(s.path);
     }
     summary.uncovered = missing.length;
-    if (missing.length) add("warning", "uncovered", `${missing.length.toLocaleString()} of ${oldList.length.toLocaleString()} old URLs have no redirect`, `Each will 404 after launch unless the new site serves it. First few: ${missing.slice(0, 8).join(", ")}${missing.length > 8 ? ", …" : ""}.`, 0);
-    else add("info", "covered", `All ${oldList.length.toLocaleString()} old URLs have a rule`, "Every URL in your old-site list appears as a source.", 0);
+    if (missing.length) add("warning", "uncovered", `${missing.length.toLocaleString('en-US')} of ${oldList.length.toLocaleString('en-US')} old URLs have no redirect`, `Each will 404 after launch unless the new site serves it. First few: ${missing.slice(0, 8).join(", ")}${missing.length > 8 ? ", …" : ""}.`, 0);
+    else add("info", "covered", `All ${oldList.length.toLocaleString('en-US')} old URLs have a rule`, "Every URL in your old-site list appears as a source.", 0);
   }
 
   // Flattened output.
@@ -403,6 +403,14 @@ export function validate(input, options = {}) {
   return { findings, summary, fixes, rows: kept.map((k) => ({ line: k.line, from: k.from.path, to: k.rawTo, status: k.status })), flat };
 }
 
+// An exact-match RedirectMatch pattern for a path. mod_alias matches the decoded URL-path without
+// the query string, so decode %XX, escape regex metacharacters, and write spaces as \x20.
+export function apacheExact(path) {
+  let p = path;
+  try { p = decodeURIComponent(path); } catch { /* keep as typed */ }
+  return "^" + p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&").replace(/ /g, "\\x20") + "$";
+}
+
 // Render the flattened map in the format a platform imports.
 export function render(flat, format = "shopify", options = {}) {
   const rows = flat.filter((r) => r.to || r.status === 410);
@@ -417,7 +425,9 @@ export function render(flat, format = "shopify", options = {}) {
     case "netlify":
       return list.map((r) => (r.status === 410 ? `${r.from}  /410.html  410!` : `${r.from}  ${r.to}  ${r.status}!`)).join("\n") + "\n" + (list.some((r) => r.status === 410) ? "# 410 rows need a /410.html page on the new site; Netlify serves its body with the 410 status.\n" : "");
     case "apache":
-      return list.map((r) => (r.status === 410 ? `Redirect gone ${r.from}` : `Redirect ${r.status} ${r.from} ${r.to}`)).join("\n") + "\n";
+      // RedirectMatch with an anchored pattern: plain `Redirect` matches every URL that starts with
+      // the path and the first line wins, so `/ -> /home` would catch the whole site (mod_alias docs).
+      return list.map((r) => (r.status === 410 ? `RedirectMatch gone ${apacheExact(r.from)}` : `RedirectMatch ${r.status} ${apacheExact(r.from)} ${r.to}`)).join("\n") + "\n";
     case "nginx": {
       const lines = ["map $request_uri $redirect_to {", "    default \"\";"];
       const gone = [];
@@ -438,6 +448,8 @@ export function repair(input, options = {}) {
   if (!r.flat.length) return { text: "", changes, error: r.findings.find((f) => f.code === "empty")?.title || "There is nothing to write." };
   const loops = r.findings.filter((f) => f.code === "loop" || f.code === "self").length;
   changes.push(...r.fixes);
+  const temps = r.rows.filter((x) => [302, 303, 307].includes(x.status) && r.flat.some((f) => f.status === 301)).length;
+  if (temps) changes.push(`Wrote ${temps} temporary (302/303/307) row(s) as 301: a migration is permanent. Edit them back if a move really is temporary.`);
   if (r.summary.flattenable) changes.push(`Pointed ${r.summary.flattenable} chained redirect(s) straight at their final destination.`);
   if (r.summary.duplicates) changes.push(`Dropped ${r.summary.duplicates} duplicate row(s) with identical targets.`);
   if (loops) changes.push(`Left out ${loops} row(s) caught in a loop; they need a human decision.`);

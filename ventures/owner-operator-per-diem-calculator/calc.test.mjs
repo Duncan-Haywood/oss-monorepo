@@ -78,3 +78,25 @@ test("a DOT percentage just over 100 is rejected", () => {
   assert.match(r.error, /DOT percentage/);
   assert.equal(calculatePerDiem({ fullDays: 100, dailyRate: 80, dotPct: 100 }).error, undefined);
 });
+
+test("a travel-day percentage just over 100 is rejected and exactly 100 is accepted", () => {
+  const r = calculatePerDiem({ fullDays: 10, partialDays: 10, dailyRate: 80, partialPct: 100.5 });
+  assert.match(r.error, /travel day percentage/);
+  assert.equal(calculatePerDiem({ fullDays: 10, partialDays: 10, dailyRate: 80, partialPct: 100 }).error, undefined);
+});
+
+test("wages at or above the wage base leave no Social Security room, only Medicare", () => {
+  const medicareOnly = 50000 * 0.9235 * 0.029;
+  assert.ok(Math.abs(seTax(50000, { otherWages: 100000, wageBase: 100000 }) - medicareOnly) < 1e-9);
+  assert.ok(Math.abs(seTax(50000, { otherWages: 150000, wageBase: 100000 }) - medicareOnly) < 1e-9);
+});
+
+test("net earnings under $400 owe no self-employment tax (Schedule SE)", () => {
+  // 433 x 0.9235 = 399.88, under the $400 floor; 434 x 0.9235 = 400.80, over it.
+  assert.equal(seTax(433), 0);
+  assert.ok(Math.abs(seTax(434) - 434 * 0.9235 * 0.153) < 1e-9);
+  // A deduction that takes profit under the floor saves all the SE tax that was due.
+  const r = calculatePerDiem({ fullDays: 100, dailyRate: 80, netProfit: 6500, marginalRate: 0 });
+  assert.equal(r.seTaxAfter, 0);
+  assert.equal(r.seSaving, r.seTaxBefore);
+});

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKjf5LAaTScdpkzdqKB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T03:18:24Z",
+  "ended": "2026-11-15T03:25:13Z",
+  "wall_minutes": 7.08,
+  "tokens_in": 5567863,
+  "tokens_out": 33262,
+  "cost_usd": 2.8987,
+  "tool_calls": 47,
+  "task": "research track 20 draw: advance buildbot-sheathing (milestone 22, the paper's capacity sections for milestones 14-21)",
+  "projects": [
+    "research/buildbot-sheathing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16075",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "WebFetch/curl to nahb.org and huduser.gov refused by the egress proxy (403/ENOTFOUND)",
+      "effect": "could not read the one candidate source for a tested 16d end-nail value; recorded as not reachable"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/buildbot-sheathing/paper/README.md",
+      "issue": "said check_numbers prints '70 of 70 checks ok' while the file held 130 checks; stale since milestones 9-13 were added. Fixed to 190."
+    },
+    {
+      "file": "research/buildbot-sheathing/paper/draft.md",
+      "issue": "'Data and code availability' said 69 test functions; the suite has 129. Fixed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "a paper step instead of a new experiment: the two open next steps (a tested 16d end-nail ultimate, a tear-out model from tested edge-nail curves) both hinge on data this session could not reach, while eight milestones of results were missing from the paper",
+      "did": "wrote milestones 14-21 into the draft with 60 new number checks",
+      "result": "merged; 190 of 190 checks ok, 110 tests pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-five-shear-wall-models-one-missing-input.md",
+    "research/buildbot-sheathing/LOG.md (milestone 22 plan and result)"
+  ],
+  "goal": "PhD+ research programme: paper ready for Automation in Construction",
+  "notes": "Local checks: paper/check_numbers.py 190 of 190 ok; pytest research/buildbot-sheathing/tests 110 passed, 8 skipped (47 s, python3.13); research/_homepage/build.py ok; check_md_links ok; research_live_links 0 missing; programme_check ok. Every number in the new sections was read from experiments/m14-m21 results.txt; the 'all 30 within 5 points rms have m 0.25' claim was verified from m19 results.json.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3022bbb6-cafe-56ad-b4c4-28d1140e7a32",
+    "transcripts": 1,
+    "first": "2026-11-15T03:18:24Z",
+    "last": "2026-11-15T03:25:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 92,
+        "output": 33262,
+        "thinking": 7507,
+        "cache_read": 5424245,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143526,
+        "api_equivalent_usd": 2.8987,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 92,
+      "output": 33262,
+      "thinking": 7507,
+      "cache_read": 5424245,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143526,
+      "api_equivalent_usd": 2.8987,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 2,
+      "WebSearch": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.08,
+      "active_minutes": 7.08,
+      "model_minutes": 5.86,
+      "tool_minutes": 1.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading eight milestones' results and writing four paper sections with a table and number checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 207.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

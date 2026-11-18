@@ -77,3 +77,19 @@ test('non-numeric or negative inputs are rejected with a field-specific message'
   assert.throws(() => calculatePrice({ ...DEFAULTS, printTimeHours: 0 }), /Print time must be greater than zero/);
   assert.throws(() => calculatePrice({ ...DEFAULTS, printerCost: -1 }), /Printer cost must be at least 0/);
 });
+
+test('other fixed cost is added to the total once', () => {
+  const a = calculatePrice({ ...DEFAULTS });
+  const b = calculatePrice({ ...DEFAULTS, otherFixedCost: 2 });
+  assert.ok(Math.abs(b.totalCost - a.totalCost - 2) < 1e-9);
+});
+
+test('default total and suggested price match a hand calculation (quality audit round 69)', () => {
+  // (0.99 + 0.0576 + 0.25) / (1 - 0.08) + (10/60)*20 + 0.75 = 5.49377...
+  // price = total / (1 - 0.085 - 0.35); break-even = total / (1 - 0.085)
+  const r = calculatePrice(DEFAULTS);
+  const total = (0.99 + 0.0576 + 0.25) / 0.92 + (10 / 60) * 20 + 0.75;
+  assert.ok(Math.abs(r.totalCost - total) < 1e-9);
+  assert.ok(Math.abs(r.suggestedPrice - total / 0.565) < 1e-9);
+  assert.ok(Math.abs(r.breakEvenPrice - total / 0.915) < 1e-9);
+});

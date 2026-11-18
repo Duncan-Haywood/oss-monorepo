@@ -49,8 +49,8 @@ export function parseMapping(text) {
 }
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
-const dollars = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
-export const money = (c, cur = "USD") => (c < 0 ? "-" : "") + Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur;
+const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
 
 // ---- parsing ----------------------------------------------------------------
 
@@ -67,7 +67,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
 
 export function parseAmount(s) {
   const t = String(s ?? "").trim().replace(/\s/g, "");
@@ -86,8 +86,8 @@ export function parseDate(s, order = "mdy") {
   if (!t) return null;
   let y, m, d, x;
   if ((x = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) [y, m, d] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})/))) [d, m, y] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
+  else if ((x = t.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})(?!\d)/))) [d, m, y] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
   else return null;
   const dt = new Date(Date.UTC(+y, +m - 1, +d));
   if (dt.getUTCFullYear() !== +y || dt.getUTCMonth() !== +m - 1 || dt.getUTCDate() !== +d) return null;
@@ -114,7 +114,7 @@ const TRUE = /^(true|yes|y|1|refunded)$/i;
 export function parsePayouts(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const first = lines.findIndex((l) => l.trim());
   const none = { payouts: [], findings, summary: { rows: 0, payouts: 0 } };
   if (first < 0) { add("error", "The file is empty", "Paste or choose a Buy Me a Coffee earnings CSV."); return none; }

@@ -81,7 +81,7 @@ export function perPersonDeduction(magi, filingStatus) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const format = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
@@ -132,7 +132,7 @@ export function computeSeniorDeduction({
     findings.push({
       severity: 'medium',
       title: 'Reduced by the income phase-out',
-      detail: `Each qualifying person's $${SENIOR_DEDUCTION_PER_PERSON.toLocaleString()} is reduced by ${money(perPersonReduction(magi, filingStatus))} at this MAGI, to ${money(perPerson)} per person (${money(deduction)} total for ${qualifyingCount} ${qualifyingCount === 1 ? 'person' : 'people'}).`,
+      detail: `Each qualifying person's $${SENIOR_DEDUCTION_PER_PERSON.toLocaleString('en-US')} is reduced by ${money(perPersonReduction(magi, filingStatus))} at this MAGI, to ${money(perPerson)} per person (${money(deduction)} total for ${qualifyingCount} ${qualifyingCount === 1 ? 'person' : 'people'}).`,
     });
   } else {
     findings.push({

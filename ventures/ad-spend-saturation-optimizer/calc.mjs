@@ -37,14 +37,21 @@ export function percentile(sorted, q) {
 
 export function nelderMead(f, x0, { iter = 600, step = 0.4, tol = 1e-12 } = {}) {
   const n = x0.length;
-  let pts = [x0.slice()];
+  const pts = [x0.slice()];
   for (let i = 0; i < n; i++) { const p = x0.slice(); p[i] += step; pts.push(p); }
-  let vals = pts.map(f);
+  const vals = pts.map(f);
+  const c = new Array(n);
   for (let k = 0; k < iter; k++) {
-    const order = vals.map((v, i) => i).sort((i, j) => vals[i] - vals[j]);
-    pts = order.map((i) => pts[i]); vals = order.map((i) => vals[i]);
+    // Stable insertion sort of the n + 1 vertices by value, in place: the same
+    // order the stable Array.prototype.sort gave, without four arrays a step.
+    for (let i = 1; i <= n; i++) {
+      const v = vals[i], p = pts[i];
+      let j = i - 1;
+      while (j >= 0 && vals[j] > v) { vals[j + 1] = vals[j]; pts[j + 1] = pts[j]; j--; }
+      vals[j + 1] = v; pts[j + 1] = p;
+    }
     if (Math.abs(vals[n] - vals[0]) < tol * (1 + Math.abs(vals[0]))) break;
-    const c = new Array(n).fill(0);
+    c.fill(0);
     for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) c[j] += pts[i][j] / n;
     const at = (t) => c.map((cj, j) => cj + t * (pts[n][j] - cj));
     const xr = at(-1), fr = f(xr);
@@ -75,6 +82,8 @@ export const CURVES = {
     np: 2,
     f: (p, s) => p[0] * (1 - Math.exp(-Math.max(s, 0) / p[1])),
     d: (p, s) => (p[0] / p[1]) * Math.exp(-Math.max(s, 0) / p[1]),
+    // f with p bound: the same expression, for the fit's inner loop.
+    bind: (p) => { const a = p[0], k = p[1]; return (s) => a * (1 - Math.exp(-Math.max(s, 0) / k)); },
     toP: (z) => [Math.exp(z[0]), Math.exp(z[1])],
     toZ: (p) => [Math.log(p[0]), Math.log(p[1])],
   },
@@ -85,6 +94,12 @@ export const CURVES = {
       if (s <= 0) return p[2] < 1 ? Infinity : p[2] === 1 ? p[0] / p[1] : 0;
       const kh = Math.pow(p[1], p[2]);
       return (p[0] * p[2] * kh * Math.pow(s, p[2] - 1)) / Math.pow(kh + Math.pow(s, p[2]), 2);
+    },
+    // f with p bound: k^h once per parameter set and s^h once per point, the
+    // same values f computes, so the result is bit-identical.
+    bind: (p) => {
+      const a = p[0], h = p[2], kh = Math.pow(p[1], h);
+      return (s) => { if (s <= 0) return 0; const sh = Math.pow(s, h); return (a * sh) / (kh + sh); };
     },
     toP: (z) => [Math.exp(z[0]), Math.exp(z[1]), H_LO + H_SPAN * sig(z[2])],
     toZ: (p) => {
@@ -103,10 +118,23 @@ export function fitCurve(points, type, { starts = null, iter = 600 } = {}) {
   const sS = mean(points.map((p) => p.s)) || 1, rS = mean(points.map((p) => p.r)) || 1;
   const pts = points.map((p) => ({ s: p.s / sS, r: p.r / rS }));
   const maxR = Math.max(...pts.map((p) => p.r), 1e-9);
+  // A bootstrap resample repeats about a third of its weeks, so the curve is
+  // evaluated once per distinct spend (gv) and the squared errors are still
+  // summed point by point in the original order: the same sum, bit for bit.
+  const m = pts.length, ys = new Float64Array(m), idx = new Int32Array(m);
+  const seen = new Map(), ux = [];
+  for (let i = 0; i < m; i++) {
+    const x = pts[i].s;
+    let j = seen.get(x);
+    if (j === undefined) { j = ux.length; seen.set(x, j); ux.push(x); }
+    idx[i] = j; ys[i] = pts[i].r;
+  }
+  const U = ux.length, xs = Float64Array.from(ux), gv = new Float64Array(U);
   const sse = (z) => {
-    const p = C.toP(z);
+    const g = C.bind(C.toP(z));
+    for (let k = 0; k < U; k++) gv[k] = g(xs[k]);
     let t = 0;
-    for (const q of pts) { const e = q.r - C.f(p, q.s); t += e * e; }
+    for (let i = 0; i < m; i++) { const e = ys[i] - gv[idx[i]]; t += e * e; }
     return Number.isFinite(t) ? t : 1e30;
   };
   let init = starts;
@@ -208,20 +236,27 @@ export function frontier(curves, unit) {
   const hi = curves.map((c, i) => Math.max(lo[i], Math.ceil(c.hi / unit)));
   const T = hi.reduce((a, b) => a + b, 0);
   const NEG = -Infinity;
-  let prev = new Array(T + 1).fill(NEG); prev[0] = 0;
+  let prev = new Float64Array(T + 1).fill(NEG); prev[0] = 0;
   const choice = [];
+  // prev can be finite only on [pLo, pHi], the unit totals the channels so far can reach,
+  // so each b visits only the u that land there (the rest were skipped as -Infinity anyway;
+  // same u order, same strict >, so the same answers and tie-breaks).
+  let pLo = 0, pHi = 0;
   for (let j = 0; j < M; j++) {
-    const val = []; for (let u = lo[j]; u <= hi[j]; u++) val.push(curves[j].f(u * unit));
-    const cur = new Array(T + 1).fill(NEG), ch = new Int32Array(T + 1).fill(-1);
-    for (let b = 0; b <= T; b++) {
-      for (let u = lo[j]; u <= Math.min(hi[j], b); u++) {
+    const lj = lo[j], hj = hi[j];
+    const val = new Float64Array(hj - lj + 1); for (let u = lj; u <= hj; u++) val[u - lj] = curves[j].f(u * unit);
+    const cur = new Float64Array(T + 1).fill(NEG), ch = new Int32Array(T + 1).fill(-1);
+    for (let b = pLo + lj, bEnd = pHi + hj; b <= bEnd; b++) {
+      let best = NEG, arg = -1;
+      for (let u = Math.max(lj, b - pHi), uEnd = Math.min(hj, b - pLo); u <= uEnd; u++) {
         const base = prev[b - u];
         if (base === NEG) continue;
-        const v = base + val[u - lo[j]];
-        if (v > cur[b]) { cur[b] = v; ch[b] = u; }
+        const v = base + val[u - lj];
+        if (v > best) { best = v; arg = u; }
       }
+      cur[b] = best; ch[b] = arg;
     }
-    choice.push(ch); prev = cur;
+    choice.push(ch); prev = cur; pLo += lj; pHi += hj;
   }
   const minUnits = lo.reduce((a, b) => a + b, 0);
   return {
@@ -261,15 +296,18 @@ function splitLine(line, d) {
 
 export function parseDay(s) {
   s = String(s ?? "").trim();
-  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+  let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})(?!\d)/);
   let y, mo, d;
   if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; }
-  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})/))) {
+  else if ((m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(?!\d)/))) {
     let a = +m[1], b = +m[2]; y = +m[3]; if (y < 100) y += 2000;
     if (a > 12) { d = a; mo = b; } else { mo = a; d = b; }
   } else return NaN;
   if (mo < 1 || mo > 12 || d < 1 || d > 31) return NaN;
-  return Math.floor(Date.UTC(y, mo - 1, d) / DAY_MS);
+  const t = Date.UTC(y, mo - 1, d);
+  // Date.UTC rolls 30 February over to 2 March; refuse a day the month does not have.
+  if (new Date(t).getUTCDate() !== d) return NaN;
+  return Math.floor(t / DAY_MS);
 }
 
 export function dayToIso(day) { return new Date(day * DAY_MS).toISOString().slice(0, 10); }
@@ -289,7 +327,7 @@ function money2(s) {
 }
 
 export function parseSpend(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (lines.length < 2) return { error: "Paste or upload rows with a date, a channel, the spend and the revenue." };
   const first = lines[0];
   const d = [",", "\t", ";"].map((c) => [c, first.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];

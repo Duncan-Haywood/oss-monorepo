@@ -18,6 +18,17 @@ test("a person's prefix and an unknown prefix", () => {
   assert.match(checkCuit(odd + checkDigit(odd)).problems[0], /prefix/);
 });
 
+test("prefixes 50, 51 and 55 (foreign entities) pass the prefix test", () => {
+  for (const p of ["50", "51", "55"]) {
+    const first10 = `${p}12345678`;
+    const d = checkDigit(first10);
+    assert.ok(d !== null);
+    const r = checkCuit(first10 + d);
+    assert.equal(r.ok, true);
+    assert.equal(r.kind, "foreign");
+  }
+});
+
 test("a remainder with no digit is reported", () => {
   // find a first-ten prefix whose sum leaves 10
   let found = null;

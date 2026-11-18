@@ -10,6 +10,7 @@ src/tennisbots/collector.py
 src/tennisbots/court.py
 src/tennisbots/drive.py
 src/tennisbots/fixtures.py
+src/tennisbots/host.py
 src/tennisbots/launcher.py
 src/tennisbots/listing.py
 src/tennisbots/protocol.py
@@ -21,6 +22,8 @@ src/tennisbots.egg-info/dependency_links.txt
 src/tennisbots.egg-info/entry_points.txt
 src/tennisbots.egg-info/requires.txt
 src/tennisbots.egg-info/top_level.txt
+tests/test_host.py
 tests/test_listing.py
 tests/test_physics.py
+tests/test_pins.py
 tests/test_robots.py

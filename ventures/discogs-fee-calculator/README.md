@@ -75,3 +75,16 @@ MIT licensed, see [`LICENSE`](LICENSE). Optional
 change what the tool does.
 
 - Crate view: paste one order per line (`label, price, shipping, cost`) to price a whole collection with the same processing rates and see which orders lose money (`calculateBatch` in `calc.mjs`).
+
+## Known gaps (quality census, 2026-11-17)
+
+From [the census audit](../../portfolio/quality/audits/2026-11-17-discogs-fee-calculator.json):
+
+- The processing default is 2.9% + $0.30. PayPal's current US standard
+  rate for PayPal Checkout is 3.49% + $0.49 (cards 2.99% + $0.49). Changing
+  it means recomputing the worked examples on both SEO pages and the Discogs
+  preset in `ventures/where-to-sell-calculator`, which a parity test keeps
+  equal to this one.
+- "$150 per order" is not confirmed by a Discogs page we could load; Discogs
+  sets the limits per currency.
+- VAT on the selling fee for UK and EU sellers is not modelled.

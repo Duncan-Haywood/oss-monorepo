@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfQyFGiBERAGaLDjtJ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T16:02:29Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Explore: new venture assembly-line-balancer (exact SALBP-1/2 line balancing)",
+  "projects": [
+    "assembly-line-balancer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15902",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 24,
+  "outcome": "success",
+  "errors": [
+    "First CBFS version (full expansion per state) scored worse than DFS (209 vs 217 of 269 at 500 ms): one root expansion on Barthold c=403 consumed the whole budget; fixed with partial expansion via a resumable generator.",
+    "Engine result object first spread the station array over the station count key (`stations`); renamed to stationCount before any test or page used it."
+  ],
+  "integrity_issues": [
+    "Removed invented task descriptions from Jackson's example (the 1956 data have only times and precedences) before commit.",
+    "Benchmark results are time-limited (4 s per problem), so a busy machine can move a few rows; the committed bench/*.md are re-run on the final engine code with nothing else heavy running, and page.test.mjs ties every quoted number (page, FAQ, llms.txt, post) to them."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/research-tools/README.md",
+      "issue": "Asks for PAPERS and analyze() exports but nothing checks them; I found the convention only by reading the table section, after the engine was written."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The FAQ-visible and sibling-orphan failures only appear in step 1c after main_health; listing them in PRODUCT_PLAYBOOK's definition of done would save a preflight round trip for every new venture."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-line-balancer-that-says-when-it-has-proved-it.md",
+    "docs/reports/2026-11-14-assembly-line-balancer-next.md"
+  ],
+  "goal": "Ship a useful, verifiable new product with real depth (explore track free choice).",
+  "notes": "Explore idea: assembly-line-balancer, an exact simple assembly line balancer (SALBP-1 fewest stations at takt, SALBP-2 shortest cycle) with priority-rule heuristics and a branch-bound-and-remember search (Sewell & Jacobson 2012) that labels answers proved or gives a proved bound. Verified by brute force on 300 random lines (with heuristics, exact-only, exact-backward-only) and on Scholl's 1993 benchmark read from the published zip (not vendored): SALBP-1 258/269 match published optima at 4 s, 249 proved, 0 better than published; SALBP-2 256/302, 251 proved. Search progression at 500 ms: DFS 217 -> full-expansion CBFS 209 -> partial-expansion CBFS 242. Filed under research algorithms; sibling link with spc-control-charts.",
+  "corrections": [],
+  "redteam": null
+}

@@ -20,6 +20,7 @@ import math
 import re
 import subprocess
 import sys
+import time
 
 LOG_FORMAT = "@@|%an|%ae|%at"
 PER_FILE_CAP = 500  # lines; one giant generated commit must not own a directory
@@ -197,7 +198,8 @@ def main(argv=None):
     ap.add_argument("--half-life", type=int, default=180, help="days until a change counts half")
     ap.add_argument("--inactive-days", type=int, default=90)
     ap.add_argument("--min-commits", type=int, default=3)
-    ap.add_argument("--now", type=int, help="unix time to measure from (default: newest commit)")
+    ap.add_argument("--now", type=int, help="unix time to measure from (default: the current time when "
+                    "this runs git itself, the newest commit when reading --log)")
     ap.add_argument("--format", choices=["text", "json"], default="text")
     ap.add_argument("--fail-on-orphaned", action="store_true", help="exit 2 if any directory is orphaned")
     a = ap.parse_args(argv)
@@ -212,7 +214,12 @@ def main(argv=None):
         except (OSError, subprocess.CalledProcessError) as e:
             print(f"could not run git log: {e}", file=sys.stderr)
             return 1
-    r = analyze(parse_log(text), a.depth, a.half_life, a.inactive_days, a.min_commits, a.now)
+    now = a.now
+    if now is None and not a.log:
+        # Live repository: measure silence from today, so a repository nobody
+        # has touched for months reads as orphaned (quality audit 2026-11-10).
+        now = int(time.time())
+    r = analyze(parse_log(text), a.depth, a.half_life, a.inactive_days, a.min_commits, now)
     print(json.dumps(r, indent=2) if a.format == "json" else render_text(r))
     if "error" in r:
         return 1

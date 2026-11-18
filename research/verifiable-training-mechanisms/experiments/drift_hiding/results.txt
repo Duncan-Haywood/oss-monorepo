@@ -1,0 +1,15 @@
+rho_s (largest honest fp16 drift / mean step norm, milestone 72): s=1: 0.0591, s=5: 0.1311, s=20: 0.2267
+20 seeds, T = 1500, 30 segments per seed per s. flag = share of segments flagged (mean over seeds).
+  eta     dL vs honest (mean [95% CI])        |dL|<0.01?   flag s=1   flag s=5   flag s=20
+  0.0     +0.0000 [+0.0000, +0.0000]   yes         0.002      0.002      0.002
+  0.005   +0.0002 [+0.0002, +0.0003]   yes         0.005      0.000      0.000
+  0.01    +0.0004 [+0.0004, +0.0004]   yes         0.002      0.000      0.002
+  0.02    +0.0008 [+0.0007, +0.0009]   yes         0.003      0.000      0.023
+  0.05    +0.0021 [+0.0020, +0.0022]   yes         0.007      0.080      0.175
+  0.1     +0.0044 [+0.0042, +0.0046]   yes         1.000      0.958      0.998
+  0.3     +0.0156 [+0.0152, +0.0161]   no          1.000      1.000      1.000
+  1.0     +2.4077 [+2.3596, +2.4547]   no          1.000      1.000      1.000
+eta at which flag rate first reaches 50% (linear interpolation) vs rho_s / s:
+  s=1: measured 0.0748, rho_s/s = 0.0591
+  s=5: measured 0.0739, rho_s/s = 0.0262
+  s=20: measured 0.0697, rho_s/s = 0.0113

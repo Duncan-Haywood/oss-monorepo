@@ -6,35 +6,34 @@ import { headerAdjustmentNetDelta, inspectHeaderAdjustments } from "./adjustment
 import { inspectPaymentBic } from "./bic.mjs";
 import { inspectTaxBreakdown } from "./breakdown.mjs";
 import { inspectDocumentType } from "./document.mjs";
-import { inspectPartyEndpoint } from "./endpoint.mjs";
+import { inspectPartyEndpoint, inspectPartyIdentifiers, inspectLineSchemedIds } from "./endpoint.mjs";
 import { inspectPaymentIban } from "./iban.mjs";
 import { inspectPaymentMeans } from "./means.mjs";
 import { inspectInvoicePeriod } from "./period.mjs";
 import { inspectCommercialReferences } from "./reference.mjs";
 import { inspectPaymentRemittance } from "./remittance.mjs";
 import { inspectTaxExemption } from "./tax.mjs";
+import { inspectAccountingCurrencyTax } from "./taxcurrency.mjs";
+import { inspectLineExtension } from "./lineext.mjs";
 import { inspectPaymentTerms } from "./terms.mjs";
-import { inspectPartyVat } from "./vat.mjs";
-import { acceptedLineNet, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { inspectNlVatShape, inspectPartyVat } from "./vat.mjs";
+import { acceptedLineNet, flatTaxTotal, isNegativeInvoice, summedLineNet, taxGroups, taxPercentOf } from "./linenet.mjs";
+import { parseDecimal } from "./numbers.mjs";
+import { inspectXmlValues } from "./xmlvalues.mjs";
 
-function parseNumber(value) {
-  if (value === undefined || value === null || value === "") return null;
-  const text = typeof value === "string" ? value.trim() : String(value);
-  if (text === "" || !Number.isFinite(Number(text))) return null;
-  const result = Number(text);
-  return Number.isFinite(result) ? result : null;
-}
+// numbers.mjs: the same reading as the CLI (no 0x64, no 1e400).
+const parseNumber = parseDecimal;
 
 export function roundHalfUpToCents(value) {
   if (!Number.isFinite(value)) return null;
   const sign = value < 0 ? -1 : 1;
-  return (sign * Math.round(Math.abs(value) * 100 + Number.EPSILON)) / 100;
+  return (sign * Math.round(Number((Math.abs(value) * 100).toPrecision(12)))) / 100;
 }
 
 // Hungarian VAT is stated in whole forints, so a HUF invoice may round its tax
 // total to the unit instead of the cent. Accepted only when the stated total is
 // a whole number equal to the computed tax rounded half up to the unit.
-function wholeUnitTaxAgrees(currency, stated, expected) {
+export function wholeUnitTaxAgrees(currency, stated, expected) {
   if (currency !== "HUF" || stated === null || expected === null) return false;
   return Number.isInteger(stated) && stated === Math.round(expected);
 }
@@ -127,13 +126,63 @@ export function checkInvoice(invoice) {
       fail("INV-006", `${capitalize(partyName)} name is missing.`, `Add the ${partyName} name.`, `/${partyName}/name`);
     }
     if (party && typeof party === "object" && !Array.isArray(party)) {
-      for (const finding of inspectPartyVat(party, partyName)) {
+      const vatFindings = inspectPartyVat(party, partyName);
+      for (const finding of vatFindings) {
         fail(finding.rule, finding.message, finding.fix, finding.path);
+      }
+      if (!vatFindings.some((f) => f.path === `/${partyName}/vat_id`)) {
+        for (const finding of inspectNlVatShape(party, partyName)) {
+          fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+        }
       }
       for (const finding of inspectPartyEndpoint(party, partyName)) {
-        fail(finding.rule, finding.message, finding.fix, finding.path);
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
+      for (const finding of inspectPartyIdentifiers(party, partyName)) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
       }
     }
+  }
+  // BG-10 payee and BG-11 tax representative: Peppol's PEPPOL-COMMON id
+  // contexts match their PartyIdentification/ID and CompanyID (UBL) and
+  // ID/GlobalID (CII) as they do the seller's and buyer's (added 2026-11-17;
+  // eval/party-id-peppol-differential.mjs).
+  for (const [key, label] of [["payee_party", "Payee"], ["tax_representative", "Tax representative"], ["delivery_party", "Deliver-to party"]]) {
+    for (const finding of inspectPartyIdentifiers(invoice[key], key, label)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+    }
+  }
+  // BT-63, the tax representative's VAT number (BR-56 requires one): read since
+  // 2026-11-17 and checked as the seller's is (INV-022/023, INV-064). Before,
+  // no reader kept it, so a mistyped one passed every built-in check.
+  const representative = invoice.tax_representative;
+  if (representative && typeof representative === "object" && !Array.isArray(representative)) {
+    const vatFindings = representative.vat_id === undefined || representative.vat_id === null || representative.vat_id === ""
+      ? [] : inspectPartyVat({ vat_id: representative.vat_id }, "tax_representative", "Tax representative");
+    for (const finding of vatFindings) fail(finding.rule, finding.message, finding.fix, finding.path);
+    if (!vatFindings.length) {
+      for (const finding of inspectNlVatShape(representative, "tax_representative", "Tax representative")) {
+        fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+      }
+    }
+  }
+  // Every other VAT number Peppol's R056-2 reads (a payee's, a deliver-to
+  // party's, a line party's, a second VAT scheme), kept by the readers as
+  // vat_registrations since 2026-11-17: INV-064, a warning as Peppol's is.
+  // EN 16931 gives these parties no VAT number, so INV-022/023 stay off them.
+  if (Array.isArray(invoice.vat_registrations)) {
+    invoice.vat_registrations.forEach((registration, index) => {
+      if (!registration || typeof registration !== "object") return;
+      const label = typeof registration.label === "string" && registration.label ? registration.label : "A party's";
+      for (const finding of inspectNlVatShape({ vat_id: registration.value }, `vat_registrations/${index}`, label)) {
+        fail(finding.rule, finding.message, finding.fix, `/vat_registrations/${index}/value`, finding.severity);
+      }
+    });
+  }
+  // INV-065 (2026-11-17): a value the reader trimmed a no-break space from;
+  // a receiver's validator cannot cast it (xmlvalues.mjs).
+  for (const finding of inspectXmlValues(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectPaymentIban(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
@@ -154,6 +203,12 @@ export function checkInvoice(invoice) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   for (const finding of inspectTaxExemption(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectAccountingCurrencyTax(invoice)) {
+    fail(finding.rule, finding.message, finding.fix, finding.path);
+  }
+  for (const finding of inspectLineExtension(invoice)) {
     fail(finding.rule, finding.message, finding.fix, finding.path);
   }
   // Factur-X / ZUGFeRD MINIMUM and BASIC WL carry totals and no lines, by design.
@@ -187,6 +242,9 @@ export function checkInvoice(invoice) {
       fail("INV-008", `Line ${n} is not an object.`, "Provide description, quantity, unit_price, and tax_percent.", `/lines/${index}`);
       return;
     }
+    for (const finding of inspectLineSchemedIds(line, index)) {
+      fail(finding.rule, finding.message, finding.fix, finding.path, finding.severity);
+    }
     if (typeof line.description !== "string" || !line.description.trim()) {
       fail("INV-008", `Line ${n} has no description.`, "Add a human-readable line description.", `/lines/${index}/description`);
     }
@@ -211,7 +269,8 @@ export function checkInvoice(invoice) {
     if (quantity !== null && price !== null && price >= 0) {
       const supplied = money(line.net);
       const lineNet = acceptedLineNet(line, supplied);
-      expectedNet = roundHalfUpToCents(expectedNet + summedLineNet(line, invoice));
+      // Summed unrounded and rounded once below: baisa lines (linenet.mjs, summedLineNet).
+      expectedNet += summedLineNet(line, invoice);
       if (supplied === null || supplied !== lineNet) {
         fail(
           "INV-012",
@@ -227,6 +286,20 @@ export function checkInvoice(invoice) {
   const perRate = taxGroups(invoice);
   let expectedTax = 0;
   for (const group of perRate.groups.values()) expectedTax = roundHalfUpToCents(expectedTax + group.tax);
+  // Where the lines state their own VAT (PINT Oman, BTOM-016), the tax total may be
+  // their sum per rate instead (ALIGNED-IBRP-S-09-OM); either reading is accepted.
+  let lineTaxTotal = null;
+  if ([...perRate.groups.values()].some((g) => g.lineTax !== null)) {
+    lineTaxTotal = 0;
+    for (const group of perRate.groups.values()) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + (group.lineTax ?? group.tax));
+  }
+  // Flat-amount taxes beside VAT (Malaysia's tourism tax) add their stated amount;
+  // a row with no readable tax is INV-038's to report, so the total is not judged.
+  const flatTax = flatTaxTotal(invoice);
+  if (flatTax !== null && flatTax !== 0) {
+    expectedTax = roundHalfUpToCents(expectedTax + flatTax);
+    if (lineTaxTotal !== null) lineTaxTotal = roundHalfUpToCents(lineTaxTotal + flatTax);
+  }
   expectedNet = roundHalfUpToCents(expectedNet + headerAdjustmentNetDelta(invoice));
   const negativeInvoice = isNegativeInvoice(invoice);
   if (expectedNet < 0 && !negativeInvoice) expectedNet = 0;
@@ -253,7 +326,7 @@ export function checkInvoice(invoice) {
     // nothing to compare
   } else if (taxTotal === null || (taxTotal < 0 && !negativeInvoice)) {
     fail("INV-015", "Invoice tax total is missing or invalid.", "Provide a non-negative numeric tax total.", "/totals/tax");
-  } else if (!(linesOptional && noLines) && !perRate.unattributed && taxTotal !== expectedTax && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
+  } else if (!(linesOptional && noLines) && !perRate.unattributed && flatTax !== null && taxTotal !== expectedTax && taxTotal !== lineTaxTotal && !wholeUnitTaxAgrees(invoice.currency, taxTotal, expectedTax)) {
     fail("INV-018", "Invoice tax total does not match its line tax percentages.", `Set tax total to ${formatMoney(expectedTax)} or correct the line inputs.`, "/totals/tax");
   }
   if (gross === null || (gross < 0 && !negativeInvoice)) {

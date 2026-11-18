@@ -56,6 +56,6 @@
    "where": "ventures/amazon-seller-profit-analyzer/llms.txt:9, sitemap.xml:3, robots.txt:3"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/15832"],
  "verdict": "The core is sound: per-SKU proceeds, operating total, cost of goods and profit match an independent Python sum on the sample and my hand arithmetic on a 5-row file in the current Amazon column layout, to the cent, and the page loaded in Chromium shows the same numbers with no console errors, no off-origin requests and a clear disclaimer. The suite is 23/23 but a seeded COGS bug survived, and my own realistic cases found three user-visible faults: the 'referral fees Amazon kept' figure is overstated about 6x on a partial refund of a multi-unit order, the waterfall does not foot to the payout when a Regulatory Fee is present, and a blank refund quantity silently charges full cost of goods. The tool embeds no Amazon fee table, so there is no fee-year staleness to score, and I could not check the sample's invented fee levels or Amazon's refund-fee rule against Amazon's pages from this session. A bookkeeper would trust the SKU profit but not the refund-fee finding or the waterfall tie-out. Scores: correctness 2, verification 2, claims 2 (stale llms.txt, wrong refund figure), fitness 2, domain 2, completeness 3, craft 3; it does not meet the bar and is finished against its own README."
 }

@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtGcsy4p46Qvupmo9Wq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: read ./prompt.md",
+  "input_sha256": "309d74eee7a943668cd28140b1420200644d428dcdd742af9d32a7d7ced9746f",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T16:08:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14308",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No venture-preflight run; change is pure-Python parameter math in a CAD package.",
+      "did": "ran the touched unittest cases",
+      "result": "pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-how-square-must-a-tennis-ball-launcher-be-to-its-plates.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 10 (open-tennis-robots): plate_clearance. Ran only the two cad unittest cases (build123d/pytest absent); no CI waited on.",
+  "corrections": [],
+  "redteam": null
+}

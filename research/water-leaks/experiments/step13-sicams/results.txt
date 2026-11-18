@@ -1,0 +1,486 @@
+# water-leaks step 13: SICAMS (Melnikov 2025, arXiv:2512.15685) reimplemented, automatic; hourly means
+# tune on 2018 (leaks from 2018-01-15), test on 2019; step 1's harness and 30-day matching
+
+area A: s = 32, training hours 1682 (2018 hours with only ['p257', 'p427'] active), per hour-of-day cluster 69 to 71; MA sd on training 61.311
+  PELT c =    1: change points 2018 71, 2019 211
+  PELT c =    3: change points 2018 60, 2019 171
+  PELT c =   10: change points 2018 50, 2019 132
+  PELT c =   30: change points 2018 29, 2019 97
+  PELT c =  100: change points 2018 14, 2019 72
+  PELT c =  300: change points 2018 9, 2019 31
+  PELT c = 1000: change points 2018 6, 2019 14
+  PELT c = 3000: change points 2018 6, 2019 7
+area B: n215, training hours 8332; area C: s = 4, training hours 402 (33 per 2-hour cluster)
+
+# grid (primary, no retraining): PELT c x delta x filter alpha; 2018 rule: most TP with <= 2 FP
+c    1 delta 0.0   alpha 1e-02: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.0   alpha 1e-03: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.0   alpha 1e-04: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.0   alpha 1e-05: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.001 alpha 1e-02: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.001 alpha 1e-03: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.001 alpha 1e-04: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.001 alpha 1e-05: alarms 151 (A 148, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.01  alpha 1e-02: alarms 148 (A 145, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 90
+c    1 delta 0.01  alpha 1e-03: alarms 148 (A 145, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 90
+c    1 delta 0.01  alpha 1e-04: alarms 148 (A 145, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 90
+c    1 delta 0.01  alpha 1e-05: alarms 148 (A 145, B 2, C 1) | 2018 TP 11/13 FP 28 | 2019 TP 18/19 FP 90
+c    3 delta 0.0   alpha 1e-02: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.0   alpha 1e-03: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.0   alpha 1e-04: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.0   alpha 1e-05: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.001 alpha 1e-02: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.001 alpha 1e-03: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.001 alpha 1e-04: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.001 alpha 1e-05: alarms 124 (A 121, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.01  alpha 1e-02: alarms 123 (A 120, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 70
+c    3 delta 0.01  alpha 1e-03: alarms 123 (A 120, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 70
+c    3 delta 0.01  alpha 1e-04: alarms 123 (A 120, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 70
+c    3 delta 0.01  alpha 1e-05: alarms 123 (A 120, B 2, C 1) | 2018 TP 10/13 FP 24 | 2019 TP 18/19 FP 70
+c   10 delta 0.0   alpha 1e-02: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.0   alpha 1e-03: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.0   alpha 1e-04: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.0   alpha 1e-05: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.001 alpha 1e-02: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.001 alpha 1e-03: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.001 alpha 1e-04: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.001 alpha 1e-05: alarms  99 (A 96, B 2, C 1) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.01  alpha 1e-02: alarms  95 (A 92, B 2, C 1) | 2018 TP 8/13 FP 18 | 2019 TP 17/19 FP 51
+c   10 delta 0.01  alpha 1e-03: alarms  95 (A 92, B 2, C 1) | 2018 TP 8/13 FP 18 | 2019 TP 17/19 FP 51
+c   10 delta 0.01  alpha 1e-04: alarms  95 (A 92, B 2, C 1) | 2018 TP 8/13 FP 18 | 2019 TP 17/19 FP 51
+c   10 delta 0.01  alpha 1e-05: alarms  95 (A 92, B 2, C 1) | 2018 TP 8/13 FP 18 | 2019 TP 17/19 FP 51
+c   30 delta 0.0   alpha 1e-02: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.0   alpha 1e-03: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.0   alpha 1e-04: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.0   alpha 1e-05: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.001 alpha 1e-02: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.001 alpha 1e-03: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.001 alpha 1e-04: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.001 alpha 1e-05: alarms  68 (A 65, B 2, C 1) | 2018 TP 8/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.01  alpha 1e-02: alarms  64 (A 61, B 2, C 1) | 2018 TP 7/13 FP  8 | 2019 TP 13/19 FP 35
+c   30 delta 0.01  alpha 1e-03: alarms  64 (A 61, B 2, C 1) | 2018 TP 7/13 FP  8 | 2019 TP 13/19 FP 35
+c   30 delta 0.01  alpha 1e-04: alarms  64 (A 61, B 2, C 1) | 2018 TP 7/13 FP  8 | 2019 TP 13/19 FP 35
+c   30 delta 0.01  alpha 1e-05: alarms  64 (A 61, B 2, C 1) | 2018 TP 7/13 FP  8 | 2019 TP 13/19 FP 35
+c  100 delta 0.0   alpha 1e-02: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.0   alpha 1e-03: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.0   alpha 1e-04: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.0   alpha 1e-05: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.001 alpha 1e-02: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.001 alpha 1e-03: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.001 alpha 1e-04: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.001 alpha 1e-05: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.01  alpha 1e-02: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.01  alpha 1e-03: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.01  alpha 1e-04: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  100 delta 0.01  alpha 1e-05: alarms  48 (A 45, B 2, C 1) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP 26
+c  300 delta 0.0   alpha 1e-02: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.0   alpha 1e-03: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.0   alpha 1e-04: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.0   alpha 1e-05: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.001 alpha 1e-02: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.001 alpha 1e-03: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.001 alpha 1e-04: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.001 alpha 1e-05: alarms  27 (A 24, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 11/19 FP  9
+c  300 delta 0.01  alpha 1e-02: alarms  26 (A 23, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 10/19 FP  9
+c  300 delta 0.01  alpha 1e-03: alarms  26 (A 23, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 10/19 FP  9
+c  300 delta 0.01  alpha 1e-04: alarms  26 (A 23, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 10/19 FP  9
+c  300 delta 0.01  alpha 1e-05: alarms  26 (A 23, B 2, C 1) | 2018 TP 6/13 FP  0 | 2019 TP 10/19 FP  9
+c 1000 delta 0.0   alpha 1e-02: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.0   alpha 1e-03: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.0   alpha 1e-04: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.0   alpha 1e-05: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.001 alpha 1e-02: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.001 alpha 1e-03: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.001 alpha 1e-04: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.001 alpha 1e-05: alarms  16 (A 13, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.01  alpha 1e-02: alarms  14 (A 11, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 8/19 FP  2
+c 1000 delta 0.01  alpha 1e-03: alarms  14 (A 11, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 8/19 FP  2
+c 1000 delta 0.01  alpha 1e-04: alarms  14 (A 11, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 8/19 FP  2
+c 1000 delta 0.01  alpha 1e-05: alarms  14 (A 11, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 8/19 FP  2
+c 3000 delta 0.0   alpha 1e-02: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.0   alpha 1e-03: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.0   alpha 1e-04: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.0   alpha 1e-05: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.001 alpha 1e-02: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.001 alpha 1e-03: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.001 alpha 1e-04: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.001 alpha 1e-05: alarms  11 (A 8, B 2, C 1) | 2018 TP 4/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.01  alpha 1e-02: alarms   8 (A 5, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 3/19 FP  1
+c 3000 delta 0.01  alpha 1e-03: alarms   8 (A 5, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 3/19 FP  1
+c 3000 delta 0.01  alpha 1e-04: alarms   8 (A 5, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 3/19 FP  1
+c 3000 delta 0.01  alpha 1e-05: alarms   8 (A 5, B 2, C 1) | 2018 TP 3/13 FP  0 | 2019 TP 3/19 FP  1
+
+## SICAMS-auto (primary, no retraining): c = 100, delta = 0.0, alpha = 1e-05: 48 alarms over 2018-19
+2018: TP 7/13, FP 1
+2019: TP 13/19 new leaks, FP 26; carried leaks found: 2/4
+chance level: 48 alarms at random hours (24 h apart) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              13      14 (11 to 17)              0.824
+  FP              26      10 (5 to 16)              0.000
+  TP<=72h          9       4 (1 to 7)              0.001
+  TP<=300m         5       0 (0 to 2)              0.000
+  TP<=72h&300m     5       0 (0 to 1)              0.000
+   p123 onset 2019-09-15T15:40 peak  9.19  detected +  12 h, sensor n296 ( 1925 m) | paper missed
+   p142 onset 2019-06-12T19:55 peak 27.04  detected +   9 h, sensor n613 (  281 m) | paper +13 h
+   p193 onset 2019-05-20T21:55 peak 10.36  missed | paper missed
+   p277 onset 2019-06-01T19:40 peak  7.36  missed | paper +441 h
+   p280 onset 2019-02-10T13:05 peak  5.26  missed | paper +20 h
+   p331 onset 2019-04-20T10:10 peak 10.93  detected +  15 h, sensor n613 ( 1266 m) | paper +9 h
+   p426 onset 2019-10-25T13:25 peak 13.56  detected +  14 h, sensor n752 ( 1677 m) | paper +14 h
+   p455 onset 2019-10-05T03:35 peak 11.05  missed | paper missed
+   p514 onset 2019-04-02T20:40 peak 15.58  detected +   5 h, sensor n332 (   77 m) | paper +11 h
+   p523 onset 2019-01-15T23:00 peak 28.39  detected +   6 h, sensor n506 (   86 m) | paper +11 h
+   p586 onset 2019-07-27T02:55 peak 20.52  missed | paper missed
+   p653 onset 2019-03-04T08:40 peak 18.28  missed | paper +214 h
+   p680 onset 2019-07-10T08:45 peak  5.37  detected +   8 h, sensor n215 (  288 m) | paper +2 h
+   p710 onset 2019-03-24T14:15 peak  5.58  detected + 517 h, sensor n332 ( 1551 m) | paper +18 h
+   p721 onset 2019-08-03T03:20 peak 13.18  detected + 601 h, sensor n752 ( 1004 m) | paper +441 h
+   p762 onset 2019-10-10T09:40 peak 15.71  detected + 546 h, sensor n752 (  610 m) | paper missed
+   p800 onset 2019-08-16T22:05 peak 21.95  detected + 126 h, sensor n752 (  646 m) | paper +510 h
+   p827 onset 2019-01-24T18:30 peak 26.46  detected +   6 h, sensor n726 (  229 m) | paper +10 h
+   p879 onset 2019-11-21T09:15 peak 10.93  detected +  42 h, sensor n752 (  598 m) | paper +145 h
+  false alarm 2019-09-01T02 by n296
+  false alarm 2019-09-04T03 by n296
+  false alarm 2019-09-06T02 by n296
+  false alarm 2019-09-07T03 by n296
+  false alarm 2019-09-10T02 by n296
+  false alarm 2019-09-13T03 by n296
+  false alarm 2019-09-19T03 by n296
+  false alarm 2019-09-22T02 by n296
+  false alarm 2019-09-25T02 by n296
+  false alarm 2019-09-30T02 by n296
+  false alarm 2019-11-07T04 by n752
+  false alarm 2019-11-12T03 by n752
+  false alarm 2019-11-14T04 by n752
+  false alarm 2019-11-17T03 by n752
+  false alarm 2019-11-27T04 by n752
+  false alarm 2019-12-03T03 by n752
+  false alarm 2019-12-06T04 by n752
+  false alarm 2019-12-10T03 by n769
+  false alarm 2019-12-13T03 by n769
+  false alarm 2019-12-17T03 by n769
+  false alarm 2019-12-21T03 by n769
+  false alarm 2019-12-25T02 by n769
+  false alarm 2019-12-26T02 by n769
+  false alarm 2019-12-27T03 by n769
+  false alarm 2019-12-28T04 by n769
+  false alarm 2019-12-31T00 by n769
+  median delay 14 h (range 5 to 601); sensor within 300 m: 5/13
+
+# H1 over the whole grid at this rule (2019 new leaks; chance from 300 draws per setting)
+  c     delta alpha  alarms TP P(chance>=TP) TP<=300m P(chance>=)
+     1 0.0   1e-02    151 18        0.987        5       0.000
+     1 0.0   1e-03    151 18        0.987        5       0.000
+     1 0.0   1e-04    151 18        0.987        5       0.000
+     1 0.0   1e-05    151 18        0.987        5       0.000
+     1 0.001 1e-02    151 18        0.987        5       0.000
+     1 0.001 1e-03    151 18        0.987        5       0.000
+     1 0.001 1e-04    151 18        0.987        5       0.000
+     1 0.001 1e-05    151 18        0.987        5       0.000
+     1 0.01  1e-02    148 18        0.990        5       0.000
+     1 0.01  1e-03    148 18        0.990        5       0.000
+     1 0.01  1e-04    148 18        0.990        5       0.000
+     1 0.01  1e-05    148 18        0.990        5       0.000
+     3 0.0   1e-02    124 18        0.943        5       0.000
+     3 0.0   1e-03    124 18        0.943        5       0.000
+     3 0.0   1e-04    124 18        0.943        5       0.000
+     3 0.0   1e-05    124 18        0.943        5       0.000
+     3 0.001 1e-02    124 18        0.943        5       0.000
+     3 0.001 1e-03    124 18        0.943        5       0.000
+     3 0.001 1e-04    124 18        0.943        5       0.000
+     3 0.001 1e-05    124 18        0.943        5       0.000
+     3 0.01  1e-02    123 18        0.947        5       0.003
+     3 0.01  1e-03    123 18        0.947        5       0.003
+     3 0.01  1e-04    123 18        0.947        5       0.003
+     3 0.01  1e-05    123 18        0.947        5       0.003
+    10 0.0   1e-02     99 17        0.930        5       0.003
+    10 0.0   1e-03     99 17        0.930        5       0.003
+    10 0.0   1e-04     99 17        0.930        5       0.003
+    10 0.0   1e-05     99 17        0.930        5       0.003
+    10 0.001 1e-02     99 17        0.930        5       0.003
+    10 0.001 1e-03     99 17        0.930        5       0.003
+    10 0.001 1e-04     99 17        0.930        5       0.003
+    10 0.001 1e-05     99 17        0.930        5       0.003
+    10 0.01  1e-02     95 17        0.917        5       0.000
+    10 0.01  1e-03     95 17        0.917        5       0.000
+    10 0.01  1e-04     95 17        0.917        5       0.000
+    10 0.01  1e-05     95 17        0.917        5       0.000
+    30 0.0   1e-02     68 14        0.970        5       0.003
+    30 0.0   1e-03     68 14        0.970        5       0.003
+    30 0.0   1e-04     68 14        0.970        5       0.003
+    30 0.0   1e-05     68 14        0.970        5       0.003
+    30 0.001 1e-02     68 14        0.970        5       0.003
+    30 0.001 1e-03     68 14        0.970        5       0.003
+    30 0.001 1e-04     68 14        0.970        5       0.003
+    30 0.001 1e-05     68 14        0.970        5       0.003
+    30 0.01  1e-02     64 13        0.990        5       0.000
+    30 0.01  1e-03     64 13        0.990        5       0.000
+    30 0.01  1e-04     64 13        0.990        5       0.000
+    30 0.01  1e-05     64 13        0.990        5       0.000
+   100 0.0   1e-02     48 13        0.817        5       0.000
+   100 0.0   1e-03     48 13        0.817        5       0.000
+   100 0.0   1e-04     48 13        0.817        5       0.000
+   100 0.0   1e-05     48 13        0.817        5       0.000
+   100 0.001 1e-02     48 13        0.817        5       0.000
+   100 0.001 1e-03     48 13        0.817        5       0.000
+   100 0.001 1e-04     48 13        0.817        5       0.000
+   100 0.001 1e-05     48 13        0.817        5       0.000
+   100 0.01  1e-02     48 13        0.817        5       0.000
+   100 0.01  1e-03     48 13        0.817        5       0.000
+   100 0.01  1e-04     48 13        0.817        5       0.000
+   100 0.01  1e-05     48 13        0.817        5       0.000
+   300 0.0   1e-02     27 11        0.390        5       0.000
+   300 0.0   1e-03     27 11        0.390        5       0.000
+   300 0.0   1e-04     27 11        0.390        5       0.000
+   300 0.0   1e-05     27 11        0.390        5       0.000
+   300 0.001 1e-02     27 11        0.390        5       0.000
+   300 0.001 1e-03     27 11        0.390        5       0.000
+   300 0.001 1e-04     27 11        0.390        5       0.000
+   300 0.001 1e-05     27 11        0.390        5       0.000
+   300 0.01  1e-02     26 10        0.497        4       0.003
+   300 0.01  1e-03     26 10        0.497        4       0.003
+   300 0.01  1e-04     26 10        0.497        4       0.003
+   300 0.01  1e-05     26 10        0.497        4       0.003
+  1000 0.0   1e-02     16  9        0.107        5       0.000
+  1000 0.0   1e-03     16  9        0.107        5       0.000
+  1000 0.0   1e-04     16  9        0.107        5       0.000
+  1000 0.0   1e-05     16  9        0.107        5       0.000
+  1000 0.001 1e-02     16  9        0.107        5       0.000
+  1000 0.001 1e-03     16  9        0.107        5       0.000
+  1000 0.001 1e-04     16  9        0.107        5       0.000
+  1000 0.001 1e-05     16  9        0.107        5       0.000
+  1000 0.01  1e-02     14  8        0.123        4       0.000
+  1000 0.01  1e-03     14  8        0.123        4       0.000
+  1000 0.01  1e-04     14  8        0.123        4       0.000
+  1000 0.01  1e-05     14  8        0.123        4       0.000
+  3000 0.0   1e-02     11  5        0.483        3       0.000
+  3000 0.0   1e-03     11  5        0.483        3       0.000
+  3000 0.0   1e-04     11  5        0.483        3       0.000
+  3000 0.0   1e-05     11  5        0.483        3       0.000
+  3000 0.001 1e-02     11  5        0.483        3       0.000
+  3000 0.001 1e-03     11  5        0.483        3       0.000
+  3000 0.001 1e-04     11  5        0.483        3       0.000
+  3000 0.001 1e-05     11  5        0.483        3       0.000
+  3000 0.01  1e-02      8  3        0.790        2       0.010
+  3000 0.01  1e-03      8  3        0.790        2       0.010
+  3000 0.01  1e-04      8  3        0.790        2       0.010
+  3000 0.01  1e-05      8  3        0.790        2       0.010
+
+
+# grid (secondary, B and C re-anchored): PELT c x delta x filter alpha; 2018 rule: most TP with <= 2 FP
+c    1 delta 0.0   alpha 1e-02: alarms 159 (A 148, B 1, C 10) | 2018 TP 13/13 FP 30 | 2019 TP 19/19 FP 96
+c    1 delta 0.0   alpha 1e-03: alarms 157 (A 148, B 1, C 8) | 2018 TP 12/13 FP 30 | 2019 TP 19/19 FP 95
+c    1 delta 0.0   alpha 1e-04: alarms 156 (A 148, B 1, C 7) | 2018 TP 12/13 FP 30 | 2019 TP 19/19 FP 94
+c    1 delta 0.0   alpha 1e-05: alarms 152 (A 148, B 1, C 3) | 2018 TP 12/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.001 alpha 1e-02: alarms 159 (A 148, B 1, C 10) | 2018 TP 13/13 FP 30 | 2019 TP 19/19 FP 96
+c    1 delta 0.001 alpha 1e-03: alarms 157 (A 148, B 1, C 8) | 2018 TP 12/13 FP 30 | 2019 TP 19/19 FP 95
+c    1 delta 0.001 alpha 1e-04: alarms 156 (A 148, B 1, C 7) | 2018 TP 12/13 FP 30 | 2019 TP 19/19 FP 94
+c    1 delta 0.001 alpha 1e-05: alarms 152 (A 148, B 1, C 3) | 2018 TP 12/13 FP 28 | 2019 TP 18/19 FP 93
+c    1 delta 0.01  alpha 1e-02: alarms 156 (A 145, B 1, C 10) | 2018 TP 13/13 FP 30 | 2019 TP 19/19 FP 93
+c    1 delta 0.01  alpha 1e-03: alarms 154 (A 145, B 1, C 8) | 2018 TP 12/13 FP 30 | 2019 TP 19/19 FP 92
+c    1 delta 0.01  alpha 1e-04: alarms 153 (A 145, B 1, C 7) | 2018 TP 12/13 FP 30 | 2019 TP 19/19 FP 91
+c    1 delta 0.01  alpha 1e-05: alarms 149 (A 145, B 1, C 3) | 2018 TP 12/13 FP 28 | 2019 TP 18/19 FP 90
+c    3 delta 0.0   alpha 1e-02: alarms 132 (A 121, B 1, C 10) | 2018 TP 12/13 FP 26 | 2019 TP 19/19 FP 74
+c    3 delta 0.0   alpha 1e-03: alarms 130 (A 121, B 1, C 8) | 2018 TP 12/13 FP 25 | 2019 TP 19/19 FP 73
+c    3 delta 0.0   alpha 1e-04: alarms 129 (A 121, B 1, C 7) | 2018 TP 12/13 FP 25 | 2019 TP 19/19 FP 72
+c    3 delta 0.0   alpha 1e-05: alarms 125 (A 121, B 1, C 3) | 2018 TP 11/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.001 alpha 1e-02: alarms 132 (A 121, B 1, C 10) | 2018 TP 12/13 FP 26 | 2019 TP 19/19 FP 74
+c    3 delta 0.001 alpha 1e-03: alarms 130 (A 121, B 1, C 8) | 2018 TP 12/13 FP 25 | 2019 TP 19/19 FP 73
+c    3 delta 0.001 alpha 1e-04: alarms 129 (A 121, B 1, C 7) | 2018 TP 12/13 FP 25 | 2019 TP 19/19 FP 72
+c    3 delta 0.001 alpha 1e-05: alarms 125 (A 121, B 1, C 3) | 2018 TP 11/13 FP 24 | 2019 TP 18/19 FP 71
+c    3 delta 0.01  alpha 1e-02: alarms 131 (A 120, B 1, C 10) | 2018 TP 12/13 FP 26 | 2019 TP 19/19 FP 73
+c    3 delta 0.01  alpha 1e-03: alarms 129 (A 120, B 1, C 8) | 2018 TP 12/13 FP 25 | 2019 TP 19/19 FP 72
+c    3 delta 0.01  alpha 1e-04: alarms 128 (A 120, B 1, C 7) | 2018 TP 12/13 FP 25 | 2019 TP 19/19 FP 71
+c    3 delta 0.01  alpha 1e-05: alarms 124 (A 120, B 1, C 3) | 2018 TP 11/13 FP 24 | 2019 TP 18/19 FP 70
+c   10 delta 0.0   alpha 1e-02: alarms 107 (A 96, B 1, C 10) | 2018 TP 11/13 FP 20 | 2019 TP 19/19 FP 56
+c   10 delta 0.0   alpha 1e-03: alarms 105 (A 96, B 1, C 8) | 2018 TP 11/13 FP 19 | 2019 TP 18/19 FP 56
+c   10 delta 0.0   alpha 1e-04: alarms 104 (A 96, B 1, C 7) | 2018 TP 11/13 FP 19 | 2019 TP 18/19 FP 55
+c   10 delta 0.0   alpha 1e-05: alarms 100 (A 96, B 1, C 3) | 2018 TP 10/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.001 alpha 1e-02: alarms 107 (A 96, B 1, C 10) | 2018 TP 11/13 FP 20 | 2019 TP 19/19 FP 56
+c   10 delta 0.001 alpha 1e-03: alarms 105 (A 96, B 1, C 8) | 2018 TP 11/13 FP 19 | 2019 TP 18/19 FP 56
+c   10 delta 0.001 alpha 1e-04: alarms 104 (A 96, B 1, C 7) | 2018 TP 11/13 FP 19 | 2019 TP 18/19 FP 55
+c   10 delta 0.001 alpha 1e-05: alarms 100 (A 96, B 1, C 3) | 2018 TP 10/13 FP 18 | 2019 TP 17/19 FP 54
+c   10 delta 0.01  alpha 1e-02: alarms 103 (A 92, B 1, C 10) | 2018 TP 10/13 FP 20 | 2019 TP 19/19 FP 53
+c   10 delta 0.01  alpha 1e-03: alarms 101 (A 92, B 1, C 8) | 2018 TP 10/13 FP 19 | 2019 TP 18/19 FP 53
+c   10 delta 0.01  alpha 1e-04: alarms 100 (A 92, B 1, C 7) | 2018 TP 10/13 FP 19 | 2019 TP 18/19 FP 52
+c   10 delta 0.01  alpha 1e-05: alarms  96 (A 92, B 1, C 3) | 2018 TP 9/13 FP 18 | 2019 TP 17/19 FP 51
+c   30 delta 0.0   alpha 1e-02: alarms  76 (A 65, B 1, C 10) | 2018 TP 10/13 FP 10 | 2019 TP 17/19 FP 38
+c   30 delta 0.0   alpha 1e-03: alarms  74 (A 65, B 1, C 8) | 2018 TP 10/13 FP  9 | 2019 TP 16/19 FP 38
+c   30 delta 0.0   alpha 1e-04: alarms  73 (A 65, B 1, C 7) | 2018 TP 10/13 FP  9 | 2019 TP 15/19 FP 38
+c   30 delta 0.0   alpha 1e-05: alarms  69 (A 65, B 1, C 3) | 2018 TP 9/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.001 alpha 1e-02: alarms  76 (A 65, B 1, C 10) | 2018 TP 10/13 FP 10 | 2019 TP 17/19 FP 38
+c   30 delta 0.001 alpha 1e-03: alarms  74 (A 65, B 1, C 8) | 2018 TP 10/13 FP  9 | 2019 TP 16/19 FP 38
+c   30 delta 0.001 alpha 1e-04: alarms  73 (A 65, B 1, C 7) | 2018 TP 10/13 FP  9 | 2019 TP 15/19 FP 38
+c   30 delta 0.001 alpha 1e-05: alarms  69 (A 65, B 1, C 3) | 2018 TP 9/13 FP  8 | 2019 TP 14/19 FP 37
+c   30 delta 0.01  alpha 1e-02: alarms  72 (A 61, B 1, C 10) | 2018 TP 9/13 FP 10 | 2019 TP 16/19 FP 36
+c   30 delta 0.01  alpha 1e-03: alarms  70 (A 61, B 1, C 8) | 2018 TP 9/13 FP  9 | 2019 TP 15/19 FP 36
+c   30 delta 0.01  alpha 1e-04: alarms  69 (A 61, B 1, C 7) | 2018 TP 9/13 FP  9 | 2019 TP 14/19 FP 36
+c   30 delta 0.01  alpha 1e-05: alarms  65 (A 61, B 1, C 3) | 2018 TP 8/13 FP  8 | 2019 TP 13/19 FP 35
+c  100 delta 0.0   alpha 1e-02: alarms  56 (A 45, B 1, C 10) | 2018 TP 9/13 FP  3 | 2019 TP 16/19 FP 27
+c  100 delta 0.0   alpha 1e-03: alarms  54 (A 45, B 1, C 8) | 2018 TP 9/13 FP  2 | 2019 TP 15/19 FP 27
+c  100 delta 0.0   alpha 1e-04: alarms  53 (A 45, B 1, C 7) | 2018 TP 9/13 FP  2 | 2019 TP 13/19 FP 28
+c  100 delta 0.0   alpha 1e-05: alarms  49 (A 45, B 1, C 3) | 2018 TP 8/13 FP  1 | 2019 TP 12/19 FP 27
+c  100 delta 0.001 alpha 1e-02: alarms  56 (A 45, B 1, C 10) | 2018 TP 9/13 FP  3 | 2019 TP 16/19 FP 27
+c  100 delta 0.001 alpha 1e-03: alarms  54 (A 45, B 1, C 8) | 2018 TP 9/13 FP  2 | 2019 TP 15/19 FP 27
+c  100 delta 0.001 alpha 1e-04: alarms  53 (A 45, B 1, C 7) | 2018 TP 9/13 FP  2 | 2019 TP 13/19 FP 28
+c  100 delta 0.001 alpha 1e-05: alarms  49 (A 45, B 1, C 3) | 2018 TP 8/13 FP  1 | 2019 TP 12/19 FP 27
+c  100 delta 0.01  alpha 1e-02: alarms  56 (A 45, B 1, C 10) | 2018 TP 9/13 FP  3 | 2019 TP 16/19 FP 27
+c  100 delta 0.01  alpha 1e-03: alarms  54 (A 45, B 1, C 8) | 2018 TP 9/13 FP  2 | 2019 TP 15/19 FP 27
+c  100 delta 0.01  alpha 1e-04: alarms  53 (A 45, B 1, C 7) | 2018 TP 9/13 FP  2 | 2019 TP 13/19 FP 28
+c  100 delta 0.01  alpha 1e-05: alarms  49 (A 45, B 1, C 3) | 2018 TP 8/13 FP  1 | 2019 TP 12/19 FP 27
+c  300 delta 0.0   alpha 1e-02: alarms  35 (A 24, B 1, C 10) | 2018 TP 8/13 FP  2 | 2019 TP 14/19 FP 10
+c  300 delta 0.0   alpha 1e-03: alarms  33 (A 24, B 1, C 8) | 2018 TP 8/13 FP  1 | 2019 TP 13/19 FP 10
+c  300 delta 0.0   alpha 1e-04: alarms  32 (A 24, B 1, C 7) | 2018 TP 8/13 FP  1 | 2019 TP 11/19 FP 11
+c  300 delta 0.0   alpha 1e-05: alarms  28 (A 24, B 1, C 3) | 2018 TP 7/13 FP  0 | 2019 TP 10/19 FP 10
+c  300 delta 0.001 alpha 1e-02: alarms  35 (A 24, B 1, C 10) | 2018 TP 8/13 FP  2 | 2019 TP 14/19 FP 10
+c  300 delta 0.001 alpha 1e-03: alarms  33 (A 24, B 1, C 8) | 2018 TP 8/13 FP  1 | 2019 TP 13/19 FP 10
+c  300 delta 0.001 alpha 1e-04: alarms  32 (A 24, B 1, C 7) | 2018 TP 8/13 FP  1 | 2019 TP 11/19 FP 11
+c  300 delta 0.001 alpha 1e-05: alarms  28 (A 24, B 1, C 3) | 2018 TP 7/13 FP  0 | 2019 TP 10/19 FP 10
+c  300 delta 0.01  alpha 1e-02: alarms  34 (A 23, B 1, C 10) | 2018 TP 8/13 FP  2 | 2019 TP 13/19 FP 10
+c  300 delta 0.01  alpha 1e-03: alarms  32 (A 23, B 1, C 8) | 2018 TP 8/13 FP  1 | 2019 TP 12/19 FP 10
+c  300 delta 0.01  alpha 1e-04: alarms  31 (A 23, B 1, C 7) | 2018 TP 8/13 FP  1 | 2019 TP 11/19 FP 10
+c  300 delta 0.01  alpha 1e-05: alarms  27 (A 23, B 1, C 3) | 2018 TP 7/13 FP  0 | 2019 TP 9/19 FP 10
+c 1000 delta 0.0   alpha 1e-02: alarms  24 (A 13, B 1, C 10) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP  2
+c 1000 delta 0.0   alpha 1e-03: alarms  22 (A 13, B 1, C 8) | 2018 TP 7/13 FP  0 | 2019 TP 11/19 FP  3
+c 1000 delta 0.0   alpha 1e-04: alarms  21 (A 13, B 1, C 7) | 2018 TP 6/13 FP  1 | 2019 TP 9/19 FP  4
+c 1000 delta 0.0   alpha 1e-05: alarms  17 (A 13, B 1, C 3) | 2018 TP 5/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.001 alpha 1e-02: alarms  24 (A 13, B 1, C 10) | 2018 TP 7/13 FP  1 | 2019 TP 13/19 FP  2
+c 1000 delta 0.001 alpha 1e-03: alarms  22 (A 13, B 1, C 8) | 2018 TP 7/13 FP  0 | 2019 TP 11/19 FP  3
+c 1000 delta 0.001 alpha 1e-04: alarms  21 (A 13, B 1, C 7) | 2018 TP 6/13 FP  1 | 2019 TP 9/19 FP  4
+c 1000 delta 0.001 alpha 1e-05: alarms  17 (A 13, B 1, C 3) | 2018 TP 5/13 FP  0 | 2019 TP 9/19 FP  2
+c 1000 delta 0.01  alpha 1e-02: alarms  22 (A 11, B 1, C 10) | 2018 TP 6/13 FP  1 | 2019 TP 12/19 FP  2
+c 1000 delta 0.01  alpha 1e-03: alarms  20 (A 11, B 1, C 8) | 2018 TP 6/13 FP  0 | 2019 TP 10/19 FP  3
+c 1000 delta 0.01  alpha 1e-04: alarms  19 (A 11, B 1, C 7) | 2018 TP 5/13 FP  1 | 2019 TP 9/19 FP  3
+c 1000 delta 0.01  alpha 1e-05: alarms  15 (A 11, B 1, C 3) | 2018 TP 4/13 FP  0 | 2019 TP 8/19 FP  2
+c 3000 delta 0.0   alpha 1e-02: alarms  19 (A 8, B 1, C 10) | 2018 TP 7/13 FP  1 | 2019 TP 9/19 FP  1
+c 3000 delta 0.0   alpha 1e-03: alarms  17 (A 8, B 1, C 8) | 2018 TP 7/13 FP  0 | 2019 TP 7/19 FP  2
+c 3000 delta 0.0   alpha 1e-04: alarms  16 (A 8, B 1, C 7) | 2018 TP 6/13 FP  1 | 2019 TP 6/19 FP  2
+c 3000 delta 0.0   alpha 1e-05: alarms  12 (A 8, B 1, C 3) | 2018 TP 5/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.001 alpha 1e-02: alarms  19 (A 8, B 1, C 10) | 2018 TP 7/13 FP  1 | 2019 TP 9/19 FP  1
+c 3000 delta 0.001 alpha 1e-03: alarms  17 (A 8, B 1, C 8) | 2018 TP 7/13 FP  0 | 2019 TP 7/19 FP  2
+c 3000 delta 0.001 alpha 1e-04: alarms  16 (A 8, B 1, C 7) | 2018 TP 6/13 FP  1 | 2019 TP 6/19 FP  2
+c 3000 delta 0.001 alpha 1e-05: alarms  12 (A 8, B 1, C 3) | 2018 TP 5/13 FP  0 | 2019 TP 5/19 FP  1
+c 3000 delta 0.01  alpha 1e-02: alarms  16 (A 5, B 1, C 10) | 2018 TP 6/13 FP  1 | 2019 TP 7/19 FP  1
+c 3000 delta 0.01  alpha 1e-03: alarms  14 (A 5, B 1, C 8) | 2018 TP 6/13 FP  0 | 2019 TP 5/19 FP  2
+c 3000 delta 0.01  alpha 1e-04: alarms  13 (A 5, B 1, C 7) | 2018 TP 5/13 FP  1 | 2019 TP 4/19 FP  2
+c 3000 delta 0.01  alpha 1e-05: alarms   9 (A 5, B 1, C 3) | 2018 TP 4/13 FP  0 | 2019 TP 3/19 FP  1
+
+## SICAMS-auto (secondary, B and C re-anchored): c = 100, delta = 0.0, alpha = 1e-04: 53 alarms over 2018-19
+2018: TP 9/13, FP 2
+2019: TP 13/19 new leaks, FP 28; carried leaks found: 4/4
+chance level: 53 alarms at random hours (24 h apart) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              13      15 (11 to 18)              0.925
+  FP              28      12 (7 to 18)              0.000
+  TP<=72h          9       4 (1 to 7)              0.009
+  TP<=300m         4       0 (0 to 2)              0.000
+  TP<=72h&300m     4       0 (0 to 1)              0.000
+   p123 onset 2019-09-15T15:40 peak  9.19  detected +  12 h, sensor n296 ( 1925 m) | paper missed
+   p142 onset 2019-06-12T19:55 peak 27.04  detected +   9 h, sensor n613 (  281 m) | paper +13 h
+   p193 onset 2019-05-20T21:55 peak 10.36  missed | paper missed
+   p277 onset 2019-06-01T19:40 peak  7.36  missed | paper +441 h
+   p280 onset 2019-02-10T13:05 peak  5.26  detected +   8 h, sensor   n4 (  457 m) | paper +20 h
+   p331 onset 2019-04-20T10:10 peak 10.93  detected +  15 h, sensor n613 ( 1266 m) | paper +9 h
+   p426 onset 2019-10-25T13:25 peak 13.56  detected +  14 h, sensor n752 ( 1677 m) | paper +14 h
+   p455 onset 2019-10-05T03:35 peak 11.05  missed | paper missed
+   p514 onset 2019-04-02T20:40 peak 15.58  detected +   5 h, sensor n332 (   77 m) | paper +11 h
+   p523 onset 2019-01-15T23:00 peak 28.39  detected +   6 h, sensor n506 (   86 m) | paper +11 h
+   p586 onset 2019-07-27T02:55 peak 20.52  missed | paper missed
+   p653 onset 2019-03-04T08:40 peak 18.28  missed | paper +214 h
+   p680 onset 2019-07-10T08:45 peak  5.37  missed | paper +2 h
+   p710 onset 2019-03-24T14:15 peak  5.58  detected + 517 h, sensor n332 ( 1551 m) | paper +18 h
+   p721 onset 2019-08-03T03:20 peak 13.18  detected + 601 h, sensor n752 ( 1004 m) | paper +441 h
+   p762 onset 2019-10-10T09:40 peak 15.71  detected + 546 h, sensor n752 (  610 m) | paper missed
+   p800 onset 2019-08-16T22:05 peak 21.95  detected + 126 h, sensor n752 (  646 m) | paper +510 h
+   p827 onset 2019-01-24T18:30 peak 26.46  detected +   6 h, sensor n726 (  229 m) | paper +10 h
+   p879 onset 2019-11-21T09:15 peak 10.93  detected +  42 h, sensor n752 (  598 m) | paper +145 h
+  false alarm 2019-01-03T03 by n1
+  false alarm 2019-07-04T17 by n1
+  false alarm 2019-09-01T02 by n296
+  false alarm 2019-09-04T03 by n296
+  false alarm 2019-09-06T02 by n296
+  false alarm 2019-09-07T03 by n296
+  false alarm 2019-09-10T02 by n296
+  false alarm 2019-09-13T03 by n296
+  false alarm 2019-09-19T03 by n296
+  false alarm 2019-09-22T02 by n296
+  false alarm 2019-09-25T02 by n296
+  false alarm 2019-09-30T02 by n296
+  false alarm 2019-11-07T04 by n752
+  false alarm 2019-11-12T03 by n752
+  false alarm 2019-11-14T04 by n752
+  false alarm 2019-11-17T03 by n752
+  false alarm 2019-11-27T04 by n752
+  false alarm 2019-12-03T03 by n752
+  false alarm 2019-12-06T04 by n752
+  false alarm 2019-12-10T03 by n769
+  false alarm 2019-12-13T03 by n769
+  false alarm 2019-12-17T03 by n769
+  false alarm 2019-12-21T03 by n769
+  false alarm 2019-12-25T02 by n769
+  false alarm 2019-12-26T02 by n769
+  false alarm 2019-12-27T03 by n769
+  false alarm 2019-12-28T04 by n769
+  false alarm 2019-12-31T00 by n769
+  median delay 14 h (range 5 to 601); sensor within 300 m: 4/13
+
+## published SICAMS times (Melnikov 2025, Table 1; with p426's stated false alarm as one more alarm), detection only: 28 alarms over 2018-19
+2018: TP 10/13, FP 2
+2019: TP 14/19 new leaks, FP 1; carried leaks found: 2/4
+chance level: 28 alarms at random hours (24 h apart) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              14      10 (6 to 14)              0.026
+  FP               1       4 (1 to 8)              0.991
+  TP<=72h          9       2 (0 to 5)              0.000
+   p123 onset 2019-09-15T15:40 peak  9.19  missed
+   p142 onset 2019-06-12T19:55 peak 27.04  detected +  13 h
+   p193 onset 2019-05-20T21:55 peak 10.36  missed
+   p277 onset 2019-06-01T19:40 peak  7.36  detected + 441 h
+   p280 onset 2019-02-10T13:05 peak  5.26  detected +  20 h
+   p331 onset 2019-04-20T10:10 peak 10.93  detected +   9 h
+   p426 onset 2019-10-25T13:25 peak 13.56  detected +  14 h
+   p455 onset 2019-10-05T03:35 peak 11.05  missed
+   p514 onset 2019-04-02T20:40 peak 15.58  detected +  11 h
+   p523 onset 2019-01-15T23:00 peak 28.39  detected +  11 h
+   p586 onset 2019-07-27T02:55 peak 20.52  missed
+   p653 onset 2019-03-04T08:40 peak 18.28  detected + 214 h
+   p680 onset 2019-07-10T08:45 peak  5.37  detected +   2 h
+   p710 onset 2019-03-24T14:15 peak  5.58  detected +  18 h
+   p721 onset 2019-08-03T03:20 peak 13.18  missed
+   p762 onset 2019-10-10T09:40 peak 15.71  detected + 378 h
+   p800 onset 2019-08-16T22:05 peak 21.95  detected + 110 h
+   p827 onset 2019-01-24T18:30 peak 26.46  detected +  10 h
+   p879 onset 2019-11-21T09:15 peak 10.93  detected + 145 h
+  false alarm 2019-09-07T04
+  median delay 16 h (range 2 to 441)
+
+## published SICAMS times (Melnikov 2025, Table 1; Table 1 times only), detection only: 27 alarms over 2018-19
+2018: TP 10/13, FP 2
+2019: TP 13/19 new leaks, FP 1; carried leaks found: 2/4
+chance level: 27 alarms at random hours (24 h apart) from random sensors, 1,000 draws; 2019 new leaks:
+  metric          det  chance median (95% range)   P(chance >= det)
+  TP              13      10 (6 to 13)              0.057
+  FP               1       4 (1 to 8)              0.986
+  TP<=72h          9       2 (0 to 5)              0.000
+   p123 onset 2019-09-15T15:40 peak  9.19  missed
+   p142 onset 2019-06-12T19:55 peak 27.04  detected +  13 h
+   p193 onset 2019-05-20T21:55 peak 10.36  missed
+   p277 onset 2019-06-01T19:40 peak  7.36  detected + 441 h
+   p280 onset 2019-02-10T13:05 peak  5.26  detected +  20 h
+   p331 onset 2019-04-20T10:10 peak 10.93  detected +   9 h
+   p426 onset 2019-10-25T13:25 peak 13.56  detected +  14 h
+   p455 onset 2019-10-05T03:35 peak 11.05  missed
+   p514 onset 2019-04-02T20:40 peak 15.58  detected +  11 h
+   p523 onset 2019-01-15T23:00 peak 28.39  detected +  11 h
+   p586 onset 2019-07-27T02:55 peak 20.52  missed
+   p653 onset 2019-03-04T08:40 peak 18.28  detected + 214 h
+   p680 onset 2019-07-10T08:45 peak  5.37  detected +   2 h
+   p710 onset 2019-03-24T14:15 peak  5.58  detected +  18 h
+   p721 onset 2019-08-03T03:20 peak 13.18  missed
+   p762 onset 2019-10-10T09:40 peak 15.71  missed
+   p800 onset 2019-08-16T22:05 peak 21.95  detected + 110 h
+   p827 onset 2019-01-24T18:30 peak 26.46  detected +  10 h
+   p879 onset 2019-11-21T09:15 peak 10.93  detected + 145 h
+  false alarm 2019-09-07T04
+  median delay 14 h (range 2 to 441)
+

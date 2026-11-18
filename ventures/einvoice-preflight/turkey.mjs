@@ -1,7 +1,11 @@
 // Turkish tax identifier helper for the Turkey page. VKN is the 10-digit tax
 // number of a company or sole trader; TCKN is the 11-digit national ID an
 // individual uses. Both check-digit rules are the widely published ones
-// (secondary sources and open-source validators, not GIB's own text). A pass
+// (secondary sources and open-source validators, not GIB's own text; the VKN
+// weights were compared on 2026-11-09 with the public `vergikimlik` gist at
+// gist.github.com/ziyahan/3938729: shift (digit + 9 - i) mod 10, times 2^(9-i)
+// mod 9, a nonzero shift never scoring 0, check = (10 - sum mod 10) mod 10).
+// A pass
 // means the digits are consistent, not that GIB has the number on file.
 
 export function checkVkn(raw) {

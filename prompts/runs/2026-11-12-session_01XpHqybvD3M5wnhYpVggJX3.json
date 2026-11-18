@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqybvD3M5wnhYpVggJX3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md (scheduled)",
+  "input_sha256": "20453bb101005f0b2b7a2bbd00593c1743d9646a6ac22be06239cc431a0993d8",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T18:39:07Z",
+  "ended": "2026-11-12T18:49:01Z",
+  "wall_minutes": 10.41,
+  "tokens_in": 11102426,
+  "tokens_out": 47081,
+  "cost_usd": 4.476,
+  "tool_calls": 89,
+  "task": "Deepen (flagship 6): shift-roster-builder, reissue a posted week after a call-out",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15219",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First eval run re-parsed the shifts inside reissue(), so slots.indexOf(a.slot) on the posted roster's slot objects returned -1 and the patch baseline marked every shift UNFILLED (22 phantom changes); caught by reading the first rows, fixed by passing the same slot objects through.",
+    "Patch baseline pay first ignored the caller's dropped pay on shifts left open; fixed (coverOptions' extraCost already nets it on covered shifts).",
+    "Two Bash calls with heredocs containing JS template literals were refused by the rm-safety hook as unparseable; wrote the files with the Write tool instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A heredoc with JS template literals (${...}) in a Bash call trips the dangerous-rm safety check even with no rm in it; worth a line next to the pkill -f note: write such files with the Write tool."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "The post front-matter limits (description <= 160, seo_title <= 70) are only checked at preflight, 5+ minutes in; a quick check_post_frontmatter.py call at post-writing time would have caught it first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship next: list's top items (100-person gaps, 60x168 floor) are multi-run solver research; took a product-facing slice that came out of reading the posted-schedule code instead (rebuilds after a call-out moved already-worked shifts and reshuffled others)",
+      "did": "pinStarted + keepShift, wired to CLI and page, measured on 41 call-outs, and added the follow-ups to next:",
+      "result": "late changes and premiums halved at the same open hours, all proven; merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-keep-the-posted-week.md",
+    "ventures/shift-roster-builder/README.md#reissue-a-posted-week-without-reshuffling-it-2026-11-12"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok (153.1s), 1 suites run, 0 failed (run before page-reissue.test.mjs was added; that file passes alone: pass 1). reissue-posted.test.mjs pass 5. cli.test.mjs pass 29. Headless Chromium smoke of index.html: Dev off Thu with posted CSV loaded, keep-posted 1 -> 6 changes, 0 -> 10 changes, no console errors. venture-preflight: first run failed on post front matter lengths only, fixed and re-run (see PR). Finding: the old posted-schedule guide table let rebuilds move already-worked Mon/Tue shifts; noted on the page. No owner action needed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ef275668-b9f4-54e9-b076-cb59ad8f334c",
+    "transcripts": 1,
+    "first": "2026-11-12T18:39:07Z",
+    "last": "2026-11-12T18:49:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 80,
+        "input": 155,
+        "output": 47081,
+        "thinking": 12276,
+        "cache_read": 10933896,
+        "cache_write_5m": 0,
+        "cache_write_1h": 168375,
+        "api_equivalent_usd": 4.476,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 80,
+      "input": 155,
+      "output": 47081,
+      "thinking": 12276,
+      "cache_read": 10933896,
+      "cache_write_5m": 0,
+      "cache_write_1h": 168375,
+      "api_equivalent_usd": 4.476,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 80,
+      "Write": 6,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.41,
+      "active_minutes": 10.41,
+      "model_minutes": 7.67,
+      "tool_minutes": 2.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "engine option + pinning helper, CLI and page wiring, 41-case eval, guide page section, tests, post: about a working day and a half for an engineer who knows the code",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 223.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -14,7 +14,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #241c16; background: #f3eee6; }
     body { max-width: 1100px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #8a4b12; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .72fr); gap: 18px; align-items: start; }
@@ -119,6 +119,12 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #slabs:empty{min-height:566px}}
+@media (scripting:enabled) and (min-width:420px){html:not(.pf-rows-ready) #slabs:empty{min-height:536px}}
+@media (scripting:enabled) and (min-width:864px){html:not(.pf-rows-ready) #slabs:empty{min-height:94px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -314,6 +320,7 @@
     <p><strong>No warranty.</strong> This free tool is not legal, tax, financial, engineering, or business advice, and it does not tell you what to charge. It is not a structural design, a mix design, or a code check. Verify every figure against your own payroll, insurance, ready-mix tickets, and a qualified professional before relying on it or submitting a bid. To the maximum extent permitted by law, the authors accept no liability for loss or damage from its use.</p>
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. Usage counts are anonymous tallies of which features were used, stored locally, and never include your job, yards, costs, or prices.</p>
     <p>Related: <a href="how-much-concrete-for-a-driveway.html">how many cubic yards for a driveway</a>, <a href="./vs-stack.html">this calculator vs. STACK</a>, <a href="./vs-a-flat-price-per-square-foot.html">this calculator vs. a flat price per square foot</a>.</p>
+    <p>Poured it and waiting to strip forms? The <a href="../concrete-maturity/">concrete maturity calculator</a> estimates in-place strength from your temperature logger&rsquo;s file and the mix&rsquo;s lab breaks &mdash; nothing uploaded.</p>
     <p>Lifting a settled slab instead of pouring a new one? The <a href="../concrete-lifting-bid-calculator/">concrete lifting bid calculator</a> prices mudjacking or polyjacking from void depth and access — nothing uploaded.</p>
     <p>Coating an existing garage slab with epoxy or polyaspartic instead of pouring new? The <a href="../epoxy-garage-floor-bid-calculator/">epoxy garage floor bid calculator</a> prices grind hours, flake load, and kit cost &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a>. <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Sponsors</a> is optional and never changes what the tool does.</p>
@@ -321,7 +328,7 @@
 
   <script type="module">
     import { ACCESS_PRESETS, FINISH_PRESETS, REINFORCEMENT_PRESETS, calculateBid } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeShare, decodeShare } from './share.mjs';
     import {
       withTerms, splitTerms, decodeTerms, readTerms, applyTerms, overlongTermsNote,
@@ -425,7 +432,7 @@
     const DRAFT_KEY = 'concrete-bid-calculator:draft:v1';
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function draftData() {
@@ -753,8 +760,15 @@
       + 'The calculator that produced the figure performs arithmetic on that business\u2019s own inputs; '
       + 'it is not a structural, building-code, or engineering determination, and it does not specify a mix, a reinforcement schedule, or a subgrade any particular pour requires.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       COMPANY_FIELDS.forEach(field => { if (saved[field]) el(field).value = saved[field]; });
     }
 
@@ -804,7 +818,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -859,7 +873,7 @@
     el('proposalScope').addEventListener('input', () => { el('proposalScope').dataset.edited = '1'; });
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       COMPANY_FIELDS.forEach(field => { el(field).value = ''; });
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -880,8 +894,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

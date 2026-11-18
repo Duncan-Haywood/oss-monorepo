@@ -57,6 +57,26 @@ class AuditTests(unittest.TestCase):
         self.assertEqual(ranks, sorted(ranks, reverse=True))
         self.assertTrue(all(f["file"] == ".github/workflows/ci.yml" for f in findings))
 
+    def test_parallel_checks_match_a_serial_run(self):
+        # audit() runs the checks concurrently; pin it against the plain loop.
+        with repo(BAD + "\n# second line\n") as d:
+            findings, errors = audit.audit(d)
+            serial, serial_errors = [], []
+            for name, field, sev in audit.CHECKS:
+                raw, err = audit.run_check(name, d)
+                if err:
+                    serial_errors.append(err)
+                else:
+                    serial.extend(audit.normalise(name, field, sev, raw, d))
+        seen, expected = set(), []
+        for f in serial:
+            key = (f["file"], f["line"], f["rule"], f["scope"])
+            if key not in seen:
+                seen.add(key)
+                expected.append(f)
+        expected.sort(key=lambda f: (-audit.RANK[f["severity"]], f["file"], f["line"], f["rule"]))
+        self.assertEqual((findings, errors), (expected, serial_errors))
+
     def test_clean_workflow_is_clean(self):
         with repo(GOOD) as d:
             findings, errors = audit.audit(d)
@@ -116,6 +136,25 @@ jobs:
         res = sarif["runs"][0]["results"]
         self.assertTrue(res and all(r["locations"][0]["physicalLocation"]["region"]["startLine"] >= 1 for r in res))
         self.assertEqual(audit.main(["/nonexistent-dir-xyz"]), 1)
+
+    def test_every_risk_a_check_reports_has_a_severity(self):
+        # Quality audit 2026-11-13: three rule names the bundled checks emit
+        # (artifact-executed-after-untrusted-download, checkout-persists-
+        # credentials-with-upload, shut-down-version) were missing from the
+        # map, so the findings were silently dropped as "informational".
+        import importlib.util
+        for name, _, sev in audit.CHECKS:
+            spec = importlib.util.spec_from_file_location(f"chk_{name.replace('-', '_')}", audit.CHECKS_DIR / f"{name}.py")
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            missing = set(getattr(mod, "RISK_CLASSIFICATIONS", set())) - set(sev)
+            self.assertEqual(missing, set(), name)
+
+    def test_sarif_help_link_points_at_the_served_page(self):
+        with repo(BAD) as d:
+            doc = json.loads(audit.render_sarif(audit.audit(d)[0]))
+        for rule in doc["runs"][0]["tool"]["driver"]["rules"]:
+            self.assertTrue(rule["helpUri"].startswith("https://marisstella.app/"), rule["helpUri"])
 
     def test_fingerprint_separates_scopes_and_sarif_is_two_space_indented(self):
         base = {"file": "a.yml", "rule": "r", "scope": None}

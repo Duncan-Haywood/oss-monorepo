@@ -1,0 +1,121 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydjSCRLJNnNAqyQxHG",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T01:38:16Z",
+  "ended": "2026-11-17T01:57:59Z",
+  "wall_minutes": 19.87,
+  "tokens_in": 6114788,
+  "tokens_out": 40930,
+  "cost_usd": 3.1487,
+  "tool_calls": 56,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16771",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "analyze.py's synthetic unit test first failed (missing f16_20 key in a 1-q fixture, then a test fixture value under the zone minimum); fixed in the test and by making P1 optional"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says new projects keep README bullets in research/README.md or projects.json; this programme's card lives in its own project.json (lede + summary), found only by grepping"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-verifiable-training-low-precision-forger.md",
+    "research/verifiable-training-mechanisms/LOG.md (milestone 89 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Milestone 89 of verifiable-training-mechanisms: low-precision (float16 = referee recipe, bfloat16) forgeries of a segment's last q steps over milestone 86's 1,280 runs (~30 min on 4 CPUs). Pre-registered 9 predictions: 5 held, 4 refuted (P4 two-sided honest flag up to 4.2%, P5 one cell, P7 bf16 nearly invisible, see LOG). Headline: the fp16 replay referee is blind to precision substitution (f16 caught <=1.7%, whole bf16 segment 17-35% momentum/Adam) but whole low-precision runs lose <=0.74% held-out loss; post-hoc zoned float32 arbiter-only audit convicts one f16 step in 78-100%. Local checks: tests/test_precision_forgery.py + test_proxy_forgery.py 13 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok; cite_check 0 ids.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3535ba27-887a-5fc3-a6dc-8e4efe02b4bc",
+    "transcripts": 1,
+    "first": "2026-11-17T01:38:16Z",
+    "last": "2026-11-17T01:58:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 98,
+        "output": 40930,
+        "thinking": 9825,
+        "cache_read": 5972794,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141896,
+        "api_equivalent_usd": 3.1487,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 98,
+      "output": 40930,
+      "thinking": 9825,
+      "cache_read": 5972794,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141896,
+      "api_equivalent_usd": 3.1487,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 49,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.87,
+      "active_minutes": 19.87,
+      "model_minutes": 6.51,
+      "tool_minutes": 13.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

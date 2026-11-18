@@ -11,6 +11,18 @@ import { parseReceipt, addReceipts, splitReceipts } from "./receipts.mjs";
 import { newBooks } from "./engine.mjs";
 
 const rng = (seed) => () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 2 ** 32);
+// The distinct field counts of a CSV's lines, quotes respected, in one pass: every row of the
+// reader's CSV is padded to the sheet's width, so a good read has exactly one.
+const rowWidths = (csv) => {
+  const out = new Set();
+  for (let i = 0, n = 1, q = false; i < csv.length; i++) {
+    const c = csv.charCodeAt(i);
+    if (c === 34) q = !q;
+    else if (!q && c === 44) n++;
+    else if (!q && c === 10) { out.add(n); n = 1; }
+  }
+  return out;
+};
 const rd = (n) => new Uint8Array(readFileSync(new URL(`./fixtures/${n}`, import.meta.url)));
 
 test("a damaged .xls is read or refused with an Error, never a crash of another kind", () => {
@@ -26,13 +38,19 @@ test("a damaged .xls is read or refused with an Error, never a crash of another 
       else if (mode === 1) bytes = b.subarray(0, pick(0, b.length));
       else if (mode === 2) { const at = pick(512, b.length - 64), n = pick(1, 64); b.fill(r() < 0.5 ? 0 : 255, at, at + n); }
       else for (let k = pick(1, 4); k > 0; k--) { const at = pick(0, b.length - 5); b[at] = 0xff; b[at + 1] = 0xff; b[at + 2] = 0xff; b[at + 3] = 0xff; }
-      try { assert.equal(typeof xlsToCsv(bytes), "string"); ok++; }
+      let csv;
+      try { csv = xlsToCsv(bytes); assert.equal(typeof csv, "string"); }
       catch (e) {
         if (e instanceof assert.AssertionError) throw e;
         assert.ok(e instanceof Error && typeof e.message === "string" && e.message.length > 0, `${name} #${i} mode ${mode}: ${e}`);
         assert.ok(!(e instanceof TypeError) && !(e instanceof RangeError), `${name} #${i} mode ${mode}: leaked ${e.name}: ${e.message}`);
         refused++;
+        continue;
       }
+      // one width for every row (rows are padded with commas past their last cell)
+      const widths = rowWidths(csv);
+      assert.ok(widths.size === 1, `${name} #${i} mode ${mode}: rows of ${[...widths].join(", ")} fields`);
+      ok++;
     }
   }
   assert.ok(ok + refused === 300);

@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compare, normalizeOptions, parseSites, parseSeasons, audit, summarizeCompare, summarizeAudit, money, DEFAULT_SITES_CSV, MODELS } from "./engine.mjs";
+import { compare, normalizeOptions, parseSites, parseSeasons, audit, summarizeCompare, summarizeAudit, money, DEFAULT_SITES_CSV, MODELS, YEARS } from "./engine.mjs";
 
 const close = (a, b, e = 1e-9) => assert.ok(Math.abs(a - b) < e, `${a} vs ${b}`);
 const byId = (c, id) => c.models.find((m) => m.id === id);
@@ -147,4 +147,50 @@ test("storm-time options accept 20 hours and reject anything above, for every ba
     assert.doesNotThrow(() => normalizeOptions({ [k]: 20 }));
     assert.throws(() => normalizeOptions({ [k]: 20.5 }), new RegExp(`${k} must be between 0 and 20`));
   }
+});
+
+// redteam 2026-11-16: "A,flat,$1,200,40" read as $1 revenue and 200 hours.
+test("parseSites and parseSeasons read a quoted $1,200 and refuse an unquoted one", () => {
+  assert.equal(parseSeasons('A,flat,"$1,200",40').rows[0].revenue, 1200);
+  assert.equal(parseSites('A,10,"$1,200",0,0,2').sites[0].perPush, 1200);
+  const r = parseSeasons("A,flat,$1,200,40");
+  assert.equal(r.rows.length, 0);
+  assert.match(r.errors[0], /^Line 1: .*thousands comma/);
+  assert.match(parseSites("A,10,$1,200,0,0,2").errors[0], /thousands comma/);
+});
+
+// redteam 2026-11-17: the thousands-comma check reads the *next* field's
+// quoting, not the one after it. A quoted "200" after $1 is a separate value;
+// an unquoted 200 after $1 is the split amount even when a quoted field follows.
+test("the thousands-comma check looks at the quoting of the field right after the amount", () => {
+  const ok = parseSeasons('A,flat,$1,"200"');
+  assert.equal(ok.errors.length, 0, ok.errors.join("; "));
+  assert.match(parseSeasons('A,flat,$1,200,"40"').errors[0], /thousands comma/);
+});
+
+// redteam 2026-11-17: worstYear must be the lowest effective rate across years.
+test("worstYear is the minimum non-null effective rate over the years", () => {
+  const c = compare(parseSites(DEFAULT_SITES_CSV).sites, {});
+  for (const m of c.models) {
+    const vals = YEARS.map((y) => m.effective[y]).filter((v) => v !== null);
+    assert.equal(m.worstYear, vals.length ? Math.min(...vals) : null, m.id);
+  }
+});
+
+test("a typed zero is a real answer at the bottom of every range (fuel paid by the client)", () => {
+  assert.equal(normalizeOptions({ fuelPerHr: 0 }).fuelPerHr, 0);
+  assert.equal(normalizeOptions({ bladeWearPerHr: "0" }).bladeWearPerHr, 0);
+  assert.throws(() => normalizeOptions({ fuelPerHr: -1 }), /fuelPerHr must be between 0/);
+});
+
+test("year odds written as fractions summing to 1 are accepted, only all-zero odds are refused", () => {
+  assert.deepEqual(normalizeOptions({ probs: "0.2,0.5,0.3" }).probs, [0.2, 0.5, 0.3]);
+  assert.deepEqual(normalizeOptions({ probs: "0,1,0" }).probs, [0, 1, 0]);
+  assert.throws(() => normalizeOptions({ probs: "0,0,0" }), /must not all be zero/);
+});
+
+test("each site's walk-away price is its normal-year cost plus the walk-away share of target pay", () => {
+  const c = compare(one, { ...opts, targetHourly: 40, walkAwayPct: 50 });
+  close(c.perSite[0].walkAway, 600 + 7.6 * 40 * 0.5);
+  close(c.perSite[0].walkAway, c.flat.walkAway);
 });

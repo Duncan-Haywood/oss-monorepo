@@ -1,0 +1,50 @@
+name: systemd-unit-hardening-check
+description: 'Free, read-only checker that reads your own systemd .service files with their NAME.service.d drop-ins merged in systemd order, for services running as root, missing sandboxing (NoNewPrivileges, ProtectSystem, ProtectHome, PrivateTmp, PrivateDevices, kernel protection, system call and socket filters), secrets in Environment=, binaries in writable directories, curl piped to a shell and near-root capabilities, with file:line, the fix and a starter hardening drop-in; browser or zero-dependency CLI, no upload, no network calls.'
+stage: prototype
+
+owner: duncan
+
+# Not a scored pipeline candidate: same graduation shape as the other
+# zero-dependency *-check tools. Nothing in ventures/ reads a systemd unit:
+# docker-compose-security-check and k8s-pod-security-check ask the same
+# questions of containers and pods; ubuntu-agent-server ships its own units
+# but does not check anyone's. Not in screened-out.md.
+#
+# Gate self-assessment: liability_containment and ethical_robustness are
+# high -- a read-only parser of the user's own files, no advice-of-record, no
+# probing of anyone else's system, no data leaving the device. Labelled not a
+# security audit and not systemd-analyze, with no warranty; the starter drop-in
+# is labelled as able to break a service, and a clean scan is never called safe.
+#
+# First visitor channel: search for "systemd service hardening", "systemd
+# NoNewPrivileges ProtectSystem example", "systemd Environment password
+# secret" and "systemd-analyze security exposure" (docs, wiki and blog results
+# with no checker that works on a file before deploy), and self-hosters
+# writing their first unit.
+hypotheses:
+  - claim: 'A self-hoster will paste a unit here and install the starter drop-in on a service that ran as root with no sandbox.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: 'A team that keeps units in a repository will wire check.py --fail-on-risk into CI.'
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found using check.py or classify.mjs within 90 days.
+
+links:
+  production: https://marisstella.app/systemd-unit-hardening-check/
+  analytics: null

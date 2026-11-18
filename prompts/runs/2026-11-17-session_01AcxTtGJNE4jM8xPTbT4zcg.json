@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtGJNE4jM8xPTbT4zcg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T09:07:20Z",
+  "ended": "2026-11-17T09:40:26Z",
+  "wall_minutes": 43.61,
+  "tokens_in": 15005153,
+  "tokens_out": 60926,
+  "cost_usd": 5.6944,
+  "tool_calls": 103,
+  "task": "Deepen (flagship) ai-bookkeeper: BUILDABLE HERE item, RapidOCR's parser misses on CORD train shards 1-3",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16883",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Swapped receipts.mjs with main's copy in place to score a baseline while the full suite ran in the background; the first suite run reported a CORD pin failure from the not-yet-updated pin, possibly also touched by the swap.",
+      "fix": "Built a main copy with git archive in the scratchpad for every later comparison and reran the suite: 2,783/2,783 pass."
+    },
+    {
+      "what": "Push blocked by the post front-matter hook (description 214 chars, seo_title 75).",
+      "fix": "Shortened both in a separate commit."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/cord_images.py",
+      "issue": "Names only the validation and test parquet URLs; the train shard file names (train-0000N-of-00004-<hash>.parquet) had to be listed from the HF API tree endpoint. Worth listing them in the header."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/cleanocr.mjs",
+      "issue": "cleanOcr rewrites letters next to digits (IDR71,500 -> 10R71,500, DU1,241,790 -> 0U1,241,790, PB1 -> P81), so receipts.mjs rules written against raw OCR silently miss; cost two debugging rounds. A note in receipts.mjs's header that rules see cleaned text would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "why": "Its sweep voided three workflows because I committed a post front-matter fix while it ran; rerunning them locally would have taken another 20+ minutes when GitHub CI had already run the same workflows green on the pushed head.",
+      "did": "Took GitHub CI's results for those three, plus the local suite (2,783/2,783) and a clean venture-preflight.",
+      "result": "All 19 PR check runs green or skipped."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-better-ocr-made-the-parser-the-bottleneck.md",
+    "ventures/ai-bookkeeper/eval/rapidocr-parser-misses-2026-11-17.md"
+  ],
+  "goal": "Deepen flagship ai-bookkeeper, receipts OCR item (5)",
+  "notes": "Re-read CORD train shards 1-3 (600 photos) with RapidOCR 1.4.4: reproduced main's 515/583. 45 of 68 misses had the total's digits in the reading. Rules from train misses only. Results main -> PR: train RapidOCR 515 -> 539 (tax 172 -> 177); validation RapidOCR 83 -> 85, tesseract four 70 -> 72, RapidOCR+four 86 -> 87, page 86 -> 87; SRD RapidOCR 180 -> 182; held-out CORD test scored once: RapidOCR 80 -> 83, four 56 -> 58, RapidOCR+four 80 -> 83, page 81 -> 84; CORD text train 761 -> 767, test 93 -> 94; SROIE text 611/625 unchanged. Zero totals right->wrong in any set (checked per receipt); two taxes right->wrong (SRD 1055, CORD validation-93), each after its total became right. Verification: node --test '*.test.mjs' in ventures/ai-bookkeeper 2783/2783 pass; GitHub CI 19 check runs green or skipped (changed-ventures success); run_workflow_locally --for-changes: exit 1 only as UNSTABLE CHECKOUT (I shortened the post's front matter mid-sweep), which voided its ventures-tests, portfolio-validate and portfolio-pages verdicts; those three ran green on GitHub CI for the pushed head (changed-ventures, validate, build, test); the others it ran held (pages.yml 6/6 run steps). venture-preflight.mjs ai-bookkeeper: clean, exit 0. Not measured: tesseract four on train shards 1-3 (~100 min).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47237505-1dba-5dcb-9a82-ec2997648313",
+    "transcripts": 1,
+    "first": "2026-11-17T09:07:20Z",
+    "last": "2026-11-17T09:50:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 100,
+        "input": 191,
+        "output": 60926,
+        "thinking": 17411,
+        "cache_read": 14815978,
+        "cache_write_5m": 0,
+        "cache_write_1h": 188984,
+        "api_equivalent_usd": 5.6944,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 100,
+      "input": 191,
+      "output": 60926,
+      "thinking": 17411,
+      "cache_read": 14815978,
+      "cache_write_5m": 0,
+      "cache_write_1h": 188984,
+      "api_equivalent_usd": 5.6944,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 103,
+    "tools": {
+      "Bash": 95,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.61,
+      "active_minutes": 43.61,
+      "model_minutes": 11.54,
+      "tool_minutes": 32.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading 45 OCR misses, writing and measuring nine parser rules across five photo sets and two text sets",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 105.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

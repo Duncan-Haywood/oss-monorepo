@@ -9,6 +9,13 @@ class T(unittest.TestCase):
         cls.x = x
         cls.params = model.train_float(x, y)
 
+    def test_metric_divides_by_rows(self):
+        # rows of experiments/results.txt recomputed by hand (quality audit 2026-11-15):
+        # F=16 4x8 array 13040 cells x 83 cycles / 4 rows; F=32 2x16 array 13954 x 84 / 2; MAC P=32 6894 x 52 / 1
+        self.assertEqual(flow.metric(13040, 83, 4), 270580)
+        self.assertEqual(flow.metric(13954, 84, 2), 586068)
+        self.assertEqual(flow.metric(6894, 52, 1), 358488)
+
     def test_rtl_matches_numpy_when_array_is_reused(self):
         q = model.quantise(self.params, self.x, 4)
         xi = q["xq"](self.x[:8])

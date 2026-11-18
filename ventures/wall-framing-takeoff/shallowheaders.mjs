@@ -14,7 +14,7 @@ import { DEPTH, THICK, openingGeometry } from "./engine.mjs";
 export function shallowHeaders(plan) {
   const notes = [];
   if (plan == null || typeof plan !== "object") return notes;
-  const sizes = new Set((plan.stock || []).map((/** @type {any} */ s) => s.size));
+  const sizes = new Set(stockSizes(plan));
   for (const wall of plan.walls || []) {
     if (!wall || wall.gable) continue;
     for (const op of wall.openings || []) {
@@ -38,6 +38,11 @@ export function shallowHeaders(plan) {
   return notes;
 }
 
+/** Sizes on the lumber list; a missing, non-list or hostile (null entry) list gives none instead of throwing. */
+function stockSizes(/** @type {any} */ plan) {
+  return Array.isArray(plan.stock) ? plan.stock.filter((/** @type {any} */ s) => s && typeof s === "object").map((/** @type {any} */ s) => s.size) : [];
+}
+
 const DOOR_THRESHOLD_MAX = 2; // in: a door bottom this far above the plate is a threshold, not a raised opening
 
 /**
@@ -54,7 +59,7 @@ const DOOR_THRESHOLD_MAX = 2; // in: a door bottom this far above the plate is a
 export function trimOpenings(plan) {
   const notes = [];
   if (plan == null || typeof plan !== "object") return notes;
-  const sizes = (plan.stock || []).map((/** @type {any} */ s) => s.size).filter((/** @type {string} */ k) => Object.hasOwn(DEPTH, k));
+  const sizes = stockSizes(plan).filter((/** @type {string} */ k) => Object.hasOwn(DEPTH, k));
   if (!sizes.length) return notes;
   const minSize = sizes.sort((a, b) => DEPTH[a] - DEPTH[b])[0];
   for (const wall of plan.walls || []) {

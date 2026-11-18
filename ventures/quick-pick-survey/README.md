@@ -6,6 +6,58 @@ couldn't state directly if asked.
 
 **Live page:** https://marisstella.app/quick-pick-survey/
 
+**Use it now, no install:** [rank a list by picking pairs](https://marisstella.app/quick-pick-survey/rank.html)
+runs the same Bradley-Terry refit in your browser, shows a 90% rank range per
+option, and combines a team's picks from shareable result codes, with rank
+ranges for the group itself and for the wider group it stands for. A "find my
+top k" mode (since 2026-11-14) asks about the options near the cut instead of
+the whole order, for when you need a shortlist; its link carries the k, so a
+team all answers for the same cut, and combining their codes leads with the
+team's top k, each option's chance of really being in it and how many people
+shortlisted it (on 432 simulated teams the model's pick was right 78% of the
+time, a show of hands 72%). Since 2026-11-15 lists of 8 or more can start
+with an optional rough sort (one tap per option: near the top, middle, near
+the bottom), which the refit reads as each option's prior; on simulated
+ordinary answerers, 20 options took 64 taps and picks after a careful sort, 87
+after an ordinary one and 120 after a careless one, against 93 picks, for
+about the same order (docs/RANK-PAGE.md, "Sort into piles first"). Nothing is
+uploaded. How it works and what was measured: [docs/RANK-PAGE.md](docs/RANK-PAGE.md).
+
+**Used to MaxDiff?** [Rank by best and worst of four](https://marisstella.app/quick-pick-survey/maxdiff-best-worst.html)
+(since 2026-11-15): a mode of the ranker where each screen shows four options
+and you tap the one you like most, then the least. Each screen is scored with
+the exact best-worst model (not split into implied pairs, which overstates
+two taps as five answers), and the next four are the ones expected to tell
+the most. On simulated people, 15 options took 27 screens (54 taps) against
+70 pair picks for an order about as good. Time per screen is not simulated:
+since 2026-11-15 the page times each answer on the device, codes carry the
+times, and a team combine says whether screens or pairs reached the stop
+sooner for that team (docs/RANK-PAGE.md, "Answer times"). Links, codes and team combine work as for pairs. How it works and the
+tables: [docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Best and worst of four".
+
+**Ranking pictures?** [Pick the best photo or logo by comparing pairs](https://marisstella.app/quick-pick-survey/pick-the-best-photo.html)
+(since 2026-11-15): select 3 to 60 image files on the ranker and pick between
+two pictures at a time; the files are opened in the browser and never
+uploaded. The file names are the list, so a team link works as for words:
+each person selects the same files on their own device. "Look closer" flips
+between the two pictures full screen with a shared tap-to-zoom. How it works:
+[docs/RANK-PAGE.md](docs/RANK-PAGE.md), "Pictures" and "Pictures on a phone".
+
+**Choosing on several criteria?** [Weigh criteria by picking pairs](https://marisstella.app/quick-pick-survey/decide.html)
+(since 2026-11-14) is a weighted decision matrix with nothing typed: it asks
+"which matters more?" and "on this criterion, which is better?", fits both with
+the same refit and shows rank ranges that include doubt about the weights.
+Each pick says "much better" or "a bit better", read with an ordinal model:
+on 300 simulated people it named the true best 182 to 203 times against 165
+for plain picks. Since 2026-11-15 the question cap is a checkpoint: if it is
+still close at the top you can keep going (up to 3x the cap), which on 300
+simulated people named the true best 254 times against 203; "Rank them all"
+pins down the whole order instead of only the winner. Past the checkpoint the
+stop asks for a little more certainty the longer it runs (94% at 3x), which
+on simulated people who say "much" for most picks cut false "settled" results
+from 30 to 21 in 300 and kept the 90% promise (0.91, from 0.89).
+Model, simulations and what is still open: [docs/DECIDE-PAGE.md](docs/DECIDE-PAGE.md).
+
 ## Deploy your own copy
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo&root-directory=ventures%2Fquick-pick-survey&env=ADMIN_KEY%2CADMIN_SESSION_SECRET&envDescription=Two%20long%20random%20strings%20you%20make%20up%3A%20ADMIN_KEY%20is%20your%20admin%20password%2C%20ADMIN_SESSION_SECRET%20signs%20admin%20cookies.%20Generate%20each%20with%20%60openssl%20rand%20-hex%2032%60.&envLink=https%3A%2F%2Fgithub.com%2FDuncan-Haywood%2Foss-monorepo%2Ftree%2Fmain%2Fventures%2Fquick-pick-survey%23deploy-your-own-copy&project-name=quick-pick-survey&stores=%5B%7B%22type%22%3A%22postgres%22%7D%5D)
@@ -106,8 +158,8 @@ the enforcement — see [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md).
 
 ## How it works
 
-**Discrete items** (activities, professions) use **Glicko-2** — the system chess.com's
-ratings are built on. Each item carries a rating plus a rating deviation, so every
+**Discrete items** (activities, professions) use **Glicko-2** — the chess-style rating system
+designed by Mark Glickman. Each item carries a rating plus a rating deviation, so every
 ranking comes with a real confidence interval. Ratings are stored **per respondent**:
 one person's answers can never move another's ranking.
 
@@ -143,6 +195,7 @@ It is typed data guarded by a test, so it cannot drift from what is enforced.
 - [docs/QUALITY-BAR.md](docs/QUALITY-BAR.md) — the gates and the definition of done
 - [docs/CONVERGENCE.md](docs/CONVERGENCE.md) — how many answers a usable result actually costs
 - [docs/POOLING.md](docs/POOLING.md) — the largest available precision win, measured, and why it is not taken
+- [docs/REAL-RANKINGS.md](docs/REAL-RANKINGS.md) — the survey replayed on real people's published rankings: people, not answers, are the limit; the rank ranges are honest but wide; the insights card's clear pick and "it's between" list are honest on real people too (wrong 5 of 860, set holds 97-100%), but only the staged question order lets the card name a favourite (2026-11-12), so staged is now the default up to 120 options ([docs/INFORMATION-GAIN-SELECTOR.md](docs/INFORMATION-GAIN-SELECTOR.md), "Staged as the default up to 120 items"), and since 2026-11-13 on longer lists too, with no 120-answer warm-up (same file, "Lists over 120 items: the switch rule": better per-person rank at every budget up to 120 answers on 150-500 options, the couple screen's bar in 35 answers against 38-40, the pooled ranking level or slightly ahead)
 - [docs/TESTING.md](docs/TESTING.md) — what is covered, what is not, how to add
 - [docs/ACCESSIBILITY.md](docs/ACCESSIBILITY.md) — what a test enforces, what was only read in the markup, and what nobody has checked
 - [docs/decisions/](docs/decisions/) — why an obvious simplification was rejected
@@ -164,4 +217,125 @@ Signed in as admin, `POST /api/admin/surveys` with `{"title": "...", "items": "o
 `GET /api/admin/surveys/<slug>/ranking` returns the pooled ranking; add `?format=csv` to download it.
 Each item carries a 95% interval from a random-effects pool of the respondents' Glicko-2 ratings
 (so disagreement widens it) and a best/worst rank range: items whose intervals overlap share a range
-rather than being ordered by noise. Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
+rather than being ordered by noise. Respondents who clicked one screen position regardless
+of the options (first-slot share at or beyond 70% either way over 30+ answers; slots are shuffled
+per pair) are left out of the pool, and `leftOut` says how many. Since 2026-11-14 a respondent who answered on the options and then clicked one position from some point on keeps the answers before that run and loses the run (`leftOut.slotBlocks`, `slotBlockAnswers`; `groupRanking.ts` `slotBlockStarts`): the run must be one a fair coin gives less than 1 time in 100, tested exactly against the binomial and split over every possible start, so on fair-coin slots it flagged 0.01-0.16% of honest respondents; in simulation it recovered what leaving out exactly the clicked answers would (docs/INFORMATION-GAIN-SELECTOR.md, "Clicking one position from partway through"). Since later that day, where a respondent turned much quicker partway through (`fastBlockStarts`), their slots from that point on are also tested as one candidate named in advance (`slotRunsAtTurns`, `leftOut.slotBlocksAtTurns`): no split over starts and no share floor, so a weaker lean is found (in simulation, a 65% lean from the speed-up: 9% to 35% of such people), and because slots are a coin the respondent cannot see, it adds at most 1% honest flags however often the timing is wrong (0-0.2% measured where the time cut alone flagged 2-7%) (same file, "A slot run and a fast block in the same person"). Since later still, a slot run that starts after a speed-up is cut from the speed-up instead (`slotBlocksBackToTurns`, `leftOut.slotBlocksMovedBack`), so the coin-flip answers a bored person gives before settling on one position go too; the turn is read without the wander bar, because this only moves the cut of someone the run test already flagged and so flags nobody new. Under a wandering pace it recovered +0.0008 Spearman on average over the d9 default where the run followed the speed-up (up to +0.0045), and was never significantly below it (same file, "A slot run's cut moved back to an earlier fast turn"). The response also carries `agreement`: each respondent's
+ratings are rank-correlated with everyone else's pool (leave one out), and when 5 or more could
+be scored and any fall under 0.2, a note says how many (shown in the builder and the report).
+It is a data-quality note, never a weight: careless clicking by something other than the
+question (a familiar name, a short label) moves the pool and makes it confidently wrong, but a
+group with a genuinely different taste scores just as low, and down-weighting would quiet it
+(docs/INFORMATION-GAIN-SELECTOR.md, "Careless patterns that are not random"; re-run without the
+sweep's weight cap, it costs a 25-40% camp 0.02-0.06 and, at 60 respondents, calls 0.9-1.7% of
+clear pairs the wrong way: "The weighted schemes at 8 and 60 respondents, uncapped").
+On real people's published rankings, 18-46% of respondents fall under 0.2 with nobody careless
+at all, and leaving them out costs the pool up to 0.033; a check on each person's own consistency
+(`src/lib/selfConsistency.ts`) does not tax them but is near a coin under the staged question order,
+so it is measured and not wired in (same file, "Self-consistency: a coin-flip check that does not tax camps").
+Answer times break that tie when they can: the response's `pace` field compares each
+respondent's median time per pick (`Trial.msToAnswer`, 10+ timed answers, 5+ respondents)
+with the panel's, counts those under half the typical time, and says how many of the
+out-of-step respondents were among them. Fast and out of step looks like careless clicking;
+out of step at a normal pace looks like a different taste. `?drop=fast` (the builder's "Rank
+without the fast answerers" button) returns the ranking without them for comparison; the
+default ranking still counts them, because dropping fast people cost up to 0.019 Spearman in
+the sweep's widest-spread panels where careless people were no faster than anyone else
+(docs/INFORMATION-GAIN-SELECTOR.md, "Answer times: telling a careless block from a camp").
+Someone careless on only half their picks keeps a near-normal median, so `?drop=fast` misses
+them; `?drop=fast-answers` (the builder's "Rank without the fast answers" button) keeps everyone
+and leaves out each answer given in under half the typical time, replaying each person's ratings
+from the rest. In simulation it recovered 55-75% of what leaving out exactly the careless answers
+would when those answers were quick (0.4x pace), against 0-35% for leaving out fast people, and
+cost up to 0.006 with nobody careless and up to 0.019 against a camp with a second taste, so it
+too is a comparison, not the default (same file, "Half-time carelessness and answer times").
+Someone who answers properly and then gets bored and clicks through has a *block* of quick answers.
+`?drop=fast-blocks` (the builder's "Rank without answers after someone sped up" button) finds the
+answer where a person turned much quicker than everyone else at the same point in the survey. The
+comparison is with everyone at that point, so the slow first pairs and the speed-up everyone shows
+are not mistaken for a block. It then leaves out that person's answers from there on. In simulation
+it recovered all of what leaving out exactly the careless answers would when the block was at 0.4x
+pace, against 64-82% for the per-answer cut, and cost at most 0.0004 Spearman in any cell. Since
+2026-11-13 "everyone at that point" means the upper quarter of the panel's times there, not the
+median, so a large group turning quick at once cannot drag the comparison down with them: with 40%
+of the panel turning at 0.6x pace it finds 72-80% of them instead of 31-60%. Since later that day
+the speed-up it needs is set per survey from how big a *slow* turn the panel's own honest noise
+makes (between 33% and 40% quicker), and the drop must look like a step, not a steady speed-up over
+the whole session: in that case it now recovers 99% of the harm (was 86%) for the salience pattern
+and 95% (was 64%) for random clicking, and where people speed up on their own, it flags 9% of
+honest respondents instead of 26%. Since the end of that day its second and third passes read the
+median of the people not yet flagged, which spread growing over the session cannot lift: with each
+person's own pace drifting by 0.6 log, honest flags fell from 7.5% to 4.8% at the same share of the
+harm recovered. Since the last change that day a turn must also leave a step of that size once the
+person's own steady speed-up or slow-down is fitted alongside it, which cut honest flags under the
+same drift from about 5% to about 2%, again at the same share of the harm recovered (and 97% rather
+than 99% where nobody drifts). Since 2026-11-14, when the panel's pace is seen to wander at
+random (one walk-to-noise ratio fitted to everyone's times at once), a turn must also be a step a
+wandering pace would not make, scored against the panel's own slow turns: with everyone's pace
+wandering 0.08 log per answer, honest flags fell from 17% to 3.4%; where nobody wanders the test
+stays off (96% of the harm recovered against 97%). Under such wander it also finds fewer of the
+careless, so timing alone stays weak there. Since later that day the picks help: a turn that fails
+the wander test still counts when the person's picks from it on agree with the rest of the panel
+much less than their earlier picks did (2.5 standard errors, allowing for the closer pairs shown
+late in a session). Under the same wander it finds 24% of the careless instead of 18% and recovers
+27% of the harm instead of 19%, for 3.9% of honest people flagged against 3.4%. Since 2026-11-15 the
+pick test counts a disagreement on a clear pair more than one on a close pair (read as a lapse
+estimate, 3 standard errors): 27% of the careless found instead of 24% (26% against 23% on a second
+seed set) for 3.8% of honest people flagged against 3.9%. Easy check pairs asked every 5 or 10
+answers were tried for the same test and did not help: they cost ranking accuracy and found fewer
+blocks ("Check pairs for the pick test"). A comparison for now (same file, "Carelessness that starts
+mid-session", "A panel curve the careless cannot drag down", "A threshold from the panel's own
+slow turns", "A later-pass curve that drift cannot lift", "A step net of the person's own trend"
+"A step a wandering pace cannot make", "A block's picks as well as its times" and "Check pairs for
+the pick test").
+Logic and tests: `src/lib/surveyBuilder.ts`, `src/lib/groupRanking.ts`.
+
+**A person's own results** (`/api/insights`) refit all of that person's answers at once
+(`src/lib/btRefit.ts`: Bradley-Terry with a Glicko-scale prior, Laplace posterior) rather than
+reporting the stored one-answer-at-a-time Glicko states, whose 95% intervals held for about 90%
+of pairs under the staged selector (refit: 95% at the same width). The top and bottom pick are
+called clear only when they beat every other item by 1.645 sd of the difference
+(`src/lib/clearPick.ts`); the old "ahead by half its rd" rule named the wrong favourite in more
+than half of its claims on synthetic respondents. When no pick is clear, the card lists who it
+is between: a 95% credible set for the favourite (`src/lib/favouriteSet.ts`), drawn since
+2026-11-12 from a second refit whose prior sd is estimated from the person's own answers
+(empirical Bayes on importance-sampled evidence, `empiricalPriorPhi`; the Laplace evidence fails
+under the staged selector). It holds the true favourite for 93-96% of synthetic respondents shown
+the card (90-95% with careless answers), against 88-92% (76-83%) with the fixed prior and 68-74%
+for the three highest-rated items, at the cost of longer lists (about 7.5-8.7 names against 5-6).
+Since the latest 2026-11-12 change, each survey also stores a prior sd pooled over its 40 most recent
+respondents (`src/lib/surveyPrior.ts`, refreshed after the response once answers grow by a quarter),
+and the set uses the narrower of the person's and the survey's: in a synthetic survey mixing spreads
+and careless answers that held the favourite for 95.4-96.4% (own alone 92.2-94.3%), where the pooled
+value alone dropped to 83-92% for people whose likes are close together.
+The ratings, intervals and clear-pick rule keep the fixed prior: the estimated one makes pairwise
+intervals undercover, and a heavier-tailed (Student-t) prior, tried 2026-11-12 under uniform, normal
+and Laplace-shaped synthetic truths, narrows them further but covers less than the Gaussian in every
+case (`priorDf` in `btRefit.ts`, tested, unwired). The stored states still drive question
+selection and the couple screen. Measurements: docs/INFORMATION-GAIN-SELECTOR.md, "Per-person
+intervals from a refit", "The clear-top-pick claim", "Who it's between", "An empirical-Bayes
+prior", "A stored survey prior" and "A heavier-tailed prior for the pairwise intervals" (2026-11-12).
+Why the survey's pooled sd once fell to 0.33 under the staged selector (2026-11-13): staged's close
+pairs leave the pooled evidence nearly flat in the prior sd (5-13 nats from 0.3 to 1.2 over 40 people,
+against 281 under the shipped selector), so noise can tip its maximum to the floor; the sampler is not
+at fault (20000 draws agree to 0.4 nats). The upper end of the evidence's likelihood interval
+(`pooledPriorPhiUpper`, tested, unwired) holds 95.5-95.7% pairwise coverage for honest respondents at
+about 15% less width than the fixed prior, but careless answers drop it to 0.72-0.76 in the worst cells,
+so the intervals keep the fixed prior: docs/INFORMATION-GAIN-SELECTOR.md, "Why the pooled sd collapsed".
+Giving the upper end only to respondents a lapse estimate calls honest (2026-11-13, later) would
+work with a perfect detector (honest coverage 0.957-0.961 at 10-12% less width, careless people
+pooled out), but the estimates the answers give tell careless from honest at AUC 0.58-0.69 under
+the staged selector, and a careless half of the panel drags everyone's upper end down (staged worst
+cell 0.68). A rank gate (the more consistent half) is safe but only 1-4% narrower than the fixed
+prior, so nothing is wired: docs/INFORMATION-GAIN-SELECTOR.md, "A lapse gate for the upper end".
+Anchor pairs as that detector (2026-11-13, latest) lift its AUC to 0.85-0.88 at one question in five,
+but the gate still buys only 4-10% against the oracle's 10-18%: ranking people by consistency selects
+the ones whose items are far apart (the more consistent half of an all-honest panel pools to 1.71-1.94
+against 1.27-1.40 for everyone), so gating is closed and the next step is a pooled fit that models each
+person's lapse instead: docs/INFORMATION-GAIN-SELECTOR.md, "Anchor pairs as the gate's detector".
+That lapse-modelling fit (2026-11-13, last; `src/lib/lapsePool.ts`, tested, unwired) does not help
+either: with free lapse weights the evidence has a ridge (a wider spread plus a small lapse fits as well
+as the true spread with none, even for an all-honest panel), so its upper end sits at 1.85-1.96 of the
+2.02 ceiling and the intervals are the fixed prior's; a tight Beta(1, 19) lapse prior behaves like the
+lapse-blind pool (honest 0.903 against fixed 0.968 with half the panel careless at 0.4 under shipped).
+Narrowing the pooled prior now needs a careless signal from outside the choices (answer times on a real
+survey): docs/INFORMATION-GAIN-SELECTOR.md, "A pooled spread that models the lapse".

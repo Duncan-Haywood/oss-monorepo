@@ -133,4 +133,6 @@ test("footer links the sibling research-algorithm tools", () => {
   const html = readFileSync(new URL("./index.html", import.meta.url), "utf8");
   assert.match(html, /href="\.\.\/changepoint-detector\/"/);
   assert.match(html, /href="\.\.\/matrix-profile-explorer\/"/);
+  assert.match(html, /href="\.\.\/survival-analysis\/"/);
+  assert.match(html, /href="\.\.\/fdr-multiple-testing\/"/);
 });

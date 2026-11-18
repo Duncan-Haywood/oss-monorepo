@@ -127,3 +127,15 @@ test("poppler opens the repaired PDF and extracts the corrected XML", { skip: !h
   assert.equal(det.status, 0, det.stderr);
   assert.equal(readFile(out, "utf8"), x.xml);
 });
+
+test("a byte-order mark at the start of the embedded XML is kept (ZUGFeRD corpus, GnuAccounting sample)", async () => {
+  const clean = dec(ex("xrechnung-cii-invoice.xml"));
+  const bad = clean.replace("<ram:GrandTotalAmount>1190.00", "<ram:GrandTotalAmount>1100.00");
+  const bom = Uint8Array.from([0xef, 0xbb, 0xbf, ...new TextEncoder().encode(bad)]);
+  const r = await repairFacturX(buildPdfWithAttachment(bom, "factur-x.xml"));
+  assert.equal(r.pdfRewritten, true);
+  const { payload } = await (await import("./facturx.mjs")).extractEmbeddedInvoice(r.pdf);
+  const back = new Uint8Array(payload);
+  assert.deepEqual([...back.subarray(0, 3)], [0xef, 0xbb, 0xbf]);
+  assert.equal(new TextDecoder().decode(back), clean);
+});

@@ -1,0 +1,54 @@
+Round 17: a floor re-read on a rolling window of the same run, on SKAB (33 fault runs and the anomaly-free run, 8 sensors, 5-second buckets, Quiet, from point 20).
+
+  Normal run: 1861 checks; L = 37 lines for the whole watch; Q sent 159 there.
+  W's k: 1 (fixed before the run). K's k, read off the normal run: 4.032.
+
+  column                  median move ratio of Q's lines (normal / fault runs)   normal-run lines Q -> W -> K   fault-run lines Q -> W -> K
+  Accelerometer1RMS         0.98 / 1.49                                      39 ->  25 -> 4                 74 ->  55 -> 19
+  Accelerometer2RMS         1.26 / 1.46                                      23 ->  14 -> 7                 77 ->  58 -> 21
+  Current                      - / 1.08                                       0 ->   0 -> 0                 12 ->   8 -> 3
+  Pressure                  0.40 / -                                          3 ->   1 -> 0                  0 ->   0 -> 0
+  Temperature               0.70 / 1.07                                      27 ->  14 -> 0                 97 ->  68 -> 24
+  Thermocouple              6.30 / 1.37                                      42 ->  40 -> 34                76 ->  63 -> 13
+  Voltage                   1.56 / 1.41                                       2 ->   1 -> 0                  3 ->   3 -> 0
+  Volume Flow RateRMS       1.61 / 2.73                                      23 ->  19 -> 5                118 ->  97 -> 54
+
+  arm (33 fault runs, 8 columns)                lines  at a mark (share)  per 1000 checks  marks reached  faults caught  median delay s  pre-fault per 100  normal per 100
+  Q  Quiet, no floor                              457     168 (36.8%)        69.4       97/123       33/33         30         6.34 (190/2997)     8.54
+  W  rolling floor, k = 1, in the watch (T13)     352     135 (38.4%)        53.5       87/123       32/33       27.5         4.67 (140/2997)     6.13
+  K  rolling floor, k read off the normal run     134      74 (55.2%)        20.4       64/123       29/33         50         1.50 (45/2997)     2.69
+  P  Q's lines, W's floor after the fact          312     123 (39.4%)        47.4       83/123       31/33         25         4.27 (128/2997)     5.37
+
+  T13 W vs Q: (a) pre-fault 4.67 per 100 checks vs 2 FAIL; (b) 32 vs 33 - 2 PASS; (c) 38.4% vs 36.8% PASS. FAILS.
+
+  Reported only, deciding nothing.
+
+  valve1 (16): faults caught / marks reached / share at a mark (lines)
+  Q  16/16  48/63  33.9%  (180)
+  W  16/16  46/63  39.1%  (138)
+  K  15/16  36/63  55.2%  (58)
+  P  16/16  44/63  41.2%  (119)
+
+  valve2 (3): faults caught / marks reached / share at a mark (lines)
+  Q  3/3  8/12  42.1%  (38)
+  W  3/3  8/12  42.3%  (26)
+  K  3/3  6/12  50.0%  (12)
+  P  3/3  8/12  43.5%  (23)
+
+  other (14): faults caught / marks reached / share at a mark (lines)
+  Q  14/14  41/48  38.1%  (239)
+  W  13/14  33/48  37.2%  (188)
+  K  11/14  22/48  56.3%  (64)
+  P  12/14  31/48  37.6%  (170)
+
+  by column under W: lines, at a mark, faults caught alone
+  Accelerometer1RMS         55    19 (34.5%)  10/33
+  Accelerometer2RMS         58    22 (37.9%)  10/33
+  Current                    8     0 (0.0%)  0/33
+  Pressure                   0     0 (0.0%)  0/33
+  Temperature               68    11 (16.2%)  3/33
+  Thermocouple              63    17 (27.0%)  8/33
+  Voltage                    3     0 (0.0%)  0/33
+  Volume Flow RateRMS       97    66 (68.0%)  29/33
+
+842 s wall on 4 cores.

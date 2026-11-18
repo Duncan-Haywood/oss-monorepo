@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqycVKrizBnpPfLZCJ1B",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T15:39:11Z",
+  "ended": "2026-11-14T15:45:50Z",
+  "wall_minutes": 6.92,
+  "tokens_in": 2274123,
+  "tokens_out": 27530,
+  "cost_usd": 1.7188,
+  "tool_calls": 29,
+  "task": "Saints by Candlelight episode 117 (Acts 20, Eutychus at Troas and the Miletus farewell)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15897",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "ventures-tests 'Runner unit tests' was red at this branch's base: PR #15891 renamed unwired_checks.run_all to run_everything while test_run_venture_tests.py still patched run_all. I made the one-line fix; a concurrent commit on main made the identical change, so the diff is a no-op against main"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'pick the project that has gone longest without a new piece' is hard to apply when hearth-and-horizon has three shelves and saints-by-candlelight one; I read the per-project git log by hand. A one-line command printing days since the last piece per shelf would save a step."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "the creative track scopes a run to fiction, but main's ventures-tests job was red for every PR",
+      "did": "fixed the stale mock in platform/ci/test_run_venture_tests.py in the same PR (not a CODEOWNERS path)",
+      "result": "31/31 tests OK locally; main had landed the identical fix meanwhile, so it merges as a no-op (time spent: a few minutes)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-117-eutychus-window-at-troas.md"
+  ],
+  "goal": null,
+  "notes": "Creative track: saints-by-candlelight, episode 117, slug eutychus-and-the-window-at-troas, 7,225 words, text only (audio folders 474 MB > 400 MB cap). Security queue empty; IDEAS.md and website requests empty; routed by weighted draw. No open saints PR found. Checks: generate.mjs --check-script ok; node --test in ventures/saints-by-candlelight 14/14 pass; run_workflow_locally --for-changes: blog post front-matter check ok, site-builder tests run detached (see PR). Adversarial re-read fixed Aristotle's marriage (hedged to 'a young woman of Hermias's household'), softened an unverified Miletus flooding detail, and added Colossians/Ephesians/1 Timothy/John sources for claims the wind-down makes. Local run_workflow_locally: ventures-tests node --test, no-warranty and tsc steps ok; Runner unit tests failed on main's stale mock, fixed and re-run green. portfolio-pages build steps skipped locally (long build), so 'Check the built artifact' is unrun, not failed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bfc803ce-9a4b-5b48-935e-73eb7a9f7115",
+    "transcripts": 1,
+    "first": "2026-11-14T15:39:11Z",
+    "last": "2026-11-14T15:46:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 53,
+        "output": 27530,
+        "thinking": 5904,
+        "cache_read": 2182637,
+        "cache_write_5m": 0,
+        "cache_write_1h": 91433,
+        "api_equivalent_usd": 1.7188,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 53,
+      "output": 27530,
+      "thinking": 5904,
+      "cache_read": 2182637,
+      "cache_write_5m": 0,
+      "cache_write_1h": 91433,
+      "api_equivalent_usd": 1.7188,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.96,
+    "tool_calls": 29,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.92,
+      "active_minutes": 6.92,
+      "model_minutes": 4.89,
+      "tool_minutes": 2.03,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching and writing a 7,000-word scripture-faithful bedtime script with notes, plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 349.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

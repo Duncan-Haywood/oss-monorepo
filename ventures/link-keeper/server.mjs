@@ -5,6 +5,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import * as E from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -104,7 +105,7 @@ export function handler(cfg) {
 
 export function loadState(file) { try { const s = JSON.parse(fs.readFileSync(file, "utf8")); s.links ||= {}; s.seen ||= {}; return s; } catch { return E.newState(); } }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 16) { console.error("Set ADMIN_KEY (16+ characters)."); process.exit(1); }
   const file = env.STATE || "/tmp/state.json", state = loadState(file);
   let dirty = false;

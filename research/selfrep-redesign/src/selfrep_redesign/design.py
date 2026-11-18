@@ -23,8 +23,17 @@ class Sub:
     penalty: float           # ASSUMED loss, arbitrary units
 
 
+# selfrep-closure costs each wiki printed part at 0.5 for 25 g (bom.py, ``_p``): 0.02 per gram of printed
+# plastic, about the price of PLA filament per gram. A substitute is costed at that same rate per gram, so
+# a 1.5 g printed M8 nut costs 0.03, the price of the steel nut it replaces. An earlier version charged a flat
+# 0.5 per printed part whatever its size, which turned the 3-unit M8 nut line into a 50-unit makeable line
+# and produced most of the reported cost-closure gain (quality audit 2026-11-08, selfrep-redesign).
+PRINTED_COST_PER_G = 0.5 / 25.0
+
+
 def _printed(name, qty, mass):
-    return Part(name, qty, "printed", mass, 0.5, ("fdm",), "assumed substitute", feedstock="filament")
+    return Part(name, qty, "printed", mass, round(mass * PRINTED_COST_PER_G, 6), ("fdm",), "assumed substitute",
+                feedstock="filament")
 
 
 SUBS = [

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKis5P3uY3qwBV4ZzZ6",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T08:21:51Z",
+  "ended": "2026-11-16T08:36:26Z",
+  "wall_minutes": 15.78,
+  "tokens_in": 4373010,
+  "tokens_out": 27980,
+  "cost_usd": 2.301,
+  "tool_calls": 43,
+  "task": "photo-editing flagship: C path for --demosaic learned (BUILDABLE HERE item)",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16511",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "`python3 platform/ci/pyenv.py pytest numpy` printed /usr/bin/python3.13 but exited 2, so `PY=$(...)` in a pipeline looked like a failure; the bare `python3` lacks numpy while python3.13 has it."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Reported raw.pixls.us REFUSED; github.com sparse checkout of metadata-extractor-images worked as the buildable note says."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No agent doc in docs/reports/: the eval note in the venture's eval/ and the flagship buildable field carry what the next run needs.",
+      "did": "wrote eval/bayer-learned-native-2026-11-16.md and rewrote buildable:",
+      "result": "next run is pointed at fusing the feature passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-photo-editing-learned-demosaic-in-c.md",
+    "ventures/photo-editing/eval/bayer-learned-native-2026-11-16.md"
+  ],
+  "goal": "deepen flagship 7 (photo-editing)",
+  "notes": "Learned per-sensel Laplacian weight ported to bayer_native.py's C (learned_map). Real frames (rawpy 0.25, LibRaw 0.22; 70D, D810, A7 III, E-M10, K-1 II, A7 IV, 7D): bit-identical, max diff 0.0 on all seven; C 4 threads 1.05-3.35 s vs numpy 2.98-6.64 s (1.9-2.8x); 2.6-3.3x the default C time (was 3.9-6.0x). Synthetic: test_bayer_native.py + test_bayer_demosaic.py 22 passed, 71 subtests; full photo-editing suite: Ran 1219 tests, OK (skipped=8). Stays opt-in (sheet loss).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6630d407-acd9-51a7-9af4-9bb80d265176",
+    "transcripts": 1,
+    "first": "2026-11-16T08:21:51Z",
+    "last": "2026-11-16T08:37:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 27980,
+        "thinking": 6326,
+        "cache_read": 4261839,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111092,
+        "api_equivalent_usd": 2.301,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 27980,
+      "thinking": 6326,
+      "cache_read": 4261839,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111092,
+      "api_equivalent_usd": 2.301,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 40,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.78,
+      "active_minutes": 15.78,
+      "model_minutes": 5.68,
+      "tool_minutes": 10.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "porting a feature pipeline to C bit-exact, plus real-frame benchmarks: about a day and a half for an engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 434.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

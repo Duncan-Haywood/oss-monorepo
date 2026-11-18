@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVNBQU5y8m4dY8hUu1g",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T13:00:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 5): einvoice-preflight tax-id checks",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14413",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-andorra-guinea-liechtenstein-san-marino-tax-ids.md"
+  ],
+  "goal": null,
+  "notes": "vat.test.mjs 34/34; 3000 random Guinea verdicts vs python-stdnum 2.2, 0 mismatches. Full venture suite not run.",
+  "corrections": [],
+  "redteam": null
+}

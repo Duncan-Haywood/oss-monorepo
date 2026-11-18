@@ -19,6 +19,9 @@ function loadProviders(file) {
   if (!file) return merged;
   let over;
   try { over = JSON.parse(readFileSync(file, "utf8")); } catch (e) { fail(`could not read --prices ${file}: ${e.message}`); }
+  const isObj = (x) => x !== null && typeof x === "object" && !Array.isArray(x);
+  if (!isObj(over)) fail(`--prices ${file} must be a JSON object of provider overrides, keyed by provider`);
+  for (const [k, v] of Object.entries(over)) if (!isObj(v)) fail(`--prices ${file}: "${k}" must be an object of rate fields`);
   for (const [k, v] of Object.entries(over)) merged[k] = { ...(merged[k] || { label: k, url: "", freeEvents: 0, plans: [{ events: 0, price: 0 }], overagePer1k: 0 }), ...v };
   return merged;
 }
@@ -40,6 +43,12 @@ const num = (k, d) => {
   if (!Number.isFinite(n) || n < 0) fail(`--${k} needs a non-negative number, got "${opt[k]}"`);
   return n;
 };
+// --months: a whole number of months, 1 or more (0 crashed with exit 1, read as a tripped gate; red team 2026-11-17).
+const monthsOpt = () => {
+  const m = num("months", 12);
+  if (!Number.isInteger(m) || m < 1) fail(`--months needs a whole number of months, 1 or more, got "${opt.months}"`);
+  return m;
+};
 
 if (cmd === "providers") {
   for (const [k, p] of Object.entries(DEFAULT_PROVIDERS)) console.log(`${k.padEnd(10)} ${p.label.padEnd(30)} free to ${p.freeEvents} events  ${p.url}`);
@@ -49,14 +58,14 @@ if (cmd === "providers") {
   const providers = loadProviders(opt.prices);
   const events = num("events");
   const rows = compare(events, providers);
-  const proj = project(events, num("growth", 0), num("months", 12), providers);
+  const proj = project(events, num("growth", 0), monthsOpt(), providers);
   const s = summarize(rows, { budget: opt.budget === undefined ? null : num("budget"), provider: opt.provider || null });
   if (s.status === "error" && s.errors === 1 && !s.overBudget) fail(s.text);
   if (opt.json) console.log(JSON.stringify({ events, rows, projection: proj, summary: s }, null, 2));
   else {
     console.log(`${events.toLocaleString("en-US")} events a month\n`);
     for (const r of rows) console.log(`${r.label.padEnd(30)} ${fmt(r.monthly).padStart(12)}/mo  ${fmt(r.annual).padStart(14)}/yr${r.extraVsCheapest ? `  (+${fmt(r.extraVsCheapest)})` : ""}`);
-    console.log(`\n${num("months", 12)}-month spend at ${num("growth", 0)}%/mo growth (${events.toLocaleString("en-US")} -> ${proj.endVolume.toLocaleString("en-US")} events a month):`);
+    console.log(`\n${monthsOpt()}-month spend at ${num("growth", 0)}%/mo growth (${events.toLocaleString("en-US")} -> ${proj.endVolume.toLocaleString("en-US")} events a month):`);
     for (const t of proj.totals) console.log(`${t.label.padEnd(30)} ${fmt(t.total).padStart(14)}`);
     console.log(`\n${s.text}\n${PRICES_AS_OF}. Not a quote.`);
   }

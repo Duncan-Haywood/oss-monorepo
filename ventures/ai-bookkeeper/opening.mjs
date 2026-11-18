@@ -20,7 +20,7 @@ export const OPENING_EQUITY = "3000";
 // -> { books, lines, plug, problems, before }; throws on a bad date or a locked period.
 // `plug` is the cents added to 3000 to make the list balance (debit-positive).
 export function setOpeningBalances(booksIn, text, { date, decimalComma = false } = {}) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || Number.isNaN(Date.parse(date))) throw new Error(`Opening balance date ${date} is not a YYYY-MM-DD date.`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || Number.isNaN(Date.parse(date)) || new Date(date + "T00:00:00Z").toISOString().slice(0, 10) !== date) throw new Error(`Opening balance date ${date} is not a YYYY-MM-DD date.`);
   if (booksIn.lockedThrough && date <= booksIn.lockedThrough) throw new Error(`The books are locked through ${booksIn.lockedThrough}; unlock first.`);
   const books = JSON.parse(JSON.stringify(booksIn));
   const map = accountMap(books.accounts);

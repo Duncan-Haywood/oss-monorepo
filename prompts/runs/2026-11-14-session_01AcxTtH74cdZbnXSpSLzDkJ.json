@@ -1,0 +1,368 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtH74cdZbnXSpSLzDkJ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:06:45Z",
+  "ended": "2026-11-14T18:07:39Z",
+  "wall_minutes": 56.97,
+  "tokens_in": 11458846,
+  "tokens_out": 37279,
+  "cost_usd": 4.2684,
+  "tool_calls": 91,
+  "task": "redteam campaign on ventures/ai-bookkeeper/salestaxreturn.mjs (changed on main today, #15927)",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15944",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First campaign (10 mutants) was stopped after ~7 min: the tool runs the whole ai-bookkeeper suite and early runs were slowed by orphaned test processes; restarted with 5 then 8 mutants.",
+      "impact": "about 10 minutes lost"
+    },
+    {
+      "what": "Two looping mutants left node test children running 10+ minutes after their 600 s timeout; killed by hand mid-campaign.",
+      "impact": "campaign 2 took ~25 min instead of ~4; fixed in PR #15945"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Says the campaign runs the target's suite; for ai-bookkeeper it runs every ai-bookkeeper test file (~30 s, 3,169 tests), not salestaxreturn.test.mjs (0.6 s). Timing the target's own test file to size the campaign was misleading; `targets --probe` is the right estimate."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list (11 entries) is almost all control-plane workflow edits that already have open owner-gated PRs (#15871, #14877, #14612, #15728, #14698, #15561); the list does not show that, so each run re-checks them by hand. `redteam.py open` could print the open PR that carries each fix."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 says fix open defects first; all 11 are control-plane changes already sitting in open PRs that wait for the owner.",
+      "did": "Left them; seeded and hunted on a fresh target instead.",
+      "result": "No duplicate control-plane PRs opened."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-discount-note-said-applied.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate 10/13 (0.77) before, 13/13 after (rerun). Two 'caught' mutants were 600 s timeouts (infinite loops at lines 24 and 296), counted caught by the tool. Guard added (4b): presetDiscountWarning runs on every CLI and page sales tax return; redteam.py process-group kill in PR #15945. Verification: node --test 'ventures/ai-bookkeeper/**/*.test.mjs' 3169 pass, 0 fail.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+        "test": "node --test ventures/ai-bookkeeper/**/*.test.mjs  (in .)",
+        "seed": 778698107,
+        "commit": "4427578a1",
+        "sites": 515,
+        "baseline_seconds": 32.2,
+        "mutants": [
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 234,
+            "col": 147,
+            "operator": "const-plus-one",
+            "before": "if (s === \"MI\") return { \"MI state\": frequency === \"annual\" ? { rate: 0, floorPerMonth: 600, floorShare: 0.6667 } : { rate: 0.6667 * 0.005, cap: 1500000, floorPerMonth: 600, floorShare: 0.6667 } };",
+            "after": "if (s === \"MI\") return { \"MI state\": frequency === \"annual\" ? { rate: 0, floorPerMonth: 600, floorShare: 0.6667 } : { rate: 0.6667 * 0.005, cap: 1500001, floorPerMonth: 600, floorShare: 0.6667 } };",
+            "line_text": "  if (s === \"MI\") return { \"MI state\": frequency === \"annual\" ? { rate: 0, floorPerMonth: 600, floorShare: 0.6667 } : { rate: 0.6667 * 0.005, cap: 1500000, floorPerMonth: 600, floorShare: 0.6667 } };",
+            "caught": true,
+            "seconds": 32.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 357,
+            "col": 160,
+            "operator": "true-to-false",
+            "before": "export function salesTaxReturn(books, { account = \"2100\", frequency = \"quarterly\", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {",
+            "after": "export function salesTaxReturn(books, { account = \"2100\", frequency = \"quarterly\", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = false, discounts = {}, asOf = null } = {}) {",
+            "line_text": "export function salesTaxReturn(books, { account = \"2100\", frequency = \"quarterly\", endMonth = null, dueDay = 20, from = null, to = null, rates = {}, rollover = true, discounts = {}, asOf = null } = {}) {",
+            "caught": true,
+            "seconds": 32.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 367,
+            "col": 730,
+            "operator": "const-plus-one",
+            "before": "if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below))))) || !(d.onSales == null || (Number.isFinite(d.onSales) && d.onSales >= 0 && d.onSales <= 1)) || !(d.bands == null || (Array.isArray(d.bands) && d.bands.length && d.bands.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.belowMonthlySales == null || okCap(t.belowMonthlySales))))) || !okCap(d.floorPerMonth) || !(d.floorShare == null || (Number.isFinite(d.floorShare) && d.floorShare >= 0 && d.floorShare <= 1))) throw new Error(`discount for \"${j}\" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount \"${j}=0.5,100\"`);",
+            "after": "if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below))))) || !(d.onSales == null || (Number.isFinite(d.onSales) && d.onSales >= 0 && d.onSales <= 1)) || !(d.bands == null || (Array.isArray(d.bands) && d.bands.length && d.bands.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 2 && (t.belowMonthlySales == null || okCap(t.belowMonthlySales))))) || !okCap(d.floorPerMonth) || !(d.floorShare == null || (Number.isFinite(d.floorShare) && d.floorShare >= 0 && d.floorShare <= 1))) throw new Error(`discount for \"${j}\" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount \"${j}=0.5,100\"`);",
+            "line_text": "    if (!d || !Number.isFinite(d.rate) || d.rate < 0 || d.rate > 1 || !okCap(d.cap) || !okCap(d.capPerMonth) || !(d.tiers == null || (Array.isArray(d.tiers) && d.tiers.length && d.tiers.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.upTo == null || okCap(t.upTo))))) || !okCap(d.min) || !(d.steps == null || (Array.isArray(d.steps) && d.steps.length && d.steps.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.below == null || okCap(t.below))))) || !(d.onSales == null || (Number.isFinite(d.onSales) && d.onSales >= 0 && d.onSales <= 1)) || !(d.bands == null || (Array.isArray(d.bands) && d.bands.length && d.bands.every((t) => Number.isFinite(t.rate) && t.rate >= 0 && t.rate <= 1 && (t.belowMonthlySales == null || okCap(t.belowMonthlySales))))) || !okCap(d.floorPerMonth) || !(d.floorShare == null || (Number.isFinite(d.floorShare) && d.floorShare >= 0 && d.floorShare <= 1))) throw new Error(`discount for \"${j}\" needs a rate between 0 and 100 percent and a cap of zero or more, as in --discount \"${j}=0.5,100\"`);",
+            "caught": false,
+            "seconds": 33.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test handed a sales band (Virginia ST-1 shape) with a rate over 1; new test 'a sales band rate over 100% is refused'."
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 384,
+            "col": 58,
+            "operator": "times-to-div",
+            "before": "nontax.set(period, (nontax.get(period) ?? 0) + sign * base);",
+            "after": "nontax.set(period, (nontax.get(period) ?? 0) + sign / base);",
+            "line_text": "      nontax.set(period, (nontax.get(period) ?? 0) + sign * base);",
+            "caught": true,
+            "seconds": 31.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 431,
+            "col": 31,
+            "operator": "or-to-and",
+            "before": "if (e.source === \"invoice\" || e.source === \"credit\" || e.source === \"bill\" || (from && e.date < from) || (to && e.date > to)) continue;",
+            "after": "if (e.source === \"invoice\" && e.source === \"credit\" || e.source === \"bill\" || (from && e.date < from) || (to && e.date > to)) continue;",
+            "line_text": "    if (e.source === \"invoice\" || e.source === \"credit\" || e.source === \"bill\" || (from && e.date < from) || (to && e.date > to)) continue;",
+            "caught": true,
+            "seconds": 33.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+        "test": "node --test ventures/ai-bookkeeper/**/*.test.mjs  (in .)",
+        "seed": 46672118,
+        "commit": "4427578a1",
+        "sites": 515,
+        "baseline_seconds": 29.5,
+        "mutants": [
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 24,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const [y, m] = [Number(d.slice(0, 4)), Number(d.slice(5, 7))];",
+            "after": "const [y, m] = [Number(d.slice(1, 4)), Number(d.slice(5, 7))];",
+            "line_text": "  const [y, m] = [Number(d.slice(0, 4)), Number(d.slice(5, 7))];",
+            "caught": true,
+            "seconds": 600.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 42,
+            "col": 136,
+            "operator": "const-plus-one",
+            "before": "export const STATE_DUE_DAYS = { CA: \"last\", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: \"last\", WI: \"last\", UT: \"last\", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: \"last\", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: \"last\", IA: \"last\", HI: 20, DC: 20, WV: 20, WY: \"last\", RI: 20, SD: 20 };",
+            "after": "export const STATE_DUE_DAYS = { CA: \"last\", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 21, AZ: 20, MI: 20, CT: \"last\", WI: \"last\", UT: \"last\", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: \"last\", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: \"last\", IA: \"last\", HI: 20, DC: 20, WV: 20, WY: \"last\", RI: 20, SD: 20 };",
+            "line_text": "export const STATE_DUE_DAYS = { CA: \"last\", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: \"last\", WI: \"last\", UT: \"last\", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: \"last\", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: \"last\", IA: \"last\", HI: 20, DC: 20, WV: 20, WY: \"last\", RI: 20, SD: 20 };",
+            "caught": true,
+            "seconds": 45.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 42,
+            "col": 252,
+            "operator": "const-plus-one",
+            "before": "export const STATE_DUE_DAYS = { CA: \"last\", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: \"last\", WI: \"last\", UT: \"last\", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: \"last\", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: \"last\", IA: \"last\", HI: 20, DC: 20, WV: 20, WY: \"last\", RI: 20, SD: 20 };",
+            "after": "export const STATE_DUE_DAYS = { CA: \"last\", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: \"last\", WI: \"last\", UT: \"last\", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 26, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: \"last\", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: \"last\", IA: \"last\", HI: 20, DC: 20, WV: 20, WY: \"last\", RI: 20, SD: 20 };",
+            "line_text": "export const STATE_DUE_DAYS = { CA: \"last\", TX: 20, FL: 20, NY: 20, WA: 25, IL: 20, PA: 20, NJ: 20, GA: 20, NC: 20, OH: 23, MA: 20, VA: 20, AZ: 20, MI: 20, CT: \"last\", WI: \"last\", UT: \"last\", IN: 30, KS: 25, CO: 20, MN: 20, TN: 20, AL: 20, SC: 20, NM: 25, NV: 20, ID: 20, LA: 20, MD: 20, ME: 15, VT: 25, ND: \"last\", AR: 20, OK: 20, KY: 20, MS: 20, NE: 20, MO: \"last\", IA: \"last\", HI: 20, DC: 20, WV: 20, WY: \"last\", RI: 20, SD: 20 };",
+            "caught": true,
+            "seconds": 29.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 214,
+            "col": 8,
+            "operator": "eq-flip",
+            "before": "if (s === \"OK\" && frequency === \"semiannual\") return \"Oklahoma: semiannual filing is allowed only when the tax does not exceed $50 a month; due July 20 and January 20.\";",
+            "after": "if (s !== \"OK\" && frequency === \"semiannual\") return \"Oklahoma: semiannual filing is allowed only when the tax does not exceed $50 a month; due July 20 and January 20.\";",
+            "line_text": "  if (s === \"OK\" && frequency === \"semiannual\") return \"Oklahoma: semiannual filing is allowed only when the tax does not exceed $50 a month; due July 20 and January 20.\";",
+            "caught": true,
+            "seconds": 30.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 257,
+            "col": 296,
+            "operator": "const-plus-one",
+            "before": "const d = { AL: { rate: 0.05, tiers: [{ upTo: 10000, rate: 0.05 }, { rate: 0.02 }], capPerMonth: 40000 }, KY: { rate: 0.0175, tiers: [{ upTo: 100000, rate: 0.0175 }, { rate: 0.015 }], cap: 5000 }, LA: { rate: 0.0084, capPerMonth: 75000 }, MS: { rate: 0.02, cap: 5000 }, NE: { rate: 0.025, cap: 7500 }, ND: { rate: 0.015, cap: 11000 }, AZ: { rate: 0.012 }, PA: { rate: 0.01, capPerMonth: 2500 }, SC: { rate: 0.02, steps: [{ below: 10000, rate: 0.03 }, { rate: 0.02 }] }, WI: { rate: 0.0075, min: 1000, cap: 800000 }, MO: { rate: 0.02 }, WY: { rate: 0.0195, cap: 50000 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];",
+            "after": "const d = { AL: { rate: 0.05, tiers: [{ upTo: 10000, rate: 0.05 }, { rate: 0.02 }], capPerMonth: 40000 }, KY: { rate: 0.0175, tiers: [{ upTo: 100000, rate: 0.0175 }, { rate: 0.015 }], cap: 5000 }, LA: { rate: 0.0084, capPerMonth: 75000 }, MS: { rate: 0.02, cap: 5000 }, NE: { rate: 0.025, cap: 7501 }, ND: { rate: 0.015, cap: 11000 }, AZ: { rate: 0.012 }, PA: { rate: 0.01, capPerMonth: 2500 }, SC: { rate: 0.02, steps: [{ below: 10000, rate: 0.03 }, { rate: 0.02 }] }, WI: { rate: 0.0075, min: 1000, cap: 800000 }, MO: { rate: 0.02 }, WY: { rate: 0.0195, cap: 50000 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];",
+            "line_text": "  const d = { AL: { rate: 0.05, tiers: [{ upTo: 10000, rate: 0.05 }, { rate: 0.02 }], capPerMonth: 40000 }, KY: { rate: 0.0175, tiers: [{ upTo: 100000, rate: 0.0175 }, { rate: 0.015 }], cap: 5000 }, LA: { rate: 0.0084, capPerMonth: 75000 }, MS: { rate: 0.02, cap: 5000 }, NE: { rate: 0.025, cap: 7500 }, ND: { rate: 0.015, cap: 11000 }, AZ: { rate: 0.012 }, PA: { rate: 0.01, capPerMonth: 2500 }, SC: { rate: 0.02, steps: [{ below: 10000, rate: 0.03 }, { rate: 0.02 }] }, WI: { rate: 0.0075, min: 1000, cap: 800000 }, MO: { rate: 0.02 }, WY: { rate: 0.0195, cap: 50000 }, OH: { rate: 0.0075, capPerMonth: 75000 }, IL: { rate: 0.0175, capPerMonth: 100000 }, TX: { rate: 0.005 }, FL: { rate: 0.025, cap: 3000 }, GA: { rate: 0.03, tiers: [{ upTo: 300000, rate: 0.03 }, { rate: 0.005 }] } }[s];",
+            "caught": true,
+            "seconds": 30.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 296,
+            "col": 30,
+            "operator": "eq-flip",
+            "before": "if (dueDay && typeof dueDay === \"object\" && dueDay.after != null) return iso(new Date(Date.UTC(y, m, dueDay.after)));",
+            "after": "if (dueDay && typeof dueDay !== \"object\" && dueDay.after != null) return iso(new Date(Date.UTC(y, m, dueDay.after)));",
+            "line_text": "  if (dueDay && typeof dueDay === \"object\" && dueDay.after != null) return iso(new Date(Date.UTC(y, m, dueDay.after)));",
+            "caught": true,
+            "seconds": 600.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 423,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (want != null && r.rate != null && Math.abs(r.rate - want) > 0.0005) {",
+            "after": "if (want != null && r.rate != null || Math.abs(r.rate - want) > 0.0005) {",
+            "line_text": "    if (want != null && r.rate != null && Math.abs(r.rate - want) > 0.0005) {",
+            "caught": false,
+            "seconds": 34.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test set --rate on a jurisdiction whose taxable sales net to zero (rate null), so a bogus 'collected 0.00%' warning went unseen; new test 'a jurisdiction whose taxable sales net to zero gets no rate warning'."
+          },
+          {
+            "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+            "line": 431,
+            "col": 106,
+            "operator": "or-to-and",
+            "before": "if (e.source === \"invoice\" || e.source === \"credit\" || e.source === \"bill\" || (from && e.date < from) || (to && e.date > to)) continue;",
+            "after": "if (e.source === \"invoice\" || e.source === \"credit\" || e.source === \"bill\" || (from && e.date < from) && (to && e.date > to)) continue;",
+            "line_text": "    if (e.source === \"invoice\" || e.source === \"credit\" || e.source === \"bill\" || (from && e.date < from) || (to && e.date > to)) continue;",
+            "caught": false,
+            "seconds": 31.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: payment filtering was tested only with from and to together or neither; new test 'from alone (no to) leaves out tax payments dated before it' (also pins to alone)."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+        "issue": "--state <ST> applied its preset discount only to tax lines labelled exactly '<ST> state'; a book labelled 'MI' or 'Michigan' took no discount while the state note said the discount 'is applied' (all 20 preset states, CLI and page). Reproduced on the CLI: $300 tax, payable $294 with 'MI state', $300 with 'MI', same note. Fix: presetDiscountWarning replaces the note when the preset matches no row.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15944"
+      },
+      {
+        "file": "prompts/redteam.py",
+        "issue": "run_suite's subprocess.run timeout killed only `node --test`; its per-file children running a looping mutant kept spinning 10+ minutes into later mutants (seen twice this run, killed by hand), which can time later mutants out as 'caught'. Fix with failing-first test in control-plane PR #15945 (own process group, killpg); waits for owner approval.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "896e32cd-ebc5-5122-9a4d-d8b216275f87",
+    "transcripts": 1,
+    "first": "2026-11-14T18:06:45Z",
+    "last": "2026-11-14T19:03:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 87,
+        "input": 170,
+        "output": 37279,
+        "thinking": 9780,
+        "cache_read": 11300937,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157739,
+        "api_equivalent_usd": 4.2684,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 87,
+      "input": 170,
+      "output": 37279,
+      "thinking": 9780,
+      "cache_read": 11300937,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157739,
+      "api_equivalent_usd": 4.2684,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 91,
+    "tools": {
+      "Bash": 78,
+      "ToolSearch": 4,
+      "mcp__github__create_pull_request": 2,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__list_pull_requests": 1,
+      "TaskStop": 1,
+      "Write": 1,
+      "Edit": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 56.97,
+      "active_minutes": 56.97,
+      "model_minutes": 7.59,
+      "tool_minutes": 49.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a senior engineer: reproduce and fix the preset-label defect on CLI and page, write 6 tests, diagnose the orphaned test-process hang, write a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 117.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

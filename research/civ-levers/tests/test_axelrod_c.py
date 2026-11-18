@@ -12,7 +12,7 @@ def _run(L, F, q, runs, seed=1):
     subprocess.run(["gcc", "-O2", "-o", EXE, SRC, "-lm"], check=True)
     out = subprocess.run([EXE, str(L), str(F), str(q), str(seed), str(runs)],
                          capture_output=True, text=True, check=True).stdout
-    return [tuple(map(float, ln.split())) for ln in out.strip().splitlines()]
+    return [tuple(map(float, ln.split()))[:3] for ln in out.strip().splitlines()]
 
 
 def test_single_trait_is_one_region():
@@ -44,3 +44,28 @@ def test_poisson_mode_matches_collision_rate_equivalent():
         return [float(ln.split()[0]) for ln in out.strip().splitlines()]
     assert max(run(300, ["poisson"])) < 0.15
     assert min(run(50, ["poisson"])) > 0.8
+
+
+def _media(L, F, q, B, runs, mode="uniform"):
+    subprocess.run(["gcc", "-O2", "-o", EXE, SRC, "-lm"], check=True)
+    out = subprocess.run([EXE, str(L), str(F), str(q), "3", str(runs), mode, str(B)],
+                         capture_output=True, text=True, check=True).stdout
+    return [tuple(map(float, ln.split())) for ln in out.strip().splitlines()]
+
+
+def test_zero_broadcast_is_the_old_stream():
+    assert [r[:3] for r in _media(10, 5, 10, 0, 3)] == _run(10, 5, 10, 3, seed=3)
+
+
+def test_media_share_zero_without_broadcast_and_high_with_weak_broadcast():
+    assert all(r[3] == 0.0 for r in _media(16, 10, 25, 0, 3))
+    # a weak broadcast on an ordered society pulls (nearly) everyone onto the media culture
+    rows = _media(16, 10, 25, 0.03, 6)
+    assert sum(r[3] for r in rows) / len(rows) > 0.8
+
+
+def test_strong_broadcast_fragments():
+    ordered = _media(24, 3, 6, 0, 4)
+    loud = _media(24, 3, 6, 0.3, 4)
+    assert min(r[0] for r in ordered) > 0.8
+    assert max(r[0] for r in loud) < 0.6

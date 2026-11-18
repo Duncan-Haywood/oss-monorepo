@@ -1,0 +1,130 @@
+# Before the parts moved (same command, same session, lift_sense_r2 2.7k and lift_slip_nm 0.9, the duty held):
+#   held   29.2 V cold   0.82    91%            0/3          117 |         inf      83             inf        137
+#   held   24 V hot      1.00    86%            0/3          161 |          99      82            2509         11
+# a jam at 29.2 V was never cut: the trip rose 1/0.82 over the hub's sliding current. Below: 2.4k and 1.0 N m.
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py --duty  (2026-11-15; cad/README.md "Lift duty follows the battery")
+Duty held to 24 V / battery: 1.00 at 24 V, 0.82 at 29.2 V; the trip in motor amps rises to 2.20 A at most on a full pack, a hot stall there 1.86x it (at 24 V 2.27x)
+duty   corner         pwm  speed  starts tripped  max over ms | jams: slowest cut  peak N  latest give-up  winding J
+held   29.2 V cold   0.82    91%            0/3          142 |          79      91            2489         13
+held   24 V hot      1.00    86%            0/3          197 |          69      85            2479         12
+fixed  29.2 V cold   1.00   114%            0/3          207 |          49      99            2459         15
+fixed  24 V hot      1.00    86%            0/3          197 |          69      85            2479         12
+
+# python3 tests/lift_strand_sweep.py  (2026-11-15; cad/README.md "Lift strand modes")
+Belt speed 0.91 to 1.00 x nominal (24 V cut, every flight loaded, 0.76 A; 29.2 V, empty). Excitations, Hz (nominal; band over that speed range +-5%):
+  flight              1.78   (1.53 to 1.87)
+  flight_x2           3.56   (3.07 to 3.73)
+  flight_x3           5.34   (4.60 to 5.60)
+  ball                0.89   (0.77 to 0.93)
+  pulley_rev          3.33   (2.87 to 3.50)
+  mesh               53.33   (45.96 to 55.92)
+  mesh_x2           106.67   (91.93 to 111.85)
+  drive_half         19.01   (18.06 to 19.96)
+  drive              38.02   (36.12 to 39.92)
+  drive_upper_half   39.21   (37.25 to 41.17)
+  drive_upper        78.42   (74.50 to 82.35)
+
+Tension setting, stopped and empty, T0 10.5 N: the strand rings at 2.12 Hz (2nd 4.24); the bare formula without the flights' mass gives 2.36 Hz, and tensioning to it sets 1.24 x T0
+
+Sideways modes, running (nominal T0; 'every' = a ball on every n-th flight of the up strand):
+  down, off its face, every 1: T 16.1 to 18.8 N (min 16.1), 31 modes under 100 Hz; first five 2.57, 5.15, 7.72, 10.30, 12.87
+      low modes (first 3) in a direct band: flight_x3 n2 5.15
+      any mode in a drive (tension) band: drive_upper n28 76.01, drive_upper n29 78.03, drive_upper n30 79.77, drive_upper n31 81.67
+      modes in the tooth-mesh band (46-56 Hz): 4
+  down, off its face, every 2: T 13.3 to 16.0 N (min 13.3), 34 modes under 100 Hz; first five 2.36, 4.72, 7.08, 9.44, 11.80
+      low modes (first 3) in a direct band: flight_x3 n2 4.72
+      any mode in a drive (tension) band: drive_half n8 18.87, drive n16 38.40, drive_upper_half n16 38.40, drive_upper n31 76.26
+      modes in the tooth-mesh band (46-56 Hz): 4
+  down, across, every 1: T 16.1 to 18.8 N (min 16.1), 8 modes under 100 Hz; first five 2.96, 7.77, 15.19, 25.43, 38.53
+      low modes (first 3) in a direct band: pulley_rev n1 2.96
+      any mode in a drive (tension) band: drive n5 38.53, drive_upper_half n5 38.53
+      modes in the tooth-mesh band (46-56 Hz): 1
+  down, across, every 2: T 13.3 to 16.0 N (min 13.3), 8 modes under 100 Hz; first five 2.77, 7.49, 14.87, 25.09, 38.19
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive n5 38.19, drive_upper_half n5 38.19
+      modes in the tooth-mesh band (46-56 Hz): 1
+  up empty, off its face: T 10.5 to 13.2 N (min 10.5), 37 modes under 100 Hz; first five 2.12, 4.24, 6.36, 8.49, 10.62
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive_half n9 19.12, drive_upper_half n17 40.81
+      modes in the tooth-mesh band (46-56 Hz): 5
+  up empty, across: T 10.5 to 13.2 N (min 10.5), 8 modes under 100 Hz; first five 2.57, 7.20, 14.54, 24.75, 37.84
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive n5 37.84, drive_upper_half n5 37.84
+      modes in the tooth-mesh band (46-56 Hz): 1
+  up loaded, across, balls go with it, every 1: T 4.9 to 18.8 N (min 4.9), 12 modes under 100 Hz; first five 1.24, 3.50, 7.08, 12.05, 18.42
+      low modes (first 3) in a direct band: flight_x2 n2 3.50
+      any mode in a drive (tension) band: drive_half n5 18.42
+      modes in the tooth-mesh band (46-56 Hz): 0
+  up loaded, across, balls go with it, every 2: T 7.7 to 16.0 N (min 7.7), 9 modes under 100 Hz; first five 1.59, 4.46, 9.01, 15.30, 23.24
+      low modes (first 3) in a direct band: flight n1 1.59
+      any mode in a drive (tension) band: drive_upper_half n7 40.99
+      modes in the tooth-mesh band (46-56 Hz): 1
+  up loaded, across, balls slide, every 1: T 4.9 to 18.8 N (min 4.9), 8 modes under 100 Hz; first five 2.54, 7.18, 14.53, 24.73, 37.82
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive n5 37.82, drive_upper_half n5 37.82
+      modes in the tooth-mesh band (46-56 Hz): 1
+  up loaded, across, balls slide, every 2: T 7.7 to 16.0 N (min 7.7), 8 modes under 100 Hz; first five 2.57, 7.21, 14.56, 24.76, 37.85
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive n5 37.85, drive_upper_half n5 37.85
+      modes in the tooth-mesh band (46-56 Hz): 1
+  up loaded, off its face, pinned at the pads, every 1: T 4.9 to 18.8 N (min 4.9), 25 modes under 100 Hz; first five 31.67, 34.50, 36.62, 38.38, 39.97
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive n3 36.62, drive n4 38.38, drive_upper_half n4 38.38, drive_upper_half n5 39.97, drive_upper n17 75.41, drive_upper n18 79.70
+      modes in the tooth-mesh band (46-56 Hz): 6
+  up loaded, off its face, pinned at the pads, every 2: T 7.7 to 16.0 N (min 7.7), 31 modes under 100 Hz; first five 14.88, 15.78, 16.56, 17.30, 18.00
+      low modes (first 3) in a direct band: none
+      any mode in a drive (tension) band: drive_half n6 18.69, drive_half n7 19.45, drive n9 36.55, drive n10 38.71, drive_upper_half n10 38.71, drive_upper_half n11 40.53, drive_upper n24 78.30
+      modes in the tooth-mesh band (46-56 Hz): 4
+
+What moves the empty belt's low modes (the run-on after each ball: both strands at T0) off the flight rate: T0 x 0.6 to 2.0, a strand off its face, over the speed band:
+  T0 x 0.6 (  6.3 N at the bottom): first three 1.70, 3.40, 5.11  in band: flight n1 1.70, flight_x2 n2 3.40, pulley_rev n2 3.40, flight_x3 n3 5.11
+  T0 x 0.8 (  8.4 N at the bottom): first three 1.92, 3.85, 5.77  in band: none
+  T0 x 1.0 ( 10.5 N at the bottom): first three 2.12, 4.24, 6.36  in band: none
+  T0 x 1.2 ( 12.6 N at the bottom): first three 2.30, 4.60, 6.91  in band: flight_x3 n2 4.60
+  T0 x 1.3 ( 13.7 N at the bottom): first three 2.39, 4.77, 7.16  in band: flight_x3 n2 4.77
+  T0 x 1.5 ( 15.8 N at the bottom): first three 2.55, 5.10, 7.65  in band: flight_x3 n2 5.10
+  T0 x 2.0 ( 21.0 N at the bottom): first three 2.91, 5.83, 8.74  in band: pulley_rev n1 2.91
+  (flight rate 1.61 to 1.78 Hz over the battery; at a belt speed held to nominal it is 1.78 Hz)
+
+Across the width, edge stiffness swept (PU alone to the cords spread over the width), empty belt:
+  EI 0.16 N m^2: first three 2.15, 4.44, 7.01; 16 under 100 Hz
+  EI 0.78 N m^2: first three 2.24, 5.14, 9.13; 11 under 100 Hz
+  EI 1.56 N m^2: first three 2.36, 5.91, 11.23; 9 under 100 Hz
+  EI 3.13 N m^2: first three 2.57, 7.20, 14.54; 8 under 100 Hz
+
+Loaded up strand off its face, pads pinned, T0 swept: the spans between loaded flights
+  every 1, T0 x 0.8: lowest 26.8 Hz, 28 span modes under 100 Hz, in a drive band: drive n6 37.78, drive_upper_half n6 37.78, drive n7 39.36, drive_upper_half n7 39.36, drive_upper_half n8 40.88, drive_upper n19 75.56, drive_upper n20 78.39, drive_upper n21 81.25
+  every 1, T0 x 1.0: lowest 31.7 Hz, 25 span modes under 100 Hz, in a drive band: drive n3 36.62, drive n4 38.38, drive_upper_half n4 38.38, drive_upper_half n5 39.97, drive_upper n17 75.41, drive_upper n18 79.70
+  every 1, T0 x 1.2: lowest 35.9 Hz, 23 span modes under 100 Hz, in a drive band: drive n2 38.45, drive_upper_half n2 38.45, drive_upper_half n3 40.39, drive_upper n16 75.87
+  every 2, T0 x 0.8: lowest 13.1 Hz, 34 span modes under 100 Hz, in a drive band: drive_half n7 18.11, drive n11 36.86, drive n12 38.74, drive_upper_half n12 38.74, drive_upper_half n13 40.53, drive_upper n25 76.68, drive_upper n26 79.58, drive_upper n27 81.95
+  every 2, T0 x 1.0: lowest 14.9 Hz, 31 span modes under 100 Hz, in a drive band: drive_half n6 18.69, drive_half n7 19.45, drive n9 36.55, drive n10 38.71, drive_upper_half n10 38.71, drive_upper_half n11 40.53, drive_upper n24 78.30
+  every 2, T0 x 1.2: lowest 16.5 Hz, 28 span modes under 100 Hz, in a drive band: drive_half n4 18.68, drive_half n5 19.33, drive_upper_half n9 40.20
+
+Duty held to 24 V / battery (speed 0.91-1.00) against a fixed duty (0.91-1.23): low modes (first 3) in a direct band, per case
+  down, off its face, every 1: held flight_x3 n2 5.15 | fixed flight_x3 n2 5.15
+  down, off its face, every 2: held flight_x3 n2 4.72 | fixed flight_x3 n2 4.72
+  down, across, every 1: held pulley_rev n1 2.96 | fixed pulley_rev n1 2.96
+  down, across, every 2: held none | fixed none
+  up empty, off its face: held none | fixed flight n1 2.12, flight_x2 n2 4.24, pulley_rev n2 4.24, flight_x3 n3 6.36
+  up empty, across: held none | fixed none
+  up loaded, across, balls go with it, every 1: held flight_x2 n2 3.50 | fixed flight_x2 n2 3.50, pulley_rev n2 3.50
+  up loaded, across, balls go with it, every 2: held flight n1 1.59 | fixed flight n1 1.59, flight_x2 n2 4.46
+  up loaded, across, balls slide, every 1: held none | fixed none
+  up loaded, across, balls slide, every 2: held none | fixed none
+  up loaded, off its face, pinned at the pads, every 1: held none | fixed none
+  up loaded, off its face, pinned at the pads, every 2: held none | fixed none
+
+Stretch modes of the loop (lumped model, balls spread, every flight: belt 47.3 Hz held; stuck 38.0 and 78.4 Hz)
+  c_spec  balls       every  held: 1st 2nd     stuck: 1st 2nd 3rd
+   0.5x  spread      1        32.7   65.3       28.3   65.3   83.8
+   0.5x  up strand   1        31.3   71.9       27.5   70.7   89.4
+   0.5x  spread      2        39.3   78.6       33.7   78.6  100.6
+   0.5x  up strand   2        38.9   84.4       33.4   84.2  100.6
+   1.0x  spread      1        46.2   92.4       34.8   92.4  109.3
+   1.0x  up strand   1        44.3  101.7       34.0   98.0  117.8
+   1.0x  spread      2        55.6  111.2       41.3  111.2  131.2
+   1.0x  up strand   2        55.0  119.3       41.1  118.5  131.0
+   2.0x  spread      1        65.3  130.7       40.0  130.7  144.3
+   2.0x  up strand   1        62.7  143.9       39.4  134.5  158.9
+   2.0x  spread      2        78.6  157.3       47.5  157.3  173.0
+   2.0x  up strand   2        77.7  168.7       47.4  165.0  174.6

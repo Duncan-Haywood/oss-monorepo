@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVKam5PNsEAkQ3JLhKS",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T17:03:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight flagship: run Mustang 2.26 on the Factur-X PDF/A-3b writer; fix what it found (empty delivery element, missing BT-72)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 15917,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "auto-mode classifier refused shell loops that run the Mustang jar over several files",
+      "fix": "wrote eval/facturx-pdf-mustang.mjs and ran it with node; Mustang on plain UBL/CII XML left unrun"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/facturx-pdf-verapdf-2026-11-14.md",
+      "issue": "said Maven's org/mustangproject path came back empty; it is reachable (first GET can 404, retry works)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-mustang-and-the-empty-delivery-element.md",
+    "ventures/einvoice-preflight/eval/facturx-pdf-mustang-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Mustang 2.26.0 before: 8/8 valid, each with PEPPOL-EN16931-R008 or BR-DE-TMP-32. After adding delivery_date (BT-72): 10/10 valid, 9 with 0 failed rules (10th is the no-date control). run_venture_tests.py einvoice-preflight: ok (19.6s), 0 failed. Targeted node --test generate/facturx-pdf/server/page-create/examples: 56 pass 0 fail.",
+  "corrections": [],
+  "redteam": null
+}

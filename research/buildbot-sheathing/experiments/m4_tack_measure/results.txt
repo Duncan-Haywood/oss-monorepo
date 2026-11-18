@@ -1,0 +1,111 @@
+# Milestone 4: tack, then measure (buildbot-sheathing)
+three reads per stud at 0.5 mm, edge line 0.5 mm, tool 0.9 mm, 1/8 in gap, 10D penetration; 20000 sheets a cell, seed 4
+top/bottom joint nail lever arm 1210 mm: 0.1 deg of hang moves it 2.11 mm
+
+## A. Hang allowed for 95% clean sheets (1 sigma), tacked (no sway), no re-hang
+framing          studs     aim      clean@0  x_only_mm  theta_only_deg  top_mm
+2x (1.5 in)      straight  nominal   0.9720      0.438          0.0319   0.673
+2x (1.5 in)      straight  edge      0.9584      0.372          0.0294   0.621
+2x (1.5 in)      low warp  nominal   0.8307      0.000          0.0000   0.000
+2x (1.5 in)      low warp  edge      0.8070      0.000          0.0000   0.000
+3x (2.5 in)      straight  nominal   1.0000      3.969          0.2111   4.457
+3x (2.5 in)      straight  edge      1.0000      7.575          0.3992   8.428
+3x (2.5 in)      low warp  nominal   1.0000      3.783          0.2061   4.352
+3x (2.5 in)      low warp  edge      1.0000      7.154          0.3823   8.072
+2 x 2x (3.0 in)  straight  nominal   1.0000      5.620          0.2901   6.125
+2 x 2x (3.0 in)  straight  edge      1.0000     10.849          0.5558  11.734
+2 x 2x (3.0 in)  low warp  nominal   1.0000      5.414          0.2852   6.021
+2 x 2x (3.0 in)  low warp  edge      1.0000     10.414          0.5365  11.327
+
+## B. Clean sheets by hang, 2x (1.5 in), low warp, edge aim, tacked, no re-hang
+s_x_mm \ s_theta_deg    0.00    0.05    0.10    0.20    0.30
+                   0  0.8070  0.7470  0.6147  0.3984  0.2812
+                   1  0.7103  0.6506  0.5212  0.3228  0.2263
+                   2  0.5281  0.4733  0.3700  0.2303  0.1583
+                   4  0.3130  0.2783  0.2132  0.1299  0.0900
+                   6  0.2189  0.1920  0.1473  0.0889  0.0628
+
+## B. Clean sheets by hang, 2 x 2x (3.0 in), low warp, edge aim, tacked, no re-hang
+s_x_mm \ s_theta_deg    0.00    0.05    0.10    0.20    0.30
+                   0  1.0000  1.0000  1.0000  1.0000  0.9994
+                   1  1.0000  1.0000  1.0000  1.0000  0.9996
+                   2  1.0000  1.0000  1.0000  1.0000  0.9991
+                   4  1.0000  1.0000  1.0000  0.9999  0.9965
+                   6  0.9992  0.9988  0.9984  0.9955  0.9830
+
+## C. Held sheet: per-nail sway after the edge is measured (perfect hang, edge aim)
+framing          studs     sway_allowed_95_mm       0   0.25    0.5      1      2      3      4
+2x (1.5 in)      straight               0.187   0.958  0.946  0.914  0.659  0.065  0.004  0.000
+2x (1.5 in)      low warp               0.000   0.807  0.787  0.738  0.490  0.047  0.002  0.000
+3x (2.5 in)      straight               3.077   1.000  1.000  1.000  1.000  1.000  0.959  0.702
+3x (2.5 in)      low warp               2.995   1.000  1.000  1.000  1.000  0.999  0.949  0.687
+2 x 2x (3.0 in)  straight               4.186   1.000  1.000  1.000  1.000  1.000  0.999  0.967
+2 x 2x (3.0 in)  low warp               4.127   1.000  1.000  1.000  1.000  1.000  0.999  0.962
+
+## D. Tack, measure, re-hang while the narrowest predicted half-window < threshold (max 5 hangs)
+framing          studs     hang (sx, stheta)  threshold_mm  clean   missed  hangs
+2x (1.5 in)      straight  1 mm, 0.1 deg              none  0.7035   0.511   1.00
+2x (1.5 in)      straight  1 mm, 0.1 deg               1.0  0.7701   0.302   1.16
+2x (1.5 in)      straight  1 mm, 0.1 deg               1.5  0.8244   0.212   1.42
+2x (1.5 in)      straight  1 mm, 0.1 deg               2.0  0.8690   0.164   2.10
+2x (1.5 in)      straight  1 mm, 0.1 deg               2.5  0.8114   0.297   3.60
+2x (1.5 in)      straight  2 mm, 0.2 deg              none  0.3309   2.747   1.00
+2x (1.5 in)      straight  2 mm, 0.2 deg               1.0  0.6202   0.765   2.10
+2x (1.5 in)      straight  2 mm, 0.2 deg               1.5  0.6621   0.900   2.75
+2x (1.5 in)      straight  2 mm, 0.2 deg               2.0  0.5934   1.472   3.63
+2x (1.5 in)      straight  2 mm, 0.2 deg               2.5  0.4389   2.283   4.52
+2x (1.5 in)      straight  3 mm, 0.3 deg              none  0.1744   5.294   1.00
+2x (1.5 in)      straight  3 mm, 0.3 deg               1.0  0.4702   2.143   3.06
+2x (1.5 in)      straight  3 mm, 0.3 deg               1.5  0.4511   2.887   3.66
+2x (1.5 in)      straight  3 mm, 0.3 deg               2.0  0.3609   3.897   4.28
+2x (1.5 in)      straight  3 mm, 0.3 deg               2.5  0.2410   4.853   4.76
+2x (1.5 in)      low warp  1 mm, 0.1 deg              none  0.5212   0.929   1.00
+2x (1.5 in)      low warp  1 mm, 0.1 deg               1.0  0.6250   0.583   1.47
+2x (1.5 in)      low warp  1 mm, 0.1 deg               1.5  0.6626   0.532   2.19
+2x (1.5 in)      low warp  1 mm, 0.1 deg               2.0  0.6389   0.645   3.41
+2x (1.5 in)      low warp  1 mm, 0.1 deg               2.5  0.5579   0.843   4.60
+2x (1.5 in)      low warp  2 mm, 0.2 deg              none  0.2303   3.310   1.00
+2x (1.5 in)      low warp  2 mm, 0.2 deg               1.0  0.4627   1.356   2.58
+2x (1.5 in)      low warp  2 mm, 0.2 deg               1.5  0.4591   1.769   3.42
+2x (1.5 in)      low warp  2 mm, 0.2 deg               2.0  0.3620   2.553   4.32
+2x (1.5 in)      low warp  2 mm, 0.2 deg               2.5  0.2596   3.137   4.87
+2x (1.5 in)      low warp  3 mm, 0.3 deg              none  0.1186   5.776   1.00
+2x (1.5 in)      low warp  3 mm, 0.3 deg               1.0  0.3281   3.054   3.45
+2x (1.5 in)      low warp  3 mm, 0.3 deg               1.5  0.2918   3.998   4.10
+2x (1.5 in)      low warp  3 mm, 0.3 deg               2.0  0.2031   5.052   4.65
+2x (1.5 in)      low warp  3 mm, 0.3 deg               2.5  0.1328   5.649   4.94
+3x (2.5 in)      low warp  1 mm, 0.1 deg              none  1.0000   0.000   1.00
+3x (2.5 in)      low warp  1 mm, 0.1 deg               1.0  1.0000   0.000   1.00
+3x (2.5 in)      low warp  1 mm, 0.1 deg               1.5  1.0000   0.000   1.00
+3x (2.5 in)      low warp  1 mm, 0.1 deg               2.0  1.0000   0.000   1.00
+3x (2.5 in)      low warp  1 mm, 0.1 deg               2.5  1.0000   0.000   1.00
+3x (2.5 in)      low warp  2 mm, 0.2 deg              none  0.9989   0.001   1.00
+3x (2.5 in)      low warp  2 mm, 0.2 deg               1.0  0.9997   0.000   1.00
+3x (2.5 in)      low warp  2 mm, 0.2 deg               1.5  0.9998   0.000   1.00
+3x (2.5 in)      low warp  2 mm, 0.2 deg               2.0  0.9999   0.000   1.01
+3x (2.5 in)      low warp  2 mm, 0.2 deg               2.5  0.9999   0.000   1.01
+3x (2.5 in)      low warp  3 mm, 0.3 deg              none  0.9669   0.054   1.00
+3x (2.5 in)      low warp  3 mm, 0.3 deg               1.0  0.9926   0.008   1.03
+3x (2.5 in)      low warp  3 mm, 0.3 deg               1.5  0.9964   0.004   1.05
+3x (2.5 in)      low warp  3 mm, 0.3 deg               2.0  0.9986   0.001   1.07
+3x (2.5 in)      low warp  3 mm, 0.3 deg               2.5  0.9996   0.000   1.10
+2 x 2x (3.0 in)  low warp  1 mm, 0.1 deg              none  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  1 mm, 0.1 deg               1.0  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  1 mm, 0.1 deg               1.5  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  1 mm, 0.1 deg               2.0  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  1 mm, 0.1 deg               2.5  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  2 mm, 0.2 deg              none  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  2 mm, 0.2 deg               1.0  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  2 mm, 0.2 deg               1.5  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  2 mm, 0.2 deg               2.0  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  2 mm, 0.2 deg               2.5  1.0000   0.000   1.00
+2 x 2x (3.0 in)  low warp  3 mm, 0.3 deg              none  0.9982   0.002   1.00
+2 x 2x (3.0 in)  low warp  3 mm, 0.3 deg               1.0  0.9996   0.000   1.00
+2 x 2x (3.0 in)  low warp  3 mm, 0.3 deg               1.5  0.9998   0.000   1.00
+2 x 2x (3.0 in)  low warp  3 mm, 0.3 deg               2.0  0.9999   0.000   1.01
+2 x 2x (3.0 in)  low warp  3 mm, 0.3 deg               2.5  1.0000   0.000   1.01
+
+## E. Pre-registered hypotheses (LOG.md, 2026-11-12)
+H10 refuted: best on 2x straight, hang 1 mm / 0.1 deg: threshold 2.0 mm, clean 0.8690, 2.10 hangs
+H11 held: 2 x 2x low warp allows 0.536 deg and 10.41 mm
+H12 held: sway allowed 0.187 mm (2x straight), 4.127 mm (2 x 2x low warp)

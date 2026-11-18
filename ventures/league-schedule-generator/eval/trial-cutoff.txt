@@ -1,0 +1,46 @@
+# README "Stopping a refused trial early" (2026-11-17). Can a floor-priced trial at 30 teams stop before its
+# last step once a lower bound shows the move will be refused? Measured: no, not by enough to show in the time.
+# All runs on one shared 4-CPU cloud machine, one process at a time, list cached (eval/floor-priced.mjs 30 1
+# --page --max-teams 30 --cache dir). The code is eval/trial-cutoff.patch.txt (git apply it to try again); it is
+# not on main because it bought nothing measurable.
+
+0. The idea. carryover.mjs floorPricedSingleRounds refuses a move whose cost is over the acceptance line, so a
+   trial only has to say whether the floor is at most maxBreaks + floor((line - carry-over) / over). The patch
+   passes that cutoff to floorTable's trial; chainLeast stops once (table so far's least) + (later pairs' floor)
+   + (backward table's least) is over it, and returns that bound. Exact at or under the cutoff, so the search's
+   seasons are the same on every run below (1152/82 and 2542/64 at 30 teams, seed 1).
+
+1. pairBreakFloor (two rounds alone: the number of odd cycles their teams form; brute-force checked on 400 random
+   pairs of 1 to 7 matches with byes and repeats) is 0 on every pair of a 30-team starter: an even league's
+   consecutive rounds can always be hosted with no break between them. Breaks come from three rounds or more:
+     the list's first starter: floor 84; sum of pair floors 0; disjoint 3-round windows 56; 5-round windows 84
+     (exact); 8-round windows 80
+
+2. Where refused trials end (pair cutoff on; trials that ran to the end, 4,096 of 11,307; how far over the cutoff
+   the exact least was):
+     at or under (accepted): 1,128   over by 1: 1,044   2: 138   3: 498   4: 399   5: 397   6-8: 432   9-12: 60
+   Refusals are by a few breaks, so a bound must be within a break or two of exact to stop a trial early.
+   The other 7,211 trials stopped, but near their end: steps run 196,764 of 209,159 (5.9% fewer).
+
+3. Time, floor-priced step (s), off = FLOOR_CUTOFF=0 in the patch's environment, on = the patch:
+     off 60.4  on 55.5   (first pair)
+     off 56.0  on 56.3
+     off 55.3  on 54.1
+   main before the patch: 55.3. No difference above the machine's noise.
+
+4. A tighter suffix bound: exact least breaks of every window of up to w committed, unchanged rounds (cached,
+   dropped when a commit changes a round in them), combined by a best partition of the trial's later pairs.
+     w = 4: trial steps 187,898 + window steps 40,654 = 228,552 (vs 209,159 with no cutoff); 67.4 s
+     w = 6: trial steps 180,376 + window steps 66,540 = 246,916; 68.6 s
+   The windows cost more steps than they save: a commit lands every ten trials and each one changes about three
+   rounds, so most windows a trial wants were dropped since it was last computed.
+
+5. Profile of the run (node --cpu-prof, 54.0 s sampled): the int16 step (wasm step_i16) 28.1 s; the other module
+   functions 8.1 s; setLut 1.9; elimOrder 1.8; coeOf 1.8; homeMasks 1.5; plainStep 1.4. A shuffle-free variant
+   of step_i16's inner loop (pairs read as 32-bit lanes, min of the halves, narrowed back) gave the same tables
+   (same checksum over 3,000 chained 30-team steps) at the same speed (0.27-0.35 ms a step both ways), so it is
+   not kept either.
+
+6. Next for the 30-team step: a step is already one cycle open at a time, tables 2^(k+1) at most, at about 3.8
+   billion entries a second, so it is near what this programme can do. Fewer trials, not cheaper ones: e.g. a
+   carry-over prefilter that refuses more moves before their floor, judged on seasons, not on time.

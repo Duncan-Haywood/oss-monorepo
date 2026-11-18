@@ -57,3 +57,30 @@ def test_scenario_adds_load():
     b = scenario_load(inp, "greensboro", p)
     assert scenario_load(inp, "greensboro", p, hp_frac=1.0).sum() > b.sum()
     assert scenario_load(inp, "greensboro", p, ev_frac=0.5).sum() > b.sum()
+
+
+# Quality audit 2026-11-12 (portfolio/quality/audits/2026-11-12-infra-transformer.json): every thermal check above sits at
+# K = 1, where any exponent gives 1, so five of seven seeded bugs survived. These pin behaviour away from K = 1.
+def test_steady_state_overload_closed_form():
+    # K = 1.5, R = 3.2, n = m = 0.8, 30 C ambient, by hand from IEEE C57.91 clause 7:
+    # top oil rise 55 * ((2.25 * 3.2 + 1) / 4.2) ** 0.8 = 93.93 K; hot-spot gradient 25 * 1.5 ** 1.6 = 47.83 K
+    th, to, _ = simulate(np.full(8760, 75.0), np.full(8760, 30.0), X)
+    assert abs(to[-1] - (30 + 55 * (8.2 / 4.2) ** 0.8)) < 1e-6
+    assert abs(th[-1] - 171.7606) < 1e-3
+
+
+def test_growth_scales_every_load_including_evs():
+    inp, p = load_inputs(), Params()
+    one = scenario_load(inp, "greensboro", p, hp_frac=0.5, ev_frac=1.0)
+    two = scenario_load(inp, "greensboro", p, hp_frac=0.5, ev_frac=1.0, growth=2.0)
+    assert np.allclose(two, 2 * one)
+
+
+def test_uncoordinated_charging_starts_at_arrival():
+    # arrivals 18 h +/- 1.5 h, rounded and clipped to 16-22 h, so some cars are already charging at 16-17 h
+    inp, p = load_inputs(), Params()
+    base = scenario_load(inp, "greensboro", p)
+    ev = scenario_load(inp, "greensboro", p, ev_frac=1.0) - base
+    hod = np.arange(len(ev)) % 24
+    assert ev[(hod >= 16) & (hod <= 17)].sum() > 0
+    assert ev[(hod >= 8) & (hod <= 15)].sum() == 0

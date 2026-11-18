@@ -1,0 +1,5 @@
+cores 4, node v22.23.4
+German unemployment, 2 columns (120 points): cli, panels on threads 0.4 s; one thread in-process 0.2 s; text equals one-thread: true
+currency returns, 3 columns (1751 points): cli, panels on threads 3.6 s; one thread in-process 8.8 s; text equals one-thread: true
+currency returns, 3 columns, level and volatility (1751 points): cli, panels on threads 3.0 s; one thread in-process 7.3 s; text equals one-thread: true
+European index returns, 4 columns (1859 points): cli, panels on threads 6.1 s; one thread in-process 16.4 s; text equals one-thread: true

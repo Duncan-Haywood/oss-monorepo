@@ -8,20 +8,64 @@ export const servername = (h) => (/^[\d.]+$|:/.test(h) ? undefined : h);
 
 const q = (s) => `"${String(s).replace(/[\\"]/g, "\\$&").replace(/[\r\n]/g, "")}"`;
 
-/** One connection, one command at a time. Resolves { lines, literals } per tagged response. */
+// Loopback is the one place a plain-text login is allowed (a test server); everywhere else the password needs TLS.
+export const isLocal = (h) => /^(127\.|localhost$|::1$|\[::1\]$)/i.test(String(h));
+
+/**
+ * One connection, one command at a time. Resolves { lines, literals } per tagged response.
+ * secure: TLS from the first byte (993). secure=false: plain TCP (143), upgraded with STARTTLS when the server offers it
+ * (`starttls`, default on). Off loopback, a server that offers no STARTTLS, or greets with PREAUTH (already logged in, so
+ * the upgrade can never happen), is refused before any credential is sent; so is anything the server sends after its
+ * STARTTLS "OK" and before the handshake (the plaintext-injection class of bug, CVE-2011-0411 and its 2021 IMAP cousins).
+ */
 export class Imap {
-  constructor({ host, port = 993, secure = true, timeoutMs = 20000, ca }) { Object.assign(this, { host, port, secure, timeoutMs, ca }); this.buf = Buffer.alloc(0); this.n = 0; }
+  constructor({ host, port = 993, secure = true, starttls = true, timeoutMs = 20000, ca, loopbackIsSafe = true }) { Object.assign(this, { host, port, secure, starttls, timeoutMs, ca }); this.local = loopbackIsSafe && isLocal(host); // loopbackIsSafe=false: treat 127.0.0.1 as remote (tests)
+    this.buf = Buffer.alloc(0); this.n = 0; this.encrypted = !!secure; this.caps = []; }
+  wire(s) {
+    s.setTimeout(this.timeoutMs, () => s.destroy(new Error("IMAP timeout")));
+    s.on("data", (d) => { this.buf = Buffer.concat([this.buf, d]); this.pump?.(); });
+    s.on("error", (e) => this.fail?.(e)); s.on("close", () => this.fail?.(new Error("connection closed")));
+    this.sock = s;
+  }
   connect() {
     return new Promise((resolve, reject) => {
       const onErr = (e) => reject(e);
       const s = (this.secure ? tls : net).connect({ host: this.host, port: this.port, ...(this.secure ? { servername: servername(this.host), ca: this.ca } : {}) }, () => { s.off("error", onErr); });
-      s.once("error", onErr); s.setTimeout(this.timeoutMs, () => s.destroy(new Error("IMAP timeout")));
-      s.on("data", (d) => { this.buf = Buffer.concat([this.buf, d]); this.pump?.(); });
-      s.on("error", (e) => this.fail?.(e)); s.on("close", () => this.fail?.(new Error("connection closed")));
-      this.sock = s;
-      this.waitGreeting().then(resolve, reject);
+      s.once("error", onErr);
+      this.wire(s);
+      this.waitGreeting().then(async (g) => {
+        const greet = g.lines.at(-1);
+        this.preauth = /^\* PREAUTH/i.test(greet);
+        this.caps = capsOf(greet);
+        if (!this.secure) await this.upgrade();
+        return this;
+      }).then(resolve, (e) => { this.sock?.destroy(); reject(e); });
     });
   }
+  // Plain connection: STARTTLS if offered, then capabilities again (RFC 9051 6.2.1: pre-TLS ones may be forged).
+  async upgrade() {
+    const local = this.local;
+    if (this.preauth) { if (local) return; throw new Error("IMAP server greeted with PREAUTH over plain text, so STARTTLS is impossible; refusing (use port 993)"); }
+    if (!this.caps.length) this.caps = capsOf((await this.cmd("CAPABILITY")).lines.find((l) => /^\* CAPABILITY /i.test(l)) || "");
+    if (!this.starttls || !this.caps.includes("STARTTLS")) {
+      if (local) return;
+      throw new Error(this.starttls ? "IMAP server offers no STARTTLS on this port; refusing to log in over plain text (use port 993)" : "refusing plain-text IMAP to a non-local host");
+    }
+    await this.cmd("STARTTLS");
+    if (this.buf.length) throw new Error("IMAP server sent data after its STARTTLS reply and before TLS began (possible injection); refusing");
+    const raw = this.sock;
+    raw.removeAllListeners("data"); raw.removeAllListeners("close"); raw.removeAllListeners("error"); raw.setTimeout(0);
+    raw.on("error", () => {});
+    await new Promise((resolve, reject) => {
+      const t = tls.connect({ socket: raw, servername: servername(this.host), ca: this.ca }, () => { t.off("error", reject); resolve(); });
+      t.once("error", reject);
+      this.wire(t);
+    });
+    this.encrypted = true;
+    this.caps = capsOf((await this.cmd("CAPABILITY")).lines.find((l) => /^\* CAPABILITY /i.test(l)) || "");
+  }
+  // A password or token goes out only over TLS, or to loopback.
+  guard() { if (!this.encrypted && !this.local) throw new Error("refusing to send IMAP credentials without TLS"); if (this.caps.includes("LOGINDISABLED") && !this.encrypted) throw new Error("IMAP server says LOGINDISABLED (it wants TLS first)"); }
   waitGreeting() { return this.read((line) => (/^\* (OK|PREAUTH)/i.test(line) ? true : (() => { throw new Error("bad greeting: " + line); })())); }
   // Reads until `done(line)` returns true; collects literals ({n}\r\n + n bytes) attached to the preceding line.
   read(done) {
@@ -59,9 +103,10 @@ export class Imap {
     if (!new RegExp(`^${tag} OK`, "i").test(last)) throw new Error(last.replace(/^A\d+ /, "").slice(0, 200));
     return r;
   }
-  async login(user, pass) { await this.cmd(`LOGIN ${q(user)} ${q(pass)}`); }
+  async login(user, pass) { this.guard(); await this.cmd(`LOGIN ${q(user)} ${q(pass)}`); }
   // SASL XOAUTH2 (Gmail, Microsoft 365). On failure the server sends a "+ <base64 json>" challenge and waits for an empty line before the NO.
   async loginXoauth2(user, token) {
+    this.guard();
     const tag = `A${++this.n}`;
     this.sock.write(`${tag} AUTHENTICATE XOAUTH2 ${Buffer.from(`user=${user}\x01auth=Bearer ${token}\x01\x01`).toString("base64")}\r\n`);
     let r = await this.read((l) => l.startsWith("+") || l.startsWith(tag + " "));
@@ -69,7 +114,26 @@ export class Imap {
     const last = r.lines.at(-1);
     if (!new RegExp(`^${tag} OK`, "i").test(last)) throw new Error("XOAUTH2 " + last.replace(/^A\d+ /, "").slice(0, 200));
   }
-  async examine(box = "INBOX") { await this.cmd(`EXAMINE ${q(box)}`); }
+  // Returns { uidValidity } so a caller can tell a rebuilt mailbox (new UIDs) from new mail in the old one.
+  async examine(box = "INBOX") { const r = await this.cmd(`EXAMINE ${q(box)}`); const v = r.lines.map((l) => l.match(/\[UIDVALIDITY (\d+)\]/i)).find(Boolean); return { uidValidity: v ? Number(v[1]) : null }; }
+  // LIST "" "*": every mailbox as { name, flags }. Names are returned as the server sends them (quoted or a literal).
+  async list() {
+    const r = await this.cmd(`LIST "" "*"`);
+    let lit = 0;
+    return r.lines.filter((l) => /^\* LIST /i.test(l)).map((l) => {
+      const m = l.match(/^\* LIST \(([^)]*)\) (?:"(?:[^"\\]|\\.)*"|NIL) (.*)$/i);
+      if (!m) return null;
+      let name = m[2].trim();
+      if (/^\{\d+\}$/.test(name)) name = r.literals[lit++] || "";
+      else if (name.startsWith('"')) name = name.slice(1, -1).replace(/\\(.)/g, "$1");
+      return { name, flags: m[1].split(/\s+/).filter(Boolean).map((f) => f.toLowerCase()) };
+    }).filter(Boolean);
+  }
+  // Only the named header fields, read-only (BODY.PEEK): what the Sent-folder read needs, a few hundred bytes a message.
+  async fetchHeaders(uid, fields = ["DATE", "TO", "CC", "SUBJECT", "MESSAGE-ID"]) {
+    const r = await this.cmd(`UID FETCH ${uid} (BODY.PEEK[HEADER.FIELDS (${fields.join(" ")})])`);
+    return r.literals[0] || "";
+  }
   async search(criteria) { const r = await this.cmd(`UID SEARCH ${criteria}`); const l = r.lines.find((x) => x.startsWith("* SEARCH")); return l ? l.slice(8).trim().split(/\s+/).filter(Boolean).map(Number) : []; }
   async fetchRaw(uid, maxBytes = 200000) {
     const r = await this.cmd(`UID FETCH ${uid} (BODY.PEEK[]<0.${maxBytes}>)`);
@@ -78,58 +142,22 @@ export class Imap {
   async logout() { try { await this.cmd("LOGOUT"); } catch {} this.sock?.destroy(); }
 }
 
+// "* OK [CAPABILITY IMAP4rev1 STARTTLS ...] ready" or "* CAPABILITY IMAP4rev1 ..." -> ["IMAP4REV1", "STARTTLS", ...]
+export function capsOf(line) {
+  const m = String(line).match(/^\* (?:OK|PREAUTH) \[CAPABILITY ([^\]]*)\]/i) || String(line).match(/^\* CAPABILITY (.*)$/i);
+  return m ? m[1].trim().split(/\s+/).filter(Boolean).map((c) => c.toUpperCase()) : [];
+}
+
+// The Sent folder by its RFC 6154 \Sent attribute (Gmail's "[Gmail]/Sent Mail", Outlook's "Sent Items", a localised name),
+// else by the usual English names. null when there is none, so the caller can say so instead of reading INBOX twice.
+const SENT_NAMES = ["sent", "sent items", "sent mail", "sent messages", "[gmail]/sent mail", "inbox.sent", "inbox/sent", "inbox.sent items", "inbox.sent messages"];
+export function findSentBox(boxes) {
+  const special = boxes.find((b) => b.flags.includes("\\sent"));
+  if (special) return special.name;
+  for (const n of SENT_NAMES) { const b = boxes.find((x) => x.name.toLowerCase() === n && !x.flags.includes("\\noselect")); if (b) return b.name; }
+  return null;
+}
+
 // ---------- MIME ----------
-const unfold = (h) => h.replace(/\r?\n[ \t]+/g, " ");
-function decodeWords(s) {
-  return s.replace(/=\?([\w-]+)\?([bq])\?([^?]*)\?=/gi, (_, cs, enc, txt) => {
-    try { const buf = enc.toLowerCase() === "b" ? Buffer.from(txt, "base64") : Buffer.from(txt.replace(/_/g, " ").replace(/=([0-9a-f]{2})/gi, (_m, h) => String.fromCharCode(parseInt(h, 16))), "latin1"); return new TextDecoder(/utf-?8/i.test(cs) ? "utf-8" : cs.toLowerCase()).decode(buf); } catch { return txt; }
-  }).replace(/(\S)\s+(?=\S)/g, "$1 ").trim();
-}
-function decodeBody(body, enc, charset) {
-  let buf;
-  const e = String(enc || "").toLowerCase();
-  if (e === "base64") buf = Buffer.from(body.replace(/\s+/g, ""), "base64");
-  else if (e === "quoted-printable") buf = Buffer.from(body.replace(/=\r?\n/g, "").replace(/=([0-9a-f]{2})/gi, (_m, h) => String.fromCharCode(parseInt(h, 16))), "latin1");
-  else buf = Buffer.from(body, "utf8");
-  try { return new TextDecoder(/utf-?8|^$/i.test(charset || "") ? "utf-8" : charset.toLowerCase()).decode(buf); } catch { return buf.toString("utf8"); }
-}
-const headerMap = (block) => { const h = {}; for (const l of unfold(block).split(/\r?\n/)) { const m = l.match(/^([\w-]+):\s*(.*)$/); if (m && !(m[1].toLowerCase() in h)) h[m[1].toLowerCase()] = m[2]; } return h; };
-const param = (v, k) => (String(v || "").match(new RegExp(`${k}="?([^";]+)"?`, "i")) || [])[1] || "";
-const htmlToText = (h) => h.replace(/<(script|style)[\s\S]*?<\/\1>/gi, "").replace(/<br\s*\/?>|<\/(p|div|li|tr)>/gi, "\n").replace(/<[^>]+>/g, "").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/[ \t]+\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
-
-/** Parse a raw RFC 822 message into { headers, text }. Prefers text/plain, falls back to stripped text/html. */
-export function parseMessage(raw) {
-  const split = (s) => { const m = s.match(/\r?\n\r?\n/); return m ? [s.slice(0, m.index), s.slice(m.index + m[0].length)] : [s, ""]; };
-  let dsn = null;
-  const walk = (src) => {
-    const [hb, body] = split(src), h = headerMap(hb), ct = h["content-type"] || "text/plain";
-    // RFC 3464 delivery status: Final-Recipient names the address that failed, Status 5.x.x is permanent, 4.x.x temporary.
-    if (/^message\/delivery-status/i.test(ct) && !dsn) {
-      const g = (k) => (body.match(new RegExp(`^${k}:\\s*(.+)$`, "im")) || [])[1]?.trim() || "";
-      const status = (g("Status").match(/^([245])\.\d+\.\d+/) || [])[1];
-      dsn = { recipient: (g("Final-Recipient").replace(/^rfc822;\s*/i, "").match(/[\w.+'-]+@[\w.-]+/) || [""])[0].toLowerCase(), action: g("Action").toLowerCase(), permanent: status === "5" && g("Action").toLowerCase() !== "delayed", temporary: status === "4" || g("Action").toLowerCase() === "delayed" };
-      // A DSN may report several recipients, one blank-line group each; every one that failed permanently must be stopped, not only the first.
-      dsn.failed = [...new Set(body.split(/\r?\n\r?\n/).filter((grp) => /^Action:\s*failed/im.test(grp) && /^Status:\s*5\./im.test(grp)).map((grp) => ((grp.match(/^Final-Recipient:\s*(?:rfc822;)?\s*(.+)$/im) || [])[1] || "").match(/[\w.+'-]+@[\w.-]+/)?.[0].toLowerCase()).filter(Boolean))];
-      return { h, kind: "other", text: "" };
-    }
-    if (/^multipart\//i.test(ct)) {
-      const b = param(ct, "boundary");
-      const parts = b ? body.split(new RegExp(`\\r?\\n?--${b.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:--)?[ \\t]*\\r?\\n?`)).slice(1) : [];
-      const found = parts.map(walk).filter((p) => p.text);
-      return { h, text: (found.find((p) => p.kind === "plain") || found[0] || { text: "" }).text, kind: found.find((p) => p.kind === "plain") ? "plain" : "html" };
-    }
-    if (/^(text\/html)/i.test(ct)) return { h, kind: "html", text: htmlToText(decodeBody(body, h["content-transfer-encoding"], param(ct, "charset"))) };
-    if (/^text\//i.test(ct)) return { h, kind: "plain", text: decodeBody(body, h["content-transfer-encoding"], param(ct, "charset")).trim() };
-    return { h, kind: "other", text: "" };
-  };
-  const top = walk(raw), h = top.h;
-  return { headers: { from: decodeWords(h.from || ""), subject: decodeWords(h.subject || ""), date: h.date || "", messageId: (h["message-id"] || "").trim(), autoSubmitted: h["auto-submitted"] || "", precedence: h.precedence || "", xAutoreply: h["x-autoreply"] || h["x-autorespond"] || "", contentType: h["content-type"] || "", inReplyTo: h["in-reply-to"] || "" }, text: top.text, dsn };
-}
-
-/** Turn a parsed message into the `From:` block the engine's parseReplies reads (and keep the quoted history out). */
-export const toReplyBlock = (m) => {
-  const hd = m.headers, signal = m.dsn?.permanent ? "dsn-permanent" : m.dsn?.temporary ? "dsn-temporary" : /^(auto-replied|auto-generated|auto-notified)/i.test(hd.autoSubmitted) || /^auto[_-]?reply\b/i.test(hd.precedence) || hd.xAutoreply ? "auto-reply" : "";
-  const one = (rcpt) => `From: ${hd.from}\nSubject: ${hd.subject}\nDate: ${hd.date}${signal ? `\nX-Signal: ${signal}` : ""}${rcpt ? `\nX-Failed-Recipient: ${rcpt}` : ""}\n\n${m.text || (m.dsn ? "Delivery status notification" : "")}`;
-  // One block per permanently failed recipient, so each address is marked bounced.
-  return m.dsn?.failed?.length > 1 ? m.dsn.failed.map(one).join("\n") : one(m.dsn?.recipient);
-};
+// The MIME reader lives in ../mime.mjs (no Node built-ins) so the browser page reads .eml and .mbox files with the same code.
+export { parseMessage, toReplyBlock, replyBlocks } from "../mime.mjs";

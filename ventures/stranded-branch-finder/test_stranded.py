@@ -328,6 +328,25 @@ class TestSweep(Fixture):
         found = uw.sweep(str(self.clone), since=None, probe=self.probe)
         self.assertEqual([r[1] for r in found], ["claude/differs"])
 
+    def test_every_changed_path_is_read_from_one_batch(self):
+        # landed_by_content reads all blob ids in one `cat-file --batch-check`
+        # (2026-11-18); one wrong answer anywhere in the batch, including a
+        # path with a space, must still keep a branch listed.
+        files = {"a b/one.txt": "1\n", "two.txt": "2\n", "README.md": "edited\n"}
+        self.branch("claude/landed")
+        for path, text in files.items():
+            self.commit(path, text, f"change {path}", day="2026-10-01")
+        self.push("claude/landed")
+        self.branch("claude/one-off")  # README.md modified to other bytes
+        for path, text in files.items():
+            self.commit(path, "mine\n" if path == "README.md" else text,
+                        f"change {path}", day="2026-10-01")
+        self.push("claude/one-off")
+        for path, text in files.items():
+            self.squash_merge(path, text, f"{path} (#4)")
+        found = uw.sweep(str(self.clone), since=None, probe=self.probe)
+        self.assertEqual([r[1] for r in found], ["claude/one-off"])
+
     def test_long_stranded_list_is_cut_at_the_limit_with_a_count(self):
         limit = uw.LIST_LIMIT
         self.branch("claude/exact")

@@ -20,7 +20,7 @@ test("gifts before the window do not count; the window edge is inclusive", () =>
 });
 
 test("exempt notes keep a transfer out of the total but are flagged for proof", () => {
-  const r = compute(raw({ gifts: "2025-01-01, 100000, to spouse\n2025-02-01, 21000, nephew" }));
+  const r = compute(raw({ gifts: "2025-01-01, 100000, to spouse, exempt\n2025-02-01, 21000, nephew" }));
   assert.equal(r.s.gross, 21000);
   assert.ok(r.findings.some((f) => /exempt/.test(f.title)));
 });
@@ -91,4 +91,21 @@ test("non-finite or fractional figures are rejected, not turned into a zero pena
   for (const o of [{ divisor: "Infinity" }, { monthlyCost: "Infinity" }, { monthlyIncome: "Infinity" }, { returned: "Infinity" }, { lookbackMonths: "60.5" }]) {
     assert.ok(compute(raw(o)).errors.length > 0, JSON.stringify(o));
   }
+});
+
+test("only an explicit exempt marker removes a gift; category words alone still count (audit 2026-11-07 defect 0)", () => {
+  for (const note of ["daughter, not disabled", "niece, trust fund", "sibling", "spouse's cousin", "to spouse", "son, non-exempt", "son, not exempt"]) {
+    const r = compute(raw({ gifts: `2025-01-01, 21000, ${note}` }));
+    assert.equal(r.s.total, 21000, note);
+  }
+  const flagged = compute(raw({ gifts: "2025-01-01, 21000, daughter, not disabled" }));
+  assert.ok(flagged.findings.some((f) => /line\(s\) 1 mention/.test(f.title)));
+  assert.equal(compute(raw({ gifts: "2025-01-01, 21000, disabled son, Exempt" })).s.total, 0);
+});
+
+test("partial-month remainder converts at 30 days a month", () => {
+  // 20,895 / 10,500 = 1.99 months -> 1 month and floor(0.99 x 30) = 29 days (a 31-day factor would give 30)
+  const r = compute(raw({ gifts: "2025-01-01, 20895" }));
+  assert.equal(r.s.whole, 1);
+  assert.equal(r.s.days, 29);
 });

@@ -1,0 +1,18 @@
+{
+ "case": "case1803_snem",
+ "kind": "sad",
+ "nbus": 1803,
+ "old_ref": 3,
+ "slack_bus": 1274,
+ "slack_unit": 90,
+ "moved": true,
+ "ac": 106340.0,
+ "ref": "PGLib",
+ "start_rule": "Clarabel MP-x0, no ang",
+ "S": null,
+ "mu_star": 0.8374999999999999,
+ "n_pf_path": 11,
+ "stop": "no power flow at mu = 1",
+ "secs": 7.59740424156189,
+ "x0_angles": true
+}

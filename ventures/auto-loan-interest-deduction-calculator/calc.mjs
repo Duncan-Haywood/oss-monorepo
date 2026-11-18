@@ -126,7 +126,7 @@ function reducedCap(magi, filingStatus) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const format = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
@@ -176,7 +176,7 @@ export function computeQualifiedVehicleInterestDeduction({
     findings.push({
       severity: 'medium',
       title: 'Reduced by the income phase-out',
-      detail: `The $${QPVLI_CAP.toLocaleString()} cap is reduced by ${money(phaseOutReduction(magi, filingStatus))} at this MAGI, to a maximum of ${money(cap)}.`,
+      detail: `The $${QPVLI_CAP.toLocaleString('en-US')} cap is reduced by ${money(phaseOutReduction(magi, filingStatus))} at this MAGI, to a maximum of ${money(cap)}.`,
     });
   }
 
@@ -186,7 +186,7 @@ export function computeQualifiedVehicleInterestDeduction({
     findings.push({
       severity: 'info',
       title: 'Full amount deductible before the cap or phase-out bind',
-      detail: `${money(interest)} of qualified interest is under both the $${QPVLI_CAP.toLocaleString()} cap and the phase-out threshold for this filing status.`,
+      detail: `${money(interest)} of qualified interest is under both the $${QPVLI_CAP.toLocaleString('en-US')} cap and the phase-out threshold for this filing status.`,
     });
   }
 

@@ -1,0 +1,6 @@
+window shapes with every row holding 4 teams: [((0, 0, 0, 3, 3, 3), (0, 2, 4))] (the hand argument: F at 0,0,0,3,3,3 and S at 0,2,4)
+nights of the forced shape: 45360 distinct edge sets
+every one splits into 3 rounds with its three 2-game teams as the byes: True
+second nights edge-disjoint from night 1 with three new 2-game teams: 56
+seasons (three such nights covering all 36 pairs): 0
+so 9 teams, 3 games on 2 courts x 6 times: no season is wait-free (every one keeps a wait)

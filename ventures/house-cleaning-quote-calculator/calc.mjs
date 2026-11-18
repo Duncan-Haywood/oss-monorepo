@@ -25,7 +25,7 @@ const num = (v, d = 0) => {
   return Number.isFinite(n) ? n : NaN;
 };
 
-const cells = (line) => (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+const cells = (line) => splitCells(line);
 
 // Lines: "label, visits per year, time multiplier, discount %". Header optional.
 // The time multiplier scales labor hours (a recurring clean on a kept-up home usually takes less
@@ -124,12 +124,15 @@ export function analyze(jobIn, frequencies, addOns = []) {
   const losing = lines.filter((l) => l.profit < 0);
   const neededList = Math.max(...lines.map((l) => l.listPriceNeeded));
   const binding = lines.find((l) => l.listPriceNeeded === neededList);
+  // The "one-time price" the owner types excludes add-ons, which are added on top, so
+  // the price to type is the needed list price less the add-on revenue.
+  const neededBase = Math.max(0, neededList - addRevenue);
   let verdict;
   if (!below.length) verdict = `Every frequency clears your ${o.targetMarginPct}% target margin at a ${money2(o.basePrice + addRevenue)} list price.`;
-  else verdict = `${below.length} of ${lines.length} frequency line(s) fall below your ${o.targetMarginPct}% target; to clear all of them, list a one-time clean at ${money2(neededList)} or more (${binding.label} sets that).`;
+  else verdict = `${below.length} of ${lines.length} frequency line(s) fall below your ${o.targetMarginPct}% target; to clear all of them, set your one-time price to ${money2(neededBase)} or more${addRevenue > 0 ? ` before add-ons (${money2(neededList)} with them)` : ""} (${binding.label} sets that).`;
   if (losing.length) warnings.push(`${losing.map((l) => l.label).join(", ")} loses money on every visit at these figures.`);
 
-  return { job: o, addMinutes, addRevenue, cleanHours, driveHours, mileage, lines, verdict, neededListPrice: neededList, warnings };
+  return { job: o, addMinutes, addRevenue, cleanHours, driveHours, mileage, lines, verdict, neededListPrice: neededList, neededBasePrice: neededBase, warnings };
 }
 
 export function sampleJob() {
@@ -148,6 +151,30 @@ export function reportCsv(r) {
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
-export const money2 = (v) => (v < 0 ? "-$" : "$") + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(v)).toLocaleString("en-US"));
+export const money2 = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 export const pct = (v, d = 1) => v.toFixed(d) + "%";
+
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas (a spreadsheet's CSV export writes "$1,200") and "" inside it is a literal quote; a
+// quote later in a cell (17" rims) is text. Before 2026-11-11 a quoted "1,200" split in two and
+// shifted every later field (portfolio/quality, defect class input-handling).
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+}

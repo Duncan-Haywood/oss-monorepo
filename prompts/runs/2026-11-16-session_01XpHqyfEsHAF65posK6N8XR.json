@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqyfEsHAF65posK6N8XR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T03:39:14Z",
+  "ended": "2026-11-16T04:09:32Z",
+  "wall_minutes": 30.55,
+  "tokens_in": 7461261,
+  "tokens_out": 30039,
+  "cost_usd": 3.1996,
+  "tool_calls": 61,
+  "task": "research/build-data session 96: separate Austin's 180-day expiry stamps from the other dead close-outs, and refit the 3-year staleness cut on clean sources",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": 16442,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "0343af3e2",
+    "18d9b18ec"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/README.md",
+      "issue": "The README is one ~10,000-word paragraph, and each session appends a sentence to it; finding the anchor to insert after takes a scripted search. A per-session results table or a short README with the history in LOG.md would read better."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud-session note says to start long jobs with run_in_background. A launcher that backgrounds subprocesses with & reports 'completed' at once while the jobs keep running, which is easy to misread; wait_for.py on the job's log was the reliable signal."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md (session 95 design)",
+      "why": "Refitting nc5, clean and nc3 alongside the new variants would have doubled the run (about 35 minutes more). They were reused instead, under a reuse rule written into the pre-registration (identical feed and dead counts), plus a one-cell thread-count check.",
+      "did": "Reused session 95's and session 92's results; refit Seattle 2022 nc5 at 1 thread as a check",
+      "result": "The check matched to every digit; the comparison is on identical models"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-build-data-stamps-were-not-the-cost.md",
+    "research/build-data/LOG.md (session 96)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered (0343af3e2) before any model run. Fresh pull 2026-11-16 03:40-03:48 UTC, counts identical to session 95. 4 cells x 2 variants x 3 seeds at q0.9, 03:49-04:02 UTC. T1, C1, C2 held; T2, T3 refuted: the stamps are 82-83% of the dead rows but move q0.9 by only +0.64 days on average; the remaining long closures carry Seattle's cost (6/6 seeds) and help SF (5/6). Verification: tests/test_cpin.py 12 passed; full build-data suite 155 passed, 2 skipped; research/_homepage/build.py ok; check_md_links ok; post front matter, links and similarity ok; cite_check finds no DOIs to check.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "106ca769-d9e9-5ea1-9321-b90b18e92e40",
+    "transcripts": 1,
+    "first": "2026-11-16T03:39:14Z",
+    "last": "2026-11-16T04:09:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 110,
+        "output": 30039,
+        "thinking": 6855,
+        "cache_read": 7319335,
+        "cache_write_5m": 0,
+        "cache_write_1h": 141816,
+        "api_equivalent_usd": 3.1996,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 110,
+      "output": 30039,
+      "thinking": 6855,
+      "cache_read": 7319335,
+      "cache_write_5m": 0,
+      "cache_write_1h": 141816,
+      "api_equivalent_usd": 3.1996,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 30.55,
+      "active_minutes": 30.55,
+      "model_minutes": 5.12,
+      "tool_minutes": 25.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a data scientist designing, running and writing up a pre-registered two-variant ablation on 4 million permit rows",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 187.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -284,3 +284,28 @@ test('the lab notebook list keeps two entries per project and eight in all', () 
   assert.equal((html.match(/busy-entry-/g) || []).length, 2, 'two per project');
   assert.equal((html.match(/solo-|busy-entry-/g) || []).length, 8, 'eight in all');
 });
+
+test('changelogEntries keeps a merge dated exactly on the cutoff day, drops the day before', () => {
+  // NOW is 2026-10-19; 14 days back is 2026-10-05.
+  const edge = [
+    merge('2026-10-05', 'site: on the cutoff', ['platform/pages/site-nav.mjs'], 2),
+    merge('2026-10-04', 'site: one day too old', ['platform/pages/site-nav.mjs'], 1),
+  ];
+  const out = changelogEntries(edge, { now: NOW });
+  assert.deepEqual(out.map((e) => e.date), ['2026-10-05']);
+});
+
+test('summarise reports the oldest entry, not the second oldest', () => {
+  const s = summarise(data());
+  assert.equal(s.oldest, '2026-10-17');
+  assert.equal(summarise(data({ entries: [] })).oldest, null);
+});
+
+test('parseDirection summary skips quotes, bullets, bold leads and an empty remainder, one at a time', () => {
+  const skipped = ['"A verbatim quote."', 'Said: "an inline quote" then more.', '**Bold lead** text.', '- a bullet', '* a star bullet', 'Set by the owner on 2026-10-15.'];
+  for (const p of skipped) {
+    const src = `## Direction: x\n\n${p}\n\nThe real summary.\n`;
+    const d = parseDirection(src);
+    assert.equal(d[0].summary, 'The real summary.', `skipped: ${p}`);
+  }
+});

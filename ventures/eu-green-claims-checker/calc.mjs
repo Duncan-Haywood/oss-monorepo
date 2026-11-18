@@ -77,7 +77,7 @@ export function parse(input) {
   const audience = Object.keys(AUDIENCES).includes(i.audience) ? i.audience : null;
   if (!audience) errors.push("Say who you sell to.");
   const today = i.today === undefined || i.today === "" ? new Date().toISOString().slice(0, 10) : String(i.today);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(today) || Number.isNaN(Date.parse(today))) errors.push("Today's date must be written YYYY-MM-DD.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(today) || Number.isNaN(Date.parse(today)) || new Date(today + "T00:00:00Z").toISOString().slice(0, 10) !== today) errors.push("Today's date must be written YYYY-MM-DD.");
   const used = {};
   for (const id of CLAIM_IDS) used[id] = Boolean(i[id]) && i[id] !== "0";
   return { errors, role, audience, today, used };

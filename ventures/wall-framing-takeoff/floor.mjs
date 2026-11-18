@@ -120,6 +120,7 @@ export function validateFloor(f, plan) {
  * trimmers' own load are not in it. `tailSpans[k]` is [front, back] tail length for opening k.
  */
 export function checkFloorHeaders(size, openings, tailSpans, loads) {
+  if (!loads || typeof loads !== "object") throw new TypeError("checkFloorHeaders needs a loads object");
   const d = DEPTH[size], b = 2 * THICK;
   const { liveLoad, deadLoad, Fb, Fv, E } = loads;
   const lim = loads.deflLimit ?? 360;
@@ -157,6 +158,7 @@ export function checkFloorHeaders(size, openings, tailSpans, loads) {
  * Walls above, stair stringer loads and the other header's reaction are not in it.
  */
 export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loads) {
+  if (!loads || typeof loads !== "object") throw new TypeError("checkTrimmer needs a loads object");
   const d = DEPTH[size], b = 2 * THICK, L = span;
   const { liveLoad, deadLoad, Fb, Fv, E } = loads;
   const lim = loads.deflLimit ?? 360;
@@ -192,6 +194,7 @@ export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loa
  * Doubled joists under walls, point loads on the tip (a wall or a balcony rail post) and bearing are not in it.
  */
 export function checkCantilever(size, backspan, a, spacing, loads) {
+  if (!loads || typeof loads !== "object") throw new TypeError("checkCantilever needs a loads object");
   const d = DEPTH[size], b = THICK, Lb = backspan;
   const { liveLoad, deadLoad, Fb, Fv, E } = loads;
   const lim = loads.cantDeflLimit ?? 180;

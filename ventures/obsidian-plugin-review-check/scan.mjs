@@ -24,13 +24,55 @@
 // disk) and the browser tool (index.html, reading File objects the visitor
 // picked).
 
-// manifest.json fields Obsidian's own "Manifest" documentation lists as
-// required for every plugin. `isDesktopOnly` is a required boolean in the
-// strictest reading but defaults meaningfully to false when absent, so it is
-// reported as recommended rather than failing the check on its own --
-// `fundingUrl` and `authorUrl` are genuinely optional.
-export const MANIFEST_REQUIRED_FIELDS = ['id', 'name', 'version', 'minAppVersion', 'description', 'author'];
-export const MANIFEST_RECOMMENDED_FIELDS = ['authorUrl', 'fundingUrl', 'isDesktopOnly'];
+// manifest.json fields Obsidian's own "Manifest" reference
+// (docs.obsidian.md/Reference/Manifest, read 2026-11-18) marks **Yes** under
+// Required. `isDesktopOnly` is a required *boolean* there, so it is checked
+// apart from the string fields (quality audit 2026-11-17, defect 1: it used
+// to be reported as optional). `authorUrl` and `fundingUrl` are optional.
+export const MANIFEST_REQUIRED_FIELDS = ['id', 'name', 'version', 'minAppVersion', 'description', 'author', 'isDesktopOnly'];
+export const MANIFEST_REQUIRED_BOOLEAN_FIELDS = ['isDesktopOnly'];
+export const MANIFEST_RECOMMENDED_FIELDS = ['authorUrl', 'fundingUrl'];
+
+/**
+ * Value rules the same "Manifest" reference states for a plugin:
+ *   - `id`: "must contain only lowercase letters and hyphens, can't end with
+ *     `plugin`, and can't contain `obsidian`". Digits are accepted here too:
+ *     many listed plugin ids carry them, so flagging them would be noise.
+ *   - `name`: "Do not include the word 'Obsidian'" and "plugins may not
+ *     contain the word 'Plugin'".
+ *   - `version`: "Semantic Versioning ... in the format `x.y.z`".
+ * Quality audit 2026-11-17, defect 2: a manifest breaking all of these used
+ * to report clean. Each violation fails the check.
+ *
+ * @param {Record<string, unknown>|null} data
+ * @returns {{field: string, value: string, rule: string}[]}
+ */
+export function manifestRuleViolations(data) {
+  if (!data || typeof data !== 'object') return [];
+  const out = [];
+  const str = (k) => (typeof data[k] === 'string' ? data[k].trim() : null);
+  const id = str('id');
+  if (id) {
+    if (!/^[a-z0-9-]+$/.test(id)) out.push({ field: 'id', value: id, rule: 'must contain only lowercase letters (and digits) and hyphens' });
+    if (/obsidian/i.test(id)) out.push({ field: 'id', value: id, rule: "can't contain \"obsidian\"" });
+    if (/plugin$/i.test(id)) out.push({ field: 'id', value: id, rule: "can't end with \"plugin\"" });
+  }
+  const name = str('name');
+  if (name) {
+    if (/obsidian/i.test(name)) out.push({ field: 'name', value: name, rule: 'must not include the word "Obsidian"' });
+    if (/plugin/i.test(name)) out.push({ field: 'name', value: name, rule: 'plugins may not contain the word "Plugin"' });
+  }
+  const version = str('version');
+  if (version && !/^\d+\.\d+\.\d+$/.test(version)) {
+    out.push({ field: 'version', value: version, rule: 'must be x.y.z (Semantic Versioning, no "v" prefix or suffix)' });
+  }
+  for (const key of MANIFEST_REQUIRED_BOOLEAN_FIELDS) {
+    if (data[key] !== undefined && typeof data[key] !== 'boolean') {
+      out.push({ field: key, value: String(data[key]), rule: 'must be true or false (a JSON boolean, not a string)' });
+    }
+  }
+  return out;
+}
 
 // The exact placeholder values the official `obsidian-sample-plugin` GitHub
 // template ships with. A community-plugin submission that still carries any
@@ -39,7 +81,8 @@ export const MANIFEST_RECOMMENDED_FIELDS = ['authorUrl', 'fundingUrl', 'isDeskto
 export const SAMPLE_PLUGIN_DEFAULTS = {
   id: 'sample-plugin',
   name: 'Sample Plugin',
-  author: 'Your Name',
+  description: 'Demonstrates some of the capabilities of the Obsidian API.',
+  author: 'Obsidian',
 };
 
 /**
@@ -67,8 +110,10 @@ export function parseManifest(text) {
       missingRecommended: [...MANIFEST_RECOMMENDED_FIELDS],
     };
   }
-  const missingRequired = MANIFEST_REQUIRED_FIELDS.filter(
-    (key) => typeof data?.[key] !== 'string' || data[key].trim() === '',
+  const missingRequired = MANIFEST_REQUIRED_FIELDS.filter((key) =>
+    MANIFEST_REQUIRED_BOOLEAN_FIELDS.includes(key)
+      ? data?.[key] === undefined || data?.[key] === null
+      : typeof data?.[key] !== 'string' || data[key].trim() === '',
   );
   const missingRecommended = MANIFEST_RECOMMENDED_FIELDS.filter((key) => data?.[key] === undefined);
   return { found: true, data, parseError: false, missingRequired, missingRecommended };
@@ -124,7 +169,7 @@ export function checkVersionsEntry(manifestData, versionsData) {
   return { status: 'missing', version };
 }
 
-const UNSAFE_DOM_ASSIGNMENT = /\.\s*(?:innerHTML|outerHTML)\s*=(?!=)/;
+const UNSAFE_DOM_ASSIGNMENT = /\.\s*(?:innerHTML|outerHTML)\s*\+?=(?!=)/;
 const UNSAFE_DOM_CALL = /\.\s*insertAdjacentHTML\s*\(/;
 const GLOBAL_LISTENER = /\b(?:document|window)\.addEventListener\s*\(/;
 const CONSOLE_LOG = /\bconsole\.log\s*\(/;
@@ -135,10 +180,10 @@ const CONSOLE_LOG = /\bconsole\.log\s*\(/;
  * scanner in this portfolio makes. */
 function stripCommentsAndStrings(line) {
   return line
-    .replace(/\/\/.*$/, '')
     .replace(/`(?:\\.|[^`\\])*`/g, '``')
     .replace(/"(?:\\.|[^"\\])*"/g, '""')
-    .replace(/'(?:\\.|[^'\\])*'/g, "''");
+    .replace(/'(?:\\.|[^'\\])*'/g, "''")
+    .replace(/\/\/.*$/, '');
 }
 
 function scanLines(files, pattern) {
@@ -217,10 +262,12 @@ export function buildReport({
   globalListeners,
   consoleLog,
 }) {
+  const manifestRules = manifest.found && !manifest.parseError ? manifestRuleViolations(manifest.data) : [];
   const ok =
     manifest.found &&
     !manifest.parseError &&
     manifest.missingRequired.length === 0 &&
+    manifestRules.length === 0 &&
     samplePluginDefaults.length === 0 &&
     versionsEntry.status === 'present' &&
     unsafeDom.length === 0;
@@ -238,6 +285,7 @@ export function buildReport({
     missingRecommendedManifest: manifestUsable ? manifest.missingRecommended : [],
     versionsFound: versions.found,
     versionsParseError: versions.parseError,
+    manifestRules,
     samplePluginDefaults,
     versionsEntry,
     unsafeDom,

@@ -1,0 +1,338 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtGoXfSVisXhJ7MqytR",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T00:06:59Z",
+  "ended": "2026-11-11T00:09:57Z",
+  "wall_minutes": 15.37,
+  "tokens_in": 4410401,
+  "tokens_out": 24616,
+  "cost_usd": 2.0553,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14643",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "'redteam.py targets' prints a 20-line sample, not the list, so grepping it for a target returns nothing; check suite_for or pass --target."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's three open entries are all control plane (workflow or prompts/ edits needing owner approval); the redteam.py one already has PR #14612 open.",
+      "did": "Left them open, seeded fresh.",
+      "result": "Time went to a user-facing tax bug instead."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-redteam-qbi-sstb-phase-in.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen because it changed on main yesterday (#14626). Statute/reg text verified at law.cornell.edu (199A(i), 1.199A-1(d)(2)). Mutation testing could not catch defect 1: the test asserted the wrong expected value. Sibling sweep: ai-bookkeeper had defect 3, pte/freelancer calcs do not model SSTB. Suites: qbi 0.4s, ai-bookkeeper 44.7s, both green.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/qbi-deduction-calculator/calc.mjs",
+        "test": "node --test ventures/qbi-deduction-calculator/**/*.test.mjs  (in .)",
+        "seed": 49251155,
+        "commit": "927275a3",
+        "sites": 108,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 41,
+            "col": 73,
+            "operator": "const-plus-one",
+            "before": "2025: { single: 197300, joint: 394600, rangeSingle: 50000, rangeJoint: 100000 },",
+            "after": "2025: { single: 197300, joint: 394600, rangeSingle: 50000, rangeJoint: 100001 },",
+            "line_text": "  2025: { single: 197300, joint: 394600, rangeSingle: 50000, rangeJoint: 100000 },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 43,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "single: 201750, joint: 403500, rangeSingle: 75000, rangeJoint: 150000,",
+            "after": "single: 201751, joint: 403500, rangeSingle: 75000, rangeJoint: 150000,",
+            "line_text": "    single: 201750, joint: 403500, rangeSingle: 75000, rangeJoint: 150000,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 44,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "minDeduction: 400, minDeductionFloor: 1000,",
+            "after": "minDeduction: 401, minDeductionFloor: 1000,",
+            "line_text": "    minDeduction: 400, minDeductionFloor: 1000,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 68,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "const isJoint = filingStatus === 'joint';",
+            "after": "const isJoint = filingStatus !== 'joint';",
+            "line_text": "  const isJoint = filingStatus === 'joint';",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 79,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "after": "return value < 1 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "line_text": "  return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "money(0.6) printed -$1; test money rounds a small positive amount"
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 83,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "const rate = Math.max(0, Math.min(100, num(marginalRatePercent))) / 100;",
+            "after": "const rate = Math.max(1, Math.min(100, num(marginalRatePercent))) / 100;",
+            "line_text": "  const rate = Math.max(0, Math.min(100, num(marginalRatePercent))) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 99,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "if (qbiAmount <= 0) {",
+            "after": "if (qbiAmount <= 1) {",
+            "line_text": "  if (qbiAmount <= 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "QBI of $1 returned 0; test a QBI of $1 below threshold gives 20 cents"
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 137,
+            "col": 35,
+            "operator": "times-to-div",
+            "before": "const wageLimit = Math.max(0.5 * adjWages, 0.25 * adjWages + 0.025 * adjUbia);",
+            "after": "const wageLimit = Math.max(0.5 / adjWages, 0.25 * adjWages + 0.025 * adjUbia);",
+            "line_text": "    const wageLimit = Math.max(0.5 * adjWages, 0.25 * adjWages + 0.025 * adjUbia);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 171,
+            "col": 19,
+            "operator": "const-plus-one",
+            "before": "netCapitalGain = 0,",
+            "after": "netCapitalGain = 1,",
+            "line_text": "  netCapitalGain = 0,",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 201,
+            "col": 27,
+            "operator": "times-to-div",
+            "before": "const overallLimit = 0.2 * Math.max(0, ti - ncg);",
+            "after": "const overallLimit = 0.2 / Math.max(0, ti - ncg);",
+            "line_text": "  const overallLimit = 0.2 * Math.max(0, ti - ncg);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 201,
+            "col": 44,
+            "operator": "minus-to-plus",
+            "before": "const overallLimit = 0.2 * Math.max(0, ti - ncg);",
+            "after": "const overallLimit = 0.2 * Math.max(0, ti + ncg);",
+            "line_text": "  const overallLimit = 0.2 * Math.max(0, ti - ncg);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/qbi-deduction-calculator/calc.mjs",
+            "line": 213,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (deduction > 0 && findings.length === 0) {",
+            "after": "if (deduction > 0 && findings.length === 1) {",
+            "line_text": "  if (deduction > 0 && findings.length === 0) {",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "full-20% finding vanished; tests on the full-20% finding"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/qbi-deduction-calculator/calc.mjs",
+        "issue": "SSTB inside the phase-in range took min(20% of scaled QBI, full wage limit) and skipped the Treas. Reg. 1.199A-1(d)(2)(iv)(B) phase-in reduction: 2026 single, TI 239,250, QBI 100,000, no wages showed $400 instead of $5,000; the suite's own expected value (5000) was wrong (regulation gives 12500).",
+        "patched": true
+      },
+      {
+        "file": "ventures/qbi-deduction-calculator/calc.mjs",
+        "issue": "2026 $400 minimum applied before the 20%-of-(TI minus NCG) cap; 199A(i)(1) floors the subsection (a) deduction, so QBI 1,000 on TI 1,500 showed $300 instead of $400.",
+        "patched": true
+      },
+      {
+        "file": "ventures/qbi-deduction-calculator/calc.mjs",
+        "issue": "$400 minimum counted all of an SSTB's QBI: an SSTB above the range (none of its QBI counts, 199A(d)(3)) got $400, contradicting why-is-my-qbi-deduction-0.html.",
+        "patched": true
+      },
+      {
+        "file": "ventures/ai-bookkeeper/estimatedtax.mjs",
+        "issue": "Same as above in the estimated-tax module: a service business above the range got the $400 minimum QBI deduction.",
+        "patched": true
+      },
+      {
+        "file": "ventures/qbi-deduction-calculator/calc.mjs",
+        "issue": "'Full 20% applies' finding said 'Below the taxable-income threshold' for a non-SSTB above the threshold whose wage limit did not bind.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5993866b-fc63-51ee-a9ae-25e9e01ae91d",
+    "transcripts": 1,
+    "first": "2026-11-11T00:06:59Z",
+    "last": "2026-11-11T00:22:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 102,
+        "output": 24616,
+        "thinking": 5294,
+        "cache_read": 4323055,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87244,
+        "api_equivalent_usd": 2.0553,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 102,
+      "output": 24616,
+      "thinking": 5294,
+      "cache_read": 4323055,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87244,
+      "api_equivalent_usd": 2.0553,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 51,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.37,
+      "active_minutes": 15.37,
+      "model_minutes": 6.36,
+      "tool_minutes": 9.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "read 199A/regs, diagnose 4 tax-formula bugs, tests, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 243.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

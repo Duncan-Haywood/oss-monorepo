@@ -14,7 +14,7 @@
 // starting points to overwrite, never a statement of what a platform will
 // charge you.
 
-export const MODEL_NOTE = "Fee presets are typical seller-side rates as last checked and marketplaces change them without notice, so confirm yours on the listing screen; buyer-side fees are paid by the buyer and are not modelled; income tax, sales tax and chargebacks are not modelled; sale probability is your own estimate, not a forecast";
+export const MODEL_NOTE = "Fee presets are rough typical seller-side rates, not taken from a dated fee page, and marketplaces change them without notice, so confirm yours on the listing screen; buyer-side fees are paid by the buyer and are not modelled; income tax, sales tax and chargebacks are not modelled; sale probability is your own estimate, not a forecast";
 
 export const PLATFORMS = {
   stubhub: { label: "StubHub", sellerFeePct: 10 },
@@ -105,15 +105,29 @@ export function comparePlatforms(listPerTicket, input, feeOverrides = {}) {
 
 // ---- sales log ----------------------------------------------------------
 
+// Each header cell is claimed by at most one field, in this order, so "Sold On"
+// is the platform and never the sale price. Words end at a boundary so "Buyer"
+// is not a cost. Derived columns (profit, ROI) are never read as money in.
 const HEADERS = {
-  event: /^(event|show|game|name|description)/i,
-  platform: /^(platform|marketplace|site|sold.?on|venue.?site)/i,
-  qty: /^(qty|quantity|tickets|count)/i,
-  cost: /^(cost|paid|buy|purchase|cost.?total|total.?cost)/i,
-  sale: /^(sale|sold|price|gross|sale.?price|list)/i,
-  fees: /^(fees?|seller.?fees?|total.?fees?)/i,
-  payout: /^(payout|net|proceeds|received)/i,
+  event: /^(event|show|game|name|description)\b/i,
+  platform: /^(platform|marketplace|site|sold.?on|venue.?site)\b/i,
+  qty: /^(qty|quantity|tickets|count)\b/i,
+  cost: /^(cost|paid|buy|bought|purchase|cost.?total|total.?cost)\b/i,
+  fees: /^(fees?|seller.?fees?|total.?fees?)\b/i,
+  payout: /^(payout|net|proceeds|received)\b/i,
+  sale: /^(sale|sold|price|gross|sale.?price|list|listing)\b/i,
 };
+const DERIVED = /profit|gain|loss|\broi\b|margin|return/i;
+const PER_TICKET = /per.?ticket|\beach\b|\bunit\b|\/\s*ticket/i;
+function headerColumns(cells) {
+  const col = {}; const taken = new Set();
+  for (const k of Object.keys(HEADERS)) {
+    col[k] = cells.findIndex((c, i) => !taken.has(i) && HEADERS[k].test(c) && !(k !== "event" && DERIVED.test(c)));
+    if (col[k] >= 0) taken.add(col[k]);
+  }
+  col.costPerTicket = col.cost >= 0 && PER_TICKET.test(cells[col.cost]);
+  return col;
+}
 const toNumber = (s) => {
   const t = String(s ?? "").trim().replace(/^\(\s*(.*)\)$/, "-$1").replace(/[$,]/g, "");
   const n = Number(t);
@@ -134,33 +148,42 @@ function splitLine(line) {
 
 /**
  * Parses a sales log. Header row (read by name) needs: event, platform,
- * cost (total you paid for the lot) and either payout (what the marketplace
+ * cost (total you paid for the lot, or per ticket when the header says so) and either payout (what the marketplace
  * paid you) or sale (gross) with fees. Optional: qty. Without a header the
  * order is event,platform,qty,cost,sale,fees.
  */
 export function parseSales(text) {
-  const rows = []; let skipped = 0; let col = null;
+  const rows = []; let skipped = 0; let col = null; let width = 6;
   for (const raw of String(text ?? "").split(/\r?\n/)) {
     const line = raw.trim();
     if (!line || line.startsWith("#")) continue;
     const cells = splitLine(line);
     if (!col && cells.some((c) => HEADERS.platform.test(c)) && cells.some((c) => HEADERS.cost.test(c))) {
-      col = {};
-      for (const k of Object.keys(HEADERS)) col[k] = cells.findIndex((c) => HEADERS[k].test(c));
+      col = headerColumns(cells);
+      width = cells.length;
       continue;
     }
+    // An unquoted "$1,200.00" splits into two cells and shifts every column
+    // after it; a row wider than the columns is skipped, not misread.
+    let used = cells.length;
+    while (used > 0 && cells[used - 1] === "") used -= 1;
+    if (used > width) { skipped += 1; continue; }
     const m = col || { event: 0, platform: 1, qty: 2, cost: 3, sale: 4, fees: 5, payout: -1 };
     const at = (k) => (m[k] >= 0 ? cells[m[k]] : undefined);
-    const cost = toNumber(at("cost"));
+    const qty = toNumber(at("qty"));
+    const n = Number.isFinite(qty) && qty > 0 ? qty : 1;
+    const cost = m.costPerTicket ? toNumber(at("cost")) * n : toNumber(at("cost"));
     const payoutCell = toNumber(at("payout"));
     const sale = toNumber(at("sale"));
-    const fees = Number.isNaN(toNumber(at("fees"))) ? 0 : toNumber(at("fees"));
+    // A fees column whose cell is blank is unknown, not zero: without a payout
+    // to fall back on, the row is skipped rather than read as fee-free.
+    const feesCell = toNumber(at("fees"));
+    const fees = Number.isNaN(feesCell) ? (m.fees >= 0 && Number.isNaN(payoutCell) ? NaN : 0) : feesCell;
     const gross = Number.isNaN(sale) ? (Number.isNaN(payoutCell) ? NaN : payoutCell + fees) : sale;
     const payout = Number.isNaN(payoutCell) ? gross - fees : payoutCell;
     const platform = String(at("platform") ?? "").trim();
     if (!platform || Number.isNaN(cost) || Number.isNaN(gross) || Number.isNaN(payout)) { skipped += 1; continue; }
-    const qty = toNumber(at("qty"));
-    rows.push({ event: String(at("event") ?? "").trim(), platform, qty: Number.isFinite(qty) && qty > 0 ? qty : 1, cost, gross, payout });
+    rows.push({ event: String(at("event") ?? "").trim(), platform, qty: n, cost, gross, payout });
   }
   return { rows, skipped };
 }
@@ -197,6 +220,6 @@ export function summarizeSales(report) {
 export const INPUT_NOTES = [
   { what: "event,platform,qty,cost,sale,fees", detail: "One sale per line, in this order if there is no header row. cost is the total you paid for the lot; sale is the gross price; fees is what the marketplace kept." },
   { what: "event,platform,cost,payout", detail: "With a header row, columns are found by name. payout (what the marketplace paid you) can replace sale + fees." },
-  { what: "$1,200.00 and (45.00)", detail: "Dollar signs and thousands separators are ignored; parentheses mean negative." },
+  { what: "$1,200.00 and (45.00)", detail: "Dollar signs are ignored and parentheses mean negative. Quote an amount with a thousands separator (\"$1,200.00\"): unquoted, its comma splits the row, which is then skipped rather than misread." },
   { what: "Blank lines and # comments", detail: "Skipped. A row with no platform or no readable numbers is counted as skipped, not guessed." },
 ];

@@ -54,6 +54,15 @@
     @media print { body > :not(#doc-card) { display: none !important; } body { background: #fff; padding: 0; max-width: none; } #doc-card { box-shadow: none; border: 0; padding: 0; margin: 0; } #doc-card .noprint { display: none !important; } #doc { border: 0; padding: 0; } }
     footer { margin-top: 28px; border-top: 1px solid #dcdcee; padding-top: 16px; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 520px) { div.grid:has(#f-ip) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -235,7 +244,7 @@
     };
     $("#clear-all").onclick = () => { if (!confirm("Clear everything on this device? This cannot be undone.")) return; data = { ...DEFAULTS }; persist(); fill(); render(); };
     $("#load-example").onclick = () => {
-      data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", effective: new Date().toISOString().slice(0, 10), law: "Colorado, USA",
+      data = { ...DEFAULTS, contractor: "Ada Dev Studio (example)", client: "Acme Co (example)", effective: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10), law: "Colorado, USA",
         project: "Design and build a five-page marketing website", deliverables: "Home page\nPricing page\nAbout page\nContact form\nHandover document",
         amount: "6000", depositPct: "40", milestones: "Designs approved | 30", revisions: "2", extraRevisionRate: "90" };
       persist(); fill(); render(); record("example_loaded");

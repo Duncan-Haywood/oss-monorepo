@@ -1,0 +1,219 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/ambient-noisyaudit",
+ "stratum": "research",
+ "seed": "2026-11-13-k",
+ "drawn_by": "sample",
+ "round": 65,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a statistician who works on latent-class / imperfect-reference-standard estimation and decision analysis (the kind who reviews for Statistics in Medicine or a UAI/NeurIPS label-noise track). They would check first that the corrected estimator is the known-error-matrix MLE and is consistent, that the naive bias is computed right, whether Monte Carlo differences are bigger than their standard errors, and which prior work (Gart and Buck 1966, Staquet et al. 1981, Hui and Walter 1980, Dawid and Skene 1979, Natarajan et al. 2013, Patrini et al. 2017) already contains the result",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 3
+ },
+ "evidence": {
+  "correctness": "Reran experiments/run.py in a scratch copy (/usr/bin/python3.13, 25 s): output is byte-identical to experiments/results.txt (diff empty). Independent reimplementation (/tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/indep/check.py, auditor-written: utility formulas retyped, Bayes rule, naive estimator as P(o|a), and the closed-form known-matrix correction diag(pi)C = A^-T J in place of EM) reproduces all six noisy-auditor population-limit cells to 4 dp: blind 0.3824, true-param 0.3917/0.4066, naive 0.3904/0.3873/0.3853 and 0.4046/0.3992/0.3941, corrected = true in every cell (max |C_hat - C| 1.5e-16). Hand arithmetic: implied P(high) = 0.15*0.8 + 0.85*0.1 = 0.205 and 0.15*0.7 + 0.85*0.15 = 0.2325 (file prints 0.233, float rounding). Every derived percentage in README results 1-4 (47%/69%, 31%/52%, 14%/8%, 0.0066/0.0131, within 0.0009) recomputed from the table and matches. On 200 n=50 sets, the 29 with an interior MLE give EM = closed-form inversion to 1e-4. Capped at 3: these are numbers in a stylised model whose only external anchor is the textbook correction.",
+  "completeness": "Every README promise was exercised: 7 tests pass (README says 7), run.py regenerates results.txt (25 s, README says 'about a minute') and the figure, all six numbered results are in the table, limitations listed. The live page https://marisstella.app/research/ambient-noisyaudit/ could not be loaded from this sandbox (proxy refused the host), so the served page is unverified.",
+  "verification": "`PYTHONPATH=src python3.13 -m pytest -q tests`: 7 passed in 0.11 s. Five seeded mutants via quality_mutate.py: naive prior from the wrong axis (caught), dropping the prior in value() (caught), blind baseline argmax->argmin (SURVIVED: blind is the reference for result 3 and the 'P(naive<blind)' columns, and no test checks it), speech utility sign 1-mask*noise -> 1+mask*noise in sim.py (SURVIVED: the utility model behind every number has no test at all), E-step A -> A.T (survived, but equivalent here because every test and experiment uses a symmetric uniform-error A; a non-symmetric auditor test would catch it). 2 of 4 non-equivalent mutants survive.",
+  "craft": "Read est.py (88 lines), sim.py (121), run.py (71), test_est.py (57). Small, clear, vectorised; exact scoring under the true parameters rather than Monte Carlo of the policy value is the right choice; seeds are per-cell and naive/EM are scored on the same audit sets (paired). Defects: sim.py is a byte-identical copy (md5 8f33d938) shared by at least 14 ambient-* projects rather than a package; estimate_em returns silently at the iteration cap with no convergence flag (est.py:51-63); estimate_naive's default alpha=0 differs from the alpha=1 the experiments use (fine, but easy to misuse).",
+  "claims": "Every number in the README is in results.txt and reproduces. The stylised-only disclaimer, AI-assistance note and a candid limitations list (known auditor matrix, independence, local optimiser, uniform errors) are present. Gaps: result 5's bold 'EM is not free at small n ... costs about what the bias does' rests partly on a mean difference of -0.0007 whose paired SE is 0.0005 (t = -1.35) and a 23% vs 21% rate within Monte Carlo error (~3 pp); the larger spread (0.0079 vs 0.0031) is real. No Monte Carlo SEs are reported anywhere. 'naive-implied label accuracy' is the unweighted mean of diag P(o|a) (run.py:35), which a reader will take for agreement P(o=a) (0.59 at label 0.7 / auditor 0.8, not 0.569). 'Next steps' list two items already done by ambient-dsaudit and ambient-goldaudit, not linked.",
+  "fitness": "A researcher can build on it, and two follow-ups did (ambient-dsaudit, ambient-goldaudit cite it). But the result is the classical one: naive use of an imperfect reference standard gives biased sensitivity/specificity that does not vanish with n, and with the reference's error rates known the bias is removed by inversion (Gart and Buck 1966; Staquet et al. 1981; for classifier training, Natarajan et al. 2013 and Patrini et al. 2017 forward/backward correction). In the population limit the EM here is exactly that closed-form inversion (checked). The new part is only the translation into utility loss in a stylised round-number model with one mix and uniform errors; none of the literature on the core correction is cited, only Dawid-Skene from memory.",
+  "domain": "Against standard latent-class practice: the known-matrix MLE by EM is correct and consistent, exact expected-utility scoring and the population-limit cell are the right design, paired seeds are good. Departures: no Monte Carlo standard errors for finite-n comparisons; only symmetric uniform-error matrices (so identifiability and asymmetric auditors are never exercised); misspecified auditor accuracy left untested although the auditor ran it in 10 population cells and found over-correction can make EM worse than naive (label 0.7, true auditor 0.9, assumed 0.7: EM 0.3877 vs naive 0.3904), which confirms the README's stated caveat."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "population-limit utilities: blind, true-parameter Bayes, naive and corrected maps for all 6 noisy-auditor cells",
+   "method": "independent reimplementation: retyped utility formulas, own Bayes rule, closed-form known-error correction diag(pi)C = A^-T J (Staquet et al. 1981 / Gart and Buck 1966) instead of the package's EM",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/indep/check.py",
+   "expected": "results.txt: blind 0.3824, true 0.3917/0.4066, naive 0.3904 0.3873 0.3853 / 0.4046 0.3992 0.3941, em = true",
+   "observed": "blind 0.3824, true 0.3917/0.4066, naive 0.3904 0.3873 0.3853 / 0.4046 0.3992 0.3941, corrected 0.3917/0.4066 in every cell",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "naive-implied P(high) under auditor 0.8 and 0.7",
+   "method": "hand arithmetic: P(a=high) = pi_high*acc + (1-pi_high)*(1-acc)/2",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/indep/check.py",
+   "expected": "0.15*0.8+0.85*0.1 = 0.205; 0.15*0.7+0.85*0.15 = 0.2325",
+   "observed": "file 0.205 and 0.233; reimplementation 0.205 and 0.232 (0.2325 rounding)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "EM converges to the known-matrix MLE",
+   "method": "closed-form inversion A^-T counts/n on 200 n=50 audit sets (label 0.7, auditor 0.7, run.py seed); compare EM prior where the inversion lies inside the simplex",
+   "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/indep/finite.py research/ambient-noisyaudit/src",
+   "expected": "EM = inversion wherever the inversion is interior",
+   "observed": "29 interior sets, 29 agree to 1e-4",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "derived percentages and gaps in README results 1-4",
+   "method": "hand arithmetic from results.txt table",
+   "command": "cat research/ambient-noisyaudit/experiments/results.txt",
+   "expected": "0.0044/0.0093=47%, 0.0064/0.0093=69%, 0.0074/0.0242=31%, 0.0125/0.0242=52%, 0.0013/0.0093=14%, 0.0020/0.0242=8%, n=1000 gaps 0.0066 and 0.0131, EM within 0.0009",
+   "observed": "all match (0.3917-0.3908=0.0009 is the worst EM gap; 0.4066-0.4059=0.0007)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "headline table reproduces from the documented command",
+   "method": "rerun run.py in a scratch copy, diff against committed results.txt",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/copy && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/results_rerun.txt && diff /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/results_rerun.txt research/ambient-noisyaudit/experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical (empty diff), 25 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite runs and matches the README count",
+   "method": "run it",
+   "command": "cd research/ambient-noisyaudit && PYTHONPATH=src /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "7 tests pass",
+   "observed": "7 passed in 0.11s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "result 5: EM worse than naive at n=50 (label 0.7, auditor 0.7), 'costs about what the bias does'",
+   "method": "paired difference EM - naive over the same 200 audit sets (run.py seed), standard error",
+   "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/indep/finite.py research/ambient-noisyaudit/src",
+   "expected": "a difference clearly larger than Monte Carlo error",
+   "observed": "mean -0.00068, paired SE 0.00050, t = -1.35; 23% vs 21% below blind is within ~3 pp MC error; only the spread difference (0.0079 vs 0.0031) is clearly real",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'naive-implied label accuracy' 0.569 (label 0.7, auditor 0.8)",
+   "method": "definition check: P(o=a) = sum_t pi_t sum_k C[t,k]A[t,k] = 0.7*0.8+2*0.15*0.1",
+   "command": "sed -n 35p research/ambient-noisyaudit/experiments/run.py",
+   "expected": "a named, defined quantity",
+   "observed": "unweighted mean of diag P(o|a) = 0.569; agreement P(o=a) would be 0.59; the README never defines it",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "README caveat that a wrong assumed auditor accuracy could make EM worse than naive",
+   "method": "auditor-run misspecification grid in the population limit using the package's estimators",
+   "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/noisy/indep/finite.py research/ambient-noisyaudit/src",
+   "expected": "README: untested",
+   "observed": "over-correction hurts: label 0.7, true auditor 0.9, assumed 0.7: EM 0.3877 < naive 0.3904; under-correction still beats naive in the other 9 cells (e.g. label 0.9, true 0.7, assumed 0.8: 0.4026 vs 0.3941)",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty against prior work",
+   "method": "literature: Gart and Buck (1966) Am J Epidemiol; Staquet et al. (1981) J Chronic Dis; Hui and Walter (1980) Biometrics; Natarajan et al. (2013) NeurIPS; Patrini et al. (2017) CVPR",
+   "command": "grep -n 'Dawid\\|Staquet\\|Gart\\|Natarajan\\|Patrini' research/ambient-noisyaudit/README.md",
+   "expected": "the known-error correction situated against the imperfect-reference-standard and noisy-label literature",
+   "observed": "only Dawid-Skene (from memory) and Horvitz cited; bias-and-correction result is textbook; new part is the utility translation in a stylised model",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page loads",
+   "method": "HTTP GET",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/ambient-noisyaudit/",
+   "expected": "200",
+   "observed": "000: egress proxy refused the host from this sandbox; unverified",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Next steps are open",
+   "method": "grep follow-up projects",
+   "command": "grep -n noisyaudit research/ambient-dsaudit/README.md research/ambient-goldaudit/README.md",
+   "expected": "open items or links to follow-ups",
+   "observed": "Dawid-Skene/wrong-accuracy (ambient-dsaudit) and gold-subset (ambient-goldaudit) are done, README not updated",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/ambient_noisyaudit/est.py:39",
+   "change": "cls = counts.sum(axis=1) -> cls = counts.sum(axis=0)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_noisyaudit/est.py:84",
+   "change": "blind = float(prior @ U[:, int(np.argmax(prior @ U))]) -> argmin",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_noisyaudit/est.py:80",
+   "change": "(prior * C[:, o]) @ U -> (C[:, o]) @ U in value()",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_noisyaudit/est.py:53",
+   "change": "E-step A -> A.T (equivalent mutant while every A is symmetric)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/ambient_noisyaudit/sim.py:34",
+   "change": "weight * (1.0 - p.mask_per_noise * noise) -> weight * (1.0 + p.mask_per_noise * noise)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The blind baseline (reference for result 3 and the P(naive<blind) columns) and the whole utility model in sim.py have no test: argmax->argmin in blind and a sign flip in the speech utility both leave all 7 tests green. Tests also use only symmetric A, so an A/A.T slip in the E-step is invisible.",
+   "where": "research/ambient-noisyaudit/src/ambient_noisyaudit/est.py:84",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "The core result (naive use of a noisy reference gives n-independent bias; with the reference's error matrix known, inversion/EM removes it) is the classical imperfect-reference-standard correction (Gart and Buck 1966; Staquet et al. 1981) and known-transition noisy-label correction (Natarajan et al. 2013; Patrini et al. 2017); none is cited, and in the population limit the EM is exactly the closed-form A^-T J inversion. Only the utility translation is new.",
+   "where": "research/ambient-noisyaudit/README.md:15",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Result 5 says EM's small-n cost is 'about what the bias does' on a mean difference of -0.0007 (paired SE 0.0005, t=-1.35) and 23% vs 21% below blind (within MC error); no Monte Carlo SEs are reported anywhere. The spread difference is real.",
+   "where": "research/ambient-noisyaudit/README.md:45",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'naive-implied label accuracy' is the unweighted mean of diag P(o|a), not agreement P(o=a) (0.569 vs 0.59 at label 0.7 / auditor 0.8); undefined in the README.",
+   "where": "research/ambient-noisyaudit/experiments/run.py:35",
+   "category": "other",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Next steps list the Dawid-Skene/wrong-accuracy and gold-subset follow-ups as open; both were done (ambient-dsaudit, ambient-goldaudit) and are not linked.",
+   "where": "research/ambient-noisyaudit/README.md:61",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "sim.py is a byte-identical copy (md5 8f33d938) of the utility model shared by at least 14 ambient-* projects, with no shared package or test; estimate_em returns silently at the iteration cap with no convergence flag.",
+   "where": "research/ambient-noisyaudit/src/ambient_noisyaudit/sim.py:1",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15478"
+ ],
+ "verdict": "Every number reproduces: run.py regenerates results.txt byte-for-byte, and an independent reimplementation using the textbook closed-form correction (diag(pi)C = A^-T J) matches all population-limit cells to 4 dp. The method is the right one and the limitations are candid. It misses the bar on verification: the blind baseline and the entire utility model are untested (2 of 4 non-equivalent mutants survive). Fitness is 2 because the bias-and-correction result is the classical imperfect-reference-standard result, which goes uncited; only the translation into utility loss in a round-number model is new. Smaller issues: result 5's mean comparison is within Monte Carlo error, 'implied label accuracy' is undefined, and the Next steps are stale. Not meeting the bar (verification 2); finished (completeness 3)."
+}

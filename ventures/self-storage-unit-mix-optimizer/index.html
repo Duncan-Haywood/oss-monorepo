@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Self-Storage Unit Mix Optimizer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the unit-size mix that earns the most net operating income from a self-storage building, given rates, occupancy and per-size demand limits. Runs in your browser.","featureList":"Optimal unit mix, current-vs-optimal comparison, value of extra square feet, per-size income per square foot, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I choose a self-storage unit mix?","acceptedAnswer":{"@type":"Answer","text":"Rank sizes by net income per square foot, then fill the building from the best size down until each size reaches the number of units your market will actually rent. The tool does this exactly, including the awkward case where leftover space only fits a different size, so every square foot earns."}},{"@type":"Question","name":"Why are small units usually worth more per square foot?","acceptedAnswer":{"@type":"Answer","text":"A 5x5 usually rents for far more per square foot than a 10x30. But a market only absorbs so many small units, which is why each size has a demand ceiling. Without ceilings every foot would be turned into 5x5s; with them, the leftover area goes to the next best size."}},{"@type":"Question","name":"What does the value of 1,000 more square feet mean?","acceptedAnswer":{"@type":"Answer","text":"The tool re-solves the mix with 1,000 square feet more and less, and shows the change in yearly net operating income. It is the figure to compare against the cost of building or converting that space."}},{"@type":"Question","name":"Where do the demand ceilings come from?","acceptedAnswer":{"@type":"Answer","text":"From you: your waiting list, the occupancy of each size in your current building, a competitor survey or a feasibility study. The optimizer treats them as true, so an optimistic ceiling gives an optimistic mix."}},{"@type":"Question","name":"Is this investment, appraisal or construction advice?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on figures you type. Rates, occupancy, unit-door costs, zoning, hallway and climate-control layout and lender requirements vary; check them with a qualified professional."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e40af; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1c3ca5; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1c3ca5; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e40af; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e40af; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1c3ca5; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -164,9 +202,9 @@
       last = a;
       const hasCurrent = a.rows.some((r) => r.current > 0);
       const vs = hasCurrent ? ` Your plan earns ${money(a.current.noi)}, so the best mix is ${a.gain > 0.5 ? money(a.gain) + " a year better" : "no better"}.` : "";
-      h += `<div class="finding"><h4>Best mix: ${money(a.best.noi)} a year net operating income</h4><p>${int(a.best.units)} units on ${int(a.best.sqft)} of ${int(a.shared.totalSqft)} sq ft, ${money(a.best.revenue)} revenue at the occupancy you entered.${vs}</p></div>`;
-      h += `<div class="finding"><h4>Units by size</h4>${table(["Size", "Rate / month", "Rate per sq ft", "Net income per sq ft / yr", "Your plan", "Best mix", "Change"], a.rows.map((r) => [esc(r.name), money(r.rate), "$" + r.ratePerSqft.toFixed(2), "$" + r.noiPerSqft.toFixed(2), r.current, r.optimal + (r.atCeiling ? " (market limit)" : ""), (r.change > 0 ? "+" : "") + r.change]))}</div>`;
-      if (a.addSqft !== null) h += `<div class="finding"><h4>What area is worth</h4><p>1,000 more square feet would add ${money(a.addSqft)} a year of net operating income${a.loseSqft !== null ? `; 1,000 fewer would cost ${money(a.loseSqft)}` : ""}. Compare that with what the space would cost to build or convert.</p></div>`;
+      h += `<div class="finding"><h3>Best mix: ${money(a.best.noi)} a year net operating income</h3><p>${int(a.best.units)} units on ${int(a.best.sqft)} of ${int(a.shared.totalSqft)} sq ft, ${money(a.best.revenue)} revenue at the occupancy you entered.${vs}</p></div>`;
+      h += `<div class="finding"><h3>Units by size</h3>${table(["Size", "Rate / month", "Rate per sq ft", "Net income per sq ft / yr", "Your plan", "Best mix", "Change"], a.rows.map((r) => [esc(r.name), money(r.rate), "$" + r.ratePerSqft.toFixed(2), "$" + r.noiPerSqft.toFixed(2), r.current, r.optimal + (r.atCeiling ? " (market limit)" : ""), (r.change > 0 ? "+" : "") + r.change]))}</div>`;
+      if (a.addSqft !== null) h += `<div class="finding"><h3>What area is worth</h3><p>1,000 more square feet would add ${money(a.addSqft)} a year of net operating income${a.loseSqft !== null ? `; 1,000 fewer would cost ${money(a.loseSqft)}` : ""}. Compare that with what the space would cost to build or convert.</p></div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

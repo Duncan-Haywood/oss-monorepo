@@ -18,7 +18,7 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 const round2 = (n) => Math.round(n * 100) / 100;
 export const HORIZON_MONTHS = 60;
 

@@ -1,0 +1,29 @@
+CWRU split audit: accuracy by split and model (40 recordings, 4643 windows of 2048 samples)
+
+== S1 random windows
+model                     accuracy    95% CI (recordings)  faulty-only  macro-F1
+M1 envelope+logreg           0.856      range 0.853-0.864        0.884     0.861
+M2 stats+forest              0.975      range 0.972-0.980        0.969     0.972
+M3 spectrum+MLP              1.000      range 0.999-1.000        1.000     1.000
+M4 spectrum+1NN              1.000      range 1.000-1.000        1.000     1.000
+
+== S2 time within recording
+model                     accuracy    95% CI (recordings)  faulty-only  macro-F1
+M1 envelope+logreg           0.852         [0.792, 0.906]        0.870     0.849
+M2 stats+forest              0.970         [0.949, 0.987]        0.967     0.971
+M3 spectrum+MLP              1.000         [1.000, 1.000]        1.000     1.000
+M4 spectrum+1NN              1.000         [1.000, 1.000]        1.000     1.000
+
+== S3 leave one load out
+model                     accuracy    95% CI (recordings)  faulty-only  macro-F1
+M1 envelope+logreg           0.839         [0.777, 0.897]        0.863     0.835
+M2 stats+forest              0.941         [0.906, 0.969]        0.938     0.942
+M3 spectrum+MLP              0.994         [0.987, 0.999]        0.994     0.994
+M4 spectrum+1NN              0.966         [0.918, 1.000]        0.963     0.966
+
+== S4 leave one fault size out
+model                     accuracy    95% CI (recordings)  faulty-only  macro-F1
+M1 envelope+logreg           0.530         [0.412, 0.653]        0.526     0.517
+M2 stats+forest              0.442         [0.297, 0.583]        0.394     0.487
+M3 spectrum+MLP              0.707         [0.563, 0.851]        0.681     0.739
+M4 spectrum+1NN              0.546         [0.398, 0.688]        0.507     0.593

@@ -82,7 +82,7 @@ export const EXPERIMENTS = [
     id: 'twins',
     status: 'idea',
     title: 'Agent twins of every page',
-    summary: 'A plain-Markdown copy of each page beside it (`index.md`), linked with rel="alternate", carrying the inputs, the formula and the disclaimer.',
+    summary: 'A plain-Markdown copy of each page beside it (index.md), linked with rel="alternate", carrying the inputs, the formula and the disclaimer.',
     why: 'Assistants read text better than forms. llms.txt points at the site; twins would let it point at every page.',
   },
   {
@@ -103,14 +103,14 @@ export const EXPERIMENTS = [
     id: 'research-media',
     status: 'idea',
     title: 'Research in every format',
-    summary: 'Each research project in `research/` as a short write-up, a 60-second short (its key chart, animated), a long-form walkthrough, and a podcast episode, all generated from the project’s own LOG.md, data and charts, so nothing is said that the research did not find.',
+    summary: 'Each research project in research/ as a short write-up, a 60-second short (its key chart, animated), a long-form walkthrough, and a podcast episode, all generated from the project’s own LOG.md, data and charts, so nothing is said that the research did not find.',
     why: 'Research people can build on has to reach them first; the findings, figures and logs are already committed, and a pipeline that renders them costs nothing per episode.',
   },
   {
     id: 'audio',
     status: 'idea',
     title: 'Engineering and research, read aloud',
-    summary: 'The posts in `writing/` and the research write-ups as a podcast feed, voiced in the listener’s own browser (Web Speech) at first, and by a model on the owner’s key only if the owner switches that on.',
+    summary: 'The posts in writing/ and the research write-ups as a podcast feed, voiced in the listener’s own browser (Web Speech) at first, and by a model on the owner’s key only if the owner switches that on.',
     why: 'The engineering writing already exists; audio is a second door into it at no marginal cost.',
   },
 ];
@@ -230,7 +230,7 @@ code{font:.86em ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--cod
 h1{font-size:clamp(2rem,6vw,3.4rem);line-height:1.05;letter-spacing:-.025em;margin:.5rem 0 .8rem}
 h2{font-size:1.25rem;margin:0 0 .4rem;letter-spacing:-.01em}
 .lede{color:var(--muted);font-size:1.08rem;max-width:68ch;margin:0}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin:28px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(280px,100%),1fr));gap:16px;margin:28px 0}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s,box-shadow .15s}
 .card:hover{transform:translateY(-2px);box-shadow:0 10px 30px var(--glow)}
 .card .art{aspect-ratio:16/7;overflow:hidden;display:block}

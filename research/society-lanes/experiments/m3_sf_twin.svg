@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 470" font-family="sans-serif" font-size="12">
+<rect width="640" height="470" fill="#fff"/>
+<text x="64" y="22" font-size="13">Social-force twin (JuPedSim, fitted side bias) against the real corridors</text>
+<line x1="64" x2="440" y1="414.0" y2="414.0" stroke="#eee"/>
+<line x1="64.0" x2="64.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="418.0" text-anchor="end">0.4</text>
+<text x="64.0" y="432" text-anchor="middle">0.4</text>
+<line x1="64" x2="440" y1="351.7" y2="351.7" stroke="#eee"/>
+<line x1="126.7" x2="126.7" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="355.7" text-anchor="end">0.5</text>
+<text x="126.7" y="432" text-anchor="middle">0.5</text>
+<line x1="64" x2="440" y1="289.3" y2="289.3" stroke="#eee"/>
+<line x1="189.3" x2="189.3" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="293.3" text-anchor="end">0.6</text>
+<text x="189.3" y="432" text-anchor="middle">0.6</text>
+<line x1="64" x2="440" y1="227.0" y2="227.0" stroke="#eee"/>
+<line x1="252.0" x2="252.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="231.0" text-anchor="end">0.7</text>
+<text x="252.0" y="432" text-anchor="middle">0.7</text>
+<line x1="64" x2="440" y1="164.7" y2="164.7" stroke="#eee"/>
+<line x1="314.7" x2="314.7" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="168.7" text-anchor="end">0.8</text>
+<text x="314.7" y="432" text-anchor="middle">0.8</text>
+<line x1="64" x2="440" y1="102.3" y2="102.3" stroke="#eee"/>
+<line x1="377.3" x2="377.3" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="106.3" text-anchor="end">0.9</text>
+<text x="377.3" y="432" text-anchor="middle">0.9</text>
+<line x1="64" x2="440" y1="40.0" y2="40.0" stroke="#eee"/>
+<line x1="440.0" x2="440.0" y1="40" y2="414" stroke="#eee"/>
+<text x="56" y="44.0" text-anchor="end">1.0</text>
+<text x="440.0" y="432" text-anchor="middle">1.0</text>
+<line x1="64.0" y1="414.0" x2="440.0" y2="40.0" stroke="#555" stroke-dasharray="4 3"/>
+<text x="252.0" y="456" text-anchor="middle">observed share on own right (95% interval)</text>
+<text transform="translate(18 227.0) rotate(-90)" text-anchor="middle">simulated share (mean of 20 seeds)</text>
+<line x1="402.8" x2="440.0" y1="70.4" y2="70.4" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<circle cx="424.1" cy="70.4" r="4.5" fill="#1b6ca8"/>
+<line x1="416.9" x2="440.0" y1="56.8" y2="56.8" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<circle cx="430.8" cy="56.8" r="4.5" fill="#1b6ca8"/>
+<line x1="440.0" x2="440.0" y1="57.6" y2="57.6" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<circle cx="440.0" cy="57.6" r="4.5" fill="#1b6ca8"/>
+<line x1="411.4" x2="433.9" y1="106.8" y2="106.8" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<circle cx="423.6" cy="106.8" r="4.5" fill="#1b6ca8"/>
+<line x1="300.1" x2="354.8" y1="71.9" y2="71.9" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<circle cx="328.5" cy="71.9" r="4.5" fill="#1b6ca8"/>
+<line x1="418.4" x2="434.0" y1="85.5" y2="85.5" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<rect x="422.8" y="81.5" width="8" height="8" fill="#1b6ca8"/>
+<line x1="407.5" x2="427.3" y1="73.4" y2="73.4" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<rect x="414.0" y="69.4" width="8" height="8" fill="#1b6ca8"/>
+<line x1="346.7" x2="381.2" y1="104.4" y2="104.4" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<rect x="360.0" y="100.4" width="8" height="8" fill="#1b6ca8"/>
+<line x1="345.8" x2="380.6" y1="70.9" y2="70.9" stroke="#1b6ca8" stroke-opacity="0.6"/>
+<rect x="359.8" y="66.9" width="8" height="8" fill="#1b6ca8"/>
+<line x1="126.7" x2="232.7" y1="178.9" y2="178.9" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="179.7" cy="178.9" r="4.5" fill="#c0392b"/>
+<line x1="168.6" x2="272.2" y1="196.6" y2="196.6" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="218.0" cy="196.6" r="4.5" fill="#c0392b"/>
+<line x1="171.0" x2="250.8" y1="192.1" y2="192.1" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="212.4" cy="192.1" r="4.5" fill="#c0392b"/>
+<line x1="89.1" x2="160.1" y1="168.3" y2="168.3" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="125.7" cy="168.3" r="4.5" fill="#c0392b"/>
+<line x1="111.1" x2="193.3" y1="168.3" y2="168.3" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="153.6" cy="168.3" r="4.5" fill="#c0392b"/>
+<line x1="73.4" x2="143.0" y1="186.7" y2="186.7" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="108.2" cy="186.7" r="4.5" fill="#c0392b"/>
+<line x1="104.3" x2="175.5" y1="166.8" y2="166.8" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="140.9" cy="166.8" r="4.5" fill="#c0392b"/>
+<line x1="118.4" x2="188.5" y1="170.8" y2="170.8" stroke="#c0392b" stroke-opacity="0.6"/>
+<circle cx="155.6" cy="170.8" r="4.5" fill="#c0392b"/>
+<line x1="262.5" x2="310.7" y1="149.4" y2="149.4" stroke="#c0392b" stroke-opacity="0.6"/>
+<rect x="282.0" y="145.4" width="8" height="8" fill="#c0392b"/>
+<line x1="222.7" x2="264.9" y1="152.4" y2="152.4" stroke="#c0392b" stroke-opacity="0.6"/>
+<rect x="239.8" y="148.4" width="8" height="8" fill="#c0392b"/>
+<line x1="124.2" x2="171.2" y1="157.4" y2="157.4" stroke="#c0392b" stroke-opacity="0.6"/>
+<rect x="142.7" y="153.4" width="8" height="8" fill="#c0392b"/>
+<line x1="163.4" x2="206.6" y1="163.5" y2="163.5" stroke="#c0392b" stroke-opacity="0.6"/>
+<rect x="181.4" y="159.5" width="8" height="8" fill="#c0392b"/>
+<line x1="157.2" x2="205.9" y1="132.6" y2="132.6" stroke="#c0392b" stroke-opacity="0.6"/>
+<rect x="178.1" y="128.6" width="8" height="8" fill="#c0392b"/>
+<line x1="107.4" x2="153.0" y1="216.2" y2="216.2" stroke="#c0392b" stroke-opacity="0.6"/>
+<rect x="125.8" y="212.2" width="8" height="8" fill="#c0392b"/>
+<circle cx="456" cy="60" r="4.5" fill="#1b6ca8"/><text x="466" y="64" font-size="11">free choice (fitted on)</text>
+<circle cx="456" cy="80" r="4.5" fill="#c0392b"/><text x="466" y="84" font-size="11">exit assigned (held out)</text>
+<circle cx="456" cy="110" r="4.5" fill="#777"/><text x="466" y="114" font-size="11">HERMES 2009</text>
+<rect x="452" y="126" width="8" height="8" fill="#777"/><text x="466" y="134" font-size="11">BaSiGo 2013</text>
+<text x="452" y="164" font-size="11">dashed: perfect twin</text>
+<text x="452" y="180" font-size="11">above it: twin keeps</text>
+<text x="452" y="194" font-size="11">right more than people</text>
+</svg>

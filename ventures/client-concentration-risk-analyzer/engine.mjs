@@ -21,7 +21,7 @@ const toAmount = (s) => {
 };
 const toDate = (s) => {
   const t = String(s ?? "").trim();
-  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(t);
+  let m = /^(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(t);
   let y, mo, d;
   if (m) [y, mo, d] = [+m[1], +m[2], +m[3]];
   else if ((m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(t))) [y, mo, d] = [+m[3], +m[1], +m[2]];
@@ -101,7 +101,11 @@ export function analyze(allRows, userOpts = {}) {
   if (dated.length === rows.length && dated.length) {
     const last = Math.max(...dated.map((r) => r.date));
     const lastD = new Date(last);
-    const start = Date.UTC(lastD.getUTCFullYear(), lastD.getUTCMonth() - options.windowMonths, lastD.getUTCDate() + 1);
+    // The day after the same date N months back, clamped to that month's length: a 1-month window
+    // ending 31 March starts 1 March (unclamped, "31 February" rolled to 3 March, so the window began 4 March and dropped three days).
+    const backMonth = lastD.getUTCMonth() - options.windowMonths;
+    const backLast = new Date(Date.UTC(lastD.getUTCFullYear(), backMonth + 1, 0)).getUTCDate();
+    const start = Date.UTC(lastD.getUTCFullYear(), backMonth, Math.min(lastD.getUTCDate(), backLast)) + 86400000;
     rows = rows.filter((r) => r.date >= start && r.date <= last);
     const first = Math.min(...rows.map((r) => r.date));
     months = Math.max(1, Math.min(options.windowMonths, ((last - first) / 86400000 + 1) / 30.44));

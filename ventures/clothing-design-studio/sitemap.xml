@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>./index.html</loc></url>
+  <url><loc>./launch.html</loc></url>
   <url><loc>./for-independent-clothing-designers.html</loc></url>
   <url><loc>./how-much-does-it-cost-to-make-a-t-shirt.html</loc></url>
   <url><loc>./sunglasses.html</loc></url>
   <url><loc>./wardrobe.html</loc></url>
   <url><loc>./fit.html</loc></url>
   <url><loc>./camera.html</loc></url>
+  <url><loc>./drape.html</loc></url>
   <url><loc>./quotes.html</loc></url>
   <url><loc>./labels.html</loc></url>
   <url><loc>./prices.html</loc></url>
@@ -15,13 +17,21 @@
   <url><loc>./reorder.html</loc></url>
   <url><loc>./orderlines.html</loc></url>
   <url><loc>./returns.html</loc></url>
+  <url><loc>./repeat.html</loc></url>
+  <url><loc>./pattern.html</loc></url>
+  <url><loc>./financing.html</loc></url>
+  <url><loc>./adspend.html</loc></url>
   <url><loc>./spec.html</loc></url>
+  <url><loc>./colour.html</loc></url>
+  <url><loc>./artwork.html</loc></url>
   <url><loc>./inspection.html</loc></url>
   <url><loc>./shrink.html</loc></url>
+  <url><loc>./gsm.html</loc></url>
   <url><loc>./fx.html</loc></url>
   <url><loc>./tiers.html</loc></url>
   <url><loc>./startup.html</loc></url>
   <url><loc>./pod.html</loc></url>
+  <url><loc>./pricepoint.html</loc></url>
   <url><loc>./testing.html</loc></url>
   <url><loc>./bom.html</loc></url>
   <url><loc>./freight.html</loc></url>
@@ -34,10 +44,13 @@
   <url><loc>./duty.html</loc></url>
   <url><loc>./salestax.html</loc></url>
   <url><loc>./eutax.html</loc></url>
+  <url><loc>./eprfr.html</loc></url>
   <url><loc>./discount.html</loc></url>
+  <url><loc>./bundle.html</loc></url>
   <url><loc>./parcel.html</loc></url>
   <url><loc>./import-duty-on-clothing.html</loc></url>
   <url><loc>./clothing-minimum-order-quantity.html</loc></url>
   <url><loc>./sunglasses-profit-margin.html</loc></url>
   <url><loc>./timeline.html</loc></url>
+  <url><loc>./greenclaims.html</loc></url>
 </urlset>

@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkKAo1T1vsttAMQQip",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T21:18:43Z",
+  "ended": "2026-11-13T21:53:02Z",
+  "wall_minutes": 34.7,
+  "tokens_in": 17313269,
+  "tokens_out": 61477,
+  "cost_usd": 6.2325,
+  "tool_calls": 120,
+  "task": "Flagship 6 (shift-roster-builder): column generation first for fresh builds, guide pages re-derived",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15618",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Flipping the default broke 13 tests that pin the old caf\u00e9 roster; one exposed a real planner regression (guide plan week 3: 20 h open, not 17) and one exposed that --steady would lose its tied candidates",
+      "fixed": "planWeeks defaults to walk-first; steadyRoster builds its seeds walk-first after the plain build; pages and tests re-derived"
+    },
+    {
+      "what": "A python heredoc with escaped regex backslashes was refused by the shell safety parser (no rm was involved)",
+      "fixed": "wrote the edit script to the scratchpad and ran it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The 'Posted reissues, column generation first' section treated fresh-build order as a page-rewrite cost only; it did not mention that steadyRoster's seed variation and planWeeks' carry-over both depend on which tie the order returns, which is where the real work was."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "next: is a folded YAML block, so an exact-string replace of an item spanning a line wrap fails; had to match with whitespace-insensitive regex."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py prints the interpreter path; the found interpreter had scipy but `python3` on PATH did not, so eval/reissue-ilp-check.py needed the printed path, not python3 (as the eval's own header says)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The brief favours new depth; this slice was mostly a default change plus re-derivation of published figures.",
+      "did": "Took the flagship next: item as written, but measured beyond it (multi-week plans, call-out exposure of ties) and kept the planner on the old order where the measurement showed a small loss.",
+      "result": "Single-week builds 3.5x faster at the same proven score; no published plan figure got worse."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-shift-roster-fresh-builds-column-generation-first.md",
+    "ventures/shift-roster-builder/README.md#fresh-builds-column-generation-first-2026-11-13-later"
+  ],
+  "goal": null,
+  "notes": "Verification: node --test '*.test.mjs' in ventures/shift-roster-builder 514/514 pass (160 s -> 137 s). venture-preflight shift-roster-builder: clean. run_workflow_locally --for-changes: every run step passed (portfolio-validate 100/100, ventures-tests 5/5, doc-refs, link-contrast, page-integrity etc.); the only no-verdict steps depend on the site build, which the local runner skips (preflight builds it). eval/fresh-order.mjs: 80 builds, same score/open hours, 36.4 s -> 10.4 s; caf\u00e9 ties differ (exposure 100 h vs old seeds 92-140). eval/plan-order.mjs: 61 plans x 2 kinds, CG-first worse on 2 (2-3 h), better on 0. ILP re-run (scipy 1.18 HiGHS): 41 reissues, least changes 94, kept 96; with caller 158 = 158.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "04fc5dec-5aaa-55e2-af1a-15ffecfeac8b",
+    "transcripts": 1,
+    "first": "2026-11-13T21:18:43Z",
+    "last": "2026-11-13T21:53:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 117,
+        "input": 225,
+        "output": 61477,
+        "thinking": 13616,
+        "cache_read": 17115683,
+        "cache_write_5m": 0,
+        "cache_write_1h": 197361,
+        "api_equivalent_usd": 6.2325,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 117,
+      "input": 225,
+      "output": 61477,
+      "thinking": 13616,
+      "cache_read": 17115683,
+      "cache_write_5m": 0,
+      "cache_write_1h": 197361,
+      "api_equivalent_usd": 6.2325,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.989,
+    "tool_calls": 120,
+    "tools": {
+      "Bash": 111,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.7,
+      "active_minutes": 34.7,
+      "model_minutes": 10.04,
+      "tool_minutes": 24.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "re-deriving six guide pages, two new evals, an ILP re-run and two API fixes; an engineer familiar with the code, about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 160.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

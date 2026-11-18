@@ -30,16 +30,31 @@ export function num(v) {
   return String(v ?? "").trim() === "" ? NaN : n;
 }
 
+// Read the form. A blank field means zero (no materials, no helper), never the
+// example value; text that is not a number is reported, not replaced.
+// Quality audit 2026-11-08: clearing "Materials you buy" used to price the
+// job with the $185 example materials still in it.
+export function readInputs(raw) {
+  const o = {}, bad = [];
+  for (const k of Object.keys(DEFAULTS)) {
+    const v = raw?.[k];
+    if (v === undefined || v === null || String(v).trim() === "") { o[k] = 0; continue; }
+    const n = num(v);
+    if (Number.isFinite(n)) o[k] = n; else { o[k] = 0; bad.push(k); }
+  }
+  return { o, bad };
+}
+
 const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
 const r2 = (x) => Math.round(x * 100) / 100;
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function money2(x) {
   const n = Math.round(x * 100) / 100;
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 // Cost of one job at its own hours. `overrun` stretches the hours spent on site only

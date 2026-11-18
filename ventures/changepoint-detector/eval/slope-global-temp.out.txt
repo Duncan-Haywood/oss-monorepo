@@ -1,0 +1,7 @@
+n=145, lag-1 autocorrelation of the differences -0.20, auto bar 8.4
+best single split 1976, W 1.8
+reported at the auto bar: none
+Monte Carlo p 0.798
+window 1880-1979: best split 1964, W 0.6
+window 1910-2024: best split 1976, W 1.1
+window 1930-2024: best split 1976, W 1.5

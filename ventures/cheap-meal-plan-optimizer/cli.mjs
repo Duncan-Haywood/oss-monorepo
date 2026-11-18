@@ -18,6 +18,7 @@ import {
   parseFoods, validateSpec, solve, verifyPlan, filterByStyle, STYLES, groceryText, planCsv,
   sampleSpec, DEFAULTS, SAMPLE_FOODS, NUTRIENTS, UNITS, money2, fmt,
 } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Find the lowest-cost servings per day that meet your calorie and nutrient targets.
 
@@ -101,7 +102,7 @@ export function run(foodsText, opts) {
   return { code: 0, out: lines.join("\n") + "\n" };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const o = parseArgs(process.argv.slice(2));
     if (o.help) { process.stdout.write(USAGE); process.exit(0); }

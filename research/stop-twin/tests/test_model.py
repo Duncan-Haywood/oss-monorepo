@@ -23,6 +23,21 @@ class M(unittest.TestCase):
         lhs = sum(nb_pmf(j, m, p) for j in range(m, n + 1))
         self.assertAlmostEqual(lhs, 1.0 - binom_cdf_lt(m, n, p), places=12)
 
+    def test_exact_ci_matches_beta_quantiles(self):
+        # Closed form (Clopper-Pearson for inverse sampling): lower = Beta(m, n-m+1) 2.5% quantile, upper =
+        # Beta(m, n-m) 97.5% quantile, from scipy.special.betaincinv (quality audit 2026-11-13). Pins both the
+        # alpha/2 split and the n-1 in the upper limit, which inequality checks let through.
+        lo, hi = exact_ci(30, 30000)
+        self.assertAlmostEqual(lo, 0.00067479433, delta=1e-10)
+        self.assertAlmostEqual(hi, 0.00138804814, delta=1e-10)
+
+    def test_inverse_sample_mean_is_m_over_p(self):
+        rng = random.Random(7)
+        draws = [inverse_sample(0.2, 10, rng) for _ in range(4000)]
+        # E[N] = m/p = 50, sd(N) = sqrt(m(1-p))/p ~ 14.1, so the mean of 4000 has sd ~ 0.22; dropping the +1 per
+        # gap would give 40.
+        self.assertAlmostEqual(sum(draws) / len(draws), 50, delta=1.5)
+
     def test_exact_ci_brackets_and_coverage(self):
         lo, hi = exact_ci(30, 30000)
         self.assertLess(lo, 0.001)

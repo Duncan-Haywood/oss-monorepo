@@ -1,0 +1,32 @@
+pump 45 L/min; p_n 10.91 bar; load factor 0.346; LS standby 2 L/min; 3000 cycles, the same as 2n, 5p and 5q
+
+setting: closed-form median m* (grid) | LS worse % at 14 and 25 bar, closed form (grid)
+  constant 6 bar (2n): 27.97 (28.0) | 0.8 (0.8) 33.6 (33.6)
+  5p floor, orifice, per-phase sizing: 26.55 (26.5) | 1.6 (1.6) 41.7 (41.7)
+  5p floor, power law, per-phase sizing: 27.18 (27.2) | 1.3 (1.3) 38.3 (38.3)
+  5p floor, orifice, one size up: 22.57 (22.6) | 8.6 (8.6) 61.7 (61.7)
+  5q per function, envelope, orifice: 23.00 (23.0) | 5.3 (5.3) 60.6 (60.6)
+  5q per function, per cycle, orifice: 25.59 (25.6) | 2.6 (None) 47.1 (None)
+
+constant open-centre drop d while moving: closed-form median m* (5q grid); m* 5-95%; median per-cycle slope Q T_move / B
+  d 0: 20.53 (20.6); 5-95% 10.7 to 34.1; slope 1.235
+  d 1: 21.76 (21.8); 5-95% 11.9 to 35.6; slope 1.235
+  d 2: 23.04 (23.0); 5-95% 13.0 to 37.0; slope 1.235
+  d 3: 24.26 (24.3); 5-95% 14.2 to 38.4; slope 1.235
+  d 4: 25.50 (25.5); 5-95% 15.3 to 39.8; slope 1.235
+  d 5: 26.75 (26.7); 5-95% 16.5 to 41.3; slope 1.235
+  d 6: 27.97 (28.0); 5-95% 17.6 to 42.5; slope 1.235
+  d 8: 30.49 (30.5); 5-95% 19.8 to 45.2; slope 1.235
+  slope of the median m* over d 0 to 8: 1.245 bar per bar; median per-cycle slope 1.235; median per-cycle dm*/dp_n 0.916
+
+decomposition at d = 0 (bar of m*, each term divided by B): median and 5-95%
+  surplus flow at load pressure: median 12.26 bar (5.33 to 23.90)
+  idle bleed net of LS idle work: median 8.14 bar (2.11 to 13.96)
+  idle share of m*: median 0.393 (0.132 to 0.605)
+  median cycle (by m*): m* 20.53 bar
+
+B1 HOLDS (every closed-form median within 0.15 bar of the grid: largest gap 0.075)
+B2 HOLDS (LS-worse shares within 0.1 points: largest gap 0.03)
+B3 REFUTED (median idle share > 0.5: 0.393)
+B4 HOLDS (median per-cycle slope within 0.05 of 1.24: 1.235)
+B5 HOLDS (5-95% range of m* at d 0 wider than 12 bar: 23.4)

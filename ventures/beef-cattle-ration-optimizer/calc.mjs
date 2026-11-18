@@ -296,7 +296,7 @@ export function verifyPlan(spec, res) {
   return problems;
 }
 
-export const money2 = (x) => (Number.isFinite(x) ? (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2) : "—");
+export const money2 = (x) => (Number.isFinite(x) ? ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2)) : "—");
 export const fmt = (x, d = 0) => (Number.isFinite(x) ? x.toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d }) : "—");
 
 export function planCsv(spec, res) {

@@ -86,3 +86,13 @@ test('named references containing digits decode, including digits 2-9', () => {
   assert.equal(decodeEntities('m&sup2; and m&sup3;'), 'm² and m³');
   assert.equal(decodeEntities('&frac12; &frac34;'), '½ ¾');
 });
+
+test('doubleEscapedInChrome finds an entity escaped twice in a menu, title or heading', async () => {
+  const { doubleEscapedInChrome } = await import('./entities.mjs');
+  assert.deepEqual(doubleEscapedInChrome('<select><option value="a">a market&amp;rsquo;s price</option></select>'), ['&rsquo;']);
+  assert.deepEqual(doubleEscapedInChrome('<optgroup label="Fees &amp;amp; rent (3)"><option>x</option></optgroup>'), ['&amp;']);
+  assert.deepEqual(doubleEscapedInChrome('<title>4&amp;times;8 sheets</title><h1 class="t">A&amp;#8217;s</h1>'), ['&times;', '&#8217;']);
+  // Correct escaping, and a deliberate example in prose, both pass.
+  assert.deepEqual(doubleEscapedInChrome('<option>Fees &amp; rent</option><h2>a market&rsquo;s price</h2>'), []);
+  assert.deepEqual(doubleEscapedInChrome('<p>Write <code>&amp;minus;</code>, not a hyphen.</p>'), []);
+});

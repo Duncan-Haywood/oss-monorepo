@@ -155,7 +155,7 @@
   </footer>
   <script type="module">
     import { compareSizeTierPackaging, sizeTierPackagingNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = [
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
@@ -211,7 +211,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "size_tier_packaging_compared");
+        recordUsage(usageStorage(), false, "size_tier_packaging_compared");
       });
     });
     update();

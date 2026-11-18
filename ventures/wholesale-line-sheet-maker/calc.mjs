@@ -278,12 +278,12 @@ export function ordersToClear(mix, settings, targetProfitCents, { afterCommissio
 // Neutralise spreadsheet formula injection in text cells and quote as needed.
 export function csvCell(value) {
   let s = String(value ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = src.split(/\r?\n/, 1)[0] || "";
   const delim = firstLine.includes("\t") ? "\t" : firstLine.split(";").length > firstLine.split(",").length ? ";" : ",";
   const rows = [];

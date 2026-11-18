@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKm1nKDdSyWMQsq3nKf",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T20:23:58Z",
+  "ended": "2026-11-12T20:37:51Z",
+  "wall_minutes": 14.29,
+  "tokens_in": 6074575,
+  "tokens_out": 65084,
+  "cost_usd": 3.6633,
+  "tool_calls": 52,
+  "task": "creative: new Hearth & Horizon story (headline shelf), text only",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15250",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First draft changed the decompression start from 19:50 to 20:30 mid-scene without recomputing depths and clock times; caught on the adversarial re-read and every depth/time re-run in code (deco.py in the scratchpad).",
+      "fixed": true
+    },
+    {
+      "what": "First draft had a diver receive bad news live on the seabed and an oxygen line ('same oxygen per breath as a kitchen') that was off by a factor of two (0.45 vs 0.21 bar); both fixed before commit.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "'Next up' said 337 finished proposals on 2026-11-12; DONE.md actually held 345 before this run. Corrected to 346; a generated count would not drift."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "route printed '2569/40 runs toward the next review' yet did not route to review; the counter reads as overdue by a factor of 60, which is confusing whatever it means."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a stories+post diff also ran photo-editing-ci.yml, whose ruff lint fails on existing code unrelated to the diff; costs time to rule out."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Story is 5,988 words, at the top of the bible's 3,500 to 6,000 band after trimming from 6,257.",
+      "did": "trimmed exposition until under 6,000",
+      "result": "within band"
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "No audio: committed audio is 423 MB, over the 400 MB cap.",
+      "did": "landed text, pages and feeds only",
+      "result": "text-only story live on next build"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-one-point-eight-metres-an-hour.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon (Hearth & Horizon shelf). Piece: one-point-eight-metres-an-hour. Picked H&H because it is the headline shelf and its Next up list held only the 'use sparingly' Quarry Nine sequel; For Other Minds had 8 pieces in the last two days. Saturation diving had no prior story (DONE.md grep: decompress 0). Numbers: invented table 1.8/1.5/1.2/0.9 m/h, stops 00-06 and 14-16, 75 h 50 travel from 108 m; start 19:50 -> Sun 13:40, 20:30 -> 30 cm at 14:00 then 16:20, 21:00 -> 16:50; weekdays checked (Tue 9 Dec 2053, Sun 14 Dec Gaudete). Added a new H&H proposal (The Second Gas) so the shelf's Next up is not empty. Checks: node --test 15/15 in the venture; check_post_frontmatter and check_post_links clean; run_workflow_locally --for-changes: all workflows touched pass apart from pages build steps it cannot evaluate and an unrelated photo-editing ruff failure.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9c2641e9-a0ea-579b-bb3c-d41e1d3363f8",
+    "transcripts": 1,
+    "first": "2026-11-12T20:23:58Z",
+    "last": "2026-11-12T20:38:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 97,
+        "output": 65084,
+        "thinking": 31511,
+        "cache_read": 5927513,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146965,
+        "api_equivalent_usd": 3.6633,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 97,
+      "output": 65084,
+      "thinking": 31511,
+      "cache_read": 5927513,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146965,
+      "api_equivalent_usd": 3.6633,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 44,
+      "Read": 4,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.29,
+      "active_minutes": 14.29,
+      "model_minutes": 11.9,
+      "tool_minutes": 2.39,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a professional writer researching and drafting a 6,000-word technical short story with checked arithmetic",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 218.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

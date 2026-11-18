@@ -8,7 +8,7 @@ import {
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
 
 test("parseCsv handles quotes, embedded commas, CRLF and a BOM", () => {
-  const g = parseCsv('﻿a,b\r\n"x, y","say ""hi"""\r\n');
+  const g = parseCsv('\uFEFFa,b\r\n"x, y","say ""hi"""\r\n');
   assert.deepEqual(g, [["a", "b"], ["x, y", 'say "hi"']]);
 });
 
@@ -724,4 +724,22 @@ test("tax-software CSV: five columns, US dates, rows with no purchase left out a
   assert.equal(lines[1], "BTC,01/10/2023,10000.00,02/01/2024,15000.00");
   assert.equal(lines.length, 2);
   assert.equal(turboTaxSkipped(r.rows), 1);
+});
+
+test("a swap with a price column and no total is valued at price times quantity given up", () => {
+  const parsed = parseTransactions("date,type,asset,quantity,price,to asset,to quantity\n2024-03-01,swap,ETH,2,3000,SOL,40\n");
+  assert.deepEqual(parsed.errors, []);
+  const [sell, buy] = parsed.transactions;
+  close(sell.usd, 6000, "2 ETH at $3,000");
+  close(buy.usd, 6000, "received SOL takes the same value");
+});
+
+test("donationPlan: giving coins worth less than they cost avoids no tax", () => {
+  const lots = [{ asset: "BTC", acquired: "2020-01-01", qty: 1, basis: 60000, wallet: "" }];
+  const d = donationPlan(lots, { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1, longRate: 0.2 });
+  assert.equal(d.gain, -10000);
+  assert.equal(d.taxAvoided, 0);
+  assert.equal(d.totalBenefit, 0);
+  const even = donationPlan([{ ...lots[0], basis: 50000 }], { asset: "BTC", price: 50000, asOf: "2026-10-16", qty: 1, longRate: 0.2 });
+  assert.equal(even.taxAvoided, 0);
 });

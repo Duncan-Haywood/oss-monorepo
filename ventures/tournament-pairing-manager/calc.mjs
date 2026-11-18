@@ -17,10 +17,20 @@ export function parsePlayers(text) {
     if (!line) return;
     let name = line;
     let rating = null;
-    const m = line.match(/^(.*?)[\s,;\t]*[\(\[]?\s*(-?\d{1,5}(?:\.\d+)?)\s*[\)\]]?$/);
+    let rd = null;
+    let vol = null;
+    // "Name, rating, RD" or "Name, rating, RD, volatility" (Glicko players);
+    // the fields must be separated by commas, semicolons or tabs.
+    const g = line.match(/^(.*?)\s*[,;\t]\s*(\d{1,5}(?:\.\d+)?)\s*[,;\t]\s*(\d{1,4}(?:\.\d+)?)(?:\s*[,;\t]\s*(0?\.\d+))?$/);
+    const m = g && g[1].trim() ? null : line.match(/^(.*?)[\s,;\t]*[\(\[]?\s*(-?\d{1,5}(?:\.\d+)?)\s*[\)\]]?$/);
     if (m && m[1].trim()) {
       name = m[1].trim();
       rating = Number(m[2]);
+    } else if (g && g[1].trim()) {
+      name = g[1].trim();
+      rating = Number(g[2]);
+      rd = Number(g[3]) > 0 ? Number(g[3]) : null;
+      vol = g[4] && Number(g[4]) > 0 ? Number(g[4]) : null;
     }
     name = name.replace(/\s+/g, " ");
     const key = name.toLowerCase();
@@ -29,7 +39,10 @@ export function parsePlayers(text) {
       return;
     }
     seen.add(key);
-    players.push({ id: `p${players.length + 1}`, name, rating, order: players.length });
+    const p = { id: `p${players.length + 1}`, name, rating, order: players.length };
+    if (rd != null) p.rd = rd;
+    if (vol != null) p.vol = vol;
+    players.push(p);
   });
   return { players, errors };
 }
@@ -206,18 +219,31 @@ export function pairSwissRound(players, rounds, opts = {}) {
     const half = Math.ceil(ids.length / 2);
     let best = { cost: Infinity, pairs: null };
     let budget = 400_000;
-    const used = new Array(ids.length).fill(false);
+    const n = ids.length;
+    const used = new Array(n).fill(false);
     const cur = [];
+    // pairCost is pure within one call, so each (i, j) cost is computed once
+    // and each row's candidates are sorted once by (cost, j). The search used
+    // to rebuild and re-sort the free candidates at every node; filtering the
+    // presorted row by `used` visits them in the same order (perf, 2026-11-18).
+    const costs = new Float64Array(n * n);
+    const order = new Array(n);
+    for (let i = 0; i < n; i++) {
+      const gh = noGames ? half : Math.ceil(groupSize(ids[i]) / 2);
+      const row = [];
+      for (let j = i + 1; j < n; j++) { costs[i * n + j] = pairCost(ids[i], ids[j], gh); row.push(j); }
+      row.sort((x, y) => costs[i * n + x] - costs[i * n + y] || x - y);
+      order[i] = row;
+    }
     function go(cost) {
       if (cost >= best.cost || budget-- <= 0) return;
       let i = 0;
-      while (i < ids.length && used[i]) i++;
-      if (i === ids.length) { best = { cost, pairs: cur.slice() }; return; }
+      while (i < n && used[i]) i++;
+      if (i === n) { best = { cost, pairs: cur.slice() }; return; }
       used[i] = true;
-      const cands = [];
-      for (let j = i + 1; j < ids.length; j++) if (!used[j]) cands.push([pairCost(ids[i], ids[j], noGames ? half : Math.ceil(groupSize(ids[i]) / 2)), j]);
-      cands.sort((x, y) => x[0] - y[0] || x[1] - y[1]);
-      for (const [c, j] of cands) {
+      for (const j of order[i]) {
+        if (used[j]) continue;
+        const c = costs[i * n + j];
         used[j] = true;
         cur.push([ids[i], ids[j]]);
         go(cost + c);
@@ -480,9 +506,14 @@ export function bracketText(bracket, seeded, results = {}, nameOf = (id) => id) 
 
 // ---------- exports and saved state ----------
 
+// A cell starting =, +, -, @, tab or CR runs as a formula when the CSV is
+// opened in a spreadsheet (CSV injection): player names are typed by whoever
+// made the event file, so prefix those with an apostrophe. Plain numbers such
+// as a -12.8 rating change stay numbers.
 const csvCell = (v) => {
-  const t = String(v ?? "");
-  return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
+  let t = String(v ?? "");
+  if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = `'${t}`;
+  return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t;
 };
 
 export function standingsCsv(rows) {
@@ -511,7 +542,12 @@ export function parseState(text) {
   try { data = JSON.parse(text); } catch { return { error: "That is not a saved tournament file." }; }
   if (!data || data.app !== "tournament-pairing-manager" || data.version !== 1) return { error: "That is not a saved tournament file." };
   if (!Array.isArray(data.players) || !data.players.every((p) => p && typeof p.id === "string" && typeof p.name === "string")) return { error: "The saved file has no valid player list." };
-  data.players = data.players.map((p, i) => ({ id: p.id, name: p.name, rating: typeof p.rating === "number" ? p.rating : null, order: i }));
+  data.players = data.players.map((p, i) => {
+    const out = { id: p.id, name: p.name, rating: typeof p.rating === "number" ? p.rating : null, order: i };
+    if (typeof p.rd === "number" && p.rd > 0) out.rd = p.rd;
+    if (typeof p.vol === "number" && p.vol > 0) out.vol = p.vol;
+    return out;
+  });
   data.rounds = Array.isArray(data.rounds) ? data.rounds : [];
   data.results = data.results && typeof data.results === "object" ? data.results : {};
   return { state: data };

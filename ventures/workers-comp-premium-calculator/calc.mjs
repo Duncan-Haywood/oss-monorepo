@@ -109,7 +109,12 @@ export function reclassImpact(basis, fromRate, toRate, mod = 1) {
 // Plain-language findings; every number traces to the policy result.
 export function findings(res) {
   const out = [];
-  const money = (n) => "$" + Math.round(n).toLocaleString("en-US");
+  const money = (n) => {
+    const format = (n) => "$" + Math.round(n).toLocaleString("en-US");
+    if (!(Number(n) < 0)) return format(n);
+    const text = format(Math.abs(n));
+    return /[1-9]/.test(text) ? `-${text}` : text;
+  };
   const top = [...res.classes].sort((a, b) => b.manual - a.manual)[0];
   if (top && res.manual > 0 && top.manual / res.manual >= 0.6 && res.classes.length > 1) {
     out.push({ severity: "info", title: `${top.label} drives ${Math.round((top.manual / res.manual) * 100)}% of manual premium`,

@@ -62,5 +62,20 @@ class Tst(unittest.TestCase):
         self.assertAlmostEqual(r, 77.0, places=6)
 
 
+    def test_mean_interference_against_closed_form(self):
+        # E[1/d^2] for d^2 uniform on [d0^2, R^2] is ln(R^2/d0^2)/(R^2-d0^2);
+        # the mean interference is K q c times that: 36.912 at the paper's values.
+        expected = 4 * 0.1 * C * math.log(R ** 2 / D0 ** 2) / (R ** 2 - D0 ** 2)
+        self.assertAlmostEqual(mean_interference(C, D0, R, 0.1, 4), expected, places=9)
+        self.assertAlmostEqual(expected, 36.912, places=3)
+
+    def test_pd_given_geometry_one_interferer_near_threshold(self):
+        # At 80 m, S = 152.59; a hit interferer at d^2 = 30000 adds c/d^2 = 16.67,
+        # so S/(1+I) = 8.62 < T: only clean frames detect, Pd = 1 - q. At
+        # d^2 = 40000 it adds 12.5, S/(1+I) = 11.30 >= T: every frame detects.
+        S = echo_power(80.0, SNR0, R0)
+        self.assertAlmostEqual(pd_given_geometry(S, T, [1 / 30000.0], C, 0.1), 0.9, places=12)
+        self.assertAlmostEqual(pd_given_geometry(S, T, [1 / 40000.0], C, 0.1), 1.0, places=12)
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,0 +1,163 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtJstQaHLJkRTPoFpEt",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:07:17Z",
+  "ended": "2026-11-18T02:21:25Z",
+  "wall_minutes": 14.52,
+  "tokens_in": 4656025,
+  "tokens_out": 49604,
+  "cost_usd": 2.9145,
+  "tool_calls": 44,
+  "task": "Hearth & Horizon: 'The line on the ceiling' proposal; landed as a revision after a parallel session merged the same story first",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17143",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "Scratch model needed numpy; bare python3 lacked it",
+      "fix": "platform/ci/pyenv.py found /usr/bin/python3.13 with numpy"
+    },
+    {
+      "what": "Merge of PR #17143 refused: PR #17142 (another session) landed the same proposal under the same slug while this run drafted; the start-of-run search found nothing because both PRs opened within minutes",
+      "fix": "Dropped this run's finished 5,600-word Flanders draft (not published), kept its model, and revised #17142's story where the model disagreed"
+    },
+    {
+      "what": "A stale .git/shallow.lock (no git process running) blocked git fetch",
+      "fix": "Removed the lock after checking no git process held it"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The proposal promised a long straight mould line; working the fin model showed a steel bridge through internal insulation gives a cold zone only ~15 cm long (factor below 0.77), so the story's line is a hand's length. Proposals should flag that their headline image is unverified until the numbers are worked."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "Over its line budget (134 of 100) per promptctl map; not fixed here (control plane)."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The claim-before-drafting rule did not prevent a collision: PRs #17142 and #17143 were opened minutes apart, both after an empty search. Re-searching right before the first scene (as the BIBLE says) would have caught it only if the other PR existed by then; a claim file or proposal-line marker committed to main would be stronger."
+    },
+    {
+      "file": "platform/ci/check_posts.py",
+      "issue": "Its tag-spelling message suggests `--fix <post>`, but check_posts.py rejects --fix (unrecognized argument); fixed the tag by hand."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (577 MB > 400 MB).",
+      "did": "Text only.",
+      "result": "No MP3 added."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Deliverable switched from a new story to a revision pass after the duplicate landed; publishing a second story on the same proposal would duplicate the shelf.",
+      "did": "Revised the merged story's thermal-break recommendation (where the break must go: inner face of the brick, not the outside face) with a note sentence giving the 1D check (outer-face pad +0.1 C, inner-face pad 13.3 to 16.2 C); added a new Hearth & Horizon proposal (rising damp under cement render); post about the result.",
+      "result": "node --test 19/19; check_posts ok."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-where-the-thermal-break-goes.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon. Piece: the-line-on-the-ceiling (revision of PR #17142's story; this run's own Flanders draft was dropped unpublished). 1D fin model of an IPE 160 through 33 cm brick + 100 mm mineral wool: ceiling 13.3 C at the wall (fRsi 0.67); cut flush 13.4; 5 K/W break pad at outer face 13.5, at inner brick face 16.2; 1 m PIR wrap 18.8. Checks: node --test in ventures/hearth-and-horizon 19/19; check_posts ok; run_workflow_locally on the earlier tree: 21/21 workflows passed (uses: steps, cross-review and deploy jobs not run), ventures-tests, pages and portfolio-validate re-run clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1801dcab-14ff-5f18-994b-ad89d66405cf",
+    "transcripts": 1,
+    "first": "2026-11-18T02:07:17Z",
+    "last": "2026-11-18T02:21:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 82,
+        "output": 49604,
+        "thinking": 21597,
+        "cache_read": 4528905,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127038,
+        "api_equivalent_usd": 2.9145,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 82,
+      "output": 49604,
+      "thinking": 21597,
+      "cache_read": 4528905,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127038,
+      "api_equivalent_usd": 2.9145,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.52,
+      "active_minutes": 14.52,
+      "model_minutes": 10.15,
+      "tool_minutes": 4.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a technical fiction writer researching and drafting a 5,600-word story with a worked heat-transfer model and a blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 274.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

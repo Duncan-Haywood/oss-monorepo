@@ -193,6 +193,8 @@ export function layoutRail(g, r, notes) {
  * @param {number} [sharedCorners]
  */
 export function layoutLandingGuard(edges, r = {}, sharedCorners = 0) {
+  if (!Array.isArray(edges) || !edges.length || edges.some((e) => typeof e !== "number" || !Number.isFinite(e) || e <= 0)) return /** @type {any} */ ({ ok: false, errors: ["layoutLandingGuard needs a list of open edge lengths in inches, each a positive number."] });
+  if (r == null || typeof r !== "object") r = {};
   const L = { ...RAIL_LIMITS, ...(r.limits || {}) };
   const bw = r.balusterWidth ?? 1.5, post = r.postWidth ?? 3.5, board = r.railBoard ?? "2x4", thick = 1.5;
   let posts = 0, balusters = 0, gapMax = 0;
@@ -370,6 +372,7 @@ export function stairText(l) {
  * @param {{stock: {size: string, length: number}[]}} [plan]
  */
 export function layoutStairWithLanding(input, plan) {
+  if (input == null || typeof input !== "object" || Array.isArray(input)) return { ok: false, id: "Stair", errors: ["Stair settings are an object."] };
   const L = { ...STAIR_LIMITS, ...(input.limits || {}) };
   const lc = typeof input.landing === "object" && input.landing ? input.landing : {};
   const id = input.id || "Stair";
@@ -579,6 +582,7 @@ export const WINDER_LIMITS = { winderWalkline: 12, winderWalkDepth: 10, winderMi
 
 /** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function checkWinders(w) {
+  if (w == null || typeof w !== "object" || Array.isArray(w)) return { ok: false, errors: ["Winder settings are an object."] };
   const L = { ...WINDER_LIMITS, ...(w.limits || {}) };
   const count = w.count ?? 3, turn = w.turn ?? 90, width = w.width ?? 36, r = w.innerRadius ?? 0;
   const errors = [];
@@ -622,7 +626,7 @@ export function winderText(c) {
 // straight-edge ("chord") depth 2 x radius x sin(theta/2) at the narrow end,
 // 12 in out and the wide end. A chord is shorter than the arc `checkWinders`
 // measures, so `chordPasses` is the stricter answer for a straight edge.
-/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, supportStock?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
+/** @param {{ count?: number, turn?: number, innerRadius?: number, width?: number, treadThickness?: number, treadSpanMax?: number, straightTread?: number, supportStock?: number, supportKerf?: number, limits?: Partial<typeof WINDER_LIMITS> }} w */
 export function layoutWinders(w) {
   const c = checkWinders(w);
   if (!c.problems) return c;
@@ -650,11 +654,13 @@ export function layoutWinders(w) {
   // is checked against `maxTreadSpan`; otherwise it is reported for your table.
   const tt = w.treadThickness, spanMax = typeof w.treadSpanMax === "number" ? w.treadSpanMax : typeof tt === "number" ? maxTreadSpan(tt) : null;
   const framing = { supports: count + 1, supportLength: width, totalLength: (count + 1) * width, treadSpan: chordWide, shared: count - 1, treadSpanMax: spanMax, spanOk: spanMax == null ? null : chordWide <= spanMax + 1e-9 };
-  // Stock boards for the supports (2026-11-08): typed `supportStock` length in inches; each support is one piece `width` long, so a board yields floor(stock / width) of them (no kerf). Null when no stock is typed; a stock shorter than a support gives 0 pieces per board and is rejected in `boards`.
+  // Stock boards for the supports (2026-11-08): typed `supportStock` length in inches; each support is one piece `width` long, so a board yields floor(stock / width) of them (kerf only if `supportKerf` is typed). Null when no stock is typed; a stock shorter than a support gives 0 pieces per board and is rejected in `boards`.
   const ss = w.supportStock;
   if (typeof ss === "number" && ss > 0) {
-    const per = Math.floor(ss / width + 1e-9);
-    framing.boards = per >= 1 ? { stock: ss, perBoard: per, count: Math.ceil((count + 1) / per) } : null;
+    // Saw kerf (typed `supportKerf`, inches, 0 to 1/2, default 0): n pieces need n*width + (n-1)*kerf of board.
+    const kerf = typeof w.supportKerf === "number" && w.supportKerf >= 0 && w.supportKerf <= 0.5 ? w.supportKerf : 0;
+    const per = Math.floor((ss + kerf) / (width + kerf) + 1e-9);
+    framing.boards = per >= 1 ? { stock: ss, perBoard: per, count: Math.ceil((count + 1) / per), kerf } : null;
   }
   return { ...c, treads, chordNarrow, chordWalk, chordWide, chordPasses, framing };
 }

@@ -143,8 +143,10 @@ test('the bundled worked example exercises every report status this tool can sho
   assert.equal(byId.get('storage'), 'declared-and-detected');
   // notifications: declared but never called -- the Purple Potassium case.
   assert.equal(byId.get('notifications'), 'declared-unused');
-  // tabs: called but never declared -- the runtime-failure case.
-  assert.equal(byId.get('tabs'), 'detected-undeclared');
+  // alarms: called but never declared -- the runtime-failure case.
+  assert.equal(byId.get('alarms'), 'detected-undeclared');
+  // tabs: most chrome.tabs calls need no permission -- a note, not a failure.
+  assert.equal(byId.get('tabs'), 'detected-no-permission-needed');
   // activeTab: declared, but has no code signature -- must not appear in
   // the main permissions table at all, only in `uncheckable`.
   assert.ok(!byId.has('activeTab'));

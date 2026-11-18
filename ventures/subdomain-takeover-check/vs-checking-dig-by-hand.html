@@ -54,7 +54,7 @@
   <thead><tr><th>Check</th><th><code>dig</code> by hand</th><th>This tool</th></tr></thead>
   <tbody>
     <tr><td>Seeing the CNAME target</td><td>Catches it</td><td>Catches it</td></tr>
-    <tr><td>Recognising the target as one of ~25 known takeover-prone providers</td><td>You have to already know the pattern (which of dozens of hostnames like *.herokuapp.com, *.s3.amazonaws.com, *.azurewebsites.net actually matter)</td><td>Matched against a maintained provider table automatically</td></tr>
+    <tr><td>Recognising the target as one of ~24 known takeover-prone providers</td><td>You have to already know the pattern (which of dozens of hostnames like *.herokuapp.com, *.s3.amazonaws.com, *.azurewebsites.net actually matter)</td><td>Matched against a maintained provider table automatically</td></tr>
     <tr><td>Following a multi-hop CNAME chain to its real end</td><td>Manual, one <code>dig</code> per hop</td><td>Followed automatically, up to 8 hops</td></tr>
     <tr><td>Confirming the target is actually unclaimed right now, not just provider-shaped</td><td>Requires a second manual step: opening the URL and reading the response</td><td>One live GET request, checked against that specific provider's own "unclaimed" fingerprint page</td></tr>
     <tr><td>Checking a whole list of hostnames in one run, repeatable in CI</td><td>Manual, one at a time</td><td>CLI accepts multiple hostnames and returns a real exit code</td></tr>

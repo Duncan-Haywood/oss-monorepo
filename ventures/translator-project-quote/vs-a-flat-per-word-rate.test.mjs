@@ -93,3 +93,12 @@ test('the naive flat per-word figure matches direct cost exactly on a project wi
   assert.match(html, /\$225\.00/);
   assert.match(html, /\$300\.00/);
 });
+
+test('does not tell users to bill a fuzzy match at its match percentage', () => {
+  // Quality audit 2026-11-10: discount grids pay a 95-99% match far below 95%.
+  const article = fs.readFileSync(new URL('./how-to-quote-a-translation-project.html', import.meta.url), 'utf8');
+  for (const page of [html, article]) {
+    assert.doesNotMatch(page, /bills at its match percentage/i);
+    assert.doesNotMatch(page, /treat it as the fraction of a full word/i);
+  }
+});

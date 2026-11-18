@@ -410,7 +410,12 @@ export function deadlines({ plan = "commercial", received, today, statedDays = n
   return out;
 }
 
-const usd = (n) => (Number.isFinite(n) ? "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "");
+const usd = (n) => {
+  const format = (n) => (Number.isFinite(n) ? "$" + n.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "");
+  if (!(Number(n) < 0)) return format(n);
+  const text = format(Math.abs(n));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 /** Draft the appeal letter. Plain text, written in the first person. */
 export function appealLetter(c) {

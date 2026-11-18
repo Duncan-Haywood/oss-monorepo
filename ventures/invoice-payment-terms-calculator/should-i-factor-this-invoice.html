@@ -112,7 +112,7 @@
   </footer>
   <script type="module">
     import { compareFactor, factorNote } from "./calc.mjs";
-    import { recordUsage } from "./usage.mjs";
+    import { recordUsage, usageStorage } from "./usage.mjs";
 
     const ids = ["amount", "termsDays", "factorFeePct", "advancePct", "reserveDays", "annualCarryRate"];
     const money = (value) => {
@@ -155,7 +155,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, false, "factor_compared");
+        recordUsage(usageStorage(), false, "factor_compared");
       });
     });
     update();

@@ -1,0 +1,72 @@
+Milestone 6x: Wave Glider km/day planned from ERA5 at the 2024 buoys, an open-ocean grid and the corridor sites
+vehicle (6w hours, ERA5 swh/mwp): a_e 0.533; s_m 6: 1.471, 7: 1.369, 8: 0.998, 9: 0.939, 10: 0.882; best 1.471, worst 0.882, state ratio 1.667
+mission q_e = Hs_e/Tm_e 5th to 95th percentile: 0.144 to 0.348 m/s
+
+A  buoys: ERA5 plan against 6v's buoy plan (best state), km/day; ERA5 grid point; hour-matched medians of ERA5/buoy Hs and Tm/APD; share of ERA5 hours below / above the mission q_e range
+   1 41009  ERA5  59.6  buoy  52.8  ratio 1.130 | (28.5, -80.0) | Hs 1.097  T 1.200 (744 h) |  8.6%  9.5%
+   1 42036  ERA5  61.3  buoy  55.3  ratio 1.109 | (28.5, -84.5) | Hs 0.932  T 1.067 (744 h) | 11.4% 14.2%
+   1 42040  ERA5  64.4  buoy  55.4  ratio 1.163 | (29.0, -88.0) | Hs 1.077  T 1.105 (743 h) |  5.8% 24.9%
+   1 44009  ERA5  59.3  buoy  53.4  ratio 1.112 | (38.5, -74.5) | Hs 1.071  T 1.214 (744 h) | 19.1% 19.4%
+   1 44013  ERA5  56.3  buoy  52.5  ratio 1.071 | (42.5, -70.5) | Hs 1.061  T 1.234 (740 h) | 27.8% 17.3%
+   1 46011  ERA5  54.7  buoy  56.4  ratio 0.971 | (35.0, -121.0) | Hs 0.884  T 1.236 (744 h) |  7.5%  4.2%
+   1 46013  ERA5  61.2  buoy  59.0  ratio 1.038 | (38.0, -123.5) | Hs 0.986  T 1.245 (744 h) |  0.0% 15.7%
+   1 46026  ERA5  58.8  buoy  56.3  ratio 1.044 | (38.0, -123.0) | Hs 1.038  T 1.287 (744 h) |  0.1%  9.5%
+   1 46054  ERA5  54.9  buoy  55.8  ratio 0.983 | (34.5, -120.5) | Hs 0.953  T 1.312 (744 h) | 10.2%  3.9%
+   7 41009  ERA5  44.3  buoy  37.6  ratio 1.179 | (28.5, -80.0) | Hs 1.259  T 1.260 (744 h) | 63.8%  0.0%
+   7 41010  ERA5  47.9  buoy  45.2  ratio 1.058 | (29.0, -78.5) | Hs 0.934  T 1.127 (744 h) | 26.9%  0.0%
+   7 42036  ERA5  37.0  buoy  33.2  ratio 1.113 | (28.5, -84.5) | Hs 0.821  T 0.883 (690 h) | 94.0%  0.0%
+   7 42040  ERA5  40.3  buoy  35.0  ratio 1.152 | (29.0, -88.0) | Hs 1.054  T 1.055 (696 h) | 79.4%  0.0%
+   7 44009  ERA5  50.0  buoy  45.7  ratio 1.094 | (38.5, -74.5) | Hs 1.024  T 1.201 (744 h) | 34.9%  1.1%
+   7 44013  ERA5  39.0  buoy  32.1  ratio 1.216 | (42.5, -70.5) | Hs 1.304  T 1.250 (729 h) | 74.7%  0.0%
+   7 44025  ERA5  47.0  buoy  44.5  ratio 1.056 | (40.5, -73.0) | Hs 0.914  T 1.121 (744 h) | 44.8%  0.0%
+   7 46011  ERA5  50.8  buoy  51.2  ratio 0.991 | (35.0, -121.0) | Hs 0.925  T 1.264 (744 h) | 21.8%  0.0%
+   7 46013  ERA5  60.8  buoy  53.3  ratio 1.140 | (38.0, -123.5) | Hs 1.171  T 1.235 (744 h) | 11.3% 21.5%
+   7 46026  ERA5  56.1  buoy  47.7  ratio 1.177 | (38.0, -123.0) | Hs 1.160  T 1.172 (744 h) | 14.1%  8.9%
+   7 46054  ERA5  50.3  buoy  55.3  ratio 0.910 | (34.5, -120.5) | Hs 0.872  T 1.429 (744 h) | 20.7%  0.0%
+  20 buoy-months: median ratio 1.101; within 15%: 75.0%; range 0.910 to 1.216
+  month 1: Spearman -0.117; ERA5 site ratio 1.177 (6v 1.123); fleet median ERA5 59.3 against buoy 55.4 km/day (best state), 35.6 at the worst
+  month 7: Spearman 0.927; ERA5 site ratio 1.644 (6v 1.725); fleet median ERA5 47.9 against buoy 45.2 km/day (best state), 28.7 at the worst
+  mean |log ratio|: July shelf and Gulf 0.132 (5), others 0.081 (15)
+
+B  corridor sites (programme milestone 5), km/day best / worst state; ERA5 grid point; median Hs, Tm; share of hours below / above the mission q_e range
+   1 Equator-Pacific   44.7  26.8 | (0.0, -90.0) | 1.20 m  8.55 s | 58.7%  0.0%
+   1 Florida-Straits   54.2  32.5 | (25.0, -80.0) | 0.88 m  4.65 s | 20.4%  3.5%
+   1 Gulf-of-Maine     60.6  36.3 | (42.0, -70.0) | 1.26 m  5.35 s | 18.3% 24.3%
+   1 North-Sea         74.5  44.7 | (55.0, 5.0) | 2.40 m  6.80 s |  0.4% 54.4%
+   1 Gulf-of-Alaska    58.4  35.0 | (60.0, -145.0) | 1.95 m  8.85 s | 12.0% 11.7%
+   7 Equator-Pacific   48.4  29.0 | (0.0, -90.0) | 1.12 m  6.75 s | 26.5%  0.0%
+   7 Florida-Straits   43.5  26.1 | (25.0, -80.0) | 0.54 m  4.15 s | 59.9%  0.0%
+   7 Gulf-of-Maine     45.9  27.6 | (42.0, -70.0) | 0.72 m  5.05 s | 49.5%  0.0%
+   7 North-Sea         54.7  32.8 | (55.0, 5.0) | 0.96 m  4.70 s | 24.1%  8.5%
+   7 Gulf-of-Alaska    45.5  27.3 | (60.0, -145.0) | 0.92 m  7.10 s | 58.6%  2.3%
+  quantile approximation (20 equal-mass bins) against the exact mean over all 32 site-months: max error 0.29%
+
+C  10 degree open-ocean grid, best state
+  month 1: 371 ocean points; km/day 10th / median / 90th 49.6 / 63.0 / 77.2; above 86: 0.0%; max 85.6 at (50, -40); min 24.8 at (-10, 150); median share outside the mission q_e range 25%
+    lat  -70 to -40: 116 points, median  70.3 km/day (worst state  42.2)
+    lat  -40 to -10: 123 points, median  58.5 km/day (worst state  35.1)
+    lat  -10 to  10:  88 points, median  55.8 km/day (worst state  33.5)
+    lat   10 to  40: 101 points, median  63.6 km/day (worst state  38.2)
+    lat   40 to  70:  59 points, median  74.9 km/day (worst state  45.0)
+  month 7: 364 ocean points; km/day 10th / median / 90th 47.5 / 61.1 / 78.6; above 86: 0.0%; max 85.4 at (-50, 120); min 27.6 at (0, -50); median share outside the mission q_e range 25%
+    lat  -70 to -40: 100 points, median  76.8 km/day (worst state  46.1)
+    lat  -40 to -10: 123 points, median  65.2 km/day (worst state  39.1)
+    lat  -10 to  10:  88 points, median  56.8 km/day (worst state  34.1)
+    lat   10 to  40: 101 points, median  54.1 km/day (worst state  32.4)
+    lat   40 to  70:  68 points, median  52.9 km/day (worst state  31.7)
+  pooled share of grid hours outside the mission q_e range: 32.6%
+
+P1 median ERA5/buoy ratio 1.101 in 0.90 to 1.10: refuted
+P2 75.0% of buoy-months within 15% (>= 80%): refuted
+P3 Spearman -0.117 (Jan), 0.927 (Jul), both >= 0.7: refuted
+P4 site ratios 1.177 / 1.644 within 0.25 of 1.123 / 1.725: held
+P5 July shelf |log ratio| 0.132 > others 0.081: held
+P6 grid share above 86 km/day 0.0% (Jan), 0.0% (Jul), both < 10%: held
+P7 max point at 50 (Jan), -50 (Jul): held
+P8 pooled share outside the mission range 32.6% > 30%: held
+P9 Florida-Straits lowest of the corridor sites in both months: refuted
+
+Post hoc (written after reading P1 to P9; exploratory)
+  vehicle-side calibration (6w hours): Hs_e/Hs_ob 0.960, Tm_e/T_avg 1.285
+  20 buoy-months: mean log ratio observed +0.079 (x1.082), implied by the median Hs and period ratios +0.073 (x1.076); correlation 0.991; residual sd 0.010 against 0.073 raw
+  median Tm_e/APD at the buoys 1.196 over all matched hours (vehicle side 1.285; 6v's k_T MOSE/APD 0.988)

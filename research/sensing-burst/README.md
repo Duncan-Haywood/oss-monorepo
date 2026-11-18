@@ -42,6 +42,12 @@ Break-even limits (`A` and `A²`), variance equality at `N*`, the fixed-time bur
 - PSNR in a gamma-encoded display domain weights shadows heavily; other metrics could rank the cases differently.
 - Sixteen scenes per cell (eight for the frame-count table); no confidence intervals are reported.
 
+## Known gaps
+From the 2026-11-17 census audit ([`2026-11-17-sensing-burst.json`](../../portfolio/quality/audits/2026-11-17-sensing-burst.json)):
+- **The merge clamps each frame at zero and the large frame does not.** `merge()` sums `np.maximum(e, 0)` (`src/sensing_burst/model.py:95`), while the large-frame and unregistered arms are unclamped means. In deep shadow that clamp is a denoiser the comparison arm does not get. At P = 30 (16 scenes), the known-shift merge scores 18.70 dB clamped and 15.98 dB unclamped, against 16.83 dB for the large frame. So in the low-light rows of sections D and D2, the merge "beats" the large frame (even with failed alignment) only because of the clamp. At P = 100 the gap is about 0.5 dB, and at P >= 300 it is nil, so the headline break-even numbers are unaffected. The fix is to drop the clamp, or clamp every arm alike, and rerun.
+- 5 of 7 seeded mutants survived the 12 tests, and no test pins a reported number.
+- The A to A² result is the textbook frame-stacking SNR relation. The nearest prior work is not cited: Hasinoff, Durand and Freeman, "Noise-optimal capture for high dynamic range photography" (CVPR 2010), and Hasinoff et al., "Time-constrained photography" (ICCV 2009).
+
 ## Next steps
 Run the same pipeline on openly licensed raw bursts (owner step: choose a dataset and confirm its licence, or capture bursts on owned hardware with a known sensor) to replace the assumed noise model, add moving-subject ghosting and a robust merge, and try a sub-pixel super-resolution merge to remove the resampling cap.
 

@@ -1395,8 +1395,10 @@ alpha reliability. Check each before citing it.
    a human codebook on the same corpus: coverage, redundancy, and agreement when each is applied.
 5. `qual-features` (done 2026-10-21): qualitative codes and LLM-scored dimensions as features next to numeric ones
    in a predictive model, against embeddings and bag-of-words at the same labelling budget.
-6. `qual-hypothesis` (done 2026-10-20): LLM-proposed, human-readable hypotheses about what separates two sets of
-   documents, scored on held-out data, with a check for hypotheses that merely restate the label.
+6. `qual-hypothesis` (partly done 2026-10-20): LLM-proposed, human-readable hypotheses about what separates two sets of
+   documents, scored on held-out data, with a check for hypotheses that merely restate the label. Built: the
+   held-out check with a word-counting proposer and a word-list restatement flag; not built: the LLM proposer and a
+   real restatement check (quality audit round 53, `portfolio/quality/audits/2026-11-12-qual-hypothesis.json`).
 7. `qual-regression` (done 2026-10-20): extend the correction from means to regression coefficients (DSL, PPI++)
    and to multi-class codes.
 
@@ -1476,6 +1478,7 @@ al. (1993), the revised NIOSH lifting equation, for the human side of a shared l
 8. `buildbot-cost` (done 2026-10-21): what it is worth. Crew hours replaced or shortened, times wages, against the
    robot's purchase, upkeep and supervision per hour, fed through `house-cost` and
    `house-schedule`. What share of a new home's price does a credible robot crew remove?
+*Programme (opened 2026-11-11):* [`buildbot-sheathing`](buildbot-sheathing/PROPOSAL.md) takes milestones 4 to 8 forward as one question, robotic sheathing to code tolerance; new fastening, placement and cost steps go there rather than into new slugs.
 9. Owner steps: buy or rent a robot (a G1 is the cheapest humanoid in the Menagerie set) and
    test the published skills on a mock-up wall, with a priced bill of materials.
 
@@ -1750,7 +1753,7 @@ currents, Copernicus Marine and public AIS archives (probe each through the prox
    swaps, against a single larger vehicle at the same cost.
 8. `marine-dock`: autonomous docking and charging. Approach and capture into a dock in current and
    waves, success rate against approach strategy and sensor noise; the dock is a by-product design.
-9. `marine-detect`: seeing obstacles on the water. Reproduce a published segmentation baseline on
+9. `marine-detect` (9a landed 2026-11-11: LR-ASPP baseline, fog, glint and size on MaSTr1325; MODS and the colregs link next): seeing obstacles on the water. Reproduce a published segmentation baseline on
    MaSTr1325 (or a successor), then measure how glare, fog and small-object size cut recall, and
    what the detector's miss rate does to `marine-colregs`.
 10. `marine-wave`: station keeping on wave and solar power alone. A Wave Glider-style two-body
@@ -1811,10 +1814,13 @@ generative agents, UIST.
 2. `civ-contact` (landed in civ-levers 2026-10-26): contact that also widens tolerance (Pettigrew and Tropp's prejudice reduction
    as a change in ε), and identity: a moderate voice each camp reads as the other side's. Does
    the bridging verdict flip?
-3. `civ-cascades` (landed in civ-levers 2026-10-28; H1 not testable, H2/H3 half held, quantitative check vs Centola and Macy not done): Granovetter thresholds and complex contagion on clustered against random
+3. `civ-cascades` (landed in civ-levers 2026-10-28; H1 not testable, H2/H3 half held, quantitative check vs Centola and Macy not done; second run 2026-11-11: Centola et al. 2018's 25% matches a memory of 11 to 13 names, and a clustered committed patch never flips a lattice while random placement does from 10%): Granovetter thresholds and complex contagion on clustered against random
    networks. Where to seed a behaviour (hubs, bridges, clustered patches) and how many seeds it
    takes; check against Centola and Macy (2007) and Centola et al. (2018)'s 25% tipping point.
-4. `civ-culture` (first run landed in civ-levers 2026-10-28; broadcast fragments, q_c at L=150 not reproduced): Axelrod's culture model with media and migration. Does a common broadcast
+   Moved onto real networks by programme `civ-seeding` (opened 2026-11-13: the 43 Banerjee et al.
+   2013 village networks; milestone 1 reproduces their information model's data and counterfactual
+   but lands at qN 0.05, qP 0.30 against the published 0.10, 0.50).
+4. `civ-culture` (first run landed in civ-levers 2026-10-28; fifth run 2026-11-09: weak broadcast homogenises an ordered society, strong fragments, threshold falls with L): Axelrod's culture model with media and migration. Does a common broadcast
    homogenise or fragment culture (Shibanai, Yasuno and Ishiguro 2001)? Reproduce the
    order–disorder transition of Castellano, Marsili and Vespignani (2000) first.
 5. `civ-commons` (landed in civ-levers 2026-10-30, second run 2026-10-31): public goods with punishment and institutions. Which sanctioning
@@ -1822,7 +1828,7 @@ generative agents, UIST.
    Fehr and Gächter's published rounds.
 6. `civ-calibrate` (first run landed in civ-levers 2026-11-08: negative, the GSS 2016-2020 panel cannot identify eps, power 14% at eps 0.3): estimate ε and τ from public panel data on attitude change (e.g. ANES or
    GSS panels) and rerun milestones 1–2 at the fitted values.
-7. `civ-history` (landed in civ-levers 2026-10-30, second run 2026-10-31): structural-demographic dynamics (Turchin) as a toy civilization: population,
+7. `civ-history` (landed in civ-levers 2026-10-30, second run 2026-10-31; fourth run 2026-11-12: paired by cell, the tax share is the lever that prevents collapse, elite cap and welfare help only where they bind; fifth run 2026-11-12: tax and state cost enter only as tau/g, a constant stress offset precedes 95% of collapsing cells, the post-collapse stress reset refires by construction, elite overproduction never drives a collapse in this closure): structural-demographic dynamics (Turchin) as a toy civilization: population,
    elites and state capacity over centuries, and which policy levers damp the cycles.
 8. `civ-llmsociety` (harness and stub-policy run landed in civ-levers 2026-11-02; no real model called): a town of language-model agents against the same levers, behind an
    environment variable with a deterministic stub. Do LLM agents assimilate and backfire like

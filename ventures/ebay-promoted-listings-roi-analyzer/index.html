@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -149,7 +149,7 @@
       const s = r.summary;
       lastText = text; lastRows = r.rows;
       $("#report-stats").innerHTML = `${s.listings} listings: <strong>${money(s.fees)}</strong> ad fees on ${money(s.sales)} of attributed sales (${pct(s.adRate)} effective ad rate). At a ${s.marginPct}% margin, profit after fees is <strong>${money(s.attributed)}</strong> if the ad caused every sale, <strong>${money(s.incremental)}</strong> if ${s.organicPct}% would have sold anyway.`;
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#rows").innerHTML = r.rows.map((x) => `<tr><th scope="row">${esc(x.title || x.id)}${x.title && x.id ? ` <span class="note">${esc(x.id)}</span>` : ""}</th><td class="n">${money(x.sales)}</td><td class="n">${money(x.fees)}</td><td class="n">${pct(x.adRate)}</td><td class="n">${money(x.attributedProfit)}</td><td class="n">${x.fees > 0 ? pct(x.requiredCausedShare, 0) : "–"}</td><td><span class="pill ${x.verdict === "loses" || x.verdict === "no-sale" ? "high" : x.verdict === "pays" || x.verdict === "free" || x.verdict === "idle" ? "info" : "medium"}">${VERDICT[x.verdict]}</span></td></tr>`).join("");
       $("#skipped").textContent = n.skipped.length ? `${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") : "";
       report.hidden = false;

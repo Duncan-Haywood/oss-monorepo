@@ -1,6 +1,6 @@
-# A test run sized in a twin with the wrong plant pole can be too short by 4× or too long by 2×
+# A test run sized in a twin with the wrong plant pole can be too short by 3.8× or too long by 2.1×
 
-*Stylised: scalar linear-Gaussian plant, stationary regime. Pure Python; every number is from `experiments/results.txt` (~15 s). E1–E4 are exact formulas; E5–E6 are simulation.*
+*Stylised: scalar linear-Gaussian plant, stationary regime. Pure Python; every number is from `experiments/results.txt` (~35 s). E1–E3 are exact formulas, E4's coverage is a normal approximation; E5–E6 are simulation.*
 
 ## Question
 A team validates a controller with a real test run whose length was chosen in the digital twin ("the twin says a 3,000-step run pins the mean cost to ±5%"). If the twin's dynamics are wrong, is that run long enough?

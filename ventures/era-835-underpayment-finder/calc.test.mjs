@@ -219,3 +219,19 @@ test("money formats", () => {
   assert.equal(money(-3), "-$3.00");
   assert.equal(money(null), "–");
 });
+
+// Quality census 2026-11-17: the page joins several selected files into one text. Reading the
+// separators from the first ISA only turned every code in a second file with a different
+// component separator into "", and a different element separator dropped the file entirely.
+test("each interchange is read with its own separators", () => {
+  const one = parseEra(sampleEra());
+  const sub = parseEra(sampleEra() + "\n" + sampleEra().replace(/:/g, ">"));
+  assert.equal(sub.claims.length, 2 * one.claims.length);
+  assert.equal(sub.lines.filter((l) => l.code === "").length, 0);
+  assert.equal(sub.transactions.length, 2 * one.transactions.length);
+  assert.deepEqual([...new Set(sub.transactions.map((t) => t.id))].length, sub.transactions.length);
+  const el = parseEra(sampleEra() + "\n" + sampleEra().replace(/\*/g, "|"));
+  assert.equal(el.claims.length, 2 * one.claims.length);
+  const s1 = analyze(one, parseSchedule(sampleSchedule())), s2 = analyze(sub, parseSchedule(sampleSchedule()));
+  assert.equal(s2.flagged.length, 2 * s1.flagged.length);
+});

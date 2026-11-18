@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 460" font-family="system-ui,sans-serif" font-size="12">
+<style>text{fill:#333}.g{stroke:#ccc}.typ{fill:#2a6fdb}.api{fill:#d9480f}.lim{stroke:#111;stroke-dasharray:4 3}@media (prefers-color-scheme:dark){text{fill:#ddd}.g{stroke:#555}.lim{stroke:#eee}}</style>
+<text x="150" y="22" font-size="14" font-weight="600">DC OPF dispatch checked in AC: worst branch loading, PGLib-OPF v23.07</text>
+<text x="150" y="40">blue = typical (TYP), orange = congested (API); missing dot = no AC solution to check</text>
+<line class="g" x1="150.0" y1="50" x2="150.0" y2="410"/>
+<text x="150.0" y="426" text-anchor="middle">60</text>
+<line class="g" x1="239.2" y1="50" x2="239.2" y2="410"/>
+<text x="239.2" y="426" text-anchor="middle">80</text>
+<line class="g" x1="328.5" y1="50" x2="328.5" y2="410"/>
+<text x="328.5" y="426" text-anchor="middle">100</text>
+<line class="g" x1="417.7" y1="50" x2="417.7" y2="410"/>
+<text x="417.7" y="426" text-anchor="middle">120</text>
+<line class="g" x1="506.9" y1="50" x2="506.9" y2="410"/>
+<text x="506.9" y="426" text-anchor="middle">140</text>
+<line class="g" x1="596.2" y1="50" x2="596.2" y2="410"/>
+<text x="596.2" y="426" text-anchor="middle">160</text>
+<line class="g" x1="685.4" y1="50" x2="685.4" y2="410"/>
+<text x="685.4" y="426" text-anchor="middle">180</text>
+<line class="lim" x1="328.5" y1="46" x2="328.5" y2="410"/>
+<text x="332.5" y="58">rating</text>
+<text x="440" y="448" text-anchor="middle">worst branch loading, % of published rating (AC power flow of the DC dispatch)</text>
+<text x="142" y="69.0" text-anchor="end">case14_ieee</text>
+<circle class="typ" cx="171.5" cy="61.0" r="5"><title>case14_ieee typ: 64.8 %</title></circle>
+<circle class="api" cx="368.5" cy="69.0" r="5"><title>case14_ieee api: 109.0 %</title></circle>
+<text x="142" y="99.0" text-anchor="end">case24_ieee_rts</text>
+<circle class="typ" cx="297.2" cy="91.0" r="5"><title>case24_ieee_rts typ: 93.0 %</title></circle>
+<circle class="api" cx="394.6" cy="99.0" r="5"><title>case24_ieee_rts api: 114.8 %</title></circle>
+<text x="142" y="129.0" text-anchor="end">case30_ieee</text>
+<circle class="typ" cx="363.6" cy="121.0" r="5"><title>case30_ieee typ: 107.9 %</title></circle>
+<circle class="api" cx="417.2" cy="129.0" r="5"><title>case30_ieee api: 119.9 %</title></circle>
+<text x="142" y="159.0" text-anchor="end">case39_epri</text>
+<circle class="typ" cx="333.9" cy="151.0" r="5"><title>case39_epri typ: 101.2 %</title></circle>
+<circle class="api" cx="356.9" cy="159.0" r="5"><title>case39_epri api: 106.4 %</title></circle>
+<text x="142" y="189.0" text-anchor="end">case57_ieee</text>
+<circle class="typ" cx="310.2" cy="181.0" r="5"><title>case57_ieee typ: 95.9 %</title></circle>
+<circle class="api" cx="398.3" cy="189.0" r="5"><title>case57_ieee api: 115.7 %</title></circle>
+<text x="142" y="219.0" text-anchor="end">case73_ieee_rts</text>
+<circle class="typ" cx="297.6" cy="211.0" r="5"><title>case73_ieee_rts typ: 93.1 %</title></circle>
+<circle class="api" cx="392.2" cy="219.0" r="5"><title>case73_ieee_rts api: 114.3 %</title></circle>
+<text x="142" y="249.0" text-anchor="end">case118_ieee</text>
+<circle class="typ" cx="359.4" cy="241.0" r="5"><title>case118_ieee typ: 106.9 %</title></circle>
+<circle class="api" cx="397.3" cy="249.0" r="5"><title>case118_ieee api: 115.4 %</title></circle>
+<text x="142" y="279.0" text-anchor="end">case162_ieee_dtc</text>
+<circle class="typ" cx="459.8" cy="271.0" r="5"><title>case162_ieee_dtc typ: 129.4 %</title></circle>
+<circle class="api" cx="475.3" cy="279.0" r="5"><title>case162_ieee_dtc api: 132.9 %</title></circle>
+<text x="142" y="309.0" text-anchor="end">case179_goc</text>
+<text x="142" y="339.0" text-anchor="end">case200_activ</text>
+<circle class="typ" cx="200.2" cy="331.0" r="5"><title>case200_activ typ: 71.3 %</title></circle>
+<circle class="api" cx="341.6" cy="339.0" r="5"><title>case200_activ api: 102.9 %</title></circle>
+<text x="142" y="369.0" text-anchor="end">case240_pserc</text>
+<circle class="api" cx="416.4" cy="369.0" r="5"><title>case240_pserc api: 119.7 %</title></circle>
+<text x="142" y="399.0" text-anchor="end">case300_ieee</text>
+<circle class="api" cx="686.4" cy="399.0" r="5"><title>case300_ieee api: 180.2 %</title></circle>
+</svg>

@@ -1,0 +1,137 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKjFRHrUprvM5rpAsth",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:21:06Z",
+  "ended": "2026-11-16T15:42:49Z",
+  "wall_minutes": 21.88,
+  "tokens_in": 7156668,
+  "tokens_out": 38372,
+  "cost_usd": 3.3789,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16617",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "measure_recall.py first imported VILLS from data/build_dataset.py, which imports scipy (absent); inlined the list",
+    "first merge of origin/main refused (unrelated histories, shallow clone); fixed with fetch --deepen=200"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "crossref and openalex both 403 through the proxy, so a new reference (Brewer 2000, tie forgetting) could not be checked; it was left out rather than cited unchecked"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'git fetch --depth=40 origin <branch>' then merge refuses unrelated histories; --deepen=200 was needed, as the 'Duplicate PRs' section says further down"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/civ-seeding/LOG.md",
+      "why": "part B's recall grid depended on part A's measurement, so the plan fixed the rule (round the pooled value to 0.05) instead of the value",
+      "did": "ran part A, then part B with the grid the rule gave (0.85); disclosed in the plan heading",
+      "result": "the grid was set mechanically; nothing was tuned after seeing scores"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-village-survey-respondents-forget-one-tie-in-six-and-the-seeding-advice-holds.md",
+    "research/civ-seeding/LOG.md (milestone 11)"
+  ],
+  "goal": null,
+  "notes": "Free-choice research draw; advanced civ-seeding milestone 11. Part A measured tie recall in the BCDJ archive by Lincoln-Petersen on converse questions (three-question recall 0.836, one question 0.68-0.83). Part B: H22-H24 held. Checks: civ-seeding tests 72 passed; build.py ok; check_md_links ok; programme_check ok; post front matter ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "14e51b06-791f-59d7-8081-997e0a64c486",
+    "transcripts": 1,
+    "first": "2026-11-16T15:21:06Z",
+    "last": "2026-11-16T15:42:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 108,
+        "output": 38372,
+        "thinking": 9842,
+        "cache_read": 7005318,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151242,
+        "api_equivalent_usd": 3.3789,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 108,
+      "output": 38372,
+      "thinking": 9842,
+      "cache_read": 7005318,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151242,
+      "api_equivalent_usd": 3.3789,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.88,
+      "active_minutes": 21.88,
+      "model_minutes": 6.33,
+      "tool_minutes": 15.56,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "data acquisition, recall estimator, simulation harness extension, 14-min run, write-up for one research step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 355.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

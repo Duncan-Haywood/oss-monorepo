@@ -37,6 +37,13 @@ class T(unittest.TestCase):
         self.assertAlmostEqual(fixed_utility(G_brier, a, 0.0, 1), G_brier(a), 12)
         self.assertAlmostEqual(utility(G_brier, a, 0.0, 1), G_brier(a), 12)
 
+    def test_hand_values_pin_cost_term_and_log_units(self):
+        # Hand values (quality audit 2026-11-13): n=2 fixed Brier at a=0.7, c=0.01 is
+        # 0.58*(1 - p2(1-p2)) + 0.42*0.75 - 0.02 with p2 = 0.49/0.58; the log participation
+        # floor is c/(ln 2 - H(0.7)) in nats. Both seeded mutants (c*(n-1), log2) survived without these.
+        self.assertAlmostEqual(fixed_utility(G_brier, 0.7, 0.01, 2), 0.7989655172413793, 12)
+        self.assertAlmostEqual(participation_scale(G_log, 0.7, 0.01), 0.12153196608679712, 12)
+
     def test_participation_threshold(self):
         a, c = 0.7, 0.02
         for G in (G_brier, G_log):

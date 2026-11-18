@@ -32,6 +32,7 @@ enough for ~50 runs). One request per 100 runs listed, plus one per run.
 from __future__ import annotations
 
 import argparse
+import http.client
 import json
 import os
 import statistics
@@ -232,13 +233,19 @@ def http_api(token=None, opener=urllib.request.urlopen):
         if token:
             headers["Authorization"] = f"Bearer {token}"
         url = API_ROOT + path.lstrip("/")
-        try:
-            with opener(urllib.request.Request(url, headers=headers), timeout=60) as response:
-                return json.loads(response.read().decode("utf-8"))
-        except urllib.error.HTTPError as exc:
-            raise RuntimeError(f"GET {url} failed: HTTP {exc.code}") from exc
-        except urllib.error.URLError as exc:
-            raise RuntimeError(f"GET {url} failed: {exc.reason}") from exc
+        # A truncated body (IncompleteRead) through the proxy killed a 600-run
+        # reading after minutes; retry the transient cases, not HTTP errors.
+        for attempt in range(3):
+            try:
+                with opener(urllib.request.Request(url, headers=headers), timeout=60) as response:
+                    return json.loads(response.read().decode("utf-8"))
+            except urllib.error.HTTPError as exc:
+                raise RuntimeError(f"GET {url} failed: HTTP {exc.code}") from exc
+            except urllib.error.URLError as exc:
+                raise RuntimeError(f"GET {url} failed: {exc.reason}") from exc
+            except (http.client.IncompleteRead, ConnectionError, TimeoutError):
+                if attempt == 2:
+                    raise RuntimeError(f"GET {url} failed: truncated or reset three times")
     return call
 
 

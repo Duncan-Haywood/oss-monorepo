@@ -1,0 +1,221 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/marine-path",
+ "stratum": "research",
+ "seed": "2026-11-17-7c9d",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a marine guidance-and-control researcher working on USV path following (Fossen/Pettersen school); first checks: that the ILOS law and its equilibrium match Borhaug et al. (2008), the stability of the guidance-heading-sway cascade for the gains swept (Caharija et al. 2016 give sufficient gain/look-ahead conditions), whether the model coefficients are sourced, and whether reported metrics are steady-state or contaminated by the start-up transient",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Numbers reproduce and three outputs match sources the author did not write. `cd research/marine-path && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py` (16 s) regenerates experiments/results.txt byte-identical (diff empty). Independent recomputation in my own RK4 kinematic model (no author code, `/usr/bin/python3.13 -I /tmp/mp/s/indep.py`): plain-LOS steady offset 1.8869/3.7738/7.5477 m for delta 6/12/24 at c=0.3, equal to the closed-form crab-angle result and to the table; ILOS equilibrium integral state = delta*tan(asin(c/U))/kappa = 3.7738 (Borhaug, Pavlov, Pettersen 2008 equilibrium), and the author's ILOS object ends at 3.7738 (`/usr/bin/python3.13 -I /tmp/mp/s/probe.py`); steady energy from first principles P = Xuu U^3/eta = 44 W over along-line ground speed sqrt(U^2-c^2) gives 12.222/12.812/14.113 Wh/km at c=0/0.3/0.5, author sim with T=6000, y0=0 gives 12.222/12.809/14.098. Not a 4: the derived conclusions about the 8 exceptions and the energy difference rest on artefacts (see claims/fitness).",
+  "completeness": "Claimed and working end to end: 3-DOF boat with rate-limited rudder and current (boat.py), LOS, ILOS and the analytic offset (guidance.py), heading PD and surge PI, six-sinusoid waves, rms and Wh/km scores (sim.py), the 216-condition sweep (6x4x3x3) and the 144-case H2 count, H3 median/max, all regenerated. README honestly lists what is not done (MPC arm, JONSWAP, wind, sourced coefficients, field data), which are part of PROJECTS.md track 23 item 2's scope; milestone 1 as stated is complete. Live page https://marisstella.app/research/marine-path/ returns 200 and carries the same lede.",
+  "verification": "`cd research/marine-path && env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider`: 7 passed in 0.09 s (README says 7). Tests pin the analytic offset (simulated vs formula to 1%), ILOS removing it, wrap, LOS sign, open-loop surge. Six mutants via platform/ci/quality_mutate.py: ILOS integrator y->e and offset tan->sin caught; sway Coriolis sign flip, rms window T/2->T/4, eta_prop 0.5->0.6, heading kd 4->1 all survived. Energy (H3) and the oscillation exceptions (H2's main finding) have no test, and the surviving sway-sign mutant is exactly the term that creates the exceptions.",
+  "craft": "Read boat.py (44 lines), guidance.py (34), sim.py (58), tests/test_path.py, experiments/run.py. Small, stdlib, deterministic and seeded; clear docstrings stating units and that coefficients are unsourced. Defects: dead placeholders (`mean_xte: None`, make_phases returns `(out, None)`, unused `rng_amp` parameter of wave_forces); experiments/run.py inserts the relative path 'src' so it only works from the project root; one mass m is used for both surge and sway inertia although its comment says it includes sway added mass.",
+  "claims": "Backed: 7 tests; 216 conditions; 136 of 144; exceptions all delta 6, kappa 2 with rms about 2.3 m in still water (2.316); median 1.38%, max 36.95%; 3.774 m; citations (Fossen 2011 Handbook; Borhaug, Pavlov, Pettersen 2008 CDC) exist with the stated titles; 'preliminary, simulation only' and model-dependence caveat present. Not backed: (1) the mechanism 'with a short look-ahead and a strong integrator the loop oscillates' (README:18-19): a linearisation of the full cascade (`/usr/bin/python3.13 -I /tmp/mp/s/lin2.py`) is unstable only at delta 6, kappa 2 (max Re +0.0288) and only when the sway-yaw coupling is included (without it max Re -0.0116); freezing v in the author's sim (`/usr/bin/python3.13 -I /tmp/mp/s/flip.py`) drops rms from 2.316 to 0.099 m, so the 'finding' is a property of the unsourced sway model; (2) the Limitations line that the 15 m start-up transient is in the rms figures (README:42): rms is taken over the last half (sim.py:55) and y0=0.1 gives the same 2.31 m (`/usr/bin/python3.13 -I /tmp/mp/s/lc.py`); (3) H3's framing that guidance changes energy by a median 1.4%: in steady state LOS and ILOS hold the same heading and speed, and the difference falls 1.03% -> 0.10% -> 0.03% as T goes 600 -> 6000 -> 20000 s (`/usr/bin/python3.13 -I /tmp/mp/s/en.py`), so the number measures the transient length, not the guidance.",
+  "fitness": "Nearest prior work: Borhaug, Pavlov and Pettersen (2008) introduce exactly this ILOS law and prove it removes the constant-current offset; Caharija et al. (2016, IEEE TCST, 'Integral line-of-sight guidance and control of underactuated marine vehicles: theory, simulations and experiments') give gain/look-ahead conditions and experiments; Fossen's handbook derives the LOS crab offset. H1 and H2 therefore reproduce known results (H2 is close to tautological: a biased controller against an integral one in constant current), which the README does not say, and Caharija 2016 is not cited. The one result not in that literature, the delta 6/kappa 2 oscillation, is created by placeholder sway dynamics. A researcher could build on the clean simulator (next steps are well chosen: sourced Otter coefficients, JONSWAP, MPC), but there is no new or transferable result yet.",
+  "domain": "Matches practice: relative-velocity kinematics with an irrotational earth-frame current (Fossen ch. 7 form), ILOS law and integrator exactly as Borhaug 2008 (equilibrium verified), rudder rate and angle limits, rms cross-track error as the score. Departures a G&C reviewer would hit: unsourced damping/rudder/wave coefficients (stated); a single 260 kg mass for surge and sway (m11 = m22, so no Munk moment and surge inertia overstated) and no Yv-r, Nv, Y_delta coupling; kappa has units of m/s (sigma in Borhaug) but is reported unitless, and the swept 2 m/s exceeds the boat's 1 m/s speed, outside the region where published sufficient conditions (sigma < U - V_max, from memory of Caharija 2016, not fetched) hold; no eigenvalue or stability check of the cascade before sweeping; sinusoid waves instead of a spectrum (stated)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Plain-LOS steady cross-track offset, delta 6/12/24, c=0.3, U=1",
+   "method": "own RK4 kinematic unicycle with first-order heading lag, no author code; closed-form crab-angle equilibrium (Fossen 2011 LOS in current)",
+   "command": "/usr/bin/python3.13 -I /tmp/mp/s/indep.py",
+   "expected": "1.887 / 3.774 / 7.548 m (table)",
+   "observed": "1.8869 / 3.7738 / 7.5477 m",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "ILOS equilibrium integral state, delta 12, kappa 1, c=0.3",
+   "method": "Borhaug, Pavlov, Pettersen (2008) equilibrium: kappa*yint/delta = tan(asin(c/U)); own RK4 and author sim",
+   "command": "/usr/bin/python3.13 -I /tmp/mp/s/indep.py && /usr/bin/python3.13 -I /tmp/mp/s/probe.py",
+   "expected": "yint = 3.7738, y = 0",
+   "observed": "own 3.7738, author 3.7738, y_end -0.0000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Steady energy per ground km at c = 0, 0.3, 0.5",
+   "method": "first principles: P = Xuu U^3 / eta = 44 W, along-line ground speed sqrt(U^2 - c^2)",
+   "command": "/usr/bin/python3.13 -I /tmp/mp/s/indep.py && /usr/bin/python3.13 -I /tmp/mp/s/probe.py",
+   "expected": "12.222 / 12.812 / 14.113 Wh/km",
+   "observed": "12.222 / 12.809 / 14.098 Wh/km (T=6000, y0=0)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Sweep reproduces",
+   "method": "rerun and diff",
+   "command": "cd research/marine-path && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py > /tmp/mp/results.txt && diff /tmp/mp/results.txt experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical, 16 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cause of the delta 6 / kappa 2 oscillation",
+   "method": "linearised closed loop (guidance + heading PD + yaw + sway) eigenvalues, own state-space; author sim with sway frozen",
+   "command": "/usr/bin/python3.13 -I /tmp/mp/s/lin2.py && /usr/bin/python3.13 -I /tmp/mp/s/flip.py",
+   "expected": "README: short look-ahead + strong integrator",
+   "observed": "unstable only with sway coupling (max Re +0.0288 vs -0.0116 without); sim rms 2.316 -> 0.099 m with v frozen",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "H3 energy difference is a guidance effect",
+   "method": "steady-state physics: identical heading and speed under LOS and ILOS; lengthen run",
+   "command": "/usr/bin/python3.13 -I /tmp/mp/s/en.py",
+   "expected": "difference tends to 0 if it is transient",
+   "observed": "1.03% (600 s), 0.10% (6000 s), 0.03% (20000 s)",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/marine-path && env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider",
+   "expected": "7 pass",
+   "observed": "7 passed in 0.09 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Limitation: start-up transient from 15 m is in the rms figures",
+   "method": "read sim.py:55 (last-half window); rerun with y0 0.1 to 15",
+   "command": "/usr/bin/python3.13 -I /tmp/mp/s/lc.py",
+   "expected": "rms depends on y0 if transient is included",
+   "observed": "2.308-2.331 m for every y0; rms excludes the transient",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline numbers on README, project.json lede and live page",
+   "method": "compare to regenerated results.txt; load page",
+   "command": "curl -sS -o /tmp/mp/page.html -w '%{http_code}' https://marisstella.app/research/marine-path/",
+   "expected": "136/144, 2.3 m, 1.4%/37%, 3.774 m, 7 tests",
+   "observed": "all match; page 200",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Prior work and novelty",
+   "method": "Borhaug et al. 2008 CDC; Caharija et al. 2016 IEEE TCST; Fossen 2011 handbook (from own knowledge, not fetched)",
+   "command": "grep -n -i 'caharija\\|lekkas\\|reproduc' research/marine-path/README.md research/marine-path/LOG.md",
+   "expected": "result positioned as reproduction, gain conditions cited",
+   "observed": "no match; Caharija 2016 uncited, reproduction not stated",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "ILOS law matches Borhaug 2008",
+   "method": "read guidance.py against the published law psi_d = -atan((y + sigma yint)/Delta), yint' = Delta y/(Delta^2 + (y + sigma yint)^2)",
+   "command": "sed -n 15,24p research/marine-path/src/marine_path/guidance.py",
+   "expected": "same law",
+   "observed": "same law (kappa = sigma, unit m/s not stated)",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/marine_path/boat.py:32",
+   "change": "dv = (-b.yv * v - b.m * u * r + fv) -> dv = (-b.yv * v + b.m * u * r + fv)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/marine_path/guidance.py:23",
+   "change": "self.delta * y / (self.delta -> self.delta * e / (self.delta",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/marine_path/sim.py:55",
+   "change": "if t >= T / 2: -> if t >= T / 4:",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/marine_path/boat.py:23",
+   "change": "eta_prop: float = 0.5 -> eta_prop: float = 0.6",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/marine_path/sim.py:30",
+   "change": "kp=2.0, kd=4.0 -> kp=2.0, kd=1.0",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  },
+  {
+   "where": "src/marine_path/guidance.py:34",
+   "change": "return delta * math.tan(math.asin(s)) -> return delta * math.sin(math.asin(s))",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src /usr/bin/python3.13 -m pytest tests -q -p no:cacheprovider"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The one unpredicted finding (the 8 H2 exceptions at delta 6, kappa 2, rms 2.3 m even in still water) is attributed to 'a short look-ahead and a strong integrator', but a linearisation of the cascade is unstable there only when the placeholder sway-yaw coupling is included (max Re +0.0288 vs -0.0116), and freezing sway in the author's sim drops rms from 2.316 to 0.099 m. The result is an artefact of unsourced sway dynamics; no stability analysis was done before the sweep.",
+   "where": "research/marine-path/README.md:18",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "H3 ('guidance does not change energy much: median 1.4%') measures the start-up transient, not the guidance: in steady state LOS and ILOS hold the same crab heading and speed, and the difference falls from 1.03% to 0.10% to 0.03% as the run lengthens from 600 to 6000 to 20000 s. The hypothesis is ill-posed as scored.",
+   "where": "research/marine-path/README.md:20",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Four of six seeded mutants survive: the sway Coriolis sign (the term that creates the H2 exceptions), the rms averaging window, propulsive efficiency and the heading derivative gain. Energy per km and the kappa-2 oscillation have no test.",
+   "where": "research/marine-path/tests/test_path.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "H1 and H2 reproduce known results (LOS crab offset in Fossen's handbook; ILOS offset removal proved by Borhaug et al. 2008) without saying so, H2 is near-tautological, and the closest theory-plus-experiment work with gain conditions (Caharija et al. 2016, IEEE TCST) is not cited.",
+   "where": "research/marine-path/README.md:51",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Limitations says the 15 m start-up transient is in the rms figures; rms is averaged over the last half of the run and is the same (2.31 m) for y0 from 0.1 to 15 m.",
+   "where": "research/marine-path/README.md:42",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16945"
+  },
+  {
+   "severity": "low",
+   "what": "One mass (260 kg, 'incl. 30% added mass in sway') is used for surge and sway inertia, so m11 = m22 (no Munk moment, surge inertia overstated), with no Nv, Yr or rudder sway force; kappa has units of m/s but is reported unitless and swept to 2 m/s, above the 1 m/s boat speed.",
+   "where": "research/marine-path/src/marine_path/boat.py:15",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Dead placeholders: mean_xte always None, make_phases returns (out, None), wave_forces takes an unused rng_amp; experiments/run.py relies on cwd for sys.path 'src'.",
+   "where": "research/marine-path/src/marine_path/sim.py:58",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16945"],
+ "verdict": "A small, clean, deterministic simulator whose numbers are right for the model it states: the sweep regenerates byte-identical, and the LOS offset (own RK4: 3.7738 m at c=0.3, delta 12), the ILOS equilibrium integral state from Borhaug et al. 2008 (3.7738) and the steady energy from first principles (12.222/12.812/14.113 Wh/km vs 12.222/12.809/14.098) all match independent recomputation. It misses the bar on claims and verification, and as research it adds nothing new yet. H1 and H2 reproduce textbook results without saying so. The one surprising finding, ILOS oscillating at delta 6 and kappa 2, comes from the placeholder sway coupling: the linearised cascade is unstable there only with sway, and freezing sway removes it (rms 2.316 to 0.099 m). H3's 1.4% energy difference is the start-up transient and shrinks to 0.03% on a long run. Four of six seeded mutants survive, including the sway sign that drives the headline exception."
+}

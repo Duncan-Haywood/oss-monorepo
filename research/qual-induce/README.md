@@ -1,6 +1,6 @@
 # qual-induce: how much of a human emotion codebook does a codebook induced from the text alone recover?
 
-**Weakly. On 5,313 real Reddit comments (GoEmotions), a codebook induced from half the text with no labels agreed with the 27-emotion human codebook only a little above chance, and the best single induced code per emotion reached a held-out AUC of about 0.6.** With 27 NMF topics the normalised mutual information (NMI) with the human primary emotion was 0.258 against 0.120 for a random assignment of the same sizes; with 60 topics 0.341 against 0.195. The excess over chance is 0.10 to 0.15 at every size, and chance itself climbs with the number of codes, so a raw NMI table flatters bigger codebooks. NMF topics were almost uncorrelated with each other (mean |r| 0.016 to 0.039); k-means with 5 or 10 codes was redundant (10–12% of code pairs above |r| 0.3). **The induced codebooks are topic models, not an LLM's (TopicGPT or LLooM style) codebook**: the session has no API key, so this is the no-model baseline that an LLM-induced codebook has to beat, not a statement about LLMs. Produced with AI assistance (Claude).
+**Weakly. On 5,313 real Reddit comments (GoEmotions), a codebook induced from half the text with no labels agreed with the 27-emotion human codebook only a little above chance, and the best single induced code per emotion reached a held-out AUC of about 0.6.** With 27 NMF topics the normalised mutual information (NMI) with the human primary emotion was 0.258 against 0.120 for a random assignment of the same sizes; with 60 topics 0.341 against 0.195. The excess over chance is 0.04 to 0.15 (0.07 to 0.15 for NMF) and rises with the number of codes, and chance itself climbs with the number of codes, so a raw NMI table flatters bigger codebooks. NMF topics were almost uncorrelated with each other (mean |r| 0.016 to 0.039); k-means with 5 or 10 codes was redundant (10–12% of code pairs above |r| 0.3). **The induced codebooks are topic models, not an LLM's (TopicGPT or LLooM style) codebook**: the session has no API key, so this is the no-model baseline that an LLM-induced codebook has to beat, not a statement about LLMs. Produced with AI assistance (Claude).
 
 **Live page:** https://marisstella.app/research/qual-induce/
 
@@ -49,8 +49,8 @@ What the codes look like (seed 0, k = 10, top words): NMF found "love haha sure 
 
 ## Reading the numbers
 
-- Agreement is real but small. The NMI sd over splits is 0.006 to 0.02, far smaller than the 0.10 to 0.15 gap to chance, so the above-chance result is not split noise. Its size is a statement about these two methods on short Reddit comments.
-- More codes raise NMI mostly because a finer partition has more ways to line up with a label; the excess over chance is roughly flat. Choosing k by raw NMI would always pick the largest k.
+- Agreement is real but small. The NMI sd over splits is 0.006 to 0.02, far smaller than the 0.04 to 0.15 gap to chance, so the above-chance result is not split noise. Its size is a statement about these two methods on short Reddit comments.
+- More codes raise NMI mostly because a finer partition has more ways to line up with a label; the excess over chance still rises with k (NMF 0.07, 0.10, 0.14, 0.15 at k = 5, 10, 27, 60) but far more slowly than raw NMI. Choosing k by raw NMI would always pick the largest k.
 - Coverage is low and uneven: on average a single induced code ranks an emotion's positives above negatives about 60% of the time, and at most a quarter of evaluable emotions reach AUC 0.7. The 15 evaluated (seed 0) are admiration, amusement, anger, annoyance, approval, caring, confusion, curiosity, disappointment, disapproval, gratitude, joy, love, optimism and sadness. The other 12 (for example grief with 4 positives in the whole corpus, relief 8, nervousness 8, pride 11) lack 30 positives per half, so their coverage is unmeasured here, not zero.
 - Low redundancy for NMF is a property of the method (nonnegative parts) as much as of the data. The human emotions are nearly uncorrelated as 0/1 columns mostly because each is rare.
 
@@ -68,7 +68,7 @@ Run the same four measures with an LLM-proposed codebook behind `ANTHROPIC_API_K
 ## Reproduce
 
 ```
-python3 research/qual-induce/experiments/run.py      # about 1.5 minutes after the shared ~14 MB download; needs numpy, scikit-learn
+python3 research/qual-induce/experiments/run.py      # about 8 minutes (measured 7m46s in the 2026-11-10 quality audit) after the shared ~14 MB download; needs numpy, scikit-learn
 python3 research/qual-induce/experiments/figure.py   # writes the SVG
 cd research/qual-induce && python3 -m unittest test_qualinduce
 ```

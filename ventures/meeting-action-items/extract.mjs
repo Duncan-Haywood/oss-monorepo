@@ -40,6 +40,7 @@ export function findDue(sentence, ref) {
     [/\bthe (\d{1,2})(?:st|nd|rd|th)\b/i, (m) => {
       const d = new Date(ref); let ms = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), +m[1]);
       if (+m[1] < 1 || +m[1] > 31) return null;
+      // month-overflow: ok (a rolled day fails the getUTCDate check below and returns null)
       if (ms < ref) ms = Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, +m[1]);
       return new Date(ms).getUTCDate() === +m[1] ? ms : null;
     }],
@@ -350,7 +351,7 @@ export function slackMessage(r, { title = "Meeting" } = {}) {
   return out.join("\n") + "\n";
 }
 
-const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsEsc = (s) => String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 // All-day calendar entries for dated actions (one VTODO-free VEVENT each, importable anywhere).
 export function actionsIcs(r, stamp = "20260101T000000Z") {
   const out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//meeting-action-items//EN", "CALSCALE:GREGORIAN"];

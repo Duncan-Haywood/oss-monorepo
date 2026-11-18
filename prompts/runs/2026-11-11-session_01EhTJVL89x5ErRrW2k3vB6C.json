@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVL89x5ErRrW2k3vB6C",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T09:10:04Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 9 league-schedule-generator: worker pool for the best-of-k carry-over search, eight tries",
+  "projects": [
+    "ventures/league-schedule-generator"
+  ],
+  "pr": 14744,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/eval/browser-click-single.mjs",
+      "issue": "Its Playwright lookup works, but there was no committed script behind the README's 11.9 s carry-over click figure; added eval/browser-carryover-pool.mjs so the timing is reproducible."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-eight-league-schedule-searches-on-every-core.md"
+  ],
+  "goal": null,
+  "notes": "Website request queue empty (intake and ideas.py: nothing new). Took allocate.py flagship row 8 (league-schedule-generator) : its next item (a worker pool) needed no outside data, unlike several rows above it. Node eval: 8 x effort 1 vs 4 lowers score at 18 (2307->2247) and 20 teams (2907->2880). Chromium: 20-team double 20.2/10.0/6.1/6.3 s at 1/2/4/8 reported cores, same season each, worst frame 17 ms. Venture tests: python3 platform/ci/run_venture_tests.py league-schedule-generator (result in PR).",
+  "corrections": [],
+  "redteam": null
+}

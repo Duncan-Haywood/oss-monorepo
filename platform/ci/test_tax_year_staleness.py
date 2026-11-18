@@ -42,6 +42,28 @@ class Scan(unittest.TestCase):
         d = self.mk({"a.mjs": "// tax 2024\n// 2027 plain text\n"})
         self.assertEqual(t.scan(d, 2026)[0], 2024)
 
+    def test_shipped_filters_each_condition_independently(self):
+        d = self.mk({"a.mjs": "x", "notes.txt": "x", "test_b.py": "x", "c_test.py": "x",
+                     "d.test.mjs": "x", "e.py": "x"})
+        (d / "node_modules").mkdir()
+        (d / "node_modules" / "n.mjs").write_text("x")
+        (d / "sub.mjs").mkdir()  # a directory with a shipped suffix
+        names = sorted(p.name for p in t.shipped(d))
+        self.assertEqual(names, ["a.mjs", "e.py"])
+
+    def test_test_file_naming_patterns_each_excluded(self):
+        for n in ("test_x.py", "x_test.py", "x.test.mjs"):
+            d = self.mk({n: "// tax 2026\n"})
+            self.assertEqual(t.scan(d, 2026)[0], 0, n)
+
+    def test_line_length_cutoff_is_600(self):
+        pad = "x" * (600 - len("// tax 2024 "))
+        d = self.mk({"a.mjs": "// tax 2024 " + pad + "\n"})
+        self.assertEqual(len("// tax 2024 " + pad), 600)
+        self.assertEqual(t.scan(d, 2026)[0], 2024)
+        d = self.mk({"a.mjs": "// tax 2024 " + pad + "x\n"})
+        self.assertEqual(t.scan(d, 2026)[0], 0)
+
 
 class Main(unittest.TestCase):
     def run_main(self, products, argv):
@@ -72,6 +94,10 @@ class Main(unittest.TestCase):
         none = "// IRS IRS IRS tax\n"
         out, json = self.run_main({"cur": cur, "none": none}, ["--year", "2026", "--json"])
         self.assertEqual(json.loads(out), [])
+
+    def test_json_output_is_indent_1(self):
+        out, _ = self.run_main({"p": "// IRS IRS IRS tax 2024\n"}, ["--year", "2026", "--json"])
+        self.assertIn('\n  "product"', out)
 
     def test_default_limit_is_40(self):
         products = {f"p{i:03d}": "// IRS IRS IRS tax 2024\n" for i in range(45)}

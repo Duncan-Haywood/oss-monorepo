@@ -1,0 +1,238 @@
+{
+ "date": "2026-11-17",
+ "subject": "ventures/ice-dam-removal-bid-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-17-4dba",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "an owner-operator of a steam ice dam removal company (or the estimator/office manager who prices its storm-season calls); first checks: how the trade actually bills (hourly with a 2-3 hour minimum vs per linear foot), that an after-hours/emergency premium reaches the customer's price, that steamer fuel scales with run time, a loaded labor rate (payroll tax, roofing-class workers' comp), and a current IRS mileage rate",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Arithmetic is right; the model is not. Auditor-written oracle (scratchpad oracle.py, plain cost-plus arithmetic: crew x (on-site + travel hrs) x pay, + premium, + miles x rate + fuel + equipment, x (1 + overhead), target = cost/(1 - margin)) vs `node probe.mjs` against calc.mjs: default job cost 332.02, target 474.32, quote 560, break-even 4.15/ft, profit 227.98, margin 40.71% (match); 15 ft job quote 375 (minimum), break-even 22.13/ft, profit 42.98 (match); emergency on: cost 425.32, target 607.60, profit 134.68 (match); actual 4.5 h: cost 484.34, profit 75.66, matching the vs-a-flat-rate page's worked numbers. Live page in headless Chrome (google-chrome --dump-dom, local http.server): default 'Price to quote' $560.00 / cost $332.02 / margin 40.7%; with a share link setting emergencyCall=true the hero 'Price to quote' stays $560.00 while cost rises to $425.32. So ticking 'Storm / night / weekend dispatch' with 'Emergency premium (% of billed time)' never changes the quoted price or the printed proposal price (calc.mjs:144; pinned as intended by calc.test.mjs:53), while the proposal scope adds 'Dispatched as a storm / after-hours priority call'. Default mileage 0.67 $/mi is the 2024 IRS rate; irs.gov (fetched 200 through the proxy, standard-mileage-rates page) lists 72.5 c (2026 H1, IR-2025-128) and 76 c (2026 Jul 1 - Dec 31, IR-2026-29). Blank crew pay silently becomes 0 (T5: cost 65.46, no error). Steamer fuel stays $20 at 10 actual hours (T7).",
+  "completeness": "Claimed features checked: rate-card price with minimum floor (works, T2); break-even rate per foot (works, page $4.15/ft); emergency premium (computed into cost only, never into price, see correctness); overhead and target margin (work); actual-hours reconciliation (works, T4/T7); share link round trip (page.test.mjs 'a share link round-trips every DEFAULTS field' passes; loaded a share hash in headless Chrome and the fields restored, cost $425.32); printable customer proposal (proposal.mjs, 30+ tests pass; not printed in Chrome); comparison pages vs Jobber and vs flat rate, guide page (present, linked, worked numbers recomputed and correct). No TODOs or stubs. Everything advertised runs end to end.",
+  "verification": "`cd ventures/ice-dam-removal-bid-calculator && node --test '*.test.mjs'`: 114 tests, 114 pass, 0.27 s. calc.test.mjs pins hand-computed default arithmetic. Six mutants with platform/ci/quality_mutate.py: 3 caught (overhead base minus mileage; mileage x crewSize; targetMargin >= 100 -> > 100), 3 survived (quotedPrice forced to 0 when ratePerFoot is 0, calc.mjs:144; rateBelowBreakeven < -> <=, calc.mjs:152; minimumApplied > -> >=, calc.mjs:145): no test hits a zero rate card or the equality boundaries. Tests check the author's model (calc.test.mjs:53 asserts the emergency premium does not reach the price), so the core design question is unguarded by construction.",
+  "craft": "Read calc.mjs (203 lines), the index.html script, calc.test.mjs, page.test.mjs headings, share.mjs usage. Small pure engine, imported by the page, clear validation messages, stale results cleared on error, proposal block generated from platform/proposal. Defects: number() uses Number(value) so '' becomes 0 and only edgeFeet/crewSize reject it (blank crew pay -> $0 labor, no error, calc.mjs:35); the page interpolates raw input strings into warnings (`$${el('ratePerFoot').value}/ft`, index.html:306) rather than the parsed number; FIELD_IDS hard-wires DOM ids to DEFAULTS keys (fine, tested). Nothing serious beyond the modelling choices.",
+  "claims": "Checked: no-warranty disclaimer and 'not tax, financial, or business advice' on page footer (index.html:213), README, guide pages; proposal carries its own disclaimer (index.html:388). OSHA fall-protection line present. Served copy (`node platform/pages/served-copy.mjs ice-dam-removal-bid-calculator`): 'no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals', so the github.io links in source llms.txt are rewritten at deploy (not filed). Failing: meta/llms/README say it prices 'a job from ... an emergency/storm premium' but the premium never reaches the price; README:62 'nothing is saved to storage' and FAQ index.html:207 'nothing you type is saved anywhere' contradict index.html:147 and the localStorage company save (index.html:428, key ice-dam-removal-bid-company); calc.mjs:73 says per-foot is 'the number most ice dam companies quote', which published pricing contradicts (see domain). Worked numbers on the vs and guide pages recompute exactly.",
+  "fitness": "Job walked: a two-person steam crew owner pricing an 80 ft eave on a storm night. The tool tells them the $7/ft card covers cost ($332 vs $560) and that a 15 ft job needs $22.13/ft or the minimum; useful. But the storm premium they set lowers profit instead of producing a storm price, the proposal says 'priority call' at the daytime price, and the reconciliation shows the overrun loss without offering the hourly billing most of the trade uses precisely to pass ice-thickness risk to the customer. No labor burden (payroll tax, workers' comp for roofing class) field; overhead % of direct cost is the only proxy. Usable as a per-foot sanity check, not as the operator's pricing tool. Nearest tools: the repo's own bid-price-engine (#trade=ice-dam-removal, linked), Jobber-style quoting.",
+  "domain": "Compared against published ice dam pricing practice (WebSearch 2026-11-17; homeguide/angi pages returned 403 through the proxy, so search-result summaries of Angi, HomeAdvisor, Fixr and contractor pages were used): steam ice dam removal is predominantly billed hourly, about $300-$700/hr per steamer crew, with 1-3 hour minimums and higher minimums for emergency calls. The tool models only a per-foot card plus a flat minimum; it treats the emergency premium as a cost, not a charge (departs); fuel for a steamer (diesel/propane burner, consumption per run hour) is a flat per-job amount and does not scale in the actual-hours reconciliation (departs); mileage default stale versus IRS 2026 (departs); margin-on-price target and fixed-cost/footage break-even are standard cost-plus practice (pass). An operator would accept the break-even arithmetic and reject the emergency handling and the missing hourly mode."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Default 80 ft job: cost, target price, quote, break-even/ft, profit, margin",
+   "method": "hand cost-plus arithmetic in an auditor-written oracle: 2x(2.5+1)x34=238; +35x0.67+20+15=296.45; x1.12=332.02; /0.7=474.32; 80x7=560",
+   "command": "python3 -I scratchpad/ice-dam-removal-bid-calculator/oracle.py; node scratchpad/ice-dam-removal-bid-calculator/probe.mjs",
+   "expected": "cost 332.02, target 474.32, quote 560, 4.15/ft, profit 227.98, 40.71%",
+   "observed": "T1 identical; live page $560.00 / $332.02 / $474.32 / $4.15/ft / $227.98 / 40.7%",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "15 ft job: minimum charge applies, break-even rate",
+   "method": "same oracle: quote = max(15x7, 375) = 375; 332.02/15 = 22.13",
+   "command": "node scratchpad/ice-dam-removal-bid-calculator/probe.mjs",
+   "expected": "quote 375, 22.13/ft, profit 42.98",
+   "observed": "T2 quote 375, be 22.13, profit 42.98",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Emergency/storm dispatch: does the premium reach the price?",
+   "method": "trade practice (published pricing: emergency calls carry a higher charge/minimum) and the page's own label 'Emergency premium (% of billed time)'; oracle cost with premium 425.32",
+   "command": "node scratchpad/ice-dam-removal-bid-calculator/probe.mjs; google-chrome --headless=new --dump-dom 'http://127.0.0.1:8791/index.html#<share hash emergencyCall=true>'",
+   "expected": "quoted price rises by the premium (or at least a storm price is offered); cost 425.32",
+   "observed": "T6 quotedPrice 560 with and without emergency; page hero $560.00, cost $425.32, margin 24.1%",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Actual-hours reconciliation at 4.5 h (vs-a-flat-rate page worked example)",
+   "method": "hand: (2x5.5x34 + 23.45 + 35) x 1.12 = 484.34; 560 - 484.34 = 75.66",
+   "command": "python3 -c \"c=(2*(4.5+1)*34+23.45+35)*1.12;print(c,560-c)\"",
+   "expected": "484.34 / 75.66, matching the page text",
+   "observed": "484.344 / 75.656; page states $484.34 and $75.66",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Default mileage rate against IRS standard mileage rate in force on the audit date",
+   "method": "irs.gov standard-mileage-rates page (fetched, HTTP 200): 2026 Jan-Jun 72.5 c (IR-2025-128), 2026 Jul-Dec 76 c (IR-2026-29)",
+   "command": "curl -sS https://www.irs.gov/tax-professionals/standard-mileage-rates | sed 's/<[^>]*>/ /g' | grep -o '.\\{80\\}2026.\\{120\\}'",
+   "expected": "0.76",
+   "observed": "DEFAULTS.mileageRate 0.67 (calc.mjs:54, index.html:114), the 2024 rate; default cost 332.02 vs 335.55 at 0.76",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Steamer fuel when the job runs long (10 actual hours vs 2.5 estimated)",
+   "method": "steamer burners consume fuel per run hour; fuel should scale with on-site hours",
+   "command": "node scratchpad/ice-dam-removal-bid-calculator/probe.mjs",
+   "expected": "fuel cost scales with hours (about 4x)",
+   "observed": "T7 actual cost 903.22 with fuel held at the flat $20",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Live page renders and share link restores fields",
+   "method": "headless Chrome --dump-dom against python3 -m http.server in the venture dir",
+   "command": "cd ventures/ice-dam-removal-bid-calculator && python3 -m http.server 8791 & bash scratchpad/ice-dam-removal-bid-calculator/dump.sh http://127.0.0.1:8791/index.html",
+   "expected": "default quote renders; share hash with emergencyCall restores",
+   "observed": "$560.00 default; with hash, cost $425.32 (emergency restored)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd ventures/ice-dam-removal-bid-calculator && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "114 tests, 114 pass, 0 fail, 0.27 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Privacy claim 'nothing is saved to storage' / 'nothing you type is saved anywhere'",
+   "method": "read the page's own proposal block",
+   "command": "grep -n 'saved\\|storage' ventures/ice-dam-removal-bid-calculator/README.md ventures/ice-dam-removal-bid-calculator/index.html",
+   "expected": "claims match behaviour",
+   "observed": "README:62 and index.html:207 say nothing is saved; index.html:147 and :428 save business details to localStorage",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Disclaimer, no-warranty, OSHA line, proposal disclaimer",
+   "method": "read page footer, README, proposal constant; page.test.mjs disclaimer test",
+   "command": "grep -n 'No warranty\\|OSHA' ventures/ice-dam-removal-bid-calculator/index.html ventures/ice-dam-removal-bid-calculator/README.md",
+   "expected": "present",
+   "observed": "present (index.html:213, README Disclaimer section, index.html:388)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served llms.txt, sitemap and canonicals",
+   "method": "platform/pages/served-copy.mjs (deploy rewrite)",
+   "command": "node platform/pages/served-copy.mjs ice-dam-removal-bid-calculator",
+   "expected": "no placeholder or retired origin",
+   "observed": "no placeholder or retired origin left in llms.txt, sitemap.xml, robots.txt or canonicals",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "How the trade bills: per linear foot vs hourly",
+   "method": "WebSearch summary of Angi, HomeAdvisor, Fixr and contractor rate pages (direct fetches of homeguide.com and angi.com returned 403): typically $300-$700/hr with 1-3 hour minimums",
+   "command": "WebSearch 'ice dam steaming removal cost per hour minimum charge contractor pricing'",
+   "expected": "an hourly billing mode, or the per-foot premise stated as one option",
+   "observed": "per-foot only; calc.mjs:73 calls per-foot 'the number most ice dam companies quote'",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:144",
+   "change": "const quotedPrice = Math.max(rateCardPrice, minimumServiceCharge); -> const quotedPrice = rateCardPrice > 0 ? Math.max(rateCardPrice, minimumServiceCharge) : 0;",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:152",
+   "change": "ratePerFoot < breakEvenRatePerFoot -> ratePerFoot <= breakEvenRatePerFoot",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:145",
+   "change": "minimumServiceCharge > rateCardPrice -> minimumServiceCharge >= rateCardPrice",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:133",
+   "change": "directCost * (overheadRate / 100) -> (directCost - mileageCost) * (overheadRate / 100)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:131",
+   "change": "travelMiles * mileageRate -> travelMiles * mileageRate * crewSize",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:124",
+   "change": "targetMargin >= 100 -> targetMargin > 100",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "The emergency/storm premium ('Emergency premium (% of billed time)') is added to the contractor's cost but never to the quoted price: with the storm box ticked the hero 'Price to quote' and the printed proposal stay $560 (default job) while cost rises 332.02 -> 425.32, and the proposal scope adds 'Dispatched as a storm / after-hours priority call' at the daytime price. The page, meta and llms.txt say it prices a job 'from ... an emergency/storm premium'. Test calc.test.mjs:53 pins this as intended, so it is a spec choice, but a contractor reading the hero number sends a storm call at day rate.",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:144",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"
+  },
+  {
+   "severity": "medium",
+   "what": "Per-linear-foot is the only billing model; published pricing for steam ice dam removal is predominantly hourly ($300-$700/hr, 1-3 hour minimums), which is how operators pass the ice-thickness risk this tool's reconciliation highlights to the customer. calc.mjs:73 asserts per-foot is 'the number most ice dam companies quote' with no source.",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:73",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Privacy claims say nothing is saved ('nothing is saved to storage', 'nothing you type is saved anywhere') but the proposal block saves the business name, phone, email, licence and address to localStorage (key ice-dam-removal-bid-company), as index.html:147 itself says.",
+   "where": "ventures/ice-dam-removal-bid-calculator/README.md:62",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16786"
+  },
+  {
+   "severity": "medium",
+   "what": "Steamer fuel is a flat per-job cost and does not scale with on-site hours, so the actual-hours reconciliation understates the cost of a long job (10 h vs 2.5 h keeps fuel at $20); a steamer burner consumes fuel per run hour.",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:132",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Default mileage rate 0.67 $/mi is the 2024 IRS rate; the IRS rate in force on 2026-11-17 is 76 c (72.5 c for 2026 H1). It is an editable input, so low.",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:54",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "A blank numeric field becomes 0 via Number(''), so a cleared crew-pay, travel or overhead field silently prices labor at $0 with no error (default job cost 332.02 -> 65.46).",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:35",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No test covers a zero rate card or the equality boundaries of minimumApplied and rateBelowBreakeven: three seeded mutants there survive.",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.test.mjs:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "No labor-burden input (payroll taxes, roofing-class workers' comp, which runs high for roof work); crew pay is a bare wage and only a % overhead on all direct cost stands in for it.",
+   "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:129",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16786", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"],
+ "verdict": "Correct arithmetic around a model that departs from how the trade prices. An auditor-written cost-plus oracle reproduces every output to the cent (default job cost $332.02, target $474.32, quote $560, break-even $4.15/ft; 15 ft job $22.13/ft on a $375 minimum; the comparison page's 4.5-hour overrun $484.34/$75.66), and the live page in headless Chrome shows the same. But the emergency/storm premium the page advertises raises only the contractor's cost, never the 'Price to quote' or the printed proposal (which says 'priority call' at the daytime $560); the trade mostly bills hourly with minimums, which the tool cannot model; steamer fuel does not scale with hours in the reconciliation; the default mileage rate is the 2024 IRS figure; and the privacy text says nothing is saved while business details go to localStorage. Tests pass 114/114 and caught 3 of 6 mutants (survivors at the zero-rate and equality boundaries). Disclaimers are present and the served llms.txt is clean. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in a session: an emergency-adjusted quoted price, an hourly billing mode, fuel per hour, current mileage default, and corrected privacy text."
+}

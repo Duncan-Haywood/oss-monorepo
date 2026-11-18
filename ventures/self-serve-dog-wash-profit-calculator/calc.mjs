@@ -19,8 +19,8 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-export const dollars = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 const round2 = (n) => Math.round(n * 100) / 100;
 export const WEEKS_PER_MONTH = 52 / 12;
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -279,7 +279,7 @@ export function compute(raw) {
   if (trough < -equity * 1.0001) findings.push({ severity: "medium", title: `During ramp-up cumulative cash falls ${whole(-(trough + equity))} below where you started, at month ${troughMonth}. Hold that much in reserve on top of your equity.` });
   if (paybackMonth !== null && paybackMonth > p.targetPayback) findings.push({ severity: "info", title: `Equity comes back from operations in month ${paybackMonth}, later than your ${p.targetPayback}-month target.` });
   if (p.ownerPay === 0 && p.attendantHours === 0) findings.push({ severity: "medium", title: `No owner pay and no attendant hours are entered, so the shop is assumed to run itself. Add the hours someone will work, paid or not.` });
-  if (p.fsWashesPerDay > 0) findings.push({ severity: "info", title: `Full-service dogs add ${whole(fullNet)} a year after card fees, supplies and the ${p.fsMinutes} staff minutes each; they also take tub time from self-serve customers.` });
+  if (p.fsWashesPerDay > 0) findings.push({ severity: "info", title: fullNet >= 0 ? `Full-service dogs add ${whole(fullNet)} a year after card fees, supplies and the ${p.fsMinutes} staff minutes each; they also take tub time from self-serve customers.` : `Full-service dogs lose ${whole(-fullNet)} a year after card fees, supplies and the ${p.fsMinutes} staff minutes each: the price does not cover the staff time. They also take tub time from self-serve customers.` });
   findings.push({ severity: "info", title: `Check zoning, the sewer and water connection fees, grease and hair interceptor rules, and any animal-establishment or sales-tax rules in your city and state before you sign a lease. A wash bay that cannot be permitted earns nothing.` });
   if (!findings.some((f) => f.severity !== "info")) findings.push({ severity: "info", title: `At these figures the shop clears its costs and loan with ${whole(cashAfterDebt)} a year left once it reaches full traffic.` });
 

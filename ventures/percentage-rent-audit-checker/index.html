@@ -33,7 +33,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -191,7 +191,7 @@
         const r = auditPercentageRent(inputs());
         $("#report-total").textContent = r.overcharge > 0 ? money(r.overcharge) + " billed above what your terms and records support" : r.overcharge < 0 ? "Your records support " + money(-r.overcharge) + " more than was billed" : "The bill matches your terms and records";
         $("#report-stats").textContent = "Breakpoint " + money(r.breakpoint) + " (" + r.breakpointMode + "). Sales after your exclusions: " + money(r.correctSales) + ". Rent from those terms: " + money(r.correct) + " against " + money(r.billed) + " billed. Balance after estimates paid: " + money(r.owedCorrected) + " by your numbers, " + money(r.owedByLandlordStatement) + " by the statement." + (r.deadline ? " Your objection window runs to " + r.deadline + "." : "");
-        $("#report-findings").innerHTML = r.items.length ? r.items.map((f) => `<div class="finding"><h4><span class="pill ${f.dollars < 0 ? "high" : f.dollars > 0 ? "medium" : "info"}">${f.dollars < 0 ? "question it" : f.dollars > 0 ? "against you" : "check"}</span>${esc(f.title)}${f.dollars ? " — " + money(Math.abs(f.dollars)) : ""}</h4><p>${esc(f.detail)}</p><p class="note"><strong>Records that prove it:</strong> ${esc(f.evidence)}</p></div>`).join("") : "<p>No differences found.</p>";
+        $("#report-findings").innerHTML = r.items.length ? r.items.map((f) => `<div class="finding"><h3><span class="pill ${f.dollars < 0 ? "high" : f.dollars > 0 ? "medium" : "info"}">${f.dollars < 0 ? "question it" : f.dollars > 0 ? "against you" : "check"}</span>${esc(f.title)}${f.dollars ? " — " + money(Math.abs(f.dollars)) : ""}</h3><p>${esc(f.detail)}</p><p class="note"><strong>Records that prove it:</strong> ${esc(f.evidence)}</p></div>`).join("") : "<p>No differences found.</p>";
         $("#note").value = disputeNote(r, { tenant: $("#tenant").value, period: $("#period").value, clause: $("#clause").value });
         out.hidden = false;
         $("#form-status").textContent = "";

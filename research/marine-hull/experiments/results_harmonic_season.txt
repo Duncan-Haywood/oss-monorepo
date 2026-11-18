@@ -1,0 +1,87 @@
+Milestone 6zzd: shrinking the learned monthly correction toward a fitted first harmonic, 2005 to 2014 (50 W)
+climatology 2015 to 2024 x s(d); learn on the k years of the other half nearest the scored half, k in (1, 2, 3, 5); clamp (0.85, 1.15); rho clipped to [0, 0.9]
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+Harmonic shrinkage on the real shape, all 30 points, per k: median tau, median w_m, median fitted amplitude A = sqrt(a1^2 + b1^2) / a0, tau = 0 count
+  k=1: tau 0.0381  w 0.380  A 0.0435  tau = 0 in 13 of 60
+  k=2: tau 0.0233  w 0.319  A 0.0290  tau = 0 in 16 of 60
+  k=3: tau 0.0155  w 0.254  A 0.0235  tau = 0 in 19 of 60
+  k=5: tau 0.0165  w 0.325  A 0.0234  tau = 0 in 7 of 60
+
+Harmonic shrinkage on the real shape, high-amplitude points (9), per k: median tau, median w_m, median fitted amplitude A = sqrt(a1^2 + b1^2) / a0, tau = 0 count
+  k=1: tau 0.0485  w 0.331  A 0.0595  tau = 0 in 5 of 18
+  k=2: tau 0.0373  w 0.383  A 0.0507  tau = 0 in 5 of 18
+  k=3: tau 0.0323  w 0.326  A 0.0503  tau = 0 in 3 of 18
+  k=5: tau 0.0216  w 0.353  A 0.0527  tau = 0 in 3 of 18
+
+Dominance counts, all 30 points
+  group              |  AT_90 |   LC_1 |   LC_2 |   LC_3 |   LC_5 |   LS_1 |   LS_2 |   LS_3 |   LS_5 |   LH_1 |   LH_2 |   LH_3 |   LH_5 |  LHF_1 |  LHF_2 |  LHF_3 |  LHF_5
+  real (of 8)        |      8 |      4 |      7 |      8 |      8 |      7 |      8 |      8 |      8 |      6 |      8 |      8 |      8 |      8 |      8 |      8 |      8
+  flat s0 (of 32)    |     27 |     17 |     21 |     25 |     30 |     21 |     23 |     27 |     28 |     19 |     23 |     27 |     30 |     23 |     26 |     28 |     30
+  combined (of 128)  |    104 |     76 |     88 |    109 |    120 |     82 |     97 |    109 |    118 |     81 |     96 |    113 |    120 |     95 |    106 |    116 |    123
+  all (of 168)       |    139 |     97 |    116 |    142 |    158 |    110 |    128 |    144 |    154 |    106 |    127 |    148 |    158 |    126 |    140 |    152 |    161
+
+Dominance counts, high-amplitude points only (9)
+  group              |  AT_90 |   LC_1 |   LC_2 |   LC_3 |   LC_5 |   LS_1 |   LS_2 |   LS_3 |   LS_5 |   LH_1 |   LH_2 |   LH_3 |   LH_5 |  LHF_1 |  LHF_2 |  LHF_3 |  LHF_5
+  real (of 8)        |      1 |      4 |      7 |      5 |      5 |      3 |      6 |      3 |      3 |      4 |      7 |      4 |      5 |      4 |      7 |      4 |      4
+  flat s0 (of 32)    |      6 |     15 |     26 |     20 |     20 |      9 |     23 |     11 |     15 |     19 |     27 |     18 |     20 |     17 |     25 |     16 |     18
+  combined (of 128)  |     18 |     58 |    105 |     79 |     80 |     49 |     90 |     58 |     65 |     71 |    108 |     74 |     78 |     68 |    100 |     65 |     70
+  all (of 168)       |     25 |     77 |    138 |    104 |    105 |     61 |    119 |     72 |     83 |     94 |    142 |     96 |    103 |     89 |    132 |     85 |     92
+
+Real shape, all 30 points, per pooled cell: km/B ex/B dominates
+  half  kWh |  AT_90 km/B ex/B d |   LC_1 km/B ex/B d |   LS_1 km/B ex/B d |   LH_1 km/B ex/B d |  LHF_1 km/B ex/B d |   LH_2 km/B ex/B d |   LH_5 km/B ex/B d
+  E     2.5 |      1.0258 0.59 y |      0.9935 0.63 n |      1.0076 0.62 y |      1.0060 0.62 y |      1.0037 0.59 y |      1.0174 0.59 y |      1.0232 0.56 y
+  E     5.0 |      1.0740 0.77 y |      1.0598 0.82 y |      1.0678 0.80 y |      1.0679 0.81 y |      1.0659 0.78 y |      1.0836 0.77 y |      1.0812 0.73 y
+  E    10.0 |      1.1179 0.90 y |      1.1004 1.08 n |      1.1066 0.93 y |      1.1124 1.01 n |      1.1090 0.89 y |      1.1314 0.91 y |      1.1213 0.86 y
+  E    20.0 |      1.1321 0.90 y |      1.1192 0.58 y |      1.1380 0.72 y |      1.1412 0.75 y |      1.1236 0.59 y |      1.1513 0.71 y |      1.1217 0.59 y
+  L     2.5 |      1.0392 0.62 y |      1.0337 0.74 y |      1.0465 0.71 y |      1.0448 0.72 y |      1.0391 0.64 y |      1.0527 0.72 y |      1.0410 0.62 y
+  L     5.0 |      1.0929 0.81 y |      1.0929 1.02 n |      1.1002 0.94 y |      1.1028 0.94 y |      1.1000 0.80 y |      1.1084 0.95 y |      1.0970 0.76 y
+  L    10.0 |      1.1182 0.74 y |      1.1361 1.20 n |      1.1323 1.08 n |      1.1420 1.14 n |      1.1408 0.97 y |      1.1364 0.99 y |      1.1219 0.66 y
+  L    20.0 |      1.1146 0.76 y |      1.1026 0.81 y |      1.0973 0.96 y |      1.1015 0.88 y |      1.0947 0.77 y |      1.1213 0.87 y |      1.1046 0.44 y
+
+Real shape, high-amplitude points (9), per pooled cell: km/B ex/B dominates
+  half  kWh |  AT_90 km/B ex/B d |   LC_1 km/B ex/B d |   LS_1 km/B ex/B d |   LH_1 km/B ex/B d |  LHF_1 km/B ex/B d |   LH_2 km/B ex/B d |   LH_5 km/B ex/B d
+  E     2.5 |      0.8728 0.36 n |      0.9723 0.46 n |      0.9595 0.44 n |      1.0149 0.48 y |      1.0137 0.48 y |      1.0189 0.51 y |      0.9481 0.42 n
+  E     5.0 |      0.9307 0.49 n |      1.0608 0.57 y |      1.0208 0.52 y |      1.1211 0.62 y |      1.1429 0.67 y |      1.1563 0.65 y |      1.0512 0.57 y
+  E    10.0 |      0.9526 0.37 n |      1.1971 0.61 y |      1.1050 0.52 y |      1.2595 0.57 y |      1.2835 0.57 y |      1.3681 0.67 y |      1.1266 0.45 y
+  E    20.0 |      0.7966 0.37 n |      0.9452 0.61 n |      0.9082 0.52 n |      1.0212 0.56 y |      1.0394 0.54 y |      1.1045 0.65 y |      0.9092 0.45 n
+  L     2.5 |      0.9546 0.40 n |      1.0515 0.78 y |      0.9819 0.48 n |      0.9847 0.56 n |      0.9744 0.50 n |      1.0863 0.63 y |      1.0167 0.44 y
+  L     5.0 |      1.0011 0.33 y |      1.0287 0.60 y |      1.0003 0.37 y |      0.9805 0.39 n |      0.9743 0.35 n |      1.1669 0.61 y |      1.1435 0.51 y
+  L    10.0 |      0.9382 0.20 n |      0.9082 0.27 n |      0.9175 0.19 n |      0.9009 0.19 n |      0.9092 0.17 n |      1.1294 0.34 y |      1.1498 0.25 y
+  L    20.0 |      0.8686 0.20 n |      0.8475 0.27 n |      0.8514 0.19 n |      0.8343 0.19 n |      0.8412 0.17 n |      0.9495 0.34 n |      0.9180 0.25 n
+
+Per-point real-shape cells (point x half x pack, summed over the half's five years): dominance counts
+  set                |  AT_90 |   LC_1 |   LC_2 |   LC_3 |   LC_5 |   LS_1 |   LS_2 |   LS_3 |   LS_5 |   LH_1 |   LH_2 |   LH_3 |   LH_5 |  LHF_1 |  LHF_2 |  LHF_3 |  LHF_5
+  all 30 (of 240)    |    126 |    106 |    121 |    135 |    138 |    129 |    130 |    141 |    133 |    122 |    132 |    142 |    136 |    134 |    139 |    141 |    142
+  high-amp (of  72)  |     43 |     47 |     49 |     48 |     48 |     47 |     50 |     47 |     46 |     47 |     50 |     49 |     48 |     47 |     49 |     48 |     49
+
+km/B over the 168 pooled cells: n >= 1.0, min
+  AT_90 : 152 0.9549
+  LC_1  : 153 0.9825
+  LC_2  : 166 0.9973
+  LC_3  : 168 1.0010
+  LC_5  : 168 1.0080
+  LS_1  : 161 0.9903
+  LS_2  : 168 1.0028
+  LS_3  : 168 1.0035
+  LS_5  : 168 1.0065
+  LH_1  : 158 0.9933
+  LH_2  : 168 1.0017
+  LH_3  : 168 1.0044
+  LH_5  : 168 1.0075
+  LHF_1 : 158 0.9883
+  LHF_2 : 168 1.0010
+  LHF_3 : 168 1.0023
+  LHF_5 : 168 1.0055
+
+Checks: LC_k 168-cell counts 97 / 116 / 142 / 158 (6zzb: 97 / 116 / 142 / 158); LS_k 110 / 128 / 144 / 154 (6zzc: 110 / 128 / 144 / 154)
+
+Predictions
+H1 LH_1 >= 120 of 168: refuted (106; LS_1 110, AT_90 139)
+H2 LH_1 >= 139 of 168: refuted (106)
+H3 LH_1 >= 7 of 8 real shape, all points: refuted (6; LS_1 7, AT_90 8)
+H4 LH_1 >= 77 of 168 at high-amplitude points: held (LH_1 94, LC_1 77, LS_1 61, AT_90 25)
+H5 LHF_1 >= 110 of 168: held (126)
+H6 LH_k >= LS_k on 168 for every k: refuted (k=1 106 vs 110; k=2 127 vs 128; k=3 148 vs 144; k=5 158 vs 154)
+H7 LH_1 km/B >= 1.0 in >= 150 of 168: held (158; min 0.9933)
+H8 LH_1 >= AT_90 over 240 per-point real-shape cells: refuted (LH_1 122, AT_90 126)

@@ -19,7 +19,9 @@ export async function repairFacturX(source) {
   const data = source instanceof Uint8Array ? source : new Uint8Array(source);
   if (!looksLikePdf("", data)) throw new Error("The file is not a PDF.");
   const { payload } = await extractEmbeddedInvoice(data);
-  const xmlText = new TextDecoder().decode(payload);
+  // ignoreBOM keeps a leading byte-order mark in the text, so it is written back: the
+  // GnuAccounting sample in the ZUGFeRD corpus starts its XML with one (2026-11-14).
+  const xmlText = new TextDecoder("utf-8", { ignoreBOM: true }).decode(payload);
   if (!xmlText.includes("CrossIndustryInvoice")) {
     throw new Error("The embedded invoice is not CII XML; only Factur-X / ZUGFeRD (CII) PDFs can be repaired.");
   }

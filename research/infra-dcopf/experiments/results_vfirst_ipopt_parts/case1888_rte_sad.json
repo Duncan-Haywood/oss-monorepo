@@ -1,0 +1,36 @@
+{
+ "case": "case1888_rte",
+ "kind": "sad",
+ "nbus": 1888,
+ "ref_moved": [
+  1320,
+  46
+ ],
+ "ref": "PGLib IPOPT",
+ "ac": 1413900.0,
+ "start_rule": "DC+ang",
+ "mu_star": 0.7984375,
+ "V": {
+  "stages": [
+   {
+    "k": 1,
+    "mu": 0.7984375,
+    "at": {
+     "mu": 0.7984375,
+     "sigma": 0.00017595800492740949,
+     "vmin": 0.7837097142206019
+    },
+    "rs_secs": 2620.210594177246,
+    "stop": "reactive stage has no solution"
+   }
+  ],
+  "mu_end": 0.7984375,
+  "reached": false
+ },
+ "V_secs": 2623.453300714493,
+ "W": {
+  "stop": "no reduced-load AC optimum"
+ },
+ "W_secs": 3619.52393245697,
+ "secs": 6242.977235078812
+}

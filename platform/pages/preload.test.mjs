@@ -94,3 +94,43 @@ test('addModulePreloads writes links only on pages with an import chain', async 
     await fs.rm(dir, { recursive: true, force: true });
   }
 });
+
+test('addModulePreloads gives the same bytes and totals as one page at a time', async () => {
+  // 60 pages (more than the 32 in flight) sharing modules, with chains of
+  // different depths, against a serial reference built from the same parts.
+  const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'preload-many-'));
+  try {
+    await fs.writeFile(path.join(dir, 'shared.js'), '');
+    await fs.writeFile(path.join(dir, 'mid.mjs'), "import './shared.js';");
+    for (let i = 0; i < 60; i += 1) {
+      const sub = path.join(dir, `t${i}`);
+      await fs.mkdir(sub);
+      let prev = '../mid.mjs';
+      for (let k = 0; k < i % 5; k += 1) {
+        await fs.writeFile(path.join(sub, `m${k}.mjs`), `import '${prev}';`);
+        prev = `./m${k}.mjs`;
+      }
+      await fs.writeFile(path.join(sub, 'index.html'),
+        `<html><head><title>${i}</title></head><body><script type="module">import '${prev}';</script></body></html>`);
+    }
+    const pages = (await listFiles(dir)).filter((f) => f.endsWith('.html'));
+    const expected = new Map();
+    const totals = { pages: 0, links: 0, deepest: 0 };
+    const read = async (f) => { try { return await fs.readFile(f, 'utf8'); } catch { return null; } };
+    for (const file of pages) {
+      const html = await fs.readFile(file, 'utf8');
+      const { files, depth } = await moduleGraph(html, file, dir, read);
+      const hrefs = files.map((f) => {
+        const rel = path.relative(path.dirname(file), f).split(path.sep).join('/');
+        return rel.startsWith('.') ? rel : `./${rel}`;
+      });
+      const out = depth >= 2 ? injectPreloads(html, hrefs) : html;
+      expected.set(file, out);
+      if (out !== html) { totals.pages += 1; totals.links += hrefs.length; totals.deepest = Math.max(totals.deepest, depth); }
+    }
+    assert.deepEqual(await addModulePreloads(dir, { listFiles }), totals);
+    for (const [file, out] of expected) assert.equal(await fs.readFile(file, 'utf8'), out, file);
+  } finally {
+    await fs.rm(dir, { recursive: true, force: true });
+  }
+});

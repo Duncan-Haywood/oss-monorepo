@@ -54,3 +54,14 @@ test("links to a neighbour and the hub and the sitemap entry is its own url bloc
   assert.match(html, /href="e-invoicing-mandates-by-country\.html"/);
   assert.match(sitemap, /<\/url>\s*<url>\s*<loc>[^<]*thailand-rd-e-invoice-mandate\.html<\/loc>\s*<\/url>/);
 });
+
+test("keeps the facts read from the Revenue Department's notifications (2026-11-14)", () => {
+  const hub = fs.readFileSync(new URL("./e-invoicing-mandates-by-country.html", import.meta.url), "utf8");
+  assert.match(html, /Royal Gazette vol\. 140, special part 167 Ng, 12 July 2023/);
+  assert.match(html, /has the right to choose to make the tax invoice or receipt as electronic data or on paper/);
+  assert.match(html, /form BO\.01/);
+  assert.match(html, /by the 15th of the following month/);
+  assert.match(html, /Notification on income tax No\. 470/);
+  assert.match(html, /up to THB 200,000 for rooftop solar/);
+  assert.doesNotMatch(hub, /Revenue Department notices unread/);
+});

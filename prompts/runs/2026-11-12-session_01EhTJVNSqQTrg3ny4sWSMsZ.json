@@ -1,0 +1,62 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVNSqQTrg3ny4sWSMsZ",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products",
+  "input_sha256": "cc93f2915acb7b9c720e680e33e6e22c81c29afb1e84eb2bb179b707b248f606",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T16:40:25Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: dated leave through a planned month -> keep people on their usual shifts",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": 15178,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "route drew research (weight 0.27) for a scheduled ventures brief; `route --task` with the brief's words picks ventures/1, but the default draw ignores the scheduled prompt text"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the scheduled brief asks for revenue products, so the run took the ventures track (route --task) rather than the drawn research track",
+      "did": "ventures/1, flagship row 5 (shift-roster-builder)",
+      "result": "landed a measured feature"
+    },
+    {
+      "file": "portfolio/router/claim_check.py",
+      "why": "claim_check said YIELD to PR #15177 on the same venture, but that PR took a different next item (call-out ILP checks); work did not overlap and main merged cleanly apart from the README tail",
+      "did": "continued and merged main in",
+      "result": "no duplicate work"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-keep-the-rota-steady-when-someone-is-off.md",
+    "ventures/shift-roster-builder/keep-a-consistent-schedule-when-someone-is-off.html"
+  ],
+  "goal": null,
+  "notes": "Added keepValue/keep to buildRoster (bonus via preferBonus, so annealer, exhaustive suffix bound, pricers and CG see it; unproven keep rosters checked against a plain build). planWeeks anchors on the usual week (dated leave left out); anchoring on the previous week was tried and dropped. CLI --keep-shifts, page select (default 0.1). eval/steady-plan.mjs 5 seeds x 5 teams x 4 weeks, exact on: churn -56..72%, off-usual -65..76%, same open hours in all comparisons, 1,600 weeks proven, pay within 0.2% (down). Quick-search sweep stopped unfinished. Verified: run_venture_tests.py shift-roster-builder ok (289 s); venture-preflight clean (after fixing an FAQ JSON-LD quote mismatch). Leave rates swept: UCI absenteeism and BLS hosts 403 through the proxy.",
+  "corrections": [],
+  "redteam": null
+}

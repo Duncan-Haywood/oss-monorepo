@@ -1,0 +1,7 @@
+BUILD cafe price 0: score 1503758.95, payroll $3690.00, open 15 h, risk n/a h on n/a/n/a person-days, moves 0 of 0 candidates, exposure 100 h, 2.3 s
+BUILD cafe price 25: score 1503758.95, payroll $3690.00, open 15 h, risk 108 h on 13/23 person-days, moves 3 of 318 candidates, exposure 92 h, 2.2 s
+  Call-out slack: 3 shifts changed hands to cut the hours at risk from 164 to 108, at $0.00 of score (pay plus penalties) at your price of $25.00 an hour at risk. 108 h on 13 of 23 person-days are still at risk (Ana on Thu, Ana on Fri, Ben on Thu, Ben on Fri, Cleo on Sat and 8 more).
+PLAY call 0.01 extra 0 cafe price 0 (risk n/a h, exposure 100 h, payroll $3690.00): 69 disrupted weeks, open hours added 262, changes to others 94, premiums $1687.00, proven 53/53
+PLAY call 0.01 extra 0 cafe price 25 (risk 108 h, exposure 92 h, payroll $3690.00): 69 disrupted weeks, open hours added 208, changes to others 66, premiums $1212.00, proven 46/46
+PLAY call 0.084 extra 0 cafe price 0 (risk n/a h, exposure 100 h, payroll $3690.00): 198 disrupted weeks, open hours added 1824, changes to others 709, premiums $12586.50, proven 362/362
+PLAY call 0.084 extra 0 cafe price 25 (risk 108 h, exposure 92 h, payroll $3690.00): 198 disrupted weeks, open hours added 1727, changes to others 595, premiums $10576.50, proven 355/355

@@ -199,7 +199,7 @@ test("CSV parsing: headers, delimiters, quotes, comments, BOM, missing values", 
   assert.deepEqual(tv.values, [1, 2, 3]);
   assert.equal(tv.column, "value");
   assert.deepEqual(tv.labels, ["2020-01", "2020-02", "2020-03"]);
-  assert.deepEqual(seriesFromCsv("﻿date;temp;rain\n1;10;0\n2;11;5\n", "rain").values, [0, 5]);
+  assert.deepEqual(seriesFromCsv("\uFEFFdate;temp;rain\n1;10;0\n2;11;5\n", "rain").values, [0, 5]);
   assert.deepEqual(seriesFromCsv("a\tb\n1\t9\n2\t8\n", "a").values, [1, 2]);
   assert.deepEqual(seriesFromCsv("a,b\n1,9\n2,8\n", "2").values, [9, 8]);
   assert.deepEqual(seriesFromCsv("# comment\n\nname,\"value, ppm\"\n\"x, 1\",5\n\"y\",6\n", "value, ppm").values, [5, 6]);

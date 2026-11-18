@@ -1,0 +1,11 @@
+Round 5's hold-history guard with --detector bocpd (the page's Middle setting; reported, deciding nothing). 31 univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  now          193      63 (33%)           30.3         38/52                  10
+  hold         183      61 (33%)           28.7         38/52                  0
+
+7 held-out univariate TCPD series:
+
+  candidate  alerts  at a mark (share)  per 1000 checks  majority-marked reached  alerts dated before the baseline
+  now          122      36 (30%)           42.7         11/12                  10
+  hold         112      35 (31%)           39.2         11/12                  0

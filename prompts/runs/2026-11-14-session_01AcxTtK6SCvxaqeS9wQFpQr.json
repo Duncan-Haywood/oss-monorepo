@@ -1,0 +1,477 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtK6SCvxaqeS9wQFpQr",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T14:06:52Z",
+  "ended": "2026-11-14T14:07:31Z",
+  "wall_minutes": 5.03,
+  "tokens_in": 2688239,
+  "tokens_out": 17062,
+  "cost_usd": 1.493,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15875",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list held 11 entries, all control-plane work already sitting in open owner-gated PRs; the step should say to skip entries an open PR already carries (redteam.py open could print the PR)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets --probe 20 printed nothing when filtered with grep for a file outside the probed draw; the doc implies it lists every file's suite time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: every open entry is a control-plane fix already in an open PR awaiting owner approval.",
+      "did": "Left them untouched rather than opening duplicate control-plane PRs.",
+      "result": "Run time went to two campaigns and two real-defect fixes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-redteam-delivery-commission-year-123.md"
+  ],
+  "goal": null,
+  "notes": "Target picked from files changed on main in the last 3 days (calc.mjs changed 3 times). Suite 0.3 s. node --test calc.test.mjs 42 pass; page+usage 16 pass. Class check: sibling restaurant-pos-menu-mix-analyzer, stocker-cattle-margin-calculator and invoice-payment-terms-calculator already coerce with Number.isFinite before range checks, so no lint added; the NaN case was a one-off. No new automated guard (4b) beyond the suite tests this run.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 122458714,
+        "commit": "54d5e85ab",
+        "sites": 593,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 117,
+            "col": 19,
+            "operator": "gt-to-ge",
+            "before": "if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "after": "if (mo < 1 || mo >= 12 || d < 1 || d > 31) return null;",
+            "line_text": "  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 137,
+            "col": 14,
+            "operator": "gt-to-ge",
+            "before": "if (+m[1] > 12) first = true;",
+            "after": "if (+m[1] >= 12) first = true;",
+            "line_text": "    if (+m[1] > 12) first = true;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 213,
+            "col": 24,
+            "operator": "lt-to-le",
+            "before": "for (let i = h + 1; i < table.length; i++) {",
+            "after": "for (let i = h + 1; i <= table.length; i++) {",
+            "line_text": "  for (let i = h + 1; i < table.length; i++) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 317,
+            "col": 37,
+            "operator": "eq-flip",
+            "before": "const directFlat = opts.directFlat === \"\" || opts.directFlat == null ? 0.3 : Number(opts.directFlat);",
+            "after": "const directFlat = opts.directFlat !== \"\" || opts.directFlat == null ? 0.3 : Number(opts.directFlat);",
+            "line_text": "  const directFlat = opts.directFlat === \"\" || opts.directFlat == null ? 0.3 : Number(opts.directFlat);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 318,
+            "col": 14,
+            "operator": "lt-to-le",
+            "before": "if (foodPct < 0 || foodPct >= 100) return { invalid: \"Food cost % must be at least 0 and under 100.\" };",
+            "after": "if (foodPct <= 0 || foodPct >= 100) return { invalid: \"Food cost % must be at least 0 and under 100.\" };",
+            "line_text": "  if (foodPct < 0 || foodPct >= 100) return { invalid: \"Food cost % must be at least 0 and under 100.\" };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 322,
+            "col": 58,
+            "operator": "or-to-and",
+            "before": "const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "after": "const inRange = orders.filter((x) => (opts.from == null && x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "line_text": "  const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 347,
+            "col": 40,
+            "operator": "plus-to-minus",
+            "before": "const base = counted ? x.gross / (1 + markupNow) : 0;",
+            "after": "const base = counted ? x.gross / (1 - markupNow) : 0;",
+            "line_text": "    const base = counted ? x.gross / (1 + markupNow) : 0;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 470,
+            "col": 89,
+            "operator": "times-to-div",
+            "before": "if (s.payoutGap !== null && s.gross > 0 && Math.abs(s.payoutGap) > Math.max(1, s.gross * 0.01)) {",
+            "after": "if (s.payoutGap !== null && s.gross > 0 && Math.abs(s.payoutGap) > Math.max(1, s.gross / 0.01)) {",
+            "line_text": "  if (s.payoutGap !== null && s.gross > 0 && Math.abs(s.payoutGap) > Math.max(1, s.gross * 0.01)) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 484,
+            "col": 66,
+            "operator": "const-plus-one",
+            "before": "export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + \"%\" : \"\u2013\");",
+            "after": "export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(2) + \"%\" : \"\u2013\");",
+            "line_text": "export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + \"%\" : \"\u2013\");",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 502,
+            "col": 30,
+            "operator": "lt-to-le",
+            "before": "const cancelled = rnd() < 0.04;",
+            "after": "const cancelled = rnd() <= 0.04;",
+            "line_text": "      const cancelled = rnd() < 0.04;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "The LCG never yields exactly 0.04 over the sample's draws: sampleCsv() output is byte-identical with the mutant (checked by diffing both module outputs)."
+          }
+        ]
+      },
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 454482182,
+        "commit": "54d5e85ab",
+        "sites": 593,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 113,
+            "col": 21,
+            "operator": "lt-to-le",
+            "before": "y = +m[3]; if (y < 100) y += 2000;",
+            "after": "y = +m[3]; if (y <= 100) y += 2000;",
+            "line_text": "    y = +m[3]; if (y < 100) y += 2000;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "After the real-defect fix the date regex takes two- or four-digit years only, so y is < 100 or >= 1000 and y === 100 is unreachable; '1/2/100' is now rejected by the regex (test added). rerun reported false because the guard is the regex, not this line."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 124,
+            "col": 25,
+            "operator": "eq-flip",
+            "before": "if (ap === \"a\" && hh === 12) hh = 0;",
+            "after": "if (ap === \"a\" && hh !== 12) hh = 0;",
+            "line_text": "    if (ap === \"a\" && hh === 12) hh = 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 125,
+            "col": 13,
+            "operator": "const-plus-one",
+            "before": "if (hh > 23 || mm > 59) return null;",
+            "after": "if (hh > 24 || mm > 59) return null;",
+            "line_text": "    if (hh > 23 || mm > 59) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "hh 24 is equivalent: Date.UTC rolls 24:xx into the next day and the getUTCDate() === d check returns null either way (tested: '06/03/2026 24:00' is null with and without the mutant)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 241,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "let negAll = 0, posAll = 0;",
+            "after": "let negAll = 1, posAll = 0;",
+            "line_text": "  let negAll = 0, posAll = 0;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 296,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "if (!(b.net > 0) || !b.orders) return null;",
+            "after": "if (!(b.net > 1) || !b.orders) return null;",
+            "line_text": "  if (!(b.net > 0) || !b.orders) return null;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 321,
+            "col": 20,
+            "operator": "or-to-and",
+            "before": "if (directPct < 0 || directPct >= 1 || directFlat < 0) return { invalid: \"Direct-order fee must be a percentage under 100 and a flat amount of zero or more.\" };",
+            "after": "if (directPct < 0 && directPct >= 1 || directFlat < 0) return { invalid: \"Direct-order fee must be a percentage under 100 and a flat amount of zero or more.\" };",
+            "line_text": "  if (directPct < 0 || directPct >= 1 || directFlat < 0) return { invalid: \"Direct-order fee must be a percentage under 100 and a flat amount of zero or more.\" };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Line rewritten by the NaN fix (rerun: line changed). Re-applied by hand to the new code (first || to &&): test 'own-ordering fee is validated' fails with it, passes without."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 338,
+            "col": 67,
+            "operator": "const-plus-one",
+            "before": "if (r.payout !== null) { b.payout += r.payout; b.payoutRows += 1; }",
+            "after": "if (r.payout !== null) { b.payout += r.payout; b.payoutRows += 2; }",
+            "line_text": "    if (r.payout !== null) { b.payout += r.payout; b.payoutRows += 1; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 345,
+            "col": 60,
+            "operator": "plus-to-minus",
+            "before": "const charges = x.commission + x.delivery + x.marketing + x.ads + x.errors;",
+            "after": "const charges = x.commission + x.delivery + x.marketing - x.ads + x.errors;",
+            "line_text": "    const charges = x.commission + x.delivery + x.marketing + x.ads + x.errors;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 374,
+            "col": 26,
+            "operator": "gt-to-ge",
+            "before": "costsEntered: foodPct > 0 || packaging > 0,",
+            "after": "costsEntered: foodPct >= 0 || packaging > 0,",
+            "line_text": "    costsEntered: foodPct > 0 || packaging > 0,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 450,
+            "col": 49,
+            "operator": "lt-to-le",
+            "before": "const bad = promo.profitBeforeSpendPerDollar < 1;",
+            "after": "const bad = promo.profitBeforeSpendPerDollar <= 1;",
+            "line_text": "    const bad = promo.profitBeforeSpendPerDollar < 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Guard added in calc.test.mjs (red-team 2026-11-14 block)."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 455,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "const a = wd[0], b = wd[wd.length - 1];",
+            "after": "const a = wd[0], b = wd[wd.length - 2];",
+            "line_text": "    const a = wd[0], b = wd[wd.length - 1];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 498,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "let id = 5100;",
+            "after": "let id = 5101;",
+            "line_text": "  let id = 5100;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "Starting number of synthetic sample order IDs (DO5100 vs DO5101): an arbitrary label on made-up data, no number or finding changes."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "parseWhen accepted a three-digit year: '1/2/123' parsed as 2 Jan 0123, so one mistyped row became an order and stretched the report's date range to 0123-01-02. Fixed: the slash/dot date form takes two- or four-digit years only, so the row is skipped and counted.",
+        "patched": true
+      },
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "analyze() let a non-numeric directPct or directFlat (NaN) through validation, because NaN < 0 and NaN >= 1 are both false; the own-ordering finding then printed 'NaN%' and every direct gain was NaN. Fixed: validation is written as !(x >= 0 && x < 1) and requires a finite flat fee.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46689257-c6c0-5b29-a1c1-48df6ee8d3d6",
+    "transcripts": 1,
+    "first": "2026-11-14T14:06:52Z",
+    "last": "2026-11-14T14:11:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 32,
+        "input": 63,
+        "output": 17062,
+        "thinking": 4352,
+        "cache_read": 2609475,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78701,
+        "api_equivalent_usd": 1.493,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 32,
+      "input": 63,
+      "output": 17062,
+      "thinking": 4352,
+      "cache_read": 2609475,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78701,
+      "api_equivalent_usd": 1.493,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.03,
+      "active_minutes": 5.03,
+      "model_minutes": 3.37,
+      "tool_minutes": 1.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "mutation triage, 8 tests, two fixes and a post by a senior engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 200.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

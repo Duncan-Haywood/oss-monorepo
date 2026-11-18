@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGdZt3VQ5CGEjc1DRf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:06:55Z",
+  "ended": "2026-11-14T18:14:26Z",
+  "wall_minutes": 7.89,
+  "tokens_in": 6229701,
+  "tokens_out": 26175,
+  "cost_usd": 2.7675,
+  "tool_calls": 57,
+  "task": "Deepen (flagship 2) ai-bookkeeper, item (8): state sales tax vendor discounts whose hosts had refused",
+  "projects": [
+    "ventures/ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15934",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "tax.utah.gov, dfa.arkansas.gov, tax.ri.gov, tax.colorado.gov, maine.gov/revenue, mass.gov and law.justia.com answered 403; legislature sites answered instead",
+    "le.utah.gov section page loads its text by script; the versioned C59-12-S108_... URL in the page source holds the text",
+    "iga.in.gov is a script app; Indiana statute text not reachable"
+  ],
+  "integrity_issues": [
+    "Caught before landing: the 2024 Colorado statute prints a 4% vendor fee, but the signed HB25B-1005 ends it from 2026-01-01; coding the printed statute would have put a wrong discount on every 2026 Colorado return. The Governor's approval date comes from a search result because the scanned signature page's OCR is garbled; the eval doc says so."
+  ],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "Item (8) says 'hosts refused' for whole states, but each state's legislature site (mgaleg, le.utah.gov, leg.colorado.gov, legislature.maine.gov) answered: a statute host is often reachable when the tax department's host is not. Worth saying in the flagship row."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Description cap is 160 characters; the first draft was 171. Fine, just one more pass."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-colorado-took-its-vendor-fee-back.md",
+    "ventures/ai-bookkeeper/eval/state-pages-2026-11-14d.md"
+  ],
+  "goal": "Move flagship ai-bookkeeper's sales tax worksheet closer to correct for more states, from primary texts",
+  "notes": "Verification: node --test salestaxreturn.test.mjs 63/63 pass (new MD/UT/CO test with hand-worked figures); python3 platform/ci/run_venture_tests.py ai-bookkeeper: ok (36.4s, 1 skipped for missing tesseract); CLI end-to-end: MD $20,000 tax gives a $198 discount, UT monthly $1,000 gives $13.10, CO prints its note; validate.py passes; post front matter, links and similarity checks clean. venture-preflight.mjs ai-bookkeeper: preflight clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "305571c1-fae7-59b9-a3f0-d1efd6105042",
+    "transcripts": 1,
+    "first": "2026-11-14T18:06:55Z",
+    "last": "2026-11-14T18:14:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 109,
+        "output": 26175,
+        "thinking": 4654,
+        "cache_read": 6101686,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127906,
+        "api_equivalent_usd": 2.7675,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 109,
+      "output": 26175,
+      "thinking": 4654,
+      "cache_read": 6101686,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127906,
+      "api_equivalent_usd": 2.7675,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.89,
+      "active_minutes": 7.89,
+      "model_minutes": 5.61,
+      "tool_minutes": 2.29,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "reading four state statutes and a session law, coding two presets and a note, tests, eval doc and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 180.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

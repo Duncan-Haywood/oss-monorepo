@@ -51,7 +51,7 @@ browser calls `http://localhost` directly. Three things decide whether that work
 and the page should say them:
 
 - **CORS.** Ollama accepts only its own local origins by default; start it with
-  `OLLAMA_ORIGINS=https://duncan-haywood.github.io` (or the deployer's origin).
+  `OLLAMA_ORIGINS=https://marisstella.app` (or the deployer's origin).
   LM Studio has a CORS switch in its server settings. `llama-server` answers
   cross-origin requests by default.
 - **Local network permission.** Recent Chrome versions ask the visitor before a
@@ -86,7 +86,9 @@ caller exists, not before.
 to cap what a feature can spend: `complete(cfg, { prompt, guard, scope: { user, feature } })`.
 A call that would cross a budget is refused before it is sent (a `ByokError`
 with `reasons`), the output cap is lowered to the policy's ceiling, and real
-usage is charged afterwards. With a deployer's key on a server, this is what
+usage is charged afterwards. `usage.output` counts what the provider bills at
+the output rate, so for Gemini it includes thinking tokens
+(`thoughtsTokenCount`), and `usage.input` includes tool-use prompt tokens. With a deployer's key on a server, this is what
 stops one visitor or one loop from spending the month.
 
 Tests: `node --test platform/llm/*.test.mjs` (no network; `fetch` is injected).

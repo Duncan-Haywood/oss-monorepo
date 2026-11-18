@@ -29,3 +29,10 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-Etsy clause,
 # trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Etsy sellers who bulk-edit listings in a spreadsheet will search the literal symptoms ("Etsy tags limit 13", "Etsy title too long") and run a file through a free local checker, then use the safe-fixes pass for the mechanical faults (Excel-damaged SKUs, semicolon delimiters); measured as the share of file_checked events followed by fixes_applied (counters exist; local only, no reading yet, added 2026-11-10).
+    status: untested
+    checked: null
+    evidence: in-repo

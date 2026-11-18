@@ -1,0 +1,51 @@
+{
+ "date": "2026-11-09",
+ "subject": "research/merge-law",
+ "stratum": "research",
+ "seed": "2026-11-09",
+ "auditor": "agent session (Claude), quality audit round 2026-11-09",
+ "status": "audited",
+ "professional": "a theorist in optimisation / learning theory who works on model merging and projection methods (Kaczmarz, Cimmino) and would first ask what is new relative to relaxed parallel projection analysis, then recompute the second-moment identities",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 3,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran 'PYTHONPATH=src python -m pytest -q tests' (7 passed) and experiments/run.py (output byte-identical to experiments/results.txt). Recomputed independently with a separate numpy/QR Haar simulation (60000 runs, not the repo's Gram-Schmidt sim): (d,r,m,a)=(20,5,3,0.5): |e|^2 sim 0.5316 vs law 0.5312, seen 0.0390/0.0391, fresh 0.1330/0.1328; (10,2,6,0.4): 0.4243/0.4240, 0.0336/0.0336, 0.0851/0.0848; (16,4,10,a*): 0.2308/0.2308, 0.0400/0.0399, 0.0575/0.0577. Speedup at d=32,r=4,m=16 recomputed from ln f/ln(1-p) = 8.9086 = reported 8.91; paper's N(1)>1 iff m>1+d/r and averaging limit (1-p)^2 re-derived by hand. All agree. Caveat: the check is the model against itself, no real model merge.",
+  "completeness": "README/paper claims checked: exact residual law, a*, seen/fresh loss, harmonic decay vs (1-p)^m, round contraction f_m, speedup, efficiency m@50% (20/80/161) and m@25% (72/297/596), E1-E5 tables: all present and reproduce. figure.py and merge_scale.svg exist. Live page URL not loaded (no network check). Paper is only 25 lines, no figure embedded, no related-work section.",
+  "verification": "7 tests incl. two Monte Carlo tests of the law at three scales. Seeded 3 mutations in src/merge_law/model.py and reverted with git checkout: (m-2)->(m-1) in seen_loss caught by test_simulation_matches_law; best_scale (m-1)->m caught by test_best_scale_is_argmin; 0.9 factor on cross term in norm2 caught by 3 tests. Gaps: MC tolerances are loose (0.02/0.01), no test of critical_m, rounds(), capacity(), or the speedup closed form 1+ln(1+(m-1)p)/(-ln(1-p)) against the code.",
+  "craft": "Read model.py (137 lines), tests, run.py. Clean, documented, stdlib-only, pure-python O(d^2 r) sim is slow but fine. Defects: rounds() and capacity() untested and unused; critical_m is a linear scan that never terminates if efficiency stays above eff (it does not here, since efficiency decays); no input validation (r>d, m<1, eps outside (0,1)); haar_projector uses an unseeded-style loop with a 1e-9 retry that is harmless. Package never imported by a pyproject test config.",
+  "claims": "Numerical claims all back to results.txt and reproduce. Weakness: the paper claims a 'critical-batch-size law for module merging' and 'new' framing but cites nothing: no reference to task arithmetic (Ilharco et al.), model soups, TIES, or critical batch size (McCandlish et al.). grep of research/CITATIONS.bib and the project for kaczmarz/cimmino/ilharco/mccandlish finds nothing. 'Exact' is true only within the model; README states the stylised limits, but no disclaimer that nothing here was tested on neural-network merging.",
+  "fitness": "A researcher could reuse the formulas and sim as a baseline for theory of merging, and the limits section names extensions (conflicting tasks, anisotropy, SGD). But it is a toy: linear regression, consistent tasks, exact convergence, isotropic Haar subspaces; the key identity is a short second-moment calculation. No comparison to any empirical merge, no code path for nonlinear or conflicting tasks, no theorem statement beyond moments. A reader cannot tell what is new.",
+  "domain": "A theorist of optimisation or model merging would check first the nearest prior work. The setting is exactly relaxed parallel projection onto consistent affine subspaces: Cimmino's method and the block / randomized Kaczmarz literature (Needell and Tropp, randomized block Kaczmarz; Censor et al. on optimal relaxation of simultaneous projections) already give the optimal relaxation parameter and expected-contraction factor in terms of the mean projector, and the m-vs-sequential comparison is the standard Cimmino vs Kaczmarz comparison. Task-arithmetic theory in the linear/NTK regime (Ortiz-Jimenez et al. 2023) and critical batch size (McCandlish et al. 2018) are also unaddressed. The derivation is correct and the specific closed forms for seen/fresh loss are a pleasant contribution, but novelty is overstated by omission and the paper is not publishable as is without that positioning."
+ },
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No related-work or citations: the optimal-scale/contraction result is essentially known from Cimmino / randomized block Kaczmarz relaxation analysis and linear-regime task-arithmetic theory; novelty unstated and the 'critical-batch-size law' analogy is unreferenced.",
+   "where": "research/merge-law/paper/whitepaper.md"
+  },
+  {
+   "severity": "medium",
+   "what": "Only synthetic model-vs-own-model validation: no neural-network or real fine-tune merge, so the speedup and a* claims for 'decentralised training swarms' are untested outside the toy.",
+   "where": "research/merge-law/experiments/run.py"
+  },
+  {
+   "severity": "low",
+   "what": "rounds(), capacity() and critical_m() are untested; no input validation.",
+   "where": "research/merge-law/src/merge_law/model.py:50-80"
+  },
+  {
+   "severity": "low",
+   "what": "Monte Carlo test tolerances loose; speedup/efficiency closed form only tested for monotonicity.",
+   "where": "research/merge-law/tests/test_model.py"
+  }
+ ],
+ "fix_prs": [],
+ "verdict": "Mathematically sound and fully reproducible: every number in the README, paper and results.txt reproduces, an independent numpy simulation matches the closed forms to about 3 decimals at three new parameter sets, and three seeded mutations were all caught. The work falls short on research positioning: no citations, the core result is a restatement of relaxed simultaneous-projection (Cimmino / block Kaczmarz) theory in task-arithmetic language, and there is no check on a real merged model. Finished as a toy-model note, but a senior theorist would send it back for related work and an empirical bridge. Does not meet the bar (claims 2)."
+}

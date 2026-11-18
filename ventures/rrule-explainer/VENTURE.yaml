@@ -1,0 +1,54 @@
+name: rrule-explainer
+description: >-
+  Free browser tool and CLI for developers and calendar admins: expands an
+  iCalendar recurrence rule (RFC 5545 RRULE with DTSTART, RDATE, EXDATE) into
+  its dates, in plain English, through its time zone with the RFC's
+  clock-change rules, and flags months a rule skips, rules that never fire, a
+  DTSTART the rule does not make, WKST-dependent dates and BYDAY lists that
+  python-dateutil reads differently. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-14 in an explore run. duplicate_check.py: top score 0.15
+# (ics-calendar-check), nothing near the 0.45 bar. ics-calendar-check lints
+# a whole .ics file for import errors, including RRULE syntax and parts the
+# RFC forbids; it never expands a rule into dates. This tool does, which is
+# what the questions it answers need (which months, which instant, does
+# DTSTART count), and links to it for file-level checks.
+#
+# Why a tool and not a chatbot answer: an RRULE's dates are a computation
+# (BYSETPOS over a period's candidate set, ISO-style week numbers under
+# WKST, DST gaps), and from-memory answers get exactly those wrong. The
+# engine's python-dateutil mode reproduces python-dateutil 4.0.0 on 1,600
+# random rules, and its RFC mode differs only where the README says why.
+#
+# First visitor: developers searching "rrule tester", "rrule monthly 31st
+# skips", "rrule last weekday of month", "recurring event shows twice";
+# volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Developers debugging a recurring event will paste the RRULE into a tool
+      that lists its dates and names the rule that surprised them, rather than
+      stepping through a library in a REPL.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a rule where the tool's RFC reading is wrong by the text of RFC 5545 and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/rrule-explainer/
+  analytics: null

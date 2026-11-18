@@ -1,0 +1,60 @@
+Part A: synthetic streams, 10 seeds each, 500 points, first check (the baseline) at 100, then one check per new point (400 checks per stream). A step, where there is one, is at point 301; an alert dated within 5 points of it counts as reporting it. False alerts are all other alerts, per 1,000 checks. Delay = points from the change to the check that reported it.
+
+  detector      confirm  FA/1000 null iid      FA/1000 null ar1 0.5  FA/1000 null t3       step 1sd iid found (median delay) step 2sd iid found (median delay) step 3sd iid found (median delay) step 2sd ar1 0.5 found (median delay)
+  pelt-mean           3  3.25                  53.25                 14.50                 9/10 (7)                          10/10 (3)                         10/10 (3)                         9/10 (2)                          
+  pelt-mean           5  2.50                  49.75                 12.75                 9/10 (10)                         10/10 (5)                         10/10 (5)                         9/10 (4)                          
+  pelt-mean          10  1.50                  46.50                 11.00                 9/10 (13)                         10/10 (10)                        10/10 (10)                        9/10 (9)                          
+  pelt-meanvar        3  1.25                  14.75                 14.75                 10/10 (18.5)                      10/10 (10)                        10/10 (9.5)                       8/10 (9)                          
+  pelt-meanvar        5  1.25                  14.75                 14.75                 10/10 (18.5)                      10/10 (10)                        10/10 (9.5)                       8/10 (9)                          
+  pelt-meanvar       10  1.25                  14.75                 14.75                 10/10 (18.5)                      10/10 (10)                        10/10 (9.5)                       8/10 (9)                          
+  bocpd               3  0.00                  9.25                  4.00                  0/10 (-)                          9/10 (4)                          10/10 (3)                         8/10 (3)                          
+  bocpd               5  0.00                  7.50                  2.50                  0/10 (-)                          9/10 (5)                          10/10 (5)                         8/10 (4.5)                        
+  bocpd              10  0.00                  6.50                  2.25                  0/10 (-)                          9/10 (10)                         10/10 (10)                        7/10 (9)                          
+
+Rule: 9 of 9 candidates report at least 90% of the 2-sd steps. Chosen: bocpd with --confirm 5 (mean 3.33 false alerts per 1,000 checks on the nulls; 2-sd steps 90% found, median delay 5).
+
+Part B: TCPD replay, 31 univariate series that ship in the TCPD repository. Each series is watched from 20% of its length (the baseline check), then checked after every point. An alert is "marked" when an annotator put a change within 5 points of its date. Recall: of the locations a majority of annotators marked after the baseline, how many an alert reached. Delay: points from the nearest marked location to the check that reported it.
+
+  detector      confirm  alerts  marked (share)   per 1000 checks  majority locations reached  median delay
+  pelt-mean           3     642     135 (21%)         100.7         52/52                      3
+  pelt-mean           5     626     134 (21%)          98.2         52/52                      5
+  pelt-mean          10     619     142 (23%)          97.1         52/52                      10
+  pelt-meanvar        3     446     100 (22%)          70.0         50/52                      9
+  pelt-meanvar        5     446     100 (22%)          70.0         50/52                      9
+  pelt-meanvar       10     446     100 (22%)          70.0         50/52                      9
+  bocpd               3     197      66 (34%)          30.9         38/52                      3
+  bocpd *             5     193      63 (33%)          30.3         38/52                      5
+  bocpd              10     185      63 (34%)          29.0         37/52                      10
+
+Per series, the chosen setting (bocpd, --confirm 5): alerts, of which marked; majority locations after the baseline.
+  bank                 n  581  alerts  42  marked   0  majority locations 0
+  brent_spot           n  500  alerts  14  marked   4  majority locations 4
+  businv               n  330  alerts  12  marked   2  majority locations 3
+  centralia            n   15  alerts   0  marked   0  majority locations 0
+  children_per_woman   n  301  alerts   7  marked   0  majority locations 2
+  co2_canada           n  215  alerts   8  marked   5  majority locations 5
+  construction         n  319  alerts  12  marked   2  majority locations 1
+  debt_ireland         n   21  alerts   0  marked   0  majority locations 0
+  gdp_argentina        n   59  alerts   4  marked   2  majority locations 0
+  gdp_croatia          n   24  alerts   0  marked   0  majority locations 0
+  gdp_iran             n   58  alerts   1  marked   1  majority locations 1
+  gdp_japan            n   58  alerts   0  marked   0  majority locations 0
+  global_co2           n  104  alerts   2  marked   0  majority locations 0
+  homeruns             n  118  alerts   4  marked   2  majority locations 1
+  jfk_passengers       n  468  alerts   1  marked   1  majority locations 1
+  lga_passengers       n  468  alerts   7  marked   3  majority locations 3
+  nile                 n  100  alerts   1  marked   1  majority locations 1
+  ozone                n   54  alerts   2  marked   2  majority locations 1
+  quality_control_1    n  313  alerts   0  marked   0  majority locations 1
+  quality_control_2    n  283  alerts   1  marked   1  majority locations 1
+  quality_control_3    n  366  alerts   1  marked   1  majority locations 1
+  quality_control_4    n  500  alerts  22  marked   4  majority locations 1
+  quality_control_5    n  325  alerts   0  marked   0  majority locations 0
+  rail_lines           n   37  alerts   2  marked   2  majority locations 1
+  seatbelts            n  192  alerts   3  marked   1  majority locations 2
+  shanghai_license     n  205  alerts   6  marked   3  majority locations 2
+  uk_coal_employ       n  105  alerts   5  marked   5  majority locations 4
+  unemployment_nl      n  214  alerts  10  marked   6  majority locations 4
+  us_population        n  816  alerts   0  marked   0  majority locations 0
+  usd_isk              n  247  alerts  12  marked   3  majority locations 2
+  well_log             n  675  alerts  14  marked  12  majority locations 10

@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // node release-cli.mjs release.json [--json] [--today YYYY-MM-DD] [--skip-master]
 import { checkRelease, loadRelease } from './release.mjs';
+import { pathToFileURL } from 'node:url';
 export function run(argv) {
   const json = argv.includes('--json'), skipMaster = argv.includes('--skip-master');
   const ti = argv.indexOf('--today'), today = ti >= 0 ? argv[ti + 1] : undefined;
@@ -13,4 +14,4 @@ export function run(argv) {
     `${r.checks.length - r.fail - r.warn} pass, ${r.warn} warn, ${r.fail} fail`, r.pass ? 'ready to upload (warnings are judgement calls)' : 'not ready: fix the FAIL lines and re-run'];
   return { code: r.pass ? 0 : 1, text: lines.join('\n') };
 }
-if (import.meta.url === `file://${process.argv[1]}`) { const o = run(process.argv.slice(2)); console.log(o.text); process.exit(o.code); }
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) { const o = run(process.argv.slice(2)); console.log(o.text); process.exit(o.code); }

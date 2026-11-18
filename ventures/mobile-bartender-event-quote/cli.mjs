@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { quote, compareServices, checkAsk, toMarkdown } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const NUM = { guests: "guests", hours: "hours", "bartender-rate": "bartenderRate", "guests-per-bartender": "guestsPerBartender", miles: "miles", margin: "targetMargin", insurance: "insuranceAndPermit" };
 
@@ -34,7 +35,7 @@ export function run(argv) {
   return { code: over ? 1 : 0, out: flags.json ? JSON.stringify(q, null, 2) : toMarkdown(q, { client: flags.client }) };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { code, out } = run(process.argv.slice(2));
     console.log(out);

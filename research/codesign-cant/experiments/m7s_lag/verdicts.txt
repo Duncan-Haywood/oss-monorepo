@@ -1,0 +1,23 @@
+S0 (15 ms, b 1.5 reproduces 7r in 4 conditions x 72 designs): HELD (0 of 288 counts differ)
+S1 (aware src_li < 7l src_li at L2-45 in both geometries under >= 8 of 9 laws): HELD (9 of 9)
+  7.5 ms, b 0: above 44 vs 80, below 42 vs 92
+  7.5 ms, b 1.5: above 36 vs 78, below 42 vs 85
+  7.5 ms, b 3: above 36 vs 71, below 39 vs 83
+  15 ms, b 0: above 85 vs 133, below 92 vs 143
+  15 ms, b 1.5: above 54 vs 106, below 64 vs 131
+  15 ms, b 3: above 47 vs 98, below 49 vs 119
+  30 ms, b 0: above 333 vs 348, below 347 vs 364
+  30 ms, b 1.5: above 244 vs 292, below 251 vs 326
+  30 ms, b 3: above 127 vs 237, below 162 vs 277
+S2 (Spearman rho(mass, L2-45) < 0 in both geometries under the 6 laws with K <= 15 ms): HELD (range -0.93 to -0.68; at 30 ms 30 ms, b 0 -0.59/-0.52, 30 ms, b 1.5 -0.41/-0.58, 30 ms, b 3 +0.02/-0.26)
+S3 (b 1.5: L2-45 rises 7.5 -> 15 -> 30 ms in >= 10 of 12 set-geometries): HELD (12 of 12)
+S4 (b 1.5 -> 0 at 15 ms raises 7l src_li's L2-45 more than published 7l's, both geometries): HELD (above: 7l src_li +27, published 7l -4; below: 7l src_li +12, published 7l -6)
+S5 (b 0 at 15 ms: 7l src_li passes the margin test in <= 8 of 12): HELD (2 of 12; aware src_li 3 of 12, post hoc)
+
+Margin test passes (rho < 1) per law, of 12 designs per set (both geometries):
+          7l src_li [src_li]: 7.5 ms, b 0 11, 7.5 ms, b 1.5 11, 7.5 ms, b 3 11, 15 ms, b 0 2, 15 ms, b 1.5 12, 15 ms, b 3 11, 30 ms, b 0 0, 30 ms, b 1.5 0, 30 ms, b 3 0
+     7l t45 cap wide [inh60]: 7.5 ms, b 0 12, 7.5 ms, b 1.5 12, 7.5 ms, b 3 12, 15 ms, b 0 12, 15 ms, b 1.5 12, 15 ms, b 3 4, 30 ms, b 0 0, 30 ms, b 1.5 0, 30 ms, b 3 0
+    7l t45 cap wide [src_li]: 7.5 ms, b 0 11, 7.5 ms, b 1.5 11, 7.5 ms, b 3 11, 15 ms, b 0 6, 15 ms, b 1.5 5, 15 ms, b 3 3, 30 ms, b 0 0, 30 ms, b 1.5 0, 30 ms, b 3 0
+      aware cap wide [inh60]: 7.5 ms, b 0 10, 7.5 ms, b 1.5 11, 7.5 ms, b 3 11, 15 ms, b 0 9, 15 ms, b 1.5 12, 15 ms, b 3 8, 30 ms, b 0 0, 30 ms, b 1.5 0, 30 ms, b 3 0
+     aware cap wide [src_li]: 7.5 ms, b 0 9, 7.5 ms, b 1.5 9, 7.5 ms, b 3 9, 15 ms, b 0 3, 15 ms, b 1.5 3, 15 ms, b 3 2, 30 ms, b 0 0, 30 ms, b 1.5 0, 30 ms, b 3 0
+       aware src_li [src_li]: 7.5 ms, b 0 11, 7.5 ms, b 1.5 11, 7.5 ms, b 3 11, 15 ms, b 0 3, 15 ms, b 1.5 12, 15 ms, b 3 12, 30 ms, b 0 0, 30 ms, b 1.5 0, 30 ms, b 3 1

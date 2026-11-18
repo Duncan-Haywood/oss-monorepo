@@ -126,7 +126,7 @@
 </div>
 <script type="module">
   import { normalizeAwards, parseCsv, analyze, readConcentration, buildRequest, recompetesToCsv, money } from "./calc.mjs";
-  import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
   const $ = (id) => document.getElementById(id);
   const API = "https://api.usaspending.gov/api/v2/search/spending_by_award/";
   const MAX_PAGES = 5;
@@ -160,7 +160,7 @@
     $("results").scrollIntoView({ block: "start" });
   }
 
-  function usage(event) { try { recordUsage(localStorage, $("usageOptOut").checked, event); } catch {} }
+  function usage(event) { try { recordUsage(usageStorage(), $("usageOptOut").checked, event); } catch {} }
 
   $("fetch").addEventListener("click", async () => {
     const status = $("status"); status.className = "fine"; status.textContent = "Searching…";
@@ -201,8 +201,8 @@
     URL.revokeObjectURL(url); usage("csv_downloaded");
   });
 
-  try { $("usageOptOut").checked = readOptOut(localStorage); } catch {}
-  $("usageOptOut").addEventListener("change", () => { try { writeOptOut(localStorage, $("usageOptOut").checked); } catch {} });
+  try { $("usageOptOut").checked = readOptOut(usageStorage()); } catch {}
+  $("usageOptOut").addEventListener("change", () => { try { writeOptOut(usageStorage(), $("usageOptOut").checked); } catch {} });
 </script>
 </body>
 </html>

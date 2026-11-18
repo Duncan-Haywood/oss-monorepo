@@ -6,7 +6,12 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/greenhouse-bench-planner/)
+- [The tool](https://marisstella.app/greenhouse-bench-planner/)
+
+## Limits
+
+- The plan is a fast search, not a proven optimum: orders are booked by margin per square foot-week of space, then other booking orders and single-crop moves are tried and kept when they earn more. On the built-in example it matches the best of all 5,040 booking orders ($4,548 margin, 1,723 of 1,870 units).
+- Holding a finished crop, and selling one late, are each capped at 52 weeks; the plan says so when it caps an entry.
 
 ## Source
 

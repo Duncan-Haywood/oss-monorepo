@@ -1,0 +1,22 @@
+confirmation seed 20261217, 200 series a cell; Markov carry-forward LR >= 6.56; round four's LR >= 5.41 on the same series for comparison
+cell  with a change  one tick  catchUp  share of one tick  round four  share  rounding  share of found
+R1              200       200        2              0.010           1  0.005       198           0.990
+R2              200       200        0              0.000           0  0.000       200           1.000
+R3              200       200        0              0.000           0  0.000       200           1.000
+T1              153       139      137              0.986         136  0.978         2           0.013
+T2              187       111      111              1.000         111  1.000         0           0.000
+T3               64        62       60              0.968          50  0.806         2           0.031
+F1              200         0        0                  -           0      -         0           0.000
+F2              200         0        0                  -           0      -         0           0.000
+F3              185         0        0                  -           0      -         0           0.000
+X1              200       200        3              0.015           4  0.020       197           0.985
+X2              200       200        0              0.000           0  0.000       200           1.000
+X3              200       200      163              0.815         167  0.835        37           0.185
+judged T cells: T1, T2, T3; judged X cells: X1, X2 (X3 reported, not judged)
+K1 (R: catchUp <= 0.05 of one tick, rounding >= 0.90): pass
+K2 (judged T: catchUp >= 0.80 of one tick, >= 2 judged): pass
+K3 (F: rounding <= 0.05): pass
+K4 (judged X1/X2: catchUp <= 0.10 of one tick): pass
+K5 (T3 judged, catchUp >= 0.85 and >= round four's share + 0.05): pass
+Verdict: Markov carry-forward replaces round four
+(1619 s)

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVP1Sy5e8dtNbbdb9aV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production; merge when done.",
+  "input_sha256": "5767b84735b6c9043e02e53c77b00c9fbd663fcfa739a0cbaac4f733585d0f6f",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T07:56:41Z",
+  "ended": "2026-11-17T08:25:58Z",
+  "wall_minutes": 29.61,
+  "tokens_in": 8672145,
+  "tokens_out": 42131,
+  "cost_usd": 3.7668,
+  "tool_calls": 68,
+  "task": "Deepen (flagship 5) einvoice-preflight: Extended-CTC-FR and Factur-X EXTENDED base sets on the plain route",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16867,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 0,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Named chant-forge, whose remaining items need a singer or are fine OMR tweaks; two earlier sessions in two days also left it. Its row still has neither buildable: nor inputs_only:."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate picked row 7 chant-forge (its open items are OMR tweaks or need a singer); the routine asks for revenue-generating products, and einvoice-preflight (row 3, no PR in the last 24 h, France's reform live since 1 Sept 2026) had a buildable item that removes false rejections of real invoices",
+      "did": "took einvoice-preflight's open item 'Extended-CTC-FR base sets'",
+      "result": "landed: 15/15 FNFE extended examples go from failing to passing; 175/175 runs match Saxon; 13/13 real ZUGFeRD corpus files match Saxon"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-extended-invoices-get-their-own-rules.md",
+    "ventures/einvoice-preflight/eval/extended-base-crosscheck-2026-11-17.md"
+  ],
+  "goal": "Fewer false rejections for French and German senders of extended e-invoices",
+  "notes": "Before: the EN 16931 base raised 4-16 findings (fatal BR-CO-10, BR-22, BR-26 ...) on each of FNFE's 15 extended examples. After: FNFE's EXTENDED-CTC-FR base (UBL 953, CII 773 checks) and Factur-X 1.09.2 EXTENDED (1,464 checks; its 210 document() code-list lookups inlined at build time, which otherwise skipped 30-40 checks per invoice) replace the base for those BT-24 ids. Cross-check vs Saxon-JS on FNFE's compiled XSLT: 175/175 runs, 43 ids, 0 skipped. Real files: 13 extended XMLs from ZUGFeRD/corpus 84f8d8f (PDF attachments via pdfdetach): false fatal BR-CO-12/BR-S-08 removed on 4; remaining findings are code-list drift (9958 -> 0204) the EU base also raised; plain = Saxon 13/13. Local: run_venture_tests einvoice-preflight 2602 tests ok; run_workflow_locally --for-changes DONE exit 0 (all run: steps passed; uses: steps, cross-review bots and deploy jobs not run locally). The existing BR-FR/CDAR/EU sets rebuilt byte-identical.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "143401c5-ee6a-51e9-a1c0-0a0b623856a2",
+    "transcripts": 1,
+    "first": "2026-11-17T07:56:41Z",
+    "last": "2026-11-17T08:26:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 125,
+        "output": 42131,
+        "thinking": 6853,
+        "cache_read": 8519545,
+        "cache_write_5m": 0,
+        "cache_write_1h": 152475,
+        "api_equivalent_usd": 3.7668,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 125,
+      "output": 42131,
+      "thinking": 6853,
+      "cache_read": 8519545,
+      "cache_write_5m": 0,
+      "cache_write_1h": 152475,
+      "api_equivalent_usd": 3.7668,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 65,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.61,
+      "active_minutes": 29.61,
+      "model_minutes": 7.73,
+      "tool_minutes": 21.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "compile three Schematron sets, inline code lists, write a Saxon cross-check and a real-file run, tests and docs: about a day and a half for an engineer who knows Schematron",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 265.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

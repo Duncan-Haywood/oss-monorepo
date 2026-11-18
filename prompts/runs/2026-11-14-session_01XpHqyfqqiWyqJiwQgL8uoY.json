@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfqqiWyqJiwQgL8uoY",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T12:39:25Z",
+  "ended": "2026-11-14T12:48:39Z",
+  "wall_minutes": 16.75,
+  "tokens_in": 3055996,
+  "tokens_out": 32491,
+  "cost_usd": 2.0555,
+  "tool_calls": 33,
+  "task": "Saints by Candlelight episode 115 (series bible's listed sequel to 114)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15852",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The search guidance says to use gh api search, but `gh api ... search/issues` with no results printed nothing (not even total_count) on the first try, which looked the same as an auth failure. A second query with --jq '.total_count' made the difference clear. Printing total_count by default would avoid the ambiguity."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a six-file text-only creative diff selected 12 workflows (up to a 60-minute budget) and ended 'DONE exit 1' only because steps that needed the skipped site build were UNRUN. For a docs or episode diff, an exit code that separates 'failed' from 'unverifiable here' would save a reading pass."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-saints-by-candlelight-115-apollos-at-ephesus.md"
+  ],
+  "goal": null,
+  "notes": "Creative track. Project: saints-by-candlelight; piece: 115-priscilla-and-aquila-and-the-preacher-from-alexandria (Acts 18:18-28, 7,033 words, text only because the audio folders are at 474 MB, over the 400 MB cap). Saints by Candlelight was the shelf longest without a new piece (Hearth & Horizon had four pieces since episode 114). Adversarial re-read fixed four claims: Alexandria's age, 'probably more Jews than Jerusalem' softened, the Sosthenes of the 8 December feast hedged as the tradition's identification, and an unconfirmed Chrysostom homily citation dropped. Verification: node --test *.test.mjs 14/14 and --check-script ok. run_workflow_locally --for-changes: every step that ran passed, including portfolio-validate 100/100, ventures-tests, page-integrity, readme-live-links, sibling-links, conflict-markers and blog front matter. Only build-dependent steps were UNRUN (the site build is skipped locally) and one workflow ran out of budget, so the summary line read 9/10 passed, DONE exit 1. No audio_played or audio_finished signal, since there is no audio.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "86a2d79b-f1ff-51bc-8523-a7667593ff32",
+    "transcripts": 1,
+    "first": "2026-11-14T12:39:25Z",
+    "last": "2026-11-14T12:56:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 62,
+        "output": 32491,
+        "thinking": 8975,
+        "cache_read": 2954106,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101828,
+        "api_equivalent_usd": 2.0555,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 62,
+      "output": 32491,
+      "thinking": 8975,
+      "cache_read": 2954106,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101828,
+      "api_equivalent_usd": 2.0555,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 33,
+    "tools": {
+      "Bash": 29,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.75,
+      "active_minutes": 16.75,
+      "model_minutes": 5.64,
+      "tool_minutes": 11.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "researching and writing a ~7,000-word sourced bedtime script plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 291.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

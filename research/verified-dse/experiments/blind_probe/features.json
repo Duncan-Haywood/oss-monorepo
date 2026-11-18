@@ -1,0 +1,50 @@
+{
+ "gray0": {
+  "amount_cells": 6,
+  "amount_depth": 6,
+  "amount_gate_depth": 24,
+  "amount_gates": 18,
+  "mux_share": 0.8279,
+  "shift_width": 128
+ },
+ "gray1": {
+  "amount_cells": 7,
+  "amount_depth": 7,
+  "amount_gate_depth": 43,
+  "amount_gates": 83,
+  "mux_share": 0.7574,
+  "shift_width": 128
+ },
+ "lut1": {
+  "amount_cells": 3,
+  "amount_depth": 3,
+  "amount_gate_depth": 51,
+  "amount_gates": 1948,
+  "mux_share": 0.811,
+  "shift_width": 128
+ },
+ "mod10": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 55,
+  "amount_gates": 99,
+  "mux_share": 0.6425,
+  "shift_width": 128
+ },
+ "mod12": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 80,
+  "amount_gates": 170,
+  "mux_share": 0.5388,
+  "shift_width": 128
+ },
+ "mod8": {
+  "amount_cells": 1,
+  "amount_depth": 1,
+  "amount_gate_depth": 27,
+  "amount_gates": 51,
+  "mux_share": 0.7832,
+  "shift_width": 128
+ }
+}

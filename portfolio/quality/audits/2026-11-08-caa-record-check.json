@@ -25,6 +25,6 @@
     {"severity": "low", "what": "sitemap.xml and canonical use example.invalid, llms.txt links a github.io host and carries tax/legal boilerplate irrelevant to a DNS tool.", "where": "ventures/caa-record-check/sitemap.xml; llms.txt"},
     {"severity": "low", "what": "verdictForCustomCa duplicates the verdictFor rule chain; dead tag-regex condition; unfinished sentence in resolveCaaSet docstring.", "where": "ventures/caa-record-check/analyze.mjs:107-130; parse.mjs:78; lookup.mjs:56-62"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14747"],
   "verdict": "A tidy, zero-dependency, honestly caveated CAA checker whose 73 tests pass, whose live CLI run returned the real record set, and whose core processing (issuewild fallback, critical flag, RFC 8657 parameters, generic-hex decoding) I recomputed correctly, with a seeded mutation caught by 2 tests. It does not meet the bar: its alias (CNAME) handling contradicts RFC 8659 section 3, producing a false 'any CA may issue' for CNAME-hosted subdomains beneath a restrictive parent, and that error is advertised on the page as RFC-conformant and locked in by a test. Finished (completeness 3) but correctness and claims are 2, so not at the senior-practitioner level yet. The fix is small: query CAA(X), then CAA(A(X)) without climbing, then climb from the original name's parents."
 }

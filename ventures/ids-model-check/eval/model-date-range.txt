@@ -1,0 +1,29 @@
+{
+ "notes": [
+  "In the model: more than 50 different values: 2021-08-13 (1), 2022-01-01 (1), 2022-01-08 (1), 2022-01-10 (1), 2022-01-12 (1), 2022-01-19 (1), 2022-01-21 (1), 2022-01-23 (1), .... They run from 2021-08-13 to 2026-12-30. Use the model's range",
+  "In the model: 5 different values: P1Y (150), P2Y (150), P3Y (150), P4Y (149), P4Y6M (1). They run from P1Y to P4Y6M. Allow exactly these values Use the model's range"
+ ],
+ "buttonsLeft": 0,
+ "errors": [],
+ "ranges": [
+  [
+   "xs:date",
+   "2021-08-13",
+   "2026-12-30"
+  ],
+  [
+   "xs:duration",
+   "P1Y",
+   "P4Y6M"
+  ]
+ ],
+ "status": [
+  "Door warranty: pass"
+ ],
+ "oneDayLate": "fail",
+ "asPattern": {
+  "length": 129,
+  "status": "pass",
+  "oneDayLate": "fail"
+ }
+}

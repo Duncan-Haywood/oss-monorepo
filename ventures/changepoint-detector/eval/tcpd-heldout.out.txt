@@ -1,0 +1,59 @@
+TCPD held-out: 7 univariate series TCPD does not ship (md5-checked against its checksums.json); not scored, multi-dimensional: apple (2 dims), bee_waggle_6 (4 dims), occupancy (4 dims).
+Every setting below was fixed on the 31 shipped series before these were opened.
+
+Mean over the 7 held-out series (F1 margin 5; * = this detector; others: TCPDBench published default scores, a failed run counted as 0):
+  setting                                  F1     cover  ran on
+    binseg                                0.727  0.731  7
+  * consensus: every setting              0.711  0.742  7
+    bocpd                                 0.683  0.605  7
+    segneigh                              0.679  0.678  7
+    amoc                                  0.675  0.705  7
+    zero                                  0.639  0.597  7
+    pelt                                  0.636  0.639  7
+  * bocpd (default)                       0.622  0.558  7
+    cpnp                                  0.529  0.409  7
+    bocpdms                               0.506  0.635  7
+  * noise floor 2, local 25 (always)      0.505  0.414  7
+  * level, following the over-cut warning 0.497  0.394  7
+  * consensus: half or more               0.457  0.338  7
+  * level+volatility                      0.439  0.271  7
+    ecp                                   0.433  0.322  7
+    prophet                               0.412  0.538  7
+    rfpop                                 0.363  0.241  7
+    rbocpdms                              0.332  0.436  5
+    wbs                                   0.332  0.262  7
+  * level (default)                       0.296  0.191  7
+    kcpa                                  0.085  0.043  7
+
+Over-cut warning fires on 6 of 7: bitcoin, iceland_tourism, measles, ratner_stock, robocalls, scanline_126007.
+
+Per series: F1 (cover) and cuts.
+  bitcoin          n 774  level 0.202 (0.122) 150  level+warn 0.349 (0.216) 74  bocpd 0.369 (0.480) 13  every 0.570 (0.743) 12  best published bocpd 0.692  zero 0.450  [warning]
+  iceland_tourism  n 199  level 0.105 (0.097) 35  level+warn 0.486 (0.655) 2  bocpd 0.947 (0.946) 0  every 0.947 (0.946) 0  best published zero 0.947  zero 0.947  [warning]
+  measles          n 991  level 0.024 (0.045) 167  level+warn 0.047 (0.087) 40  bocpd 0.069 (0.134) 27  every 0.643 (0.661) 1  best published amoc 0.947  zero 0.947  [warning]
+  ratner_stock     n 600  level 0.190 (0.151) 75  level+warn 0.452 (0.304) 23  bocpd 0.615 (0.618) 7  every 0.687 (0.883) 3  best published binseg 0.824  zero 0.571  [warning]
+  robocalls        n  52  level 0.651 (0.472) 7  level+warn 0.966 (0.808) 2  bocpd 0.846 (0.734) 1  every 0.636 (0.601) 0  best published bocpd 0.966  zero 0.636  [warning]
+  scanline_126007  n 481  level 0.494 (0.212) 69  level+warn 0.772 (0.448) 10  bocpd 0.774 (0.334) 25  every 0.644 (0.503) 0  best published cpnp 0.889  zero 0.644  [warning]
+  scanline_42049   n 481  level 0.404 (0.239) 82  level+warn 0.404 (0.239) 82  bocpd 0.733 (0.660) 13  every 0.848 (0.860) 9  best published bocpd 0.962  zero 0.276
+
+Paired F1 differences over the 7 held-out series (few series: read the intervals, not the means):
+  level, following the over-cut warning minus level (default): mean +0.201 [95% 0.098, 0.297]; better on 6, worse on 0, sign test p 0.031
+  level, following the over-cut warning minus zero: mean -0.142 [95% -0.436, 0.120]; better on 3, worse on 4, sign test p 1.000
+  bocpd (default) minus zero: mean -0.017 [95% -0.340, 0.222]; better on 4, worse on 2, sign test p 0.688
+  bocpd (default) minus published binseg: mean -0.105 [95% -0.390, 0.113]; better on 4, worse on 3, sign test p 1.000
+  bocpd (default) minus level following the warning: mean +0.125 [95% -0.004, 0.274]; better on 6, worse on 1, sign test p 0.125
+  consensus: every setting minus zero: mean +0.072 [95% -0.097, 0.263]; better on 3, worse on 1, sign test p 0.625
+
+Pooled, 31 shipped + 7 held-out = 38 series, mean F1 / cover:
+    binseg                                0.716  0.682
+  * consensus: every setting              0.704  0.653
+    pelt                                  0.692  0.666
+  * bocpd (default)                       0.690  0.620
+    amoc                                  0.677  0.680
+    bocpd                                 0.675  0.614
+    zero                                  0.658  0.573
+  * noise floor 2, local 25 (always)      0.654  0.561
+  * level, following the over-cut warning 0.625  0.530
+  * consensus: half or more               0.616  0.501
+  * level+volatility                      0.613  0.462
+  * level (default)                       0.444  0.340

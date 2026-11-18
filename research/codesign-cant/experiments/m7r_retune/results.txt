@@ -1,0 +1,132 @@
+Milestone 7r: retuned under closure src_li ({'WH_KG': 209.89999999999998, 'MOTOR_K': 0.02901786459925004, 'MOTOR_EXP': 1.0407311079513712, 'FM': 0.568138403664086, 'SIZE_SOLVE': 'exact'}); old designs re-scored under inh60 and src_li, not retuned.
+Validity per design (label: feasible / closes at 15 min / margin rho < 1; emax min):
+  7l t45 cap wide [inh60]: feasible 12/12, closes 12/12, margin 12/12; emax 15.0, 15.2, 15.0, 15.1, 14.9, 14.9, 15.4, 15.7, 15.5, 15.6, 15.8, 15.1
+  aware cap wide [inh60]: feasible 12/12, closes 12/12, margin 12/12; emax 15.0, 15.0, 15.0, 14.6, 14.8, 14.8, 15.1, 15.3, 15.0, 14.6, 14.9, 15.0
+  7l t45 cap wide [src_li]: feasible 12/12, closes 12/12, margin 5/12; emax 19.5, 19.9, 19.6, 19.8, 19.6, 19.5, 20.2, 20.6, 20.3, 20.4, 20.6, 19.8
+  aware cap wide [src_li]: feasible 12/12, closes 12/12, margin 3/12; emax 19.8, 19.6, 19.6, 19.0, 19.5, 19.4, 19.8, 20.0, 19.6, 19.0, 19.5, 19.6
+  7l src_li [src_li]: feasible 12/12, closes 12/12, margin 12/12; emax 15.3, 15.7, 15.3, 15.5, 15.5, 15.2, 16.1, 16.6, 15.8, 16.2, 16.7, 15.8
+  aware src_li [src_li]: feasible 12/12, closes 12/12, margin 12/12; emax 15.3, 15.3, 15.2, 15.0, 15.1, 15.0, 15.4, 16.0, 15.2, 15.0, 15.2, 15.1
+
+dead = diverged flights of 64 per seed, summed (per seed); J = held-out score (higher is better); C excludes power.
+
+[above, 7l t45 cap wide [inh60]] L 0.102 m; D 0.130 m; cant 33.2 deg; mass 1.294 kg; hover W 340.1; tau/W 0.0670 m; cost $110
+  mass 1.291, 1.189, 1.296, 1.258, 1.327, 1.401; pos kp 28.33, 26.74, 26.48, 23.46, 28.58, 31.47; pos ki 0.017, 1.055, 1.135, 0.087, 0.813, 0.078; att kp 2.36, 1.98, 2.17, 2.27, 2.09, 1.78
+    45_1_cap: dead    1 [0, 1, 0, 0, 0, 0]; J median -1.551; pos 0.108 m
+    20_2_cap: dead   30 [5, 8, 4, 5, 4, 4]; J median -3.727; pos 0.352 m
+    45_2_cap: dead   73 [9, 18, 13, 13, 11, 9]; J median -6.985; pos 0.688 m
+   45_2_base: dead  284 [48, 48, 46, 47, 45, 50]; J median -36.055; pos 3.586 m
+    20_3_cap: dead  142 [23, 31, 25, 27, 20, 16]; J median -14.169; pos 1.399 m
+    45_3_cap: dead  218 [32, 41, 38, 39, 37, 31]; J median -19.559; pos 1.906 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.509; pos 0.101 m
+
+[above, aware cap wide [inh60]] L 0.106 m; D 0.129 m; cant 33.0 deg; mass 1.446 kg; hover W 408.1; tau/W 0.0702 m; cost $122
+  mass 1.283, 1.293, 1.303, 1.943, 1.423, 1.430; pos kp 23.67, 27.27, 20.07, 26.94, 19.86, 25.03; pos ki 0.101, 0.565, 0.017, 0.127, 1.579, 1.899; att kp 2.37, 2.07, 2.22, 1.79, 2.34, 2.23
+    45_1_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.543; pos 0.103 m
+    20_2_cap: dead   21 [6, 4, 4, 0, 3, 4]; J median -3.401; pos 0.272 m
+    45_2_cap: dead   53 [13, 13, 10, 0, 8, 9]; J median -5.780; pos 0.507 m
+   45_2_base: dead  250 [49, 47, 32, 47, 28, 47]; J median -35.844; pos 3.160 m
+    20_3_cap: dead  107 [25, 24, 22, 4, 16, 16]; J median -11.330; pos 1.065 m
+    45_3_cap: dead  176 [41, 38, 34, 9, 27, 27]; J median -16.713; pos 1.554 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.519; pos 0.101 m
+
+[above, 7l t45 cap wide [src_li]] L 0.102 m; D 0.130 m; cant 33.2 deg; mass 0.755 kg; hover W 173.3; tau/W 0.0670 m; cost $74
+  mass 0.756, 0.749, 0.754, 0.752, 0.757, 0.761; pos kp 28.33, 26.74, 26.48, 23.46, 28.58, 31.47; pos ki 0.017, 1.055, 1.135, 0.087, 0.813, 0.078; att kp 2.36, 1.98, 2.17, 2.27, 2.09, 1.78
+    45_1_cap: dead   49 [6, 8, 9, 9, 8, 9]; J median -5.664; pos 0.535 m
+    20_2_cap: dead  209 [32, 34, 35, 37, 34, 37]; J median -19.419; pos 1.915 m
+    45_2_cap: dead  260 [43, 43, 44, 44, 42, 44]; J median -24.908; pos 2.453 m
+   45_2_base: dead  345 [57, 57, 57, 57, 57, 60]; J median -40.696; pos 4.102 m
+    20_3_cap: dead  352 [60, 59, 59, 59, 57, 58]; J median -34.939; pos 3.458 m
+    45_3_cap: dead  367 [61, 61, 61, 62, 61, 61]; J median -38.246; pos 3.804 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.514; pos 0.108 m
+
+[above, aware cap wide [src_li]] L 0.106 m; D 0.129 m; cant 33.0 deg; mass 0.766 kg; hover W 178.2; tau/W 0.0702 m; cost $75
+  mass 0.764, 0.751, 0.756, 0.794, 0.767, 0.766; pos kp 23.67, 27.27, 20.07, 26.94, 19.86, 25.03; pos ki 0.101, 0.565, 0.017, 0.127, 1.579, 1.899; att kp 2.37, 2.07, 2.22, 1.79, 2.34, 2.23
+    45_1_cap: dead   41 [7, 8, 6, 6, 5, 9]; J median -4.818; pos 0.465 m
+    20_2_cap: dead  200 [33, 36, 35, 28, 34, 34]; J median -18.659; pos 1.833 m
+    45_2_cap: dead  254 [43, 44, 42, 41, 42, 42]; J median -23.729; pos 2.365 m
+   45_2_base: dead  333 [57, 57, 52, 57, 52, 58]; J median -40.723; pos 3.899 m
+    20_3_cap: dead  347 [58, 59, 58, 56, 59, 57]; J median -34.176; pos 3.388 m
+    45_3_cap: dead  366 [61, 61, 61, 61, 61, 61]; J median -38.235; pos 3.782 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.540; pos 0.110 m
+
+[above, 7l src_li [src_li]] L 0.107 m; D 0.112 m; cant 37.0 deg; mass 1.133 kg; hover W 402.2; tau/W 0.0706 m; cost $114; rejected 0.15 of training candidates
+  mass 1.162, 1.060, 1.190, 1.086, 1.095, 1.208; pos kp 31.62, 29.54, 31.33, 29.06, 31.60, 31.62; pos ki 1.151, 0.017, 0.012, 2.088, 0.311, 3.162; att kp 2.57, 2.23, 2.51, 2.26, 2.35, 1.84
+    45_1_cap: dead    3 [0, 0, 1, 0, 1, 1]; J median -1.607; pos 0.113 m
+    20_2_cap: dead   47 [6, 10, 7, 8, 9, 7]; J median -4.842; pos 0.462 m
+    45_2_cap: dead  106 [13, 23, 17, 20, 20, 13]; J median -10.398; pos 0.959 m
+   45_2_base: dead  308 [47, 52, 55, 52, 53, 49]; J median -37.477; pos 3.724 m
+    20_3_cap: dead  194 [29, 36, 33, 34, 33, 29]; J median -18.378; pos 1.755 m
+    45_3_cap: dead  251 [39, 45, 41, 44, 43, 39]; J median -23.368; pos 2.274 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.498; pos 0.101 m
+
+[above, aware src_li [src_li]] L 0.116 m; D 0.106 m; cant 35.5 deg; mass 1.289 kg; hover W 494.8; tau/W 0.0777 m; cost $129; rejected 0.12 of training candidates
+  mass 1.163, 1.177, 1.241, 1.498, 1.291, 1.364; pos kp 27.00, 30.38, 24.40, 30.42, 22.30, 26.11; pos ki 0.346, 0.076, 0.655, 0.375, 1.998, 1.565; att kp 2.29, 2.11, 2.31, 2.00, 2.53, 2.26
+    45_1_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.543; pos 0.103 m
+    20_2_cap: dead   25 [6, 6, 4, 1, 4, 4]; J median -3.494; pos 0.317 m
+    45_2_cap: dead   54 [13, 13, 9, 3, 7, 9]; J median -5.550; pos 0.528 m
+   45_2_base: dead  250 [46, 46, 44, 46, 25, 43]; J median -34.565; pos 3.179 m
+    20_3_cap: dead  115 [28, 26, 23, 9, 14, 15]; J median -11.771; pos 1.142 m
+    45_3_cap: dead  190 [40, 41, 38, 18, 27, 26]; J median -17.238; pos 1.661 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.518; pos 0.101 m
+
+[below, 7l t45 cap wide [inh60]] L 0.103 m; D 0.134 m; cant 32.9 deg; mass 1.102 kg; hover W 258.8; tau/W 0.0676 m; cost $94
+  mass 1.129, 1.055, 1.090, 1.069, 1.035, 1.232; pos kp 24.09, 29.84, 30.23, 21.66, 28.64, 28.99; pos ki 0.023, 0.846, 2.725, 1.958, 2.428, 0.809; att kp 1.76, 1.62, 1.60, 1.97, 1.83, 1.67
+    45_1_cap: dead    2 [0, 2, 0, 0, 0, 0]; J median -1.502; pos 0.125 m
+    20_2_cap: dead   64 [10, 12, 11, 10, 12, 9]; J median -6.780; pos 0.632 m
+    45_2_cap: dead  105 [17, 24, 19, 14, 17, 14]; J median -10.402; pos 1.024 m
+   45_2_base: dead  284 [45, 53, 51, 40, 47, 48]; J median -36.061; pos 3.526 m
+    20_3_cap: dead  223 [38, 41, 37, 39, 39, 29]; J median -20.892; pos 2.036 m
+    45_3_cap: dead  253 [42, 49, 44, 42, 43, 33]; J median -23.495; pos 2.294 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.502; pos 0.104 m
+
+[below, aware cap wide [inh60]] L 0.110 m; D 0.129 m; cant 32.4 deg; mass 1.397 kg; hover W 386.8; tau/W 0.0728 m; cost $118
+  mass 1.241, 1.152, 1.301, 1.987, 1.389, 1.314; pos kp 27.96, 31.22, 20.49, 19.80, 21.94, 24.60; pos ki 0.026, 0.038, 0.065, 0.104, 1.931, 1.970; att kp 2.05, 1.82, 2.06, 1.47, 1.62, 2.15
+    45_1_cap: dead    1 [0, 0, 0, 0, 0, 1]; J median -1.514; pos 0.112 m
+    20_2_cap: dead   32 [7, 9, 7, 0, 3, 6]; J median -4.210; pos 0.338 m
+    45_2_cap: dead   52 [11, 17, 9, 0, 7, 8]; J median -5.651; pos 0.545 m
+   45_2_base: dead  239 [50, 48, 36, 25, 32, 48]; J median -31.989; pos 3.035 m
+    20_3_cap: dead  127 [28, 32, 21, 5, 18, 23]; J median -12.820; pos 1.202 m
+    45_3_cap: dead  168 [34, 40, 29, 7, 26, 32]; J median -16.586; pos 1.510 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.511; pos 0.102 m
+
+[below, 7l t45 cap wide [src_li]] L 0.103 m; D 0.134 m; cant 32.9 deg; mass 0.737 kg; hover W 161.5; tau/W 0.0676 m; cost $72
+  mass 0.743, 0.731, 0.738, 0.732, 0.725, 0.751; pos kp 24.09, 29.84, 30.23, 21.66, 28.64, 28.99; pos ki 0.023, 0.846, 2.725, 1.958, 2.428, 0.809; att kp 1.76, 1.62, 1.60, 1.97, 1.83, 1.67
+    45_1_cap: dead   41 [6, 10, 7, 5, 5, 8]; J median -4.779; pos 0.445 m
+    20_2_cap: dead  233 [39, 40, 40, 37, 39, 38]; J median -21.081; pos 2.069 m
+    45_2_cap: dead  263 [46, 48, 45, 40, 43, 41]; J median -23.606; pos 2.339 m
+   45_2_base: dead  341 [56, 59, 59, 52, 57, 58]; J median -41.238; pos 4.033 m
+    20_3_cap: dead  356 [61, 60, 59, 58, 59, 59]; J median -36.326; pos 3.589 m
+    45_3_cap: dead  363 [61, 61, 61, 59, 60, 61]; J median -37.812; pos 3.736 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.521; pos 0.110 m
+
+[below, aware cap wide [src_li]] L 0.110 m; D 0.129 m; cant 32.4 deg; mass 0.767 kg; hover W 177.0; tau/W 0.0728 m; cost $75
+  mass 0.756, 0.746, 0.767, 0.803, 0.770, 0.760; pos kp 27.96, 31.22, 20.49, 19.80, 21.94, 24.60; pos ki 0.026, 0.038, 0.065, 0.104, 1.931, 1.970; att kp 2.05, 1.82, 2.06, 1.47, 1.62, 2.15
+    45_1_cap: dead   22 [3, 5, 3, 3, 4, 4]; J median -3.171; pos 0.284 m
+    20_2_cap: dead  213 [38, 37, 37, 31, 33, 37]; J median -19.841; pos 1.899 m
+    45_2_cap: dead  240 [39, 42, 37, 36, 42, 44]; J median -21.887; pos 2.146 m
+   45_2_base: dead  324 [59, 57, 51, 51, 50, 56]; J median -38.222; pos 3.809 m
+    20_3_cap: dead  351 [59, 60, 57, 59, 58, 58]; J median -34.783; pos 3.471 m
+    45_3_cap: dead  364 [60, 61, 60, 61, 61, 61]; J median -37.532; pos 3.712 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.529; pos 0.111 m
+
+[below, 7l src_li [src_li]] L 0.109 m; D 0.115 m; cant 36.5 deg; mass 0.989 kg; hover W 312.5; tau/W 0.0720 m; cost $98; rejected 0.13 of training candidates
+  mass 1.014, 0.942, 1.039, 0.965, 0.935, 1.038; pos kp 31.61, 30.67, 30.00, 31.30, 30.69, 31.61; pos ki 2.436, 0.428, 0.457, 0.773, 0.014, 2.398; att kp 1.68, 1.80, 1.62, 1.64, 1.85, 1.55
+    45_1_cap: dead    5 [2, 1, 0, 0, 0, 2]; J median -1.807; pos 0.160 m
+    20_2_cap: dead   80 [13, 18, 12, 13, 13, 11]; J median -8.200; pos 0.824 m
+    45_2_cap: dead  131 [22, 22, 22, 22, 21, 22]; J median -13.096; pos 1.283 m
+   45_2_base: dead  308 [53, 52, 51, 51, 50, 51]; J median -38.574; pos 3.833 m
+    20_3_cap: dead  256 [43, 46, 39, 43, 44, 41]; J median -23.726; pos 2.356 m
+    45_3_cap: dead  285 [48, 49, 45, 47, 49, 47]; J median -27.204; pos 2.656 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.492; pos 0.104 m
+
+[below, aware src_li [src_li]] L 0.117 m; D 0.107 m; cant 35.2 deg; mass 1.224 kg; hover W 454.5; tau/W 0.0783 m; cost $122; rejected 0.09 of training candidates
+  mass 1.136, 1.023, 1.256, 1.411, 1.256, 1.264; pos kp 29.17, 30.04, 22.95, 25.29, 28.82, 26.28; pos ki 1.222, 0.082, 0.138, 0.190, 0.223, 1.965; att kp 1.98, 1.83, 2.01, 1.75, 1.44, 2.13
+    45_1_cap: dead    2 [0, 0, 0, 0, 0, 2]; J median -1.516; pos 0.123 m
+    20_2_cap: dead   40 [8, 10, 5, 3, 7, 7]; J median -4.329; pos 0.393 m
+    45_2_cap: dead   64 [14, 17, 8, 4, 11, 10]; J median -6.173; pos 0.608 m
+   45_2_base: dead  268 [49, 42, 43, 42, 44, 48]; J median -33.296; pos 3.371 m
+    20_3_cap: dead  150 [30, 37, 23, 15, 22, 23]; J median -13.791; pos 1.406 m
+    45_3_cap: dead  192 [38, 40, 29, 23, 30, 32]; J median -17.041; pos 1.712 m
+    45_0_cap: dead    0 [0, 0, 0, 0, 0, 0]; J median -1.511; pos 0.102 m
+
+wall time 652 s (training 0 s)

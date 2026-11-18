@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Self-Powered vs Time-Based: Which Home Battery Mode Saves More?</title>
+  <meta name="description" content="Forty simulated California homes with solar, run hour by hour: with a low export credit, self-powered mode reached 97% of the perfect-foresight saving and a peak-only rule 25%. With near-retail export credit the order flips.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f4a'/%3E%3Crect x='9' y='8' width='14' height='19' rx='2' fill='none' stroke='%23fff' stroke-width='2.4'/%3E%3Crect x='13' y='5' width='6' height='3' fill='%23fff'/%3E%3Crect x='12' y='16' width='8' height='8' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./self-powered-vs-time-based.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "Article", "headline": "Self-powered vs time-based: which home battery mode saves more?", "datePublished": "2026-11-18", "author": {"@type": "Organization", "name": "Home Battery Planner"}, "about": "Home battery operating modes under time-of-use rates and solar export credits, measured on forty ResStock homes with rooftop solar"}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #234e8c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #214984; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #214984; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #234e8c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #234e8c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #214984; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+  <style>
+    textarea { width: 100%; box-sizing: border-box; }
+    #plans { min-height: 220px; }
+    .ok { color: #1d6b3a; font-weight: 600; }
+    .no { color: #a3261b; font-weight: 600; }
+    .big { font-size: 1.25rem; font-weight: 700; }
+    progress { width: 100%; height: 10px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 600; margin: 14px 0 0; }
+    @media print { header .note, #inputs, footer, .noprint { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME BATTERY PLANNER · GUIDE · <a href="./index.html">THE TOOL</a></p>
+    <h1>Self-powered or time-based: which home battery setting saves more?</h1>
+    <p>Most home batteries offer two settings. <strong>Self-powered</strong> stores solar the house is not using and spends it whenever the house would otherwise draw from the grid. <strong>Time-based</strong> saves the stored energy for the expensive hours. Which one saves more depends almost entirely on one line of your tariff: what an exported kWh earns.</p>
+    <p class="note">Measured on building simulations, not meters, with invented example prices. Not financial advice. Your own data and your own tariff are the real answer: <a href="./index.html">run them in the tool</a>.</p>
+  </header>
+  <main>
+    <section class="card">
+      <h2>What was run</h2>
+      <p>Forty single-family homes with 5, 7 or 9 kW of rooftop solar, drawn by a fixed rule from NREL's ResStock model of California's housing stock (AMY2018 release 2, real 2018 weather, CC BY 4.0). Each home's hourly use minus its solar was written as a Green Button CSV and read by the tool's own reader. The battery: 13.5 kWh usable, 5 kW, 90% round trip, 20% kept back for outages, no charging from the grid. Two rate plans with the same invented 4 to 9 pm time-of-use import prices ($0.33 to $0.55 a kWh) and different export credits:</p>
+      <ul>
+        <li><strong>Plan A, low export credit:</strong> $0.04 a kWh most hours, more in summer evenings, in the spirit of California's net billing tariff.</li>
+        <li><strong>Plan B, near-retail export credit:</strong> the hour's import price minus $0.03, in the spirit of older net metering.</li>
+      </ul>
+      <p>Each home was billed with no battery, with each setting, and at the <em>perfect-foresight ceiling</em>: the cheapest schedule possible if the whole year were known in advance, found by a dynamic programme that an exact linear-programme solver (HiGHS) confirms to within 0.21% on every test case.</p>
+    </section>
+    <section class="card">
+      <h2>Low export credit: self-powered wins, by a lot</h2>
+      <div class="scroll"><table><thead><tr><th>Plan A, per home</th><th class="n">25th pct</th><th class="n">median</th><th class="n">75th pct</th></tr></thead><tbody>
+        <tr><td>Saving, self-powered</td><td class="n">$562</td><td class="n">$691</td><td class="n">$878</td></tr>
+        <tr><td>Saving, time-based (discharge only in the day's top-price hours)</td><td class="n">$100</td><td class="n">$192</td><td class="n">$326</td></tr>
+        <tr><td>Saving, perfect-foresight ceiling</td><td class="n">$592</td><td class="n">$732</td><td class="n">$900</td></tr>
+        <tr><td>Self-powered as a share of the ceiling</td><td class="n">94%</td><td class="n">97%</td><td class="n">98%</td></tr>
+        <tr><td>Time-based as a share of the ceiling</td><td class="n">13%</td><td class="n">25%</td><td class="n">59%</td></tr>
+      </tbody></table></div>
+      <p>When an exported kWh earns $0.04 and an imported one costs $0.33 or more, every kWh of solar kept in the house is worth about $0.30, whatever the hour it is used. A battery that holds its charge for 4 pm covers the evening, but stays partly full overnight and has no room for the next day's surplus, which is exported for almost nothing. Self-powered empties every night and refills every day. It saved more than the peak-only rule in all forty homes.</p>
+    </section>
+    <section class="card">
+      <h2>Near-retail export credit: the order flips</h2>
+      <div class="scroll"><table><thead><tr><th>Plan B, per home</th><th class="n">25th pct</th><th class="n">median</th><th class="n">75th pct</th></tr></thead><tbody>
+        <tr><td>Saving, self-powered</td><td class="n">&minus;$50</td><td class="n">&minus;$12</td><td class="n">$18</td></tr>
+        <tr><td>Saving, time-based</td><td class="n">$22</td><td class="n">$39</td><td class="n">$78</td></tr>
+        <tr><td>Saving, perfect-foresight ceiling</td><td class="n">$142</td><td class="n">$239</td><td class="n">$303</td></tr>
+      </tbody></table></div>
+      <p>When exports earn nearly what imports cost, storing solar earns almost nothing and the battery loses 10% of everything it stores, so self-powered <em>costs</em> the median home $12 a year. The only money left is the time-of-use gap, which the peak-only rule captures part of. Under this kind of plan a battery is mostly an outage backup.</p>
+    </section>
+    <section class="card">
+      <h2>Size: past the evening's use, extra kWh earn little</h2>
+      <div class="scroll"><table><thead><tr><th>Plan A, usable kWh / kW</th><th class="n">ceiling, median $/yr</th><th class="n">self-powered, median $/yr</th><th class="n">extra $/yr per extra kWh</th></tr></thead><tbody>
+        <tr><td>5 / 3.8</td><td class="n">426</td><td class="n">418</td><td class="n">85.1</td></tr>
+        <tr><td>10 / 5</td><td class="n">669</td><td class="n">645</td><td class="n">48.5</td></tr>
+        <tr><td>13.5 / 5</td><td class="n">732</td><td class="n">691</td><td class="n">20.8</td></tr>
+        <tr><td>20 / 7.6</td><td class="n">773</td><td class="n">716</td><td class="n">7.0</td></tr>
+        <tr><td>27 / 10</td><td class="n">780</td><td class="n">724</td><td class="n">1.6</td></tr>
+      </tbody></table></div>
+      <p>A second battery is often quoted for backup; on savings alone it earns a few dollars a year per extra kWh once the first covers the evening. Where the curve bends depends on how much the house uses after dark, which is exactly what your own meter data shows.</p>
+    </section>
+    <section class="card">
+      <h2>Not decided here</h2>
+      <p>Real controllers forecast, they do not know the year; real time-based modes are often smarter than the strict peak-only rule modelled here, so expect them between its figure and the ceiling. No battery wear, outages, demand charges, incentives, netting rules beyond hour-by-hour, or tariff changes are modelled. The prices are invented; the homes are simulations. The full tables, and the scripts that make them, are in the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-battery-planner/check">source repository</a>.</p>
+      <p><a href="./index.html"><strong>Run your own year in the tool</strong></a>: your meter file and your rate plan, every mode, every size.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Results are arithmetic on figures you type or paste; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p>Free and open source (MIT). If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,55 @@
+# eval/odd-cyclic.py, CaDiCaL 1.5.3 via python-sat 1.9.dev22, 4-core cloud container, 2026-11-15
+# odd leagues, 3 games a night, 1-rotational round robins (round r = a starter shifted by r);
+# one night's layout per pattern {0, a, b} of rounds, nights tiled by translates.
+# Up to five runs shared the 4 cores, so the times are rough.
+# teams courts x times | found | starter (0 = patterned) | patterns tried, laid out | seconds (total) | whole-season model (eval/odd-night-sat.txt)
+
+Found:
+21 4x9  | yes | 0 (patterned) | 1, 1      | 0.2   | timed out >1200 s
+23 4x9  | yes | 4 (random, seed 1) | 45, 2 on that starter; 0 of 77 on starters 0-3 | 25.8 on the starter (221 total) | timed out >1500 s
+27 5x9  | yes | 0 (patterned) | 1, 1      | 0.3   | never run to the end
+27 7x6  | yes | 9 (random, seed 1) | 70, 1 ({0, 4, 14}, nine translates) on that starter; 0 on starters 0-8 | 56 on the starter (849 total) | timed out >2400 s
+Already stored, found again (a check that the method works):
+9 3x6   | yes | 0 | 1, 1 | 0.0 | 0.1 s
+11 3x6  | yes | 2 | 4    | 0.3 | 0.4 s
+15 4x6  | yes | 2 | 4    | 1.5 | 1.0 s
+15 3x9  | yes | 0 | 1, 1 | 0.1 | 50.9 s
+17 3x9  | yes | 6 | 21   | 22.1 | 245 s
+
+Not found (proves nothing about other round robins):
+13 3x6  | no | 20 starters, 22 patterns each | 4.8 s total | fully booked; the whole-season model: 3.4 s
+17 4x6  | no | 20 starters, 40 patterns each | 25 s       | fully booked; whole-season: 5.5 s
+11 2x9  | no | 20 starters | 3.7 s | whole-season: 6.0 s
+13 2x9  | no | 20 starters | 7.7 s | fully booked; whole-season: 100 s
+19 3x9  | no | 42 starters, all 51 patterns each | stopped after ~20 min | fully booked
+25 4x9  | no | patterned starter, 92 patterns | 30.5 s | fully booked
+29 5x9  | no | 3 starters (patterned + 2 random), all 126 patterns each, 0 lay out | stopped by timeout at 1700 s | 42 of 45 slots; whole-season: >1500 s
+
+One night of 19 teams on 3 x 9 does exist: eval/odd-night-sat.py 19 --courts 3 --times 9 --shape
+--nights 1 is SAT in 33 s (the first night only, any round robin). So 19 on 3 x 9 is open, not
+ruled out; it is the cyclic structure that does not fit a fully booked night.
+
+Through the tool (node eval/odd-cyclic-check.mjs, buildSchedule, seeds 1 to 3, waits summed;
+"before" is waitFree: false, the plain layout):
+21 teams on 4 x 9: waits 102 -> 0, 458 ms a build
+23 teams on 4 x 9: waits 184 -> 0, 735 ms a build
+27 teams on 5 x 9: waits 231 -> 0, 425 ms a build
+27 teams on 7 x 6: waits 201 -> 0, 952 ms a build
+27 teams on 6 x 9: waits 0 -> 0 (spare slots; the tool's own search already managed)
+
+2026-11-16: odd leagues of 33 to 63 teams at 9 slots, least courts (python-sat 1.9.dev22, CaDiCaL 1.5;
+up to four runs shared the 4 cores). n = 3k: the patterned starter's pattern {0, 1, 2} laid out first
+time, k translates cover Z_n, no short night.
+teams courts x times | found | pattern laid out (s) | whole script (s) | tool waits before -> after (seeds 1-3)
+33 6x9   | yes | 0.4 | 5   | 377 -> 0
+39 7x9   | yes | 0.2 | 14  | 583 -> 0
+45 8x9   | yes | 3.8 | 36  | 966 -> 0
+51 9x9   | yes | 4.1 | 55  | 1354 -> 0
+57 10x9  | yes | 1.2 | 111 | 1896 -> 0
+63 11x9  | yes | 7.0 | 197 | 2643 -> 0
+49 9x9   | yes | 1.2 | 14  | 0 -> 0 (spare court; not stored)
+Not found (stopped; n = 3k + 2 or 6 slots, 3 or fewer spare slots a night):
+35 6x9   | no  | stopped after ~12 min, no pattern laid out
+41 7x9   | no  | stopped after ~8 min, no pattern laid out
+31 8x6   | no  | 2 starters x 145 patterns, 0 lay out, 560 s
+39 10x6  | no  | 1 starter, 0 lay out, 307 s (budget 300)

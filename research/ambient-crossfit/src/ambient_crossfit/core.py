@@ -39,25 +39,53 @@ def sigmoid(z):
     return 1 / (1 + np.exp(-np.clip(z, -30, 30)))
 
 
-def fit_map(X, y, w0, prior_prec=1.0, sample_weight=None, iters=40):
+def _objective(X, y, w, w0, prior_prec, sw):
+    """Negative log posterior of ``fit_map``: weighted logistic loss plus the Gaussian prior term.
+
+    ``log(1 + e^z) - y z`` is convex in ``w`` for any real ``y``, so DR pseudo-labels outside [0, 1] are fine.
+    """
+    z = X @ w
+    return float(np.sum(sw * (np.logaddexp(0.0, z) - y * z)) + 0.5 * prior_prec * np.sum((w - w0) ** 2))
+
+
+def fit_map(X, y, w0, prior_prec=1.0, sample_weight=None, iters=100, gtol=1e-8):
     """Weighted MAP logistic regression with a N(w0, 1/prior_prec) prior.
 
     ``sample_weight`` multiplies each window's log-likelihood term (inverse-propensity weights).
+
+    Damped Newton: each Newton step is halved until the objective falls (Armijo condition), and the
+    fit stops when the largest gradient component is below ``gtol`` times the problem's scale.
+    The objective is strictly convex (prior_prec > 0), so this reaches the unique MAP; if it has not
+    within ``iters`` steps it raises rather than return non-MAP weights. Until the 2026-11-17 quality
+    audit this was an undamped Newton loop with no convergence check, which diverged in the
+    uninformed-prior runs (``portfolio/quality/audits/2026-11-17-ambient-crossfit.json``).
     """
     k = len(w0)
     if len(y) == 0:
         return w0.copy(), np.eye(k) / prior_prec
-    sw = np.ones(len(y)) if sample_weight is None else sample_weight
+    sw = np.ones(len(y)) if sample_weight is None else np.asarray(sample_weight, float)
+    scale = max(1.0, float(np.sum(np.abs(sw))))
     w = w0.copy()
+    f = _objective(X, y, w, w0, prior_prec, sw)
     for _ in range(iters):
-        p = sigmoid(X @ w)
+        p = 0.5 * (1.0 + np.tanh(0.5 * (X @ w)))     # exact, overflow-free sigmoid
         g = X.T @ (sw * (p - y)) + prior_prec * (w - w0)
         H = (X * (sw * p * (1 - p))[:, None]).T @ X + prior_prec * np.eye(k)
+        if np.max(np.abs(g)) <= gtol * scale:
+            return w, np.linalg.inv(H)
         step = np.linalg.solve(H, g)
-        w -= step
-        if np.max(np.abs(step)) < 1e-8:
-            break
-    return w, np.linalg.inv(H)
+        slope = float(g @ step)                      # > 0: H is positive definite
+        t = 1.0
+        while True:
+            w_new = w - t * step
+            f_new = _objective(X, y, w_new, w0, prior_prec, sw)
+            if f_new <= f - 1e-4 * t * slope or t < 1e-10:
+                break
+            t *= 0.5
+        if f_new >= f and t < 1e-10:                 # no descent left: at the optimum to float precision
+            return w, np.linalg.inv(H)
+        w, f = w_new, f_new
+    raise RuntimeError(f"fit_map did not converge in {iters} damped Newton steps (max |grad| {np.max(np.abs(g)):.3g})")
 
 
 def cost(world: World, others):

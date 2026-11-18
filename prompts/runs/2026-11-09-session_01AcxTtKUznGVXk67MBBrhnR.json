@@ -1,0 +1,177 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtKUznGVXk67MBBrhnR",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md and follow it",
+  "input_sha256": "2abc11ce438e08917dbfbd5f6a49fe9cdcb2b7d6c1dd885255dfd4b7b4c9fbca",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T02:07:17Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14174",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "rerun has no per-mutant timeout; a mutant that makes a new test loop forever hangs it. Give such tests an alarm."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "The two open defects need control-plane workflow edits (own PR, owner approval), so step 0 left them open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-seeding-bugs-in-the-input-bounds-check.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/ci/check_input_bounds.py",
+        "test": "/usr/local/bin/python3 -m unittest test_check_input_bounds  (in platform/ci)",
+        "seed": 264469311,
+        "commit": "2d39d365",
+        "sites": 23,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 96,
+            "col": 39,
+            "operator": "or-to-and",
+            "before": "name.lower(): double or single or bare",
+            "after": "name.lower(): double or single and bare",
+            "line_text": "        name.lower(): double or single or bare",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 142,
+            "col": 36,
+            "operator": "ge-to-gt",
+            "before": "too_high = declared_max >= limit if op == \">=\" else declared_max > limit",
+            "after": "too_high = declared_max > limit if op == \">=\" else declared_max > limit",
+            "line_text": "            too_high = declared_max >= limit if op == \">=\" else declared_max > limit",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 178,
+            "col": 23,
+            "operator": "or-to-and",
+            "before": "if mod in seen or not mod.is_file():",
+            "after": "if mod in seen and not mod.is_file():",
+            "line_text": "        if mod in seen or not mod.is_file():",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered the import walk beyond one level, cycles or missing modules; ReachableModules tests added"
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 182,
+            "col": 31,
+            "operator": "div-to-times",
+            "before": "todo.extend(mod.parent / m for m in IMPORT_RE.findall(text))",
+            "after": "todo.extend(mod.parent * m for m in IMPORT_RE.findall(text))",
+            "line_text": "        todo.extend(mod.parent / m for m in IMPORT_RE.findall(text))",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test covered the import walk beyond one level, cycles or missing modules; ReachableModules tests added"
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 197,
+            "col": 15,
+            "operator": "plus-to-minus",
+            "before": "source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "after": "source - \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "line_text": "        source + \"\\n\" + \"\\n\".join(p.read_text(encoding=\"utf-8\", errors=\"replace\") for p in pages)",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 210,
+            "col": 25,
+            "operator": "or-to-and",
+            "before": "if not field or field not in bounds:",
+            "after": "if not field and field not in bounds:",
+            "line_text": "            if not field or field not in bounds:",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 229,
+            "col": 38,
+            "operator": "gt-to-ge",
+            "before": "root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "after": "root = Path(argv[1]) if len(argv) >= 1 else Path(\"ventures\")",
+            "line_text": "    root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/ci/check_input_bounds.py",
+            "line": 229,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "after": "root = Path(argv[1]) if len(argv) > 2 else Path(\"ventures\")",
+            "line_text": "    root = Path(argv[1]) if len(argv) > 1 else Path(\"ventures\")",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}

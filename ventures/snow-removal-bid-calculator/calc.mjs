@@ -143,16 +143,12 @@ export function calculateSeason(input) {
   const pricePerSiteSeasonal = siteCount === 0 ? null : seasonalPrice / siteCount;
   const pricePerSitePerPush = siteCount === 0 ? null : pricePerPush / siteCount;
 
-  const hasProposedSeasonal = input.proposedSeasonal !== null
-    && input.proposedSeasonal !== undefined
-    && input.proposedSeasonal !== '';
+  const hasProposedSeasonal = String(input.proposedSeasonal ?? '').trim() !== '';
   const proposedSeasonal = hasProposedSeasonal
     ? number(input.proposedSeasonal, 'Seasonal you are considering')
     : null;
 
-  const hasProposedPerPush = input.proposedPerPush !== null
-    && input.proposedPerPush !== undefined
-    && input.proposedPerPush !== '';
+  const hasProposedPerPush = String(input.proposedPerPush ?? '').trim() !== '';
   const proposedPerPush = hasProposedPerPush
     ? number(input.proposedPerPush, 'Per-push you are considering')
     : null;
@@ -183,10 +179,24 @@ export function calculateSeason(input) {
   const billedHours = snowHoursPerEvent * expectedSnowEvents + iceHoursPerEvent * expectedIceEvents;
 
   return {
-    sites: sites.map((site) => ({
-      ...site,
-      minutesShare: plowMinutesPerPass === 0 ? 0 : site.visitMinutes / plowMinutesPerPass * 100,
-    })),
+    // Each stop's own price: cost is linear in stops (its minutes, its deadhead,
+    // its salt), so these add up to the route totals. pricePerSiteSeasonal and
+    // pricePerSitePerPush are only the route average per stop, which on a mixed
+    // route undercharges the big stop (quality audit 2026-11-13).
+    sites: sites.map((site) => {
+      const markup = (1 + overheadRate / 100) / (1 - targetMargin / 100);
+      const pushDirect = site.visitMinutes / 60 * loadedHourly + site.saltBags * saltCostPerBag;
+      const iceDirect = site.iceVisitMinutes / 60 * loadedHourly + site.iceSaltBags * saltCostPerBag;
+      const ownPerPush = pushDirect * passesPerSnowEvent * markup;
+      const ownPerIce = iceDirect * markup;
+      return {
+        ...site,
+        minutesShare: plowMinutesPerPass === 0 ? 0 : site.visitMinutes / plowMinutesPerPass * 100,
+        ownPerPush,
+        ownPerIce,
+        ownSeasonal: ownPerPush * expectedSnowEvents + ownPerIce * expectedIceEvents,
+      };
+    }),
     siteCount,
     loadedHourly,
     plowMinutesPerPass,

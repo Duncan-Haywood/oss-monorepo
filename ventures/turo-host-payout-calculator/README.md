@@ -1,8 +1,9 @@
 # Turo Host Payout Calculator
 
 A free calculator that turns one Turo trip's price into a host's actual
-payout under Turo's 2026 earnings-plan structure — a **plan x booking-window
-matrix**, not a single flat percentage. Compares the same trip across all
+payout under Turo's 2026 earnings-plan structure: a flat 70/80/90% host
+share by plan in most US markets, and a **plan x booking-window matrix** in
+Turo's nine variable-share markets (Austin, Dallas, Detroit, Las Vegas, Maui, Philadelphia, Phoenix, San Diego, Seattle). Compares the same trip across all
 three earnings plans (Peace of Mind, Balanced, More Earnings) and all four
 booking windows (0-2, 3-13, 14-27, 28+ days ahead), and projects a
 monthly/annual estimate from a stated trip frequency. Entirely client-side;
@@ -19,7 +20,8 @@ hand for every quote.
 
 "How much does Turo actually take?" no longer has a one-number answer. Turo
 restructured US host earnings around March 2026 into three named earnings
-plans, and within each plan the host share also depends on how far ahead of
+plans. In most US markets each plan pays a flat share (70/80/90%). In nine
+variable-share markets (Austin, Dallas, Detroit, Las Vegas, Maui, Philadelphia, Phoenix, San Diego, Seattle) the host share also depends on how far ahead of
 the trip the guest booked — a trip booked last-minute pays a meaningfully
 lower share than the identical trip booked a month out, under every plan,
 and the share locks in at booking time. Every existing "Turo fee calculator"
@@ -51,7 +53,11 @@ All in [`calc.mjs`](calc.mjs), pure functions with no dependencies:
 - **`estimateMonthly`** — a deliberately simple linear projection (this
   trip's payout times a stated trip count), not a booked-calendar forecast.
 
-The host-share matrix:
+The host-share matrix in the nine variable-share markets (elsewhere in the US
+only the 3-13 day column applies, whatever the booking window; source:
+help.turo.com, "Earnings and host share" and "Earnings plans - In brief | US
+hosts", checked 2026-11-13; quality audit
+`portfolio/quality/audits/2026-11-13-turo-host-payout-calculator.json`):
 
 | Plan (damage-responsibility cap) | 0-2 days | 3-13 days | 14-27 days | 28+ days |
 |---|---|---|---|---|
@@ -59,8 +65,8 @@ The host-share matrix:
 | Balanced ($1,500) | 75% | 80% | 85% | 90% |
 | More Earnings ($2,750) | 85% | 90% | 95% | 100% |
 
-Every number is a commonly cited default exposed as an adjustable input, not
-a fixed standard — Turo has changed this exact structure more than once
+The rates are fixed in `calc.mjs` (you choose plan, window and market, not
+the percentages) and are not a guarantee — Turo has changed this exact structure more than once
 within 2026 alone, so the output is a starting point to check against your
 own Turo Host Hub, **never a guarantee of what you will actually be paid.**
 
@@ -86,10 +92,16 @@ entirely.
 ## Development
 
 ```sh
-node --test calc.test.mjs usage.test.mjs page.test.mjs
+node --test '*.test.mjs'
 ```
 
 ## Status
+
+Known gaps (quality audit `portfolio/quality/audits/2026-11-13-turo-host-payout-calculator.json`):
+delivery and Extras income, which Turo also splits at the host share for US
+hosts, cannot be entered yet. The audit's main finding (the booking-window
+matrix applied to every US host, though Turo uses it only in nine markets)
+is fixed by the market setting.
 
 `stage: prototype` in [`VENTURE.yaml`](VENTURE.yaml). The payout, plan, and
 booking-window logic and its test suite are done; no external user contact

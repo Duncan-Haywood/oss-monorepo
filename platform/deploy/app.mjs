@@ -1,10 +1,10 @@
 import { composeRepo, PROVIDERS, renderDeployUrl } from './compose.mjs';
 import { sealSecretForGitHub } from './sealedbox.mjs';
 import { zip } from './zip.mjs';
+import { makeGh, storeSecrets, pushFiles, newProgress, failureMessage } from './publish.mjs';
 
 const $ = (id) => document.getElementById(id);
 const log = (m) => { $('log').textContent += `${m}\n`; };
-const API = 'https://api.github.com';
 
 let catalog = [];
 let provider = 'github-pages';
@@ -15,13 +15,17 @@ async function getJSON(url) {
   return r.json();
 }
 
-function renderApps(filter = '') {
+function renderApps(filter = '', keep = $('app').value) {
   const f = filter.toLowerCase();
   const sel = $('app');
-  const keep = sel.value;
   sel.innerHTML = '';
   const hits = catalog.filter((a) => !f || `${a.slug} ${a.title} ${a.description}`.toLowerCase().includes(f));
-  for (const a of hits.slice(0, 400)) sel.add(new Option(a.title || a.slug, a.slug));
+  // The list shows 400 options; the selected tool (a ?app= link from any tool
+  // page's footer) stays in it even when it sorts past them.
+  const shown = hits.slice(0, 400);
+  const kept = hits.find((a) => a.slug === keep);
+  if (kept && !shown.includes(kept)) shown.unshift(kept);
+  for (const a of shown) sel.add(new Option(a.title || a.slug, a.slug));
   if (hits.some((a) => a.slug === keep)) sel.value = keep;
   $('count').textContent = `(${hits.length} of ${catalog.length})`;
   showDesc();
@@ -77,136 +81,112 @@ async function build() {
   return { slug, files: composeRepo({ slug, title, provider, appFiles, templates }) };
 }
 
-const toB64 = (v) => {
-  const bytes = typeof v === 'string' ? new TextEncoder().encode(v) : v;
-  let s = '';
-  for (let i = 0; i < bytes.length; i += 0x8000) s += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
-  return btoa(s);
-};
-
-async function gh(token, method, path, body) {
-  const r = await fetch(`${API}${path}`, {
-    method,
-    headers: { Authorization: `Bearer ${token}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', ...(body ? { 'Content-Type': 'application/json' } : {}) },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!r.ok && !(r.status === 404 && method === 'GET')) {
-    const t = await r.text();
-    throw new Error(`GitHub ${method} ${path} -> ${r.status} ${t.slice(0, 200)}`);
-  }
-  return r.status === 204 ? null : r.status === 404 ? null : r.json().catch(() => null);
-}
-
 function randomHex(n) {
   return [...crypto.getRandomValues(new Uint8Array(n))].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+const STATE_NOTE = 'The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).';
+
+/** The Actions secrets and variables each provider needs, read from the form. */
+function credentials() {
+  const v = (id) => $(id).value.trim();
+  const needs = PROVIDERS[provider].needs;
+  if (needs.includes('aws')) {
+    return {
+      what: 'AWS credentials',
+      secrets: { AWS_ACCESS_KEY_ID: v('ak'), AWS_SECRET_ACCESS_KEY: v('sk'), TOFU_STATE_PASSPHRASE: randomHex(24) },
+      variables: { AWS_REGION: v('rg'), BUDGET_EMAIL: v('ab') },
+      note: STATE_NOTE,
+    };
+  }
+  if (needs.includes('gcp')) {
+    let sa;
+    try { sa = JSON.parse($('gk').value); } catch { throw new Error('the service-account key is not valid JSON'); }
+    if (sa.type !== 'service_account' || !sa.private_key) throw new Error('that does not look like a service-account key file');
+    return {
+      what: 'Google Cloud key',
+      secrets: { GOOGLE_CREDENTIALS: JSON.stringify(sa), TOFU_STATE_PASSPHRASE: randomHex(24) },
+      variables: { GCP_PROJECT: v('gp'), GCP_LOCATION: v('gl') || 'US', GCP_BILLING_ACCOUNT: v('gb') },
+      note: STATE_NOTE,
+    };
+  }
+  if (needs.includes('azure')) {
+    return {
+      what: 'Azure credentials',
+      secrets: { ARM_CLIENT_ID: v('zc'), ARM_CLIENT_SECRET: v('zs'), ARM_TENANT_ID: v('zt'), ARM_SUBSCRIPTION_ID: v('zb'), TOFU_STATE_PASSPHRASE: randomHex(24) },
+      variables: { AZURE_LOCATION: v('zl') || 'eastus', BUDGET_EMAIL: v('ze') },
+      note: STATE_NOTE,
+    };
+  }
+  if (needs.includes('cloudflare')) {
+    return { what: 'Cloudflare credentials', secrets: { CLOUDFLARE_API_TOKEN: v('cf'), CLOUDFLARE_ACCOUNT_ID: v('ca') }, variables: {} };
+  }
+  return null;
 }
 
 async function deploy() {
   $('log').textContent = '';
   $('done').hidden = true;
   $('go').disabled = $('dl').disabled = true;
-  const token = $('gh').value.trim();
+  const gh = makeGh($('gh').value.trim());
+  const progress = newProgress();
   try {
     log('Composing your repository…');
     const { slug, files } = await build();
     const p = PROVIDERS[provider];
+    const creds = credentials();
 
-    const me = await gh(token, 'GET', '/user');
+    const me = await gh('GET', '/user');
     log(`Signed in to GitHub as ${me.login}.`);
     let name = `${slug}`.slice(0, 80);
-    let repo = await gh(token, 'GET', `/repos/${me.login}/${name}`);
-    if (repo) name = `${name}-${randomHex(2)}`;
+    if (await gh('GET', `/repos/${me.login}/${name}`, undefined, { allow404: true })) name = `${name}-${randomHex(2)}`;
     log(`Creating ${p.repoPrivate ? 'private' : 'public'} repository ${me.login}/${name}…`);
-    repo = await gh(token, 'POST', '/user/repos', { name, private: p.repoPrivate, auto_init: true, description: `Self-hosted copy of ${slug}` });
+    const repo = await gh('POST', '/user/repos', { name, private: p.repoPrivate, auto_init: true, description: `Self-hosted copy of ${slug}` });
+    const full = `${me.login}/${name}`;
+    progress.repo = full;
 
-    if (p.needs.includes('aws')) {
-      log('Encrypting your AWS credentials in this tab and storing them as Actions secrets…');
-      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
-      const secrets = {
-        AWS_ACCESS_KEY_ID: $('ak').value.trim(),
-        AWS_SECRET_ACCESS_KEY: $('sk').value.trim(),
-        TOFU_STATE_PASSPHRASE: randomHex(24),
-      };
-      for (const [k, v] of Object.entries(secrets)) {
-        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
-      }
-      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AWS_REGION', value: $('rg').value.trim() });
-      if ($('ab').value.trim()) await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'BUDGET_EMAIL', value: $('ab').value.trim() });
-      log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
-    } else if (p.needs.includes('gcp')) {
-      let sa;
-      try { sa = JSON.parse($('gk').value); } catch { throw new Error('the service-account key is not valid JSON'); }
-      if (sa.type !== 'service_account' || !sa.private_key) throw new Error('that does not look like a service-account key file');
-      log('Encrypting your Google Cloud key in this tab and storing it as an Actions secret…');
-      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
-      const secrets = { GOOGLE_CREDENTIALS: JSON.stringify(sa), TOFU_STATE_PASSPHRASE: randomHex(24) };
-      for (const [k, v] of Object.entries(secrets)) {
-        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
-      }
-      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_PROJECT', value: $('gp').value.trim() });
-      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_LOCATION', value: $('gl').value.trim() || 'US' });
-      if ($('gb').value.trim()) await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'GCP_BILLING_ACCOUNT', value: $('gb').value.trim() });
-      log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
-    } else if (p.needs.includes('azure')) {
-      log('Encrypting your Azure credentials in this tab and storing them as Actions secrets…');
-      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
-      const secrets = {
-        ARM_CLIENT_ID: $('zc').value.trim(),
-        ARM_CLIENT_SECRET: $('zs').value.trim(),
-        ARM_TENANT_ID: $('zt').value.trim(),
-        ARM_SUBSCRIPTION_ID: $('zb').value.trim(),
-        TOFU_STATE_PASSPHRASE: randomHex(24),
-      };
-      for (const [k, v] of Object.entries(secrets)) {
-        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
-      }
-      await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'AZURE_LOCATION', value: $('zl').value.trim() || 'eastus' });
-      if ($('ze').value.trim()) await gh(token, 'POST', `/repos/${me.login}/${name}/actions/variables`, { name: 'BUDGET_EMAIL', value: $('ze').value.trim() });
-      log('The OpenTofu state passphrase was generated in this tab and stored only as a secret in your repository (GitHub never shows it again).');
-    } else if (p.needs.includes('cloudflare')) {
-      log('Encrypting your Cloudflare credentials in this tab and storing them as Actions secrets…');
-      const key = await gh(token, 'GET', `/repos/${me.login}/${name}/actions/secrets/public-key`);
-      const secrets = { CLOUDFLARE_API_TOKEN: $('cf').value.trim(), CLOUDFLARE_ACCOUNT_ID: $('ca').value.trim() };
-      for (const [k, v] of Object.entries(secrets)) {
-        await gh(token, 'PUT', `/repos/${me.login}/${name}/actions/secrets/${k}`, { encrypted_value: sealSecretForGitHub(v, key.key), key_id: key.key_id });
-      }
+    if (creds) {
+      log(`Encrypting your ${creds.what} in this tab and storing them as Actions secrets…`);
+      await storeSecrets(gh, full, creds.secrets, creds.variables, sealSecretForGitHub, progress);
+      if (creds.note) log(creds.note);
     } else if (provider === 'render') {
       log('Render reads the blueprint from this repository; no secrets are stored in it.');
     } else if (provider === 'android') {
       log('The Android build runs in your repository\'s own GitHub Actions; no secrets are needed for the debug APK.');
     } else {
       log('Turning on GitHub Pages (build: GitHub Actions)…');
-      await gh(token, 'POST', `/repos/${me.login}/${name}/pages`, { build_type: 'workflow' });
+      await gh('POST', `/repos/${full}/pages`, { build_type: 'workflow' });
+      progress.pages = true;
     }
 
-    const entries = Object.entries(files).filter(([, v]) => v !== '');
-    log(`Uploading ${entries.length} files…`);
-    for (const [path, content] of entries) {
-      const url = `/repos/${me.login}/${name}/contents/${path.split('/').map(encodeURIComponent).join('/')}`;
-      const existing = await gh(token, 'GET', url);
-      await gh(token, 'PUT', url, { message: `Add ${path}`, content: toB64(content), ...(existing?.sha ? { sha: existing.sha } : {}) });
-    }
+    const branch = repo.default_branch ?? 'main';
+    log(`Uploading ${Object.values(files).filter((v) => v !== '').length} files as one commit…`);
+    await pushFiles(gh, full, branch, files, { message: `Add ${slug}` });
+    progress.pushed = true;
 
     if (provider === 'render') {
-      const repoUrl = `https://github.com/${me.login}/${name}`;
+      const repoUrl = `https://github.com/${full}`;
       $('done').hidden = false;
-      $('done').innerHTML = `<div class="card"><strong>Your repository is ready:</strong> <a href="${repoUrl}" rel="noopener">${me.login}/${name}</a>. Last step: <a href="${renderDeployUrl(repoUrl)}" rel="noopener"><strong>open it in Render</strong></a> (sign in to your own Render account; it asks for the secrets and shows the price). Then delete the GitHub token you used here.</div>`;
+      $('done').innerHTML = `<div class="card"><strong>Your repository is ready:</strong> <a href="${repoUrl}" rel="noopener">${full}</a>. Last step: <a href="${renderDeployUrl(repoUrl)}" rel="noopener"><strong>open it in Render</strong></a> (sign in to your own Render account; it asks for the secrets and shows the price). Then delete the GitHub token you used here.</div>`;
       log('Finished.');
       return;
     }
+    // The commit already starts the workflow (it changes app/); the dispatch makes
+    // sure a run starts even if GitHub skips that push event. A second run is a
+    // harmless redeploy (each template sets a concurrency group).
     log('Starting the first deploy…');
-    await gh(token, 'POST', `/repos/${me.login}/${name}/actions/workflows/deploy.yml/dispatches`, { ref: repo.default_branch ?? 'main' });
+    await gh('POST', `/repos/${full}/actions/workflows/deploy.yml/dispatches`, { ref: branch });
 
-    const actions = `https://github.com/${me.login}/${name}/actions`;
+    const actions = `https://github.com/${full}/actions`;
     const live = provider === 'github-pages' ? `https://${me.login}.github.io/${name}/` : null;
     $('done').hidden = false;
-    $('done').innerHTML = `<div class="card"><strong>Done.</strong> Your repository is <a href="https://github.com/${me.login}/${name}" rel="noopener">${me.login}/${name}</a>. The first deploy is running: <a href="${actions}" rel="noopener">watch it here</a>.` +
+    $('done').innerHTML = `<div class="card"><strong>Done.</strong> Your repository is <a href="https://github.com/${full}" rel="noopener">${full}</a>. The first deploy is running: <a href="${actions}" rel="noopener">watch it here</a>.` +
       (live ? ` When it finishes (about a minute) your copy is at <a href="${live}" rel="noopener">${live}</a>.` : provider === 'android' ? ` When it finishes (about five minutes) open the run and download <strong>app-debug-apk</strong> from its Artifacts.` : ` The live URL appears in the run’s summary.`) +
       ` Now delete the token you used.</div>`;
     log('Finished.');
   } catch (e) {
     log(`Stopped: ${e.message}`);
-    log('Nothing else was changed. You can delete the repository it created, or fix the problem and run again.');
+    log(failureMessage(progress));
   } finally {
     refresh();
   }
@@ -232,9 +212,14 @@ async function download() {
 
 async function main() {
   catalog = await getJSON('catalog.json');
+  // Tools over the size limits are not in the list; say which, rather than let them vanish.
+  getJSON('skipped.json').then((skipped) => {
+    if (!skipped.length) return;
+    $('toolarge').hidden = false;
+    $('toolarge').textContent = `Not listed (${skipped.length}, too large for one-click deploy): ${skipped.map((s) => s.slug).join(', ')}. Their source is in the repository under ventures/; download it there and host the folder yourself.`;
+  }).catch(() => {});
   const want = new URLSearchParams(location.search).get('app');
-  renderApps();
-  if (want && catalog.some((a) => a.slug === want)) { $('app').value = want; showDesc(); }
+  renderApps('', want);
   $('q').addEventListener('input', () => renderApps($('q').value));
   $('app').addEventListener('change', showDesc);
   $('providers').addEventListener('change', (e) => {

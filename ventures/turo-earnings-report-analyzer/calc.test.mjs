@@ -10,7 +10,7 @@ test("CSV parsing handles quoted fields, embedded commas, quotes and newlines", 
   const rows = parseCsv('a,b\n"Civic, 2021","say ""hi"""\n"line\nbreak",3\n');
   assert.deepEqual(rows[1], ["Civic, 2021", 'say "hi"']);
   assert.deepEqual(rows[2], ["line\nbreak", "3"]);
-  assert.equal(parseCsv("﻿x,y\r\n1,2\r\n")[0][0], "x");
+  assert.equal(parseCsv("\uFEFFx,y\r\n1,2\r\n")[0][0], "x");
 });
 
 test("money and dates parse common formats; delimiters and UTF-16 are detected", () => {
@@ -186,4 +186,59 @@ test("the synthetic example reads cleanly and produces a losing car", () => {
   assert.equal(r.byCar.length, 3);
   assert.ok(r.summary.losingCars >= 1);
   near(r.byCar.reduce((s, c) => s + c.net, 0), r.summary.net, 1e-6);
+});
+
+test("parseMinutes refuses a clock duration past :59 instead of stretching it", async () => {
+  const { parseMinutes } = await import("./calc.mjs");
+  assert.equal(parseMinutes("1:30"), 90);
+  assert.ok(Number.isNaN(parseMinutes("1:75")));
+  assert.ok(Number.isNaN(parseMinutes("0:30:60")));
+});
+
+// Red team 2026-11-12: guards for mutants that escaped the suite above.
+test("parseMinutes reads hours and minutes written as words", async () => {
+  const { parseMinutes } = await import("./calc.mjs");
+  assert.equal(parseMinutes("1h 5m"), 65);
+  assert.equal(parseMinutes("2 hours"), 120);
+  assert.equal(parseMinutes("25 min"), 25);
+});
+
+test("a cancelled trip with no payout is reported even when no cancelled trip was kept", () => {
+  const n = load("R1,Civic,2026-06-01,2026-06-02,Completed,100,75\nR2,Civic,2026-06-03,2026-06-05,Cancelled,0,0\n");
+  const r = analyze(n.trips, { cleaning: 10 });
+  assert.equal(r.summary.cancelledDropped, 1);
+  assert.equal(r.summary.cancelledKept, 0);
+  const f = r.findings.find((x) => /cancelled trip/.test(x.title));
+  assert.ok(f, "the dropped trip is named in the findings");
+  assert.equal(f.title, "1 cancelled trip found");
+});
+
+test("the losing-car finding quotes break-even utilization as a whole percentage", async () => {
+  const { pct } = await import("./calc.mjs");
+  assert.equal(pct(0.5), "50%");
+  assert.equal(pct(0.123), "12%");
+  const r = analyze(load(two).trips, { loan: 20000, from: Date.UTC(2026, 5, 1), to: Date.UTC(2026, 5, 30) });
+  const civic = r.byCar.find((c) => c.label === "Civic");
+  near(civic.breakEvenUtilization, civic.fixedCost / (75 * 30), 1e-9);
+  const want = `needs ${Math.round(civic.breakEvenUtilization * 100)}% to break even`;
+  assert.ok(r.findings.some((f) => /lost money/.test(f.title) && f.detail.includes(want)), want);
+});
+
+test("each monthly fixed cost must be zero or more on its own, not only in sum", () => {
+  const r = analyze(load(two).trips, { loan: -500, insurance: 600 });
+  assert.match(r.invalid ?? "", /Monthly fixed costs must be zero or more/);
+});
+
+// Red team 2026-11-13: two qualifying weekdays are enough to rank (a `>= 3` mutant escaped).
+test("two weekdays with five trips each are ranked against each other", () => {
+  const rows = [];
+  const pad = (d) => String(d).padStart(2, "0");
+  // 2026-06-01 is a Monday. Five Monday trips at 100 and five Tuesday trips at 200, one day each.
+  for (const d of [1, 8, 15, 22, 29]) rows.push(`M${d},Civic,2026-06-${pad(d)} 10:00,2026-06-${pad(d + 1)} 09:00,Completed,100,75`);
+  for (const d of [2, 9, 16, 23, 30]) rows.push(`T${d},Corolla,2026-06-${pad(d)} 10:00,2026-06-${pad(d)} 20:00,Completed,200,150`);
+  const r = analyze(load(rows.join("\n") + "\n").trips, {});
+  assert.equal(r.byWeekday.filter((d) => d.trips >= 5).length, 2);
+  const f = r.findings.find((x) => /paid most per day/.test(x.title));
+  assert.ok(f, "weekday finding missing");
+  assert.match(f.title, /starting Tue.* paid most per day; Mon.* least/);
 });

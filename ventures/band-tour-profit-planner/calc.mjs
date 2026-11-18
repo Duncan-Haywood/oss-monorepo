@@ -170,7 +170,7 @@ export function planFromFields(f) {
   return { errors, plan: errors.length ? null : planTour(b.shows, a.settings) };
 }
 
-const usd = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 export const money = usd;
 
 export function planCsv(plan) {

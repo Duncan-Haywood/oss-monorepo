@@ -87,7 +87,7 @@ export function detectSeparators(text) {
 }
 
 export function splitSegments(text) {
-  const t = String(text ?? "").replace(/^﻿/, "");
+  const t = String(text ?? "").replace(/^\uFEFF/, "");
   const lead = t.length - t.trimStart().length;
   const body = t.slice(lead);
   const sep = detectSeparators(body);

@@ -1,0 +1,248 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/online-business-valuation-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-m",
+ "drawn_by": "sample",
+ "round": 67,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a business broker / M&A adviser who prices small online businesses on SDE or monthly net-profit multiples (Empire Flippers, FE International, Quiet Light style), or a CVA/ABV valuation analyst; first they check how SDE is built (add-backs, one owner's salary, TTM vs weighted average), where the multiples come from, how age, trend and concentration move the multiple, and whether the result is a range with stated limits",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs with `node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs` and recomputed by hand from the formula on the page. Three core outputs match: the sample SaaS (SDE 96,000, MRR 20,000, growth 32, churn 2.5, top 12, hours 25, age 40) gives SDE multiple 3.3+0.3+0+0.1-0.2+0.2 = 3.7, ARR multiple 2.4+0.4x0.9 = 2.76, mid (355,200+662,400)/2 = 508,800, net 457,920; a content site (SDE 120,000, growth -5, top 60, hours 5, age 18, fee 15) gives 3.0-0.2-0.7+0.3-0.2 = 2.2x, mid 264,000, range 198,000-330,000, net 224,400; an e-commerce case hits the 0.8x floor, mid 64,000. The 'what to fix' levers are wrong in two ways: for SaaS valued on both methods the lever counts only the SDE leg (owner-hours fix shown as 50,000; removing the -0.5 penalty raises mid by (0.5x100,000 + 0.45x300,000)/2 = 92,500); at the 0.8x floor the levers promise money that does not exist (agency case: concentration fix shown as 70,000, re-running with top share 10 moves mid by 0). The blend also produces 5.3x SDE for the sample micro-SaaS, outside the page's own '2 to 4 times SDE' FAQ. Arithmetic right, a headline output wrong: 2.",
+  "completeness": "Claimed features checked by running value(): price range (works), net after fee (works), buyer payback (works), ranked levers (runs, values wrong in the SaaS-blend and floor cases), findings (work; churn of exactly 5% takes the heaviest -0.6 band with no finding), CSV (reportCsv tested). Computed but never shown: askingHint, revenueMult, buyerAnnualReturn. No TODOs or stubs. Everything the README lists is present end to end: 3.",
+  "verification": "`cd ventures/online-business-valuation-calculator && node --test '*.test.mjs'`: 29 pass, 0 fail. quality_mutate.py: 4 mutants, 3 survived (ARR adjustment scale 0.9->1.0; age 12-24 band -0.2->+0.2; concentration 30-50 band -0.4->-0.2); only the range-spread change was caught. Tests assert relationships (mid between low and high, strong > weak) and a few band boundaries, but no test pins an absolute value for a whole case, and no test checks a lever against the actual change in mid: 1.",
+  "craft": "Read calc.mjs (143 lines), index.html, calc.test.mjs, page.test.mjs. Small, readable module with a pure core. Defects: lever uplift ignores the ARR leg and the floor (calc.mjs:99, with a dead `/ 1`); dead outputs askingHint/revenueMult/buyerAnnualReturn (calc.mjs:118-121); fee clamp at :94 duplicates the :72 validation; no range checks on ageMonths, monthlyChurn or growth (age -100 and churn -50 accepted, churn -50 earns the +0.3 bonus); no consistency check between MRR x 12 and revenue (revenue 10,000 with MRR 100,000 returns mid 1,285,500 and payback 257 years); the page maps a blank SaaS churn field to 0 (index.html:136), which earns the best churn band: 2.",
+  "claims": "Disclaimer, 'not an appraisal', not-modelled list and 'unaudited heuristics ... not calibrated against a sales database' are on the page (index.html:91,114) and README, honestly. Unbacked: the FAQ and JSON-LD state 'Small SaaS businesses commonly trade at roughly 2 to 4 times SDE, or 2 to 3 times annual recurring revenue' and 'about 2x for agencies to 3x or more for subscription software' with no source in any file; 'the dollar value of fixing each one' (index.html:105) is false at the floor and for blended SaaS. The tool's own sample result (5.3x SDE) contradicts its 2-4x claim. Served page not checked: https://marisstella.app/online-business-valuation-calculator/ returned proxy 403 (CONNECT tunnel failed) from this container. 2.",
+  "fitness": "Walked a seller's job: enter TTM revenue and SDE, read a range and what to fix. They get a ballpark quickly, but there is no add-back worksheet (owner salary, one-offs, D&A, interest), no choice of TTM vs a weighted 3/6/12-month average, no seasonality or multi-owner handling, and the lever table, the feature the README sells ('know which fix adds the most sale price'), misranks or invents value in the cases above. A broker would rebuild the SDE and the multiple before quoting: 2.",
+  "domain": "Compared against broker practice (Empire Flippers / Quiet Light price on a multiple of average monthly net profit with the owner's pay added back, usually a trailing 12-month or weighted average; FE International uses SDE for small and EBITDA/ARR for larger SaaS). Base multiples (2.0-3.3x annual SDE) sit inside commonly quoted ranges, but none is cited (calc.mjs:5-10) and the adjustment sizes are invented. Averaging an SDE value and an ARR value 50/50 is not a standard method: the two are alternative lenses, and averaging inflates a profitable micro-SaaS to 5.3x SDE. TTM only, no trend weighting beyond the growth band; age, concentration and owner-hours adjustments are directionally right. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "sample SaaS: SDE multiple, ARR multiple, midpoint, net",
+   "method": "hand recomputation from the documented formula (base + band deltas; ARR deltas x0.9; mid = average; net = mid x 0.9)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "3.70x, 2.76x, 508,800, 457,920",
+   "observed": "3.70x, 2.76x, 508,800, 457,920",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "content site, 15% fee: multiple, range, net",
+   "method": "hand recomputation: 3.0-0.2-0.7+0.3-0.2 = 2.2; 120,000x2.2 = 264,000; +/-25%; x0.85",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "2.2x, 198,000-330,000, mid 264,000, net 224,400",
+   "observed": "2.2x, 198,000-330,000, mid 264,000, net 224,400",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "e-commerce stacked penalties hit the 0.8x floor",
+   "method": "hand: 2.6-0.6-0.7-0.5-0.5 = 0.3 -> floor 0.8; 80,000x0.8",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "0.8x, mid 64,000",
+   "observed": "0.8x, mid 64,000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "owner-hours lever value for SaaS valued on SDE and ARR (SDE 100,000, MRR 25,000, hours 50)",
+   "method": "hand: removing -0.5 adds 0.5x100,000 to SDE value and 0.45x300,000 to ARR value; mid gain = (50,000+135,000)/2",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "92,500",
+   "observed": "50,000",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "concentration lever at the 0.8x floor (agency, SDE 100,000, top share 70)",
+   "method": "re-run the same case with top share 10 and difference the midpoints",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "actual gain 0 (still on floor)",
+   "observed": "lever promises 70,000; actual mid change 0",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "sample micro-SaaS implied SDE multiple vs the page's own FAQ range",
+   "method": "mid / SDE = 508,800 / 96,000 against index.html:101 '2 to 4 times SDE'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "within 2-4x",
+   "observed": "5.3x",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "base multiples sourced",
+   "method": "search calc.mjs, README, index.html for a cited marketplace report or dataset",
+   "command": "grep -n 'sde: ' ventures/online-business-valuation-calculator/calc.mjs",
+   "expected": "a public source per multiple",
+   "observed": "none; comment says 'broad rules of thumb'",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run",
+   "command": "cd ventures/online-business-valuation-calculator/ && node --test '*.test.mjs'",
+   "expected": "pass",
+   "observed": "29 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "MRR inconsistent with revenue",
+   "method": "revenue 10,000, SDE 5,000, MRR 100,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "error or warning",
+   "observed": "mid 1,285,500, payback 257 years, only 'methods disagree' finding",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "out-of-range age and churn",
+   "method": "ageMonths -100; monthlyChurn -50",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/1581af76-f13a-5804-b468-d70f5c8149dd/scratchpad/biz-val/probe.mjs",
+   "expected": "validation error",
+   "observed": "accepted; churn -50 earns +0.3",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, not-an-appraisal and not-modelled list",
+   "method": "read index.html:52,91,114 and README",
+   "command": "grep -n 'Not modelled\\|not an appraisal\\|No warranty' ventures/online-business-valuation-calculator/index.html",
+   "expected": "present",
+   "observed": "present",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "curl the production URL",
+   "command": "curl -sS https://marisstella.app/online-business-valuation-calculator/",
+   "expected": "200",
+   "observed": "proxy 403 (CONNECT tunnel failed); not verifiable from this container",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:81",
+   "change": "multipleFor(t.arr, fs, 0.9) -> multipleFor(t.arr, fs, 1.0)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:48",
+   "change": "age band [24, -0.2] -> [24, 0.2]",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:92",
+   "change": "mid * (1 - t.spread) -> mid * (1 - t.spread * 1.5)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:36",
+   "change": "concentration band [50, -0.4] -> [50, -0.2]",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "'What to fix' lever values ignore the 0.8x floor: with stacked penalties the table promises e.g. $70,000 for fixing concentration while the midpoint does not move at all. Sellers act on this ranking.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:99",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "For SaaS valued on both SDE and ARR, lever value counts only the SDE leg and ignores the halving in the blend: owner-hours fix shown as $50,000, actual midpoint gain from removing the penalty $92,500.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:99",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "high",
+   "what": "Base multiples (SaaS 3.3x SDE / 2.4x ARR, e-commerce 2.6x, content 3.0x, agency 2.0x), band adjustments and range spreads are uncited 'rules of thumb'; the FAQ's '2 to 4 times SDE, or 2 to 3 times ARR' likewise has no source.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:5",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "50/50 averaging of SDE-multiple and ARR-multiple values is not a recognised method and inflates profitable micro-SaaS: the shipped sample implies 5.3x SDE, outside the page's own 2-4x claim.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:91",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "No check that MRR x 12 is consistent with TTM revenue; revenue 10,000 with MRR 100,000 returns a $1.29m midpoint and 257-year payback.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:80",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "A blank SaaS churn field becomes 0% and earns the best churn band (+0.3x) instead of an error or the neutral default.",
+   "where": "ventures/online-business-valuation-calculator/index.html:136",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "3 of 4 seeded mutations in band constants and the ARR scale survive; no test pins an absolute value for a full case or checks levers against the actual change in mid.",
+   "where": "ventures/online-business-valuation-calculator/calc.test.mjs:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "No range validation for ageMonths, monthlyChurn or growth (negative age and churn accepted; churn -50% earns the +0.3 bonus).",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:68",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "SDE is TTM only; no add-back worksheet, weighted 3/6/12-month average, seasonality or multi-owner salary handling that brokers use.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:62",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Churn of exactly 5% takes the heaviest -0.6 band but the 'Churn is above what buyers accept' finding fires only above 5.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:110",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Dead outputs askingHint, revenueMult, buyerAnnualReturn are computed and never shown; redundant fee clamp and '/ 1'.",
+   "where": "ventures/online-business-valuation-calculator/calc.mjs:118",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15534"
+ ],
+ "verdict": "Does not meet the bar. The core arithmetic is right (three hand recomputations match) and the page is honest that its multiples are unaudited heuristics, with a clear disclaimer and not-modelled list. But the multiples and adjustments are uncited, the 50/50 SDE/ARR blend is not broker practice and prices the shipped sample at 5.3x SDE against the page's own 2-4x claim, and the 'what to fix' lever table, the feature the README sells, is wrong for blended SaaS (understates by ~46%) and invents value at the 0.8x floor. Three of four seeded mutations survive. A broker would treat it as a rough teaser, not a number to list at."
+}

@@ -1,29 +1,29 @@
 JOINT co-design with position hold, 3200 evaluations, held-out 64 wide-plant episodes, 5 seeds. J = sqrt((pos/0.1 m)^2 + (yaw/10.0 deg)^2)
 trained   bound  scored   J      pos RMS m  yaw RMS deg  chosen cant (deg)       mass kg  cost $  feasible
-on          0   on     3.52 (2.90, 2.97, 3.30, 2.90, 5.50)  0.222   25.92   0, 0, 0, 0, 0          3.38    278  5/5
-on         35   on     3.33 (2.41, 2.42, 2.81, 3.18, 5.85)  0.255   20.12   34, 34, 34, 35, 35     3.26    283  5/5
-on         35   off    2.61 (2.42, 2.43, 2.44, 2.42, 3.37)  0.170   19.61   34, 34, 34, 35, 35     3.26    283  5/5
-off        35   on    11.19 (9.13, 2.43, 15.03, 11.80, 17.55)  1.075   26.27   35, 35, 35, 34, 32     3.28    284  5/5
-off        35   off    3.33 (2.44, 2.43, 4.35, 2.44, 4.98)  0.254   20.19   35, 35, 35, 34, 32     3.28    284  5/5
-on         80   on     3.04 (2.43, 2.41, 3.95, 2.44, 3.96)  0.222   19.91   47, 42, 41, 41, 41     3.23    290  5/5
-on         80   off    2.83 (2.44, 2.41, 3.42, 2.45, 3.43)  0.199   19.70   47, 42, 41, 41, 41     3.23    290  5/5
-off        80   on    12.09 (3.71, 13.21, 16.91, 11.94, 14.69)  1.174   26.89   44, 42, 39, 34, 39     3.26    289  5/5
-off        80   off    4.44 (2.41, 2.89, 4.31, 2.68, 9.88)  0.374   20.97   44, 42, 39, 34, 39     3.26    289  5/5
+on          0   on     4.29 (2.92, 3.79, 3.82, 3.11, 7.82)  0.320   26.36   0, 0, 0, 0, 0          3.54    292  5/5
+on         35   on     4.25 (2.41, 4.06, 4.81, 2.81, 7.17)  0.361   20.86   34, 35, 34, 35, 35     3.40    296  5/5
+on         35   off    3.04 (2.42, 2.77, 2.43, 2.40, 5.16)  0.219   19.95   34, 35, 34, 35, 35     3.40    296  5/5
+off        35   on    10.99 (4.45, 10.85, 18.50, 10.74, 10.44)  1.065   25.92   33, 35, 35, 34, 35     3.40    295  5/5
+off        35   off    3.63 (2.63, 2.95, 5.04, 2.73, 4.80)  0.294   20.28   33, 35, 35, 34, 35     3.40    295  5/5
+on         80   on     3.95 (2.85, 4.03, 3.98, 2.42, 6.49)  0.330   20.57   39, 40, 41, 37, 38     3.34    296  5/5
+on         80   off    3.14 (2.39, 3.45, 3.42, 2.42, 4.00)  0.238   19.88   39, 40, 41, 37, 38     3.34    296  5/5
+off        80   on     8.09 (3.69, 3.42, 5.60, 12.64, 15.10)  0.763   23.72   34, 39, 40, 36, 43     3.26    287  5/5
+off        80   off    3.87 (2.42, 3.43, 2.39, 2.72, 8.40)  0.311   20.49   34, 39, 40, 36, 43     3.26    287  5/5
 
 Paired against bound 0, scored with the physical (coupled) model, same seed; negative = cant helps
-  trained on  bound 35 J       : mean -0.181, better in 3 of 5
-  trained on  bound 35 pos m   : mean +0.033, better in 2 of 5
-  trained on  bound 35 yaw deg : mean -5.802, better in 5 of 5
-  trained off bound 35 J       : mean +7.673, better in 1 of 5
-  trained off bound 35 pos m   : mean +0.853, better in 1 of 5
-  trained off bound 35 yaw deg : mean +0.344, better in 2 of 5
-  trained on  bound 80 J       : mean -0.477, better in 4 of 5
-  trained on  bound 80 pos m   : mean -0.000, better in 3 of 5
-  trained on  bound 80 yaw deg : mean -6.010, better in 5 of 5
-  trained off bound 80 J       : mean +8.576, better in 0 of 5
-  trained off bound 80 pos m   : mean +0.951, better in 0 of 5
-  trained off bound 80 yaw deg : mean +0.962, better in 1 of 5
+  trained on  bound 35 J       : mean -0.035, better in 3 of 5
+  trained on  bound 35 pos m   : mean +0.041, better in 2 of 5
+  trained on  bound 35 yaw deg : mean -5.501, better in 5 of 5
+  trained off bound 35 J       : mean +6.705, better in 0 of 5
+  trained off bound 35 pos m   : mean +0.745, better in 0 of 5
+  trained off bound 35 yaw deg : mean -0.440, better in 3 of 5
+  trained on  bound 80 J       : mean -0.336, better in 3 of 5
+  trained on  bound 80 pos m   : mean +0.010, better in 2 of 5
+  trained on  bound 80 yaw deg : mean -5.788, better in 5 of 5
+  trained off bound 80 J       : mean +3.802, better in 1 of 5
+  trained off bound 80 pos m   : mean +0.444, better in 0 of 5
+  trained off bound 80 yaw deg : mean -2.642, better in 3 of 5
 
 Cost of ignoring the lateral force in design (design trained coupling-off, scored coupled, minus trained coupled, same seed), J
-  bound 35: mean +7.854, worse in 5 of 5
-  bound 80: mean +9.053, worse in 5 of 5
+  bound 35: mean +6.741, worse in 5 of 5
+  bound 80: mean +4.139, worse in 4 of 5

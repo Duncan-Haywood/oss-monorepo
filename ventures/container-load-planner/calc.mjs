@@ -123,7 +123,7 @@ export function buildLine(f, sys, index = 0) {
 }
 
 const cellsOf = (line) =>
-  (line.includes("\t") ? line.split("\t") : line.split(",")).map((c) => c.trim().replace(/^"|"$/g, ""));
+  splitCells(line);
 
 // "name, length, width, height, weight, quantity, rotation, highest layer, weight allowed on top"
 export function parseCargo(text, sys = SYSTEMS.metric) {
@@ -188,6 +188,13 @@ const MODES = [
   { cmp: (a, b) => a[2] - b[2] || a[0] - b[0] || a[1] - b[1], score: (x, y, z, l, w, h) => [z + h, x, y] },
   { cmp: (a, b) => a[0] - b[0] || a[2] - b[2] || a[1] - b[1], score: (x, y, z, l, w, h) => [x + l, z, y] },
 ];
+// tryPlace's answer when the size can never go at that corner in this pass:
+// it overlaps a placed box, touches the underside of one, or would sit above
+// the line's layer limit. Boxes are never removed, and a corner's supporters
+// and their levels only grow, so each of those stays true for the rest of the
+// pass. (Too little support and too much load on a box below are not
+// permanent: a later box can add support, or change how the load is shared.)
+const DEAD = 0;
 const cmp3 = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
 
 // One constructive pass. `seq` is an array of line indices, one per unit, in
@@ -198,6 +205,15 @@ export function packPass(cont, lines, seq, modeIdx = 0, minSupport = DEFAULTS.mi
   const placed = [];
   const exhausted = new Array(lines.length).fill(false);
   const orients = lines.map(orientations);
+  // Each distinct placed size gets an id, so a corner can remember the sizes
+  // that can never go there (see DEAD below).
+  const sizeIds = new Map();
+  const orientIds = orients.map((os) => os.map((o) => {
+    const k = o.join("x");
+    if (!sizeIds.has(k)) sizeIds.set(k, sizeIds.size);
+    return sizeIds.get(k);
+  }));
+  const nSizes = sizeIds.size;
   const anyTop = lines.some((l) => Number.isFinite(l.maxTop));
   const counts = new Array(lines.length).fill(0);
   let weight = 0, volume = 0;
@@ -231,7 +247,7 @@ export function packPass(cont, lines, seq, modeIdx = 0, minSupport = DEFAULTS.mi
     for (const i of near(x, y, x2, y2)) {
       const p = placed[i];
       if (p.x >= x2 || p.x2 <= x || p.y >= y2 || p.y2 <= y) continue;
-      if (p.z >= z2) { if (p.z === z2) return null; continue; }
+      if (p.z >= z2) { if (p.z === z2) return DEAD; continue; }
       if (p.z2 <= z) {
         if (p.z2 === z) {
           const a = (Math.min(x2, p.x2) - Math.max(x, p.x)) * (Math.min(y2, p.y2) - Math.max(y, p.y));
@@ -241,11 +257,11 @@ export function packPass(cont, lines, seq, modeIdx = 0, minSupport = DEFAULTS.mi
         }
         continue;
       }
-      return null;
+      return DEAD;
     }
     if (z > 0) {
       if (!sup || supArea < minSupport * l * w - EPS) return null;
-      if (level > lines[li].maxLayers) return null;
+      if (level > lines[li].maxLayers) return DEAD;
     }
     let delta = null;
     if (z > 0 && anyTop) {
@@ -294,12 +310,16 @@ export function packPass(cont, lines, seq, modeIdx = 0, minSupport = DEFAULTS.mi
     eps.sort(mode.cmp);
     let best = null, bestScore = null;
     const cands = noise > 0 ? [] : null;
-    for (const [l, w, h] of orients[li]) {
+    const os = orients[li], ids = orientIds[li];
+    for (let oi = 0; oi < os.length; oi++) {
+      const [l, w, h] = os[oi], sid = ids[oi];
       if (l > L || w > W || h > H) continue;
       for (const ep of eps) {
         const [x, y, z] = ep;
         if (x + l > L || y + w > W || z + h > H) continue;
+        if (ep.dead && ep.dead[sid]) continue;
         const r = tryPlace(x, y, z, l, w, h, li);
+        if (r === DEAD) { (ep.dead || (ep.dead = new Uint8Array(nSizes)))[sid] = 1; continue; }
         if (r) {
           const sc = mode.score(x, y, z, l, w, h);
           if (cands) cands.push({ x, y, z, l, w, h, r });
@@ -869,4 +889,28 @@ export function decodeShare(token) {
     return row;
   });
   return { units: o.u === "i" ? "imperial" : "metric", preset: known ? o.p : "custom", container: { l: o.c[0], w: o.c[1], h: o.c[2], payload: o.c[3] }, rows };
+}
+
+// One pasted line into cells. A line with a tab is a spreadsheet paste: split on tabs only, so
+// "1,200" stays one number. Otherwise read it as CSV: a cell that starts with a double quote keeps
+// its commas (a spreadsheet's CSV export writes "$1,200") and "" inside it is a literal quote; a
+// quote later in a cell (17" rims) is text. Before 2026-11-11 a quoted "1,200" split in two and
+// shifted every later field (portfolio/quality, defect class input-handling).
+export function splitCells(line) {
+  const unq = (c) => { c = c.trim(); return /^".*"$/s.test(c) ? c.slice(1, -1).replace(/""/g, '"') : c; };
+  if (line.includes("\t")) return line.split("\t").map(unq);
+  const out = [];
+  let cur = "", q = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (q) {
+      if (ch !== '"') cur += ch;
+      else if (line[i + 1] === '"') { cur += '"'; i++; }
+      else q = false;
+    } else if (ch === '"' && cur.trim() === "") { cur = ""; q = true; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
 }

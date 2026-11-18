@@ -112,7 +112,7 @@ test('the default worked example is healthy and shows the naive-rule finding', (
 
 test('the headline claim matches the worked example: the naive rule bids past break-even', () => {
   const r = calculateMaxBid(DEFAULTS);
-  assert.match(html, /can bid you past your own break-even before you.ve paid for a dump run/);
+  assert.match(html, /can bid you past your own break-even\./);
   assert.ok(r.naiveRuleBid > r.breakEvenBid, 'the h1 claims the naive rule overshoots break-even');
 });
 

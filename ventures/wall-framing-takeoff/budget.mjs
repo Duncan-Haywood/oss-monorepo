@@ -28,6 +28,7 @@ const r2 = (/** @type {number} */ n) => Math.round(n * 100) / 100;
  * @param {Record<string, number>} [allowances] lump sums in dollars the builder types (permit, delivery, equipment rental, dumpster...). Untaxed, no contingency; they enter the cost total before overhead and profit.
  */
 export function budget(result, prices = {}, allowances = {}) {
+  if (!result || typeof result !== "object") throw new TypeError("budget needs a takeoff result object");
   /** @type {BudgetLine[]} */
   const lines = [];
   const read = new Set(); // price names the engine looked up while building this budget
@@ -379,6 +380,7 @@ export function budgetText(b) {
 
 /** @param {ReturnType<typeof budget>} b */
 export function budgetCsv(b) {
+  if (!b || !Array.isArray(b.lines)) throw new TypeError("budgetCsv needs a budget (the result of budget())");
   const q = (/** @type {any} */ v) => (/[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v));
   const rows = [["section", "item", "qty", "unit", "unit_price", "amount", "source"], ...b.lines.map((l) => [l.section, l.item, l.qty, l.unit, l.unitPrice ?? "", l.amount ?? "", l.source])];
   rows.push(["", "Materials", "", "", "", b.materials, ""], ["", "Tax", "", "", b.taxRate, b.tax, ""], ["", "Contingency", "", "", b.contingencyRate, b.contingency, ""], ["", "Labor", "", "", "", b.labor, ""], ...(b.allowances ? [["", "Allowances", "", "", "", b.allowances, ""]] : []), ["", "Total", "", "", "", b.total, ""]);
@@ -396,6 +398,8 @@ export function budgetCsv(b) {
  * @returns {{ key: string, items: string[], section: string, unit: string, qty: number, price: number | null }[]}
  */
 export function priceSheet(b, typed = {}) {
+  if (!b || !Array.isArray(b.lines)) throw new TypeError("priceSheet needs a budget (the result of budget())");
+  if (!typed || typeof typed !== "object") typed = {};
   /** @type {Map<string, { key: string, items: string[], section: string, unit: string, qty: number, price: number | null }>} */
   const rows = new Map();
   for (const l of b.lines) {

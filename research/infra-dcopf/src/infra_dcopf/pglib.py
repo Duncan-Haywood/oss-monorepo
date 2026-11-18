@@ -1,0 +1,95 @@
+"""Read PGLib-OPF MATPOWER (.m) case files into a PYPOWER case dict, and read PGLib's
+published PowerModels.jl baseline objectives (BASELINE.md) for validation."""
+import copy
+import re
+import zlib
+from pathlib import Path
+
+import numpy as np
+
+DATA = Path(__file__).resolve().parents[2] / "data" / "pglib"
+
+_BLOCK = re.compile(r"mpc\.(\w+)\s*=\s*\[(.*?)\];", re.S)
+_SCALAR = re.compile(r"mpc\.baseMVA\s*=\s*([0-9.eE+-]+)\s*;")
+
+
+def _matrix(body):
+    rows = []
+    for line in body.splitlines():
+        line = line.split("%", 1)[0].strip().rstrip(";").strip()
+        if line:
+            rows.append([float(x) for x in line.split()])
+    width = max(len(r) for r in rows)
+    if any(len(r) != width for r in rows):
+        raise ValueError("ragged matrix in case file")
+    return np.array(rows, dtype=float)
+
+
+def load_m(path):
+    """Parse a MATPOWER version-2 case file. Returns {'version','baseMVA','bus','gen','branch','gencost'}."""
+    text = Path(path).read_text()
+    blocks = {name: _matrix(body) for name, body in _BLOCK.findall(text)}
+    m = _SCALAR.search(text)
+    if m is None:
+        raise ValueError("no baseMVA")
+    ppc = {"version": "2", "baseMVA": float(m.group(1))}
+    for k in ("bus", "gen", "branch", "gencost"):
+        ppc[k] = blocks[k]
+    gen = ppc["gen"]
+    if gen.shape[1] < 21:  # PYPOWER expects the full MATPOWER gen width (ramp columns etc.)
+        gen = np.hstack([gen, np.zeros((gen.shape[0], 21 - gen.shape[1]))])
+    ppc["gen"] = gen
+    return ppc
+
+
+def perturb(ppc, name, kind, seed, lo=0.9, hi=1.1):
+    """Load-perturbed copy (milestone 5 of research/grid-linopf): every bus's PD and QD scaled by its
+    own factor ~ U[lo, hi] (same factor for P and Q). The draw depends only on (seed, name, kind).
+    Returns (copy, factors)."""
+    rng = np.random.default_rng([seed, zlib.crc32(f"{name}/{kind}".encode())])
+    p = copy.deepcopy(ppc)
+    f = rng.uniform(lo, hi, p["bus"].shape[0])
+    p["bus"][:, 2] *= f  # PD
+    p["bus"][:, 3] *= f  # QD
+    return p, f
+
+
+def case_path(name, kind="typ"):
+    suffix = "" if kind == "typ" else f"__{kind}"
+    return DATA / f"pglib_opf_{name}{suffix}.m"
+
+
+def baseline(path=DATA / "BASELINE.md"):
+    """{(case, kind): (dc_cost, ac_cost)} from PGLib's BASELINE.md (PowerModels.jl v0.19.9 + IPOPT)."""
+    out, kind = {}, None
+    for line in Path(path).read_text().splitlines():
+        if line.startswith("## "):
+            kind = "typ" if "(TYP)" in line else "api" if "(API)" in line else "sad" if "(SAD)" in line else None
+        if not line.startswith("| pglib_opf_") or kind is None:
+            continue
+        cells = [c.strip() for c in line.strip("|").split("|")]
+        name = cells[0][len("pglib_opf_"):]
+        name = re.sub(r"__(api|sad)$", "", name)
+        num = lambda s: float("nan") if s.startswith("inf") or s in ("-", "") else float(s)
+        out[(name, kind)] = (num(cells[3]), num(cells[4]))
+    return out
+
+
+def fix_ref(ppc):
+    """PYPOWER's own rule for a reference bus with no in-service generator (pypower.bustypes: the first
+    PV bus with a live unit becomes the reference), applied to the case data so that every routine
+    here agrees with the power flow on which unit is the slack. The old reference bus becomes PQ (it
+    has no live unit, so the power flow already treats it as PQ). Returns (copy, moved) with moved =
+    (old bus id, new bus id) or None when the case already has a live unit at its reference bus.
+    Needed by case500_goc (milestone 6 of research/grid-linopf), whose reference bus 311 has no unit."""
+    bus, gen = ppc["bus"], ppc["gen"]
+    live_bus = set(gen[gen[:, 7] > 0, 0].astype(int))
+    ref = [int(b) for b in bus[bus[:, 1] == 3, 0]]
+    if any(b in live_bus for b in ref):
+        return ppc, None
+    p = copy.deepcopy(ppc)
+    pv = [i for i in range(bus.shape[0]) if bus[i, 1] == 2 and int(bus[i, 0]) in live_bus]
+    for b in ref:
+        p["bus"][bus[:, 0] == b, 1] = 1
+    p["bus"][pv[0], 1] = 3
+    return p, (ref[0] if ref else None, int(bus[pv[0], 0]))

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKnFVqd1mVPZbG4Yt5H",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T01:18:35Z",
+  "ended": "2026-11-17T01:29:08Z",
+  "wall_minutes": 10.74,
+  "tokens_in": 6556944,
+  "tokens_out": 48523,
+  "cost_usd": 3.4669,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16770",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "foreground `cd X && (...) &` backgrounded the cd too, so the next command ran in the wrong directory (harmless)",
+    "infra-dcopf tests/test_dcopf.py needs pandapower, absent here; ran the rest (54 passed, 2 skipped)"
+  ],
+  "integrity_issues": [
+    "The 2026-11-13 infra-dcopf entry read case73 API as a stationary point of the l1 infeasibility; this run's trace check (Q7) does not support it and the reading is withdrawn in LOG.md, theory.md and the post",
+    "PROPOSAL.md cited Fletcher and Sainz de la Maza 1989 as doi:10.1007/BF01582278; web search shows 10.1007/BF01582292; corrected"
+  ],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "first draw went to heavy-hydraulics, OFFLINE (huggingface 403) as its HOSTS file says; needed --new to redraw"
+    },
+    {
+      "file": "research/grid-linopf/PROPOSAL.md",
+      "issue": "a DOI 'written from the citing literature' was wrong; cite_check cannot reach doi.org through the proxy, so such DOIs stay unchecked until someone web-searches them"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/experiments/check_theory.py",
+      "why": "the plan did not say which rounds feed the curvature estimate; while writing the script I excluded steps below 1e-4 pu (P7c's cut), before running it",
+      "did": "declared it in the outcome entry",
+      "result": "no prediction depends on it being tuned; verdicts read straight from the first run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-what-a-convergence-proof-can-and-cannot-say-about-the-grid-repair.md",
+    "research/grid-linopf/theory.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 7 theory half of grid-linopf: Proposition 1, Theorems 1-3, Proposition 2 with proofs; checked on the 2026-11-13 traces (no new solves). Q1-Q4 held, Q5-Q7 refuted. Local checks: research build ok, check_md_links ok, post front matter/links/similarity ok, programme_check ok, infra-dcopf pytest 54 passed 2 skipped (test_dcopf needs pandapower), new test_check_theory 2 passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "159e119d-bb98-586a-8cae-89931345f55c",
+    "transcripts": 1,
+    "first": "2026-11-17T01:18:35Z",
+    "last": "2026-11-17T01:29:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 98,
+        "output": 48523,
+        "thinking": 20899,
+        "cache_read": 6404968,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151878,
+        "api_equivalent_usd": 3.4669,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 98,
+      "output": 48523,
+      "thinking": 20899,
+      "cache_read": 6404968,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151878,
+      "api_equivalent_usd": 3.4669,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 43,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.74,
+      "active_minutes": 10.74,
+      "model_minutes": 9.03,
+      "tool_minutes": 1.71,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a PhD student writing and checking a short convergence section against existing traces: about a day and a half",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 288.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

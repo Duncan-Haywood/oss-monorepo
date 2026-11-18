@@ -135,7 +135,10 @@ export function analyze(input) {
   const neededMax = cushionMaxCents - proj.minCumCents;
   const neededZero = -proj.minCumCents;
   const shortageCents = Math.max(0, neededMax - n.startBalanceCents);
-  const deficiencyCents = Math.max(0, neededZero - n.startBalanceCents);
+  // Reg X 1024.17(b): a deficiency is a negative balance in the account at
+  // the time of analysis, not a projected low point below zero. The rest of
+  // the gap to the target balance is a shortage, held to the 12-month rule.
+  const deficiencyCents = Math.max(0, -n.startBalanceCents);
   const surplusCents = Math.max(0, n.startBalanceCents - neededMax);
   const shortageOnlyCents = shortageCents - deficiencyCents;
   const spread12 = Math.round(shortageCents / 12);
@@ -182,11 +185,11 @@ export function analyze(input) {
     const oneMonthLimit = monthlyCents;
     if (months < 11.5 && cents(st.shortage) >= oneMonthLimit && deficiencyCents === 0) {
       add({ id: "spread", severity: "high", title: `Shortage is being recovered over about ${months.toFixed(1)} months, not 12 or more`, amountCents: 0,
-        detail: `The statement shows a $${money(st.shortage)} shortage collected at $${money(st.shortageMonthly)} a month, about ${months.toFixed(1)} months. For a shortage of one month's payment or more, Regulation X lets a servicer require repayment over at least 12 months. This does not apply to a deficiency (a negative projected balance), which may be repaid faster, and only applies while the account is current. Ask which one the statement describes.`,
+        detail: `The statement shows a $${money(st.shortage)} shortage collected at $${money(st.shortageMonthly)} a month, about ${months.toFixed(1)} months. For a shortage of one month's payment or more, Regulation X lets a servicer require repayment over at least 12 months. This does not apply to a deficiency (a negative account balance at the time of the analysis), which may be repaid faster, and only applies while the account is current. Ask which one the statement describes.`,
         cite: CITATIONS.shortage });
     } else if (deficiencyCents > 0 && months < 1.5) {
       add({ id: "spread-def", severity: "info", title: "Deficiency recovered in fewer than two payments", amountCents: 0,
-        detail: `A negative projected balance may be repaid in two or more equal monthly payments; your numbers show a deficiency of $${money(fromCents(deficiencyCents))}. The statement collects $${money(st.shortage)} at $${money(st.shortageMonthly)} a month.`,
+        detail: `A negative account balance (a deficiency) may be repaid in two or more equal monthly payments; your numbers show a deficiency of $${money(fromCents(deficiencyCents))}. The statement collects $${money(st.shortage)} at $${money(st.shortageMonthly)} a month.`,
         cite: CITATIONS.deficiency });
     }
   }

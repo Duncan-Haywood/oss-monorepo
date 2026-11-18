@@ -61,3 +61,16 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("csv_analyzed");
   assert.equal(readUsage().csv_analyzed, 1);
 });
+
+// Red team 2026-11-16: three mutants of the shape checks survived here (CI's
+// platform/ci/usage_contract.mjs caught them); valid JSON that is not a plain
+// object must read as {} and record() must recover from it.
+test("stored JSON that is not a plain object reads as empty and record recovers", () => {
+  const KEY = "teachers-pay-teachers-earnings-analyzer-usage";
+  for (const stored of ["[1,2]", "[]", "5", '"text"', "true", "null"]) {
+    globalThis.localStorage.setItem(KEY, stored);
+    assert.deepEqual(readUsage(), {}, `readUsage with ${stored}`);
+    assert.doesNotThrow(() => record("csv_analyzed"), `record with ${stored}`);
+    assert.deepEqual(readUsage(), { csv_analyzed: 1 }, `record after ${stored}`);
+  }
+});

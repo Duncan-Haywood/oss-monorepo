@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyeuiMz6Mx8gtXmsdZY",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T19:39:07Z",
+  "ended": "2026-11-15T21:51:51Z",
+  "wall_minutes": 133.0,
+  "tokens_in": 9187143,
+  "tokens_out": 39368,
+  "cost_usd": 3.6763,
+  "tool_calls": 75,
+  "task": "build-data session 92: staleness threshold sweep (2, 3, 5, 8 years) with a pre-registered deployable selector",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16320",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "launched a second Seattle 2022 process to parallelise, then found the first had just reached 2022; killed the duplicate after ~1 min",
+      "cost_minutes": 2
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pkill hook: a bracketed pattern still fails if the unbracketed text appears elsewhere in the same command (e.g. a following rm of a file with that name); split the call"
+    },
+    {
+      "file": "research/build-data/src/cpin.py",
+      "issue": "num_threads was hard-coded to 4, so two held-out cities could not share the 4-core box without oversubscription; added CPIN_THREADS"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md (session 92 design)",
+      "why": "Austin held out was added after launch on an idle core, reported but not tested",
+      "did": "ran Austin at 1 thread, flagged as post-design in the LOG",
+      "result": "Austin showed the selector failure at its largest (regret 60 to 68 days) and made 3 years the robust fixed choice over 6 cells"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-build-data-a-censored-score-cannot-pick-the-staleness-cutoff.md",
+    "research/build-data/LOG.md (session 92)",
+    "research/build-data/paper/paper.md (4.4b sessions 91-92 table, section 6, to-do 7)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered S1-S5: S1 (best threshold differs by city), S2 (8y > 5y by >1 day), S5 (nc5 reproduces session 91 exactly) held; S3 (Y-3 censored selector regret <=1 day) and S4 (selector mean <=0) refuted: the censored Y-3 score falls monotonically with threshold in all 6 cells, so it picks 8 years everywhere (regret 11.3 d SF/Seattle, 60-68 d Austin). Post hoc: 3 years is the robust fixed choice (mean -0.80, worst +1.50 over 6 cells). Verification: tests/test_cpin.py 9 passed; research/_homepage/build.py ok; research_live_links 0 updates; check_md_links ok; post front matter, links and similarity checks ok. Pull 2026-11-15 19:40-19:51 UTC; runs 19:52-21:45 UTC.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8fd8acac-c049-57a5-b59c-7a889e50601d",
+    "transcripts": 1,
+    "first": "2026-11-15T19:39:07Z",
+    "last": "2026-11-15T21:52:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 154,
+        "output": 39368,
+        "thinking": 9575,
+        "cache_read": 9052257,
+        "cache_write_5m": 0,
+        "cache_write_1h": 134732,
+        "api_equivalent_usd": 3.6763,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 154,
+      "output": 39368,
+      "thinking": 9575,
+      "cache_read": 9052257,
+      "cache_write_5m": 0,
+      "cache_write_1h": 134732,
+      "api_equivalent_usd": 3.6763,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 72,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 133.0,
+      "active_minutes": 78.45,
+      "model_minutes": 7.01,
+      "tool_minutes": 71.44,
+      "waiting_on_human_minutes": 54.56,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a researcher designing, running and writing up a pre-registered 24-cell model sweep with a new selection score, paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 272.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

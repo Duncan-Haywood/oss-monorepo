@@ -21,6 +21,12 @@ Python, so nothing beyond ffmpeg is needed:
   0..1 score that is 1.0 when level; a crooked horizon costs a little story score.
 - ``dhash``: 64-bit difference hash of the middle frame, for near-duplicate
   grouping by Hamming distance.
+- ``dhash_crops``: the same hash over a 5 x 5 grid of windows, each 88% of the
+  frame, so two frames of one burst that the camera panned or zoomed a few
+  percent between can still be matched window to window (``crop_distance``).
+- ``dhash_zooms``: the hash over smaller windows (90-96% of the frame, 5 x 5
+  positions each), so a frame zoomed 4-10% tighter than its neighbour matches
+  that neighbour's window of the same size (``zoom_distance``).
 
 These are technical signals. There is no face detector and no semantic model
 here, so ``framing`` finds where the detail is, not what it is, and ``story``
@@ -30,14 +36,17 @@ is a proxy; the analysis payload says so.
 from __future__ import annotations
 
 import math
+import operator
 import re
 import subprocess
 from dataclasses import dataclass
 import tempfile
+from collections.abc import Sequence
 from pathlib import Path
 
 from shootflow.ffmpeg_media import FfmpegMediaError, FfmpegTools
-from shootflow.raw_preview import extract_preview, is_raw_path
+from shootflow.raw_develop import DevelopError, still_for_review
+from shootflow.raw_preview import is_raw_path
 
 FRAME_WIDTH = 320
 FRAME_HEIGHT = 180
@@ -84,6 +93,8 @@ class FrameMetrics:
     noise_sigma: float
     frames_sampled: int
     duration_seconds: float | None
+    dhash_crops: tuple[str, ...] = ()
+    dhash_zooms: tuple[str, ...] = ()
 
     @property
     def level(self) -> float:
@@ -127,16 +138,17 @@ def analyze_media(tools: FfmpegTools, source: Path, *, media_type: str) -> Frame
 
 
 def _analyze_raw_preview(tools: FfmpegTools, source: Path) -> FrameMetrics:
-    """Score a RAW still from the JPEG preview the camera embedded in it."""
+    """Score a RAW still from its embedded JPEG preview, or a half-size DNG development."""
 
-    preview = extract_preview(source)
-    if preview is None:
-        raise FfmpegMediaError(f"no embedded JPEG preview in {source.name}; develop it first")
     with tempfile.TemporaryDirectory(prefix="shootflow-raw-") as scratch:
-        jpeg = Path(scratch) / "preview.jpg"
-        jpeg.write_bytes(preview)
-        _, aspect = _probe_stream(tools, jpeg)
-        frames = _decode_frames(tools, jpeg, media_type="photo", duration=None)
+        try:
+            still = still_for_review(source, scratch)
+        except DevelopError as exc:
+            raise FfmpegMediaError(f"could not develop {source.name}: {exc}") from exc
+        if still is None:
+            raise FfmpegMediaError(f"no embedded JPEG preview in {source.name}; convert it to DNG to develop it")
+        _, aspect = _probe_stream(tools, still)
+        frames = _decode_frames(tools, still, media_type="photo", duration=None)
     if not frames:
         raise FfmpegMediaError(f"ffmpeg decoded no frames from the preview in {source.name}")
     return metrics_from_frames(frames, source_aspect=aspect)
@@ -191,6 +203,8 @@ def metrics_from_frames(
         clipped_shadows=round(shadows, 6),
         clipped_highlights=round(highlights, 6),
         dhash=dhash_hex(middle, width, height),
+        dhash_crops=crop_dhashes(middle, width, height),
+        dhash_zooms=zoom_dhashes(middle, width, height),
         tilt_degrees=round(tilt, 3),
         tilt_confidence=round(tilt_confidence, 6),
         noise_sigma=round(noise_sigma, 3),
@@ -367,6 +381,344 @@ def dhash_hex(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT
     return f"{bits:016x}"
 
 
+# Crop windows for burst grouping: each window is (1 - margin) of the frame, at
+# CROP_STEPS x CROP_STEPS offsets from the top-left to the bottom-right corner.
+# Measured 2026-11-17 on 331 real photos (eval/cull-crop-grouping-2026-11-17.md).
+CROP_MARGIN = 0.12
+CROP_STEPS = 5
+_CROP_CENTRE = (CROP_STEPS * CROP_STEPS) // 2
+
+
+def _integral(frame: bytes, width: int, height: int) -> list[list[int]]:
+    rows = [[0] * (width + 1)]
+    for y in range(height):
+        previous = rows[-1]
+        running = 0
+        row = [0]
+        base = y * width
+        for x in range(width):
+            running += frame[base + x]
+            row.append(previous[x + 1] + running)
+        rows.append(row)
+    return rows
+
+
+def _window_dhash(table: list[list[int]], x0: float, y0: float, w: float, h: float) -> int:
+    cols, rows = 9, 8
+    xs = [round(x0 + col * w / cols) for col in range(cols + 1)]
+    ys = [round(y0 + row * h / rows) for row in range(rows + 1)]
+    bits = 0
+    for row in range(rows):
+        top, bottom = table[ys[row]], table[ys[row + 1]]
+        span = ys[row + 1] - ys[row]
+        cells = [
+            (bottom[xs[c + 1]] - bottom[xs[c]] - top[xs[c + 1]] + top[xs[c]]) / (span * (xs[c + 1] - xs[c]))
+            for c in range(cols)
+        ]
+        for col in range(cols - 1):
+            bits = (bits << 1) | (1 if cells[col] > cells[col + 1] else 0)
+    return bits
+
+
+def crop_dhashes(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[str, ...]:
+    """Difference hashes of CROP_STEPS x CROP_STEPS windows, row by row; the middle one is centred."""
+
+    table = _integral(frame, width, height)
+    hashes = []
+    for j in range(CROP_STEPS):
+        for i in range(CROP_STEPS):
+            x0 = CROP_MARGIN * width * i / (CROP_STEPS - 1)
+            y0 = CROP_MARGIN * height * j / (CROP_STEPS - 1)
+            bits = _window_dhash(table, x0, y0, (1 - CROP_MARGIN) * width, (1 - CROP_MARGIN) * height)
+            hashes.append(f"{bits:016x}")
+    return tuple(hashes)
+
+
+def crop_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
+    """Smallest Hamming distance between one frame's centre window and any window of the other.
+
+    A pan or zoom of a few percent moves the shared content by about one
+    window step, so one of these pairs lines it up again. Takes parsed hashes
+    (ints) because the cull compares every pair of photos. Returns 64 when
+    either frame has no crop hashes.
+    """
+
+    if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
+        return 64
+    centre_a, centre_b = crops_a[_CROP_CENTRE], crops_b[_CROP_CENTRE]
+    best = 64
+    for a, b in zip(crops_a, crops_b):
+        best = min(best, (a ^ centre_b).bit_count(), (centre_a ^ b).bit_count())
+    return best
+
+
+def _pan_pairs() -> tuple[tuple[int, int], ...]:
+    """(window of a, window of b) for each window offset ``crop_distance`` cannot reach.
+
+    ``crop_distance`` holds one frame at its centre window, so it reaches
+    offsets of up to half the margin. A wider pan needs an off-centre window on
+    both sides: for each offset beyond that, the one pair nearest the middle of
+    both frames.
+    """
+
+    n, c = CROP_STEPS, CROP_STEPS // 2
+    out = []
+    for dy in range(1 - n, n):
+        for dx in range(1 - n, n):
+            if abs(dx) <= c and abs(dy) <= c:
+                continue
+            candidates = [
+                (ay * n + ax, (ay - dy) * n + (ax - dx))
+                for ay in range(n)
+                for ax in range(n)
+                if 0 <= ay - dy < n and 0 <= ax - dx < n
+            ]
+
+            def spread(pair: tuple[int, int]) -> int:
+                return sum(abs(k // n - c) + abs(k % n - c) for k in pair)
+
+            out.append(min(candidates, key=spread))
+    return tuple(out)
+
+
+_PAN_PAIRS = _pan_pairs()
+# itemgetter and map keep the comparison in C: the cull runs it for most pairs.
+_PAN_A = operator.itemgetter(*(x for x, _ in _PAN_PAIRS))
+_PAN_B = operator.itemgetter(*(y for _, y in _PAN_PAIRS))
+
+
+def pan_distance(crops_a: Sequence[int], crops_b: Sequence[int]) -> int:
+    """Smallest Hamming distance over the window pairs offset further than ``crop_distance`` reaches.
+
+    A pan of s keeps 1 - s of the scene, so after scaling to the frame the
+    content moves s / (1 - s): 8.7% for an 8% pan and 11.1% for 10%, past the
+    6% the centre window reaches with a 12% margin. Both directions are covered
+    because ``_PAN_PAIRS`` holds every offset with its opposite. Returns 64 when
+    either frame has no crop hashes (eval/cull-pan-windows-2026-11-18.md).
+    """
+
+    if len(crops_a) != CROP_STEPS * CROP_STEPS or len(crops_b) != len(crops_a):
+        return 64
+    return min(map(int.bit_count, map(int.__xor__, _PAN_A(crops_a), _PAN_B(crops_b))))
+
+
+# Packed form for the cull's all-pairs scan: each frame's windows in _PAN_PAIRS
+# order as one integer of 64-bit lanes, so one XOR compares all 56 pairs and a
+# lane-wise (SWAR) popcount answers "is any lane within the limit" in about a
+# dozen big-integer operations instead of 56 Python-level ones.
+_PAN_LANES = len(_PAN_PAIRS)
+
+
+def _lanes(byte: int) -> int:
+    """``byte`` repeated in every byte of every lane."""
+
+    return int.from_bytes(bytes([byte]) * (8 * _PAN_LANES), "little")
+
+
+_M1, _M2, _M4 = _lanes(0x55), _lanes(0x33), _lanes(0x0F)
+_LANE_LOW = sum(0xFF << (64 * k) for k in range(_PAN_LANES))
+_LANE_ONE = _LANE_LOW // 0xFF  # 1 in each lane's low byte
+_LANE_HIGH = _LANE_ONE * 0x80
+
+
+def _pack(hashes: Sequence[int]) -> int:
+    out = 0
+    for k, h in enumerate(hashes):
+        out |= h << (64 * k)
+    return out
+
+
+def pan_pack(crops: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's crop hashes packed for ``pan_within``; () when incomplete."""
+
+    if len(crops) != CROP_STEPS * CROP_STEPS:
+        return ()
+    return (_pack(_PAN_A(crops)), _pack(_PAN_B(crops)))
+
+
+def pan_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], limit: int) -> bool:
+    """Whether ``pan_distance`` of the two frames is at most ``limit`` (0-63), from ``pan_pack`` of each.
+
+    Same decision as ``pan_distance(a, b) <= limit``; False when either frame
+    has no crop hashes.
+    """
+
+    if not packed_a or not packed_b or limit < 0:
+        return False
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _M1
+    x = (x & _M2) + ((x >> 2) & _M2)
+    x = (x + (x >> 4)) & _M4
+    x += x >> 8
+    x += x >> 16
+    x += x >> 32
+    # Each lane's low byte is now its popcount (0-64). Adding 127 - limit sets
+    # the byte's top bit exactly when the count is above the limit.
+    counts = (x & _LANE_LOW) + _LANE_ONE * (127 - limit)
+    return counts & _LANE_HIGH != _LANE_HIGH
+
+
+# Crop and wide-pan windows in one packed check (2026-11-18,
+# eval/cull-crop-gate-2026-11-18.md). Once the crop pass's gate rose to the pan
+# pass's 44 bits both ran for most pairs, so the cull now compares a frame's
+# 49 crop pairs (its centre window against each window of the other, and each
+# of its windows against the other's centre; the centre pair once) and its 56
+# wide-pan pairs in one XOR of 105 lanes, each kind against its own limit.
+_CROP_LANE_A = (_CROP_CENTRE,) * (CROP_STEPS * CROP_STEPS) + tuple(
+    k for k in range(CROP_STEPS * CROP_STEPS) if k != _CROP_CENTRE
+)
+_CROP_LANE_B = tuple(range(CROP_STEPS * CROP_STEPS)) + (_CROP_CENTRE,) * (CROP_STEPS * CROP_STEPS - 1)
+_CROP_LANES = len(_CROP_LANE_A)
+_WINDOW_A = operator.itemgetter(*_CROP_LANE_A, *(x for x, _ in _PAN_PAIRS))
+_WINDOW_B = operator.itemgetter(*_CROP_LANE_B, *(y for _, y in _PAN_PAIRS))
+_WINDOW_LANES = _CROP_LANES + _PAN_LANES
+_W_BYTES = 8 * _WINDOW_LANES
+_WM1, _WM2, _WM4 = (int.from_bytes(bytes([b]) * _W_BYTES, "little") for b in (0x55, 0x33, 0x0F))
+_W_LOW = sum(0xFF << (64 * k) for k in range(_WINDOW_LANES))
+_W_HIGH = (_W_LOW // 0xFF) * 0x80
+_CROP_ONE = sum(1 << (64 * k) for k in range(_CROP_LANES))
+_PAN_ONE = sum(1 << (64 * k) for k in range(_CROP_LANES, _WINDOW_LANES))
+_WINDOW_BIAS: dict[tuple[int, int], int] = {}
+
+
+def window_pack(crops: Sequence[int]) -> tuple[int, ...]:
+    """(a side, b side) of a frame's crop hashes packed for ``windows_within``; () when incomplete."""
+
+    if len(crops) != CROP_STEPS * CROP_STEPS:
+        return ()
+    return (_pack(_WINDOW_A(crops)), _pack(_WINDOW_B(crops)))
+
+
+def windows_within(packed_a: tuple[int, ...], packed_b: tuple[int, ...], crop_limit: int, pan_limit: int) -> bool:
+    """Whether ``crop_distance`` is at most ``crop_limit`` or ``pan_distance`` at most ``pan_limit``.
+
+    From ``window_pack`` of each frame. A limit below 0 switches that kind off;
+    False when either frame has no crop hashes.
+    """
+
+    if not packed_a or not packed_b:
+        return False
+    crop_limit, pan_limit = max(-1, min(63, crop_limit)), max(-1, min(63, pan_limit))
+    if crop_limit < 0 and pan_limit < 0:
+        return False
+    bias = _WINDOW_BIAS.get((crop_limit, pan_limit))
+    if bias is None:
+        # 127 - limit added to a lane's count (0-64) sets its top bit exactly
+        # when the count is above the limit; at limit -1 the bit is always set.
+        bias = _WINDOW_BIAS[(crop_limit, pan_limit)] = _CROP_ONE * (127 - crop_limit) + _PAN_ONE * (127 - pan_limit)
+    x = packed_a[0] ^ packed_b[1]
+    x -= (x >> 1) & _WM1
+    x = (x & _WM2) + ((x >> 2) & _WM2)
+    x = (x + (x >> 4)) & _WM4
+    # One multiply sums each lane's eight byte counts into its top byte (no
+    # carry: a lane's bytes total at most 64), about 20% faster than three
+    # shift-and-adds on these 6,720-bit integers.
+    x = ((x * 0x0101010101010101) >> 56) & _W_LOW
+    return (x + bias) & _W_HIGH != _W_HIGH
+
+
+# Zoom windows (2026-11-18, eval/cull-zoom-windows-2026-11-18.md): the equal-size
+# crop windows line up a pan exactly but a zoom only roughly, so a frame zoomed
+# in by z is compared whole against the other frame's window of size 1 - z.
+# ZOOM_STEPS x ZOOM_STEPS positions per scale, from the top-left to the
+# bottom-right corner. Picked on 165 tune photos.
+ZOOM_SCALES = (0.96, 0.94, 0.92, 0.90)
+ZOOM_STEPS = 5
+
+
+def zoom_dhashes(frame: bytes, width: int = FRAME_WIDTH, height: int = FRAME_HEIGHT) -> tuple[str, ...]:
+    """Difference hashes of the zoom windows: scale by scale, then row by row."""
+
+    table = _integral(frame, width, height)
+    hashes = []
+    for scale in ZOOM_SCALES:
+        for j in range(ZOOM_STEPS):
+            for i in range(ZOOM_STEPS):
+                x0 = (1 - scale) * width * i / (ZOOM_STEPS - 1)
+                y0 = (1 - scale) * height * j / (ZOOM_STEPS - 1)
+                hashes.append(f"{_window_dhash(table, x0, y0, scale * width, scale * height):016x}")
+    return tuple(hashes)
+
+
+def zoom_distance(hash_a: int, zooms_a: Sequence[int], hash_b: int, zooms_b: Sequence[int]) -> int:
+    """Smallest Hamming distance between one frame's whole-frame hash and any zoom window of the other.
+
+    Either frame may be the tighter one, so both directions are tried. Takes
+    parsed hashes (ints). Returns 64 when either frame has no zoom hashes
+    (a catalogue analysed before 2026-11-18).
+    """
+
+    expected = len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS
+    if len(zooms_a) != expected or len(zooms_b) != expected:
+        return 64
+    # map() keeps the loop in C: the cull calls this for every pair within
+    # ZOOM_CANDIDATE_MAX_DISTANCE, a sizeable share of all pairs.
+    return min(
+        min(map(int.bit_count, map(hash_b.__xor__, zooms_a))),
+        min(map(int.bit_count, map(hash_a.__xor__, zooms_b))),
+    )
+
+
+def _zoom_blocks() -> tuple[tuple[int, ...], ...]:
+    """Index groups of nearby zoom windows: per scale, the 5 x 5 positions cut 3 + 2 by 3 + 2."""
+
+    halves = (tuple(range(0, 3)), tuple(range(3, ZOOM_STEPS)))
+    per_scale = ZOOM_STEPS * ZOOM_STEPS
+    return tuple(
+        tuple(s * per_scale + y * ZOOM_STEPS + x for y in ys for x in xs)
+        for s in range(len(ZOOM_SCALES))
+        for ys in halves
+        for xs in halves
+    )
+
+
+_ZOOM_BLOCKS = _zoom_blocks()
+
+ZoomIndex = tuple[tuple[int, int, tuple[int, ...]], ...]
+
+
+def zoom_index(zooms: Sequence[int]) -> ZoomIndex:
+    """(pivot, radius, member hashes) per block of nearby windows, for ``zoom_distance_within``.
+
+    The pivot is the block's medoid and the radius its largest distance to a
+    member, so by the triangle inequality no member is closer to a hash ``h``
+    than ``distance(h, pivot) - radius``. Empty when ``zooms`` is incomplete.
+    """
+
+    if len(zooms) != len(ZOOM_SCALES) * ZOOM_STEPS * ZOOM_STEPS:
+        return ()
+    out = []
+    for block in _ZOOM_BLOCKS:
+        members = tuple(zooms[k] for k in block)
+        radius, pivot = min((max((c ^ m).bit_count() for m in members), c) for c in members)
+        out.append((pivot, radius, members))
+    return tuple(out)
+
+
+def _nearest_within(hash_: int, index: ZoomIndex, limit: int) -> int:
+    best = limit + 1
+    for pivot, radius, members in index:
+        if (hash_ ^ pivot).bit_count() - radius >= best:
+            continue
+        best = min(best, min(map(int.bit_count, map(hash_.__xor__, members))))
+    return best
+
+
+def zoom_distance_within(hash_a: int, index_a: ZoomIndex, hash_b: int, index_b: ZoomIndex, limit: int) -> int:
+    """``zoom_distance`` when it is at most ``limit``, otherwise some value above ``limit``.
+
+    Same answer as ``zoom_distance`` for every decision of the form
+    ``distance <= limit``, but skips blocks of windows that cannot get there
+    (on 331 real photos, 86% of the scans for pairs inside the cull's candidate
+    distance). Takes ``zoom_index`` of each frame.
+    """
+
+    if not index_a or not index_b:
+        return 64
+    best = _nearest_within(hash_b, index_a, limit)
+    return min(best, _nearest_within(hash_a, index_b, min(limit, best - 1)))
+
+
 def hamming_distance(hash_a: str, hash_b: str) -> int:
     return bin(int(hash_a, 16) ^ int(hash_b, 16)).count("1")
 
@@ -434,7 +786,7 @@ def _aspect_from_banner(banner: str) -> float | None:
     size = _VIDEO_SIZE_PATTERN.search(banner)
     if size is None:
         return None
-    width, height = int(size.group(1)), int(size.group(2))
+    width, height = float(size.group(1)), float(size.group(2))
     sample = _SAMPLE_ASPECT_PATTERN.search(banner)
     if sample is not None and int(sample.group(1)) > 0 and int(sample.group(2)) > 0:
         width = width * int(sample.group(1)) / int(sample.group(2))

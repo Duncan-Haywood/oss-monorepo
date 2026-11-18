@@ -110,7 +110,7 @@ test("a note-only finding (INV-030) is listed but does not fail the file", async
   const json = buildJsonReport(noteOnly);
   assert.equal(json.exit_code, 0);
   assert.equal(json.reports[0].status, "pass");
-  assert.match(buildMarkdown(noteOnly), /Status: \*\*PASS\*\* \(notes only\)/);
+  assert.match(buildMarkdown(noteOnly), /Status: \*\*PASS\*\* \(notes and warnings only\)/);
   const mixed = { reports: [{ file: "a.json", errors: [note, real] }], readErrors: [] };
   assert.equal(summarizePreflight(mixed).status, "fail");
   assert.equal(buildJsonReport(mixed).exit_code, 1);

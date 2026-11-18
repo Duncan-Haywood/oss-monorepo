@@ -19,8 +19,10 @@ export function createClient({ url, key, mode = "remote", pollSeconds = 30, fetc
   async function detail(flag, context, fallback) {
     if (mode === "local") {
       if (!config) return { flag, variant: null, value: fallback, reason: "not_ready" };
-      const r = evaluate(config, flag, context);
-      return r.value === null ? { ...r, value: fallback } : r;
+      try {
+        const r = evaluate(config, flag, context);
+        return r.value === null ? { ...r, value: fallback } : r;
+      } catch (e) { onError(e); return { flag, variant: null, value: fallback, reason: "error" }; } // never throw into the app
     }
     try {
       const r = await fetchImpl(`${base}/v1/evaluate`, { method: "POST", headers, body: JSON.stringify({ flag, context }) });

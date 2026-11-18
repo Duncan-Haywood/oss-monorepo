@@ -436,6 +436,9 @@ def print_sweep(found, since):
             "was left on purpose,\nand a new venture may duplicate one already on "
             "main (portfolio/pipeline/duplicate_check.py)."
         )
+    # Branches with a PR are the other half of land-your-work.md's sweep.
+    print("Open PRs that stopped moving (green and quiet, orphan drafts): "
+          "python3 platform/ci/stalled_prs.py")
 
 
 def main(argv=None):

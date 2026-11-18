@@ -84,8 +84,12 @@ superseded) and 1 when it would drop work, so it can gate an automated close.
 from __future__ import annotations
 
 import argparse
+import bisect
 import difflib
+import multiprocessing
+import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -139,8 +143,12 @@ _RENAME_MIN_TWINS = 3
 # `local_comparisons: 1`, and `reports_exported: 0` at 80% with an unrelated
 # venture's `shortlist_exported: 0`. Both pairs are true and neither means the
 # branch's work exists already -- which is the only question here.
+# Run records (`prompts/runs/*.json`, one per session) are the same: 6,000 files
+# of the same keys, so `"tool_minutes": 10.86` twins `"tool_minutes": 10.8`. On
+# 2026-11-11 a check of PR 14702 spent most of four minutes building that pairing.
 _RECORD_FILES = re.compile(
     r"(^|/)(usage/usage\.yaml"
+    r"|prompts/runs/[^/]+\.json"
     r"|ledger/\d{4}-\d{2}\.yaml"
     r"|ledger/(verifications|asks)\.yaml"
     r"|progress-log\.ts)$"
@@ -310,18 +318,40 @@ def resolve_head(ref: str, *, fetch: bool = True) -> str:
     condition, since the caller then falls back to guessing.
     """
     if ref.isdigit() and fetch:
-        _git("fetch", "--quiet", "origin", f"refs/pull/{ref}/head", check=False)
-        out = _git("rev-parse", "--verify", "--quiet", "FETCH_HEAD", check=False)
-        if out.strip():
-            return out.strip()
-        raise RuntimeError(
-            f"could not fetch refs/pull/{ref}/head -- is #{ref} a pull request "
-            "in this repository?"
-        )
+        return _fetch_pull_head(ref)
     out = _git("rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}", check=False)
     if not out.strip():
         raise RuntimeError(f"{ref!r} does not resolve to a commit in this clone")
     return out.strip()
+
+
+def _fetch_pull_head(number: str) -> str:
+    """The head commit of pull request `number`, fetched if this clone lacks it.
+
+    Two things here are deliberate (2026-11-13). The commit lands in a ref of
+    its own, not `FETCH_HEAD`, which every other fetch in the clone rewrites: a
+    concurrent fetch made one run report PR #15460's verdict as #12885's. And a
+    shallow clone fetches it with `--depth=1`; unbounded, an old pull request's
+    commit came with its whole 17,802-commit history (a 5.2 GB pack, ten
+    minutes). `_find_merge_base` deepens from there only as far as it must.
+    A commit already present is not refetched, since `--depth` would truncate
+    the history the clone already holds for it.
+    """
+    listed = _git("ls-remote", "origin", f"refs/pull/{number}/head",
+                  check=False).split()
+    if listed and _git("cat-file", "-t", listed[0], check=False).strip() == "commit":
+        return listed[0]
+    local = f"refs/supersede-check/pull/{number}"
+    _git("fetch", "--quiet", *(["--depth=1"] if is_shallow() else []),
+         "origin", f"+refs/pull/{number}/head:{local}", check=False)
+    out = _git("rev-parse", "--verify", "--quiet", f"{local}^{{commit}}",
+               check=False).strip()
+    if out:
+        return out
+    raise RuntimeError(
+        f"could not fetch refs/pull/{number}/head -- is #{number} a pull "
+        "request in this repository?"
+    )
 
 
 def added_lines(merge_base: str, head: str, path: str) -> list[str]:
@@ -387,18 +417,49 @@ def base_contains(base: str, needles: list[str]) -> set[str]:
     anything it does not account for gets a whole-tree search before being
     called missing. `git grep -F` treats each pattern as a fixed string, which
     matters: added lines are code, full of regex metacharacters.
+
+    One search over the tree, not one per needle. The base here is 51k files
+    (1 GB), so a `git grep` per line cost about 1.7 s each, and a branch with a
+    few hundred unaccounted lines ran for over ten minutes with no output
+    (2026-11-11 run records, PR 14842). `git grep -F -f` with many patterns is
+    no cure: on PR 14702's 190 lines it took 89 s, because git matches the
+    patterns one by one. GNU `grep -F -f` matches them all in one pass
+    (Aho-Corasick), so the tree is streamed out of `git archive` into it: 11 s
+    for the same 169,712 matching lines. A needle is present exactly when it is
+    a substring of one of the printed lines, since every line holding it is
+    printed. `git grep` remains the fallback where tar or grep is missing.
     """
+    wanted = sorted({n for n in needles if n and "\n" not in n})
+    if not wanted:
+        return set()
+    with tempfile.NamedTemporaryFile("w", suffix=".txt", encoding="utf-8") as patterns:
+        patterns.write("\n".join(wanted) + "\n")
+        patterns.flush()
+        if shutil.which("tar") and shutil.which("grep"):
+            archive = subprocess.Popen(["git", "archive", base], stdout=subprocess.PIPE)
+            untar = subprocess.Popen(["tar", "-xOf", "-"], stdin=archive.stdout,
+                                     stdout=subprocess.PIPE)
+            archive.stdout.close()
+            result = subprocess.run(
+                ["grep", "-a", "-h", "--fixed-strings", "-f", patterns.name],
+                stdin=untar.stdout, capture_output=True, text=True,
+                errors="replace", check=False,
+            )
+            untar.stdout.close()
+            if untar.wait() != 0 or archive.wait() != 0:
+                raise RuntimeError(f"git archive {base} | tar -xO failed")
+        else:
+            result = subprocess.run(
+                ["git", "grep", "-I", "-h", "--fixed-strings", "-f", patterns.name, base],
+                capture_output=True, text=True, errors="replace", check=False,
+            )
+    if result.returncode not in (0, 1):
+        raise RuntimeError(f"grep failed: {result.stderr.strip()}")
+    hits = result.stdout.splitlines()
+    exact = {line.strip() for line in hits}
     found: set[str] = set()
-    for needle in needles:
-        # The exit status is the whole answer, so this goes direct to
-        # subprocess rather than through _git, which reads stdout instead.
-        result = subprocess.run(
-            ["git", "grep", "--fixed-strings", "--quiet", needle, base],
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-        if result.returncode == 0:
+    for needle in wanted:
+        if needle in exact or any(needle in line for line in hits):
             found.add(needle)
     return found
 
@@ -411,14 +472,17 @@ def neighbourhood(paths: list[str]) -> list[str]:
     Searching the whole tree instead would pair a calculator's arithmetic with
     the same arithmetic in an unrelated venture, which is true and useless.
 
-    Two levels is what `ventures/<slug>` and `platform/<area>` need; a path
-    shallower than that contributes its own directory.
+    Two levels is what `ventures/<slug>` and `platform/<area>` need. A path
+    one level down contributes only its directory's own files, not the tree
+    under it: `portfolio/flagships.yaml` once made all of `portfolio/` (257k
+    lines) the corpus, and the twin search ran past ten minutes (PR 15471,
+    2026-11-13).
     """
     dirs: set[str] = set()
     for path in paths:
         parts = path.split("/")
         dirs.add("/".join(parts[:2]) if len(parts) > 2 else (
-            parts[0] if len(parts) > 1 else ""
+            f":(glob){parts[0]}/*" if len(parts) > 1 else ""
         ))
     return sorted(d for d in dirs if d)
 
@@ -456,6 +520,20 @@ def base_neighbourhood_lines(base: str, dirs: list[str]) -> dict[str, str]:
     return lines
 
 
+_NEAR_KEYS: list[str] = []
+_NEAR_LENGTHS: list[int] = []
+
+
+def _closest_key(stripped: str) -> str | None:
+    """The best twin of one line among `_NEAR_KEYS` inside its length window."""
+    c = _RENAME_RATIO
+    n = len(stripped)
+    lo = bisect.bisect_left(_NEAR_LENGTHS, n * c / (2 - c) - 1)
+    hi = bisect.bisect_right(_NEAR_LENGTHS, n * (2 - c) / c + 1)
+    close = difflib.get_close_matches(stripped, _NEAR_KEYS[lo:hi], n=1, cutoff=c)
+    return close[0] if close else None
+
+
 def nearest_in_base(
     unmatched: list[str], corpus: dict[str, str]
 ) -> list[NearMatch]:
@@ -464,17 +542,35 @@ def nearest_in_base(
     `difflib` on every pair would be quadratic over tens of thousands of lines.
     `get_close_matches` does the same comparison but stops early on candidates
     whose length alone puts them out of reach, which is most of them.
+
+    The length window below makes that early stop cheap. A ratio is at most
+    2*min(a, b)/(a + b), so a key shorter than L*c/(2-c) or longer than
+    L*(2-c)/c can never reach cutoff c, and `get_close_matches` would reject it
+    on its first bound anyway. Sorting keys by length and bisecting to the
+    window gives the same answer without visiting the rest: on PR 14702 the
+    corpus was about 700k lines and this function took most of the run.
+
+    Lines are independent, so they are spread over the cores by a forked pool
+    (the children inherit the sorted keys); the answers are the same in any
+    order. Without fork (or for a handful of lines) it runs in this process.
     """
     if not corpus:
         return []
-    keys = list(corpus)
+    global _NEAR_KEYS, _NEAR_LENGTHS
+    _NEAR_KEYS = sorted(corpus, key=len)
+    _NEAR_LENGTHS = [len(k) for k in _NEAR_KEYS]
+    stripped_lines = [line.strip() for line in unmatched]
+    workers = min(os.cpu_count() or 1, 8)
+    if (workers > 1 and len(stripped_lines) >= 8
+            and "fork" in multiprocessing.get_all_start_methods()):
+        with multiprocessing.get_context("fork").Pool(workers) as pool:
+            closest = pool.map(_closest_key, stripped_lines, chunksize=1)
+    else:
+        closest = [_closest_key(line) for line in stripped_lines]
     matches: list[NearMatch] = []
-    for line in unmatched:
-        stripped = line.strip()
-        close = difflib.get_close_matches(stripped, keys, n=1, cutoff=_RENAME_RATIO)
-        if not close:
+    for stripped, twin in zip(stripped_lines, closest):
+        if twin is None:
             continue
-        twin = close[0]
         matches.append(
             NearMatch(
                 line=stripped,
@@ -503,7 +599,37 @@ def is_shallow() -> bool:
     return _git("rev-parse", "--is-shallow-repository", check=False).strip() == "true"
 
 
-def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
+def _fetch_name(ref: str | None, sha: str) -> str:
+    """What to ask origin for when deepening the history behind `ref`.
+
+    A bare `git fetch --deepen=200 origin` deepened every branch the remote
+    advertises; on this repository that was 2.6M objects, minutes of transfer
+    and a held `.git/shallow.lock` (six run records, 2026-11-11 to 11-13). Only
+    the two histories being compared need deepening, so name them: a pull
+    request number is `refs/pull/N/head`, `origin/X` is the branch `X`, and
+    anything else is fetched by its commit id (GitHub serves reachable ids).
+    """
+    if ref and ref.isdigit():
+        return f"refs/pull/{ref}/head"
+    if ref and ref.startswith("origin/"):
+        return f"refs/heads/{ref[len('origin/'):]}"
+    return sha
+
+
+def _deepen(names: list[str], *flags: str) -> None:
+    """Fetch more history for `names` only; every ref if origin refuses them."""
+    result = subprocess.run(
+        ["git", "fetch", "--quiet", *flags, "origin", *names],
+        capture_output=True, text=True,
+    )
+    if result.returncode != 0:
+        _git("fetch", "--quiet", *flags, "origin", check=False)
+
+
+def _find_merge_base(
+    base: str, head: str, *, fetch: bool = True,
+    base_ref: str | None = None, head_ref: str | None = None,
+) -> str:
     """The commit `base` and `head` diverged from, deepening the clone if needed.
 
     A scheduled session's clone is shallow. Both histories are then cut off
@@ -514,10 +640,11 @@ def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
     all 66 open pull requests reporting no merge base, from a clone that was
     simply shallow.
 
-    `--deepen` only helps when the divergence is recent. Two branches cut from
-    `main` a few hundred commits back need the whole history, so an unshallow is
-    the escalation -- once, and only when the clone really is truncated, since
-    on a complete clone a missing merge base is the genuine answer.
+    A shallow fetch only helps when the divergence is recent. Two branches cut
+    from `main` a few thousand commits back need the whole history of those
+    two refs, so that is the last step -- and only when the clone really is
+    truncated, since on a complete clone a missing merge base is the genuine
+    answer.
     """
     merge_base = _git("merge-base", base, head, check=False).strip()
     if merge_base or not fetch or not is_shallow():
@@ -529,18 +656,34 @@ def _find_merge_base(base: str, head: str, *, fetch: bool = True) -> str:
                "supersession is not a question git can answer about them")
         )
 
-    _git("fetch", "--quiet", "--deepen=200", "origin", check=False)
-    merge_base = _git("merge-base", base, head, check=False).strip()
-    if merge_base:
-        return merge_base
-
-    _git("fetch", "--quiet", "--unshallow", "origin", check=False)
-    merge_base = _git("merge-base", base, head, check=False).strip()
-    if merge_base:
-        return merge_base
+    names = [_fetch_name(base_ref, base), _fetch_name(head_ref, head)]
+    print(
+        "supersede_check: shallow clone, deepening "
+        + " and ".join(names) + " to find the merge base",
+        file=sys.stderr,
+    )
+    # `--depth` from the named tips, not `--deepen`: git applies `--deepen`
+    # to every shallow root in the clone whatever refs are named (measured
+    # here on 2026-11-13: an unrelated branch went from 1 commit to 3).
+    # 2147483647 is git's own spelling of "the whole history" for `--depth`.
+    # `--depth=N` also truncates a tip the clone already holds deeper than N
+    # (a 1,065-deep `main` would drop to 200), so each step counts on from the
+    # deeper of the two histories already here.
+    have = max(
+        int(_git("rev-list", "--count", tip, check=False).strip() or 0)
+        for tip in (base, head)
+    )
+    for depth in (have + 200, have + 2000, 2147483647):
+        if depth == 2147483647:
+            print("supersede_check: still no merge base; fetching the full "
+                  "history of those refs (can take minutes)", file=sys.stderr)
+        _deepen(names, f"--depth={depth}")
+        merge_base = _git("merge-base", base, head, check=False).strip()
+        if merge_base:
+            return merge_base
     raise RuntimeError(
-        f"{base} and {head} have no common ancestor even after unshallowing "
-        "this clone -- they are unrelated histories"
+        f"{base} and {head} have no common ancestor even with their full "
+        "history fetched -- they are unrelated histories"
     )
 
 
@@ -565,6 +708,33 @@ def merges_to_base(base: str, head: str) -> bool:
     That is the right reading here -- the branch edited a version of the code
     that no longer exists, and reapplying it is re-derivation against the new
     code rather than a merge -- but it is a judgement, so `render` says so.
+
+    Decided by `git merge-tree --write-tree` (git 2.38+), which merges in the
+    object store: no checkout, about 0.1 s. The worktree replay it replaced
+    checked out all ~51k files first and took 136 of a 171 s run on PR #15460
+    (2026-11-13). A path merge-tree reports as conflicted resolves to the
+    base's side, so it equals the base by construction; the trees are then
+    identical exactly when every other path is. Leftovers such as
+    `path~branch` from a file/directory clash are not in the conflict list,
+    so they read as a difference: the safe direction.
+    """
+    tree = subprocess.run(
+        ["git", "merge-tree", "--write-tree", "-X", "theirs", "--name-only",
+         "--no-messages", head, base],
+        capture_output=True, text=True, check=False,
+    )
+    lines = [line for line in tree.stdout.split("\n") if line]
+    if tree.returncode in (0, 1) and lines:
+        merged, *conflicted = lines
+        # check=True: an empty diff from a failed command would read as
+        # "superseded" and greenlight a wrongful close.
+        changed = _git("diff", "--name-only", "--no-renames", merged, base)
+        return not (set(changed.split("\n")) - {""} - set(conflicted))
+    return _replay_in_worktree(base, head)
+
+
+def _replay_in_worktree(base: str, head: str) -> bool:
+    """`merges_to_base` for git older than 2.38: the same merge, checked out.
 
     Runs in a throwaway worktree: the caller's checkout is never touched.
     """
@@ -609,7 +779,9 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
     head = resolve_head(head_ref, fetch=fetch)
     base = resolve_head(base_ref, fetch=False)
 
-    merge_base = _find_merge_base(base, head, fetch=fetch)
+    merge_base = _find_merge_base(
+        base, head, fetch=fetch, base_ref=base_ref, head_ref=head_ref
+    )
 
     all_paths = [p for p in _git(
         "diff", "--name-only", f"{merge_base}..{head}"
@@ -632,15 +804,18 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
         ).returncode == 0
     }
 
-    files: list[FileVerdict] = []
+    per_path: list[tuple[str, list[str], list[str]]] = []
     for path in paths:
         candidates = [l for l in added_lines(merge_base, head, path) if significant(l)]
         if not candidates:
             continue
-        unaccounted = [l for l in candidates if l.strip() not in base_lines]
-        if unaccounted:
-            elsewhere = base_contains(base, [l.strip() for l in unaccounted])
-            unaccounted = [l for l in unaccounted if l.strip() not in elsewhere]
+        per_path.append((path, candidates, [l for l in candidates if l.strip() not in base_lines]))
+    # One whole-tree search for every file's leftovers, not one per file.
+    elsewhere = base_contains(base, [l.strip() for _, _, left in per_path for l in left])
+
+    files: list[FileVerdict] = []
+    for path, candidates, unaccounted in per_path:
+        unaccounted = [l for l in unaccounted if l.strip() not in elsewhere]
         base_at = last_touched(base, path)
         head_at = last_touched(head, path)
         files.append(
@@ -657,19 +832,30 @@ def evaluate(head_ref: str, base_ref: str, *, fetch: bool = True) -> Verdict:
             )
         )
 
-    # Only asked when the cheap scan says work would be dropped: the replay
-    # costs a worktree and a merge, and it cannot change a verdict that is
+    # Only asked when the cheap scan says work would be dropped: it cannot
+    # change a verdict that is
     # already "superseded".
     identical = bool(any(f.unmatched for f in files)) and merges_to_base(base, head)
 
     # Nor is the rename search worth its `git grep` when the branch is already
     # accounted for, or when the merge replay just proved the same thing more
     # cheaply.
-    if not identical and any(f.unmatched for f in files):
-        corpus = base_neighbourhood_lines(base, neighbourhood(paths))
-        for f in files:
-            if f.unmatched:
-                f.near = nearest_in_base(f.unmatched, corpus)
+    # Record files never report a rename (`_RECORD_FILES`), so they get no twin
+    # search and add no directory to the corpus.
+    searchable = [f for f in files if f.unmatched and not _RECORD_FILES.search(f.path)]
+    if not identical and searchable:
+        # Each file's lines against its own neighbourhood only: one corpus for
+        # all of them searched a venture's code against every blog post too.
+        groups: dict[str, list[FileVerdict]] = {}
+        for f in searchable:
+            for scope in neighbourhood([f.path]):
+                groups.setdefault(scope, []).append(f)
+        for scope, group in groups.items():
+            corpus = base_neighbourhood_lines(base, [scope])
+            twins = {m.line: m for m in nearest_in_base(
+                [l for f in group for l in f.unmatched], corpus)}
+            for f in group:
+                f.near = [twins[l.strip()] for l in f.unmatched if l.strip() in twins]
 
     return Verdict(
         base=base,

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Made-up registered immobilisation event (211130) on fixtures/nfe-4.00-reform.xml, with a
+     made-up SEFAZ answer (cStat 135, protocol 135270000012345). Test values only. -->
+<procEventoNFe xmlns="http://www.portalfiscal.inf.br/nfe" versao="1.00">
+<evento versao="1.00">
+  <infEvento Id="ID2111303526111234567800019555001000004217131415926101">
+    <cOrgao>92</cOrgao>
+    <tpAmb>2</tpAmb>
+    <CNPJ>98765432000198</CNPJ>
+    <chNFe>35261112345678000195550010000042171314159261</chNFe>
+    <dhEvento>2027-01-20T10:00:00-03:00</dhEvento>
+    <tpEvento>211130</tpEvento>
+    <nSeqEvento>1</nSeqEvento>
+    <verEvento>1.00</verEvento>
+    <detEvento versao="1.00">
+      <descEvento>Imobilização de Item</descEvento>
+      <cOrgaoAutor>33</cOrgaoAutor>
+      <tpAutor>2</tpAutor>
+      <verAplic>einvoice-preflight</verAplic>
+      <gImobilizacao nItem="1"><vIBS>0.13</vIBS><vCBS>1.17</vCBS><gControleEstoque><qImobilizado>5.0000</qImobilizado><uImobilizado>UN</uImobilizado></gControleEstoque></gImobilizacao>
+    </detEvento>
+  </infEvento>
+</evento>
+<retEvento versao="1.00">
+  <infEvento>
+    <tpAmb>2</tpAmb>
+    <verAplic>SVRS202701</verAplic>
+    <cOrgao>92</cOrgao>
+    <cStat>135</cStat>
+    <xMotivo>Evento registrado e vinculado a NF-e</xMotivo>
+    <chNFe>35261112345678000195550010000042171314159261</chNFe>
+    <tpEvento>211130</tpEvento>
+    <nSeqEvento>1</nSeqEvento>
+    <dhRegEvento>2027-01-20T10:00:05-03:00</dhRegEvento>
+    <nProt>135270000012345</nProt>
+  </infEvento>
+</retEvento>
+</procEventoNFe>

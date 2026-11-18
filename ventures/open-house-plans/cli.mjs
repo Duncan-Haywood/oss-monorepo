@@ -69,7 +69,12 @@ function briefFrom(args) {
   return b;
 }
 
-const money = (v) => "$" + Math.round(v).toLocaleString("en-US");
+const money = (v) => {
+  const format = (v) => "$" + Math.round(v).toLocaleString("en-US");
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 
 function main() {
   const args = parseArgs(process.argv.slice(2));

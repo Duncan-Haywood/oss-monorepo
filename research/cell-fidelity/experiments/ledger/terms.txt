@@ -1,0 +1,15 @@
+cell-fidelity milestone 5zj (post hoc): what gives back the separator-surface OCP lever? 5z's committed DFN records, cycle 2 against 99,
+as shares of the OCP term (medians over designs, [min, max]); left = the time-integrated plating index's potential part / OCP term
+
+condition             n         eta_int        film+c_e           shape            left
+Chen2020@1.5x        12  0.20 [-333.86,0.58] -0.06 [-39.04,-0.05]  0.02 [-183.90,0.37]  0.82 [0.60,557.80]
+OKane2022@1.5x       12  0.24 [-8.45,0.55] -0.08 [-2.82,-0.07]  0.04 [-5.75,0.21]  0.80 [0.61,16.96]
+NCA_Kim2011@0.875x    8 -0.01 [-0.01,0.00]  0.03 [0.01,0.08] -0.22 [-0.80,-0.09]  1.19 [1.09,1.75]
+Ai2020@0.45x          7  0.21 [-0.37,0.41] -0.03 [-0.04,-0.02]  0.23 [0.18,0.36]  0.59 [0.42,1.05]
+
+5zi's set medians of the lever-implied exponent, rescaled by this 'left' ratio (kappa_path x left), against the oracle kappa*:
+set            kappa_path  x left  rescaled  kappa*
+Ai2020               73.5    0.59      43.3    20.8
+Chen2020             33.0    0.82      27.0    52.3
+OKane2022            36.6    0.80      29.1    38.1
+NCA_Kim2011          22.6    1.19      26.8    23.0

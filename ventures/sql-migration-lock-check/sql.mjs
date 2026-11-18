@@ -185,7 +185,7 @@ export function splitStatements(text) {
   const { masked, isComment } = maskNonCode(text);
   const statements = [];
   let start = 0;
-  let depth = 0; // explicit BEGIN ... COMMIT nesting
+  let open = false; // an explicit transaction block is open (they do not nest)
 
   const push = (from, to) => {
     const raw = text.slice(from, to);
@@ -204,13 +204,14 @@ export function splitStatements(text) {
       masked: normalize(maskedSlice),
       line: lineAt(text, from + leading),
       index: statements.length,
-      inTransaction: depth > 0,
+      inTransaction: open,
     };
     statements.push(stmt);
     // A transaction opened by this statement applies to the *next* one, not
     // to itself -- `BEGIN;` is not inside a transaction block.
-    if (/^\s*(BEGIN|START\s+TRANSACTION)\b/i.test(stmt.masked)) depth += 1;
-    else if (/^\s*(COMMIT|END|ROLLBACK)\b/i.test(stmt.masked)) depth = Math.max(0, depth - 1);
+    const effect = transactionEffect(stmt.masked);
+    if (effect === 'begin' || effect === 'chain') open = true;
+    else if (effect === 'end') open = false;
   };
 
   for (let i = 0; i < masked.length; i += 1) {
@@ -222,6 +223,32 @@ export function splitStatements(text) {
   // A trailing statement with no final semicolon is still a statement.
   push(start, text.length);
   return statements;
+}
+
+/**
+ * What a statement does to the explicit transaction block, per PostgreSQL:
+ *
+ * - `'begin'`: `BEGIN` / `START TRANSACTION` opens one. A second `BEGIN` inside
+ *   an open block only warns -- blocks do not nest -- so one `COMMIT` ends it.
+ * - `'end'`: `COMMIT`, `END`, `ROLLBACK` or `ABORT` closes it.
+ * - `'chain'`: `COMMIT AND CHAIN` / `ROLLBACK AND CHAIN` closes it and opens a
+ *   new one at once (PG 12+), so the next statement is still inside a block.
+ * - `null`: anything else, including `ROLLBACK TO [SAVEPOINT] x` (undoes work
+ *   but leaves the block open) and `COMMIT/ROLLBACK PREPARED` (two-phase
+ *   commit, which runs outside a block and changes nothing here).
+ *
+ * @param {string} masked one statement's masked, normalized text
+ * @returns {'begin' | 'end' | 'chain' | null}
+ */
+export function transactionEffect(masked) {
+  const s = masked.trim();
+  if (/^(BEGIN|START\s+TRANSACTION)\b/i.test(s)) return 'begin';
+  if (/^(COMMIT|ROLLBACK)\s+PREPARED\b/i.test(s)) return null;
+  if (/^ROLLBACK\s+(?:WORK\s+|TRANSACTION\s+)?TO\b/i.test(s)) return null;
+  if (/^(COMMIT|END|ROLLBACK|ABORT)\b/i.test(s)) {
+    return /\bAND\s+CHAIN\b/i.test(s) && !/\bAND\s+NO\s+CHAIN\b/i.test(s) ? 'chain' : 'end';
+  }
+  return null;
 }
 
 /** Collapse whitespace so multi-line statements match single-line patterns. */

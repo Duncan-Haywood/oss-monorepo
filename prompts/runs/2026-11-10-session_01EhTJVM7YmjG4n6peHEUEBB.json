@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVM7YmjG4n6peHEUEBB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (develop, deploy, market, sell revenue software)",
+  "input_sha256": "18c8f87800781770b8b93b686e8f515238cb270bbed80bb05f969bb3e2e28335",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T18:08:36Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: true column generation for weeks over 60,000 sets per person",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14571",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Stop hook demands untracked files be committed while the run record is meant to be committed only after the PR is open; committed it as soon as the PR existed."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-10-shift-roster-column-generation.md"
+  ],
+  "goal": "flagship depth",
+  "notes": "Security queue empty, IDEAS and website requests empty; routed ventures via --task. Picked flagship 6's algorithm-only milestone (no outside data). bnp.test.mjs 8/8 pass. cg-bench: CG floor = enumerated floor = HiGHS optimum on all 16 default-seed bench weeks; rolling-gap set 0 proven 48 in 635 nodes/3.5 s (copy-level branching: 100,001 nodes/497 s unproven; HiGHS 48 in 0.1 s). buildRoster set 0: open 48, floor 48, coverage proven, 18 s (before: floor 41, 16.5 s). ilp-export 12x30: floor = open on all four. node --test bnp/calc/cli: 184/184 pass. rolling-gap-bench 10 28 4 4: floor 1040 = open 1040 (gap 36 h -> 0 h).",
+  "corrections": [],
+  "redteam": null
+}

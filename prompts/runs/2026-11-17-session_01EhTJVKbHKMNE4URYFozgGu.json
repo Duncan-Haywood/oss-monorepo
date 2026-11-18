@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVKbHKMNE4URYFozgGu",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T11:59:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 16927,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog again held only owner rows; friction_rank.py --live --ungated --days 3 plus grepping run records for the tool name found the target, as earlier records say."
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "A track draw can only be forced by searching for a number whose random.Random(r).random() >= PROGRAMME_SHARE; a --track N flag would make checking track output quicker."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode, no backlog id (only owner rows open). Fixed the pick_track.py milestone line that runs read as the next step even when the track's open programme should be advanced (friction 2026-11-17, session ...E5sJKjVojRk4ZnWp1kqbeE, and 2026-11-11). Verified: research/_shared test_pick_track 78 OK (2 new); pick_track.py 0.848 --no-fetch prints the new line for track 22; main_health 254/254 on main before the change; post front matter clean. Other live pick_track friction left: concurrent runs drawing the same programme within minutes (claim check only sees pushed PRs), and long-deferred LOG 'Next' items never surfacing (marine-hull).",
+  "corrections": [],
+  "redteam": null
+}

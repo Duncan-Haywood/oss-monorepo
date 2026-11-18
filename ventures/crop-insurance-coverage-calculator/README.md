@@ -33,3 +33,12 @@ sell, quote or bind insurance. Talk to a licensed crop insurance agent.
 ## Tests
 
 `node --test`
+
+## Known gaps
+
+Open after the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-crop-insurance-coverage-calculator.json); the defects that audit marks fixed are not listed.
+
+- RP with harvest price exclusion counts revenue at the uncapped harvest price; the price provisions cap the harvest price at 200% of projected. To confirm against the crop's provisions before changing (`calc.mjs`, `indemnityFor`).
+- A premium typed with a thousands separator (`80, 1,200`) is read as $1 without being reported as skipped.
+- APH 0 or a projected price of 0 shows a negative or NaN break-even yield; levels above 85% are accepted without a warning.
+- No county yield or price distribution, and no SCO/ECO or unit-structure options.

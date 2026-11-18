@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVLH3VL5ci9CkLyfUGj",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T07:10:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research/codesign-cant milestone 7y: price the slower motor-lag tunes in step response and wind drift at lever 1",
+  "projects": [
+    "codesign-cant"
+  ],
+  "pr": 17214,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "A `cmd &` inside a foreground Bash call survived here, but the doc only describes run_in_background; harmless, noted."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-what-a-slower-drone-tune-costs-step-response.md"
+  ],
+  "goal": "advance an open programme by one landable step",
+  "notes": "Predictions Y1-Y6 committed before the full run (commit 1 of PR #17214). Full run 137 s on 4 cores; Y2-Y5 held, Y1 and Y6 refuted. Rise time and overshoot are monotone in the tuning floor (unpredicted). Verification: pytest tests 59 passed 1 skipped; research/_homepage/build.py ok; research_live_links --write; check_md_links ok; check_posts ok. Step-test tail diagnostics (tail_off, tail_pp) were added post hoc and the run repeated; the predicted metrics are identical across the two runs (deterministic).",
+  "corrections": [],
+  "redteam": null
+}

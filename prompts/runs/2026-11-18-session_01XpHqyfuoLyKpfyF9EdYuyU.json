@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyfuoLyKpfyF9EdYuyU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:39:27Z",
+  "ended": "2026-11-18T02:46:50Z",
+  "wall_minutes": 16.75,
+  "tokens_in": 8497672,
+  "tokens_out": 43667,
+  "cost_usd": 3.6177,
+  "tool_calls": 79,
+  "task": "photo-editing flagship buildable item: noise-aware card floor from the 2nd-lowest reading or the pre-white-balance scale, on unseen raw.pixls.us bodies",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17148",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "My first background fetch chain ran pixls_fetch then card_scenes with ';'; after I killed the slow sequential fetch, its card_scenes ran concurrently with a second one and both wrote cards.json, corrupting it; rebuilt from cached truths before any row was scored.",
+    "pixls_list.py copied Apache's './' href prefix into four Leica V-LUX (Typ 114) local names (a slash); fixed in the tool and the files list after the rule commit, membership unchanged, noted in the eval doc."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pgrep/pkill hook refuses a bracketed pattern when the same word appears anywhere else in the command line (e.g. a later path); CLAUDE.md only says to bracket the first letter. Cost two retries."
+    },
+    {
+      "file": "ventures/photo-editing/tools/pixls_fetch.py",
+      "issue": "Sequential curl from raw.pixls.us ran about 1 file a minute here; 8 parallel curls fetched the remaining 1.7 GB in a few minutes. The tool could take a -P option."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-photo-editing-card-floor-closed-the-oracle-loses-too.md",
+    "ventures/photo-editing/eval/noise-card-floor-rank-2026-11-18.md"
+  ],
+  "goal": "Deepen flagship 7 (photo-editing): decide the card-level noise floor with a rule committed before an unseen set",
+  "notes": "Rule committed (62c0f9ddc) before the fourth set was fetched. Result: cap2@1.5 fails (a) (luma -0.0204 dB on 440 rows of 3+-scene cards, bar 0.01), passes (b); both caps fix none of 5 losing rows; the oracle model loses on all 5 (-0.58 dB K-3 Mark III SNR 200), so the remaining losses are the blend's, not the estimate's. Card floor closed; flagship buildable rewritten to the blend gate near clean. Pre-WB floor: null on 5,312 seen rows (features only). Verification: tests/test_card_scenes.py 4 passed; run_venture_tests photo-editing and venture-preflight results in the PR body.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "307e56a6-8222-514d-8fa6-635002f6ed60",
+    "transcripts": 1,
+    "first": "2026-11-18T02:39:27Z",
+    "last": "2026-11-18T02:56:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 137,
+        "output": 43667,
+        "thinking": 9647,
+        "cache_read": 8363651,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133884,
+        "api_equivalent_usd": 3.6177,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 137,
+      "output": 43667,
+      "thinking": 9647,
+      "cache_read": 8363651,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133884,
+      "api_equivalent_usd": 3.6177,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 79,
+    "tools": {
+      "Bash": 71,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.75,
+      "active_minutes": 16.75,
+      "model_minutes": 6.98,
+      "tool_minutes": 9.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a research engineer: list and fetch a new raw set, extend the sweep tool, pre-register, run, analyse, write up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 165.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

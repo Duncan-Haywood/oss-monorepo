@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKm1MGfRro3QJkBmp6R",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T21:18:00Z",
+  "ended": "2026-11-10T21:22:06Z",
+  "wall_minutes": 4.27,
+  "tokens_in": 2277143,
+  "tokens_out": 21093,
+  "cost_usd": 1.5437,
+  "tool_calls": 27,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14609",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/test_theism.py",
+      "issue": "__main__ block sat mid-file, so `python3 test_theism.py` (the README's run command) silently skipped the E7-E9 tests; moved to the end."
+    },
+    {
+      "file": "research/theism-formal-evidence/README.md",
+      "issue": "Layout and test count were stale (listed experiments only to E7, said 15 tests with 19 defined); updated."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 says to work through unlanded research PRs first; about five stale research PRs (oldest 2026-10-31) are open and none touches this programme.",
+      "did": "Left them for their own runs and spent the session on the drawn programme.",
+      "result": "One programme step landed; the stale PRs are unchanged."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-anderson-ontological-argument-theorem-every-finite-model.md",
+    "research/theism-formal-evidence/experiments/e10_theorem/results.md"
+  ],
+  "goal": null,
+  "notes": "Programme theism-formal-evidence, M2 step E10: theorem characterising every finite model of Anderson's axioms (model iff a partition block is a union of whole individuals), prediction H15 logged and pushed before the check; search agrees on 563/563 partitions. Local checks: test_theism.py 20/20 ok, research/_homepage/build.py ok, research_live_links ok, check_md_links ok, post frontmatter/links/similarity ok, programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2e5484ca-77a1-5603-97c2-e293b8496635",
+    "transcripts": 1,
+    "first": "2026-11-10T21:18:00Z",
+    "last": "2026-11-10T21:22:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 26,
+        "input": 53,
+        "output": 21093,
+        "thinking": 8043,
+        "cache_read": 2191684,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85406,
+        "api_equivalent_usd": 1.5437,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 26,
+      "input": 53,
+      "output": 21093,
+      "thinking": 8043,
+      "cache_read": 2191684,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85406,
+      "api_equivalent_usd": 1.5437,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.962,
+    "tool_calls": 27,
+    "tools": {
+      "Bash": 24,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.27,
+      "active_minutes": 4.27,
+      "model_minutes": 3.53,
+      "tool_minutes": 0.74,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a logician writing and checking a short finite-model theorem with a search harness and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 388.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

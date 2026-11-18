@@ -1,0 +1,5 @@
+mean | steps: 1920 1937 1946 1977 1987 2001 2015 2023 | slope changes: none
+mean, ar1 auto | steps: 1930 1987 2014 | slope changes: none
+trend | steps: 1907 1946 1964 2021 | slope changes: none
+mean, trend bend | steps: 1946 1954 1964 2023 | slope changes: 1913[1895..1992]
+mean, trend bends | steps: 1946 1954 1964 2023 | slope changes: 1913[1895..1992]

@@ -12,7 +12,7 @@ export function num(v) {
   return Number.isFinite(n) ? n : NaN;
 }
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 export const percent = (x) => `${Math.round(x * 100)}%`;
 export const hours = (h) => `${Math.floor(h + 1e-9)}h ${String(Math.round((h - Math.floor(h + 1e-9)) * 60) % 60).padStart(2, "0")}m`;
 

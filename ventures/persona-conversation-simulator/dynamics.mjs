@@ -3,6 +3,7 @@
 // Each note names the traits behind it, so a user can see why and disagree.
 // These are hand-set heuristics, not a fitted model.
 import { band, conflictStyle } from "./persona.mjs";
+import { scenarioById, runMany } from "./sim.mjs";
 
 /** @typedef {import("./persona.mjs").Persona} Persona */
 
@@ -46,12 +47,20 @@ export function pair(a, b) {
   return { a: a.id, b: b.id, friction, rapport, verdict, notes, styles: [conflictStyle(A).style, conflictStyle(B).style] };
 }
 
-/** Expected share of speaking turns, weighted towards extraversion. */
-/** @param {Persona[]} cast */
-export function airtime(cast) {
-  const w = cast.map((p) => 0.35 + (p.traits.extraversion / 100) ** 1.5 * 1.6);
-  const sum = w.reduce((s, x) => s + x, 0) || 1;
-  return cast.map((p, i) => ({ id: p.id, name: p.name, share: w[i] / sum }));
+/**
+ * Share of speaking turns, measured by running the simulator's own group
+ * scenario (deterministic seed), so the note always agrees with the
+ * "many runs" table. A separate closed-form weighting used to disagree with
+ * the simulator by up to 13 points (quality audit 2026-11-17).
+ * @param {Persona[]} cast
+ * @param {{ runs?: number }} [opts]
+ */
+export function airtime(cast, opts = {}) {
+  if (cast.length === 0) return [];
+  if (cast.length === 1) return [{ id: cast[0].id, name: cast[0].name, share: 1 }];
+  const m = runMany(scenarioById("offsite"), cast, { runs: opts.runs ?? 200, seed: "airtime" });
+  const byId = new Map(m.perPerson.map((p) => [p.id, p.airtime]));
+  return cast.map((p) => ({ id: p.id, name: p.name, share: byId.get(p.id) ?? 0 }));
 }
 
 /** @param {Persona[]} cast */

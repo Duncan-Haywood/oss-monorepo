@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnQEhW16ENYKYeBxky",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:20:36Z",
+  "ended": "2026-11-13T12:25:09Z",
+  "wall_minutes": 11.23,
+  "tokens_in": 3140059,
+  "tokens_out": 17882,
+  "cost_usd": 1.5638,
+  "tool_calls": 39,
+  "task": "Little Lamps story: Saint Thomas Aquinas (series bible's queued proposal)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15495",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First draft of the post's seo_title was 82 characters; check_post_frontmatter.py (limit 70) caught it in run_workflow_locally (it also failed 168 site-builder tests), fixed before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Lists node --test as the story check but not platform/ci/check_post_frontmatter.py, which a creative run's post always reaches; running it before the long local workflow would have saved a cycle."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Asks that science fiction get at least an equal share; this run wrote a Little Lamps story instead, because 12 SF stories landed in the last two days and the shelf's open proposals needed a new angle first.",
+      "did": "Wrote the Little Lamps Thomas Aquinas story and added a Blaise proposal.",
+      "result": "A finished bedtime story with every tradition labelled; SF share still well above Little Lamps over the week."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-thomas-and-the-question-what-is-god.md"
+  ],
+  "goal": null,
+  "notes": "Project: hearth-and-horizon, Little Lamps shelf. Piece: thomas-and-the-question-what-is-god (text only; audio folders at 423 MB, over the 400 MB cap). Picked over the SF shelf because its one open proposal (The Wet Bulb) carries a 'too close to a finished story' note, Quarry Nine is marked 'use sparingly', and the shelf had 12 SF stories land 11-12/11-13. Albert already tells the Dumb Ox, so this story centres Tocco's 'What is God?' and 'Non nisi te, Domine'; the temptation story is left out. BIBLE proposal marked done (bible_done.mjs moved it to DONE.md); an empty Little Lamps list got a Saint Blaise proposal. Checks: node --test in the venture (15 pass, stories.test.mjs 13 pass); check_post_frontmatter.py passes after the fix; run_workflow_locally --for-changes, see the PR. No agent doc: nothing new for the next run beyond the BIBLE entries.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9bc85d75-32ec-5770-90a4-1c209d822f62",
+    "transcripts": 1,
+    "first": "2026-11-13T12:20:36Z",
+    "last": "2026-11-13T12:31:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 17882,
+        "thinking": 3599,
+        "cache_read": 3065900,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74084,
+        "api_equivalent_usd": 1.5638,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 17882,
+      "thinking": 3599,
+      "cache_read": 3065900,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74084,
+      "api_equivalent_usd": 1.5638,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 35,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.23,
+      "active_minutes": 11.23,
+      "model_minutes": 3.15,
+      "tool_minutes": 8.08,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "researching and writing a 1,300-word sourced children's saint story with a historical note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 191.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

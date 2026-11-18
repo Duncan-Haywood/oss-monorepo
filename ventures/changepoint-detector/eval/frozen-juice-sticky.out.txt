@@ -1,0 +1,8 @@
+frozen-juice price: 612 months, 253 exact repeats (41.4% of steps); freezes (fdd >= 19): 1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01
+
+setting                       cuts  freezes found (within 2 months)  cuts near a freeze
+shipped (global scale)          67  8 of 8: 1958-01 1963-01 1970-01 1977-02 1981-02 1984-01 1985-02 1990-01 11
+drop, global                    15  6 of 8: 1958-01 1963-01 1977-02 1981-02 1984-01 1990-01 6
+drop, scale per segment         15  4 of 8: 1963-01 1977-02 1984-01 1990-01          5
+missing, global                 18  5 of 8: 1963-01 1977-02 1981-02 1984-01 1990-01  7
+missing, scale per segment      15  5 of 8: 1963-01 1977-02 1981-02 1984-01 1990-01  5

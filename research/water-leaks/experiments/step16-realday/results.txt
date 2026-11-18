@@ -1,0 +1,102 @@
+# water-leaks step 16: localisation with L-TOWN_Real.inp restarted on each leak's day (T1 level and PUMP_1
+# status from step 14's continuous leak-free run), constant demand of the leak's own mean flow at each of 782 junctions;
+# residual o-inc (step 15's primary) unless named; argmax Pearson; along-pipe error to the leak pipe; rule 300 m
+
+gate: restarted leak-free run against the continuous run over each 24 h window, median |diff| per leak: max 0.00000 m, median 0.00000 m: PASS (< 0.01 m for every leak)
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m, of 32 oracle-timed leaks (P(chance >=); median error m)
+  R real model, leak's day, o-inc            15 (0.0000;   389)
+  R real model, leak's day, d1 residual      12 (0.0000;   548)
+  A nominal, q = 5, o-inc (step 15)          16 (0.0000;   340)
+  M most-affected sensor, o-inc (step 15)    14 (0.0000;   390)
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  R only 0, A only 1: P = 1.000
+  R only 4, M only 3: P = 1.000
+  R on d1 only 2, R on o-inc only 5: P = 0.453
+
+## descriptive
+  best Pearson score of R on o-inc: median 0.9658 (range 0.5513 to 0.9990)
+  leak pipe's better end node ranked first: 5 of 32; within the top 10: 11; median rank 65
+  junctions over 300 m from the leak scoring within 0.001 of the best: median 1 (range 0 to 8); leaks with none: 13
+
+  pipe  t                 q m3/h | R err m | A err m | M err m | best r  | end rank | gap    | far ties | gate m
+   p232 2018-02-02T15      18.7 |      80 |     246 |     404 | 0.9990  |        5 | 0.0001 |        4 | 0.00000
+   p673 2018-03-05T16      28.4 |      22 |     142 |      66 | 0.9766  |        1 | 0.0000 |        0 | 0.00000
+   p461 2018-03-09T04      15.5 |    2104 |    2125 |    2080 | 0.9489  |      455 | 0.5643 |        3 | 0.00000
+   p427 2018-04-18T21       2.6 |    1626 |    1626 |    1061 | 0.7676  |      284 | 0.7194 |        1 | 0.00000
+   p628 2018-05-12T08      19.5 |     344 |      85 |     399 | 0.9943  |       16 | 0.0006 |        7 | 0.00000
+   p538 2018-05-18T09      32.4 |     133 |      59 |     264 | 0.9932  |        7 | 0.0011 |        0 | 0.00000
+   p866 2018-06-01T09      20.3 |      19 |      19 |     198 | 0.9943  |        1 | 0.0000 |        0 | 0.00000
+    p31 2018-07-23T18       8.4 |     251 |      83 |     302 | 0.9955  |       10 | 0.0592 |        0 | 0.00000
+   p183 2018-08-07T03      16.3 |      31 |      80 |     128 | 0.7801  |        1 | 0.0000 |        0 | 0.00000
+   p654 2018-08-26T14       2.8 |    1304 |    1349 |    1965 | 0.9673  |      420 | 0.5299 |        3 | 0.00000
+   p810 2018-10-05T14       3.5 |    1074 |     929 |     918 | 0.6590  |      106 | 0.0535 |        1 | 0.00000
+   p158 2018-10-06T03      24.5 |     253 |     189 |      83 | 0.9982  |       12 | 0.0033 |        0 | 0.00000
+   p369 2018-10-26T02      20.5 |      76 |     299 |     435 | 0.9968  |        2 | 0.0000 |        0 | 0.00000
+   p523 2019-01-15T23      28.2 |      22 |      22 |      86 | 0.9890  |        1 | 0.0000 |        0 | 0.00000
+   p827 2019-01-24T19      26.2 |      25 |     127 |     229 | 0.9640  |        1 | 0.0000 |        0 | 0.00000
+   p280 2019-02-10T13       5.2 |     434 |     381 |     381 | 0.9972  |      342 | 0.2544 |        3 | 0.00000
+   p710 2019-03-24T14       5.5 |     229 |     229 |     141 | 0.9612  |        9 | 0.0110 |        0 | 0.00000
+   p514 2019-04-02T21      15.5 |     230 |     230 |      77 | 0.9860  |       18 | 0.0105 |        0 | 0.00000
+   p653 2019-04-07T12       9.4 |     610 |     610 |     227 | 0.9741  |       78 | 0.0061 |        4 | 0.00000
+   p331 2019-04-20T10      10.5 |     184 |     130 |     277 | 0.9648  |       11 | 0.0092 |        2 | 0.00000
+   p142 2019-06-12T20      26.6 |    1256 |    1361 |     281 | 0.7748  |      143 | 0.3693 |        2 | 0.00000
+   p193 2019-07-05T22       5.3 |    1701 |    1684 |    2682 | 0.9667  |      528 | 0.5269 |        5 | 0.00000
+   p680 2019-07-10T09       5.4 |    1460 |    1460 |     109 | 0.5513  |      240 | 0.1196 |        1 | 0.00000
+   p277 2019-07-21T22       3.8 |    1579 |    1579 |     407 | 0.8877  |      749 | 0.8543 |        1 | 0.00000
+   p586 2019-08-18T21      10.7 |     232 |     232 |     940 | 0.8631  |      199 | 0.0506 |        0 | 0.00000
+   p800 2019-09-01T10      11.7 |     848 |     898 |    2411 | 0.8162  |      471 | 0.2514 |        2 | 0.00000
+   p721 2019-09-08T03       6.7 |     726 |     446 |    1140 | 0.7450  |       52 | 0.0461 |        2 | 0.00000
+   p426 2019-10-25T13      13.0 |    1046 |    1046 |    1013 | 0.8894  |      165 | 0.7217 |        1 | 0.00000
+   p123 2019-11-07T22       4.7 |    1065 |    1164 |     599 | 0.8944  |      218 | 0.1253 |        8 | 0.00000
+   p762 2019-11-17T03       8.0 |     969 |    1015 |    1840 | 0.9690  |      420 | 0.4142 |        4 | 0.00000
+   p455 2019-11-24T22       5.6 |    1975 |    1975 |    1309 | 0.9730  |      705 | 0.6751 |        3 | 0.00000
+   p879 2019-12-19T21       5.7 |     249 |     249 |     178 | 0.5539  |        6 | 0.0021 |        0 | 0.00000
+
+## pre-registered predictions (LOG.md, step 16 plan)
+  (a) R on o-inc puts more than 16 of 32 within 300 m: 15: FAILED
+  (b) R puts at least 24 of 32 within 300 m: 15: FAILED
+  (c) R beats M on o-inc at P < 0.05 (sign test): R only 4, M only 3, P = 1.000: FAILED
+  (d) median best Pearson score of R >= 0.99: 0.9658: FAILED
+  (e) best junction is an end node of the leak pipe for at least 16 of 32: 5: FAILED
+
+## post hoc (added after the predictions were scored; no verdict)
+  other-leak change = sum over the other leaks of |mean flow over [t, t + 24) - mean flow over the 24 h before onset|, m3/h
+  abrupt   : 15 leaks; R within 300 m 11, A 11, M 12; end node first 5; median hours onset to t 1; median other-leak change 0.3 m3/h against own flow 20.3
+  incipient: 17 leaks; R within 300 m 4, A 5, M 2; end node first 0; median hours onset to t 906; median other-leak change 17.8 m3/h against own flow 6.7
+  other-leak change / own flow, median 0.09: R within 300 m for 12 of 16 at or below the median, 3 of 16 above (Fisher exact P = 0.0038)
+  pipe  kind       onset->t h  q   other  end rank
+   p523 abrupt          0  28.2    0.0     1
+   p538 abrupt          1  32.4    0.1     7
+   p827 abrupt          1  26.2    0.1     1
+   p158 abrupt          1  24.5    0.1    12
+   p369 abrupt          0  20.5    0.2     2
+   p183 abrupt          1  16.3    0.2     1
+   p280 abrupt          0   5.2    0.0   342
+   p142 abrupt          1  26.6    0.3   143
+   p673 abrupt          1  28.4    0.7     1
+   p232 incipient      60  18.7    0.5     5
+   p514 abrupt          1  15.5    0.5    18
+    p31 incipient     593   8.4    0.4    10
+   p628 incipient     230  19.5    1.1    16
+   p710 abrupt          0   5.5    0.3     9
+   p426 abrupt          0  13.0    0.8   165
+   p331 abrupt          0  10.5    0.7    11
+   p680 abrupt          1   5.4    0.6   240
+   p866 abrupt          0  20.3    3.9     1
+   p586 incipient     547  10.7    4.8   199
+   p800 incipient     372  11.7   15.7   471
+   p427 incipient    1481   2.6    4.2   284
+   p461 incipient    1061  15.5   30.2   455
+   p653 incipient     820   9.4   21.1    78
+   p879 incipient     684   5.7   14.6     6
+   p762 incipient     906   8.0   22.8   420
+   p277 incipient    1203   3.8   14.7   749
+   p455 incipient    1219   5.6   32.4   705
+   p654 incipient    1205   2.8   17.8   420
+   p721 incipient     864   6.7   43.1    52
+   p193 incipient    1105   5.3   44.1   528
+   p810 incipient    1604   3.5   29.3   106
+   p123 incipient    1279   4.7   66.3   218

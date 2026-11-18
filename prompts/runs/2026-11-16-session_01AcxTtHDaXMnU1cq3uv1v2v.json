@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtHDaXMnU1cq3uv1v2v",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T19:06:29Z",
+  "ended": "2026-11-16T19:27:48Z",
+  "wall_minutes": 23.19,
+  "tokens_in": 9827958,
+  "tokens_out": 99072,
+  "cost_usd": 5.3985,
+  "tool_calls": 75,
+  "task": "Explore: extreme value analysis tool (GEV, Gumbel, GPD peaks over threshold) with profile-likelihood intervals",
+  "projects": [
+    "extreme-value-analysis"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16677",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 5,
+  "review_findings": null,
+  "tests_added": 38,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "pip install of rdata/lmoments3 (to read the ismev Port Pirie data and as an L-moment reference) was refused by the auto-mode classifier",
+      "fix": "dropped both; validated against scipy only plus a seeded coverage simulation"
+    },
+    {
+      "what": "First local CI run: sibling-links orphan, check_thousands_split flag on the return-period list parser, post seo_title/description too long",
+      "fix": "survival-analysis footer links the new tool with a test; parseNumberList keeps 1,000 whole; front matter shortened"
+    },
+    {
+      "what": "Second local run: test_csv_thousands_split (unquoted 1,200 would split into two fields), check_date_digit_boundary (date regexes without (?!\\d)); self-found: Math.max(...days) over every row would overflow past ~125k rows (hourly data)",
+      "fix": "row-width guard with a clear error, digit boundaries, ordered first/last instead of spreads; a test each, including a 200,000-row series"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Lists audits already done but not the checks a new venture must pass (sibling link, thousands split, front-matter lengths); I found them only from a failing local CI run. A one-line pointer to run_workflow_locally.py --for-changes before the first push would save a cycle."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to search open PRs with search_pull_requests MCP; that tool is not exposed in cloud sessions, gh api search/issues works (as other runs reported)."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Its unwired tree checks (thousands split, CSV comma split, date digit boundary) only surface one at a time across local runs; each needed a full ~3 min rerun. A '--new-venture' mode that runs just the tree checks on one directory would be faster."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-twenty-years-of-potomac-data-halve-the-100-year-flood.md",
+    "ventures/extreme-value-analysis/README.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: extreme value analysis as a research-algorithm tool (ventures/extreme-value-analysis), since the repository had nothing for tail events. GEV/Gumbel MLE on annual maxima, GPD on runs-declustered POT, profile-likelihood and delta intervals, threshold stability, mean residual life, linear-trend GEV with LR test, design-life risk. Matches scipy 1.18.1 to <=1e-5 (2e-9..4e-8 on USGS Potomac). Seeded coverage (400 reps x 4): delta 84-86% at n=30-60, profile 93-94% (96.5% at n=100). Finding: 20 water years of Potomac data give a 100-year flow ~200k cfs vs 411,617 from 96 years of peaks; instantaneous peaks of the same 20 years give 203,047, so the record length, not daily-mean vs peak, causes it. Local CI after fixes: see PR body. No separate docs/reports agent doc: the README's Verification and research-tools README candidates carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f4ff8b1c-0081-587d-aef1-619140d53a04",
+    "transcripts": 1,
+    "first": "2026-11-16T19:06:29Z",
+    "last": "2026-11-16T19:29:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 133,
+        "output": 99072,
+        "thinking": 15101,
+        "cache_read": 9641807,
+        "cache_write_5m": 0,
+        "cache_write_1h": 186018,
+        "api_equivalent_usd": 5.3985,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 133,
+      "output": 99072,
+      "thinking": 15101,
+      "cache_read": 9641807,
+      "cache_write_5m": 0,
+      "cache_write_1h": 186018,
+      "api_equivalent_usd": 5.3985,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 68,
+      "Write": 4,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.19,
+      "active_minutes": 23.19,
+      "model_minutes": 16.48,
+      "tool_minutes": 6.72,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "estimate: a statistician building GEV/GPD MLE with profile CIs, scipy cross-check, coverage simulation, web page and CLI",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 444.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

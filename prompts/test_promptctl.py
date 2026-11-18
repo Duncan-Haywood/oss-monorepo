@@ -650,6 +650,23 @@ class WriteupTest(PromptTestCase):
 
 
 class BackfillPrTest(unittest.TestCase):
+    def test_shallow_boundary_commit_is_not_trusted(self):
+        import subprocess
+        with tempfile.TemporaryDirectory() as d:
+            src, dst = Path(d) / "src", Path(d) / "dst"
+            (src / "prompts" / "runs").mkdir(parents=True)
+            git = lambda *a, cwd=src: subprocess.run(["git", "-c", "user.name=t", "-c", "user.email=t@t", *a],
+                                                     cwd=cwd, check=True, capture_output=True)
+            git("init", "-q")
+            (src / "prompts" / "runs" / "a.json").write_text(json.dumps({"pr": None}))
+            git("add", "-A")
+            git("commit", "-qm", "unrelated (#999)")
+            (src / "x").write_text("x")
+            git("add", "-A")
+            git("commit", "-qm", "later (#1000)")
+            git("clone", "-q", "--depth=1", f"file://{src}", str(dst), cwd=Path(d))
+            self.assertEqual(promptctl.backfill_prs(dst / "prompts", write=False), [])
+
     def test_pr_number_comes_from_the_squash_subject(self):
         import subprocess
         with tempfile.TemporaryDirectory() as d:
@@ -692,11 +709,13 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
     def test_changed_note_ignores_the_shallow_boundary(self):
         from unittest import mock
         run = mock.Mock(return_value=mock.Mock(stdout="abc123 2026-10-20T04:30:00+00:00\n"))
+        promptctl._GIT_MEMO.clear()
         with mock.patch.object(promptctl.subprocess, "run", run), \
                 mock.patch.object(promptctl, "_shallow_boundary", return_value={"abc123"}):
             note, changed = promptctl._changed_note("CLAUDE.md")
         self.assertEqual(changed, "")
         self.assertIn("shallow-clone edge", note)
+        promptctl._GIT_MEMO.clear()
         with mock.patch.object(promptctl.subprocess, "run", run), \
                 mock.patch.object(promptctl, "_shallow_boundary", return_value=set()):
             self.assertEqual(promptctl._changed_note("CLAUDE.md")[1], "2026-10-20T04:30:00+00:00")
@@ -717,3 +736,14 @@ class MeasureToleratesFreeTextEntriesTest(unittest.TestCase):
         import promptctl
         real = promptctl.measure(promptctl.ROOT)
         self.assertIn("doc_friction", real)
+
+
+class LastChangeIndexTest(unittest.TestCase):
+    def test_batch_index_matches_per_file_log(self):
+        promptctl._GIT_MEMO.clear()
+        idx = promptctl._last_change_index()
+        for path in ("CLAUDE.md", "prompt.md"):
+            if path in idx:
+                one = promptctl.subprocess.run(["git", "log", "-1", "--format=%H %cI", "--", path],
+                                               cwd=promptctl.ROOT.parent, capture_output=True, text=True).stdout.split()
+                self.assertEqual(list(idx[path]), one)

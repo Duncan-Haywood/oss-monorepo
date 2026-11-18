@@ -2,7 +2,7 @@
 import math
 import random
 
-from sag_twin.model import (D, VC, emf, current, voltage, eta, s_cut, max_power, endurance, twin_endurance, simulate,
+from sag_twin.model import (D, VC, emf, current, voltage, eta, s_cut, max_power, endurance, cold_endurance, twin_endurance, simulate,
                             fit_resistance, twin_current)
 
 print("Sag twin: battery OCV e(s) = 1 - %.2f(1-s), cutoff vc = %.2f (units of E0), constant power u0 = 4 R0 P/E0^2, time in units R0 Q/E0." % (D, VC))
@@ -44,12 +44,12 @@ for u2 in (0.28, 0.40, 0.50, 0.60, 0.70):
     print("%-6g %-8.4f %-31.3f %-8.3f %.3f" % (u2, sf, T, T / twin_endurance(u1), T / endurance(u1)))
 
 print("\n== 5. Cold cell: R0 multiplied by k at a fixed physical power (u0 -> k u0), base u0 = 0.2 ==")
-print("k      u0_eff  starts?  real T   twin T (blind to k)  real/twin  max power from full (units E0^2/(4 R0 warm))")
+print("k      u0_eff  starts?  real T (warm units)  twin T (blind to k)  real/twin  max power from full (units E0^2/(4 R0 warm))")
 base = 0.2
 for k in (1.0, 1.5, 2.0, 3.0, 4.0, 4.5):
     u = k * base
     sc = s_cut(u)
-    T = endurance(u) if sc is not None else 0.0
+    T = cold_endurance(k, base) if sc is not None else 0.0  # warm time units, comparable with the twin
     print("%-6g %-7.2f %-8s %-8.3f %-29.3f %-10.4f %.3f" % (k, u, "yes" if sc is not None else "NO", T, twin_endurance(base) , T / twin_endurance(base), full / k))
 
 print("\n== 6. Constant-derate refit: fit eta_fit = real/twin endurance at u_fit, predict T = eta_fit * twin T elsewhere (rho = 0) ==")

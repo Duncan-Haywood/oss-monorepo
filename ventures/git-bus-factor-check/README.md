@@ -44,7 +44,8 @@ git log --no-merges --format='@@|%an|%ae|%at' --numstat | python3 busfactor.py -
 
 Options: `--since` (default `2.years`), `--half-life` (days, default 180),
 `--inactive-days` (default 90), `--min-commits` (default 3), `--now` (unix
-time, default newest commit). Stdlib only; the only process it starts is
+time; default the current time when the CLI runs `git log` itself, so an
+untouched repository reads as orphaned, and the newest commit with `--log`). Stdlib only; the only process it starts is
 `git log` on the repository you point it at.
 
 ## Tests
@@ -59,3 +60,17 @@ implementations over `fixture.txt` and a synthetic history and requires
 identical JSON.
 
 MIT licensed. Support is optional: <https://github.com/sponsors/Duncan-Haywood>.
+
+## Known gaps
+
+From the quality audit of 2026-11-10
+([`portfolio/quality/audits/2026-11-10-git-bus-factor-check.json`](../../portfolio/quality/audits/2026-11-10-git-bus-factor-check.json)):
+
+- `.mailmap` is not applied: the log format uses `%an|%ae`, so one person
+  committing under two emails counts as two contributors. Switching to
+  `%aN|%aE` needs the page's copy-paste command and its test changed together.
+- A folder whose whole team has gone quiet, with no one above 50%, is reported
+  `shared` with no backup instead of being flagged.
+- Non-ASCII folder names print as git's octal escapes (`core.quotePath`).
+- The pasted-log page measures silence from the newest commit in the paste, not
+  today; the CLI uses today when it runs `git log` itself.

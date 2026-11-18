@@ -114,7 +114,7 @@ export function nextBankingDay(date) {
 }
 
 export function decodeBuffer(buf) {
-  return new TextDecoder("utf-8").decode(buf).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(buf).replace(/^\uFEFF/, "");
 }
 
 const BIC = /^[A-Z]{4}[A-Z]{2}[A-Z0-9]{2}([A-Z0-9]{3})?$/;

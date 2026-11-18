@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydyaWEtoReSbHjMSGz",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:39:22Z",
+  "ended": "2026-11-17T23:47:38Z",
+  "wall_minutes": 8.53,
+  "tokens_in": 9739039,
+  "tokens_out": 42819,
+  "cost_usd": 4.0448,
+  "tool_calls": 82,
+  "task": "ids-model-check flagship: the 20 numeric lists on non-element attributes in no-class specifications (buildable item)",
+  "projects": [
+    "ventures/ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17104",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/number-oneof-2026-11-17.md",
+      "issue": "'The 20 numeric lists on non-element attributes' described them as one untyped group; they were three different cases (derived on a subclass, xs:integer on a NUMBER, list attributes), 12 of which should never become rows. Reading the schema per attribute took the first part of the run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A heredoc containing fs.rmSync in a JS file tripped the Bash removal safety check; writing the file with the Write tool worked. Worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/ids-model-check NEXT/flagships item",
+      "why": "The item asked to open the 20 lists as rows; 12 are value checks on list attributes that buildingSMART's test case says always fail, so making them editable would help write broken checks.",
+      "did": "Opened 8 as rows; kept the 12 held and added an audit warning (not an error, as IDS-Audit-tool accepts the files).",
+      "result": "117 of 129 open (was 109); audit errors unchanged on every corpus; 334/334 test cases."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-ids-model-check-no-class-numbers.md",
+    "ventures/ids-model-check/eval/no-class-numbers-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Verification run here: node --test *.test.mjs 185 pass 0 fail 1 skipped; run_venture_tests.py ids-model-check ok; eval/editor-open.mjs all groups write back the same, audit errors changed on 0, IDS-Audit-tool valid files 721 -> 733 editable facets; eval/audit-corpus.mjs output identical before/after; eval/run-testcases.mjs 334/334, valid flagged invalid 0; eval/no-class-numbers-page.mjs (Playwright, 390 px) OK; check_posts ok; validate.py ok; venture-preflight run in background (result in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a9d0c046-d789-5bf1-ac7b-f6260e32cd34",
+    "transcripts": 1,
+    "first": "2026-11-17T23:39:22Z",
+    "last": "2026-11-17T23:47:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 77,
+        "input": 151,
+        "output": 42819,
+        "thinking": 10213,
+        "cache_read": 9579905,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158983,
+        "api_equivalent_usd": 4.0448,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 77,
+      "input": 151,
+      "output": 42819,
+      "thinking": 10213,
+      "cache_read": 9579905,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158983,
+      "api_equivalent_usd": 4.0448,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 82,
+    "tools": {
+      "Bash": 75,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.53,
+      "active_minutes": 8.53,
+      "model_minutes": 6.64,
+      "tool_minutes": 1.89,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior BIM tooling engineer: schema lookup of 20 attributes, editor and audit changes, tests, eval and Playwright check",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 148.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

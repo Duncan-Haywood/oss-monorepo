@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKo9h86YSp7JX8Jjzed",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T23:18:00Z",
+  "ended": "2026-11-15T23:24:43Z",
+  "wall_minutes": 7.08,
+  "tokens_in": 5605176,
+  "tokens_out": 25284,
+  "cost_usd": 2.6138,
+  "tool_calls": 52,
+  "task": "Deepen (flagship 5) einvoice-preflight: VERI*FACTU 1124 full rate list (allocate.py row 3)",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16376",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Ran `git stash`/`stash pop` to count coverage on the old tree while the full venture suite was running in the background; the suite passed, but it may have seen the old tree for a moment, so it was rerun after the commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Step 0/1 commands worked as written; nothing stale. The AEAT validation PDF named in flagships.yaml's open item is on hosts that refuse the proxy (four AEAT hostnames, CONNECT 403); public code quoting the document was the way round."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The repository-scope note says other repos' API calls are denied; raw.githubusercontent.com reads and search/code still worked, which is what this run needed. Saying so would save a probe."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-verifactu-allowed-vat-and-surcharge-rates.md",
+    "ventures/einvoice-preflight/eval/verifactu-rate-lists-2026-11-15.md"
+  ],
+  "goal": "Map AEAT code 1124 fully and add the surcharge list (1127) from the validation document's rule 15 text.",
+  "notes": "Sources: mdiago/VeriFactu (AGPL; only the AEAT's quoted text used, no code) and eloi24/verifactu-sdk (MIT, cites v1.2.2) agree on rule 15.1 (0,2,4,5,7.5,10,21 on S1 VAT lines) and 15.3 (surcharge 0,0.26,0.5,0.62,1,1.4,1.75,5.2). VF-045 now an error for an unlisted S1 rate; VF-032 gains 1127 and 1135 (4% after 2012, inference). Coverage 140 -> 142 of 203 (122 fully). Checks: node --test verifactu.test.mjs verifactu-response.test.mjs 30/30; run_venture_tests.py einvoice-preflight ok (2564 tests, rerun after the commit); post front matter, links, similarity clean; venture-preflight see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "42025f78-cd59-576d-a4fe-4e70e79feec6",
+    "transcripts": 1,
+    "first": "2026-11-15T23:18:00Z",
+    "last": "2026-11-15T23:25:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 95,
+        "output": 25284,
+        "thinking": 4961,
+        "cache_read": 5478579,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126502,
+        "api_equivalent_usd": 2.6138,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 95,
+      "output": 25284,
+      "thinking": 4961,
+      "cache_read": 5478579,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126502,
+      "api_equivalent_usd": 2.6138,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.08,
+      "active_minutes": 7.08,
+      "model_minutes": 4.87,
+      "tool_minutes": 2.21,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "finding and cross-checking the rule text in two libraries, two rules, tests and write-ups for a Verifactu developer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 153.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

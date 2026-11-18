@@ -10,9 +10,9 @@ export const ZERO = "0".repeat(64);
 
 export const newState = () => ({ requests: {}, rate: {} });
 export const sha256 = (s) => createHash("sha256").update(s, "utf8").digest("hex");
-const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f‪-‮⁦-⁩]/g, "").replace(/[ \t]+/g, " ").trim().slice(0, max);
+const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "").replace(/[ \t]+/g, " ").trim().slice(0, max);
 // Line breaks are kept in the body: a contract is read as paragraphs. Normalised so one hash covers every browser.
-const cleanBody = (s) => String(s ?? "").replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f‪-‮⁦-⁩]/g, "").replace(/[ \t]+\n/g, "\n").trim();
+const cleanBody = (s) => String(s ?? "").replace(/\r\n?/g, "\n").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "").replace(/[ \t]+\n/g, "\n").trim();
 const same = (a, b) => a.normalize("NFKC").toLowerCase().replace(/\s+/g, " ") === b.normalize("NFKC").toLowerCase().replace(/\s+/g, " ");
 
 const eventHash = (prev, e) => sha256(`${prev}\n${JSON.stringify([e.type, e.at, e.detail ?? null])}`);
@@ -105,7 +105,7 @@ export function stats(state, now) {
   return out;
 }
 
-const cell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; };
+const cell = (v) => { const s = String(v ?? ""); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; };
 export function toCsv(state, now) {
   const rows = [["id", "title", "status", "signer_asked", "signed_name", "created", "signed_at", "doc_sha256"]];
   for (const r of Object.values(state.requests)) rows.push([r.id, r.title, status(r, now), r.signerName, r.signature?.name, new Date(r.createdAt).toISOString(), r.signature ? new Date(r.signature.at).toISOString() : "", r.docHash]);

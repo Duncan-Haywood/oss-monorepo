@@ -42,7 +42,7 @@
 <body>
   <header>
     <p class="note">MOBILE OIL CHANGE ROUTE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING IS UPLOADED</p>
-    <h1>What does a mobile oil change really earn once you count the drive, the oil and the no-shows, and is solo, a franchise or a job the better way to run the van?</h1>
+    <h1>What does a mobile oil change really earn once you count the drive?</h1>
     <p>Enter your weekly jobs by service type, prices, oil and filter cost, used-oil disposal, on-site and drive minutes, no-shows and van costs. You get <strong>profit per job and per working hour including drive time, break-even jobs per week, the price each service type needs for your target margin, what no-shows cost, what batching fleet stops does to your hourly profit, and solo against a franchise against an employed job</strong>.</p>
     <p class="note">Calculated in this browser tab. No account, no upload. The example and every default number are made-up, editable placeholders, not market rates. Arithmetic only: it does not model used-oil disposal regulations, EPA or state rules, and it is not legal, tax or environmental advice. A planning estimate, not an estimate of record.</p>
   </header>
@@ -169,7 +169,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     const keys = ["convQty", "convPrice", "convMin", "convQuarts", "convQtCost", "convFilter", "synthQty", "synthPrice", "synthMin", "synthQuarts", "synthQtCost", "synthFilter", "fleetQty", "fleetBatch", "fleetPrice", "fleetMin", "fleetQuarts", "fleetQtCost", "fleetFilter", "disposalPerVehicle", "tripFee", "driveMiles", "driveMin", "mileCost", "failedPct", "failedPayPct", "failedMin", "insuranceMonth", "toolsYear", "otherFixedMonth", "haulWeek", "labRunHours", "ownerRate", "hoursAvailable", "targetMarginPct", "franchiseFeePct", "franchiseVolumePct", "franchiseSupplies", "employedWage", "employedMileReimb"];
-    const usd = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const usd = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
     let last = null;
 
     function read() {

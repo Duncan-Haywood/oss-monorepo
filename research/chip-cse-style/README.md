@@ -1,4 +1,4 @@
-# chip-cse-style: does writing a carry-select adder's shared a+b sum by hand change what Yosys and ABC synthesise? (no: hand sharing equals what `opt_merge` already finds; a differently grouped sum is 17-22% smaller under ABC's optimising scripts; stylised)
+# chip-cse-style: does writing a carry-select adder's shared a+b sum by hand change what Yosys and ABC synthesise? (no: hand sharing equals what `opt_merge` already finds; a differently grouped sum has a 17-22% lower cells x depth product under ABC's dch and resyn2 scripts, with 14-17% more cells and 27-33% less depth; stylised)
 
 Track 3 (LLM chip-design loops, `PROJECTS.md`). `chip-abc-orderpass` showed that the only thing separating the two netlists of a carry-select adder is whether `opt_merge` shares `a + b` between the `+ 0` and `+ 1` sums. A rewrite proposer (human or LLM) would more naturally write that sharing itself. This asks whether the common rewrites do the same thing as the flow. Chosen over another operand-order or seed variant because that chain (`chip-abc-order`, `chip-abc-orderpass`) had become micro-variants of one result; this tests the rewrites a proposer would actually make. Produced with AI assistance (Claude). Preliminary and small: one adder, one tool version, a generic-gate library, no LLM in the loop.
 
@@ -37,6 +37,7 @@ python3 experiments/run.py               # rewrites experiments/results.txt (sec
 - One 16-bit adder, six styles, one Yosys/ABC version, generic gates. Nothing here says the same holds for multipliers or other blocks.
 - The metric (cells x depth) is a proxy; the ordering of styles may change with a real cell library.
 - Styles were chosen by the author, not sampled from a model; "what an LLM would write" is untested.
+- Prior work not yet cited (quality audit 2026-11-13, [`portfolio/quality/audits/2026-11-13-chip-cse-style.json`](../../portfolio/quality/audits/2026-11-13-chip-cse-style.json)): after `opt_merge`, `gen`/`explicit`/`inc` are a carry-increment (add-one) carry-select adder and `right` is the classic dual-adder carry-select, so the area-versus-delay difference is the textbook one between those designs (Tyagi 1993; Ramkumar and Kittur 2012; Zimmermann 1997). The `dc2_map` script that `flow.py` defines is not reported; the audit measured `right` 5% worse than `gen` under it.
 
 ## Next steps
 Run the same styles through the SKY130 flow of `chip-pnr`; ask whether an LLM proposer asked to "reduce area" picks `explicit`/`inc` (no gain) or something like `right`; add these styles as free baseline candidates to `chip-ppa-loop`'s proposer comparison.

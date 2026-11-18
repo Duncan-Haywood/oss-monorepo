@@ -250,3 +250,31 @@ test("formatting", () => {
   assert.equal(pct(0.355), "35.5%");
   assert.equal(pct(0.2), "20%");
 });
+
+test("sub-1 percents and sub-dollar values are accepted (redteam 2026-11-17)", () => {
+  assert.equal(parseProb("0.5%"), 0.005);
+  const r = parseCards("A,0.50,0.75,0.6,0.55,0.5");
+  assert.deepEqual(r.errors, []);
+  assert.equal(r.cards[0].raw, 0.5);
+});
+
+test("spreadsheet CSV export: quoted currency over $999 parses (redteam 2026-11-17)", () => {
+  const r = parseCards('name,raw,v10,v9,v8,v7,p10,p9,p8,note\nCharizard,"$1,200","$8,000","$3,000","$1,500",900,30%,40%,20%,"PSA, maybe"');
+  assert.deepEqual(r.errors, []);
+  const c = r.cards[0];
+  assert.deepEqual([c.raw, c.v10, c.v9, c.v8, c.v7], [1200, 8000, 3000, 1500, 900]);
+  assert.equal(c.note, "PSA, maybe");
+  const t = parseTiers('Bulk,"$1,000","25,000",30');
+  assert.deepEqual(t.errors, []);
+  assert.equal(t.tiers[0].fee, 1000);
+  assert.equal(t.tiers[0].maxValue, 25000);
+});
+
+test("selectBest: equal value across card counts picks the cheaper set, and says it is exact (redteam 2026-11-17)", () => {
+  // A alone (cost 3) and B+C (cost 4) both add 5; nothing else fits a $4 budget.
+  const items = [{ id: "A", cost: 3, value: 5 }, { id: "B", cost: 2, value: 2 }, { id: "C", cost: 2, value: 3 }];
+  const got = selectBest(items, { budget: 4, maxCount: 2 });
+  assert.deepEqual(got.ids, ["A"]);
+  assert.equal(got.cost, 3);
+  assert.equal(got.exact, true);
+});

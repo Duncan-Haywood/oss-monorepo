@@ -1,0 +1,45 @@
+A. Charging price (EUR/MWh) from German day-ahead prices: mean of the D cheapest hours per cycle window; all-hours mean last
+ hours     2015     2016     2017     2018     2019     mean
+     1     18.7     18.3     19.1     27.9     22.3     21.3
+     2     19.2     18.8     19.9     28.7     23.2     22.0
+     4     20.3     19.7     21.4     30.3     24.9     23.3
+     6     21.3     20.4     22.9     31.5     26.0     24.4
+     8     20.9     20.2     22.0     31.1     25.4     23.9
+    10     20.5     19.9     21.4     30.3     24.6     23.3
+    12     20.2     19.4     21.2     29.9     24.2     23.0
+    24     19.0     18.4     19.7     28.1     21.8     21.4
+    48     18.2     17.7     18.5     26.4     20.9     20.4
+   100     17.8     17.1     17.1     25.6     20.0     19.5
+   168     17.8     17.3     18.1     25.8     20.8     20.0
+   500     16.9     16.8     16.2     24.7     18.5     18.6
+   all     31.9     29.2     34.7     44.4     37.7     35.6
+
+B. LCOS ($/MWh, 7%) with the realised charging price (5-year mean, USD) and winner; flat-$30 winner for comparison
+ hours     li-ion vanadium f pumped hyd compressed   hydrogen     winner     flat30  charge$
+     1        174        247        488        346       1557     li-ion     li-ion     24.0
+     2        135        209        269        199        819     li-ion     li-ion     24.8
+     4        117        192        160        127        453     li-ion     li-ion     26.4
+     6        116        201        133        109        357 compressed compressed     27.6
+     8        129        249        139        108        355 compressed compressed     27.0
+    10        150        296        144        108        352 compressed compressed     26.4
+    12        171        344        150        108        350 compressed compressed     26.0
+    24        297        631        184        108        342 compressed compressed     24.2
+    48        552       1208        256        112        335 compressed compressed     23.0
+   100       1105       2462        414        126        333 compressed compressed     22.0
+   168       1831       4104        623        147        342 compressed compressed     22.6
+   500       5371      12116       1638        241        396 compressed compressed     21.1
+
+C. Winner in each single year (that year's charging price), by duration
+ hours       2015       2016       2017       2018       2019
+     1     li-ion     li-ion     li-ion     li-ion     li-ion
+     2     li-ion     li-ion     li-ion     li-ion     li-ion
+     4     li-ion     li-ion     li-ion     li-ion     li-ion
+     6 compressed compressed compressed compressed compressed
+     8 compressed compressed compressed compressed compressed
+    10 compressed compressed compressed compressed compressed
+    12 compressed compressed compressed compressed compressed
+    24 compressed compressed compressed compressed compressed
+    48 compressed compressed compressed compressed compressed
+   100 compressed compressed compressed compressed compressed
+   168 compressed compressed compressed compressed compressed
+   500 compressed compressed compressed compressed compressed

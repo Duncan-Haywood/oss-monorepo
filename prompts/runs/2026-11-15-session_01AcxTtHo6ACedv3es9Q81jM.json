@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtHo6ACedv3es9Q81jM",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T08:05:45Z",
+  "ended": "2026-11-15T08:29:44Z",
+  "wall_minutes": 24.3,
+  "tokens_in": 16691437,
+  "tokens_out": 77777,
+  "cost_usd": 6.6383,
+  "tool_calls": 99,
+  "task": "Flagship row 3 einvoice-preflight: Hungary NAV Online Sz\u00e1mla 3.0 InvoiceData / manageInvoice reader",
+  "projects": [
+    "ventures/einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16145",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [
+    "First seeded-fault run used +500 amount changes, which fall under NAV's 1% tolerance on large HUF amounts (77% caught); changed to +10% + 2 units (518/519).",
+    "Two false findings on NAV samples found and fixed before landing: LITER vs the spec's LITRE (XSD wins), and per-rate VAT sums over lines without lineVatData.",
+    "Initial module imported node:crypto/node:zlib, which report.mjs (loaded by the browser page) cannot use; replaced with sha3.mjs (plain-JS SHA3-512 + Base64), compressed operations listed under skipped.",
+    "Post description was 222 characters; check_post_frontmatter caught it (and broke shorts.test.mjs and the site build in the local workflow run); fixed to 146."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "Output for einvoice-preflight was a single 'ok (15.9s)' line with no node --test counts, so it was unclear whether the 2,000 node tests ran; I ran node --test '*.test.mjs' separately to be sure."
+    },
+    {
+      "file": "platform/distribution/shorts.test.mjs",
+      "issue": "A post front-matter error surfaces as a failure of this unrelated-looking test (and the site build) in run_workflow_locally; the log points at shorts.test.mjs, not at the post."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship next: list for einvoice-preflight is almost all items needing outside inputs; instead of one of them I built a new national format (Hungary NAV) whose official schema, spec and samples are public on raw GitHub.",
+      "did": "New HU reader measured on NAV's 30 published samples and its manageInvoice sample; next: rewritten with the HU open items.",
+      "result": "Landed with a real-sample measurement; found five faults in NAV's own samples and the spec/sample hash discrepancy."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-hungary-nav-online-szamla-checker.md",
+    "ventures/einvoice-preflight/eval/hungary-nav-samples-2026-11-15.md"
+  ],
+  "goal": "Deepen flagship einvoice-preflight with a hard engineering slice measured on official data",
+  "notes": "Verification: hungary-nav.test.mjs 14/14; full venture node --test '*.test.mjs' 1915 pass 0 fail 106 skipped; run_venture_tests.py einvoice-preflight ok; run_workflow_locally --for-changes: all failures traced to the post description (fixed; check_post_frontmatter clean, shorts.test.mjs 10/10 after fix); agent-cross-review and portfolio-pages deploy jobs not run locally. venture-preflight rerun after the fix (see PR). NAV sources: nav-gov-hu/Online-Invoice (MIT), spec 2026-02-12 sections 3.3.2/3.3.3. No agent doc in docs/reports: the eval file and README section carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "6d886603-cb63-55be-94bb-e68fdae357d3",
+    "transcripts": 1,
+    "first": "2026-11-15T08:05:45Z",
+    "last": "2026-11-15T08:30:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 94,
+        "input": 190,
+        "output": 77777,
+        "thinking": 9108,
+        "cache_read": 16467688,
+        "cache_write_5m": 0,
+        "cache_write_1h": 223559,
+        "api_equivalent_usd": 6.6383,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 94,
+      "input": 190,
+      "output": 77777,
+      "thinking": 9108,
+      "cache_read": 16467688,
+      "cache_write_5m": 0,
+      "cache_write_1h": 223559,
+      "api_equivalent_usd": 6.6383,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 99,
+    "tools": {
+      "Bash": 87,
+      "Write": 5,
+      "ToolSearch": 2,
+      "ReadNotifications": 2,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 24.3,
+      "active_minutes": 17.17,
+      "model_minutes": 12.89,
+      "tool_minutes": 4.28,
+      "waiting_on_human_minutes": 7.13,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "spec reading of 80 NAV codes, rule module, SHA3, tests, sample measurement, page/post updates",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 361.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

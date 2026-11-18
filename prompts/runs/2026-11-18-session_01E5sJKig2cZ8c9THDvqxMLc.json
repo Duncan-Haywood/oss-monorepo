@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKig2cZ8c9THDvqxMLc",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T01:18:24Z",
+  "ended": "2026-11-18T02:45:38Z",
+  "wall_minutes": 87.41,
+  "tokens_in": 8500839,
+  "tokens_out": 49086,
+  "cost_usd": 3.8279,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17131",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First background build launched with plain python3, which lacks numpy; relaunched with /usr/bin/python3.13 (about 1 min lost).",
+    "A shell loop of six wait_for calls exceeded the 600 s foreground limit and was moved to the background, then killed at its limit; harmless duplicate."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run pyenv.py for numpy; /usr/bin/python3.13 already had numpy and pytest, a one-line probe of the system interpreters would have been faster than pyenv.py."
+    },
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/level_leak_run.py",
+      "issue": "Every 11ai-derived milestone rebuilds the same 48-layout inputs (about 75 min on 4 cores here) because the LEAK_CACHE pickle is not kept anywhere between sessions; a cached artefact (release asset or LFS) would save an hour per milestone."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-aerolog-shared-barometer-drift.md",
+    "research/aerolog-scaling/LOG.md (11al entry)"
+  ],
+  "goal": null,
+  "notes": "Milestone 11al of aerolog-scaling. Predictions pushed in 4df4b8999 before any statistic. P1 split, P2 refuted, P3 split, P4 held, P5 split, P6 held. Local checks: research/aerolog-scaling tests 230 passed (python3.13), research/_homepage/build.py ok, check_posts ok, check_md_links ok, research_live_links ok, cite_check ok (ISD DOI hand-checked earlier), programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "797346a3-8181-512c-b3ce-3e5784937a4f",
+    "transcripts": 1,
+    "first": "2026-11-18T01:18:24Z",
+    "last": "2026-11-18T02:45:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 132,
+        "output": 49086,
+        "thinking": 13363,
+        "cache_read": 8353846,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146861,
+        "api_equivalent_usd": 3.8279,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 132,
+      "output": 49086,
+      "thinking": 13363,
+      "cache_read": 8353846,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146861,
+      "api_equivalent_usd": 3.8279,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 56,
+      "Write": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 87.41,
+      "active_minutes": 43.66,
+      "model_minutes": 9.56,
+      "tool_minutes": 34.1,
+      "waiting_on_human_minutes": 43.76,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher deriving the shared-drift model, writing the per-pair planner and tests, running the ISD statistics and 48-layout analysis and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 418.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

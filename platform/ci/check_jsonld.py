@@ -61,6 +61,8 @@ def main(argv=None):
     args = ap.parse_args(argv)
     bad, pages = 0, 0
     for p in sorted(Path(args.root).rglob("*.html")):
+        if not {"node_modules", ".next"}.isdisjoint(p.parts):  # installed packages, local build output
+            continue
         s = p.read_text(encoding="utf-8", errors="replace")
         if "ld+json" not in s:
             continue
@@ -69,6 +71,9 @@ def main(argv=None):
             bad += 1
             print(f"{p}: {msg}")
     print(f"{pages} pages with JSON-LD, {bad} problems")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

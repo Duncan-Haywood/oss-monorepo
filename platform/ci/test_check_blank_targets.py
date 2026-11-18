@@ -20,6 +20,13 @@ class T(unittest.TestCase):
                 '<a rel="external noreferrer" href="y" target="_blank">y</a><a href="z">z</a>')
         self.assertEqual(self.run_on(html), [])
 
+    def test_rel_inside_another_attribute_value_is_not_safe(self):
+        for html in ('<a href="x?rel=noopener" target="_blank">x</a>',
+                     '<a target="_blank" data-rel="noopener" href=y>y</a>',
+                     '<a target="_blank" title="rel=noreferrer">y</a>'):
+            self.assertEqual(len(self.run_on(html)), 1, html)
+        self.assertEqual(self.run_on('<a target="_blank" REL=noopener href=y>y</a>'), [])
+
     def tree(self, d, bad):
         Path(d, "a").mkdir()
         Path(d, "a", "index.html").write_text('<a href="x" target="_blank">x</a>' if bad else "<p>ok</p>")

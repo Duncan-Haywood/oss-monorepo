@@ -1,0 +1,96 @@
+Milestone 7k: 7j's idle-hour rule with the drag read at the optimum's picks (kW_w) in place of kW_o; 7j's 22 idle conditions, 14 variants, 196 cells each, 4312 cells
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py; neutral readings as excavator_idle_standby.py)
+
+Check, central condition, 14 diagonals: +0.5 kW on P_LS moves E50 by -0.0120 to -0.0102; +0.5 kW on the whole P_OC(q) curve by +0.0100 to +0.0128; largest |sum| 2.3e-03 (registered bar 1e-9: not met; equal and opposite only to first order, the crossing being nonlinear in the idle charge)
+Post hoc: +0.5 kW on both at once moves no diagonal's E50 (largest |change| 0.0e+00): the model sees standby and drag only as their difference
+
+The drag at the picks against the drag at 85 L/min, per variant (central condition):
+  casappa                       kW_o 3.568  kW_w 2.806  ratio 0.786
+  danfoss                       kW_o 3.635  kW_w 3.152  ratio 0.867
+  marzocchi                     kW_o 3.318  kW_w 2.848  ratio 0.858
+  bench                         kW_o 2.850  kW_w 2.350  ratio 0.825
+  rexroth                       kW_o 2.577  kW_w 2.081  ratio 0.807
+  azpu                          kW_o 2.454  kW_w 2.009  ratio 0.819
+  azpf                          kW_o 2.608  kW_w 2.137  ratio 0.820
+  azpf_spin                     kW_o 2.786  kW_w 2.315  ratio 0.831
+  azpf_gear                     kW_o 2.893  kW_w 2.423  ratio 0.837
+  azpf_gear98                   kW_o 3.112  kW_w 2.641  ratio 0.849
+  azpn                          kW_o 2.495  kW_w 2.047  ratio 0.821
+  azpn_spin                     kW_o 2.531  kW_w 2.083  ratio 0.823
+  azpn_gear                     kW_o 2.572  kW_w 2.125  ratio 0.826
+  azpn_gear98                   kW_o 2.657  kW_w 2.210  ratio 0.831
+kappa (slope of kW_w on kW_o over the 14 variants): pooled with condition fixed effects 0.880 (1/kappa 1.14); per condition 0.868 to 0.890, median 0.880
+
+Fits to all 4312 cells (coefficients; in-sample RMS over all cells and over the 308 diagonals):
+  owh   +0.8214, +0.0329, -0.4350, -0.0402;  cells 0.0043, diagonals 0.0045
+  owd   +0.8112, +0.0364, -0.4350;  cells 0.0057, diagonals 0.0058
+  owhw  +0.8217, +0.0353, -0.4350, -0.0360;  cells 0.0039, diagonals 0.0045
+  owdw  +0.8208, +0.0359, -0.4350;  cells 0.0039, diagonals 0.0045
+  -d/b (standby kW against drag kW, both per idle hour): owh 1.22, owhw 1.02
+
+(A) leave-one-condition-and-maker-family-out, RMS over 308 diagonals (max per-condition RMS; mean bias):
+  owh   0.0056  (max 0.0064; bias +0.0000)
+  owd   0.0068  (max 0.0121; bias +0.0000)
+  owhw  0.0057  (max 0.0067; bias -0.0001)
+  owdw  0.0056  (max 0.0069; bias -0.0000)
+
+Per condition, (A) RMS: owh / owd / owhw / owdw
+  PVG32        sb 2.0  n 1.0  S 0.38  LS 2.96   0.0056 / 0.0055 / 0.0056 / 0.0056   kappa 0.880
+  PVG32        sb 0.0  n 1.0  S 0.38  LS 2.89   0.0055 / 0.0055 / 0.0056 / 0.0056   kappa 0.880
+  PVG32        sb 0.0  n 0.5  S 0.38  LS 1.44   0.0059 / 0.0063 / 0.0063 / 0.0063   kappa 0.884
+  PVG32        sb 2.0  n 0.5  S 0.38  LS 1.51   0.0056 / 0.0059 / 0.0059 / 0.0059   kappa 0.884
+  PVG32        sb 5.0  n 1.0  S 0.38  LS 3.06   0.0058 / 0.0056 / 0.0057 / 0.0057   kappa 0.880
+  PVG32        sb 5.0  n 0.5  S 0.38  LS 1.61   0.0055 / 0.0059 / 0.0059 / 0.0058   kappa 0.884
+  Salami-text  sb 0.0  n 1.0  S 0.38  LS 2.89   0.0052 / 0.0059 / 0.0052 / 0.0052   kappa 0.871
+  Salami-text  sb 0.0  n 0.5  S 0.38  LS 1.44   0.0061 / 0.0076 / 0.0063 / 0.0061   kappa 0.890
+  Salami-text  sb 2.0  n 1.0  S 0.38  LS 2.96   0.0053 / 0.0061 / 0.0053 / 0.0053   kappa 0.871
+  Salami-text  sb 2.0  n 0.5  S 0.38  LS 1.51   0.0058 / 0.0072 / 0.0060 / 0.0058   kappa 0.890
+  Salami-text  sb 5.0  n 1.0  S 0.38  LS 3.06   0.0051 / 0.0059 / 0.0053 / 0.0052   kappa 0.871
+  Salami-text  sb 5.0  n 0.5  S 0.38  LS 1.61   0.0058 / 0.0073 / 0.0060 / 0.0059   kappa 0.890
+  Salami-curve sb 0.0  n 1.0  S 0.38  LS 2.89   0.0057 / 0.0068 / 0.0053 / 0.0053   kappa 0.868
+  Salami-curve sb 0.0  n 0.5  S 0.38  LS 1.44   0.0058 / 0.0072 / 0.0060 / 0.0059   kappa 0.889
+  Salami-curve sb 2.0  n 1.0  S 0.38  LS 2.96   0.0054 / 0.0066 / 0.0050 / 0.0050   kappa 0.868
+  Salami-curve sb 2.0  n 0.5  S 0.38  LS 1.51   0.0058 / 0.0071 / 0.0060 / 0.0059   kappa 0.889
+  Salami-curve sb 5.0  n 1.0  S 0.38  LS 3.06   0.0054 / 0.0068 / 0.0051 / 0.0051   kappa 0.868
+  Salami-curve sb 5.0  n 0.5  S 0.38  LS 1.61   0.0059 / 0.0073 / 0.0061 / 0.0060   kappa 0.889
+  PVG32        sb 2.0  n 1.0  S 0.20  LS 2.96   0.0048 / 0.0071 / 0.0050 / 0.0047   kappa 0.880
+  PVG32        sb 2.0  n 1.0  S 0.30  LS 2.96   0.0053 / 0.0057 / 0.0052 / 0.0052   kappa 0.880
+  PVG32        sb 2.0  n 1.0  S 0.40  LS 2.96   0.0057 / 0.0061 / 0.0057 / 0.0057   kappa 0.880
+  PVG32        sb 2.0  n 1.0  S 0.50  LS 2.96   0.0064 / 0.0121 / 0.0067 / 0.0069   kappa 0.880
+
+(B1) nine half-idle-speed conditions held out together, RMS over 126 diagonals (mean bias):
+  owh   0.0059  (+0.0002)
+  owd   0.0083  (+0.0058)
+  owhw  0.0060  (-0.0001)
+  owdw  0.0059  (+0.0006)
+(B2) S = 0.20 and 0.50 held out together, RMS over 28 diagonals (mean bias):
+  owh   0.0057  (+0.0012)
+  owd   0.0096  (-0.0024)
+  owhw  0.0059  (-0.0009)
+  owdw  0.0059  (-0.0011)
+
+Per variant, (A) error pooled over the 22 conditions (RMS): owh / owhw / owdw
+  casappa                       0.0031 / 0.0038 / 0.0036
+  danfoss                       0.0061 / 0.0080 / 0.0080
+  marzocchi                     0.0039 / 0.0022 / 0.0020
+  bench                         0.0042 / 0.0040 / 0.0040
+  rexroth                       0.0026 / 0.0028 / 0.0028
+  azpu                          0.0041 / 0.0030 / 0.0032
+  azpf                          0.0055 / 0.0050 / 0.0051
+  azpf_spin                     0.0056 / 0.0048 / 0.0049
+  azpf_gear                     0.0053 / 0.0045 / 0.0045
+  azpf_gear98                   0.0027 / 0.0020 / 0.0020
+  azpn                          0.0016 / 0.0017 / 0.0013
+  azpn_spin                     0.0022 / 0.0021 / 0.0018
+  azpn_gear                     0.0048 / 0.0053 / 0.0050
+  azpn_gear98                   0.0145 / 0.0152 / 0.0151
+
+Predictions (LOG.md 7k):
+  RW1 owhw d < 0 and -d/b in [0.90, 1.10]: held (d -0.0360, -d/b 1.02)
+  RW2 owhw -d/b closer to 1 than owh's: held (1.02 against 1.22)
+  RW3 pooled kappa within 0.10 of 1/1.22: held (0.880 against 0.820)
+  RW4 owdw (A) within 10% of owhw: held (-1%)
+  RW5 owdw (A) below owd's 0.0068: held (0.0056; owd here 0.0068)
+  RW6 owhw (A) at most 0.0062: held (0.0057)
+
+Sources: as gear_pump_onerule.py (7j); kW_w as gear_pump_pickdrag.py (7f), read on each condition's own idle curve with 7e's central pick weight w(q).

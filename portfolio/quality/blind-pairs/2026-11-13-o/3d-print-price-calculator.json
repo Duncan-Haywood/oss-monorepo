@@ -1,0 +1,252 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/3d-print-price-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a person who runs a paid 3D print farm or small service bureau and sells parts on Etsy/Shopify; they check first that the per-part cost carries filament (with waste), machine-hour cost (power plus depreciation plus maintenance), failed attempts and labour, that the marketplace fee used is the real fee schedule (percentage and fixed per-order parts), that the listed price actually lands on the target margin after that fee, and that grams and hours pulled from the slicer match what the slicer reports",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 3,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator recomputes the default print by hand: material 45 g x $22/kg = $0.99; electricity 3 h x 0.120 kW x $0.16 = $0.0576; depreciation $250/3000 h x 3 h = $0.25; per-attempt $1.2976 / 0.92 = $1.4104; labour 10/60 x $20 = $3.33; total $5.4938; suggested price 5.4938/(1-0.085-0.35) = $9.7235; break-even 5.4938/0.915 = $6.0041. Tool output identical. The failed-print page's table (5%: 1.05, $0.07, $5.45, $5.96, $9.64; 25%: 1.33, $0.43, $5.81, $6.35, $10.29; difference $0.64) reproduces. G-code: Cura length to grams gives 2.98 g per metre of 1.75 mm PLA at 1.24 g/cm3, i.e. 336 m/kg, matching the commonly published ~330-335 m per 1 kg spool of 1.75 mm PLA and the Ingeo PLA datasheet density 1.24; a realistic PrusaSlicer footer (two extruders, per-extruder and total [g] lines, normal and silent mode times) reads 11.91 g and 26.05 h (1d 2h 3m 4s) correctly; Cura ';Filament used: 2.33497m, 0m' and ';TIME:6528' read 6.96 g and 1.81 h. The algebra price x (1 - fee) - cost = price x margin is correct and the 1/(1-f) expected-attempts factor is the geometric-distribution mean. Held at 3 not 4: an emptied numeric field becomes 0 silently (Number('') = 0, calc.mjs:26), so clearing grams or the fee gives a lower price with no error; a Bambu Studio/OrcaSlicer header-only file (time on the same line as '; model printing time: ...') yields no print time.",
+  "completeness": "Every feature README and index.html name runs: cost breakdown, failure buffer, fee-solved suggested price, break-even, check-a-price panel (actualSellingPrice 4 -> belowBreakEven true), G-code import for PrusaSlicer-family, Cura (with derived-grams note) and Simplify3D, save/forget to localStorage, shareable URL-fragment link, local usage counter with opt-out honouring DNT/GPC. Served https://marisstella.app/3d-print-price-calculator/ returns 200 (33,869 bytes) and served calc.mjs and gcode.mjs are byte-identical to source. Partial: Bambu/Orca time is only read from the PrusaSlicer-style footer or a header line beginning '; total estimated time:'; Bambu's own export is usually .gcode.3mf, which the file input does not accept. No TODOs or stubs.",
+  "verification": "cd ventures/3d-print-price-calculator && node --test '*.test.mjs': 77 tests, 77 pass (237 ms, Node 22.23.4). Eight mutations seeded with platform/ci/quality_mutate.py: 5 caught (failure multiplier 1/(1-f) -> 1+f, electricity /1000 -> /100, failure buffer dropped from total, break-even fee multiplied instead of divided, Cura density hard-coded), 3 survived: otherFixedCost dropped from the total (calc.mjs:121, a user input silently ignored), Cura ;TIME overriding a PrusaSlicer time (gcode.mjs:60), and Simplify3D weight overriding PrusaSlicer grams (gcode.mjs:68). No test asserts totalCost or the suggested price as a number, only identities between outputs, so a wrong component that the identities don't cover passes.",
+  "craft": "Read calc.mjs (163 lines, pure, documented), gcode.mjs (90 lines, pure, no I/O, tested), index.html module script (lines 105-254), usage.mjs, share.mjs headers, calc.test.mjs, gcode.test.mjs. Clean separation of arithmetic from DOM, textContent output (no innerHTML of user data), head/tail 256 KB file read for large G-code. Defects: number() accepts '' as 0 (calc.mjs:25-30), so blank required fields are silent zeros; fees and depreciation use floats with display rounding only (fine at these magnitudes).",
+  "claims": "Disclaimer and no-warranty present on all four pages; independence from slicer vendors stated; the arithmetic claims (fee-solved price, failure buffer only on per-attempt costs, Cura grams derived and disclosed) are backed by calc.mjs/gcode.mjs and tests. Not backed: README.md:55-56 'nothing is saved when you close the tab -- every field resets on refresh by design' is false: the page has a Save button that writes to localStorage and restores the draft on load (index.html:202-240). vs-slicer-cost-estimate.html:86 'It does not read your slicer ... you bring the grams and the hours' contradicts the G-code import the main page ships (also on the served page). index.html:87 and README.md:57 list three counted events, but the page records six (also scenario_saved, link_copied, sponsor_link_clicked); all stay local, so this is a disclosure gap, not a leak. The H1 and title target Etsy, but the default 'Marketplace + payment fee' 8.5% (index.html:44, calc.mjs:45) is uncited and below Etsy's US schedule. Source llms.txt points at github.io but the served llms.txt points at marisstella.app (build rewrite, source-only, not filed).",
+  "fitness": "Walked the job of an Etsy maker pricing a 45 g, 3 h PLA part: import the PrusaSlicer G-code, keep the defaults, read $9.72 suggested and $6.00 break-even, then check a competitor's $8 price in the check panel. This works in a minute and the breakdown is clear. First-hour hits for a seller: Etsy's per-order fixed fees ($0.25 processing + $0.20 listing) have to be folded into 'Other flat cost' by hand and the page doesn't say so; one print = one part, so a plate of 12 keychains needs the user to divide grams and hours themselves; there is no shipping-on-fee handling (Etsy charges 6.5% on shipping too). Usable for its stated audience with those limits.",
+  "domain": "Compared against print-farm costing practice (a machine-hour rate covering depreciation, power and maintenance/consumables, plus material with purge waste, plus labour for plate changes and finishing, plus a scrap allowance, plus the marketplace's actual fee schedule) and Etsy's US Fees and Payments Policy as I know it (6.5% transaction fee on item plus shipping, 3% + $0.25 payment processing, $0.20 listing; etsy.com/legal/fees returned 403 through the proxy, so this is from the published schedule as remembered, not fetched). The structure is right and the fee-solved price is the correct algebra. Departures: at the default suggested $9.72, Etsy's real fees are $1.37 not $0.83, so profit is $2.86 and margin 29.4% instead of the promised 35%; a correct Etsy solve gives $10.71. The failure model charges every failed attempt the full print's material and hours, whereas most failures are caught partway (overcharges, conservative). No maintenance/consumables (nozzles, PEI sheets, belts) in the machine rate, and no batch/plate allocation. Default printer $250 over 3000 h and 120 W are plausible for a hobby bed-slinger."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default print cost breakdown, suggested price and break-even",
+   "method": "by-hand arithmetic from the inputs (independent of the code)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "0.99 / 0.0576 / 0.25 / adj 1.4104 / total 5.4938 / price 9.7235 / BE 6.0041",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "failed-print page table at 5% and 25%",
+   "method": "recomputed by hand: 1/(1-f) on per-attempt cost, then fee-solved price",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "1.05, 0.07, 5.45, 5.96, 9.64 / 1.33, 0.43, 5.81, 6.35, 10.29",
+   "observed": "identical; page's $0.64 difference = 10.2894-9.6446",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Cura length to grams for 1.75 mm PLA",
+   "method": "PLA density 1.24 g/cm3 (NatureWorks Ingeo datasheet) and the commonly published ~330-335 m per kg of 1.75 mm PLA",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "~2.98 g/m, ~335 m/kg",
+   "observed": "2.98 g/m, 336 m/kg",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "PrusaSlicer footer with two extruders, totals line and silent-mode time",
+   "method": "PrusaSlicer G-code footer layout (filament used [mm]/[cm3]/[g], total filament used [g], estimated printing time (normal mode))",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "11.91 g, 26.05 h",
+   "observed": "11.91 g, 26.05 h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Bambu Studio / OrcaSlicer header-only file",
+   "method": "Bambu/Orca HEADER_BLOCK writes '; model printing time: ...; total estimated time: ...' on one line (layout from memory of the slicer output, not fetched)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "14.91 g and 1.15 h",
+   "observed": "14.91 g, print time missing",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "margin actually earned at the suggested price under Etsy US fees",
+   "method": "Etsy Fees & Payments Policy (US): 6.5% transaction + 3% + $0.25 processing + $0.20 listing (remembered; etsy.com returned 403)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "35% target margin",
+   "observed": "Etsy fee $1.37 vs tool $0.83; margin 29.4%; correct Etsy price $10.71",
+   "result": "fail"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank required field",
+   "method": "empty string input to calculatePrice",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/c337335d-2523-5f19-bd28-910dc6cbc8ea/scratchpad/3dp/check.mjs /home/user/oss-monorepo/ventures/3d-print-price-calculator",
+   "expected": "an error naming the field",
+   "observed": "filamentUsedGrams '' -> material $0.00, no error",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/3d-print-price-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "77 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page and modules match source",
+   "method": "curl and diff",
+   "command": "curl -sS https://marisstella.app/3d-print-price-calculator/{,calc.mjs,gcode.mjs,llms.txt}",
+   "expected": "200; same code",
+   "observed": "200 (33,869 bytes); calc.mjs and gcode.mjs identical; llms.txt links on marisstella.app",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README 'nothing is saved when you close the tab -- every field resets on refresh by design'",
+   "method": "read index.html save/restore code",
+   "command": "grep -n 'localStorage' ventures/3d-print-price-calculator/index.html",
+   "expected": "no persistence",
+   "observed": "Save writes DRAFT_KEY to localStorage and the page restores it on load",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-slicer page 'It does not read your slicer ... you bring the grams and the hours'",
+   "method": "compare with the shipped G-code import; served page",
+   "command": "curl -sSL https://marisstella.app/3d-print-price-calculator/vs-slicer-cost-estimate.html | grep -c 'does not read your slicer'",
+   "expected": "page mentions the G-code import",
+   "observed": "1 (stale sentence served)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "counted events listed on page and README",
+   "method": "grep recordEvent calls in index.html",
+   "command": "grep -o \"recordEvent('[a-z_-]*'\" ventures/3d-print-price-calculator/index.html | sort -u",
+   "expected": "price-calculated, price-checked, gcode_imported",
+   "observed": "those plus scenario_saved, link_copied, sponsor_link_clicked",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:121",
+   "change": "packagingCost + otherFixedCost; -> packagingCost;",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:116",
+   "change": "1 / (1 - failureRatePercent / 100) -> 1 + failureRatePercent / 100",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:108",
+   "change": "(printerWattage / 1000) -> (printerWattage / 100)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:121",
+   "change": "totalCost = adjustedPerAttemptCost + ... -> perAttemptCost + ...",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:127",
+   "change": "totalCost / (1 - fee) -> totalCost * (1 + fee)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "gcode.mjs:60",
+   "change": "if (seconds === null && cura !== null) -> if (cura !== null)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "gcode.mjs:76",
+   "change": "* densityGPerCm3 -> * 1.24",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "gcode.mjs:68",
+   "change": "if (grams === null && s3d !== null) -> if (s3d !== null)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The page is pitched at Etsy sellers but the default 'Marketplace + payment fee' is an uncited 8.5% with no fixed per-order part. Under Etsy's US schedule (6.5% + 3% + $0.25 + $0.20 listing) the default suggested $9.72 earns 29.4%, not the 35% the page says it 'lands on'; the correct solve is $10.71. The page note mentions a listing fee but not the $0.25 processing fee or the 6.5% on shipping.",
+   "where": "ventures/3d-print-price-calculator/index.html:44",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "README says 'nothing is saved when you close the tab -- every field resets on refresh by design', but the page ships Save/Forget buttons that persist and restore the scenario from localStorage.",
+   "where": "ventures/3d-print-price-calculator/README.md:55",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Comparison page says 'It does not read your slicer ... you bring the grams and the hours', contradicting the G-code import on the main page (served as-is).",
+   "where": "ventures/3d-print-price-calculator/vs-slicer-cost-estimate.html:86",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  },
+  {
+   "severity": "low",
+   "what": "Page and README say only three events are counted; index.html also records scenario_saved, link_copied and sponsor_link_clicked (all local-only).",
+   "where": "ventures/3d-print-price-calculator/index.html:87",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Three of eight seeded mutations survive: dropping otherFixedCost from the total (a user input silently ignored), and two G-code precedence changes. No test pins totalCost or suggestedPrice to a number, only identities between outputs.",
+   "where": "ventures/3d-print-price-calculator/calc.test.mjs:5",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "number() treats an empty string as 0 (Number('') === 0), so clearing grams, printer cost or the fee on the page yields a lower price with no error.",
+   "where": "ventures/3d-print-price-calculator/calc.mjs:26",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Bambu Studio/OrcaSlicer header puts 'total estimated time:' after '; model printing time: ...;' on one line; the anchored regex misses it, so a file without the PrusaSlicer-style footer yields no print time.",
+   "where": "ventures/3d-print-price-calculator/gcode.mjs:53",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Failure model charges each failed attempt the full print's filament and hours, though most failures are caught partway, and the machine rate has no maintenance/consumables; both are undisclosed modelling choices.",
+   "where": "ventures/3d-print-price-calculator/calc.mjs:116",
+   "category": "scope-gap",
+   "origin": "spec"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569",
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15570"
+ ],
+ "verdict": "The arithmetic is right: every output I recomputed by hand for the default print and for the failed-print page's 5%/25% table matches to the cent, the fee-solved price is the correct algebra, Cura length-to-grams matches PLA's published 1.24 g/cm3 (336 m/kg), and a realistic two-extruder PrusaSlicer footer reads correctly. It does not meet the bar because claims and verification are 2: the README says nothing is saved though the page has a localStorage Save button, the comparison page says the tool does not read your slicer though it imports G-code, the counted-event list is incomplete, and three of eight seeded mutations survive (otherFixedCost can be dropped from the total with all 77 tests green). The domain gap a print-shop seller would hit first is the uncited 8.5% default fee with no fixed part: on Etsy's US schedule the suggested price earns 29.4%, not the 35% it promises. Correctness, completeness, craft and fitness 3; verification, claims and domain 2."
+}

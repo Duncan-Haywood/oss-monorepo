@@ -1,0 +1,27 @@
+# Inter-rater agreement: Krippendorff's alpha, kappa and ICC
+
+> Free online inter-rater reliability tool. Paste ratings from two or more raters, coders or annotators (a column per rater, subject-rater-rating rows, or a counts table) and it reports Krippendorff's alpha (nominal, ordinal, interval or ratio, missing ratings allowed) with a bootstrap interval, Cohen's kappa with linear and quadratic weights and its standard error, Fleiss' kappa and Gwet's AC1/AC2, pairwise and per-category kappa, alpha with each rater left out, the subjects raters split on, and the six intraclass correlations (Shrout & Fleiss 1979) with McGraw & Wong's intervals. Matches the krippendorff, irrCAC, statsmodels, scikit-learn and pingouin packages, and reproduces Krippendorff's (2011) and Shrout & Fleiss's published examples. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical or professional advice. Agreement between raters is not proof that they are right.
+
+## Pages
+
+- [The tool](https://marisstella.app/inter-rater-agreement/)
+
+## Use it from code
+
+- `node cli.mjs ratings.csv [--layout auto|wide|long|counts] [--scale auto|nominal|ordinal|interval|ratio] [--categories a,b,c] [--bootstrap 1000] [--seed 1] [--confidence 0.95] [--csv|--json]`
+- `node platform/agents/tools.mjs call inter-rater-agreement analyze --input '{"ratings":[[1,1,2],[2,2,2],[3,2,3],[1,1,1]]}'` (or `{"csv":"..."}`, `{"long":[{"item":"a","rater":"x","rating":"yes"}]}`, `{"counts":[[3,0],[1,2]],"categories":["yes","no"]}`)
+- From JavaScript: `krippendorffAlpha(counts, values, metric)`, `fleissKappa(counts, W)`, `gwetAC(counts, W)`, `cohenKappa(a, b, q, W)`, `icc(matrix)`.
+
+## What it answers
+
+- Do my coders agree beyond chance, and is that enough to publish (Krippendorff's 0.667 and 0.800)?
+- What is Cohen's kappa, weighted kappa, Fleiss' kappa or the ICC for these ratings, with an interval?
+- Why is kappa low when raw agreement is high (the kappa paradox), and what does Gwet's AC1 say?
+- Which category do raters confuse, and which rater disagrees with the rest?
+- Which ICC form fits my design (one-way, two-way random, two-way mixed; single or average)?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/inter-rater-agreement): MIT licensed.

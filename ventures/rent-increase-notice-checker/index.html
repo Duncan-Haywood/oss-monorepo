@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -47,6 +47,15 @@
     pre.letter { white-space: pre-wrap; font: 14px/1.5 Georgia, serif; background: #fbfdfe; border: 1px solid #d3dde3; border-radius: 8px; padding: 18px; }
     .scroll { overflow-x: auto; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 740px) { div.grid:has(#state) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 301px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
@@ -140,7 +149,7 @@
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
     let last = null;
-    $("#notice-date").value = new Date().toISOString().slice(0, 10);
+    $("#notice-date").value = new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
 
     function download(name, body, type) {
       const a = document.createElement("a");
@@ -166,7 +175,7 @@
         const why = [...x.reasons, ...x.notes].map(esc).join("; ");
         return `<tr><td>${esc(x.unit)}</td><td>${esc(x.tenant)}</td><td class="n">${x.pct != null ? x.pct.toFixed(2) + "%" : ""}</td><td class="n">${x.noticeDays != null ? x.noticeDays + (x.mailDays ? "+" + x.mailDays : "") + " d" : ""}</td><td>${esc(x.earliest || "")}</td><td><span class="pill ${cls}">${label}</span>${why}</td></tr>`;
       }).join("");
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill high">${f.severity}</span>${esc(f.title)}</h4></div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill high">${f.severity}</span>${esc(f.title)}</h3></div>`).join("");
       report.hidden = false;
       status.textContent = `${s.ok} of ${s.units} units can go out.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

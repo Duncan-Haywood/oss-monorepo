@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtGXRYteTgGWBwJ8hF4",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T18:05:56Z",
+  "ended": "2026-11-11T18:11:35Z",
+  "wall_minutes": 5.95,
+  "tokens_in": 3211769,
+  "tokens_out": 27146,
+  "cost_usd": 2.0968,
+  "tool_calls": 35,
+  "task": "heavy-hydraulics milestone 5t: closed-form break-even LS margin on the measured wheel loader (Zenodo 10639199)",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14846",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py chose /usr/bin/python3.13 with numpy/scipy/pytest; the plain python3 lacks pytest, so the first test run failed until I read the setup log for the interpreter path. Documented already; cost one call."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-measured-loader-break-even-load-sensing-margin-87-bar.md",
+    "research/heavy-hydraulics/LOG.md (5t)",
+    "research/heavy-hydraulics/README.md (Milestone 5t)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS.md and website requests empty; routed research (draw), pick_track drew track 25 -> heavy-hydraulics, next step named by 5s. zenodo.org returned 200 at ~18:05 UTC; 96 MB record downloaded. Predictions T1-T5 committed (first commit) before any code. Result: whole-record break-even margin 87.0 bar (per cycle 59 to 143, median 81.2) against the 5r PVG 32 floor; T1 (50-80) refuted, T2/T3/T5 hold, T4 vacuous (LS never sees a still sample). Checks: LS model and OC energies equal earlier milestones' code to 1e-9; numpy twin equals tested stdlib trace_breakeven on 50k samples; spool_floor.py results unchanged. Local: pytest 40 passed (python3.13), research/_homepage/build.py ok, research_live_links 0 updated, check_md_links ok, programme_check ok, post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3c3b501-cd5b-567a-b908-b63139629945",
+    "transcripts": 1,
+    "first": "2026-11-11T18:05:56Z",
+    "last": "2026-11-11T18:11:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 62,
+        "output": 27146,
+        "thinking": 5675,
+        "cache_read": 3094873,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116834,
+        "api_equivalent_usd": 2.0968,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 62,
+      "output": 27146,
+      "thinking": 5675,
+      "cache_read": 3094873,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116834,
+      "api_equivalent_usd": 2.0968,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 31,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.95,
+      "active_minutes": 5.95,
+      "model_minutes": 4.77,
+      "tool_minutes": 1.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a hydraulics PhD student writing the trace break-even, its checks against four earlier scripts, the tested helper and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 286.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

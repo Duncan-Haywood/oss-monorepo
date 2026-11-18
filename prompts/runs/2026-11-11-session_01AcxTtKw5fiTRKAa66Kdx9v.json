@@ -1,0 +1,151 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKw5fiTRKAa66Kdx9v",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T08:06:39Z",
+  "ended": "2026-11-11T08:43:03Z",
+  "wall_minutes": 36.61,
+  "tokens_in": 8410020,
+  "tokens_out": 47740,
+  "cost_usd": 4.1494,
+  "tool_calls": 68,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14741",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Printed the 5* auto-reply/bounce recall counts in the same command that froze the round-5 rules (no stop counts or text seen; no rule changed after).",
+    "Duplicate work: a parallel session landed its own round 5 on the same 5* half (#14736) while this run's round 5 was being scored; the PR could not merge (conflicts). The duplicate search was done at the start (no sales-agent PR open then)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/sales-agent/eval/README.md",
+      "issue": "The round-1/2 labels (dev.json, held.json) judge the flagged sentence, later readers judge the whole reply; the same text gets opposite labels across halves (e.g. 'I will be out of the office that day' right on 2*, none on 4*), so 'right stops lost on tuning halves' mixes policy and rule changes. A relabel of 0*/1* under the writer-intent instructions would make the tuning rows comparable."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Foreground sleep is blocked by a hook; the guidance to wait on a background clone is only implicit (background jobs notify on exit)."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Two scheduled sessions took the same flagship item within the same hour; the allocator only shows open PRs, and the other session opened its PR after this run checked. A claim file or an early draft PR (land-your-work.md says draft while you work; this run opened its PR only after scoring) would have prevented the duplicate."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Top row (ai-bookkeeper) had an open PR 1h old (#14730); took flagship 2 row's venture sales-agent (listed #2) instead.",
+      "did": "Round 5 of sales-agent real-mail stop fixes.",
+      "result": "Fresh wrong stops 5.8 to 3.7 per 1,000."
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md",
+      "why": "After the conflict, merging this run's round-5 rules on top of the landed round 5 would have shipped a combined rule set no unread half had scored; closing the PR would have thrown away a second blind reader's labels on the same 107 stops.",
+      "did": "Kept both: measured reader agreement on 5* (81%), scored both round 5s under both readers, built round 6 = landed round 5 + what this run's version did better + three fixes from 5*, sealed 6* stops first, froze, scored once on 6* with a fresh blind reader.",
+      "result": "6*: wrong stops 54 to 41 (5.6 to 4.3 per 1,000), right 45 to 45; reader effect 1.0-1.4 per 1,000 documented."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-sales-agent-two-readers-sixth-round.md",
+    "ventures/sales-agent/eval/README.md (Sixth round)"
+  ],
+  "goal": null,
+  "notes": "Round 5 (this run, never landed) on 5*: wrong 55 to 35 under its own reader. Landed round 5 (#14736) vs this run's on 5* under both readers: 5.5/4.2 vs 4.7/3.7 per 1,000. Round 6 (landed here): 6* scored once, right/wrong/ambiguous 45/54/2 -> 45/41/2; auto-replies 315/320 and bounces 304/315 across seven halves unchanged; opt-out recall 37/38 unchanged. Local checks: node --test '*.test.mjs' in ventures/sales-agent 411 pass, 0 fail; run_workflow_locally --for-changes and venture-preflight were run on the round-5 version (all run: steps passed; reviewer/deploy jobs not run locally) and re-run before merge for round 6. Enron data from the CC0 asimov-datasets copy via git clone.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d7212cfe-7183-55b5-8c06-655d39682097",
+    "transcripts": 2,
+    "first": "2026-11-11T08:06:39Z",
+    "last": "2026-11-11T08:43:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 130,
+        "output": 47740,
+        "thinking": 17220,
+        "cache_read": 8194297,
+        "cache_write_5m": 56501,
+        "cache_write_1h": 159092,
+        "api_equivalent_usd": 4.1494,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 130,
+      "output": 47740,
+      "thinking": 17220,
+      "cache_read": 8194297,
+      "cache_write_5m": 56501,
+      "cache_write_1h": 159092,
+      "api_equivalent_usd": 4.1494,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Agent": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "SubagentHandback": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 36.61,
+      "active_minutes": 36.61,
+      "model_minutes": 8.84,
+      "tool_minutes": 27.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.65
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a data scientist reading ~130 wrong stops, writing and testing ~25 rule changes, and running a blind relabel on 107 items",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 192.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

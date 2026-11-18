@@ -110,5 +110,18 @@ class PositionHoldTests(unittest.TestCase):
         self.assertEqual(float(A.score_pos(np.array([[0.0, 1.0, 0.0]]), g)[0][0]), -99.0)
 
 
+class BatchIndependenceTests(unittest.TestCase):
+    def test_batch_equals_single_when_designs_equal_episodes(self):
+        # regression: with N designs == E episodes a (N,1) drag coefficient silently broadcast over the episode axis
+        rng = np.random.default_rng(3)
+        n = 6
+        xd = np.column_stack([rng.uniform(0.2, 0.8, n), rng.uniform(0.2, 0.8, n), rng.uniform(0.0, 0.5, n)])
+        g = rng.uniform(0.3, 0.8, (n, 9))
+        batch = A.score_pos(xd, g, n, 5, alpha_max=np.deg2rad(35), parts=True)
+        for i in range(n):
+            one = A.score_pos(xd[i:i + 1], g[i:i + 1], n, 5, alpha_max=np.deg2rad(35), parts=True)
+            self.assertAlmostEqual(float(batch[0][i]), float(one[0][0]), places=9)
+
+
 if __name__ == "__main__":
     unittest.main()

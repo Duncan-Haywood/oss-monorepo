@@ -8,7 +8,7 @@ import { newBooks, importStatement, confirm } from "./engine.mjs";
 import { reconcile } from "./reconcile.mjs";
 
 const rng = (seed) => () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 2 ** 32);
-const fixed = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
+const fixed = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
 
 test("reconcile holds its invariants on 300 random statements", () => {
   const r = rng(20261027), pick = (lo, hi) => lo + Math.floor(r() * (hi - lo + 1));

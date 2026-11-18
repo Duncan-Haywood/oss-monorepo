@@ -1,0 +1,521 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKifnDh9ZN9iTL2RpAF",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:22:27Z",
+  "ended": "2026-11-12T01:23:11Z",
+  "wall_minutes": 5.23,
+  "tokens_in": 2557165,
+  "tokens_out": 15441,
+  "cost_usd": 1.4045,
+  "tool_calls": 34,
+  "task": "redteam campaign on platform/privacy checkers",
+  "projects": [
+    "platform/privacy"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14957",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix every open defect first, but all 5 open entries are control-plane fixes whose PRs (#12928, #14877, #14612, #14698) already wait on owner approval; the open list could show the waiting PR so runs don't re-check by hand."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`git log --since=3.days --name-only origin/main` prints nothing in the shallow (depth 1) clone, so the suggested way to find recently changed targets doesn't work without --deepen."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0 asks to fix the open defects; each needs a control-plane PR that already exists and waits on the owner",
+      "did": "left them open and pointed at the existing PRs instead of opening duplicates",
+      "result": "no duplicate control-plane PRs; time went into campaigns"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-privacy-checkers-vanishing-directory.md"
+  ],
+  "goal": null,
+  "notes": "Three campaigns (8 mutants each) on browser-signals.mjs, usage-call-order.mjs, one-opt-out.mjs: 21/24 caught, 24/24 after. Guard added: a dangling-symlink test on every walker of ventures/ in platform/privacy (all three now covered), so the parallel discovery-probe race can't crash a suite again. Verification: node --test platform/privacy/*.test.mjs -> 112 pass, 0 fail. platform/webcheck/check_pages.mjs has the same unguarded stat pattern but walks a build tree no parallel test mutates, so I left it alone.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/privacy/browser-signals.mjs",
+        "test": "node --test platform/privacy/browser-signals.test.mjs  (in .)",
+        "seed": 197698040,
+        "commit": "0d565df0",
+        "sites": 40,
+        "baseline_seconds": 0.7,
+        "mutants": [
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 26,
+            "col": 72,
+            "operator": "true-to-false",
+            "before": "{ label: \"Global Privacy Control\", navigator: { globalPrivacyControl: true } },",
+            "after": "{ label: \"Global Privacy Control\", navigator: { globalPrivacyControl: false } },",
+            "line_text": "  { label: \"Global Privacy Control\", navigator: { globalPrivacyControl: true } },",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 91,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "if (entry === \"node_modules\" || entry.startsWith(\".\")) continue;",
+            "after": "if (entry === \"node_modules\" && entry.startsWith(\".\")) continue;",
+            "line_text": "      if (entry === \"node_modules\" || entry.startsWith(\".\")) continue;",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "name-based skip untested outside a repo; added 'discovery skips node_modules and dot-directories, each on its own'"
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 148,
+            "col": 68,
+            "operator": "true-to-false",
+            "before": "Object.defineProperty(globalThis, \"localStorage\", { configurable: true, value: storage });",
+            "after": "Object.defineProperty(globalThis, \"localStorage\", { configurable: false, value: storage });",
+            "line_text": "  Object.defineProperty(globalThis, \"localStorage\", { configurable: true, value: storage });",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 158,
+            "col": 20,
+            "operator": "neq-flip",
+            "before": "if (typeof fn !== \"function\") continue;",
+            "after": "if (typeof fn === \"function\") continue;",
+            "line_text": "      if (typeof fn !== \"function\") continue;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 256,
+            "col": 46,
+            "operator": "const-plus-one",
+            "before": "const results = await checkAll(process.argv[2] ?? VENTURES);",
+            "after": "const results = await checkAll(process.argv[3] ?? VENTURES);",
+            "line_text": "  const results = await checkAll(process.argv[2] ?? VENTURES);",
+            "caught": true,
+            "seconds": 6.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 272,
+            "col": 66,
+            "operator": "gt-to-ge",
+            "before": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "after": "process.exit(failed.length + errored.length + undrivable.length >= 0 ? 1 : 0);",
+            "line_text": "  process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 272,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "after": "process.exit(failed.length + errored.length + undrivable.length > 1 ? 1 : 0);",
+            "line_text": "  process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/browser-signals.mjs",
+            "line": 272,
+            "col": 76,
+            "operator": "const-plus-one",
+            "before": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "after": "process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 1);",
+            "line_text": "  process.exit(failed.length + errored.length + undrivable.length > 0 ? 1 : 0);",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/privacy/usage-call-order.mjs",
+        "test": "node --test platform/privacy/usage-call-order.test.mjs  (in .)",
+        "seed": 443658574,
+        "commit": "0d565df0",
+        "sites": 14,
+        "baseline_seconds": 0.6,
+        "mutants": [
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 51,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "const first = match[1].split(\",\")[0]?.split(\"=\")[0]?.trim();",
+            "after": "const first = match[1].split(\",\")[1]?.split(\"=\")[0]?.trim();",
+            "line_text": "  const first = match[1].split(\",\")[0]?.split(\"=\")[0]?.trim();",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 73,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "kind: classifyArgument(m[1]),",
+            "after": "kind: classifyArgument(m[2]),",
+            "line_text": "    kind: classifyArgument(m[1]),",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 79,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (entry === \"node_modules\" || entry.startsWith(\".\")) continue;",
+            "after": "if (entry !== \"node_modules\" || entry.startsWith(\".\")) continue;",
+            "line_text": "    if (entry === \"node_modules\" || entry.startsWith(\".\")) continue;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 93,
+            "col": 43,
+            "operator": "eq-flip",
+            "before": "for (const module of walk(root, (e) => e === \"usage.mjs\" || e === \"usage.js\").sort()) {",
+            "after": "for (const module of walk(root, (e) => e !== \"usage.mjs\" || e === \"usage.js\").sort()) {",
+            "line_text": "  for (const module of walk(root, (e) => e === \"usage.mjs\" || e === \"usage.js\").sort()) {",
+            "caught": true,
+            "seconds": 14.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 93,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "for (const module of walk(root, (e) => e === \"usage.mjs\" || e === \"usage.js\").sort()) {",
+            "after": "for (const module of walk(root, (e) => e === \"usage.mjs\" && e === \"usage.js\").sort()) {",
+            "line_text": "  for (const module of walk(root, (e) => e === \"usage.mjs\" || e === \"usage.js\").sort()) {",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 99,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (kind && kind !== declared) {",
+            "after": "if (kind || kind !== declared) {",
+            "line_text": "        if (kind && kind !== declared) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 99,
+            "col": 25,
+            "operator": "neq-flip",
+            "before": "if (kind && kind !== declared) {",
+            "after": "if (kind && kind === declared) {",
+            "line_text": "        if (kind && kind !== declared) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/usage-call-order.mjs",
+            "line": 115,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "if (findings.length === 0) return \"usage-call-order: every recordUsage call matches its venture's own signature.\";",
+            "after": "if (findings.length !== 0) return \"usage-call-order: every recordUsage call matches its venture's own signature.\";",
+            "line_text": "  if (findings.length === 0) return \"usage-call-order: every recordUsage call matches its venture's own signature.\";",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "platform/privacy/one-opt-out.mjs",
+        "test": "node --test platform/privacy/one-opt-out.test.mjs  (in .)",
+        "seed": 931295640,
+        "commit": "0d565df0",
+        "sites": 38,
+        "baseline_seconds": 1.7,
+        "mutants": [
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 113,
+            "col": 18,
+            "operator": "eq-flip",
+            "before": "if (keys.length === 0) return { status: \"no-opt-out\", keys, values };",
+            "after": "if (keys.length !== 0) return { status: \"no-opt-out\", keys, values };",
+            "line_text": "  if (keys.length === 0) return { status: \"no-opt-out\", keys, values };",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 114,
+            "col": 18,
+            "operator": "gt-to-ge",
+            "before": "if (keys.length > 1) return { status: \"two-keys\", keys, values };",
+            "after": "if (keys.length >= 1) return { status: \"two-keys\", keys, values };",
+            "line_text": "  if (keys.length > 1) return { status: \"two-keys\", keys, values };",
+            "caught": true,
+            "seconds": 1.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 152,
+            "col": 70,
+            "operator": "const-plus-one",
+            "before": "return [...html.replace(JSON_LD, \"\").matchAll(SCRIPT)].map((m) => m[1]);",
+            "after": "return [...html.replace(JSON_LD, \"\").matchAll(SCRIPT)].map((m) => m[2]);",
+            "line_text": "  return [...html.replace(JSON_LD, \"\").matchAll(SCRIPT)].map((m) => m[1]);",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 198,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "if (entry === \"node_modules\" || entry === \"dist\" || entry.startsWith(\".\")) continue;",
+            "after": "if (entry === \"node_modules\" && entry === \"dist\" || entry.startsWith(\".\")) continue;",
+            "line_text": "      if (entry === \"node_modules\" || entry === \"dist\" || entry.startsWith(\".\")) continue;",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 254,
+            "col": 24,
+            "operator": "neq-flip",
+            "before": "if (result.status !== \"pass\") return { name, ...result };",
+            "after": "if (result.status === \"pass\") return { name, ...result };",
+            "line_text": "      if (result.status !== \"pass\") return { name, ...result };",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "checkPageOrder only exercised on the clean catalogue; added fixture test with late/early/no-restore pages"
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 276,
+            "col": 6,
+            "operator": "plus-to-minus",
+            "before": "+ `control can only ever set one of them \u2014 ${result.keys.join(\", \")}`;",
+            "after": "- `control can only ever set one of them \u2014 ${result.keys.join(\", \")}`;",
+            "line_text": "      + `control can only ever set one of them \u2014 ${result.keys.join(\", \")}`;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 278,
+            "col": 20,
+            "operator": "eq-flip",
+            "before": "if (result.status === \"two-encodings\") {",
+            "after": "if (result.status !== \"two-encodings\") {",
+            "line_text": "  if (result.status === \"two-encodings\") {",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/privacy/one-opt-out.mjs",
+            "line": 280,
+            "col": 6,
+            "operator": "plus-to-minus",
+            "before": "+ `${result.values.map((v) => JSON.stringify(v)).join(\" and \")}, so a choice `",
+            "after": "- `${result.values.map((v) => JSON.stringify(v)).join(\" and \")}, so a choice `",
+            "line_text": "      + `${result.values.map((v) => JSON.stringify(v)).join(\" and \")}, so a choice `",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "describe two-encodings asserted by tail regex only; now asserts the full sentence"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "platform/privacy/one-opt-out.mjs",
+        "issue": "findPages threw ENOENT on an entry that vanishes between readdir and stat (the parallel discovery-probe race that crashed this suite in CI on 2026-10-21; fixed then only in browser-signals.mjs). Reproduced with a dangling symlink.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14957"
+      },
+      {
+        "file": "platform/privacy/usage-call-order.mjs",
+        "issue": "walk threw ENOENT on the same readdir-then-stat race while browser-signals.test.mjs creates and removes ventures/discovery-probe-*. Reproduced with a dangling symlink.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14957"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b79df1b3-e678-50bb-a568-8ba87ead8ce0",
+    "transcripts": 1,
+    "first": "2026-11-12T01:22:27Z",
+    "last": "2026-11-12T01:27:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 60,
+        "output": 15441,
+        "thinking": 2820,
+        "cache_read": 2482230,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74875,
+        "api_equivalent_usd": 1.4045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 60,
+      "output": 15441,
+      "thinking": 2820,
+      "cache_read": 2482230,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74875,
+      "api_equivalent_usd": 1.4045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Edit": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 5.23,
+      "active_minutes": 5.23,
+      "model_minutes": 3.77,
+      "tool_minutes": 1.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "senior engineer: three mutation campaigns, triage, 5 tests and a race fix in two walkers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 213.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

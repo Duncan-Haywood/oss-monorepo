@@ -1,0 +1,133 @@
+{
+ "date": "2026-11-15",
+ "session": "https://claude.ai/code/session_01AcxTtKP849JzkKdtReCTPA",
+ "track": "explore",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-opus-5-5",
+ "models_seen": [
+  "claude-opus-5-5"
+ ],
+ "started": "2026-11-15T20:06:35Z",
+ "ended": "2026-11-15T20:31:48Z",
+ "wall_minutes": 25.46,
+ "tokens_in": 10490468,
+ "tokens_out": 115665,
+ "cost_usd": 6.1722,
+ "tool_calls": 75,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16333",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [
+  "irrCAC 0.4.4 pip install failed building pinned old scipy (needs gfortran); installed the wheel with --no-deps and it ran on current numpy/scipy.",
+  "pingouin 0.7.0 renamed ICC rows (ICC(A,1) etc.) and rounds CI95 to 2 dp; reference.py maps names and computes McGraw-Wong intervals with scipy for precision."
+ ],
+ "integrity_issues": [
+  "Caught and removed an untested claim I had drafted in engine.mjs PAPERS (that unit-bootstrap and Hayes-Krippendorff intervals are of similar width); now states they were not compared."
+ ],
+ "doc_friction": [
+  {
+   "file": "prompt.md",
+   "issue": "none material; ideas.py, route and venture-preflight all worked as documented. preflight's first run named both missing steps (launched.json, sync_tree_counts) with exact commands."
+  },
+  {
+   "file": "portfolio/research-tools/README.md",
+   "issue": "Says to add the slug to build.mjs and a row here, but not that preflight also wants platform/privacy/optout-switches.txt regenerated via sync_tree_counts.py; preflight caught it."
+  }
+ ],
+ "deviations": [],
+ "writeups": [
+  "docs/posts/2026-11-15-raters-who-cannot-agree-on-sentiment.md"
+ ],
+ "goal": null,
+ "notes": "Idea: inter-rater agreement as the 19th research-algorithm tool (none existed: grep for kappa/Krippendorff/intraclass empty). Krippendorff alpha 4 levels with missing data + subject bootstrap; Cohen weighted kappa with FCE SEs; Fleiss/Gwet AC1/AC2 generalised; per-category, pairwise, drop-one; 6 ICCs with McGraw-Wong CIs; wide/long/counts layouts. Verified: Krippendorff 2011 published 0.743/0.815/0.849/0.797 and Shrout-Fleiss 1979 ICCs reproduced; krippendorff 0.9.0 1e-12, irrCAC 0.4.4 5dp, statsmodels 0.15.0 and sklearn 1.9.1 1e-12, pingouin 0.7.0 1e-12, scipy F CIs 1e-8. node --test 39/39; 5 hand mutations each fail 1-6 tests; venture-preflight clean; run_venture_tests inter-rater-agreement mann-kendall-trend 0 failed; Chromium 1100/390 px no errors, no external requests, no overflow. Finding: GoEmotions 300-comment sentiment reduction alpha 0.276 (0.232-0.319), weakest on mixed (0.115) and neutral (0.214), max drop-one gain +0.008. No docs/reports agent doc: the venture README and data/SOURCE.md carry what a next run needs.",
+ "corrections": [],
+ "redteam": null,
+ "usage": {
+  "measured_by": "prompts/runcost.py v1",
+  "session_id": "d585ea56-0f64-5441-bf4f-124c1e6990b3",
+  "transcripts": 1,
+  "first": "2026-11-15T20:06:35Z",
+  "last": "2026-11-15T20:32:02Z",
+  "primary_model": "claude-opus-5-5",
+  "models": {
+   "claude-opus-5-5": {
+    "requests": 66,
+    "input": 129,
+    "output": 115665,
+    "thinking": 21516,
+    "cache_read": 10264655,
+    "cache_write_5m": 0,
+    "cache_write_1h": 225684,
+    "api_equivalent_usd": 6.1722,
+    "fast_requests": 0
+   }
+  },
+  "totals": {
+   "requests": 66,
+   "input": 129,
+   "output": 115665,
+   "thinking": 21516,
+   "cache_read": 10264655,
+   "cache_write_5m": 0,
+   "cache_write_1h": 225684,
+   "api_equivalent_usd": 6.1722,
+   "api_equivalent_complete": true
+  },
+  "cache_hit_share": 0.978,
+  "tool_calls": 75,
+  "tools": {
+   "Bash": 60,
+   "Write": 10,
+   "Read": 3,
+   "ToolSearch": 1,
+   "mcp__github__create_pull_request": 1
+  },
+  "web_searches": 0,
+  "time": {
+   "wall_minutes": 25.46,
+   "active_minutes": 25.46,
+   "model_minutes": 17.14,
+   "tool_minutes": 8.32,
+   "waiting_on_human_minutes": 0.0,
+   "human_prompts": 1,
+   "stalls": 0,
+   "subagent_minutes": 0.0
+  },
+  "pricing": {
+   "as_of": "2026-10-06",
+   "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+  },
+  "human_equivalent": {
+   "hours": 24.0,
+   "basis": "a statistician building and cross-validating alpha, kappa family and ICC with page, CLI and tests: about three days",
+   "rate_usd_per_hour": 100.0,
+   "usd": 2400.0
+  },
+  "leverage": 388.8,
+  "certainty": {
+   "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+   "model": "high: the `model` field on each API response, not the configured model",
+   "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+   "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+   "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+  },
+  "not_counted": [
+   "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+   "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+   "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+   "CI minutes and the reviewer bots' own model calls"
+  ]
+ }
+}

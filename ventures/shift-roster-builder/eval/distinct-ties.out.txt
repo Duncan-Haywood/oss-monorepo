@@ -1,0 +1,15 @@
+cafe: 6 of 6 seeds at the best score; distinct by file order 6, by schedule 6
+  rosters: seeds 1 exposure 92; seeds 2 exposure 100; seeds 3 exposure 140; seeds 4 exposure 116; seeds 5 exposure 132; seeds 6 exposure 100
+  steadyRoster: posts seed 1, exposure 92, 6 tie(s) compared, 101 rebuilds, 17.6 s
+spare: 6 of 6 seeds at the best score; distinct by file order 1, by schedule 1
+  rosters: seeds 1+2+3+4+5+6 exposure 54
+  steadyRoster: posts seed 1, exposure 54, 1 tie(s) compared, 27 rebuilds, 5.6 s
+salon: 6 of 6 seeds at the best score; distinct by file order 5, by schedule 3
+  rosters: seeds 1+4 exposure 56; seeds 2 exposure 56; seeds 3+5+6 exposure 56
+  steadyRoster: posts seed 1, exposure 56, 3 tie(s) compared, 30 rebuilds, 1.8 s
+retail: 6 of 6 seeds at the best score; distinct by file order 6, by schedule 6
+  rosters: seeds 1 exposure 24; seeds 2 exposure 30; seeds 3 exposure 30; seeds 4 exposure 24; seeds 5 exposure 24; seeds 6 exposure 30
+  steadyRoster: posts seed 1, exposure 24, 6 tie(s) compared, 28 rebuilds, 8.2 s
+clinic: 6 of 6 seeds at the best score; distinct by file order 6, by schedule 6
+  rosters: seeds 1 exposure 30; seeds 2 exposure 30; seeds 3 exposure 45; seeds 4 exposure 30; seeds 5 exposure 45; seeds 6 exposure 30
+  steadyRoster: posts seed 1, exposure 30, 6 tie(s) compared, 37 rebuilds, 6.0 s

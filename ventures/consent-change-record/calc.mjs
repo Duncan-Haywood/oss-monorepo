@@ -14,7 +14,15 @@ function normalizeTrace(value, label) {
   };
 }
 
-const keyFor = (item) => `${item.method || ''} ${item.url || item.key}`;
+// Requests match on method + origin + path: analytics beacons rotate their
+// query string on every hit (GA4's `_p`, cache-busters), so the full URL made
+// one tracker that kept firing read as "1 added, 1 removed, 0 unchanged".
+// The HAR tool (tool/har-diff.mjs, requestKey) already used this rule.
+const keyFor = (item) => {
+  if (!item.url) return item.key;
+  const parsed = new URL(item.url);
+  return `${item.method} ${parsed.origin}${parsed.pathname}`;
+};
 
 // Presence-only matching (`some()` against the whole array) is wrong the
 // moment a request fires more than once, which trackers routinely do -- a
@@ -77,5 +85,5 @@ export function reportAsText(report) {
     for (const item of items) counts.set(keyFor(item), (counts.get(keyFor(item)) ?? 0) + 1);
     return [...counts.entries()].map(([key, count]) => `  - ${key}${count > 1 ? ` (×${count})` : ''}`).join('\n');
   };
-  return `CONSENT CHANGE RECORD\nCompared: ${report.comparedAt}\nSite: ${report.after.site}\n\nBEFORE\n  Sequence: ${report.before.sequence}\n  Captured: ${report.before.capturedAt}\n  Browser: ${report.before.browser}\n\nAFTER\n  Sequence: ${report.after.sequence}\n  Captured: ${report.after.capturedAt}\n  Browser: ${report.after.browser}\n\nREQUESTS ADDED AFTER CONSENT\n${list(report.requests.added)}\n\nREQUESTS REMOVED AFTER CONSENT\n${list(report.requests.removed)}\n\nSTORAGE KEYS ADDED AFTER CONSENT\n${list(report.storage.added)}\n\nSTORAGE KEYS REMOVED AFTER CONSENT\n${list(report.storage.removed)}\n\nLIMITATION\nThis records observations from the supplied traces only. It does not determine compliance, prove absence in other browsers or regions, or replace professional review.`;
+  return `CONSENT CHANGE RECORD\nCompared: ${report.comparedAt}\nSite: ${report.after.site}\n\nBEFORE\n  Sequence: ${report.before.sequence}\n  Captured: ${report.before.capturedAt}\n  Browser: ${report.before.browser}\n\nAFTER\n  Sequence: ${report.after.sequence}\n  Captured: ${report.after.capturedAt}\n  Browser: ${report.after.browser}\n\nREQUESTS ADDED AFTER CONSENT\n${list(report.requests.added)}\n\nREQUESTS REMOVED AFTER CONSENT\n${list(report.requests.removed)}\n\nREQUESTS IN BOTH TRACES (FIRE REGARDLESS)\n${list(report.requests.unchanged)}\n\nSTORAGE KEYS ADDED AFTER CONSENT\n${list(report.storage.added)}\n\nSTORAGE KEYS REMOVED AFTER CONSENT\n${list(report.storage.removed)}\n\nLIMITATION\nThis records observations from the supplied traces only. It does not determine compliance, prove absence in other browsers or regions, or replace professional review.`;
 }

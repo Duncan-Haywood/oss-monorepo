@@ -1,7 +1,7 @@
 ---
 title: The Hill That Adds Forty-Five Minutes
 shelf: hearth-and-horizon
-setting: The village of Saint Aldhelm's (invented) and its hill chapel of Saint Cuthman (invented), near Cerne Abbas, Dorset, Saturday 15 August 2055
+setting: The village of Saint Aldhelm's (invented) and its hill chapel of Saint Cuthman (invented), near Cerne Abbas, Dorset, Saturday 15 August 2054
 published: 2026-11-08
 summary: A parish pilgrimage walks nine kilometres to a hill chapel for Mass at eleven. The assistant shows that the map distance gives 108 minutes for a fit walker but the 450 metres of climb adds 45, the stops add 20, and a party of fourteen at 3.5 km/h must leave at seven, not half past eight.
 ---

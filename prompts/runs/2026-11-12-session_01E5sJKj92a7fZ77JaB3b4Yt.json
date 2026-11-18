@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKj92a7fZ77JaB3b4Yt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T16:11:40Z",
+  "ended": "2026-11-12T16:35:00Z",
+  "wall_minutes": 23.61,
+  "tokens_in": 9592993,
+  "tokens_out": 49352,
+  "cost_usd": 4.1874,
+  "tool_calls": 80,
+  "task": "research/cell-fidelity milestone 5d: are SPMe's solver stops and outright failures numerical or structural?",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15182",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first report keyed census designs by (set, index); OKane2022 index 1 exists in both the cycles and fresh benches, so a control's runs shadowed a failing design's and V0 appeared not to reproduce one failure",
+      "fix": "rows carry their bench and the report keys on (bench, set, j); existing rows back-filled from the census, no runs repeated; V0 then reproduces 91 of 91"
+    },
+    {
+      "what": "Playwright screenshot of a bare file:// SVG timed out",
+      "fix": "wrapped the SVG in an HTML page and used setContent"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "says the research homepage is published on GitHub Pages at /research/; the root CLAUDE.md says the catalogue moved to Cloudflare at marisstella.app (GitHub Pages serves redirects)"
+    },
+    {
+      "file": "research/cell-fidelity/experiments/*/run.py",
+      "issue": "bench rows in cycles/ and fresh/ carry no set or bench field, and indices restart per bench, so any cross-bench analysis keyed on (set, j) silently collides; cost a report rerun here"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "pick_track's CLAIM CHECK showed cell-fidelity touched 18 minutes earlier; took it anyway because no open PR claimed the next step and the README named it",
+      "did": "claimed milestone 5d with a draft PR within minutes of choosing",
+      "result": "no collision; no other cell-fidelity PR opened during the run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-when-a-battery-model-fails-ask-the-solver-first.md",
+    "research/cell-fidelity/LOG.md (5d plan and outcome)",
+    "research/cell-fidelity/README.md (5d headline and section)"
+  ],
+  "goal": "research",
+  "notes": "Pre-registered H38-H41, all supported. 455 SPMe runs (67 failing/stopped + 24 controls x 5 solver/mesh variants) + 67 one-cycle diagnostics, PyBaMM 26.10.1.1, about 35 min at 3 workers. Checks run here: pytest research/cell-fidelity/tests 72 passed (python3.13); research/_homepage/build.py ok; check_md_links ok; research_live_links ok; check_post_frontmatter/links ok; post_similarity 0 pairs. cite_check: the two new DOIs (Hindmarsh 2005, Andersson 2019) were refused by doi.org (proxy 403); matched against PyBaMM's CITATIONS.bib instead and disclosed in the README.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "348cbed2-1023-5170-af54-ad4139418c3a",
+    "transcripts": 1,
+    "first": "2026-11-12T16:11:40Z",
+    "last": "2026-11-12T16:35:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 133,
+        "output": 49352,
+        "thinking": 9614,
+        "cache_read": 9428596,
+        "cache_write_5m": 0,
+        "cache_write_1h": 164264,
+        "api_equivalent_usd": 4.1874,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 133,
+      "output": 49352,
+      "thinking": 9614,
+      "cache_read": 9428596,
+      "cache_write_5m": 0,
+      "cache_write_1h": 164264,
+      "api_equivalent_usd": 4.1874,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 70,
+      "Write": 4,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.61,
+      "active_minutes": 23.61,
+      "model_minutes": 10.2,
+      "tool_minutes": 13.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a battery-modelling researcher scripting 455 PyBaMM re-solves, diagnosing the failure mode and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 238.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

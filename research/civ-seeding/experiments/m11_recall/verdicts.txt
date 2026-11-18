@@ -1,0 +1,71 @@
+# Milestone 11: survey and census seeding rules under tie-recall error, milestone 6's joint bootstrap
+B = 500 joint draws; worst-case regret over I, T, R; recall grid [0.85, 0.75, 0.5] (part A: three-question recall 0.85); reference set = milestone 6's 23 rules + milestone 10's 9 + 12
+
+## rule at each recall: point fit | joint median [5%, 95%] | share of draws: beats perfect-recall census top degree / minimax
+  census-degree          rho 1.00 (degree                      ) 0.041 | 0.040 [0.032, 0.052] | 0.000 / 0.000
+  census-degree          rho 0.85 (census-degree-r0.85         ) 0.043 | 0.041 [0.029, 0.057] | 0.486 / 0.000
+  census-degree          rho 0.75 (census-degree-r0.75         ) 0.043 | 0.045 [0.034, 0.062] | 0.166 / 0.000
+  census-degree          rho 0.50 (census-degree-r0.5          ) 0.040 | 0.038 [0.027, 0.051] | 0.718 / 0.000
+  census-dd              rho 1.00 (dd-0.05                     ) 0.013 | 0.011 [0.006, 0.018] | 1.000 / 0.026
+  census-dd              rho 0.85 (census-dd-r0.85             ) 0.012 | 0.014 [0.004, 0.029] | 0.990 / 0.116
+  census-dd              rho 0.75 (census-dd-r0.75             ) 0.013 | 0.017 [0.006, 0.031] | 0.978 / 0.042
+  census-dd              rho 0.50 (census-dd-r0.5              ) 0.014 | 0.016 [0.008, 0.029] | 0.990 / 0.022
+  adaptive-dd-0.5        rho 1.00 (adaptive-dd-0.5             ) 0.015 | 0.020 [0.009, 0.035] | 0.972 / 0.016
+  adaptive-dd-0.5        rho 0.85 (adaptive-dd-0.5-r0.85       ) 0.015 | 0.020 [0.010, 0.033] | 0.974 / 0.010
+  adaptive-dd-0.5        rho 0.75 (adaptive-dd-0.5-r0.75       ) 0.021 | 0.026 [0.015, 0.039] | 0.938 / 0.000
+  adaptive-dd-0.5        rho 0.50 (adaptive-dd-0.5-r0.5        ) 0.028 | 0.026 [0.016, 0.040] | 0.966 / 0.000
+  adaptive-dd-0.5-s0.75  rho 1.00 (adaptive-dd-0.5-s0.75       ) 0.016 | 0.016 [0.007, 0.027] | 0.994 / 0.032
+  adaptive-dd-0.5-s0.75  rho 0.85 (adaptive-dd-0.5-s0.75-r0.85 ) 0.020 | 0.018 [0.008, 0.030] | 0.992 / 0.026
+  adaptive-dd-0.5-s0.75  rho 0.75 (adaptive-dd-0.5-s0.75-r0.75 ) 0.023 | 0.026 [0.015, 0.042] | 0.934 / 0.000
+  adaptive-dd-0.5-s0.75  rho 0.50 (adaptive-dd-0.5-s0.75-r0.5  ) 0.023 | 0.023 [0.014, 0.035] | 0.972 / 0.004
+
+## milestone 10 rows re-drawn (sanity: within about 0.3 point of m10_survey_uncertainty/verdicts.txt)
+  uniform-dd-0.25         0.054 | 0.052 [0.037, 0.069]
+  adaptive-deg-0.25       0.059 | 0.065 [0.049, 0.084]
+  adaptive-dd-0.25        0.042 | 0.043 [0.029, 0.064]
+  adaptive-dd-0.25-s0.25  0.054 | 0.053 [0.039, 0.079]
+  adaptive-dd-0.25-s0.75  0.044 | 0.043 [0.032, 0.063]
+  uniform-dd-0.5          0.036 | 0.034 [0.025, 0.048]
+  adaptive-dd-0.5         0.015 | 0.020 [0.009, 0.035]
+  adaptive-dd-0.5-s0.25   0.016 | 0.022 [0.010, 0.037]
+  adaptive-dd-0.5-s0.75   0.016 | 0.016 [0.007, 0.027]
+
+## median regret per family, joint draws
+  census-degree-r0.85          I 0.029  T 0.040  R 0.017
+  census-dd-r0.85              I 0.011  T 0.007  R 0.003
+  adaptive-dd-0.5-r0.85        I 0.017  T 0.014  R 0.008
+  adaptive-dd-0.5-s0.75-r0.85  I 0.012  T 0.017  R 0.007
+  census-degree-r0.75          I 0.035  T 0.044  R 0.019
+  census-dd-r0.75              I 0.015  T 0.007  R 0.006
+  adaptive-dd-0.5-r0.75        I 0.023  T 0.020  R 0.010
+  adaptive-dd-0.5-s0.75-r0.75  I 0.021  T 0.022  R 0.012
+  census-degree-r0.5           I 0.027  T 0.037  R 0.012
+  census-dd-r0.5               I 0.014  T 0.011  R 0.005
+  adaptive-dd-0.5-r0.5         I 0.018  T 0.025  R 0.012
+  adaptive-dd-0.5-s0.75-r0.5   I 0.019  T 0.021  R 0.011
+
+## paired: share of joint draws where the first rule's worst case is lower
+  rho 0.85: adaptive-dd-0.5-s0.75-r0.85 vs adaptive-dd-0.5-r0.85: 0.602
+  rho 0.85: adaptive-dd-0.5-s0.75-r0.85 vs census-degree-r0.85: 0.996
+  rho 0.85: census-dd-r0.85 vs census-degree-r0.85: 0.996
+  rho 0.85: adaptive-dd-0.5-s0.75-r0.85 vs census-dd-r0.85: 0.318
+  rho 0.85: census-dd-r0.85 vs degree (perfect recall): 0.990
+  rho 0.85: adaptive-dd-0.5-s0.75-r0.85 vs dd-0.05 (perfect recall): 0.172
+  rho 0.75: adaptive-dd-0.5-s0.75-r0.75 vs adaptive-dd-0.5-r0.75: 0.466
+  rho 0.75: adaptive-dd-0.5-s0.75-r0.75 vs census-degree-r0.75: 0.988
+  rho 0.75: census-dd-r0.75 vs census-degree-r0.75: 0.998
+  rho 0.75: adaptive-dd-0.5-s0.75-r0.75 vs census-dd-r0.75: 0.110
+  rho 0.75: census-dd-r0.75 vs degree (perfect recall): 0.978
+  rho 0.75: adaptive-dd-0.5-s0.75-r0.75 vs dd-0.05 (perfect recall): 0.026
+  rho 0.5: adaptive-dd-0.5-s0.75-r0.5 vs adaptive-dd-0.5-r0.5: 0.650
+  rho 0.5: adaptive-dd-0.5-s0.75-r0.5 vs census-degree-r0.5: 0.972
+  rho 0.5: census-dd-r0.5 vs census-degree-r0.5: 0.980
+  rho 0.5: adaptive-dd-0.5-s0.75-r0.5 vs census-dd-r0.5: 0.138
+  rho 0.5: census-dd-r0.5 vs degree (perfect recall): 0.990
+  rho 0.5: adaptive-dd-0.5-s0.75-r0.5 vs dd-0.05 (perfect recall): 0.032
+
+H22 (adaptive-dd-0.5-s0.75-r0.85 joint median <= 2.5% and below perfect-recall census top degree in >= 90% of draws): held; median 0.0180, share 0.992
+H23 (at rho 0.5 the s0.75 survey's rise in joint median is at most 1 point above census dd's): held; survey +0.0070, census +0.0049, difference +0.0021
+H24 (census dd at rho 0.5 beats perfect-recall census top degree in >= 90% of draws): held; 0.990
+prediction (not tested): top degree barely moves: rho 1 0.0397, rho 0.85 0.0407, rho 0.75 0.0455, rho 0.5 0.0377
+prediction (not tested): s0.75 at or ahead of the half split at every rho: rho 1 0.0162 vs 0.0202, rho 0.85 0.0180 vs 0.0201, rho 0.75 0.0256 vs 0.0262, rho 0.5 0.0233 vs 0.0257

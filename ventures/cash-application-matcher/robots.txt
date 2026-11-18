@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://marisstella.app/cash-application-matcher/sitemap.xml

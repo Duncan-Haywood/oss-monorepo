@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVLJXXjJtbyMsin3uyi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (ventures brief)",
+  "input_sha256": "4e2352a9fa2c31eb11584516c1d676ea6013fdf7b16d5bd1d9485d73e31d4c81",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T06:56:04Z",
+  "ended": "2026-11-11T07:08:13Z",
+  "wall_minutes": 14.21,
+  "tokens_in": 7772875,
+  "tokens_out": 37036,
+  "cost_usd": 3.4363,
+  "tool_calls": 64,
+  "task": "Deepen (flagship 9) league-schedule-generator: best-of-k carry-over searches in a Web Worker",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14722",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "Browser check script first left start date and weekday empty; fixed the script, not the page.",
+    "page.test.mjs parses the inline module with new Function, which rejects import.meta; switched to a plain relative Worker URL.",
+    "Post description 228 characters; site build caps it at 160 (caught by venture-preflight).",
+    "Post seo_title 78 characters; cap 70 (caught by promptctl validate's post check)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Top row (ai-bookkeeper, 76 commits in 7 days) has every open item needing outside data or a key; took flagship 9 (league-schedule-generator), whose next item needed none."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Blog-post description limit of 160 characters is enforced only by the site build in venture-preflight (5+ min); the post checklist could say it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Default is the top Deepen row of allocate.py; ai-bookkeeper's items all need real outside inputs or a hosted-model key, and it is the most-contended venture.",
+      "did": "Took flagship 9's first listed next item (best-of-k in a Web Worker), buildable with no outside data.",
+      "result": "Landed with measurement; 18 teams -15% breaks, 20 teams gains only via the new trade choice."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-best-of-four-league-schedules.md",
+    "ventures/league-schedule-generator/README.md (Best of four searches)"
+  ],
+  "goal": "Deepen a flagship with a measured, user-facing algorithmic improvement.",
+  "notes": "Local checks: venture node tests 367/369 then 2 updated tests fixed; page.test + best-of-k.test 64/64 after the worker URL fix; headless Chromium: 20-team double 11.9 s via the worker, worst frame wait 17 ms, progress per search shown; 8 teams about 5 s. Measured eval/best-of-k.txt and eval/best-of-k-picks.txt (seeds 1-3). venture-preflight: clean after fixing the post's description (228>160) and seo_title (78>70).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5126b404-5088-583d-b860-e450e4df3d69",
+    "transcripts": 1,
+    "first": "2026-11-11T06:56:04Z",
+    "last": "2026-11-11T07:10:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 113,
+        "output": 37036,
+        "thinking": 6846,
+        "cache_read": 7626536,
+        "cache_write_5m": 0,
+        "cache_write_1h": 146226,
+        "api_equivalent_usd": 3.4363,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 113,
+      "output": 37036,
+      "thinking": 6846,
+      "cache_read": 7626536,
+      "cache_write_5m": 0,
+      "cache_write_1h": 146226,
+      "api_equivalent_usd": 3.4363,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.21,
+      "active_minutes": 14.21,
+      "model_minutes": 6.94,
+      "tool_minutes": 7.26,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "algorithm + worker integration + measurement + docs, estimated",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 232.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

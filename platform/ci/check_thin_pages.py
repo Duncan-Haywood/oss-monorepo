@@ -33,7 +33,7 @@ def main(argv=None):
     args = ap.parse_args(argv)
     rows = []
     for page in Path(args.root).rglob("index.html"):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         try:
             html = page.read_text(encoding="utf8", errors="ignore")

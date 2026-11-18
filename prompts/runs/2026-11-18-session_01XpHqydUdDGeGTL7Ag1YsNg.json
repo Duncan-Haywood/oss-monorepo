@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqydUdDGeGTL7Ag1YsNg",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:38:49Z",
+  "ended": "2026-11-18T02:54:27Z",
+  "wall_minutes": 15.95,
+  "tokens_in": 12424892,
+  "tokens_out": 49531,
+  "cost_usd": 4.8146,
+  "tool_calls": 95,
+  "task": "einvoice-preflight (flagship 5, allocator row 3): Peppol BIS 3.1.0 preview",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17149",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The row's buildable list said every next item needs an outside file, and three earlier sessions left for that reason; a git ls-remote of the upstream rule repos (OpenPeppol release branches) found a real buildable slice in a minute. The buildable note could name 'check upstream rule repos for new releases' as a standing item."
+    },
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--make-room parked 8 items to fit one ~230-character History clause; it does not say how many it will park before doing it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-peppol-bis-3-1-0-preview.md",
+    "ventures/einvoice-preflight/eval/peppol-bis-3.1.0-2026-11-18.md"
+  ],
+  "goal": "Let Peppol senders see which files Peppol BIS 3.1.0 will reject from 2027-02-24, before it is in force.",
+  "notes": "Compiled OpenPeppol peppol-bis-invoice-3 branch 2026-Q4-QA2 (90f078a) into plain/peppol-next-{ubl,cii}.json (294/95 checks); opt-in peppolNext route (API ?peppol=next, page checkbox) runs 3.1.0 in place of 3.0.22 and marks findings 3.0.22 does not raise. eval/peppol-unit-tests.mjs: 1,138/1,138 asserts after fixing fontoxpath format-integer zero padding in plain-compile.mjs (was 1,137). That fix also repaired ZATCA BR-CO-17/BR-S-09 (u:fmt wrote 15.05 as 15.5); zatca-cents.test.mjs fails on old sets, passes on new. eval/peppol-next-diff.mjs: 5 of 17 OpenPeppol 3.0.22 example files pass 3.0.22 and fail 3.1.0 (R040). Browser check with Playwright found pasted XML was named pasted.json so the official Schematron never ran on pasted UBL/CII; fixed. Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok, 2729 tests, 0 failed; check_posts ok; validate.py ok; venture-preflight output below if it finished.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d9e912a2-84cd-5ee5-a438-28c7a464f38e",
+    "transcripts": 1,
+    "first": "2026-11-18T02:38:49Z",
+    "last": "2026-11-18T02:54:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 92,
+        "input": 177,
+        "output": 49531,
+        "thinking": 10672,
+        "cache_read": 12253128,
+        "cache_write_5m": 0,
+        "cache_write_1h": 171587,
+        "api_equivalent_usd": 4.8146,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 92,
+      "input": 177,
+      "output": 49531,
+      "thinking": 10672,
+      "cache_read": 12253128,
+      "cache_write_5m": 0,
+      "cache_write_1h": 171587,
+      "api_equivalent_usd": 4.8146,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 95,
+    "tools": {
+      "Bash": 93,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.95,
+      "active_minutes": 15.95,
+      "model_minutes": 8.25,
+      "tool_minutes": 7.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "Compile and verify a new Peppol release against its unit tests, debug an XPath engine bug and rebuild affected sets, wire an opt-in route through API and page, write eval and post: about two days for an e-invoicing engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 290.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

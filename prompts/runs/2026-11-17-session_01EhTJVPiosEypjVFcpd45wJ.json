@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPiosEypjVFcpd45wJ",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... marketing sites for anything that is built out)",
+  "input_sha256": "3e966bc530143cd7a644e29055435c1bf6a68ed6cbbb4762b7e62e5f2004003e",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T18:07:32Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship 4: synthetic-control covariate-shock simulation (does the balance flag find biased gaps?)",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 17017,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace made room by parking six items from the middle of the row (sticky-series items), not from the end as the allocate hint says; preserved in NEXT.md but surprising"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-synthetic-control-which-imbalance-biases-the-gap.md"
+  ],
+  "goal": "Calibrate the covariateBalance warning against a known bias",
+  "notes": "Pre-registered (eval/synth-bias-prereg-2026-11-17.md, committed before the run); confirmatory base 43000, 200 panels x 7 cells; all five bars passed: 0.25 flag fires on 84% of null fits; placeboShare>=0.8 warning fires 21% under null and holds every false p<=0.05 when the covariate matters (12.8-20.8% vs 0-0.6%), |bias| 2.0-2.5x; size 1.5-9.5%; an imbalance like California's hid a real -1 step (0% vs 58.5%). Shipped covariateBalance placeboWarning + tests, README section, llms.txt, flagships next. Local checks: run_workflow_locally --for-changes: ventures-tests (node --test changepoint-detector, 360 s) ok, portfolio-validate 100/100 (pytest steps unrun: pytest not installed), pages ok; portfolio-pages 'Test the site builder' 1803/1804 with sticky-fit.test.mjs failing under load, passes 12/12 alone (unrelated: no CSS touched). venture-preflight clean.",
+  "corrections": [],
+  "redteam": null
+}

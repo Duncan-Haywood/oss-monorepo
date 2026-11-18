@@ -33,7 +33,7 @@
 //   node platform/pages/contrast.mjs
 //
 //   # or against production once the owner flip lands:
-//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/contrast.mjs
+//   BASE_URL=https://marisstella.app node platform/pages/contrast.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port and the run passes against the old
@@ -50,6 +50,7 @@
 // The scanned page set comes from the built artifact rather than from the hub,
 // because the hub lists tools and this checks pages.
 
+import { loadPlaywright } from './load-playwright.mjs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createRequire } from 'node:module';
@@ -58,8 +59,8 @@ import { onlySlugs, keepPagePath, describeFilter, requireNonEmpty } from './only
 // Playwright ships CommonJS, so a PLAYWRIGHT naming its entry *file* resolves
 // the exports under `.default` while a bare specifier gives them directly.
 // Accept either — the same fix sweep.mjs carries, for the same reason.
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
-const chromium = playwright.chromium ?? playwright.default?.chromium;
+const playwright = await loadPlaywright();
+const chromium = playwright?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
     'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');
@@ -101,6 +102,21 @@ const VIEWPORTS = [
   { name: 'phone', width: 390, height: 844 },
 ];
 
+// Both colour schemes, because most pages carry a `prefers-color-scheme: dark`
+// palette and until 2026-11-11 nothing measured it: the /writing/ topic chip
+// painted white on #86a8ff (2.31:1) for every dark-mode reader. COLOR_SCHEMES
+// narrows it (`COLOR_SCHEMES=dark`). Reduced motion is emulated so a fade-in
+// is read at its final colour: without it the hub's post list measured 3.01:1
+// mid-animation against a settled 7:1.
+const SCHEMES = (process.env.COLOR_SCHEMES || 'light,dark').split(',').map((s) => s.trim()).filter(Boolean);
+for (const s of SCHEMES) {
+  if (s !== 'light' && s !== 'dark') {
+    console.error(`COLOR_SCHEMES takes light and/or dark, not ${JSON.stringify(s)}`);
+    process.exit(2);
+  }
+}
+const RUNS = SCHEMES.flatMap((scheme) => VIEWPORTS.map((v) => ({ ...v, scheme, name: `${v.name}/${scheme}` })));
+
 /** Every built HTML page, relative to the artifact root. */
 async function pagesUnder(dir, rel = '') {
   const out = [];
@@ -130,23 +146,105 @@ try {
 
 requireNonEmpty(pages, only, 'built pages');
 
-console.log(`Checking ${pages.length} pages at ${BASE}, ${VIEWPORTS.map((v) => v.name).join(' and ')}\n`);
+// A sample, for a whole-site pass that would otherwise take hours: every Nth
+// page of the sorted list, starting at SAMPLE_OFFSET (default 0), so a rerun
+// with the same N and offset reads the same pages. SKIP_PREFIXES drops trees
+// whose pages share one template (`writing/` is 3,000+ posts on one layout),
+// so the sample is spent on pages that carry their own palette. Both are
+// printed, so a sampled run never reads as a full one.
+const sampleEvery = Number(process.env.SAMPLE_EVERY || 0);
+const sampleOffset = Number(process.env.SAMPLE_OFFSET || 0);
+const skipPrefixes = (process.env.SKIP_PREFIXES || '').split(',').map((s) => s.trim()).filter(Boolean);
+if (skipPrefixes.length) {
+  const before = pages.length;
+  pages = pages.filter((p) => !skipPrefixes.some((prefix) => p.startsWith(prefix)));
+  console.log(`SKIP_PREFIXES=${skipPrefixes.join(',')}: ${before} -> ${pages.length} pages`);
+}
+if (sampleEvery > 1) {
+  const before = pages.length;
+  pages = pages.filter((_, i) => i % sampleEvery === sampleOffset % sampleEvery);
+  console.log(`SAMPLED: every ${sampleEvery}th page from offset ${sampleOffset}: ${pages.length} of ${before}`);
+}
+requireNonEmpty(pages, only, 'built pages');
+
+console.log(`Checking ${pages.length} pages at ${BASE}, ${RUNS.map((v) => v.name).join(', ')}\n`);
 
 const browser = await chromium.launch(LAUNCH);
 const findings = [];
 let checked = 0;
+// Colour findings dropped because they passed once their sticky panel was
+// laid out statically (see the re-measure below); printed in the summary.
+let dismissed = 0;
 
-for (const viewport of VIEWPORTS) {
-  const page = await browser.newPage({ viewport: { width: viewport.width, height: viewport.height } });
+for (const viewport of RUNS) {
+  const page = await browser.newPage({
+    viewport: { width: viewport.width, height: viewport.height },
+    colorScheme: viewport.scheme,
+    reducedMotion: 'reduce',
+  });
   for (const relative of pages) {
     const url = `${BASE}/${relative}`;
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20000 });
+      // axe takes a page whose <html> and <body> are both transparent to be on
+      // white. In dark mode a page that declares `color-scheme: light dark`
+      // and paints no background sits on the browser's dark canvas instead, so
+      // its light text read as 2:1 failures it does not have (2026-11-13: 140
+      // such nodes on 14 checker pages, every one legible in a screenshot).
+      // Paint the canvas colour the reader actually sees, then measure.
+      await page.evaluate(() => {
+        const clear = (el) => /rgba\(0, 0, 0, 0\)|transparent/.test(getComputedStyle(el).backgroundColor);
+        if (!document.body || !clear(document.documentElement) || !clear(document.body)) return;
+        const probe = document.createElement('div');
+        probe.style.background = 'Canvas';
+        document.documentElement.appendChild(probe);
+        const canvas = getComputedStyle(probe).backgroundColor;
+        probe.remove();
+        document.documentElement.style.backgroundColor = canvas;
+      });
       await page.addScriptTag({ content: axeSource });
       const result = await page.evaluate(
         async (tags) => window.axe.run(document, { runOnly: { type: 'tag', values: tags } }),
         TAGS,
       );
+      // axe reads a sticky result panel's text against the page behind it, not
+      // the panel's own fill: measured 2026-11-14 on a 1-in-25 sample, 64 of 66
+      // colour findings were near-white ink on the page background at
+      // 1.01-1.07:1 (holiday-light, spray-foam, countertop, cabinet bid
+      // calculators; two fee guides), every one legible in a screenshot of the
+      // dark panel. So when colour findings sit inside a sticky or scrolling
+      // panel, lay those panels out as ordinary blocks (no colour changes) and
+      // measure once more. A node is kept only if it fails both times, and the
+      // number dropped is printed, so a real failure is never hidden and a
+      // dismissal is never silent.
+      const contrastHit = result.violations.find((v) => v.id === 'color-contrast');
+      if (contrastHit) {
+        const unstuck = await page.evaluate(() => {
+          let n = 0;
+          for (const el of document.querySelectorAll('body *')) {
+            const cs = getComputedStyle(el);
+            const sticky = cs.position === 'sticky' || cs.position === 'fixed';
+            const scrolls = /auto|scroll/.test(cs.overflowY) && el.scrollHeight > el.clientHeight + 1;
+            if (!sticky && !scrolls) continue;
+            el.style.setProperty('position', 'static', 'important');
+            if (scrolls) {
+              el.style.setProperty('max-height', 'none', 'important');
+              el.style.setProperty('height', 'auto', 'important');
+            }
+            n++;
+          }
+          return n;
+        });
+        if (unstuck) {
+          const again = await page.evaluate(
+            async () => window.axe.run(document, { runOnly: { type: 'rule', values: ['color-contrast'] } }),
+          );
+          const still = new Set((again.violations[0]?.nodes || []).map((node) => node.target.join(' ')));
+          const before = contrastHit.nodes.length;
+          contrastHit.nodes = contrastHit.nodes.filter((node) => still.has(node.target.join(' ')));
+          dismissed += before - contrastHit.nodes.length;
+        }
+      }
       for (const violation of result.violations) {
         for (const node of violation.nodes) {
           findings.push({
@@ -168,14 +266,25 @@ for (const viewport of VIEWPORTS) {
       });
     }
     checked++;
-    if (checked % 100 === 0) console.log(`  ...${checked}/${pages.length * VIEWPORTS.length}`);
+    if (checked % 100 === 0) console.log(`  ...${checked}/${pages.length * RUNS.length}`);
   }
   await page.close();
 }
 await browser.close();
 
+// JSON_OUT writes every finding, so a sweep's families can be counted and
+// diffed without re-parsing the grouped text below.
+if (process.env.JSON_OUT) {
+  await fs.writeFile(process.env.JSON_OUT, JSON.stringify({ pages: pages.length, runs: RUNS.map((r) => r.name), dismissed, findings }, null, 1));
+}
+
+const dismissedLine = dismissed
+  ? `${dismissed} colour finding(s) inside sticky or scrolling panels passed when re-measured and are not counted.`
+  : '';
+if (dismissedLine) console.log(`\n${dismissedLine}`);
+
 if (findings.length === 0) {
-  console.log(`\n${pages.length} pages, ${VIEWPORTS.length} viewports: no WCAG A/AA violations.`);
+  console.log(`\n${pages.length} pages, ${RUNS.length} viewport/scheme runs: no WCAG A/AA violations.`);
   process.exit(0);
 }
 

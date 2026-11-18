@@ -1,0 +1,36 @@
+# Frosina, Senatore, Rigosi (2017) Energies 10(8):1113, doi:10.3390/en10081113, CC BY 4.0: Casappa KP30, 44 cm3/r, Casappa test bench; read by pixel from Figures 11 to 13 by digitise_frosina_kp30.py.
+# Figure 11 states no oil temperature (Figure 13 is at 50 and 80 C; 50 is written here). Figure 13's flow is 'normalized' with no stated base.
+quantity,series,oil_C,speed_rpm,pressure_bar,value
+fig11_torque_Nm,measured,50,1000,50.0,37.97
+fig11_torque_Nm,measured,50,1000,150.0,109.081
+fig11_torque_Nm,measured,50,1000,250.0,180.186
+fig11_torque_Nm,model,50,1000,50.0,34.817
+fig11_torque_Nm,model,50,1000,150.0,104.052
+fig11_torque_Nm,model,50,1000,250.0,173.183
+fig11_torque_Nm,measured,50,1500,50.0,39.913
+fig11_torque_Nm,measured,50,1500,150.0,110.721
+fig11_torque_Nm,measured,50,1500,250.0,181.52
+fig11_torque_Nm,model,50,1500,50.0,37.76
+fig11_torque_Nm,model,50,1500,150.0,107.082
+fig11_torque_Nm,model,50,1500,250.0,176.042
+fig11_torque_Nm,measured,50,2500,50.0,40.911
+fig11_torque_Nm,measured,50,2500,150.0,113.251
+fig11_torque_Nm,measured,50,2500,250.0,185.584
+fig11_torque_Nm,model,50,2500,50.0,38.623
+fig11_torque_Nm,model,50,2500,150.0,108.835
+fig11_torque_Nm,model,50,2500,250.0,178.036
+fig12_delta_torque_Nm,measured_minus_model,50,1000,50.0,3.261
+fig12_delta_torque_Nm,measured_minus_model,50,1000,150.0,5.066
+fig12_delta_torque_Nm,measured_minus_model,50,1000,250.0,7.49
+fig12_delta_torque_Nm,measured_minus_model,50,1500,50.0,3.625
+fig12_delta_torque_Nm,measured_minus_model,50,1500,150.0,5.551
+fig12_delta_torque_Nm,measured_minus_model,50,1500,250.0,7.748
+fig12_delta_torque_Nm,measured_minus_model,50,2500,50.0,4.564
+fig12_delta_torque_Nm,measured_minus_model,50,2500,150.0,6.563
+fig12_delta_torque_Nm,measured_minus_model,50,2500,250.0,10.039
+fig13_normalised_flow,measured,50,1500,50.0,0.5892
+fig13_normalised_flow,measured,50,1500,150.0,0.5804
+fig13_normalised_flow,measured,50,1500,250.0,0.5714
+fig13_normalised_flow,measured,50,2500,50.0,0.9956
+fig13_normalised_flow,measured,50,2500,150.0,0.9811
+fig13_normalised_flow,measured,50,2500,250.0,0.9666

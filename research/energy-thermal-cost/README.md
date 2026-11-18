@@ -6,6 +6,8 @@ Track 16 (energy), next step 2 of [`energy-thermal`](../energy-thermal) ("add co
 
 ![Electricity price ratio at which a heat pump costs as much as a sand store, against standby days](experiments/ratio.svg)
 
+**Known gap (quality audit 2026-11-17, high; [audit file](../../portfolio/quality/audits/2026-11-17-energy-thermal-cost.json)): every cycle is billed as a first charge from cold.** `store_lcoh` (`src/energy_thermal_cost/cost.py:96`) charges each cycle the electricity to heat the whole store from 10 &deg;C to 500 &deg;C, but a store that cycles only discharges to its cut-off temperature, so after the first cycle each charge starts from about 100 &deg;C with warm insulation. The audit's 40-cycle simulation on this project's own heat-loss solver puts the house daily store's heat out per heat in at 0.82, not the 0.63 used here (weekly 0.61, not 0.48; district daily 0.99, not 0.80). Billing from the cut-off temperature alone moves the house ratios from 2.1 / 5.0 / 15.6 to about 0.9 / 3.5 / 13.3 (daily / weekly / monthly) and district from 2.2 / 2.8 / 5.3 to about 1.3 / 2.0 / 4.4; seasonal storage (one cycle a year) is unchanged. So the daily-cycle figures below overstate the spread a store needs, and at house size a daily store may win at equal electricity prices. Five projects reuse `cost.py` (energy-thermal-hourly, energy-thermal-real, energy-store-flip, energy-store-modelprice, energy-store-cop) and inherit this until it is fixed at source.
+
 ## Headline (modelled; costs sourced; electricity prices, cycle counts and the missing heat exchanger are not, see Limitations)
 All numbers are in `experiments/results.txt` (deterministic, stdlib only). The store charges at EUR 0.05/kWh; "ratio" is how many times dearer the heat pump's electricity must be before it costs as much per kWh of heat as the store (capital, fixed O&M and electricity all included).
 
@@ -58,6 +60,7 @@ python -m pytest tests                                            # 10 tests
 - No CU Boulder group's work; no connection is claimed.
 
 ## Next steps
+0. Bill each cycle from the cut-off temperature (or simulate to cyclic steady state), rerun `run.py` and `figure.py`, rewrite the headline, and rerun the five projects that import `cost.py` (see the known gap above).
 1. Read the store's electricity price from an hourly price or surplus series (`energy-mix-sourced` shadow prices, or a time-of-use tariff from `energy-tou`) and let the store charge only in cheap hours, so the ratio is replaced by a bill.
 2. Cost the heat exchanger and discharge power with a sourced figure, and add a temperature-dependent COP.
 3. A second capital estimate for the sand store at house scale (a commercial price, quoted and dated) to replace the multiplier.

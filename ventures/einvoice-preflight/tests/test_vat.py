@@ -79,6 +79,15 @@ class VatChecksumTest(unittest.TestCase):
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456783B01"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-023"])
 
+    def test_nl_btw_id_issued_since_2020_passes_on_mod97(self):
+        # python-stdnum nl.btw's own example: a sole trader's number with no BSN.
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL002455799B11"}, "supplier"), [])
+        findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL002455799B12"}, "supplier")
+        self.assertEqual([item["rule"] for item in findings], ["INV-023"])
+        # A suffix of 00 is never issued, although it passes the elfproef.
+        findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "NL123456782B00"}, "supplier")
+        self.assertEqual([item["rule"] for item in findings], ["INV-023"])
+
     def test_ie_legacy_letter_second_character_shape_rearranges_before_weighing(self):
         # The 8-character Irish shape covers two different real numbers: the
         # common one is 7 digits plus a check letter (already covered by
@@ -135,8 +144,11 @@ class VatChecksumTest(unittest.TestCase):
 
     def test_format_only_country_accepts_published_length(self):
         self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU12892312"}, "supplier"), [])
-        # A 10-digit BG number stays shape-only: no checksum is implemented for it.
-        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG1750747520"}, "supplier"), [])
+        # A 10-digit BG number now has a check digit (any of the three public rules).
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG7523169263"}, "supplier"), [])
+        self.assertEqual([i["rule"] for i in inspect_party_vat({"id": "S1", "name": "A", "vat_id": "BG7523169264"}, "supplier")], ["INV-023"])
+        self.assertEqual(inspect_party_vat({"id": "S1", "name": "A", "vat_id": "CZ7103192745"}, "supplier"), [])
+        self.assertEqual([i["rule"] for i in inspect_party_vat({"id": "S1", "name": "A", "vat_id": "CZ7103192746"}, "supplier")], ["INV-023"])
         findings = inspect_party_vat({"id": "S1", "name": "A", "vat_id": "HU123"}, "supplier")
         self.assertEqual([item["rule"] for item in findings], ["INV-022"])
 
@@ -210,3 +222,11 @@ class VatInvoiceIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_french_letter_keys_and_siren_luhn():
+    from einvoice_preflight import vat
+    assert vat._fr("4Z123456782")
+    for bad in ("Z4123456782", "IO334175221", "4Z123456783", "40303265046"):
+        assert not vat._fr(bad), bad
+    assert vat._fr("40303265045")

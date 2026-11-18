@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKm7Q9xMKiFJVNR2V7a",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: read prompt.md",
+  "input_sha256": "94a6b2a74a2fe72d09d7042291a4072d20b259b937e79b5deda0279ae57c7410",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T09:19:45Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": null,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "issue": "Skip list is under CODEOWNERS, so a run cannot extend it without holding the PR; the note went to docs/reports instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Explore found only clean sweeps (disclaimer, noscript); shipped a negative-result note and post, not a product.",
+      "did": "agent doc + short post",
+      "result": "low value, honest"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-two-sweeps-that-found-nothing.md",
+    "docs/reports/explore-clean-sweeps-2026-11-10.md"
+  ],
+  "goal": null,
+  "notes": "Idea: sweep source pages for disclaimer and noscript gaps. Both clean (noscript injected at build).",
+  "corrections": [],
+  "redteam": null
+}

@@ -32,7 +32,7 @@ export const num = (s) => {
   return t === "" ? NaN : Number(t);
 };
 export const money = (x) => `${x < 0 ? "-" : ""}$${Math.abs(Math.round(x)).toLocaleString("en-US")}`;
-export const money2 = (x) => `${x < 0 ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
+export const money2 = (x) => `${x < 0 && Math.abs(x).toFixed(2) !== "0.00" ? "-" : ""}$${Math.abs(x).toFixed(2)}`;
 export const pct = (x, d = 1) => `${(x * 100).toFixed(d)}%`;
 
 export function hours(o) {
@@ -105,7 +105,7 @@ export function analyze(raw) {
     const hoursBudget = labourBudget / rate;
     budgetWords = Math.max(0, Math.floor((hoursBudget - fixed) / perWordHours));
   }
-  const extraRound = o.revisionShare * h.draft * o.targetHourly * (1 + o.rushPremium) / (1 - o.platformFee);
+  const extraRound = o.revisionShare * h.draft * o.targetHourly * (1 + o.confidentialityPremium) * (1 + o.rushPremium) / (1 - o.platformFee);
   const grid = [0.5, 0.75, 1, 1.25, 1.5].map((m) => {
     const w = { ...o, wordCount: Math.round(o.wordCount * m) };
     const hh = hours(w);

@@ -8,6 +8,7 @@
 
 import fs from "node:fs/promises";
 import { price, summarizePrice, parseRoster, roster, summarizeRoster, money, pct, MODEL_NOTE } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const FLAGS = {
   "--transactions": "transactions", "--accounts": "accounts", "--payroll": "payrollRuns", "--arap": "arApItems",
@@ -97,7 +98,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-if (process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   run(process.argv.slice(2)).then(({ exitCode, output }) => {
     (exitCode ? console.error : console.log)(output);
     process.exitCode = exitCode;

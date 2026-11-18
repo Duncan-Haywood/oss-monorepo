@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqybqxYuWe3SaEzD2WrN",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T22:39:24Z",
+  "ended": "2026-11-13T22:42:14Z",
+  "wall_minutes": 4.48,
+  "tokens_in": 3834438,
+  "tokens_out": 15592,
+  "cost_usd": 1.6337,
+  "tool_calls": 50,
+  "task": "creative: writing podcast episode for a blog post",
+  "projects": [
+    "docs/podcast"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15639",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "post description was 164 characters; podcast.test.mjs (via writing.mjs) caps it at 160",
+      "fix": "shortened before merge"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "Says a test checks podcast episode length and a run reported 4500 to 9500 words. No test checks length and the 37 feed episodes are 369 to 1,034 words (4.8 min median). Following it would produce an episode ten times the show's format."
+    },
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio rule plus 'skip the podcast option, which needs audio' has stopped the podcast since 2026-10-27, although an episode is about 1-2 MB (all 35 MP3s were 54.6 MB). Same staleness as docs/reports/2026-11-13-audio-cap-is-stale.md."
+    },
+    {
+      "file": "docs/podcast/*.md",
+      "issue": "All 37 older scripts open with 'the Open Tools and Research podcast'; the feed is titled 'Maris Stella Labs podcast' (SITE_NAME). The new episode uses the current name; the old ones were not re-voiced."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio folders read 468 MB (over the 400 MB cap), which says text only and skip the podcast. The cap was written for GitHub Pages and audio is served from jsDelivr since 2026-10-24; a podcast episode is ~1-2 MB.",
+      "did": "Voiced the new episode plus the two 10-27 text-only episodes with Kokoro af_heart (3.2 MB total, -16.6 LUFS, no silence over 4 s).",
+      "result": "Podcast feed has audio for all 38 front-mattered episodes; repository grew 3.2 MB."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-podcast-was-never-over-the-audio-cap.md",
+    "docs/podcast/2026-11-13-why-asteroid-odds-rise-before-they-fall.md"
+  ],
+  "goal": null,
+  "notes": "Project: writing podcast (docs/podcast). Piece: 2026-11-13-why-asteroid-odds-rise-before-they-fall (reads the post on Hearth & Horizon 'The Clock Book'). Re-computed the post's impact-probability table (1 in 299/92/37/32/94/1173) before scripting. Kokoro v1.0 from huggingface.co (reachable this run), render 2 m 2 s on the container's cores. Also voiced 2026-10-27 coal and water-level episodes. Verification: node --test platform/pages/podcast.test.mjs pass 10 fail 0; ebur128 -16.6 LUFS all three; silencedetect -45 dB/4 s: none.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "dd18d4ee-d180-58b9-9fb9-5f0ac06551c9",
+    "transcripts": 1,
+    "first": "2026-11-13T22:39:24Z",
+    "last": "2026-11-13T22:43:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 95,
+        "output": 15592,
+        "thinking": 2192,
+        "cache_read": 3763242,
+        "cache_write_5m": 0,
+        "cache_write_1h": 71101,
+        "api_equivalent_usd": 1.6337,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 95,
+      "output": 15592,
+      "thinking": 2192,
+      "cache_read": 3763242,
+      "cache_write_5m": 0,
+      "cache_write_1h": 71101,
+      "api_equivalent_usd": 1.6337,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.48,
+      "active_minutes": 4.48,
+      "model_minutes": 2.79,
+      "tool_minutes": 1.7,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "script from post, maths check, voicing and QA of three short episodes, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 122.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

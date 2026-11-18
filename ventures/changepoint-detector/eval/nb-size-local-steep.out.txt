@@ -1,0 +1,6 @@
+# round 2, fresh seeds, new size (node eval/growth-change-interval-nb-steep-only.mjs 250 <seed> 0.35 nb)
+seed 9601: 0.04  147/250  147/147 (100%)  46
+seed 9602: 0.04  133/250  131/133 (98%)  46
+# same seeds, the global-mean size (the commit before this change)
+seed 9601: 0.04  39/250  29/39 (74%)  55
+seed 9602: 0.04  42/250  29/42 (69%)  46

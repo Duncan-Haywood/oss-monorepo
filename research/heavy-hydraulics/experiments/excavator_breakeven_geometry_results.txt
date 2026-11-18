@@ -1,0 +1,61 @@
+Milestone 6c: break-even rest-of-machine fuel rate over 384 geometry cases (exact r from the motion)
+(fuxi-robot/excavator-motion, folder 75, CC BY-NC-SA 4.0; geometry XCMG XE80E brochure; demand as 5z, slowing as 6a)
+central parameters: margin 20.0 bar, p 130 bar, b 0.2332 L/kWh and eta 0.818 (both borrowed from the loader); pump grid 10.0 to 219.0 L/min in 0.5 steps
+
+central geometry (levers 1/1/1, bucket +1, swing 0.5): mu 100.9 L/min, r(219) 2.175, Q_LS 98.14 L/min (6b: 100.9, 2.175, 98.18)
+  f_t*(q_p), L/h (6b's bracketed values in brackets):
+    q_p   40.0: 0.624   [0.49..0.63]
+    q_p   60.0: 1.314   [0.92..1.41]
+    q_p   70.0: 1.826   [1.25..2.18]
+    q_p   80.0: 2.304   [1.78..2.41]
+    q_p   87.5: 2.462   [2.46 (at 87.6)]
+    q_p   95.0: 2.217   [2.19]
+    q_p   98.5: 1.887   [1.86]
+    q_p  102.0: 1.379   [1.37..1.38]
+    q_p  105.0: 0.777   [0.78..0.79]
+    q_p  107.0: 0.279   [0.28]
+  f_t,max 2.462 L/h at q_p 87.5 L/min (r 1.076, tau 1.233; 0.365 of p99)
+
+Over the 384 cases, central parameters: f_t,max min 0.33, p10 0.42, median 1.00, p90 1.71, max 3.00 L/h
+  share of cases above the loader's low rate 1.48 L/h: 18.2%
+  share of cases above the loader's rest of machine rate 5.15 L/h: 0.0%
+  share of cases above the loader's still rate 5.99 L/h: 0.0%
+  share above the central geometry's 2.46 L/h: 0.8%
+  maximising pump / p99 demand: min 0.207, median 0.316, max 0.470; share in 0.3 to 0.5: 62.5%
+  peakiness p99/mu: 1.95 to 3.08; Spearman(peakiness, f_t,max) -0.589; Spearman(r(219), f_t,max) -0.726
+
+Median f_t,max (central parameters) by one geometry factor, the others pooled:
+     boom lever factor: 1: 1.05 (0.45 to 3.00); 1.5: 1.04 (0.41 to 2.64); 2: 1.01 (0.36 to 2.28); 2.5: 0.91 (0.33 to 2.03)
+      arm lever factor: 1: 1.21 (0.36 to 3.00); 1.5: 1.08 (0.35 to 2.53); 2: 0.95 (0.34 to 2.23); 2.5: 0.86 (0.33 to 2.04)
+   bucket lever factor: 1: 1.32 (0.35 to 3.00); 1.5: 1.10 (0.35 to 2.10); 2: 0.96 (0.34 to 1.64); 2.5: 0.85 (0.33 to 1.39)
+           bucket sign: 1: 1.18 (0.36 to 3.00); -1: 0.90 (0.33 to 2.01)
+           swing share: 0: 0.49 (0.33 to 0.96); 0.5: 1.28 (0.75 to 2.46); 1: 1.15 (0.61 to 3.00)
+
+Full sweep, 384 cases x 108 parameter sets = 41472: f_t,max min 0.10, median 0.96, p90 2.22, p99 3.69, max 6.67 L/h; share above 5.15 L/h 0.1%
+  highest case: levers 1/1/1, bucket +1, swing 1: central 3.00 L/h, sweep 1.05 to 6.67
+
+Sorted f_t,max over the 384 cases, central parameters (every 32nd case, for the figure):
+ rank_pct  f_t_max
+      0.3    0.326
+      8.6    0.408
+     16.9    0.485
+     25.3    0.590
+     33.6    0.751
+     41.9    0.885
+     50.3    1.001
+     58.6    1.106
+     66.9    1.231
+     75.3    1.339
+     83.6    1.544
+     91.9    1.822
+    100.0    3.004
+
+Predictions (LOG.md 6c):
+  D1 central exact f_t,max in 2.44 to 2.48 L/h: held (2.462)
+  D2 median over 384 cases in 1.5 to 3.5 L/h: refuted (1.00)
+  D3 under 10% of cases above 5.15 L/h: held (0.0%)
+  D4 Spearman(peakiness, f_t,max) > +0.5: refuted (-0.589)
+  D5 maximising pump in 0.3 to 0.5 of p99 in >= 80% of cases: refuted (62.5%)
+  D6 f_t,max below 10 L/h over all 41472 combinations: held (max 6.67)
+
+Source: fuxi-robot/excavator-motion, https://huggingface.co/datasets/fuxi-robot/excavator-motion, CC BY-NC-SA 4.0. Derived statistics only; no data redistributed.

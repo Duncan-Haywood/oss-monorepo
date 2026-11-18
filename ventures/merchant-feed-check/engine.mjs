@@ -164,22 +164,32 @@ function normalizeItem(raw) {
   return item;
 }
 
-function splitDelimitedLine(line, delimiter) {
-  // Minimal quoted-field support: a field wrapped in double quotes may
-  // contain the delimiter; "" inside a quoted field is a literal quote.
-  // Documented limitation (see README): nested/escaped edge cases beyond
-  // this are not handled -- use the JSON format for anything exotic.
-  const cells = [];
+function splitDelimitedRecords(text, delimiter) {
+  // Quoted-field support across the whole text, not line by line: a field
+  // wrapped in double quotes may contain the delimiter or a line break (a
+  // Shopify or Excel export puts multi-paragraph descriptions in one quoted
+  // cell); "" inside a quoted field is a literal quote. CRLF inside a quoted
+  // field becomes LF. Blank records are dropped.
+  const records = [];
+  let cells = [];
   let cur = "";
   let inQuotes = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
+  const endRecord = () => {
+    cells.push(cur);
+    if (cells.some((c) => c.trim() !== "")) records.push(cells.map((c) => c.trim()));
+    cells = [];
+    cur = "";
+  };
+  for (let i = 0; i < text.length; i += 1) {
+    const ch = text[i];
     if (inQuotes) {
-      if (ch === '"' && line[i + 1] === '"') {
+      if (ch === '"' && text[i + 1] === '"') {
         cur += '"';
         i += 1;
       } else if (ch === '"') {
         inQuotes = false;
+      } else if (ch === "\r" && text[i + 1] === "\n") {
+        // normalised to the LF that follows
       } else {
         cur += ch;
       }
@@ -188,12 +198,15 @@ function splitDelimitedLine(line, delimiter) {
     } else if (ch === delimiter) {
       cells.push(cur);
       cur = "";
+    } else if (ch === "\n" || ch === "\r") {
+      if (ch === "\r" && text[i + 1] === "\n") i += 1;
+      endRecord();
     } else {
       cur += ch;
     }
   }
-  cells.push(cur);
-  return cells.map((c) => c.trim());
+  endRecord();
+  return records;
 }
 
 /**
@@ -217,15 +230,20 @@ export function parseFeed(text) {
     if (!Array.isArray(list)) {
       throw new Error("expected a JSON array of feed items, or {items: [...]}");
     }
-    return list.map(normalizeItem);
+    return list.map((entry, i) => {
+      if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+        throw new Error(`item ${i + 1} is not an object (got ${entry === null ? "null" : Array.isArray(entry) ? "an array" : typeof entry})`);
+      }
+      return normalizeItem(entry);
+    });
   }
 
-  const lines = raw.split(/\r?\n/).filter((l) => l.trim() !== "");
-  if (!lines.length) return [];
-  const delimiter = lines[0].includes("\t") ? "\t" : ",";
-  const header = splitDelimitedLine(lines[0], delimiter);
-  return lines.slice(1).map((line) => {
-    const cells = splitDelimitedLine(line, delimiter);
+  const firstLine = raw.split(/\r?\n/, 1)[0];
+  const delimiter = firstLine.includes("\t") ? "\t" : ",";
+  const records = splitDelimitedRecords(raw, delimiter);
+  if (!records.length) return [];
+  const header = records[0];
+  return records.slice(1).map((cells) => {
     const raw = {};
     header.forEach((h, i) => {
       raw[h] = cells[i] ?? "";
@@ -326,7 +344,9 @@ export function checkItem(item) {
     err("invalid-image-link", `image_link "${item.image_link}" is not a valid absolute http(s) URL.`);
   }
 
-  if (item.availability && !AVAILABILITY_VALUES.has(item.availability.toLowerCase())) {
+  // Google's spec lists in_stock / out_of_stock (with "in stock" as the
+  // older text-feed form); Meta takes the spaced form. Accept both.
+  if (item.availability && !AVAILABILITY_VALUES.has(item.availability.toLowerCase().replace(/_/g, " "))) {
     err(
       "invalid-availability",
       `availability "${item.availability}" is not one of: ${[...AVAILABILITY_VALUES].join(", ")}.`,

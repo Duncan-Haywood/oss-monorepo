@@ -1,0 +1,131 @@
+{
+  "note": "Pieces for the porrectus liquescent check (eval/porrectus-liquescent-check.mjs), 2026-11-14. GregoBase 1908 Graduale ids 3461-3999 were downloaded and every piece with a liquescent ending a porrectus (high, low, higher in one neume element, no rhombus, virga, quilisma or oriscus before it) listed: twelve pieces, sixteen such notes. The six lowest ids are the tuning set here; the six highest are in porrectus-liquescent-fresh-pages.json, listed at the same time and not looked at until the rule was frozen. Arabic page p is on leaf p+26, bracketed [p] on leaf p+585; the leaf before and after are read too and the piece found by local alignment.",
+  "pieces": [
+    {
+      "name": "GregoBase 3462 (Ipse est directus)",
+      "gabc": "corpus/gregobase-1908-checked/3462.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 526",
+          "leaf": 526
+        },
+        {
+          "page": "501",
+          "leaf": 527
+        },
+        {
+          "page": "leaf 528",
+          "leaf": 528
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3486 (Adducentur)",
+      "gabc": "corpus/gregobase-1908-checked/3486.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 630",
+          "leaf": 630
+        },
+        {
+          "page": "[46]",
+          "leaf": 631
+        },
+        {
+          "page": "leaf 632",
+          "leaf": 632
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3497 (Afferentur... post eam)",
+      "gabc": "corpus/gregobase-1908-checked/3497.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 407",
+          "leaf": 407
+        },
+        {
+          "page": "382",
+          "leaf": 408
+        },
+        {
+          "page": "leaf 409",
+          "leaf": 409
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3523 (Qui posuit fines)",
+      "gabc": "corpus/gregobase-1908-checked/3523.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 681",
+          "leaf": 681
+        },
+        {
+          "page": "[97]",
+          "leaf": 682
+        },
+        {
+          "page": "leaf 683",
+          "leaf": 683
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3606 (Ego autem)",
+      "gabc": "corpus/gregobase-1908-checked/3606.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 557",
+          "leaf": 557
+        },
+        {
+          "page": "532",
+          "leaf": 558
+        },
+        {
+          "page": "leaf 559",
+          "leaf": 559
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3650 (De ventre matris)",
+      "gabc": "corpus/gregobase-1908-checked/3650.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 488",
+          "leaf": 488
+        },
+        {
+          "page": "463",
+          "leaf": 489
+        },
+        {
+          "page": "leaf 490",
+          "leaf": 490
+        }
+      ]
+    }
+  ]
+}

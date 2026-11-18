@@ -1,0 +1,16 @@
+# node eval/pair-rank.mjs, one 4-core cloud machine, 2026-11-15. The 30 x 84 runs overlapped other jobs on the machine for part of their time, so their times are rough.
+WEEK 20x56 week 2 (75 copies): starting objective 4811477.36, risk 181 h, pair hours 179
+  rank off: 4 moves in 1.5 s, gain 1315.15, score 4806799.21, risk 107 h, pair hours 688, walks 180 (163 cut off, 0 skipped), candidates tried 1718; kept at 2/5/10/20 s: 100% / 100% / 100% / 100%
+    moves at 0.26, 0.49, 0.71, 1.11 s
+  rank on: 1 moves in 0.7 s, gain 1120.98, score 4806798.38, risk 115 h, pair hours 683, walks 94 (88 cut off, 0 skipped), candidates tried 1062; kept at 2/5/10/20 s: 85% / 85% / 85% / 85%
+    moves at 0.29 s
+WEEK 40x112 week 0 (149 copies): starting objective 16923814.78, risk 435 h, pair hours 327
+  rank off: 11 moves in 16.0 s, gain 508.85, score 16912622.94, risk 427 h, pair hours 8, walks 1591 (1462 cut off, 22 skipped), candidates tried 17344; kept at 2/5/10/20 s: 21% / 22% / 40% / 100%
+    moves at 0.41, 2.06, 5.33, 8.63, 10.98, 11.05, 11.10, 13.45, 13.87, 14.20, 14.59 s
+  rank on: 12 moves in 28.3 s, gain 508.85, score 16912622.94, risk 427 h, pair hours 8, walks 2068 (1925 cut off, 22 skipped), candidates tried 48374; kept at 2/5/10/20 s: 0% / 1% / 14% / 41%
+    moves at 3.72, 7.16, 9.76, 13.75, 18.63, 19.76, 20.52, 22.51, 24.87, 25.59, 26.38, 27.09 s
+WEEK 30x84 week 0 (121 copies): starting objective 18121011.89, risk 261 h, pair hours 4118
+  rank off: 6 moves in 202.3 s, gain 1629.16, score 18110377.73, risk 208 h, pair hours 3805, walks 587 (527 cut off, 0 skipped), candidates tried 8792; kept at 2/5/10/20 s: 0% / 0% / 0% / 0%
+    moves at 57.25, 90.80, 105.29, 165.96, 169.88, 190.86 s
+  rank on: 6 moves in 159.6 s, gain 1629.16, score 18110377.73, risk 208 h, pair hours 3805, walks 726 (668 cut off, 0 skipped), candidates tried 13121; kept at 2/5/10/20 s: 0% / 0% / 0% / 0%
+    moves at 41.70, 62.51, 106.12, 116.06, 125.53, 147.55 s

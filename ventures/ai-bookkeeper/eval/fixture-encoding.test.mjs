@@ -10,9 +10,9 @@ import { readStatement } from "../bank.mjs";
 const dir = new URL("../fixtures/", import.meta.url);
 const strip = (r) => ({ rows: r.rows.map((x) => [x.date, x.desc, x.cents, x.balance]), bank: r.bank });
 const variants = {
-  bom: (t) => "﻿" + t,
+  bom: (t) => "\uFEFF" + t,
   crlf: (t) => t.replace(/\r?\n/g, "\r\n"),
-  "bom+crlf": (t) => "﻿" + t.replace(/\r?\n/g, "\r\n"),
+  "bom+crlf": (t) => "\uFEFF" + t.replace(/\r?\n/g, "\r\n"),
   "blank lines after data": (t) => t.replace(/\s*$/, "") + "\n\n\n",
   "no final newline": (t) => t.replace(/\s*$/, ""),
 };

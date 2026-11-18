@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtLP3dLHQE39bi7k71T",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T11:07:16Z",
+  "ended": "2026-11-15T11:34:53Z",
+  "wall_minutes": 27.96,
+  "tokens_in": 11461141,
+  "tokens_out": 45998,
+  "cost_usd": 4.5596,
+  "tool_calls": 90,
+  "task": "Deepen flagship 2 (ai-bookkeeper), items (0) and (2): read two real Copilot Money exports",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16192",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    "The second Copilot file is reported as 'scored after', not held out: its top 25 first-seen misses were read (in the pre-fix run) before the keyword group was written. README and post say so.",
+    "The eval's hideColumn mis-keyed labels after a quoted cell with a line break; found and fixed here. Mercury, YNAB and Mint replays re-run with old and new helper: identical, so no earlier published figure was wrong."
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The 'Start here' row (shift-roster-builder) was already claimed by PR #16190 opened 10 minutes earlier; the table's 'older open PRs' column showed only #13070 for it, so the claim only surfaced via claim_check.py after opening my own claim PR."
+    },
+    {
+      "file": "ventures/ai-bookkeeper/eval/mercury-exports.mjs",
+      "issue": "hideColumn, shared by three evals, indexed labels by record while readStatement numbers rows by file line; a multi-line note silently shifted labels. Fixed; worth a test in any future eval helper that hides a column."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "Router's pick (shift-roster-builder) was claimed by an older PR; claim_check said YIELD.",
+      "did": "Retitled my claim PR to ai-bookkeeper, the only Deepen row among the first six with no PR in 24 h.",
+      "result": "Landed a slice of ai-bookkeeper items (0) and (2)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-ai-bookkeeper-copilot-money-signs-backwards.md",
+    "ventures/ai-bookkeeper/README.md (Copilot Money exports)",
+    "ventures/ai-bookkeeper/HISTORY.md"
+  ],
+  "goal": null,
+  "notes": "Probed irs.gov first: TY2026 IRIS guidelines still unposted (404), 2026 draft i2210 still carries 2025 text (line 9b unprinted), so items (7)/(8b) stay open. Verification: copilot-money.test.mjs 5/5; run_venture_tests.py ai-bookkeeper 3228 tests ok (1 skipped, tesseract missing); run_workflow_locally.py --for-changes 10/10 selected workflows passed (agent-cross-review and pages deploy jobs not runnable locally); venture-preflight.mjs ai-bookkeeper clean. Evals: aggregator-exports (Rocket Money, Monarch unchanged), ynab-registers, mercury-exports, mint-labelled unchanged with the new keywords.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "32cdb817-100a-5faa-91c9-a1369dd89c87",
+    "transcripts": 1,
+    "first": "2026-11-15T11:07:16Z",
+    "last": "2026-11-15T11:35:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 85,
+        "input": 160,
+        "output": 45998,
+        "thinking": 13185,
+        "cache_read": 11288311,
+        "cache_write_5m": 0,
+        "cache_write_1h": 172670,
+        "api_equivalent_usd": 4.5596,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 85,
+      "input": 160,
+      "output": 45998,
+      "thinking": 13185,
+      "cache_read": 11288311,
+      "cache_write_5m": 0,
+      "cache_write_1h": 172670,
+      "api_equivalent_usd": 4.5596,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 90,
+    "tools": {
+      "Bash": 84,
+      "mcp__github__update_pull_request": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.96,
+      "active_minutes": 27.96,
+      "model_minutes": 9.97,
+      "tool_minutes": 17.99,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer finding, diagnosing and fixing a CSV sign convention and an eval alignment bug, plus measuring on five labelled sets and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 131.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

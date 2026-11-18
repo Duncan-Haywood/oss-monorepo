@@ -20,10 +20,14 @@ def interval_stats(lo_c, hi_c, y_c, lo_t, hi_t, y_t, seed=0):
     """Plain and dequantised CQR from calibration arrays; coverage and width on the test arrays."""
     lo_c, hi_c, y_c, lo_t, hi_t, y_t = (np.asarray(a, float).tolist() for a in (lo_c, hi_c, y_c, lo_t, hi_t, y_t))
     out = {"raw_coverage": conformal.coverage(lo_t, hi_t, y_t)}
-    for name, sc in (("plain", conformal.cqr_scores(lo_c, hi_c, y_c)),
-                     ("dequantised", conformal.cqr_scores_dequantised(lo_c, hi_c, y_c, seed))):
+    deq = conformal.cqr_scores_dequantised(lo_c, hi_c, y_c, seed)
+    # "dequantised_nonempty" (session 55/56) uses the same scores but keeps a floored lower end
+    # in place when qhat < 0, which session 55 traced the coverage collapse to.
+    for name, sc, fn in (("plain", conformal.cqr_scores(lo_c, hi_c, y_c), conformal.cqr_interval),
+                         ("dequantised", deq, conformal.cqr_interval),
+                         ("dequantised_nonempty", deq, conformal.cqr_interval_nonempty)):
         q = conformal.conformal_quantile(sc, ALPHA)
-        lo2, hi2 = conformal.cqr_interval(lo_t, hi_t, q)
+        lo2, hi2 = fn(lo_t, hi_t, q)
         out[name] = dict(qhat=q, coverage=conformal.coverage(lo2, hi2, y_t),
                          width=float(np.mean(np.asarray(hi2) - np.asarray(lo2))))
     return out
@@ -65,10 +69,13 @@ if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir"); ap.add_argument("--test-year", type=int, required=True)
     ap.add_argument("--seeds", type=int, default=2)
+    ap.add_argument("--cities", nargs="*", help="subset of FILES; the output file then gets a city suffix")
     a = ap.parse_args()
     here = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "results")
     out = []
     for city, targets in FILES.items():
+        if a.cities and city not in a.cities:
+            continue
         for tg in targets:
             p = os.path.join(a.data_dir, f"{city}.csv")
             if not os.path.exists(p):
@@ -78,4 +85,4 @@ if __name__ == "__main__":
             print(city, tg, {m: dict(cov_deq=round(v["dequantised"]["coverage"], 3), w_deq=round(v["dequantised"]["width"], 1),
                                      cov_plain=round(v["plain"]["coverage"], 3), w_plain=round(v["plain"]["width"], 1))
                              for m, v in r["models"].items()}, flush=True)
-    json.dump(out, open(os.path.join(here, f"prior_table3_cov_{a.test_year}.json"), "w"), indent=1)
+    json.dump(out, open(os.path.join(here, f"prior_table3_cov_{a.test_year}" + ("_" + "_".join(a.cities) if a.cities else "") + ".json"), "w"), indent=1)

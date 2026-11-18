@@ -1,0 +1,51 @@
+n 300, 60 series a cell, ML wander. found: a change within 5 of the step; edges: changes within 5 of 100 or 160; cuts: mean changes a series.
+
+A white noise, 3-sd step
+  shipped (global scale)     cuts   1.00  found 60/60
+  R: global, repeats drop    cuts   1.00  found 60/60
+  MR: global, missing        cuts   1.00  found 60/60
+  scale per segment          cuts   1.00  found 60/60
+  S: segment, repeats drop   cuts   1.00  found 60/60
+  MS: segment, missing       cuts   1.00  found 60/60
+
+B walk 0.3, 5-sd step
+  shipped (global scale)     cuts   1.15  found 60/60
+  R: global, repeats drop    cuts   1.15  found 60/60
+  MR: global, missing        cuts   1.15  found 60/60
+  scale per segment          cuts   1.03  found 58/60
+  S: segment, repeats drop   cuts   1.03  found 58/60
+  MS: segment, missing       cuts   1.03  found 58/60
+
+C walk 1 / noise 0.1, 5x burst
+  shipped (global scale)     cuts  16.05  edges 1.77 of 2
+  R: global, repeats drop    cuts  16.05  edges 1.77 of 2
+  MR: global, missing        cuts  16.05  edges 1.77 of 2
+  scale per segment          cuts   2.38  edges 1.98 of 2
+  S: segment, repeats drop   cuts   2.38  edges 1.98 of 2
+  MS: segment, missing       cuts   2.38  edges 1.98 of 2
+
+F sticky walk (40% repeats), no change
+  shipped (global scale)     cuts  34.55
+  R: global, repeats drop    cuts   2.93
+  MR: global, missing        cuts   1.28
+  scale per segment          cuts  58.93
+  S: segment, repeats drop   cuts   0.85
+  MS: segment, missing       cuts   0.20
+
+G sticky walk, 5-sd step
+  shipped (global scale)     cuts  34.78  found 60/60
+  R: global, repeats drop    cuts   4.35  found 48/60
+  MR: global, missing        cuts   2.25  found 46/60
+  scale per segment          cuts  60.70  found 59/60
+  S: segment, repeats drop   cuts   1.68  found 37/60
+  MS: segment, missing       cuts   0.83  found 33/60
+
+H sticky walk, 5x burst
+  shipped (global scale)     cuts  26.35  edges 1.95 of 2
+  R: global, repeats drop    cuts  10.08  edges 1.47 of 2
+  MR: global, missing        cuts  10.00  edges 1.45 of 2
+  scale per segment          cuts  68.83  edges 2.00 of 2
+  S: segment, repeats drop   cuts   3.12  edges 1.78 of 2
+  MS: segment, missing       cuts   2.43  edges 1.87 of 2
+
+A, B, C (no exact repeats): missing gave the same changes as keep on 360 of 360 fits.

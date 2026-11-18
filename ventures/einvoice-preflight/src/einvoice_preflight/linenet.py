@@ -6,20 +6,16 @@ summed taxable amount, not per line. Mirrors linenet.mjs.
 """
 from __future__ import annotations
 
-from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
+from decimal import Decimal, ROUND_HALF_UP
 from typing import Any
+
+from .numbers import parse_decimal
 
 _CENT = Decimal("0.01")
 
 
 def _number(value: Any) -> Decimal | None:
-    if value is None or value == "":
-        return None
-    try:
-        result = Decimal(str(value).strip())
-    except (InvalidOperation, ValueError):
-        return None
-    return result if result.is_finite() else None
+    return parse_decimal(value)
 
 
 def round_cents(value: Decimal) -> Decimal:
@@ -56,7 +52,9 @@ def expected_line_net(line: dict[str, Any], apply_base: bool = True) -> Decimal 
     base = _number(line.get("price_base_quantity")) if apply_base else None
     if base is None or base <= 0:
         base = Decimal("1")
-    return round_cents(quantity * price / base + _signed_adjustment(line.get("adjustments")))
+    # Line allowances and charges are summed with their sign: a credit line may carry
+    # a negative charge (OpenPeppol's PINT A-NZ negative invoice, line 2).
+    return round_cents(quantity * price / base + _signed_adjustment(line.get("adjustments"), True))
 
 
 def accepted_line_net(line: dict[str, Any], supplied: Decimal | None) -> Decimal | None:
@@ -74,7 +72,24 @@ def summed_line_net(line: dict[str, Any], invoice: dict[str, Any]) -> Decimal | 
     is reported once as INV-012; draft JSON sums quantity times price."""
     stated = _number(line.get("net"))
     parsed = isinstance(invoice.get("source_format"), str)
-    return expected_line_net(line) if stated is None or not parsed else round_cents(stated)
+    # Summed at its stated precision; only the sum is rounded (PINT Oman's baisa
+    # lines, 0.047 OMR: ten make 0.47, not 0.50). Mirrors linenet.mjs.
+    return expected_line_net(line) if stated is None or not parsed else stated
+
+
+def stated_line_tax(line: dict[str, Any], net: Decimal | None, percent: Decimal | None) -> Decimal | None:
+    """A line's own VAT amount (PINT Oman BTOM-016) when it agrees with net x rate
+    to within a cent; Oman's category tax is their sum (ALIGNED-IBRP-S-09-OM)."""
+    stated = _number(line.get("tax_amount"))
+    if stated is None or net is None or percent is None:
+        return None
+    return stated if abs(stated - net * percent / Decimal("100")) <= _CENT else None
+
+
+# E, Z, AE, K and G must carry 0 (EN 16931 BR-E-05, BR-Z-05, BR-AE-05, BR-IC-05, BR-G-05)
+# and PINT (UAE, Oman) leaves BT-119 out on them, so a missing one reads as 0, like O.
+# Mirrors NO_RATE_CATEGORIES in linenet.mjs (tests/test_js_parity.py).
+_NO_RATE_CATEGORIES = frozenset({"O", "E", "Z", "AE", "K", "G"})
 
 
 def tax_percent_of(item: dict[str, Any]) -> Decimal | None:
@@ -82,9 +97,37 @@ def tax_percent_of(item: dict[str, Any]) -> Decimal | None:
     if percent is not None:
         return percent
     category = item.get("tax_category")
-    if isinstance(category, str) and category.strip().upper() == "O":
+    if isinstance(category, str) and category.strip().upper() in _NO_RATE_CATEGORIES:
         return Decimal("0")
     return None
+
+
+def is_flat_tax_row(row: Any) -> bool:
+    """A non-VAT/GST row with no percentage: a flat amount (Malaysia's tourism tax).
+
+    Mirrors isFlatTaxRow in linenet.mjs.
+    """
+    if not isinstance(row, dict):
+        return False
+    scheme = row.get("tax_scheme")
+    scheme = scheme.strip().upper() if isinstance(scheme, str) else ""
+    if not scheme or scheme in ("VAT", "GST"):
+        return False
+    return _number(row.get("tax_percent")) is None
+
+
+def flat_tax_total(invoice: Any) -> Decimal | None:
+    """Summed tax of the flat-amount rows; None when one has no readable tax."""
+    rows = invoice.get("tax_breakdown") if isinstance(invoice, dict) else None
+    total = Decimal("0")
+    for row in rows if isinstance(rows, list) else []:
+        if not is_flat_tax_row(row):
+            continue
+        tax = _number(row.get("tax"))
+        if tax is None:
+            return None
+        total += tax
+    return round_cents(total)
 
 
 def tax_key_mode(invoice: dict[str, Any]) -> bool:
@@ -115,9 +158,13 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
     groups: dict[Any, dict[str, Decimal]] = {}
     unattributed = False
 
-    def add(key: Any, percent: Decimal, amount: Decimal) -> None:
-        group = groups.setdefault(key, {"taxable": Decimal("0"), "tax": Decimal("0"), "percent": percent})
+    def add(key: Any, percent: Decimal, amount: Decimal, line_tax: Decimal | None = None) -> None:
+        group = groups.setdefault(key, {"taxable": Decimal("0"), "tax": Decimal("0"), "percent": percent, "line_tax": Decimal("0"), "line_tax_all": True})
         group["taxable"] += amount
+        if line_tax is None:
+            group["line_tax_all"] = False
+        else:
+            group["line_tax"] += line_tax
 
     lines = invoice.get("lines") if isinstance(invoice.get("lines"), list) else []
     for line in lines:
@@ -126,7 +173,7 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
         net, percent = summed_line_net(line, invoice), tax_percent_of(line)
         if net is None or percent is None or percent < 0 or percent > 100:
             continue
-        add(tax_key(line, with_category), percent, net)
+        add(tax_key(line, with_category), percent, net, stated_line_tax(line, net, percent))
     adjustments = invoice.get("adjustments") if isinstance(invoice.get("adjustments"), list) else []
     for row in adjustments:
         delta = _signed_adjustment([row], is_negative_invoice(invoice))
@@ -143,4 +190,5 @@ def tax_groups(invoice: dict[str, Any]) -> tuple[dict[Any, dict[str, Decimal]], 
     for group in groups.values():
         group["taxable"] = round_cents(group["taxable"])
         group["tax"] = round_cents(group["taxable"] * group["percent"] / Decimal("100"))
+        group["line_tax"] = round_cents(group["line_tax"]) if group.pop("line_tax_all") else None
     return groups, unattributed, with_category

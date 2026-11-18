@@ -1,0 +1,13 @@
+part,group,quantity,set,gap,lo,hi,removed,removed_lo,removed_hi,deff_ratio,draws_not_converged,worst_margin_gap
+A,everyone,"weekly attendance, first wave (selection)",raw,-0.1108,-0.1582,-0.0629,0.0000,0.0000,0.0000,1.0000,0,0.0000
+A,everyone,"weekly attendance, first wave (selection)",S1,-0.0636,-0.1165,-0.0082,0.4264,0.2286,0.8687,1.6713,0,0.0000
+A,everyone,"weekly attendance, first wave (selection)",S2,-0.0658,-0.1189,-0.0105,0.4059,0.1549,0.8645,1.8456,0,0.0000
+A,everyone,"weekly attendance, first wave (selection)",S3,-0.0697,-0.1234,-0.0187,0.3709,0.1292,0.7028,1.9032,0,0.0000
+A,everyone,"weekly attendance, 2020",raw,-0.1264,-0.1622,-0.0901,0.0000,0.0000,0.0000,1.0000,0,0.0000
+A,everyone,"weekly attendance, 2020",S1,-0.0706,-0.1170,-0.0224,0.4414,0.2368,0.7683,1.6713,0,0.0000
+A,everyone,"weekly attendance, 2020",S2,-0.0827,-0.1273,-0.0351,0.3457,0.1596,0.6561,1.8456,0,0.0000
+A,everyone,"weekly attendance, 2020",S3,-0.0869,-0.1316,-0.0379,0.3123,0.1045,0.6297,1.9032,0,0.0000
+A,everyone,"change, first wave to 2020",raw,-0.0156,-0.0658,0.0238,0.0000,0.0000,0.0000,1.0000,0,0.0000
+A,everyone,"change, first wave to 2020",S1,-0.0071,-0.0560,0.0380,0.5481,-5.3497,8.5380,1.6713,0,0.0000
+A,everyone,"change, first wave to 2020",S2,-0.0169,-0.0681,0.0343,-0.0811,-4.7957,4.5274,1.8456,0,0.0000
+A,everyone,"change, first wave to 2020",S3,-0.0172,-0.0680,0.0319,-0.1033,-4.8002,5.8065,1.9032,0,0.0000

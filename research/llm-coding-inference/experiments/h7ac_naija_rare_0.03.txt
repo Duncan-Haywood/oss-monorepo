@@ -1,0 +1,8 @@
+NaijaSenti negative share thinned to 0.03, nb-in-language: corpus 30794, prevalence 0.0300, corpus J 0.384; 1000 draws
+n | rule | cells % | coverage % | half-width pts
+1000 | pooled | 0 | 94.5 | 1.029
+1000 | shipped default | 0 | 94.5 | 1.029
+1000 | neg_guard=3 alone | 72 | 95.7 | 0.987
+3000 | pooled | 0 | 95.2 | 0.573
+3000 | shipped default | 77 | 95.0 | 0.535
+3000 | neg_guard=3 alone | 100 | 94.3 | 0.528

@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyemEcrz76UNwTutoqQ",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T21:39:13Z",
+  "ended": "2026-11-13T21:59:10Z",
+  "wall_minutes": 20.23,
+  "tokens_in": 11540571,
+  "tokens_out": 74841,
+  "cost_usd": 5.0999,
+  "tool_calls": 89,
+  "task": "explore: new venture nginx-config-security-check",
+  "projects": [
+    "ventures/nginx-config-security-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15625",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 28,
+  "outcome": "success",
+  "errors": [
+    "Include matcher fell back to a bare *.conf glob when 'include custom.d/*.conf' matched nothing, giving a false include loop on h5bp/server-configs-nginx; fixed, with a test.",
+    "ventures-tests CI: inherited_keys guard flagged unguarded SEV_ORDER[x.severity]; fixed with Object.hasOwn.",
+    "sibling-links CI: new venture was an orphan (no sibling linked to it); added a link from systemd-unit-hardening-check."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "issue": "Nothing in the new-venture path says a new tool must be linked from an existing sibling page (siblings.mjs orphan budget 0) or that SWITCHES_IN_THE_CATALOGUE in platform/privacy/optout-persistence.test.mjs must be bumped; both turned up only as red tests."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes detaches the long portfolio-pages step after 100 s and voids every later workflow if any tracked file changes meanwhile, so writing the blog post during the sweep wasted it; the CLAUDE.md hint to run it in the background doesn't say to leave the tree alone."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-one-add-header-switches-off-the-rest.md"
+  ],
+  "goal": null,
+  "notes": "Explore idea: an nginx config static checker (19 finding types, include resolution, add_header/allow-deny/proxy_ssl_verify inheritance, add_header_inherit honoured). Gixy credited for the patterns it catalogued; no code used. nginx behaviour quoted in the pages was checked against nginx.org docs this run. Real-data run over h5bp/server-configs-nginx d2f2c3e (38 .conf files): after the include fix, 1 finding (add-header-drops-inherited in the svgz location, dropping X-Frame-Options, which h5bp sends only for HTML, and Cache-Control). Repo's own 3 nginx files (retail-pilot-intel): clean. Local: node --test of the venture's three test files passes 36; optout-persistence 20/20; siblings 20/20; systemd sibling 31/31. The first local run_workflow_locally sweep passed 10 workflows on a stable tree (agent-cross-review, agent-permission-harness, checklist-coverage, conflict-markers, control-plane-guard, distribution-versions, doc-refs, link-contrast, page-integrity, pages); the rest were voided by edits and left to GitHub CI, which ran on real runners.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "08666c1e-5791-5387-a269-89c5171247ac",
+    "transcripts": 1,
+    "first": "2026-11-13T21:39:13Z",
+    "last": "2026-11-13T21:59:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 82,
+        "input": 160,
+        "output": 74841,
+        "thinking": 14419,
+        "cache_read": 11374467,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165944,
+        "api_equivalent_usd": 5.0999,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 82,
+      "input": 160,
+      "output": 74841,
+      "thinking": 14419,
+      "cache_read": 11374467,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165944,
+      "api_equivalent_usd": 5.0999,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 89,
+    "tools": {
+      "Bash": 77,
+      "Write": 7,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__get_job_logs": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.23,
+      "active_minutes": 20.23,
+      "model_minutes": 11.8,
+      "tool_minutes": 8.43,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior engineer writing an nginx config lexer, include resolver, 19 checks with tests, two pages and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 196.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -25,3 +25,13 @@ test("--json parses; usage and bad input exit 2", () => {
   assert.equal(spawnSync("node", [cli], { encoding: "utf8" }).status, 2);
   assert.equal(spawnSync("node", [cli, withFile("a,b")], { encoding: "utf8" }).status, 2);
 });
+
+test("an unreadable or out-of-range --unknown is a usage error, not 1", () => {
+  const f = withFile(sampleCsv());
+  for (const bad of [["--unknown", "abc"], ["--unknown"], ["--unknown", "2"], ["--unknown", "-1"]]) {
+    const r = spawnSync("node", [cli, f, ...bad], { encoding: "utf8" });
+    assert.equal(r.status, 2, bad.join(" "));
+    assert.match(r.stderr, /--unknown/);
+  }
+  assert.equal(spawnSync("node", [cli, f, "--unknown", "0.5"], { encoding: "utf8" }).status === 2, false);
+});

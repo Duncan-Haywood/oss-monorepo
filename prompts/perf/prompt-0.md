@@ -27,6 +27,10 @@ setting, a library choice, a clone or an algorithm, never in a slow language.
 
 1. **Open perf items** in the process backlog: `python3 prompts/promptctl.py
    backlog`, titles starting `perf:`. Search open PRs for the item's id first.
+   Items whose `touches` are all in `.github/CODEOWNERS` (workflows, CI) wait
+   for the owner and cannot land in a run; if every perf item is like that,
+   skip to 2 to 4 for a landable one, or take a venture slice instead (three
+   perf runs on 2026-11-09 reported this).
 2. **A fresh reading of the runner pool**:
    `python3 platform/ci/ci_profile.py --runs 600 --top 25`. Take the largest
    consumer nobody is working on. Checkout share, queue time and jobs per PR

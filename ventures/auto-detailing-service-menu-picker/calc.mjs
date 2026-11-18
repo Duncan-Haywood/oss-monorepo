@@ -30,7 +30,7 @@ export function num(v, fallback = 0) {
   const n = typeof v === "number" ? v : Number.parseFloat(String(v ?? "").replace(/[$,%\s,]/g, ""));
   return Number.isFinite(n) ? n : fallback;
 }
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.round(Math.abs(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(n)).toLocaleString("en-US"));
 export const pct = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US") + "%";
 const one = (n) => (Math.round(n * 10) / 10).toLocaleString("en-US");
 
@@ -174,7 +174,7 @@ export function analyze(rawItems, rawShared) {
 
 const csvCell = (v) => {
   let s = String(v);
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s; // spreadsheet formula injection
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s; // spreadsheet formula injection
   return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 };
 

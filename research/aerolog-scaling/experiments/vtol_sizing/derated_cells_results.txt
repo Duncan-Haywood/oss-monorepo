@@ -1,0 +1,6 @@
+Milestone 10p: base-case break-even (km) against the 250 Wh/kg battery aircraft, max current x derating d
+cell     d=1.0    d=0.75   d=0.5    d=0.33   d=0.25   (pack W/kg at d=1 .. 0.25)
+P42A    44       58       86       130      170      1620 .. 405
+P45B    42       56       82       124      164      1694 .. 424
+P50B    32       42       64       94       124      2226 .. 557
+P50S    22       28       40       60       78       3549 .. 887

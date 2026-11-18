@@ -174,6 +174,27 @@ check(/2,?400\.00/.test(pptext) && /Still paid ahead/.test(pptext), "the prepaid
 await page.fill("#pp-months", "1");
 await page.click("#pp-add");
 check(/Months must be/.test(await page.locator("#pp-status").textContent()), "a one-month prepaid is refused");
+// Deferred revenue: an annual plan paid up front, the register and the waterfall, then a cancellation.
+await page.fill("#dr-name", "Annual support");
+await page.fill("#dr-customer", "Acme");
+await page.fill("#dr-amount", "1200.00");
+await page.fill("#dr-start", "2026-01-01");
+await page.fill("#dr-months", "12");
+await page.selectOption("#dr-method", "monthly");
+await page.click("#dr-add");
+check(/DR-1 Annual support added/.test(await page.locator("#dr-status").textContent()), "a deferral is registered");
+const drtext = await page.locator("#dr-register").textContent();
+check(/1,?200\.00/.test(drtext) && /Still to earn/.test(drtext), "the deferral register shows what is paid and still to earn");
+check(/waterfall/i.test(await page.locator("#dr-waterfall").textContent()), "the waterfall table is drawn");
+const answers = [(d) => d.accept("2026-02-14"), (d) => d.dismiss()];
+const onDialog = (d) => (answers.shift() ?? ((x) => x.dismiss()))(d);
+page.on("dialog", onDialog);
+await page.click(".dr-cancel");
+check(/DR-1 cancelled; .* is owed back/.test(await page.locator("#dr-status").textContent()), "a cancellation leaves a refund owed");
+page.off("dialog", onDialog);
+await page.fill("#dr-months", "0");
+await page.click("#dr-add");
+check(/1 to 120/.test(await page.locator("#dr-status").textContent()), "a zero-month deferral is refused");
 // Stock: buy 100 for 450, sell 40, then selling more than is on hand is refused.
 await page.selectOption("#iv-kind", "buy");
 await page.fill("#iv-sku", "MUG-BLUE");

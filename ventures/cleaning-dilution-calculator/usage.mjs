@@ -1,3 +1,16 @@
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data (Chrome's "block all cookies", Safari with cookies
+// blocked), and a default parameter is evaluated before any try in the body.
+// So the defaults below, and the page's calls, go through this instead of
+// naming the global: a blocked store reads as "no storage", never a crash.
+export function usageStorage() {
+  try {
+    return globalThis.localStorage ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function privacySignal() {
   try {
     return globalThis.navigator?.doNotTrack === '1' || globalThis.navigator?.globalPrivacyControl === true;
@@ -6,7 +19,7 @@ function privacySignal() {
   }
 }
 
-export function recordUsage(storage = globalThis.localStorage, optedOut = false, event = 'calculated') {
+export function recordUsage(storage = usageStorage(), optedOut = false, event = 'calculated') {
   // The visitor's stored choice, consulted before anything else: the
   // caller passes its own idea of it, and on most pages here that came
   // from a control that had forgotten.
@@ -38,7 +51,7 @@ export function recordUsage(storage = globalThis.localStorage, optedOut = false,
 // be deleted by the very act it records. The recorder above consults it
 // directly, so the promise does not depend on a caller remembering to
 // pass the choice in.
-export function readOptOut(storage = globalThis.localStorage) {
+export function readOptOut(storage = usageStorage()) {
   try {
     return storage?.getItem('cleaning-dilution-usage-opt-out') === '1';
   } catch {
@@ -47,7 +60,7 @@ export function readOptOut(storage = globalThis.localStorage) {
   }
 }
 
-export function writeOptOut(storage = globalThis.localStorage, optedOut = false) {
+export function writeOptOut(storage = usageStorage(), optedOut = false) {
   if (!storage) return;
   // Independent writes, counters first: sharing one try means a setItem
   // that throws on a full quota skips the delete entirely, and the

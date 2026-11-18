@@ -63,7 +63,7 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
   });
   const out = mkdtempSync(path.join(os.tmpdir(), 'podcast-out-'));
   const pages = await buildWriting(out, BASE, { root });
-  assert.deepEqual(pages, ['a', 'b', 'podcast']);
+  assert.deepEqual(pages, ['a', 'b', 'topic/tools', 'podcast']);
   const w = path.join(out, WRITING_PATH);
   const postA = await fs.readFile(path.join(w, 'a/index.html'), 'utf8');
   const postB = await fs.readFile(path.join(w, 'b/index.html'), 'utf8');
@@ -95,7 +95,7 @@ test('the build puts a player on the post, a podcast page and an RSS feed with e
 test('no episodes: the podcast page still exists (it is in the top nav), with no feed', async () => {
   const root = repo({ posts: { '2026-10-20-a.md': post('A', '2026-10-20') } });
   const out = mkdtempSync(path.join(os.tmpdir(), 'podcast-none-'));
-  assert.deepEqual(await buildWriting(out, BASE, { root }), ['a', 'podcast']);
+  assert.deepEqual(await buildWriting(out, BASE, { root }), ['a', 'topic/tools', 'podcast']);
   const page = await fs.readFile(path.join(out, WRITING_PATH, 'podcast/index.html'), 'utf8');
   assert.match(page, /No episodes yet/);
   assert.match(page, /data-pfs-nav="podcast" href="[^"]*" aria-current="page"/);

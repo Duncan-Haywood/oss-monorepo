@@ -26,6 +26,68 @@ const FIXES = {
   "BR-CIUS-PT-66": "Portugal: add a Deliver to address group (BG-15) with street, city and post code.",
   "BR-CIUS-PT-06": "Portugal: add the seller's city (BT-37).",
   "BR-CIUS-PT-07": "Portugal: add the seller's post code (BT-38), in the Portuguese NNNN-NNN form.",
+  "HR-BR-1": "Croatia: the invoice number (BT-1) may not contain spaces or other whitespace; Fiskalizacija numbers look like 42-1-1 (number-premises-device).",
+  "HR-BR-2": "Croatia: add the issue time (HR-BT-2) as cbc:IssueTime in hh:mm:ss, for example 09:30:00. Keep it even though the EU base warns about it (UBL-CR-006).",
+  "HR-BR-4": "Croatia: an invoice with an amount due (BT-115 above zero) needs a payment due date (BT-9, cbc:DueDate or PaymentMeans/PaymentDueDate).",
+  "HR-BR-5": "Croatia: set the specification identifier (BT-24) to exactly urn:cen.eu:en16931:2017#compliant#urn:mfin.gov.hr:cius-2025:1.0#conformant#urn:mfin.gov.hr:ext-2025:1.0.",
+  "HR-BR-6": "Croatia: every preceding-invoice reference (BG-3) needs the preceding invoice's issue date (BT-26).",
+  "HR-BR-7": "Croatia: give the seller's electronic address (BT-34, cbc:EndpointID), for a Croatian company usually the OIB with scheme 9934 (HR VAT number).",
+  "HR-BR-9": "Croatia: give the operator's OIB (HR-BT-5) in AccountingSupplierParty/SellerContact/cbc:ID, 11 digits with a valid ISO 7064 MOD 11,10 check digit (the person who issued the invoice).",
+  "HR-BR-10": "Croatia: give the buyer's electronic address (BT-49, cbc:EndpointID), for a Croatian company usually the OIB with scheme 9934.",
+  "HR-BR-11": "Croatia: a document-level charge (BG-21) that is exempt or outside VAT needs its HR VAT category label (HR-BT-6) in TaxCategory/cbc:Name, for example HR:E or HR:O.",
+  "HR-BR-13": "Croatia: a document-level charge (BG-21) that is exempt or outside VAT needs an exemption reason text (HR-BT-6) or reason code (HR-BT-7).",
+  "HR-BR-16": "Croatia: a line that is exempt (E) or outside VAT (O) needs its HR VAT category label in ClassifiedTaxCategory/cbc:Name (HR-BT-12), for example HR:E or HR:O.",
+  "HR-BR-17": "Croatia: use the purchase order reference either on the lines (HR-BT-9) or once for the invoice (BT-13), not both.",
+  "HR-BR-18": "Croatia: use the despatch advice reference either on the lines (HR-BT-10) or once for the invoice (BT-16), not both.",
+  "HR-BR-19": "Croatia: use the receiving advice reference either on the lines (HR-BT-11) or once for the invoice (BT-15), not both.",
+  "HR-BR-20": "Croatia: the price base quantity (BT-149), when given, must be a positive number above zero.",
+  "HR-BR-21": "Croatia: the price base quantity's unit (BT-150) must be the same unit code as the invoiced quantity (BT-130).",
+  "HR-BR-25": "Croatia: give every item a KPD classification (BT-158): cac:CommodityClassification/cbc:ItemClassificationCode with listID=\"CG\" and a KPD code such as 62.20.30. Advance-payment invoices and credit notes (type 386, 381 and similar) are exempt.",
+  "HR-BR-CL-2": "Croatia: the KPD code (BT-158, listID CG) must be one on the Porezna uprava's KPD list, written NN.NN.NN with no spaces; look it up in the KPD 2025 classification.",
+  "HR-BR-CL-1": "Croatia: the HR VAT category label (cbc:Name of the tax category) must be one of HR:PDV25, HR:PDV13, HR:PDV5, HR:Z, HR:K, HR:G, HR:AE, HR:E, HR:POVNAK, HR:PP, HR:PPMV, HR:O or HR:N.",
+  "HR-BR-26": "Croatia: an invoice with an exempt (E) line, allowance or charge must carry the HR VAT breakdown (HR-BG-2, hrextac:HRFISK20Data/HRTaxTotal) in the UBL extension.",
+  "HR-BR-27": "Croatia: the HR taxable amount (HR-BT-23, HRLegalMonetaryTotal/TaxExclusiveAmount) must equal the line net total, minus document allowances, plus document charges, minus the amounts outside the tax base. Recompute it from the lines.",
+  "HR-BR-28": "Croatia: in the HR VAT breakdown, a category E or O subtotal must have a tax amount of 0.",
+  "HR-BR-29": "Croatia: lines, allowances or charges outside the tax base need HR VAT category O (HR-BT-18) with an HR category tax amount (HR-BT-17) of 0.",
+  "HR-BR-30": "Croatia: when lines or charges fall outside the tax base (HR:POVNAK, HR:PP, HR:PPMV, HR:N), add the HR document totals (HR-BG-3, HRLegalMonetaryTotal) to the extension.",
+  "HR-BR-32": "Croatia: the HR non-taxable amount (HR-BT-24) must equal the net of the lines outside the tax base, minus their allowances, plus their charges.",
+  "HR-BR-33": "Croatia: remove empty XML elements; the Porezna uprava rejects any empty element except inside the signature.",
+  "HR-BR-34": "Croatia: set the business process (BT-23, cbc:ProfileID) to P1 to P12, or P99:<buyer's own label>; P1 is a plain invoice for goods or services under a contract.",
+  "HR-BR-36": "Croatia: a line that is exempt or outside VAT needs an exemption reason text (HR-BT-13) or reason code (HR-BT-14) in its ClassifiedTaxCategory.",
+  "HR-BR-37": "Croatia: name the operator who issued the invoice (HR-BT-4) in AccountingSupplierParty/SellerContact/cbc:Name. Keep it even though the EU base warns about it (UBL-CR-200).",
+  "HR-BR-42": "Croatia: the business process (BT-23) may be at most 200 characters.",
+  "HR-BR-43": "Croatia: the contract reference (BT-12) may be at most 1,024 characters.",
+  "HR-BR-46": "Croatia: the item name (BT-153) must be under 1,024 characters.",
+  "HR-BR-47": "Croatia: the item description (BT-154) must be under 4,096 characters.",
+  "HR-BR-53": "Croatia: a Croatian party's VAT identifier (BT-31, BT-48, BT-63) or tax number (BT-32) must be a valid OIB: HR plus 11 digits whose last digit is the ISO 7064 MOD 11,10 check digit.",
+  "HR-BR-54": "Croatia: the HR VAT total (HR-BT-25) must equal the sum of the HR category tax amounts (HR-BT-17) in the extension.",
+  "HR-BR-55": "Croatia: the HR VAT total in the extension (HR-BT-25) must equal the invoice VAT total (BT-110).",
+  "HR-BR-56": "Croatia: prices, VAT rates and quantities may have at most 10 decimals and 30 digits in all.",
+  "HR-BR-S-10": "Croatia: an HR VAT breakdown in category S must have a VAT rate above 0.",
+  "HR-BR-Z-10": "Croatia: an HR VAT breakdown in category Z must have a VAT rate of 0.",
+  "HR-BR-E-10": "Croatia: an HR VAT breakdown in category E must have a VAT rate of 0.",
+  "HR-BR-AE-10": "Croatia: an HR VAT breakdown in category AE (reverse charge) must have a VAT rate of 0.",
+  "HR-BR-40": "Croatia: the issue date (BT-2) must be on or after 1 January 2026, when Fiskalizacija 2.0 began, and before 2100.",
+  "HR-BR-41": "Croatia: the payment due date (BT-9) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-44": "Croatia: the actual delivery date (BT-72) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-45": "Croatia: the preceding invoice's issue date (BT-26) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-48": "Croatia: the VAT point date (BT-7) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-49": "Croatia: the invoicing period start (BT-73) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-50": "Croatia: the invoicing period end (BT-74) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-51": "Croatia: the line period start (BT-134) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-52": "Croatia: the line period end (BT-135) must be a real date after 1 January 1900 and before 1 January 2100, written YYYY-MM-DD.",
+  "HR-BR-S-1": "Croatia: an invoice where a line (BT-151) is VAT category standard or reduced rate (S) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-S-2": "Croatia: an invoice where a document allowance (BT-95) is VAT category standard or reduced rate (S) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-S-3": "Croatia: an invoice where a document charge (BT-102) is VAT category standard or reduced rate (S) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-Z-1": "Croatia: an invoice where a line (BT-151) is VAT category zero rate (Z) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-Z-2": "Croatia: an invoice where a document allowance (BT-95) is VAT category zero rate (Z) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-Z-3": "Croatia: an invoice where a document charge (BT-102) is VAT category zero rate (Z) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-E-1": "Croatia: an invoice where a line (BT-151) is VAT category exempt (E) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-E-2": "Croatia: an invoice where a document allowance (BT-95) is VAT category exempt (E) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-E-3": "Croatia: an invoice where a document charge (BT-102) is VAT category exempt (E) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-AE-1": "Croatia: an invoice where a line (BT-151) is VAT category reverse charge (AE) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-AE-2": "Croatia: an invoice where a document allowance (BT-95) is VAT category reverse charge (AE) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
+  "HR-BR-AE-3": "Croatia: an invoice where a document charge (BT-102) is VAT category reverse charge (AE) must give the buyer's VAT identifier (BT-48), for a Croatian buyer HR plus the OIB.",
   "BR-01": "Set the specification identifier (BT-24), for example urn:cen.eu:en16931:2017 for a plain EN 16931 invoice.",
   "BR-02": "Give the invoice a number (BT-1).",
   "BR-03": "Give the invoice an issue date (BT-2).",
@@ -136,7 +198,7 @@ const FIXES = {
   "BR-DE-31": "A direct debit (BG-19) needs the debited account identifier (BT-91), an IBAN.",
   "BR-DE-30": "A direct debit (BG-19) needs the bank-assigned creditor identifier (BT-90).",
   "PEPPOL-EN16931-R006": "Give at most one invoiced object identifier (BT-18, type code 130) at document level.",
-  "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:billing:NN:1.0, where NN is the process number (01 for billing).",
+  "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:billing:01:1.0. Since Peppol BIS 3.0.21 the only other values accepted are urn:peppol:france:billing:regulated, urn:peppol:france:billing:non-regulated and urn:peppol:bis:billing_with_response; other billing:NN numbers are refused.",
   "PEPPOL-EN16931-R008": "Remove empty elements from the XML; Peppol rejects documents that contain them.",
   "PEPPOL-EN16931-R051": "Use the invoice currency (BT-5) in every currencyID attribute; only the VAT total in the accounting currency (BT-111) may differ.",
   "PEPPOL-EN16931-R053": "Give exactly one tax total (TaxTotal) that carries the VAT breakdown subtotals; the accounting-currency VAT total is a separate TaxTotal without them.",
@@ -186,6 +248,7 @@ const FIXES = {
   "DE-R-027": "The seller contact telephone (BT-42) needs at least three digits.",
   "DE-R-028": "The seller contact email (BT-43) needs exactly one @ with at least two characters on each side and no space or dot next to it.",
   "DE-R-030": "For a direct debit (BG-19) add the bank-assigned creditor identifier (BT-90).",
+  "DE-R-T02": "Germany: write the external document location (BT-124) as an absolute URL with a scheme, for example https://example.com/doc.pdf.",
   "DE-R-031": "For a direct debit (BG-19) add the debited account identifier (BT-91).",
   "DE-R-023-1": "For a credit transfer (payment means 30 or 58) give the payee account (BG-17, BT-84).",
   "DE-R-023-2": "For a credit transfer (payment means 30 or 58) remove the card (BG-18) and direct-debit (BG-19) groups.",
@@ -353,11 +416,17 @@ Object.assign(FIXES, {
   "PEPPOL-COMMON-R050": "Write the Australian Business Number as eleven digits that pass the ABN check.",
   "PEPPOL-COMMON-R052": "Write the Danish chamber of commerce (P) number as ten digits.",
   "PEPPOL-COMMON-R053": "Write the Danish ERSTORG (SE) number as ten characters: DK followed by eight digits.",
+  // Added to peppol-bis-invoice-3 after the last build this list was checked against (seen 2026-11-14).
+  "PEPPOL-COMMON-R054": "Write the Dutch Chamber of Commerce (KVK) number (scheme 0106) as eight digits, for example 12345678.",
+  "PEPPOL-COMMON-R055": "Write the Dutch organisation number (OIN, scheme 0190) as twenty digits.",
+  "PEPPOL-COMMON-R056-1": "Write the Dutch VAT number (scheme 9944) as NL, nine digits, B and two digits, for example NL123456789B12.",
+  "PEPPOL-COMMON-R056-2": "Write the Dutch VAT number as NL, nine digits, B and two digits, for example NL123456789B12.",
+  "PEPPOL-COMMON-R057": "Write the Dutch KVK establishment number (scheme 0217) as twelve digits.",
   "PEPPOL-EN16931-CL001": "Use an attachment mime code from the allowed subset of the IANA list: application/pdf, image/png, image/jpeg, text/csv, a spreadsheet type or application/xml.",
   "PEPPOL-EN16931-CL002": "Use an allowance reason code from the Peppol subset of UNCL 5189.",
   "PEPPOL-EN16931-CL003": "Use a charge reason code from UNCL 7161.",
   "PEPPOL-EN16931-CL006": "Use an invoice period description code from UNCL 2005 (3, 35 or 432).",
-  "PEPPOL-EN16931-CL007": "Use a currency code from ISO 4217, for example EUR.",
+  "PEPPOL-EN16931-CL007": "Use a currency code from ISO 4217, for example EUR. Since Peppol BIS 3.0.21 BGN (Bulgaria adopted the euro) and ANG (replaced by XCG) are no longer accepted.",
   "PEPPOL-EN16931-CL008": "Use an electronic address scheme from the Peppol EAS list, for example 0088 or 0204.",
   "PEPPOL-EN16931-F001": "Write the date as YYYY-MM-DD, with no time and no extra characters.",
   "PEPPOL-EN16931-P0100": "Use an invoice type code Peppol allows for the billing profile, for example 380 (invoice) or 384 (corrected invoice).",
@@ -370,7 +439,7 @@ Object.assign(FIXES, {
   "PEPPOL-EN16931-P0109": "With exemption reason VATEX-EU-F the VAT category must be E.",
   "PEPPOL-EN16931-P0110": "With exemption reason VATEX-EU-I the VAT category must be E.",
   "PEPPOL-EN16931-P0111": "With exemption reason VATEX-EU-J the VAT category must be E.",
-  "PEPPOL-EN16931-P0112": "Type codes 326 and 384 are only for German sellers and buyers; use 380 for other invoices.",
+  "PEPPOL-EN16931-P0112": "Type codes 326 (partial) and 389 (self-billed) are only for a German seller and buyer, and 384 (corrected) only when both are German or both are Slovak (Peppol BIS 3.0.22); use 380 for other invoices.",
   "PEPPOL-EN16931-R002": "Keep a single document-level note (BT-22); merge the text into one note.",
   "PEPPOL-EN16931-R005": "The VAT accounting currency (BT-6) must differ from the invoice currency (BT-5); remove it if they are the same.",
   "PEPPOL-EN16931-R040": "An allowance or charge amount must equal base amount x percentage / 100 (within 0.02) when both are given. Recalculate it.",
@@ -391,6 +460,11 @@ Object.assign(FIXES, {
 });
 
 const FAMILIES = [
+  // Factur-X 1.09.2 EXTENDED's structure and code-list checks (facturx-extended-cii.json): the
+  // message says only "Value of '@schemeID' is not allowed" or "Element 'ram:X' must occur
+  // exactly 1 times"; the path says where. Code lists move between releases (the Leitweg
+  // scheme 9958 became 0204), so older ZUGFeRD 2.0/2.1 samples fail them.
+  [/^FX-SCH-A-/, "Factur-X EXTENDED (1.09.2): at the path shown, either a code is not on the current Factur-X code list (a retired scheme such as 9958, now 0204 for a Leitweg-ID, an old unit or allowance reason code) or an element occurs more or fewer times than the profile allows. Use a code from the current list, or add or remove the element, and re-run the check."],
   [/^BR-RO-DT/, "Romania (RO e-Factura): write the date as YYYY-MM-DD, for example 2026-03-31, with no time or time zone."],
   [/^BR-RO-L\d/, "Romania (RO e-Factura) caps this text field at the length in the message (ANAF rejects longer values than the EN 16931 standard allows). Shorten it."],
   [/^BR-RO-A\d/, "Romania (RO e-Factura) caps how many times this group may repeat. Merge or drop the extra entries."],
@@ -425,4 +499,19 @@ export function plainFix(ruleId) {
 
 export function hasSpecificFix(ruleId) {
   return Object.hasOwn(FIXES, String(ruleId || ""));
+}
+
+// Peppol BIS Self-Billing reuses Billing's rule ids with its own identifiers and type
+// codes, so these few get their own advice (2026-11-18). The buyer issues the invoice.
+const SELF_BILLING_FIXES = {
+  "PEPPOL-EN16931-R001": "Set the business process (BT-23) to urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0.",
+  "PEPPOL-EN16931-R007": "Write the business process (BT-23) as urn:fdc:peppol.eu:2017:poacc:selfbilling:01:1.0. Billing's urn:fdc:peppol.eu:2017:poacc:billing:01:1.0 is not accepted on a self-billing document.",
+  "PEPPOL-EN16931-R004": "Set the specification identifier (BT-24) to urn:cen.eu:en16931:2017#compliant#urn:fdc:peppol.eu:2017:poacc:selfbilling:3.0, with nothing after it.",
+  "PEPPOL-EN16931-P0100": "A self-billing invoice uses type code 389 (self-billed invoice) or 527 (self-billed debit note); 380 is for ordinary Peppol BIS Billing.",
+  "PEPPOL-EN16931-P0101": "A self-billing credit note uses type code 261 (self-billed credit note); 381 is for ordinary Peppol BIS Billing.",
+};
+
+/** The Self-Billing advice for a rule id, or null where Billing's advice holds. */
+export function selfBillingFix(ruleId) {
+  return SELF_BILLING_FIXES[String(ruleId || "")] || null;
 }

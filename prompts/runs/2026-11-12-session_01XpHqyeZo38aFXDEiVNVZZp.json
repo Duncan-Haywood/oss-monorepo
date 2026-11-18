@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqyeZo38aFXDEiVNVZZp",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T17:38:52Z",
+  "ended": "2026-11-12T17:45:59Z",
+  "wall_minutes": 7.26,
+  "tokens_in": 2844225,
+  "tokens_out": 34704,
+  "cost_usd": 2.0542,
+  "tool_calls": 32,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15206",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 'git log -15 -- ventures/hearth-and-horizon ...' recency check is useless in a shallow clone (it showed one commit); the stories' 'published:' front matter was the reliable recency signal."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Hearth & Horizon 'Next up' list holds only a 'use sparingly' Quarry Nine sequel, so a run must invent and check a premise against 293 finished stories in DONE.md; a keyword grep over DONE.md and stories/ was the fastest novelty check."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-fog-reads-eighty-nine.md",
+    "ventures/hearth-and-horizon/DONE.md (numbers entry)"
+  ],
+  "goal": null,
+  "notes": "Creative: Hearth & Horizon shelf, slug the-fog-reads-eighty-nine (South Uist 2049, potato blight, Hutton Criteria, two-point humidity calibration with saturated NaCl and fog). Text only: audio dir 423 MB > 400 MB cap. Hourly humidity profile designed and counted in a scratch script under two fog assumptions (100%, 98%); weekdays checked. Checks: node --test 15/15 pass; check_post_frontmatter, check_post_links, post_similarity pass. No agent doc in docs/reports: DONE.md entry carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "68f3f037-2029-5e79-a920-c76897f43878",
+    "transcripts": 1,
+    "first": "2026-11-12T17:38:52Z",
+    "last": "2026-11-12T17:46:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 34704,
+        "thinking": 13937,
+        "cache_read": 2742744,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101422,
+        "api_equivalent_usd": 2.0542,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 34704,
+      "thinking": 13937,
+      "cache_read": 2742744,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101422,
+      "api_equivalent_usd": 2.0542,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 32,
+    "tools": {
+      "Bash": 27,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.26,
+      "active_minutes": 7.26,
+      "model_minutes": 6.75,
+      "tool_minutes": 0.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a researched 5,700-word short story with worked numbers, by a professional writer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 389.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

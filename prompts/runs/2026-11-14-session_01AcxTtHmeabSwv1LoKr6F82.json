@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtHmeabSwv1LoKr6F82",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T22:07:07Z",
+  "ended": "2026-11-14T22:20:47Z",
+  "wall_minutes": 16.07,
+  "tokens_in": 13857932,
+  "tokens_out": 52556,
+  "cost_usd": 5.2442,
+  "tool_calls": 101,
+  "task": "Flagship 2 ai-bookkeeper, open item (8): the six states still unread (IN, NJ, AR, RI, ME, MA)",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15995",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First push blocked by the front-matter hook: post description 258 chars (cap 160), seo_title 71 (cap 70); fixed in a separate commit.",
+    "venture-preflight failed check_money_sign.py: the new usd() note formatter put the sign inside the symbol ($-5.00); rewritten as the guard's pattern."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/salestaxreturn.mjs",
+      "issue": "IN, MA and AR comments said their dates came from search excerpts and 'state sites not read'; the statutes and bulletins were reachable all along via legislature hosts and secure.in.gov, where earlier runs probed only the tax departments' main sites."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A python heredoc that edits files was refused by the built-in rm safety check ('could not be checked'); writing the script to the scratchpad with Write and running it worked. Worth a line in cloud-session.md."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "why": "Its detached portfolio-pages run was voided by the follow-up front-matter and money-sign fixes; relied on venture-preflight (which runs main_health and the post checks) plus the venture suite instead of re-running the multi-minute site build.",
+      "did": "re-ran venture-preflight after the fixes",
+      "result": "see notes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-indiana-sales-tax-rules-read-from-your-own-books.md",
+    "ventures/ai-bookkeeper/eval/state-pages-2026-11-14e.md"
+  ],
+  "goal": null,
+  "notes": "Indiana's collection allowance (Bulletin #83, 0.73/0.53/0.26% by tax in the 12 months to June 30 of the prior year) and due day (Bulletin #102, 30th, or 20th above $1,000/month average the prior year) are now worked out per year from the book's own 'IN state' tax via stateHistoryPresets, only when the book spans the look-back months; engine gained byYear discount rates and due days. AR GR-84 2% preset ($1,000 per month of the return). NJ/RI/ME/MA confirmed on their own texts, no discount; new NJ voucher and RI authorization notes. Verification: run_venture_tests.py ai-bookkeeper passed (31.3 s, 1 OCR test skipped as before); salestaxreturn.test.mjs + cli-flags-once.test.mjs 73/73 after the money-sign fix; check_post_frontmatter clean on 4623 posts; check_money_sign clean; first venture-preflight run 207/210 with the three failures being the post front matter, the unfilled record and the money sign, all fixed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c3123bbf-55d2-5374-95c8-dd09ff2f166b",
+    "transcripts": 1,
+    "first": "2026-11-14T22:07:07Z",
+    "last": "2026-11-14T22:23:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 186,
+        "output": 52556,
+        "thinking": 9043,
+        "cache_read": 13675594,
+        "cache_write_5m": 0,
+        "cache_write_1h": 182152,
+        "api_equivalent_usd": 5.2442,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 186,
+      "output": 52556,
+      "thinking": 9043,
+      "cache_read": 13675594,
+      "cache_write_5m": 0,
+      "cache_write_1h": 182152,
+      "api_equivalent_usd": 5.2442,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 101,
+    "tools": {
+      "Bash": 88,
+      "WebSearch": 4,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.07,
+      "active_minutes": 16.07,
+      "model_minutes": 10.4,
+      "tool_minutes": 5.66,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a bookkeeping developer reading six states' statutes/bulletins, modelling per-year bands, tests and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 114.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

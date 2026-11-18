@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqycDweVsgMDqPcpEpnv",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T12:38:47Z",
+  "ended": "2026-11-16T12:44:42Z",
+  "wall_minutes": 6.08,
+  "tokens_in": 3069218,
+  "tokens_out": 22777,
+  "cost_usd": 1.8126,
+  "tool_calls": 38,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16575",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The cloud branch claude/inspiring-fermat-czy7o5 already existed locally at main's tip; `git checkout -b` failed. Harmless, but the note 'create these branches if needed' could say to check first."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Fix mode gives no rule for picking among ~30 medium rows when no high is open; I chose the two oldest subjects with no commits since the audit (queue's 'changed since audit' line made that quick)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-quality-fix-two-queueing-models-and-their-literature.md"
+  ],
+  "goal": null,
+  "notes": "Mode: fix (quality_audit.py mode, 2026-11-16, 0 high open). Sample seed drawn for reference 2026-11-16-131e, not audited. Fixed 8 defects in 2 audits: research/robofab-cell-fesc (#0-#3) and research/robofab-cell-held (#0-#3), marked fixed_by PR 16575. Verification: fesc 7 tests OK (was 5); audit's surviving mutant H[N-m]->H[N-m-1] now caught (4 failures), p[0]->p[N] caught (5). held 8 tests OK (was 5); mutants 'held demand without unload' and 'single-server probability update' both caught (quality_mutate.py). held deduped MAE recomputed from results.json: 28 rows plain 4.91 held 5.64; other 20 rows plain 3.59 held 6.72 (matches audit). Citations Marie 1979, Baynat-Dallery 1993 (DOI only), Jacobson-Lazowska 1982 checked by web search; Buzacott-Shanthikumar 1993 book from memory, widely known. run_workflow_locally --for-changes: 8/8 selected workflows passed; agent-cross-review steps not runnable locally. Post front matter, links and similarity checks clean. Share meeting the bar: n/a (fix session, no scores changed).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3e6f8f9-ff07-5a95-8f84-79f0fe6eb704",
+    "transcripts": 1,
+    "first": "2026-11-16T12:38:47Z",
+    "last": "2026-11-16T12:44:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 62,
+        "output": 22777,
+        "thinking": 3021,
+        "cache_read": 2973903,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95253,
+        "api_equivalent_usd": 1.8126,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 62,
+      "output": 22777,
+      "thinking": 3021,
+      "cache_read": 2973903,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95253,
+      "api_equivalent_usd": 1.8126,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 32,
+      "WebSearch": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.08,
+      "active_minutes": 6.08,
+      "model_minutes": 3.62,
+      "tool_minutes": 2.46,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a queueing analyst writing two test sets, recomputing grid averages and a literature pass",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 275.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -24,7 +24,7 @@ const cents = (n) => Math.round((n + Number.EPSILON * Math.sign(n)) * 100) / 100
 // ---- CSV ---------------------------------------------------------------
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const firstLine = src.split(/\r?\n/, 1)[0] || "";
   const delim = firstLine.includes("\t") && !firstLine.includes(",") ? "\t" : ",";
   const rows = [];
@@ -844,7 +844,7 @@ export function parse1099da(text) {
   if (grid.length < 2) { out.errors.push("Need a header row and at least one coin."); return out; }
   const head = grid[0].map((h) => String(h).trim().toLowerCase());
   const col = {};
-  for (const [k, names] of Object.entries(REC_ALIASES)) col[k] = head.findIndex((h) => names.includes(h));
+  for (const [k, names] of Object.entries(REC_ALIASES)) col[k] = (names.map((n) => head.indexOf(n)).find((i) => i >= 0) ?? -1);
   if (col.asset < 0 || col.proceeds < 0) { out.errors.push("Header needs an asset column and a proceeds column."); return out; }
   const num = (v) => { const n = Number(String(v ?? "").replace(/[$,\s]/g, "")); return String(v ?? "").trim() === "" || !Number.isFinite(n) ? null : n; };
   grid.slice(1).forEach((r, i) => {

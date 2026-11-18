@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKiXCnxvK3VhuhkLBen",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T08:18:05Z",
+  "ended": "2026-11-15T09:10:57Z",
+  "wall_minutes": 79.75,
+  "tokens_in": 9810199,
+  "tokens_out": 41553,
+  "cost_usd": 3.9753,
+  "tool_calls": 75,
+  "task": "research/cell-fidelity milestone 5u: per-pool lithium-loss law choice tested on four fresh Sobol pools with 100-cycle DFN truth",
+  "projects": [
+    "research/cell-fidelity"
+  ],
+  "pr": 16149,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Three parallel 100-cycle DFN workers exceeded the 15 GB container limit (two runs killed, exit -9); restarted at 2 workers with killed runs retried, about 30 min of extra wall time.",
+    "A `git checkout -- experiments/freshlaw` meant to discard scratch report output also reverted uncommitted run.py edits; caught and re-applied straight away (the running bench had already loaded them)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/cell-fidelity/README.md",
+      "issue": "5s's reproduce line says three workers ran out of memory on 5 of 32 hundred-cycle runs, but the 5s diag default and the next-step notes do not carry that to new 100-cycle benches; 3 workers still OOM'd here. Two workers is the safe default for 100-cycle DFN with the lithium curve on this 15 GB box."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rejects a bracketed pattern if the same text appears anywhere else in the command line, which the bracket advice in CLAUDE.md does not say; split the pkill into its own call."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 3's research_idea_dupe.py claim check skipped: the work is the drawn programme's next step, not a new idea, and pick_track's CLAIM CHECK showed no open PR or in-flight work on cell-fidelity.",
+      "did": "Used pick_track's CLAIM CHECK and opened a draft PR with the plan in the first few minutes.",
+      "result": "No collision seen."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-fresh-battery-pools-the-map-is-right-the-per-design-fit-is-not.md",
+    "research/cell-fidelity/LOG.md (5u plan and outcome)"
+  ],
+  "goal": "Advance the cell-fidelity programme with a pre-registered out-of-sample test",
+  "notes": "256 new DFN runs (Sobol seed 14, 4 conditions, 100 cycles, about 90 min at 2 workers). H121 supported (selector + law median out of sample), H118 mixed, H117/H119/H120 refuted. Key descriptive: map fed true loss ranks 0.95-0.97 on all 4 fresh pools; per-design law fit is the bottleneck. Local checks: tests/ 185 passed (/usr/bin/python3.13 -m pytest), research/_homepage/build.py ok, check_md_links ok, research_live_links ok, programme_check ok, post front matter/links/similarity ok. No separate agent doc in docs/reports: LOG.md and README next steps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ce0505ac-ea27-57e4-a804-4d0103be0e84",
+    "transcripts": 1,
+    "first": "2026-11-15T08:18:05Z",
+    "last": "2026-11-15T09:37:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 141,
+        "output": 41553,
+        "thinking": 7844,
+        "cache_read": 9658567,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151491,
+        "api_equivalent_usd": 3.9753,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 141,
+      "output": 41553,
+      "thinking": 7844,
+      "cache_read": 9658567,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151491,
+      "api_equivalent_usd": 3.9753,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 69,
+      "Write": 2,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 79.75,
+      "active_minutes": 79.75,
+      "model_minutes": 7.63,
+      "tool_minutes": 72.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a battery-modelling PhD student designing, running and writing up a pre-registered 256-run DFN study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 402.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

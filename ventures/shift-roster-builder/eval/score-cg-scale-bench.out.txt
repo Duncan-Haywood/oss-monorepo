@@ -1,0 +1,63 @@
+12 people, 34 shift lines, 60000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	48	12104791.76	12104744.29	12104744.29	12104744.29	0.00	true	1	251	0	282
+1	42	5703340.60	5703332.60	5703332.60	5703332.60	0.00	true	1	177	0	128
+2	45	4804074.47	4804074.47	4804074.47	4804074.47	0.00	true	1	145	0	44
+
+20 people, 56 shift lines, 60000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	76	15106627.18	15106575.24	15106575.24	15106575.24	0.00	true	1	463	0	2234
+1	82	7807239.66	7807219.07	7807219.07	7807219.07	0.00	true	25	703	0	4946
+2	75	4806917.10	4806877.34	4806877.34	4806877.34	0.00	true	9	569	0	3637
+
+30 people, 84 shift lines, 120000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	121	18111226.13	18111209.40	18111209.40	18111226.13	16.73	false	57	1055	0	121111
+1	122	14411639.12	14211649.45	14211649.45	14211649.45	0.00	true	83	1027	0	24399
+
+40 people, 112 shift lines, 120000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	149	17013255.07	16913221.40	16913221.40	17013255.07	100033.67	false	75	1377	0	120346
+1	148	14613474.64	14613268.36	14613268.36	14613474.64	206.28	false	47	1419	0	121577
+
+# 2026-11-11: root dive on in columnGenerationOpen (default). Ran beside cg-scale-bench on a 4-core machine.
+30 people, 84 shift lines, 120000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	121	18111226.13	18111209.40	18111209.40	18111209.40	0.00	true	6	844	0	15003
+1	122	14411639.12	14211649.45	14211649.45	14211649.45	0.00	true	6	745	0	3751
+40 people, 112 shift lines, 120000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	19255
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	43039
+
+# 2026-11-11: 60 people, root dive without backtracking (first pay run at this size). Shared 4-core machine.
+60 people, 168 shift lines, 300000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	245	30021218.22	30021152.70	30021152.70	30021161.23	8.53	false	32	2754	0	301107
+1	238	30821320.70	30821320.70	30821320.70	30821320.70	0.00	true	1	1144	0	17475
+
+# 2026-11-11 later: week 0 again with dive backtracking (retries of the next fractional pin, budget P, at most half of ms).
+60 people, 168 shift lines, 300000 ms per week
+case  copies  anneal-score  cg-root  cg-bound  cg-best  gap$  proven  nodes  columns  inexact  ms
+0	245	30021218.22	30021152.70	30021152.70	30021155.38	2.68	false	55	3078	0	307908
+
+# 2026-11-11 later still: pay oracle (makeScorePricer) with the chain bound (CHAIN=0 off), then with the sibling cut, one fixedLB
+# per node and array-based payParts as well. Columns: + pricing-ms, max-pricing-nodes. Four benches side by side on 4 cores.
+# chain bound off
+40 people, 112 shift lines, 120000 ms per week
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	5707	3522	98301
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	11159	8845	78750
+60 people, 168 shift lines, 300000 ms per week
+0	245	30021218.22	30021152.70	30021152.70	30021153.92	1.22	false	160	3580	0	301259	195071	650983
+# chain bound on
+40 people, 112 shift lines, 120000 ms per week
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	5406	3193	86764
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	11411	9032	59929
+60 people, 168 shift lines, 300000 ms per week
+0	245	30021218.22	30021152.70	30021152.70	30021153.92	1.22	false	160	3565	0	300656	193471	659786
+# chain bound + sibling cut + fixedLB once + array payParts
+40 people, 112 shift lines, 120000 ms per week
+0	149	17013255.07	16913221.40	16913221.40	16913221.40	0.00	true	6	1221	0	3421	1380	63734
+1	148	14613474.64	14613268.36	14613268.36	14613268.36	0.00	true	7	1442	0	8517	6313	55933
+60 people, 168 shift lines, 300000 ms per week
+0	245	30021218.22	30021152.70	30021152.70	30021153.92	1.22	false	172	3737	0	300753	180599	640450

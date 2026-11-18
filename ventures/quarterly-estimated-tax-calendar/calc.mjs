@@ -41,7 +41,8 @@ const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 export function parseDate(value) {
   if (!value || !DATE_RE.test(String(value))) return null;
   const date = new Date(`${value}T00:00:00Z`);
-  return Number.isNaN(date.getTime()) ? null : date;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== String(value) ? null : date;
 }
 
 function toStamp(date) {
@@ -330,7 +331,7 @@ export function computeSchedule(input = {}) {
       id: "high-income-safe-harbor",
       severity: "info",
       title: "110% safe harbor applies",
-      detail: `Last year's AGI was above $${(input.marriedFilingSeparately ? HIGH_INCOME_THRESHOLD_MFS : HIGH_INCOME_THRESHOLD_OTHER).toLocaleString()}, so the prior-year safe harbor is 110% of last year's tax rather than 100%.`,
+      detail: `Last year's AGI was above $${(input.marriedFilingSeparately ? HIGH_INCOME_THRESHOLD_MFS : HIGH_INCOME_THRESHOLD_OTHER).toLocaleString('en-US')}, so the prior-year safe harbor is 110% of last year's tax rather than 100%.`,
     });
   } else if (!input.priorYearAGI && nonNegNumber(input.priorYearTax) > 0) {
     findings.push({

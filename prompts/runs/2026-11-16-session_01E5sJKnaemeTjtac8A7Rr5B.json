@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKnaemeTjtac8A7Rr5B",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T21:18:35Z",
+  "ended": "2026-11-16T21:41:12Z",
+  "wall_minutes": 33.63,
+  "tokens_in": 4522410,
+  "tokens_out": 28955,
+  "cost_usd": 2.4509,
+  "tool_calls": 43,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16708",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/society-lanes/LOG.md",
+      "issue": "Milestones 5a/5b say '120 s after 40 s warm-up', but simulate()'s duration is the whole run, so 80 s are measured; a 30 s smoke run returned all-NaN until I read sftwin.py. Noted in the 6a entry and the script docstring."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "portfolio-pages 'Build the site' failed locally at 120.6 s (local step cap) while the same job passed on GitHub; the local failure looks like a timeout, not a real failure, and it is not labelled as one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/society-lanes/LOG.md (prediction protocol)",
+      "why": "The smoke run's prediction lines were printed and read before the predictions were written.",
+      "did": "Disclosed it in the 6a entry with the smoke outcomes, and set priors after seeing them.",
+      "result": "Registered test still informative: 20 fresh seeds and bootstrap intervals vs a 2-seed, 20 s-measured smoke run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-robot-passing-policy-ranking-holds-on-fresh-seeds.md",
+    "research/society-lanes/LOG.md (milestone 6a)"
+  ],
+  "goal": null,
+  "notes": "Research track, programme society-lanes, milestone 6a: H5 registered on close passes with 20 fresh seeds per cell, three families (social force, collision-free speed, ORCA) at fitted and half bias, 3,120 runs, Kendall tau bootstrap (B=1000). tau 1.00 in 18/18 cells, interval [1.00,1.00] at fitted bias; delay ranking fails again (2/9). R1-R6 held, R7 refuted (half bias moved only social force). Checks: project tests 53 passed; build.py ok; check_md_links ok; research_live_links ok; post front matter ok; GitHub CI on PR all green. No agent doc in docs/reports: LOG.md and README Next steps carry the hand-off.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5e6e8e88-cbef-530e-b05e-5e277226fe4c",
+    "transcripts": 1,
+    "first": "2026-11-16T21:18:35Z",
+    "last": "2026-11-16T21:52:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 78,
+        "output": 28955,
+        "thinking": 4256,
+        "cache_read": 4398351,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123981,
+        "api_equivalent_usd": 2.4509,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 78,
+      "output": 28955,
+      "thinking": 4256,
+      "cache_read": 4398351,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123981,
+      "api_equivalent_usd": 2.4509,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 37,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.63,
+      "active_minutes": 33.63,
+      "model_minutes": 4.54,
+      "tool_minutes": 29.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, 3,120-run confirmatory experiment with bootstrap, write-up and post by a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 408.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

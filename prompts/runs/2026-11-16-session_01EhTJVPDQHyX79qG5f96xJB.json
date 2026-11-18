@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01EhTJVPDQHyX79qG5f96xJB",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating products); merge when done",
+  "input_sha256": "707354335feaaa1513c3d3d4087906d147e8cd9ba6f5f2f912d2453fc6665198",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-16T20:08:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "explore: new venture school-timetable-builder",
+  "projects": [
+    "school-timetable-builder"
+  ],
+  "pr": 16686,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 32,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/build.mjs",
+      "issue": "No education/schools section in CATEGORY_RULES; the venture lands in 'More free tools'. Left as is; a schools/education section is worth adding once there are two or more education tools."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-a-school-timetable-from-a-plain-list-of-lessons.md"
+  ],
+  "goal": null,
+  "notes": "Idea: school timetable generator (browser + CLI): plain-text lessons, feasibility counts, greedy + simulated annealing, independent validator. 21/21 synthetic fully booked schools (4-40 classes) clash-free in 0.2-2.3 s. 32 tests pass; driven in headless Chromium at 1200/390 px, no console errors. venture-preflight --skip-build findings fixed (launched.json, opt-out list, CSV formula guard, thousands-split check); full preflight with build run locally.",
+  "corrections": [],
+  "redteam": null
+}

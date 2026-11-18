@@ -1,0 +1,229 @@
+{
+ "date": "2026-11-12",
+ "subject": "research/society-allywatch",
+ "stratum": "research",
+ "seed": "2026-11-12-k",
+ "drawn_by": "sample",
+ "round": 52,
+ "auditor": "agent session (Claude), quality-audit round 52",
+ "status": "audited",
+ "professional": "a computational social scientist / statistical physicist working on social-convention tipping and committed minorities (a referee for Physical Review E, JASSS or Proc. R. Soc. A). They would check first that the treatment comparison is fair (is 'watching' allies fading at c*f really compared with a rate-matched constant fade, since c*f <= c by construction), that cell differences are significant at 12 seeds, that the mechanism claimed is the one the model has, and that the committed-minority and threshold literature (Xie et al. 2011; Centola et al. 2018; Granovetter 1978) is cited.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran `python3 experiments/run.py` in a scratch copy (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/copy, 1 m 47 s): the 15-line output is byte-identical to experiments/results.txt; `python3 experiments/figure.py` regenerates a byte-identical SVG. Independent checks: (1) ally count by hand, round(0.2*(200-round(rho*200))) = 36/34/32 at rho 0.10/0.15/0.20, matches the code, contradicts README:8 'about 26 of 40'. (2) Constant fade is Binomial(nl,(1-c)^T): at T=100, c=0.01, rho=0.10 the analytic mean is 36*0.99^100 = 13.18, simulate() over 60 seeds gives 13.83 (SE 0.48), within 1.4 SE. (3) Own re-implementation from the README's Model section (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/reimpl.py, different RNG streams): allies left 24.8 / 13.1 / 2.0 vs author 25.8 / 13.4 / 3.2; tipped counts 12 vs 12 at c=0.01 rho=0.10 (author 10 vs 12), 1 vs 2 at c=0.03 rho=0.10 (author 0 vs 4), 10 vs 12 at c=0.03 rho=0.15 (author 10 vs 12). (4) 100 fresh seeds per arm with the author's code (/tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/many.py): 85 vs 96, 1 vs 12, 0 vs 3, 88 vs 97 tipped of 100: the direction holds (Fisher p 0.014 and 0.0025 in the two main cells) but the 12-seed magnitudes are inflated (4/12 = 33% where the rate is about 12%; 2/12 = 17% where it is about 3%). Code is right; the published magnitudes are seed noise around a real but smaller effect. Not 4: no CIs, one doc number wrong.",
+  "completeness": "Claimed and checked: 5 tests (`python3 -m unittest discover -s tests`: Ran 5 tests in 0.264s OK); run.py writes results.txt (identical rerun); figure.py writes the SVG (identical); stdlib only (true, no imports beyond random); table in README matches results.txt cell for cell (40 cells checked); constant rows match society-allyfade's table where stated (10,12 at c=0.01; 10 at c=0.03 rho 0.15; 6 vs 7 at c=0.1 explained). Runtime stated as ~3 min (README:73) and 'about 10 minutes' (run.py:1); measured 1 m 47 s. Live page not loaded (curl to marisstella.app returned 000 through the proxy). No TODOs. Everything claimed runs end to end.",
+  "verification": "`python3 -m unittest discover -s tests`: 5 passed. platform/ci/quality_mutate.py, 4 mutants: watch rule c*(m-cnt)/m -> c*cnt/m caught; majority rule cnt>half -> cnt>=half (model.py:37, changes every ordinary walker's decision to 4-of-9) SURVIVED; tipping criterion final share cnt>half -> >=half (model.py:65) SURVIVED; errors applied to robots too (model.py:33) SURVIVED. 3 of 4 survive, including the one that changes the core dynamics. No test pins any tipped count, threshold or ally-count formula against an analytic case.",
+  "craft": "Read src/society_allywatch/model.py (70 lines), experiments/run.py, experiments/figure.py, tests/test_model.py. Clean stdlib code, O(1) memory counters, explicit seeding, figure reuses research/_shared/linefig.py as research/CLAUDE.md asks. Minor: first_majority_round is computed every round (an O(n) scan, model.py:63) but never used by run.py or the README; parameters are not validated (rho+sl over 1 silently works); the file copies the allyfade engine rather than importing it with a fade hook.",
+  "claims": "README:8 and project.json summary 'about 26 of 40 allies' is wrong: there are 36 allies at rho=0.10 (20% of the 180 humans); README:38 'mean of 40 or so' likewise. README:19-21 / project.json 'the first rounds are the same in both rules (f = 1) ... the gain comes only after the tip begins' is false: robots and allies walk L from round 1, so an ally's f is about 1-(rho+0.2(1-rho)) = 0.71 at rho=0.10 once memory fills, and {SP}/scripts/earlyf.py measures mean f 0.57 at round 20: watching allies fade 30-45% slower from the start. README:19 'The result goes the other way' presents as surprising what c*f <= c guarantees. Headline cell gaps (12 vs 10, 2 vs 0) are Fisher p 0.48 at 12 seeds, while README:65 itself says one- or two-crowd gaps are noise. Runtime: ~3 min vs 10 min vs measured 1.8 min. Backed: every table cell, the 'least half-tip share does not move' sentence, the constant-row reproduction, the Stylised disclosure and the 'simulated walkers' limit.",
+  "fitness": "A researcher can rerun and extend it in minutes (stdlib, seeded, 2 min). But the comparison that answers the stated question ('better or worse than the same rate applied blindly') needs a rate-matched baseline (a constant c' equal to the realised mean c*f, or equal allies-left), and there is none, so the result does not separate 'discouragement timing' from 'less fading overall'. Nearest prior work (Xie et al. 2011 committed minorities; Centola et al. 2018; Granovetter 1978 threshold models, of which this fade rule is a soft version) is cited in sibling projects but not here; only Young (1993) and siblings. It is a small step in a programme, not a result a referee would accept alone.",
+  "domain": "Against standard practice for agent-based tipping studies (PRE/JASSS): 12 seeds per cell with no intervals or tests, cells chosen for the headline post hoc from a 4x5 grid with no multiple-comparison note, no rate-matched control, and a mechanism statement contradicted by the model's own early dynamics. The model itself (memory-majority, committed agents, well-mixed) is the standard Young/Xie setup and is implemented correctly; the 100-seed rerun shows the qualitative direction is real."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "number of allies at rho=0.10, 0.15, 0.20 (README:8 says about 40)",
+   "method": "hand: round(sl*(N - round(rho*N))) from the README Model section",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/analytic.py research/society-allywatch/src",
+   "expected": "36, 34, 32 (README: 40)",
+   "observed": "code 36, 34, 32",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "constant-fade allies left after 100 rounds, c=0.01, rho=0.10",
+   "method": "Binomial(36, 0.99^100) mean, textbook geometric survival",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/analytic.py research/society-allywatch/src",
+   "expected": "13.18 (binomial sd 2.89)",
+   "observed": "13.83, SE 0.48 over 60 seeds",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "allies left and tipped counts in 3 cells, independent re-implementation",
+   "method": "own simulator written from README Model section, different RNG streams, 12 seeds",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/reimpl.py 0.10 0.01 watch (and 5 other cells)",
+   "expected": "author allies left 25.8 / 13.4 / 3.2; tipped 10v12, 10v12, 0v4",
+   "observed": "allies left 24.8 / 13.1 / 2.0; tipped 12v12, 10v12, 1v2",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "headline effect size with 100 seeds per arm (author's code, seeds 100-199)",
+   "method": "Wilson 95% intervals and Fisher exact test (hypergeometric, by hand)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/many.py research/society-allywatch/src",
+   "expected": "README: 10/12 v 12/12; 0/12 v 4/12; 0/12 v 2/12; 10/12 v 12/12",
+   "observed": "85 v 96 (p 0.014); 1 v 12 (p 0.0025); 0 v 3; 88 v 97 of 100",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "rerun of experiments/run.py vs committed results.txt and figure",
+   "method": "byte diff in a scratch copy",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/copy && python3 experiments/run.py; diff with experiments/results.txt",
+   "expected": "identical",
+   "observed": "identical (1 m 47 s); SVG identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:8 / project.json 'about 26 of 40 allies still present'",
+   "method": "hand count of allies (20% of 180 humans)",
+   "command": "grep -n '26 of 40' research/society-allywatch/README.md",
+   "expected": "26 of 36",
+   "observed": "26 of 40",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:19-21 'first rounds are the same in both rules (f = 1)'",
+   "method": "mean-field f = 1 - share of L walkers; own simulation of early memory",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/earlyf.py research/society-allywatch/src /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts",
+   "expected": "f about 1 if the claim held",
+   "observed": "static mix gives f 0.71 at rho=0.10; measured mean f 0.57 at round 20",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline 12/12 vs 10/12 and 2/12 vs 0/12 presented as effects",
+   "method": "Fisher exact two-sided at n=12 per arm",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/06e0cb4f-6864-5ca6-b547-e6e7d6dd4a2d/scratchpad/ally/scripts/analytic.py research/society-allywatch/src",
+   "expected": "p < 0.05 for a stated effect",
+   "observed": "p 0.478 (12v10), 0.093 (4v0), 0.478 (2v0), 0.193 (10v6)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README table matches results.txt",
+   "method": "cell-by-cell comparison, 40 cells and allies-left means",
+   "command": "cat research/society-allywatch/experiments/results.txt",
+   "expected": "same numbers",
+   "observed": "all match",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reproduce block: 5 tests ~1 s, run.py ~3 min",
+   "method": "ran both",
+   "command": "python3 -m unittest discover -s tests; python3 experiments/run.py",
+   "expected": "5 tests; ~3 min (run.py:1 says ~10 min)",
+   "observed": "5 tests 0.26 s; 1 m 47 s",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "rate-matched baseline for the watch vs constant comparison",
+   "method": "read run.py and README for a constant rate set to the realised mean c*f",
+   "command": "grep -n 'fade' research/society-allywatch/experiments/run.py",
+   "expected": "a control with equal mean fade",
+   "observed": "none; constant arm uses c >= c*f always",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "grep README for Xie 2011, Centola 2018, Granovetter 1978",
+   "command": "grep -n 'Xie\\|Centola\\|Granovetter' research/society-allywatch/README.md",
+   "expected": "cited",
+   "observed": "none; only Young (1993) and sibling projects",
+   "result": "fail"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run",
+   "command": "python3 -m unittest discover -s tests",
+   "expected": "pass",
+   "observed": "Ran 5 tests in 0.264s OK",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/society_allywatch/model.py:57",
+   "change": "c * (m - cnt[i]) / m -> c * cnt[i] / m",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/society_allywatch/model.py:37",
+   "change": "return L if cnt[i] > half else R -> return L if cnt[i] >= half else R",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/society_allywatch/model.py:65",
+   "change": "final = sum(cnt[i] > half -> final = sum(cnt[i] >= half",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/society_allywatch/model.py:33",
+   "change": "if i >= nr and rng.random() < eps -> if rng.random() < eps",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "No rate-matched baseline: the watch rule fades at c*f <= c always, so 'watch tips more than constant at the same c' is partly guaranteed by less fading overall; the stated question (timing vs blind rate) is not separated from total fade. 'The result goes the other way' overstates it.",
+   "where": "research/society-allywatch/README.md:19",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Mechanism claim false: 'first rounds are the same in both rules (f = 1) ... the gain comes only after the tip begins'. Robots and allies walk L from round 1, so f is about 0.71 at rho=0.10 (measured 0.57 at round 20): watching allies fade 30-45% slower from the start.",
+   "where": "research/society-allywatch/README.md:19",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Headline cell differences rest on 12 seeds without intervals or tests (12 vs 10 and 2 vs 0 are Fisher p 0.48); 100-seed rerun confirms direction but shows 4/12 and 2/12 overstate rates of about 12% and 3%. Cells picked post hoc from a 4x5 grid.",
+   "where": "research/society-allywatch/README.md:7",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests miss core-logic changes: majority rule > -> >=, tipping criterion > -> >=, and errors applied to robots all survive; no test pins a tipped count or analytic case.",
+   "where": "research/society-allywatch/tests/test_model.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'about 26 of 40 allies' is wrong: there are 36 allies at rho=0.10 (20% of 180 humans); table header 'mean of 40 or so' likewise (32-39 across the grid).",
+   "where": "research/society-allywatch/README.md:8",
+   "category": "logic-error",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Nearest prior work (Xie et al. 2011; Centola et al. 2018; Granovetter 1978 threshold models) not cited in this project, only Young (1993) and siblings.",
+   "where": "research/society-allywatch/README.md:25",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Runtime stated three ways: README '~3 min', run.py docstring 'about 10 minutes', measured 1 m 47 s.",
+   "where": "research/society-allywatch/experiments/run.py:1",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  15193
+ ],
+ "verdict": "The code is correct and fully reproducible: run.py (1 m 47 s) regenerates results.txt and the figure byte for byte, the constant-fade ally decay matches the binomial formula, and an independent re-implementation agrees on allies left. The qualitative finding also survives 100 seeds per arm (85 vs 96 and 1 vs 12 tipped, Fisher p 0.014 and 0.0025). What a PRE/JASSS referee would reject is the framing: the watch rule fades at c*f <= c by construction and there is no rate-matched control, the README's mechanism ('same first rounds, f = 1') is contradicted by the model (f about 0.6-0.7 from early on), the headline magnitudes are 12-seed noise without intervals, 'about 26 of 40 allies' should be 36, and 3 of 4 seeded mutations, including the majority rule itself, pass the tests. Does not meet the bar (verification 1, claims 2, median 2); finished (completeness 3)."
+}

@@ -21,14 +21,14 @@ budget  exhaustive  greedy  random(8 evals, mean of 200)  | exhaustive choice
 == objective: cost closure of printer+cnc+laser shop, baseline 15.9% (29 vitamin lines)
 budget  exhaustive  greedy  random(8 evals, mean of 200)  | exhaustive choice
   0.0     15.9%     15.9%    15.9%                      | -
-  0.5     33.6%     33.6%    17.2%                      | printed-m8-nuts
-  1.0     41.2%     41.2%    25.2%                      | printed-idlers, printed-m8-nuts, printed-m3-nuts
-  1.5     43.9%     43.9%    34.0%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts
-  2.0     44.9%     43.9%    39.4%                      | printed-bushings, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
-  3.0     46.1%     46.1%    43.3%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods
-  4.0     47.7%     47.7%    44.6%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods, printed-belt-drive, printed-hobbed-bolt
+  0.5     17.4%     17.4%    16.0%                      | printed-m8-nuts
+  1.0     18.9%     18.9%    17.1%                      | printed-bushings, printed-m8-nuts
+  1.5     19.9%     19.6%    18.5%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts
+  2.0     21.2%     21.1%    19.8%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-belt-drive
+  3.0     23.2%     23.2%    21.5%                      | printed-bushings, printed-idlers, printed-m8-nuts, wood-smooth-rods, printed-belt-drive
+  4.0     24.0%     24.0%    22.3%                      | printed-bushings, printed-idlers, printed-m8-nuts, printed-m3-nuts, wood-smooth-rods, printed-belt-drive, printed-hobbed-bolt
 
-all substitutions: penalty 3.9, vitamin lines 29 -> 19; closure lines/mass/cost = 60.4%/35.8%/47.7%
+all substitutions: penalty 3.9, vitamin lines 29 -> 19; closure lines/mass/cost = 60.4%/35.8%/24.0%
 per-substitution mass-closure gain alone (percentage points):
   printed-bushings       penalty 0.5  +1.0
   printed-idlers         penalty 0.4  +0.8

@@ -67,3 +67,10 @@ test("studio duty percent: proved Bangladesh origin is 0 in the EU; extra US tar
   assert.equal(dutyPctFor({ garmentId: "tee", destination: "US", extraTariffPct: 10, factoryPrice: 5 }), 26.5);
   assert.equal(dutyPctFor({ garmentId: "tee", destination: "US", factoryPrice: 0 }), null);
 });
+
+test("a garment or destination that is an Object key (constructor, toString) is refused with the plain message, not a TypeError", () => {
+  for (const name of ["constructor", "toString", "__proto__"]) {
+    assert.deepEqual(landedByDestination({ ...base, product: name, destination: "US" }), { error: "Choose a garment type." }, name);
+    assert.deepEqual(landedByDestination({ ...base, destination: name }), { error: "Choose a destination." }, name);
+  }
+});

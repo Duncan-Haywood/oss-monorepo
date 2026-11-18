@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVPnmFeHHK6WWQqSrzY",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T15:07:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing flagship 7: explain the CR2 '3-9% brighter than LibRaw' gap",
+  "projects": [
+    "ventures/photo-editing"
+  ],
+  "pr": 15163,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/photo-editing/tools/cr2_develop_check.py",
+      "issue": "rawpy/LibRaw user_sat is black-subtracted; nothing in rawpy's docstring says so, and the earlier run read the resulting flat gain as a colour-model difference"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-gap-was-in-the-ruler.md",
+    "ventures/photo-editing/eval/cr2-brightness-gap-2026-11-12.md"
+  ],
+  "goal": "flagship deepening (allocate.py row 6, photo-editing)",
+  "notes": "Five real CR2s (350D, 600D, 70D, 7D, 5D Mark II) from raw.githubusercontent.com. Linear ratio ShootFlow/LibRaw matched white/(white-black) per body. After fixes: median 0.07-0.88 8-bit steps, 0.05-0.19 through dcraw's matrix. Local checks: tests/test_cr2.py 24 passed; full photo-editing suite 681 passed, 4 skipped (66 s); ruff 0.15.8 clean; post frontmatter/links/similarity pass.",
+  "corrections": [
+    {
+      "file": "ventures/photo-editing/eval/cr2-five-bodies-2026-11-12.md",
+      "what": "the 3-9% gap attributed to the colour model was the check tool's LibRaw call (user_sat units) plus two misalignments"
+    }
+  ],
+  "redteam": null
+}

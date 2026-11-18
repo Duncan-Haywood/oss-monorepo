@@ -11,24 +11,20 @@
 //
 // Scope, stated plainly rather than left to be discovered: SPF's DNS-lookup
 // budget (RFC 7208 s4.6.4) is walked recursively through `include:` and
-// `redirect=` -- the two mechanisms that themselves carry a nested SPF
-// record this tool can fetch and keep counting through. `a`, `mx`, `ptr` and
-// `exists` each still cost exactly one lookup toward the same 10-lookup
-// budget, but this tool does not perform the further A/MX/PTR resolution
-// they imply (that is a different DNS record type, not a TXT record, and
-// counting it exactly requires walking a domain's MX host list, which is
-// its own additional round trip this tool does not make). So a chain with
-// several bare `a`/`mx` mechanisms is scored as "at least N lookups", which
-// undercounts only in the case of an `mx` mechanism resolving to more than
-// one mail server -- a real but secondary contributor next to the dominant
-// real-world cause of this bug, stacking `include:` mechanisms for one ESP
-// per marketing tool. The report says so; see `SCOPE_NOTE`.
+// `redirect=` -- the two terms that carry a nested SPF record this tool can
+// fetch and keep counting through. `a`, `mx`, `ptr` and `exists` each cost
+// exactly one lookup toward the same 10-lookup budget. The further address
+// queries an `mx` or `ptr` triggers do NOT count toward the 10 (s4.6.4); they
+// have their own cap instead -- more than 10 MX hosts (or PTR names) for one
+// term is itself an error. This tool counts the 10-term budget exactly but
+// does not check that per-term cap; see `SCOPE_NOTE`.
 
 export const SCOPE_NOTE =
   'SPF lookup count includes include:/redirect= (walked recursively) plus one ' +
-  'lookup for each a/mx/ptr/exists mechanism found; it does not further resolve ' +
-  'what an a/mx/ptr mechanism itself points at, so a domain with an mx mechanism ' +
-  'pointing at several mail servers may cost slightly more than shown here.';
+  'lookup for each a/mx/ptr/exists mechanism, which is how RFC 7208 s4.6.4 ' +
+  'counts the 10-lookup budget; the address queries an mx or ptr then makes do ' +
+  'not count toward it. Not checked here: the separate per-mechanism cap of 10 ' +
+  'MX hosts (or PTR names) that s4.6.4 also sets.';
 
 // ---------------------------------------------------------------------------
 // Shared TXT presentation-format helpers
@@ -111,6 +107,7 @@ export function parseSpfMechanisms(record) {
   let allIndex = -1;
   let redirect = null;
   let redirectSeen = false;
+  let mechanismAfterAll = false;
 
   rawTerms.forEach((raw, index) => {
     if (/^redirect=/i.test(raw)) {
@@ -137,21 +134,29 @@ export function parseSpfMechanisms(record) {
     const value = m[3] ?? null;
 
     if (mechanism === 'all') {
-      if (allQualifier !== null) malformed.push('More than one "all" mechanism');
+      // A second "all" is valid syntax but never reached: the first decides.
+      if (allIndex !== -1) { mechanismAfterAll = true; return; }
       allQualifier = qualifier;
       allIndex = index;
       return;
     }
+    // RFC 7208 s5.1: mechanisms after "all" are never tested. Modifiers
+    // (exp=, redirect=, unknown name=value) may sit anywhere (s6), so only a
+    // mechanism makes "all" not last.
+    if (allIndex !== -1) mechanismAfterAll = true;
     if (SPF_LOOKUP_MECHANISMS.has(mechanism)) {
       if ((mechanism === 'include' || mechanism === 'exists') && !value) {
         malformed.push(`${mechanism}: mechanism with no domain ("${raw}")`);
       }
-      lookupTerms.push({ mechanism, domain: value, qualifier, raw });
+      // A mechanism after "all" is never evaluated, so it makes no DNS
+      // query and costs nothing from the 10-lookup budget (s4.6.4 counts
+      // queries made during evaluation). Its syntax still counts (s4.6).
+      if (allIndex === -1) lookupTerms.push({ mechanism, domain: value, qualifier, raw });
     }
     // ip4 / ip6: address literals, no DNS lookup, nothing further to record.
   });
 
-  const allNotLast = allIndex !== -1 && allIndex !== rawTerms.length - 1;
+  const allNotLast = mechanismAfterAll;
 
   return { lookupTerms, allQualifier, allNotLast, redirect, malformed };
 }
@@ -237,6 +242,10 @@ export function walkSpfChain(rootDomain, recordsByDomain, { maxVisits = 40 } = {
     entry.allQualifier = parsed.allQualifier;
     entry.allNotLast = parsed.allNotLast;
     entry.redirect = parsed.redirect;
+    // RFC 7208 s6.1: a redirect= in a record that also has an "all"
+    // mechanism is ignored -- "all" always matches first -- so it is
+    // neither fetched nor counted.
+    entry.redirectIgnored = !!parsed.redirect && parsed.allQualifier !== null;
 
     const nextPath = new Set(path);
     nextPath.add(key);
@@ -246,7 +255,7 @@ export function walkSpfChain(rootDomain, recordsByDomain, { maxVisits = 40 } = {
       entry.lookupsHere += 1;
       if (term.mechanism === 'include' && term.domain) visit(term.domain, key, nextPath);
     }
-    if (parsed.redirect) {
+    if (parsed.redirect && !entry.redirectIgnored) {
       totalLookups += 1;
       entry.lookupsHere += 1;
       visit(parsed.redirect, key, nextPath);
@@ -281,7 +290,7 @@ export function walkSpfChain(rootDomain, recordsByDomain, { maxVisits = 40 } = {
 export function analyzeDkimSelector({ selector, txtRecords }) {
   const records = (txtRecords || []).filter((r) => typeof r === 'string' && r.trim().length);
   if (records.length === 0) {
-    return { selector, found: false, record: null, hasVersionTag: false, hasPublicKey: false, revoked: false, malformed: [] };
+    return { selector, found: false, record: null, hasVersionTag: false, hasPublicKey: false, revoked: false, keyType: null, keyBits: null, malformed: [] };
   }
   // Prefer a record that actually has a p= tag if more than one TXT string
   // lives at this name (a selector name colliding with an unrelated TXT
@@ -292,12 +301,35 @@ export function analyzeDkimSelector({ selector, txtRecords }) {
   const malformed = duplicates.map((d) => `Duplicate ${d}= tag`);
 
   const hasVersionTag = (tags.get('v') || '').toUpperCase() === 'DKIM1';
+  // RFC 6376 s3.6.1: v= is optional, but when present it MUST be "DKIM1";
+  // a verifier discards a key record carrying any other version.
+  if (tags.has('p') && tags.has('v') && !hasVersionTag) malformed.push(`v= tag is "${tags.get('v')}"; RFC 6376 s3.6.1 accepts only v=DKIM1`);
   const hasPTag = tags.has('p');
-  const pValue = (tags.get('p') || '').trim();
-  const hasPublicKey = hasPTag && pValue.length > 0;
+  // Base64 in a TXT record may carry folding whitespace (RFC 6376 s3.6.1).
+  const pValue = (tags.get('p') || '').replace(/\s+/g, '');
   const revoked = hasPTag && pValue.length === 0;
 
   if (!hasPTag) malformed.push('No p= (public key) tag found -- this does not look like a DKIM key record');
+
+  // k= defaults to rsa; RFC 8463 adds ed25519. Anything else (dsa, a typo)
+  // is a key type no verifier implements, so no signature can verify.
+  const keyType = (tags.get('k') || 'rsa').trim().toLowerCase();
+  if (!['rsa', 'ed25519'].includes(keyType)) malformed.push(`k= tag is "${tags.get('k')}"; verifiers support only k=rsa (RFC 6376) and k=ed25519 (RFC 8463)`);
+
+  let keyBits = null;
+  if (hasPTag && !revoked) {
+    const bytes = decodeBase64(pValue);
+    if (!bytes) {
+      malformed.push('p= is not valid base64, so no verifier can read the key');
+    } else if (keyType === 'rsa') {
+      keyBits = rsaModulusBits(bytes);
+      if (keyBits === null) malformed.push('p= does not decode to an RSA public key (truncated or wrong key type?)');
+    } else if (keyType === 'ed25519') {
+      if (bytes.length === 32) keyBits = 256;
+      else malformed.push(`an ed25519 p= must be 32 raw key bytes (RFC 8463 s4.2); this one is ${bytes.length}`);
+    }
+  }
+  const hasPublicKey = hasPTag && !revoked && malformed.length === 0;
 
   return {
     selector,
@@ -306,8 +338,65 @@ export function analyzeDkimSelector({ selector, txtRecords }) {
     hasVersionTag,
     hasPublicKey,
     revoked,
+    keyType,
+    keyBits,
     malformed,
   };
+}
+
+/** Strict base64 (standard alphabet, optional padding) to bytes, or null. */
+export function decodeBase64(text) {
+  const s = String(text ?? '');
+  if (!s.length || !/^[A-Za-z0-9+/]+={0,2}$/.test(s) || s.replace(/=+$/, '').length % 4 === 1) return null;
+  const bin = atob(s.replace(/=+$/, '') + '='.repeat((4 - (s.replace(/=+$/, '').length % 4)) % 4));
+  const out = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i += 1) out[i] = bin.charCodeAt(i);
+  return out;
+}
+
+// One DER tag-length-value at `off`, or null when it runs past the buffer.
+function derAt(bytes, off) {
+  if (off + 2 > bytes.length) return null;
+  const tag = bytes[off];
+  let len = bytes[off + 1];
+  let start = off + 2;
+  if (len & 0x80) {
+    const n = len & 0x7f;
+    if (n === 0 || n > 4 || start + n > bytes.length) return null;
+    len = 0;
+    for (let i = 0; i < n; i += 1) len = len * 256 + bytes[start + i];
+    start += n;
+  }
+  if (start + len > bytes.length) return null;
+  return { tag, start, end: start + len };
+}
+
+/**
+ * Bit length of the RSA modulus in a DKIM p= value: a SubjectPublicKeyInfo
+ * (what RFC 6376 s3.6.1 specifies) or a bare PKCS#1 RSAPublicKey (which some
+ * publishers use and common verifiers accept). Null if neither parses.
+ */
+export function rsaModulusBits(bytes) {
+  const outer = derAt(bytes, 0);
+  if (!outer || outer.tag !== 0x30) return null;
+  let first = derAt(bytes, outer.start);
+  if (!first) return null;
+  let modulus = null;
+  if (first.tag === 0x30) {
+    // SPKI: AlgorithmIdentifier, then BIT STRING { 0x00, RSAPublicKey }
+    const bits = derAt(bytes, first.end);
+    if (!bits || bits.tag !== 0x03 || bytes[bits.start] !== 0) return null;
+    const rsa = derAt(bytes, bits.start + 1);
+    if (!rsa || rsa.tag !== 0x30) return null;
+    modulus = derAt(bytes, rsa.start);
+  } else if (first.tag === 0x02) {
+    modulus = first;
+  }
+  if (!modulus || modulus.tag !== 0x02) return null;
+  let i = modulus.start;
+  while (i < modulus.end && bytes[i] === 0) i += 1;
+  if (i >= modulus.end) return null;
+  return (modulus.end - i - 1) * 8 + (32 - Math.clz32(bytes[i]));
 }
 
 export function analyzeDkim(selectorResults) {
@@ -315,7 +404,7 @@ export function analyzeDkim(selectorResults) {
   return {
     results,
     anyFound: results.some((r) => r.found),
-    anyValid: results.some((r) => r.found && r.hasPublicKey),
+    anyValid: results.some((r) => r.found && r.hasPublicKey && !(r.keyType === 'rsa' && r.keyBits < 1024)),
     anyRevoked: results.some((r) => r.found && r.revoked),
     checkedCount: results.length,
     foundCount: results.filter((r) => r.found).length,
@@ -332,10 +421,22 @@ export function selectDmarcRecords(txtRecords) {
   );
 }
 
-export function analyzeDmarc(txtRecords) {
+/**
+ * `opts.foundAt` is the name whose _dmarc TXT answer this is, and
+ * `opts.domain` the domain being checked. When they differ the record was
+ * found by walking up to a parent (RFC 7489 s6.6.3 step 3, the
+ * organizational-domain fallback; the DMARCbis DNS tree walk), and the
+ * policy that applies to the checked domain is the parent's sp= when
+ * present, else its p= (RFC 7489 s6.3, "sp"). `appliedPolicy` is that
+ * policy; it is null when no policy applies, including when more than one
+ * DMARC record is published (s6.6.3 step 5: policy discovery terminates).
+ */
+export function analyzeDmarc(txtRecords, { foundAt = null, domain = null } = {}) {
   const records = selectDmarcRecords(txtRecords);
+  const fromKey = foundAt ? normalizeDomainKey(foundAt) : null;
+  const inheritedFrom = fromKey && domain && fromKey !== normalizeDomainKey(domain) ? fromKey : null;
   if (records.length === 0) {
-    return { found: false, multiple: false, record: null, tags: {}, policy: null, pct: null, hasReporting: false, malformed: [] };
+    return { found: false, multiple: false, record: null, tags: {}, policy: null, appliedPolicy: null, inheritedFrom: null, pct: null, hasReporting: false, malformed: [] };
   }
   const record = records[0];
   const { tags, duplicates } = parseTagList(record);
@@ -346,10 +447,20 @@ export function analyzeDmarc(txtRecords) {
     malformed.push(policy ? `p= tag is "${tags.get('p')}", expected none/quarantine/reject` : 'No p= (policy) tag found -- required by RFC 7489');
   }
   const subdomainPolicy = (tags.get('sp') || '').toLowerCase() || null;
+  if (tags.has('sp') && !['none', 'quarantine', 'reject'].includes(subdomainPolicy)) {
+    malformed.push(`sp= tag is "${tags.get('sp')}", expected none/quarantine/reject`);
+  }
+  const tagWarnings = [];
+  for (const t of ['adkim', 'aspf']) {
+    if (tags.has(t) && !['r', 's'].includes(tags.get(t).trim().toLowerCase())) {
+      tagWarnings.push(`${t}= tag is "${tags.get(t)}", expected r or s (RFC 7489 s6.3), so receivers fall back to relaxed`);
+    }
+  }
 
   let pct = 100;
   if (tags.has('pct')) {
-    const parsed = Number.parseInt(tags.get('pct'), 10);
+    const raw = tags.get('pct').trim();
+    const parsed = /^\d{1,3}$/.test(raw) ? Number(raw) : NaN;
     if (Number.isFinite(parsed) && parsed >= 0 && parsed <= 100) pct = parsed;
     else malformed.push(`pct= tag is "${tags.get('pct')}", expected an integer 0-100`);
   }
@@ -357,15 +468,27 @@ export function analyzeDmarc(txtRecords) {
   const rua = tags.has('rua') ? tags.get('rua').split(',').map((s) => s.trim()).filter(Boolean) : [];
   const ruf = tags.has('ruf') ? tags.get('ruf').split(',').map((s) => s.trim()).filter(Boolean) : [];
 
-  const adkim = (tags.get('adkim') || 'r').toLowerCase() === 's' ? 'strict' : 'relaxed';
-  const aspf = (tags.get('aspf') || 'r').toLowerCase() === 's' ? 'strict' : 'relaxed';
+  const adkim = (tags.get('adkim') || 'r').trim().toLowerCase() === 's' ? 'strict' : 'relaxed';
+  const aspf = (tags.get('aspf') || 'r').trim().toLowerCase() === 's' ? 'strict' : 'relaxed';
+
+  const multiple = records.length > 1;
+  const validPolicy = (v) => (['none', 'quarantine', 'reject'].includes(v) ? v : null);
+  let appliedPolicy = validPolicy(policy);
+  if (inheritedFrom && validPolicy(subdomainPolicy)) appliedPolicy = subdomainPolicy;
+  // RFC 7489 s6.6.3 step 6: an invalid sp= makes the receiver act as if
+  // the record said p=none when it has a valid rua=, else apply no DMARC.
+  const badSp = tags.has('sp') && !validPolicy(subdomainPolicy);
+  if (badSp) appliedPolicy = rua.length ? 'none' : null;
+  if (multiple) appliedPolicy = null;
 
   return {
     found: true,
-    multiple: records.length > 1,
+    multiple,
     record,
     tags: Object.fromEntries(tags),
     policy,
+    appliedPolicy,
+    inheritedFrom,
     subdomainPolicy,
     pct,
     rua,
@@ -374,6 +497,7 @@ export function analyzeDmarc(txtRecords) {
     adkim,
     aspf,
     malformed,
+    tagWarnings,
   };
 }
 
@@ -389,7 +513,7 @@ export function selectBimiRecords(txtRecords) {
 
 /** Is DMARC enforced strongly enough for Google/Yahoo to display a BIMI logo? */
 export function dmarcSufficientForBimi(dmarc) {
-  return !!dmarc && dmarc.found && ['quarantine', 'reject'].includes(dmarc.policy) && dmarc.pct === 100;
+  return !!dmarc && dmarc.found && ['quarantine', 'reject'].includes(dmarc.appliedPolicy) && dmarc.pct === 100;
 }
 
 export function analyzeBimi(txtRecords, dmarc) {
@@ -467,10 +591,25 @@ function spfFindings(walk, transportError) {
     ));
   }
 
+  // RFC 7208 s5.2 (include) and s6.1 (redirect): a target with no SPF record,
+  // more than one, or a record that does not parse is a PermError for the
+  // whole evaluation, not only for that branch. A retired vendor's include
+  // left in the record is the usual real-world cause.
+  const brokenTargets = walk.chain.slice(1).filter(
+    (c) => c.note !== 'loop' && c.found !== null && (c.found === false || c.multiple || (c.malformed && c.malformed.length)),
+  );
+  if (brokenTargets.length) {
+    findings.push(finding(
+      'spf-include-broken', 'danger', `An include: or redirect= target has no usable SPF record (${brokenTargets.length})`,
+      `${walk.domain}'s SPF record points at ${brokenTargets.map((c) => c.domain).join(', ')}, which ${brokenTargets.length === 1 ? 'does' : 'do'} not publish exactly one valid "v=spf1" record. RFC 7208 (s5.2 for include:, s6.1 for redirect=) makes that a permanent error (PermError) for the whole check, so SPF fails for messages that reach that term. Remove the reference if the vendor is retired, or fix the record it points at.`,
+      brokenTargets.map((c) => `${c.domain} (via ${c.via}): ${c.found === false ? 'no v=spf1 record' : c.multiple ? 'multiple v=spf1 records' : c.malformed.join('; ')}`).join('; '),
+    ));
+  }
+
   if (walk.exceedsLookupLimit) {
     findings.push(finding(
       'spf-too-many-lookups', 'danger', `SPF exceeds the 10-lookup limit (${walk.totalLookups} found)`,
-      `Fully evaluating ${walk.domain}'s SPF record (following every include: and redirect= mechanism it references) requires ${walk.totalLookups} DNS lookups. RFC 7208 permits at most 10 -- exceeding it is a permanent error (PermError), which means SPF fails for EVERY message from this domain, for every receiver, regardless of whether the message is legitimate. This is the single most common real-world SPF bug, usually caused by stacking an include: for every marketing/support tool the domain uses. ${SCOPE_NOTE}`,
+      `Fully evaluating ${walk.domain}'s SPF record (following every include: and redirect= mechanism it references) requires ${walk.totalLookups} DNS lookups. RFC 7208 permits at most 10 -- a receiver that reaches the 11th lookup stops with a permanent error (PermError), and SPF fails for that message whether or not it is legitimate. Lookups are counted as evaluation goes, so a message that matches an earlier term can still pass; mail from a sender listed late in the record, or not listed at all, fails. This is the single most common real-world SPF bug, usually caused by stacking an include: for every marketing/support tool the domain uses. ${SCOPE_NOTE}`,
       `${walk.totalLookups} lookup-mechanism occurrences across ${walk.chain.filter((c) => c.found).length} SPF record(s) in the chain`,
     ));
   } else if (walk.totalLookups >= 8) {
@@ -511,31 +650,58 @@ function spfFindings(walk, transportError) {
     ));
   }
 
-  if (root.allQualifier === '+') {
+  const ptrHosts = walk.chain.filter((c) => c.found && c.record && parseSpfMechanisms(c.record).lookupTerms.some((t) => t.mechanism === 'ptr'));
+  if (ptrHosts.length) {
+    findings.push(finding(
+      'spf-ptr', 'notice', 'SPF uses the ptr mechanism, which RFC 7208 says not to publish',
+      `The ptr mechanism appears in ${ptrHosts.map((c) => c.domain).join(', ')}. RFC 7208 s5.5 says ptr SHOULD NOT be used: it is slow, unreliable, and receivers may skip it, and it still spends one of the 10 lookups. Replace it with ip4/ip6 or a/mx terms.`,
+      ptrHosts.map((c) => `TXT ${c.domain}: ${c.record}`).join('; '),
+    ));
+  }
+  if (root.redirectIgnored) {
+    findings.push(finding(
+      'spf-redirect-ignored', 'notice', 'redirect= is ignored because the record also has "all"',
+      `${walk.domain}'s SPF record has both an "all" mechanism and redirect=${root.redirect}. RFC 7208 s6.1 says redirect= is ignored when "all" is present, so receivers never follow it and it costs no lookup. Remove one of them so the record says what it does.`,
+      `TXT ${walk.domain}: ${root.record}`,
+    ));
+  }
+
+  // A record that ends in redirect= with no "all" takes its closing answer
+  // from the redirect target's record (RFC 7208 s6.1), so read "all" there.
+  let allFrom = root;
+  for (let hop = 0; allFrom && allFrom.allQualifier == null && allFrom.redirect && hop < 10; hop += 1) {
+    const target = normalizeDomainKey(allFrom.redirect);
+    allFrom = walk.chain.find((c) => c.domain === target && c.via === allFrom.domain && c.found) ?? null;
+  }
+  const allQ = allFrom ? allFrom.allQualifier ?? null : null;
+  const viaRedirect = allFrom && allFrom !== root ? ` (reached through redirect= to ${allFrom.domain})` : '';
+  const allEvidence = allFrom && allFrom !== root ? `TXT ${walk.domain}: ${root.record}; TXT ${allFrom.domain}: ${allFrom.record}` : `TXT ${walk.domain}: ${root.record}`;
+
+  if (allQ === '+') {
     findings.push(finding(
       'spf-plus-all', 'danger', 'SPF ends in +all -- authorizes any server to send as this domain',
-      `${walk.domain}'s SPF record ends in "+all" (or bare "all", which defaults to +all). This explicitly tells receivers that ANY server on the internet is authorized to send mail as this domain. It is one of the most serious SPF misconfigurations possible -- it makes the rest of the record pointless and provides zero spoofing protection.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "+all"${viaRedirect} (or bare "all", which defaults to +all). This explicitly tells receivers that ANY server on the internet is authorized to send mail as this domain. It is one of the most serious SPF misconfigurations possible -- it makes the rest of the record pointless and provides zero spoofing protection.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === '?') {
+  } else if (allQ === '?') {
     findings.push(finding(
       'spf-neutral-all', 'notice', 'SPF ends in ?all -- neutral, provides no real protection',
-      `${walk.domain}'s SPF record ends in "?all" (neutral). Receivers are told to treat a non-matching sender as neither pass nor fail -- functionally close to having no SPF policy at all for anything not explicitly listed.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "?all"${viaRedirect} (neutral). Receivers are told to treat a non-matching sender as neither pass nor fail -- functionally close to having no SPF policy at all for anything not explicitly listed.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === '~') {
+  } else if (allQ === '~') {
     findings.push(finding(
       'spf-softfail-all', 'notice', 'SPF ends in ~all (softfail)',
-      `${walk.domain}'s SPF record ends in "~all" (softfail). Most receivers accept a softfail message but may flag or quarantine it rather than rejecting it outright. "-all" (hardfail) is the stronger setting once every legitimate sending source is confirmed to be listed.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "~all"${viaRedirect} (softfail). Most receivers accept a softfail message but may flag or quarantine it rather than rejecting it outright. "-all" (hardfail) is the stronger setting once every legitimate sending source is confirmed to be listed.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === '-') {
+  } else if (allQ === '-') {
     findings.push(finding(
       'spf-hardfail-all', 'info', 'SPF ends in -all (hardfail)',
-      `${walk.domain}'s SPF record ends in "-all" (hardfail), the strongest SPF setting: receivers are told to reject mail from any server not explicitly listed as an SPF source.`,
-      `TXT ${walk.domain}: ${root.record}`,
+      `${walk.domain}'s SPF record ends in "-all"${viaRedirect} (hardfail), the strongest SPF setting: receivers are told to reject mail from any server not explicitly listed as an SPF source.`,
+      allEvidence,
     ));
-  } else if (root.allQualifier === null && !root.redirect) {
+  } else if (root.allQualifier === null && !root.redirect) { // no all, no redirect
     findings.push(finding(
       'spf-no-all-no-redirect', 'notice', 'No "all" mechanism and no redirect=',
       `${walk.domain}'s SPF record has neither an "all" mechanism nor a redirect= modifier. Per RFC 7208, a sender that matches none of the listed mechanisms then evaluates to Neutral -- a similarly weak result to "?all" -- rather than the record giving a deliberate closing answer.`,
@@ -565,14 +731,24 @@ function dkimFindings(dkim, transportErrors) {
       ));
     } else if (r.malformed.length) {
       findings.push(finding(
-        'dkim-malformed', 'notice', `Selector "${r.selector}" resolved but doesn't look like a DKIM key`,
-        `${r.selector}._domainkey resolves to a TXT record, but ${r.malformed.join('; ')}. It may be an unrelated TXT record squatting at this name, or a misconfigured key.`,
+        'dkim-malformed', 'notice', `Selector "${r.selector}" resolved but doesn't hold a usable DKIM key`,
+        `${r.selector}._domainkey resolves to a TXT record, but ${r.malformed.join('; ')}. It may be an unrelated TXT record squatting at this name, or a misconfigured key; mail signed with it will not verify.`,
+        `TXT ${r.selector}._domainkey: ${r.record}`,
+      ));
+    } else if (r.hasPublicKey && r.keyType === 'rsa' && r.keyBits < 1024) {
+      findings.push(finding(
+        'dkim-weak-key', 'danger', `DKIM selector "${r.selector}" uses a ${r.keyBits}-bit RSA key (minimum is 1024)`,
+        `${r.selector}._domainkey publishes a ${r.keyBits}-bit RSA key. RFC 8301 s3.2 says verifiers MUST NOT treat signatures made with keys under 1024 bits as valid, and Gmail and Yahoo's bulk-sender rules ask for at least 1024 (2048 recommended). Mail signed with this selector fails DKIM. Rotate to a 2048-bit key.`,
         `TXT ${r.selector}._domainkey: ${r.record}`,
       ));
     } else if (r.hasPublicKey) {
+      const size = r.keyType === 'ed25519' ? 'an ed25519' : `a ${r.keyBits}-bit RSA`;
+      const short = r.keyType === 'rsa' && r.keyBits < 2048
+        ? ' It meets the 1024-bit floor (RFC 8301 s3.2) but is below the 2048 bits RFC 8301 asks signers to use; plan a rotation.'
+        : '';
       findings.push(finding(
         'dkim-valid-key', 'info', `DKIM selector "${r.selector}" has a valid public key`,
-        `${r.selector}._domainkey publishes a DKIM record with a non-empty p= tag${r.hasVersionTag ? ' and v=DKIM1' : ''} -- mail signed with this selector can be verified by receivers.`,
+        `${r.selector}._domainkey publishes ${size} public key that parses${r.hasVersionTag ? ', with v=DKIM1' : ''} -- mail signed with this selector can be verified by receivers.${short}`,
         `TXT ${r.selector}._domainkey: ${r.record}`,
       ));
     }
@@ -592,71 +768,95 @@ function dmarcFindings(domain, dmarc, transportError) {
   if (transportError) {
     findings.push(finding(
       'dmarc-lookup-failed', 'notice', 'Could not look up DMARC',
-      `Looking up the DMARC record at _dmarc.${domain} failed: ${transportError}. Re-run the check once the lookup succeeds.`,
+      `Looking up the DMARC record at _dmarc.${domain} (or a parent domain) failed: ${transportError}. Re-run the check once the lookup succeeds.`,
       `error: ${transportError}`,
     ));
     return findings;
   }
   if (!dmarc.found) {
+    const parents = domain.split('.').length > 2 ? ' or at any parent domain' : '';
     findings.push(finding(
       'dmarc-missing', 'danger', 'No DMARC record found',
-      `No TXT record starting with "v=DMARC1" was found at _dmarc.${domain}. Without DMARC, receivers have no instruction for what to do with mail that fails SPF or DKIM alignment, and you receive no reports telling you who is sending mail (legitimate or spoofed) using your domain. A domain can look fully configured with SPF and DKIM in place and still be completely spoofable without this.`,
+      `No TXT record starting with "v=DMARC1" was found at _dmarc.${domain}${parents}. Without DMARC, receivers have no instruction for what to do with mail that fails SPF or DKIM alignment, and you receive no reports telling you who is sending mail (legitimate or spoofed) using your domain. A domain can look fully configured with SPF and DKIM in place and still be completely spoofable without this.`,
       `TXT _dmarc.${domain}: (no v=DMARC1 record)`,
     ));
     return findings;
   }
+  // Where the record was read: the domain itself, or the parent that the
+  // RFC 7489 s6.6.3 organizational-domain fallback reached.
+  const at = dmarc.inheritedFrom || domain;
+  const inherited = Boolean(dmarc.inheritedFrom);
+  const usesSp = inherited && dmarc.appliedPolicy && dmarc.subdomainPolicy === dmarc.appliedPolicy;
+  const tag = usesSp ? 'sp' : 'p';
+  if (inherited) {
+    findings.push(finding(
+      'dmarc-inherited', 'info', `No DMARC record of its own: the policy at _dmarc.${at} applies`,
+      `_dmarc.${domain} publishes no DMARC record, so receivers fall back to the record of the organizational domain (RFC 7489 s6.6.3), found at _dmarc.${at}. For a subdomain that record's sp= tag applies when present, otherwise its p= tag (RFC 7489 s6.3)${dmarc.appliedPolicy ? `; here that is ${tag}=${dmarc.appliedPolicy}` : ''}. Publish a record at _dmarc.${domain} only if this subdomain needs a different policy or its own reports.`,
+      `TXT _dmarc.${domain}: (no v=DMARC1 record); TXT _dmarc.${at}: ${dmarc.record}`,
+    ));
+  }
   if (dmarc.multiple) {
     findings.push(finding(
-      'dmarc-multiple-records', 'danger', 'Multiple DMARC records published',
-      `_dmarc.${domain} publishes more than one TXT record starting with "v=DMARC1". RFC 7489 expects exactly one; multiple records make DMARC evaluation undefined for many receivers, which commonly means it is simply ignored.`,
-      `TXT _dmarc.${domain}: multiple v=DMARC1 records`,
+      'dmarc-multiple-records', 'danger', 'Multiple DMARC records published: no policy applies',
+      `_dmarc.${at} publishes more than one TXT record starting with "v=DMARC1". RFC 7489 s6.6.3 says policy discovery then terminates and DMARC is not applied at all, so none of these records' policies is in force: receivers treat the domain as if it had no DMARC record. Delete all but one.`,
+      `TXT _dmarc.${at}: multiple v=DMARC1 records`,
     ));
   }
   if (dmarc.malformed.length) {
     findings.push(finding(
       'dmarc-malformed', 'danger', 'DMARC record has invalid tags',
-      `_dmarc.${domain}'s DMARC record has a problem: ${dmarc.malformed.join('; ')}.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at}'s DMARC record has a problem: ${dmarc.malformed.join('; ')}.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
-  if (dmarc.policy === 'none') {
+  if (dmarc.tagWarnings && dmarc.tagWarnings.length) {
     findings.push(finding(
-      'dmarc-policy-none', 'notice', 'DMARC policy is p=none (monitor-only)',
-      `_dmarc.${domain} is published with p=none: receivers are asked to take no action even on a message that fails alignment. This is the most common real-world gap -- the domain looks configured (SPF, DKIM, and DMARC all present) but is still fully spoofable in practice. p=none is a reasonable first step while reviewing reports; move to p=quarantine or p=reject once they look clean.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
-    ));
-  } else if (dmarc.policy === 'quarantine') {
-    findings.push(finding(
-      'dmarc-policy-quarantine', 'info', 'DMARC policy is p=quarantine',
-      `_dmarc.${domain} asks receivers to route a message that fails alignment to spam/junk rather than the inbox. Real enforcement, one step short of p=reject.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
-    ));
-  } else if (dmarc.policy === 'reject') {
-    findings.push(finding(
-      'dmarc-policy-reject', 'info', 'DMARC policy is p=reject',
-      `_dmarc.${domain} asks receivers to refuse a message that fails alignment outright. The strongest DMARC enforcement level.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      'dmarc-tag-ignored', 'notice', 'DMARC record has a tag value receivers will ignore',
+      `_dmarc.${at}'s DMARC record: ${dmarc.tagWarnings.join('; ')}. The policy still applies; fix the value so the record means what it says.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
-  if (dmarc.policy && dmarc.policy !== 'none' && dmarc.pct < 100) {
+  const policy = dmarc.appliedPolicy;
+  const who = inherited ? `Mail from ${domain} is covered by ${tag}=${policy} at _dmarc.${at}` : `_dmarc.${domain} is published with p=${policy}`;
+  const title = (p) => (inherited ? `DMARC policy for this subdomain is ${tag}=${p} (inherited)` : `DMARC policy is p=${p}`);
+  if (policy === 'none') {
+    findings.push(finding(
+      'dmarc-policy-none', 'notice', `${title('none')} (monitor-only)`,
+      `${who}: receivers are asked to take no action even on a message that fails alignment. This is the most common real-world gap -- the domain looks configured (SPF, DKIM, and DMARC all present) but is still fully spoofable in practice. p=none is a reasonable first step while reviewing reports; move to p=quarantine or p=reject once they look clean.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
+    ));
+  } else if (policy === 'quarantine') {
+    findings.push(finding(
+      'dmarc-policy-quarantine', 'info', title('quarantine'),
+      `${who}, which asks receivers to route a message that fails alignment to spam/junk rather than the inbox. Real enforcement, one step short of p=reject.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
+    ));
+  } else if (policy === 'reject') {
+    findings.push(finding(
+      'dmarc-policy-reject', 'info', title('reject'),
+      `${who}, which asks receivers to refuse a message that fails alignment outright. The strongest DMARC enforcement level.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
+    ));
+  }
+  if (policy && policy !== 'none' && dmarc.pct < 100) {
     findings.push(finding(
       'dmarc-pct-partial', 'notice', `Only ${dmarc.pct}% of failing mail is subject to the policy (pct=${dmarc.pct})`,
-      `_dmarc.${domain} sets pct=${dmarc.pct}, so only that percentage of messages failing alignment get the p=${dmarc.policy} treatment above -- the rest are handled as if p=none. Consider raising toward pct=100 once reports look clean.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at} sets pct=${dmarc.pct}, so only that percentage of messages failing alignment get the ${tag}=${policy} treatment above -- the rest are handled as if p=none. Consider raising toward pct=100 once reports look clean.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
   if (!dmarc.hasReporting) {
     findings.push(finding(
       'dmarc-no-reporting', 'notice', 'No rua= (or ruf=) reporting address configured',
-      `_dmarc.${domain} has no rua= aggregate-report address, so you receive no visibility into who is sending mail -- legitimate or spoofed -- using your domain. Adding rua=mailto:you@${domain} (or a DMARC report-aggregation service) is what makes DMARC's reports actually useful.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at} has no rua= aggregate-report address, so you receive no visibility into who is sending mail -- legitimate or spoofed -- using your domain. Adding rua=mailto:you@${at} (or a DMARC report-aggregation service) is what makes DMARC's reports actually useful.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
-  if (dmarc.found && (dmarc.adkim === 'strict' || dmarc.aspf === 'strict')) {
+  if (dmarc.adkim === 'strict' || dmarc.aspf === 'strict') {
     findings.push(finding(
       'dmarc-strict-alignment', 'info', `Alignment mode: DKIM ${dmarc.adkim}, SPF ${dmarc.aspf}`,
-      `_dmarc.${domain} requires ${dmarc.adkim === 'strict' ? 'an exact domain match for DKIM' : 'DKIM alignment (relaxed, default)'} and ${dmarc.aspf === 'strict' ? 'an exact domain match for SPF' : 'SPF alignment (relaxed, default)'}. Strict mode is more precise but breaks alignment for mail sent via a subdomain of a third-party sender.`,
-      `TXT _dmarc.${domain}: ${dmarc.record}`,
+      `_dmarc.${at} requires ${dmarc.adkim === 'strict' ? 'an exact domain match for DKIM' : 'DKIM alignment (relaxed, default)'} and ${dmarc.aspf === 'strict' ? 'an exact domain match for SPF' : 'SPF alignment (relaxed, default)'}. Strict mode is more precise but breaks alignment for mail sent via a subdomain of a third-party sender.`,
+      `TXT _dmarc.${at}: ${dmarc.record}`,
     ));
   }
   return findings;
@@ -675,7 +875,7 @@ function bimiFindings(domain, bimi, dmarc, transportError) {
   if (!bimi.found) {
     findings.push(finding(
       'bimi-absent', 'info', 'No BIMI record found (optional)',
-      `No TXT record starting with "v=BIMI1" was found at default._bimi.${domain}. BIMI is optional: it shows your logo next to messages in supporting inboxes (Gmail, Yahoo, and others) once DMARC is enforced. ${dmarc.found && dmarcSufficientForBimi(dmarc) ? 'DMARC enforcement here is already strong enough that adding BIMI would be honored once published.' : 'DMARC enforcement is not yet strong enough for BIMI to be honored even if added -- see the DMARC findings above.'}`,
+      `No TXT record starting with "v=BIMI1" was found at default._bimi.${domain}. BIMI is optional: it shows your logo next to messages in supporting inboxes (Gmail, Yahoo, and others) once DMARC is enforced. ${dmarc.found && dmarcSufficientForBimi(dmarc) ? 'DMARC enforcement here already meets the DNS prerequisite for BIMI; Gmail also requires a Verified Mark Certificate or Common Mark Certificate (the a= tag) before it shows a logo.' : 'DMARC enforcement is not yet strong enough for BIMI to be honored even if added -- see the DMARC findings above.'}`,
       `TXT default._bimi.${domain}: (no v=BIMI1 record)`,
     ));
     return findings;
@@ -690,13 +890,13 @@ function bimiFindings(domain, bimi, dmarc, transportError) {
   if (bimi.dmarcSufficient) {
     findings.push(finding(
       'bimi-present-and-honored', 'info', 'BIMI record found, and DMARC enforcement is strong enough for it to be honored',
-      `default._bimi.${domain} is published, and DMARC is at p=${dmarc.policy} with pct=100 -- the enforcement level Google and Yahoo require before they will display a BIMI logo. (They may still require a Verified Mark Certificate via the a= tag for a checkmark in some inboxes; this check only confirms the DNS-level prerequisites.)`,
+      `default._bimi.${domain} is published, and DMARC is at p=${dmarc.appliedPolicy} with pct=100 -- the enforcement level Google and Yahoo require before they will display a BIMI logo. (They may still require a Verified Mark Certificate via the a= tag for a checkmark in some inboxes; this check only confirms the DNS-level prerequisites.)`,
       `TXT default._bimi.${domain}: ${bimi.record}`,
     ));
   } else {
     findings.push(finding(
       'bimi-present-not-honored', 'notice', 'BIMI record found, but DMARC enforcement is not strong enough for it to be honored',
-      `default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.policy ?? '(none)'} pct=${dmarc.pct ?? 100}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,
+      `default._bimi.${domain} is published, but Google and Yahoo require DMARC at p=quarantine or p=reject with pct=100 before they will display a BIMI logo. ${dmarc.found ? `Current DMARC here is p=${dmarc.appliedPolicy ?? '(none applies)'} pct=${dmarc.pct ?? 100}.` : 'No DMARC record was found at all -- see the DMARC findings above.'}`,
       `TXT default._bimi.${domain}: ${bimi.record}`,
     ));
   }

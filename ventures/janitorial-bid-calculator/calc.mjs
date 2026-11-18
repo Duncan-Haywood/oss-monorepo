@@ -221,7 +221,7 @@ export function calculateBid(input) {
     : Math.max(targetMarginPrice, minimumMonthlyPrice);
   const monthlyProfit = monthlyPrice - monthlyCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const projectsInput = Array.isArray(input.projects) ? input.projects : [];

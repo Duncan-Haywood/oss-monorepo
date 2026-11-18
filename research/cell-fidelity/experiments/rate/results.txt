@@ -1,0 +1,38 @@
+cell-fidelity milestone 5zp: the law fed the measured plating-overpotential rise (P) and/or the measured
+charge-capacity factor (Q), against 5zo's OCP oracle O; and O on a 10x finer table (f). 5zk's records, 40 designs,
+no new simulation. Set medians.
+
+set           n    e_O    e_P   e_OQ   e_PQ   e_Of   e_Pf    P<O  e_P30  e_P50
+Ai2020        8  0.042  0.087  0.040  0.080  0.043  0.087   2/8   0.049  0.024
+Chen2020     12  0.038  0.026  0.040  0.014  0.038  0.027   8/12  0.017  0.013
+OKane2022    12  0.034  0.029  0.041  0.015  0.034  0.031   7/12  0.019  0.014
+NCA_Kim2011   8  0.012  0.012  0.011  0.011  0.014  0.014   3/8   0.012  0.010
+
+set            |c_O|   |c_P|  |c_OQ|  |c_PQ|  |c_Of|  |c_Pf|
+Ai2020         0.133   0.271   0.117   0.239   0.132   0.274
+Chen2020       0.100   0.080   0.118   0.030   0.103   0.088
+OKane2022      0.087   0.080   0.100   0.038   0.084   0.086
+NCA_Kim2011    0.109   0.109   0.070   0.069   0.108   0.108
+
+set              c_O     c_P    c_OQ    c_PQ    c_Of    c_Pf
+Ai2020         0.133   0.271   0.117   0.239   0.132   0.274
+Chen2020       0.020   0.067  -0.063  -0.009   0.018   0.070
+OKane2022      0.065   0.066  -0.042   0.001   0.065   0.071
+NCA_Kim2011    0.011   0.010  -0.063  -0.064  -0.002  -0.003
+
+set              M10     E10     M99     E99   E/M99    qM99
+Ai2020         11.69   12.23   46.59   50.92    1.10   1.921
+Chen2020        2.88    3.27   30.49   30.10    0.92   1.539
+OKane2022       3.00    3.21   29.82   28.77    0.91   1.532
+NCA_Kim2011    41.32   41.30  128.94  128.91    1.00   1.999
+
+(e = |ln(L_pred(99)/L_DFN(99))| at kappa = 25.3, line through cycles 2..10 unless suffixed; O = 5zo's OCP
+ oracle, P = plating-overpotential oracle, Q = measured charge-capacity factor q_ch(2)/q_ch(n) in place of the
+ law's Q_eta(0)/Q_eta(L), f = 600-cell table; P<O = designs where P beats O; c = ln(slope of R(L_n) on n over
+ 50..99 / over 2..10); M, E = plating-weighted rise from cycle 2 of the end-of-charge node OCP and plating
+ overpotential, mV, at cycles 10 and 99; qM99 = q_ch(2)/q_ch(99))
+
+H212 (|c_P| below |c_O| on >= 3 of 4 sets): supported (3/4)
+H213 (e_P below e_O on >= 3 of 4 sets): inconclusive (2/4)
+H214 (|c_OQ| below |c_O| on >= 3 of 4 sets): inconclusive (2/4)
+H215 (fine grid moves |c_O| by <= 0.02 on all 4 sets): supported (4 <= 0.02, 0 > 0.05; 0.001, 0.002, 0.004, 0.000)

@@ -1,0 +1,63 @@
+Milestone 3: social-force twin (JuPedSim 1.4.2 SocialForceModel + side-bias steering), fitted on free-choice runs
+seeds: calibration 3, fit 5, score 20; 120 s per run after 40 s warm-up; walker counts [30, 60, 100, 150, 200]
+
+F7, PedPy copies of BaSiGo runs against milestone 2:
+  bi_corr_400_b_03: sha256 ok; walkers 480 (m2 480), share 0.7542 (m2 0.7542); measured density 1.01/m2, median speed 1.02 m/s
+  bi_corr_400_b_08: sha256 ok; walkers 701 (m2 701), share 0.5050 (m2 0.5050); measured density 3.79/m2, median speed 0.24 m/s
+
+Calibration of the free runs (walker count whose beta = 0 median speed is nearest the observed):
+  bo-360-050-050     HERMES W=3.6 L=16 entr=0.5  observed speed 1.48 -> N= 30, simulated 1.22 m/s at 0.44/m2 (miss 0.25)
+  bo-360-075-075     HERMES W=3.6 L=16 entr=0.75  observed speed 1.42 -> N= 30, simulated 1.18 m/s at 0.47/m2 (miss 0.24)
+  bo-360-090-090     HERMES W=3.6 L=16 entr=0.9  observed speed 1.25 -> N= 30, simulated 1.23 m/s at 0.46/m2 (miss 0.03)
+  bo-360-120-120     HERMES W=3.6 L=16 entr=1.2  observed speed 0.85 -> N=150, simulated 0.86 m/s at 0.89/m2 (miss 0.01)
+  bo-360-160-160     HERMES W=3.6 L=16 entr=1.6  observed speed 0.72 -> N= 60, simulated 0.66 m/s at 1.04/m2 (miss 0.06)
+  bi_corr_400_a_02   BaSiGo W=4.0 L=22 entr=3.0  observed speed 0.33 -> N=200, simulated 0.52 m/s at 1.53/m2 (miss 0.19)
+  bi_corr_400_a_03   BaSiGo W=4.0 L=22 entr=4.0  observed speed 0.31 -> N=100, simulated 0.71 m/s at 1.09/m2 (miss 0.41)
+  bi_corr_400_a_04   BaSiGo W=4.0 L=17 entr=4.0  observed speed 0.28 -> N=200, simulated 0.52 m/s at 1.44/m2 (miss 0.24)
+  bi_corr_400_a_05   BaSiGo W=4.0 L=12 entr=4.0  observed speed 0.28 -> N= 60, simulated 0.68 m/s at 1.10/m2 (miss 0.40)
+
+Fit (loss = sum of ((share miss)/CI half-width)^2 + ((lane miss)/0.05)^2 over the 9 free runs, 5 seeds):
+  beta 0.0   loss     3915.2   pooled share 0.522   mean lane 0.624   failed 1
+  beta 0.1   loss       43.2   pooled share 0.952   mean lane 0.911   failed 0
+  beta 0.2   loss       89.1   pooled share 0.989   mean lane 0.985   failed 3
+  beta 0.35  loss      120.6   pooled share 0.999   mean lane 0.999   failed 0
+  beta 0.5   loss      122.8   pooled share 1.000   mean lane 1.000   failed 0
+  beta 0.75  loss      122.9   pooled share 1.000   mean lane 1.000   failed 0
+  beta 1.0   loss      123.3   pooled share 1.000   mean lane 1.000   failed 0
+  fitted beta = 0.1
+
+Free runs at beta = 0.1, 20 seeds (mean over seeds; observed share with its 95% interval):
+  bo-360-050-050     share sim 0.951 (sd 0.106) obs 0.975 [0.941, 1.000] in  lane sim 0.941 obs 0.996 ok  speed sim 1.29 obs 1.48  density 0.43  failed 0
+  bo-360-075-075     share sim 0.973 (sd 0.038) obs 0.985 [0.963, 1.000] in  lane sim 0.968 obs 0.994 ok  speed sim 1.31 obs 1.42  density 0.44  failed 0
+  bo-360-090-090     share sim 0.972 (sd 0.051) obs 1.000 [1.000, 1.000] OUT  lane sim 0.965 obs 0.996 ok  speed sim 1.31 obs 1.25  density 0.45  failed 0
+  bo-360-120-120     share sim 0.893 (sd 0.080) obs 0.974 [0.954, 0.990] OUT  lane sim 0.827 obs 0.960 MISS  speed sim 1.08 obs 0.85  density 0.78  failed 0
+  bo-360-160-160     share sim 0.949 (sd 0.039) obs 0.822 [0.777, 0.864] OUT  lane sim 0.905 obs 0.907 ok  speed sim 1.27 obs 0.72  density 0.69  failed 0
+  bi_corr_400_a_02   share sim 0.927 (sd 0.092) obs 0.979 [0.966, 0.990] OUT  lane sim 0.898 obs 0.827 ok  speed sim 1.10 obs 0.33  density 0.82  failed 5
+  bi_corr_400_a_03   share sim 0.946 (sd 0.044) obs 0.965 [0.948, 0.980] OUT  lane sim 0.880 obs 0.836 ok  speed sim 1.22 obs 0.31  density 0.80  failed 0
+  bi_corr_400_a_04   share sim 0.897 (sd 0.118) obs 0.879 [0.851, 0.906] in  lane sim 0.918 obs 0.771 MISS  speed sim 1.16 obs 0.28  density 0.84  failed 8
+  bi_corr_400_a_05   share sim 0.950 (sd 0.027) obs 0.878 [0.850, 0.905] OUT  lane sim 0.869 obs 0.819 ok  speed sim 1.24 obs 0.28  density 0.83  failed 0
+
+Held-out assigned-exit runs at beta = 0.1, lateral exit goals (and, for comparison, the same crowd without goals):
+  bot-360-050-050    HERMES N= 30 (speed 1.51 observed; sim 1.15 m/s, 0.44/m2)  share sim 0.777 [no goal 0.951] obs 0.585  lane sim 0.749 obs 0.848  failed 0
+  bot-360-075-075    HERMES N= 30 (speed 1.33 observed; sim 1.12 m/s, 0.46/m2)  share sim 0.749 [no goal 0.973] obs 0.646  lane sim 0.746 obs 0.760  failed 0
+  bot-360-090-090    HERMES N= 30 (speed 1.22 observed; sim 1.12 m/s, 0.47/m2)  share sim 0.756 [no goal 0.972] obs 0.637  lane sim 0.730 obs 0.744  failed 0
+  bot-360-120-120    HERMES N=150 (speed 0.84 observed; sim 0.94 m/s, 0.76/m2)  share sim 0.794 [no goal 0.893] obs 0.498  lane sim 0.640 obs 0.733  failed 0
+  bot-360-120-120v2  HERMES N=150 (speed 0.91 observed; sim 0.94 m/s, 0.76/m2)  share sim 0.794 [no goal 0.893] obs 0.543  lane sim 0.640 obs 0.681  failed 0
+  bot-360-160-160    HERMES N= 60 (speed 0.61 observed; sim 0.92 m/s, 0.78/m2)  share sim 0.765 [no goal 0.949] obs 0.471  lane sim 0.617 obs 0.672  failed 0
+  bot-360-200-200    HERMES N=100 (speed 0.54 observed; sim 0.92 m/s, 0.89/m2)  share sim 0.796 [no goal 0.910] obs 0.523  lane sim 0.609 obs 0.591  failed 0
+  bot-360-250-250    HERMES N=150 (speed 0.55 observed; sim 0.90 m/s, 0.93/m2)  share sim 0.790 [no goal 0.854] obs 0.546  lane sim 0.630 obs 0.591  failed 2
+  bi_corr_400_b_03   BaSiGo N=150 (density 1.01 measured; sim 1.09 m/s, 0.65/m2)  share sim 0.825 [no goal 0.945] obs 0.754  lane sim 0.708 obs 0.840  failed 0
+  bi_corr_400_b_04   BaSiGo N=150 (speed 0.46 observed; sim 1.02 m/s, 0.77/m2)  share sim 0.820 [no goal 0.911] obs 0.687  lane sim 0.685 obs 0.789  failed 0
+  bi_corr_400_b_05   BaSiGo N=150 (speed 0.42 observed; sim 0.98 m/s, 0.83/m2)  share sim 0.812 [no goal 0.932] obs 0.532  lane sim 0.700 obs 0.756  failed 0
+  bi_corr_400_b_06   BaSiGo N=200 (speed 0.31 observed; sim 0.88 m/s, 0.91/m2)  share sim 0.802 [no goal 0.927] obs 0.594  lane sim 0.678 obs 0.675  failed 4
+  bi_corr_400_b_07   BaSiGo N=100 (speed 0.29 observed; sim 1.08 m/s, 0.76/m2)  share sim 0.851 [no goal 0.946] obs 0.588  lane sim 0.720 obs 0.626  failed 0
+  bi_corr_400_b_08   BaSiGo N=100 (density 3.79 measured; sim 0.74 m/s, 1.19/m2)  share sim 0.717 [no goal 0.855] obs 0.505  lane sim 0.510 obs 0.737  failed 0
+
+F1 (beta = 0 pooled free share in [0.40, 0.60]): held (0.510)
+F2 (share inside the run's 95% interval in >= 6 of 9): refuted (3 of 9)
+F3 (lane order within 0.10 in >= 6 of 9): held (7 of 9)
+F4 (b_03 and b_08 median speed within 0.15 m/s at the measured density): refuted (b_03: sim 1.09 vs 1.02 m/s, sim density 0.65 vs 1.01/m2; b_08: sim 0.74 vs 0.24 m/s, sim density 1.19 vs 3.79/m2)
+F5 (held-out share within 0.10 for b_03, b_08 and pooled bot-360): refuted (bi_corr_400_b_03: sim 0.825 vs 0.754; bi_corr_400_b_08: sim 0.717 vs 0.505; bot-360 pooled: sim 0.781 vs 0.541)
+F6 (simulated share falls with calibrated walker count, Spearman negative): held (rho = -0.92)
+F7 (PedPy copies reproduce milestone 2 exactly): held
+H3 for the social-force family (F2, F3 and F4): fails

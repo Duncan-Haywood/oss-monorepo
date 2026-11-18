@@ -40,9 +40,10 @@ const REQUEST_LABELS = new Set(['custom-request', 'idea']);
  * The header the custom-development form puts on each message
  * (`platform/pages/build.mjs`, the request form's submit handler):
  * `[custom-development: <kind>]`, then ` R-0001` for a preview and
- * ` tool: <slug>` for a feature or a problem, then a blank line and the job.
+ * ` tool: <slug>` for a feature or a problem, ` direction: <slug>` for a
+ * research request that names one, then a blank line and the job.
  */
-const FORM_HEAD = /^\s*\[custom-development:\s*([a-z-]+)\](?:[ \t]+(R-\d{4}))?(?:[ \t]+tool:[ \t]*([A-Za-z0-9._\/-]*))?[ \t]*(?:\r?\n|$)/;
+const FORM_HEAD = /^\s*\[custom-development:\s*([a-z-]+)\](?:[ \t]+(R-\d{4}))?(?:[ \t]+tool:[ \t]*([A-Za-z0-9._\/-]*))?(?:[ \t]+direction:[ \t]*([A-Za-z0-9._\/-]*))?[ \t]*(?:\r?\n|$)/;
 /** Form kind (the page's REQUEST_KINDS ids) → queue kind. `preview` and `problem` are not new requests. */
 export const FORM_HEAD_KINDS = Object.freeze({ new: 'product', feature: 'feature', research: 'research', topic: 'writeup' });
 const ASK_MAX = 600;
@@ -78,7 +79,9 @@ export function parseFormMessage(message) {
   const text = String(message || '');
   const m = text.match(FORM_HEAD);
   if (!m) return { kind: undefined, request: undefined, tool: undefined, body: text.trim() };
-  return { kind: m[1], request: m[2], tool: m[3] || undefined, body: text.slice(m[0].length).trim() };
+  const out = { kind: m[1], request: m[2], tool: m[3] || undefined, body: text.slice(m[0].length).trim() };
+  if (m[4]) out.direction = m[4];
+  return out;
 }
 
 /** Form messages that are new requests and that no entry covers yet. */

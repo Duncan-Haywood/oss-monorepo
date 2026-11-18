@@ -23,6 +23,6 @@
     {"severity": "low", "what": "llms.txt links point at the retired duncan-haywood.github.io host instead of marisstella.app", "where": "ventures/business-vehicle-depreciation-calculator/llms.txt:7"},
     {"severity": "low", "what": "Unknown vehicleClass silently becomes passenger; income limit ignored for passenger class", "where": "ventures/business-vehicle-depreciation-calculator/engine.mjs:55"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14648"],
   "verdict": "A small, honest, well-tested calculator whose passenger-car and exempt-truck numbers match Rev. Proc. 2025-16 and Pub 946 on three independent hand recomputations, and whose tests caught both seeded mutations (23 pass; mutants failed 1 and 2). It does not meet the bar because correctness is 2: the heavy-SUV Section 179 cap is wrongly prorated by business use, understating the 179 method by about $2.5k in the README's own example, and the tests never exercise that case. Finished as a prototype (completeness 3), but a CPA would correct the SUV row before relying on it."
 }

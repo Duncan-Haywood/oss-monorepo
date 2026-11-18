@@ -1,0 +1,5 @@
+GoEmotions fear, LLM Qwen2.5-0.5B-Instruct, corpus 6683, prevalence 0.0115, coder J 0.264 (sens 0.286, spec 0.979), n 500, 500 draws
+rule | share of draws using cells % | coverage % | half-width pts
+pooled | 0 | 93.8 | 0.927
+shipped default (neg_guard 3) | 0 | 97.8 | 0.924
+neg_guard=3 alone | 18 | 96.6 | 0.945

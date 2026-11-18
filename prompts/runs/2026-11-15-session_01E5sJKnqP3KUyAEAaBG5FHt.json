@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01E5sJKnqP3KUyAEAaBG5FHt",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T22:09:36Z",
+  "ended": "2026-11-15T22:28:22Z",
+  "wall_minutes": 50.13,
+  "tokens_in": 9491055,
+  "tokens_out": 49254,
+  "cost_usd": 4.1742,
+  "tool_calls": 80,
+  "task": "research/society-lanes milestone 4c: the anticipatory power law (Karamouzas, Skinner and Guy 2014) as a fourth crowd-model family, fitted and held out under three side-bias rules",
+  "projects": [
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16359",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "The first background run of m4c_powerlaw.py was stopped at the 30 min default background limit; the per-job cache survived and a rerun with a 2 h limit finished."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "'start multi-minute jobs with run_in_background' does not mention that run_in_background has a 30 min default limit; a 50 min experiment was killed mid-run. Say: pass timeout up to 7200000 for long jobs."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "The proposal's plan names ORCA via RVO2 and the power law, but no maintained wheel exists for either on python3.13 and arxiv.org/APS/UMN hosts are refused; a note on which hosts and tools work for pedestrian-dynamics sources (GitHub raw works) would save probing time."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/society-lanes/PROPOSAL.md",
+      "why": "The plan says to use open tools for the power law; none installable was available, and building Inria UMANS's pybind fork was refused by the sandbox.",
+      "did": "Implemented the power law in numpy from UMANS's MIT source and parameters, verified by a finite-difference gradient test.",
+      "result": "Fourth family scored under the same protocol; ORCA still open."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-fourth-crowd-model-keeps-right-too.md",
+    "research/society-lanes/LOG.md (milestone 4c entry)"
+  ],
+  "goal": "Advance an open research programme (society-lanes, milestone 4)",
+  "notes": "Predictions P1-P8 committed before the full run (commit on the PR branch). Held: P1, P5, P7. Refuted: P2, P3, P4, P6, P8. Headline: with the bias always on the power law keeps 0.971 of HERMES walkers on their right under assigned exits (people 0.541); the yielding bias gives 0.698. H3 refuted for the programme (no family of four passes). Checks run locally: society-lanes tests 31 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check (arXiv 1412.1082 hand-recorded, host refused); post front matter, links, similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1203ade8-1fc1-5044-9c81-ede372d89bcd",
+    "transcripts": 1,
+    "first": "2026-11-15T22:09:36Z",
+    "last": "2026-11-15T22:59:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 137,
+        "output": 49254,
+        "thinking": 10041,
+        "cache_read": 9325487,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165431,
+        "api_equivalent_usd": 4.1742,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 137,
+      "output": 49254,
+      "thinking": 10041,
+      "cache_read": 9325487,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165431,
+      "api_equivalent_usd": 4.1742,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 80,
+    "tools": {
+      "Bash": 67,
+      "Write": 5,
+      "ToolSearch": 2,
+      "WebFetch": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 50.13,
+      "active_minutes": 50.13,
+      "model_minutes": 9.46,
+      "tool_minutes": 40.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a PhD student implementing and verifying the power law, running the fit protocol and writing it up: about two working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 383.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

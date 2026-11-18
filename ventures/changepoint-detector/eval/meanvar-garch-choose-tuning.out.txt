@@ -1,0 +1,36 @@
+reps 100, seed shift 0, prune 1.5 ln n, joint 1.5 ln n, GARCH terms 0.25 ln n
+null any change / sd 1->2 exactly one / mean +1.5 exactly one
+n | noise | choose
+100 | gauss | 3% / 79% / 96%
+100 | garch | 14% / 56% / 77%
+100 | t3    | 31% / 60% / 55%
+200 | gauss | 0% / 97% / 97%
+200 | garch | 5% / 67% / 94%
+200 | t3    | 54% / 62% / 42%
+reps 100, seed shift 0, prune 1.5 ln n, joint 1.5 ln n, GARCH terms 0.5 ln n
+null any change / sd 1->2 exactly one / mean +1.5 exactly one
+n | noise | choose
+100 | gauss | 4% / 92% / 96%
+100 | garch | 18% / 62% / 75%
+100 | t3    | 32% / 59% / 54%
+200 | gauss | 0% / 97% / 97%
+200 | garch | 5% / 67% / 91%
+200 | t3    | 54% / 63% / 41%
+reps 100, seed shift 0, prune 1.5 ln n, joint 1.5 ln n, GARCH terms 1 ln n
+null any change / sd 1->2 exactly one / mean +1.5 exactly one
+n | noise | choose
+100 | gauss | 4% / 94% / 96%
+100 | garch | 31% / 66% / 69%
+100 | t3    | 34% / 60% / 54%
+200 | gauss | 0% / 97% / 97%
+200 | garch | 11% / 66% / 79%
+200 | t3    | 55% / 63% / 41%
+reps 100 per cell, seed shift 0, greedy forward search on the segment-wise GARCH likelihood, minSeg 10
+per penalty (multiples of ln n): null any change / sd 1->2 exactly one / mean +1.5 exactly one
+n | noise | pen 1 | pen 1.25 | pen 1.5 | pen 1.75 | pen 2
+100 | gauss | 11% / 82% / 77% | 4% / 80% / 94% | 3% / 61% / 96% | 2% / 44% / 97% | 0% / 26% / 100%
+100 | t3    | 58% / 41% / 24% | 43% / 50% / 47% | 28% / 61% / 55% | 24% / 62% / 65% | 18% / 61% / 70%
+100 | garch | 30% / 60% / 49% | 16% / 59% / 72% | 9% / 51% / 83% | 5% / 38% / 92% | 3% / 27% / 96%
+200 | gauss | 8% / 83% / 83% | 1% / 91% / 92% | 0% / 95% / 97% | 0% / 89% / 98% | 0% / 76% / 100%
+200 | t3    | 76% / 38% / 19% | 65% / 52% / 34% | 50% / 63% / 43% | 44% / 71% / 53% | 40% / 75% / 57%
+200 | garch | 25% / 61% / 64% | 9% / 69% / 84% | 3% / 68% / 94% | 0% / 58% / 97% | 0% / 47% / 98%

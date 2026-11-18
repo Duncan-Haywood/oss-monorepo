@@ -821,7 +821,7 @@ export const EXPORT_NOTE = "This tool does not post anywhere. Review every draft
 /** Neutralise spreadsheet formula injection and quote per RFC 4180. @param {unknown} v */
 export function csvCell(v) {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 

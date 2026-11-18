@@ -1,0 +1,48 @@
+Municipality-of-Rotterdam__Vergunning-Controle-S req Pset_CurtainWallCommon.AkousticRating -> Pset_CurtainWallCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S app Pset_CurtainWallCommon.AkousticRating -> Pset_CurtainWallCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S req Pset_WindowCommon.AkousticRating -> Pset_WindowCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S app Pset_WindowCommon.AkousticRating -> Pset_WindowCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S req Pset_WallCommon.AkousticRating -> Pset_WallCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S app Pset_WallCommon.AkousticRating -> Pset_WallCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S req Pset_DoorCommon.AkousticRating -> Pset_DoorCommon.AcousticRating row -> editable row 
+Municipality-of-Rotterdam__Vergunning-Controle-S app Pset_DoorCommon.AkousticRating -> Pset_DoorCommon.AcousticRating row -> editable row 
+  other errors changed in Municipality-of-Rotterdam__Vergunning-Controle-Service__input_IDS Rotterdam BIM.ids ["value-no-datatype","value-no-datatype","value-no-datatype","value-no-datatype"]
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPriv req Qto_RailingBaseQuantities.Lenght -> Qto_RailingBaseQuantities.Length kept -> editable row (file's IFCPOSITIVELENGTHMEASURE now reads as pset-datatype)
+  other errors changed in buildingSMART-Portugal__EIR-FaseProjeto-ObraPrivada__IDS-EN_OBG-BSP-ZZ-ZZZ-EP-ARQ-XX-0001.ids ["pset-datatype"]
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPriv req Qto_DuctSegmentBaseQuantities.Lenght -> Qto_DuctSegmentBaseQuantities.Length kept -> editable row 
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPriv req Qto_CableCarrierSegmentBaseQuantities.Lenght -> Qto_CableCarrierSegmentBaseQuantities.Length kept -> editable row 
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPriv req Qto_RailingBaseQuantities.Lenght -> Qto_RailingBaseQuantities.Length kept -> editable row (file's IFCPOSITIVELENGTHMEASURE now reads as pset-datatype)
+  other errors changed in buildingSMART-Portugal__EIR-FaseProjeto-ObraPrivada__IDS_OBG-BSP-ZZ-ZZZ-EP-ARQ-XX-0001.ids ["pset-datatype"]
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPriv req Qto_DuctSegmentBaseQuantities.Lenght -> Qto_DuctSegmentBaseQuantities.Length kept -> editable row 
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPriv req Qto_CableCarrierSegmentBaseQuantities.Lenght -> Qto_CableCarrierSegmentBaseQuantities.Length kept -> editable row 
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPubl req Qto_DuctSegmentBaseQuantities.Lenght -> Qto_DuctSegmentBaseQuantities.Length kept -> editable row 
+buildingSMART-Portugal__EIR-FaseProjeto-ObraPubl req Qto_CableCarrierSegmentBaseQuantities.Lenght -> Qto_CableCarrierSegmentBaseQuantities.Length kept -> editable row 
+vinnividivicci__openingbim-cicd__sample_files_EN req Pset_WallCommon.Thermal Transmitance -> Pset_WallCommon.ThermalTransmittance row -> editable row 
+{
+ "real": {
+  "files": 64,
+  "filesWith": 7,
+  "suggested": 17,
+  "toRow": 17,
+  "toKept": 0,
+  "nameErrBefore": 31,
+  "nameErrAfter": 14,
+  "otherErrChanged": 3,
+  "typeFaultUnmasked": 2,
+  "typeErrBefore": 14,
+  "typeErrAfterBoth": 14
+ },
+ "IDS-Audit-tool": {
+  "files": 75,
+  "filesWith": 0,
+  "suggested": 0,
+  "toRow": 0,
+  "toKept": 0,
+  "nameErrBefore": 2,
+  "nameErrAfter": 2,
+  "otherErrChanged": 0,
+  "typeFaultUnmasked": 0,
+  "typeErrBefore": 3,
+  "typeErrAfterBoth": 3
+ }
+}

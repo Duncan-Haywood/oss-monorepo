@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqybgdyMePNxNQ2mQGFi",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T12:38:17Z",
+  "ended": "2026-11-17T12:45:47Z",
+  "wall_minutes": 7.69,
+  "tokens_in": 3454648,
+  "tokens_out": 14550,
+  "cost_usd": 1.5634,
+  "tool_calls": 42,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16940",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/main_health.py",
+      "issue": "Started it in the background, then edited platform/ci/test_run_workflow_locally.py while it ran; its inspect.getsource test then read the edited file and failed (2 failures), which looked like a red main until a rerun after the edit passed 233/233. Worth noting: don't edit platform/ci while it runs."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "No way to run one named step of a workflow (--only takes workflow names), so checking the one supersede-check step meant a full portfolio-validate run past the 100 s handoff (~5 min)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-the-ci-step-that-signed-as-ci.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode (backlog had only owner rows). friction_rank.py --live --ungated --days 3 plus run-record doc_friction; picked the run_workflow_locally report from session_01XpHqye3mm8o2YXnvRwxsJV: a local run left git user.email ci@example.com. Root cause: portfolio-validate.yml 'Supersede-check unit tests' runs git config --global, which locally writes the session's ~/.gitconfig. Fix: runner_files() adds GIT_CONFIG_GLOBAL pointing at a per-process copy (XDG git/config + ~/.gitconfig, or an exported GIT_CONFIG_GLOBAL) in RUNNER_TEMP. Verification: 3 new Execute tests (2 fail on the old runner); test_run_workflow_locally 233/233; full local portfolio-validate 100/100 run steps passed (10 not run: uses:/secret steps), Supersede-check ok (28 s), ~/.gitconfig md5 22bd8c2b... unchanged before/after and global user.email still the session's; promptctl validate ok; unittest discover -s prompts 136 OK; check_post_frontmatter and check_post_links ok. main_health: 255/256, the one FAIL was this run's own mid-run edit (see doc_friction). Left open: research-archive.yml's local-scope git config (job has contents: write, so the read-only screen skips it). No agent doc: the post and code comment carry it. Backlog ids touched: none.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9a182fdf-b627-525f-9e90-75bc4799055d",
+    "transcripts": 1,
+    "first": "2026-11-17T12:38:17Z",
+    "last": "2026-11-17T12:45:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 14550,
+        "thinking": 2864,
+        "cache_read": 3380057,
+        "cache_write_5m": 0,
+        "cache_write_1h": 74512,
+        "api_equivalent_usd": 1.5634,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 14550,
+      "thinking": 2864,
+      "cache_read": 3380057,
+      "cache_write_5m": 0,
+      "cache_write_1h": 74512,
+      "api_equivalent_usd": 1.5634,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 42,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.69,
+      "active_minutes": 7.69,
+      "model_minutes": 2.59,
+      "tool_minutes": 5.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 2.0,
+      "basis": "diagnose a git identity leak in a CI runner, fix with tests, end-to-end check, short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 200.0
+    },
+    "leverage": 127.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

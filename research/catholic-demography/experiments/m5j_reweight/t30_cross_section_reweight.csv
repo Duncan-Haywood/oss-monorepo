@@ -1,0 +1,21 @@
+part,group,quantity,set,gap,lo,hi,removed,removed_lo,removed_hi,deff_ratio,draws_not_converged,worst_margin_gap
+B,all adults,"weekly attendance, all adults",raw,-0.0794,-0.1033,-0.0538,0.0000,0.0000,0.0000,1.0000,0,0.0000
+B,all adults,"weekly attendance, all adults",S1,-0.0659,-0.0917,-0.0436,0.1699,0.0432,0.2890,1.2275,0,0.0000
+B,all adults,"weekly attendance, all adults",S2,-0.0684,-0.0928,-0.0471,0.1380,-0.0149,0.2832,1.2084,0,0.0000
+B,all adults,"weekly attendance, all adults",S3,-0.0511,-0.0734,-0.0275,0.3564,0.1707,0.5611,1.4590,0,0.0000
+B,all adults,"Catholic now, all adults",raw,-0.0100,-0.0350,0.0131,0.0000,0.0000,0.0000,1.0000,0,0.0000
+B,all adults,"Catholic now, all adults",S1,-0.0077,-0.0305,0.0166,0.2337,-3.9584,7.5790,1.2270,0,0.0000
+B,all adults,"Catholic now, all adults",S2,-0.0114,-0.0341,0.0125,-0.1355,-9.1312,6.7184,1.2078,0,0.0000
+B,all adults,"Catholic now, all adults",S3,-0.0047,-0.0272,0.0207,0.5347,-3.8459,12.3479,1.4571,0,0.0000
+B,all adults,"raised Catholic, all adults",raw,0.0211,-0.0027,0.0471,0.0000,0.0000,0.0000,1.0000,0,0.0000
+B,all adults,"raised Catholic, all adults",S1,0.0193,-0.0022,0.0433,0.0873,-0.9154,1.0117,1.2264,0,0.0000
+B,all adults,"raised Catholic, all adults",S2,0.0143,-0.0064,0.0372,0.3250,-0.8155,1.8036,1.2052,0,0.0000
+B,all adults,"raised Catholic, all adults",S3,0.0203,-0.0023,0.0422,0.0379,-1.9614,1.8045,1.4575,0,0.0000
+B,all adults,"no religion, all adults",raw,0.1033,0.0810,0.1275,0.0000,0.0000,0.0000,1.0000,0,0.0000
+B,all adults,"no religion, all adults",S1,0.1005,0.0770,0.1240,0.0271,-0.0736,0.1367,1.2270,0,0.0000
+B,all adults,"no religion, all adults",S2,0.1005,0.0767,0.1261,0.0270,-0.1023,0.1579,1.2078,0,0.0000
+B,all adults,"no religion, all adults",S3,0.0851,0.0612,0.1068,0.1760,0.0317,0.3264,1.4571,0,0.0000
+B,Catholics,"weekly attendance, Catholics (raked within)",raw,-0.1005,-0.1551,-0.0513,0.0000,0.0000,0.0000,1.0000,0,0.0000
+B,Catholics,"weekly attendance, Catholics (raked within)",S1,-0.1049,-0.1600,-0.0537,-0.0434,-0.3677,0.2273,1.1513,0,0.0000
+B,Catholics,"weekly attendance, Catholics (raked within)",S2,-0.0955,-0.1527,-0.0411,0.0494,-0.3069,0.4026,1.1969,0,0.0000
+B,Catholics,"weekly attendance, Catholics (raked within)",S3,-0.1029,-0.1546,-0.0364,-0.0242,-0.4367,0.3927,1.7400,105,0.1429

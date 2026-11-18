@@ -1,0 +1,30 @@
+Milestone 6u post hoc (written after reading results_waveglider_onboard.txt; exploratory)
+
+H1  does speed follow Hs / T (heave velocity), as the quasi-steady model's scaling says?
+  Hs only            RSS   54.093  BIC  -13412.5
+  Hs / T_avg         RSS   34.985  BIC  -14842.3
+  Hs and T_avg free  RSS   33.303  BIC  -14995.9
+  3281 hours: free b 0.542, c -0.711, b + c -0.170 (95% -0.243 to -0.097); ratio exponent a 0.534
+  corr(log Hs_ob, log T_avg) +0.522; median T_avg 6.37 s
+
+H2  the battery around the August step
+  local-day minimum of total_power on 2015-08-07: 383785; lowest of the 68 earlier days 307640; median earlier daily minimum 530305
+  rank of that minimum among all 158 mission days (1 = lowest): 6
+  the 8 lowest daily minima: 08-06 308k, 10-20 345k, 10-06 378k, 08-26 380k, 09-02 382k, 08-07 384k, 10-21 387k, 10-22 390k
+  7 days before  overnight drain    5433/h over 6 nights (range 5240 to 11310); median speed 0.636 m/s
+  7 days after   overnight drain    5195/h over 6 nights (range 5021 to 5351); median speed 0.454 m/s
+  June 6-12      overnight drain    5242/h over 5 nights (range 5078 to 5626); median speed 0.654 m/s
+  June 13-19     overnight drain    5028/h over 6 nights (range 4992 to 5091); median speed 0.439 m/s
+  June 21-27     overnight drain    5184/h over 5 nights (range 5012 to 6596); median speed 0.585 m/s
+  overnight drain by month (median /h): 6: 5208, 7: 5298, 8: 5238, 9: 5198, 10: 5601
+
+H3  forecast with the period term (A5 rules, training 2015-06-01 to 2015-07-31)
+  training b 0.533, c -0.850 (1419 hours)
+  h  6: 1798 targets, MAE M1 0.0270, M2 (Hs, T) 0.0256, ratio 0.946 (95% 0.845 to 1.058)
+  h 24: 1806 targets, MAE M1 0.0391, M2 (Hs, T) 0.0300, ratio 0.767 (95% 0.674 to 0.874)
+  h 72: 1805 targets, MAE M1 0.0574, M2 (Hs, T) 0.0387, ratio 0.674 (95% 0.581 to 0.793)
+
+H4  share of the 6t events the Hs-and-period model explains (free b, c from H1)
+  Aug before -> Aug after: T_avg 6.33 -> 5.94 s, Hs 2.43 -> 1.85 m; observed 0.714, model 0.904, share of log change +0.30
+  Jun 6-12 -> Jun 13-19: T_avg 6.17 -> 6.91 s, Hs 1.78 -> 1.21 m; observed 0.672, model 0.749, share of log change +0.73
+  Jun 13-19 -> Jun 21-27: T_avg 6.91 -> 6.40 s, Hs 1.21 -> 1.44 m; observed 1.327, model 1.158, share of log change +0.52

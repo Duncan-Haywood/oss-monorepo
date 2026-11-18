@@ -1,0 +1,380 @@
+{
+  "note": "Fresh held-out pieces for the broken-stroke rule (scan.mjs readStaff, BROKEN_STROKE), chosen on 2026-11-15 by eval/broken-stroke-fresh.mjs after the rule was set from one stroke (GregoBase 3679, leaf 721) and frozen, and listed before any of their pages was downloaded: in id order from 3463, the first 15 GregoBase ids in no earlier piece list whose book: header names only the Graduale Romanum, 1908, and whose GABC has a porrectus. Arabic page p is printed on leaf p+26, bracketed page [p] on leaf p+585; the two leaves before it and the one after are read and the piece found by local alignment. GABC files are unmodified GregoBase downloads (CC0), in corpus/gregobase-1908-stroke/.",
+  "pieces": [
+    {
+      "name": "GregoBase 3464 (Intret in conspectu)",
+      "gabc": "corpus/gregobase-1908-stroke/3464.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 602",
+          "leaf": 602
+        },
+        {
+          "page": "leaf 603",
+          "leaf": 603
+        },
+        {
+          "page": "[19]",
+          "leaf": 604
+        },
+        {
+          "page": "leaf 605",
+          "leaf": 605
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3465 (Nimis honorati sunt (All.))",
+      "gabc": "corpus/gregobase-1908-stroke/3465.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 572",
+          "leaf": 572
+        },
+        {
+          "page": "leaf 573",
+          "leaf": 573
+        },
+        {
+          "page": "548",
+          "leaf": 574
+        },
+        {
+          "page": "leaf 575",
+          "leaf": 575
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3467 (Deus qui praecinxit me)",
+      "gabc": "corpus/gregobase-1908-stroke/3467.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 418",
+          "leaf": 418
+        },
+        {
+          "page": "leaf 419",
+          "leaf": 419
+        },
+        {
+          "page": "394",
+          "leaf": 420
+        },
+        {
+          "page": "leaf 421",
+          "leaf": 421
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3468 (Liberasti nos)",
+      "gabc": "corpus/gregobase-1908-stroke/3468.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 357",
+          "leaf": 357
+        },
+        {
+          "page": "leaf 358",
+          "leaf": 358
+        },
+        {
+          "page": "333",
+          "leaf": 359
+        },
+        {
+          "page": "leaf 360",
+          "leaf": 360
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3469 (Si iniquitates (Intr))",
+      "gabc": "corpus/gregobase-1908-stroke/3469.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 354",
+          "leaf": 354
+        },
+        {
+          "page": "leaf 355",
+          "leaf": 355
+        },
+        {
+          "page": "330",
+          "leaf": 356
+        },
+        {
+          "page": "leaf 357",
+          "leaf": 357
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3470 (Surge Domine)",
+      "gabc": "corpus/gregobase-1908-stroke/3470.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 676",
+          "leaf": 676
+        },
+        {
+          "page": "leaf 677",
+          "leaf": 677
+        },
+        {
+          "page": "[93]",
+          "leaf": 678
+        },
+        {
+          "page": "leaf 679",
+          "leaf": 679
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3471 (De profundis)",
+      "gabc": "corpus/gregobase-1908-stroke/3471.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 358",
+          "leaf": 358
+        },
+        {
+          "page": "leaf 359",
+          "leaf": 359
+        },
+        {
+          "page": "334",
+          "leaf": 360
+        },
+        {
+          "page": "leaf 361",
+          "leaf": 361
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3472 (Candor est)",
+      "gabc": "corpus/gregobase-1908-stroke/3472.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 531",
+          "leaf": 531
+        },
+        {
+          "page": "leaf 532",
+          "leaf": 532
+        },
+        {
+          "page": "507",
+          "leaf": 533
+        },
+        {
+          "page": "leaf 534",
+          "leaf": 534
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3473 (Os justi)",
+      "gabc": "corpus/gregobase-1908-stroke/3473.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 618",
+          "leaf": 618
+        },
+        {
+          "page": "leaf 619",
+          "leaf": 619
+        },
+        {
+          "page": "[35]",
+          "leaf": 620
+        },
+        {
+          "page": "leaf 621",
+          "leaf": 621
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3474 (Sancte Michael)",
+      "gabc": "corpus/gregobase-1908-stroke/3474.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 561",
+          "leaf": 561
+        },
+        {
+          "page": "leaf 562",
+          "leaf": 562
+        },
+        {
+          "page": "537",
+          "leaf": 563
+        },
+        {
+          "page": "leaf 564",
+          "leaf": 564
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3477 (Beatus vir sanctus Martinus)",
+      "gabc": "corpus/gregobase-1908-stroke/3477.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 578",
+          "leaf": 578
+        },
+        {
+          "page": "leaf 579",
+          "leaf": 579
+        },
+        {
+          "page": "554",
+          "leaf": 580
+        },
+        {
+          "page": "leaf 581",
+          "leaf": 581
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3478 (Benedicite Dominum)",
+      "gabc": "corpus/gregobase-1908-stroke/3478.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 559",
+          "leaf": 559
+        },
+        {
+          "page": "leaf 560",
+          "leaf": 560
+        },
+        {
+          "page": "535",
+          "leaf": 561
+        },
+        {
+          "page": "leaf 562",
+          "leaf": 562
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3480 (Magnus sanctus Paulus)",
+      "gabc": "corpus/gregobase-1908-stroke/3480.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 392",
+          "leaf": 392
+        },
+        {
+          "page": "leaf 393",
+          "leaf": 393
+        },
+        {
+          "page": "368",
+          "leaf": 394
+        },
+        {
+          "page": "leaf 395",
+          "leaf": 395
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3481 (Juravit Dominus)",
+      "gabc": "corpus/gregobase-1908-stroke/3481.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 616",
+          "leaf": 616
+        },
+        {
+          "page": "leaf 617",
+          "leaf": 617
+        },
+        {
+          "page": "[33]",
+          "leaf": 618
+        },
+        {
+          "page": "leaf 619",
+          "leaf": 619
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3482 (Amen dico vobis quod vos)",
+      "gabc": "corpus/gregobase-1908-stroke/3482.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 625",
+          "leaf": 625
+        },
+        {
+          "page": "leaf 626",
+          "leaf": 626
+        },
+        {
+          "page": "[42]",
+          "leaf": 627
+        },
+        {
+          "page": "leaf 628",
+          "leaf": 628
+        }
+      ]
+    }
+  ]
+}

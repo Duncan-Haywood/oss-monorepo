@@ -12,6 +12,7 @@
 
 import fs from "node:fs/promises";
 import { parseInput, analyze, summarize, fmtUsd, CLASS_TABLE, DEFAULTS, PRICES_AS_OF } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 function parseArgs(argv) {
   const args = { json: false, commands: false, applyImmediately: false, failOn: "error", positional: [], cpuTarget: DEFAULTS.cpuTarget * 100, memReserve: DEFAULTS.memReserve * 100, prices: null };
@@ -60,7 +61,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   const args = parseArgs(argv);
   if (args.help || !args.sub) return { exitCode: args.help ? 0 : 1, output: USAGE };
   if (args.sub === "classes") {
-    const rows = Object.entries(CLASS_TABLE).map(([k, v]) => `${k.padEnd(20)} ${String(v.vcpu).padStart(3)} vCPU ${String(v.memGib).padStart(4)} GiB  $${v.price.toFixed(3)}/hr${v.baseline === null ? "" : `  burstable, baseline ${v.baseline * 100}%`}`);
+    const rows = Object.entries(CLASS_TABLE).map(([k, v]) => `${k.padEnd(20)} ${String(v.vcpu).padStart(3)} vCPU ${String(v.memGib).padStart(4)} GiB  $${v.price.toFixed(3)}/hr${v.baseline === null ? "" : `  burstable, baseline ${+(v.baseline * 100).toFixed(4)}%`}`);
     return { exitCode: 0, output: [`Embedded class table (${PRICES_AS_OF}):`, ...rows].join("\n") };
   }
   if (args.sub !== "analyze") return { exitCode: 2, output: `Unknown subcommand "${args.sub}". Try --help.` };
@@ -106,7 +107,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stdi
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkBf6XDLtago6VmQyU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:20:49Z",
+  "ended": "2026-11-13T12:37:31Z",
+  "wall_minutes": 20.46,
+  "tokens_in": 13798738,
+  "tokens_out": 57504,
+  "cost_usd": 5.3098,
+  "tool_calls": 100,
+  "task": "Flagship 8 quick-pick-survey, item (b): do answer times see half-time salience pickers?",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15496",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First sweep launch used the script's default --pace-min 0.6 instead of the shipped FAST_PACE 0.5; caught after 5 cells, killed and relaunched.",
+      "cost": "about 5 minutes"
+    },
+    {
+      "what": "The full 240-cell grid at 40 surveys would have taken about 2.5 h on 4 CPUs; trimmed to 132 cells (dissent at one ratio, since ratio does not touch a camp; random and q = 1 at gamma 0.6).",
+      "cost": "none to the result"
+    },
+    {
+      "what": "venture-preflight failed on inherited_keys.py scanning the gitignored .next build left by npm run verify; removed .next and reran.",
+      "cost": "one preflight rerun"
+    },
+    {
+      "what": "Appending to quick-pick-survey's flagships next: took it to 2229 characters, over validate.py's 2000 cap; rewrote it replacing the landed item.",
+      "cost": "one preflight rerun"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/scripts/answer-time-sweep.ts",
+      "issue": "--pace-min defaults to 0.6 while the shipped FAST_PACE is 0.5 and the doc table reports 'pace-drop 0.5'; easy to run the sweep at the wrong threshold."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "inherited_keys.py scans the gitignored .next directory, so running `npm run verify` (which builds) before the preflight fails it on Next's own bundled code; the preflight should skip .next or say to delete it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-time-each-answer-not-each-person.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#half-time-carelessness-and-answer-times"
+  ],
+  "goal": "Deepen flagship 8 with a measured, shipped answer to item (b).",
+  "notes": "answer-time-sweep.ts takes --q (q = 1 reproduces the 2026-11-12 rows exactly; replay of Glicko states checked against simulate). Per-person pace recovers 0-35% of the ceiling against half-time salience pickers; a per-answer cut recovers 55-75% at 0.4x pace, 20-42% at 0.6x; costs 0.000-0.006 with nobody careless, 0.002-0.019 against a camp. Shipped ?drop=fast-answers (ratingsWithoutFastAnswers replays trials in answeredAt order) and a builder button; default unchanged. Verification: npm run verify (typecheck, lint, 528 unit tests, build) green; integration suite 123 tests green on scripts/test-db.sh Postgres; the replay test goes red when answers are replayed in reverse order; the cut-edge unit test goes red on <= instead of <. venture-preflight clean (after removing .next and trimming flagships next: under its 2000-character cap).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "46e35968-28b2-573f-a7e4-550adbe15848",
+    "transcripts": 1,
+    "first": "2026-11-13T12:20:49Z",
+    "last": "2026-11-13T12:41:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 97,
+        "input": 189,
+        "output": 57504,
+        "thinking": 13509,
+        "cache_read": 13619152,
+        "cache_write_5m": 0,
+        "cache_write_1h": 179397,
+        "api_equivalent_usd": 5.3098,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 97,
+      "input": 189,
+      "output": 57504,
+      "thinking": 13509,
+      "cache_read": 13619152,
+      "cache_write_5m": 0,
+      "cache_write_1h": 179397,
+      "api_equivalent_usd": 5.3098,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 100,
+    "tools": {
+      "Bash": 95,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.46,
+      "active_minutes": 20.46,
+      "model_minutes": 9.16,
+      "tool_minutes": 11.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician-engineer extending a simulation sweep, running 132 cells, writing the per-answer replay with route, UI and tests, and the write-up and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 188.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

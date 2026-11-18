@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Line plot of test accuracy for four classifiers across four splits: S1 random windows and S2 time split near 100% for the spectrum models, S3 leave-one-load-out still above 94% for three of four, S4 leave-one-fault-size-out between 44% and 71%">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">CWRU bearing faults: test accuracy by split</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="273.4" y2="273.4" stroke="#ddd"/><text x="58" y="277.4" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="222.9" y2="222.9" stroke="#ddd"/><text x="58" y="226.9" text-anchor="end" font-family="sans-serif" font-size="11">40</text>
+<line x1="64" x2="624" y1="172.3" y2="172.3" stroke="#ddd"/><text x="58" y="176.3" text-anchor="end" font-family="sans-serif" font-size="11">60</text>
+<line x1="64" x2="624" y1="121.7" y2="121.7" stroke="#ddd"/><text x="58" y="125.7" text-anchor="end" font-family="sans-serif" font-size="11">80</text>
+<line x1="64" x2="624" y1="71.2" y2="71.2" stroke="#ddd"/><text x="58" y="75.2" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<text x="64.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="250.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
+<text x="437.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">3</text>
+<text x="624.0" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">split (1 random windows, 2 time, 3 held-out load, 4 held-out fault size)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">accuracy (%)</text>
+<polyline points="64.0,107.5 250.7,108.7 437.3,112.0 624.0,189.9" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="107.5" r="3" fill="#c0392b"/>
+<circle cx="250.7" cy="108.7" r="3" fill="#c0392b"/>
+<circle cx="437.3" cy="112.0" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="189.9" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">M1 envelope+logreg</text>
+<polyline points="64.0,77.6 250.7,78.7 437.3,86.2 624.0,212.3" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="77.6" r="3" fill="#1f6fb2"/>
+<circle cx="250.7" cy="78.7" r="3" fill="#1f6fb2"/>
+<circle cx="437.3" cy="86.2" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="212.3" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">M2 stats+forest</text>
+<polyline points="64.0,71.3 250.7,71.2 437.3,72.6 624.0,145.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="71.3" r="3" fill="#2e8b57"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#2e8b57"/>
+<circle cx="437.3" cy="72.6" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="145.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">M3 spectrum+MLP</text>
+<polyline points="64.0,71.2 250.7,71.2 437.3,79.7 624.0,185.9" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="250.7" cy="71.2" r="3" fill="#8e44ad"/>
+<circle cx="437.3" cy="79.7" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="185.9" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">M4 spectrum+1NN</text>
+</svg>

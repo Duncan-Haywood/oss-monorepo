@@ -33,6 +33,9 @@ export const MINUTES_PER_ZONE = Object.freeze({
 export const MINUTES_PER_BACKFLOW = 15;
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
+  // Number('') is 0: a cleared field must not silently price as zero
+  // (a blank wage dropped the default bid from $178.68 to $67.36).
+  if (typeof value === 'string' && value.trim() === '') throw new Error(`${name} is blank; enter 0 if there is none`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
@@ -78,7 +81,7 @@ export function calculateBid(input) {
   const freezeWarning = Boolean(input.freezeWarning);
   const afterHoursPremium = number(input.afterHoursPremium ?? 0, 'After-hours premium');
 
-  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage');
+  const hourlyWage = number(input.hourlyWage ?? 0, 'Hourly wage', { allowZero: false });
   const burdenRate = number(input.burdenRate ?? 0, 'Payroll burden');
   const milesOneWay = number(input.milesOneWay ?? 0, 'Miles one way');
   const speedMph = number(input.speedMph ?? 0, 'Travel speed', { allowZero: false });
@@ -141,7 +144,7 @@ export function calculateBid(input) {
   const price = totalCost / (1 - targetMargin / 100);
   const profit = price - totalCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   return {

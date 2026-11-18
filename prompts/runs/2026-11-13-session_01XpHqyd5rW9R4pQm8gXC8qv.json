@@ -1,0 +1,154 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyd5rW9R4pQm8gXC8qv",
+  "track": "process",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5",
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T09:38:48Z",
+  "ended": "2026-11-13T09:54:12Z",
+  "wall_minutes": 16.4,
+  "tokens_in": 7608908,
+  "tokens_out": 37575,
+  "cost_usd": 5.8866,
+  "tool_calls": 69,
+  "task": "process track, critique mode: fix the newest live doc friction",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15453",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 11,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "`.github/prompts/duplicate-work.md` points at it with no runtime warning: on PR #12885 it was still running after 15 min in the background and printed nothing (3 PRs attempted, 0 answers). I read the PR diffs with the GitHub MCP get_diff instead, which answered in seconds."
+    },
+    {
+      "file": "prompts/process/prompt-2.md",
+      "issue": "Critique mode's starting point (`measure`'s 'Doc friction by file') is ordered by report count and recency, so a file with 77 reports whose *newest two* are the live ones (run_workflow_locally.py) ranks below files whose old reports are fixed. Grouping the per-run doc_friction entries of the last 3 days by file, by hand, found the live one in one pass; a `measure --live` view would do it for every run."
+    },
+    {
+      "file": "prompt.md",
+      "issue": "route printed '2771/40 runs toward the next review' again (13 days, no review run since 2026-10-31). Not a counting bug: three stalled review PRs hold the claim and the fix (#14686) waits for the owner, per docs/reports/review-claim-stale-2026-11-11.md. Each process run re-derives this; the route line could name the report."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-2.md",
+      "why": "'Solve' mode was unavailable (every open backlog row is owner-gated or blocked, as 6 earlier runs reported) and a Verify-only run usually ends partial.",
+      "did": "Critique mode, but shipped the fix rather than filing a backlog row: measured the live friction, then changed the tool it named.",
+      "result": "One behaviour fix with 11 new tests merged in this PR; no new backlog row (the problem is fixed, not queued)."
+    },
+    {
+      "file": "platform/ci/test_run_workflow_locally.py",
+      "why": "Two existing tests asserted the old behaviour (a moved HEAD voids the sweep; the hand-off says 'do not edit or commit').",
+      "did": "Rewrote them to assert the new contract (a moved HEAD over identical content keeps the verdict and prints a note) and added a real-git TrackedContent class that measures the commit-invariance claim instead of mocking it.",
+      "result": "171 tests pass; the 2026-09-11 branch-checkout shape stays covered by test_a_checkout_of_another_branch_still_moves_the_tree."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-committing-is-not-drift.md"
+  ],
+  "goal": "Stop a verification guard from voiding correct sweeps, the costliest live friction in the last 3 days of records.",
+  "notes": "Critique lens: the per-run doc_friction of 2026-11-11..13 grouped by file (986 records). run_workflow_locally.py's two live reports both said that committing mid-sweep voided the verdicts; 11 run records had lost a sweep that way. Fixed: the stability fingerprint now reads tracked worktree content (index blob id when clean, git hash-object when dirty), so a commit is invariant while an edit, merge or branch checkout still trips it; the drift line names up to 5 moved paths; a moved HEAD over identical content prints a note. Verified here: 171 tests in platform/ci/test_run_workflow_locally.py (incl. a real-git class: stage, fingerprint, commit, fingerprint, equal), prompts-ci.yml replayed locally 2/2 steps green (promptctl validate + unittest discover -s prompts), platform/pages writing+heading-order 41/41, check_post_frontmatter on the new post exit 0, main_health.py 62/62 green before the change, and on this branch the real repo gave digest 3190ff9b8b3a907f at HEAD 172ca5651 and again at HEAD 5960bfa59 after the commit. Cost: 58,173 paths in ~0.1 s. No backlog ids touched. Side observation, not acted on: supersede_check.py could not finish on #12885/#12939/#12975, but their prompt.md step-0 text is already on main word for word (read via MCP get_diff); each still carries a run record not on main, so closing them would drop that, which is the owner's call on control-plane PRs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f40ac501-5468-59d1-93a8-8b3b6be051af",
+    "transcripts": 1,
+    "first": "2026-11-13T09:38:48Z",
+    "last": "2026-11-13T09:55:12Z",
+    "primary_model": "claude-opus-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 27,
+        "input": 53,
+        "output": 8189,
+        "thinking": 3289,
+        "cache_read": 2047837,
+        "cache_write_5m": 0,
+        "cache_write_1h": 79129,
+        "api_equivalent_usd": 1.2066,
+        "fast_requests": 0
+      },
+      "claude-opus-5": {
+        "requests": 41,
+        "input": 82,
+        "output": 29386,
+        "thinking": 8815,
+        "cache_read": 5355069,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126738,
+        "api_equivalent_usd": 4.68,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 68,
+      "input": 135,
+      "output": 37575,
+      "thinking": 12104,
+      "cache_read": 7402906,
+      "cache_write_5m": 0,
+      "cache_write_1h": 205867,
+      "api_equivalent_usd": 5.8866,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 60,
+      "Edit": 3,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.4,
+      "active_minutes": 16.4,
+      "model_minutes": 9.04,
+      "tool_minutes": 7.36,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+Milestone 7d: milestone 7c's 24 `above` integrator-mode design-conditions (feed-forward on), 64 held-out episodes (seed 9999).
+dead = diverged episodes per design (of 64); t50 = median time of divergence among diverged (s); pos = median episode position RMS (m).
+sat shares (alive steps, median over the 6x64 episodes of a set): integ = roll/pitch attitude integrator at its clip, ffi = ki*integ
+at the feed-forward clip, tilt = tilt command at 20 deg, mix = mixer scaling roll/pitch. 'pred' = share of episodes the linear model calls unstable.
+
+V1 reproduction (base, 6 s) against milestone 7c: lever 0 exact, lever 1 exact
+
+[bolted] seeds [0, 1, 2, 3, 4, 5]; pred 1.00, 1.00, 1.00, 1.00, 1.00, 1.00
+  base   6 s lever 0: dead [7, 8, 10, 20, 11, 28] (total 84, 0.22 of linear-unstable); t50 3.34; pos 0.179; sat integ 0.000 ffi 0.379 tilt 0.728 mix 0.006
+  base   6 s lever 1: dead [9, 8, 8, 24, 12, 29] (total 90, 0.23 of linear-unstable); t50 3.28; pos 0.189; sat integ 0.000 ffi 0.364 tilt 0.724 mix 0.019
+  base  18 s lever 0: dead [7, 10, 8, 20, 11, 20] (total 76, 0.20 of linear-unstable); t50 9.34; pos 0.146; sat integ 0.000 ffi 0.437 tilt 0.747 mix 0.004
+  base  18 s lever 1: dead [10, 12, 12, 22, 13, 27] (total 96, 0.25 of linear-unstable); t50 7.84; pos 0.157; sat integ 0.000 ffi 0.419 tilt 0.743 mix 0.020
+  noint  6 s lever 0: dead [7, 8, 10, 20, 11, 28] (total 84, 0.22 of linear-unstable); t50 3.34; pos 0.179; sat integ 0.000 ffi 0.379 tilt 0.728 mix 0.006
+  noint  6 s lever 1: dead [9, 8, 8, 24, 12, 29] (total 90, 0.23 of linear-unstable); t50 3.28; pos 0.189; sat integ 0.000 ffi 0.365 tilt 0.724 mix 0.019
+  noint 18 s lever 0: dead [7, 10, 8, 20, 11, 20] (total 76, 0.20 of linear-unstable); t50 9.34; pos 0.146; sat integ 0.000 ffi 0.437 tilt 0.747 mix 0.004
+  noint 18 s lever 1: dead [10, 12, 12, 22, 13, 27] (total 96, 0.25 of linear-unstable); t50 7.84; pos 0.157; sat integ 0.000 ffi 0.419 tilt 0.743 mix 0.020
+  none   6 s lever 0: dead [7, 8, 10, 20, 11, 28] (total 84, 0.22 of linear-unstable); t50 3.35; pos 0.180; sat integ 0.000 ffi 0.000 tilt 0.731 mix 0.006
+  none   6 s lever 1: dead [9, 8, 8, 24, 11, 28] (total 88, 0.23 of linear-unstable); t50 3.12; pos 0.189; sat integ 0.000 ffi 0.000 tilt 0.726 mix 0.020
+  none  18 s lever 0: dead [5, 10, 8, 20, 11, 19] (total 73, 0.19 of linear-unstable); t50 9.28; pos 0.148; sat integ 0.000 ffi 0.000 tilt 0.747 mix 0.004
+  none  18 s lever 1: dead [11, 12, 12, 22, 14, 27] (total 98, 0.26 of linear-unstable); t50 7.84; pos 0.158; sat integ 0.000 ffi 0.000 tilt 0.743 mix 0.020
+  linear model from offset only: dead by 6 s [64, 64, 64, 64, 64, 64], by 18 s [64, 64, 64, 64, 64, 64]; of linear-unstable episodes 1.00 by 6 s, 1.00 by 18 s
+
+[1.25x] seeds [0, 1, 2, 3, 4, 5]; pred 0.98, 0.97, 0.80, 0.98, 1.00, 1.00
+  base   6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.110; sat integ 0.000 ffi 0.000 tilt 0.129 mix 0.000
+  base   6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.115; sat integ 0.000 ffi 0.000 tilt 0.151 mix 0.000
+  base  18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.084; sat integ 0.000 ffi 0.000 tilt 0.218 mix 0.000
+  base  18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.088; sat integ 0.000 ffi 0.000 tilt 0.243 mix 0.000
+  noint  6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.110; sat integ 0.000 ffi 0.000 tilt 0.129 mix 0.000
+  noint  6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.115; sat integ 0.000 ffi 0.000 tilt 0.151 mix 0.000
+  noint 18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.084; sat integ 0.000 ffi 0.000 tilt 0.218 mix 0.000
+  noint 18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.088; sat integ 0.000 ffi 0.000 tilt 0.243 mix 0.000
+  none   6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.110; sat integ 0.000 ffi 0.000 tilt 0.129 mix 0.000
+  none   6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.115; sat integ 0.000 ffi 0.000 tilt 0.151 mix 0.000
+  none  18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.084; sat integ 0.000 ffi 0.000 tilt 0.218 mix 0.000
+  none  18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.088; sat integ 0.000 ffi 0.000 tilt 0.243 mix 0.000
+  linear model from offset only: dead by 6 s [30, 34, 27, 38, 46, 47], by 18 s [52, 51, 39, 56, 61, 62]; of linear-unstable episodes 0.60 by 6 s, 0.87 by 18 s
+
+[0.8x] seeds [0, 1, 2, 3, 4, 5]; pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+  base   6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.103; sat integ 0.000 ffi 0.000 tilt 0.020 mix 0.000
+  base   6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.110; sat integ 0.000 ffi 0.000 tilt 0.027 mix 0.000
+  base  18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.072; sat integ 0.000 ffi 0.000 tilt 0.003 mix 0.000
+  base  18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.078; sat integ 0.000 ffi 0.000 tilt 0.014 mix 0.000
+  noint  6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.103; sat integ 0.000 ffi 0.000 tilt 0.020 mix 0.000
+  noint  6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.110; sat integ 0.000 ffi 0.000 tilt 0.027 mix 0.000
+  noint 18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.072; sat integ 0.000 ffi 0.000 tilt 0.003 mix 0.000
+  noint 18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.078; sat integ 0.000 ffi 0.000 tilt 0.014 mix 0.000
+  none   6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.103; sat integ 0.000 ffi 0.000 tilt 0.020 mix 0.000
+  none   6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.110; sat integ 0.000 ffi 0.000 tilt 0.027 mix 0.000
+  none  18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.072; sat integ 0.000 ffi 0.000 tilt 0.003 mix 0.000
+  none  18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.078; sat integ 0.000 ffi 0.000 tilt 0.014 mix 0.000
+  linear model from offset only: dead by 6 s [0, 0, 0, 0, 0, 0], by 18 s [0, 0, 0, 0, 0, 0]; of linear-unstable episodes 0.00 by 6 s, 0.00 by 18 s
+
+[retrained] seeds [0, 1, 2, 3, 4, 5]; pred 0.00, 0.00, 0.00, 0.00, 0.00, 0.00
+  base   6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.101; sat integ 0.000 ffi 0.000 tilt 0.019 mix 0.001
+  base   6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.104; sat integ 0.000 ffi 0.000 tilt 0.021 mix 0.001
+  base  18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.073; sat integ 0.000 ffi 0.000 tilt 0.003 mix 0.001
+  base  18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.075; sat integ 0.000 ffi 0.000 tilt 0.008 mix 0.001
+  noint  6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.101; sat integ 0.000 ffi 0.000 tilt 0.019 mix 0.001
+  noint  6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.104; sat integ 0.000 ffi 0.000 tilt 0.021 mix 0.001
+  noint 18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.073; sat integ 0.000 ffi 0.000 tilt 0.003 mix 0.001
+  noint 18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.075; sat integ 0.000 ffi 0.000 tilt 0.008 mix 0.001
+  none   6 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.101; sat integ 0.000 ffi 0.000 tilt 0.019 mix 0.001
+  none   6 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.104; sat integ 0.000 ffi 0.000 tilt 0.021 mix 0.001
+  none  18 s lever 0: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.073; sat integ 0.000 ffi 0.000 tilt 0.003 mix 0.001
+  none  18 s lever 1: dead [0, 0, 0, 0, 0, 0] (total 0, 0.00 of linear-unstable); t50 nan; pos 0.075; sat integ 0.000 ffi 0.000 tilt 0.008 mix 0.001
+  linear model from offset only: dead by 6 s [0, 0, 0, 0, 0, 0], by 18 s [0, 0, 0, 0, 0, 0]; of linear-unstable episodes 0.00 by 6 s, 0.00 by 18 s
+

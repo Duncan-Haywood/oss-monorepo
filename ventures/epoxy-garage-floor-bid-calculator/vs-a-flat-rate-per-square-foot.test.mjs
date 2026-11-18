@@ -63,7 +63,7 @@ test('every FAQPage question and answer authored in JSON-LD is also visible on t
   }
 });
 
-test('the walk-away and flat-quote figures cited on the page match the calculator on the example job', () => {
+test('the bid, walk-away and flat-quote figures cited on the page match the calculator on the example job', () => {
   // A 400 sq ft (2-car) solid-color epoxy job, matching the degrease-only
   // vs. full-diamond-grind contrast this page describes.
   const base = {
@@ -92,6 +92,17 @@ test('the walk-away and flat-quote figures cited on the page match the calculato
   assert.ok(Math.abs(degreaseOnly.price - 1743) < 5, `expected degrease-only price near $1,743, got ${degreaseOnly.price.toFixed(0)}`);
   assert.ok(Math.abs(fullGrind.price - 2073) < 5, `expected full-grind price near $2,073, got ${fullGrind.price.toFixed(0)}`);
   assert.ok(Math.abs(flatQuote - 1600) < 1, `expected flat quote of $1,600, got ${flatQuote.toFixed(0)}`);
-  assert.ok(flatQuote < degreaseOnly.price, 'the flat quote should fall short of the walk-away cost even on the lighter degrease-only job');
+  // The walk-away price is cost with no profit (breakEvenPrice), not the bid.
+  // Round 50 of the quality audit found the page calling the bid "walk-away".
+  assert.ok(Math.abs(degreaseOnly.breakEvenPrice - 1133) < 5, `expected degrease-only walk-away near $1,133, got ${degreaseOnly.breakEvenPrice.toFixed(0)}`);
+  assert.ok(Math.abs(fullGrind.breakEvenPrice - 1347) < 5, `expected full-grind walk-away near $1,347, got ${fullGrind.breakEvenPrice.toFixed(0)}`);
+  assert.ok(flatQuote < degreaseOnly.price, 'the flat quote should fall short of the 35%-margin bid even on the lighter degrease-only job');
+  assert.ok(flatQuote > fullGrind.breakEvenPrice, 'the flat quote still covers cost on the full-grind job, as the page says');
+  assert.equal(Math.round((1 - degreaseOnly.breakEvenPrice / flatQuote) * 100), 29);
+  assert.equal(Math.round((1 - fullGrind.breakEvenPrice / flatQuote) * 100), 16);
+  const html = page('vs-a-flat-rate-per-square-foot.html');
+  assert.ok(!/walk-away (price )?(is )?about \$(1,743|2,073)|\$(1,743|2,073) walk-away/.test(html), 'the page must not label a bid price as the walk-away price');
+  assert.ok(html.includes('$1,133') && html.includes('$1,347'), 'the page should state both walk-away prices');
+  assert.ok(!/underwater/.test(html), 'the flyer covers cost on both example jobs');
   assert.ok(degreaseOnly.price < fullGrind.price, 'a full diamond grind should cost more than degrease-only prep on the same slab');
 });

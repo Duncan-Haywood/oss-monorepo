@@ -1,0 +1,34 @@
+Part 1: homogeneous utilities, 100 respondents x 9 tasks, 3 concepts + none, 400 studies
+coefficient,coverage_model_95,coverage_cluster_robust_95
+Plan: Plus,95.3,94.3
+Plan: Pro,94.3,94.8
+Support: Chat,95.3,95.8
+Support: Phone,95.5,95.5
+Price (per unit),95.3,94.5
+None (no-choice constant),94.5,94.0
+all,95.0,94.8
+
+Part 2: utilities vary by respondent (meal-kit settings: SD 0.15 on price, 0.5 on levels, 1 on none), 300 respondents x 12 tasks, 200 studies
+coefficient,true_mean,mean_estimate,sd_of_estimates,mean_model_se,mean_cluster_robust_se
+Price per serving (per unit),-0.450,-0.381,0.0138,0.0112,0.0132
+Recipes per week: 3,0.350,0.325,0.0725,0.0667,0.0688
+Recipes per week: 4,0.550,0.500,0.0682,0.0646,0.0671
+Recipes per week: 5,0.600,0.535,0.0711,0.0642,0.0668
+Menu: Vegetarian-friendly,0.100,0.116,0.0583,0.0535,0.0577
+Menu: Chef's premium,0.500,0.463,0.0578,0.0505,0.0546
+Delivery: Pick any day,0.400,0.344,0.0493,0.0439,0.0492
+Packaging: Compostable,0.250,0.217,0.0518,0.0450,0.0506
+None (no-choice constant),0.300,0.412,0.0990,0.0835,0.0974
+summary: coefficients with |true mean| >= 0.25 shrink by 7 to 15 percent
+summary: model-based SEs understate the spread by 5 to 19 percent; cluster-robust SEs are within 6 percent
+
+willingness_to_pay,true_ratio_of_means,mean_estimate,sd_of_estimates
+Recipes per week: 3,0.78,0.85,0.198
+Recipes per week: 4,1.22,1.31,0.184
+Recipes per week: 5,1.33,1.41,0.196
+Menu: Vegetarian-friendly,0.22,0.31,0.153
+Menu: Chef's premium,1.11,1.22,0.153
+Delivery: Pick any day,0.89,0.90,0.130
+Packaging: Compostable,0.56,0.57,0.138
+None: no-choice constant,0.67,1.08,0.258
+summary: WTP (none constant aside) lands within 0.01 to 0.10 dollars of the true ratio of means

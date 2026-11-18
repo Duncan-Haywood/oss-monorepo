@@ -94,3 +94,15 @@ test("csv and json export carry every country", () => {
   const j = JSON.parse(toJson(rows, { base: 29 }));
   assert.equal(Object.keys(j.prices).length, COUNTRIES.length);
 });
+
+test("rounding never pushes a price outside the floor or the cap (quality audit 2026-11-17)", () => {
+  const t = buildTable({ base: 29 });
+  for (const r of t) assert.ok(r.price >= 29 * 0.35 - 1e-9, `${r.code} ${r.price} below the floor`);
+  assert.equal(t.find((r) => r.code === "PK").price, 10.99);
+  for (const r of buildTable({ base: 25, rounding: "nine" })) assert.ok(r.price <= 25, `${r.code} ${r.price} above the cap`);
+  for (const rounding of ["none", "whole", "nine", "charm"]) {
+    for (const r of buildTable({ base: 49, floor: 0.4, rounding })) {
+      assert.ok(r.price >= 49 * 0.4 - 1e-9 && r.price <= 49 + 1e-9, `${rounding} ${r.code} ${r.price}`);
+    }
+  }
+});

@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyfVuAhm6faCTLiLiUP",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T08:39:02Z",
+  "ended": "2026-11-14T08:47:37Z",
+  "wall_minutes": 8.72,
+  "tokens_in": 9577475,
+  "tokens_out": 35704,
+  "cost_usd": 3.8682,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15790",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "psp.cz reset the connection twice; eur-lex redirected; gov.il and nevo.co.il returned 403"
+  ],
+  "integrity_issues": [
+    "czech-republic-e-invoice-mandate.html carried the Serbia page's lede (copy-paste), and the Czech B2G date (1 Oct 2016) was the procurement act's start date, not section 221's; both fixed with tests"
+  ],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "einvoice-preflight next: was 1954 of 2000 characters, so recording the landed item required trimming wording to fit; the IL item stays open"
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "README is over 1,400 lines of history; finding which mandate pages were already primary-sourced took grep, not a table"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-einvoice-mandate-dates-read-from-the-law.md",
+    "ventures/einvoice-preflight/eval/mandate-primary-sources-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Venture node suite: 1838 tests, 1768 pass, 0 fail, 70 skipped. Generated hub/ics/json/deadlines pages regenerated and checked; validate.py ok; post frontmatter/links/similarity clean. Israel still unreadable from the runner.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "8e4a3398-1ee9-5c82-8da2-3ada63122156",
+    "transcripts": 1,
+    "first": "2026-11-14T08:39:02Z",
+    "last": "2026-11-14T08:47:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 140,
+        "output": 35704,
+        "thinking": 5854,
+        "cache_read": 9418605,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158730,
+        "api_equivalent_usd": 3.8682,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 140,
+      "output": 35704,
+      "thinking": 5854,
+      "cache_read": 9418605,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158730,
+      "api_equivalent_usd": 3.8682,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 65,
+      "WebSearch": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.72,
+      "active_minutes": 8.72,
+      "model_minutes": 5.65,
+      "tool_minutes": 3.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "a paralegal reading four countries' statutes in Latvian, Danish and Czech and updating seven pages",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 129.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

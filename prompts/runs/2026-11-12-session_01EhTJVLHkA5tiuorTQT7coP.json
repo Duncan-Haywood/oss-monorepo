@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLHkA5tiuorTQT7coP",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T02:02:00Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "theism-formal-evidence M2: prove E13 (a), (b) and E14 (c) in Lean for every algebra (E16)",
+  "projects": [
+    "theism-formal-evidence"
+  ],
+  "pr": 14964,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Swinburne primary sources unreachable: users.ox.ac.uk and www.epsociety.org do not resolve in this session's network policy"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Swinburne transcription has been 'not done' across 6 log entries because the book and papers are unreachable; a run with a network policy that allows those hosts (or an attached copy) is needed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-anderson-godel-model-counts-proved-in-lean.md"
+  ],
+  "goal": null,
+  "notes": "Lean 4.15.0 fetched from GitHub releases via lean/build.sh (zstd present). Models.lean builds with no sorry and no warnings; axioms per theorem in experiments/e16_model_theorems/lean_build.txt. test_theism.py all ok; research/_homepage/build.py ok (1073 projects); research_live_links and check_md_links clean; post frontmatter/links/similarity clean. A web-search summary gave Swinburne's inputs as 1/2, 1/2, 1/10, 1/1000 (=> 100/103), deliberately not used because they were not read from a primary source.",
+  "corrections": [],
+  "redteam": null
+}

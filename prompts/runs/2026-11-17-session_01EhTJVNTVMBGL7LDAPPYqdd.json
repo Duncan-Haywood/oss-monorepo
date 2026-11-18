@@ -1,0 +1,52 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNTVMBGL7LDAPPYqdd",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support revenue-generating software; merge when done)",
+  "input_sha256": "91e0afd505dda2a57c651ccfcc66595371600a55a6c282f43a7f07bc7b966842",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T16:25:40Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "aerolog-scaling milestone 11ak: source the barometric/GNSS reference mismatch from NOAA ISD 2014 NYC airport pressure reports and rescore 11aj's planners under it",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": 16972,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/LOG.md",
+      "issue": "11aj listed IEM/NCEI/Open-Meteo as refused; the NOAA ISD mirror on AWS (noaa-isd-pds.s3.amazonaws.com) passes the proxy and holds the same METAR pressures. Worth adding to cloud-session.md 'Outbound hosts' as a weather-data route."
+    },
+    {
+      "file": "research/_shared/cite_check.py",
+      "issue": "doi.org, Crossref, OpenAlex, Semantic Scholar and the AMS journal site all refused; the DOI was matched through two public bibliographies on raw.githubusercontent.com and recorded with `cite_check.py hand`."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-aerolog-real-pressure-data-drone-altitude.md"
+  ],
+  "goal": null,
+  "notes": "Predictions committed in 470ede4ab before any statistic or layout score. 11ai inputs rebuilt unchanged in background (~1h20 on 4 cores). Checks run here: tests/test_pressure_ref.py + test_ref_mix.py 19 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; post front matter/links/similarity ok. All six predictions held: S1 sd 2.93 m, S2 JFK->LGA 4.17 m, heavy tails, take-off-zero drift 1.6 m/30 min; plan unchanged (13.3 m, no segregation), mixing costs 3.9%/5.8% over one reference, Gaussian of matched sd gives identical plans.",
+  "corrections": [],
+  "redteam": null
+}

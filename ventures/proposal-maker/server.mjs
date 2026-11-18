@@ -7,6 +7,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { randomBytes, timingSafeEqual, createHash } from "node:crypto";
 import * as S from "./sign.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -149,7 +150,7 @@ ${d.decline ? `<tr><th>Declined at</th><td>${esc(when(d.decline.at))}</td></tr><
 
 export function loadState(file) { try { return JSON.parse(fs.readFileSync(file, "utf8")); } catch { return S.newState(); } }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 16) { console.error("Set ADMIN_KEY (16+ characters)."); process.exit(1); }
   const file = env.STATE || "/tmp/state.json"; const state = loadState(file);
   const save = () => { fs.writeFileSync(`${file}.tmp`, JSON.stringify(state)); fs.renameSync(`${file}.tmp`, file); };

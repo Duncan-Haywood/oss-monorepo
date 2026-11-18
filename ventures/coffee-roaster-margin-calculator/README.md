@@ -15,7 +15,7 @@ Nothing is uploaded.
 Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 
 - `calc.mjs` - roast-loss cost, bag economics, price-for-margin, channel table,
-  exhaustive blend search at 5% steps (cross-checked against a brute-force loop in the
+  exhaustive blend search at 5% steps (10% with seven or eight coffees) (cross-checked against a brute-force loop in the
   tests), cost-of-score frontier, weekly plan, break-even, CSV.
 - `usage.mjs` - local-only feature counters with an opt-out.
 - `how-to-price-roasted-coffee.html` - guide with a worked 12 oz example that the test
@@ -29,3 +29,18 @@ taste; cup every blend before you sell it.
 Anonymous feature counts stay in local storage and can be switched off.
 
 MIT licence, see `LICENSE`.
+
+## Known gaps
+
+From the quality audit of 2026-11-12
+([`portfolio/quality/audits/2026-11-12-coffee-roaster-margin-calculator.json`](../../portfolio/quality/audits/2026-11-12-coffee-roaster-margin-calculator.json)):
+
+- Break-even assumes every bag sells at the most profitable channel's margin. On the
+  defaults that is the $9.71 market bag (618 bags a month); a wholesale-heavy roaster at
+  $3.82 a bag needs about 1,571. There is no sales-mix input yet.
+- One bag size covers every channel, so a 5 lb wholesale bag cannot be costed beside a
+  12 oz retail bag. `priceForMargin` (the price for a target margin) is in `calc.mjs` but
+  not on the page, and markup is never shown.
+- The green-coffee list does not range-check its columns: "Kenya, 1,200, 88" splits on
+  the comma.
+- The "Retail price per bag" field does not change any channel line.

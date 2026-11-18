@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -188,7 +188,7 @@
       f.push({ severity: "medium", title: "You are unpaid for " + r.weeksGap + " week" + (r.weeksGap === 1 ? "" : "s") + " a year between assignments", detail: r.breakEvenWeeks == null ? "Even a full 52 weeks at this rate does not match the employed offer." : "At this rate you need about " + r.breakEvenWeeks + " paid weeks a year to match the employed offer. Health insurance, malpractice and retirement contributions keep running through gaps." });
       f.push({ severity: "info", title: "Self-employment tax on the locum side is " + money(l.seTax) + " against " + money(e.fica) + " of FICA on the employed side", detail: "Federal income tax is " + money(l.incTax) + " (locum) against " + money(e.incTax) + " (employed). State tax and the QBI deduction are not modelled." });
       if (l.retireClamped) f.push({ severity: "medium", title: "Your locum retirement contribution was reduced to " + money(l.retire), detail: "The tool caps it at the $24,500 deferral plus about 20% of net earnings, and at $72,000." });
-      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = f.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       const side = [
         ["Gross pay / salary", l.gross, e.salary],
         ["Business costs and travel shortfall", -l.costs, 0],

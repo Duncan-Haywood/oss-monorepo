@@ -22,6 +22,13 @@
  * origin, and clearing browser data clears it.
  */
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 /** Must equal `SHOP_RATES_KEY` in `platform/pages/rates.mjs`. */
 export const SHOP_RATES_KEY = 'portfolio-shop-rates';
 
@@ -99,7 +106,7 @@ export function mergedRatesPayload(existingRaw, values) {
  * happened either way, because a control that reports success it did not have is
  * worse than one that admits it cannot save.
  */
-export function saveCarriedRates(values, storage = globalThis.localStorage) {
+export function saveCarriedRates(values, storage = browserStorage()) {
   if (!storage) return false;
   let existingRaw = null;
   try {
@@ -118,7 +125,7 @@ export function saveCarriedRates(values, storage = globalThis.localStorage) {
 }
 
 /** Read back what is stored, for the page to say what a calculator will open with. */
-export function readCarriedRates(storage = globalThis.localStorage) {
+export function readCarriedRates(storage = browserStorage()) {
   if (!storage) return null;
   let raw;
   try {

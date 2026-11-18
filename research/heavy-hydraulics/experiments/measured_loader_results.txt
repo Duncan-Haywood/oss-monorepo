@@ -1,0 +1,67 @@
+record: 220099 samples at 2 ms, 440.2 s; fuel 0.935 L
+moving (P-port flow > 5.0 L/min): 52.8% of samples
+P1 margin pP - p_load, bar: p5 -50.1  p25 17.6  median 24.9  p75 29.6  p95 39.6
+   negative margin (inlet chamber above pump): 9.1% of moving samples
+   negative-margin samples: median flow 9.7 L/min, median pump 56.7 bar, 1.6% of measured hydraulic energy
+   margin when P-port flow > 20 L/min: median 24.7 bar, p5 4.7, p95 38.3
+   standby (no P-port flow) pump pressure: median 30.8 bar, p5 29.9, p95 82.6
+P1 HOLDS (14 to 30 bar)
+check: pump torque model as read minus authors' estimate, N m: p1 -0.33 median 0.61 p99 3.89 (mean torque 68.6)
+check: numpy twin equals measured.energies on the central case (5 energies)
+
+central case: dp_ls = measured median, dp_spool 10, p_neutral 10, leak 2.5 L/min, dp_m 5, q_min 2 L/min
+  useful (actuator inlet)     2834 kJ
+  measured LS pump hyd        3867 kJ   (useful/pump 0.733)
+  LS model (const margin)     3957 kJ   ratio to measured 1.023
+  metered (ideal)             2959 kJ   ratio to measured 0.765
+  open-centre fixed 63 cc     5646 kJ   ratio to measured 1.460
+  open-centre moving 259.0 s of 440.2 s; fixed pump short of demand 65.3 s
+  shaft: LS measured-estimate 4725 kJ, OC 6508 kJ, ratio 1.377
+P2 HOLDS (LS model within 15% of measured: 1.023)
+
+open-centre sweep: dp_spool | p_neutral | q_min -> OC/LS hydraulic, OC/LS shaft
+     6 |    5 | 0.5 -> 1.629  1.522
+     6 |    5 | 2.0 -> 1.382  1.310
+     6 |    5 | 5.0 -> 1.242  1.191
+     6 |   10 | 0.5 -> 1.653  1.543
+     6 |   10 | 2.0 -> 1.418  1.341
+     6 |   10 | 5.0 -> 1.285  1.228
+     6 |   15 | 0.5 -> 1.677  1.563
+     6 |   15 | 2.0 -> 1.454  1.372
+     6 |   15 | 5.0 -> 1.329  1.266
+    10 |    5 | 0.5 -> 1.681  1.566
+    10 |    5 | 2.0 -> 1.424  1.346
+    10 |    5 | 5.0 -> 1.278  1.221
+    10 |   10 | 0.5 -> 1.705  1.587
+    10 |   10 | 2.0 -> 1.460  1.377
+    10 |   10 | 5.0 -> 1.321  1.259
+    10 |   15 | 0.5 -> 1.729  1.607
+    10 |   15 | 2.0 -> 1.496  1.408
+    10 |   15 | 5.0 -> 1.365  1.296
+    15 |    5 | 0.5 -> 1.747  1.622
+    15 |    5 | 2.0 -> 1.477  1.391
+    15 |    5 | 5.0 -> 1.323  1.260
+    15 |   10 | 0.5 -> 1.770  1.642
+    15 |   10 | 2.0 -> 1.513  1.422
+    15 |   10 | 5.0 -> 1.366  1.297
+    15 |   15 | 0.5 -> 1.794  1.663
+    15 |   15 | 2.0 -> 1.549  1.453
+    15 |   15 | 5.0 -> 1.410  1.335
+  leak 0.0 L/min (central otherwise) -> 1.492  1.377
+  leak 4.0 L/min (central otherwise) -> 1.443  1.377
+  range: hydraulic 1.242 to 1.794; shaft 1.191 to 1.663
+P3 REFUTED overall; inside 1.5 to 3.0 (hydraulic) in 11/27 sweep cells
+
+Willans line (1 s means): fuel L/h = -0.940 + 0.2332 x engine kW, r = 0.957 (marginal 0.233 L/kWh = 195 g/kWh at 0.835 kg/L, an assumed diesel density)
+  open-centre extra fuel 0.115 L = 12.3% of the measured 0.935 L
+  (LS model-margin shaft vs measured shaft: +1.5% of fuel)
+  sweep: OC extra fuel 6.2% to 21.7% of measured
+P4 REFUTED overall; inside 10 to 30% in 19/27 sweep cells
+
+per cycle (18 Y-cycles between upward crossings of lift x = 0.30 m; central settings):
+  cycle time s           mean 21.214 (95% bootstrap over cycles 20.209 to 22.537); min 18.674 max 30.320
+  useful / LS pump       mean 0.733 (95% bootstrap over cycles 0.720 to 0.745); min 0.643 max 0.757
+  LS model / measured    mean 1.023 (95% bootstrap over cycles 1.013 to 1.034); min 0.991 max 1.082
+  OC / LS hydraulic      mean 1.449 (95% bootstrap over cycles 1.385 to 1.529); min 1.289 max 1.939
+  OC / LS shaft          mean 1.368 (95% bootstrap over cycles 1.318 to 1.428); min 1.238 max 1.722
+  OC extra fuel share    mean 0.121 (95% bootstrap over cycles 0.107 to 0.136); min 0.081 max 0.198

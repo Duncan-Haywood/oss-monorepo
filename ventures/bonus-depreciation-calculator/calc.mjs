@@ -30,7 +30,7 @@
 //   - Section 179 lets a business elect to expense SPECIFIC dollar amounts of
 //     the same kind of qualifying property, up to an annual dollar limit that
 //     phases out dollar-for-dollar once total qualifying purchases for the
-//     year exceed a threshold -- OBBBA raised the 2025 limit to $2.5,000,000
+//     year exceed a threshold -- OBBBA raised the 2025 limit to $2,500,000
 //     with a $4,000,000 phase-out threshold (both up from the pre-OBBBA
 //     2025 figures of $1,250,000 / $3,130,000), and both figures are now
 //     indexed for inflation: $2,560,000 / $4,090,000 for 2026.
@@ -41,12 +41,18 @@
 //     INDEFINITELY as a Section 179 carryforward, still subject to the same
 //     income limitation in every future year it is claimed -- a materially
 //     different (generally less flexible) carryforward than an NOL.
-//   - Property used 50% or less for business does not qualify for bonus
-//     depreciation or a Section 179 election at all -- it must use the
-//     straight-line Alternative Depreciation System (ADS) instead. This
-//     module does not model ADS; it only flags the condition.
+//   - Section 179 requires more than 50% business use in the year the
+//     property is placed in service (IRS Pub. 946, ch. 2). For LISTED
+//     property (passenger vehicles and similar), 50% or less business use
+//     also rules out bonus depreciation and forces the straight-line
+//     Alternative Depreciation System (ADS) (IRC 280F(b)(1)); other property
+//     keeps bonus and MACRS on its business-use share. This module does not
+//     model ADS or ask whether property is listed; it only flags the
+//     condition.
 //   - The "no election" baseline is ordinary MACRS depreciation under the
-//     200%-declining-balance method with the half-year convention (IRS Pub.
+//     200%-declining-balance method (3-, 5-, 7- and 10-year property) or the
+//     150%-declining-balance method (15- and 20-year property, IRC
+//     168(b)(2)), with the half-year convention (IRS Pub.
 //     946, Table A-1) -- the first-year percentages below (33.33% / 3-year,
 //     20.00% / 5-year, 14.29% / 7-year, 10.00% / 10-year, 5.00% / 15-year,
 //     3.750% / 20-year) are long-standing published constants, unchanged by
@@ -93,7 +99,7 @@ function clampPercent(v, lo = 0, hi = 100) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const format = (v) => `$${v.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  const format = (v) => `$${v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
   const text = format(Math.abs(value));
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
@@ -184,7 +190,16 @@ export function compareDepreciationPaths({
   const bonusCashSavings = bonus.usable * rate;
 
   const section179 = section179Outcome({ eligibleBasis, otherQualifyingPurchases, incomeBeforeDeduction: income, taxYear });
-  const section179CashSavings = section179.usable * rate;
+  // Basis the Section 179 election does not cover (above the limit after
+  // phase-out) is not lost: bonus depreciation applies to the remaining
+  // basis in the same year, after the 179 amount (IRC 168(k)(1)(A); Pub. 946
+  // ch. 3, "Figuring the special depreciation allowance": basis is reduced by
+  // any 179 deduction first). Its cash value is capped by the income left
+  // after the usable 179 amount; any excess is NOL-creating like bonus.
+  // Quality audit 2026-11-17, defect 0: this remainder used to be dropped.
+  const remainderBasis = eligibleBasis - section179.elected;
+  const remainder = usableDeduction(remainderBasis, income - section179.usable);
+  const section179CashSavings = (section179.usable + remainder.usable) * rate;
 
   const macrsYear1Deduction = eligibleBasis * macrsRate;
   const macrs = usableDeduction(macrsYear1Deduction, income);
@@ -204,8 +219,16 @@ export function compareDepreciationPaths({
   if (belowHalfBusinessUse) {
     findings.push({
       severity: 'high',
-      title: 'Business use is at or below 50% -- bonus depreciation and Section 179 are not available',
-      detail: `At ${businessUse}% business use, this property must use the straight-line Alternative Depreciation System (ADS) instead of bonus depreciation or a Section 179 election. This calculator does not model ADS -- the bonus, Section 179, and standard-MACRS figures below assume more than 50% business use and do not apply to this asset as entered.`,
+      title: 'Business use is at or below 50% -- Section 179 is not available',
+      detail: `At ${businessUse}% business use, no Section 179 election is allowed: it requires more than 50% business use in the year the property is placed in service (IRS Pub. 946, ch. 2), so ignore the Section 179 column. If this is listed property (a passenger vehicle or similar), 50% or less business use also rules out bonus depreciation and requires the straight-line Alternative Depreciation System (IRC 280F(b)(1)), which this calculator does not model. Other property keeps bonus depreciation and MACRS on its business-use share.`,
+    });
+  }
+
+  if (cost > 0 && recovery >= 15) {
+    findings.push({
+      severity: 'medium',
+      title: 'Check that 15- or 20-year property qualifies for Section 179',
+      detail: 'Land improvements (paved parking, fences, docks, bridges) and buildings are not Section 179 property (IRS Pub. 946, ch. 2), though qualified improvement property and some nonresidential roofs and HVAC can be. If this asset is a land improvement, ignore the Section 179 column; bonus depreciation and MACRS still apply.',
     });
   }
 
@@ -220,6 +243,14 @@ export function compareDepreciationPaths({
       severity: 'medium',
       title: `Section 179's limit is reduced by the phase-out`,
       detail: `Total qualifying purchases of ${money(section179.totalQualifyingPurchases)} exceed the ${money(section179.phaseoutThreshold)} threshold, cutting the available ${taxYear} limit from ${money(section179.limit)} to ${money(section179.limitAfterPhaseout)}.`,
+    });
+  }
+
+  if (remainderBasis > 0 && section179.elected > 0) {
+    findings.push({
+      severity: 'medium',
+      title: 'Bonus depreciation covers the basis above the Section 179 limit',
+      detail: `Section 179 can only expense ${money(section179.elected)} of the ${money(eligibleBasis)} basis this year. The Section 179 column takes 100% bonus depreciation on the remaining ${money(remainderBasis)} in the same year, as a preparer would (bonus applies to basis after the 179 deduction, IRS Pub. 946 ch. 3). If you elect out of bonus for this class, the remainder gets ordinary MACRS instead, about ${money(remainderBasis * macrsRate)} in year one.`,
     });
   }
 
@@ -261,7 +292,15 @@ export function compareDepreciationPaths({
     recoveryYears: recovery,
     macrsRate,
     bonus: { ...bonus, cashSavings: bonusCashSavings },
-    section179: { ...section179, cashSavings: section179CashSavings },
+    section179: {
+      ...section179,
+      remainderBasis,
+      remainderBonus: remainder.deduction,
+      remainderUsable: remainder.usable,
+      remainderExcess: remainder.excess,
+      totalUsable: section179.usable + remainder.usable,
+      cashSavings: section179CashSavings,
+    },
     macrs: { ...macrs, year1Deduction: macrsYear1Deduction, remainingBasis: macrsRemainingBasis, cashSavings: macrsCashSavings },
     findings,
   };

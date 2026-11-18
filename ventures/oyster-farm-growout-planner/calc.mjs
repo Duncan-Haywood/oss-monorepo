@@ -1,7 +1,7 @@
 // Oyster-farm growout math. Pure functions, no I/O. All money in USD, all inputs entered by the user.
 
 const r2 = (x) => Math.round(x * 100) / 100;
-export const money = (x) => (x == null ? "—" : (x < 0 ? "-$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US"));
+export const money = (x) => (x == null ? "—" : ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(x)).toLocaleString("en-US")));
 
 const DEFAULTS = {
   seed: 100000,            // seed oysters planted

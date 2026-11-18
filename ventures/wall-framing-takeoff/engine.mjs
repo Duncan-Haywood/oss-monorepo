@@ -412,6 +412,9 @@ export function openingGeometry(plan, wall, op) {
  * @param {Wall} wall
  */
 export function layoutWall(plan, wall) {
+  if (!plan || typeof plan !== "object" || !wall || typeof wall !== "object") {
+    throw new TypeError("layoutWall needs a plan object and a wall object");
+  }
   plan = planFor(plan, wall);
   if (wall.gable) return layoutGable(plan, wall);
   const L = wall.length;
@@ -638,6 +641,9 @@ export function layoutWall(plan, wall) {
   } else if (plan.studLength > 120 + EPS) {
     notes.push(`the studs are ${formatInches(plan.studLength)}: fire blocking is needed at most 10 ft apart (set blocking.fire).`);
   }
+  // A wide opening left on the default one jack and one king per side: the default is a convenience, not a code answer.
+  const wideDefault = zones.filter((z) => z.op.width > 48 + EPS && z.op.jacks === undefined && z.op.kings === undefined).map((z) => `${z.op.label || z.op.kind} (${formatInches(z.op.width)})`);
+  if (wideDefault.length) notes.push(`${wideDefault.join(", ")} wider than 4 ft framed with the default 1 jack and 1 king per side: wide headers usually need more jacks (set jacks and kings per opening from your span table or engineer).`);
   if (shortCripples.length) notes.push(`short top cripples over ${shortCripples.join(", ")}. Header sizes are yours to check.`);
   if (shimGaps.length) notes.push(`a gap too small for cripples between header and top plate over ${shimGaps.join(", ")}: shim or fill it.`);
   if (spacers.length) notes.push(`header spacers not in the takeoff: ${spacers.join(", ")}.`);
@@ -1020,36 +1026,73 @@ export function mergeCuts(cuts, extra) {
  * sum(weight*count) <= cap and count <= bound. Returns { value, counts }.
  */
 export function boundedKnapsack(weights, values, bounds, cap) {
+  return boundedKnapsackMulti(weights, values, bounds, [cap])[0];
+}
+
+// Scratch for boundedKnapsackMulti's keep rows (see there); grows, never shrinks.
+let keepScratch = new Uint8Array(0);
+
+/**
+ * The same knapsack for several capacities at once: one table filled to the largest
+ * capacity holds the best value for every smaller one (best[c] is the best within c),
+ * so each capacity needs only its own walk back. Returns [{ value, counts }] in the
+ * order of `caps`.
+ */
+export function boundedKnapsackMulti(weights, values, bounds, caps) {
+  // Every weight is a multiple of g, so only multiples of g are reachable and best[c] is a
+  // step function of floor(c / g): fill the table on weights / g and look each capacity up at
+  // floor(cap / g). The same additions run in the same order, so values and counts are
+  // identical; the table is g times shorter (g is 2 when every piece is a whole number of
+  // eighths and the kerf is 1/8 in, the default).
+  const gcd = (a, b) => (b ? gcd(b, a % b) : a);
+  const g = weights.reduce(gcd, 0) || 1;
+  if (g > 1) return boundedKnapsackMulti(weights.map((w) => w / g), values, bounds, caps.map((c) => Math.floor(c / g)));
+  const top = Math.max(...caps);
   const chunks = [];
   weights.forEach((w, i) => {
-    let left = Math.min(bounds[i], Math.floor(cap / w));
+    let left = Math.min(bounds[i], Math.floor(top / w));
     for (let k = 1; left > 0; k *= 2) {
       const take = Math.min(k, left);
       chunks.push({ i, n: take, w: w * take, v: values[i] * take });
       left -= take;
     }
   });
-  const best = new Float64Array(cap + 1);
-  const keep = chunks.map(() => new Uint8Array(cap + 1));
-  chunks.forEach((ch, k) => {
-    if (ch.v <= 0) return;
-    for (let c = cap; c >= ch.w; c--) {
-      const cand = best[c - ch.w] + ch.v;
+  const best = new Float64Array(top + 1);
+  // The keep rows live in one shared scratch buffer, row k at k * (top + 1), reused across
+  // calls and never cleared: the fill writes every cell c >= w of a row (1 if it improved
+  // best[c], else 0) and the walk back reads only those cells, so stale bytes are never
+  // read. A fresh zeroed Uint8Array per chunk was a third of this function's time.
+  // A chunk with no positive value never improves best[], so it has no row (has[k] = 0).
+  const stride = top + 1;
+  if (keepScratch.length < chunks.length * stride) keepScratch = new Uint8Array(Math.max(chunks.length * stride, keepScratch.length * 2));
+  const keep = keepScratch;
+  const has = chunks.map((ch) => ch.v > 0);
+  for (let k = 0; k < chunks.length; k++) {
+    if (!has[k]) continue;
+    const base = k * stride;
+    const w = chunks[k].w;
+    const v = chunks[k].v;
+    for (let c = top; c >= w; c--) {
+      const cand = best[c - w] + v;
       if (cand > best[c] + 1e-12) {
         best[c] = cand;
-        keep[k][c] = 1;
+        keep[base + c] = 1;
+      } else {
+        keep[base + c] = 0;
       }
     }
-  });
-  const counts = new Array(weights.length).fill(0);
-  let c = cap;
-  for (let k = chunks.length - 1; k >= 0; k--) {
-    if (keep[k][c]) {
-      counts[chunks[k].i] += chunks[k].n;
-      c -= chunks[k].w;
-    }
   }
-  return { value: best[cap], counts };
+  return caps.map((cap) => {
+    const counts = new Array(weights.length).fill(0);
+    let c = cap;
+    for (let k = chunks.length - 1; k >= 0; k--) {
+      if (has[k] && c >= chunks[k].w && keep[k * stride + c]) {
+        counts[chunks[k].i] += chunks[k].n;
+        c -= chunks[k].w;
+      }
+    }
+    return { value: best[cap], counts };
+  });
 }
 
 /**
@@ -1062,9 +1105,19 @@ export function boundedKnapsack(weights, values, bounds, cap) {
  * solution of min c.x subject to A^T x >= b, x >= 0.
  */
 export function simplexMaxLE(A, b, c) {
+  const lp = lpStart(A, b, c, 0);
+  lpPrimal(lp);
+  return lpResult(lp);
+}
+
+/**
+ * The same LP as a tableau that can take more rows. `spare` is how many rows may be added
+ * with `lpAddRow` before the caller must start over.
+ */
+function lpStart(A, b, c, spare) {
   const m = A.length;
   const n = b.length;
-  const W = n + m + 1;
+  const W = n + m + spare + 1;
   const T = [];
   for (let r = 0; r < m; r++) {
     const row = new Float64Array(W);
@@ -1076,6 +1129,33 @@ export function simplexMaxLE(A, b, c) {
   const z = new Float64Array(W);
   for (let j = 0; j < n; j++) z[j] = -b[j];
   const basis = Array.from({ length: m }, (_, r) => n + r);
+  return { m, n, W, T, z, basis, cap: m + spare, nzIdx: new Int32Array(W) };
+}
+
+function lpPivot(lp, leave, enter) {
+  const { m, W, T, z, nzIdx } = lp;
+  const pr = T[leave];
+  const pv = pr[enter];
+  // The pivot row of a cutting-stock tableau is mostly zeros: touch only its nonzero
+  // columns (subtracting f * 0 changes nothing, so the result is identical).
+  let nz = 0;
+  for (let j = 0; j < W; j++) {
+    if (pr[j] !== 0) { pr[j] /= pv; nzIdx[nz++] = j; }
+  }
+  for (let r = 0; r < m; r++) {
+    if (r === leave) continue;
+    const row = T[r];
+    const f = row[enter];
+    if (f !== 0) for (let k = 0; k < nz; k++) { const j = nzIdx[k]; row[j] -= f * pr[j]; }
+  }
+  const f = z[enter];
+  for (let k = 0; k < nz; k++) { const j = nzIdx[k]; z[j] -= f * pr[j]; }
+  lp.basis[leave] = enter;
+}
+
+/** Primal simplex from a primal-feasible tableau. */
+function lpPrimal(lp) {
+  const { m, W, T, z, basis } = lp;
   let stall = 0;
   for (let iter = 0; iter < 50000; iter++) {
     let enter = -1;
@@ -1100,18 +1180,68 @@ export function simplexMaxLE(A, b, c) {
     }
     if (leave < 0) throw new Error("LP unbounded: a piece is longer than every board");
     stall = ratio <= 1e-12 ? stall + 1 : 0;
-    const pr = T[leave];
-    const pv = pr[enter];
-    for (let j = 0; j < W; j++) pr[j] /= pv;
-    for (let r = 0; r < m; r++) {
-      if (r === leave) continue;
-      const f = T[r][enter];
-      if (f !== 0) for (let j = 0; j < W; j++) T[r][j] -= f * pr[j];
-    }
-    const f = z[enter];
-    for (let j = 0; j < W; j++) z[j] -= f * pr[j];
-    basis[leave] = enter;
+    lpPivot(lp, leave, enter);
   }
+}
+
+/**
+ * Add the row `counts . y <= c` to an optimal tableau (so the duals stay feasible) and
+ * restore primal feasibility with dual simplex pivots. Returns false when the tableau has
+ * no spare room or the pivots did not settle: the caller starts over with `lpStart`.
+ */
+function lpAddRow(lp, counts, c, settle = true) {
+  const { n, W, T, basis } = lp;
+  if (lp.m >= lp.cap) return false;
+  const row = new Float64Array(W);
+  for (let j = 0; j < n; j++) row[j] = counts[j];
+  row[n + lp.m] = 1;
+  row[W - 1] = c;
+  for (let r = 0; r < lp.m; r++) {
+    const v = basis[r];
+    const f = v < n ? counts[v] : 0;
+    if (f !== 0) { const tr = T[r]; for (let j = 0; j < W; j++) if (tr[j] !== 0) row[j] -= f * tr[j]; }
+  }
+  T.push(row);
+  basis.push(n + lp.m);
+  lp.m++;
+  return settle ? lpDualSettle(lp) : true;
+}
+
+/** Dual simplex pivots until every right-hand side is nonnegative; false if they did not settle. */
+function lpDualSettle(lp) {
+  const { W, T } = lp;
+  const { z } = lp;
+  for (let iter = 0; iter < 20000; iter++) {
+    let leave = -1;
+    let score = 0;
+    for (let r = 0; r < lp.m; r++) {
+      const v = T[r][W - 1];
+      if (v >= -1e-9) continue;
+      // Approximate dual steepest edge: infeasibility squared over the row's norm squared.
+      const tr = T[r];
+      let nn = 1;
+      for (let j = 0; j < W - 1; j++) if (tr[j] !== 0) nn += tr[j] * tr[j];
+      const sc = (v * v) / nn;
+      if (sc > score) { score = sc; leave = r; }
+    }
+    if (leave < 0) return true;
+    let enter = -1;
+    let best = Infinity;
+    for (let j = 0; j < W - 1; j++) {
+      const a = T[leave][j];
+      if (a < -1e-12) {
+        const q = Math.max(0, z[j]) / -a;
+        if (q < best - 1e-12) { best = q; enter = j; }
+      }
+    }
+    if (enter < 0) return false;
+    lpPivot(lp, leave, enter);
+  }
+  return false;
+}
+
+function lpResult(lp) {
+  const { m, n, W, T, z, basis } = lp;
   const y = new Array(n).fill(0);
   basis.forEach((v, r) => { if (v < n) y[v] = T[r][W - 1]; });
   const x = Array.from({ length: m }, (_, r) => Math.max(0, z[n + r]));
@@ -1155,6 +1285,8 @@ function columnGeneration(items, boards) {
   let farley = 0;
   let lastAdded = 0;
   let stopped = false;
+  let tab = null;
+  let tabRows = 0;
   for (let round = 0; round < 400; round++) {
     // Keep the LP small: once the pool is three times the item count, drop patterns the LP
     // does not use (they are re-found by the knapsack if they are wanted again). The
@@ -1163,16 +1295,32 @@ function columnGeneration(items, boards) {
       const keepFrom = patterns.length - lastAdded;
       const kept = patterns.filter((_, j) => j >= keepFrom || lp.x[j] > 1e-9);
       if (kept.length < patterns.length) {
+        tab = null;
         patterns.length = 0;
         seen.clear();
         for (const p of kept) { patterns.push(p); seen.add(`${p.board}:${p.counts.join(",")}`); }
       }
     }
-    lp = simplexMaxLE(patterns.map((p) => p.counts), items.map((it) => it.d), patterns.map((p) => boards[p.board].price));
+    // Warm start: the patterns found last round are new rows on the previous optimal tableau
+    // (dual simplex), not a fresh solve. A pruned pool, a full tableau or a stalled pivot
+    // run starts over cold.
+    const demand = items.map((it) => it.d);
+    let ok = tab && tabRows <= patterns.length;
+    if (ok) {
+      for (let j = tabRows; j < patterns.length && ok; j++) ok = lpAddRow(tab, patterns[j].counts, boards[patterns[j].board].price, false);
+      if (ok) ok = lpDualSettle(tab);
+    }
+    if (!ok) {
+      tab = lpStart(patterns.map((p) => p.counts), demand, patterns.map((p) => boards[p.board].price), 4 * n + 200);
+      lpPrimal(tab);
+    }
+    tabRows = patterns.length;
+    lp = lpResult(tab);
     let added = 0;
     let ratio = 0;
+    const priced = boundedKnapsackMulti(items.map((it) => it.w), lp.y, items.map((it) => it.d), boards.map((bd) => bd.cap));
     boards.forEach((bd, k) => {
-      const ks = boundedKnapsack(items.map((it) => it.w), lp.y, items.map((it) => it.d), bd.cap);
+      const ks = priced[k];
       if (bd.price > 0) ratio = Math.max(ratio, ks.value / bd.price);
       if (ks.value > bd.price * (1 + 1e-9) + 1e-9 && addPattern(k, ks.counts)) added++;
     });
@@ -1234,6 +1382,48 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
   const tooLong = items.find((it) => !boards.some((b) => b.cap >= it.w));
   if (tooLong) throw new Error(`a ${formatInches(tooLong.length)} piece is longer than every board listed`);
 
+  const core = solveStockMemo(items, boards);
+  const { bars, method, exactCost, firstBound, lpCost, ffdCost } = core;
+  const cost = costOf(bars, boards);
+  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
+  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(firstBound - 1e-6) : firstBound;
+  const refsLeft = items.map((it) => [...it.refs]);
+  const out = bars.map((b) => {
+    const bd = boards[b.board];
+    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
+    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
+    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
+  });
+  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
+  return { bars: out, cost, bound: exactCost !== null ? exactCost : bound, lpBound: firstBound, proven: exactCost !== null || cost <= bound + 1e-9, method, ffdCost, lpCost };
+}
+
+// The solver below reads only each item's integer width `w` and demand `d` and each board's
+// integer capacity `cap` and `price`, in order, so its answer (which board each bar is and
+// which item indices it holds) is a pure function of those numbers. A takeoff re-solves the
+// same problem whenever an edit leaves a lumber size's cut list alone (the page recomputes
+// on every keystroke; the mutation sweep test runs ~800 takeoffs of one plan), so recent
+// answers are kept. Entries are frozen and read-only; labels, refs and lengths are mapped
+// on afterwards by the caller. (perf, 2026-11-13)
+const STOCK_MEMO_MAX = 128;
+const stockMemo = new Map();
+function solveStockMemo(items, boards) {
+  const key = `${items.map((it) => `${it.w}x${it.d}`).join(",")}|${boards.map((b) => `${b.cap}@${b.price}`).join(",")}`;
+  const hit = stockMemo.get(key);
+  if (hit) {
+    stockMemo.delete(key);
+    stockMemo.set(key, hit);
+    return hit;
+  }
+  const res = solveStock(items, boards);
+  res.bars.forEach((b) => Object.freeze(b.pieces));
+  Object.freeze(res.bars);
+  stockMemo.set(key, Object.freeze(res));
+  if (stockMemo.size > STOCK_MEMO_MAX) stockMemo.delete(stockMemo.keys().next().value);
+  return res;
+}
+
+function solveStock(items, boards) {
   const first = columnGeneration(items, boards);
   // Sequential rounding: take the whole part of the LP, re-solve what is left.
   const demand = items.map((it) => it.d);
@@ -1296,18 +1486,14 @@ export function optimizeStock(pieces, stock, kerf = 0.125) {
     bars = exact.bars.map((b) => shrink(b, boards));
     method = "exact";
   }
-  const cost = costOf(bars, boards);
-  // Ceiling of the LP bound when every price is a whole number: a real order cannot cost less.
-  const bound = boards.every((b) => Number.isInteger(b.price)) ? Math.ceil(first.bound - 1e-6) : first.bound;
-  const refsLeft = items.map((it) => [...it.refs]);
-  const out = bars.map((b) => {
-    const bd = boards[b.board];
-    const cuts = b.pieces.map((i) => ({ length: items[i].length, ref: refsLeft[i].shift() })).sort((x, y) => y.length - x.length);
-    const used = cuts.reduce((s, c) => s + c.length + kerf, 0);
-    return { length: bd.length, price: bd.price, label: bd.label, cuts, offcut: Math.max(0, bd.length - used) };
-  });
-  out.sort((a, b) => b.length - a.length || b.cuts.length - a.cuts.length);
-  return { bars: out, cost, bound: exact ? exact.cost : bound, lpBound: first.bound, proven: Boolean(exact) || cost <= bound + 1e-9, method, ffdCost, lpCost };
+  return {
+    bars: bars.map((b) => ({ board: b.board, pieces: [...b.pieces] })),
+    method,
+    exactCost: exact ? exact.cost : null,
+    firstBound: first.bound,
+    lpCost,
+    ffdCost,
+  };
 }
 
 /**
@@ -1343,22 +1529,55 @@ export function exactStock(items, boards, workLimit = 3e7) {
   let m = 1;
   for (const r of radix) { mult.push(m); m *= r; }
   const patIdx = pats.map((p) => p.counts.reduce((s, v, i) => s + v * mult[i], 0));
+  const P = pats.length;
+  const price = Float64Array.from(pats, (p) => p.price);
+  const step = Int32Array.from(patIdx);
+  // Pattern j fits state d when counts[i] <= d[i] for every item. As bitsets:
+  // fit[i][v] holds the patterns with counts[i] <= v, and a state's fitting set
+  // is the AND over its digits. Digits advance like an odometer, so only the
+  // digits that changed are re-ANDed (suf[i] = fit[i][d[i]] & suf[i + 1]).
+  // Bits are visited lowest first, the same order as a plain j loop, so ties
+  // resolve to the same pattern.
+  const W = (P + 31) >>> 5;
+  const fitOff = [];
+  let fitLen = 0;
+  for (let i = 0; i < n; i++) { fitOff.push(fitLen); fitLen += radix[i] * W; }
+  const fit = new Uint32Array(fitLen);
+  for (let i = 0; i < n; i++) {
+    for (let j = 0; j < P; j++) {
+      const word = j >>> 5;
+      const bit = (1 << (j & 31)) >>> 0;
+      for (let v = pats[j].counts[i]; v < radix[i]; v++) fit[fitOff[i] + v * W + word] |= bit;
+    }
+  }
+  const suf = new Uint32Array((n + 1) * W);
+  for (let j = 0; j < P; j++) suf[n * W + (j >>> 5)] |= (1 << (j & 31)) >>> 0;
+  const d = new Int32Array(n);
+  for (let i = n - 1; i >= 0; i--) for (let w = 0; w < W; w++) suf[i * W + w] = fit[fitOff[i] + w] & suf[(i + 1) * W + w];
   const f = new Float64Array(states).fill(Infinity);
   const how = new Int32Array(states).fill(-1);
   f[0] = 0;
-  const d = new Array(n).fill(0);
   for (let idx = 1; idx < states; idx++) {
-    let r = idx;
-    for (let i = 0; i < n; i++) { d[i] = r % radix[i]; r = Math.floor(r / radix[i]); }
+    let k = 0;
+    d[0]++;
+    while (d[k] === radix[k]) { d[k] = 0; k++; d[k]++; }
+    for (let i = k; i >= 0; i--) {
+      const fo = fitOff[i] + d[i] * W;
+      const so = i * W;
+      const no = so + W;
+      for (let w = 0; w < W; w++) suf[so + w] = fit[fo + w] & suf[no + w];
+    }
     let best = Infinity;
     let arg = -1;
-    for (let j = 0; j < pats.length; j++) {
-      const pc = pats[j].counts;
-      let ok = true;
-      for (let i = 0; i < n; i++) if (pc[i] > d[i]) { ok = false; break; }
-      if (!ok) continue;
-      const v = pats[j].price + f[idx - patIdx[j]];
-      if (v < best - 1e-12) { best = v; arg = j; }
+    for (let w = 0; w < W; w++) {
+      let b = suf[w];
+      while (b !== 0) {
+        const low = b & -b;
+        const j = (w << 5) + 31 - Math.clz32(low);
+        b ^= low;
+        const v = price[j] + f[idx - step[j]];
+        if (v < best - 1e-12) { best = v; arg = j; }
+      }
     }
     f[idx] = best;
     how[idx] = arg;

@@ -8,7 +8,7 @@ export const ADMIN_HTML = `<!doctype html><html lang="en"><head><meta charset="u
 const $=(i)=>document.getElementById(i);$("key").value=sessionStorage.getItem("k")||"";
 const api=async(p,o={})=>{const r=await fetch(p,{...o,headers:{authorization:"Bearer "+$("key").value}});if(!r.ok)throw new Error(r.status+" "+await r.text());return r.json()};
 const esc=(s)=>String(s).replace(/[&<>"]/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-const when=(t)=>t?new Date(t).toLocaleString():"-";
+const when=(t)=>t?new Date(t).toLocaleString('en-US'):"-";
 async function load(){try{sessionStorage.setItem("k",$("key").value);const s=await api("/v1/summary");$("sum").textContent=s.total+" events: "+s.pending+" pending, "+s.delivered+" delivered, "+s.dead+" dead";
 const l=await api("/v1/events"+($("st").value?"?status="+$("st").value:""));
 $("rows").innerHTML=l.map((e)=>{const a=e.attempts[e.attempts.length-1];return "<tr><td><code>"+esc(e.id)+"</code></td><td>"+esc(e.route)+"</td><td class='"+e.status+"'>"+e.status+"</td><td>"+e.attempts.length+"</td><td>"+when(e.status==="pending"?e.nextAt:a&&a.at)+"</td><td><button data-v='"+esc(e.id)+"'>View</button> <button data-r='"+esc(e.id)+"'>Replay</button></td></tr>"}).join("")}catch(e){$("sum").textContent=String(e.message)}}

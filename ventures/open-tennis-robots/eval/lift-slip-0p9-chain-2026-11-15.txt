@@ -1,0 +1,37 @@
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py --chain   (2026-11-15; cad/README.md "Slip hub back to 0.9 N m"), lift_slip_nm = 0.9
+# Hood jams: net pull at the drive pulley up to 88 N, tightest segment 90 N (100 with the 1.0 N m hub). Every figure is an assumption (cad params).
+Chain (two nodes a flight pitch, both ends on the drive pulley; hub stuck) against the 8-node reference and the lumped belt: first stuck modes, Hz
+  c_spec 0.5x, a ball every 1: chain 27.4, 70.6, 89.6; reference 27.5, 70.7, 89.4; lumped 30.5, 69.2
+  c_spec 0.5x, a ball every 2: chain 33.4, 84.2, 100.8; reference 33.4, 84.2, 100.6; lumped 30.5, 69.2
+  c_spec 1x, a ball every 1: chain 34.0, 97.9, 118.1; reference 34.0, 98.0, 117.8; lumped 38.0, 78.4
+  c_spec 1x, a ball every 2: chain 41.1, 118.5, 131.4; reference 41.1, 118.5, 131.0; lumped 38.0, 78.4
+  c_spec 2x, a ball every 1: chain 39.4, 134.4, 159.2; reference 39.4, 134.5, 158.9; lumped 43.3, 97.3
+  c_spec 2x, a ball every 2: chain 47.4, 165.1, 175.1; reference 47.4, 165.0, 174.6; lumped 43.3, 97.3
+
+Starts, hub at its lowest, trip lo (2 packs x 3 rotors): largest coupling torque, starts that slipped the hub of 6, largest net belt pull, ms any segment was slack (most of the 6); columns rigid, lumped 1x, chain 0.5x, chain 1x, chain 2x, chain 1x /2
+  switched    nominal              loaded 0.36 N m s0   0 N   0 ms | 0.41 N m s0  21 N   2 ms | 0.33 N m s0  25 N  54 ms | 0.35 N m s0  26 N  44 ms | 0.36 N m s0  28 N  38 ms | 0.26 N m s0  20 N  10 ms
+  switched    nominal              empty  0.50 N m s0   0 N   0 ms | 0.39 N m s0  21 N   0 ms | 0.36 N m s0  27 N  59 ms | 0.38 N m s0  31 N  52 ms | 0.43 N m s0  34 N  45 ms | 0.31 N m s0  24 N  18 ms
+  switched    80 N m/rad 5 deg     loaded 0.53 N m s0   0 N   0 ms | 0.37 N m s0  20 N   0 ms | 0.33 N m s0  25 N  49 ms | 0.33 N m s0  26 N  40 ms | 0.36 N m s0  28 N  37 ms | 0.25 N m s0  20 N   9 ms
+  switched    80 N m/rad 5 deg     empty  0.73 N m s6   0 N   0 ms | 0.73 N m s4  25 N   5 ms | 0.49 N m s0  38 N  95 ms | 0.60 N m s0  45 N  92 ms | 0.72 N m s1  54 N 102 ms | 0.49 N m s0  38 N  50 ms
+  100 ms ramp nominal              loaded 0.24 N m s0   0 N   0 ms | 0.21 N m s0  15 N   0 ms | 0.21 N m s0  16 N   0 ms | 0.22 N m s0  17 N   0 ms | 0.22 N m s0  17 N   0 ms | 0.12 N m s0   9 N   0 ms
+  100 ms ramp nominal              empty  0.15 N m s0   0 N   0 ms | 0.12 N m s0   7 N   0 ms | 0.29 N m s0  22 N  26 ms | 0.29 N m s0  23 N  42 ms | 0.32 N m s0  25 N  40 ms | 0.21 N m s0  17 N   0 ms
+  100 ms ramp 80 N m/rad 5 deg     loaded 0.24 N m s0   0 N   0 ms | 0.22 N m s0  12 N   0 ms | 0.21 N m s0  16 N   0 ms | 0.20 N m s0  15 N   0 ms | 0.20 N m s0  16 N   0 ms | 0.11 N m s0   9 N   0 ms
+  100 ms ramp 80 N m/rad 5 deg     empty  0.71 N m s0   0 N   0 ms | 0.55 N m s0  17 N   0 ms | 0.39 N m s0  31 N  81 ms | 0.43 N m s0  33 N  88 ms | 0.52 N m s0  41 N 100 ms | 0.35 N m s0  28 N  34 ms
+
+Jams, rotor 1x, nominal coupling (6 s): peak N on a flight, ms to the cut, ms to give up, largest net belt pull (the chain: tight strand in less slack strand out at the drive pulley), tightest segment; columns rigid, lumped 1x, chain 0.5x, chain 1x, chain 2x, chain 1x /2
+  boot 29.2 V cold hub lo, trip hi  51 N cut  59 gave 2469 belt   0 N seg   0 N |  53 N cut  59 gave 2469 belt  15 N seg   0 N |  57 N cut  59 gave 2469 belt  19 N seg  22 N |  55 N cut  59 gave 2469 belt  18 N seg  24 N |  53 N cut  59 gave 2469 belt  17 N seg  26 N |  56 N cut  69 gave 2479 belt  10 N seg  22 N
+  boot 29.2 V cold hub hi, trip lo  83 N cut  29 gave 2439 belt   0 N seg   0 N |  78 N cut  29 gave 2439 belt  16 N seg   0 N |  79 N cut  39 gave 2449 belt  19 N seg  22 N |  80 N cut  29 gave 2439 belt  18 N seg  24 N |  88 N cut  29 gave 2439 belt  21 N seg  27 N |  88 N cut  39 gave 2449 belt  13 N seg  24 N
+  boot 24 V hot    hub lo, trip hi  50 N cut  69 gave 2479 belt   0 N seg   0 N |  53 N cut  69 gave 2479 belt  15 N seg   0 N |  55 N cut  69 gave 2479 belt  19 N seg  22 N |  54 N cut  69 gave 2479 belt  17 N seg  23 N |  53 N cut  69 gave 2479 belt  17 N seg  25 N |  55 N cut  79 gave 2489 belt  11 N seg  22 N
+  boot 24 V hot    hub hi, trip lo  80 N cut  39 gave 2449 belt   0 N seg   0 N |  85 N cut  39 gave 2449 belt  16 N seg   0 N |  78 N cut  39 gave 2449 belt  19 N seg  22 N |  84 N cut  39 gave 2449 belt  19 N seg  25 N |  85 N cut  39 gave 2449 belt  20 N seg  25 N |  88 N cut  39 gave 2449 belt  13 N seg  25 N
+  hood 29.2 V cold hub lo, trip hi  50 N cut  59 gave 2469 belt   0 N seg   0 N |  58 N cut  59 gave 2469 belt  62 N seg   0 N |  50 N cut  69 gave 2479 belt  53 N seg  63 N |  50 N cut  59 gave 2469 belt  54 N seg  64 N |  49 N cut  59 gave 2469 belt  54 N seg  64 N |  54 N cut  69 gave 2479 belt  56 N seg  63 N
+  hood 29.2 V cold hub hi, trip lo  80 N cut  39 gave 2449 belt   0 N seg   0 N |  81 N cut  39 gave 2449 belt  88 N seg   0 N |  77 N cut  49 gave 2459 belt  84 N seg  88 N |  76 N cut  39 gave 2449 belt  84 N seg  89 N |  79 N cut  39 gave 2449 belt  85 N seg  90 N |  85 N cut  39 gave 2449 belt  84 N seg  90 N
+  hood 24 V hot    hub lo, trip hi  56 N cut  69 gave 2479 belt   0 N seg   0 N |  57 N cut  69 gave 2479 belt  61 N seg   0 N |  50 N cut  79 gave 2489 belt  54 N seg  63 N |  49 N cut  79 gave 2489 belt  54 N seg  64 N |  48 N cut  79 gave 2489 belt  54 N seg  63 N |  54 N cut  79 gave 2489 belt  56 N seg  64 N
+  hood 24 V hot    hub hi, trip lo  82 N cut  39 gave 2449 belt   0 N seg   0 N |  80 N cut  49 gave 2459 belt  87 N seg   0 N |  81 N cut  49 gave 2459 belt  85 N seg  89 N |  80 N cut  49 gave 2459 belt  84 N seg  90 N |  82 N cut  39 gave 2449 belt  85 N seg  90 N |  85 N cut  49 gave 2459 belt  84 N seg  91 N
+
+Worst over every jam: peak N on a flight, slowest cut ms, latest give-up ms, largest net belt pull N, tightest segment N
+  rigid          83     69   2479     0     0
+  lumped 1x      85     69   2479    88     0
+  chain 0.5x     81     79   2489    85    89
+  chain 1x       84     79   2489    84    90
+  chain 2x       88     79   2489    85    90
+  chain 1x /2    88     79   2489    84    91

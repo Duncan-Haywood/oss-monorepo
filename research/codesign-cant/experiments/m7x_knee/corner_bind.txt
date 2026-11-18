@@ -1,0 +1,26 @@
+Milestone 7x, post hoc (not predicted): which certificate corner binds on each new design? For each 52 and 60 ms design, the
+  aware lag52 above seed 0: rho floor corners 0.99987, 33 ms corners 0.99996  <- 33 ms binds
+  aware lag52 above seed 1: rho floor corners 1.00000, 33 ms corners 1.00000  (equal: a lag-insensitive mode sets it)
+  aware lag52 above seed 2: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag52 above seed 3: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag52 above seed 4: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag52 above seed 5: rho floor corners 0.99955, 33 ms corners 0.99955  (equal: a lag-insensitive mode sets it)
+  aware lag52 below seed 0: rho floor corners 0.99993, 33 ms corners 0.99993  (equal: a lag-insensitive mode sets it)
+  aware lag52 below seed 1: rho floor corners 0.99983, 33 ms corners 0.99983  (equal: a lag-insensitive mode sets it)
+  aware lag52 below seed 2: rho floor corners 0.99998, 33 ms corners 0.99998  (equal: a lag-insensitive mode sets it)
+  aware lag52 below seed 3: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag52 below seed 4: rho floor corners 0.99991, 33 ms corners 0.99991  (equal: a lag-insensitive mode sets it)
+  aware lag52 below seed 5: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag60 above seed 0: rho floor corners 0.99997, 33 ms corners 0.99997  (equal: a lag-insensitive mode sets it)
+  aware lag60 above seed 1: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag60 above seed 2: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag60 above seed 3: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag60 above seed 4: rho floor corners 0.99999, 33 ms corners 0.99987
+  aware lag60 above seed 5: rho floor corners 0.99985, 33 ms corners 0.99985  (equal: a lag-insensitive mode sets it)
+  aware lag60 below seed 0: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag60 below seed 1: rho floor corners 1.00000, 33 ms corners 1.00000  (equal: a lag-insensitive mode sets it)
+  aware lag60 below seed 2: rho floor corners 1.00000, 33 ms corners 1.00000  (equal: a lag-insensitive mode sets it)
+  aware lag60 below seed 3: rho floor corners 0.99999, 33 ms corners 0.99999  (equal: a lag-insensitive mode sets it)
+  aware lag60 below seed 4: rho floor corners 1.00000, 33 ms corners 1.00000  (equal: a lag-insensitive mode sets it)
+  aware lag60 below seed 5: rho floor corners 0.99981, 33 ms corners 0.99981  (equal: a lag-insensitive mode sets it)
+33 ms corners alone set the radius on 1 of 24 designs; equal to 1e-9 on 22; floor corners set it on the rest

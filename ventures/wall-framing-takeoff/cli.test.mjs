@@ -355,7 +355,7 @@ test("a mistyped --rim-lap, --panel-max or --sheathing-psf is refused, not ignor
     assert.match(r.out, /is not a /, bad);
   }
   assert.equal(run(["plan.json", "--panel-max=12ft", "--panel-order"], ex).code, 0);
-  assert.equal(run(["plan.json", "--sheathing", "--sheathing-psf=2.5", "--rim-lap=9.25in"], ex).code, 0);
+  assert.equal(run(["plan.json", "--sheathing", "--panel-max=12ft", "--sheathing-psf=2.5", "--rim-lap=9.25in"], ex).code, 0);
 });
 
 test("--panel-max under 6 in or over 100 ft is refused with a reason", () => {
@@ -441,6 +441,12 @@ test("--orders prints order-by dates and flags late items against a given day", 
   assert.match(run(["plan.json", "--orders", "--csv"], plan).out, /^order_by,item/);
   const bad = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, orders: undefined } });
   assert.equal(bad.code, 1);
+  // the schedule's own reason is shown, not only "has problems"
+  const none = run(["plan.json", "--orders"], samplePlan());
+  assert.equal(none.code, 1);
+  assert.match(none.out, /must be an object with `activities`/);
+  const neg = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, activities: [{ id: "a", name: "Slab", days: -1 }] } });
+  assert.match(neg.out, /a: days must be zero or more/);
 });
 
 test("--json: a refusal prints {ok:false, errors} on stdout, keeps the exit code and the text on stderr", async () => {

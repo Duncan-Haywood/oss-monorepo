@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" font-family="sans-serif" font-size="12">
+<rect width="800" height="600" fill="#fff"/>
+<text x="16" y="22" font-size="13">Share of robot-person passes closer than 0.5 m, 10% robots, fresh seeds (95% interval)</text>
+<line x1="170.0" x2="170.0" y1="46" y2="520" stroke="#eee"/>
+<text x="170.0" y="536" text-anchor="middle">0.00</text>
+<line x1="237.4" x2="237.4" y1="46" y2="520" stroke="#eee"/>
+<text x="237.4" y="536" text-anchor="middle">0.10</text>
+<line x1="304.8" x2="304.8" y1="46" y2="520" stroke="#eee"/>
+<text x="304.8" y="536" text-anchor="middle">0.20</text>
+<line x1="372.2" x2="372.2" y1="46" y2="520" stroke="#eee"/>
+<text x="372.2" y="536" text-anchor="middle">0.30</text>
+<line x1="439.6" x2="439.6" y1="46" y2="520" stroke="#eee"/>
+<text x="439.6" y="536" text-anchor="middle">0.40</text>
+<line x1="507.0" x2="507.0" y1="46" y2="520" stroke="#eee"/>
+<text x="507.0" y="536" text-anchor="middle">0.50</text>
+<line x1="574.4" x2="574.4" y1="46" y2="520" stroke="#eee"/>
+<text x="574.4" y="536" text-anchor="middle">0.60</text>
+<line x1="641.8" x2="641.8" y1="46" y2="520" stroke="#eee"/>
+<text x="641.8" y="536" text-anchor="middle">0.70</text>
+<line x1="709.2" x2="709.2" y1="46" y2="520" stroke="#eee"/>
+<text x="709.2" y="536" text-anchor="middle">0.80</text>
+<text x="162" y="127.0" text-anchor="end">social force</text>
+<rect x="170.0" y="55.9" width="62.5" height="17.8" fill="#1f78b4"/>
+<line x1="222.7" x2="243.9" y1="64.8" y2="64.8" stroke="#333"/>
+<text x="247.9" y="71.6" font-size="10">0.093</text>
+<rect x="170.0" y="75.6" width="112.4" height="17.8" fill="#a6cee3"/>
+<line x1="267.9" x2="299.0" y1="84.5" y2="84.5" stroke="#333"/>
+<text x="303.0" y="91.4" font-size="10">0.167</text>
+<rect x="170.0" y="95.4" width="218.3" height="17.8" fill="#33a02c"/>
+<line x1="370.3" x2="407.1" y1="104.2" y2="104.2" stroke="#333"/>
+<text x="411.1" y="111.1" font-size="10">0.324</text>
+<rect x="170.0" y="115.1" width="420.0" height="17.8" fill="#e31a1c"/>
+<line x1="577.0" x2="602.4" y1="124.0" y2="124.0" stroke="#333"/>
+<text x="606.4" y="130.9" font-size="10">0.623</text>
+<rect x="170.0" y="134.9" width="40.7" height="17.8" fill="#6a3d9a"/>
+<line x1="195.4" x2="225.0" y1="143.8" y2="143.8" stroke="#333"/>
+<text x="229.0" y="150.6" font-size="10">0.060</text>
+<rect x="170.0" y="154.6" width="17.8" height="17.8" fill="#cab2d6"/>
+<line x1="183.5" x2="192.3" y1="163.5" y2="163.5" stroke="#333"/>
+<text x="196.3" y="170.4" font-size="10">0.026</text>
+<rect x="170.0" y="174.4" width="21.6" height="17.8" fill="#ff7f00"/>
+<line x1="184.4" x2="200.4" y1="183.2" y2="183.2" stroke="#333"/>
+<text x="204.4" y="190.1" font-size="10">0.032</text>
+<text x="162" y="285.0" text-anchor="end">collision-free speed</text>
+<rect x="170.0" y="213.9" width="14.5" height="17.8" fill="#1f78b4"/>
+<line x1="181.7" x2="188.0" y1="222.8" y2="222.8" stroke="#333"/>
+<text x="192.0" y="229.6" font-size="10">0.022</text>
+<rect x="170.0" y="233.6" width="26.7" height="17.8" fill="#a6cee3"/>
+<line x1="193.7" x2="200.0" y1="242.5" y2="242.5" stroke="#333"/>
+<text x="204.0" y="249.4" font-size="10">0.040</text>
+<rect x="170.0" y="253.4" width="145.7" height="17.8" fill="#33a02c"/>
+<line x1="302.0" x2="334.0" y1="262.2" y2="262.2" stroke="#333"/>
+<text x="338.0" y="269.1" font-size="10">0.216</text>
+<rect x="170.0" y="273.1" width="411.2" height="17.8" fill="#e31a1c"/>
+<line x1="569.9" x2="591.5" y1="282.0" y2="282.0" stroke="#333"/>
+<text x="595.5" y="288.9" font-size="10">0.610</text>
+<rect x="170.0" y="292.9" width="0.8" height="17.8" fill="#6a3d9a"/>
+<line x1="170.0" x2="172.1" y1="301.8" y2="301.8" stroke="#333"/>
+<text x="176.1" y="308.6" font-size="10">0.001</text>
+<rect x="170.0" y="312.6" width="0.8" height="17.8" fill="#cab2d6"/>
+<line x1="170.2" x2="171.6" y1="321.5" y2="321.5" stroke="#333"/>
+<text x="175.6" y="328.4" font-size="10">0.001</text>
+<rect x="170.0" y="332.4" width="0.1" height="17.8" fill="#ff7f00"/>
+<line x1="170.0" x2="170.3" y1="341.2" y2="341.2" stroke="#333"/>
+<text x="174.3" y="348.1" font-size="10">0.000</text>
+<text x="162" y="443.0" text-anchor="end">ORCA</text>
+<rect x="170.0" y="371.9" width="12.6" height="17.8" fill="#1f78b4"/>
+<line x1="180.2" x2="185.4" y1="380.8" y2="380.8" stroke="#333"/>
+<text x="189.4" y="387.6" font-size="10">0.019</text>
+<rect x="170.0" y="391.6" width="65.3" height="17.8" fill="#a6cee3"/>
+<line x1="230.0" x2="240.9" y1="400.5" y2="400.5" stroke="#333"/>
+<text x="244.9" y="407.4" font-size="10">0.097</text>
+<rect x="170.0" y="411.4" width="330.5" height="17.8" fill="#33a02c"/>
+<line x1="482.7" x2="518.1" y1="420.2" y2="420.2" stroke="#333"/>
+<text x="522.1" y="427.1" font-size="10">0.490</text>
+<rect x="170.0" y="431.1" width="523.4" height="17.8" fill="#e31a1c"/>
+<line x1="678.7" x2="707.0" y1="440.0" y2="440.0" stroke="#333"/>
+<text x="711.0" y="446.9" font-size="10">0.777</text>
+<rect x="170.0" y="450.9" width="4.8" height="17.8" fill="#6a3d9a"/>
+<line x1="172.9" x2="177.3" y1="459.8" y2="459.8" stroke="#333"/>
+<text x="181.3" y="466.6" font-size="10">0.007</text>
+<rect x="170.0" y="470.6" width="4.1" height="17.8" fill="#cab2d6"/>
+<line x1="172.4" x2="176.5" y1="479.5" y2="479.5" stroke="#333"/>
+<text x="180.5" y="486.4" font-size="10">0.006</text>
+<rect x="170.0" y="490.4" width="6.3" height="17.8" fill="#ff7f00"/>
+<line x1="174.7" x2="178.2" y1="499.2" y2="499.2" stroke="#333"/>
+<text x="182.2" y="506.1" font-size="10">0.009</text>
+<rect x="16" y="548" width="10" height="10" fill="#1f78b4"/><text x="30" y="557" font-size="11">crowd's side</text>
+<rect x="206" y="548" width="10" height="10" fill="#a6cee3"/><text x="220" y="557" font-size="11">adapt</text>
+<rect x="396" y="548" width="10" height="10" fill="#33a02c"/><text x="410" y="557" font-size="11">lateral goal</text>
+<rect x="586" y="548" width="10" height="10" fill="#e31a1c"/><text x="600" y="557" font-size="11">opposite</text>
+<rect x="16" y="564" width="10" height="10" fill="#6a3d9a"/><text x="30" y="573" font-size="11">learned in SF</text>
+<rect x="206" y="564" width="10" height="10" fill="#cab2d6"/><text x="220" y="573" font-size="11">learned in CFS</text>
+<rect x="396" y="564" width="10" height="10" fill="#ff7f00"/><text x="410" y="573" font-size="11">learned in ORCA</text>
+<text x="16" y="592" font-size="11">Pooled over HERMES bo-360-090-090 and bo-360-160-160; 20 seeds per cell; bootstrap over seeds (B = 1000)</text>
+</svg>

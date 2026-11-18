@@ -1,0 +1,283 @@
+{
+ "date": "2026-11-10",
+ "subject": "research/qual-negint",
+ "stratum": "research",
+ "seed": "2026-11-10",
+ "drawn_by": "sample",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a survey statistician / biostatistician who designs validation audits for automated coding and reviews interval-coverage simulation studies",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran experiments/run.py: results.txt reproduced byte-identically (45 s). Recomputed lexicon-coder Wald/plus-two/Wilson coverage at k=5,10,20,50 by exact binomial enumeration with my own formulas: 0.641/0.857/0.900/0.926 for Wald against 0.628/0.853/0.917/0.936 reported, Wilson 0.951 vs 0.953 at k=5. Wilson(3/10) and Beta(3.5,7.5) quantiles recomputed by hand/numerical integration and match the test constants. Differences are within Monte Carlo error except k=20 (0.017, finite-population effect).",
+  "completeness": "Everything the README says is done runs: run.py regenerates results.txt, figure.py regenerates the SVG, 4 unit tests pass, all 16 headline numbers match results.txt, README and project.json links valid, listed in research/README.md. Stated next steps (group gap, LLM coder) are honestly marked not done.",
+  "verification": "python3 -m unittest test_qualnegint: 4 tests OK. Six hand-seeded mutations in qualnegint.py: 4 caught (Wilson variance, Z95, Jeffreys upper index, Wilson centre), 2 survived (plus_two n+2 -> n+1; strata_counts weight -> 0.5). The stratum weights behind every coverage number and the plus-two formula have no value test; run.py has no test.",
+  "craft": "Read qualnegint.py (54 lines), test_qualnegint.py, run.py, figure.py. Small, stdlib-only, seeded, clear docstrings, shared linefig used. Defects: sys.path juggling with a module called 'run' (collision hit during audit), scipy cited but not a dependency, jeffreys returns an unused point estimate, no guard for n=0.",
+  "claims": "All headline and table numbers match results.txt, 'not LLMs' disclosure is prominent, limits section is good (selection bias of worst-of-four, approximate Wilson, no FPC for Jeffreys). Two Results sentences are wrong against the table: Wald at k=50 is 0.6-2 points short not 2-4; Jeffreys range is 0.942-0.978 not 0.94-0.96. Minor, not the headline.",
+  "fitness": "A researcher can rerun and extend it, and a coder-validation practitioner learns 'use Wilson, not Wald, at k=5'. But that is the Brown-Cai-DasGupta (2001) lesson applied to one estimator; stratified/weighted-Wilson and survey-statistics prior work and the design-based supervised learning literature are not cited, one population and four miss-rate points are studied, and it is a single-session simulation rather than a PhD-level programme result.",
+  "domain": "A survey statistician would ask for a design-based (FPC, weighted) Wilson as in Kott and Carr / Dean and Pagano, a sweep over true stratum proportions given coverage oscillation, Clopper-Pearson or exact stratified comparators, and the weighted-sum Jeffreys posterior justified. The README names its approximations honestly, but the method is a first-pass combination rather than established practice."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Wald coverage, lexicon coder, k=5 (headline 0.63)",
+   "method": "exact binomial enumeration over all (x_neg,x_pos), independent of the author's Monte Carlo",
+   "command": "python3 /tmp/claude-0/sp/exact.py (own enumeration of the exact binomial coverage of the Wald/plus-two/Wilson formulas written from the textbook definitions, using lexicon coder strata p_neg=0.1876, p_pos=0.6362, W_neg=0.856, truth 0.2522)",
+   "expected": "0.628 (results.txt)",
+   "observed": "0.641",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wald coverage, lexicon coder, k=10",
+   "method": "exact binomial enumeration",
+   "command": "python3 /tmp/claude-0/sp/exact.py (own enumeration of the exact binomial coverage of the Wald/plus-two/Wilson formulas written from the textbook definitions, using lexicon coder strata p_neg=0.1876, p_pos=0.6362, W_neg=0.856, truth 0.2522)",
+   "expected": "0.853",
+   "observed": "0.857",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wilson coverage, lexicon coder, k=5",
+   "method": "exact binomial enumeration, Wilson centre and variance written fresh",
+   "command": "python3 /tmp/claude-0/sp/exact.py (own enumeration of the exact binomial coverage of the Wald/plus-two/Wilson formulas written from the textbook definitions, using lexicon coder strata p_neg=0.1876, p_pos=0.6362, W_neg=0.856, truth 0.2522)",
+   "expected": "0.953",
+   "observed": "0.951",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "plus-two coverage, lexicon coder, k=10",
+   "method": "exact binomial enumeration",
+   "command": "python3 /tmp/claude-0/sp/exact.py (own enumeration of the exact binomial coverage of the Wald/plus-two/Wilson formulas written from the textbook definitions, using lexicon coder strata p_neg=0.1876, p_pos=0.6362, W_neg=0.856, truth 0.2522)",
+   "expected": "0.979",
+   "observed": "0.975",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wald coverage, lexicon coder, k=20",
+   "method": "exact enumeration; MC error about 0.007, binomial ignores finite-population correction on the 459-item positive stratum (180 drawn)",
+   "command": "python3 /tmp/claude-0/sp/exact.py (own enumeration of the exact binomial coverage of the Wald/plus-two/Wilson formulas written from the textbook definitions, using lexicon coder strata p_neg=0.1876, p_pos=0.6362, W_neg=0.856, truth 0.2522)",
+   "expected": "0.917",
+   "observed": "0.900",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Wilson 95% interval for 3 of 10",
+   "method": "closed form (Wilson 1927; Brown, Cai, DasGupta 2001), computed by hand-written formula",
+   "command": "python3 /tmp/claude-0/sp/exact.py",
+   "expected": "(0.1078, 0.6032) as in test",
+   "observed": "(0.10779, 0.60322)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Jeffreys quantiles for 3 of 10 = Beta(3.5, 7.5) 2.5% and 97.5%",
+   "method": "numerical integration of the Beta density (200,000 midpoints); scipy not installed so the test's 'scipy' constants were checked this way",
+   "command": "python3 /tmp/claude-0/sp/exact.py",
+   "expected": "0.0927, 0.6058 as in test",
+   "observed": "0.09269, 0.60582",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Stratum counts of the evaluation set: 3,188 items, prevalence 0.2522",
+   "method": "recount from the GoEmotions CSV via qual-real's loader and the seed-20261024 split",
+   "command": "python3 /tmp/claude-0/sp/exact.py",
+   "expected": "3188 / 0.2522",
+   "observed": "3188 / 0.2522",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Reproduction: experiments/run.py regenerates results.txt",
+   "method": "ran it (download of the 14 MB CSV succeeded through the proxy)",
+   "command": "python3 research/qual-negint/experiments/run.py",
+   "expected": "identical file, about 70 s",
+   "observed": "identical (git diff empty), 45 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure.py regenerates the SVG",
+   "method": "ran it",
+   "command": "python3 research/qual-negint/experiments/figure.py",
+   "expected": "identical SVG",
+   "observed": "identical (git status clean)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Unit tests of the author",
+   "method": "ran",
+   "command": "cd research/qual-negint && python3 -m unittest test_qualnegint",
+   "expected": "pass",
+   "observed": "4 tests OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "Headline: worst coverage at k=5 for Wald/plus-two/Wilson/Jeffreys = 0.628/0.950/0.935/0.950, and so on for k=10..50",
+   "method": "compared README line 3 and results section 3 of results.txt",
+   "command": "grep -n 'Worst coverage' -A6 research/qual-negint/experiments/results.txt",
+   "expected": "match",
+   "observed": "all 16 numbers match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'a Wilson, Jeffreys or plus-two interval covers 94-95%' at k=5",
+   "method": "results.txt rows k=5",
+   "command": "same",
+   "expected": "0.94-0.95",
+   "observed": "Wilson 0.935 to 0.953 across coders, plus-two 0.950-0.981",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "Result 2: 'Beyond k = 20 ... Wald is still 2-4 points short'",
+   "method": "results.txt Wald at k=50 vs 0.95",
+   "command": "same",
+   "expected": "0.02-0.04 short",
+   "observed": "0.006-0.020 short at k=50 (0.930-0.944); at k=20 0.015-0.043",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Result 3: 'Jeffreys is the most even across coders (0.94-0.96)'",
+   "method": "results.txt Jeffreys column, all coder x k cells",
+   "command": "same",
+   "expected": "0.94-0.96",
+   "observed": "0.942 to 0.978 (lexicon k=10 is 0.978); Wilson spans 0.935-0.979",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Result 2: mean widths at k=5 Wald 0.397, Wilson 0.427, Jeffreys 0.429, plus-two 0.490",
+   "method": "results.txt section 4",
+   "command": "same",
+   "expected": "match",
+   "observed": "match",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "qual-negaudit's 'about 50 negatives' rule and its Next-steps item are quoted correctly",
+   "method": "read research/qual-negaudit/README.md lines 3, 27, 37",
+   "command": "grep -n 'about 50' research/qual-negaudit/README.md",
+   "expected": "as quoted",
+   "observed": "as quoted",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "Nearest prior work cited for stratified/weighted Wilson",
+   "method": "README references list vs the literature (Kott and Carr 1997; Dean and Pagano 2015; Newcombe 1998 hybrid; Agresti and Caffo 2000; Rao-Scott; design-based supervised learning, Egami et al. 2023)",
+   "command": "sed -n 44,50p research/qual-negint/README.md",
+   "expected": "cited",
+   "observed": "only single-proportion papers cited; none for the stratified case",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Coverage studied as a function of the true proportions (Brown et al. 2001 show coverage oscillates in p)",
+   "method": "read run.py",
+   "command": "sed -n 25,40p research/qual-negint/experiments/run.py",
+   "expected": "sweep of p or several populations",
+   "observed": "one population, four coders = four (p_neg, p_pos) points",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "research/qual-negint/qualnegint.py:31",
+   "change": "plus_two (x + 1, n + 2) -> (x + 1, n + 1)",
+   "caught": false,
+   "test_cmd": "cd research/qual-negint && python3 -m unittest test_qualnegint"
+  },
+  {
+   "where": "research/qual-negint/qualnegint.py:54",
+   "change": "stratum weight len(idx)/n -> 0.5 (strata_counts)",
+   "caught": false,
+   "test_cmd": "cd research/qual-negint && python3 -m unittest test_qualnegint"
+  },
+  {
+   "where": "research/qual-negint/qualnegint.py:36",
+   "change": "Wilson variance term z*z/(4*n*n) -> z*z/(4*n)",
+   "caught": true,
+   "test_cmd": "cd research/qual-negint && python3 -m unittest test_qualnegint"
+  },
+  {
+   "where": "research/qual-negint/qualnegint.py:15",
+   "change": "Z95 1.959964 -> 1.64",
+   "caught": true,
+   "test_cmd": "cd research/qual-negint && python3 -m unittest test_qualnegint"
+  },
+  {
+   "where": "research/qual-negint/qualnegint.py:48",
+   "change": "Jeffreys upper index 0.975 -> 0.95",
+   "caught": true,
+   "test_cmd": "cd research/qual-negint && python3 -m unittest test_qualnegint"
+  },
+  {
+   "where": "research/qual-negint/qualnegint.py:37",
+   "change": "Wilson centre -> plain p (est += w*p)",
+   "caught": true,
+   "test_cmd": "cd research/qual-negint && python3 -m unittest test_qualnegint"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Two seeded bugs survived all 4 tests: the plus-two shift (n+2 vs n+1) is only checked for being wider than Wald, and strata_counts (the stratum weights every coverage number depends on) has no test at all. Experiments/run.py has no test either; a wrong weight would change every headline number and pass CI.",
+   "where": "research/qual-negint/test_qualnegint.py:1",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work missing: the project's contribution is a stratified/weighted Wilson and Jeffreys interval, but only single-proportion references are given. Survey-statistics intervals for weighted proportions (Kott and Carr 1997; Dean and Pagano 2015), Agresti-Caffo, and design-based supervised learning (Egami et al. 2023), which solves the same 'validate an automated coder with few hand labels' problem, are absent, so the novelty of 'most of the undercoverage was the interval' is not placed. That small-n Wald fails and Wilson/Jeffreys fix it is the textbook result of Brown, Cai and DasGupta (2001).",
+   "where": "research/qual-negint/README.md:44",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Coverage is measured on one population with four coders, i.e. four (p_neg, p_pos) pairs; coverage of binomial intervals oscillates with p, so 'Wilson covers 94-95%' is not shown to hold for other miss rates or other prevalences. No finite-population correction (180 of 459 positives are sampled), so the conservative direction is not quantified; exact enumeration here gives Wald 0.900 against reported 0.917 at k=20.",
+   "where": "research/qual-negint/experiments/run.py:31",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Two sentences in Results misstate results.txt: Wald is 0.6-2.0 points short at k=50 (not 2-4); Jeffreys spans 0.942-0.978 across cells (not 0.94-0.96) and is not clearly more even than Wilson.",
+   "where": "research/qual-negint/README.md:34",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Fragile imports: run.py puts three directories on sys.path and imports the module named 'run' (qual-real's downloader); any other directory holding run.py first on the path breaks it with AttributeError (hit while auditing). Test comments cite scipy as the source of constants but scipy is not a project dependency (values do check out).",
+   "where": "research/qual-negint/experiments/run.py:19",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [],
+ "recommended_fixes": [
+  "Add tests: strata_counts on a hand-built 4-item example (weights 0.75/0.25), plus_two value for [(1.0,3,10)] against the (4/12) Wald interval, and a single-stratum Jeffreys MC test already exists. Kills both surviving mutants.",
+  "Correct README lines about Wald at k=50 ('0.6-2 points short') and Jeffreys ('0.942-0.978').",
+  "Add the survey-statistics and design-based supervised-learning references and a paragraph placing the contribution; sweep p_neg/p_pos on a grid with exact enumeration (as in the audit script) to show coverage is not an artefact of four coders."
+ ],
+ "verdict": "Sound, reproducible and honest small simulation study: the results file regenerates exactly and independent exact-binomial recomputation agrees with the reported coverage to within Monte Carlo error. It does not meet the bar because verification is 2: two of six seeded bugs, including the stratum weights behind every number, survive the tests. Beyond that, it is a textbook result (Wilson/Jeffreys beat Wald at small n) applied to one estimator with one population, missing the stratified-interval prior work, so fitness and domain are 2 and it is well short of the PhD-level research bar. Two Results sentences misquote the table."
+}

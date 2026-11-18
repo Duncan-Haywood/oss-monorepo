@@ -24,7 +24,7 @@ export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
   if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder("utf-16be").decode(b.subarray(2));
-  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^﻿/, "");
+  const utf8 = new TextDecoder("utf-8", { fatal: false }).decode(b).replace(/^\uFEFF/, "");
   return utf8.includes("�") ? new TextDecoder("windows-1252").decode(b) : utf8;
 }
 
@@ -38,7 +38,7 @@ export function detectDelimiter(text) {
 // RFC 4180-ish; each row remembers the physical line it starts on.
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  const s = String(text).replace(/^﻿/, "");
+  const s = String(text).replace(/^\uFEFF/, "");
   let row = [], cell = "", q = false, line = 1, start = 1, unterminatedAt = 0;
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];

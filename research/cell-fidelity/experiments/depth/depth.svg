@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 380" role="img" aria-label="Median share of each node's plating over the cycle, by PyBaMM parameter set">
+<rect width="640" height="380" fill="#fff"/>
+<text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Where plating happens in the negative electrode (cycle 2)</text>
+<line x1="64" x2="624" y1="324.0" y2="324.0" stroke="#ddd"/><text x="58" y="328.0" text-anchor="end" font-family="sans-serif" font-size="11">0</text>
+<line x1="64" x2="624" y1="258.8" y2="258.8" stroke="#ddd"/><text x="58" y="262.8" text-anchor="end" font-family="sans-serif" font-size="11">0.05</text>
+<line x1="64" x2="624" y1="193.6" y2="193.6" stroke="#ddd"/><text x="58" y="197.6" text-anchor="end" font-family="sans-serif" font-size="11">0.1</text>
+<line x1="64" x2="624" y1="128.3" y2="128.3" stroke="#ddd"/><text x="58" y="132.3" text-anchor="end" font-family="sans-serif" font-size="11">0.15</text>
+<line x1="64" x2="624" y1="63.1" y2="63.1" stroke="#ddd"/><text x="58" y="67.1" text-anchor="end" font-family="sans-serif" font-size="11">0.2</text>
+<text x="49.3" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0</text>
+<text x="167.2" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.2</text>
+<text x="285.1" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.4</text>
+<text x="402.9" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.6</text>
+<text x="520.8" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">0.8</text>
+<text x="638.7" y="340" text-anchor="middle" font-family="sans-serif" font-size="11">1</text>
+<text x="344.0" y="368" text-anchor="middle" font-family="sans-serif" font-size="12">depth from current collector (1 = separator side)</text>
+<text x="14" y="190.0" text-anchor="middle" font-family="sans-serif" font-size="12" transform="rotate(-90 14 190.0)">share of the cycle's plating</text>
+<polyline points="64.0,281.9 93.5,281.8 122.9,281.5 152.4,281.1 181.9,280.6 211.4,280.2 240.8,279.6 270.3,278.7 299.8,277.5 329.3,275.9 358.7,273.7 388.2,270.7 417.7,266.8 447.2,261.6 476.6,254.8 506.1,246.9 535.6,233.9 565.1,216.7 594.5,193.8 624.0,162.1" fill="none" stroke="#c0392b" stroke-width="2"/>
+<circle cx="64.0" cy="281.9" r="3" fill="#c0392b"/>
+<circle cx="93.5" cy="281.8" r="3" fill="#c0392b"/>
+<circle cx="122.9" cy="281.5" r="3" fill="#c0392b"/>
+<circle cx="152.4" cy="281.1" r="3" fill="#c0392b"/>
+<circle cx="181.9" cy="280.6" r="3" fill="#c0392b"/>
+<circle cx="211.4" cy="280.2" r="3" fill="#c0392b"/>
+<circle cx="240.8" cy="279.6" r="3" fill="#c0392b"/>
+<circle cx="270.3" cy="278.7" r="3" fill="#c0392b"/>
+<circle cx="299.8" cy="277.5" r="3" fill="#c0392b"/>
+<circle cx="329.3" cy="275.9" r="3" fill="#c0392b"/>
+<circle cx="358.7" cy="273.7" r="3" fill="#c0392b"/>
+<circle cx="388.2" cy="270.7" r="3" fill="#c0392b"/>
+<circle cx="417.7" cy="266.8" r="3" fill="#c0392b"/>
+<circle cx="447.2" cy="261.6" r="3" fill="#c0392b"/>
+<circle cx="476.6" cy="254.8" r="3" fill="#c0392b"/>
+<circle cx="506.1" cy="246.9" r="3" fill="#c0392b"/>
+<circle cx="535.6" cy="233.9" r="3" fill="#c0392b"/>
+<circle cx="565.1" cy="216.7" r="3" fill="#c0392b"/>
+<circle cx="594.5" cy="193.8" r="3" fill="#c0392b"/>
+<circle cx="624.0" cy="162.1" r="3" fill="#c0392b"/>
+<rect x="64" y="32" width="14" height="10" fill="#c0392b"/><text x="84" y="41" font-family="sans-serif" font-size="11">Ai2020</text>
+<polyline points="64.0,302.7 93.5,302.4 122.9,301.9 152.4,301.0 181.9,299.9 211.4,298.3 240.8,296.4 270.3,296.7 299.8,295.2 329.3,291.6 358.7,286.7 388.2,280.3 417.7,272.0 447.2,261.2 476.6,247.6 506.1,230.9 535.6,209.5 565.1,183.0 594.5,131.3 624.0,71.2" fill="none" stroke="#1f6fb2" stroke-width="2"/>
+<circle cx="64.0" cy="302.7" r="3" fill="#1f6fb2"/>
+<circle cx="93.5" cy="302.4" r="3" fill="#1f6fb2"/>
+<circle cx="122.9" cy="301.9" r="3" fill="#1f6fb2"/>
+<circle cx="152.4" cy="301.0" r="3" fill="#1f6fb2"/>
+<circle cx="181.9" cy="299.9" r="3" fill="#1f6fb2"/>
+<circle cx="211.4" cy="298.3" r="3" fill="#1f6fb2"/>
+<circle cx="240.8" cy="296.4" r="3" fill="#1f6fb2"/>
+<circle cx="270.3" cy="296.7" r="3" fill="#1f6fb2"/>
+<circle cx="299.8" cy="295.2" r="3" fill="#1f6fb2"/>
+<circle cx="329.3" cy="291.6" r="3" fill="#1f6fb2"/>
+<circle cx="358.7" cy="286.7" r="3" fill="#1f6fb2"/>
+<circle cx="388.2" cy="280.3" r="3" fill="#1f6fb2"/>
+<circle cx="417.7" cy="272.0" r="3" fill="#1f6fb2"/>
+<circle cx="447.2" cy="261.2" r="3" fill="#1f6fb2"/>
+<circle cx="476.6" cy="247.6" r="3" fill="#1f6fb2"/>
+<circle cx="506.1" cy="230.9" r="3" fill="#1f6fb2"/>
+<circle cx="535.6" cy="209.5" r="3" fill="#1f6fb2"/>
+<circle cx="565.1" cy="183.0" r="3" fill="#1f6fb2"/>
+<circle cx="594.5" cy="131.3" r="3" fill="#1f6fb2"/>
+<circle cx="624.0" cy="71.2" r="3" fill="#1f6fb2"/>
+<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">Chen2020</text>
+<polyline points="64.0,302.7 93.5,302.4 122.9,301.9 152.4,301.0 181.9,299.9 211.4,298.3 240.8,296.3 270.3,296.3 299.8,294.9 329.3,291.5 358.7,286.6 388.2,280.2 417.7,271.8 447.2,261.0 476.6,247.4 506.1,231.0 535.6,209.6 565.1,183.1 594.5,133.0 624.0,71.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
+<circle cx="64.0" cy="302.7" r="3" fill="#2e8b57"/>
+<circle cx="93.5" cy="302.4" r="3" fill="#2e8b57"/>
+<circle cx="122.9" cy="301.9" r="3" fill="#2e8b57"/>
+<circle cx="152.4" cy="301.0" r="3" fill="#2e8b57"/>
+<circle cx="181.9" cy="299.9" r="3" fill="#2e8b57"/>
+<circle cx="211.4" cy="298.3" r="3" fill="#2e8b57"/>
+<circle cx="240.8" cy="296.3" r="3" fill="#2e8b57"/>
+<circle cx="270.3" cy="296.3" r="3" fill="#2e8b57"/>
+<circle cx="299.8" cy="294.9" r="3" fill="#2e8b57"/>
+<circle cx="329.3" cy="291.5" r="3" fill="#2e8b57"/>
+<circle cx="358.7" cy="286.6" r="3" fill="#2e8b57"/>
+<circle cx="388.2" cy="280.2" r="3" fill="#2e8b57"/>
+<circle cx="417.7" cy="271.8" r="3" fill="#2e8b57"/>
+<circle cx="447.2" cy="261.0" r="3" fill="#2e8b57"/>
+<circle cx="476.6" cy="247.4" r="3" fill="#2e8b57"/>
+<circle cx="506.1" cy="231.0" r="3" fill="#2e8b57"/>
+<circle cx="535.6" cy="209.6" r="3" fill="#2e8b57"/>
+<circle cx="565.1" cy="183.1" r="3" fill="#2e8b57"/>
+<circle cx="594.5" cy="133.0" r="3" fill="#2e8b57"/>
+<circle cx="624.0" cy="71.4" r="3" fill="#2e8b57"/>
+<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">OKane2022</text>
+<polyline points="64.0,262.7 93.5,262.9 122.9,263.2 152.4,263.6 181.9,264.1 211.4,264.7 240.8,265.2 270.3,265.6 299.8,265.9 329.3,266.0 358.7,265.8 388.2,266.6 417.7,265.6 447.2,261.9 476.6,260.0 506.1,256.4 535.6,251.6 565.1,245.0 594.5,236.0 624.0,225.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
+<circle cx="64.0" cy="262.7" r="3" fill="#8e44ad"/>
+<circle cx="93.5" cy="262.9" r="3" fill="#8e44ad"/>
+<circle cx="122.9" cy="263.2" r="3" fill="#8e44ad"/>
+<circle cx="152.4" cy="263.6" r="3" fill="#8e44ad"/>
+<circle cx="181.9" cy="264.1" r="3" fill="#8e44ad"/>
+<circle cx="211.4" cy="264.7" r="3" fill="#8e44ad"/>
+<circle cx="240.8" cy="265.2" r="3" fill="#8e44ad"/>
+<circle cx="270.3" cy="265.6" r="3" fill="#8e44ad"/>
+<circle cx="299.8" cy="265.9" r="3" fill="#8e44ad"/>
+<circle cx="329.3" cy="266.0" r="3" fill="#8e44ad"/>
+<circle cx="358.7" cy="265.8" r="3" fill="#8e44ad"/>
+<circle cx="388.2" cy="266.6" r="3" fill="#8e44ad"/>
+<circle cx="417.7" cy="265.6" r="3" fill="#8e44ad"/>
+<circle cx="447.2" cy="261.9" r="3" fill="#8e44ad"/>
+<circle cx="476.6" cy="260.0" r="3" fill="#8e44ad"/>
+<circle cx="506.1" cy="256.4" r="3" fill="#8e44ad"/>
+<circle cx="535.6" cy="251.6" r="3" fill="#8e44ad"/>
+<circle cx="565.1" cy="245.0" r="3" fill="#8e44ad"/>
+<circle cx="594.5" cy="236.0" r="3" fill="#8e44ad"/>
+<circle cx="624.0" cy="225.2" r="3" fill="#8e44ad"/>
+<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">NCA_Kim2011</text>
+</svg>

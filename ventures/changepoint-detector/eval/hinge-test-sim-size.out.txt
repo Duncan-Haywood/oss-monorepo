@@ -1,0 +1,16 @@
+series per cell 300, bootstrap reps 99, generator rho from the line residuals
+
+SIZE: share with p <= 0.05 on a straight line plus AR(1) noise (sd 1 innovations); refusals counted apart
+n     rho   reject  refused
+60    0.0     3.3%  0
+60    0.3     3.3%  0
+60    0.6     6.3%  32
+60    0.8     3.3%  195
+145   0.0     6.0%  0
+145   0.3     6.0%  0
+145   0.6     6.0%  0
+145   0.8     7.7%  2
+300   0.0     3.0%  0
+300   0.3     5.7%  0
+300   0.6     4.0%  0
+300   0.8     4.0%  0

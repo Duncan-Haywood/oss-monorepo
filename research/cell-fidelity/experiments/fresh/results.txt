@@ -1,0 +1,74 @@
+cell-fidelity milestone 5a: the post-hoc winners of parts 2b and 4b on 128 fresh designs (Sobol seed 1)
+fresh designs 128; nearest seed-0 design, normalised distance: min 0.072, median 0.176, max 0.339
+fails (stopped before cycle 100), per model: SPM 0, SPMe 5, DFN 0
+DFN@100 fresh: best 163.5, median 128.5, zeros 0; seed 0: best 162.3, median 128.8
+SPMe r_min fresh: median 0.308, 10th pct 0.000, <= 0.1: 22
+
+A. each cell as a screen for DFN@100: Spearman (fresh / seed 0) and rank of the DFN-best design (fresh / seed 0)
+  SPM@2       0.942 /  0.941   rank  10 /  12
+  SPM@10      0.957 /  0.955   rank   3 /   5
+  SPM@30      0.958 /  0.956   rank   2 /   5
+  SPM@100     0.956 /  0.955   rank   2 /   5
+  SPMe@2      0.676 /  0.736   rank   4 /   8
+  SPMe@10     0.668 /  0.718   rank   2 /   1
+  SPMe@30     0.591 /  0.657   rank  37 /  27
+  SPMe@100    0.575 /  0.641   rank  48 /  41
+  DFN@2       0.948 /  0.942   rank   4 /   7
+  DFN@10      0.966 /  0.962   rank   1 /   1
+  DFN@30      0.983 /  0.980   rank   1 /   1
+  DFN@100     1.000 /  1.000   rank   1 /   1
+
+Spearman(SPMe@10) - Spearman(SPMe@100), fresh: 0.093 (95% CI 0.045 to 0.154)
+
+B. median T1 (charged s, cost A), 30 pools per size; fresh (seed 0 in brackets); p = paired Wilcoxon against GP-EI, fresh
+method                                            N=16                N=32                N=64                N=96
+GP-EI DFN@100                        147.0 ( 147.0)           195.9 ( 195.9)           220.4 ( 220.4)           232.7 ( 220.4)        
+screen SPM@2                          54.3 (  54.3) 5.6e-05    96.4 (  96.4) 3.6e-06   205.0 ( 168.2)    0.11   227.8 ( 240.1)    0.81
+screen SPM@100                        65.9 (  65.9) 3.3e-05    82.7 (  95.0) 1.9e-05   116.5 ( 153.2) 2.4e-06   150.3 ( 199.3) 5.1e-05
+screen DFN@2                          46.0 (  46.0) 1.1e-05    67.6 (  67.6) 1.1e-05   135.1 ( 159.6) 0.00052   202.7 ( 251.7)    0.63
+screen SPMe@2                         63.0 (  38.5)    0.04    52.5 (  52.5) 0.00052   104.9 ( 129.4) 2.2e-06   157.4 ( 230.9) 0.00023
+screen SPMe@10                        49.1 (  49.1)   0.035    73.7 (  73.7)   0.001   122.9 ( 122.9) 2.2e-06   196.6 ( 172.1)  0.0016
+screen SPMe@30                        75.4 (  75.4)    0.16   138.6 (  89.7)     0.8   510.0 ( 424.2) 4.8e-05   832.3 ( 648.6) 1.9e-06
+screen SPMe@100                      107.5 ( 119.8)    0.88   227.3 ( 166.1)  0.0038   736.3 ( 699.5) 1.9e-06  1220.7 (1110.5) 1.7e-06
+coKrig aEI SPM@2                     150.6 ( 151.3)    0.11   200.9 ( 179.1)     0.9   254.1 ( 240.3)  0.0058   295.1 ( 269.1) 0.00032
+coKrig aEI DFN@2                     161.1 ( 163.1)    0.27   171.2 ( 173.2)   0.069   233.6 ( 209.2)   0.043   267.4 ( 279.8)  0.0092
+coKrig MF-UCB SPM@2                  149.0 ( 149.3)   0.047   199.3 ( 176.4)    0.62   225.1 ( 226.1)   0.024   275.7 ( 274.9) 0.00048
+coKrig MF-UCB DFN@2                  157.1 ( 157.1)    0.37   188.3 ( 165.8)    0.54   193.0 ( 204.6)    0.37   244.0 ( 267.1)    0.14
+coKrig aEI SPM@2 cheap-start          64.7 (  77.8)  0.0002   105.5 ( 104.5) 0.00042   171.8 ( 158.6)   0.033   234.6 ( 214.7)    0.52
+coKrig aEI DFN@2 cheap-start          62.4 (  38.0) 1.6e-05    95.7 (  97.0) 1.8e-05   151.4 ( 128.9)  0.0026   162.2 ( 193.4)    0.25
+coKrig MF-UCB SPM@2 cheap-start       64.6 (  77.0) 4.8e-05   102.0 ( 102.0) 6.9e-05   152.4 ( 153.3)  0.0015   164.9 ( 177.1)  0.0026
+coKrig MF-UCB DFN@2 cheap-start       62.4 (  38.0) 1.6e-05    89.6 (  90.3) 1.6e-05   123.6 ( 144.0)  0.0026   140.6 ( 173.9)  0.0032
+
+H. hypotheses (fixed in LOG.md before the run)
+H25 supported: SPMe@10 screen 122.9 s vs GP-EI 220.4 (p 2.2e-06) and SPM@2 screen 205.0 (p 0.0008), pools of 64
+H26 supported: difference 0.093, CI 0.045 to 0.154
+H27 refuted: N=16: 62.4 s vs GP-EI 147.0 (p 1.6e-05); best screen screen DFN@2 46.0, ratio 1.36; N=32: 89.6 s vs GP-EI 195.9 (p 1.6e-05); best screen screen SPMe@2 52.5, ratio 1.71; N=64: 123.6 s vs GP-EI 220.4 (p 0.0026); best screen screen SPMe@2 104.9, ratio 1.18; N=96: 140.6 s vs GP-EI 232.7 (p 0.0032); best screen screen SPM@100 150.3, ratio 0.94
+H28 supported: Spearman of 15 methods' median T1 at 64, seed 0 vs fresh, 0.924
+
+fastest method per pool size, fresh: 16: screen DFN@2 46.0, 32: screen SPMe@2 52.5, 64: screen SPMe@2 104.9, 96: coKrig MF-UCB DFN@2 cheap-start 140.6
+
+C. (extra, no verdict) worst ratio to the fastest method over pool sizes 16 to 96
+method                              fresh  seed 0
+screen SPMe@2                        1.37    1.34
+screen SPMe@10                       1.40    1.40
+screen DFN@2                         1.44    1.46
+screen SPM@100                       1.58    1.81
+coKrig MF-UCB DFN@2 cheap-start      1.71    1.72
+coKrig aEI DFN@2 cheap-start         1.82    1.85
+coKrig MF-UCB SPM@2 cheap-start      1.94    2.03
+screen SPM@2                         1.95    1.84
+coKrig aEI SPM@2 cheap-start         2.01    2.05
+coKrig aEI DFN@2                     3.50    4.30
+coKrig MF-UCB DFN@2                  3.59    4.14
+GP-EI DFN@100                        3.73    3.87
+coKrig MF-UCB SPM@2                  3.80    3.93
+coKrig aEI SPM@2                     3.83    3.99
+screen SPMe@30                       5.92    3.77
+screen SPMe@100                      8.68    6.45
+
+D. median T1 (s) by pool size, fresh designs (for the figure)
+pool GP-EI SPM@100 DFN@2 SPMe@2 SPMe@10 cheapMFUCB
+16 147.0 65.9 46.0 63.0 49.1 62.4
+32 195.9 82.7 67.6 52.5 73.7 89.6
+64 220.4 116.5 135.1 104.9 122.9 123.6
+96 232.7 150.3 202.7 157.4 196.6 140.6

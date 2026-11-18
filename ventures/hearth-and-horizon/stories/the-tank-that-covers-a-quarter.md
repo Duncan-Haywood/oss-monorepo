@@ -1,7 +1,7 @@
 ---
 title: The Tank That Covers a Quarter
 shelf: hearth-and-horizon
-setting: Saint Fiacre's allotments (invented), near Swaffham, Norfolk, Saturday 12 March 2049
+setting: Saint Fiacre's allotments (invented), near Swaffham, Norfolk, Saturday 13 March 2049
 published: 2026-11-04
 summary: A parish allotment group has a grant for a 10,000-litre tank to catch the hall roof's rain for July. The parish assistant will not say the tank is a good buy or a bad one. It works out what 140 square metres of roof gives in the driest July in the sexton's rain book (about 1.2 cubic metres), what watering 200 square metres costs (about 25), and why a bigger tank cannot fix a shortage of roof. Watering only the 80 square metres that need it takes 5.
 ---

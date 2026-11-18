@@ -1,0 +1,184 @@
+PGLib-OPF v23.07 TYP, API, SAD from the case-file start (plain DC dispatch, 1.0 pu setpoints):
+J = successive linearisation over P and the generator voltage setpoints (vlin.slp); J+R = milestone 3's
+VARIANT J-m: every QP bound pulled inside its limit by vlin.MARGIN = {"load": 0.001, "slack": 0.1, "ang": 0.01, "v": 0.001, "q": 0.1} (exploratory: chosen after J's results on these cases).
+reactive stage on J's best dispatch when J is not fully clean. Baselines from results_vsched.txt:
+F = P-only repair at 1.0 pu, F+R = F then the reactive stage, O = P-only repair at the AC optimum's schedule.
+Cell: branches over 100 %, worst loading %, slack MW outside limits, angle-limit violations, worst
+angle excess (deg), buses out of V band, units outside Q limits, AC cost vs the AC optimum.
+
+== TYP ==
+case               method            status nOv  maxLd%  slkMW nAng angExc   V   Q      cost
+case14_ieee        start             DC+ang   0   64.32    0.0    0  0.000   0   3   +1.067%
+case14_ieee        J               clean @4   0   65.08    0.0    0  0.000   0   0   +0.034%
+case14_ieee        (F+R)        fully clean   0   64.81    0.0    0  0.000   0   0   -0.000%
+case24_ieee_rts    start             DC+ang   0   87.92    0.0    0  0.000   0   7   +0.518%
+case24_ieee_rts    J               clean @2   0   86.75    0.0    0  0.000   0   0   +0.158%
+case24_ieee_rts    (F+R)        fully clean   0   89.82    0.0    0  0.000   0   0   +0.220%
+case30_ieee        start             DC+ang   1  114.42    0.0    0  0.000   0   3   -4.341%
+case30_ieee        J               clean @6   0   99.94    0.0    0  0.000   0   0   +0.076%
+case30_ieee        (F+R)        fully clean   0   94.17    0.0    0  0.000   0   0   +3.834%
+case39_epri        start             DC+ang   2  100.65   43.1    0  0.000   0   3   -0.697%
+case39_epri        J               clean @6   0   99.90    0.0    0  0.000   0   0   +0.021%
+case39_epri        (F+R)         OPF failed 
+case57_ieee        start             DC+ang   0   95.99   91.6    0  0.000   3   5   -3.361%
+case57_ieee        J         not clean (10)   0   82.72    0.2    0  0.000   0   1   +0.067%
+case57_ieee        J+R          fully clean   0   82.71    0.0    0  0.000   0   0   +0.062%
+case57_ieee        (F+R)         OPF failed 
+case73_ieee_rts    start             DC+ang   0   87.31   37.1    0  0.000   0  21   +0.664%
+case73_ieee_rts    J               clean @6   0   92.64    0.0    0  0.000   0   0   +0.040%
+case73_ieee_rts    (F+R)        fully clean   0   92.73    0.0    0  0.000   0   0   +0.184%
+case118_ieee       start             DC+ang   4  114.44    0.0    0  0.000   0  26   +0.693%
+case118_ieee       J         not clean (10)   1  100.41    0.0    0  0.000   0   0   +0.114%
+case118_ieee       J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.052%
+case118_ieee       (F+R)        fully clean   0   98.65    0.0    0  0.000   0   0   +0.264%
+case162_ieee_dtc   start             DC+ang   9  132.23    0.0    0  0.000   6   1   -5.350%
+case162_ieee_dtc   J               clean @8   0   99.94    0.0    0  0.000   0   0   +0.261%
+case162_ieee_dtc   (F+R)         OPF failed 
+case179_goc        start             DC+ang   8  117.05    0.0    0  0.000  13   0   +0.826%
+case179_goc        J              clean @10   0  100.00    0.0    0  0.000   0   0   +0.003%
+case179_goc        (F+R)         OPF failed 
+case200_activ      start             DC+ang   0   71.25    0.0    0  0.000   0   1   +0.050%
+case200_activ      J               clean @1   0   71.45    0.0    0  0.000   0   0   +0.039%
+case200_activ      (F+R)        fully clean   0   71.26    0.0    0  0.000   0   0   +0.000%
+case240_pserc      start         DC, no ang  18  125.75 1738.8    0  0.000   2   6   +0.065%
+case240_pserc      J         not clean (10)   0   99.91    0.3    0  0.000   0   0   +0.341%
+case240_pserc      J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.323%
+case240_pserc      (F+R)        fully clean   0  100.00    0.0    0  0.000   0   0   +3.680%
+case300_ieee       start             DC+ang PF failed
+case300_ieee       J          not clean (1) no checked round
+case300_ieee       (F+R)         OPF failed 
+
+== API ==
+case               method            status nOv  maxLd%  slkMW nAng angExc   V   Q      cost
+case14_ieee        start             DC+ang   2  109.44   57.5    0  0.000   1   2  -14.664%
+case14_ieee        J               clean @3   0   99.97    0.0    0  0.000   0   0   +1.127%
+case14_ieee        (F+R)        fully clean   0  100.00    0.0    0  0.000   0   0   +0.333%
+case24_ieee_rts    start             DC+ang   5  110.14    0.0    0  0.000  10   1   -1.556%
+case24_ieee_rts    J         not clean (10)   2  100.06    0.0    0  0.000   0   0   +0.697%
+case24_ieee_rts    J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.659%
+case24_ieee_rts    (F+R)         OPF failed 
+case30_ieee        start             DC+ang   3  128.56    0.0    0  0.000   3   1   -5.574%
+case30_ieee        J               clean @7   0   99.95    0.0    0  0.000   0   0   +0.337%
+case30_ieee        (F+R)        fully clean   0  100.00    0.0    0  0.000   0   0   +2.122%
+case39_epri        start             DC+ang  12  110.03  101.3    0  0.000   3   1   -0.979%
+case39_epri        J               clean @7   0   99.95    0.0    0  0.000   0   0   +0.073%
+case39_epri        (F+R)         OPF failed 
+case57_ieee        start             DC+ang   2  115.76    0.0    0  0.000   6   2   -0.443%
+case57_ieee        J         not clean (10)   0  100.00    0.0    0  0.000   0   1   +0.643%
+case57_ieee        J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.231%
+case57_ieee        (F+R)        fully clean   0   99.76    0.0    0  0.000   0   0   +0.362%
+case73_ieee_rts    start             DC+ang   6  110.02  179.9    0  0.000  30   3   -2.688%
+case73_ieee_rts    J         not clean (10)   0   99.93    0.0    0  0.000   4   1   -0.163%
+case73_ieee_rts    J+R           OPF failed
+case73_ieee_rts    (F+R)         OPF failed 
+case118_ieee       start             DC+ang   9  122.24  223.3    0  0.000   0  14   -3.295%
+case118_ieee       J         not clean (10)   4  102.42    0.0    0  0.000   0   0   +0.836%
+case118_ieee       J+R           OPF failed
+case118_ieee       (F+R)         OPF failed 
+case162_ieee_dtc   start             DC+ang  10  138.88  185.2    0  0.000   7   0   -6.560%
+case162_ieee_dtc   J         not clean (10)   5  100.15    0.0    0  0.000   0   0   +0.295%
+case162_ieee_dtc   J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.291%
+case162_ieee_dtc   (F+R)         OPF failed 
+case179_goc        AC OPF did not converge: no reference, skipped
+case200_activ      start             DC+ang   9  105.32   61.3    0  0.000   0   2   -0.390%
+case200_activ      J              clean @10   0   99.90    0.0    0  0.000   0   0   +0.130%
+case200_activ      (F+R)        fully clean   0   99.90    0.0    0  0.000   0   0   +0.451%
+case240_pserc      start             DC+ang  11  118.18 1757.9    0  0.000   3   0   -0.128%
+case240_pserc      J         not clean (10)   0   99.96    1.6    0  0.000   0   0   +0.075%
+case240_pserc      J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.053%
+case240_pserc      (F+R)         OPF failed 
+case300_ieee       start             DC+ang  10  225.66 1054.5    2 17.913  69  19   -2.808%
+case300_ieee       J         not clean (10) no checked round
+case300_ieee       (F+R)         OPF failed 
+
+== SAD ==
+case               method            status nOv  maxLd%  slkMW nAng angExc   V   Q      cost
+case14_ieee        start         DC, no ang   0   64.32    0.0    2  2.251   0   3  -20.724%
+case14_ieee        J               clean @2   0   58.42    0.0    0  0.000   0   0   +3.845%
+case14_ieee        (F+R)        fully clean   0   56.67    0.0    0  0.000   0   0  +10.056%
+case24_ieee_rts    start         DC, no ang   0   87.92    0.0    8  5.425   0   7  -17.210%
+case24_ieee_rts    J               clean @6   0   99.94    0.0    0  0.000   0   0   +0.208%
+case24_ieee_rts    (F+R)        fully clean   0  100.00    0.0    0  0.000   0   0   +6.751%
+case30_ieee        start             DC+ang   1  114.42    0.0    1  0.802   0   3   -4.341%
+case30_ieee        J               clean @7   0   99.94    0.0    0  0.000   0   0   +0.076%
+case30_ieee        (F+R)        fully clean   0   94.17    0.0    0  0.000   0   0   +3.834%
+case39_epri        start         DC, no ang   2  100.65   43.1    7  3.554   0   3   -7.341%
+case39_epri        J               clean @3   0   99.90    0.0    0  0.000   0   0   +0.112%
+case39_epri        (F+R)         OPF failed 
+case57_ieee        start             DC+ang   0   31.43   15.5    1  0.150   1   4   +0.009%
+case57_ieee        J               clean @7   0   36.25    0.0    0  0.000   0   0   +0.033%
+case57_ieee        (F+R)        fully clean   0   31.29    0.0    0  0.000   0   0   +0.739%
+case73_ieee_rts    start         DC, no ang   0   87.31   37.1   22  7.327   0  21  -16.072%
+case73_ieee_rts    J         not clean (10)   0   97.19    0.0    8  1.608   0   0   -4.359%
+case73_ieee_rts    J+R           OPF failed
+case73_ieee_rts    (F+R)         OPF failed 
+case118_ieee       start         DC, no ang   4  114.44    0.0    7  8.872   0  26   -6.911%
+case118_ieee       J         not clean (10)   1  100.03    0.0    0  0.000   0   0   +0.394%
+case118_ieee       J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.317%
+case118_ieee       (F+R)         OPF failed 
+case162_ieee_dtc   start             DC+ang   8  132.41    0.0    1  1.136   6   1   -3.522%
+case162_ieee_dtc   J              clean @10   0   99.93    0.0    0  0.000   0   0   +0.514%
+case162_ieee_dtc   (F+R)         OPF failed 
+case179_goc        start         DC, no ang   8  117.05    0.0   15 11.725  13   0   -0.267%
+case179_goc        J         not clean (10)   0   99.94    0.0    0  0.000   0   1   +0.883%
+case179_goc        J+R          fully clean   0   99.69    0.0    0  0.000   0   0   +0.882%
+case179_goc        (F+R)         OPF failed 
+case200_activ      start         DC, no ang   0   71.25    0.0    4  0.719   0   1   +0.050%
+case200_activ      J               clean @3   0   71.15    0.0    0  0.000   0   0   +0.004%
+case200_activ      (F+R)        fully clean   0   71.26    0.0    0  0.000   0   0   +0.000%
+case240_pserc      start         DC, no ang  18  125.75 1738.8   31  6.698   2   6   -2.160%
+case240_pserc      J         not clean (10)   2  100.05    8.2    0  0.000   0   4   +0.405%
+case240_pserc      J+R          fully clean   0  100.00    0.0    0  0.000   0   0   +0.371%
+case240_pserc      (F+R)         OPF failed 
+case300_ieee       AC OPF did not converge: no reference, skipped
+
+Summary (cases with an AC optimum and a start):
+  TYP (12): J fully clean 8 (P-clean 8); J or J+R fully clean 11; baselines: F P-clean 8, F+R fully clean 7, O fully clean 5
+      J fully clean cost vs AC opt: mean +0.079 %, median +0.040 %, range +0.003 to +0.261 %; clean at rounds [1, 2, 4, 6, 6, 6, 8, 10]
+  API (11): J fully clean 4 (P-clean 6); J or J+R fully clean 8; baselines: F P-clean 2, F+R fully clean 4, O fully clean 6
+      J fully clean cost vs AC opt: mean +0.417 %, median +0.234 %, range +0.073 to +1.127 %; clean at rounds [3, 7, 7, 10]
+  SAD (11): J fully clean 7 (P-clean 8); J or J+R fully clean 10; baselines: F P-clean 2, F+R fully clean 5, O fully clean 6
+      J fully clean cost vs AC opt: mean +0.685 %, median +0.112 %, range +0.004 to +3.845 %; clean at rounds [2, 3, 3, 6, 7, 7, 10]
+  All sets (34): J fully clean 19; J+R adds 10; F+R fully clean 16; O (oracle schedule) fully clean 17
+  Run time, all cases: this script 1401 s (milestone 3's run_vsched: 857 s, which also ran the O arm and two reactive stages)
+Run time: case14_ieee/typ 1s, case24_ieee_rts/typ 1s, case30_ieee/typ 1s, case39_epri/typ 1s, case57_ieee/typ 1s, case73_ieee_rts/typ 4s, case118_ieee/typ 8s, case162_ieee_dtc/typ 4s, case179_goc/typ 11s, case200_activ/typ 1s, case240_pserc/typ 69s, case300_ieee/typ 2s, case14_ieee/api 0s, case24_ieee_rts/api 5s, case30_ieee/api 1s, case39_epri/api 1s, case57_ieee/api 2s, case73_ieee_rts/api 114s, case118_ieee/api 74s, case162_ieee_dtc/api 5s, case179_goc/api 3s, case200_activ/api 20s, case240_pserc/api 123s, case300_ieee/api 646s, case14_ieee/sad 0s, case24_ieee_rts/sad 1s, case30_ieee/sad 1s, case39_epri/sad 1s, case57_ieee/sad 1s, case73_ieee_rts/sad 67s, case118_ieee/sad 19s, case162_ieee_dtc/sad 3s, case179_goc/sad 14s, case200_activ/sad 5s, case240_pserc/sad 188s, case300_ieee/sad 1s
+
+Analytic (A) against finite-difference (FD) sensitivities, same variant (results_vlin_margin.json):
+case               kind         FD          A   FD+R    A+R  dCost pp    FD s     A s  A PFs
+case14_ieee        typ          @4         @4   True   True   +0.0207     0.3     0.2      9
+case24_ieee_rts    typ          @1         @2   True   True   -0.0952     0.4     0.2      5
+case30_ieee        typ         @10         @6   True   True   -0.5844     1.1     0.5     13
+case39_epri        typ          @6         @6   True   True   -0.0001     1.0     0.3     13
+case57_ieee        typ          no         no   True   True               1.1     0.6     21
+case73_ieee_rts    typ          @2         @6   True   True   -0.1100     2.8     3.9     13
+case118_ieee       typ          no         no   True   True              12.8     6.9     21
+case162_ieee_dtc   typ          @9         @8   True   True   +0.0124     4.3     3.2     17
+case179_goc        typ          no        @10  False   True               8.3     5.7     21
+case200_activ      typ          @1         @1   True   True   +0.0000     0.9     0.3      3
+case240_pserc      typ          no         no   True   True              79.9    65.4     21
+case300_ieee       typ          no         no  False  False               0.1     0.2      2
+case14_ieee        api          @2         @3   True   True   +0.2453     0.2     0.2      7
+case24_ieee_rts    api          no         no   True   True               5.8     3.7     21
+case30_ieee        api          no         @7   True   True               1.7     0.8     15
+case39_epri        api          @7         @7   True   True   -0.0029     1.0     0.8     15
+case57_ieee        api          no         no   True   True               1.5     1.1     21
+case73_ieee_rts    api          no         no  False  False              93.7   112.6     19
+case118_ieee       api          no         no  False  False              67.2    72.3     21
+case162_ieee_dtc   api          no         no   True   True               4.5     3.6     21
+case200_activ      api          @9        @10   True   True   -0.0186    20.0    19.5     21
+case240_pserc      api          no         no   True   True             122.2   118.6     21
+case300_ieee       api          no         no  False  False             623.1   644.1     11
+case14_ieee        sad          @3         @2   True   True   +3.0799     0.3     0.1      5
+case24_ieee_rts    sad          @5         @6   True   True   -0.0016     1.7     0.7     13
+case30_ieee        sad          @3         @7   True   True   -0.3674     0.3     0.3     15
+case39_epri        sad          @3         @3   True   True   +0.0005     0.5     0.3      7
+case57_ieee        sad         @10         @7   True   True   +0.0008     1.2     0.4     15
+case73_ieee_rts    sad          @9         no   True  False              27.8    65.2     21
+case118_ieee       sad          no         no   True   True              22.4    18.1     21
+case162_ieee_dtc   sad         @10        @10   True   True   +0.0187     4.8     2.7     21
+case179_goc        sad          no         no   True   True              14.7    11.7     21
+case200_activ      sad          @3         @3   True   True   +0.0001     5.2     4.5      7
+case240_pserc      sad          no         no  False   True             358.4   184.1     21
+  34 cases: fully clean FD 18, A 19 (same verdict on 31); with the reactive stage FD 28, A 29
+  cost difference A - FD where both fully clean (17): max |d| 3.0799 pp, mean +0.1293 pp
+  repair time (J only, summed): FD 1491 s, A 1353 s (1.1x); A ran 519 AC power flows in its repairs

@@ -805,6 +805,19 @@ test('a category page in no sitemap is reported', async () => {
   );
 });
 
+test('pages written after the newest sitemap are grouped into one line that says why', async () => {
+  const dir = await siteWith({ ...CATEGORY_SITE, 'sitemap-hub.xml': urlset('') });
+  // A standalone generator (writing.mjs --out=dist) ran a minute after build.mjs.
+  const later = new Date(Date.now() + 60_000);
+  await fs.utimes(path.join(dir, 'c/trades/index.html'), later, later);
+  const problems = await checkSite(dir);
+  assert.ok(!problems.some((p) => p.includes('c/trades/index.html: served but absent')), problems.join('\n'));
+  assert.ok(
+    problems.some((p) => /^1 page\(s\) absent from every sitemap were written after the newest sitemap \(c\/trades\/index\.html\)/.test(p)),
+    problems.join('\n'),
+  );
+});
+
 // ---- Snippet budget --------------------------------------------------------
 //
 // The defect this guards is drift, not a one-off: a description grows a clause

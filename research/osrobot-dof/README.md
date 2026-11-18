@@ -14,8 +14,8 @@ Follow-up to `osrobot-assist` (track 9, open-source purpose-built robots), takin
 ## Reproduce
 ```bash
 cd research/osrobot-dof
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 7 tests, under a second
-PYTHONPATH=src python3 experiments/run.py                 # about 20 s; writes experiments/results.txt
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, under a second
+PYTHONPATH=src python3 experiments/run.py                 # about 3 s; writes experiments/results.txt
 python3 experiments/figure.py                             # experiments/tip_mass.svg, parsed from results.txt
 ```
 
@@ -31,6 +31,9 @@ The assistive-robotics and human-robot collaboration interests of the CAIRO Lab 
 ## Limitations
 - One pose, one planar arm, point masses for links; no joint limits, torque limits, friction, backlash or gearbox compliance. Reflected rotor inertia is the dominant term and is assumed, not measured; the real value for a given servo should replace it.
 - The extra benefits of more joints are absent by construction (see above), so this cannot argue for a 2-joint arm in practice, only that lip contact does not.
+- **The flat lip-force result is partly built in by the gain choice** (found by the quality audit of 2026-11-12, [`portfolio/quality/audits/2026-11-12-osrobot-dof.json`](../../portfolio/quality/audits/2026-11-12-osrobot-dof.json)). Holding the damping ratio at 1.28 makes the damping gain grow with the square root of the tip mass, so a heavier arm approaches more slowly (0.099 m/s for 2 joints, 0.110 m/s for 6, 0.143 m/s at 0.30 kg, all at the nominal 0.20 m/s) and the linear-spring impact estimate v·√(K·m) comes out at 2.213 N for every mass. With `osrobot-assist`'s fixed damping gain (28 N s/m) instead, heavier arms do press harder at 0.20 m/s: worst peak 4.00 N (0.30 kg), 4.07 N (6 joints) and 4.25 N (2 joints), safe share 0.71, 0.67 and 0.65. The 4.0 N worst peak itself is the stall push KP·LEAD·v, which does not depend on mass. So "joint count does not matter" holds for a controller tuned to each arm's mass, not for one fixed controller.
+- The reported tip mass is Λ_xx, the x entry of the operational-space mass matrix. The effective mass for an impact along one direction, 1/(uᵀΛ⁻¹u) (Khatib 1995), is 7 to 19% lower (0.58 vs 0.63 kg for 2 joints). The rotor inertia of 1e-7 kg m² sets about 80% of the mass and is not sourced.
+- Prior work on impact and effective mass (Khatib 1995; Haddadin et al. on collision safety; ISO/TS 15066 body-region limits) and on low-joint feeding devices (Obi, My Spoon, Bestic) is not reviewed here; "the mass is mostly the gearbox" is a known result.
 - The user is passive, the lip wall and 2 N comfort limit are the assumed ones from `osrobot-assist`, and nothing here is a safety case. ISO 13482 (personal-care robots) and a risk assessment apply before any test with a person.
 - The servo cost is the only priced part, so it is a lower bound on a bill of materials, and a single retailer's price on one day.
 

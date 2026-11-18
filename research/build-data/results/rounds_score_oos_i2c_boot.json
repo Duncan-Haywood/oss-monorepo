@@ -1,0 +1,465 @@
+{
+ "note": "session 100: cascade2 transfer model, q0.9 mean pinball loss over 3 seeds (days); pick = lowest q0.9 pinball on the target city's own Y-6 permits completed by D = 1 January Y (session 99's k6_loss); bootstrap: 2000 row resamples (iid over permits), seed 100",
+ "cells": [
+  {
+   "held": "sf",
+   "year": 2019,
+   "n_k6_done": 20826,
+   "n_k6": 33348,
+   "n_test_done": 23496,
+   "test_q90": {
+    "cpin_es3_nc3": 83.3078649348975,
+    "cpin_es3_nc5": 82.17087599500668,
+    "cpin_es3_nc5_stamp": 82.53115151316024,
+    "cpin_es3_nc5_stamp_len": 81.67965753560702
+   },
+   "oracle": "cpin_es3_nc5_stamp_len",
+   "k6": {
+    "cpin_es3_nc3": 60.61476805690244,
+    "cpin_es3_nc5": 68.02064698591563,
+    "cpin_es3_nc5_stamp": 69.7615812686031,
+    "cpin_es3_nc5_stamp_len": 66.27950733831813
+   },
+   "pick": "cpin_es3_nc3",
+   "regret": 1.6282073992904742,
+   "k6_nc5_minus_nc3": 7.405878929013191,
+   "test_nc5_minus_nc3": -1.1369889398908128,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 1.0,
+   "boot_k6_same_side": 1.0,
+   "boot_k6_nc5_minus_nc3_ci": [
+    6.913573360443115,
+    7.912340259552002
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 1.0
+   },
+   "boot_test_oracle_side": 1.0,
+   "boot_test_nc5_minus_nc3_ci": [
+    -1.745159912109375,
+    -0.5467428207397462
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ]
+  },
+  {
+   "held": "sf",
+   "year": 2020,
+   "n_k6_done": 21483,
+   "n_k6": 34499,
+   "n_test_done": 13803,
+   "test_q90": {
+    "cpin_es3_nc3": 79.05358622322974,
+    "cpin_es3_nc5": 77.96732962924091,
+    "cpin_es3_nc5_stamp": 78.86372397631233,
+    "cpin_es3_nc5_stamp_len": 78.22010161698385
+   },
+   "oracle": "cpin_es3_nc5",
+   "k6": {
+    "cpin_es3_nc3": 61.589447619853,
+    "cpin_es3_nc5": 65.64980257675639,
+    "cpin_es3_nc5_stamp": 67.51632935136287,
+    "cpin_es3_nc5_stamp_len": 65.40298691531216
+   },
+   "pick": "cpin_es3_nc3",
+   "regret": 1.0862565939888356,
+   "k6_nc5_minus_nc3": 4.060354956903389,
+   "test_nc5_minus_nc3": -1.0862565939888356,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 1.0,
+   "boot_k6_same_side": 1.0,
+   "boot_k6_nc5_minus_nc3_ci": [
+    3.6707712173461915,
+    4.466160488128662
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 0.0015,
+    "cpin_es3_nc5": 0.9395,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.059
+   },
+   "boot_test_oracle_side": 0.9984999999999999,
+   "boot_test_nc5_minus_nc3_ci": [
+    -1.7567169189453125,
+    -0.43795299530029436
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ]
+  },
+  {
+   "held": "sf",
+   "year": 2021,
+   "n_k6_done": 22501,
+   "n_k6": 37230,
+   "n_test_done": 18709,
+   "test_q90": {
+    "cpin_es3_nc3": 70.79361141817806,
+    "cpin_es3_nc5": 72.35000701709188,
+    "cpin_es3_nc5_stamp": 72.77059764038795,
+    "cpin_es3_nc5_stamp_len": 72.29355266033956
+   },
+   "oracle": "cpin_es3_nc3",
+   "k6": {
+    "cpin_es3_nc3": 60.917466814456795,
+    "cpin_es3_nc5": 65.73350071386011,
+    "cpin_es3_nc5_stamp": 66.72658579927138,
+    "cpin_es3_nc5_stamp_len": 65.23488150460228
+   },
+   "pick": "cpin_es3_nc3",
+   "regret": 0.0,
+   "k6_nc5_minus_nc3": 4.816033899403315,
+   "test_nc5_minus_nc3": 1.5563955989138236,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 1.0,
+   "boot_k6_same_side": 1.0,
+   "boot_k6_nc5_minus_nc3_ci": [
+    4.3622636795043945,
+    5.260611248016357
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_test_oracle_side": 1.0,
+   "boot_test_nc5_minus_nc3_ci": [
+    0.9354131698608399,
+    2.1827146530151365
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ]
+  },
+  {
+   "held": "sf",
+   "year": 2022,
+   "n_k6_done": 22355,
+   "n_k6": 37119,
+   "n_test_done": 17730,
+   "test_q90": {
+    "cpin_es3_nc3": 58.164812844803286,
+    "cpin_es3_nc5": 61.20789694314692,
+    "cpin_es3_nc5_stamp": 62.28085384307146,
+    "cpin_es3_nc5_stamp_len": 61.638828324608774
+   },
+   "oracle": "cpin_es3_nc3",
+   "k6": {
+    "cpin_es3_nc3": 70.00306781808113,
+    "cpin_es3_nc5": 71.55435374293006,
+    "cpin_es3_nc5_stamp": 72.65005654386496,
+    "cpin_es3_nc5_stamp_len": 72.14001085642575
+   },
+   "pick": "cpin_es3_nc3",
+   "regret": 0.0,
+   "k6_nc5_minus_nc3": 1.5512859248489264,
+   "test_nc5_minus_nc3": 3.043084098343634,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 1.0,
+   "boot_k6_same_side": 1.0,
+   "boot_k6_nc5_minus_nc3_ci": [
+    1.0342039108276366,
+    2.0480148315429685
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_test_oracle_side": 1.0,
+   "boot_test_nc5_minus_nc3_ci": [
+    2.4848469734191894,
+    3.5775092124938963
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ]
+  },
+  {
+   "held": "seattle",
+   "year": 2019,
+   "n_k6_done": 5624,
+   "n_k6": 6681,
+   "n_test_done": 5909,
+   "test_q90": {
+    "cpin_es3_nc3": 82.25331007698172,
+    "cpin_es3_nc5": 80.79278907576246,
+    "cpin_es3_nc5_stamp": 81.09008400225362,
+    "cpin_es3_nc5_stamp_len": 81.17282300104758
+   },
+   "oracle": "cpin_es3_nc5",
+   "k6": {
+    "cpin_es3_nc3": 57.410190488784586,
+    "cpin_es3_nc5": 59.635146137367734,
+    "cpin_es3_nc5_stamp": 59.90941368556299,
+    "cpin_es3_nc5_stamp_len": 59.37741505583341
+   },
+   "pick": "cpin_es3_nc3",
+   "regret": 1.4605210012192629,
+   "k6_nc5_minus_nc3": 2.2249556485831476,
+   "test_nc5_minus_nc3": -1.4605210012192629,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 1.0,
+    "cpin_es3_nc5": 0.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 1.0,
+   "boot_k6_same_side": 1.0,
+   "boot_k6_nc5_minus_nc3_ci": [
+    1.2349013328552245,
+    3.1687761306762687
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 0.015,
+    "cpin_es3_nc5": 0.9455,
+    "cpin_es3_nc5_stamp": 0.033,
+    "cpin_es3_nc5_stamp_len": 0.0065
+   },
+   "boot_test_oracle_side": 0.985,
+   "boot_test_nc5_minus_nc3_ci": [
+    -2.7983245849609375,
+    -0.14719161987304785
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ]
+  },
+  {
+   "held": "seattle",
+   "year": 2020,
+   "n_k6_done": 6205,
+   "n_k6": 7352,
+   "n_test_done": 4492,
+   "test_q90": {
+    "cpin_es3_nc3": 99.75021527573604,
+    "cpin_es3_nc5": 95.31070073441913,
+    "cpin_es3_nc5_stamp": 95.50915225631546,
+    "cpin_es3_nc5_stamp_len": 96.32204656839042
+   },
+   "oracle": "cpin_es3_nc5",
+   "k6": {
+    "cpin_es3_nc3": 62.66944642847374,
+    "cpin_es3_nc5": 64.19814458586404,
+    "cpin_es3_nc5_stamp": 63.951742078226054,
+    "cpin_es3_nc5_stamp_len": 65.00890833347663
+   },
+   "pick": "cpin_es3_nc3",
+   "regret": 4.43951454131691,
+   "k6_nc5_minus_nc3": 1.528698157390302,
+   "test_nc5_minus_nc3": -4.43951454131691,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 0.987,
+    "cpin_es3_nc5": 0.0005,
+    "cpin_es3_nc5_stamp": 0.0125,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 0.987,
+   "boot_k6_same_side": 0.987,
+   "boot_k6_nc5_minus_nc3_ci": [
+    0.48404502868652344,
+    2.596055793762207
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.8225,
+    "cpin_es3_nc5_stamp": 0.1775,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_test_oracle_side": 1.0,
+   "boot_test_nc5_minus_nc3_ci": [
+    -6.175665664672851,
+    -2.7717245101928714
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc3",
+    "cpin_es3_nc3",
+    "cpin_es3_nc3"
+   ]
+  },
+  {
+   "held": "seattle",
+   "year": 2021,
+   "n_k6_done": 6330,
+   "n_k6": 7572,
+   "n_test_done": 4859,
+   "test_q90": {
+    "cpin_es3_nc3": 91.0691272883791,
+    "cpin_es3_nc5": 85.61259454765288,
+    "cpin_es3_nc5_stamp": 86.60159905852957,
+    "cpin_es3_nc5_stamp_len": 88.07392077481421
+   },
+   "oracle": "cpin_es3_nc5",
+   "k6": {
+    "cpin_es3_nc3": 63.685062407926786,
+    "cpin_es3_nc5": 62.869048045319765,
+    "cpin_es3_nc5_stamp": 64.04749662833574,
+    "cpin_es3_nc5_stamp_len": 63.73170196600311
+   },
+   "pick": "cpin_es3_nc5",
+   "regret": 0.0,
+   "k6_nc5_minus_nc3": -0.8160143626070209,
+   "test_nc5_minus_nc3": -5.456532740726217,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 0.038,
+    "cpin_es3_nc5": 0.962,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 0.962,
+   "boot_k6_same_side": 0.962,
+   "boot_k6_nc5_minus_nc3_ci": [
+    -1.7104253768920898,
+    0.0781723022460927
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 1.0,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_test_oracle_side": 1.0,
+   "boot_test_nc5_minus_nc3_ci": [
+    -6.699127197265625,
+    -4.273288154602051
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc5",
+    "cpin_es3_nc5",
+    "cpin_es3_nc5"
+   ]
+  },
+  {
+   "held": "seattle",
+   "year": 2022,
+   "n_k6_done": 6648,
+   "n_k6": 8042,
+   "n_test_done": 4777,
+   "test_q90": {
+    "cpin_es3_nc3": 73.85503227627184,
+    "cpin_es3_nc5": 69.90645640821818,
+    "cpin_es3_nc5_stamp": 69.99974775204431,
+    "cpin_es3_nc5_stamp_len": 70.72791792309789
+   },
+   "oracle": "cpin_es3_nc5",
+   "k6": {
+    "cpin_es3_nc3": 65.99316027051565,
+    "cpin_es3_nc5": 65.06921274339112,
+    "cpin_es3_nc5_stamp": 65.69404559550475,
+    "cpin_es3_nc5_stamp_len": 65.73901111981154
+   },
+   "pick": "cpin_es3_nc5",
+   "regret": 0.0,
+   "k6_nc5_minus_nc3": -0.9239475271245254,
+   "test_nc5_minus_nc3": -3.9485758680536662,
+   "boot_k6_pick_share": {
+    "cpin_es3_nc3": 0.009,
+    "cpin_es3_nc5": 0.991,
+    "cpin_es3_nc5_stamp": 0.0,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_k6_same_pick": 0.991,
+   "boot_k6_same_side": 0.991,
+   "boot_k6_nc5_minus_nc3_ci": [
+    -1.7093391418457031,
+    -0.14261798858642602
+   ],
+   "boot_test_pick_share": {
+    "cpin_es3_nc3": 0.0,
+    "cpin_es3_nc5": 0.711,
+    "cpin_es3_nc5_stamp": 0.289,
+    "cpin_es3_nc5_stamp_len": 0.0
+   },
+   "boot_test_oracle_side": 1.0,
+   "boot_test_nc5_minus_nc3_ci": [
+    -5.1450050354003904,
+    -2.8495153427124027
+   ],
+   "rows_check_max_abs": 7.62939453125e-06,
+   "pick_per_seed": [
+    "cpin_es3_nc5",
+    "cpin_es3_nc5_stamp",
+    "cpin_es3_nc5_stamp_len"
+   ]
+  }
+ ],
+ "fixed_mean_new": {
+  "cpin_es3_nc3": 86.09124412771125,
+  "cpin_es3_nc5": 84.0604238586073,
+  "cpin_es3_nc5_stamp": 84.49852793701041,
+  "cpin_es3_nc5_stamp_len": 84.34865718050722
+ },
+ "selected_mean_new": 86.09124412771125,
+ "mean_regret_new": 2.1536248839538708,
+ "hits_new": 0,
+ "side_hits_new": 0,
+ "refit_minus_s99_max_abs": {
+  "sf 2021 cpin_es3_nc3": 0.0,
+  "sf 2021 cpin_es3_nc5": 0.0,
+  "sf 2021 cpin_es3_nc5_stamp": 0.0,
+  "sf 2021 cpin_es3_nc5_stamp_len": 0.0,
+  "sf 2022 cpin_es3_nc3": 0.0,
+  "sf 2022 cpin_es3_nc5": 0.0,
+  "sf 2022 cpin_es3_nc5_stamp": 0.0,
+  "sf 2022 cpin_es3_nc5_stamp_len": 0.0,
+  "seattle 2021 cpin_es3_nc3": 0.0,
+  "seattle 2021 cpin_es3_nc5": 0.0,
+  "seattle 2021 cpin_es3_nc5_stamp": 0.0,
+  "seattle 2021 cpin_es3_nc5_stamp_len": 0.0,
+  "seattle 2022 cpin_es3_nc3": 0.0,
+  "seattle 2022 cpin_es3_nc5": 0.0,
+  "seattle 2022 cpin_es3_nc5_stamp": 0.0,
+  "seattle 2022 cpin_es3_nc5_stamp_len": 0.0
+ },
+ "predictions": {
+  "R0": true,
+  "R1": false,
+  "R2": false,
+  "R3": false,
+  "R4": false,
+  "R5": true
+ }
+}

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJRbrKM5yN7wrodk85",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T04:07:44Z",
+  "ended": "2026-11-17T05:26:18Z",
+  "wall_minutes": 78.83,
+  "tokens_in": 5749252,
+  "tokens_out": 26968,
+  "cost_usd": 2.6303,
+  "tool_calls": 53,
+  "task": "research/build-data session 100: replicate session 99's Y-6 target-cohort selector on test years 2019, 2020 and Austin held out",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16810",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "f884eb495",
+    "a6b6bbc7e"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "status_pull.py crashed with FileNotFoundError because its output directory did not exist; reran after mkdir (about 2 min lost)",
+    "a backgrounded `cd ... && (...) &` list ran in a subshell, so the next command's relative cd failed and the first pull never started; relaunched"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/build-data/src/status_pull.py",
+      "issue": "does not create its output directory (permits.py pull does), so a fresh session's first status pull crashes after the 20-minute feed pull (fixed in this PR: it now makes the directory)"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "no lightgbm on any interpreter in this container although session 99 ran on /usr/bin/python3.13; pyenv.py -r requirements.txt fixed it in the background, as documented"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-build-data-six-year-selector-does-not-replicate.md",
+    "research/build-data/LOG.md (session 100)"
+  ],
+  "goal": "advance an open research programme with a pre-registered replication",
+  "notes": "Pre-registered H1-H6 (commit f884eb495) before any model run. Pull 2026-11-17, row counts identical to sessions 95-99. 6 cells x 4 candidates x 3 seeds on python3.13, ~47 min. Result: the session 99 selector does not replicate (0 of 4 new SF/Seattle cells; every selector picks the 3-year cut while a 5-year rule wins in both cities in 2019-2020); Austin as target: 3-year cut wins by ~16 days and every selector finds it. H5 held; H1-H4, H6 refuted. Local checks: build-data tests 160 passed, 2 skipped; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; post front matter, links and similarity ok; run_workflow_locally --for-changes (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "52dda145-db7d-589c-95ec-cde2192f3381",
+    "transcripts": 1,
+    "first": "2026-11-17T04:07:44Z",
+    "last": "2026-11-17T05:26:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 101,
+        "output": 26968,
+        "thinking": 6126,
+        "cache_read": 5628542,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120609,
+        "api_equivalent_usd": 2.6303,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 101,
+      "output": 26968,
+      "thinking": 6126,
+      "cache_read": 5628542,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120609,
+      "api_equivalent_usd": 2.6303,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 53,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 78.83,
+      "active_minutes": 78.83,
+      "model_minutes": 5.38,
+      "tool_minutes": 73.45,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a researcher writing the pre-registration, pulling three feeds, running 72 model fits and writing up a refuted replication",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 304.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

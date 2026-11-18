@@ -51,6 +51,25 @@ class Patterns(unittest.TestCase):
         self.assertEqual(guard.owner_logins(RULES), {"owner"})
 
 
+class MiddleSlashAnchors(unittest.TestCase):
+    """A pattern with a slash in the middle is anchored to the root, as in gitignore."""
+
+    def test_inner_slash_pattern_does_not_match_nested_copy(self):
+        rules = guard.parse_codeowners("docs/*.md @owner\n")
+        self.assertTrue(guard.owners_for("docs/a.md", rules))
+        self.assertFalse(guard.owners_for("ventures/docs/a.md", rules))
+
+
+class MainExitCode(unittest.TestCase):
+    def test_check_coverage_exit_code_follows_problems(self):
+        from unittest import mock
+
+        with mock.patch.object(guard, "check_coverage", return_value=[]):
+            self.assertEqual(guard.main(["--check-coverage"]), 0)
+        with mock.patch.object(guard, "check_coverage", return_value=["x has no code owner"]):
+            self.assertEqual(guard.main(["--check-coverage"]), 1)
+
+
 class QuestionMark(unittest.TestCase):
     def test_question_mark_is_exactly_one_non_slash_character(self):
         rules = guard.parse_codeowners("/key-?.pem @owner\n")
@@ -173,6 +192,40 @@ class AuditCommitPicksFirstMergedPr(unittest.TestCase):
              mock.patch.object(guard, "summarize"):
             guard.main(["--audit-commit", "abc"])
         self.assertEqual(seen, ["/repos/o/r/pulls/1/reviews"])
+
+
+class PagingAndCli(unittest.TestCase):
+    def test_gh_pages_stops_at_limit(self):
+        from unittest import mock
+
+        calls = []
+
+        def full_page(path):
+            calls.append(path)
+            return [1] * 100
+
+        with mock.patch.object(guard, "gh_get", side_effect=full_page):
+            items = guard.gh_pages("/x", limit=3)
+        self.assertEqual(len(calls), 3)
+        self.assertEqual(len(items), 300)
+
+    def test_gh_pages_default_limit_is_30(self):
+        from unittest import mock
+
+        calls = []
+
+        def full_page(path):
+            calls.append(path)
+            return [1] * 100
+
+        with mock.patch.object(guard, "gh_get", side_effect=full_page):
+            guard.gh_pages("/x")
+        self.assertEqual(len(calls), 30)
+
+    def test_a_mode_flag_is_required(self):
+        with self.assertRaises(SystemExit) as cm:
+            guard.main([])
+        self.assertEqual(cm.exception.code, 2)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,165 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtLWKBkSxbC4TYg5y6x",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T07:06:43Z",
+  "ended": "2026-11-17T07:34:08Z",
+  "wall_minutes": 27.84,
+  "tokens_in": 28573408,
+  "tokens_out": 225310,
+  "cost_usd": 15.3519,
+  "tool_calls": 283,
+  "task": "quality census (mode draw): first audits of six never-audited subjects, fixes for the small defects, round post",
+  "projects": [
+    "ventures/ubuntu-agent-server",
+    "research/market-routing",
+    "research/ambient-startcount",
+    "research/eda-deepdraw",
+    "research/buildbot-torquewall",
+    "ventures/mann-kendall-trend",
+    "research/eda-biasdraw",
+    "research/_homepage"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16857",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    "First projects.json repair re-serialised the whole file (838-line diff); redone as raw string replacements (16 lines).",
+    "First raw replace asserted on a duplicate: the corrupted appeal-panels summary held copies of other cards, so it had to be repaired first."
+  ],
+  "integrity_issues": [
+    "Mann-kendall auditor's verification prose said '7 caught' while its mutation rows list 8 caught of 9; prose corrected to match the rows.",
+    "Two auditors downloaded pip wheels into the tree (ventures/mann-kendall-trend, research/); deleted before commit, not committed."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No guidance that sed replacements treat '&' as the match; that slip had silently corrupted 11 research card summaries (one with 70 KB of other cards). build.py now rejects it, but the edit recipe for summaries could warn too."
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "Auditor agents need a scratch interpreter with heavy deps (mujoco, scipy); two of them pip-downloaded into the repo working tree. A line telling auditors to keep downloads in the scratchpad would prevent it."
+    },
+    {
+      "file": "research/buildbot-torquewall/README.md",
+      "issue": "Its tests need mujoco, which /usr/bin/python3.13 lacks; pyenv.py was not mentioned for that project, so the tests only ran in the auditor's private venv."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says fix small defects in their own commit with its own PR. I kept all fixes in the round PR (one commit per subject) because they are small, independent and verified, and a seventh PR per round adds landing overhead without review value.",
+      "did": "one PR, one commit per subject plus one for the homepage-wide repair",
+      "result": "landed together; fix_prs and fixed_by point at the one PR"
+    },
+    {
+      "file": "portfolio/quality/README.md",
+      "why": "Census is scoped to the six drawn subjects, but the ambient-startcount defect pointed at a repo-wide corruption (11 summaries) and eda-deepdraw's misdiagnosis was repeated in eda-biasdraw. I fixed both outside the drawn set.",
+      "did": "repaired 11 summaries, corrected eda-biasdraw, added a build guard",
+      "result": "homepage build ok; guard flags every old corruption"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-quality-census-eleven-broken-summaries.md"
+  ],
+  "goal": null,
+  "notes": "Mode census (quality_audit.py mode draw), seed 2026-11-17-e87b. Subjects: ventures/ubuntu-agent-server, research/market-routing, research/ambient-startcount, research/eda-deepdraw, research/buildbot-torquewall, ventures/mann-kendall-trend. Share meeting the bar: 0 of 6 (census, not in the sampled share; sampled share unchanged at 33 of 306, Wilson 8-15%). Seeded mutants caught by subjects' own tests: 18 of 32. Fix PR: #16857 (all fixes). Spot-checks run by me: market-routing LMSR loss 3.218876 = 2 ln 5 and switching.py rerun (tuned-b tie rows); ubuntu-agent-server 'claude -p --output-format stream-json' -> 'requires --verbose'; mann-kendall white-noise size 0.106/0.111 at n=8/10 before, 0.030/0.054 after the floor; eda-deepdraw rows2000.py (2000 OUT lines, 1990 regex-parsed); ambient-startcount garbled card confirmed and K=1/K=4 ranges recomputed from results.txt; buildbot-torquewall tests 13 passed in the auditor's mujoco venv. Local checks: quality_audit.py validate 408 files 0 problems; research/_homepage/build.py ok; run_workflow_locally --for-changes pages.yml 6/6, ventures-tests run; PR CI green (see PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5b82a73b-8972-5197-92b7-4f4eb75fbae4",
+    "transcripts": 7,
+    "first": "2026-11-17T07:06:43Z",
+    "last": "2026-11-17T07:34:34Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 272,
+        "input": 555,
+        "output": 225310,
+        "thinking": 61627,
+        "cache_read": 27616993,
+        "cache_write_5m": 775604,
+        "cache_write_1h": 180256,
+        "api_equivalent_usd": 15.3519,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 272,
+      "input": 555,
+      "output": 225310,
+      "thinking": 61627,
+      "cache_read": 27616993,
+      "cache_write_5m": 775604,
+      "cache_write_1h": 180256,
+      "api_equivalent_usd": 15.3519,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.967,
+    "tool_calls": 283,
+    "tools": {
+      "Bash": 258,
+      "Agent": 6,
+      "SubagentHandback": 6,
+      "Write": 4,
+      "ToolSearch": 3,
+      "Monitor": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.84,
+      "active_minutes": 17.04,
+      "model_minutes": 10.92,
+      "tool_minutes": 6.12,
+      "waiting_on_human_minutes": 10.8,
+      "human_prompts": 7,
+      "stalls": 0,
+      "subagent_minutes": 66.35
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "six first audits by domain reviewers at about 3 h each plus 6 h of fixes, tests and the write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 156.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

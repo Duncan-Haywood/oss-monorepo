@@ -80,3 +80,15 @@ test("csv neutralises spreadsheet formulas and lists dropped brands", () => {
   assert.match(csv, /Dropped/);
   assert.match(csv, /Loser/);
 });
+
+// Quality audit 2026-11-10: seeded WEEKS_PER_MONTH=4 left every test green. Pin the
+// constant and the worked example against a hand computation done outside calc.mjs.
+test("weeks per month is 52/12 and the example's numbers match a hand computation", () => {
+  assert.equal(WEEKS_PER_MONTH, 52 / 12);
+  // smash burger: 24*(1-.34-.27) - 1.00 - (5/60)*18 = 6.86 per order; 185/wk
+  const { items } = cleanItems([brand({ orders: 185, aov: 24, foodPct: 34, platformPct: 27, packaging: 1, prepMin: 5, fixed: 250 })], 18);
+  assert.ok(Math.abs(items[0].perOrder - 6.86) < 1e-9);
+  assert.ok(Math.abs(profitOf(items[0]) - 5249.4333333) < 1e-4);
+  const a = analyze(EXAMPLE_ITEMS, EXAMPLE_SHARED);
+  assert.ok(Math.abs(a.profit - 9026.67) < 0.01);
+});

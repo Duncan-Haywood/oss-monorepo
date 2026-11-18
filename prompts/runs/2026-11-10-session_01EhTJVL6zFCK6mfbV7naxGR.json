@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01EhTJVL6zFCK6mfbV7naxGR",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo to develop, deploy, market and sell revenue-generating software products; merge when done.",
+  "input_sha256": "3c58911021ff84e72653d5cb361a685b68fd3dfd2480d1de1bf8cde3eacea18e",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T05:08:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder: time zone suffix read as PM in the hourly sales reader",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 14437,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": false,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/posts",
+      "issue": "Post front-matter limits (description 160, seo_title 70, one spelling per tag) only fail in CI; no local one-liner is named in CLAUDE.md. check_post_frontmatter.py plus platform/pages/writing.test.mjs would have caught all four."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Router sent the run to the process track; the scheduled brief asked for venture product work, so I shipped a venture fix instead.",
+      "did": "Fixed a silent wrong-data bug in ventures/shift-roster-builder/demand.mjs",
+      "result": "PST/PDT no longer read as PM; 21 demand tests and 29 page/CLI tests pass locally"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Main was green (54/54 main_health) at start. PR CI first run failed on my post (169-char description, bug-fix vs bugfix tag) and on #14435's post on main (168-char description, 73-char seo_title); fixed both here. Local: demand.test.mjs 21 pass; page-sales+cli 29 pass; platform/pages podcast+writing tests 44 pass. Inputs were made-up rows; no real POS export tried.",
+  "corrections": [],
+  "redteam": null
+}

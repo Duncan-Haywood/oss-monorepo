@@ -4,7 +4,7 @@
 export function parseCsv(text) {
   const rows = [];
   let row = [], cell = "", quoted = false;
-  const src = String(text).replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const src = String(text).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
@@ -24,7 +24,7 @@ export function parseCsv(text) {
 export function parseMoney(s) {
   const t = String(s ?? "").trim();
   if (!t) return null;
-  const neg = /^\(.*\)$/.test(t) || /^-/.test(t);
+  const neg = /^\(.*\)$/.test(t) || /^[^0-9]*[-−–—]/.test(t);
   const n = Number(t.replace(/[()$,\s-]/g, ""));
   return Number.isFinite(n) && /\d/.test(t) ? (neg ? -n : n) : null;
 }
@@ -154,4 +154,4 @@ export function toCsv(result) {
   return lines.join("\n") + "\n";
 }
 
-export const money = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));

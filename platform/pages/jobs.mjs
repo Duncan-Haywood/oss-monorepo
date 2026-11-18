@@ -61,6 +61,7 @@
 /** The one `localStorage` key. Device-local, like every other signal here. */
 
 import { readFileSync } from 'node:fs';
+import { BAR_ALIGN_JS } from './bar-align.mjs';
 export const SAVED_BIDS_KEY = 'portfolio-saved-bids';
 
 const JOBS_MARKER = 'pf-jobs';
@@ -2469,6 +2470,45 @@ export function toolTrendSentence(bids, nowMs) {
 }
 
 /**
+ * Where the shop-rates and saved-bids bars go on a tool page: the index just
+ * after the `</header>` that holds the page's `h1`, or -1 when there is no
+ * such header.
+ *
+ * The bars used to sit directly under the site nav, above the heading, so a
+ * first-time visitor's first line on ~170 tools was "Save your rates once"
+ * and a "Saved bids" button, and the tool's own name came third (measured
+ * 2026-11-12: the `h1` started 284 px down at 390 px wide, median of 174
+ * pages). The bars are about the form, so they belong between the heading
+ * block and the form: the name and the one-line pitch first, then "your
+ * rates, your bids", then the inputs they fill.
+ *
+ * 171 of the 174 pages put their `h1` in a `<header>` that closes before the
+ * first form control. Only that shape is trusted. If the header holds an
+ * input, or there is no header around the `h1` (three pages put it inside
+ * `<main>`), this returns -1 and the caller keeps the old place under the nav:
+ * a guess inside a venture's own layout would land somewhere different on
+ * each tool.
+ */
+export function toolHeadingEnd(html) {
+  if (typeof html !== 'string') return -1;
+  const navEnd = (() => {
+    const nav = /<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i.exec(html);
+    return nav ? nav.index + nav[0].length : 0;
+  })();
+  const h1 = html.slice(navEnd).search(/<h1[\s>]/i);
+  if (h1 < 0) return -1;
+  const h1At = navEnd + h1;
+  const before = html.slice(navEnd, h1At);
+  const open = before.search(/<header[\s>][^<]*(?:<(?!\/?header[\s>])[^<]*)*$/i);
+  if (open < 0) return -1;
+  const close = html.indexOf('</header>', h1At);
+  if (close < 0) return -1;
+  const inside = html.slice(h1At, close);
+  if (/<(?:input|select|textarea|form|header)[\s>]/i.test(inside)) return -1;
+  return close + '</header>'.length;
+}
+
+/**
  * Drop the indentation and the whole-line comments from a function's source.
  *
  * These bodies ship inside every one of the ~230 pages the build produces, and
@@ -2781,8 +2821,23 @@ const JOBS_CSS = `
    white card (background, border, radius, shadow). Without these resets the
    bar rendered as an empty white slab jammed against the venture's heading. */
 section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-height:0}
+/* The bar ships hidden and the script reveals it on 'load', after first paint,
+   so it used to push the venture's heading down by its own height (59px, a
+   layout shift of 0.056 on wall-framing-takeoff, measured 2026-11-11). When
+   scripting is on, the space is held from the first paint, invisible (out of
+   the accessibility tree and the tab order) until the script shows it. With
+   scripting off it stays display:none, as before. A browser without the
+   scripting media feature keeps the old behaviour. !important because many
+   ventures declare [hidden]{display:none !important}; screen-only so the print
+   rule below still wins. */
+@media screen and (scripting:enabled){.pf-jobs[hidden][data-pf-jobs-root]{display:block !important;visibility:hidden}}
 .pf-jobs-line{margin:0;display:flex;flex-wrap:wrap;gap:6px 10px;align-items:baseline}
 .pf-jobs-status{opacity:.82}
+/* A tool with a shareable link adds "Copy link to this bid" to this row. On a
+   phone the three do not fit, and the sentence used to keep the first button
+   and push the second to a row of its own. The sentence takes the row instead,
+   so the two buttons stay together. */
+@media (max-width:600px){.pf-jobs-line:has(#pf-link-copy) .pf-jobs-status:not(:empty){flex-basis:100%}}
 .pf-jobs button{font:inherit;font-size:.85rem;color:inherit;background:#8080801f;
   border:1px solid #80808059;border-radius:7px;padding:3px 9px;cursor:pointer}
 .pf-jobs button:hover{background:#8080802e}
@@ -2883,6 +2938,24 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
 `;
 
 /**
+ * What the status line says to a visitor with no saved bids.
+ *
+ * It used to say nothing, so a first-time visitor saw a lone grey "Saved bids"
+ * pill under the heading with no word about what it was for (polish reports of
+ * 2026-11-16 flagged it on Wall Framing Takeoff at 1,280 px), while the
+ * shop-rates bar beside it has always opened with a sentence. This is the same
+ * pattern: in the built markup, so the line holds its height from first paint
+ * and a crawler reads what the feature is, and written again by the script on
+ * start (the two must match; `jobs.test.mjs` asserts it). It names only what
+ * the panel actually does: save, then mark won or lost. It is short on purpose:
+ * at 390 px it fits beside the button on every band page that has no share
+ * button (135 of 168 measured), so a phone loses no height to it; a longer
+ * first draft ("Keep this bid by name, then mark it won or lost.") wrapped on
+ * all of them and pushed the form 26 px down.
+ */
+export const JOBS_FIRST_VISIT_STATUS = 'Save bids, mark them won or lost.';
+
+/**
  * The prose is rendered at build time and the script only wires it, so what a
  * visitor reads is in the HTML rather than assembled by JavaScript — and so a
  * crawler or an answer engine can see that these tools carry the feature.
@@ -2911,7 +2984,7 @@ section.pf-jobs{background:none;border:0;border-radius:0;box-shadow:none;min-hei
  */
 const JOBS_MARKUP = (toRoot = './', withPriceBand = false) => `<section class="pf-jobs" id="pf-jobs" hidden data-pf-jobs-root>
   <p class="pf-jobs-line">
-    <span class="pf-jobs-status" id="pf-jobs-status" role="status"></span>
+    <span class="pf-jobs-status" id="pf-jobs-status" role="status">${JOBS_FIRST_VISIT_STATUS}</span>
     <button type="button" id="pf-jobs-toggle" aria-expanded="false" aria-controls="pf-jobs-panel">Saved bids</button>
   </p>${withPriceBand ? `
   <p class="pf-jobs-revision" id="pf-jobs-revision" hidden>
@@ -3002,6 +3075,7 @@ ${BID_PRICE_BAND_HELPERS}
 
   var root = document.querySelector('[data-pf-jobs-root]');
   if (!root) return;
+${BAR_ALIGN_JS}
   var el = function(id){ return document.getElementById(id); };
 
   var store = (function(){ try { return window.localStorage; } catch (e) { return null; } })();
@@ -3726,9 +3800,11 @@ ${BID_PRICE_BAND_HELPERS}
     if (formFields().length < MIN_FIELDS) { root.remove(); return; }
 
     root.hidden = false;
+    // Line up with the page's heading, now the bar is in the layout (bar-align.mjs).
+    pfAlignBar(root);
     render();
     var saved = mine().length;
-    if (saved > 0) say(saved === 1 ? '1 saved bid.' : saved + ' saved bids.');
+    say(saved === 1 ? '1 saved bid.' : saved > 1 ? saved + ' saved bids.' : ${JSON.stringify(JOBS_FIRST_VISIT_STATUS)});
 
     var toggle = el('pf-jobs-toggle');
     var setOpen = function(open){
@@ -3881,8 +3957,9 @@ const htmlAttr = (value) => String(value)
  * (`pageTakesSavedBids`), when there is no `<body>` to attach to, or when the
  * bar is already there — the pass has to be safe to run twice.
  *
- * Placed directly after the shop-rates bar when there is one, and under the
- * navigation chrome otherwise, for the reason `injectShopRates` gives: the form
+ * Placed directly after the shop-rates bar when there is one, otherwise just
+ * below the page's heading block (`toolHeadingEnd`), and under the navigation
+ * chrome when the page has no such block, for the reason `injectShopRates` gives: the form
  * is the one part of these pages that is genuinely different from venture to
  * venture, so there is no element every calculator has in the same place. The
  * two bands sit together above the form in the same order on every tool — your
@@ -3922,11 +3999,14 @@ export function injectSavedBids(html, slug = '', toRoot = './') {
 
   const rates = withStyle.match(/<section class="pf-rates"[\s\S]*?<\/section>/i);
   const nav = withStyle.match(/<nav class="pf-chrome pf-chrome-top"[\s\S]*?<\/nav>/i);
-  const anchor = rates ? rates[0] : nav ? nav[0] : null;
+  const headingEnd = toolHeadingEnd(withStyle);
   const markup = JOBS_MARKUP(toRoot, amountSelector !== '');
+  const anchor = rates ? rates[0] : headingEnd < 0 && nav ? nav[0] : null;
   const anchored = anchor
     ? withStyle.replace(anchor, `${anchor}\n${stylePrefix}${markup}`)
-    : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
+    : headingEnd >= 0
+      ? `${withStyle.slice(0, headingEnd)}\n${stylePrefix}${markup}${withStyle.slice(headingEnd)}`
+      : withStyle.replace(bodyOpen[0], `${bodyOpen[0]}\n${stylePrefix}${markup}`);
 
   // A tag, not a body. The script is one file at the site root now — see
   // `renderSavedBidsModule` — and this is the only thing that varies per page.

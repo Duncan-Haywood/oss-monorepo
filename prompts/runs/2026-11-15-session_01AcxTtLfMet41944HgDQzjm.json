@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01AcxTtLfMet41944HgDQzjm",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T04:05:44Z",
+  "ended": "2026-11-15T04:16:12Z",
+  "wall_minutes": 19.09,
+  "tokens_in": 6413697,
+  "tokens_out": 25739,
+  "cost_usd": 2.4708,
+  "tool_calls": 67,
+  "task": "explore: daylight-saving day-step bugs in venture date math",
+  "projects": [
+    "saas-seat-true-up",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16087",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "No agent doc in docs/reports/: the lint's docstring and the post carry what the next run needs.",
+      "did": "post only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-deadline-that-moved-a-day-in-march.md"
+  ],
+  "goal": null,
+  "notes": "Idea: timezone bugs CI cannot see because it runs in UTC. Found saas-seat-true-up subtracting days*MS_PER_DAY from a local-midnight renewal: 2026-04-01 with 30 days' notice showed 2026-03-01 in America/New_York (should be 2026-03-02). Fixed with calendar-day steps plus a TZ=America/New_York child-process test (fails on old code). Added platform/ci/check_dst_day_step.py + test_check_dst_day_step.py (3 unittest cases pass; 0 venture hits after fix, 2 before). Swept every venture test suite under TZ=America/New_York with xargs -P4 and a 120 s per-venture timeout: 1,348 suites, 1,344 passed, 4 timed out under load (changepoint-detector, league-schedule-generator, shed-designer, shift-roster-builder) and passed when rerun alone (698, 517, 514, 611 tests, 0 failures). So 1,348/1,348 pass under New York; the sweep found nothing beyond the code-read bug (the seat tool's own old tests also passed there, since none crossed DST).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0f2344a8-9075-5b54-9da4-86c5d83c37f6",
+    "transcripts": 1,
+    "first": "2026-11-15T04:05:44Z",
+    "last": "2026-11-15T04:24:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 73,
+        "input": 157,
+        "output": 25739,
+        "thinking": 5508,
+        "cache_read": 6327300,
+        "cache_write_5m": 0,
+        "cache_write_1h": 86240,
+        "api_equivalent_usd": 2.4708,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 73,
+      "input": 157,
+      "output": 25739,
+      "thinking": 5508,
+      "cache_read": 6327300,
+      "cache_write_5m": 0,
+      "cache_write_1h": 86240,
+      "api_equivalent_usd": 2.4708,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 56,
+      "Monitor": 4,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.09,
+      "active_minutes": 6.89,
+      "model_minutes": 5.41,
+      "tool_minutes": 1.48,
+      "waiting_on_human_minutes": 12.2,
+      "human_prompts": 9,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "find and fix the DST bug with a TZ test, write and test a lint, run and triage a 1,348-suite sweep, write the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 161.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

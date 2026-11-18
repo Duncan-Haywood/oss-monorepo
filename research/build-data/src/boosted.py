@@ -22,12 +22,16 @@ TAUS = harness.TAUS
 CATS = ["permit_type", "work_class", "area"]
 
 
-def load_frame(path, target):
+def load_frame(path, target, keep_open=False):
+    """Session 91: keep_open=True also keeps rows with a start date and no end date (permits never completed
+    by the pull), labelled y = +inf, so completed_by() drops them and cpin.censor() makes them open rows."""
     a, b = ("applied", "issued") if target == "a2i" else ("issued", "completed")
     df = pd.read_csv(path, dtype=str, keep_default_na=False)
-    df = df[(df[a] != "") & (df[b] != "")].copy()
+    df = df[(df[a] != "") & ((df[b] != "") | keep_open)].copy()
     s, e = pd.to_datetime(df[a], errors="coerce"), pd.to_datetime(df[b], errors="coerce")
-    df["y"] = (e - s).dt.days
+    df["y"] = (e - s).dt.days.astype(float)
+    if keep_open:
+        df.loc[(df[b] == "").to_numpy(), "y"] = np.inf
     neg = int((df["y"] < 0).sum())
     ok = df["y"].notna() & (df["y"] >= 0) & s.notna()
     df, s = df[ok].copy(), s[ok]
@@ -54,16 +58,34 @@ def featurise(tr, others):
     return out
 
 
-def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300):
+def fit_predict(Xtr, ytr, Xca, yca, Xte, seed, n_max=300, fixed=None, classifier=True, w=None, wca=None):
+    """Early-stopped LightGBM quantile models (and the zero-lag classifier). Session 86: with
+    fixed={tau: rounds} no validation set is read (Xca, yca may be None) and each quantile model is
+    trained for exactly that many rounds; classifier=False skips the zero-lag model (returns pz None).
+    Session 88: w / wca are optional per-row weights for the training and early-stopping rows (IPCW).
+    Session 89: w / wca may also be dicts {tau: weights}, one weight vector per quantile model (censored
+    pseudo-rows, transfer.censored_pseudo)."""
     base = dict(learning_rate=0.15, num_leaves=63, min_data_in_leaf=100, feature_fraction=0.8,
                 bagging_fraction=0.8, bagging_freq=1, seed=seed, verbose=-1, num_threads=4)
     preds, rounds = {}, {}
+    W, WCA = w, wca
     for t in TAUS:
+        w = W[t] if isinstance(W, dict) else W
+        wca = WCA[t] if isinstance(WCA, dict) else WCA
         p = dict(base, objective="quantile", alpha=t, metric="quantile")
-        m = lgb.train(p, lgb.Dataset(Xtr, ytr), n_max, valid_sets=[lgb.Dataset(Xca, yca)],
+        if fixed is not None:
+            m = lgb.train(p, lgb.Dataset(Xtr, ytr, weight=w), max(int(fixed[t]), 1))
+            preds[t] = np.maximum(m.predict(Xte), 0)
+            rounds[t] = max(int(fixed[t]), 1)
+            continue
+        m = lgb.train(p, lgb.Dataset(Xtr, ytr, weight=w), n_max, valid_sets=[lgb.Dataset(Xca, yca, weight=wca)],
                       callbacks=[lgb.early_stopping(30, verbose=False)])
         preds[t] = np.maximum(m.predict(Xte, num_iteration=m.best_iteration), 0)
         rounds[t] = m.best_iteration
+    if fixed is not None or not classifier:
+        return preds, None, rounds, None
+    if isinstance(W, dict) or isinstance(WCA, dict):
+        raise ValueError("per-quantile weights need classifier=False")
     p = dict(base, objective="binary", metric="binary_logloss")
     c = lgb.train(p, lgb.Dataset(Xtr, (ytr == 0).astype(int)), n_max,
                   valid_sets=[lgb.Dataset(Xca, (yca == 0).astype(int))],
@@ -141,7 +163,7 @@ def run(df, test_year, seeds, neg=0):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("data_dir")
-    ap.add_argument("--city", required=True, choices=["chicago", "sf", "austin"])
+    ap.add_argument("--city", required=True, choices=["chicago", "sf", "austin", "seattle"])
     ap.add_argument("--target", required=True, choices=["a2i", "i2c"])
     ap.add_argument("--test-year", type=int, required=True)
     ap.add_argument("--seeds", type=int, default=5)

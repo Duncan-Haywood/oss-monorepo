@@ -83,6 +83,8 @@ export const JOB_PRESETS = Object.freeze([
 ]);
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
+  // Number('') is 0: a cleared field must not price the job as free (quality audit 2026-11-12)
+  if (value == null || (typeof value === 'string' && value.trim() === '')) throw new Error(`${name} is blank`);
   const result = Number(value);
   if (!Number.isFinite(result)) throw new Error(`${name} must be a number`);
   if (result < min) throw new Error(`${name} must be at least ${min}`);
@@ -90,12 +92,19 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
   return result;
 }
 
+// A checkbox arrives as a boolean from the page and as a word from a shared
+// link, a CLI or an agent calling the engine. Boolean('no') is true, so a
+// word this does not know is an error rather than a silent "yes".
+const FLAG_TRUE = ['true', '1', 'yes', 'y', 'on'];
+const FLAG_FALSE = ['false', '0', 'no', 'n', 'off', ''];
+
 function flag(value) {
-  if (value === true || value === 'true' || value === '1' || value === 1) return true;
-  if (value === false || value === 'false' || value === '0' || value === 0 || value === '' || value == null) {
-    return false;
-  }
-  return Boolean(value);
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0 || value == null) return false;
+  const word = String(value).trim().toLowerCase();
+  if (FLAG_TRUE.includes(word)) return true;
+  if (FLAG_FALSE.includes(word)) return false;
+  throw new Error(`Expected yes or no, got "${value}"`);
 }
 
 /**
@@ -277,7 +286,7 @@ export function calculateBid(input) {
   const price = totalCost / (1 - targetMargin / 100);
   const profit = price - totalCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);

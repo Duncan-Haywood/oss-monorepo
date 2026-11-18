@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtK252wdgKYqYLgzE3e",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T01:07:01Z",
+  "ended": "2026-11-17T01:13:18Z",
+  "wall_minutes": 12.23,
+  "tokens_in": 5981321,
+  "tokens_out": 28004,
+  "cost_usd": 2.7425,
+  "tool_calls": 54,
+  "task": "shift-roster-builder (flagship 6, allocate.py row 4): Berkeley Fair Workweek preset for the hub's change pricer",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16764",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of a test asserted 3.5 h for 9-17 moved to 12-17:30; the hours lost are 2.5",
+      "fixed": "corrected the test's arithmetic, code unchanged"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/notice.mjs",
+      "issue": "pairDateChanges skipped pairing whenever premium was null (no wage in the staff list), so a date move was counted as two changes' hours of pay; fixed to count hoursOfPay too"
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "a foreground sleep to wait on a background test run is blocked by a hook; the doc says to use run_in_background but not that the wait itself needs Monitor or a completion notice"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-berkeley-fair-workweek-quarter-hour.md",
+    "ventures/shift-roster-builder/README.md section 'Berkeley (2026-11-17)'"
+  ],
+  "goal": null,
+  "notes": "Sources fetched this session from berkeleyca.gov: the January 2024 official notice and the FAQ rev. 2024-08-23 (pdftotext). berkeley.municipal.codes and library.qcode.us returned 403, so BMC 13.102's text was not read; the changes page and README say so. New pricer fields: tier cutLostCap, rules extendEach and pairDates (env FWW_EXTEND_EACH, FWW_PAIR_DATES). Verification: node --test notice*.test.mjs hub-worker.test.mjs 47/47 pass; run_venture_tests.py shift-roster-builder: ok, 737 tests, 0 failed (265.5 s); venture-preflight.mjs shift-roster-builder: 'preflight clean'.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1ca632de-2551-56cf-a747-f6a4f967ea67",
+    "transcripts": 1,
+    "first": "2026-11-17T01:07:01Z",
+    "last": "2026-11-17T01:19:15Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 114,
+        "output": 28004,
+        "thinking": 6032,
+        "cache_read": 5854833,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126374,
+        "api_equivalent_usd": 2.7425,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 114,
+      "output": 28004,
+      "thinking": 6032,
+      "cache_read": 5854833,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126374,
+      "api_equivalent_usd": 2.7425,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 3,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.23,
+      "active_minutes": 7.1,
+      "model_minutes": 5.28,
+      "tool_minutes": 1.82,
+      "waiting_on_human_minutes": 5.12,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "reading two city PDFs, adding three pricer rules, nine tests, README, page and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 145.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

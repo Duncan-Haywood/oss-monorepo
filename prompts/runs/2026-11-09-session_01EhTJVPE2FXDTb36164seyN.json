@@ -1,0 +1,54 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVPE2FXDTb36164seyN",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on repo, revenue products",
+  "input_sha256": "26f3d4b4c4310df1a1a5cca0578962af4ec3a2bf4ebdae7b2a1acb6f1b690745",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T07:09:57Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14221",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "Scheduled brief says revenue products but the unforced route draw sent me to perf; I re-routed with --track ventures."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Route draw gave perf; the task text asks for ventures",
+      "did": "routed --track ventures",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-a-careless-answerer-does-not-break-the-ranking.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md"
+  ],
+  "goal": null,
+  "notes": "Small flagship measurement only (lapse20 at 3000 answers, no dip); no new venture or revenue work landed. Test-only run, no code changed.",
+  "corrections": [],
+  "redteam": null
+}

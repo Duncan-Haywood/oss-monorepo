@@ -1,0 +1,4 @@
+30x84w0 P9 Wed: engine (optimal) 2 changes, score 19008861.97, pay $9624, 190 h open; ILP 0 changes, score 19008894.91, pay $9674, 190 h open; ILP minus engine: score 32.94, pay 50.00
+30x84w0 P14 Thu: engine (improved) 6 changes, score 18109129.73, pay $9787, 181 h open; ILP 5 changes, score 18109135.73, pay $9787, 181 h open; ILP minus engine: score 6.00, pay 0.00
+30x84w1 P7 Wed: engine (improved) 9 changes, score 14409629.47, pay $10586, 144 h open; ILP 8 changes, score 14409634.47, pay $10586, 144 h open; ILP minus engine: score 5.00, pay 0.00
+3 weeks where keep/shift 1 made more changes than the least: the ILP's roster scores lower (better) on 0, higher on 3, the same on 0

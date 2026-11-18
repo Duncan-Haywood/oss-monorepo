@@ -1,0 +1,53 @@
+{
+ "date": "2026-11-09",
+ "session": "https://claude.ai/code/session_01E5sJKmi5UbjeGyMJt9S2PP",
+ "track": "research",
+ "prompt_version": 0,
+ "input": "read ./prompt.md and follow the instructions there",
+ "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+ "follow_up_inputs": [],
+ "model": "claude-sonnet-5-5",
+ "models_seen": [],
+ "started": null,
+ "ended": "2026-11-09T06:26:29Z",
+ "wall_minutes": null,
+ "tokens_in": null,
+ "tokens_out": null,
+ "cost_usd": null,
+ "tool_calls": null,
+ "task": null,
+ "projects": [],
+ "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14213",
+ "repo": null,
+ "commits": [],
+ "lines_added": null,
+ "lines_removed": null,
+ "merged": null,
+ "ci_failures_before_green": null,
+ "review_findings": null,
+ "tests_added": null,
+ "outcome": "success",
+ "errors": [],
+ "integrity_issues": [],
+ "doc_friction": [
+  {
+   "file": "research/PROGRAMMES.md",
+   "issue": "The sensing-* chain (31 slugs) is not a programme entry; pick_track pointed at per-project Next steps, so a new slug was added instead of a step in a programme."
+  }
+ ],
+ "deviations": [
+  {
+   "file": "prompts/research/prompt-0.md",
+   "why": "Added a new sensing-batan slug rather than advancing a PhD-level programme: small bounded step chosen for budget; no real data reachable.",
+   "did": "Synthetic tangential-distortion sweep",
+   "result": "landed, modest value"
+  }
+ ],
+ "writeups": [
+  "docs/posts/2026-11-09-tangential-distortion-bundle-adjustment.md"
+ ],
+ "goal": null,
+ "notes": "",
+ "corrections": [],
+ "redteam": null
+}

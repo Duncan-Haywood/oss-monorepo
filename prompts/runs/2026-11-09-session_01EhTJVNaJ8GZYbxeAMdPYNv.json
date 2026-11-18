@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01EhTJVNaJ8GZYbxeAMdPYNv",
+  "track": "process",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T19:57:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005: fabric gsm/kilo/metre converter slice",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 14345,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Router drew the process track, but the scheduled prompt asked for revenue ventures; did venture work on the top open website request (R-0005).",
+      "did": "Shipped gsm.html slice instead of a process fix.",
+      "result": "605 studio tests pass; page clicked headless with no console errors."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "node --test '*.test.mjs' in ventures/clothing-design-studio: 605 pass 0 fail. Headless Chromium click on gsm.html: default result, oz entry fills gsm, bad width refused, no console errors. Blog post docs/posts/2026-11-09-fabric-quoted-by-the-kilo-or-the-metre.md.",
+  "corrections": [],
+  "redteam": null
+}

@@ -21,7 +21,7 @@
   "description": "Scans an Obsidian plugin's manifest.json, versions.json, and JavaScript/TypeScript source for the patterns behind common community-plugin review delays: missing required manifest fields, leftover sample-plugin template placeholder values, a manifest version with no matching versions.json entry, and innerHTML/outerHTML/insertAdjacentHTML usage. Runs entirely in the browser or as a local CLI; nothing is uploaded.",
   "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
   "featureList": [
-    "Flags missing required manifest.json fields (id, name, version, minAppVersion, description, author)",
+    "Flags missing required manifest.json fields (id, name, version, minAppVersion, description, author, isDesktopOnly) and id, name and version values Obsidian's Manifest reference forbids",
     "Flags manifest.json fields left as the sample-plugin template's own placeholder values",
     "Flags a manifest.json version with no matching entry in versions.json",
     "Flags innerHTML/outerHTML assignment and insertAdjacentHTML calls in source",
@@ -43,7 +43,7 @@
     {
       "@type": "Question",
       "name": "What are the sample-plugin placeholder values this tool flags?",
-      "acceptedAnswer": { "@type": "Answer", "text": "The official obsidian-sample-plugin GitHub template ships manifest.json with id \"sample-plugin\", name \"Sample Plugin\", and author \"Your Name\". A submission that still carries any of these has not customized the template it was generated from -- a leftover reviewers name explicitly." }
+      "acceptedAnswer": { "@type": "Answer", "text": "The official obsidian-sample-plugin GitHub template ships manifest.json with id \"sample-plugin\", name \"Sample Plugin\", description \"Demonstrates some of the capabilities of the Obsidian API.\", and author \"Obsidian\". A submission that still carries any of these has not customized the template it was generated from -- a leftover reviewers name explicitly." }
     },
     {
       "@type": "Question",
@@ -113,7 +113,7 @@
 
 <script type="module">
   import { parseManifest, parseVersions, detectSamplePluginDefaults, checkVersionsEntry, detectUnsafeDom, detectGlobalListeners, detectConsoleLog, buildReport } from './scan.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const fileInput = document.getElementById('fileInput');
   const fileCountEl = document.getElementById('fileCount');
@@ -150,7 +150,7 @@
     renderReport(report, sourceFiles.length);
 
     const optedOut = document.getElementById('usageOptOut')?.checked ?? false;
-    recordUsage(localStorage, optedOut, event);
+    recordUsage(usageStorage(), optedOut, event);
   }
 
   runBtn.addEventListener('click', async () => {
@@ -181,7 +181,8 @@
     version: '1.1.0',
     minAppVersion: '0.15.0',
     description: 'An example plugin used to demonstrate this checker.',
-    author: 'Your Name',
+    author: 'Obsidian',
+    isDesktopOnly: false,
   }, null, 2);
   const EXAMPLE_VERSIONS = JSON.stringify({ '1.0.0': '0.15.0' }, null, 2);
   const EXAMPLE_SOURCE = `import { Plugin } from 'obsidian';
@@ -219,6 +220,7 @@ export default class ExamplePlugin extends Plugin {
     if (!report.manifestFound) parts.push('no manifest.json found');
     else if (report.manifestParseError) parts.push('manifest.json is not valid JSON');
     if (report.missingRequiredManifest.length) parts.push(`manifest.json missing: ${report.missingRequiredManifest.join(', ')}`);
+    if (report.manifestRules.length) parts.push(`${report.manifestRules.length} manifest rule violation(s)`);
     if (report.samplePluginDefaults.length) parts.push(`${report.samplePluginDefaults.length} sample-plugin placeholder value(s)`);
     if (report.versionsEntry.status === 'missing') parts.push('versions.json has no entry for the current version');
     if (report.unsafeDom.length) parts.push(`${report.unsafeDom.length} innerHTML/outerHTML/insertAdjacentHTML line(s)`);
@@ -244,6 +246,20 @@ export default class ExamplePlugin extends Plugin {
 
     row('manifest.json found', report.manifestFound && !report.manifestParseError ? 'ok' : 'bad', report.manifestFound ? (report.manifestParseError ? 'Found, but not valid JSON' : 'Yes') : 'No');
     row('Required manifest fields', report.missingRequiredManifest.length ? 'bad' : 'ok', report.missingRequiredManifest.length ? `Missing: ${report.missingRequiredManifest.join(', ')}` : 'All present');
+    {
+      const tr = document.createElement('tr');
+      const label = document.createElement('td');
+      label.textContent = 'id / name / version / isDesktopOnly rules';
+      const td = document.createElement('td');
+      const span = document.createElement('span');
+      span.className = report.manifestRules.length ? 'status-bad' : 'status-ok';
+      span.textContent = report.manifestRules.length
+        ? report.manifestRules.map((v) => `${v.field} "${v.value}": ${v.rule}`).join('; ')
+        : 'No violations found';
+      td.appendChild(span);
+      tr.append(label, td);
+      tbody.appendChild(tr);
+    }
     row('Sample-plugin placeholders', report.samplePluginDefaults.length ? 'bad' : 'ok', report.samplePluginDefaults.length ? report.samplePluginDefaults.map((d) => `${d.field}="${d.value}"`).join(', ') : 'None found');
 
     if (report.versionsEntry.status === 'present') row('versions.json entry', 'ok', `${report.versionsEntry.version} → minAppVersion ${report.versionsEntry.minAppVersion}`);
@@ -292,8 +308,8 @@ export default class ExamplePlugin extends Plugin {
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>
@@ -303,7 +319,7 @@ export default class ExamplePlugin extends Plugin {
   <h3>Why does a missing versions.json entry matter for an Obsidian plugin release?</h3>
   <p>Obsidian's release mechanism reads <code>versions.json</code> to decide which installed app versions can see a given plugin release. <code>manifest.json</code> only carries the current version; <code>versions.json</code> has to carry its own matching entry, in a separate file, with nothing forcing the two to move together. This tool reads both and tells you if the current version is missing.</p>
   <h3>What are the sample-plugin placeholder values this tool flags?</h3>
-  <p>The official <code>obsidian-sample-plugin</code> GitHub template ships <code>manifest.json</code> with id <code>"sample-plugin"</code>, name <code>"Sample Plugin"</code>, and author <code>"Your Name"</code>. A submission that still carries any of these has not customized the template it was generated from -- a leftover reviewers name explicitly.</p>
+  <p>The official <code>obsidian-sample-plugin</code> GitHub template ships <code>manifest.json</code> with id <code>"sample-plugin"</code>, name <code>"Sample Plugin"</code>, description <code>"Demonstrates some of the capabilities of the Obsidian API."</code>, and author <code>"Obsidian"</code>. A submission that still carries any of these has not customized the template it was generated from -- a leftover reviewers name explicitly.</p>
   <h3>Why does innerHTML/outerHTML/insertAdjacentHTML matter in an Obsidian plugin?</h3>
   <p>Obsidian's own developer guidelines name these APIs as a cross-site-scripting risk and recommend the DOM API or Obsidian's own <code>createEl</code>/<code>createSpan</code>/<code>createDiv</code> helpers instead. This tool scans for the assignment or call regardless of whether the specific value used happens to be attacker-controlled today -- the fix is standard, and reviewers ask for it as a matter of course.</p>
   <h3>Is my plugin's source code uploaded anywhere?</h3>

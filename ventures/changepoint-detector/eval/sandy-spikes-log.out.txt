@@ -1,0 +1,2 @@
+registered (log): 65 changes, 22 labels in 731 days; Sandy label rank 1 at 39.4 sd, ratio 0.02; next largest 19.1 sd; labels over 3, 5, 7 sd: 22, 18, 9
+casual (log): 59 changes, 16 labels in 731 days; Sandy label rank 1 at 17.7 sd, ratio 0.02; next largest 9.5 sd; labels over 3, 5, 7 sd: 16, 6, 3

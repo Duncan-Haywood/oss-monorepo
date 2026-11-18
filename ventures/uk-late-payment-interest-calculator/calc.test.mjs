@@ -55,3 +55,46 @@ test("recovery costs are added and letter carries the figures", () => {
   assert.match(r.letter, /Northgate Fabrication Ltd/);
   assert.match(summaryText(r), /Not legal advice/);
 });
+
+test("base rate override is bounded to 0-30 inclusive", () => {
+  assert.equal(compute({ ...SAMPLE, baseOverride: "30" }).rate, 38);
+  assert.equal(compute({ ...SAMPLE, baseOverride: "0" }).rate, 8);
+  for (const bad of ["-1", "30.5", "31", "abc"]) {
+    assert.match(compute({ ...SAMPLE, baseOverride: bad }).errors[0] || "", /between 0 and 30/, bad);
+  }
+});
+
+test("30/60/90 day horizon dates step forward from the as-of date", () => {
+  const r = compute(SAMPLE);
+  assert.deepEqual(r.horizon.map((h) => h.date), ["2026-11-13", "2026-12-13", "2027-01-12"]);
+  assert.equal(r.horizon[0].interest, Math.round(4800 * 0.1175 / 365 * 105 * 100) / 100);
+});
+
+test("impossible calendar dates are refused, not rolled into the next month", () => {
+  assert.ok(compute({ ...SAMPLE, dueDate: "2026-02-30" }).errors.length);
+  assert.ok(compute({ ...SAMPLE, asOf: "2026-09-31" }).errors.length);
+  assert.deepEqual(compute({ ...SAMPLE, dueDate: "2028-02-29", asOf: "2028-03-01" }).errors.filter((e) => /YYYY/.test(e)), []);
+});
+
+test("a non-finite amount or a blank base rate is not a number", () => {
+  assert.ok(compute({ ...SAMPLE, amount: "Infinity" }).errors.length);
+  assert.equal(compute({ ...SAMPLE, baseOverride: "  " }).rate, 11.75);
+});
+
+test("before the due date nothing is claimable and the horizon counts only days actually late", () => {
+  // due 31 Jul 2026, figure on 21 Jul: 10 days early
+  const r = compute({ ...SAMPLE, asOf: "2026-07-21" });
+  assert.equal(r.daysLate, 0);
+  assert.equal(r.compensation, 0);
+  assert.equal(r.claimable, 0);
+  assert.equal(r.total, 4800);
+  assert.match(summaryText(r), /claimable on top of the invoice: £0\.00/);
+  // 30 days on (20 Aug) it is 20 days late, with the £70 fixed sum now due
+  const perDay = 4800 * 0.1175 / 365;
+  assert.equal(r.horizon[0].interest, Math.round(perDay * 20 * 100) / 100);
+  assert.equal(r.horizon[0].total, Math.round((4800 + perDay * 20 + 70) * 100) / 100);
+  // a horizon date still before the due date carries neither interest nor compensation
+  const early = compute({ ...SAMPLE, asOf: "2026-05-01" });
+  assert.equal(early.horizon[0].interest, 0);
+  assert.equal(early.horizon[0].total, 4800);
+});

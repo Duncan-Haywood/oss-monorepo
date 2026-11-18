@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
@@ -22,6 +22,10 @@ import {
   isEgressRefusal,
   originFromCatalog,
   resolveBaseUrl,
+  scopeToSite,
+  parseArgs,
+  batches,
+  submitInBatches,
 } from './indexnow.mjs';
 import { INDEXNOW_KEY, indexNowKeyFileName } from '../pages/build.mjs';
 
@@ -102,6 +106,45 @@ test('submit reports a rejected submission without throwing', async (t) => {
 
 test('MAX_URLS_PER_REQUEST matches the protocol ceiling', () => {
   assert.equal(MAX_URLS_PER_REQUEST, 10000);
+});
+
+// 2026-11-15: the site reached 10,023 URLs and the old guard refused every
+// deploy's announcement (Portfolio Pages run 43732427513, deploy-cloudflare).
+test('batches splits at the ceiling and keeps every URL once, in order', () => {
+  const urls = Array.from({ length: 10023 }, (_, i) => `https://example.test/p${i}/`);
+  const out = batches(urls);
+  assert.deepEqual(out.map((b) => b.length), [10000, 23]);
+  assert.deepEqual(out.flat(), urls);
+  assert.deepEqual(batches(urls.slice(0, 10000)).map((b) => b.length), [10000]);
+  assert.deepEqual(batches([]), []);
+  assert.throws(() => batches(urls, 0));
+});
+
+test('submitInBatches sends each batch with the same host and key, and stops at a refusal', async () => {
+  const urls = Array.from({ length: 5 }, (_, i) => `https://example.test/p${i}/`);
+  const seen = [];
+  const sent = await submitInBatches({
+    baseUrl: 'https://example.test/',
+    urls,
+    size: 2,
+    send: async (payload) => {
+      seen.push(payload);
+      return { status: 202, ok: true, body: '' };
+    },
+  });
+  assert.deepEqual(sent.map((s) => s.size), [2, 2, 1]);
+  assert.deepEqual(seen.flatMap((p) => p.urlList), urls);
+  assert.equal(new Set(seen.map((p) => `${p.host} ${p.key} ${p.keyLocation}`)).size, 1);
+
+  let calls = 0;
+  const refused = await submitInBatches({
+    baseUrl: 'https://example.test/',
+    urls,
+    size: 2,
+    send: async () => (++calls === 2 ? { status: 403, ok: false, body: 'bad key' } : { status: 202, ok: true, body: '' }),
+  });
+  assert.equal(calls, 2);
+  assert.deepEqual(refused.map((s) => s.result.status), [202, 403]);
 });
 
 // --- the published surface, not just the catalogue index -------------------
@@ -264,6 +307,15 @@ test('CLI dry run prints what would be submitted and makes no network call', () 
     // means both halves landed and neither replaced the other.
     assert.match(out, new RegExp(`${FIXTURE_PAGE_COUNT + CATALOG.categories.length} URL\\(s\\)`));
     assert.match(out, /example\.test/);
+  }));
+
+test('CLI dry run over the ceiling plans batches instead of refusing', () =>
+  withFixtureDir(async (dir) => {
+    const extra = Array.from({ length: 10050 }, (_, i) => ({ slug: `t${i}`, url: `${CATALOG.url}t${i}/` }));
+    await fs.writeFile(path.join(dir, 'catalog.json'), JSON.stringify({ ...CATALOG, tools: [...CATALOG.tools, ...extra] }));
+    const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    assert.match(out, /batches: +2 requests \(10000 \+ \d+; at most 10000 each\)/);
+    assert.match(out, /Dry run — no request sent/);
   }));
 
 test('CLI refuses an empty URL list rather than submitting nothing', () =>
@@ -523,3 +575,61 @@ test('the hint it prints is a command git accepts', () => {
   // doubled tracking name the old hint produced.
   assert.doesNotMatch(stderr, /origin\/definitely-not-a-branch-xyz/);
 });
+
+// Quality audit 2026-11-07 (portfolio/quality/audits/2026-11-07-marketing.json):
+// a foreign or out-of-path <loc> made IndexNow reject the whole request, a
+// typo'd flag fell through to a dry run, and the summary counted skipped
+// child sitemaps as read.
+test('scopeToSite keeps only URLs on the base host and under its path', () => {
+  const { kept, dropped } = scopeToSite(
+    [`${BASE}a/`, 'https://evil.test/site/a/', 'https://example.test/outside/', 'http://example.test/site/b/', 'not a url', BASE],
+    BASE,
+  );
+  assert.deepEqual(kept, [`${BASE}a/`, BASE]);
+  assert.equal(dropped.length, 4);
+});
+
+test('the CLI leaves foreign and out-of-path sitemap URLs out of the payload, and says so', () =>
+  withFixtureDir(async (dir) => {
+    await fs.writeFile(
+      path.join(dir, 'shop-rate-calculator/sitemap.xml'),
+      urlset([`${BASE}shop-rate-calculator/`, 'https://evil.test/site/x/', 'https://example.test/outside/']),
+    );
+    const res = spawnSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8' });
+    assert.equal(res.status, 0, res.stderr);
+    assert.match(res.stdout, /indexnow: 8 URL\(s\)/); // 5 catalogue + 3 sitemap-only
+    assert.match(res.stderr, /2 URL\(s\) are not under/);
+    assert.doesNotMatch(res.stdout, /evil\.test/);
+  }));
+
+test('the CLI reports how many child sitemaps it actually read', () =>
+  withFixtureDir(async (dir) => {
+    await fs.rm(path.join(dir, 'shop-rate-calculator/sitemap.xml'));
+    const out = execFileSync(process.execPath, [SCRIPT, '--dir', dir], { encoding: 'utf8', stdio: 'pipe' });
+    assert.match(out, /from 2 of 3 published sitemap\(s\)/);
+  }));
+
+test('parseArgs refuses unknown flags and a flag with no value', () => {
+  assert.throws(() => parseArgs(['--sumbit']), /unknown argument "--sumbit"/);
+  assert.throws(() => parseArgs(['--ref']), /--ref needs a value/);
+  assert.throws(() => parseArgs(['--dir', '--submit']), /--dir needs a value/);
+  assert.deepEqual(parseArgs(['--submit', '--ref', 'x']), { submit: true, ref: 'x', dir: null, baseUrl: null });
+});
+
+test('the CLI exits 2 on a typo rather than doing a dry run', () => {
+  const res = spawnSync(process.execPath, [SCRIPT, '--sumbit'], { encoding: 'utf8' });
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /unknown argument/);
+});
+
+test('the CLI prints one line, not a stack trace, for a bad --base-url or an unreadable ref', () =>
+  withFixtureDir(async (dir) => {
+    const bad = spawnSync(process.execPath, [SCRIPT, '--dir', dir, '--base-url', 'ftp://x.test/'], { encoding: 'utf8' });
+    assert.equal(bad.status, 1);
+    assert.match(bad.stderr, /^indexnow: --base-url must be http\(s\)/);
+    assert.doesNotMatch(bad.stderr, /\n\s+at /);
+    const ref = spawnSync(process.execPath, [SCRIPT, '--ref', 'no-such-ref-for-indexnow-test'], { encoding: 'utf8' });
+    assert.equal(ref.status, 1);
+    assert.match(ref.stderr, /^indexnow: could not read 'catalog\.json'/);
+    assert.doesNotMatch(ref.stderr, /\n\s+at /);
+  }));

@@ -1,0 +1,76 @@
+[
+ {
+  "algebras": 2,
+  "algebras_with_model": 2,
+  "algebras_with_nontrivial_model": 2,
+  "d": 2,
+  "example_multiworld": null,
+  "skipped_rigid": 0,
+  "w": 1
+ },
+ {
+  "algebras": 5,
+  "algebras_with_model": 5,
+  "algebras_with_nontrivial_model": 5,
+  "d": 3,
+  "example_multiworld": null,
+  "skipped_rigid": 0,
+  "w": 1
+ },
+ {
+  "algebras": 1,
+  "algebras_with_model": 0,
+  "algebras_with_nontrivial_model": 0,
+  "d": 1,
+  "example_multiworld": null,
+  "skipped_rigid": 1,
+  "w": 2
+ },
+ {
+  "algebras": 13,
+  "algebras_with_model": 2,
+  "algebras_with_nontrivial_model": 2,
+  "d": 2,
+  "example_multiworld": [
+   [
+    0,
+    2
+   ],
+   [
+    1
+   ],
+   [
+    3
+   ]
+  ],
+  "skipped_rigid": 2,
+  "w": 2
+ },
+ {
+  "algebras": 4,
+  "algebras_with_model": 0,
+  "algebras_with_nontrivial_model": 0,
+  "d": 1,
+  "example_multiworld": null,
+  "skipped_rigid": 1,
+  "w": 3
+ },
+ {
+  "algebras": 14,
+  "algebras_with_model": 0,
+  "algebras_with_nontrivial_model": 0,
+  "d": 1,
+  "example_multiworld": null,
+  "skipped_rigid": 1,
+  "w": 4
+ },
+ {
+  "algebras": 51,
+  "algebras_with_model": 0,
+  "algebras_with_nontrivial_model": 0,
+  "d": 1,
+  "example_multiworld": null,
+  "skipped_rigid": 1,
+  "w": 5
+ }
+]

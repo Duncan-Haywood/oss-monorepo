@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNufCyteAe4SW1gBRU",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T19:03:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight: INV-065 (non-XML space in a number/date) in the FatturaPA, FA(3), Facturae, NAV and ISDOC readers",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 17032,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 14,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "allocate's pick (row 7 chant-forge) has been left by 8 sessions in 2 days and is a low-revenue product; einvoice-preflight (row 3, revenue-oriented) had a concrete BUILDABLE HERE item needing no outside input",
+      "did": "took einvoice-preflight's buildable item",
+      "result": "landed: 10,005 of 10,005 mutants named, Saxon agrees on all"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-einvoice-no-break-space-national-formats.md",
+    "ventures/einvoice-preflight/eval/nbsp-other-formats-2026-11-17.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py einvoice-preflight -> ok (2707 tests, 0 failed). eval/nbsp-other-formats.mjs on 36 files (ZUGFeRD corpus fatturaPA, NAV fixtures, isdoc/dsig-demo ISDOC demo files, own examples): 10,005 mutants, 6,880 of 8,004 literal-space copies silent before, INV-065 on all 10,005 after; 0 of 1,333 text controls; SaxonC-HE 13.1 agrees on 10,005 of 10,005. Mutants are synthetic; tax-authority validators not run.",
+  "corrections": [],
+  "redteam": null
+}

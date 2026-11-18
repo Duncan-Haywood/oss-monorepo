@@ -9,6 +9,13 @@ test("timestamps in ISO and US formats read as wall-clock", () => {
   assert.ok(Number.isNaN(parseTimestamp("hello")));
 });
 
+test("out-of-range minutes are refused, not rolled into the next hour", () => {
+  assert.ok(Number.isNaN(parseTimestamp("2026-03-04 14:75")));
+  assert.ok(Number.isNaN(parseTimestamp("3/4/2026 2:75 PM")));
+  assert.ok(Number.isNaN(parseTimestamp("3/4/2026 14:60")));
+  assert.equal(parseTimestamp("2026-03-04 23:59"), Date.UTC(2026, 2, 4, 23, 59));
+});
+
 test("parser finds the readings column by header and skips preambles", () => {
   const csv = "Account,1234\nStart,End,Usage (kWh)\n2026-01-01 00:00,2026-01-01 00:15,2.5\n2026-01-01 00:15,2026-01-01 00:30,3\n";
   const { rows, notes } = parseIntervals(csv);
@@ -83,4 +90,10 @@ test("bundled example parses and produces a plausible result", () => {
   assert.ok(a.yearly > 0);
   assert.ok(a.caps.some((c) => c.saving > 0));
   assert.match(toCsv(a), /^month,peak_kw/);
+});
+
+test("parseTimestamp refuses 30 February instead of reading it as 2 March", () => {
+  assert.ok(Number.isNaN(parseTimestamp("2026-02-30 10:00")));
+  assert.ok(Number.isNaN(parseTimestamp("02/30/2026 10:00 AM")));
+  assert.equal(parseTimestamp("2024-02-29 10:15"), Date.UTC(2024, 1, 29, 10, 15));
 });

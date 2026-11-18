@@ -6,6 +6,7 @@ import fs from "node:fs";
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { newState, createRequest, view, sign, decline, voidRequest, verify, stats, toCsv, summarize, status } from "./store.mjs";
 import { renderSign, renderMessage, renderCertificate, renderAdmin } from "./page.mjs";
+import { pathToFileURL } from "node:url";
 
 export { newState };
 const env = process.env;
@@ -113,7 +114,7 @@ function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const missing = ["ADMIN_KEY", "PUBLIC_URL"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }
   const statePath = env.STATE || "state.json";

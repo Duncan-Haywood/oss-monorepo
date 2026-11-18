@@ -1,6 +1,6 @@
 """Write experiments/results.txt: sand and water heat stores as transient models.
 
-    PYTHONPATH=src python experiments/run.py      # about a minute; deterministic
+    PYTHONPATH=src python experiments/run.py      # about 4 s; deterministic
 
 Every input is assumed (typical values, not checked against a primary source) and is set below.
 """

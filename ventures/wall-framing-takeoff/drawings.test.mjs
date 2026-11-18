@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { takeoff, samplePlan } from "./engine.mjs";
 import { panelizeWall } from "./panels.mjs";
-import { markMembers, wallElevationSvg, partsTableHtml, drawingSetHtml } from "./drawings.mjs";
+import { markMembers, wallElevationSvg, panelElevationSvg, partsTableHtml, drawingSetHtml } from "./drawings.mjs";
 
 const house = () => { const plan = samplePlan(); return { plan, r: takeoff(plan) }; };
 
@@ -127,4 +127,14 @@ test("sheathing sheet marks are outlined on the wall elevation when a sheathing 
   assert.ok(!wallElevationSvg(w, wall, plan).includes("#2e7d32\""));
   r.sheathing = sh;
   assert.ok(drawingSetHtml(r, plan, {}).includes(`>${sw.panels[0].id}</text>`));
+});
+
+test("drawing entry points refuse input that is not a takeoff result, with a reason", () => {
+  for (const bad of [null, 5, "x", [], {}]) {
+    assert.throws(() => markMembers(bad), /laid-out wall/);
+    assert.throws(() => wallElevationSvg(bad, {}), /laid-out wall/);
+    assert.throws(() => partsTableHtml(bad), /laid-out wall/);
+    assert.throws(() => drawingSetHtml(bad, bad), /takeoff\(\)'s result/);
+  }
+  assert.throws(() => panelElevationSvg({ members: [] }, {}, {}, null, 0), /panelizeWall/);
 });

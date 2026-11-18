@@ -109,3 +109,24 @@ confidence, so no-line scenes are now not penalised at all. Not re-run on the
 real photos (the harness needs fetched images and the sandbox lacks PIL); the
 change is a fixed monotone rescale, so ordering of photos by confidence is
 unchanged. Still wanted: photos with a real horizon and human "crooked" labels.
+
+## Chance-corrected confidence re-run on real photos, 2026-11-09
+
+`tools/tilt_confidence_check.py` rotates 10 OpenCV sample photos (building,
+butterfly, board, left01, messi5, fruits, lena, home, aero1, stuff; sudoku is
+gone upstream) by -6, -3, -1.5, 1.5, 3 and 6 degrees (60 readings) and bins each
+by the confidence of the photo's tilt reading. "Within 1" is the share whose
+change from the unrotated reading is within 1 degree of the injected angle.
+
+| confidence | readings | within 1 degree | median error |
+|---|---|---|---|
+| under 0.05 | 22 | 45% | 1.16 deg |
+| 0.05 to 0.15 | 25 | 64% | 0.75 deg |
+| 0.15 to 0.4 | 13 | 85% | 0.32 deg |
+| all | 60 | 62% | 0.77 deg |
+
+So the chance-corrected confidence does what it should: accuracy rises with it,
+and the story penalty (confidence-weighted) leans hardest where the reading is
+most trustworthy. The top photos by unrotated confidence are left01 (0.38) and
+board (0.29). Still a handful of photos with injected, not human-labelled, tilt;
+a real horizon set remains wanted.

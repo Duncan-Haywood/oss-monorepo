@@ -23,9 +23,9 @@ yourself under time pressure.
 ## Why this exists
 
 Any sales, support, recruiting, or telehealth team that calls people in more
-than one state runs into this eventually: fourteen states plus DC require
+than one state runs into this eventually: thirteen states require
 every party's consent to record a call, the rest follow the federal
-one-party baseline, and two of the fourteen (Nevada, Michigan) have a real,
+one-party baseline, and two of the thirteen (Nevada, Michigan) have a real,
 commonly-missed ambiguity between what their statute says and how it is
 applied. None of that is exotic legal territory — it is a well-documented,
 repeatedly-searched compliance question ("call recording laws by state",
@@ -62,7 +62,7 @@ page](why-call-recording-consent-laws-differ-by-state.html).
 
 | Check | Source |
 |---|---|
-| Per-state default classification | 50 states + DC, each labeled one-party or all-party; the fourteen all-party jurisdictions carry their specific statute citation |
+| Per-state default classification | 50 states + DC, each labeled one-party or all-party; the thirteen all-party jurisdictions carry their specific statute citation |
 | Interstate combining rule | Conservative all-party guidance whenever either state requires it, citing *Kearney v. Salomon Smith Barney* as the precedent behind that reading |
 | Disclosure script | A ready-to-read call-opening line matching the determined requirement, with your company name and stated purpose filled in |
 

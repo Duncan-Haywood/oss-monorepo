@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJ2vqjGsF4TSzeJeeJ",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T17:07:11Z",
+  "ended": "2026-11-14T17:16:17Z",
+  "wall_minutes": 9.59,
+  "tokens_in": 4559201,
+  "tokens_out": 19693,
+  "cost_usd": 1.9993,
+  "tool_calls": 58,
+  "task": "perf: hub content.test.mjs (unwired pool in every ventures-tests job), top of the previous perf run's not-changed list",
+  "projects": [
+    "platform/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15921",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a hook refused one Bash call because pkill -f '[n]ode --test' shared a command line with other node invocations",
+      "fix": "split into its own call"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "step 1 is still all owner-gated (P063, P064); the previous run's history 'not changed' list was the fastest route to a landable target and the prompt does not point there"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "why": "started a 19-venture suite sweep (step 3) but stopped it mid-run: it loaded the 4-core box and skewed timings, and the previous history doc already named a measured target",
+      "did": "killed the sweep, measured content.test.mjs on an idle box",
+      "result": "clean before/after numbers; no venture suite timings recorded"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-nine-extractions-of-every-post.md",
+    "docs/history/ci-perf-2026-11-14-hub-content-memo.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of `node --test platform/distribution/hub/content.test.mjs` on an idle 4-core container (date +%s.%N around the command). Before: 14.5 s, 12.8 s. After memo+norm: 5.48, 5.57 s; after clip fast path: 4.55, 4.50, 4.55 s. Profiled loop (kit + 8 draft variants x 4,549 posts, node --cpu-prof): 20.2 s -> 3.8 s. Golden: 86,431 lines of JSON (every kit, every variant, every platform) cmp-identical before/after. Distribution suites: node --test platform/distribution/hub/*.test.mjs platform/distribution/*.test.mjs 264 pass 0 fail. Pool reading: ci_profile --runs 600, 548 jobs 503.2 job-min; ventures tests 23 jobs 48.2 min.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0cfadb71-2766-5b57-8fb9-bde9abfcc670",
+    "transcripts": 1,
+    "first": "2026-11-14T17:07:11Z",
+    "last": "2026-11-14T17:16:46Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 104,
+        "output": 19693,
+        "thinking": 3130,
+        "cache_read": 4470231,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88866,
+        "api_equivalent_usd": 1.9993,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 104,
+      "output": 19693,
+      "thinking": 3130,
+      "cache_read": 4470231,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88866,
+      "api_equivalent_usd": 1.9993,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 51,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Monitor": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.59,
+      "active_minutes": 9.59,
+      "model_minutes": 5.12,
+      "tool_minutes": 4.47,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile a Node test, find the repeated pure call, memoise and verify with a golden dump, write it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 200.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

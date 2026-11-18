@@ -54,3 +54,60 @@ test("--what-if prints the churn-reduction projection and parses its value", asy
   const { result, skipped, subs } = run(sampleCsv(), opts);
   assert.match(render(result, skipped, { ...opts, subs }), /What if monthly churn fell 1.5 point/);
 });
+
+test("zero is a valid --max-churn and --what-if; an empty value is not", () => {
+  assert.equal(parseArgs(["--max-churn", "0", "f.csv"]).maxChurn, 0);
+  assert.equal(parseArgs(["--what-if", "0", "f.csv"]).whatIf, 0);
+  // `--max-churn "$LIMIT"` with LIMIT unset passes "", which Number() reads as 0.
+  assert.throws(() => parseArgs(["--max-churn", "", "f.csv"]), /number/);
+  assert.throws(() => parseArgs(["--months", " ", "f.csv"]), /number/);
+  assert.throws(() => parseArgs(["--max-churn"]), /number/);
+});
+
+test("churn exactly at --max-churn does not exceed it", () => {
+  const churn = run(sampleCsv()).result.summary.logoChurn * 100;
+  assert.equal(run(sampleCsv(), { maxChurn: churn }).over, false);
+});
+
+test("the cohort table prints whole percentages, matching the cohort data", () => {
+  const { result, skipped } = run(sampleCsv());
+  const rows = render(result, skipped, { cohorts: true }).split("\n").filter((l) => /^\d{4}-\d{2}  n=/.test(l));
+  assert.equal(rows.length, result.cohorts.length);
+  rows.forEach((r, i) => {
+    const cells = r.replace(/^\S+\s+n=\s*\d+\s+/, "").trim().split(/\s+/).map(Number);
+    assert.deepEqual(cells, result.cohorts[i].logo.slice(0, 12).map((x) => Math.round(x * 100)));
+  });
+  assert.ok(rows.some((r) => / 100(\s|$)/.test(r)), "a fully retained cohort-month reads 100");
+});
+
+test("skipped rows are listed from the first", () => {
+  const { result } = run(sampleCsv());
+  const skipped = [{ line: 2, reason: "first bad" }, { line: 9, reason: "second bad" }];
+  const text = render(result, skipped, {});
+  assert.match(text, /Skipped 2 unreadable/);
+  assert.match(text, /line 2: first bad/);
+  assert.match(text, /line 9: second bad/);
+});
+
+test("with no arguments the executable prints usage and exits 2", () => {
+  const r = spawnSync("node", [cli], { encoding: "utf8" });
+  assert.equal(r.status, 2);
+  assert.match(r.stdout, /Usage:/);
+});
+
+test("the executable runs from a folder whose name has a space, # or %", async () => {
+  const { mkdtempSync, mkdirSync, copyFileSync, rmSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const { join, dirname } = await import("node:path");
+  const root = mkdtempSync(join(tmpdir(), "churn-"));
+  try {
+    const dir = join(root, "My Projects #1 100%");
+    mkdirSync(dir);
+    for (const f of ["cli.mjs", "calc.mjs"]) copyFileSync(join(dirname(cli), f), join(dir, f));
+    const r = spawnSync("node", [join(dir, "cli.mjs"), "--example", "--max-churn", "0.01"], { encoding: "utf8" });
+    assert.match(r.stdout, /MRR now/);
+    assert.equal(r.status, 1);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

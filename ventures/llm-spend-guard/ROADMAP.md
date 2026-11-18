@@ -57,3 +57,26 @@ accounts.
 - `ventures/llm-call-cost-scan`: the static check before code ships.
 - `ventures/liability-audit`: the repo-wide audit, whose `llm-endpoint-no-spend-control`
   rule points here.
+
+## Known gaps (quality audit 2026-11-13)
+
+From [`portfolio/quality/audits/2026-11-13-llm-spend-guard.json`](../../portfolio/quality/audits/2026-11-13-llm-spend-guard.json);
+the `n > 1`, snapshot-prefix and missing-end-marker defects were fixed in the same PR.
+
+- One cache-write rate per model: Anthropic's 1-hour cache writes (2x input,
+  against 1.25x for 5-minute) settle low; 100K tokens settled at $0.377
+  against $0.602. Needs a second rate in the policy schema.
+- No long-context tiers: a model whose price rises above a prompt-length
+  threshold settles at the base rate (a 150K-token prompt at $0.0155 against
+  $0.0775 in the audit's example).
+- A call in flight when the proxy restarts leaves its reserve in the state
+  file; spend is not exceeded, but the reserve is never released.
+- **Media in the hold (high; found by the second, blind round-62 audit,
+  [`portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json`](../../portfolio/quality/blind-pairs/2026-11-13-h/llm-spend-guard.json)).**
+  The input estimate is the request's JSON bytes / 3, so an image or a
+  document sent by URL or file id is held at a few dozen tokens: 20 concurrent
+  calls with a 100-page PDF by URL passed a $1 budget and spent $15.31. Needs
+  per-media token floors (or refusing URL and file-id sources unless the
+  policy sets a media allowance) and an overshoot event from `settle` when the
+  actual cost passes the hold. Server-side tool fees (web search) are not
+  priced either.

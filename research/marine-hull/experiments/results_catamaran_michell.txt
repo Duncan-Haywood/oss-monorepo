@@ -1,0 +1,16 @@
+L 2.812 m, total wetted area from tank 1.709 m2; rho 998.7, nu 1.0899e-06
+L/B 8: B 0.351 m, draft solved 0.080 m (B/T 4.42)
+L/B 10: B 0.281 m, draft solved 0.106 m (B/T 2.64)
+L/B 12: B 0.234 m, draft solved 0.120 m (B/T 1.95)
+
+Fn           0.325   0.457   0.575   0.717   0.787
+k=0.0 median   -50%    -36%    -41%    -31%    -29%
+k=0.0 min      -52%    -44%    -46%    -34%    -33%
+k=0.0 max      -46%    -30%    -31%    -27%    -27%
+k=0.0 cases within 20% per Fn: [0, 0, 0, 0, 0] of 9
+k=0.0 cases within 20% at the 3 lowest Fn: 0
+k=0.1 median   -46%    -33%    -38%    -27%    -24%
+k=0.1 min      -48%    -41%    -43%    -30%    -28%
+k=0.1 max      -42%    -27%    -27%    -22%    -22%
+k=0.1 cases within 20% per Fn: [0, 0, 0, 0, 0] of 9
+k=0.1 cases within 20% at the 3 lowest Fn: 0

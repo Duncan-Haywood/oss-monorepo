@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNn1puaGmvcrPU2t5d",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T17:03:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quick-pick-survey flagship 8 item (r): six more ready-list answer pages and a hub",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": 15916,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "a stray `cat > file` with no heredoc blocked a shell call on stdin until stopped; it left an empty file outside the repo, now removed",
+      "fix": "stopped the task, removed the file"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-ten-questions-a-pairwise-ranker-answers.md"
+  ],
+  "goal": null,
+  "notes": "Six new generated use pages (team goals, customer pain points, wedding, home must-haves, book club, to-do) + site/ready-lists.html hub; hub linked from landing, rank and picks pages; llms.txt updated. Checks: node --test site/*.test.mjs 49/49; new hub test red with ready-lists.html removed (3 pass, 1 fail); run_venture_tests.py quick-pick-survey ok; Chromium 390px scrollWidth 390 on all 7 new pages, pain-points CTA opens ranker on its question, no page errors; post front matter, links, similarity clean; validate.py ok. Preflight result recorded in the PR.",
+  "corrections": [],
+  "redteam": null
+}

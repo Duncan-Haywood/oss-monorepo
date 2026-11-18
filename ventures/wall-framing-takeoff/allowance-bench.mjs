@@ -16,6 +16,7 @@ import { readFileSync } from "node:fs";
 import { samplePlan, takeoff } from "./engine.mjs";
 import { planFromDxf } from "./dxf.mjs";
 import { gangOpenings } from "./ganged.mjs";
+import { pathToFileURL } from "node:url";
 
 const FRAMING = new Set(["2x4", "2x4 PT", "2x6", "2x6 PT"]);
 
@@ -74,7 +75,7 @@ export function spacingSweep(plan, spacings = [12, 16, 19.2, 24]) {
   return spacings.map((sp) => ({ spacing: sp, ...compare({ ...plan, studSpacing: sp }, { gang: true }) }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const pct = (x) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(1)}%`;
   console.log("plan | wall ft | counted order ft | per-foot rule | on-centre rule");
   for (const [name, plan] of cases) {

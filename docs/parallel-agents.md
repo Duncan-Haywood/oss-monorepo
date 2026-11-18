@@ -92,9 +92,12 @@ stops telling anyone anything, and it trains every agent to merge on red.
    self-hosted origin can build the mirror at deploy time. This takes 84% of
    PRs off the biggest conflict surface, and about 2,700 files off a
    typical venture PR. *Owner call: it reverses a CLAUDE.md checklist step.*
-2. **Make the remaining tree counters derived, not pinned.** For example,
-   `SWITCHES_IN_THE_CATALOGUE` can be computed from the tree, with a
-   committed floor that only ratchets upward. A PR then never edits it.
+2. **Make the remaining tree counters derived, not pinned.** Done for the
+   last one on 2026-11-14: `SWITCHES_IN_THE_CATALOGUE` became
+   `platform/privacy/optout-switches.txt`, a sorted list of module paths.
+   Two new ventures add two different lines that merge cleanly, and
+   `sync_tree_counts.py` adds them for you. (A floor that ratchets upward,
+   the first idea here, would let an addition hide a switch that broke.)
 3. **Move per-venture registrations into the venture's own directory.**
    Today these are lines in shared files: the launch date (`launched.json`),
    entry overrides and category (`build.mjs`), publish surface and score.

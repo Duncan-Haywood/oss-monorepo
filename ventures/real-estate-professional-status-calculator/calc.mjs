@@ -36,7 +36,7 @@ const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 
 // Gate 1. "More than half" is strict, and so is "more than 750".
@@ -71,7 +71,7 @@ function lossesByYear(o) {
 // Status of the loss, and what it is worth, with and without REPS.
 export function analyze(o) {
   const h = hoursTest(o.reHours, o.otherHours);
-  const materially = nz(o.rentalHours) >= 500;
+  const materially = nz(o.rentalHours) > 500;
   const nonPassive = h.pass && materially;
   const rate = nz(o.marginalRatePct) / 100;
   const disc = nz(o.discountPct) / 100;

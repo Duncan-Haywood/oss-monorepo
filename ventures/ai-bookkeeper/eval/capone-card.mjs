@@ -11,6 +11,7 @@
 import { readFileSync } from "node:fs";
 import { readStatement } from "../bank.mjs";
 import { suggest } from "../categorize.mjs";
+import { pathToFileURL } from "node:url";
 
 export const MAP = {
   Dining: ["6130"], "Gas/Automotive": ["6160"], "Phone/Cable": ["6140", "6060"],
@@ -55,7 +56,7 @@ export function score(text) {
   return o;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const arg = (k, d) => { const i = process.argv.indexOf(k); return i === -1 ? d : process.argv[i + 1]; };
   const file = process.argv[2] && !process.argv[2].startsWith("--") ? process.argv[2] : "cc_statement.csv";
   const o = score(readFileSync(file, "utf8"));

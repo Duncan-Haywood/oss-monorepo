@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+A new federal deduction applies to tax years 2025 through 2028: up to $10,000/year of interest paid on a loan for a new, US-assembled, personal-use vehicle — but only if eight eligibility conditions are all met, and it shrinks once your income clears $100,000 (single/HoH/MFS) or $200,000 (joint). This checks every condition and estimates the deduction, including the married-filing-separately rule most people assume works the opposite way it actually does. Source: 26 U.S.C. section 163(h)(4) as added by Public Law 119-21 (2025), and Treasury's proposed regulations of 2026-01-02. As of 2026-09-24.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/auto-loan-interest-deduction-calculator/)

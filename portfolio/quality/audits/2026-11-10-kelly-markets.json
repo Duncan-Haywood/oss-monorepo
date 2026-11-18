@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/kelly-markets",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a quantitative researcher in online learning / prediction markets (reviewer for COLT, EC or Management Science) who knows Kelly 1956, Thorp, MacLean-Thorp-Ziemba and Beygelzimer-Langford-Pennock",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran python3 -I recomputations in numpy that share no code with model.py: lam* by numerical maximisation of log-growth (0.4, 0.6667, 0.4 match), E4 growth values to 5 dp and the 0.72 zero crossing, manipulation cost by exact two-outcome enumeration (-0.122241 both ways), LMSR cost from the cost function giving 1.2604x and 7.5110x stiffness, own lam=1 market simulation equal to the Bayes mixture (42.8503), clearing residual 0, and E3 regret from a re-implementation with a different RNG (1629/502/544 vs 1645/522/563 published, same ordering and best-lambda). Every number checked is right and the derivations in the paper (regret via concavity, conservation, chi2 law) check out. Not 4: the E3 and regret-vs-bound claims rest on seeded simulation only, and two prose summaries of results.txt are off (see claims).",
+    "completeness": "Everything the README lists works end to end: 11 tests pass, run.py reproduces results.txt byte for byte, figure and paper exist, live page returns 200, sibling projects referenced exist. Not 4 because the paper's own limitations list (no lower bound, no switching baseline, binary static experts) leaves the research programme visibly open and the project is outside any PROGRAMMES.md programme.",
+    "verification": "PYTHONPATH=src python3 -m unittest discover -s tests: 11 OK in 0.09 s. Seven hand-seeded mutations in model.py (price weights, chi2 denominator, optimal_lambda, regret_bound, growth, bayes prior, manipulation weight) were all caught, git diff clean afterwards. Tests are property based (200-300 random instances, adversarial sequence, grid search, exact identities) and are genuinely independent of the formulas. Gaps: no test for kl, lmsr_cost against a known value, for run.py/E3 (the headline switching result has zero tests), or for degenerate input.",
+    "craft": "Read model.py (127 lines), tests, run.py, figure.py. Small, clear, stdlib only, docstrings state the maths. Defects: unused `import random` in model.py; no input validation (price divides by zero when all lam are 0, kl raises on q in {0,1}, chi2 on p in {0,1}); __all__ re-exported with star import; experiments redefine the oracle loss inline; a test line `rng.choice([0.0,1.0]) * 0 + ...` is a leftover no-op. Not 2: nothing is wrong in behaviour.",
+    "claims": "Backed: bound holds on 300 random and an adversarial run (test file), lam* formula, 1e-8 Bayes identity, chi2 law, stiffness ratios 1.26/1.74/2.57/7.51, E1 table, test count. Not backed: the abstract's 'lambda of 0.05-0.2 cuts regret 3-7x' is 2.1x at P=25 (1631 vs 772-783) and under 3x until about P=100; '~1630 for every period P<=600' is 1500 at P=600; the paper has no reference list and the contributions paragraph lists the lam-weighted price, the Bayes identity at lam=1 and lam* as contributions although they are standard (Kelly 1956; Beygelzimer et al. 2012 for the market, bound and learning-rate reading). 'Exact Bayes identity' presented as a result of this paper is overstated novelty.",
+    "fitness": "As research: the nearest prior work is Kelly 1956 (growth-optimal betting; at lam=1 a Kelly market is Bayesian), Thorp 1969/2006 and MacLean-Thorp-Ziemba 2010 (fractional Kelly is shrinking the belief toward the market, equivalently lam* = (pi-p)/(q-p)), Beygelzimer-Langford-Pennock 2012 'Learning performance of prediction markets with Kelly bettors' (wealth-weighted price, Kelly fractions, Bayes at full Kelly, regret in log-loss) and Kets-Pennock-Sethi-Shah 2014, Blume-Easley / Sandroni market selection; for manipulation Hanson 2003 and Chen-Pennock; for switching Herbster-Warmuth fixed-share. The sections 1-4 reproduce known results with a clean proof; the new pieces are the heterogeneous-lam bound ln(1/s)/lam (a small extension), the V*chi2 manipulation law with the LMSR comparison (a nice, correct, small observation) and the two-regime switching table. No real data, one regime pair, no baseline, no lower bound, not in a PROGRAMMES.md programme, not at the PhD+ bar of research/CLAUDE.md (a short note rather than a publishable paper). A researcher can build on the code and the chi2 law, not on a claimed novel framework.",
+    "domain": "A prediction-market theorist would sign off on the maths but ask first for the related-work section and for what is new over Beygelzimer et al. A quant would note that 'fractional Kelly' here is the cash-blend form (Thorp's) and that lam* assumes pi known; the switching remedy in the literature is fixed-share or discounting, which the paper defers, so the 'best lam falls with period' conclusion is untethered from the standard solution. Also uses an unreferenced LMSR comparison in b=2V units, which is appropriate."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "growth-optimal Kelly fraction for (pi,p,q)=(0.8,0.7,0.95),(0.3,0.5,0.2),(0.6,0.4,0.9)",
+      "method": "numerical maximisation of expected log-growth (golden section), not the author's grid",
+      "command": "python3 -I chk.py",
+      "expected": "0.4, 0.6667, 0.4",
+      "observed": "0.40000002, 0.66666666, 0.40000001; max growth 0.025732 matches results.txt 0.02573",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E4 growth per round at lam=0.1,0.4,0.8,1.0 and zero crossing",
+      "method": "direct evaluation of pi ln(1-l+l q/p)+(1-pi)ln(...) with numpy and bisection",
+      "command": "python3 -I chk.py",
+      "expected": "+0.01067,+0.02573,-0.01867,-0.11405; zero near 0.72",
+      "observed": "identical to 5 dp; bisection root 0.719",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "manipulation cost V*chi2 at V=2,p0=0.5,q=0.9,p=0.62",
+      "method": "exact enumeration of manipulator wealth change over both outcomes under truth p0",
+      "command": "python3 -I chk.py",
+      "expected": "-0.122241",
+      "observed": "-0.122241 (price returned 0.62 exactly)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "LMSR b*KL and Kelly/LMSR stiffness ratio at p=0.8 and 0.99 (b=2V)",
+      "method": "LMSR cost function C(x)=b ln(1+e^(x/b)), expected loss of buying to price p under truth p0 (Hanson 2003 form)",
+      "command": "python3 -I chk.py",
+      "expected": "ratios 1.26 and 7.51",
+      "observed": "LMSR cost 0.446287 = b*KL; ratios 1.2604 and 7.5110",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "lam=1 market log-loss equals Bayes mixture, 7 experts, 60 rounds, own simulation",
+      "method": "independent numpy market simulation vs log-sum-exp mixture",
+      "command": "python3 -I chk.py",
+      "expected": "equal",
+      "observed": "42.850262305881 vs 42.850262305881; wealth conserved 10.6313 = 10.6313",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "heterogeneous-lambda clearing price clears both securities",
+      "method": "solve sum w(lam q+(1-lam)p)/p = sum w with the closed-form price in numpy",
+      "command": "python3 -I chk.py",
+      "expected": "residual 0",
+      "observed": "price 0.37105, residual 0.0",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "E3 switching regret, P=100 and 600, lam in {1,0.2,0.1}, 20 seeds",
+      "method": "independent numpy implementation with a different RNG (numpy default_rng) so only statistics should agree",
+      "command": "inline python3 -I",
+      "expected": "about 1645/522/563 and 1501/333/245",
+      "observed": "1629/502/544 and 1502/331/245",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "unit suite",
+      "method": "author tests",
+      "command": "PYTHONPATH=src python3 -m unittest discover -s tests",
+      "expected": "11 pass",
+      "observed": "Ran 11 tests OK, 0.09 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "experiments/run.py regenerates results.txt",
+      "method": "rerun and diff",
+      "command": "PYTHONPATH=src python3 experiments/run.py | diff - results.txt",
+      "expected": "identical",
+      "observed": "identical (deterministic)",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "abstract: 'lambda 0.05-0.2 cuts regret 3-7x' vs table",
+      "method": "ratio of lam=1 row to lam 0.05-0.2 in whitepaper section 6 and results.txt",
+      "command": "arithmetic on results.txt",
+      "expected": "3-7x for every P",
+      "observed": "P=25: 1631/772-783 = 2.1x; P=100: 2.4-3.2x; P=600: 5.5-6.1x (best 6.1x)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "'regret about 1630 at T=4000 for every period P<=600'",
+      "method": "results.txt lam=1.0 column",
+      "command": "read results.txt",
+      "expected": "1630 for all P",
+      "observed": "1631,1632,1645,1635,1632,1500 (P=600 is 1500)",
+      "result": "partial"
+    },
+    {
+      "dimension": "claims",
+      "what": "paper cites prior work: Kelly 1956, Thorp, MacLean-Thorp-Ziemba, Beygelzimer-Langford-Pennock 2012",
+      "method": "grep for citations in paper and README",
+      "command": "grep -in 'kelly 1956|thorp|ziemba|beygelzimer|pennock' paper README",
+      "expected": "present",
+      "observed": "no references section at all; only internal pointers to sibling projects",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "README test count and runtime '11 tests, <1 s'; live page",
+      "method": "count and load",
+      "command": "unittest; curl https://marisstella.app/research/kelly-markets/",
+      "expected": "11, <1 s, page up",
+      "observed": "11 tests 0.09 s; HTTP 200",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "paper cross-references sibling projects market-manipulation and wagering-modular-experts exist",
+      "method": "ls",
+      "command": "ls research/market-manipulation research/wagering-modular-experts",
+      "expected": "exist",
+      "observed": "both exist",
+      "result": "pass"
+    },
+    {
+      "dimension": "fitness",
+      "what": "paper's result compared against a baseline for switching (fixed-share/Hedge with restarts)",
+      "method": "read section 6/8",
+      "command": "read paper",
+      "expected": "a baseline",
+      "observed": "none; only lam sweep vs oracle; fixed-share explicitly deferred",
+      "result": "fail"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "model.py:31",
+      "change": "price weights l*x -> x (drop risk tolerance)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "model.py:27",
+      "change": "chi2 denominator p*(1-p) -> p",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "model.py:89",
+      "change": "optimal_lambda (pi-p)/(q-p) -> (pi-p)/(q+p)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "model.py:114",
+      "change": "regret_bound ln(1/s)/lam -> ln(1/s)*1",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "model.py:80",
+      "change": "growth second branch (1-q)/(1-p) -> (1-q)/p",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "model.py:122",
+      "change": "bayes_log_loss prior w/W -> uniform 1/n",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    },
+    {
+      "where": "model.py:99-100",
+      "change": "manip_lambda_weight denominator (q-p) -> (q-p0)",
+      "caught": true,
+      "test_cmd": "PYTHONPATH=src python3 -m unittest discover -s tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "No citations. Kelly 1956, Thorp, MacLean-Thorp-Ziemba, Beygelzimer-Langford-Pennock 2012 (same wealth-weighted Kelly market, Bayes at full Kelly, learning-rate reading) are absent, so the listed contributions (lam-weighted price, lam=1 Bayes identity, lam*) are presented as new when they are known; the novelty is overstated.",
+      "where": "research/kelly-markets/paper/whitepaper.md:42",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Abstract says lambda 0.05-0.2 cuts regret 3-7x; the table gives 2.1x at P=25 and about 2.4x at P=100 for lam 0.05-0.2.",
+      "where": "research/kelly-markets/paper/whitepaper.md:5",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "low",
+      "what": "'Regret about 1630 for every period P<=600' while results.txt shows 1500.5 at P=600; the README repeats it.",
+      "where": "research/kelly-markets/README.md:11",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "The headline switching result (E3) has no test and no baseline (fixed-share or Hedge with restarts); the conclusion about the best lambda is not placed against the standard remedy.",
+      "where": "research/kelly-markets/experiments/run.py:38",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "Unused import random; no input validation (all-zero lam divides by zero, kl/chi2 raise at 0 or 1).",
+      "where": "research/kelly-markets/src/kelly_markets/model.py:9",
+      "category": "code-craft",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "kl, lmsr_cost, growth and the experiment scripts are not tested against a known value; leftover no-op expression in a test.",
+      "where": "research/kelly-markets/tests/test_model.py:70",
+      "category": "untested-core",
+      "origin": "tests"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "Sound, small and correct: every number I recomputed independently (closed-form lam*, growth, chi2 manipulation cost by enumeration, LMSR stiffness, Bayes identity, switching regret under a different RNG) matched, the 11 tests pass and caught 7 of 7 seeded mutations, and results.txt reproduces exactly. It does not meet the bar because claims scores 2: the paper has no related work, presents known Kelly-market results (Kelly 1956, Beygelzimer-Langford-Pennock 2012, Thorp fractional Kelly) as contributions, and two summary figures in the abstract and README overstate the table. As research it is a note-sized extension (heterogeneous-lam bound, chi2 manipulation law) with no real data or switching baseline, below the repository's PhD+ bar."
+}

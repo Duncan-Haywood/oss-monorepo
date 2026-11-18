@@ -255,7 +255,7 @@
       const inp = read();
       const bid = { ...last, burdenPct: Number($("#burden").value) || 0, overheadPct: Number($("#over").value) || 0 };
       const c = closeoutJob(bid, { hours: $("#co-hours").value, materials: $("#co-materials").value, subs: $("#co-subs").value, equipment: $("#co-equip").value, revenue: $("#co-revenue").value });
-      const stored = saveJobs(loadJobs().concat([{ name: $("#co-name").value.trim(), date: new Date().toISOString().slice(0, 10), bidPrice: bid.price, bidDirect: bid.direct, bidContingencyPct: Number(inp.contingencyPct) || 0,
+      const stored = saveJobs(loadJobs().concat([{ name: $("#co-name").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10), bidPrice: bid.price, bidDirect: bid.direct, bidContingencyPct: Number(inp.contingencyPct) || 0,
         bidLaborHours: bid.hours, actualHours: Number($("#co-hours").value), actualDirect: c.direct, revenue: c.revenue, profit: c.profit, marginPct: c.marginPct, targetMarginPct: bid.marginPct }]));
       record("job_closed");
       $("#co-msg").textContent = stored ? "Saved on this device." : "Could not save (storage is blocked); the result below still holds.";
@@ -295,7 +295,7 @@
     if (!last) { $("#wr-msg").textContent = "Fix the bid above first."; return; }
     const m = bidMarginPct(last.price, last.fullCost);
     if (m === null) { $("#wr-msg").textContent = "That bid has no margin to log."; return; }
-    saveBids(loadBids().concat([{ marginPct: Math.round(m * 100) / 100, won, date: new Date().toISOString().slice(0, 10) }]));
+    saveBids(loadBids().concat([{ marginPct: Math.round(m * 100) / 100, won, date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) }]));
     record("bid_logged"); $("#wr-msg").textContent = won ? "Logged as won." : "Logged as lost."; renderWinRate();
   };
   $("#wr-add").onclick = () => {
@@ -305,7 +305,7 @@
       const [p, c, w] = row.replace(/[$]/g, "").split(",").map((x) => x.trim());
       const m = bidMarginPct(p, c);
       if (m === null || !/^(1|0|won|lost|true|false|yes|no)$/i.test(w || "")) { skipped++; continue; }
-      added.push({ marginPct: Math.round(m * 100) / 100, won: /^(1|won|true|yes)$/i.test(w), date: new Date().toISOString().slice(0, 10) });
+      added.push({ marginPct: Math.round(m * 100) / 100, won: /^(1|won|true|yes)$/i.test(w), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
     }
     if (added.length) { saveBids(loadBids().concat(added)); record("bids_imported"); $("#wr-import").value = ""; }
     $("#wr-msg").textContent = `${added.length} added${skipped ? `, ${skipped} line${skipped === 1 ? "" : "s"} skipped (need price,cost,won with cost below price)` : ""}.`;

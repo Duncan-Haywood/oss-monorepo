@@ -118,6 +118,14 @@ class CompareCoverage(unittest.TestCase):
         past = cdc.compare_coverage(baseline, current, max_drop_pct=0)
         self.assertTrue(past["overallDropped"])
 
+    def test_max_drop_rejects_infinity_and_nan(self):
+        # An infinite allowance turns the gate into a silent always-pass; the
+        # browser page already rejects it (Number.isFinite), so the CLI must too.
+        report = cobertura(1, 1, [{"filename": "a.py", "lines": [{"number": 1, "hits": 1}]}])
+        for bad in (float("inf"), float("nan"), -1):
+            with self.assertRaises(ValueError):
+                cdc.compare_coverage(report, report, max_drop_pct=bad)
+
     def test_improvement_is_not_a_drop(self):
         baseline = cobertura(1, 2, [{"filename": "a.py", "lines": [{"number": 1, "hits": 1}, {"number": 2, "hits": 0}]}])
         current = cobertura(2, 2, [{"filename": "a.py", "lines": [{"number": 1, "hits": 1}, {"number": 2, "hits": 1}]}])

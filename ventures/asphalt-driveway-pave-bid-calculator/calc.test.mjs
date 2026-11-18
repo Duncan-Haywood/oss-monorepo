@@ -279,3 +279,14 @@ test('fabric is billed only when the shop turns it on', () => {
   assert.ok(withFabric.fabricMaterial > 0);
   assert.ok(withFabric.price > without.price);
 });
+
+// Quality audit 2026-11-12: Number('') is 0, so a cleared mix-cost field priced the job $1,635 lower in silence.
+test('a blank number field is rejected, not read as zero', () => {
+  const D = { hoursTrip: 1.5, siteHours: 0.75, permitFee: 125, hourlyWage: 38, burdenRate: 32, travelAndEquipment: 425, overheadRate: 16, targetMargin: 28 };
+  const job = { ...D, ...suggestedMethodKit('mill-overlay'), ...JOB_PRESETS[3] };
+  assert.doesNotThrow(() => calculateBid(job));
+  for (const key of ['hourlyWage', 'hoursTrip']) {
+    assert.throws(() => calculateBid({ ...job, [key]: '' }), /blank/);
+    assert.throws(() => calculateBid({ ...job, [key]: '   ' }), /blank/);
+  }
+});

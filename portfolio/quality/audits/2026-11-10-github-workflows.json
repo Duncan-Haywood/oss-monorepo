@@ -1,0 +1,98 @@
+{
+  "date": "2026-11-10",
+  "stratum": "topical",
+  "seed": "topical: owner request 2026-11-10 (CI/CD process and Cloudflare infrastructure)",
+  "auditor": "agent session (Claude) with three parallel auditor agents, see run record",
+  "status": "audited",
+  "subject": ".github/workflows",
+  "professional": "a senior CI/release engineer who owns a public monorepo's GitHub Actions fleet. First checks: can a fork PR reach a secret or a self-hosted runner, is every job bounded, are actions pinned, and do the files say true things.",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 3
+  },
+  "evidence": {
+    "correctness": "A static script (PyYAML 6.0.3) over all 129 workflow files: 0 parse failures; 177 of 177 jobs have timeout-minutes (max 120, opencode-high-throughput.yml:123); 129 of 129 files have a top-level permissions block; 414 of 414 `uses:` pinned to a 40-char SHA. The one pull_request_target (branch-cleanup.yml:41) and one workflow_run (agent-pr-auto-merge.yml:66) both check out the base/default branch with persist-credentials false. Script-injection scan: 3 hits, all numeric PR numbers; every inputs.* reaches run: through env:. `python3 platform/ci/validate_workflows.py` -> 'All 129 workflow files are valid.'",
+    "completeness": "All 7 validate_workflows invariants and the 9 checkers in `python3 platform/ci/dogfood_workflows.py` ('ok: 9 checkers, no unaccepted findings') pass. Gaps found: two `paths:` filters name directories that do not exist (.github/scripts/**, .github/actions/**: agent-permission-harness-ci.yml:63, workflow-self-audit.yml:15,18); 26 CI workflows have no cancel-in-progress; six daily social-posting workflows have no concurrency group.",
+    "verification": "`pytest -q` over the four workflow-check test files: 96 passed. Seeded `and False` into the least-privilege check (validate_workflows.py:194): 2 failed, 56 passed, caught; reverted. Gap: the repo's own self-hosted-exposure checker classifies 173 of 177 jobs as 'dynamic' and dogfood excludes it, so the rule 'no fork PR on a self-hosted runner' is checked by nobody automatically (this audit checked it by hand: 170 guarded, 4 literal ubuntu-latest, 2 schedule-only, 1 matrix).",
+    "craft": "170 copies of one runs-on expression route through vars.CI_RUNNER, a switch for the self-hosted runner retired 2026-10-01; 24 comment lines in 14 files cite deleted hetzner-gitops-ci.yml or gitops/ci/* (`ls` -> no such file); 42 pip installs, none hashed, 6 unversioned; write scopes granted file-wide in retail-pilot-intel-deploy-docs.yml:22-25, distribute-releases, distribute-mcp, distribute-npm. Otherwise consistently commented and pinned.",
+    "claims": "False statements found: opencode-high-throughput.yml:3 says 'Hourly' (trigger is dispatch-only); dogfood_workflows.py:14-19 says '536 workflows'/'577 rows' (129/177 now); the repo's minutes estimator, run on this fleet, called the hourly `41 * * * *` cron 'more often than hourly' (estimate.mjs:670, 730 > 720; fixed in the PR, test added). Security comments in branch-cleanup.yml and agent-pr-auto-merge.yml were checked and are true.",
+    "fitness": "The job of a CI owner walked, statically and from run history (GitHub API, 2026-11-10). Statically sound: every job bounded, fork PRs on GitHub-hosted runners, secrets in environments, worst case 37,444 runner-minutes/month at $0 (public repo). In use it does not gate: the live `main` ruleset (API /rulesets/26239454, updated 2026-10-30) has no required_status_checks and require_code_owner_review false, while .github/rulesets/main.json asks for both, so red PRs merge. Over 300 push runs on main: portfolio-validate failed 32 of 32 completed, prompts-ci 30 of 30 (red over 14 h, last green run 42625884377), portfolio-pages 21 of 28. Runners are not the problem: per-job queue 2-4 s on 20 sampled runs, ci_starvation.py on 42753076891 says every job got a runner.",
+    "domain": "Compared with OpenSSF Scorecard / StepSecurity hardening practice: full SHA pinning, least-privilege permissions on every file, persist-credentials false on 171 of 173 checkouts (the 2 exceptions push and are listed as accepted), env-mediated inputs, safe pull_request_target. Departures: no pip --require-hashes, some file-level write scopes, no egress control (harden-runner), CI_RUNNER indirection outliving its runner."
+  },
+  "defects": [
+    {
+      "severity": "high",
+      "what": "The live main ruleset requires no status checks and no code-owner review; .github/rulesets/main.json requires both (conflict-markers, control-plane, code-owner review). Red PRs merge (e.g. #14424 merged 10 s after its Pages check failed, run 42753053539), and three workflows were red on main on 2026-11-10. Owner action: asks.yaml cloudflare-mail-and-ruleset.",
+      "where": ".github/rulesets/main.json vs GitHub ruleset 26239454"
+    },
+    {
+      "severity": "medium",
+      "what": "prompts-ci was red on main for over 14 hours (test_overlong_post_description_is_reported). Root cause outside prompts/: platform/ci/check_post_frontmatter.py gained an import that crashes when the test copies it alone, and promptctl.validate_posts reads only stdout, so the crash read as 'no problems' (a silent fallback in a gated file). Fixed in the PR on the checker side, with a test.",
+      "where": "platform/ci/check_post_frontmatter.py:21; prompts/promptctl.py:590-603 (validate_posts)"
+    },
+    {
+      "severity": "medium",
+      "what": "26 of 75 open PRs touch .github/ and wait on owner approval; several repeat one fix (ventures-tests sparse checkout: #13748, #13868, #14240, #14251; sibling links: #12946, #13582), and #12910 (Pages build timeout 20 to 45 min) is obsolete: builds take 4 to 7 min.",
+      "where": "open PRs touching .github/"
+    },
+    {
+      "severity": "medium",
+      "what": "172 runs-on lines route through vars.CI_RUNNER, the switch for the self-hosted runner retired 2026-10-01; if the variable is ever set, jobs queue for a runner that does not exist. The value could not be read from here.",
+      "where": ".github/workflows/*.yml (runs-on)"
+    },
+    {
+      "severity": "medium",
+      "what": "The repo's own self-hosted-exposure checker cannot evaluate the fleet's runs-on expression (173 of 177 jobs 'dynamic') and dogfood_workflows.py excludes it, so the fork-to-self-hosted rule has no automated check.",
+      "where": "ventures/actions-self-hosted-exposure-check; platform/ci/dogfood_workflows.py"
+    },
+    {
+      "severity": "medium",
+      "what": "Daily public posting workflows have no concurrency group; a manual dispatch overlapping the cron can post twice (script-side dedupe not checked).",
+      "where": ".github/workflows/distribute-{bluesky,devto,hashnode,mastodon,hub,shorts}.yml"
+    },
+    {
+      "severity": "low",
+      "what": "Write permissions granted at file level instead of to the one job that needs them.",
+      "where": ".github/workflows/retail-pilot-intel-deploy-docs.yml:22-25; distribute-releases.yml; distribute-mcp.yml; distribute-npm.yml"
+    },
+    {
+      "severity": "low",
+      "what": "24 comment lines in 14 workflow files (and platform/ci/run_workflow_locally.py:214) cite deleted hetzner-gitops-ci.yml and gitops/ci/*.",
+      "where": ".github/workflows/portfolio-pages.yml:200,541 and 13 others"
+    },
+    {
+      "severity": "low",
+      "what": "paths: filters name .github/scripts/** and .github/actions/**, which do not exist.",
+      "where": ".github/workflows/agent-permission-harness-ci.yml:63; workflow-self-audit.yml:15,18"
+    },
+    {
+      "severity": "low",
+      "what": "Header says 'Hourly'; the workflow is dispatch-only.",
+      "where": ".github/workflows/opencode-high-throughput.yml:3"
+    },
+    {
+      "severity": "low",
+      "what": "Docstring counts are stale: '536 workflows', '577 rows' (129 and 177 now).",
+      "where": "platform/ci/dogfood_workflows.py:14-19"
+    },
+    {
+      "severity": "low",
+      "what": "The minutes estimator flagged every hourly cron as 'more often than hourly' (730 runs/month vs a 720 bar).",
+      "where": "ventures/actions-minutes-estimator/estimate.mjs:670"
+    },
+    {
+      "severity": "low",
+      "what": "42 pip install lines without hashes, 6 without a version pin.",
+      "where": ".github/workflows/*.yml"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14427"
+  ],
+  "verdict": "On security a senior CI engineer would sign off on this fleet: 129 files parse, every one of 177 jobs is time-bounded, every file declares permissions, all 414 action references are SHA-pinned, the two privileged triggers check out trusted code, and fork PRs cannot reach a self-hosted runner. As a process it does not meet the bar. The live ruleset enforces neither green CI nor the CODEOWNERS review the repository describes, so red PRs merge and three workflows were red on main on the audit day. Comments, docstrings and the CI_RUNNER switch still describe the self-hosted runner retired a month ago, and the repo's own self-hosted checker cannot read its own fleet (claims 2, craft 2, fitness 2). Runners are fast; the failures are real ones that merging past red lets through. Scores are before any fix."
+}

@@ -4,6 +4,10 @@ Follow-up to `codesign-aero-cant-kappa` (track 14, `codesign`). That project mad
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-propdata/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, cant's advantage and its 35° plateau survive the correction.
+
+**Audit note (2026-11-13).** [`portfolio/quality/audits/2026-11-13-codesign-aero-cant-propdata.json`](../../portfolio/quality/audits/2026-11-13-codesign-aero-cant-propdata.json): the regex in `experiments/extract_c.py` skips 45 of the 205 UIUC static files (the `da40xx` and `apc29ff` families, multi-blade files and others; 27 of them in the diameter range). Including the two-blade ones moves the median c from 0.081 to about 0.082. So "every static file" below means every file the regex matched. The 160 rows are test files: the 77 in range cover 75 distinct propellers. `fetch()` also saves an HTML challenge page as if it were data. Only `codesign-cant` has rerun the cant result with the corrected torque limits, and only at c = 0.081.
+
 ![Left: held-out error against the cant bound for c at the 10th, 50th and 90th percentile and maximum of measured propellers. Right: the cant angle chosen](experiments/propdata.png)
 
 **Headline (all numbers from `experiments/results.txt` and `data/propdata_c.csv`).**
@@ -26,6 +30,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - Static (zero-airspeed) coefficients only; CP/CT of a loaded propeller in forward flight differs. Hover is what is simulated.
 - The set is mostly hobby propellers (APC, GWS, Graupner, Master Airscrew and others) tested at the laboratory's RPM; c is a median over the RPM rows of each file, not at the optimiser's operating point. Several families repeat across diameters, so the 77 are not independent.
 - Cost, mass and motor models and plant ranges are inherited assumed fits; attitude steps only; no position hold; no hardware.

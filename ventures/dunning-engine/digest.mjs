@@ -1,11 +1,9 @@
 // Weekly "what did recovery do" email to the owner. Pure: builds the numbers
 // and the text from the state; the server decides when to send it.
-import { formatMoney } from "./dunning.mjs";
+import { formatMoneyMap as money } from "./dunning.mjs";
 
 export const DIGEST_EVERY_MS = 7 * 86400000;
 
-const byCurrency = (m) => Object.entries(m).sort(([a], [b]) => (a < b ? -1 : 1)).map(([cur, minor]) => formatMoney(minor, cur));
-const money = (m) => (Object.keys(m).length ? byCurrency(m).join(" + ") : "nothing");
 
 // Counts cases opened and closed in (now - windowMs, now]. Holdout cases are
 // reported apart so they never inflate or deflate the recovery rate.

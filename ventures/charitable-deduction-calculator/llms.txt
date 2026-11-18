@@ -4,6 +4,10 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+## What it answers
+
+Starting in 2026, the One Big Beautiful Bill Act gives non-itemizers a new above-the-line charitable deduction — up to $1,000 single, $2,000 married filing jointly. At the same time, itemizers face a new 0.5%-of-AGI floor that washes out the first slice of charitable giving on Schedule A. This tool runs both paths on your own numbers, side by side. Source: 26 U.S.C. section 170, including the new section 170(p), as amended by Public Law 119-21 (2025); the deduction is for cash gifts to public charities only, not donor-advised funds. As of 2026-09-25.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/charitable-deduction-calculator/)

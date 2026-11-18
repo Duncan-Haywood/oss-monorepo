@@ -48,8 +48,8 @@ export function parseMapping(text, cur = "") {
 }
 export const mappingText = (mapping = defaultMapping()) => CATEGORY_ORDER.map((k) => `${k} = ${mapping[k]}`).join("\n");
 
-const dollars = (c) => (c < 0 ? "-" : "") + (Math.abs(c) / 100).toFixed(2);
-export const money = (c, cur = "USD") => (c < 0 ? "-" : "") + Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur;
+const dollars = (c) => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((Math.abs(c) / 100).toFixed(2));
+export const money = (c, cur = "USD") => ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(c / 100).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " " + cur);
 
 // ---- parsing -----------------------------------------------------------------
 
@@ -66,7 +66,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
 
 export function parseAmount(s) {
   const t = String(s ?? "").trim().replace(/\s/g, "");
@@ -92,8 +92,8 @@ export function parseDate(s, order = "dmy") {
   if (!t) return null;
   let y, m, d, x;
   if ((x = t.match(/^(\d{4})-(\d{2})-(\d{2})/))) [y, m, d] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})[.-](\d{1,2})[.-](\d{4})/))) [d, m, y] = [x[1], x[2], x[3]];
-  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
+  else if ((x = t.match(/^(\d{1,2})[.-](\d{1,2})[.-](\d{4})(?!\d)/))) [d, m, y] = [x[1], x[2], x[3]];
+  else if ((x = t.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})(?!\d)/))) { if (order === "dmy") [d, m, y] = [x[1], x[2], x[3]]; else [m, d, y] = [x[1], x[2], x[3]]; }
   else if ((x = t.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?,?\s+(\d{4})/))) { const mi = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"].indexOf(x[2].toLowerCase()); if (mi < 0) return null; [d, m, y] = [x[1], mi + 1, x[3]]; }
   else return null;
   const dt = new Date(Date.UTC(+y, +m - 1, +d));
@@ -140,7 +140,7 @@ const kindOf = (desc, amt, hasExchange, type = "") => {
 export function parseStatement(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const first = lines.findIndex((l) => l.trim());
   const none = { rows: [], currency: "", findings, feeMode: "included" };
   if (first < 0) { add("error", "The file is empty", "Paste or choose a Payoneer statement CSV."); return none; }
@@ -188,6 +188,9 @@ export function parseStatement(text, opts = {}) {
   for (let i = first + 1; i < lines.length; i++) {
     if (!lines[i].trim()) continue;
     const cells = splitLine(lines[i], d);
+    // An unquoted thousands separator ("1,001.40") splits one field in two and shifts the columns after it, so the
+    // status read as "157.10" and the row was skipped as not completed, with only an info note.
+    if (cells.length > head.length && cells.slice(head.length).some((x) => x.trim() !== "")) { add("error", `Line ${i + 1} has ${cells.length} fields but the header has ${head.length}`, "An amount with a thousands separator needs quotes (\"1,001.40\"); export the CSV again or remove the comma. The row is left out.", i + 1); continue; }
     const amount = amountOf(cells), balance = parseAmount(get(cells, "balance")), fee = parseAmount(get(cells, "fee")), rate = parseRate(get(cells, "rate"));
     const label = get(cells, "id") || `line ${i + 1}`;
     if (amount === null || Number.isNaN(amount) || Number.isNaN(balance) || Number.isNaN(fee)) { add("error", `An amount on ${label} is not a number`, "The row is left out, so the running balance will not follow.", i + 1); continue; }

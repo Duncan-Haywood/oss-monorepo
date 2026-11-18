@@ -105,3 +105,26 @@ test("the taper-trap finding appears only for incomes inside the 100k to 125,140
   assert.ok(!compute({ gift: "1000", income: "60000", prevIncome: "" }).findings.some((f) => trap.test(f.title)));
   assert.ok(!compute({ gift: "1000", income: "150000", prevIncome: "" }).findings.some((f) => trap.test(f.title)));
 });
+
+// Red team 2026-11-16: the carry-back election is due with the previous
+// year's return, by 31 January after the *previous* tax year (ITA 2007
+// s426). The finding and the page FAQ said "after this tax year", a year
+// later than the real deadline, so a reader could miss the election.
+test("the carry-back finding gives the previous year's deadline, not a year later", () => {
+  const r = compute({ ...SAMPLE, income: "30000", prevIncome: "80000" });
+  const f = r.findings.find((x) => /Carrying the gift back/.test(x.title));
+  assert.match(f.title, /31 January after the end of the previous tax year/);
+  assert.doesNotMatch(f.title, /after this tax year/);
+});
+
+test("cost per pound the charity receives is the best cost over the gross gift", () => {
+  const r = compute(SAMPLE); // £800 net, £1,000 gross, £600 cost
+  assert.equal(Math.round(r.costPerPound * 100) / 100, 0.6);
+  assert.match(summaryText(r), /per £1 the charity receives: £0\.60/);
+});
+
+test("the taper-trap finding prints whole-pound amounts with a £ sign", () => {
+  const r = compute({ gift: "800", income: "110000", prevIncome: "" });
+  const f = r.findings.find((x) => /restore the full allowance/.test(x.title));
+  assert.match(f.title, /gross gift of £10,000 \(you give £8,000\)/);
+});

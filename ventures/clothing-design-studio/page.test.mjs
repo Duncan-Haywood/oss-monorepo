@@ -1,12 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { newDesign, applyOp } from "./design.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "sunglasses-profit-margin.html", "wholesale.html", "reorder.html", "orderlines.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "eutax.html", "discount.html", "spec.html", "timeline.html", "tiers.html", "startup.html", "testing.html"];
+// Every page in the folder: a hand-kept list had reached 33 of 52 pages by
+// 2026-11-12, and eight of the unlisted pages had lost the sponsor link or JSON-LD.
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -56,7 +58,7 @@ test("llms.txt and sitemap list every page", () => {
   const llms = read("llms.txt");
   const sitemap = read("sitemap.xml");
   assert.match(llms, /\d{4}-\d{2}-\d{2}/);
-  for (const f of PAGES.slice(1)) {
+  for (const f of PAGES.filter((f) => f !== "index.html")) {
     assert.ok(llms.includes(f), f);
     assert.ok(sitemap.includes(f), f);
   }
@@ -126,4 +128,15 @@ test("the sunglasses profit page matches what returns.mjs computes", async () =>
   const target = run(65, 12, { targetProfit: 10 }).priceForTarget;
   assert.ok(html.includes((Math.round(target * 1.21 * 100) / 100).toFixed(2)), "price for target");
   assert.match(html, /an assumption typed for illustration/);
+});
+
+test("the studio's form rows shrink with the column and style untyped inputs (no sideways scroll at 901 to 1,300 px)", () => {
+  // 2026-11-12: #sep-crop and #sep-knock have no type attribute, so the
+  // input[type=text] width rule missed them; at the browser's default width
+  // inside `1fr` tracks (minimum: content) they pushed the page 161 px wider
+  // than a 960 px window and squashed the paper select to "F".
+  const html = read("index.html");
+  assert.match(html, /input:not\(\[type\]\), input\[type=text\]/);
+  assert.match(html, /\.row \{ display: grid; grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/);
+  assert.match(html, /\.row3 \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
 });

@@ -1,0 +1,81 @@
+# Milestone 17: Weiss's wall and its anchorage (buildbot-sheathing)
+Weiss (2017): 8x8 ft, two vertical 4x8 ft 7/16 in OSB sheets on a single middle stud, DF-L No. 2 studs at 16 in, double end studs, single sill bolted down, double top plate, HTT4 hold-downs on the double end studs only; decay = every nail below 12 in omitted. Model: rigid-body limit analysis (LP, HiGHS), sill fixed, top plate, 7 studs (double end studs as one body) and 2 sheets as bodies; sheathing nails rigid-plastic (F, 64-gon); stud-to-plate joints of lateral capacity lat F per 16d end nail (2 per single stud, 4 per double), bearing in compression, opening against omega F; rigid hold-downs; top plate without rotation. Capacities in units of F per unit top displacement.
+
+## A. Inputs
+NDS yield limit (G 0.50, R_d 2.2): 8d common through 7/16 in OSB Z = 72.7 lb (mode IIIs); 16d common through a 1.5 in plate Z = 140.7 lb (mode IV); one end nail at C_eg 0.67 = 94.3 lb; lat = 1.2971 F per end nail
+Weiss Table 5-2 (means, lb): control 6-12 4688, decay 6-12 2649, control 3-12 8775, decay 3-12 2974
+share kept: 6-12 0.565, 3-12 0.339; decay 3-12 over decay 6-12 1.123; control 3-12 over 6-12 1.872; MCASHEW2 (Table 5-3) kept 6-12 0.53, 3-12 0.46
+
+## B. H75: one sheet in the wall LP against milestone 15's Frame
+8 cases (free and slide-only top plate, rigid and NDS joints, intact and Weiss): max relative difference 0.0e+00
+deviation from the plan: Frame has no rotation-free top plate, so the check uses its two top-plate modes
+H75 (within 1e-6): held
+
+## C. H76: the intact walls
+control 6-12: 124 nails, 19.075 F (pinned joints 19.979); at Fp 0.972 kN = 219 lb: 4,168 lb against 4,688 lb tested (0.89); F implied by the test 246 lb
+control 3-12: 220 nails, 36.834 F (pinned joints 37.632); at Fp 0.972 kN = 219 lb: 8,049 lb against 8,775 lb tested (0.92); F implied by the test 238 lb
+3-12 over 6-12: model 1.931, tested 1.872 (+3.2%)
+H76 (within 10%): held
+(the absolute check is not like-for-like: the backbone is for SPF framing, Weiss's walls were DF-L)
+
+## D. H77-H79: every nail below 12 in omitted
+decay 6-12: 15.173 F, keeps 79.5% (tested 56.5%, MCASHEW2 53%)
+decay 3-12: 23.348 F, keeps 63.4% (tested 33.9%, MCASHEW2 46%)
+decay 3-12 over decay 6-12: 1.539 (tested 1.123)
+H77 (6-12 keeps 47-67%): refuted; H78 (3-12 keeps 24-44%): refuted; H79 (ratio <= 1.25): refuted
+for comparison, milestone 15's lone sheet with a hold-down at each of its own end studs, same joints: keeps 78.9%
+
+### Variants (not scored): share kept, 6-12 | 3-12, and decay 3-12 over decay 6-12
+registered                                       intact  19.07 |  36.83   kept  79.5% |  63.4%   ratio  1.54
+top plate free                                   intact  18.99 |  36.46   kept  76.5% |  64.0%   ratio  1.61
+top plate slides only                            intact  19.97 |  37.34   kept  79.3% |  62.5%   ratio  1.47
+no hold-downs                                    intact  13.56 |  28.33   kept  50.0% |  51.2%   ratio  2.14
+hold-downs of capacity 5 F                       intact  16.83 |  31.54   kept  66.9% |  59.8%   ratio  1.68
+hold-downs of capacity 10 F                      intact  18.11 |  33.23   kept  77.7% |  67.1%   ratio  1.58
+hold-downs of capacity 20 F                      intact  19.07 |  35.45   kept  79.5% |  65.9%   ratio  1.54
+hold-downs of capacity 40 F                      intact  19.07 |  36.83   kept  79.5% |  63.4%   ratio  1.54
+withdrawal omega 0.25 F per end nail             intact  19.59 |  37.16   kept  79.8% |  62.8%   ratio  1.49
+withdrawal omega 0.5 F per end nail              intact  19.91 |  37.33   kept  79.5% |  62.6%   ratio  1.47
+withdrawal omega 1 F per end nail                intact  19.97 |  37.34   kept  79.3% |  62.5%   ratio  1.47
+withdrawal omega 2 F per end nail                intact  19.97 |  37.34   kept  79.3% |  62.5%   ratio  1.47
+sheets bear on each other at x = 48 in           intact  19.08 |  36.84   kept  79.6% |  63.4%   ratio  1.54
+pinned stud-to-plate joints                      intact  19.98 |  37.63   kept  79.6% |  75.9%   ratio  1.80
+decay: nails at z <= 12 in also omitted          intact  19.07 |  36.83   kept  76.6% |  62.5%   ratio  1.58
+decay: perimeter nails only (field kept)         intact  19.07 |  36.83   kept  79.5% |  63.4%   ratio  1.54
+
+## E. Mechanism the LP picks (per unit top-plate slide): each stud bottom's slide and lift (studs left to right), the sheets' rotation
+intact 6-12            cap  19.07: slide -0.000 -0.000 -0.000 -0.000 -0.000 -0.000 -0.000 | lift +0.0000 +0.1291 +0.0000 +0.0844 +0.1291 +0.0000 +0.0000 | sheet rot -0.0088 -0.0090 /in
+decay 6-12             cap  15.17: slide -0.000 -0.000 -0.000 +0.025 -0.000 -0.000 -0.000 | lift +0.0000 +0.1273 +0.0169 +0.1200 +0.1273 +0.0000 +0.0000 | sheet rot -0.0075 -0.0084 /in
+decay 3-12             cap  23.35: slide +1.000 +1.000 +1.000 +1.000 +1.000 +1.000 +1.000 | lift -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 | sheet rot -0.0000 -0.0000 /in
+decay 6-12, lat x 0.5  cap  11.67: slide +1.000 +1.000 +1.000 +1.000 +1.000 +1.000 +1.000 | lift -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 | sheet rot -0.0000 -0.0000 /in
+decay 3-12, lat x 0.5  cap  11.67: slide +1.000 +1.000 +1.000 +1.000 +1.000 +1.000 +1.000 | lift -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 -0.0000 | sheet rot -0.0000 -0.0000 /in
+
+## F. Post hoc, not registered: the stud-to-plate joint strength (multiple of the NDS ratio) against the tests
+x NDS   intact 6-12  decay 6-12  kept 6-12   intact 3-12  decay 3-12  kept 3-12   decay ratio  control ratio
+ 1.00         19.07       15.17      79.5%         36.83       23.35      63.4%         1.539          1.931
+ 0.90         19.07       15.16      79.5%         36.80       21.01      57.1%         1.386          1.929
+ 0.80         19.07       15.11      79.2%         36.75       18.68      50.8%         1.236          1.927
+ 0.75         19.07       15.06      78.9%         36.73       17.51      47.7%         1.163          1.926
+ 0.70         19.07       14.97      78.5%         36.71       16.34      44.5%         1.092          1.925
+ 0.65         19.06       14.87      78.0%         36.69       15.18      41.4%         1.021          1.925
+ 0.60         19.06       14.01      73.5%         36.66       14.01      38.2%         1.000          1.924
+ 0.55         19.02       12.84      67.5%         36.61       12.84      35.1%         1.000          1.925
+ 0.50         18.92       11.67      61.7%         36.46       11.67      32.0%         1.000          1.927
+ 0.45         18.82       10.51      55.8%         36.22       10.51      29.0%         1.000          1.925
+ 0.40         18.70        9.34      50.0%         35.91        9.34      26.0%         1.000          1.921
+ 0.35         18.56        8.17      44.0%         35.54        8.17      23.0%         1.000          1.915
+ 0.30         18.38        7.00      38.1%         35.11        7.00      19.9%         1.000          1.910
+ 0.25         18.14        5.84      32.2%         34.60        5.84      16.9%         1.000          1.908
+ 0.20         17.77        4.67      26.3%         34.00        4.67      13.7%         1.000          1.913
+frame sliding capacity: 18 end nails x lat = 23.35 F at the NDS ratio
+least-squares fit to the two tested shares (grid 0.30-0.75 in 0.01): 0.47 x NDS: keeps 58.2% (tested 56.5%) and 30.2% (tested 33.9%); decay ratio 1.000 (tested 1.123); rms error 2.9%
+if the decayed walls' capacity is the frame sliding on its 18 end nails: decay 6-12 147 lb per nail, decay 3-12 165 lb per nail (NDS Z for the 16d nail 141 lb, x C_eg 0.67 = 94 lb); the controls imply F = 246, 238 lb per sheathing nail (section C)
+
+## G. H80: every miss escapes, three reads on measured studs (20,000 sheets, seed 7), two sheets a wall
+2261 distinct sheet patterns; 10000 walls, 4551 distinct wall patterns
+registered (NDS joints)                 : mean loss 2.73%, 99th-percentile loss 10.41%, P(cap < 0.95) 0.1604, min 0.7850
+joints at 0.47 x NDS (section F fit)    : mean loss 2.67%, 99th-percentile loss 10.19%, P(cap < 0.95) 0.1529, min 0.7868
+milestone 14, per sheet: mean loss 2.34%, 99th-percentile loss 11.49% (milestone 14 results.txt, H63)
+H80 (mean within 1 point, p99 within 2 points): held
+
+303.4 s

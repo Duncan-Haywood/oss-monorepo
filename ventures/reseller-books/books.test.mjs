@@ -141,3 +141,20 @@ test("Shopify: Shopify files are not mistaken for another marketplace", () => {
   for (const [i, kind] of [[4, "shopify"], [5, "shopify-orders"]]) assert.equal(detectKind(files[i].text), kind);
   for (const i of [0, 1, 2, 3]) assert.ok(!/shopify/.test(detectKind(files[i].text)));
 });
+
+test("eBay with only some items costed leaves profit and cost of goods blank (quality audit 2026-11-17)", () => {
+  const eb = `Transaction creation date,Type,Order number,Item ID,Item title,Custom label,Quantity,Item subtotal,Shipping and handling,Final Value Fee - fixed,Final Value Fee - variable,Gross transaction amount,Net amount,Description
+2026-03-02,Order,O-1,111,Camera,E-1,1,50.00,10.00,-0.40,-8.16,60.00,51.44,
+2026-03-05,Order,O-2,222,Lens,E-2,1,100.00,0,-0.40,-13.60,100.00,86.00,
+`;
+  const partial = buildBooks([{ name: "eb.csv", text: eb }], { costs: "Camera,20" });
+  const c = partial.channels[0];
+  assert.equal(c.net, 137.44);
+  assert.equal(c.profit, null);
+  assert.equal(c.cogs, null);
+  assert.equal(partial.total.profit, null);
+  assert.ok(c.notes.some((n) => /left blank/.test(n)));
+  const full = buildBooks([{ name: "eb.csv", text: eb }], { costs: "Camera,20\nLens,30" });
+  assert.equal(full.channels[0].cogs, 50);
+  assert.equal(full.channels[0].profit, 87.44);
+});

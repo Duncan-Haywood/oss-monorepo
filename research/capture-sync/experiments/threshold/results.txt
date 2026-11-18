@@ -1,0 +1,208 @@
+capture-sync step 2a: threshold theory (Ianniello 1982, weighted GCC, measured spectra) vs observed
+trials per cell: 250; failure = more than one 30 fps frame (33.3 ms) off; search +-1.5 s
+columns per gamma: observed failure share of the smooth-weight GCC (fixed), of step 1's raw-bin GCC (raw),
+and the mean predicted probability, cells model (pred) and Rice model (rice), oracle-aligned spectra
+
+gauss  dry   white    -10 dB 0.5 s | g1.0  fix 0.084 raw 0.384 pred 0.171 rice 0.220 | g0.5  fix 0.072 raw 0.108 pred 0.159 rice 0.208 | g0.25 fix 0.072 raw 0.088 pred 0.155 rice 0.204 | g0.0  fix 0.072 raw 0.072 pred 0.152 rice 0.203
+gauss  dry   white    -10 dB 1.0 s | g1.0  fix 0.000 raw 0.008 pred 0.015 rice 0.022 | g0.5  fix 0.000 raw 0.000 pred 0.014 rice 0.021 | g0.25 fix 0.000 raw 0.000 pred 0.014 rice 0.021 | g0.0  fix 0.000 raw 0.000 pred 0.014 rice 0.021
+gauss  dry   white    -10 dB 2.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+gauss  dry   white    -10 dB 4.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+gauss  dry   white    -15 dB 0.5 s | g1.0  fix 0.976 raw 0.996 pred 0.776 rice 0.830 | g0.5  fix 0.976 raw 0.984 pred 0.770 rice 0.827 | g0.25 fix 0.980 raw 0.976 pred 0.767 rice 0.826 | g0.0  fix 0.976 raw 0.976 pred 0.763 rice 0.826
+gauss  dry   white    -15 dB 1.0 s | g1.0  fix 0.932 raw 0.960 pred 0.710 rice 0.772 | g0.5  fix 0.932 raw 0.956 pred 0.707 rice 0.771 | g0.25 fix 0.936 raw 0.936 pred 0.706 rice 0.770 | g0.0  fix 0.920 raw 0.920 pred 0.704 rice 0.770
+gauss  dry   white    -15 dB 2.0 s | g1.0  fix 0.616 raw 0.824 pred 0.479 rice 0.549 | g0.5  fix 0.620 raw 0.644 pred 0.476 rice 0.547 | g0.25 fix 0.616 raw 0.624 pred 0.475 rice 0.546 | g0.0  fix 0.616 raw 0.616 pred 0.473 rice 0.546
+gauss  dry   white    -15 dB 4.0 s | g1.0  fix 0.148 raw 0.384 pred 0.208 rice 0.259 | g0.5  fix 0.148 raw 0.164 pred 0.207 rice 0.259 | g0.25 fix 0.148 raw 0.144 pred 0.206 rice 0.258 | g0.0  fix 0.148 raw 0.148 pred 0.206 rice 0.258
+gauss  dry   white    -20 dB 0.5 s | g1.0  fix 0.976 raw 0.980 pred 0.842 rice 0.889 | g0.5  fix 0.980 raw 0.984 pred 0.843 rice 0.891 | g0.25 fix 0.980 raw 0.972 pred 0.843 rice 0.892 | g0.0  fix 0.984 raw 0.984 pred 0.842 rice 0.894
+gauss  dry   white    -20 dB 1.0 s | g1.0  fix 0.976 raw 0.984 pred 0.838 rice 0.885 | g0.5  fix 0.976 raw 0.988 pred 0.837 rice 0.884 | g0.25 fix 0.976 raw 0.980 pred 0.836 rice 0.884 | g0.0  fix 0.976 raw 0.976 pred 0.835 rice 0.884
+gauss  dry   white    -20 dB 2.0 s | g1.0  fix 0.956 raw 0.972 pred 0.801 rice 0.855 | g0.5  fix 0.952 raw 0.976 pred 0.799 rice 0.854 | g0.25 fix 0.952 raw 0.968 pred 0.798 rice 0.853 | g0.0  fix 0.948 raw 0.948 pred 0.797 rice 0.853
+gauss  dry   white    -20 dB 4.0 s | g1.0  fix 0.952 raw 0.940 pred 0.747 rice 0.802 | g0.5  fix 0.956 raw 0.960 pred 0.746 rice 0.802 | g0.25 fix 0.956 raw 0.956 pred 0.746 rice 0.802 | g0.0  fix 0.956 raw 0.956 pred 0.746 rice 0.802
+speech dry   white     +0 dB 0.5 s | g1.0  fix 0.052 raw 0.068 pred 0.004 rice 0.005 | g0.5  fix 0.044 raw 0.036 pred 0.004 rice 0.004 | g0.25 fix 0.052 raw 0.052 pred 0.004 rice 0.004 | g0.0  fix 0.060 raw 0.060 pred 0.004 rice 0.004
+speech dry   white     +0 dB 1.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   white     +0 dB 2.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   white     +0 dB 4.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   white    -10 dB 0.5 s | g1.0  fix 0.152 raw 0.344 pred 0.119 rice 0.159 | g0.5  fix 0.064 raw 0.076 pred 0.023 rice 0.034 | g0.25 fix 0.052 raw 0.056 pred 0.014 rice 0.018 | g0.0  fix 0.060 raw 0.060 pred 0.011 rice 0.015
+speech dry   white    -10 dB 1.0 s | g1.0  fix 0.012 raw 0.044 pred 0.010 rice 0.014 | g0.5  fix 0.000 raw 0.004 pred 0.001 rice 0.001 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   white    -10 dB 2.0 s | g1.0  fix 0.000 raw 0.008 pred 0.000 rice 0.001 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   white    -10 dB 4.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   white    -15 dB 0.5 s | g1.0  fix 0.804 raw 0.940 pred 0.511 rice 0.593 | g0.5  fix 0.652 raw 0.736 pred 0.399 rice 0.481 | g0.25 fix 0.552 raw 0.568 pred 0.334 rice 0.417 | g0.0  fix 0.444 raw 0.444 pred 0.272 rice 0.356
+speech dry   white    -15 dB 1.0 s | g1.0  fix 0.344 raw 0.676 pred 0.277 rice 0.346 | g0.5  fix 0.184 raw 0.248 pred 0.168 rice 0.222 | g0.25 fix 0.116 raw 0.120 pred 0.122 rice 0.168 | g0.0  fix 0.072 raw 0.072 pred 0.086 rice 0.124
+speech dry   white    -15 dB 2.0 s | g1.0  fix 0.012 raw 0.124 pred 0.041 rice 0.062 | g0.5  fix 0.000 raw 0.008 pred 0.013 rice 0.021 | g0.25 fix 0.000 raw 0.000 pred 0.006 rice 0.011 | g0.0  fix 0.000 raw 0.000 pred 0.003 rice 0.005
+speech dry   white    -15 dB 4.0 s | g1.0  fix 0.000 raw 0.004 pred 0.001 rice 0.002 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   babble    +0 dB 0.5 s | g1.0  fix 0.028 raw 0.032 pred 0.002 rice 0.002 | g0.5  fix 0.032 raw 0.028 pred 0.000 rice 0.000 | g0.25 fix 0.040 raw 0.036 pred 0.002 rice 0.003 | g0.0  fix 0.048 raw 0.048 pred 0.003 rice 0.003
+speech dry   babble    +0 dB 1.0 s | g1.0  fix 0.004 raw 0.004 pred 0.000 rice 0.000 | g0.5  fix 0.004 raw 0.004 pred 0.000 rice 0.000 | g0.25 fix 0.008 raw 0.008 pred 0.000 rice 0.000 | g0.0  fix 0.008 raw 0.008 pred 0.000 rice 0.000
+speech dry   babble    +0 dB 2.0 s | g1.0  fix 0.008 raw 0.008 pred 0.000 rice 0.000 | g0.5  fix 0.004 raw 0.004 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   babble    +0 dB 4.0 s | g1.0  fix 0.004 raw 0.008 pred 0.000 rice 0.000 | g0.5  fix 0.008 raw 0.008 pred 0.000 rice 0.000 | g0.25 fix 0.008 raw 0.008 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech dry   babble   -10 dB 0.5 s | g1.0  fix 0.496 raw 0.568 pred 0.178 rice 0.208 | g0.5  fix 0.580 raw 0.608 pred 0.226 rice 0.301 | g0.25 fix 0.812 raw 0.808 pred 0.355 rice 0.463 | g0.0  fix 0.888 raw 0.888 pred 0.460 rice 0.586
+speech dry   babble   -10 dB 1.0 s | g1.0  fix 0.180 raw 0.260 pred 0.058 rice 0.076 | g0.5  fix 0.128 raw 0.144 pred 0.072 rice 0.106 | g0.25 fix 0.288 raw 0.304 pred 0.157 rice 0.221 | g0.0  fix 0.580 raw 0.580 pred 0.252 rice 0.349
+speech dry   babble   -10 dB 2.0 s | g1.0  fix 0.020 raw 0.020 pred 0.006 rice 0.009 | g0.5  fix 0.008 raw 0.008 pred 0.006 rice 0.011 | g0.25 fix 0.020 raw 0.020 pred 0.036 rice 0.056 | g0.0  fix 0.148 raw 0.148 pred 0.098 rice 0.150
+speech dry   babble   -10 dB 4.0 s | g1.0  fix 0.008 raw 0.008 pred 0.000 rice 0.000 | g0.5  fix 0.008 raw 0.008 pred 0.000 rice 0.000 | g0.25 fix 0.008 raw 0.008 pred 0.000 rice 0.001 | g0.0  fix 0.012 raw 0.012 pred 0.005 rice 0.010
+speech dry   babble   -15 dB 0.5 s | g1.0  fix 0.864 raw 0.896 pred 0.544 rice 0.605 | g0.5  fix 0.984 raw 0.976 pred 0.674 rice 0.774 | g0.25 fix 0.980 raw 0.976 pred 0.740 rice 0.838 | g0.0  fix 0.980 raw 0.980 pred 0.767 rice 0.868
+speech dry   babble   -15 dB 1.0 s | g1.0  fix 0.784 raw 0.796 pred 0.467 rice 0.524 | g0.5  fix 0.924 raw 0.912 pred 0.652 rice 0.756 | g0.25 fix 0.964 raw 0.956 pred 0.741 rice 0.840 | g0.0  fix 0.976 raw 0.976 pred 0.779 rice 0.875
+speech dry   babble   -15 dB 2.0 s | g1.0  fix 0.552 raw 0.612 pred 0.280 rice 0.328 | g0.5  fix 0.788 raw 0.808 pred 0.453 rice 0.551 | g0.25 fix 0.928 raw 0.920 pred 0.593 rice 0.697 | g0.0  fix 0.964 raw 0.964 pred 0.667 rice 0.776
+speech dry   babble   -15 dB 4.0 s | g1.0  fix 0.208 raw 0.264 pred 0.126 rice 0.157 | g0.5  fix 0.416 raw 0.404 pred 0.245 rice 0.330 | g0.25 fix 0.684 raw 0.684 pred 0.425 rice 0.538 | g0.0  fix 0.824 raw 0.824 pred 0.548 rice 0.668
+speech rt200 white     +0 dB 0.5 s | g1.0  fix 0.176 raw 0.308 pred 0.072 rice 0.093 | g0.5  fix 0.124 raw 0.124 pred 0.011 rice 0.018 | g0.25 fix 0.136 raw 0.132 pred 0.011 rice 0.024 | g0.0  fix 0.148 raw 0.148 pred 0.012 rice 0.029
+speech rt200 white     +0 dB 1.0 s | g1.0  fix 0.012 raw 0.036 pred 0.006 rice 0.007 | g0.5  fix 0.004 raw 0.004 pred 0.004 rice 0.004 | g0.25 fix 0.004 raw 0.004 pred 0.005 rice 0.006 | g0.0  fix 0.004 raw 0.004 pred 0.009 rice 0.014
+speech rt200 white     +0 dB 2.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.004 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.004 raw 0.004 pred 0.000 rice 0.000
+speech rt200 white     +0 dB 4.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.001
+speech rt200 white    -10 dB 0.5 s | g1.0  fix 0.636 raw 0.864 pred 0.483 rice 0.560 | g0.5  fix 0.352 raw 0.452 pred 0.288 rice 0.363 | g0.25 fix 0.280 raw 0.296 pred 0.196 rice 0.272 | g0.0  fix 0.256 raw 0.256 pred 0.136 rice 0.213
+speech rt200 white    -10 dB 1.0 s | g1.0  fix 0.272 raw 0.576 pred 0.248 rice 0.310 | g0.5  fix 0.064 raw 0.084 pred 0.091 rice 0.127 | g0.25 fix 0.048 raw 0.048 pred 0.049 rice 0.077 | g0.0  fix 0.036 raw 0.036 pred 0.028 rice 0.050
+speech rt200 white    -10 dB 2.0 s | g1.0  fix 0.024 raw 0.128 pred 0.062 rice 0.082 | g0.5  fix 0.000 raw 0.000 pred 0.023 rice 0.029 | g0.25 fix 0.000 raw 0.000 pred 0.015 rice 0.020 | g0.0  fix 0.000 raw 0.000 pred 0.011 rice 0.015
+speech rt200 white    -10 dB 4.0 s | g1.0  fix 0.000 raw 0.008 pred 0.003 rice 0.004 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.001 | g0.25 fix 0.004 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech rt200 white    -15 dB 0.5 s | g1.0  fix 0.948 raw 0.964 pred 0.721 rice 0.787 | g0.5  fix 0.908 raw 0.940 pred 0.675 rice 0.746 | g0.25 fix 0.860 raw 0.896 pred 0.642 rice 0.721 | g0.0  fix 0.828 raw 0.828 pred 0.601 rice 0.692
+speech rt200 white    -15 dB 1.0 s | g1.0  fix 0.836 raw 0.928 pred 0.603 rice 0.680 | g0.5  fix 0.724 raw 0.832 pred 0.529 rice 0.609 | g0.25 fix 0.652 raw 0.688 pred 0.481 rice 0.566 | g0.0  fix 0.568 raw 0.568 pred 0.428 rice 0.519
+speech rt200 white    -15 dB 2.0 s | g1.0  fix 0.636 raw 0.848 pred 0.481 rice 0.561 | g0.5  fix 0.440 raw 0.560 pred 0.392 rice 0.468 | g0.25 fix 0.372 raw 0.380 pred 0.345 rice 0.419 | g0.0  fix 0.280 raw 0.280 pred 0.298 rice 0.371
+speech rt200 white    -15 dB 4.0 s | g1.0  fix 0.160 raw 0.448 pred 0.220 rice 0.280 | g0.5  fix 0.080 raw 0.116 pred 0.138 rice 0.182 | g0.25 fix 0.044 raw 0.056 pred 0.105 rice 0.142 | g0.0  fix 0.020 raw 0.020 pred 0.079 rice 0.110
+speech rt200 babble    +0 dB 0.5 s | g1.0  fix 0.136 raw 0.228 pred 0.015 rice 0.020 | g0.5  fix 0.112 raw 0.128 pred 0.014 rice 0.022 | g0.25 fix 0.208 raw 0.200 pred 0.040 rice 0.060 | g0.0  fix 0.252 raw 0.252 pred 0.068 rice 0.106
+speech rt200 babble    +0 dB 1.0 s | g1.0  fix 0.012 raw 0.020 pred 0.001 rice 0.001 | g0.5  fix 0.008 raw 0.008 pred 0.002 rice 0.003 | g0.25 fix 0.012 raw 0.016 pred 0.004 rice 0.009 | g0.0  fix 0.052 raw 0.052 pred 0.015 rice 0.026
+speech rt200 babble    +0 dB 2.0 s | g1.0  fix 0.012 raw 0.020 pred 0.000 rice 0.000 | g0.5  fix 0.020 raw 0.020 pred 0.000 rice 0.000 | g0.25 fix 0.020 raw 0.020 pred 0.000 rice 0.000 | g0.0  fix 0.020 raw 0.020 pred 0.004 rice 0.005
+speech rt200 babble    +0 dB 4.0 s | g1.0  fix 0.016 raw 0.016 pred 0.000 rice 0.000 | g0.5  fix 0.016 raw 0.016 pred 0.000 rice 0.000 | g0.25 fix 0.016 raw 0.016 pred 0.000 rice 0.000 | g0.0  fix 0.016 raw 0.016 pred 0.000 rice 0.000
+speech rt200 babble   -10 dB 0.5 s | g1.0  fix 0.832 raw 0.888 pred 0.489 rice 0.547 | g0.5  fix 0.944 raw 0.956 pred 0.586 rice 0.686 | g0.25 fix 0.956 raw 0.956 pred 0.657 rice 0.764 | g0.0  fix 0.948 raw 0.948 pred 0.693 rice 0.806
+speech rt200 babble   -10 dB 1.0 s | g1.0  fix 0.632 raw 0.716 pred 0.329 rice 0.379 | g0.5  fix 0.796 raw 0.856 pred 0.468 rice 0.569 | g0.25 fix 0.900 raw 0.904 pred 0.594 rice 0.700 | g0.0  fix 0.916 raw 0.916 pred 0.655 rice 0.763
+speech rt200 babble   -10 dB 2.0 s | g1.0  fix 0.336 raw 0.472 pred 0.186 rice 0.223 | g0.5  fix 0.392 raw 0.428 pred 0.247 rice 0.326 | g0.25 fix 0.556 raw 0.588 pred 0.376 rice 0.476 | g0.0  fix 0.704 raw 0.704 pred 0.462 rice 0.576
+speech rt200 babble   -10 dB 4.0 s | g1.0  fix 0.044 raw 0.156 pred 0.051 rice 0.067 | g0.5  fix 0.080 raw 0.068 pred 0.067 rice 0.098 | g0.25 fix 0.208 raw 0.192 pred 0.151 rice 0.216 | g0.0  fix 0.356 raw 0.356 pred 0.248 rice 0.347
+speech rt200 babble   -15 dB 0.5 s | g1.0  fix 0.948 raw 0.976 pred 0.730 rice 0.788 | g0.5  fix 0.984 raw 0.988 pred 0.804 rice 0.883 | g0.25 fix 0.984 raw 0.992 pred 0.832 rice 0.908 | g0.0  fix 0.988 raw 0.988 pred 0.842 rice 0.919
+speech rt200 babble   -15 dB 1.0 s | g1.0  fix 0.920 raw 0.932 pred 0.667 rice 0.730 | g0.5  fix 0.980 raw 0.980 pred 0.736 rice 0.821 | g0.25 fix 0.980 raw 0.984 pred 0.776 rice 0.859 | g0.0  fix 0.976 raw 0.976 pred 0.798 rice 0.883
+speech rt200 babble   -15 dB 2.0 s | g1.0  fix 0.876 raw 0.908 pred 0.597 rice 0.660 | g0.5  fix 0.952 raw 0.944 pred 0.707 rice 0.794 | g0.25 fix 0.956 raw 0.960 pred 0.777 rice 0.858 | g0.0  fix 0.972 raw 0.972 pred 0.814 rice 0.891
+speech rt200 babble   -15 dB 4.0 s | g1.0  fix 0.780 raw 0.832 pred 0.534 rice 0.597 | g0.5  fix 0.904 raw 0.912 pred 0.663 rice 0.749 | g0.25 fix 0.956 raw 0.952 pred 0.737 rice 0.822 | g0.0  fix 0.976 raw 0.976 pred 0.776 rice 0.862
+speech rt800 white     +0 dB 0.5 s | g1.0  fix 0.152 raw 0.248 pred 0.069 rice 0.086 | g0.5  fix 0.128 raw 0.132 pred 0.017 rice 0.023 | g0.25 fix 0.148 raw 0.132 pred 0.018 rice 0.027 | g0.0  fix 0.172 raw 0.172 pred 0.024 rice 0.042
+speech rt800 white     +0 dB 1.0 s | g1.0  fix 0.016 raw 0.028 pred 0.003 rice 0.004 | g0.5  fix 0.008 raw 0.004 pred 0.000 rice 0.000 | g0.25 fix 0.020 raw 0.020 pred 0.000 rice 0.000 | g0.0  fix 0.028 raw 0.028 pred 0.000 rice 0.001
+speech rt800 white     +0 dB 2.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.004 raw 0.004 pred 0.000 rice 0.000 | g0.0  fix 0.008 raw 0.008 pred 0.000 rice 0.000
+speech rt800 white     +0 dB 4.0 s | g1.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.5  fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.000 raw 0.000 pred 0.000 rice 0.000 | g0.0  fix 0.000 raw 0.000 pred 0.000 rice 0.000
+speech rt800 white    -10 dB 0.5 s | g1.0  fix 0.748 raw 0.896 pred 0.517 rice 0.593 | g0.5  fix 0.488 raw 0.528 pred 0.322 rice 0.399 | g0.25 fix 0.408 raw 0.444 pred 0.225 rice 0.309 | g0.0  fix 0.360 raw 0.360 pred 0.163 rice 0.249
+speech rt800 white    -10 dB 1.0 s | g1.0  fix 0.332 raw 0.616 pred 0.257 rice 0.322 | g0.5  fix 0.088 raw 0.140 pred 0.084 rice 0.121 | g0.25 fix 0.056 raw 0.064 pred 0.042 rice 0.068 | g0.0  fix 0.052 raw 0.052 pred 0.022 rice 0.042
+speech rt800 white    -10 dB 2.0 s | g1.0  fix 0.056 raw 0.252 pred 0.062 rice 0.083 | g0.5  fix 0.004 raw 0.008 pred 0.013 rice 0.019 | g0.25 fix 0.008 raw 0.004 pred 0.007 rice 0.011 | g0.0  fix 0.008 raw 0.008 pred 0.004 rice 0.008
+speech rt800 white    -10 dB 4.0 s | g1.0  fix 0.000 raw 0.008 pred 0.001 rice 0.002 | g0.5  fix 0.004 raw 0.000 pred 0.000 rice 0.000 | g0.25 fix 0.004 raw 0.004 pred 0.000 rice 0.000 | g0.0  fix 0.008 raw 0.008 pred 0.000 rice 0.000
+speech rt800 white    -15 dB 0.5 s | g1.0  fix 0.952 raw 0.956 pred 0.726 rice 0.793 | g0.5  fix 0.940 raw 0.936 pred 0.688 rice 0.762 | g0.25 fix 0.928 raw 0.932 pred 0.662 rice 0.744 | g0.0  fix 0.892 raw 0.892 pred 0.631 rice 0.725
+speech rt800 white    -15 dB 1.0 s | g1.0  fix 0.832 raw 0.948 pred 0.661 rice 0.733 | g0.5  fix 0.784 raw 0.844 pred 0.590 rice 0.668 | g0.25 fix 0.736 raw 0.768 pred 0.544 rice 0.627 | g0.0  fix 0.648 raw 0.648 pred 0.493 rice 0.584
+speech rt800 white    -15 dB 2.0 s | g1.0  fix 0.680 raw 0.844 pred 0.494 rice 0.574 | g0.5  fix 0.576 raw 0.612 pred 0.403 rice 0.481 | g0.25 fix 0.512 raw 0.532 pred 0.354 rice 0.431 | g0.0  fix 0.424 raw 0.424 pred 0.305 rice 0.382
+speech rt800 white    -15 dB 4.0 s | g1.0  fix 0.260 raw 0.616 pred 0.208 rice 0.271 | g0.5  fix 0.112 raw 0.172 pred 0.135 rice 0.183 | g0.25 fix 0.076 raw 0.088 pred 0.105 rice 0.146 | g0.0  fix 0.044 raw 0.044 pred 0.079 rice 0.114
+speech rt800 babble    +0 dB 0.5 s | g1.0  fix 0.104 raw 0.168 pred 0.017 rice 0.022 | g0.5  fix 0.132 raw 0.140 pred 0.015 rice 0.027 | g0.25 fix 0.212 raw 0.216 pred 0.045 rice 0.070 | g0.0  fix 0.260 raw 0.260 pred 0.070 rice 0.111
+speech rt800 babble    +0 dB 1.0 s | g1.0  fix 0.016 raw 0.016 pred 0.000 rice 0.000 | g0.5  fix 0.012 raw 0.020 pred 0.000 rice 0.001 | g0.25 fix 0.020 raw 0.016 pred 0.004 rice 0.006 | g0.0  fix 0.032 raw 0.032 pred 0.008 rice 0.013
+speech rt800 babble    +0 dB 2.0 s | g1.0  fix 0.012 raw 0.012 pred 0.000 rice 0.000 | g0.5  fix 0.012 raw 0.012 pred 0.000 rice 0.000 | g0.25 fix 0.012 raw 0.012 pred 0.000 rice 0.000 | g0.0  fix 0.012 raw 0.012 pred 0.000 rice 0.000
+speech rt800 babble    +0 dB 4.0 s | g1.0  fix 0.012 raw 0.012 pred 0.000 rice 0.000 | g0.5  fix 0.012 raw 0.012 pred 0.000 rice 0.000 | g0.25 fix 0.012 raw 0.012 pred 0.000 rice 0.000 | g0.0  fix 0.016 raw 0.016 pred 0.000 rice 0.000
+speech rt800 babble   -10 dB 0.5 s | g1.0  fix 0.816 raw 0.872 pred 0.482 rice 0.541 | g0.5  fix 0.956 raw 0.944 pred 0.576 rice 0.680 | g0.25 fix 0.960 raw 0.972 pred 0.652 rice 0.760 | g0.0  fix 0.972 raw 0.972 pred 0.692 rice 0.807
+speech rt800 babble   -10 dB 1.0 s | g1.0  fix 0.672 raw 0.760 pred 0.342 rice 0.394 | g0.5  fix 0.808 raw 0.844 pred 0.473 rice 0.572 | g0.25 fix 0.896 raw 0.904 pred 0.587 rice 0.696 | g0.0  fix 0.916 raw 0.916 pred 0.653 rice 0.765
+speech rt800 babble   -10 dB 2.0 s | g1.0  fix 0.312 raw 0.504 pred 0.166 rice 0.204 | g0.5  fix 0.436 raw 0.524 pred 0.248 rice 0.331 | g0.25 fix 0.708 raw 0.700 pred 0.395 rice 0.502 | g0.0  fix 0.792 raw 0.792 pred 0.494 rice 0.613
+speech rt800 babble   -10 dB 4.0 s | g1.0  fix 0.096 raw 0.152 pred 0.048 rice 0.062 | g0.5  fix 0.120 raw 0.120 pred 0.085 rice 0.121 | g0.25 fix 0.276 raw 0.272 pred 0.196 rice 0.269 | g0.0  fix 0.444 raw 0.444 pred 0.305 rice 0.406
+speech rt800 babble   -15 dB 0.5 s | g1.0  fix 0.988 raw 0.976 pred 0.713 rice 0.772 | g0.5  fix 0.984 raw 0.984 pred 0.801 rice 0.880 | g0.25 fix 0.992 raw 0.988 pred 0.825 rice 0.905 | g0.0  fix 0.988 raw 0.988 pred 0.830 rice 0.916
+speech rt800 babble   -15 dB 1.0 s | g1.0  fix 0.940 raw 0.952 pred 0.703 rice 0.761 | g0.5  fix 0.984 raw 0.980 pred 0.781 rice 0.859 | g0.25 fix 0.988 raw 0.984 pred 0.807 rice 0.886 | g0.0  fix 0.984 raw 0.984 pred 0.817 rice 0.900
+speech rt800 babble   -15 dB 2.0 s | g1.0  fix 0.896 raw 0.928 pred 0.634 rice 0.695 | g0.5  fix 0.952 raw 0.972 pred 0.737 rice 0.823 | g0.25 fix 0.948 raw 0.952 pred 0.784 rice 0.865 | g0.0  fix 0.952 raw 0.952 pred 0.804 rice 0.885
+speech rt800 babble   -15 dB 4.0 s | g1.0  fix 0.796 raw 0.864 pred 0.533 rice 0.600 | g0.5  fix 0.912 raw 0.928 pred 0.676 rice 0.767 | g0.25 fix 0.956 raw 0.956 pred 0.748 rice 0.832 | g0.0  fix 0.964 raw 0.964 pred 0.784 rice 0.866
+
+== H4 score: share of cells with >= 10 observed failures where prediction/observed is within [0.5, 2] ==
+  fixed vs pred gauss         gamma 1.0 : 8/9 within x2; median pred/obs 0.84 (range 0.76-2.04)
+  fixed vs pred gauss         gamma 0.5 : 8/9 within x2; median pred/obs 0.84 (range 0.76-2.21)
+  fixed vs pred gauss         gamma 0.25: 8/9 within x2; median pred/obs 0.84 (range 0.75-2.15)
+  fixed vs pred gauss         gamma 0.0 : 8/9 within x2; median pred/obs 0.84 (range 0.77-2.10)
+  fixed vs pred speech dry    gamma 1.0 : 7/10 within x2; median pred/obs 0.60 (range 0.08-0.80)
+  fixed vs pred speech dry    gamma 0.5 : 7/10 within x2; median pred/obs 0.58 (range 0.08-0.91)
+  fixed vs pred speech dry    gamma 0.25: 7/11 within x2; median pred/obs 0.61 (range 0.06-1.05)
+  fixed vs pred speech dry    gamma 0.0 : 8/12 within x2; median pred/obs 0.64 (range 0.05-1.19)
+  fixed vs pred speech rt200  gamma 1.0 : 14/16 within x2; median pred/obs 0.72 (range 0.11-1.38)
+  fixed vs pred speech rt200  gamma 0.5 : 14/16 within x2; median pred/obs 0.74 (range 0.09-1.73)
+  fixed vs pred speech rt200  gamma 0.25: 13/16 within x2; median pred/obs 0.74 (range 0.08-2.40)
+  fixed vs pred speech rt200  gamma 0.0 : 12/15 within x2; median pred/obs 0.73 (range 0.08-1.06)
+  fixed vs pred speech rt800  gamma 1.0 : 15/17 within x2; median pred/obs 0.71 (range 0.16-1.11)
+  fixed vs pred speech rt800  gamma 0.5 : 14/16 within x2; median pred/obs 0.72 (range 0.12-1.21)
+  fixed vs pred speech rt800  gamma 0.25: 14/16 within x2; median pred/obs 0.71 (range 0.12-1.38)
+  fixed vs pred speech rt800  gamma 0.0 : 12/16 within x2; median pred/obs 0.71 (range 0.14-1.80)
+  fixed vs pred ALL SPEECH: 137/171 cells within x2
+  fixed vs rice gauss         gamma 1.0 : 8/9 within x2; median pred/obs 0.89 (range 0.83-2.62)
+  fixed vs rice gauss         gamma 0.5 : 8/9 within x2; median pred/obs 0.90 (range 0.83-2.89)
+  fixed vs rice gauss         gamma 0.25: 8/9 within x2; median pred/obs 0.90 (range 0.82-2.84)
+  fixed vs rice gauss         gamma 0.0 : 8/9 within x2; median pred/obs 0.90 (range 0.84-2.82)
+  fixed vs rice speech dry    gamma 1.0 : 7/10 within x2; median pred/obs 0.68 (range 0.09-1.05)
+  fixed vs rice speech dry    gamma 0.5 : 9/10 within x2; median pred/obs 0.76 (range 0.09-1.21)
+  fixed vs rice speech dry    gamma 0.25: 8/11 within x2; median pred/obs 0.76 (range 0.07-1.45)
+  fixed vs rice speech dry    gamma 0.0 : 9/12 within x2; median pred/obs 0.80 (range 0.06-1.72)
+  fixed vs rice speech rt200  gamma 1.0 : 15/16 within x2; median pred/obs 0.80 (range 0.14-1.75)
+  fixed vs rice speech rt200  gamma 0.5 : 13/16 within x2; median pred/obs 0.84 (range 0.15-2.28)
+  fixed vs rice speech rt200  gamma 0.25: 13/16 within x2; median pred/obs 0.87 (range 0.18-3.24)
+  fixed vs rice speech rt200  gamma 0.0 : 12/15 within x2; median pred/obs 0.85 (range 0.19-1.32)
+  fixed vs rice speech rt800  gamma 1.0 : 16/17 within x2; median pred/obs 0.78 (range 0.21-1.49)
+  fixed vs rice speech rt800  gamma 0.5 : 14/16 within x2; median pred/obs 0.84 (range 0.18-1.64)
+  fixed vs rice speech rt800  gamma 0.25: 14/16 within x2; median pred/obs 0.85 (range 0.18-1.92)
+  fixed vs rice speech rt800  gamma 0.0 : 13/16 within x2; median pred/obs 0.87 (range 0.24-2.60)
+  fixed vs rice ALL SPEECH: 143/171 cells within x2
+  raw   vs pred gauss         gamma 1.0 : 8/9 within x2; median pred/obs 0.78 (range 0.45-0.86)
+  raw   vs pred gauss         gamma 0.5 : 9/9 within x2; median pred/obs 0.82 (range 0.74-1.47)
+  raw   vs pred gauss         gamma 0.25: 9/9 within x2; median pred/obs 0.82 (range 0.75-1.76)
+  raw   vs pred gauss         gamma 0.0 : 8/9 within x2; median pred/obs 0.84 (range 0.77-2.10)
+  raw   vs pred speech dry    gamma 1.0 : 3/12 within x2; median pred/obs 0.38 (range 0.06-0.61)
+  raw   vs pred speech dry    gamma 0.5 : 7/9 within x2; median pred/obs 0.56 (range 0.31-0.71)
+  raw   vs pred speech dry    gamma 0.25: 7/10 within x2; median pred/obs 0.61 (range 0.07-1.02)
+  raw   vs pred speech dry    gamma 0.0 : 8/12 within x2; median pred/obs 0.64 (range 0.05-1.19)
+  raw   vs pred speech rt200  gamma 1.0 : 9/17 within x2; median pred/obs 0.55 (range 0.07-0.75)
+  raw   vs pred speech rt200  gamma 0.5 : 14/16 within x2; median pred/obs 0.71 (range 0.09-1.19)
+  raw   vs pred speech rt200  gamma 0.25: 14/16 within x2; median pred/obs 0.75 (range 0.08-1.88)
+  raw   vs pred speech rt200  gamma 0.0 : 12/15 within x2; median pred/obs 0.73 (range 0.08-1.06)
+  raw   vs pred speech rt800  gamma 1.0 : 9/17 within x2; median pred/obs 0.55 (range 0.10-0.76)
+  raw   vs pred speech rt800  gamma 0.5 : 13/16 within x2; median pred/obs 0.68 (range 0.11-0.81)
+  raw   vs pred speech rt800  gamma 0.25: 14/16 within x2; median pred/obs 0.69 (range 0.13-1.19)
+  raw   vs pred speech rt800  gamma 0.0 : 12/16 within x2; median pred/obs 0.71 (range 0.14-1.80)
+  raw   vs pred ALL SPEECH: 122/172 cells within x2
+  raw   vs rice gauss         gamma 1.0 : 9/9 within x2; median pred/obs 0.83 (range 0.57-0.91)
+  raw   vs rice gauss         gamma 0.5 : 9/9 within x2; median pred/obs 0.87 (range 0.81-1.92)
+  raw   vs rice gauss         gamma 0.25: 8/9 within x2; median pred/obs 0.88 (range 0.82-2.32)
+  raw   vs rice gauss         gamma 0.0 : 8/9 within x2; median pred/obs 0.90 (range 0.84-2.82)
+  raw   vs rice speech dry    gamma 1.0 : 6/12 within x2; median pred/obs 0.51 (range 0.07-0.68)
+  raw   vs rice speech dry    gamma 0.5 : 7/9 within x2; median pred/obs 0.74 (range 0.44-0.90)
+  raw   vs rice speech dry    gamma 0.25: 8/10 within x2; median pred/obs 0.75 (range 0.07-1.40)
+  raw   vs rice speech dry    gamma 0.0 : 9/12 within x2; median pred/obs 0.80 (range 0.06-1.72)
+  raw   vs rice speech rt200  gamma 1.0 : 13/17 within x2; median pred/obs 0.64 (range 0.09-0.82)
+  raw   vs rice speech rt200  gamma 0.5 : 14/16 within x2; median pred/obs 0.81 (range 0.15-1.57)
+  raw   vs rice speech rt200  gamma 0.25: 13/16 within x2; median pred/obs 0.87 (range 0.18-2.54)
+  raw   vs rice speech rt200  gamma 0.0 : 12/15 within x2; median pred/obs 0.85 (range 0.19-1.32)
+  raw   vs rice speech rt800  gamma 1.0 : 11/17 within x2; median pred/obs 0.62 (range 0.13-0.83)
+  raw   vs rice speech rt800  gamma 0.5 : 14/16 within x2; median pred/obs 0.80 (range 0.18-1.07)
+  raw   vs rice speech rt800  gamma 0.25: 14/16 within x2; median pred/obs 0.81 (range 0.21-1.66)
+  raw   vs rice speech rt800  gamma 0.0 : 13/16 within x2; median pred/obs 0.87 (range 0.24-2.60)
+  raw   vs rice ALL SPEECH: 134/172 cells within x2
+
+== Confidence: AUROC for flagging raw-GCC failures (2 s windows; psr = step 1's PSR, blind = theory
+   probability from spectra aligned at the window's own estimate, oracle = aligned at the truth) ==
+  gauss  dry   white   -15 dB gamma 1.0 : fail 0.824  psr 0.752  blind 0.854  oracle 0.764
+  gauss  dry   white   -15 dB gamma 0.5 : fail 0.644  psr 0.850  blind 0.723  oracle 0.806
+  gauss  dry   white   -15 dB gamma 0.25: fail 0.624  psr 0.840  blind 0.705  oracle 0.829
+  gauss  dry   white   -15 dB gamma 0.0 : fail 0.616  psr 0.831  blind 0.684  oracle 0.811
+  gauss  dry   white   -20 dB gamma 1.0 : fail 0.972  psr 0.500  blind 0.375  oracle 0.533
+  gauss  dry   white   -20 dB gamma 0.5 : fail 0.976  psr 0.640  blind 0.534  oracle 0.689
+  gauss  dry   white   -20 dB gamma 0.25: fail 0.968  psr 0.637  blind 0.445  oracle 0.657
+  gauss  dry   white   -20 dB gamma 0.0 : fail 0.948  psr 0.563  blind 0.515  oracle 0.599
+  speech dry   white   -15 dB gamma 1.0 : fail 0.124  psr 0.895  blind 0.988  oracle 0.774
+  speech dry   babble  -10 dB gamma 1.0 : fail 0.020  psr 0.563  blind 0.700  oracle 0.650
+  speech dry   babble  -10 dB gamma 0.25: fail 0.020  psr 0.578  blind 0.471  oracle 0.597
+  speech dry   babble  -10 dB gamma 0.0 : fail 0.148  psr 0.734  blind 0.741  oracle 0.731
+  speech dry   babble  -15 dB gamma 1.0 : fail 0.612  psr 0.790  blind 0.896  oracle 0.846
+  speech dry   babble  -15 dB gamma 0.5 : fail 0.808  psr 0.578  blind 0.632  oracle 0.696
+  speech dry   babble  -15 dB gamma 0.25: fail 0.920  psr 0.437  blind 0.567  oracle 0.644
+  speech dry   babble  -15 dB gamma 0.0 : fail 0.964  psr 0.600  blind 0.550  oracle 0.756
+  speech rt200 white   -10 dB gamma 1.0 : fail 0.128  psr 0.915  blind 0.965  oracle 0.799
+  speech rt200 white   -15 dB gamma 1.0 : fail 0.848  psr 0.626  blind 0.787  oracle 0.706
+  speech rt200 white   -15 dB gamma 0.5 : fail 0.560  psr 0.781  blind 0.710  oracle 0.735
+  speech rt200 white   -15 dB gamma 0.25: fail 0.380  psr 0.793  blind 0.697  oracle 0.716
+  speech rt200 white   -15 dB gamma 0.0 : fail 0.280  psr 0.849  blind 0.727  oracle 0.742
+  speech rt200 babble   +0 dB gamma 1.0 : fail 0.020  psr 0.207  blind 0.720  oracle 0.411
+  speech rt200 babble   +0 dB gamma 0.5 : fail 0.020  psr 0.200  blind 0.515  oracle 0.468
+  speech rt200 babble   +0 dB gamma 0.25: fail 0.020  psr 0.200  blind 0.543  oracle 0.763
+  speech rt200 babble   +0 dB gamma 0.0 : fail 0.020  psr 0.202  blind 0.268  oracle 0.764
+  speech rt200 babble  -10 dB gamma 1.0 : fail 0.472  psr 0.867  blind 0.914  oracle 0.849
+  speech rt200 babble  -10 dB gamma 0.5 : fail 0.428  psr 0.762  blind 0.743  oracle 0.819
+  speech rt200 babble  -10 dB gamma 0.25: fail 0.588  psr 0.640  blind 0.666  oracle 0.774
+  speech rt200 babble  -10 dB gamma 0.0 : fail 0.704  psr 0.621  blind 0.633  oracle 0.775
+  speech rt200 babble  -15 dB gamma 1.0 : fail 0.908  psr 0.592  blind 0.762  oracle 0.790
+  speech rt200 babble  -15 dB gamma 0.5 : fail 0.944  psr 0.474  blind 0.397  oracle 0.576
+  speech rt200 babble  -15 dB gamma 0.25: fail 0.960  psr 0.410  blind 0.494  oracle 0.524
+  speech rt200 babble  -15 dB gamma 0.0 : fail 0.972  psr 0.573  blind 0.576  oracle 0.724
+  speech rt800 white   -10 dB gamma 1.0 : fail 0.252  psr 0.901  blind 0.980  oracle 0.767
+  speech rt800 white   -15 dB gamma 1.0 : fail 0.844  psr 0.646  blind 0.687  oracle 0.582
+  speech rt800 white   -15 dB gamma 0.5 : fail 0.612  psr 0.686  blind 0.688  oracle 0.713
+  speech rt800 white   -15 dB gamma 0.25: fail 0.532  psr 0.788  blind 0.701  oracle 0.734
+  speech rt800 white   -15 dB gamma 0.0 : fail 0.424  psr 0.830  blind 0.766  oracle 0.779
+  speech rt800 babble  -10 dB gamma 1.0 : fail 0.504  psr 0.876  blind 0.950  oracle 0.905
+  speech rt800 babble  -10 dB gamma 0.5 : fail 0.524  psr 0.733  blind 0.764  oracle 0.795
+  speech rt800 babble  -10 dB gamma 0.25: fail 0.700  psr 0.608  blind 0.633  oracle 0.705
+  speech rt800 babble  -10 dB gamma 0.0 : fail 0.792  psr 0.546  blind 0.583  oracle 0.754
+  speech rt800 babble  -15 dB gamma 1.0 : fail 0.928  psr 0.696  blind 0.801  oracle 0.765
+  speech rt800 babble  -15 dB gamma 0.5 : fail 0.972  psr 0.395  blind 0.464  oracle 0.504
+  speech rt800 babble  -15 dB gamma 0.25: fail 0.952  psr 0.297  blind 0.466  oracle 0.561
+  speech rt800 babble  -15 dB gamma 0.0 : fail 0.952  psr 0.359  blind 0.494  oracle 0.480

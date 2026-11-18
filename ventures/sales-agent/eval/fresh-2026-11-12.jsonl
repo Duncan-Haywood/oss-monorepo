@@ -1,0 +1,20 @@
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Automatic reply: I am out of the office until 3 December with limited access to email. For urgent matters contact my colleague Priya."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Thanks for your message. I'm on parental leave and will return on 15 January. I will not be checking email."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Hi, I'm travelling this week and will reply when I'm back on Monday 17 November."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "Auto-reply: Annual closure. Our office reopens 2 January. Happy holidays."}
+{"label": "out_of_office", "subject": "Re: quick question", "body": "I am currently on sabbatical. Messages are not monitored. Please write to ops@theirco.example."}
+{"label": "left_company", "subject": "Re: quick question", "body": "Alex no longer works at Northwind. Please remove this address and contact info@northwind.example."}
+{"label": "left_company", "subject": "Re: quick question", "body": "This mailbox is no longer monitored as Sam left the company in September."}
+{"label": "left_company", "subject": "Re: quick question", "body": "I've moved to a new role at a different firm; Jo Baker now handles purchasing here."}
+{"label": "bounce", "subject": "Re: quick question", "body": "Delivery Status Notification (Failure): 550 5.1.1 The email account that you tried to reach does not exist."}
+{"label": "bounce", "subject": "Re: quick question", "body": "Undeliverable: your message could not be delivered because the recipient's mailbox is full."}
+{"label": "bounce", "subject": "Re: quick question", "body": "Mail delivery failed: returning message to sender. Address rejected: user unknown."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Bitte entfernen Sie mich aus Ihrem Verteiler und schreiben Sie mir nicht mehr."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Veuillez me d\u00e9sinscrire de votre liste et ne plus me contacter."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Por favor, no me escriban m\u00e1s. Eliminen mi correo de su lista."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Take me off. I'll report this as spam if I get another one."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "Remove me from all future emails under GDPR and delete my data."}
+{"label": "unsubscribe", "subject": "Re: quick question", "body": "STOP"}
+{"label": "not_interested", "subject": "Re: quick question", "body": "Nein danke, kein Interesse."}
+{"label": "interested", "subject": "Re: quick question", "body": "Yes, this is relevant. Can you send over times for Thursday or Friday?"}
+{"label": "question", "subject": "Re: quick question", "body": "Is this SOC 2 compliant, and what does it cost per seat?"}

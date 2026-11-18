@@ -67,7 +67,7 @@ export function analyze(allCommits, opts = {}) {
   const { depth = 2, halfLifeDays = 180, inactiveDays = 90, minCommits = 3 } = opts;
   const commits = allCommits.filter((c) => !BOT.test(c.name + " " + c.email));
   if (!commits.length) return { error: "no human commits found in the log" };
-  const now = opts.now ?? Math.max(...commits.map((c) => c.ts));
+  const now = opts.now ?? commits.reduce((m, c) => (c.ts > m ? c.ts : m), -Infinity);
   const hl = halfLifeDays * DAY;
   const people = new Map(), dirs = new Map();
   for (const c of commits) {

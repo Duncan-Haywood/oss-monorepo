@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { classify, buildReport } from './analyze.mjs';
+import { classify, buildReport, verdictFor, parseHostname } from './analyze.mjs';
 
 test('classify reports lookup-error when the DNS lookup itself failed', () => {
   const result = classify('example.com', { chain: ['example.com'], finalTarget: null, truncated: false, error: 'timed out' }, null);
@@ -126,4 +126,98 @@ test('buildReport handles multiple hostnames independently', () => {
   const report = buildReport(['safe.example.com', 'danger.example.com'], [clean, confirmed]);
   assert.equal(report.hostnamesChecked, 2);
   assert.equal(report.confirmedCount, 1);
+});
+
+test('a provider in the middle of the chain counts: S3 bucket that resolves on to an internal S3 name (quality audit 2026-11-12)', () => {
+  const chain = ['x.example.com', 'gone.s3.amazonaws.com', 's3-1-w.amazonaws.com', 's3-w.us-east-1.amazonaws.com'];
+  const r = classify('x.example.com', { chain, finalTarget: chain[3], truncated: false, error: null },
+    { ok: true, status: 404, text: '<Error><Code>NoSuchBucket</Code></Error>' });
+  assert.equal(r.category, 'dangling-confirmed');
+});
+
+// Red-team gaps 2026-11-12.
+test('a two-hop finding names the provider hostname as its target, not the checked hostname', () => {
+  const cname = { chain: ['blog.example.com', 'old-app.herokuapp.com'], finalTarget: 'old-app.herokuapp.com', truncated: false, error: null };
+  const confirmed = classify('blog.example.com', cname, { ok: true, status: 404, text: 'No such app', error: null });
+  const unconfirmed = classify('blog.example.com', cname, null);
+  const report = buildReport(['blog.example.com', 'blog.example.com'], [confirmed, unconfirmed]);
+  assert.deepEqual(report.findings.map((f) => f.target), ['old-app.herokuapp.com', 'old-app.herokuapp.com']);
+});
+
+test('a report with no lookup error is not marked incomplete', () => {
+  const report = buildReport(['example.com'], [
+    classify('example.com', { chain: ['example.com'], finalTarget: null, truncated: false, error: null }, null),
+  ]);
+  assert.equal(report.incomplete, false);
+  assert.equal(report.errors.length, 0);
+});
+
+// Real defects found 2026-11-12 (red team).
+test('a finding names the chain hop that matched the provider, not an internal name after it', () => {
+  // <bucket>.s3.amazonaws.com resolves on to an internal S3 name no pattern
+  // matches; the name to reclaim (and the one the detail says matched) is the bucket's.
+  const cname = {
+    chain: ['assets.example.com', 'my-bucket.s3.amazonaws.com', 's3-w.us-east-1.amazonaws.com'],
+    finalTarget: 's3-w.us-east-1.amazonaws.com', truncated: false, error: null,
+  };
+  const result = classify('assets.example.com', cname, { ok: true, status: 404, text: '<Code>NoSuchBucket</Code>', error: null });
+  const [finding] = buildReport(['assets.example.com'], [result]).findings;
+  assert.equal(finding.target, 'my-bucket.s3.amazonaws.com');
+  assert.match(finding.detail, /my-bucket\.s3\.amazonaws\.com, which matches Amazon S3/);
+  assert.match(finding.detail, /\(the chain then ends at s3-w\.us-east-1\.amazonaws\.com\)/);
+});
+
+test('verdictFor never reads a failed lookup as a clean result', () => {
+  const failed = buildReport(['example.com'], [
+    classify('example.com', { chain: ['example.com'], finalTarget: null, truncated: false, error: 'timed out' }, null),
+  ]);
+  const v = verdictFor(failed);
+  assert.equal(v.clean, false);
+  assert.equal(v.exitCode, 1);
+  assert.match(v.text, /1 hostname\(s\) could not be looked up/);
+  assert.doesNotMatch(v.text, /No subdomain-takeover risk found/);
+});
+
+test('verdictFor: clean, unconfirmed and confirmed reports', () => {
+  const none = buildReport(['example.com'], [
+    classify('example.com', { chain: ['example.com'], finalTarget: null, truncated: false, error: null }, null),
+  ]);
+  assert.deepEqual(verdictFor(none), { clean: true, exitCode: 0, text: 'No subdomain-takeover risk found (1 hostname(s) checked).' });
+  const cname = { chain: ['blog.example.com', 'old-app.herokuapp.com'], finalTarget: 'old-app.herokuapp.com', truncated: false, error: null };
+  const unconfirmed = buildReport(['blog.example.com'], [classify('blog.example.com', cname, null)]);
+  assert.equal(verdictFor(unconfirmed).exitCode, 1);
+  assert.match(verdictFor(unconfirmed).text, /^1 hostname\(s\) point at a takeover-prone provider, unconfirmed\.$/);
+  const confirmed = buildReport(['blog.example.com'], [classify('blog.example.com', cname, { ok: true, status: 404, text: 'No such app', error: null })]);
+  assert.match(verdictFor(confirmed).text, /^1 confirmed dangling CNAME\(s\) found\.$/);
+});
+
+// Red team 2026-11-12: `clean: true` on the unconfirmed branch escaped, and
+// the page paints the verdict green from `clean` (index.html, verdict.className).
+test('verdictFor: any finding is never clean, whatever the exit code', () => {
+  const cname = { chain: ['blog.example.com', 'old-app.herokuapp.com'], finalTarget: 'old-app.herokuapp.com', truncated: false, error: null };
+  const unconfirmed = verdictFor(buildReport(['blog.example.com'], [classify('blog.example.com', cname, null)]));
+  assert.equal(unconfirmed.clean, false);
+  const confirmed = verdictFor(buildReport(['blog.example.com'], [classify('blog.example.com', cname, { ok: true, status: 404, text: 'No such app', error: null })]));
+  assert.equal(confirmed.clean, false);
+  assert.equal(confirmed.exitCode, 1);
+});
+
+// Red team 2026-11-13: two escaped mutants and one real defect.
+test('parseHostname keeps a URL scheme with any digit in it (s3://, h2://)', () => {
+  assert.deepEqual(parseHostname('s3://Blog.Example.com/x'), { hostname: 'blog.example.com', error: null });
+  assert.deepEqual(parseHostname('h2://blog.example.com'), { hostname: 'blog.example.com', error: null });
+});
+
+test('verdictFor reads a report with no errors field as zero failed lookups', () => {
+  const v = verdictFor({ hostnamesChecked: 1, confirmedCount: 0, unconfirmedCount: 0 });
+  assert.equal(v.clean, true);
+  assert.doesNotMatch(v.text, /could not be looked up/);
+});
+
+test('a confirmed finding names the URL that answered, plain HTTP included', () => {
+  const cname = { chain: ['www.example.com', 'www.example.com.s3-website-us-east-1.amazonaws.com'], finalTarget: 'www.example.com.s3-website-us-east-1.amazonaws.com', truncated: false, error: null };
+  const probe = { url: 'http://www.example.com/', ok: true, status: 404, text: 'Code: NoSuchBucket', error: null };
+  const [finding] = buildReport(['www.example.com'], [classify('www.example.com', cname, probe)]).findings;
+  assert.equal(finding.severity, 'critical');
+  assert.match(finding.detail, /a live GET to http:\/\/www\.example\.com\/ returned/);
 });

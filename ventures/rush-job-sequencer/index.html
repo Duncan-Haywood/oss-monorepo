@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Rush Job Sequencer","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Find the order to do a queue of rush jobs that minimises total lateness cost, checked exactly for up to 14 jobs, with comparison against earliest-due-date and shortest-job rules, the value of extra hours, and the job that costs the queue most. Runs in your browser.","featureList":"Exact job order, lateness cost, flat and hourly late penalties, comparison with common rules, value of overtime, job to outsource, estimate sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What order should I do rush jobs in?","acceptedAnswer":{"@type":"Answer","text":"Put the jobs in the order that makes the total cost of lateness smallest. Earliest-due-date-first is a good rule when everything can be done on time, and shortest-job-first helps when many small jobs wait on one big one, but when a queue is overloaded and jobs carry different penalties neither is reliably best. This tool tries every possible order, by dynamic programming over subsets of jobs, and gives the cheapest one for up to 14 jobs."}},{"@type":"Question","name":"How do I put a price on being late?","acceptedAnswer":{"@type":"Answer","text":"Use two numbers per job. A flat fee covers what a miss costs however late it is: a rush surcharge you refund, a lost repeat customer, a contract penalty. An hourly cost covers what each extra hour costs, such as a daily late fee divided by working hours or the cost of a customer waiting. Either can be zero, and a job with no due time costs nothing to leave until last."}},{"@type":"Question","name":"What does the tool say about overtime?","acceptedAnswer":{"@type":"Answer","text":"It re-solves the queue as if you had one more hour, and four more hours, before the work starts, and reports how much lateness cost each would remove. Compare that with what an hour of overtime or a helper costs you."}},{"@type":"Question","name":"Which job should I turn down or outsource?","acceptedAnswer":{"@type":"Answer","text":"The tool removes each job in turn, re-solves the rest, and names the one whose removal saves the most lateness cost. That is the job whose presence is hurting the others most, which is a better guide than the job with the lowest price."}},{"@type":"Question","name":"What if my hour estimates are wrong?","acceptedAnswer":{"@type":"Answer","text":"It re-solves with every job 20 percent longer and 20 percent shorter and tells you whether the order holds. If it changes, plan the first jobs firmly and decide the later ones when you see how the first ones go."}},{"@type":"Question","name":"Is this advice about my customers or contracts?","acceptedAnswer":{"@type":"Answer","text":"No. It is arithmetic on the figures you type, treating one worker or machine doing one job at a time with no changeover time. Check the penalties against your actual contracts."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -231,12 +269,12 @@
       if (!a.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = a;
       const late = a.plan.steps.filter((s) => s.late > 0);
-      h += `<div class="finding"><h4>Do them in this order</h4><p>${list(a.plan.steps.map((s) => s.name))}.</p><p>${a.cost > 0.5 ? "Total lateness cost " + money(a.cost) + " across " + late.length + " late job" + (late.length === 1 ? "" : "s") + "." : "Every job finishes on time."} The whole queue is done ${hrs(a.finishAll)} from now.</p></div>`;
-      h += `<div class="finding"><h4>Against the usual rules</h4>${table(["Rule", "Lateness cost", "Extra over best"], a.rules.map((r) => [esc(r.label), money(r.cost), r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact order saves " + money(a.ruleLoss) + " over the best of these rules." : "Here the best rule of thumb finds an equally cheap order."}</p></div>`;
-      if (a.cost > 0.5) h += `<div class="finding"><h4>What more hours would save</h4><p>${a.capacity.map((c) => "Starting " + c.hours + " hour" + (c.hours === 1 ? "" : "s") + " earlier (overtime or help) would save " + money(c.saving) + ".").join(" ")}</p></div>`;
-      if (a.costliest) h += `<div class="finding"><h4>The job costing the queue most</h4><p>Taking ${esc(a.costliest.name)} out of the queue (outsourcing it or turning it down) would save ${money(a.costliest.saving)} of lateness cost on the rest. Weigh that against what the job pays you.</p></div>`;
-      h += `<div class="finding"><h4>How fragile is this?</h4><p>${a.sensitivity.map((s) => "If every job took " + Math.round(Math.abs(1 - s.factor) * 100) + "% " + (s.factor > 1 ? "longer" : "less") + " the best order " + (s.same ? "is the same" : "changes") + " (cost " + money(s.cost) + ").").join(" ")}</p></div>`;
-      h += `<div class="finding"><h4>The schedule</h4>${table(["#", "Job", "Starts", "Finishes", "Due", "Late by", "Lateness cost"], a.plan.steps.map((s, i) => [i + 1, esc(s.name), hrs(s.begin), hrs(s.finish), s.due == null ? "none" : hrs(s.due), s.late > 0 ? hrs(s.late) : "on time", money(s.cost)]))}</div>`;
+      h += `<div class="finding"><h3>Do them in this order</h3><p>${list(a.plan.steps.map((s) => s.name))}.</p><p>${a.cost > 0.5 ? "Total lateness cost " + money(a.cost) + " across " + late.length + " late job" + (late.length === 1 ? "" : "s") + "." : "Every job finishes on time."} The whole queue is done ${hrs(a.finishAll)} from now.</p></div>`;
+      h += `<div class="finding"><h3>Against the usual rules</h3>${table(["Rule", "Lateness cost", "Extra over best"], a.rules.map((r) => [esc(r.label), money(r.cost), r.extra > 0.5 ? "+" + money(r.extra) : "same"]))}<p>${a.ruleLoss > 0.5 ? "The exact order saves " + money(a.ruleLoss) + " over the best of these rules." : "Here the best rule of thumb finds an equally cheap order."}</p></div>`;
+      if (a.cost > 0.5) h += `<div class="finding"><h3>What more hours would save</h3><p>${a.capacity.map((c) => "Starting " + c.hours + " hour" + (c.hours === 1 ? "" : "s") + " earlier (overtime or help) would save " + money(c.saving) + ".").join(" ")}</p></div>`;
+      if (a.costliest) h += `<div class="finding"><h3>The job costing the queue most</h3><p>Taking ${esc(a.costliest.name)} out of the queue (outsourcing it or turning it down) would save ${money(a.costliest.saving)} of lateness cost on the rest. Weigh that against what the job pays you.</p></div>`;
+      h += `<div class="finding"><h3>How fragile is this?</h3><p>${a.sensitivity.map((s) => "If every job took " + Math.round(Math.abs(1 - s.factor) * 100) + "% " + (s.factor > 1 ? "longer" : "less") + " the best order " + (s.same ? "is the same" : "changes") + " (cost " + money(s.cost) + ").").join(" ")}</p></div>`;
+      h += `<div class="finding"><h3>The schedule</h3>${table(["#", "Job", "Starts", "Finishes", "Due", "Late by", "Lateness cost"], a.plan.steps.map((s, i) => [i + 1, esc(s.name), hrs(s.begin), hrs(s.finish), s.due == null ? "none" : hrs(s.due), s.late > 0 ? hrs(s.late) : "on time", money(s.cost)]))}</div>`;
       h += '<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

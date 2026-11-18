@@ -1,0 +1,61 @@
+name: robust-pca
+description: >-
+  Free browser tool, CLI and agent call for analysts, data scientists,
+  energy, operations and quality teams: paste a numeric table (days by hours,
+  stores by weeks, sensors by readings) and robust PCA by principal component
+  pursuit splits it into the low-rank pattern every row shares plus the
+  sparse cells that break it, fills empty cells, and certifies the split with
+  a duality gap. Checked against the paper's exact-recovery experiment and
+  TensorLy. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-15 on an explore run, as the fifteenth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md listed "robust PCA
+# by principal component pursuit (Candes et al. 2011)" as a candidate).
+# Implemented from the papers' mathematics; no third-party code was ported.
+# TensorLy 0.10.0 (BSD-3-Clause) was used only to produce eval/reference.json.
+# Example data: Kaggle "Hourly Energy Consumption" extract of PJM's AEP zone
+# load (CC0), already in the repository; data/SOURCE.md.
+#
+# First visitor: searches such as "robust pca online", "principal component
+# pursuit", "low rank plus sparse decomposition", "find outliers in a table",
+# "anomaly detection load profile"; analysts with a matrix of repeated
+# measurements who want the cells that do not fit, students of compressed
+# sensing and matrix completion. Volume not measured with an external tool.
+#
+# Alternatives: TensorLy, scikit-learn-contrib, MATLAB inexact_alm_rpca and
+# R's rpca package (all need code); none states how close its answer is to
+# optimal. Differentiators here: no install, empty cells filled, a duality
+# certificate on every result, a heat map and per-row view of what broke.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# medical advice; the page says a flagged cell is unusual, not wrong. Data
+# never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Analysts with a table of repeated measurements will use a no-install
+      robust PCA that names the cells breaking the shared pattern and fills
+      gaps, over writing PCP code themselves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a split whose objective is worse than an established PCP solver's on the same data and lambda by more than the certified gap, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/robust-pca/
+  analytics: null

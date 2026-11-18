@@ -1,0 +1,1848 @@
+{
+ "generator": "cvtsudoers version 1.9.15p5",
+ "results": [
+  {
+   "name": "no runas spec",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "tags inherit until the opposite tag",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/bin/ls"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/bin/cat"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "PASSWD"
+     ],
+     "negated": false,
+     "command": "/bin/rm"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "PASSWD"
+     ],
+     "negated": false,
+     "command": "/bin/cp"
+    }
+   ]
+  },
+  {
+   "name": "two users, runas user and group",
+   "expected": [
+    {
+     "users": [
+      "alice",
+      "bob"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": [
+      "%ALL"
+     ],
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    }
+   ]
+  },
+  {
+   "name": "group with NOPASSWD ALL",
+   "expected": [
+    {
+     "users": [
+      "%admin"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD",
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    }
+   ]
+  },
+  {
+   "name": "NOEXEC then EXEC",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOEXEC"
+     ],
+     "negated": false,
+     "command": "/usr/bin/vi"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "EXEC"
+     ],
+     "negated": false,
+     "command": "/usr/bin/less"
+    }
+   ]
+  },
+  {
+   "name": "runas changes mid list",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "www-data"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/php"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/kill"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/lprm"
+    }
+   ]
+  },
+  {
+   "name": "group-only runas",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": [
+      "%adm"
+     ],
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/tail"
+    }
+   ]
+  },
+  {
+   "name": "backslash continuation",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/a"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/b"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/c"
+    }
+   ]
+  },
+  {
+   "name": "second host group",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "host1"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "host2"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/cat"
+    }
+   ]
+  },
+  {
+   "name": "escaped comma, colon and equals in arguments",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/echo a,b:c=d"
+    }
+   ]
+  },
+  {
+   "name": "empty-string argument",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/id \"\""
+    }
+   ]
+  },
+  {
+   "name": "regular-expression arguments",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/systemctl ^restart (nginx|php-fpm)$"
+    }
+   ]
+  },
+  {
+   "name": "digest before the command",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "option specs before tags",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "CWD option spec",
+   "skipped": "cvtsudoers printed JSON that does not parse (Expected ',' or ']' after array element in JSON at position 411 (line 16 column 33))"
+  },
+  {
+   "name": "user ID and trailing comment",
+   "expected": [
+    {
+     "users": [
+      "#1000"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "#0"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "aliases on one line, nested and negated",
+   "expected": [
+    {
+     "users": [
+      "alice",
+      "bob",
+      "carol"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/sbin/ip"
+    },
+    {
+     "users": [
+      "alice",
+      "bob",
+      "carol"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/sbin/ss"
+    },
+    {
+     "users": [
+      "alice",
+      "bob",
+      "carol"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/mount"
+    },
+    {
+     "users": [
+      "alice",
+      "bob",
+      "carol"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/sbin/ss"
+    }
+   ]
+  },
+  {
+   "name": "runas alias",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "postgres",
+      "mysql"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/psql"
+    }
+   ]
+  },
+  {
+   "name": "quoted group name with a space",
+   "expected": [
+    {
+     "users": [
+      "%domain users"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "SETENV then NOSETENV ALL",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "/bin/x"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOSETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    }
+   ]
+  },
+  {
+   "name": "sudoedit",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "sudoedit /etc/hosts"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "sudoedit /etc/nginx/*.conf"
+    }
+   ]
+  },
+  {
+   "name": "tags without spaces",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD",
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "everyone, everything",
+   "expected": [
+    {
+     "users": [
+      "ALL"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    }
+   ]
+  },
+  {
+   "name": "directory command",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/"
+    }
+   ]
+  },
+  {
+   "name": "two runas users",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "root",
+      "operator"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "negated user",
+   "expected": [
+    {
+     "users": [
+      "ALL",
+      "!bob"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "netgroup and host alias",
+   "expected": [
+    {
+     "users": [
+      "+admins"
+     ],
+     "hosts": [
+      "web1",
+      "web2"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "negated alias before ALL",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/bin/su"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "ALL"
+    }
+   ]
+  },
+  {
+   "name": "tabs and Cmd_Alias spelling",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/true"
+    }
+   ]
+  },
+  {
+   "name": "Defaults lines are not rules",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "include directives ignored by the parse",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "hash in a quoted Defaults value",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "wildcard in path and args",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/*ctl status *"
+    }
+   ]
+  },
+  {
+   "name": "LOG_INPUT and MAIL tags",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "LOG_INPUT",
+      "MAIL"
+     ],
+     "negated": false,
+     "command": "/bin/ls"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "MAIL",
+      "NOLOG_INPUT"
+     ],
+     "negated": false,
+     "command": "/bin/cat"
+    }
+   ]
+  },
+  {
+   "name": "spaces around commas in the user list",
+   "expected": [
+    {
+     "users": [
+      "alice",
+      "bob",
+      "carol"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "comment holding an equals sign",
+   "expected": [
+    {
+     "users": [
+      "%sudo"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": [
+      "%ALL"
+     ],
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    }
+   ]
+  },
+  {
+   "name": "runas ALL except root",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL",
+      "!root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/bash"
+    }
+   ]
+  },
+  {
+   "name": "several arguments, then another command",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/usr/bin/systemctl restart nginx"
+    },
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/usr/bin/systemctl reload nginx"
+    }
+   ]
+  },
+  {
+   "name": "continuation inside the user list",
+   "expected": [
+    {
+     "users": [
+      "alice",
+      "bob"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "escaped backslash in an argument",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/echo a\\b"
+    }
+   ]
+  },
+  {
+   "name": "quoted env_keep list with a comma between settings",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  },
+  {
+   "name": "Runas alias holding root, negated in the rule",
+   "expected": [
+    {
+     "users": [
+      "alice"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL",
+      "!root",
+      "!operator"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/bin/ls"
+    }
+   ]
+  }
+ ],
+ "files": [
+  {
+   "file": "fixtures/sudo-manual-example/sudoers",
+   "expected": [
+    {
+     "users": [
+      "root"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "%wheel"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "ALL"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "millert",
+      "mikef",
+      "dowdy"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD",
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "bostley",
+      "jwfox",
+      "crawl"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "jack"
+     ],
+     "hosts": [
+      "128.138.243.0",
+      "128.138.204.0/24",
+      "128.138.242.0"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "lisa"
+     ],
+     "hosts": [
+      "128.138.0.0/255.255.0.0"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/mt"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/dump"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/rdump"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/restore"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/rrestore"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/home/operator/bin/start_backups"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/kill"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/shutdown"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/halt"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/reboot"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/lpc"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/lprm"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "sudoedit /etc/printcap"
+    },
+    {
+     "users": [
+      "operator"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/oper/bin/"
+    },
+    {
+     "users": [
+      "joe"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/su operator"
+    },
+    {
+     "users": [
+      "pete"
+     ],
+     "hosts": [
+      "boa",
+      "nag",
+      "python"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/passwd [A-Za-z]*"
+    },
+    {
+     "users": [
+      "pete"
+     ],
+     "hosts": [
+      "boa",
+      "nag",
+      "python"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/passwd *root*"
+    },
+    {
+     "users": [
+      "%opers"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": [
+      "adm",
+      "oper"
+     ],
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/"
+    },
+    {
+     "users": [
+      "bob"
+     ],
+     "hosts": [
+      "bigtime",
+      "eclipse",
+      "moet",
+      "anchor"
+     ],
+     "runasUsers": [
+      "root",
+      "operator"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "bob"
+     ],
+     "hosts": [
+      "grolsch",
+      "dandelion",
+      "black"
+     ],
+     "runasUsers": [
+      "root",
+      "operator"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "jim"
+     ],
+     "hosts": [
+      "+biglab"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "+secretaries"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/sbin/lpc"
+    },
+    {
+     "users": [
+      "+secretaries"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/lprm"
+    },
+    {
+     "users": [
+      "+secretaries"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/adduser"
+    },
+    {
+     "users": [
+      "+secretaries"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/rmuser"
+    },
+    {
+     "users": [
+      "fred"
+     ],
+     "hosts": [
+      "ALL"
+     ],
+     "runasUsers": [
+      "oracle",
+      "sybase"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD",
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "john"
+     ],
+     "hosts": [
+      "widget",
+      "thalamus",
+      "foobar"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/su [!-]*"
+    },
+    {
+     "users": [
+      "john"
+     ],
+     "hosts": [
+      "widget",
+      "thalamus",
+      "foobar"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/su *root*"
+    },
+    {
+     "users": [
+      "jen"
+     ],
+     "hosts": [
+      "ALL",
+      "!primary",
+      "!mail",
+      "!www",
+      "!ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/su"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/sh"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/csh"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/ksh"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/local/bin/tcsh"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/bin/rsh"
+    },
+    {
+     "users": [
+      "jill"
+     ],
+     "hosts": [
+      "primary",
+      "mail",
+      "www",
+      "ns"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": true,
+     "command": "/usr/local/bin/zsh"
+    },
+    {
+     "users": [
+      "steve"
+     ],
+     "hosts": [
+      "128.138.243.0",
+      "128.138.204.0/24",
+      "128.138.242.0"
+     ],
+     "runasUsers": [
+      "operator"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/local/op_commands/"
+    },
+    {
+     "users": [
+      "matt"
+     ],
+     "hosts": [
+      "valkyrie"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/kill"
+    },
+    {
+     "users": [
+      "will",
+      "wendy",
+      "wim"
+     ],
+     "hosts": [
+      "www"
+     ],
+     "runasUsers": [
+      "www"
+     ],
+     "runasGroups": null,
+     "tags": [
+      "SETENV"
+     ],
+     "negated": false,
+     "command": "ALL"
+    },
+    {
+     "users": [
+      "will",
+      "wendy",
+      "wim"
+     ],
+     "hosts": [
+      "www"
+     ],
+     "runasUsers": [
+      "root"
+     ],
+     "runasGroups": null,
+     "tags": [],
+     "negated": false,
+     "command": "/usr/bin/su www"
+    },
+    {
+     "users": [
+      "ALL"
+     ],
+     "hosts": [
+      "orion",
+      "perseus",
+      "hercules"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/sbin/umount /CDROM"
+    },
+    {
+     "users": [
+      "ALL"
+     ],
+     "hosts": [
+      "orion",
+      "perseus",
+      "hercules"
+     ],
+     "runasUsers": null,
+     "runasGroups": null,
+     "tags": [
+      "NOPASSWD"
+     ],
+     "negated": false,
+     "command": "/sbin/mount -o nosuid,nodev /dev/cd0a /CDROM"
+    }
+   ]
+  }
+ ]
+}

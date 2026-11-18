@@ -1,3 +1,4 @@
+import { loadPlaywright } from './load-playwright.mjs';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
@@ -75,11 +76,7 @@ test('buildLab writes the index and the handoff page', async () => {
 
 // Behavioural test of the browser script. Playwright is not a dependency: the
 // test skips when it cannot load (PLAYWRIGHT / CHROME_PATH as in platform/uitest/lib/browser.mjs).
-let chromium = null;
-try {
-  const mod = await import(process.env.PLAYWRIGHT || 'playwright');
-  chromium = mod.chromium ?? mod.default?.chromium;
-} catch { /* skipped below */ }
+const chromium = (await loadPlaywright())?.chromium ?? null;
 
 const CATALOG = { tools: [
   { slug: 'roof-bid-calculator', name: 'Roof bid calculator', url: 'https://example.test/roof/', category: 'Trades', description: 'Price a roof job.' },

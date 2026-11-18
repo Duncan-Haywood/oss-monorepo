@@ -1,0 +1,17 @@
+# tests/plant_drill_sweep.py PLANT --esc-tau-us N (2026-11-16): the calibration drill on the 18 design builds with the board's ESC_TAU_US set.
+# ESC_TAU_US 0 rows: eval/plant-drill-sweep-2026-11-16.txt (esc 30ms: 4.2% 23.8% / 5.5%, 149 marked, 9/18 warned; esc 80ms: 3.6% 19.9% / 6.6%, 129 marked, 12/18 warned).
+plant      | speed worst, spin worst / mean | marked (min-max a drill) | warned
+== esc 30ms ESC_TAU_US=20000
+esc 30ms   |             0.9%   6.5% / 1.6% |   0/432  (0-0)          |  0/18
+== esc 30ms ESC_TAU_US=50000
+esc 30ms   |             1.1%  12.9% / 3.2% |   0/432  (0-0)          |  0/18
+== esc 80ms ESC_TAU_US=100000
+esc 80ms   |             0.1%   3.0% / 1.0% |   0/432  (0-0)          |  0/18
+== first ESC_TAU_US=20000
+first      |             6.0%  41.2% / 9.2% | 144/432  (0-24)          |  6/18
+== first ESC_TAU_US=50000
+first      |            7.2%  44.1% / 10.1% | 205/432  (0-24)          | 12/18
+== esc 30ms ESC_TAU_US=30000
+esc 30ms   |             0.1%   1.4% / 0.5% |   0/432  (0-0)          |  0/18
+== esc 80ms ESC_TAU_US=80000
+esc 80ms   |             0.2%   1.8% / 0.7% |   0/432  (0-0)          |  0/18

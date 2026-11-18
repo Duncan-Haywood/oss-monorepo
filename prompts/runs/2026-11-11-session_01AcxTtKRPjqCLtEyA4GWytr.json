@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKRPjqCLtEyA4GWytr",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T00:06:18Z",
+  "ended": "2026-11-11T00:20:11Z",
+  "wall_minutes": 14.05,
+  "tokens_in": 7233070,
+  "tokens_out": 43587,
+  "cost_usd": 3.5434,
+  "tool_calls": 61,
+  "task": "marine-hull milestone 6p (wave-powered rung, fielded Wave Glider)",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14642",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Named marine-detect as the next free milestone without saying that marine-wave (milestone 10) was also open, or that the marine-glider milestone had landed inside marine-hull. I worked that out by hand."
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "issue": "Track 23 lists marine-wave as its own slug, but research/CLAUDE.md says steps go inside the open programme. I put it in marine-hull as milestone 6p, which is what the earlier glider milestone did."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/PROJECTS.md",
+      "why": "Track 23 milestone 10 (marine-wave) was done as a step of the open marine-hull programme instead of as a new slug, following research/CLAUDE.md (programmes over new slugs)",
+      "did": "milestone 6p in research/marine-hull",
+      "result": "A real-data result now sits next to the programme's wind and solar rungs"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-wave-glider-speed-vs-wave-height.md",
+    "research/marine-hull/LOG.md (6p entry)",
+    "research/marine-hull/paper/DRAFT.md section 2.6"
+  ],
+  "goal": null,
+  "notes": "Predictions were committed (first commit) before the run. Results: P1, P3 and P4 refuted, P2 and P5 held. The post-hoc month analysis is labelled. Checks: 118 tests pass, the homepage build prints ok, and research_live_links, check_md_links, programme_check and the post checks all pass. NOAA ERDDAP (coastwatch.pfeg, erddap.secoora) and NDBC were reachable through the proxy on 2026-11-11.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a0581fa1-ae3b-5d63-9fd7-9e9421af5682",
+    "transcripts": 1,
+    "first": "2026-11-11T00:06:18Z",
+    "last": "2026-11-11T00:20:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 104,
+        "output": 43587,
+        "thinking": 12275,
+        "cache_read": 7075963,
+        "cache_write_5m": 0,
+        "cache_write_1h": 157003,
+        "api_equivalent_usd": 3.5434,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 104,
+      "output": 43587,
+      "thinking": 12275,
+      "cache_read": 7075963,
+      "cache_write_5m": 0,
+      "cache_write_1h": 157003,
+      "api_equivalent_usd": 3.5434,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 52,
+      "Write": 5,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.05,
+      "active_minutes": 14.05,
+      "model_minutes": 9.18,
+      "tool_minutes": 4.87,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVKxdi6G2S38RfuNkHq",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T15:54:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "heavy-hydraulics milestone 6h: stroke-linear pump loss model fitted to Kauranne Fig. 13, holdout test below 12 cm3/r, closed-form bound on the flat hold's understatement of the excavator break-even",
+  "projects": [
+    "heavy-hydraulics"
+  ],
+  "pr": 15527,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    "huggingface.co, mdpi.com, tuprints.ulb.tu-darmstadt.de, doi.org and manufacturer hosts unreachable (CONNECT 403 / DNS): the motion-dependent g and the gear-pump efficiency could not be computed or sourced"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/README.md",
+      "issue": "6g's Next (gear-pump datasheet) depends on hosts this session cannot reach; the programme's open steps should list a GitHub-reachable fallback"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "the drawn programme's next step needed new external data; did the committed-data step instead (loss model and bound) and left g to the next run",
+      "did": "6h on in-repo data only",
+      "result": "merged result whose bound is conservative; size of the effect still open"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-piston-pump-at-a-tenth-of-stroke.md"
+  ],
+  "goal": null,
+  "notes": "Local checks: pytest 62 passed (python3.13); paper/check_numbers.py 243 claims 0 missing; research/_homepage/build.py ok; check_md_links ok; post frontmatter/links/similarity ok. Predictions K1-K3 refuted, K4-K5 held. No new citations (cite_check needs doi.org, unreachable; Kauranne already checked in 6g).",
+  "corrections": [],
+  "redteam": null
+}

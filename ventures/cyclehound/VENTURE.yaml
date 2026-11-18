@@ -1,0 +1,46 @@
+name: cyclehound
+description: Free, open-source (MIT) circular-import checker for JavaScript and TypeScript written in Rust. One engine runs as a native CLI (a CI gate that exits 1 on a cycle) and, compiled to WebAssembly, in a browser page that uploads nothing. On 11,422 files of this repository it built the same import graph as madge 8.0.0, edge for edge, in 0.2 s and 20 MB against 14 to 18 s and about 350 MB (BENCHMARK.md).
+stage: prototype
+
+owner: duncan
+
+# Second tool of the "dev tools in Rust, common and niche" direction the owner
+# set on 2026-10-29 (prompts/goals.md); the candidate is "Import-graph and
+# cycle checkers" in portfolio/opinions/2026-10-29-dev-tools-in-rust.md.
+# Screened with `python3 portfolio/pipeline/duplicate_check.py "circular import
+# dependency checker import graph madge javascript typescript"`: top score 0.28
+# (chrome-extension-permission-check, an unrelated checker); nothing in the
+# portfolio builds an import graph. Measured the originals first, as the
+# opinion piece asks: madge 14-18 s, dependency-cruiser 52 s and 2.3 GB.
+hypotheses:
+  - claim: >-
+      A developer on a large JavaScript or TypeScript repository who finds
+      madge or dependency-cruiser slow in CI will search for a faster
+      circular-import check and use cyclehound's CLI or page instead.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: >-
+      A team will run `cyclehound` as a pre-commit or CI gate, because at
+      under a second it costs nothing to run on every commit.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users engage with the tool within 90 days of it being reachable from the published site.
+  - No external repository is found running cyclehound within 120 days of a crates.io release.
+
+links:
+  production: https://marisstella.app/cyclehound/
+  analytics: null

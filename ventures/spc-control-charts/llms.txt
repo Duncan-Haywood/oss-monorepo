@@ -1,0 +1,18 @@
+# SPC Control Charts: Shewhart charts, Nelson rules and process capability
+
+> Free tool for anyone with measurements or defect counts in time order: paste them and get an I-MR, X-bar R, X-bar S, p, np, c or u control chart with all eight Nelson run rules, trial limits you can revise, a check on whether your subgroups hide between-batch variation, and Cp, Cpk, Pp, Ppk. Nothing uploaded.
+
+Free and open source (MIT). Results are statistics on the data pasted in, not legal, tax, financial, engineering or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/spc-control-charts/): paste data, pick a chart (or let it guess), switch rules on or off, add spec limits; returns the charts, every signal with the rule that fired, capability indices and a CSV.
+
+## How to use the engine
+
+- `engine.mjs` exports `analyze({ text, type, rules, exclude, revise, n, lsl, usl })`, returning limits per point, `signals` (point, chart, rule), `capability` and a plain-language `summary`. Also `factors(n)` (d2, d3, c4, A2, A3, D3, D4, B3, B4 computed from their definitions), `nelson(z)`, `PAPERS`.
+- `cli.mjs`: `node cli.mjs data.txt --type xbar-r --lsl 9.9 --usl 10.1 --json`. Exit code 1 when a point signals.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/spc-control-charts): MIT licensed.

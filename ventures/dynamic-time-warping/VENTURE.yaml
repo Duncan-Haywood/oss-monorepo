@@ -1,0 +1,60 @@
+name: dynamic-time-warping
+description: >-
+  Free browser tool, CLI and agent call for analysts, engineers, scientists
+  and students with time series: paste a CSV with one series per column and
+  get the dynamic time warping distance, the alignment path, a lag profile
+  that reads each point as timing, level or a hop across a peak, a distance
+  matrix between columns, and subsequence search for a short pattern in a
+  long series. Checked against dtw-python. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-16 on an explore run as a research-algorithm tool: the
+# repository had no dynamic time warping (searched 1,384 venture READMEs).
+# Implemented from Sakoe & Chiba 1978, Itakura 1975, Giorgino 2009,
+# Tormene et al. 2009 and Müller 2007; no third-party code was ported.
+# dtw-python 1.9.0 was used only to produce eval/reference.json, which the
+# tests check against. Example data: NOAA GHCN-Daily, Central Park, public
+# domain; data/SOURCE.md.
+#
+# First visitor: searches such as "dynamic time warping online", "DTW
+# calculator", "align two time series", "compare two time series with a
+# lag", "find a pattern in a time series"; analysts comparing seasons or
+# sensor runs, engineers comparing traces, students of DTW. Volume not
+# measured with an external tool.
+#
+# Alternatives: dtw-python and the R dtw package, tslearn, dtaidistance (all
+# need code). Differentiators here: no install, a lag profile that separates
+# timing from level and flags hops across peaks, subsequence search and a
+# distance matrix on one page, tests pinned to dtw-python.
+#
+# Liability: statistical output from supplied data, not financial, legal or
+# medical advice; the page says a lag or distance is not proof of a cause.
+# Data never leave the browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      People comparing two time series that run at different speeds will use
+      a no-install DTW tool that says where one runs ahead of the other and
+      whether a gap is timing or level.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a DTW distance or path that differs from dtw-python's on the same settings, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/dynamic-time-warping/
+  analytics: null

@@ -4,6 +4,8 @@
 
 Free and open source (MIT). Results are estimates from the numbers typed in, not legal, tax, financial or professional advice.
 
+Supports SEPA Instant (INST tag, 100,000 EUR cap checked) as well as standard credit transfers.
+
 ## Pages
 
 - [The tool](https://duncan-haywood.github.io/oss-monorepo/csv-to-sepa-pain001/)

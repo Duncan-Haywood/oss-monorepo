@@ -43,7 +43,7 @@
     {
       "@type": "Question",
       "name": "What does \"too many SPF DNS lookups\" mean, and why does it break everything?",
-      "acceptedAnswer": { "@type": "Answer", "text": "RFC 7208 caps SPF evaluation at 10 DNS lookups (each include:, a, mx, ptr, exists mechanism and each redirect= modifier counts, and include: chains recursively). Go over 10 and the result is a permanent error (PermError) -- meaning SPF fails for every message from your domain, for every receiver, whether or not the message is legitimate. This is usually caused by stacking one include: per marketing or support tool over time until the total quietly crosses 10." }
+      "acceptedAnswer": { "@type": "Answer", "text": "RFC 7208 caps SPF evaluation at 10 DNS lookups (each include:, a, mx, ptr, exists mechanism and each redirect= modifier counts, and include: chains recursively). A receiver that reaches an 11th lookup stops with a permanent error (PermError), and SPF fails for that message whether or not it is legitimate. Lookups are counted as evaluation goes, so a message that matches a term early in the record can still pass; mail from senders listed late, or not at all, fails. This is usually caused by stacking one include: per marketing or support tool over time until the total quietly crosses 10." }
     },
     {
       "@type": "Question",
@@ -102,7 +102,8 @@
   too many SPF DNS-lookup mechanisms (the single most common real-world SPF bug), a
   <code>+all</code> catch-all that authorizes anyone to send as your domain, a missing or
   monitor-only DMARC policy that leaves you spoofable while looking configured, and revoked or
-  missing DKIM keys. Every finding names the exact record it read. <strong>This is evidence about
+  missing DKIM keys.</p>
+<p>Every finding names the exact record it read. <strong>This is evidence about
   your DNS, not a verdict</strong> -- never "your domain is secure", always "here is what your
   records say and what that means."
 </p>
@@ -144,7 +145,7 @@ node cli.mjs yourdomain.com --json</code></pre>
   <h3>Why is my email going to spam?</h3>
   <p>The most common technical causes are a missing or misconfigured SPF record, no DKIM signing, or a missing/monitor-only (<code>p=none</code>) DMARC record -- mailbox providers use all three as spam and spoofing signals. This tool reads exactly what your domain's DNS currently says for each one and names what to fix. It cannot see reputation, content, or sending-volume factors, which also affect spam placement.</p>
   <h3>What does "too many SPF DNS lookups" mean, and why does it break everything?</h3>
-  <p>RFC 7208 caps SPF evaluation at 10 DNS lookups (each <code>include:</code>, <code>a</code>, <code>mx</code>, <code>ptr</code>, <code>exists</code> mechanism and each <code>redirect=</code> modifier counts, and <code>include:</code> chains recursively). Go over 10 and the result is a permanent error (PermError) -- meaning SPF fails for every message from your domain, for every receiver, whether or not the message is legitimate. This is usually caused by stacking one <code>include:</code> per marketing or support tool over time until the total quietly crosses 10.</p>
+  <p>RFC 7208 caps SPF evaluation at 10 DNS lookups (each <code>include:</code>, <code>a</code>, <code>mx</code>, <code>ptr</code>, <code>exists</code> mechanism and each <code>redirect=</code> modifier counts, and <code>include:</code> chains recursively). A receiver that reaches an 11th lookup stops with a permanent error (PermError), and SPF fails for that message whether or not it is legitimate. Lookups are counted as evaluation goes, so a message that matches a term early in the record can still pass; mail from senders listed late, or not at all, fails. This is usually caused by stacking one <code>include:</code> per marketing or support tool over time until the total quietly crosses 10.</p>
   <h3>What is DMARC p=none and why is it a problem?</h3>
   <p><code>p=none</code> means DMARC is in monitor-only mode: receivers are asked to take no action even on a message that fails alignment. It is the most common real-world gap, because a domain with SPF, DKIM, and DMARC all present looks fully configured while still being completely spoofable. <code>p=none</code> is a reasonable first step while you review the aggregate reports it generates; moving to <code>p=quarantine</code> or <code>p=reject</code> is what actually stops spoofed mail.</p>
   <h3>Does a clean report mean my email is fully secure?</h3>
@@ -155,7 +156,7 @@ node cli.mjs yourdomain.com --json</code></pre>
 
 <script type="module">
   import { runFullCheck } from './lookup.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const $ = (sel) => document.querySelector(sel);
   const els = {
@@ -200,7 +201,7 @@ node cli.mjs yourdomain.com --json</code></pre>
       const report = await runFullCheck(domain);
       render(report);
       els.status.textContent = '';
-      recordUsage(localStorage, document.getElementById('usageOptOut')?.checked ?? false, event);
+      recordUsage(usageStorage(), document.getElementById('usageOptOut')?.checked ?? false, event);
     } catch (err) {
       els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
       els.reportCard.hidden = true;
@@ -234,8 +235,8 @@ node cli.mjs yourdomain.com --json</code></pre>
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>

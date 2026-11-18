@@ -1,0 +1,30 @@
+# Milestone 2, post hoc: reinforcement with a free intercept (fine grid)
+grid: 2160 points, S = 75, seeds (0, 1)
+grid simulated in 232 s
+
+## moment set bcdj5
+I: in-sample qN=0.050 qP=0.3 gamma=+0.00 delta=+0.00 Q = 1.057e-03; LOO mean loss 1.4752e-01
+Id: in-sample qN=0.050 qP=0.3 gamma=+0.00 delta=+0.00 Q = 1.057e-03; LOO mean loss 1.4752e-01
+Rd: in-sample qN=0.075 qP=0.7 gamma=+0.05 delta=-0.25 Q = 7.903e-04; LOO mean loss 1.5039e-01
+Rd vs Id: Rd lower in 0.227 of 2000 paired draws; mean diff +2.876e-03 [-3.949e-03, +1.176e-02]; Rd better in 24/43 villages
+Rd vs I: Rd lower in 0.228 of 2000 paired draws; mean diff +2.876e-03 [-3.836e-03, +1.254e-02]; Rd better in 24/43 villages
+Id vs I: Id lower in 0.000 of 2000 paired draws; mean diff +0.000e+00 [+0.000e+00, +0.000e+00]; Id better in 0/43 villages
+
+## moment set ext8
+I: in-sample qN=0.050 qP=0.3 gamma=+0.00 delta=+0.00 Q = 4.219e-03; LOO mean loss 1.7419e-01
+Id: in-sample qN=0.050 qP=0.3 gamma=+0.00 delta=+0.00 Q = 4.219e-03; LOO mean loss 1.7419e-01
+Rd: in-sample qN=0.100 qP=0.1 gamma=+0.10 delta=-0.25 Q = 2.471e-03; LOO mean loss 1.9056e-01
+Rd vs Id: Rd lower in 0.123 of 2000 paired draws; mean diff +1.637e-02 [-2.183e-02, +4.020e-02]; Rd better in 13/43 villages
+Rd vs I: Rd lower in 0.122 of 2000 paired draws; mean diff +1.637e-02 [-2.372e-02, +4.126e-02]; Rd better in 13/43 villages
+Id vs I: Id lower in 0.000 of 2000 paired draws; mean diff +0.000e+00 [+0.000e+00, +0.000e+00]; Id better in 0/43 villages
+
+gamma-hat bootstrap (ext8, B = 1000): -0.05: 0.001, +0.00: 0.004, +0.05: 0.195, +0.10: 0.452, +0.15: 0.314, +0.20: 0.034
+profile ext8 gamma (min over qN, qP, delta): -0.10:8.850e-03 -0.05:6.267e-03 +0.00:4.219e-03 +0.05:3.020e-03 +0.10:2.471e-03 +0.15:2.488e-03 +0.20:3.710e-03 +0.30:1.160e-02 +0.40:2.602e-02
+
+take-up by adopting neighbours (non-leaders), data vs I fit (qN=0.050 qP=0.3 gamma=+0.00 delta=+0.00), village bootstrap B = 2000:
+  k=0: data 0.083, I 0.081, gap 95% [-0.017, +0.022], share gap > 0 0.595
+  k=1: data 0.143, I 0.184, gap 95% [-0.063, -0.018], share gap > 0 0.000
+  k=2: data 0.203, I 0.227, gap 95% [-0.050, -0.000], share gap > 0 0.022
+  k=3: data 0.243, I 0.248, gap 95% [-0.031, +0.021], share gap > 0 0.360
+  k=4+: data 0.350, I 0.272, gap 95% [+0.037, +0.117], share gap > 0 1.000
+runtime 234 s

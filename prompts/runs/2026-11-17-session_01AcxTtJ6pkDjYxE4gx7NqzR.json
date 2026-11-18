@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJ6pkDjYxE4gx7NqzR",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T20:05:51Z",
+  "ended": "2026-11-17T20:13:43Z",
+  "wall_minutes": 8.2,
+  "tokens_in": 2748366,
+  "tokens_out": 23359,
+  "cost_usd": 1.6069,
+  "tool_calls": 37,
+  "task": "explore: clipboard-copy failure sweep",
+  "projects": [
+    "platform/ci",
+    "shift-roster-builder",
+    "retainage-cashflow-calculator",
+    "change-order-margin-calculator",
+    "construction-evidence-log",
+    "hvac-maintenance-contract-calculator",
+    "clothing-design-studio"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17053",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    "Auto-mode classifier refused the first Playwright check (detached http.server plus a script in /tmp); a scratchpad script with an in-process server ran fine."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Recent new platform/ci sweeps (check_enter_reload.mjs, this one) are not wired into CI, because workflows are control plane; nothing lists unwired checkers, so they can rot unnoticed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "The checker is not wired into portfolio-validate.yml: that workflow is under CODEOWNERS and would block this PR on owner approval.",
+      "did": "Shipped it standalone, with its tests and a run-by-hand line in the post and PR.",
+      "result": "This PR can merge now; the wiring is left for a separate control-plane PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-a-copy-button-that-said-copied-anyway.md"
+  ],
+  "goal": null,
+  "notes": "Idea: a sweep of navigator.clipboard.writeText calls for unhandled rejections. 621 calls: 613 handled, 4 with no handler, 4 unawaited inside try. Shift-roster's share link said 'copied' on a refused copy. All 8 fixed; check now 0. Verified with Playwright stubbing writeText to reject, on main and on the branch. Node suites of 5 touched ventures pass in full; shift-roster-builder ran its 15 page-test files of 81 (105/105 pass; the full suite outlasts the tool timeout); checker unit tests 16/16.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "58a7842b-87e9-5f62-b2ac-e292af481ed0",
+    "transcripts": 1,
+    "first": "2026-11-17T20:05:51Z",
+    "last": "2026-11-17T20:14:03Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 34,
+        "input": 64,
+        "output": 23359,
+        "thinking": 4239,
+        "cache_read": 2672687,
+        "cache_write_5m": 0,
+        "cache_write_1h": 75615,
+        "api_equivalent_usd": 1.6069,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 34,
+      "input": 64,
+      "output": 23359,
+      "thinking": 4239,
+      "cache_read": 2672687,
+      "cache_write_5m": 0,
+      "cache_write_1h": 75615,
+      "api_equivalent_usd": 1.6069,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 37,
+    "tools": {
+      "Bash": 33,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.2,
+      "active_minutes": 8.2,
+      "model_minutes": 4.11,
+      "tool_minutes": 4.09,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "write and test a JS-aware static checker, triage 11 hits, fix 8 call sites in 6 apps, browser-verify, write post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 373.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

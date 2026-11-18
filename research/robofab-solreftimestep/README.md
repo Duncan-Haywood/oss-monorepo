@@ -44,6 +44,7 @@ Regenerate with `python experiments/figure.py` (parses `results.txt`).
 - The `refsafe` explanation is from documentation, not tested. The non-monotone timestep behaviour is unexplained and might be an artefact of this test harness rather than of MuJoCo's contact model.
 - Only MuJoCo 3.16.0, default `solimp`, `solref` damping ratio 1. Single deterministic runs; no seeds are involved.
 - Simulation only; no claim about a real gripper.
+- **Known gap (quality census 2026-11-17, [audit](../../portfolio/quality/audits/2026-11-17-robofab-solreftimestep.json)):** in 13 of the 15 failing ladder cells, "fails" is a creep of 2.1 to 3.6 mm that does not change with grip force and keeps contact, crossing the fixed 2 mm criterion, not a loss of grip (at 800 m/s^2, `solref` 0.2 ms, timestep 0.05 ms: 2.794 mm at both 2x and 10x the friction bound). The "none holds up to 60 N" cells should be read as "creeps past 2 mm", and the recommended `solref` 0.1 ms also exceeds 2 mm once the move lasts 0.2 s instead of 0.05 s. Reporting the worst displacement per cell, and a criterion that separates creep from slip, is the next fix. The same audit ran `refsafe` equal-effective-constant pairs and found identical trajectories, which supports the clamp reading above.
 
 ## Next steps
 

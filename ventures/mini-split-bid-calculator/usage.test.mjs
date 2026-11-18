@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { recordUsage } from './usage.mjs';
+import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
 
 function fakeStorage() {
   const values = new Map();
@@ -45,4 +45,50 @@ test('stores nothing beyond event counters and the day', () => {
 test('missing storage is a no-op rather than a crash', () => {
   assert.doesNotThrow(() => recordUsage(null));
   assert.doesNotThrow(() => recordUsage(undefined, false, 'bid_calculated'));
+});
+
+// Red-team 2026-11-17: four mutants in usage.mjs escaped this suite. Each test
+// below names the one it guards.
+
+test('a stored opt-out stops counting even when the caller passes optedOut=false and no browser signal is set', () => {
+  const storage = fakeStorage();
+  storage.removeItem = key => storage.values.delete(key);
+  recordUsage(storage);
+  writeOptOut(storage, true);
+  assert.equal(storage.values.has('mini-split-bid-usage'), false, 'opting out removes the counters');
+  assert.equal(readOptOut(storage), true);
+  recordUsage(storage, false, 'bid_calculated');
+  assert.equal(storage.values.has('mini-split-bid-usage'), false, 'a stored opt-out is honored without DNT or GPC');
+  writeOptOut(storage, false);
+  assert.equal(readOptOut(storage), false);
+  recordUsage(storage);
+  assert.equal(JSON.parse(storage.values.get('mini-split-bid-usage')).bid_calculated, 1);
+});
+
+test('a stored value that is JSON but not a plain object reads as empty counters', () => {
+  for (const bad of ['[]', '[1,2]', '7', '"x"', 'null', 'true']) {
+    const storage = fakeStorage();
+    storage.values.set('mini-split-bid-usage', bad);
+    recordUsage(storage);
+    const event = JSON.parse(storage.values.get('mini-split-bid-usage'));
+    assert.equal(Array.isArray(event), false, bad);
+    assert.equal(event.bid_calculated, 1, bad);
+  }
+});
+
+test('a store whose reads throw is not read as an opt-out', () => {
+  assert.equal(readOptOut({ getItem() { throw new Error('SecurityError'); } }), false);
+  assert.equal(readOptOut(null), false);
+});
+
+test('a navigator that throws on read does not stop counting', () => {
+  const had = Object.getOwnPropertyDescriptor(globalThis, 'navigator');
+  Object.defineProperty(globalThis, 'navigator', { configurable: true, get() { throw new Error('blocked'); } });
+  try {
+    const storage = fakeStorage();
+    recordUsage(storage);
+    assert.equal(JSON.parse(storage.values.get('mini-split-bid-usage')).bid_calculated, 1);
+  } finally {
+    if (had) Object.defineProperty(globalThis, 'navigator', had); else delete globalThis.navigator;
+  }
 });

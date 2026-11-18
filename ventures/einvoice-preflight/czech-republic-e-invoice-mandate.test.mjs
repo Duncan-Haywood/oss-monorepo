@@ -64,3 +64,17 @@ test("every other country page link to the Czech page", () => {
     assert.match(page, /href="czech-republic-e-invoice-mandate\.html"/, f);
   }
 });
+
+test("lede is about the Czech Republic, not a copied Serbia intro (fixed 2026-11-14)", () => {
+  const lede = html.match(/<p class="lede">(.*?)<\/p>/s)[1];
+  assert.match(lede, /Czech/);
+  assert.doesNotMatch(lede, /Serbia|SEF/);
+});
+
+test("B2G dates come from § 221 and § 279(5) of Act 134/2016, not the Act's start date", () => {
+  assert.match(html, /§ 279\(5\)/);
+  assert.match(html, /1 Apr 2019/);
+  assert.match(html, /1 Apr 2020/);
+  assert.match(html, /2017\/1870/);
+  assert.doesNotMatch(html, /accept e-invoices since 1 October 2016/);
+});

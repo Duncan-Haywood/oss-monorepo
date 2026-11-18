@@ -79,7 +79,9 @@ function findingsFor(headers, { path, setCookie }) {
     });
   }
 
-  if (cc.public === true && hasCookies) {
+  // no-store forbids every cache from storing the response (RFC 9111 s5.2.2.5), so the cookie
+  // cannot be replayed to another visitor; public is then moot, not dangerous.
+  if (cc.public === true && hasCookies && cc['no-store'] !== true) {
     findings.push({
       id: 'public-with-set-cookie',
       severity: 'danger',

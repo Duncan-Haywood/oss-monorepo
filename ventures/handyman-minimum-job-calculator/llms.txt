@@ -6,7 +6,7 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/handyman-minimum-job-calculator/)
+- [The tool](https://marisstella.app/handyman-minimum-job-calculator/)
 
 ## Source
 

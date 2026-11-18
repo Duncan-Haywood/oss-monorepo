@@ -111,6 +111,11 @@ const dateShape = (v) => {
   return "";
 };
 
+// A month and day with no year: 29 February is allowed, 30 February and 31 April are not.
+const MONTH_DAYS = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+function daysInMonth(m) { return MONTH_DAYS[m - 1] ?? 0; }
+function realMonthDay(m, d) { return Number.isInteger(m) && Number.isInteger(d) && d >= 1 && d <= daysInMonth(m); }
+
 export function validate(input) {
   const findings = [];
   const add = (severity, code, line, title, detail) => findings.push({ severity, code, line, title, detail });
@@ -203,7 +208,7 @@ export function validate(input) {
 
     const bd = (get(r, "birthday") ?? "").trim();
     if (bd) {
-      if (/^\d{1,2}[/-]\d{1,2}$/.test(bd)) { const [x, y] = bd.split(/[/-]/).map(Number); const sh = x > 12 ? "dm" : y > 12 ? "md" : "amb"; bShapes.set(sh, (bShapes.get(sh) || 0) + 1); if (x > 12 && y > 12 || x < 1 || y < 1 || x > 31 || y > 31) add("error", "birthday", L, `Birthday "${bd}" is not a real day and month`, "Neither number can be a month. Mailchimp birthday fields hold a month and a day only."); }
+      if (/^\d{1,2}[/-]\d{1,2}$/.test(bd)) { const [x, y] = bd.split(/[/-]/).map(Number); const sh = x > 12 ? "dm" : y > 12 ? "md" : "amb"; bShapes.set(sh, (bShapes.get(sh) || 0) + 1); if (!realMonthDay(x, y) && !realMonthDay(y, x)) add("error", "birthday", L, `Birthday "${bd}" is not a real day and month`, "Read either way round it is not a day that month has (30 February, 31 April) or neither number can be a month. Mailchimp birthday fields hold a month and a day only."); }
       else if (/^\d{4}-\d{2}-\d{2}$|^\d{1,2}[/-]\d{1,2}[/-]\d{2,4}$/.test(bd)) add("warning", "birthday-year", L, `Birthday "${trunc(bd)}" includes a year`, "A Mailchimp birthday field takes only a month and day (MM/DD or DD/MM, chosen when the field is created). A full date can be rejected or misread. Safe fixes do not drop the year for you.");
       else add("warning", "birthday", L, `Birthday "${trunc(bd)}" is not a month and day`, "Use MM/DD or DD/MM to match the field's format.");
     }

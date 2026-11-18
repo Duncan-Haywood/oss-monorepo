@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtJBWnQ2guMDrAy32y3",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-10T23:05:39Z",
+  "ended": "2026-11-10T23:14:45Z",
+  "wall_minutes": 9.84,
+  "tokens_in": 5804418,
+  "tokens_out": 27778,
+  "cost_usd": 2.597,
+  "tool_calls": 58,
+  "task": "Deepen flagship 2 (ai-bookkeeper), item 0: gate the new-payee guess",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14628",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "Previous session noted Open Collective's API was refused; it answered 200 from this session, so the 'host unreachable' notes are session-dependent, not permanent."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A bare `sleep N; cat` is blocked by a hook; waiting on a background eval needs Monitor with an until-loop. Not mentioned in cloud-session notes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate docs/reports agent doc: the venture README section and the flagship next: carry everything the next run needs.",
+      "did": "README section + flagships next rewrite only",
+      "result": "next: points to card MCC / AI layer"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The pre-registered gate did not earn its default (withheld guesses 48% right across seven sets), so shipped it off and kept the record as a confidence cap and reason text instead of landing the gate on.",
+      "did": "minRecord default 0; record caps confidence",
+      "result": "no change in right/wrong on any set; reviewer sees the guess's own record"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-bookkeeper-new-payee-track-record.md",
+    "ventures/ai-bookkeeper/README.md (New payees, gated on their own record)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered record gate (minTries 8, minRecord 0.4, untuned). First-seen right/wrong off->on: Hack Club 53.3/25.0 -> 52.2/20.7; Chase, makerspace unchanged; Mint ten 82.8/9.7 -> 82.5/9.5; OC opensource 57.1/32.7 -> 55.1/31.6, foundation 19.4/29.0 -> 19.2/28.3, raft 33.2/41.3 -> 31.5/37.0, pact_collective 41.4/37.6 -> 33.6/28.4, metagov 65.4/29.5 -> 64.1/28.7. ~163 withheld, 78 right. Verification: run_venture_tests.py ai-bookkeeper ok (35.8s); new-payee.test.mjs 7 pass; venture-preflight see below.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4deea8d3-894d-5b76-b570-ebf6f8502592",
+    "transcripts": 1,
+    "first": "2026-11-10T23:05:39Z",
+    "last": "2026-11-10T23:15:29Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 106,
+        "output": 27778,
+        "thinking": 6467,
+        "cache_read": 5691475,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112837,
+        "api_equivalent_usd": 2.597,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 106,
+      "output": 27778,
+      "thinking": 6467,
+      "cache_read": 5691475,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112837,
+      "api_equivalent_usd": 2.597,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 49,
+      "Monitor": 5,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.84,
+      "active_minutes": 9.84,
+      "model_minutes": 6.22,
+      "tool_minutes": 3.61,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, implement and evaluate a calibration gate on seven labelled datasets, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 231.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

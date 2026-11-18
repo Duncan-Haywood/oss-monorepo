@@ -124,6 +124,10 @@ test('index links to at least one sibling checker venture', () => {
   assert.match(html, /href="\.\.\/(actions-permissions-check|repository-branch-hygiene)\/"/);
 });
 
+test('index links one hop to the gitignore-explainer sibling', () => {
+  assert.match(html, /href="\.\.\/gitignore-explainer\/"/);
+});
+
 test('a worked-example button exists as an alternative to running the CLI first', () => {
   assert.match(html, /id="load-example"/);
 });

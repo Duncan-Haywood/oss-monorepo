@@ -1,0 +1,65 @@
+# Slow drill, first-order plant, wheel lag 0.8 s, build 0.95/0.35, HOLD_RPM 3000, main before the fix (2026-11-16).
+# Pi telemetry every 0.1 s after shot 1's release (shots 1 and 2: top 6065, bottom 526 rpm). rpm = board's reading,
+# true = simulator wheel, ok_ms / need = SteadyGate (3% band, 6 revolutions = 684 ms at 526 rpm). SEND 18 = FEED, SEND 2 = ESTOP.
+# Script: tests/release_timeout_trace.py (heartbeats omitted here).
+shot 1: ready in 7.90 s, released at 21.70 s
+  21.800 rpm  5982   397 true  6006.2   370.8 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  21.900 rpm  6050   402 true  6068.2   405.5 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.000 rpm  6099   381 true  6111.4   438.9 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.100 rpm  6131   381 true  6139.0   472.6 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.200 rpm  6149   371 true  6153.9   506.4 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.300 rpm  6158   415 true  6158.9   536.6 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.400 rpm  6158   463 true  6156.7   562.8 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.500 rpm  6153   504 true  6149.6   583.8 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.600 rpm  6144   538 true  6139.5   600.4 fed 2 ['WS'] feeding 0 ok_ms 60 need 684
+  22.700 rpm  6132   566 true  6128.0   612.4 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.800 rpm  6120   587 true  6116.2   620.1 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  22.900 rpm  6109   603 true  6104.7   624.2 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.000 rpm  6098   613 true  6094.3   625.1 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.000 SEND 16 (6065, 526)
+  23.000 SEND 17 (2242, 0)
+  23.100 rpm  6088   620 true  6085.2   623.3 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.200 rpm  6080   623 true  6077.6   619.3 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.300 rpm  6073   623 true  6071.6   613.6 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.400 rpm  6068   621 true  6067.0   606.5 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.500 rpm  6065   617 true  6063.6   598.4 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.600 rpm  6062   611 true  6061.4   589.7 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.700 rpm  6060   604 true  6060.0   580.7 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.800 rpm  6059   596 true  6059.3   571.7 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  23.900 rpm  6059   588 true  6059.3   562.8 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  24.000 rpm  6060   578 true  6059.6   554.3 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  24.100 rpm  6060   569 true  6060.0   546.4 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  24.200 rpm  6060   560 true  6060.7   539.0 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  24.300 rpm  6061   551 true  6061.4   532.4 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  24.400 rpm  6062   543 true  6062.1   526.5 fed 2 ['WS'] feeding 0 ok_ms 0 need 684
+  24.500 rpm  6063   535 true  6062.8   521.3 fed 2 ['WS'] feeding 0 ok_ms 20 need 684
+  24.600 rpm  6063   535 true  6063.4   517.1 fed 2 ['WS'] feeding 0 ok_ms 120 need 684
+  24.700 rpm  6064   528 true  6063.9   513.6 fed 2 ['WS'] feeding 0 ok_ms 220 need 684
+  24.800 rpm  6064   523 true  6064.3   511.0 fed 2 ['WS'] feeding 0 ok_ms 320 need 684
+  24.900 rpm  6065   518 true  6064.7   509.1 fed 2 ['WS'] feeding 0 ok_ms 420 need 684
+  25.000 rpm  6065   514 true  6064.9   507.8 fed 2 ['WS'] feeding 0 ok_ms 520 need 684
+  25.100 rpm  6065   511 true  6065.1   507.1 fed 2 ['WS'] feeding 0 ok_ms 620 need 684
+  25.200 rpm  6065   511 true  6065.2   507.0 fed 2 [] feeding 0 ok_ms 0 need 684
+  25.200 SEND 18 (1,)
+  25.300 rpm  6065   509 true  6065.4   507.5 fed 2 ['WS'] feeding 1 ok_ms 0 need 684
+  25.400 rpm  6065   508 true  6065.4   508.3 fed 2 ['WS'] feeding 1 ok_ms 0 need 684
+  25.500 rpm  6066   507 true  6065.4   509.5 fed 2 ['WS'] feeding 1 ok_ms 0 need 684
+  25.600 rpm  6065   508 true  6065.4   511.0 fed 2 ['WS'] feeding 1 ok_ms 0 need 684
+  25.700 rpm  6065   509 true  6065.4   512.6 fed 2 ['WS'] feeding 1 ok_ms 0 need 684
+  25.800 rpm  6065   510 true  6065.4   514.4 fed 2 ['WS'] feeding 1 ok_ms 0 need 684
+  25.900 rpm  6065   510 true  6065.4   516.2 fed 2 ['WS'] feeding 1 ok_ms 10 need 684
+  26.000 rpm  6065   512 true  6065.4   518.0 fed 2 ['WS'] feeding 1 ok_ms 110 need 684
+  26.100 rpm  6065   514 true  6065.4   519.8 fed 2 ['WS'] feeding 1 ok_ms 210 need 684
+  26.200 rpm  6065   516 true  6065.3   521.5 fed 2 ['WS'] feeding 1 ok_ms 310 need 684
+  26.300 rpm  6065   518 true  6065.3   523.1 fed 2 ['WS'] feeding 1 ok_ms 410 need 684
+  26.400 rpm  6065   520 true  6065.4   524.5 fed 2 ['WS'] feeding 1 ok_ms 510 need 684
+  26.500 rpm  6065   522 true  6065.4   525.8 fed 2 ['WS'] feeding 1 ok_ms 610 need 684
+  26.600 rpm  6065   524 true  6065.4   527.0 fed 2 [] feeding 0 ok_ms 710 need 684
+  26.700 rpm  6065   524 true  6065.4   527.9 fed 2 [] feeding 0 ok_ms 810 need 684
+  26.800 rpm  6065   525 true  6065.3   528.6 fed 2 [] feeding 0 ok_ms 910 need 684
+  26.900 rpm  6065   527 true  6065.3   529.2 fed 2 [] feeding 0 ok_ms 1010 need 684
+  27.000 rpm  6065   528 true  6065.3   529.6 fed 2 [] feeding 0 ok_ms 1110 need 684
+  27.100 rpm  6065   529 true  6065.3   529.8 fed 2 [] feeding 0 ok_ms 1210 need 684
+  27.200 rpm  6065   529 true  6065.3   529.9 fed 2 [] feeding 0 ok_ms 1310 need 684
+  27.210 SEND 2 ()
+False shot 2 release: not done in 2.0 s

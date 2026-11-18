@@ -51,8 +51,8 @@ export function visitCost(v, o = {}) {
   const travel = v.mileage * v.mileRate;
   const fixed = v.overheadPerVisit + v.insurancePerVisit;
   const cost = chefLabor + assistantLabor + groceries + travel + fixed;
-  // Margin is a share of the price. The grocery markup is revenue the chef earns for shopping and carrying the risk, so it sits inside the price, not on top.
-  const wanted = (cost - markup) / (1 - v.marginPct / 100) + markup;
+  // Margin is a share of the price before the grocery markup. The markup is billed on top for shopping and carrying the receipt float, so raising it raises the quote and never eats into the margin (quality audit 2026-11-15: the old formula subtracted it first, so a higher markup lowered the price).
+  const wanted = cost / (1 - v.marginPct / 100) + markup;
   const base = Math.max(wanted, v.minCharge);
   const price = base;
   return {
@@ -63,7 +63,7 @@ export function visitCost(v, o = {}) {
 }
 
 function usd(x) {
-  return (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 export function plan(input) {

@@ -3,6 +3,7 @@
 // Same engine as the page: node cli.mjs data.csv --target y --coverage 0.9 --method cqr [--json]
 import { readFileSync } from "node:fs";
 import { analyze, PAPERS } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 export const HELP = `conformal-prediction-intervals: distribution-free prediction intervals for a CSV
 
@@ -34,7 +35,7 @@ Citations:
 ${PAPERS.map((p) => `  ${p.authors} (${p.year}). ${p.title}. ${p.venue}.${p.doi ? ` doi:${p.doi}` : ""} ${p.url}`).join("\n")}
 
 Statistical output from your data, not advice. No warranty. MIT licence.
-Web version: https://duncan-haywood.github.io/monorepo-projects/conformal-prediction-intervals/`;
+Web version: https://marisstella.app/conformal-prediction-intervals/`;
 
 const FLAGS = { "--target": "target", "--features": "features", "--coverage": "coverage", "--method": "method", "--seed": "seed", "--test-fraction": "testFraction", "--cal-fraction": "calibrationFraction", "--repeats": "repeats", "--new": "newFile" };
 
@@ -98,7 +99,7 @@ export function run(argv, stdinText) {
   return { code: r.error ? 1 : 0, out: formatText(r) };
 }
 
-const isMain = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const argv = process.argv.slice(2);
   const needsStdin = !argv.includes("--help") && !argv.includes("-h") && !argv.some((a, i) => !a.startsWith("-") && !Object.keys(FLAGS).includes(argv[i - 1]) && a !== "-");

@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKdL5sDoH7U6u7KyqR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T01:05:52Z",
+  "ended": "2026-11-11T01:27:02Z",
+  "wall_minutes": 211.53,
+  "tokens_in": 10128802,
+  "tokens_out": 30436,
+  "cost_usd": 4.4147,
+  "tool_calls": 109,
+  "task": "research programme build-data: session 73's pre-registered paired bootstrap (cascade2 vs type class), Seattle held out",
+  "projects": [
+    "research/build-data"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14650",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "partial",
+  "errors": [
+    "A worker restart at 02:23 UTC killed both transfer runs about 40 minutes into their cascade2 halves; after the restart the machine ran at about half speed (type half 90 min vs 40), so Q4 (test year 2023) was not run.",
+    "My first background launch put the scratchpad variable inside a backgrounded subshell, so the pull wrote to /data; harmless, used as is.",
+    "A sequential four-city pull is slow (Chicago ~10 min alone); parallel per-city pulls into separate dirs finished in 15 min total. merge_manifest from parallel/killed pulls dropped Chicago and SF counts; restored from the pull log."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "No warning that transfer.py with 4 cities and 2 class configurations takes 80 min (40 per configuration) at OMP_NUM_THREADS=2 and 4 GB RAM per process; plan multi-hour runs with setsid so a worker restart does not kill them."
+    },
+    {
+      "file": "research/build-data/src/permits.py",
+      "issue": "pull is sequential over cities and merge_manifest only writes at the end, so parallel per-city pulls (much faster) race on results/manifest.json."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/build-data/LOG.md (session 73 plan)",
+      "why": "Q4 needed a 2023 paired run costing about 3 more hours after the restart slowed the machine",
+      "did": "ran and reported Q1 to Q3 (2024) only; Q4 recorded as not run",
+      "result": "one step landed with an interval on the difference; Q4 carried to the next session"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-build-data-paired-work-type.md",
+    "research/build-data/LOG.md session 74",
+    "research/build-data/paper/paper.md 4.4b"
+  ],
+  "goal": null,
+  "notes": "Socrata feeds reachable 01:06 UTC; four-feed pull 01:07-01:22 UTC, row counts equal to 2026-11-10. Paired cascade2-type (days, 95% week block): a2i transfer q0.9 -3.88 [-4.92,-2.84]; i2c transfer q0.5 -0.85 [-1.58,-0.09]; i2c transfer q0.9 +2.19 [0.90,3.51]; own-city boosted better in all 6 cells. Checks: build-data tests 88 passed 2 skipped; research build ok; check_md_links ok; research_live_links 0 updates.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "94919198-a40d-5d59-9efd-f2a68550e5a4",
+    "transcripts": 1,
+    "first": "2026-11-11T01:05:52Z",
+    "last": "2026-11-11T04:37:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 88,
+        "input": 176,
+        "output": 30436,
+        "thinking": 5534,
+        "cache_read": 9900484,
+        "cache_write_5m": 0,
+        "cache_write_1h": 228142,
+        "api_equivalent_usd": 4.4147,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 88,
+      "input": 176,
+      "output": 30436,
+      "thinking": 5534,
+      "cache_read": 9900484,
+      "cache_write_5m": 0,
+      "cache_write_1h": 228142,
+      "api_equivalent_usd": 4.4147,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 109,
+    "tools": {
+      "Bash": 106,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 211.53,
+      "active_minutes": 81.15,
+      "model_minutes": 7.73,
+      "tool_minutes": 73.42,
+      "waiting_on_human_minutes": 130.38,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "pull four feeds, run and check a paired bootstrap, write log, paper section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 135.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

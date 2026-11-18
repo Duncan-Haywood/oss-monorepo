@@ -6,7 +6,7 @@
 // raw gap between bands, and is labelled an association: fast replies and good leads can travel together.
 
 export const num = (v, d = 0) => (Number.isFinite(v) ? v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "n/a");
-export const money = (v) => (Number.isFinite(v) ? (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 0 }) : "n/a");
+export const money = (v) => (Number.isFinite(v) ? ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { maximumFractionDigits: 0 })) : "n/a");
 export const pct = (v, d = 1) => (Number.isFinite(v) ? (v * 100).toFixed(d) + "%" : "n/a");
 
 export const BANDS = [
@@ -33,7 +33,7 @@ export function parseMinutes(s) {
   const t = String(s).trim().toLowerCase();
   if (t === "" || /^(never|none|no reply|no response|unanswered|n\/a|na|-)$/.test(t)) return Infinity;
   let m = t.match(/^(\d+):(\d{1,2})$/);
-  if (m) return Number(m[1]) * 60 + Number(m[2]);
+  if (m) return Number(m[2]) > 59 ? NaN : Number(m[1]) * 60 + Number(m[2]);
   m = t.match(/^(?:(\d+(?:\.\d+)?)\s*d(?:ays?)?)?\s*(?:(\d+(?:\.\d+)?)\s*h(?:ours?|rs?)?)?\s*(?:(\d+(?:\.\d+)?)\s*m(?:in(?:ute)?s?)?)?$/);
   if (m && (m[1] || m[2] || m[3])) return Number(m[1] || 0) * 1440 + Number(m[2] || 0) * 60 + Number(m[3] || 0);
   if (/^\d+(\.\d+)?$/.test(t)) return Number(t);

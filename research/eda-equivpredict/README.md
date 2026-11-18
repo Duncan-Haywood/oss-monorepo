@@ -20,7 +20,7 @@ python -m unittest discover -s tests
 ## Results (`experiments/results.txt`)
 - Always running formal on the 27 survivors costs 7,414 CPU-s and finds 16/16 proofs. The oracle would spend 3,746 CPU-s on the 16 equivalents alone, so at most about half of formal's cost on survivors is avoidable by prediction.
 - Nearest-line prediction spends 3,298 CPU-s (55% less), finds 14 of 16 proofs, and is right on 93% of survivors under both scores. It beats the oracle's cost only because it skips two equivalents (and two formal kills).
-- The smoother rules do worse once twins are held out: 3-NN finds 12/16 for 3,753 CPU-s (78% accurate) and the best one-split rule 12/16 for 4,204 CPU-s (74%). Same-kind majority is worse than guessing (33%): operator versus literal says nothing about provability here.
+- The smoother rules do worse once twins are held out: 3-NN finds 12/16 for 3,753 CPU-s (78% accurate) and the best one-split rule 12/16 for 4,204 CPU-s (74%). The one-split figure depends on tie-breaking: it cuts at a training-line value and keeps the lowest tied cut; with midpoint cuts, the usual practice, it scores 25/27 for 3,298 CPU-s, the same as nearest-line (quality audit 2026-11-13, [`portfolio/quality/audits/2026-11-13-eda-equivpredict.json`](../../portfolio/quality/audits/2026-11-13-eda-equivpredict.json)), so this comparison does not show the smoother rules are worse. Same-kind majority is worse than guessing (33%): operator versus literal says nothing about provability here.
 - The signal is where the mutation sits. On this file, survivors on lines 123 to 137 are mostly timeouts (9 of 12, with 2 equivalent and 1 formal kill) and those on lines 140 to 151 are all provably equivalent (14 of 14). That is a statement about the solver on this one design, not a rule.
 - Skipping formal on predicted-undecided survivors also skips 2 formal kills. `eda-earlystop` found every formal kill is also found by a cheap stage in some seed, so in the full cascade they are not lost.
 
@@ -28,7 +28,7 @@ Figure: `experiments/figure.svg`.
 
 ## Limitations
 - 27 survivors from one design, with heavy duplication (eight survivors on line 151, six on line 123). Leave-one-line-out removes twins but the effective sample is about a dozen distinct lines; the 93% has wide uncertainty and no interval is claimed.
-- Line number is a proxy for a design region the solver finds hard (probably deep arithmetic cones). It will not transfer to another file; a predictor for a new design needs structural features (cone size, depth, fanout), which this log does not hold.
+- Line number is a proxy for a design region the solver finds hard. The quality audit of 2026-11-13 read the generated RTL: the eight line-151 equivalents sit in a branch that is dead at P=8, lines 140 to 145 are boundary changes to clamps and shifts, and the line-123 undecided mutants change reset values, which the register-matched induction proof cannot prove; so "undecided" there reflects a solver limit, not deep arithmetic. It will not transfer to another file; a predictor for a new design needs structural features (cone size, depth, fanout), which this log does not hold.
 - Equivalent-versus-undecided depends on the 150 s and 240 s solver timeouts, as in `eda-earlystop`.
 - The tuning of the one-split rule uses the training fold only, but the choice of predictors was made with the log in view.
 

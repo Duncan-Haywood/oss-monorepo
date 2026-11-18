@@ -1,7 +1,7 @@
 ---
 title: The Cut Tiles at the Wall
 shelf: hearth-and-horizon
-setting: Saint Colman's vestry (invented), near Gort, Co. Galway, Saturday 6 September 2051
+setting: Saint Colman's vestry (invented), near Gort, Co. Galway, Saturday 9 September 2051
 published: 2026-11-06
 summary: A parish is retiling a vestry floor of 3.45 by 2.62 metres with 300 mm tiles. The assistant counts rows and columns instead of dividing areas, centres the pattern so no cut is a sliver, and finds that ten boxes cover the area on paper and are three tiles short in practice.
 ---

@@ -72,13 +72,14 @@ export async function loadLaunchDates(file = LAUNCHED_FILE) {
 }
 
 export function isIsoDate(value) {
-  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`));
+  return typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
 }
 
 /**
  * The author date of the commit that first added `ventures/<slug>/`, as
- * `YYYY-MM-DD` in UTC, or null when history does not know (a shallow clone, a
- * directory that was never committed).
+ * `YYYY-MM-DD` in UTC, or null when history does not know (a directory that
+ * was never committed, or one whose only recorded add is the boundary commit
+ * of a shallow clone).
  */
 export async function firstCommitDate(slug, { cwd = REPO_ROOT } = {}) {
   try {
@@ -87,16 +88,32 @@ export async function firstCommitDate(slug, { cwd = REPO_ROOT } = {}) {
       // `--reverse` with `--diff-filter=A` lists every add of the path; the
       // first line is the original one. A tool deleted and restored keeps its
       // original launch date, which is the honest answer.
-      ['log', '--reverse', '--diff-filter=A', '--format=%aI', '--', `ventures/${slug}`],
+      ['log', '--reverse', '--diff-filter=A', '--format=%H %aI', '--', `ventures/${slug}`],
       { cwd, maxBuffer: 8 * 1024 * 1024 },
     );
     const first = stdout.split('\n').find((line) => line.trim());
     if (!first) return null;
-    const parsed = new Date(first.trim());
+    const [sha, when] = first.trim().split(' ');
+    // In a shallow clone (every agent session, and CI's default checkout) the
+    // boundary commit has no parents, so git reports it as adding every file
+    // in the tree. That is the clone's horizon, not the tool's launch.
+    if ((await shallowBoundaries(cwd)).has(sha)) return null;
+    const parsed = new Date(when);
     if (Number.isNaN(parsed.getTime())) return null;
     return parsed.toISOString().slice(0, 10);
   } catch {
     return null;
+  }
+}
+
+/** The commits a shallow clone was cut at, or an empty set for a full clone. */
+async function shallowBoundaries(cwd) {
+  try {
+    const { stdout } = await execFileAsync('git', ['rev-parse', '--git-path', 'shallow'], { cwd });
+    const file = path.resolve(cwd, stdout.trim());
+    return new Set((await fs.readFile(file, 'utf8')).split('\n').map((l) => l.trim()).filter(Boolean));
+  } catch {
+    return new Set();
   }
 }
 

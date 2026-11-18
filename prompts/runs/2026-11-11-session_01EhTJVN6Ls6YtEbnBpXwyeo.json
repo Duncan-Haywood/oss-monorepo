@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVN6Ls6YtEbnBpXwyeo",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell, support products; merge when done)",
+  "input_sha256": "e4a3e7a17f446f0eaa59faa5ccd9a3acae14f792e3d61e0442a9ec5380052eef",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T04:01:18Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14684,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "validate (check_social_proof) failed on first push from the comma false positive; fixed by rewording one line."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/check_social_proof.py",
+      "issue": "CLAIM's `[\\d,]+\\+? (happy|satisfied) ` matches a bare comma, so prose like 'the long, happy night' fails CI as an unattributed social-proof claim. Requiring a digit ([\\d][\\d,]*) would fix it; not changed here because platform/ci is control plane. Worked around by rewording."
+    }
+  ],
+  "deviations": [],
+  "writeups": [],
+  "goal": null,
+  "notes": "Creative track, Hearth & Horizon / Little Lamps: new story scholastica-and-the-storm-at-supper (Gregory, Dialogues II.33-34; spoken lines as close paraphrase attributed to 'the old book'; twins tradition flagged as later; weeping omitted for small listeners). Text only: audio du = 423 MB, over the 400 MB cap. Checks: generate --check current; node --test stories/usage 12/0; post front matter clean. Post docs/posts/2026-11-11-scholastica-and-the-storm-at-supper.md. run_workflow_locally --for-changes sweep reported UNSTABLE CHECKOUT (I committed during it), so not cited; relied on PR CI.",
+  "corrections": [],
+  "redteam": null
+}

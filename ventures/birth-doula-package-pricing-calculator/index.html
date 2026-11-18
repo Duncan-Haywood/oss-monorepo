@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Birth Doula Package Pricing Calculator", "applicationCategory": "BusinessApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Work out what a birth doula package really pays per hour after labor length, travel, on-call days, backup cover and overhead, and the fee needed to hit your target. Runs in your browser.", "featureList": "Effective hourly rate, fee for target rate, labor-length sensitivity, births needed for a yearly goal, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much should a birth doula charge?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your market, but the number to anchor on is your pay per worked hour, not the package price. A $1,200 package looks fine until you count 14 hours at the birth, six hours of visits, driving, a month on call and the fee you pay a backup. This calculator works the package price back from the hourly rate you want. Local rates, your experience and what clients in your area pay vary, so treat the result as your floor, not a market quote."}}, {"@type": "Question", "name": "How do I count on-call time?", "acceptedAnswer": {"@type": "Answer", "text": "Most doulas do not bill for it, but it has a cost: weeks of not travelling, drinking or planning. The tool lets you give each on-call day a dollar value you choose, including zero, and shows the hourly rate both ways."}}, {"@type": "Question", "name": "Should I charge more for a long birth?", "acceptedAnswer": {"@type": "Answer", "text": "Many doulas price a package for an average birth and add a per-hour charge past a set number of hours, or a flat fee for births over 24 hours. The sensitivity table shows how fast the hourly rate drops as labor gets longer, which is the case for either."}}, {"@type": "Question", "name": "What does a backup doula really cost?", "acceptedAnswer": {"@type": "Answer", "text": "On the share of births a backup attends, you usually pay the backup part of the fee. Averaged over all your clients that is a steady cost per package, so it belongs in the price. Set the share of births and the share you pay."}}, {"@type": "Question", "name": "Is this business or tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type, with simplifications listed under Not decided. Ask an accountant about self-employment tax, deductions and the mileage method you use."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #9d174d; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #8b1444; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #8b1444; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #9d174d; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #9d174d; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #8b1444; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -107,10 +145,10 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result, o = a.opts;
-      h += `<div class="finding"><h4>${a.underTarget ? "Below your target" : "At or above your target"}: ${money2(r.hourlyAfterOnCall)} per worked hour after on-call</h4><p>One ${money(o.fee)} package takes ${r.hours.total.toFixed(1)} worked hours and nets ${money(r.net)} after costs, ${money2(r.hourly)} an hour before valuing on-call days. To reach ${money2(o.targetHourly)} an hour, price the package at <strong>${money(r.feeForTarget)}</strong> (${r.raise >= 0 ? "+" : "-"}${money(Math.abs(r.raise))}).</p></div>`;
-      h += `<div class="finding"><h4>Where the package goes</h4>${table(["Line", "Per birth"], [["Package price", money(o.fee)], ["Card or platform fee", "-" + money(r.fees)], ["Backup doula cover", "-" + money(r.backup)], ["Mileage", "-" + money(r.mileage)], ["Supplies", "-" + money(o.supplies)], ["Share of yearly overhead", "-" + money(r.overhead)], ["Net per birth", money(r.net)], ["On-call days valued at your rate", "-" + money(r.onCall)], ["Net after on-call", money(r.netAfterOnCall)]])}<p>Worked hours: ${r.hours.visits.toFixed(1)} visits, ${r.hours.labor} at the birth, ${r.hours.admin} admin, ${r.hours.driving.toFixed(1)} driving.</p></div>`;
-      h += `<div class="finding"><h4>Your year</h4><p>${o.birthsPerYear} clients is ${money(r.yearly)} before tax (${money(r.afterTaxYearly)} after a ${o.taxPct}% set-aside) for ${Math.round(r.yearlyHours)} worked hours. ${r.birthsForGoal ? "A " + money(o.annualGoal) + " yearly goal takes about " + r.birthsForGoal + " births at this price." : "At this price the package does not cover your on-call days, so no number of births reaches the goal."}</p></div>`;
-      h += `<div class="finding"><h4>How a longer labor changes it</h4>${table(["Hours at the birth", "Worked hours", "Net per birth", "$ per hour", "After on-call", "Fee for target"], a.rows.map((x) => [x.labor, x.hours.toFixed(1), money(x.net), money2(x.hourly), money2(x.hourlyAfterOnCall), money(x.feeForTarget)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>${a.underTarget ? "Below your target" : "At or above your target"}: ${money2(r.hourlyAfterOnCall)} per worked hour after on-call</h3><p>One ${money(o.fee)} package takes ${r.hours.total.toFixed(1)} worked hours and nets ${money(r.net)} after costs, ${money2(r.hourly)} an hour before valuing on-call days. To reach ${money2(o.targetHourly)} an hour, price the package at <strong>${money(r.feeForTarget)}</strong> (${r.raise >= 0 ? "+" : "-"}${money(Math.abs(r.raise))}).</p></div>`;
+      h += `<div class="finding"><h3>Where the package goes</h3>${table(["Line", "Per birth"], [["Package price", money(o.fee)], ["Card or platform fee", "-" + money(r.fees)], ["Backup doula cover", "-" + money(r.backup)], ["Mileage", "-" + money(r.mileage)], ["Supplies", "-" + money(o.supplies)], ["Share of yearly overhead", "-" + money(r.overhead)], ["Net per birth", money(r.net)], ["On-call days valued at your rate", "-" + money(r.onCall)], ["Net after on-call", money(r.netAfterOnCall)]])}<p>Worked hours: ${r.hours.visits.toFixed(1)} visits, ${r.hours.labor} at the birth, ${r.hours.admin} admin, ${r.hours.driving.toFixed(1)} driving.</p></div>`;
+      h += `<div class="finding"><h3>Your year</h3><p>${o.birthsPerYear} clients is ${money(r.yearly)} before tax (${money(r.afterTaxYearly)} after a ${o.taxPct}% set-aside) for ${Math.round(r.yearlyHours)} worked hours. ${r.birthsForGoal ? "A " + money(o.annualGoal) + " yearly goal takes about " + r.birthsForGoal + " births at this price." : "At this price the package does not cover your on-call days, so no number of births reaches the goal."}</p></div>`;
+      h += `<div class="finding"><h3>How a longer labor changes it</h3>${table(["Hours at the birth", "Worked hours", "Net per birth", "$ per hour", "After on-call", "Fee for target"], a.rows.map((x) => [x.labor, x.hours.toFixed(1), money(x.net), money2(x.hourly), money2(x.hourlyAfterOnCall), money(x.feeForTarget)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

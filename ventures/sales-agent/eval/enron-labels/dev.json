@@ -1,0 +1,2425 @@
+{
+"meta": {
+"half": "dev",
+"blobs": ".bitcache/blobs/0*",
+"replies": 9534,
+"auto_replies": {
+"before": [
+44,
+97
+],
+"after": [
+43,
+97
+]
+},
+"bounces": {
+"before": [
+39,
+41
+],
+"after": [
+39,
+41
+]
+},
+"label_meaning": "right: read as a reply to outreach, the text means that stop; wrong: it does not; ambiguous: a third person away or gone, a handover, or quoted history",
+"labelled_by": "an agent reading each flagged sentence, 2026-11-10; held half labelled from a shuffled union with the engine hidden"
+},
+"rows": [
+{
+"id": "<10115596.1075857196091.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<10249717.1075851751090.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<10300153.1075860504733.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<10323424.1075842097269.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<10344998.1075856390405.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1043652.1075850349644.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<10444426.1075851031188.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<10484548.1075847211458.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<10797829.1075844544552.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<10943225.1075856468483.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<11049794.1075855813393.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<11116972.1075840187475.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<11347412.1075853279792.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<11438476.1075854696015.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<11444872.1075840269302.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<11451656.1075858440838.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<11556932.1075853714185.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<115663.1075846040932.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<11575701.1075846069394.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<11582500.1075844273145.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<11620086.1075854110634.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<1162420.1075853251727.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<11685018.1075840377951.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<11795021.1075856533662.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<11842887.1075858965053.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<11996286.1075844420310.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12002100.1075860221568.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12071776.1075863604843.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<12112366.1075860043819.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<12349435.1075843921076.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12360742.1075859923304.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12366618.1075856462161.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12536809.1075843193359.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<125720.1075857559924.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12638784.1075863363575.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<12651984.1075856931300.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<12706904.1075845059804.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12767187.1075855008391.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<12822725.1075846809780.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<12827368.1075844801376.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<12882871.1075861146558.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "ambiguous"
+},
+{
+"id": "<12913521.1075860883927.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "ambiguous"
+},
+{
+"id": "<13048800.1075856323980.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<13051257.1075853901285.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<13063255.1075858308264.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13096066.1075841231889.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13238579.1075848259282.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13292237.1075859255471.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<13359324.1075839997352.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<13396182.1075861680929.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13458270.1075858359953.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13553172.1075843920274.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<13568437.1075858138124.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1357104.1075843970983.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<13602886.1075860036027.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<13661772.1075857511948.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<13708092.1075859902020.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13843121.1075862094741.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<13879772.1075841917623.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<13936206.1075863699447.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<14065457.1075841057699.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<1406938.1075842434322.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<14186864.1075855672647.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<14295636.1075856532352.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<14341840.1075840281768.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1443089.1075842533539.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<14437010.1075859992634.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<14729944.1075855785949.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<14783205.1075847336530.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<14800248.1075846126542.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15073262.1075855780855.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15099243.1075856585598.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15135737.1075844390946.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15156822.1075858246968.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<15163424.1075857279221.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15238537.1075845699490.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<15316752.1075841696805.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<1535070.1075842129618.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15360379.1075843755462.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1537444.1075854367034.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "ambiguous"
+},
+{
+"id": "<15408984.1075860064063.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15439324.1075845576835.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15484350.1075852473888.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15561725.1075840868186.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15611369.1075853811031.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<15686893.1075841913982.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<15792658.1075841005948.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<15840805.1075848044891.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<15861043.1075862416911.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<15888968.1075843970076.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<15890947.1075860007898.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15903.1075859882130.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<15917763.1075843860886.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<16127333.1075851681462.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<16128346.1075853056188.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<16282271.1075847764189.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<16290433.1075847110145.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<16313587.1075861193741.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<16408580.1075844962507.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<16459055.1075845423566.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<16593584.1075857696789.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<16914886.1075843313725.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<16957866.1075858941954.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<17139622.1075844915225.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<17243425.1075843207526.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<17310895.1075853440123.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<17379575.1075849852146.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<17420906.1075860026459.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<17495225.1075856526443.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<17972728.1075857429344.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18060534.1075856500612.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<18172619.1075856493083.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18173086.1075845374155.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<18299500.1075847192253.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18396399.1075856507598.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18459076.1075852893032.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<18505883.1075860000517.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<185559.1075854775718.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18581604.1075857856434.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1864386.1075843131434.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1875105.1075840354939.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18813813.1075845737891.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<18867140.1075843927323.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<18914010.1075842682280.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<18940680.1075847795455.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18959614.1075853264013.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<18980488.1075860481485.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<19043472.1075854209463.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19116796.1075853198733.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1919497.1075847983183.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<19215613.1075853205417.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<19264694.1075843059004.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19322321.1075841934190.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19350480.1075856246775.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<1942343.1075844327863.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<19440457.1075851630453.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<1951944.1075841438946.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<19588960.1075843872161.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<19641594.1075844959438.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<19677431.1075841836639.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<19681429.1075842776987.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19692793.1075844388283.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<19696426.1075840525778.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<19706208.1075845394716.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<1971426.1075843393214.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19805554.1075844420286.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19898408.1075863704038.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19900802.1075859941186.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<19992582.1075842193811.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<20031000.1075855596519.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20096681.1075861607754.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<20350210.1075845054714.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<20453330.1075841916538.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<20495597.1075843486096.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<20550837.1075842914629.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20601509.1075860439097.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<20612507.1075842313784.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20691937.1075843920297.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20733659.1075851773179.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<20742054.1075861826229.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20767717.1075859533624.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20906383.1075841780926.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<20991780.1075851721497.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "ambiguous"
+},
+{
+"id": "<21042099.1075854702118.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<21043413.1075851677877.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<21113487.1075852679624.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21174840.1075845259497.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<21206204.1075841842462.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<21233772.1075843963449.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<21265976.1075859547161.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<2130499.1075847943244.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<21351417.1075843920881.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<2139966.1075857066931.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21400112.1075851939396.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21401025.1075843913946.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<21428861.1075857591089.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21529428.1075851864519.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21545939.1075861154381.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21603832.1075851982694.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<21628912.1075847037243.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<21803701.1075856635864.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<21806178.1075857247130.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<21884571.1075859941776.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<21935739.1075855781838.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "ambiguous"
+},
+{
+"id": "<22064592.1075862171325.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22184544.1075853742120.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22208576.1075847083588.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<22266469.1075845628916.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22399381.1075845669534.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22523607.1075846039876.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22561603.1075859950756.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22570889.1075844504744.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22613939.1075847646650.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<22651285.1075853933067.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<23028245.1075853269989.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<23102797.1075856418354.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<2328077.1075853280352.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<23322733.1075845710415.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<23347602.1075852481153.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<23575708.1075851940935.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "ambiguous"
+},
+{
+"id": "<23742590.1075845711741.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<23747543.1075859990537.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<23764664.1075845558672.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<24119236.1075840501670.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<24346072.1075862426420.JavaMail.evans@thyme>",
+"before": "bounce",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<24390937.1075846139169.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<24582062.1075860252369.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<24664759.1075845981341.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<24715393.1075840803410.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<24850814.1075856474242.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<24899705.1075852541206.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<24954455.1075856641136.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<25133076.1075854104994.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<25244949.1075856641048.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "ambiguous"
+},
+{
+"id": "<25363553.1075858214806.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<25393345.1075851753394.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<25476219.1075854607540.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<25603529.1075845644895.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<25631454.1075854364490.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<25712249.1075856565786.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<25863156.1075841923593.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<25918303.1075856098103.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<25923702.1075856523911.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<26020595.1075853073117.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<26091078.1075856091747.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<26169661.1075863229299.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<26274783.1075847081435.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<26296944.1075841907159.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<2633604.1075857152763.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<2638952.1075846341759.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<26435803.1075847395114.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<26452305.1075856374581.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<26468350.1075844014276.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<26630294.1075859896077.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<26826781.1075852678958.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27042187.1075855742658.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<27139597.1075859883062.JavaMail.evans@thyme>",
+"before": "bounce",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27161902.1075846761476.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27241795.1075856629309.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27288505.1075842752345.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<27347653.1075846016866.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27364636.1075844530054.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<27469079.1075842259436.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<2759510.1075845599833.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27658979.1075853173552.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27680983.1075842956424.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27960095.1075841370618.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<27966278.1075853204905.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<28014584.1075842234686.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<28082567.1075844905906.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<28084201.1075842361666.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<28226473.1075854209416.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<28258514.1075847789356.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<28313568.1075854152936.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<2872539.1075856634575.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<28823592.1075847020203.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<28944357.1075845711166.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<29095783.1075858606258.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<29249903.1075847392513.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "ambiguous"
+},
+{
+"id": "<29353885.1075861752296.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<29419168.1075859026418.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<29435907.1075847771431.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "ambiguous"
+},
+{
+"id": "<29466608.1075852289471.JavaMail.evans@thyme>",
+"before": "bounce",
+"after": "bounce",
+"label": "wrong"
+},
+{
+"id": "<29611170.1075858679385.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<29798422.1075842216221.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<30057214.1075844327886.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<30118948.1075861050806.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<30256736.1075847326524.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<30368320.1075860439398.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<30409723.1075842370543.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<30465486.1075845125295.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<30482450.1075855040379.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<30543914.1075841742755.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<30797773.1075847743165.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<30889639.1075860750301.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31031429.1075846965405.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<3106969.1075861149880.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31262166.1075840875452.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31305366.1075857887933.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<31323473.1075859885083.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31367387.1075842403301.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<31380694.1075860807370.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<31391985.1075844977047.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<31601590.1075843990655.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<31606225.1075846113835.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<3174000.1075858595145.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31840886.1075840497385.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31864768.1075847610344.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31930824.1075846216546.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<31935745.1075841666069.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<31952229.1075854194294.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<3195756.1075856466491.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32070500.1075853707253.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<32098853.1075853280558.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<3230186.1075857551257.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32313234.1075855577990.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32377186.1075842766361.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<32435385.1075842990861.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32465797.1075863297417.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32468226.1075854450780.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "ambiguous"
+},
+{
+"id": "<32536593.1075855196529.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<32549855.1075857398625.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32624273.1075856278774.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32637609.1075847388789.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<32661892.1075856099102.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<32662698.1075858461600.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<32667793.1075849854153.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "ambiguous"
+},
+{
+"id": "<32699491.1075853219984.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32817026.1075860480500.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<32817087.1075847567751.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<32971889.1075852876996.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<3297831.1075846059573.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<33008786.1075840284913.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<33082512.1075846076108.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<33170065.1075840482453.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<33273380.1075846145482.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "ambiguous"
+},
+{
+"id": "<3350767.1075846765384.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<3505183.1075856470235.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<3559516.1075842376531.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<4013114.1075843209957.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4030198.1075857428282.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4227956.1075858952958.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<4233926.1075857386633.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<4563580.1075844498250.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4583880.1075845555535.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<4599315.1075845764127.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4735370.1075844967537.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4740238.1075842556589.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4755454.1075842327015.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<4787716.1075840850571.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<5019712.1075856570484.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<5079868.1075846967913.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<5395435.1075841393734.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<5399181.1075843935393.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<563847.1075860794362.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<5769335.1075846976925.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<5877992.1075851982922.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<5958615.1075852672740.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6042184.1075852911984.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<6091271.1075863380558.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6096069.1075858242745.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6110012.1075858376229.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<6149263.1075846912194.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<620299.1075842316199.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<6236518.1075845692751.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6314644.1075842904734.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<637150.1075844737053.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "wrong"
+},
+{
+"id": "<6401271.1075846358537.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "wrong"
+},
+{
+"id": "<6402058.1075857249757.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6511699.1075852680386.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6627510.1075842125336.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "right"
+},
+{
+"id": "<6796829.1075855586374.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6825629.1075856523552.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6850246.1075857842536.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<6885295.1075856606067.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6937683.1075842644175.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6944185.1075842204874.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<6996577.1075854844010.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<721618.1075851907823.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<7344454.1075847103135.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<7487360.1075841249617.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<7661564.1075853224386.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<770267.1075842606801.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "wrong"
+},
+{
+"id": "<7808795.1075855898278.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<7869433.1075858442319.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<7995738.1075842660393.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8007728.1075856284542.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8150931.1075853278187.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8209066.1075853216926.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8243142.1075852268106.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8331734.1075841057747.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<841282.1075857890021.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "right"
+},
+{
+"id": "<8431438.1075843061741.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8446786.1075844782584.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8451590.1075842208309.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": "out_of_office",
+"label": "right"
+},
+{
+"id": "<8545524.1075860554914.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8586439.1075858237845.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8596359.1075846010649.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<8618790.1075856620324.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8632109.1075857613790.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<8671089.1075844398588.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8710314.1075855717247.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": "left_company",
+"label": "ambiguous"
+},
+{
+"id": "<8773877.1075859916191.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8824221.1075856999419.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8861076.1075842904802.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8875120.1075845845982.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<8876256.1075853677524.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<8880536.1075843970748.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8881919.1075846130345.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<8932521.1075841005656.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<9132469.1075845622868.JavaMail.evans@thyme>",
+"before": "out_of_office",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<9187047.1075840390525.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<9266078.1075857755923.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "ambiguous"
+},
+{
+"id": "<945932.1075846956574.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "right"
+},
+{
+"id": "<9460032.1075845679203.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": "not_interested",
+"label": "right"
+},
+{
+"id": "<9923087.1075862187120.JavaMail.evans@thyme>",
+"before": "left_company",
+"after": null,
+"label": "wrong"
+},
+{
+"id": "<9930105.1075855090285.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<9935303.1075845709359.JavaMail.evans@thyme>",
+"before": "unsubscribe",
+"after": "unsubscribe",
+"label": "wrong"
+},
+{
+"id": "<997100.1075845640418.JavaMail.evans@thyme>",
+"before": "not_interested",
+"after": null,
+"label": "wrong"
+}
+]
+}

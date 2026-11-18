@@ -43,37 +43,63 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
-// "1,234.56", "$12", "(5.00)", "-5" and blanks (0). NaN only for non-numbers.
+// "1,234.56", "$12", "$-12", "USD -3", "(5.00)", "-5" and blanks (0). NaN only
+// for non-numbers. A minus (or an en or em dash) anywhere before the first
+// digit makes it negative.
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s);
+  // En and em dashes count too: formatted reports and pasted PDF tables write
+  // "–12.50" for a refund.
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
   if (!s || !Number.isFinite(n)) return NaN;
   return neg ? -n : n;
+}
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
 }
 
 // Wall-clock timestamps only: the file's own clock is the driver's clock, so no
@@ -83,10 +109,13 @@ export function parseWhen(v, dmy = false) {
   const s = String(v ?? "").trim();
   if (!s) return null;
   let y, mo, d, rest = "";
-  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(.*)$/);
-  if (m) { y = +m[1]; mo = +m[2]; d = +m[3]; rest = m[4]; }
+  // Year first: ISO "2026-06-01" and the "2026/06/01" or "2026.06.01" some
+  // exports and spreadsheets write.
+  let m = s.match(/^(\d{4})([-/.])(\d{1,2})\2(\d{1,2})(?!\d)(.*)$/);
+  if (m) { y = +m[1]; mo = +m[3]; d = +m[4]; rest = m[5]; }
   else {
-    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2,4})(.*)$/);
+    // Two- or four-digit years only: "1/2/123" is a typo, not the year 123.
+    m = s.match(/^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4}|\d{2})(?!\d)(.*)$/);
     if (!m) return null;
     const a = +m[1], b = +m[2];
     y = +m[3]; if (y < 100) y += 2000;
@@ -107,16 +136,20 @@ export function parseWhen(v, dmy = false) {
   return new Date(t).getUTCDate() === d ? { t, hasTime } : null;
 }
 
-// Day-first only when unambiguous: some first part above 12, no second above 12.
+// Day-first when some first part is above 12, or the dates use dots
+// ("03.06.2026", the European convention; no locale writes month.day.year),
+// and no second part is above 12. Slashes with every part 12 or under stay
+// month-first (US).
 export function detectDmy(values) {
-  let first = false, second = false;
+  let first = false, second = false, dotted = false;
   for (const v of values) {
-    const m = String(v ?? "").trim().match(/^(\d{1,2})[/.-](\d{1,2})[/.-]\d{2,4}/);
+    const m = String(v ?? "").trim().match(/^(\d{1,2})([/.-])(\d{1,2})\2\d{2,4}/);
     if (!m) continue;
     if (+m[1] > 12) first = true;
-    if (+m[2] > 12) second = true;
+    if (+m[3] > 12) second = true;
+    if (m[2] === ".") dotted = true;
   }
-  return first && !second;
+  return (first || dotted) && !second;
 }
 
 
@@ -139,6 +172,7 @@ function findColumns(header) {
 }
 
 const DAY = 86400000;
+const CHARGE_FIELDS = ["commission", "delivery", "marketing", "ads", "errors"];
 const isBlank = (s) => s === "" || /^[-–—\s]+$/.test(s);
 
 export function platformFromText(s) {
@@ -148,12 +182,20 @@ export function platformFromText(s) {
 
 // Returns { orders, skipped, cancelledCount, columns, dmy, platformSource, error }.
 // An order is { line, id, platform, store, t, hasTime, hour, cancelled, gross,
-// commission, delivery, marketing, ads, errors, payout }. Charges are read as
-// positive costs whatever their sign in the file (exports show fees as
-// negatives); payout is null when the file has no payout column.
+// commission, delivery, marketing, ads, errors, payout, refund }. Each charge
+// column's sign convention is read from the file: when most of its non-zero
+// values are negative (the usual export, fees shown as deductions) a cost is
+// the negated value, otherwise the value itself, so a reversal of the other
+// sign is a credit (a negative cost), not a second charge. Food sales keep
+// their sign: a row with negative food sales is a refund, which reduces sales
+// and is not counted as an order. payout is null when the file has no payout
+// column.
 // opts.platform: "auto" | "doordash" | "ubereats" | "grubhub" | "other".
 // opts.hint: text (a file name) used to name the platform when auto finds none.
-export function normalizeRows(table, { decimalComma = false, platform = "auto", hint = "" } = {}) {
+// opts.decimalComma: true | false | "auto" (detectDecimalComma; opts.delimiter
+// breaks a tie).
+export function normalizeRows(table, { decimalComma = false, platform = "auto", hint = "", delimiter = "," } = {}) {
+  if (decimalComma === "auto") decimalComma = detectDecimalComma(table, delimiter);
   const empty = { orders: [], skipped: [], cancelledCount: 0, columns: {}, dmy: false, platformSource: "none" };
   if (!table.length) return { ...empty, error: "The file is empty." };
   let h = -1;
@@ -173,7 +215,7 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
   else if (platformFromText(hint)) { fileKey = platformFromText(hint); platformSource = "filename"; }
   else if (cols.commission !== undefined && /marketplace fee/i.test(headerText)) { fileKey = "ubereats"; platformSource = "header"; }
 
-  const orders = [], skipped = [];
+  const orders = [], skipped = [], parsed = [];
   let cancelledCount = 0;
   const num = (line, f) => {
     if (cols[f] === undefined || isBlank(get(line, f))) return { v: null };
@@ -182,7 +224,7 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
   };
   for (let i = h + 1; i < table.length; i++) {
     const line = table[i];
-    const lineNo = i + 1;
+    const lineNo = table[i].line ?? i + 1;
     if (line.every((x) => !String(x).trim())) continue;
     const first = String(line[0] ?? "").trim().toLowerCase();
     if (/^(total|totals|subtotal|grand total|summary)\b/.test(first) && cols.when !== 0) { skipped.push({ line: lineNo, reason: "total row" }); continue; }
@@ -196,17 +238,41 @@ export function normalizeRows(table, { decimalComma = false, platform = "auto", 
       f[k] = r.v;
     }
     if (bad) { skipped.push({ line: lineNo, reason: "amount not a number" }); continue; }
-    if (f.gross === null && f.commission === null && f.errors === null) { skipped.push({ line: lineNo, reason: "no amount" }); continue; }
+    if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] === null)) { skipped.push({ line: lineNo, reason: "no amount" }); continue; }
     const status = get(line, "status");
-    const cancelled = /cancel|declin|reject|expire|void|fail|refund(ed)?\b/i.test(status) && !/^\s*$/.test(status);
+    // A refund cancels the order only when it is the whole status ("Refund",
+    // "Refunded", "Fully refunded"): "Partially refunded" or "Refund
+    // requested" orders were delivered and sold their food, and the refunded
+    // part arrives in the error/refund column.
+    const cancelled = /cancel|declin|reject|expire|void|fail/i.test(status) || /^(fully\s+)?refund(ed)?$/i.test(status);
     if (cancelled) cancelledCount += 1;
     const rowKey = cols.platform !== undefined ? platformFromText(get(line, "platform")) : null;
     const key = rowKey || fileKey || "other";
+    parsed.push({ lineNo, line, when, cancelled, key, f });
+  }
+  // Per charge column: -1 when costs are shown as negatives, +1 when positive.
+  // A tied column (one charge and its reversal) takes the file's pooled
+  // majority, since an export uses one convention for its fee columns.
+  const sign = {}, tally = {};
+  let negAll = 0, posAll = 0;
+  for (const k of CHARGE_FIELDS) {
+    let neg = 0, pos = 0;
+    for (const p of parsed) { const v = p.f[k]; if (v < 0) neg += 1; else if (v > 0) pos += 1; }
+    tally[k] = [neg, pos]; negAll += neg; posAll += pos;
+  }
+  for (const k of CHARGE_FIELDS) {
+    const [neg, pos] = tally[k];
+    sign[k] = neg > pos ? -1 : pos > neg ? 1 : negAll >= posAll ? -1 : 1;
+  }
+  const cost = (v, k) => (v == null || v === 0 ? 0 : sign[k] * v);
+  for (const { lineNo, line, when, cancelled, key, f } of parsed) {
+    const gross = f.gross ?? 0;
     orders.push({
       line: lineNo, id: get(line, "id"), platform: key, store: get(line, "store"),
       t: when.t, hasTime: when.hasTime, hour: when.hasTime ? new Date(when.t).getUTCHours() : null, cancelled,
-      gross: Math.abs(f.gross ?? 0), commission: Math.abs(f.commission ?? 0), delivery: Math.abs(f.delivery ?? 0),
-      marketing: Math.abs(f.marketing ?? 0), ads: Math.abs(f.ads ?? 0), errors: Math.abs(f.errors ?? 0),
+      refund: gross < 0,
+      gross, commission: cost(f.commission, "commission"), delivery: cost(f.delivery, "delivery"),
+      marketing: cost(f.marketing, "marketing"), ads: cost(f.ads, "ads"), errors: cost(f.errors, "errors"),
       payout: f.payout,
     });
   }
@@ -255,7 +321,12 @@ function markupNeeded(b, markupNow) {
 // Net cash = food sales minus commission, delivery/service, marketing/promo,
 // ad spend and error/refund charges. Net after costs also takes off food cost
 // and packaging. Cancelled orders with no charges are dropped and counted;
-// cancelled orders that carry a charge stay as cost with no food or packaging.
+// cancelled orders that carry a charge stay as cost only: no food sales (even
+// when the row lists a subtotal), food cost or packaging.
+// A loss is at least half a cent below zero: an order that breaks even to the
+// cent can come out at -1.8e-15 in floating point and is not a loss.
+const isLoss = (r) => r.counted && r.netAfter < -0.005;
+
 export function analyze(orders, opts = {}) {
   const foodPct = Number(opts.foodPct) || 0, packaging = Number(opts.packaging) || 0;
   const markupNow = (Number(opts.markupNow) || 0) / 100;
@@ -264,13 +335,16 @@ export function analyze(orders, opts = {}) {
   if (foodPct < 0 || foodPct >= 100) return { invalid: "Food cost % must be at least 0 and under 100." };
   if (packaging < 0) return { invalid: "Packaging cost must be zero or more." };
   if (markupNow < 0) return { invalid: "Current markup must be zero or more." };
-  if (directPct < 0 || directPct >= 1 || directFlat < 0) return { invalid: "Direct-order fee must be a percentage under 100 and a flat amount of zero or more." };
+  if (!(directPct >= 0 && directPct < 1) || !(directFlat >= 0) || !Number.isFinite(directFlat)) return { invalid: "Direct-order fee must be a percentage under 100 and a flat amount of zero or more." };
   const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));
   if (!inRange.length) return { invalid: "No orders fall inside that date range." };
   let dropped = 0;
-  const list = inRange.filter((x) => {
+  // A cancelled order sold no food: a subtotal its row still lists is not food
+  // sales (counting it added a never-paid $25 to sales and net cash). Its
+  // charges stay as cost; a refund (negative food sales) keeps its sign.
+  const list = inRange.map((x) => (x.cancelled && x.gross > 0 ? { ...x, gross: 0 } : x)).filter((x) => {
     const charged = x.commission + x.delivery + x.marketing + x.ads + x.errors;
-    if (x.cancelled && !(x.gross > 0) && !(charged > 0)) { dropped += 1; return false; }
+    if (x.cancelled && !x.gross && !charged) { dropped += 1; return false; }
     return true;
   });
   if (!list.length) return { invalid: "Every order in that range was cancelled with no amounts." };
@@ -279,22 +353,25 @@ export function analyze(orders, opts = {}) {
   const plats = new Map(), weekdays = new Map(), dayparts = new Map();
   const get = (map, key, label) => { if (!map.has(key)) map.set(key, blank(key, label)); return map.get(key); };
   const add = (b, r) => {
-    b.records += 1; if (!r.cancelled) b.orders += 1;
+    b.records += 1; if (r.counted) b.orders += 1;
     for (const k of ["gross", "commission", "delivery", "marketing", "ads", "errors", "charges", "net", "foodCost", "packaging", "netAfter", "base"]) b[k] += r[k];
     if (r.payout !== null) { b.payout += r.payout; b.payoutRows += 1; }
   };
   for (const x of list) {
-    const rented = !x.cancelled;
+    // A counted order sold food; cancelled rows, refunds (negative food
+    // sales) and adjustment rows with no food sales stay in the money totals
+    // but are not orders and get no food cost or packaging.
+    const counted = !x.cancelled && x.gross > 0;
     const charges = x.commission + x.delivery + x.marketing + x.ads + x.errors;
     const net = x.gross - charges;
-    const base = rented ? x.gross / (1 + markupNow) : 0;
+    const base = counted ? x.gross / (1 + markupNow) : 0;
     const foodCost = base * (foodPct / 100);
-    const pack = rented ? packaging : 0;
-    const r = { ...x, charges, net, base, foodCost, packaging: pack, netAfter: net - foodCost - pack };
+    const pack = counted ? packaging : 0;
+    const r = { ...x, counted, charges, net, base, foodCost, packaging: pack, netAfter: net - foodCost - pack };
     r.takeRate = x.gross > 0 ? charges / x.gross : null;
     rows.push(r);
     add(get(plats, x.platform, PLATFORM_LABELS[x.platform] || x.platform), r);
-    if (rented) {
+    if (counted) {
       const d = new Date(x.t).getUTCDay();
       add(get(weekdays, d, WEEKDAYS[d]), r);
       if (x.hour !== null) { const dp = DAYPARTS.find((p) => x.hour >= p.from && x.hour < p.to); add(get(dayparts, dp.key, dp.label), r); }
@@ -308,19 +385,24 @@ export function analyze(orders, opts = {}) {
   };
   const byPlatform = [...plats.values()].map((b) => ({ ...finish(b), markup: markupNeeded(b, markupNow), direct: directOf(b), payoutGap: b.payoutRows === b.records && b.records > 0 ? b.payout - b.net : null }))
     .sort((a, b) => b.gross - a.gross);
+  // A loop, not Math.min(...list): spreading 125k+ values overflows the call
+  // stack, and a busy restaurant's year of orders is that many.
+  let tMin = Infinity, tMax = -Infinity;
+  for (const x of list) { if (x.t < tMin) tMin = x.t; if (x.t > tMax) tMax = x.t; }
   const total = blank("all", "All platforms");
   for (const r of rows) add(total, r);
   const summary = {
     ...finish(total), markup: markupNeeded(total, markupNow), direct: directOf(total), platforms: byPlatform.length,
     cancelledDropped: dropped, cancelledKept: rows.filter((r) => r.cancelled).length,
-    from: Math.floor(Math.min(...list.map((x) => x.t)) / DAY) * DAY, to: Math.floor(Math.max(...list.map((x) => x.t)) / DAY) * DAY,
+    from: Math.floor(tMin / DAY) * DAY, to: Math.floor(tMax / DAY) * DAY,
     costsEntered: foodPct > 0 || packaging > 0,
-    lossOrders: rows.filter((r) => !r.cancelled && r.netAfter < 0).length,
+    lossOrders: rows.filter(isLoss).length,
+    refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t + r.gross, 0),
     payoutGap: total.payoutRows === total.records && total.records > 0 ? total.payout - total.net : null,
     payoutRows: total.payoutRows, foodPct, packaging, markupNow, directPct, directFlat,
   };
 
-  const live = rows.filter((r) => !r.cancelled);
+  const live = rows.filter((r) => r.counted);
   const spendRows = live.filter((r) => r.marketing + r.ads > 0);
   const promo = (() => {
     const spend = spendRows.reduce((s, r) => s + r.marketing + r.ads, 0);
@@ -337,6 +419,9 @@ export function analyze(orders, opts = {}) {
       // the spend cost more than these orders earned even if every one was
       // incremental.
       profitBeforeSpendPerDollar: (afterP + spend) / spend,
+      // In dollars too, so the findings can compare at the cent: a ratio of
+      // 0.99999999999999 is float noise on an exact break-even, not a loss.
+      profitBeforeSpend: afterP + spend,
       netAfterPerOrderWith: spendRows.length ? afterP / spendRows.length : null,
       netAfterPerOrderWithout: plain.length ? afterN / plain.length : null,
       avgTicketWith: spendRows.length ? grossP / spendRows.length : null,
@@ -347,17 +432,23 @@ export function analyze(orders, opts = {}) {
   const byWeekday = [...weekdays.values()].map(finish).sort((a, b) => a.key - b.key);
   const byDaypart = DAYPARTS.map((p) => dayparts.get(p.key)).filter(Boolean).map(finish);
   const worstOrders = [...live].sort((a, b) => a.netAfter - b.netAfter).slice(0, 10);
-  const lossList = live.filter((r) => r.netAfter < 0);
+  const lossList = live.filter(isLoss);
   const noTimes = !list.some((x) => x.hasTime);
 
+  const lossOrders = { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s + r.gross, 0) };
+
   return {
-    summary, byPlatform, byWeekday, byDaypart, promo, worstOrders, noTimes,
-    lossOrders: { count: lossList.length, total: lossList.reduce((s, r) => s + r.netAfter, 0), gross: lossList.reduce((s, r) => s + r.gross, 0) },
-    findings: findings({ summary, byPlatform, byWeekday, byDaypart, promo, noTimes, lossOrders: { count: lossList.length, total: lossList.reduce((t, r) => t + r.netAfter, 0), gross: lossList.reduce((t, r) => t + r.gross, 0) } }),
+    summary, byPlatform, byWeekday, byDaypart, promo, worstOrders, noTimes, lossOrders,
+    findings: findings({ summary, byPlatform, byWeekday, byDaypart, promo, noTimes, lossOrders }),
   };
 }
 
-const usd = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toFixed(2);
+// Rounded to the cent before the sign is chosen, so float noise such as
+// -1.8e-15 prints "$0.00", not "-$0.00". Halves round away from zero for both
+// signs (Math.round sends -0.5 up to -0, which printed a half-cent loss as a
+// gain), and the printed magnitude is this same rounded value.
+const cents = (n) => Math.sign(n) * Math.round(Math.abs(n) * 100) / 100;
+const usd = (n) => (cents(n) < 0 ? "-" : "") + "$" + Math.abs(cents(n)).toFixed(2);
 const p0 = (n) => (n * 100).toFixed(0) + "%";
 const p1 = (n) => (n * 100).toFixed(1) + "%";
 
@@ -371,7 +462,10 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   }
   const rated = byPlatform.filter((b) => b.takeRate !== null && b.orders >= MIN_ORDERS);
   if (rated.length >= 2) {
-    const a = [...rated].sort((x, y) => y.takeRate - x.takeRate)[0], b = [...rated].sort((x, y) => x.takeRate - y.takeRate)[0];
+    // One sort, both ends: two sorts each picked the first of equal rates, so
+    // a tie named the same platform twice.
+    const byRate = [...rated].sort((x, y) => y.takeRate - x.takeRate);
+    const a = byRate[0], b = byRate[byRate.length - 1];
     out.push({ severity: "info", title: `${a.label} cost ${p1(a.takeRate)} of sales; ${b.label} ${p1(b.takeRate)}`, detail: `On ${a.orders} and ${b.orders} orders. Net cash per order was ${usd(a.netPerOrder)} on ${a.label} against ${usd(b.netPerOrder)} on ${b.label}; average tickets differ (${usd(a.avgTicket)} and ${usd(b.avgTicket)}), so compare both columns.` });
   }
   if (s.costsEntered && s.lossOrders > 0) {
@@ -379,11 +473,13 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   } else if (s.costsEntered && s.orders) {
     out.push({ severity: "info", title: "No order lost money after food cost and packaging", detail: "That says nothing about labour, rent or the promotions not in this file." });
   }
-  if (s.costsEntered && s.netAfter < 0) {
+  // At the cent, like the per-order loss test: three break-even orders can
+  // sum to -5e-15, which printed "lost money overall" with a net of $0.00.
+  if (s.costsEntered && cents(s.netAfter) < 0) {
     out.push({ severity: "high", title: "Delivery lost money overall after food cost and packaging", detail: `Net after costs is ${usd(s.netAfter)} across ${s.orders} orders (${usd(s.netAfterPerOrder)} each), before any labour.` });
   }
   if (promo) {
-    const bad = promo.profitBeforeSpendPerDollar < 1;
+    const bad = cents(promo.profitBeforeSpend) < cents(promo.spend);
     out.push({ severity: bad ? "high" : "info", title: `Promotions and ads: ${usd(promo.spend)} spent on ${promo.orders} orders`, detail: `Those orders sold ${usd(promo.grossOnSpend)} (${usd(promo.grossPerDollar)} of food sales per $1 spent). ${s.costsEntered ? `Before the spend they left ${usd(promo.profitBeforeSpendPerDollar)} of profit per $1 spent, even if every one of them was an order you would not otherwise have had${bad ? "; the spend cost more than these orders earned" : ""}.` : "Enter food cost and packaging to see profit per $1 spent."} The file cannot show which orders were truly new customers.` });
   }
   const wd = byWeekday.filter((d) => d.orders >= MIN_ORDERS).sort((a, b) => b.netAfterPerOrder - a.netAfterPerOrder);
@@ -406,14 +502,17 @@ function findings({ summary: s, byPlatform, byWeekday, byDaypart, promo, noTimes
   if (s.payoutGap !== null && s.gross > 0 && Math.abs(s.payoutGap) > Math.max(1, s.gross * 0.01)) {
     out.push({ severity: "medium", title: `The file's payout column differs from food sales minus charges by ${usd(s.payoutGap)}`, detail: "Usually sales tax, tips and adjustments that the export pays out or withholds but this tool does not read. Net cash here is computed from the charge columns only, so check it against your deposits." });
   }
+  if (s.refunds) {
+    out.push({ severity: "info", title: `${s.refunds} refund row${s.refunds === 1 ? "" : "s"} took ${usd(-s.refundTotal)} off food sales`, detail: "Rows with negative food sales are read as refunds: they reduce food sales and net cash, and are not counted as orders or given food cost or packaging." });
+  }
   if (s.cancelledDropped || s.cancelledKept) {
     const n = s.cancelledDropped + s.cancelledKept;
-    out.push({ severity: "info", title: `${n} cancelled order${n === 1 ? "" : "s"} found`, detail: `${s.cancelledDropped} with no amounts were left out. ${s.cancelledKept} that carried a charge stay in the totals with no food cost or packaging and are not counted as orders.` });
+    out.push({ severity: "info", title: `${n} cancelled order${n === 1 ? "" : "s"} found`, detail: `${s.cancelledDropped} with no amounts were left out. ${s.cancelledKept} that carried a charge or a refund stay in the totals as cost only (no food sales, food cost or packaging) and are not counted as orders.` });
   }
   return out;
 }
 
-export const money = (n) => (Number.isFinite(n) ? (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
+export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? "-" : "") + Math.abs(cents(n)).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "–");
 export const pct = (n) => (Number.isFinite(n) ? (n * 100).toFixed(1) + "%" : "–");
 export const dateStr = (t) => new Date(t).toISOString().slice(0, 10);
 

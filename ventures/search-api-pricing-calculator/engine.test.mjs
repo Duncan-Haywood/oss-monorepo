@@ -62,3 +62,46 @@ test("summary gates on budget for the cheapest or a named provider", () => {
   assert.equal(summarize(rows, { budget: 50, provider: "algolia" }).overBudget, true);
   assert.equal(summarize(rows, { provider: "nope" }).status, "error");
 });
+
+test("Algolia rate card pinned to its published Grow plan (10K searches, 100K records free; $0.50/1K searches, $0.40/1K records)", () => {
+  // quality audit 2026-11-13: no test pinned a rate card, so a changed constant passed
+  assert.equal(D.algolia.includedSearchesK, 10);
+  assert.equal(D.algolia.includedRecordsK, 100);
+  assert.equal(D.algolia.perKSearches, 0.5);
+  assert.equal(D.algolia.perKRecords, 0.4);
+  // 500K records, 2,000K searches: 400 * 0.40 + 1990 * 0.50 = 1155
+  assert.equal(providerCost(D.algolia, 500, 2000), 1155);
+});
+
+test("project with no months reports today's volumes and zero spend instead of throwing", () => {
+  const p = project(500, 2000, 10, 0);
+  assert.equal(p.endRecords, 500);
+  assert.equal(p.endSearches, 2000);
+  for (const t of p.totals) assert.equal(t.total, 0);
+});
+
+test("project's end volumes are the last month's, not the one before", () => {
+  // red team 2026-11-17: path[length - 2] passed every test
+  const p = project(100, 1000, 100, 3); // months 0, 1, 2 at 2x growth
+  assert.deepEqual(p.path.map((x) => x.records), [100, 200, 400]);
+  assert.equal(p.endRecords, 400);
+  assert.equal(p.endSearches, 4000);
+  assert.equal(p.totals.find((t) => t.key === "algolia").endMonthly, providerCost(D.algolia, 400, 4000));
+});
+
+test("crossover starts at zero searches, even when the winner changes at the first step", () => {
+  // red team 2026-11-17: at 0 records every plan ties at $0 for 0 searches, then Algolia's free
+  // tier wins from 1K; grid[i - 2], grid = [1] and winner(grid[1]) all escaped
+  const segs = cheapestSegments(0, D, 20);
+  assert.equal(segs.length, 2);
+  assert.deepEqual([segs[0].from, segs[0].to], [0, 0]);
+  assert.equal(segs[0].key.split("+").length, Object.keys(D).length);
+  assert.deepEqual([segs[1].from, segs[1].to, segs[1].key], [1, 20, "algolia"]);
+});
+
+test("an unknown provider is an input error, not an over-budget result", () => {
+  const s = summarize(compare(500, 2000), { provider: "nope", budget: 1 });
+  assert.equal(s.status, "error");
+  assert.equal(s.overBudget, false);
+  assert.equal(s.errors, 1);
+});

@@ -43,17 +43,18 @@ export function odds(pool, opts = {}) {
 }
 
 export function parseCsv(text) {
-  const lines = String(text).split(/\r?\n/).filter((l) => l.trim());
+  // Each row keeps its line number in the file, blank lines counted, so "Line 5" points at line 5.
+  const lines = String(text).split(/\r?\n/).map((l, i) => ({ l, ln: i + 1 })).filter((x) => x.l.trim());
   if (!lines.length) return [];
-  const delim = lines[0].includes("\t") ? "\t" : ",";
-  const head = lines[0].split(delim).map((h) => h.trim().toLowerCase());
+  const delim = lines[0].l.includes("\t") ? "\t" : ",";
+  const head = lines[0].l.split(delim).map((h) => h.trim().toLowerCase());
   const col = (names) => head.findIndex((h) => names.some((n) => h.includes(n)));
   const iName = col(["name", "candidate", "employee"]), iLvl = col(["level", "wage"]), iAdv = col(["master", "advanced", "degree"]);
   if (iLvl < 0) return { error: "Need a column named wage level (1-4)." };
-  return lines.slice(1).map((line, n) => {
-    const c = line.split(delim).map((x) => x.trim());
+  return lines.slice(1).map(({ l, ln }, n) => {
+    const c = l.split(delim).map((x) => x.trim());
     const level = parseInt(String(c[iLvl]).replace(/[^0-9ivIV]/g, "").replace(/^iv$/i, "4").replace(/^iii$/i, "3").replace(/^ii$/i, "2").replace(/^i$/i, "1"), 10);
-    return { name: (iName >= 0 && c[iName]) || `Candidate ${n + 1}`, level, advanced: iAdv >= 0 && /^(y|yes|true|1)/i.test(c[iAdv] || ""), line: n + 2 };
+    return { name: (iName >= 0 && c[iName]) || `Candidate ${n + 1}`, level, advanced: iAdv >= 0 && /^(y|yes|true|1)/i.test(c[iAdv] || ""), line: ln };
   });
 }
 

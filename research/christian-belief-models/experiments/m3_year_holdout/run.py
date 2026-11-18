@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / 'src'))
 sys.path.insert(0, str(ROOT / 'experiments' / 'm1_imputation'))
 import gss  # noqa: E402
-import run as m1  # noqa: E402
+import importlib.util as _iu; _sp=_iu.spec_from_file_location('m1_run', ROOT/'experiments'/'m1_imputation'/'run.py'); m1=_iu.module_from_spec(_sp); sys.modules['m1_run']=m1; _sp.loader.exec_module(m1)
 
 OUT = Path(__file__).resolve().parent / 'results'
 MIN_YEAR = 150

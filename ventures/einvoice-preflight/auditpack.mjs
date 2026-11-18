@@ -4,7 +4,7 @@
 // with the fix, then a fixed statement of what a preflight does and does not show. The
 // checks themselves are never gated; this is presentation. Pure, no network: every typed
 // string, file name and finding is escaped, the logo is accepted only as a raster data: URL.
-import { summarizePreflight, isBlocking } from "./report.mjs";
+import { summarizePreflight, isBlocking, severityLabel } from "./report.mjs";
 
 export const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 export const safeColor = (c) => (/^#[0-9a-fA-F]{6}$/.test(String(c || "")) ? String(c) : "#1f5f86");
@@ -49,7 +49,7 @@ export function auditPackHtml(result, o = {}) {
 
   const detail = reports.filter((r) => r.errors.length).map((r) =>
     `<h3><code>${esc(r.file)}</code></h3><ul>` +
-    r.errors.map((e) => `<li>${e.severity === "note" ? "<em>note</em> " : ""}<strong>${esc(e.rule)}</strong> at <code>${esc(e.path || "/")}</code>: ${esc(e.message)}<br><span class="fixline">Fix: ${esc(e.fix)}</span></li>`).join("") + `</ul>`).join("");
+    r.errors.map((e) => `<li>${severityLabel(e) ? `<em>${severityLabel(e)}</em> ` : ""}<strong>${esc(e.rule)}</strong> at <code>${esc(e.path || "/")}</code>: ${esc(e.message)}<br><span class="fixline">Fix: ${esc(e.fix)}</span></li>`).join("") + `</ul>`).join("");
 
   const read = readErrors.length
     ? `<h2>Files that could not be read</h2><ul>${readErrors.map((e) => `<li><code>${esc(e.file)}</code>: ${esc(e.error)}</li>`).join("")}</ul>`

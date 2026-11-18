@@ -782,7 +782,7 @@ function buildAuto(d0, prices) {
     // A saltbox keeps the shape you chose: its front pitch scales with the back's, to the nearest whole pitch.
     const ratio = d0.style === 'saltbox' ? d0.frontPitch / d0.pitch : 0;
     const frontAt = (p) => (ratio ? { frontPitch: Math.min(FRONT_PITCH_MAX, Math.max(FRONT_PITCH_MIN, Math.round(p * ratio))) } : {});
-    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p, ...wallAt(p), ...frontAt(p) }))); return at.get(p); };
+    const build = (p) => { if (!at.has(p)) at.set(p, buildFramed(normalize({ ...d, pitch: p, ...wallAt(p), ...frontAt(p) }), undefined, true)); return at.get(p); };
     /** The first pitch in [lo, hi] where ok holds, if ok is false below some pitch and true above. */
     const firstTrue = (lo, hi, ok) => { while (lo < hi) { const mid = (lo + hi) >> 1; if (ok(build(mid))) hi = mid; else lo = mid + 1; } return lo; };
     const fits = (s) => !d0.maxPeak || s.dims.peak <= d0.maxPeak + 1e-9;
@@ -803,7 +803,7 @@ function buildAuto(d0, prices) {
       why = d0.gableVents && d0.style !== 'leanTo' ? 'the lowest pitch at which the gable vents still fit, since no pitch meets the height limit' : 'the lowest pitch for a shingle roof, since no pitch meets the height limit';
     }
   } else {
-    shed = buildFramed(normalize(d));
+    shed = buildFramed(normalize(d), undefined, true);
   }
   let s = /** @type {Shed} */ (shed);
   let overhangWhy = '';
@@ -819,7 +819,7 @@ function buildAuto(d0, prices) {
     // looks cheap; those are skipped unless no overhang frames every opening.
     const all = [];
     for (let oh = 6; oh <= 18; oh++) {
-      const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }));
+      const t = buildFramed(normalize({ ...s.design, autoWall: false, autoPitch: false, autoOverhang: false, overhang: oh }), undefined, true);
       const framed = new Set((t.framedOpenings || []).map((/** @type {any} */ p) => p.op?.id ?? p.id));
       all.push({ oh, t, cost: estimate(t, prices).total, frames: t.design.openings.every((o) => framed.has(o.id)) });
     }
@@ -847,7 +847,22 @@ function buildAuto(d0, prices) {
   s.notes.unshift(`Set for you: ${auto.join('; ')}.`);
   s.design = { ...s.design, autoWall: d0.autoWall, autoPitch: d0.autoPitch, autoOverhang: d0.autoOverhang };
   if (overhangChoice) /** @type {any} */ (s).overhangChoice = overhangChoice;
+  finishPeakWarning(s);
   return s;
+}
+
+/**
+ * A shed framed with deferPeak may hold a pending over-the-limit warning: fill it in.
+ * The warning quotes the peak of a second shed (the lowest walls, a 3/12 roof), a
+ * whole extra framing; buildAuto's probes (every pitch tried, every overhang priced)
+ * are thrown away unread, so only the shed it returns pays for that framing.
+ * @param {any} s
+ */
+function finishPeakWarning(s) {
+  const p = s.pendingPeak;
+  if (!p) return;
+  s.warnings[p.at] = p.text(buildFramed(p.low).dims.peak);
+  delete s.pendingPeak;
 }
 
 /**
@@ -855,7 +870,7 @@ function buildAuto(d0, prices) {
  * @param {Record<string, number[]>} [lapNailers] extra full-height studs, by wall, at these
  *   face positions (inches along the siding face): where a lap butt joint found no stud.
  */
-function buildFramed(d, lapNailers) {
+function buildFramed(d, lapNailers, deferPeak = false) {
   /** @type {Member[]} */
   const members = [];
   /** @type {{ id: string, kind: string, item: string, geom: Geom, group: string, wall?: string, side?: string, pos?: number[], course?: number, row?: number, face?: [number, number][], where?: string }[]} */
@@ -2586,11 +2601,15 @@ function buildFramed(d, lapNailers) {
   if (d.maxFootprint > 0 && (L * W) / 144 > d.maxFootprint + 1e-9) {
     warnings.push(`The footprint is ${((L * W) / 144).toFixed(0)} sq ft, over your ${d.maxFootprint} sq ft limit (often the size below which a shed needs no permit; check your local rule).`);
   }
+  /** @type {any} */
+  let pendingPeak = null;
   if (d.maxPeak > 0 && dims.peak > d.maxPeak + 1e-9) {
     const tallest = Math.max(0, ...Object.values(walls).flatMap((w) => w.openings.map((p) => p.headerTop)));
     const minWall = lean ? minWallFor({ ...d, pitch: 3 }) : Math.max(60, Math.ceil((tallest + 3) * 2) / 2);
-    const low = buildFramed(normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false })).dims.peak;
-    warnings.push(`The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`);
+    const lowDesign = normalize({ ...d, wallHeight: minWall, pitch: 3, maxPeak: 0, autoWall: false, autoPitch: false });
+    const text = (low) => `The peak is ${fmtFt(dims.peak)} above the gravel, ${fmtFt(dims.peak - d.maxPeak)} over your ${fmtFt(d.maxPeak)} limit. Your tallest opening needs walls of at least ${fmtFt(minWall)}; with those walls and a 3/12 roof (about the least that sheds water under shingles) the peak would still be ${fmtFt(low)}. To get lower: a shorter door, ${lean ? 'a door in an end wall or the low back wall' : 'a door in the gable end'}, a lower floor or a narrower shed${d.gableVents && !lean ? ', or smaller or no gable vents (they need a steeper roof to fit)' : ''}.`;
+    if (deferPeak) { pendingPeak = { at: warnings.length, low: lowDesign, text }; warnings.push(''); }
+    else warnings.push(text(buildFramed(lowDesign).dims.peak));
   }
 
   // Every fixture gets an id too, so the 3D view can pick and highlight it.
@@ -2599,13 +2618,16 @@ function buildFramed(d, lapNailers) {
   // A lap butt joint with no stud behind it: frame a stud where the layout asked for one, once.
   const need = Object.fromEntries(lap.map((f) => [f.wall, f.nailers || []]).filter(([, v]) => v.length));
   if (!lapNailers && Object.keys(need).length) {
-    const again = buildFramed(d, need);
+    const again = buildFramed(d, need, deferPeak);
     if (again.lap.every((f) => f.joints.every((j) => j.backed))) {
       again.notes.push(`Lap siding: ${Object.values(need).flat().length === 1 ? 'one stud is' : `${Object.values(need).flat().length} studs are`} added off the layout (${Object.entries(need).map(([w, v]) => `${w} wall at ${v.map((x) => fmtIn(x)).join(', ')}`).join('; ')}) so a butt joint between close openings lands on wood.`);
       return again;
     }
   }
-  return { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, sidingJoints: sidingJoints.map(({ clip, ...j }) => j), lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
+  const shed = { design: d, members, panels, fixtures, walls, framedOpenings, warnings, notes, dims, vents: ventInfo, trim, wallTrim, doorParts, doors, interior, sidingArea, floorPieces, roofPieces, sidingFull, sidingUpper, sidingUpperShapes, sidingJoints: sidingJoints.map(({ clip, ...j }) => j), lap, lapExposure, sidingStudLimit: lapStudLimit(d) };
+  // Not enumerable, so a pending shed still serialises as before; finishPeakWarning removes it.
+  if (pendingPeak) Object.defineProperty(shed, 'pendingPeak', { value: pendingPeak, configurable: true });
+  return shed;
 }
 
 /** @typedef {ReturnType<typeof buildFramed>} Shed */

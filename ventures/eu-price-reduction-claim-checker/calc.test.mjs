@@ -82,3 +82,49 @@ test("summary names the source to verify and the result", () => {
   assert.match(s, /Not supported by the price history/);
   assert.equal(MODES.length, 2);
 });
+
+// Quality audit round 48 (portfolio/quality/audits/2026-11-12-eu-price-reduction-claim-checker.json).
+test("an advertised percentage may round the true one to one decimal, no further", () => {
+  // true discount 69 -> 59 is 14.49 percent
+  assert.equal(run({ claimedWas: 69, claimedPct: 14.5 }).verdict, "ok");
+  assert.equal(run({ claimedWas: 69, claimedPct: 14.99 }).verdict, "misleading");
+  assert.equal(run({ claimedWas: 69, claimedPct: 15 }).verdict, "misleading");
+});
+
+test("a crossed-out price one euro above the prior is flagged", () => {
+  assert.equal(run({ claimedWas: 70, claimedPct: "" }).verdict, "misleading");
+});
+
+test("a history starting exactly 30 days before the reduction covers the window", () => {
+  const r = run({ history: "2026-09-10, 69\n2026-10-10, 59", claimedWas: "", claimedPct: "" });
+  assert.equal(r.window.covered, true);
+  assert.ok(!r.findings.some((f) => /less than 30 days/.test(f.title)));
+});
+
+test("a price rise before a sale is reported when no crossed-out price is given", () => {
+  const r = run({ claimedWas: "", claimedPct: "" });
+  assert.ok(r.findings.some((f) => /went up to EUR 89\.00/.test(f.title)));
+  assert.ok(!run({ history: "2026-08-01, 69\n2026-10-10, 59", claimedWas: "", claimedPct: "" }).findings.some((f) => /went up/.test(f.title)));
+});
+
+test("a progressive reduction that went back up falls back to the standard rule", () => {
+  const history = "2026-08-01, 100\n2026-09-25, 80\n2026-10-01, 100\n2026-10-10, 60";
+  const r = run({ history, mode: "progressive", firstReductionDate: "2026-09-25", reductionDate: "2026-10-10", salePrice: 60, claimedWas: 100, claimedPct: "" });
+  assert.equal(r.prior, 80);
+  assert.equal(r.appliedMode, "standard");
+  assert.equal(r.verdict, "misleading");
+  assert.ok(r.findings.some((f) => f.severity === "high" && /not an uninterrupted/.test(f.title)));
+});
+
+test("a progressive 'first reduction' date with no reduction on it falls back to the standard rule", () => {
+  const history = "2026-08-01, 100\n2026-09-20, 70\n2026-10-10, 60";
+  const r = run({ history, mode: "progressive", firstReductionDate: "2026-09-25", reductionDate: "2026-10-10", salePrice: 60, claimedWas: "", claimedPct: "" });
+  assert.equal(r.appliedMode, "standard");
+  assert.equal(r.prior, 70);
+});
+
+test("the rule is described as covering goods, and the 4 percent fine is not attributed to Article 6a", () => {
+  const text = run({}).findings.map((f) => f.title).join(" ");
+  assert.ok(!/goods or services/.test(text));
+  assert.ok(/Unfair Commercial Practices Directive/.test(text));
+});

@@ -183,3 +183,26 @@ test("summary and CSV carry the numbers the page shows", () => {
   assert.match(lines[0], /^attendance_vs_plan_pct,/);
   assert.equal(dollars(-1234.5), "-$1,234.50");
 });
+
+// Red-team 2026-11-15: two inputs a stranger would type gave wrong statements.
+test("free rounds: the staff finding states staff cost as a share of the sales that remain", () => {
+  const r = compute(raw({ peakPrice: "0", shoulderPrice: "0", offPrice: "0" }));
+  const staff = r.findings.find((f) => /^Staff cost/.test(f.title));
+  const pct = (r.totals.labor / r.totals.revenue * 100).toFixed(0);
+  assert.ok(Number(pct) > 0);
+  assert.match(staff.title, new RegExp(`, ${pct}% of sales`));
+});
+
+test("zero planned rounds: break-even is still reachable and rounds are not called loss-making", () => {
+  const r = compute(raw({ peakRounds: "0", shoulderRounds: "0", offRounds: "0" }));
+  assert.ok(!r.findings.some((f) => /Each extra round loses money/.test(f.title)));
+  assert.ok(r.breakEvenRoundsPerDay > 0, `break-even ${r.breakEvenRoundsPerDay}`);
+  // At the break-even rounds per day in every season, cash after the loan is zero.
+  const be = String(r.breakEvenRoundsPerDay);
+  const at = compute(raw({ peakRounds: be, shoulderRounds: be, offRounds: be }));
+  near(at.base.cashFlow, 0, 0.5);
+  // The per-round figure uses the season prices, not $0.
+  const PRICE = (79.2 * 11 + 79.2 * 10 + 31.5 * 8) / (79.2 + 79.2 + 31.5);
+  near(r.avgPrice, PRICE);
+  assert.ok(!/not reachable/.test(summaryText(r)));
+});

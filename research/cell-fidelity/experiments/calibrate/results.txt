@@ -1,0 +1,88 @@
+cell-fidelity milestone 5c: setting the trust flag's cut-off on a new cell (costs in DFN@100 calls)
+
+== OKane2022: 256 designs, 33 untrusted (12.9%); AUC of -r_min 0.997, 2-cycle not recorded; own best cut-off 0.07 (misclassification 0.023); DFN-best design untrusted: True; SPMe runs short of 100 cycles 12 (12 of them untrusted)
+  F (r <= 0.07): recall 0.939, calls 35 (13.7%), misclassification 0.023
+  B_1: recall 0.788, calls 27 (10.5%), DFN-best verified False
+  B_2: recall 0.939, calls 37 (14.5%), DFN-best verified True
+  B_3: recall 1.000, calls 42 (16.4%), DFN-best verified True
+  B_5: recall 1.000, calls 44 (17.2%), DFN-best verified True
+  B_8: recall 1.000, calls 47 (18.4%), DFN-best verified True
+  C_4: median recall 1.000 (10th pct 1.000, below 0.8 in 5.4% of draws), median calls 76.0 (29.7%), median cut-off 0.17
+  C_8: median recall 1.000 (10th pct 0.848, below 0.8 in 7.9% of draws), median calls 58.0 (22.7%), median cut-off 0.11
+  C_16: median recall 1.000 (10th pct 0.788, below 0.8 in 12.5% of draws), median calls 57.0 (22.3%), median cut-off 0.10
+  C_32: median recall 1.000 (10th pct 0.788, below 0.8 in 14.1% of draws), median calls 67.0 (26.2%), median cut-off 0.08
+
+== Ai2020: 64 designs, 57 untrusted (89.1%); AUC of -r_min 0.995, 2-cycle 0.995; own best cut-off 0.33 (misclassification 0.016); DFN-best design untrusted: True; SPMe runs short of 100 cycles 0 (0 of them untrusted)
+  F (r <= 0.07): recall 0.772, calls 44 (68.8%), misclassification 0.203
+  B_1: recall 0.965, calls 56 (87.5%), DFN-best verified True
+  B_2: recall 1.000, calls 60 (93.8%), DFN-best verified True
+  B_3: recall 1.000, calls 61 (95.3%), DFN-best verified True
+  B_5: recall 1.000, calls 63 (98.4%), DFN-best verified True
+  B_8: recall 1.000, calls 64 (100.0%), DFN-best verified True
+  C_4: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 64.0 (100.0%), median cut-off 1.00
+  C_8: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 63.0 (98.4%), median cut-off 0.52
+  C_16: median recall 1.000 (10th pct 0.965, below 0.8 in 0.0% of draws), median calls 62.0 (96.9%), median cut-off 0.45
+  C_32: median recall 1.000 (10th pct 0.965, below 0.8 in 0.0% of draws), median calls 62.0 (96.9%), median cut-off 0.38
+
+== Ecker2015: 64 designs, 1 untrusted (1.6%); AUC of -r_min 1.000, 2-cycle 1.000; own best cut-off 0.00 (misclassification 0.000); DFN-best design untrusted: False; SPMe runs short of 100 cycles 0 (0 of them untrusted)
+  F (r <= 0.07): recall 1.000, calls 2 (3.1%), misclassification 0.016
+  B_1: recall 1.000, calls 2 (3.1%), DFN-best verified False
+  B_2: recall 1.000, calls 3 (4.7%), DFN-best verified False
+  B_3: recall 1.000, calls 4 (6.2%), DFN-best verified False
+  B_5: recall 1.000, calls 6 (9.4%), DFN-best verified False
+  B_8: recall 1.000, calls 9 (14.1%), DFN-best verified False
+  C_4: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 15.0 (23.4%), median cut-off 0.17
+  C_8: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 12.0 (18.8%), median cut-off 0.11
+  C_16: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 19.0 (29.7%), median cut-off 0.09
+  C_32: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 33.0 (51.6%), median cut-off 0.07
+
+== Mohtat2020: 64 designs, 6 untrusted (9.4%); AUC of -r_min 0.486, 2-cycle 0.486; own best cut-off 0.00 (misclassification 0.094); DFN-best design untrusted: False; SPMe runs short of 100 cycles 6 (6 of them untrusted)
+  F (r <= 0.07): recall 0.000, calls 0 (0.0%), misclassification 0.094
+  B_1: recall 0.000, calls 1 (1.6%), DFN-best verified False
+  B_2: recall 0.000, calls 2 (3.1%), DFN-best verified False
+  B_3: recall 0.000, calls 3 (4.7%), DFN-best verified True
+  B_5: recall 0.000, calls 5 (7.8%), DFN-best verified True
+  B_8: recall 0.167, calls 14 (21.9%), DFN-best verified True
+  C_4: median recall 0.167 (10th pct 0.000, below 0.8 in 89.8% of draws), median calls 16.0 (25.0%), median cut-off 0.69
+  C_8: median recall 0.167 (10th pct 0.000, below 0.8 in 99.1% of draws), median calls 14.0 (21.9%), median cut-off 0.65
+  C_16: median recall 0.333 (10th pct 0.000, below 0.8 in 99.5% of draws), median calls 18.0 (28.1%), median cut-off 0.57
+  C_32: median recall 0.500 (10th pct 0.333, below 0.8 in 88.0% of draws), median calls 33.0 (51.6%), median cut-off 0.54
+
+== NCA_Kim2011: 64 designs, 52 untrusted (81.2%); AUC of -r_min 0.921, 2-cycle 0.921; own best cut-off 0.00 (misclassification 0.016); DFN-best design untrusted: False; SPMe runs short of 100 cycles 49 (49 of them untrusted)
+  F (r <= 0.07): recall 1.000, calls 58 (90.6%), misclassification 0.094
+  B_1: recall 0.058, calls 4 (6.2%), DFN-best verified False
+  B_2: recall 1.000, calls 55 (85.9%), DFN-best verified False
+  B_3: recall 1.000, calls 56 (87.5%), DFN-best verified False
+  B_5: recall 1.000, calls 58 (90.6%), DFN-best verified False
+  B_8: recall 1.000, calls 61 (95.3%), DFN-best verified True
+  C_4: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 63.0 (98.4%), median cut-off 0.19
+  C_8: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 59.0 (92.2%), median cut-off 0.04
+  C_16: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 58.0 (90.6%), median cut-off 0.03
+  C_32: median recall 1.000 (10th pct 1.000, below 0.8 in 0.0% of draws), median calls 59.0 (92.2%), median cut-off 0.01
+
+H. hypotheses (fixed in LOG.md before the run), primary: new set Mohtat2020; deciding sets OKane2022, Ai2020, Mohtat2020
+H33 refuted
+H34 refuted
+H35 mixed
+H36 supported
+H37 refuted
+
+H. hypotheses (fixed in LOG.md before the run), X2 NCA_Kim2011: new set NCA_Kim2011; deciding sets OKane2022, Ai2020, NCA_Kim2011
+H33 supported
+H34 supported
+H35 supported
+H36 supported
+H37 supported
+
+G. (extra, after the verdicts, no hypothesis) flag = r_min <= t OR SPMe run short of 100 cycles
+  OKane2022: SPMe runs reaching cycle 100 244, untrusted among them 21, AUC of -r_min among them 0.995
+  OKane2022: AUC 0.997; F recall 0.939 calls 35 (13.7%) misclassification 0.023; B_3 recall 1.000 calls 42 (16.4%); C_8 median recall 1.000 calls 58.0 (22.7%)
+  Ai2020: SPMe runs reaching cycle 100 64, untrusted among them 57, AUC of -r_min among them 0.995
+  Ai2020: AUC 0.995; F recall 0.772 calls 44 (68.8%) misclassification 0.203; B_3 recall 1.000 calls 61 (95.3%); C_8 median recall 1.000 calls 63.0 (98.4%)
+  Ecker2015: SPMe runs reaching cycle 100 64, untrusted among them 1, AUC of -r_min among them 1.000
+  Ecker2015: AUC 1.000; F recall 1.000 calls 2 (3.1%) misclassification 0.016; B_3 recall 1.000 calls 4 (6.2%); C_8 median recall 1.000 calls 12.0 (18.8%)
+  Mohtat2020: SPMe runs reaching cycle 100 58, untrusted among them 0, AUC of -r_min among them n/a
+  Mohtat2020: AUC 1.000; F recall 1.000 calls 6 (9.4%) misclassification 0.000; B_3 recall 1.000 calls 9 (14.1%); C_8 median recall 1.000 calls 17.0 (26.6%)
+  NCA_Kim2011: SPMe runs reaching cycle 100 15, untrusted among them 3, AUC of -r_min among them 1.000
+  NCA_Kim2011: AUC 0.921; F recall 1.000 calls 58 (90.6%) misclassification 0.094; B_3 recall 1.000 calls 56 (87.5%); C_8 median recall 1.000 calls 59.0 (92.2%)
+

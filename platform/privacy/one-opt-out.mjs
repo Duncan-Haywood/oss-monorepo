@@ -33,9 +33,6 @@ const REPO_ROOT = new URL("../../", import.meta.url).pathname;
 // A key is an opt-out key if it says so. Counter keys, draft keys and share
 // keys are none of this check's business -- a module may have as many of those
 // as it likes.
-// A key is an opt-out key if it says so. Counter keys, draft keys and share
-// keys are none of this check's business -- a module may have as many of those
-// as it likes.
 //
 // `disable` and `usage-preference` are in the list because the two page-level
 // spellings this catalogue actually uses are `<venture>-disable` and
@@ -197,7 +194,15 @@ export function findPages(root = VENTURES) {
     for (const entry of readdirSync(dir)) {
       if (entry === "node_modules" || entry === "dist" || entry.startsWith(".")) continue;
       const full = join(dir, entry);
-      if (statSync(full).isDirectory()) walk(full);
+      // An entry gone between readdir and stat (a parallel test's scratch
+      // venture) was never part of the catalogue: skip it, as
+      // browser-signals.mjs does, rather than crash the suite.
+      let stats;
+      try { stats = statSync(full); } catch (error) {
+        if (error.code === "ENOENT") continue;
+        throw error;
+      }
+      if (stats.isDirectory()) walk(full);
       else if (entry.endsWith(".html")) found.push(full);
     }
   };
