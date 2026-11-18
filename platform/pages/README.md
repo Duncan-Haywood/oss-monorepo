@@ -2056,6 +2056,21 @@ and `ONLY_SLUGS`. Not in CI (Playwright).
 node platform/pages/sticky-fit-check.mjs
 ```
 
+### Checking every audience page shows a tool on a phone's first screen
+
+`fold-check.mjs` loads every audience page (`c/for-*/`) at 390×844 and exits 1
+listing any page whose first tool card (`.start-grid li`, else `main .card`)
+starts later than 828 px, i.e. with less than 16 px of it on screen. The rule
+lives in `fold.mjs` (tested by `fold.test.mjs`); its header says why the card,
+not the "Start here" heading and not a word count, is what gets measured. Same
+`BASE_URL` / `DIST` / `PLAYWRIGHT` variables as `sideways.mjs`, plus `WIDTH`,
+`HEIGHT` and `ONLY_SLUGS` (`for-retirees,for-parents`). Not in CI (Playwright);
+waiting with `framerate` for the control-plane PR that registers browser checks.
+
+```
+node platform/pages/fold-check.mjs
+```
+
 ### Lighthouse on the pages a visitor sees first
 
 `lighthouse.mjs` runs Lighthouse (mobile by default) on the hub, /research/,
