@@ -2872,6 +2872,24 @@ they were downloaded: 13 notes added on 236 staves, 13 of 13 real heads; two fal
 podatus) became plain heads; nothing moved or removed. Three predictions, three held. Details:
 `eval/fleck-check.md`.
 
+### Staff lines broken by a short white gap (2026-11-18, later)
+
+Of the three one-step cephalici listed as "small note read as a rhombus", two were not cephalicus
+faults: the place named was a climacus the alignment paired with them. 3421 *non* was never read,
+because leaf 434's staff 3 has a white break 5 px wide in every line after *re-*, and the reader kept
+only the longest unbroken stretch of a staff (gaps of 4 px allowed), dropping *gum, et non con-*.
+On the 323 tuning pages 21 staves had such a break of 0.4 spaces or less; the side lost held up to
+1,158 px of staff, and on some staves the clef (leaf 489 staff 2). Two stretches over 3 spaces long
+are now one staff across a gap of up to 0.5 spaces, unless one is a decorated initial's box (over
+35% inked between the lines; `STAFF_JOIN` in `scan.mjs`; `readPage(img, { staffJoin: false })`
+reads as before). It changes 17 of 2,411 staves, every one a real break looked at as a crop, and no
+initial. Tuning lists: notes agreeing 24,397 to 24,479, GABC only 572 to 569; differing +6, all on
+434 staff 3, whose F clef is read two steps low with or without the join (next). Held out, 72
+Graduale leaves no list reads, committed before they were downloaded: the join changed none of their
+530 staves, so the registered "2 to 20 staves" failed; nothing got worse. The breaks cluster in parts
+of the book the held-out pick barely sampled. Details: `eval/staff-gap-check.md`; look at a place
+with `node eval/one-step-rhombus-diag.mjs ITEM:LEAF:STAFF:X`.
+
 ## Not checked yet
 
 - `examples/dies-irae-incipit.gabc` is the widely quoted opening motif
