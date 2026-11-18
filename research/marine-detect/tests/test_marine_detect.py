@@ -33,6 +33,16 @@ def test_block_key_prefixes():
     assert data.block_key("old_00001150L") == "old_L46"
 
 
+def test_verify_archive_rejects_other_bytes(tmp_path):
+    import pytest
+    f = tmp_path / "MaSTr1325_masks_512x384.zip"
+    f.write_bytes(b"not the archive")
+    with pytest.raises(ValueError, match="not the pinned"):
+        data.verify_archive(f)
+    with pytest.raises(ValueError, match="no pinned"):
+        data.verify_archive(tmp_path / "other.zip")
+
+
 def test_remap_ignores_unknown():
     m = np.array([[0, 1, 2, 4]], np.uint8)
     assert data.remap(m).tolist() == [[0, 1, 2, IGNORE]]
