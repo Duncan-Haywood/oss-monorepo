@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": true,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 5,
   "outcome": "success",
@@ -39,6 +39,10 @@
     {
       "file": "research/CLAUDE.md",
       "issue": "The pdflatex install line (texlive-latex-recommended texlive-fonts-recommended) lacks IEEEtran.cls, which marine-hull's OCEANS paper needs; add texlive-publishers. The install also took about 1 minute, not the 10 quoted."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The pre-merge checklist (build.py, research_live_links, check_md_links) omits research/_shared/programme_check.py, which research CI runs and which failed my PR because a new experiments/figure_*.py was not named in the README's Reproduce block; add it to step 3/4."
     }
   ],
   "deviations": [],
