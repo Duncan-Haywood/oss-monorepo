@@ -86,6 +86,28 @@ class T(unittest.TestCase):
         self.assertIn("check_posts.py", check_post_frontmatter.limits_line())
 
 
+class StaleBase(unittest.TestCase):
+    def _main(self, n):
+        with tempfile.TemporaryDirectory() as d:
+            root = Path(d)
+            (root / "docs" / "posts").mkdir(parents=True)
+            names = [f"docs/posts/2026-10-24-p{i}.md" for i in range(n)]
+            for i, name in enumerate(names):
+                (root / name).write_text(post(i, body=f"{BODY} unique{i} " + " ".join(f"z{i}x{j}" for j in range(60))))
+            orig = check_posts.changed_files
+            check_posts.changed_files = lambda root: names
+            try:
+                with contextlib.redirect_stdout(io.StringIO()) as buf:
+                    check_posts.main(["--root", d])
+            finally:
+                check_posts.changed_files = orig
+            return buf.getvalue()
+
+    def test_many_changed_files_print_the_stale_origin_hint(self):
+        self.assertIn("origin/main is stale", self._main(check_posts.STALE_HINT_AT + 1))
+        self.assertNotIn("origin/main is stale", self._main(2))
+
+
 class WrongRoot(unittest.TestCase):
     def test_root_without_posts_refuses(self):
         with tempfile.TemporaryDirectory() as d:
