@@ -3,7 +3,7 @@ title: "\"On day last of the year\": two wording bugs in the RRULE explainer"
 seo_title: "RRULE BYYEARDAY=-1 in plain English: the last day of the year"
 date: 2026-11-18
 tags: [redteam, testing, javascript, icalendar]
-description: "A red-team run seeded 20 faults into the RRULE explainer's engine. 14 broke a test. Three of the six that got through were real test gaps, and reading the output turned up two wording bugs, now fixed."
+description: "20 faults seeded into the RRULE explainer: 14 caught, three test gaps closed, and two wording bugs fixed, like \"on day last of the year\"."
 ---
 
 Today's red-team run aimed at the engine of the
