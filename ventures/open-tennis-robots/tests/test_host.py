@@ -1982,6 +1982,18 @@ class SpreadTakeTest(unittest.TestCase):
         _, front = self._take(4.0, "front")
         self.assertLess(front[0], half[0])                         # 7/16 of it in the first ms against 15%
 
+    def test_half_sine_offsets_carry_the_profiles_spread(self):
+        # 2026-11-18, firmware/esp32/README.md "The take fit's four parts and its high reading"
+        half_sine_var = 0.25 - 2.0 / math.pi ** 2
+        for parts in (4, 8):
+            xs = [o / 4000 for o in controller.take_offsets(4000, "halfsine", parts)]
+            self.assertAlmostEqual(sum(xs) / parts, 0.5, places=9)               # centred on the take's middle
+            self.assertAlmostEqual(sum((x - 0.5) ** 2 for x in xs) / parts, half_sine_var, places=9)
+            self.assertTrue(all(0 < x < 1 for x in xs))
+        old = [o / 4000 for o in controller.take_offsets(4000, match_spread=False)]
+        self.assertAlmostEqual(sum((x - 0.5) ** 2 for x in old) / 4, 0.0397, places=4)  # the midpoints, as before
+        self.assertEqual(controller.take_offsets(0), ())
+
 
 class TakeSurveyTest(unittest.TestCase):
     """2026-11-17, firmware/esp32/README.md "The contact time surveyed on the board": with SURVEY_TAKE on, the board

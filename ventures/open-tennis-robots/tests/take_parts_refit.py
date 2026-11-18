@@ -46,6 +46,11 @@ half-sine only if, on the held-out set, (a) and (c) both hold and `spread` has a
 the shipped model. More parts than four are not shipped on this evidence whatever they score (each part is a step in
 every fit the board runs); they answer the question whether the bias is the model's.
 
+HELD OUT (eval/take-parts-refit-2026-11-18.md): all clauses held. Capture tach: shipped +0.31 ms, spread -0.07, 16
+parts 0.00; the board's verdict within 0.5 ms 41 (shipped) / 46 (spread) of 54, within 1 ms 54 / 54, instant advised 0
+/ 0. By the rule `controller.take_offsets` now stretches the half-sine (TAKE_MATCH_SPREAD); the models here pass
+match_spread=False and stretch by hand, so the script's results do not depend on that switch.
+
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --score rows.jsonl.gz [--models 4,spread,8,16] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_parts_refit.py --drops eval/take-fit-2026-11-17.jsonl.gz
 
@@ -70,7 +75,7 @@ def spread_offsets(take_us, parts=4):
     """`parts` equal shares at the half-sine's quantile midpoints, stretched about the take's middle so that they carry
     the half-sine's own variance (0.0474 take^2) rather than the 0.0397 take^2 of the four midpoints."""
     from feeder_sim import controller
-    base = controller.take_offsets(take_us, "halfsine", parts)
+    base = controller.take_offsets(take_us, "halfsine", parts, match_spread=False)
     if not base:
         return ()
     xs = [b / take_us for b in base]
@@ -82,7 +87,7 @@ def offsets(model, c):
     from feeder_sim import controller
     if model == "spread":
         return spread_offsets(c)
-    return controller.take_offsets(c, "halfsine", int(model))
+    return controller.take_offsets(c, "halfsine", int(model), match_spread=False)
 
 
 def dense_rows(args):
