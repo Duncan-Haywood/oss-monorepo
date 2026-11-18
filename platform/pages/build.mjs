@@ -44,7 +44,7 @@ import { buildStories, STORIES_PATH, STORY_VENTURES } from './stories.mjs';
 import { buildLab } from './lab.mjs';
 import { buildUpdates, CHANGELOG_PATH, UPDATES_PATH } from './updates.mjs';
 import { buildQueue, clip, QUEUE_PATH } from './queue.mjs';
-import { audienceGroups, audiencePageId, audiencesFor } from './audiences.mjs';
+import { AUDIENCES, MIN_AUDIENCE_TOOLS, audienceGroups, audienceMatches, audiencePageId, audiencesFor } from './audiences.mjs';
 import {
   FEED_MAX_ENTRIES,
   feedUpdatedAt,
@@ -12806,15 +12806,54 @@ export async function buildSite({
 // at the repository, so the output is for looking at those pages, never for
 // deploying or for check.mjs. An unknown slug throws, so a typo is not an
 // empty site.
+//
+// An entry `c/<id>` names a category or audience page instead
+// (`--only=c/for-homeowners`, `--only=c/trades`) and stands for every tool that
+// page lists, so the page comes out with its full list of tools while the rest
+// of the catalogue stays out. Category and audience membership both follow
+// from the slug alone (`categoryFor`, `audienceMatches`), so the set is the
+// one the full build would list. Two polish runs on 2026-11-18 measured a
+// c/for-* page edit with two full builds of ~12 min each, because `--only`
+// took tool slugs only. Measured 2026-11-18 on c/for-homeowners and
+// c/household: everything through `</main>` matched the full build byte for
+// byte; the "Other tools on this site" list after it counts the preview.
 export function onlySurfaces(discovered, only) {
   if (!only || only.length === 0) return discovered;
-  const known = new Set(discovered.map((s) => s.slug));
-  const missing = only.filter((slug) => !known.has(slug));
+  const keep = new Set();
+  const missing = [];
+  for (const entry of only) {
+    const page = entry.startsWith(`${CATEGORY_PATH_PREFIX}/`) ? entry.slice(CATEGORY_PATH_PREFIX.length + 1).replace(/\/+$/, '') : null;
+    if (page === null) {
+      if (discovered.some((s) => s.slug === entry)) keep.add(entry);
+      else missing.push(entry);
+      continue;
+    }
+    const members = onlyPageMembers(discovered, page);
+    if (members === null) {
+      const ids = [...ALL_CATEGORIES.map((c) => c.id), ...AUDIENCES.map(audiencePageId)].join(', ');
+      throw new Error(`--only: no category or audience page c/${page} (known: ${ids})`);
+    }
+    for (const slug of members) keep.add(slug);
+  }
   if (missing.length > 0) {
     throw new Error(`--only: no published venture named ${missing.join(', ')}`);
   }
-  const keep = new Set(only);
   return discovered.filter((s) => keep.has(s.slug));
+}
+
+// The slugs a `c/<page>` entry stands for, or null when no category or
+// audience has that id. An audience below MIN_AUDIENCE_TOOLS has no page in the
+// full build either, so it is refused rather than previewed.
+function onlyPageMembers(discovered, page) {
+  const category = ALL_CATEGORIES.find((c) => c.id === page);
+  if (category) return discovered.filter((s) => categoryFor(s.slug).id === category.id).map((s) => s.slug);
+  const audience = AUDIENCES.find((a) => audiencePageId(a) === page);
+  if (!audience) return null;
+  const members = discovered.filter((s) => audienceMatches(audience, s.slug)).map((s) => s.slug);
+  if (members.length < MIN_AUDIENCE_TOOLS) {
+    throw new Error(`--only: c/${page} lists ${members.length} tool(s), under the ${MIN_AUDIENCE_TOOLS} an audience page needs, so the full build publishes no such page`);
+  }
+  return members;
 }
 
 async function buildSiteInner({ venturesDir, outDir, base, log, disableWorker, audioCdn, pending = {}, only = null }) {
