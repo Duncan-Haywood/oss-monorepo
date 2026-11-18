@@ -194,9 +194,11 @@ flagships:
       warning holds 42 of 43 false finds (README "Shocks that are not steps");
       anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
-      shock before the date"); uncertain lead 2026-11-18: --anticipation 0-4 ships
-      (range p 55-56% vs 28-35% stated, size 3.8%, README "An uncertain lead"); next
-      a real deployer's panel, few donors. More open items: NEXT.md.
+      shock before the date"); few donors 2026-11-18 (README "Few donors"): West
+      Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable
+      under 19 donors; FEW DONORS note and units-ranked-above ship); next size and
+      power at 10-20 units with one shocked donor, a real deployer's panel. More
+      open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -387,13 +389,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "Long ESC lags: the survey read too
-      little of the recovery" (survey refits read 16 revolutions after the ball, not
-      8: held out 28 of 28 drills, ESC 0-230 ms, within 15%, was 21;
-      eval/esc-survey-window-2026-11-18.txt). Next: the record fit's window on slow
-      wheels (same script); short lags read ~10% low with 16; SURVEY_QUEUE 3's heap;
-      ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own
-      speed loop.
+      see firmware/esp32/README.md, latest "The record's drop fit and its window"
+      (record fit reads 24 revolutions after the ball, LOOP_FIT_AFTER: held out,
+      jittery-tach rms 0.62% to 0.47%, noise-free unchanged;
+      eval/record-fit-window-2026-11-18.txt). Next: the take survey with 24
+      (tests/record_fit_window.py); short ESC lags read ~10% low with 16;
+      SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels;
+      an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

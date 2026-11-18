@@ -1426,6 +1426,25 @@ class LoopDropTest(unittest.TestCase):
         self.assertEqual(len(list(controller.drop_from_commands_steps(ps, ticks))),
                          len(list(controller.drop_from_commands_steps(ps, ticks, polish=False))))
 
+    def test_the_record_fit_reads_a_longer_window_through_tach_jitter(self):
+        # 2026-11-18 (README "The record's drop fit and its window"): 24 revolutions after the ball average a jittery
+        # tach that 8 do not; held out on the simulator the jitter builds' rms fell from 0.62% to 0.47%
+        import random
+        self.assertEqual(controller.LOOP_FIT_AFTER, 24)
+        rng = random.Random(5)
+        errs = {8: [], controller.LOOP_FIT_AFTER: []}
+        for i in range(24):
+            ps, ticks = self._wheel(4500, 0.08, 0.45, 9000, ball_ms=1500 + i * 0.37, total_ms=1950)
+            edges = [0.0]
+            for p in ps:
+                edges.append(edges[-1] + p)
+            edges = [e + rng.gauss(0, 3.0) for e in edges]             # a 3 us (sd) edge timer
+            jit = [b - a for a, b in zip(edges, edges[1:])]
+            for a in errs:
+                errs[a].append(controller.drop_from_commands(jit, ticks, after=a)[0] / 0.08 - 1)
+        rms = {a: math.sqrt(statistics.fmean([e * e for e in v])) for a, v in errs.items()}
+        self.assertLess(rms[controller.LOOP_FIT_AFTER], 0.9 * rms[8], rms)
+
     def test_no_fit_without_commands_or_revolutions(self):
         ps, ticks = self._wheel(3000, 0.09, 0.4, 9000)
         self.assertIsNone(controller.drop_from_commands(ps, []))

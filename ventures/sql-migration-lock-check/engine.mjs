@@ -122,7 +122,8 @@ function takesExclusiveLock(masked) {
 }
 
 /**
- * `SET lock_timeout` / `SET LOCAL lock_timeout`, with a non-zero value.
+ * `SET lock_timeout` / `SET LOCAL lock_timeout` / `RESET`: returns null for
+ * any other statement, else `{ local, on }` (on = a non-zero timeout).
  *
  * Reads the *raw* statement text, not the masked copy, and that is the whole
  * subtlety: the idiomatic spelling is `SET lock_timeout = '3s'`, and the
@@ -132,13 +133,17 @@ function takesExclusiveLock(masked) {
  * the first smoke test written against this engine.
  */
 function setsLockTimeout(raw) {
-  const m = /^\s*SET\s+(?:LOCAL\s+|SESSION\s+)?lock_timeout\s*(?:=|TO)\s*(.+)$/i.exec(raw.trim());
-  if (!m) return false;
-  const value = m[1].trim().replace(/;$/, '').replace(/^'|'$/g, '').trim();
+  const t = raw.trim();
+  // `RESET lock_timeout` and `RESET ALL` put it back to the default, 0: off.
+  if (/^RESET\s+(?:lock_timeout|ALL)\s*;?$/i.test(t)) return { local: false, on: false };
+  const m = /^\s*SET\s+(LOCAL\s+|SESSION\s+)?lock_timeout\s*(?:=|TO)\s*(.+)$/i.exec(t);
+  if (!m) return null;
+  const value = m[2].trim().replace(/;$/, '').replace(/^'|'$/g, '').trim();
   // `SET lock_timeout = 0` disables it, which is the default and is not a
   // timeout. Treating it as one would let a migration silence this check by
   // explicitly asking for the dangerous behaviour.
-  return !/^0(\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';
+  const on = !/^0(\s*(ms|s|min))?$/i.test(value) && value.toLowerCase() !== 'default';
+  return { local: /^LOCAL/i.test(m[1] || ''), on };
 }
 
 function tableOf(masked) {
@@ -186,7 +191,16 @@ export function analyzeSql(text) {
   // Session state, accumulated as we walk the file in order. A `SET
   // lock_timeout` protects the statements *after* it, so this cannot be
   // answered by looking at any statement alone.
-  let lockTimeout = false;
+  //
+  // PostgreSQL scopes the setting, so this is three values, not one flag (red
+  // team 2026-11-18: a single latch kept every later statement "protected"
+  // after `SET lock_timeout = 0`, `RESET`, or the COMMIT that ended a
+  // `SET LOCAL`). `localTimeout` is null outside an explicit block or when no
+  // SET LOCAL ran in it; a ROLLBACK restores `sessionAtBegin`.
+  let sessionTimeout = false;
+  let localTimeout = null;
+  let sessionAtBegin = false;
+  const lockTimeoutOn = () => localTimeout ?? sessionTimeout;
   // Exclusive-lock statements seen inside the current explicit transaction.
   let exclusiveInTx = [];
   let reportedManyLocks = false;
@@ -220,7 +234,7 @@ export function analyzeSql(text) {
    * reported nothing at all.
    */
   const noteExclusive = (st) => {
-    if (!lockTimeout) pushNoTimeout(findings, st);
+    if (!lockTimeoutOn()) pushNoTimeout(findings, st);
     if (!st.inTransaction) return;
     exclusiveInTx.push(st);
     if (exclusiveInTx.length === 2 && !reportedManyLocks) {
@@ -236,8 +250,12 @@ export function analyzeSql(text) {
     const s = st.masked;
     const upper = s.toUpperCase();
 
-    if (setsLockTimeout(st.text)) {
-      lockTimeout = true;
+    const timeout = setsLockTimeout(st.text);
+    if (timeout) {
+      // SET LOCAL outside an explicit block is kept for the rest of the file:
+      // a migration runner usually wraps the whole file in its own transaction.
+      if (timeout.local && st.inTransaction) localTimeout = timeout.on;
+      else { sessionTimeout = timeout.on; if (st.inTransaction && localTimeout !== null) localTimeout = null; }
       continue;
     }
 
@@ -246,6 +264,9 @@ export function analyzeSql(text) {
     // transaction stops applying at COMMIT.
     const txEffect = transactionEffect(s);
     if (txEffect === 'end' || txEffect === 'chain') {
+      if (/^\s*(ROLLBACK|ABORT)\b/i.test(s)) sessionTimeout = sessionAtBegin;
+      localTimeout = null;
+      sessionAtBegin = sessionTimeout;
       exclusiveInTx = [];
       reportedManyLocks = false;
       notValid.clear();
@@ -254,6 +275,8 @@ export function analyzeSql(text) {
     if (txEffect === 'begin') {
       // A BEGIN inside an open block only warns; the locks it holds stay held.
       if (!st.inTransaction) {
+        sessionAtBegin = sessionTimeout;
+        localTimeout = null;
         exclusiveInTx = [];
         reportedManyLocks = false;
       }
