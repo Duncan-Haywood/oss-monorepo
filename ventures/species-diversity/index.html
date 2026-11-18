@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23173f4a'/%3E%3Cpath%20d='M5%2026%20C9%2012%2016%208%2027%207'%20fill='none'%20stroke='%23f2c14e'%20stroke-width='3'/%3E%3Ccircle%20cx='10'%20cy='17'%20r='2.2'%20fill='%23e8f1f2'/%3E%3Ccircle%20cx='17'%20cy='11'%20r='2.2'%20fill='%23e8f1f2'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Species Richness &amp; Diversity Calculator: Rarefaction, Extrapolation, Chao1, Hill Numbers, Free</title>
+  <meta name="description" content="Free species richness and diversity calculator: Chao1 and ACE for undetected species, Hill numbers (richness, Shannon, Simpson), rarefaction and extrapolation curves by sample size and by sample coverage, and sites compared at equal coverage with bootstrap intervals. Runs in your browser.">
+  <meta property="og:title" content="How many species are there, counting the ones you have not found yet?">
+  <meta property="og:description" content="Paste counts per species. Chao1, ACE, Hill numbers, rarefaction and extrapolation, and sites compared at equal sample coverage. Worked on ten years of Portal Project rodent data.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Species diversity: rarefaction and extrapolation with Hill numbers", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Species richness and diversity from abundance data: Hill numbers of order 0, 1 and 2 (richness, the exponential of Shannon entropy, inverse Simpson), Chao1 with its log-normal interval, ACE, the Chao-Wang-Jost entropy estimator, rarefaction and extrapolation curves by sample size (Chao et al. 2014) and by sample coverage (Chao and Jost 2012), and assemblages compared at a common coverage and a common size with bootstrap intervals. Runs in your browser.", "featureList": "species richness estimator, Chao1, ACE, Hill numbers, Shannon diversity, Simpson diversity, effective number of species, rarefaction curve, extrapolation, species accumulation, sample coverage, sample completeness, coverage-based rarefaction, compare diversity between sites, bootstrap confidence interval, OTU richness, biodiversity survey", "citation": ["https://doi.org/10.1890/13-0133.1", "https://doi.org/10.1890/11-1952.1", "https://doi.org/10.2307/1934352", "https://doi.org/10.1111/2041-210X.12108"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Why not just compare the number of species each site found?", "acceptedAnswer": {"@type": "Answer", "text": "Because the count rises with effort. A site where you caught 100 animals will show fewer species than one where you caught 300, even if the two are identical. Rarefaction cuts the bigger samples down to a common size; Chao and Jost (2012) showed it is fairer still to compare at a common sample coverage, the share of individuals belonging to species already found, because a rich site needs more individuals to be sampled equally well."}}, {"@type": "Question", "name": "What are Hill numbers?", "acceptedAnswer": {"@type": "Answer", "text": "Effective numbers of species (Hill 1973). Order q = 0 is species richness and counts every species equally; q = 1 is the exponential of Shannon entropy and counts species in proportion to their abundance; q = 2 is inverse Simpson and counts mainly the dominant ones. All three are in units of species, so a community of 10 equally common species scores 10 at every order, and the gap between orders says how uneven the community is."}}, {"@type": "Question", "name": "How far can I extrapolate?", "acceptedAnswer": {"@type": "Answer", "text": "Chao et al. (2014) recommend extrapolating richness to no more than about twice the sample size: beyond that the prediction leans on Chao1, which is a lower bound and can fall well short in uneven communities. The q = 1 and q = 2 curves can be pushed further because they depend less on rare species. The page draws extrapolation dashed and compares sites at most at twice the smallest sample."}}, {"@type": "Question", "name": "Is Chao1 the number of species there really are?", "acceptedAnswer": {"@type": "Answer", "text": "No: it is a lower bound. It uses only singletons and doubletons, and it is accurate when the rare species are all about equally rare. In uneven communities sampled lightly it falls short; in the page's own simulation with 120 lognormal species and 200 individuals it averaged 83, and its 95% interval held the true 120 only half the time. Read it as at least this many."}}, {"@type": "Question", "name": "Can I use this for things that are not animals or plants?", "acceptedAnswer": {"@type": "Answer", "text": "Yes, for any count of how many items fall into each class where unseen classes matter: OTUs or amplicon variants in a microbiome sample (where singletons may be sequencing errors, so read Chao1 with care), words in a text, distinct bugs found, customers by product, coins by die. The assumption is that items were drawn at random and independently."}}, {"@type": "Question", "name": "What is sample coverage?", "acceptedAnswer": {"@type": "Answer", "text": "The share of the assemblage's individuals that belong to species already in your sample, estimated from the singletons and doubletons (Good 1953; Chao and Jost 2012). At 99% coverage, the next individual you catch has about a 1% chance of being a species you have not seen. The page also says how many more individuals would take coverage to 95% and 99%."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172a2e; background: #eef3f2; }
+    body { max-width: 1060px; margin: auto; padding: 28px; }
+    a { color: #12606f; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #173f4a; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #173f4a; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4a5a5d; }
+    .card { background: #fff; border: 1px solid #d3e0df; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #173f4a10; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f7f82; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #12606f; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e0ecec; color: #173f4a; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e3ebea; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5a5d; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0df; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 170px; padding: 9px 10px; border: 1px solid #6f7f82; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .answer { font-size: 1.02rem; padding: 10px 14px; border-radius: 9px; margin: 6px 0 10px; background: #e2f0f0; color: #133a40; white-space: pre-line; }
+    .legend span { display: inline-block; margin-right: 14px; font-size: .86rem; }
+    .sw { display: inline-block; width: 18px; height: 3px; vertical-align: middle; margin-right: 5px; }
+    pre { background: #f1f6f6; border: 1px solid #d9e5e4; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+    .tabs button { margin-top: 6px; }
+    .tabs button[aria-pressed="true"] { background: #173f4a; color: #fff; }
+    [hidden], .grid[hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">SPECIES RICHNESS · CHAO1 · ACE · HILL NUMBERS · SHANNON · SIMPSON · RAREFACTION · EXTRAPOLATION · SAMPLE COVERAGE · RUNS IN YOUR BROWSER</p>
+    <h1>How many species are there, counting the ones you have not found yet?</h1>
+    <p>You counted individuals per species at one or more sites. The number of species you found depends on how hard you looked, so it cannot be compared directly, and it is not the number there. Paste the counts and get <strong>Chao1</strong> and <strong>ACE</strong> for the species still undetected, <strong>Hill numbers</strong> (richness, Shannon and Simpson diversity as effective numbers of species), <strong>rarefaction and extrapolation curves</strong> by sample size and by <strong>sample coverage</strong>, how many more individuals would complete the inventory, and every site <strong>compared at equal coverage</strong> with bootstrap intervals (Chao et al. 2014; Chao and Jost 2012).</p>
+    <p class="note">Nothing you enter leaves this browser tab. A statistical estimate from the counts you give, not environmental-assessment, regulatory or other professional advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>Your counts</h2>
+    <label for="mode">What you have</label>
+    <select id="mode">
+      <option value="csv">A table: species and counts (one site or several)</option>
+      <option value="list">Just the counts for one site, such as 52, 30, 21, 1, 1</option>
+    </select>
+    <div id="pane-csv">
+      <label for="data">CSV, tab or semicolon-separated. A <code>species</code> column and a <code>count</code> column (long), one row per individual seen (no count column), or one count column per site (wide). Rows for the same species and site are added together.</label>
+      <textarea id="data" spellcheck="false" placeholder="site,species,count&#10;north,Peromyscus eremicus,14&#10;north,Dipodomys merriami,31&#10;south,Peromyscus eremicus,3&#10;..."></textarea>
+      <label for="file">Or open a CSV file from this device</label>
+      <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv,text/plain">
+      <div class="grid">
+        <div><label for="group">Site column for long data (optional)</label><input id="group" type="text" placeholder="e.g. site, plot or year"></div>
+        <div><label for="species">Species column (blank: guess)</label><input id="species" type="text" placeholder="e.g. species"></div>
+        <div><label for="count">Count column (blank: guess)</label><input id="count" type="text" placeholder="e.g. individuals"></div>
+      </div>
+    </div>
+    <div id="pane-list" hidden>
+      <label for="list">Individuals of each species, comma-separated</label>
+      <input id="list" type="text" placeholder="e.g. 52,30,21,12,9,7,5,4,3,3,2,2,2,1,1,1,1,1">
+    </div>
+    <div class="grid">
+      <div><label for="conf">Confidence for intervals</label><select id="conf"><option value="0.95">95%</option><option value="0.9">90%</option><option value="0.99">99%</option></select></div>
+      <div><label for="boot">Bootstrap replicates</label><select id="boot"><option value="100">100 (quick)</option><option value="200">200</option><option value="500">500 (slow with many sites)</option><option value="0">none (no intervals on curves)</option></select></div>
+    </div>
+    <div>
+      <button type="button" class="secondary" id="ex-treat">Example: Portal rodents 2016-2025, three treatments (real, CC0)</button>
+      <button type="button" class="secondary" id="ex-plot">Example: the same rodents, 24 plots (real, CC0)</button>
+    </div>
+    <button type="button" id="analyze">Estimate diversity</button>
+    <span class="note" id="status" role="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <div id="answer" class="answer"></div>
+    <h3>Every site</h3>
+    <div class="scroll"><table id="summary"></table></div>
+    <p class="note">Coverage: the share of individuals belonging to species already found. Chao1 and ACE are lower-bound estimates of richness; the Shannon and Simpson columns are estimated for the whole assemblage, in effective numbers of species.</p>
+    <div class="tabs" role="group" aria-label="Order of diversity">
+      <button type="button" class="secondary" data-q="0" aria-pressed="true">q = 0: richness</button>
+      <button type="button" class="secondary" data-q="1" aria-pressed="false">q = 1: Shannon</button>
+      <button type="button" class="secondary" data-q="2" aria-pressed="false">q = 2: Simpson</button>
+    </div>
+    <h3>By sample size</h3>
+    <div id="chart-size"></div>
+    <h3>By sample coverage</h3>
+    <div id="chart-cov"></div>
+    <p class="legend" id="legend"></p>
+    <p class="note">Solid: rarefaction (smaller samples drawn from yours). Dot: your sample. Dashed: extrapolation. Shaded: bootstrap interval. Richness should not be extrapolated far past twice the sample.</p>
+    <div id="compare-wrap" hidden>
+      <h3>Compared at a common coverage</h3>
+      <div class="scroll"><table id="compare-cov"></table></div>
+      <h3>Compared at a common sample size</h3>
+      <div class="scroll"><table id="compare-size"></table></div>
+    </div>
+    <h3>More sampling</h3>
+    <div class="scroll"><table id="effort"></table></div>
+    <button type="button" class="secondary" id="download">Download the report (CSV-style text)</button>
+  </section>
+
+  <section class="card">
+    <h2>The example: ten years of desert rodents at Portal, Arizona</h2>
+    <p>The Portal Project has trapped rodents on 24 fenced plots in the Chihuahuan Desert near Portal, Arizona, every month since 1977, and publishes every capture under CC0. Since 2015 ten plots are open controls, eight have gates too small for kangaroo rats, and six try to keep all rodents out (some still get in). The bundled file counts the distinct tagged animals first caught on each plot from 2016 to 2025: 6,094 rodents of 21 species.</p>
+    <ul>
+      <li><strong>Richness is saturated; evenness is not.</strong> Pooled by treatment, every group has 20 or 21 species at coverage above 99.9%, and Chao1 finds almost nothing left to find. The difference is in how the individuals are spread: at the common coverage of 99.97%, Simpson diversity is 3.51 effective species on the controls (95% interval 3.37 to 3.65) and 2.95 where kangaroo rats are kept out (2.75 to 3.15), where one pocket mouse, <em>Chaetodipus penicillatus</em>, is 1,044 of the 1,900 animals.</li>
+      <li><strong>The smallest sample is not the poorest plot.</strong> Plot 10 caught only 105 animals and 9 species, the fewest of all 24. Compared at the common coverage of 98.1%, it is ninth of 24, with 11.9 species and a wide interval (7.1 to 16.7).</li>
+      <li><strong>Chao1 can swing on one doubleton.</strong> Plot 4 found 15 species, six of them only once and one twice, so Chao1 says 32.9. Read the interval, and the ACE estimate beside it, before the point.</li>
+    </ul>
+    <p class="note">These are descriptive readings of the public census, pooled over plots and years; they are not a re-analysis of the experiment's published conclusions. Counting tagged individuals once over ten years is one choice of unit (<code>eval/build-example.py</code>); captures per survey would give different numbers.</p>
+  </section>
+
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p>From the counts <em>X<sub>i</sub></em> of the <em>S</em> species in a sample of <em>n</em> individuals the page takes the number of species seen once (<em>f</em><sub>1</sub>) and twice (<em>f</em><sub>2</sub>). Diversity is measured by <strong>Hill numbers</strong> <sup><em>q</em></sup><em>D</em> = (Σ <em>p<sub>i</sub><sup>q</sup></em>)<sup>1/(1−<em>q</em>)</sup> (Hill 1973) at <em>q</em> = 0, 1 and 2. For the whole assemblage: <strong>Chao1</strong>, <em>S</em> + ((<em>n</em>−1)/<em>n</em>) <em>f</em><sub>1</sub>²/(2<em>f</em><sub>2</sub>) (Chao 1984), with Chao's (1987) variance and log-normal interval; <strong>ACE</strong> (Chao and Lee 1992); the <strong>Chao-Wang-Jost entropy estimator</strong> (2013) for <em>q</em> = 1; the unbiased Σ <em>X<sub>i</sub></em>(<em>X<sub>i</sub></em>−1)/(<em>n</em>(<em>n</em>−1)) for <em>q</em> = 2. <strong>Rarefaction</strong> to a size <em>m</em> &lt; <em>n</em> is the expected diversity of a random subsample, computed exactly from hypergeometric probabilities (Hurlbert 1971; Chao et al. 2014); <strong>extrapolation</strong> to <em>m</em> &gt; <em>n</em> uses Chao et al. (2014) for <em>q</em> = 0 and 2, and for <em>q</em> = 1 the rule of the iNEXT package (Hsieh, Ma and Chao 2016): a geometric approach to the estimated asymptote at the rate the rarefaction curve ends with. <strong>Sample coverage</strong> and its curve follow Chao and Jost (2012), refining Good (1953) and Turing's 1 − <em>f</em><sub>1</sub>/<em>n</em>. Sites are compared at the lowest coverage, and the lowest size, any of them reaches at twice its sample size, as iNEXT does. Intervals come from a seeded bootstrap of an estimated assemblage that includes the undetected species (Chao et al. 2014).</p>
+    <p><strong>Random, independent individuals.</strong> Each individual is assumed drawn at random from the assemblage, as in a well-mixed sample; clumped species, or counts of the same animal twice, break this. Use one row per distinct individual.</p>
+    <p><strong>Not here (yet):</strong> incidence data (presence in sampling units: Chao2, ICE), phylogenetic and functional diversity, beta diversity between sites, and orders of q other than 0, 1 and 2.</p>
+    <p><strong>Checked against:</strong> an independent Python reference (scipy 1.17.1 hypergeometric probabilities, mpmath 1.4.1, scikit-bio 0.7.4) on 13 assemblages, simulated and real, to 1e-10 or better; 20,000 random subsamples; and a coverage simulation of 1,000 samples in each of four scenarios (README, "Verification").</p>
+<pre>@article{hill1973diversity,
+  author = {Hill, M. O.},
+  title = {Diversity and evenness: a unifying notation and its consequences},
+  journal = {Ecology}, volume = {54}, number = {2}, pages = {427--432}, year = {1973},
+  doi = {10.2307/1934352}}
+@article{chao2014rarefaction,
+  author = {Chao, Anne and Gotelli, Nicholas J. and Hsieh, T. C. and Sander, Elizabeth L. and Ma, K. H. and Colwell, Robert K. and Ellison, Aaron M.},
+  title = {Rarefaction and extrapolation with {Hill} numbers: a framework for sampling and estimation in species diversity studies},
+  journal = {Ecological Monographs}, volume = {84}, number = {1}, pages = {45--67}, year = {2014},
+  doi = {10.1890/13-0133.1}}
+@article{chao2012coverage,
+  author = {Chao, Anne and Jost, Lou},
+  title = {Coverage-based rarefaction and extrapolation: standardizing samples by completeness rather than size},
+  journal = {Ecology}, volume = {93}, number = {12}, pages = {2533--2547}, year = {2012},
+  doi = {10.1890/11-1952.1}}
+@article{chao1984nonparametric,
+  author = {Chao, Anne},
+  title = {Nonparametric estimation of the number of classes in a population},
+  journal = {Scandinavian Journal of Statistics}, volume = {11}, number = {4}, pages = {265--270}, year = {1984}}
+@article{chao1987unequal,
+  author = {Chao, Anne},
+  title = {Estimating the population size for capture-recapture data with unequal catchability},
+  journal = {Biometrics}, volume = {43}, number = {4}, pages = {783--791}, year = {1987},
+  doi = {10.2307/2531532}}
+@article{chao1992ace,
+  author = {Chao, Anne and Lee, Shen-Ming},
+  title = {Estimating the number of classes via sample coverage},
+  journal = {Journal of the American Statistical Association}, volume = {87}, number = {417}, pages = {210--217}, year = {1992},
+  doi = {10.1080/01621459.1992.10475194}}
+@article{chao2013entropy,
+  author = {Chao, Anne and Wang, Y. T. and Jost, Lou},
+  title = {Entropy and the species accumulation curve: a novel entropy estimator via discovery rates of new species},
+  journal = {Methods in Ecology and Evolution}, volume = {4}, number = {11}, pages = {1091--1100}, year = {2013},
+  doi = {10.1111/2041-210X.12108}}
+@article{good1953population,
+  author = {Good, I. J.},
+  title = {The population frequencies of species and the estimation of population parameters},
+  journal = {Biometrika}, volume = {40}, number = {3-4}, pages = {237--264}, year = {1953},
+  doi = {10.1093/biomet/40.3-4.237}}
+@article{hurlbert1971nonconcept,
+  author = {Hurlbert, Stuart H.},
+  title = {The nonconcept of species diversity: a critique and alternative parameters},
+  journal = {Ecology}, volume = {52}, number = {4}, pages = {577--586}, year = {1971},
+  doi = {10.2307/1934145}}
+@article{hsieh2016inext,
+  author = {Hsieh, T. C. and Ma, K. H. and Chao, Anne},
+  title = {{iNEXT}: an {R} package for rarefaction and extrapolation of species diversity ({Hill} numbers)},
+  journal = {Methods in Ecology and Evolution}, volume = {7}, number = {12}, pages = {1451--1456}, year = {2016},
+  doi = {10.1111/2041-210X.12613}}
+@misc{portaldata,
+  author = {{Weecology}},
+  title = {Portal Project data: long-term monitoring of a {Chihuahuan Desert} ecosystem},
+  howpublished = {\url{https://github.com/weecology/PortalData}}, note = {CC0, retrieved 2026-11-18}}</pre>
+  </section>
+
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>Why not just compare the number of species each site found?</h3>
+    <p>Because the count rises with effort. A site where you caught 100 animals will show fewer species than one where you caught 300, even if the two are identical. Rarefaction cuts the bigger samples down to a common size; Chao and Jost (2012) showed it is fairer still to compare at a common sample coverage, the share of individuals belonging to species already found, because a rich site needs more individuals to be sampled equally well.</p>
+    <h3>What are Hill numbers?</h3>
+    <p>Effective numbers of species (Hill 1973). Order q = 0 is species richness and counts every species equally; q = 1 is the exponential of Shannon entropy and counts species in proportion to their abundance; q = 2 is inverse Simpson and counts mainly the dominant ones. All three are in units of species, so a community of 10 equally common species scores 10 at every order, and the gap between orders says how uneven the community is.</p>
+    <h3>How far can I extrapolate?</h3>
+    <p>Chao et al. (2014) recommend extrapolating richness to no more than about twice the sample size: beyond that the prediction leans on Chao1, which is a lower bound and can fall well short in uneven communities. The q = 1 and q = 2 curves can be pushed further because they depend less on rare species. The page draws extrapolation dashed and compares sites at most at twice the smallest sample.</p>
+    <h3>Is Chao1 the number of species there really are?</h3>
+    <p>No: it is a lower bound. It uses only singletons and doubletons, and it is accurate when the rare species are all about equally rare. In uneven communities sampled lightly it falls short; in the page's own simulation with 120 lognormal species and 200 individuals it averaged 83, and its 95% interval held the true 120 only half the time. Read it as at least this many.</p>
+    <h3>Can I use this for things that are not animals or plants?</h3>
+    <p>Yes, for any count of how many items fall into each class where unseen classes matter: OTUs or amplicon variants in a microbiome sample (where singletons may be sequencing errors, so read Chao1 with care), words in a text, distinct bugs found, customers by product, coins by die. The assumption is that items were drawn at random and independently.</p>
+    <h3>What is sample coverage?</h3>
+    <p>The share of the assemblage's individuals that belong to species already in your sample, estimated from the singletons and doubletons (Good 1953; Chao and Jost 2012). At 99% coverage, the next individual you catch has about a 1% chance of being a species you have not seen. The page also says how many more individuals would take coverage to 95% and 99%.</p>
+    <h3>How well do the intervals work?</h3>
+    <p>In 1,000 simulated samples per scenario, the 95% intervals for rarefied richness held the truth 92% to 98% of the time, for richness extrapolated to twice the sample 87% to 99%, and for Shannon and Simpson diversity 85% to 96%, lowest for the smallest sample of the most uneven community. Chao1's interval held the true richness only 50% to 93% of the time: 50% when a 120-species community was sampled with 200 individuals, because Chao1 is a lower bound, and 55% when every species had already been found, because its interval sits above the species seen. The table is in <code>eval/coverage-output.txt</code>.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every number is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it is not environmental-impact, regulatory, conservation-management or other professional advice, nor a substitute for a survey design reviewed by an ecologist or statistician. Results are statistical estimates from the counts you enter and are only as good as the assumptions above. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers or of iNEXT, their institutions, the Portal Project or Weecology, or any statistics software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs counts.csv --group site</code> or <code>node cli.mjs --counts 52,30,21,12,1,1</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/species-diversity" rel="noopener">source</a>.</p>
+    <p>More estimation tools: <a href="../capture-recapture/">capture-recapture</a> for how many animals, rather than species, you never saw, <a href="../spatial-autocorrelation/">spatial autocorrelation</a> for hot spots on a map, <a href="../meta-analysis/">meta-analysis</a> for pooling studies, and <a href="../inter-rater-agreement/">inter-rater agreement</a> for whether two observers agree.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, report, ORDER_NAMES } from "./engine.mjs";
+    import { PORTAL_CSV } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const one = (x) => (x == null || !Number.isFinite(x) ? "n/a" : x.toLocaleString("en-US", { minimumFractionDigits: 1, maximumFractionDigits: 1 }));
+    const whole = (x) => (x == null || !Number.isFinite(x) ? "n/a" : Math.round(x).toLocaleString("en-US"));
+    const cov = (x) => (x == null || !Number.isFinite(x) ? "n/a" : x >= 0.99995 ? ">99.99%" : x >= 0.99 ? `${(100 * x).toFixed(2)}%` : `${(100 * x).toFixed(1)}%`);
+    const COLORS = ["#12606f", "#c7522a", "#6a4c93", "#2a9d3f", "#b8860b", "#1d6fb8", "#a23b72", "#5b6b2f"];
+    const DASH = ["", "6 3", "2 3"];
+    let last = null;
+    let order = 0;
+
+    function showMode() {
+      const mode = $("#mode").value;
+      $("#pane-csv").hidden = mode !== "csv";
+      $("#pane-list").hidden = mode !== "list";
+    }
+
+    function inputs() {
+      const confidence = Number($("#conf").value);
+      const bootstrap = Number($("#boot").value);
+      if ($("#mode").value === "list") return { counts: $("#list").value.split(/[,\s;]+/).filter((s) => s !== "").map(Number), confidence, bootstrap };
+      return { text: $("#data").value, group: $("#group").value.trim(), species: $("#species").value.trim(), count: $("#count").value.trim(), confidence, bootstrap };
+    }
+
+    const label = (g, i) => (g.name === "" ? "your sample" : g.name || `site ${i + 1}`);
+
+    function chart(el, res, xKey) {
+      const gs = res.groups;
+      const narrow = (el.clientWidth || 900) < 600;
+      const W = narrow ? 460 : 900, H = narrow ? 300 : 340, L = 52, R = 16, T = 12, B = 40, fs = narrow ? 12 : 11;
+      const xs = gs.flatMap((g) => g.curve.map((p) => (xKey === "m" ? p.m : p.coverage)));
+      const ys = gs.flatMap((g) => g.curve.flatMap((p) => [p.qD[order], p.upper?.[order]]).filter((v) => v != null && Number.isFinite(v)));
+      // On the coverage axis, start where each curve has a tenth of its sample: below that the knots are sparse and the axis would be mostly empty.
+      const x0 = xKey === "m" ? 0 : Math.min(...gs.map((g) => (g.curve.find((p) => p.m >= g.n / 10) || g.curve[0]).coverage));
+      const x1 = Math.max(...xs);
+      const top = Math.max(1, ...ys) * 1.05;
+      const x = (v) => L + ((v - x0) / (x1 - x0 || 1)) * (W - L - R);
+      const y = (v) => T + (1 - v / top) * (H - T - B);
+      let s = "";
+      for (let t = 0; t <= 4; t++) {
+        const v = (top / 4) * t;
+        s += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="#edf2f2"/><text x="${L - 6}" y="${y(v) + 4}" font-size="${fs}" text-anchor="end" fill="#4a5a5d">${v.toFixed(v < 10 ? 1 : 0)}</text>`;
+        const xv = x0 + ((x1 - x0) / 4) * t;
+        s += `<text x="${x(xv)}" y="${H - B + 16}" font-size="${fs}" text-anchor="${t === 4 ? "end" : t === 0 ? "start" : "middle"}" fill="#4a5a5d">${xKey === "m" ? Math.round(xv).toLocaleString("en-US") : `${(100 * xv).toFixed(xv > 0.99 ? 2 : 1)}%`}</text>`;
+      }
+      gs.forEach((g, i) => {
+        const c = COLORS[i % COLORS.length];
+        const dash = DASH[Math.floor(i / COLORS.length) % DASH.length];
+        const pts = g.curve.filter((p) => xKey === "m" || p.coverage >= x0 - 1e-12).map((p) => ({ x: x(xKey === "m" ? p.m : p.coverage), y: y(p.qD[order]), lo: p.lower?.[order], hi: p.upper?.[order], method: p.method }));
+        const band = pts.filter((p) => p.lo != null && p.hi != null);
+        if (band.length > 1 && gs.length <= 8) s += `<path d="M${band.map((p) => `${p.x},${y(p.hi)}`).join("L")}L${band.slice().reverse().map((p) => `${p.x},${y(p.lo)}`).join("L")}Z" fill="${c}" opacity="0.12"/>`;
+        const inter = pts.filter((p) => p.method !== "extrapolation");
+        const extra = pts.filter((p) => p.method !== "rarefaction");
+        s += `<polyline points="${inter.map((p) => `${p.x},${p.y}`).join(" ")}" fill="none" stroke="${c}" stroke-width="2"${dash ? ` stroke-dasharray="${dash}"` : ""}/>`;
+        if (extra.length > 1) s += `<polyline points="${extra.map((p) => `${p.x},${p.y}`).join(" ")}" fill="none" stroke="${c}" stroke-width="2" stroke-dasharray="${dash ? "1 4" : "7 5"}"/>`;
+        const obs = pts.find((p) => p.method === "observed");
+        if (obs) s += `<circle cx="${obs.x}" cy="${obs.y}" r="4" fill="${c}"/>`;
+      });
+      s += `<text x="${(L + W - R) / 2}" y="${H - 4}" font-size="${fs}" text-anchor="middle" fill="#4a5a5d">${xKey === "m" ? "number of individuals" : "sample coverage"}</text>`;
+      s += `<text x="12" y="${T + (H - T - B) / 2}" font-size="${fs}" text-anchor="middle" fill="#4a5a5d" transform="rotate(-90 12 ${T + (H - T - B) / 2})">effective species</text>`;
+      el.innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(ORDER_NAMES[order])} against ${xKey === "m" ? "sample size" : "sample coverage"} for every site">${s}</svg>`;
+    }
+
+    function legend(res) {
+      $("#legend").innerHTML = res.groups.map((g, i) => `<span><span class="sw" style="background:${COLORS[i % COLORS.length]}"></span>${esc(label(g, i))}</span>`).join("");
+    }
+
+    function compareTable(el, block, kind, pc) {
+      el.innerHTML = `<tr><th>Site</th><th class="n">${kind === "coverage" ? "Individuals needed" : "Coverage"}</th><th>How</th><th class="n">${esc(ORDER_NAMES[order])}</th><th class="n">${pc}% interval</th></tr>` +
+        block.rows.map((r, i) => { const v = r.values[order]; return `<tr><td>${esc(r.name || `site ${i + 1}`)}</td><td class="n">${kind === "coverage" ? whole(v.m) : cov(v.coverage)}</td><td>${v.method}</td><td class="n">${one(v.qD)}</td><td class="n">${v.lower == null ? "" : `${one(v.lower)} to ${one(v.upper)}`}</td></tr>`; }).join("");
+    }
+
+    function render() {
+      const res = last;
+      if (!res) return;
+      const pc = Math.round(res.confidence * 100);
+      chart($("#chart-size"), res, "m");
+      chart($("#chart-cov"), res, "coverage");
+      legend(res);
+      if (res.comparison) {
+        $("#compare-wrap").hidden = false;
+        compareTable($("#compare-cov"), res.comparison.coverage, "coverage", pc);
+        compareTable($("#compare-size"), res.comparison.size, "size", pc);
+        $("#compare-wrap h3").textContent = `Compared at a common coverage of ${cov(res.comparison.coverage.level)}`;
+        $("#compare-wrap h3:nth-of-type(2)").textContent = `Compared at a common sample size of ${whole(res.comparison.size.level)} individuals`;
+      } else $("#compare-wrap").hidden = true;
+      for (const b of document.querySelectorAll(".tabs button")) b.setAttribute("aria-pressed", String(Number(b.dataset.q) === order));
+    }
+
+    function show(res) {
+      const pc = Math.round(res.confidence * 100);
+      $("#answer").textContent = res.summary;
+      $("#summary").innerHTML = `<tr><th>Site</th><th class="n">Individuals</th><th class="n">Species seen</th><th class="n">Singletons</th><th class="n">Coverage</th><th class="n">Chao1 (${pc}% interval)</th><th class="n">ACE</th><th class="n">Shannon</th><th class="n">Simpson</th></tr>` +
+        res.groups.map((g, i) => `<tr><td>${esc(label(g, i))}</td><td class="n">${whole(g.n)}</td><td class="n">${g.S}</td><td class="n">${g.f1}</td><td class="n">${cov(g.coverage)}</td><td class="n">${one(g.chao1.estimate)} (${one(g.chao1.lower)} to ${one(g.chao1.upper)})</td><td class="n">${g.ace.estimate == null ? "undefined" : one(g.ace.estimate)}</td><td class="n">${one(g.asymptotic[1].estimate)}</td><td class="n">${one(g.asymptotic[2].estimate)}</td></tr>`).join("");
+      $("#effort").innerHTML = `<tr><th>Site</th><th>Target</th><th class="n">More individuals</th></tr>` +
+        res.groups.flatMap((g, i) => g.effort.map((e) => `<tr><td>${esc(label(g, i))}</td><td>${esc(e.target)}</td><td class="n">${e.size == null ? (e.note || "already there") : whole(Math.ceil(e.size - g.n))}</td></tr>`)).join("");
+      render();
+    }
+
+    function runAnalysis() {
+      try {
+        $("#status").textContent = "Working...";
+        const res = analyze(inputs());
+        last = res;
+        $("#results").hidden = false;
+        show(res);
+        $("#status").textContent = res.groups.length > 1 ? `${res.groups.length} sites compared.` : "Done.";
+        record("analysis_run");
+        return true;
+      } catch (e) {
+        $("#status").textContent = e.message;
+        $("#results").hidden = true;
+        return false;
+      }
+    }
+
+    function loadExample(group) {
+      $("#mode").value = "csv"; showMode();
+      $("#data").value = PORTAL_CSV; $("#group").value = group; $("#species").value = "species"; $("#count").value = "individuals";
+      if (runAnalysis()) record("example_loaded");
+    }
+
+    $("#mode").addEventListener("change", showMode);
+    $("#analyze").addEventListener("click", runAnalysis);
+    for (const b of document.querySelectorAll(".tabs button")) b.addEventListener("click", () => { order = Number(b.dataset.q); render(); });
+    $("#file").addEventListener("change", async (event) => {
+      const f = event.target.files && event.target.files[0];
+      if (!f) return;
+      $("#data").value = await f.text();
+      $("#status").textContent = `Loaded ${f.name}.`;
+    });
+    $("#ex-treat").addEventListener("click", () => loadExample("treatment"));
+    $("#ex-plot").addEventListener("click", () => loadExample("plot"));
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const blob = new Blob([report(last) + "\n"], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "species-diversity-report.txt";
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+      record("report_downloaded");
+    });
+    $("#optout").addEventListener("click", (event) => { setUsageOptOut(true); event.target.textContent = "Usage counting is off"; event.target.disabled = true; });
+    if (usageOptedOut()) { const c = document.getElementById("optout"); if (c) { c.textContent = "Usage counting is off"; c.disabled = true; } }
+  </script>
+</body>
+</html>
