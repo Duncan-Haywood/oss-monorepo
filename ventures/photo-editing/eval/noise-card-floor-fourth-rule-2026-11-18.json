@@ -1,0 +1,60 @@
+{
+ "three_plus": {
+  "rows": 440,
+  "pcaguard@0.8": {
+   "luma": 0.9155,
+   "colour": 0.6237,
+   "losing": 5,
+   "worst": -0.58,
+   "binds": 0
+  },
+  "cap@1.5": {
+   "luma": 0.8802,
+   "colour": 0.6058,
+   "losing": 5,
+   "worst": -0.58,
+   "binds": 38
+  },
+  "cap2@1.5": {
+   "luma": 0.8951,
+   "colour": 0.614,
+   "losing": 5,
+   "worst": -0.58,
+   "binds": 15
+  },
+  "a": false,
+  "b": true,
+  "new_losing": 0,
+  "pass": false
+ },
+ "all": {
+  "rows": 696,
+  "pcaguard@0.8": {
+   "luma": 0.6961,
+   "colour": 0.4719,
+   "losing": 5,
+   "worst": -0.58,
+   "binds": 0
+  },
+  "cap@1.5": {
+   "luma": 0.672,
+   "colour": 0.4601,
+   "losing": 5,
+   "worst": -0.58,
+   "binds": 48
+  },
+  "cap2@1.5": {
+   "luma": 0.6814,
+   "colour": 0.4652,
+   "losing": 5,
+   "worst": -0.58,
+   "binds": 25
+  },
+  "a": false,
+  "b": true,
+  "new_losing": 0,
+  "pass": false
+ },
+ "cards_three_plus": 10,
+ "cards": 24
+}

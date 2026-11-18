@@ -152,27 +152,38 @@ def card_of(name: str, cards: dict | None) -> str:
     return cards[name]["card"] if cards and name in cards else name
 
 
-def card_floor(path: str, cards: dict | None = None) -> dict:
+def card_floor(path: str, cards: dict | None = None, rank: int = 1) -> dict:
     """The lowest patch-PCA sigma at 18% grey over every tile of one card at one SNR and scenario, from
     ``sweep --features-only`` rows. A card is one body's frames at one ISO, which share the sensor's noise and
     not the scene's texture. With ``cards`` (``tools/card_scenes.py``) a card is every kept scene of one body;
-    without, the tiles of one file stand in for it."""
+    without, the tiles of one file stand in for it.
 
-    out: dict = {}
+    ``rank`` 2: the second-lowest scene, where a scene reads as its lowest tile, on cards of three or more
+    scenes (the lowest elsewhere). A minimum of noisy readings sits below the truth (0.51-0.88 of it at SNR
+    12-25, eval/noise-card-floor-real-2026-11-18.md); the second-lowest scene reads 0.90-0.92 of it in
+    ``equal`` (eval/noise-card-floor-rank-2026-11-18.md)."""
+
+    scenes: dict = {}
     for line in open(path):
         f = json.loads(line)
         if "feat" not in f or not f["feat"].get("pca18"):
             continue
         k = (card_of(f["file"], cards), f["snr"], f["scenario"])
-        out[k] = min(out.get(k, math.inf), f["feat"]["pca18"])
+        per = scenes.setdefault(k, {})
+        per[f["file"]] = min(per.get(f["file"], math.inf), f["feat"]["pca18"])
+    out = {}
+    for k, per in scenes.items():
+        v = sorted(per.values())
+        out[k] = v[rank - 1] if len(v) >= 3 and rank <= len(v) else v[0]
     return out
 
 
-def cap_arms(c, pat, b, d, floor: float, scales=SCALES) -> dict:
+def cap_arms(c, pat, b, d, floor, scales=SCALES) -> dict:
     """``cap@s``: what ships (``pcaguard@0.8``: the frame's patch-PCA model at sigma x 0.8, guarded), with its
     sigma at 18% grey capped at s times the card's floor (``card_floor``): the floor only ever lowers a frame's
     model, and only where the frame reads far above its card. Where the cap does not bind the arm is
-    ``pcaguard@0.8`` itself, reused, so only binding rows cost a blend. Arms ``D`` and ``pcaguard@0.8`` alongside."""
+    ``pcaguard@0.8`` itself, reused, so only binding rows cost a blend. Arms ``D`` and ``pcaguard@0.8`` alongside.
+    ``floor`` may be a dict ``{prefix: floor}`` (``--floor-rank``): arms ``<prefix>@s`` per floor."""
 
     from shootflow.noise_pca import estimate_noise_pca, sigma18
     from shootflow.xtrans_demosaic import guard_profile, noise_aware
@@ -182,13 +193,15 @@ def cap_arms(c, pat, b, d, floor: float, scales=SCALES) -> dict:
     own = sigma18(tuple(ship))
     g, _ = guard_profile(c, pat, tuple(ship))
     out = {"D": d, "pcaguard@0.8": noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)}
-    for s in scales:
-        lim = s * floor
-        if own <= lim or own <= 0:
-            out[f"cap@{s:g}"] = out["pcaguard@0.8"]
-            continue
-        g, _ = guard_profile(c, pat, tuple(ship * (lim / own) ** 2))
-        out[f"cap@{s:g}"] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)
+    floors = floor if isinstance(floor, dict) else {"cap": floor}
+    for prefix, fl in floors.items():
+        for s in scales:
+            lim = s * fl
+            if own <= lim or own <= 0:
+                out[f"{prefix}@{s:g}"] = out["pcaguard@0.8"]
+                continue
+            g, _ = guard_profile(c, pat, tuple(ship * (lim / own) ** 2))
+            out[f"{prefix}@{s:g}"] = noise_aware(c, pat, bilinear=b, directional_out=d, noise=g)
     return out
 
 
@@ -228,6 +241,8 @@ def sweep(argv) -> int:
     ap.add_argument("--card", help="``--features-only`` rows: arms D, true, pcaguard@0.8 and card@s only (``card_arms``)")
     ap.add_argument("--cap", action="store_true",
                     help="with ``--card``: arms D, pcaguard@0.8 and cap@s only (``cap_arms``)")
+    ap.add_argument("--floor-rank", help="with ``--cap``: comma-separated floor ranks (``card_floor``), arms "
+                    "``cap@s`` for rank 1 and ``capR@s`` for rank R")
     ap.add_argument("--cards", help="``tools/card_scenes.py`` output: skip repeat scenes, split tune/held by body, "
                     "and take ``--card`` floors over a body's scenes instead of one file's tiles")
     ap.add_argument("--features-only", action="store_true",
@@ -238,7 +253,9 @@ def sweep(argv) -> int:
     scales = tuple(float(x) for x in args.scales.split(",")) if args.scales else SCALES
     scenarios = args.scenario or ["equal", "wb"]
     cards = json.load(open(args.cards)) if args.cards else None
+    ranks = [int(x) for x in args.floor_rank.split(",")] if args.floor_rank else [1]
     card = card_floor(args.card, cards) if args.card else None
+    rank_floors = ({r: card_floor(args.card, cards, r) for r in ranks} if args.card and args.floor_rank else None)
 
     import rawpy
 
@@ -288,7 +305,10 @@ def sweep(argv) -> int:
                     d = directional(c, pat)
                     cps, lps = {}, {}
                     feat = features(c, pat) if args.pca else None
-                    floor = card[(card_of(name, cards), snr, sc)] if card else None
+                    key = (card_of(name, cards), snr, sc)
+                    floor = card[key] if card else None
+                    if rank_floors:
+                        floor = {("cap" if r == 1 else f"cap{r}"): rank_floors[r][key] for r in ranks}
                     arms = (cap_arms(c, pat, b, d, floor, scales) if card and args.cap else
                             card_arms(c, pat, b, d, model, floor, scales) if card else
                             arms_for(c, pat, b, d, model, scales, pcts, args.pca, args.pca_texture))
