@@ -45,7 +45,7 @@ def executed_cheapest_mean(plan, actual, windows, frac):
 def case_costs(store_price, hp_price, scale, case, frac=0.25):
     """(store, heat pump) levelised cost of heat in EUR/kWh at the given electricity prices."""
     s, n, _w, _name = case
-    r = store_lcoh(TD, "sand", scale, SCALES[scale], n, s, store_price, charge_frac=frac)
+    r = store_lcoh(TD, "sand", scale, SCALES[scale], n, s, store_price, charge_frac=frac, accounting="first-charge")  # pinned: see energy-thermal-cost README, known gap
     hc, he = hp_lcoh(TD, scale, SCALES[scale], hp_price)
     return r["total"], hc + he
 

@@ -8,7 +8,7 @@ imported unchanged). Every capital cost, fixed O&M, lifetime and efficiency is r
 import csv
 from pathlib import Path
 
-from energy_thermal import SAND, WATER, INSULATION, Medium, size_for_delivery
+from energy_thermal import SAND, WATER, INSULATION, Medium, Store, size_for_delivery
 
 SAND_HOT, SAND_CUT = 500.0, 100.0
 WATER_HOT, WATER_CUT = 90.0, 40.0
@@ -66,8 +66,66 @@ def resistive_lcoh(td, scale, annual_kwh, price, rate=0.04, flh=2000.0):
     return _annual(kw * t["investment"], t, rate) / annual_kwh, price / t["efficiency"]
 
 
+def _advance(s, days, dt_h=6.0):
+    """Run the store `days` in equal steps of at most dt_h hours (so a short idle gap is not rounded away)."""
+    if days <= 0:
+        return
+    n = max(1, int(-(-days * 24 // dt_h)))
+    dt = days * 86400.0 / n
+    for _ in range(n):
+        s.step(dt)
+
+
+def cycle_steady(medium, volume, standby_days, period_days, t_hot, t_cut, ins_t, insulation, t_amb=T_AMB,
+                 tol=1e-6, max_cycles=400):
+    """Repeat charge -> stand -> discharge -> idle until the cycle repeats itself (cyclic steady state).
+
+    Each cycle: the medium is charged instantly to a uniform t_hot (the electricity put in is the heat to lift
+    every shell from where the last cycle left it, not from ambient), stands `standby_days`, gives up its heat
+    down to a mean of t_cut (the same ideal exchanger `Store.usable_kwh` assumes, leaving the medium uniform at
+    t_cut), then idles until the next charge, `period_days` after the last. The insulation keeps the heat it
+    soaked up. Returns (heat in per cycle kWh, heat delivered per cycle kWh, cycles run). The first cycle is
+    `energy_thermal`'s cold start; later ones bill only what the store lost.
+    """
+    s = Store(medium, volume, ins_t, insulation=insulation, t_amb=t_amb)
+    nm, cap = s.n_med, s.cap
+    c_med = sum(cap[:nm])
+    prev = None
+    for k in range(1, max_cycles + 1):
+        heat_in = sum(cap[i] * (t_hot - s.T[i]) for i in range(nm)) / 3.6e6
+        s.charge(t_hot)
+        _advance(s, standby_days)
+        out = max(0.0, c_med * (s.mean_medium_temp() - t_cut) / 3.6e6)
+        if out > 0:
+            for i in range(nm):
+                s.T[i] = t_cut
+        _advance(s, period_days - standby_days)
+        if prev is not None and abs(heat_in - prev[0]) <= tol * heat_in and abs(out - prev[1]) <= tol * max(out, 1e-12):
+            return heat_in, out, k
+        prev = (heat_in, out)
+    return heat_in, out, max_cycles
+
+
+def size_steady(medium, kwh, standby_days, period_days, t_hot, t_cut, ins_t, insulation, t_amb=T_AMB):
+    """Smallest volume whose store delivers `kwh` per cycle at cyclic steady state, and its (heat in, out, cycles).
+
+    Warm insulation loses less than cold, so this volume is at most the cold-start one from
+    `size_for_delivery`, which brackets the bisection from above."""
+    v_cold, _ = size_for_delivery(medium, kwh, standby_days, t_hot, t_cut, ins_t, insulation=insulation, t_amb=t_amb)
+    if v_cold is None:
+        return None, None
+    lo, hi = 0.0, v_cold
+    while hi - lo > 1e-7 * v_cold:
+        mid = (lo + hi) / 2
+        if cycle_steady(medium, mid, standby_days, period_days, t_hot, t_cut, ins_t, insulation, t_amb)[1] < kwh:
+            lo = mid
+        else:
+            hi = mid
+    return hi, cycle_steady(medium, hi, standby_days, period_days, t_hot, t_cut, ins_t, insulation, t_amb)
+
+
 def store_lcoh(td, kind, scale, annual_kwh, cycles, standby_days, price, rate=0.04, ins_t=0.5,
-               cost_scale=1.0, charge_frac=0.25):
+               cost_scale=1.0, charge_frac=0.25, accounting="steady"):
     """Resistance-charged store: charged once per cycle, held `standby_days`, then delivers annual_kwh/cycles.
 
     The store is sized with `size_for_delivery` so that it still holds that much heat after standing.
@@ -75,7 +133,17 @@ def store_lcoh(td, kind, scale, annual_kwh, cycles, standby_days, price, rate=0.
     per-kWh cost times `cost_scale`, plus a charger sized to charge in `charge_frac` of the cycle period.
     Returns a dict (EUR/kWh parts and physical results). The heat exchanger and any discharge-side
     equipment are not costed (no sourced figure for a sand-to-water exchanger): this favours the store.
+
+    `accounting="steady"` (default since 2026-11-18) sizes and bills the store at cyclic steady state
+    (`cycle_steady`): a cycling store is recharged from its cut-off temperature with warm insulation.
+    `accounting="first-charge"` is the earlier rule, kept so the projects that pinned it still reproduce:
+    every cycle billed as a first charge from ambient, the store sized with cold insulation. It overstates a
+    cycling store's electricity (quality audit 2026-11-17, portfolio/quality/audits/2026-11-17-energy-thermal-cost.json).
     """
+    if accounting not in ("steady", "first-charge"):
+        raise ValueError("accounting must be 'steady' or 'first-charge', not %r" % (accounting,))
+    if kind not in ("sand", "water"):
+        raise ValueError("kind must be 'sand' or 'water', not %r" % (kind,))
     per_cycle = annual_kwh / cycles
     if kind == "sand":
         med, hot, cut, ins, st = SAND, SAND_HOT, SAND_CUT, INSULATION, td["Sand-store"]
@@ -89,12 +157,19 @@ def store_lcoh(td, kind, scale, annual_kwh, cycles, standby_days, price, rate=0.
         store_eur_per_kwh = st["investment"]
         chg_eur_per_kw = chg["investment"]
     chg_eff = chg["efficiency"]
-    v, s = size_for_delivery(med, per_cycle, standby_days, hot, cut, ins_t, insulation=ins, t_amb=T_AMB)
-    if v is None:
-        return None
-    usable_full_kwh = v * med.rho * med.c * (hot - cut) / 3.6e6
-    heat_in_kwh = v * med.rho * med.c * (hot - T_AMB) / 3.6e6
     period_h = 365.0 * 24 / cycles
+    n_conv = None
+    if accounting == "steady":
+        v, res = size_steady(med, per_cycle, standby_days, period_h / 24, hot, cut, ins_t, ins)
+        if v is None:
+            return None
+        heat_in_kwh, _, n_conv = res
+    else:
+        v, _ = size_for_delivery(med, per_cycle, standby_days, hot, cut, ins_t, insulation=ins, t_amb=T_AMB)
+        if v is None:
+            return None
+        heat_in_kwh = v * med.rho * med.c * (hot - T_AMB) / 3.6e6
+    usable_full_kwh = v * med.rho * med.c * (hot - cut) / 3.6e6
     charger_kw = heat_in_kwh / (charge_frac * period_h)
     store_cap = _annual(usable_full_kwh * store_eur_per_kwh * cost_scale, st, rate)
     chg_cap = _annual(charger_kw * chg_eur_per_kw, chg, rate)
@@ -102,6 +177,7 @@ def store_lcoh(td, kind, scale, annual_kwh, cycles, standby_days, price, rate=0.
     q = annual_kwh
     return {"volume_m3": v, "usable_full_kwh": usable_full_kwh, "heat_in_kwh": heat_in_kwh,
             "charger_kw": charger_kw, "delivered_per_in": per_cycle / heat_in_kwh,
+            "accounting": accounting, "cycles_to_steady": n_conv,
             "store_cap": store_cap / q, "charger_cap": chg_cap / q, "energy": elec / q,
             "total": (store_cap + chg_cap + elec) / q}
 

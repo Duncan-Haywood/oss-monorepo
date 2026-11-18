@@ -66,7 +66,7 @@ def diff(year, scale, case, m_store=1.0, m_hp=1.0, frac=0.25, mode="table", t_si
     series, hp_p = prices(year)
     td = scaled(m_store, m_hp)
     s, n, w, _ = case
-    r = store_lcoh(td, "sand", scale, SCALES[scale], n, s, cheapest_mean(series, w, frac), charge_frac=frac)
+    r = store_lcoh(td, "sand", scale, SCALES[scale], n, s, cheapest_mean(series, w, frac), charge_frac=frac, accounting="first-charge")  # pinned: see energy-thermal-cost README, known gap
     if mode == "table":
         hc, he = hp_lcoh(td, scale, SCALES[scale], hp_p)
     else:
