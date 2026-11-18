@@ -311,6 +311,7 @@ node cli.mjs model.ifcxml spec.ids              # ifcXML, or an .ifczip, the sam
 node cli.mjs model.ifc spec.ids --json          # full report
 node cli.mjs model.ifc spec.ids --bcf out.bcfzip --max-failures 20
 node cli.mjs --audit spec.ids                   # is the IDS itself valid? exit 1 if not
+node cli.mjs --fix spec.ids -o spec-fixed.ids   # repair its ids.xsd faults; exit 1 if some need a person
 node cli.mjs model.ifc spec.ids --no-audit      # run invalid specifications as written
 ```
 
@@ -329,6 +330,32 @@ ifcXML (entity for entity, `iN` for `#N`) and `samples/tiny-house.ifczip` the
 `.ifc` zipped by Python's `zipfile`.
 
 No API key, account or server is involved, so there is nothing to configure.
+
+### Repairing an IDS that validating tools refuse (2026-11-18)
+
+An IDS that breaks `ids.xsd` is refused whole by IfcTester, the
+IDS-Audit-tool and other tools that validate first; 12 of 65 public IDS
+files do, most of them IDS 0.9 exports. Most of those faults have one right
+answer, so `fix.mjs` makes the edit: IDS 0.9's `minOccurs` moved from
+`<specification>` to `<applicability>` and turned into `cardinality` on
+facets, `<name>` and `datatype` in a property facet renamed `<baseName>` and
+`dataType`, `IFC4X3` written `IFC4X3_ADD2`, the schema URL used as namespace
+replaced, bare text wrapped in `<simpleValue>`, children put in schema order,
+a bare `&` escaped. It edits the file's own text, so comments and layout stay,
+and lists each change by line. On the page: audit the IDS, then **Download
+repaired IDS**. On the command line: `node cli.mjs --fix spec.ids -o
+spec-fixed.ids`.
+
+Checked (`eval/fix-structure-2026-11-18.md`): files with no fault come back
+byte for byte (682 of 682); the checker reads the same specifications from
+every repaired copy as from its original (217 of 217); 198 of the 217 are
+valid against IfcTester's `ids.xsd` afterwards, and structure.mjs agrees with
+ids.xsd on all 217. Of the 12 public files, 6 come back valid and 4 keep one
+or two faults that need a person (an author that is not an e-mail address, a
+classification with no system). Building it found that the reader took three
+IDS 0.9 forms as "anything" (a property facet's `<name>`, `datatype`, a value
+with no `<simpleValue>`); it now reads them as written, which changes 48
+facets in 8 public files and nothing in buildingSMART's suite.
 
 ### On every commit: GitHub Action, JUnit and annotations (2026-11-17)
 
