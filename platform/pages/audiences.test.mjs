@@ -43,6 +43,17 @@ test('titles and descriptions are unique and fit a search result', () => {
   }
 });
 
+test('intros are short enough that "Start here" begins on the first phone screen', () => {
+  // 2026-11-18: the four household intros ran 66 to 85 words, a 263 to 368 px
+  // lede at 390 px, and pushed the first "Start here" card to 873 to 978 px,
+  // below an 844 px phone screen. Every trade page (21 to 44 words) put it at
+  // 686 to 820 px. The tool list belongs in the cards, not the lede.
+  for (const a of AUDIENCES) {
+    const words = a.intro.trim().split(/\s+/).length;
+    assert.ok(words <= 45, `${a.id}: intro is ${words} words (budget 45)`);
+  }
+});
+
 test('slug rules anchor on word boundaries where a bare word hides inside another', () => {
   // Each pair: a slug the audience must not claim because the keyword sits
   // inside an unrelated word.
