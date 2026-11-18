@@ -11,6 +11,7 @@ of what you actually buy before cutting metal.
 
 from __future__ import annotations
 
+import copy
 import functools
 import math
 from dataclasses import dataclass, field
@@ -50,6 +51,11 @@ COLLAR_SOCKET_MM = 25.0  # depth of the hose socket in the sleeve take-up's prin
 
 
 _SETTLE_BLOCK = 64
+
+
+# `Feeder._bounce_train` results by the exact inputs they read (perf note 2026-11-18); cleared when full.
+_BOUNCE_TRAINS: dict = {}
+_BOUNCE_TRAINS_MAX = 4096
 
 
 def _settle_contracts(r: float, l: float, c: float, g: float, h: float) -> bool:
@@ -3277,7 +3283,25 @@ class Feeder:
         current stops (its 1/2 L i^2 goes into the arc) and the bus relaxes toward Vpack - load x Rp. A short close can
         open before the bus has caught up, so a re-close can start from a larger gap than one long bounce leaves.
         Returns each make's peak and each break's current. RK4 at a 60th of the loop's fastest time constant."""
-        d = self.contactor_inrush()
+        return self._bounce_train(self.contactor_inrush(), load_a, n, open_frac)
+
+    def _bounce_train(self, d: dict, load_a: float, n: int, open_frac: float) -> dict:
+        """`contactor_bounce_train` given `contactor_inrush()` as `d`. The result depends only on the numbers read
+        below, and the CAD suite's mutated Feeders repeat them: 1,330 of 1,899 trains (perf note 2026-11-18), so each
+        result is kept under those numbers' exact bit patterns and handed out as a deep copy."""
+        pre = d["precharge"]
+        key = tuple((type(x).__name__, x.hex() if isinstance(x, float) else x) for x in (
+            d["r_ohm"], d["l_h"], d["c_f"], self.battery_v_max, self.precharge_ohm,
+            pre["residual_v"] if pre else None, self.contactor_bounce_ms, load_a, n, open_frac))
+        hit = _BOUNCE_TRAINS.get(key)
+        if hit is None:
+            hit = self._bounce_train_run(d, load_a, n, open_frac)
+            if len(_BOUNCE_TRAINS) >= _BOUNCE_TRAINS_MAX:
+                _BOUNCE_TRAINS.clear()
+            _BOUNCE_TRAINS[key] = hit
+        return copy.deepcopy(hit)
+
+    def _bounce_train_run(self, d: dict, load_a: float, n: int, open_frac: float) -> dict:
         r, l, c = d["r_ohm"], d["l_h"], d["c_f"]
         vp = self.battery_v_max
         rp = self.precharge_ohm + r if self.precharge_ohm > 0 else math.inf
@@ -3358,9 +3382,9 @@ class Feeder:
         """Every bounce train in `bounce_counts` x `bounce_open_fracs`, with the idle loads and with the stepper driver
         enabled, and the worst make and break of each."""
         stepper = next(b for b in self.power_distribution()["branches"] if b["name"] == "azimuth stepper driver")
-        out = {}
+        d, out = self.contactor_inrush(), {}  # once per call, not once per train (perf note 2026-11-18)
         for name, load in (("idle", self.bus_idle_a), ("stepper enabled", self.bus_idle_a + stepper["run_a"])):
-            runs = [self.contactor_bounce_train(load, n, f) for n in self.bounce_counts for f in self.bounce_open_fracs]
+            runs = [self._bounce_train(d, load, n, f) for n in self.bounce_counts for f in self.bounce_open_fracs]
             worst = max(runs, key=lambda x: x["peak_a"])
             out[name] = {"runs": runs, "worst": worst, "break_a": max(x["break_a"] for x in runs),
                          "arc_j": max(x["arc_j"] for x in runs), "makes_max": max(len(x["makes"]) for x in runs)}
