@@ -1,5 +1,7 @@
 # capture-sync research log
 
+## 2026-11-18 · Step 3j claimed (envelope-normalised GCC on LibriWASN's real phones with real recorded noise); plan to follow before the run
+
 ## 2026-11-18 · Step 3i outcome: a kurtosis switch between plain and normalised GCC does no better than always normalising; speech is itself bursty, so the fitted threshold sends 94-100% of windows to `fn`
 - **Ran as planned**, no code changed after the run. 62,000 windows collected in about 9 min on 4 cores; scoring under a minute. The figure was drawn once.
 - **(a) Replay: held.** 62 of 62 raw cells equal step 3c's and 62 of 62 `fn` cells equal step 3h's.
