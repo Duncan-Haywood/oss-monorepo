@@ -7,18 +7,22 @@
   "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
   "follow_up_inputs": [],
   "model": "claude-opus-5-5",
-  "models_seen": [],
-  "started": null,
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T03:06:06Z",
   "ended": "2026-11-18T03:12:48Z",
-  "wall_minutes": null,
-  "tokens_in": null,
-  "tokens_out": null,
-  "cost_usd": null,
-  "tool_calls": null,
-  "task": null,
-  "projects": [],
-  "pr": null,
-  "repo": null,
+  "wall_minutes": 17.63,
+  "tokens_in": 3717783,
+  "tokens_out": 24618,
+  "cost_usd": 1.9733,
+  "tool_calls": 39,
+  "task": "For Other Minds story 'The Older the Likelier' from the BIBLE.md proposal",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17157",
+  "repo": "Duncan-Haywood/oss-monorepo",
   "commits": [],
   "lines_added": null,
   "lines_removed": null,
@@ -26,14 +30,107 @@
   "ci_failures_before_green": null,
   "review_findings": null,
   "tests_added": null,
-  "outcome": null,
-  "errors": [],
+  "outcome": "success",
+  "errors": [
+    "First post front matter had a 162-char description and 77-char seo_title; check_post_frontmatter caught it and both were shortened."
+  ],
   "integrity_issues": [],
-  "doc_friction": [],
-  "deviations": [],
-  "writeups": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Committing the run record while the detached sweep ran voided three workflows (UNSTABLE CHECKOUT) even though the handoff message says committing already-written files is fine; the record had been created (untracked) after the sweep started, so committing it changed the tracked tree."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (577 MB > 400 MB).",
+      "did": "Landed text only, no audio, no podcast option.",
+      "result": "Story is on the shelf as text only, as the prompt prescribes."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-an-89-percent-chance-for-a-group-whose-youngest-member-is-76.md"
+  ],
   "goal": null,
-  "notes": "",
+  "notes": "Creative track. Project: hearth-and-horizon, For Other Minds shelf, slug the-older-the-likelier (Gott's 1993 Copernican survival argument on a parish bequest; t/(t+10) gives 88.9%, 81.8%, 44.4%, 4.8%; all dates checked with datetime). Frances of Rome proposal was already claimed by open PR #17153, so I took the unclaimed For Other Minds one. Added a new For Other Minds proposal 'The fortieth cut' (forking paths, 1-0.95^40 = 87%). node --test in the venture: 19/19 pass. Local --for-changes sweep: 11/11 selected workflows passed, but ventures-tests, portfolio-validate and portfolio-pages were voided by the record commit; remote CI for those passed (changed-ventures, validate, build, test success).",
   "corrections": [],
-  "redteam": null
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e707b0ef-6117-5e99-803f-9c7b19b1e050",
+    "transcripts": 1,
+    "first": "2026-11-18T03:06:06Z",
+    "last": "2026-11-18T03:23:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 86,
+        "output": 24618,
+        "thinking": 7521,
+        "cache_read": 3623199,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94498,
+        "api_equivalent_usd": 1.9733,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 86,
+      "output": 24618,
+      "thinking": 7521,
+      "cache_read": 3623199,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94498,
+      "api_equivalent_usd": 1.9733,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 39,
+    "tools": {
+      "Bash": 32,
+      "Write": 2,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.63,
+      "active_minutes": 7.6,
+      "model_minutes": 5.23,
+      "tool_minutes": 2.37,
+      "waiting_on_human_minutes": 10.03,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a 3,500-word short story with its worked model, a bible proposal and a 600-word post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 304.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
 }
