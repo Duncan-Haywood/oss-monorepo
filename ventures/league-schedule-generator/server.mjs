@@ -7,6 +7,7 @@
 // Optional reminders on your own mail account (off unless SMTP_HOST is set): SMTP_HOST, SMTP_PORT,
 // SMTP_USER, SMTP_PASS, SMTP_FROM, and REMINDER_TO (the organiser's address, copied on every reminder).
 // Two days before a game, a team still short of players gets one email (mailer.mjs).
+// Team sign-ups (registration.mjs): /register is public while the organiser has sign-ups open in /admin.
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
@@ -14,6 +15,7 @@ import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeam
 import { pathToFileURL } from "node:url";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
+import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
 const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts"];
@@ -23,7 +25,7 @@ const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(Strin
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
 const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
-export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], availability: {}, remindersSent: {} }; }
+export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [], availability: {}, remindersSent: {}, registrations: [], approvedSignups: [], regSeq: 0 }; }
 
 const MAX_PENDING = 100;
 /** A score a team captain sends from the league page, as a pending request: team indexes and goals, nothing free-form. */
@@ -110,16 +112,24 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
   const waiting = pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "";
   const area = (name, label) => `<label>${label}<textarea name="${name}">${esc(f[name] ?? "")}</textarea></label>`;
-  return page("League admin", `${note}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
+  const rs = regSettings(f), signups = adminRegistrationsHtml(state, key);
+  return page("League admin", `${note}${signups}${waiting}${short}${csv}${parseNotes ? `<ul class="err">${parseNotes}</ul>` : ""}
 <form method="post" action="/admin/save?key=${k}">
 <label>Season start (YYYY-MM-DD)<input name="start" value="${esc(f.start)}"></label>
 <label>Weekdays, comma separated (${WEEKDAYS.join(" ")})<input name="weekdays" value="${esc((f.weekdays || []).join(", "))}"></label>
 <label>Play-off spots (0 for none)<input name="playoff" value="${esc(f.playoff ?? 0)}"></label>
 <label>Players a team needs on the night (0 = do not flag short teams)<input name="minPlayers" inputmode="numeric" value="${esc(f.minPlayers ?? 0)}"></label>
 <label><input type="checkbox" name="double" value="1" style="width:auto" ${f.double ? "checked" : ""}> Double round robin</label>
-${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}<p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
+${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}
+<fieldset><legend>Team sign-ups</legend>
+<label><input type="checkbox" name="regOpen" value="1" style="width:auto" ${rs.open ? "checked" : ""}> Open sign-ups at <code>/register</code> (a public page: share it anywhere)</label>
+<label>Fee per team, as you want it shown (optional), e.g. $450<input name="regFee" maxlength="60" value="${esc(f.regFee ?? "")}"></label>
+<label>Your payment page (optional, https), e.g. a Stripe, Square or PayPal payment link you made<input name="regPayUrl" value="${esc(f.regPayUrl ?? "")}"></label>
+<label>Most teams (0 = no cap; past it, sign-ups go on a waitlist)<input name="regMaxTeams" inputmode="numeric" value="${esc(f.regMaxTeams ?? 0)}"></label>
+<label>Sign-ups close after (YYYY-MM-DD, optional)<input name="regCloses" value="${esc(f.regCloses ?? "")}"></label>
+<p class="note">Approve adds the team to Teams, its players to Rosters and the captain's email to Contacts. Fees are paid on your own payment page; this server never sees a card, and you tick Paid by hand.${f.regPayUrl && !rs.payUrl ? " The payment page address is not a plain https link, so it is not shown." : ""}</p></fieldset><p class="note">${esc(mailNote)} Rosters and contacts stay in this server's state file; players see first names on the league page, never the email addresses.</p>
 <button name="act" value="save">Save</button><button name="act" value="publish">Save and publish</button></form>
-<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code></p>`);
+<p class="note">${state.published ? "Published." : "Not published: players see nothing yet."} Player link: <code>/league?t=LEAGUE_TOKEN</code>. Sign-up page: <code>/register</code> (${rs.open ? "open" : "closed"}).</p>`);
 }
 
 async function readForm(req) {
@@ -128,19 +138,47 @@ async function readForm(req) {
   return new URLSearchParams(Buffer.concat(chunks).toString("utf8"));
 }
 
-export function handler(state, save, env = process.env, clock = Date.now) {
+export function handler(state, save, env = process.env, clock = Date.now, mail = sendMail) {
   const adminKey = env.ADMIN_KEY || "", token = env.LEAGUE_TOKEN || "";
   // Throttle guessing of the two URL secrets: MAX_FAILS wrong links from one address in WINDOW_MS locks it out for the rest of the window.
-  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map();
+  const MAX_FAILS = 10, WINDOW_MS = 15 * 60 * 1000, fails = new Map(), signups = new Map();
+  const today = () => new Date(clock()).toISOString().slice(0, 10);
+  // The public sign-up page: no secret in the link, so it is closed unless the organiser opened it,
+  // and capped per address, per store and with a honeypot field.
+  async function register(req, send, who) {
+    const title = "Sign up a team";
+    const why = closedReason(state.fields, today());
+    if (req.method === "GET") return send(why ? 404 : 200, page(title, registerFormHtml(state, today())));
+    if (req.method !== "POST") return send(405, "method not allowed\n", "text/plain", { allow: "GET, POST" });
+    if (why) return send(404, page(title, `<p>${esc(why)}</p>`));
+    const form = await readForm(req);
+    if (!form) return send(413, "too large\n", "text/plain");
+    const r = parseRegistration(form, namesInUse(state.fields, state.registrations || []));
+    if (r.spam) return send(200, page("Signed up", "<p class=\"ok\">Thanks.</p>"));
+    const values = Object.fromEntries(["team", "captain", "email", "phone", "players", "note"].map((k) => [k, String(form.get(k) ?? "")]));
+    if (r.error) return send(400, page(title, `<p class="err">${esc(r.error)}</p>${registerFormHtml(state, today(), values)}`));
+    if (!allowSignup(signups, who, clock())) return send(429, page(title, `<p class="err">Too many sign-ups from this connection in the last hour. Try again later.</p>`));
+    const a = addRegistration(state, r.req, clock());
+    if (a.error) return send(429, page(title, `<p class="err">${esc(a.error)}</p>`));
+    save();
+    const cfg = smtpConfig(env);
+    if (cfg && !cfg.error) {
+      const base = publicBase(req, env);
+      Promise.resolve().then(() => mail(cfg, signupEmail(state, a.reg, { organiser: EMAIL.test(env.REMINDER_TO || "") ? env.REMINDER_TO : "", registerUrl: base ? `${base}/register` : "" })))
+        .catch((e) => console.error(`sign-up email for ${a.reg.team} not sent: ${e.message}`));
+    }
+    return send(200, page(a.reg.status === "waitlist" ? "On the waitlist" : "Signed up", registeredHtml(state, a.reg)));
+  }
   return async (req, res) => {
     const send = (code, body, type = "text/html; charset=utf-8", extra = {}) => { res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", ...extra }); res.end(body); };
     const url = new URL(req.url, "http://x");
     if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
     if (!adminKey || !token) return send(503, "Set ADMIN_KEY and LEAGUE_TOKEN.\n", "text/plain");
     const isAdmin = url.pathname.startsWith("/admin"), isLeague = url.pathname.startsWith("/league");
-    if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
     const hops = String(req.headers["x-forwarded-for"] || "").split(",").map((h) => h.trim()).filter(Boolean);
     const who = hops.length ? hops[hops.length - 1] : req.socket.remoteAddress, now = Date.now();
+    if (url.pathname === "/register") return register(req, send, who);
+    if (!isAdmin && !isLeague) return send(404, "not found\n", "text/plain");
     let rec = fails.get(who);
     if (rec && now > rec.until) { fails.delete(who); rec = undefined; }
     if (rec && rec.n >= MAX_FAILS) return send(429, "too many wrong links; try again later\n", "text/plain", { "retry-after": String(Math.ceil((rec.until - now) / 1000)) });
@@ -215,6 +253,9 @@ export function handler(state, save, env = process.env, clock = Date.now) {
       f.double = form.get("double") === "1";
       f.playoff = Math.trunc(Number(form.get("playoff")) || 0);
       f.minPlayers = Math.min(99, Math.max(0, Math.trunc(Number(form.get("minPlayers")) || 0)));
+      f.regOpen = form.get("regOpen") === "1";
+      for (const k of ["regFee", "regPayUrl", "regCloses"]) f[k] = String(form.get(k) ?? "").trim().slice(0, 500);
+      f.regMaxTeams = regSettings({ regMaxTeams: form.get("regMaxTeams") }).maxTeams;
       state.fields = f;
       const out = buildLeague(f);
       if (form.get("act") === "publish") {
@@ -223,6 +264,22 @@ export function handler(state, save, env = process.env, clock = Date.now) {
       }
       save();
       return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(out.error ? "Saved, but: " + out.error : "Saved." + (out.warnings.length ? " " + out.warnings.length + " warning(s): " + out.warnings[0] : ""))}` });
+    }
+    if (req.method === "GET" && url.pathname === "/admin/signups.csv") {
+      return send(200, "\ufeff" + registrationsCsv(state), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="signups.csv"', "cache-control": "no-store" });
+    }
+    if (req.method === "POST" && url.pathname === "/admin/signup") {
+      const id = Number(form.get("id")), act = form.get("act");
+      const r = act === "approve" ? approveRegistration(state, id) : act === "decline" ? declineRegistration(state, id) : act === "paid" ? togglePaid(state, id) : { error: "Unknown action." };
+      if (r.error) return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(r.error)}` });
+      save();
+      let note = act === "approve" ? `${r.reg.team} added to Teams, Rosters and Contacts.` : act === "decline" ? `${r.reg.team} declined (the captain is not emailed; tell them yourself).` : `${r.reg.team} marked ${r.reg.paid ? "paid" : "not paid"}.`;
+      if (act === "approve") {
+        const out = buildLeague(state.fields);
+        if (out.error) note += ` The league does not build yet: ${out.error}`;
+        else if (state.published) note += " The league is published, so the schedule now includes this team. If the season has started, add a Late teams line (YYYY-MM-DD Team) so its earlier games move instead of being missed.";
+      }
+      return send(303, "", "text/plain", { location: `${here}&note=${encodeURIComponent(note)}` });
     }
     if (req.method === "POST" && url.pathname === "/admin/result") {
       const i = Number(form.get("i")), r = (state.pending || [])[i];
