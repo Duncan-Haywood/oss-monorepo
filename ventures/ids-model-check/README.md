@@ -702,6 +702,14 @@ Every report is identical.
    aside; each remaining difference was traced to the files (values the XML
    writer drops, STEP written to an older IFC4 draft, the two halves of a few
    pairs being different exports). No IFC4X3 ifcXML file was found in public.
+   Later the same day the reader cut IfcBSplineSurface control points, written
+   flat, into rows from the knot data (sum of U multiplicities minus U degree
+   minus 1 rows): `basin-advanced-brep` became an identical graph (17 STEP-only
+   entities to 0), 13 pairs identical, 25 once unreachable STEP entities are set
+   aside, GlobalId-paired values 5,702 identical and 80 different (was 5,695 and
+   87); the cube's 4 surfaces still differ only by `SelfIntersect`, `.U.` in STEP
+   and `false` in the XML (`eval/ifcxml-twins-2026-11-18.md`, "B-spline control
+   points").
 
 Speed (one core, Node 22): Schultz Residence 1.4 s for seven specifications;
 IfcTester (C++ parser) took 0.6-0.7 s for the same work. This tool is not
@@ -758,7 +766,8 @@ faster than IfcTester; its point is needing no install.
 - ifcJSON is not read. ifcXML is checked on 9 real documents from about
   seven exporters and 43 IFC4 STEP/ifcXML twins, not on every tool's output,
   and on no real IFC4X3 file (none was found); an IfcBSplineSurface's control
-  points, a list of rows written flat, stay one flat list; the ifcXML reader holds the whole
+  points written flat are cut into rows from its knot counts, and left flat
+  (with a note) when the counts do not multiply out; the ifcXML reader holds the whole
   XML tree in memory, a few times the heap of the same model as STEP.
 - The model's text is held in memory with a small record per entity; an
   entity's arguments are read when a check first needs them, and geometry's

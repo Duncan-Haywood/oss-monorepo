@@ -320,3 +320,48 @@ test("Annex E ifcXML forms: the checker counts one wall, as in the STEP twin", (
   const r = check(ids, ggXml);
   for (const s of r.specs.filter((s) => /^Walls /.test(s.name))) assert.equal(s.applicable, 1, s.name);
 });
+
+// IfcBSplineSurface.ControlPointsList written as one flat list of points
+// (buildingSMART's Annex E cube-advanced-brep and basin-advanced-brep): the
+// knot data gives the grid, sum(UMultiplicities) - UDegree - 1 rows of
+// sum(VMultiplicities) - VDegree - 1 points.
+const bsplineXml = (uMult, extra = "") => `<?xml version="1.0" encoding="UTF-8"?>
+<ifc:ifcXML xmlns:ifc="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.buildingsmart-tech.org/ifcXML/IFC4/Add2">
+<IfcBSplineSurfaceWithKnots UDegree="3" VDegree="1" SurfaceForm="unspecified" UClosed="false" VClosed="false" SelfIntersect="false" UMultiplicities="${uMult}" VMultiplicities="2 2" UKnots="0 1224,74487139159" VKnots="3 4" KnotSpec="unspecified"${extra}>
+ <ControlPointsList>
+  <IfcCartesianPoint id="p1" Coordinates="-0,5 0,5 0" /><IfcCartesianPoint id="p2" Coordinates="-0,5 -0,5 0" />
+  <IfcCartesianPoint id="p3" Coordinates="-0,56 0,27 0,33" /><IfcCartesianPoint id="p4" Coordinates="-0,27 -0,56 0,33" />
+  <IfcCartesianPoint id="p5" Coordinates="-0,62 0,04 0,67" /><IfcCartesianPoint id="p6" Coordinates="-0,04 -0,62 0,67" />
+  <IfcCartesianPoint id="p7" Coordinates="-0,68 -0,18 1" /><IfcCartesianPoint id="p8" Coordinates="0,18 -0,68 1" />
+ </ControlPointsList>
+</IfcBSplineSurfaceWithKnots>
+</ifc:ifcXML>`;
+
+test("a B-spline surface's flat control points are cut into rows from its knot counts", () => {
+  const m = new Model(bsplineXml("4 4"), schemas);
+  const s = [...m.entities.values()].find((e) => e.type === "IFCBSPLINESURFACEWITHKNOTS");
+  const pts = s.args[2];
+  assert.equal(pts.length, 4);
+  assert.ok(pts.every((r) => Array.isArray(r) && r.length === 2));
+  // Row-major as STEP writes it: ((#p1,#p2),(#p3,#p4),...).
+  const xmlId = (r) => m.entities.get(r.ref).xmlId;
+  assert.deepEqual(pts.map((r) => r.map(xmlId)), [["p1", "p2"], ["p3", "p4"], ["p5", "p6"], ["p7", "p8"]]);
+  assert.ok(!m.parseErrors.some((e) => /ControlPointsList/.test(e)));
+});
+
+test("a B-spline surface whose knot counts do not fit its points is left flat and named", () => {
+  const m = new Model(bsplineXml("4 3"), schemas);
+  const s = [...m.entities.values()].find((e) => e.type === "IFCBSPLINESURFACEWITHKNOTS");
+  assert.equal(s.args[2].length, 8);
+  assert.ok(s.args[2].every((x) => x && x.ref));
+  assert.ok(m.parseErrors.some((e) => /IFCBSPLINESURFACEWITHKNOTS ControlPointsList written as 8 points/.test(e)), m.parseErrors.join("; "));
+});
+
+test("the rational subtype's weights are cut into the same grid", () => {
+  const xml = bsplineXml("4 4", ' WeightsData="1 1 0,5 0,5 0,5 0,5 1 1"').replace(/IfcBSplineSurfaceWithKnots/g, "IfcRationalBSplineSurfaceWithKnots");
+  const m = new Model(xml, schemas);
+  const s = [...m.entities.values()].find((e) => e.type === "IFCRATIONALBSPLINESURFACEWITHKNOTS");
+  const weights = s.args.find((a) => Array.isArray(a) && a.length === 4 && a.every((r) => Array.isArray(r) && typeof r[0] === "number"));
+  assert.deepEqual(weights, [[1, 1], [0.5, 0.5], [0.5, 0.5], [1, 1]]);
+  assert.equal(s.args[2].length, 4);
+});

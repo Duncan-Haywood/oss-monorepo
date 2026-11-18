@@ -112,8 +112,9 @@ files, not the reader:
   IfcTriangulatedFaceSet.PnIndex (the pre-ADD2 NormalIndex);
 - IfcBSplineSurface.ControlPointsList, a LIST [2:?] OF LIST [2:?] of points,
   written as one flat list of points: the row length is not in the XML
-  attribute, so it is left flat (6 surfaces in `basin-advanced-brep` and
-  `cube-advanced-brep`). No IDS facet reads it.
+  attribute, so it was left flat (6 surfaces in `basin-advanced-brep` and
+  `cube-advanced-brep`). No IDS facet reads it. Fixed later the same day from
+  the knot data; see "B-spline control points" below.
 
 Command output, as printed (exit 0):
 
@@ -183,3 +184,54 @@ Per-pair table:
 | wall-with-opening-and-window 
 | surfaceMember 
 | ParametricFooting 
+
+## B-spline control points (later, 2026-11-18)
+
+The last reader-side difference above: IfcBSplineSurface.ControlPointsList
+written as one flat list of points. The grid's shape is not in the XML, but
+the knot data fixes it. A B-spline of degree p whose knot multiplicities are
+m has sum(m) - p - 1 control points in that direction (the rule behind
+IfcBSplineSurfaceWithKnots.UUpper/VUpper). The cube's surfaces have
+UDegree 3 with UMultiplicities (4,4), so 8 - 3 - 1 = 4 rows, and VDegree 1
+with (2,2), so 4 - 1 - 1 = 2 points per row: 8 points, as the file has. Rows
+run in U and the points in a row in V, the order STEP writes
+`((#123,#124),(#125,#126),...)` in.
+
+`ifcxml.mjs` now cuts the flat list that way for every IfcBSplineSurface
+subtype. The rational subtype's WeightsData is the same grid and is cut the
+same way. If the knot attributes are missing, or rows times columns is not
+the number of points, the list stays flat and the model's notes name the
+class and the count. Tests: three new cases in `ifcxml.test.mjs` (a cube
+surface, knot counts that do not fit, the rational weights).
+
+Re-run (`node eval/ifcxml-twins.mjs $(sh eval/fetch-ifcxml-twins.sh --dirs)`,
+same pinned commits):
+
+| | before (the table above) | this change |
+| --- | --- | --- |
+| IDS verdicts identical | 129 of 129 | 129 of 129 |
+| pairs identical as graphs | 12 of 43 | 13 of 43 |
+| identical once unreachable STEP entities are set aside | 24 | 25 |
+| GlobalId-paired attribute values identical | 5,695 of 5,782 | 5,702 of 5,782 |
+| STEP-only IfcBSplineSurfaceWithKnots | 6 | 4 |
+
+`basin-advanced-brep` went from 17 STEP-only and 17 XML-only entities, with
+63 attribute values the same and 7 different, to 0, 0, and 70 the same with
+0 different. Its two surfaces now hash the same on both sides, and so does
+everything above them.
+
+The cube's 4 surfaces still differ, and the difference is the file's:
+STEP writes `SelfIntersect` as `.U.` and the ifcXML writes
+`SelfIntersect="false"` on all 4. That is the same IfcLogical-to-boolean
+loss as IfcMaterialLayer.IsVentilated above. Their control points now match
+row for row.
+
+`node eval/ifcxml-xbim.mjs` prints the same table as
+`eval/ifcxml-xbim-2026-11-16.md`, every file row unchanged.
+
+Summary lines as printed:
+
+```
+43 pairs; 13 identical as graphs with identical verdicts; 25 identical once 94 STEP entities nothing rooted points at are set aside; GlobalId-paired attribute values 5702 identical, 80 different; IDS verdicts 129 of 129 identical
+- IFCBSPLINESURFACEWITHKNOTS 4: e.g. cube-advanced-brep #122 [3,1,[[{"ref":123},{"ref":124}],[{"ref":125},{"ref":126}],[{"ref":127},{"ref":128}],[{"ref":129},{"ref":130}]],{"enum":"UNSPECIFIED"},false,false,{"unknown":tru
+```
