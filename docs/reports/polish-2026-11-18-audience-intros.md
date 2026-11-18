@@ -1,3 +1,8 @@
+---
+kind: polish
+topics: [design]
+date: 2026-11-18
+---
 # Polish: audience-page intros short enough for the first phone screen
 
 Date: 2026-11-18. Track: polish/0. Picked item 2 of "Still weakest" in
