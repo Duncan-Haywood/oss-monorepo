@@ -2841,3 +2841,96 @@ a fit no longer linear in the drop. Kept off the board: `controller.py` holds on
 VESC's speed loop has its own filters, ramps and anti-windup, and none of the gains here are a real ESC's. Next: log a
 real VESC in speed mode (its own rpm and current over UART, against the hall tach) through a ball, and see whether
 its recovery is the clamped ramp then the PI tail; a ramp-then-PI fit with the limit from a spin-up.
+
+## A ramp-then-PI drop fit for a speed-mode ESC (2026-11-18, after "An ESC with its own speed loop"; host-side, in `tests/`, not on the board)
+
+**The item.** The section above left a speed-mode ESC uncalibrated: its linear PI fit read up to 95% off because a
+ball drives a fast loop into the motor's current limit, and while the drive is clamped the wheel recovers on a ramp the
+PI curve lacks. The flagship's list named the next step: "a ramp-then-PI drop fit for a speed-mode ESC (limit from a
+spin-up)". `tests/speed_ramp_fit.py` is that fit, and it needs three readings per build that a ball cannot give.
+
+**The model.** The simulator's ESC (tests/loop_residual_sweep.py): a PI loop with natural frequency wn and damping z,
+its output an acceleration clamped at the limit a, the integrator frozen while clamped, and the wheel's drag w / tau.
+In shares of the speed w0 before a ball of share D:
+
+- *ramp:* e(t) = 1 - W - (1 - D - W) e^-t/tau with W = a tau / w0, while the proportional term plus the held integrator
+  (w0 / tau) asks for more than a, so until e falls to e* = (a - w0 / tau) / (2 z wn w0);
+- *tail:* from there the linear loop with the drag folded into its damping (z + 1 / (2 tau wn)), starting at e*.
+
+A ball under e* never clamps. Both pieces have closed-form revolution means, so the offset, a transient and the board's
+setpoint steps stay linear and D is a one-dimensional golden-section search per ball time. Two details mattered on the
+simulator:
+
+- The board's own trim (`ESC_SPEED_LOOP`, an integral-only loop) steps the setpoint while the ESC is clamped. The
+  clamped wheel ignores those steps, but they move the exit and leave the integrator below the new setpoint's resting
+  value. `BallResponse.plan` carries them through the clamp. Without it a 20 Hz, damping 0.4, drag 0.8 s build at
+  4,000 rpm read 10% drops 1.8-2.3% off; with it, 0.1-0.3%.
+- On a drag-bound wheel a setpoint step also moves the integrator's resting value by du / tau, so its error is
+  du (x + X / tau), not du x.
+
+**The three readings.**
+
+1. *The limit and the drag, from a spin-up* (`spinup_fit`). From rest at the current limit (VESC current mode, or a
+   setpoint above what the wheel can reach), dw/dt = a - w / tau, so the edge count is linear in a for each tau and tau is
+   a golden-section search. On 3 s spin-ups it read a and tau within 0.03% on every build, at 0 and 5 us of jitter.
+2. *The loop, from a setpoint step train* (`loop_from_steps`). The board moves its command up 2% and back four times (eight steps),
+   400 ms apart, at 1,500 rpm on a free wheel. The wheel's revolution means are closed-form in (f, z), linear in the
+   speed and the step's scale. The fit grids 1-40 Hz x 0.2-0.95, then refines. Picked within 1.5% in frequency and
+   0.05 in damping on all 32 build-tach pairs. `step_clamped` checks that a step stayed under the limit: a 2% step at
+   3,000 rpm clamped a 20 Hz, drag 0.8 s build and was read as 16 Hz, damping 0.92.
+3. *The ball,* read with both of those.
+
+**Picking the loop from the balls instead, tried first.** The ESC-lag survey picks its lag from the drill's own balls,
+so this did the same: the least summed squared rms over the 24-ball drill on a 24 x 16 grid, then refined. The loop is
+only weakly fixed by the balls, though. A 2 Hz loop picked at the grid's 1.90 Hz read drops up to 8% off. Refining
+helped there but moved a 5 Hz build from 4.97 to 5.07 Hz, which took its worst drop from 0.65% to 4.3%. The step train
+gives the loop with no balls at all.
+
+**Measured.** The same 16 builds and 24-ball drills as `tests/speed_loop_survey.py` (2-20 Hz, damping 0.4 and 0.7, drag
+0.2 and 0.8 s, the limit at the stall acceleration 9,000 / tau rpm/s; exact and 5 us tachs, so 768 balls).
+`tests/speed_ramp_survey.py`, with eval/speed-ramp-step-2026-11-18.txt (`--step`) and
+eval/speed-ramp-survey-2026-11-18.txt (the ball survey):
+
+| fit and loop pick | drops more than 2% off | of those unmarked | within 1% (unmarked) | worst unmarked |
+| --- | --- | --- | --- | --- |
+| linear PI, ball survey (the section above) | 592 | 21 | 95 (40) | 6.2% |
+| ramp-then-PI, ball survey | 225 | 85 | 406 (290) | 6.24% |
+| ramp-then-PI, step train | 88 | 11 | 581 (436) | 3.84% |
+| ramp-then-PI, told the true loop | 72 | 7 | 605 (450) | 2.62% |
+
+By loop, with the step train: 2 Hz builds worst 4.35% (unmarked 1.46%), 5 Hz 3.96% (2.75%), 10 Hz 18.0% (3.84%) and
+20 Hz 119% (2.76%). The linear fit's worst at its pick was 18.5%, 55%, 77% and 95%.
+
+**The mark.** A drop is marked unsure, as the board's fits are, when its standard error is over `LOOP_SE_MAX`. Two
+changes:
+
+- The standard error counts the ball's time as a fitted parameter.
+- A second gate, `SEEN_MIN` (0.05), measures how much of the ball the revolutions show: the rms over the window of the
+  part of dG/dD that no other column can stand in for, per unit drop.
+
+A 20 Hz loop on a light wheel at 1,500 rpm recovers inside the ball's own 40 ms revolution, and only the shape inside
+that revolution carries the drop. Those balls read 18-56% off with residuals of 2e-5. 0.05 was picked on these builds;
+told the true loop it keeps 351 of 384 exact-tach drops with the worst at 2.3%.
+
+**Held out.** 12 other builds (3, 7 and 14 Hz; damping 0.5 and 0.85; drag 0.3 and 0.5 s) and 24 other balls (1,200-5,000
+rpm, 4-12% drops), none of which any choice above was made on (eval/speed-ramp-step-heldout-2026-11-18.txt):
+
+- With the step train's pick, 446 drops were read of 576. 65 were more than 2% off and 60 of those were marked. The
+  worst unmarked was 2.17% (told the true loop, 1.38%).
+- The 130 unread balls are all at 1,200 rpm, where the simulator's 200 ms record before the ball holds 4 revolutions and
+  every fit here needs 5.
+
+**Not known, and not on the board.** This is still one assumed ESC: a textbook PI on an exact sensor, a hard current
+clamp, an integrator frozen while clamped. VESC's speed loop has its own filters, ramps and anti-windup, and none of the
+gains are a real ESC's. Nothing here runs on the ESP32 or the Pi. Porting it would need three things:
+
+- the board to run the spin-up and the step train and log them;
+- a frame to carry them;
+- `fit-launcher` to take the drops.
+
+That is worth doing only once a real VESC's log shows the clamped ramp and PI tail. The hardware test is unchanged: log
+a VESC in speed mode through a ball (its own rpm and current over UART, beside the hall tach). The same log gives the
+three readings above, so it checks this fit directly.
+
+    PYTHONPATH=src:tests:firmware/esp32 python tests/speed_ramp_survey.py --step [--heldout]
+    PYTHONPATH=src:tests:firmware/esp32 python -m unittest tests/test_speed_ramp_fit.py
