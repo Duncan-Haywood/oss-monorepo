@@ -468,6 +468,12 @@ Ablations: remove one error source at a time; gap 0 against 1/8 in; each aiming 
    H211 held), the H1 99.7%, and no residual changes (H212 held: the calibration error is the sensor bias alone,
    load-independent once the measured load is compensated). Left: 21 G1 and 5 H1 plan limits at 1.0 to 1.6 m grips,
    5 G1 sensor-error cases. Next: which hold row binds at those plan limits.
+53. **Hold sides per load** (done 2026-11-18, `experiments/m53_loadside/`): at 20 of the 26 remaining plan limits
+   the leg preload binds, not the hold QP (H214 refuted; the pose's sides leave 0.004 to 0.092 N m of common leg
+   margin against 0.1 N m). Choosing the hold sides per measured load recovers 31 of 33 drops, so both robots plan
+   100% of in-envelope cases (G1 1368, H1 1902), in spec (H216 held; largest recovered 0.0106 mm). Left: 2 G1
+   sensor-error cases outside milestone 51's envelope with no hold solution on any side (H215 refuted). Next: sample
+   hose loads off the 8-direction grid; the cost of side switches.
 
 ## Target venue
 

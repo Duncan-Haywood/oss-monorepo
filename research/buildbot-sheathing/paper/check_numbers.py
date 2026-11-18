@@ -62,6 +62,7 @@ M50P = E + "m50_relean/posthoc.txt"
 M51 = E + "m51_envelope/results.txt"
 M51P = E + "m51_envelope/posthoc.txt"
 M52 = E + "m52_slackcal/results.txt"
+M53 = E + "m53_loadside/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -254,6 +255,11 @@ CHECKS = [
     (M52, "inside milestone 51's envelope 1342 of 1368 (98.1%; loaded 93.0%)", "the G1 plans 1342 of the\n1368 cases inside the limits (98.1%, from 93.0%)"),
     (M52, "H213 (the slack calibration plans at every sensor-error axis on both robots): 0 cases", "plans at every sensor-error axis"),
     (M52, "  g1 | 20.0 | 519 | -0.0000 | +0.0000 | +0.0000 | 0.0107, 0.0107", "changes no residual"),
+    (M53, "H214 (hold QP is the failing stage at more than 13 of the 26 plan-limit cases): 6 of 26", "at 6 the hold QP itself fails"),
+    (M53, "  g1 | 1342 | 26 | 1368 | 1368 | 100.0%", "G1 1368 of 1368"),
+    (M53, "  h1 | 1897 | 5 | 1902 | 1902 | 100.0%", "H1 1902 of 1902"),
+    (M53, "H215 (per-load rule plans every one of the 33 drops): 31 recovered", "recovers 31 of the 33 drops"),
+    (M53, "largest 0.0106 -> held", "largest recovered residual is 0.0106 mm"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
