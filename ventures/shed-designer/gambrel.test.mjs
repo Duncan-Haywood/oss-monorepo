@@ -2,7 +2,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { buildShed, normalize, defaultDesign, PRESETS } from './model.mjs';
-import { gambrelShape, gambrelAnalysis, solveFrame, kneeRun } from './gambrel.mjs';
+import { gambrelShape, gambrelAnalysis, analyseGambrel, ANALYSIS_FIELDS, solveFrame, kneeRun } from './gambrel.mjs';
 import { integrity } from './integrity.mjs';
 import { connectionChecks } from './connections.mjs';
 import { structuralChecks } from './checks.mjs';
@@ -211,4 +211,24 @@ test('wind uplift: the 0.6D + 0.6W case reverses the frame, and ties pushed into
   const g = gambrelAnalysis(normalize({ ...PRESETS['10x10 barn'](), loft: 'none', windLoad: 20 }));
   assert.equal(g.tieBrace, true);
   assert.ok(g.rows.find((r) => r.member === 'Truss ties').ratio <= 1);
+});
+
+// gambrelAnalysis remembers answers by ANALYSIS_FIELDS (docs/history/ci-perf-2026-11-18-shed-gambrel-analysis-memo.md).
+test('the gambrel analysis memo: keyed on every field it reads, same answer as a fresh one, frozen', () => {
+  const variants = [];
+  for (const loft of ['none', 'half', 'full']) for (const windLoad of [0, 35]) for (const gambrelKnee of [0, 40]) for (const studSize of ['2x4', '2x6']) {
+    variants.push(normalize(gambrel({ loft, windLoad, gambrelKnee, studSize, width: 96 + (variants.length % 5) * 12, snowLoad: (variants.length % 4) * 20 })));
+  }
+  const read = new Set();
+  for (const d of variants) {
+    const spy = new Proxy(d, { get(t, k) { if (typeof k === 'string') read.add(k); return t[k]; } });
+    assert.deepEqual(gambrelAnalysis(d), analyseGambrel(spy));
+  }
+  assert.deepEqual([...read].sort(), [...ANALYSIS_FIELDS].sort(), 'the memo key is exactly the fields the analysis reads');
+  const d = variants[5];
+  const a = gambrelAnalysis(d);
+  assert.equal(gambrelAnalysis({ ...d, name: 'another name', length: d.length + 24 }), a, 'fields outside the key share an answer');
+  assert.notEqual(gambrelAnalysis({ ...d, snowLoad: d.snowLoad + 5 }), a, 'a field in the key does not');
+  assert.ok(Object.isFrozen(a) && Object.isFrozen(a.rows[0]) && Object.isFrozen(a.wall));
+  assert.throws(() => { a.rows[0].ratio = 0; }, TypeError);
 });
