@@ -1,0 +1,41 @@
+seed 20261118; truth: elementpath translate_pattern as IfcTester calls it; 479 IDS files read, 4 of the public ones (corpus/real) write a bare \w or \s
+corpus: 2 patterns with a bare \w, \W, \s or \S (102 probe strings)
+  both spellings taken by elementpath: 2
+  elementpath reads the xsd spelling as this checker does: 2; the letters spelling: 2
+  IfcTester reads the original differently from the standard on some probe: 1
+  xsd spelling in IfcTester = the original in this checker (the standard's meaning, kept): 2
+  letters spelling = IfcTester's reading of the original on every probe: 1
+random: 1500 patterns with a bare \w, \W, \s or \S (76500 probe strings)
+  both spellings taken by elementpath: 1500
+  elementpath reads the xsd spelling as this checker does: 1500; the letters spelling: 1500
+  IfcTester reads the original differently from the standard on some probe: 296
+  xsd spelling in IfcTester = the original in this checker (the standard's meaning, kept): 1500
+  letters spelling = IfcTester's reading of the original on every probe: 1330
+probe strings where the letters spelling and IfcTester's reading of the original part: 292
+character | \w IfcTester | \w XSD | \w letters | \s IfcTester | \s XSD | \s letters
+"a" U+0061 | yes | yes | yes | no | no | no
+"b" U+0062 | yes | yes | yes | no | no | no
+"1" U+0031 | yes | yes | yes | no | no | no
+"-" U+002D | no | no | no | no | no | no
+"_" U+005F | yes | no | yes | no | no | no
+"." U+002E | no | no | no | no | no | no
+" " U+0020 | no | no | no | yes | yes | yes
+"+" U+002B | no | yes | no | no | no | no
+"€" U+20AC | no | yes | no | no | no | no
+"°" U+00B0 | no | yes | no | no | no | no
+"^" U+005E | no | yes | no | no | no | no
+"²" U+00B2 | yes | yes | no | no | no | no
+"Ⅳ" U+2163 | yes | yes | no | no | no | no
+"́" U+0301 | no | yes | no | no | no | no
+"ा" U+093E | no | yes | no | no | no | no
+"٣" U+0663 | yes | yes | yes | no | no | no
+"Ω" U+03A9 | yes | yes | yes | no | no | no
+"ʰ" U+02B0 | yes | yes | yes | no | no | no
+"中" U+4E2D | yes | yes | yes | no | no | no
+"\t" U+0009 | no | no | no | yes | yes | yes
+"\n" U+000A | no | no | no | yes | yes | yes
+" " U+00A0 | no | no | no | yes | no | yes
+" " U+2003 | no | no | no | yes | no | yes
+"\f" U+000C | no | no | no | yes | no | no
+problems: 0
+buildingSMART test pairs with a bare \w or \s: 16; scored right as written 16, repaired xsd 16, repaired letters 16

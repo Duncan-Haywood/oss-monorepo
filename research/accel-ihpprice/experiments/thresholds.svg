@@ -1,8 +1,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 394" role="img" aria-label="Line plot against batch size B: the cost of one packed 4-bit weight fetch, in idle flop clock cycles, that ungated and clock-gated weight-stationary scheduling need to beat output-stationary, with the cheapest and dearest IHP SG13G2 packed SRAM macro as flat lines. SKY130 packed macros span 18 to 62, below every IHP macro">
 <rect width="640" height="394" fill="#fff"/>
 <text x="320.0" y="22" text-anchor="middle" font-family="sans-serif" font-size="14">Weight fetch cost WS needs, in idle-flop-cycles (IHP SG13G2, 64x70 layer)</text>
+<line x1="64" x2="624" y1="312.0" y2="312.0" stroke="#ddd"/><text x="58" y="316.0" text-anchor="end" font-family="sans-serif" font-size="11">2</text>
+<line x1="64" x2="624" y1="274.2" y2="274.2" stroke="#ddd"/><text x="58" y="278.2" text-anchor="end" font-family="sans-serif" font-size="11">5</text>
 <line x1="64" x2="624" y1="245.6" y2="245.6" stroke="#ddd"/><text x="58" y="249.6" text-anchor="end" font-family="sans-serif" font-size="11">10</text>
+<line x1="64" x2="624" y1="217.0" y2="217.0" stroke="#ddd"/><text x="58" y="221.0" text-anchor="end" font-family="sans-serif" font-size="11">20</text>
+<line x1="64" x2="624" y1="179.2" y2="179.2" stroke="#ddd"/><text x="58" y="183.2" text-anchor="end" font-family="sans-serif" font-size="11">50</text>
 <line x1="64" x2="624" y1="150.6" y2="150.6" stroke="#ddd"/><text x="58" y="154.6" text-anchor="end" font-family="sans-serif" font-size="11">100</text>
+<line x1="64" x2="624" y1="121.9" y2="121.9" stroke="#ddd"/><text x="58" y="125.9" text-anchor="end" font-family="sans-serif" font-size="11">200</text>
+<line x1="64" x2="624" y1="84.1" y2="84.1" stroke="#ddd"/><text x="58" y="88.1" text-anchor="end" font-family="sans-serif" font-size="11">500</text>
 <text x="64.0" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">2</text>
 <text x="250.7" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">4</text>
 <text x="437.3" y="354" text-anchor="middle" font-family="sans-serif" font-size="11">8</text>

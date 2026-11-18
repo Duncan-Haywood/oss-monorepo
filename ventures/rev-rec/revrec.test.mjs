@@ -177,6 +177,8 @@ test("schedule: the lock leaves future months alone and rejects a malformed mont
   // January and December are valid closes (red team 2026-11-18: a mutant rejecting 01 escaped).
   assert.equal(schedule([l], { asOf: D(2026, 3, 5), closedThrough: "2026-01" })[0].month, "2026-02");
   assert.equal(schedule([l], { asOf: D(2026, 3, 5), closedThrough: "2025-12" })[0].month, "2026-01");
+  // October is a valid close too (red team 2026-11-18, second run: a mutant rejecting 10 escaped).
+  assert.equal(schedule([l], { asOf: D(2026, 3, 5), closedThrough: "2025-10" })[0].month, "2026-01");
 });
 
 test("journal: billings debit cash, so a paid invoice leaves no receivable", () => {

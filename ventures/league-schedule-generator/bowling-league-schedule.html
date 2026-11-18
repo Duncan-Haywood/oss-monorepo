@@ -159,18 +159,42 @@ Rolling Thunder</textarea>
   import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
   const $ = (s) => document.querySelector(s);
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
-  let last = null, seed = 1;
-  function build() {
-    const status = $("#status");
+  let last = null, seed = 1, job = 0, worker = null, ticker = null;
+  // Reads the form; returns the spec to build or the input errors to show.
+  function readSpec() {
     const weeks = Number($("#weeks").value);
     const skip = parseDateList($("#skip").value);
     const pos = parseWeekList($("#positions").value, Number.isInteger(weeks) && weeks > 0 ? weeks : 60);
     const start = parseDate($("#start").value);
-    const s = bowlingSchedule({ teams: $("#teams").value, weeks, start, skipDays: skip.days, positionWeeks: pos.weeks, firstLane: Number($("#firstLane").value || 1), seed, laneAvoid: $("#avoid").value });
-    const errors = [...(s.errors || []), ...skip.errors, ...pos.errors];
-    if (errors.length) { status.innerHTML = errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>"); $("#out").hidden = true; return false; }
-    const problems = validateBowling(s);
-    const r = laneReport(s);
+    return { errors: [...skip.errors, ...pos.errors], spec: { teams: $("#teams").value, weeks, start, skipDays: skip.days, positionWeeks: pos.weeks, firstLane: Number($("#firstLane").value || 1), seed, laneAvoid: $("#avoid").value } };
+  }
+  function showErrors(errors) {
+    $("#status").innerHTML = errors.map((e) => `<span class="err">${esc(e)}</span>`).join("<br>");
+    $("#out").hidden = true;
+    return false;
+  }
+  function onMain(spec) {
+    const season = bowlingSchedule(spec);
+    return season.errors?.length ? { season } : { season, report: laneReport(season), problems: validateBowling(season) };
+  }
+  // The lane search runs in a Web Worker (bowling-worker.mjs), so a long season (several seconds
+  // with five or more limited teams) leaves the page scrolling and clickable; a newer click stops
+  // the older search. Where a worker can't start (an old browser, a file:// copy) it runs here.
+  function compute(spec) {
+    if (worker) { worker.terminate(); worker = null; }
+    const fallback = () => new Promise((ok) => setTimeout(() => ok(onMain(spec)), 20));
+    let w;
+    try { w = new Worker("./bowling-worker.mjs", { type: "module" }); } catch { return fallback(); }
+    worker = w;
+    return new Promise((ok, fail) => {
+      w.onmessage = (e) => { w.terminate(); if (worker === w) worker = null; if (e.data.ok) ok(e.data); else fail(new Error(e.data.error)); };
+      w.onerror = (e) => { e.preventDefault(); w.terminate(); if (worker === w) worker = null; fallback().then(ok, fail); };
+      w.postMessage(spec);
+    });
+  }
+  function render({ season: s, report: r, problems }) {
+    const status = $("#status");
+    if (s.errors?.length) return showErrors(s.errors);
     last = s;
     $("#sched").innerHTML = `<thead><tr><th>Week</th><th>Night</th>${s.labels.map((l) => `<th>${esc(l)}</th>`).join("")}</tr></thead><tbody>` +
       s.weeks.map((wk) => `<tr><td>${wk.week}</td><td>${esc(dayLabel(wk.day))}${wk.kind === "position" ? "<br><small>position round</small>" : ""}</td>` +
@@ -188,9 +212,24 @@ Rolling Thunder</textarea>
     $("#out").hidden = false;
     return true;
   }
-  const later = (fn) => { $("#status").textContent = "Dealing the lanes..."; setTimeout(fn, 20); };
-  $("#build").addEventListener("click", () => later(() => { seed = 1; if (build()) record("bowling_built"); }));
-  $("#again").addEventListener("click", () => later(() => { seed++; if (build()) record("bowling_reshuffled"); }));
+  async function build(event) {
+    const { errors, spec } = readSpec();
+    if (errors.length) return showErrors(errors);
+    const mine = ++job, t0 = Date.now();
+    clearInterval(ticker);
+    $("#status").textContent = "Dealing the lanes...";
+    ticker = setInterval(() => { if (mine === job) $("#status").textContent = `Dealing the lanes... ${Math.round((Date.now() - t0) / 1000)} s (the page stays usable; a long season with many lane limits can take 10 s)`; }, 1000);
+    let result;
+    try { result = await compute(spec); }
+    catch (e) { if (mine !== job) return false; clearInterval(ticker); return showErrors([e.message]); }
+    if (mine !== job) return false; // a newer click took over
+    clearInterval(ticker);
+    if (!render(result)) return false;
+    if (event) record(event);
+    return true;
+  }
+  $("#build").addEventListener("click", () => { seed = 1; build("bowling_built"); });
+  $("#again").addEventListener("click", () => { seed++; build("bowling_reshuffled"); });
   $("#csv").addEventListener("click", () => { if (!last) return; const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([bowlingCsv(last)], { type: "text/csv" })); a.download = "bowling-league-schedule.csv"; a.click(); record("bowling_csv"); });
   $("#copy").addEventListener("click", async () => { if (!last) return; try { await navigator.clipboard.writeText(bowlingText(last)); $("#status").textContent = "Copied."; record("bowling_text"); } catch { $("#status").textContent = "Copy was blocked by the browser; use the CSV instead."; } });
   $("#print").addEventListener("click", () => window.print());

@@ -330,13 +330,13 @@ flagships:
       RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x 2 tiles (177 MP); no
       public file has a tone curve (eval/panasonic-rw2-format8-grid-*). S1R II 177
       MP = LibRaw snapshot 202611, every sensel (eval/panasonic-rw2-177mp-libraw-*).
-      Next: IIQ format 8 (IQ4) and flat-field (eval/phaseone-iiq-s-*); Sony's
-      vignetting table vs an evenly lit frame; a real DNG and a
-      vignetting-calibrated lens through the pipeline's lens stage; a real evenly
-      lit frame shot wide open (corners level after lensfun's vignetting?); a second
-      maker-against-lensfun DNG pair; a real DNG carrying any opcode run only on
-      synthetic files so far, or the SDK to check them; lateral colour measured on a
-      real frame with sharp corner edges. More open items: NEXT.md.
+      IIQ 16-bit (IQ4, IQ3 100MP, Trichromatic) 2026-11-18 = LibRaw; IQ4 matrix vs
+      LibRaw's dE 16, unsettled (eval/phaseone-iiq-16bit-*). Next: the H 25 IT8.7-2
+      card raw to judge the matrices; IIQ flat-field (0x110); Sony's vignetting
+      table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
+      through the pipeline's lens stage; a real evenly lit frame shot wide open
+      (corners level after lensfun's vignetting?); a second maker-against-lensfun
+      DNG pair. More open items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-
@@ -408,13 +408,12 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "A fresh take survey with the stretched
-      offsets live" (2026-11-18: 7 ms takes off the grid's end on 6 of 6; the
-      parabola reads 0.4-0.5 ms low, the spline tied it held out, kept off). Next:
-      the nine-point take grid (0-8 ms by 1) on its own held-out set (won 47-52 vs
-      43-48 offline); a drill-level check of one-wheel verdicts on more fresh sets;
-      the sub-8 advised instant build; ball hold: WHEEL_RPM_FULL error's cost on 0.2
-      s wheels.
+      see firmware/esp32/README.md, latest "The nine-point take grid on its own
+      held-out sets" (2026-11-18: half-ms takes, tied within 0.5 ms 141 each, grid
+      kept; off by over 1 ms 10 vs 20). Next: that grid on a fresh set with "off by
+      over 1 ms" named first; a drill-level check of one-wheel verdicts on more
+      fresh sets; the sub-8 advised instant build; ball hold: WHEEL_RPM_FULL error's
+      cost on 0.2 s wheels.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser
@@ -530,9 +529,8 @@ flagships:
       MB ifcXML now checks). xs:pattern as XML Schema regex 2026-11-18
       (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
       patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
-      differently per tool). XML white space skipped 2026-11-18
-      (eval/xml-whitespace-2026-11-18.md: heap 40-106 to 2-4 MB). Editor repairs a
-      file on open 2026-11-18 (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern
-      findings written back, 65 public IDS). next: IfcTester's narrower bare \w;
-      ifcXML all-space strings read as "" (STEP keeps them). More open items:
-      NEXT.md.
+      differently per tool). Editor repairs a file on open 2026-11-18
+      (eval/editor-open-repair-2026-11-18.md: 9 to 0 pattern findings written back,
+      65 public IDS). Bare \w/\s 2026-11-18 (eval/word-class-2026-11-18.md: page
+      asks IfcTester's or the standard's meaning; 1,500 of 1,500 patterns then read
+      alike). next: an RVB/ILS author on \s. More open items: NEXT.md.

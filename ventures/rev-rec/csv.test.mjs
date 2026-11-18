@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { linesFromCsv, sampleCsv, parseCsv, oneCurrency } from "./csv.mjs";
+import { linesFromCsv, sampleCsv, parseCsv, oneCurrency, parseAmount } from "./csv.mjs";
 import { schedule } from "./revrec.mjs";
 
 test("reads Stripe-style headers in any order, parentheses as negatives", () => {
@@ -126,4 +126,24 @@ test("accounting-format negatives are credits wherever the currency sign sits (r
   const { lines, skipped } = linesFromCsv("amount,date,period start\n($100.00),2026-01-01,2026-01-01\n$(100.00),2026-01-01,2026-01-01\n$ (100.00),2026-01-01,2026-01-01\n(100.00) USD,2026-01-01,2026-01-01\n");
   assert.deepEqual(skipped, []);
   assert.deepEqual(lines.map((l) => l.amount), [-10000, -10000, -10000, -10000]);
+});
+
+test("amounts with a currency code or any currency sign before the number parse (red team 2026-11-18, second run)", () => {
+  // Every row was skipped as "not a number": only $, £ and € were stripped, and only a trailing code.
+  const rows = [["\u00a512,000", "jpy", 12000], ["\u20b91,499.00", "inr", 149900], ["USD 100", "usd", 10000], ["CHF 100.50", "chf", 10050], ["R$ 49,90", "brl", 4990], ["\u20a950000", "krw", 50000], ["-USD 5", "usd", -500], ["(CHF 5)", "chf", -500], ["100 CHF", "chf", 10000], ["kr 99", "sek", 9900], ["99 kr", "sek", 9900]];
+  const csv = "amount,currency,date,period start\n" + rows.map(([a, c]) => `"${a}",${c},2026-01-01,2026-01-01`).join("\n");
+  const r = linesFromCsv(csv);
+  assert.deepEqual(r.skipped, []);
+  assert.deepEqual(r.lines.map((l) => l.amount), rows.map((x) => x[2]));
+  // Letters inside a number, or a one-letter suffix like "5k", are still not a number.
+  assert.deepEqual(linesFromCsv("amount,date,period start\n12abc34,2026-01-01,2026-01-01\n5k,2026-01-01,2026-01-01\nN/A,2026-01-01,2026-01-01").skipped.map((s) => s.why), ["amount is not a number", "amount is not a number", "amount is not a number"]);
+});
+
+test("LF then CR ends rows without eating a character, and a 4-letter suffix is not a currency code (red team 2026-11-18, second run)", () => {
+  assert.deepEqual(parseCsv("a,b\n\rxy,2"), [["a", "b"], ["xy", "2"]]);
+  assert.ok(Number.isNaN(parseAmount("100 EURO")) && Number.isNaN(parseAmount("100 abcd")));
+});
+
+test("the demo's sample data is pinned to its documented default date, so every sample test checks what the page loads", () => {
+  assert.equal(sampleCsv(), sampleCsv(Date.UTC(2026, 9, 15)));
 });

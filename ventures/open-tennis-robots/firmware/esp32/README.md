@@ -3208,3 +3208,31 @@ the 1 ms point (1 ms takes read 0 on 16 of 18 builds on the shipped grid, all st
 
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-fresh-c-2026-11-18.jsonl.gz
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-survey-fresh-c-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+## The nine-point take grid on its own held-out sets (2026-11-18, after "A fresh take survey with the stretched offsets live"; the shipped grid kept by its pre-registered rule)
+
+**The item.** On sets A to C the nine-point grid (0-8 ms by 1) scored more builds within 0.5 ms than the shipped one
+(0, 2, 3, 4, 5, 6, 8 ms), offline. Does it on sets no run has used?
+
+**A bias fixed first.** Two of A to C's six off-grid takes (1 and 7 ms) sat on the nine-point grid's added points.
+The fresh sets use takes on the half-millisecond (0.5 to 7.5 ms), off both grids, plus the instant build.
+`tests/take_survey_pick.py` gained `--takes` for this. `--grids` now also prints each take's verdicts on each grid.
+
+**How it was checked.** Sets D (wheel lag 0.4 s, seed 53), E (0.7 s, 59) and F (0.55 s, 61), 54 survey drills each,
+none aborted. Three predictions and a five-clause rule were committed before any of them was captured (663ca5f3d).
+Everything is in `eval/take-grid-nine-2026-11-18.md`.
+
+**What it found.** Within 0.5 ms the grids tied exactly on every set (48, 47, 46 each; 141 of 162 pooled), so the
+rule's first clause failed and `TAKE_SURVEY_GRID_US` stays as it is. The other clauses held: within 1 ms 152 against
+142, named and advised 93 against 92, no instant build advised. Outside the rule, on the same tables: the nine-point
+grid halves the builds off by more than 1 ms (10 against 20), mostly 1.5 ms takes the shipped grid reads as 0. The
+shipped grid reads every 7.5 ms take as 8.0 (18 of 18) and the 6.5 ms ones as 6.0. At half-millisecond takes the Pi's
+0.5 ms rounding counts both as within 0.5 ms. Mean absolute error 0.45 against 0.53 ms. Adopting on that measure
+would mean picking it after seeing the rows, so it needs a fresh set with the measure named first. The parabola's lean
+below the residual's least is still there on both grids (0.29 to 0.39 ms on the capture tach).
+
+**Not known.** All simulated. The nine-point verdicts are offline refits of wheels surveyed on the shipped grid, not a
+nine-candidate board run end to end.
+
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl --lag 0.4 --seed 53 --takes "0.5,1.5,2.5,3.5,4.5,5.5,6.5,7.5,0"
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score eval/take-grid-nine-d-2026-11-18.jsonl.gz --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"

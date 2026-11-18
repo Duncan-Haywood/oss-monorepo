@@ -127,7 +127,7 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
          f'<rect width="{W}" height="{H}" fill="#fff"/>',
          f'<text x="{W/2}" y="22" text-anchor="middle" {f} font-size="14">{title}</text>']
     if logy:
-        ticks = [10 ** k for k in range(math.ceil(y0), math.floor(y1) + 1)]
+        ticks = _log_ticks(y0, y1)
     else:
         step = 10 ** math.floor(math.log10((y1 - y0) / 4))
         step *= min((1, 2, 5, 10), key=lambda m: abs((y1 - y0) / (m * step) - 5))
@@ -166,6 +166,21 @@ def svg_lines(title, alt, xlabel, ylabel, series, logx=False, logy=False, hline=
 
 def _esc(t):
     return str(t).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;")
+
+
+def _log_ticks(lo, hi):
+    """Tick values for a log axis spanning 10**lo..10**hi: whole decades when there are
+    at least three, else 1-2-5 steps, else plain linear steps inside the range
+    (friction 2026-11-18: logy over 0.17 to 2.2 drew a single tick, at 1)."""
+    dec = [10 ** k for k in range(math.ceil(lo - 1e-9), math.floor(hi + 1e-9) + 1)]
+    if len(dec) >= 3:
+        return dec
+    sub = [m * 10 ** k for k in range(math.floor(lo) - 1, math.ceil(hi) + 1) for m in (1, 2, 5)]
+    sub = [v for v in sub if lo - 1e-9 <= math.log10(v) <= hi + 1e-9]
+    if len(sub) >= 3:
+        return sub
+    a, b = 10 ** lo, 10 ** hi
+    return [v for v in _ticks(a, b) if v > 0 and a <= v <= b]
 
 
 def _ticks(lo, hi, n=5):

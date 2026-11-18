@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtLVRrPqmnKnF5MJSr5",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T22:06:26Z",
+  "ended": "2026-11-18T22:28:29Z",
+  "wall_minutes": 22.31,
+  "tokens_in": 3593918,
+  "tokens_out": 34104,
+  "cost_usd": 2.1643,
+  "tool_calls": 40,
+  "task": "Saints by Candlelight episode 145, Balaam and the Donkey That Saw the Angel (Numbers 22-24), text only",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17440",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The sub-prompt says to pick by git log, but a shallow clone shows 3-5 commits; the README's creative_due.py is the tool that actually works and should be named first in the sub-prompt."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The claim-before-drafting rule (draft PR with a Drafting marker) lives in the Hearth & Horizon bible; PRODUCTION.md only says 'claim one by writing it'. I applied the same draft-PR claim to the Saints list; PRODUCTION.md could say so."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-saints-by-candlelight-balaam-and-the-donkey.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight; piece: balaam-and-the-donkey-that-saw-the-angel (episode 145), 7,720 words, text only (audio folders at 577 MB, over the 400 MB cap). Security queue empty; IDEAS.md and website requests empty; route drew creative; creative_due.py drew saints-by-candlelight. Claimed via draft PR #17440 before drafting. Adversarial re-read changed several lines: the Advent-reading day (Monday after the third Sunday), a disputed date for the Magi removed, an unverified Orthodox-reading claim cut, Kiriath-huzoth restored, the Moab/Edom oracle fulfilment softened to an interpretation. Verification: node generate.mjs --check-script ok; node --test 18/18 pass in the venture; check_posts.py ok; run_workflow_locally.py --for-changes: 11/11 selected workflows passed (uses: steps, cross-review bots and deploy jobs not run locally). No agent doc: nothing the next run needs beyond the DONE.md entry and the new sequel line (Gibeonites, Joshua 9).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "7d22b25f-43b7-5938-bd58-cf690663c330",
+    "transcripts": 1,
+    "first": "2026-11-18T22:06:26Z",
+    "last": "2026-11-18T22:28:45Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 73,
+        "output": 34104,
+        "thinking": 9365,
+        "cache_read": 3496004,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97841,
+        "api_equivalent_usd": 2.1643,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 73,
+      "output": 34104,
+      "thinking": 9365,
+      "cache_read": 3496004,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97841,
+      "api_equivalent_usd": 2.1643,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 36,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.31,
+      "active_minutes": 22.31,
+      "model_minutes": 6.62,
+      "tool_minutes": 15.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a writer drafting and fact-checking a ~7,700-word scripted episode from Numbers 22-24",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 369.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

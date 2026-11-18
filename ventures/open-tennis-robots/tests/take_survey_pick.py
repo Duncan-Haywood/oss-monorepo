@@ -41,9 +41,13 @@ wheel and a longer TAKE_SURVEY frame, so a tie keeps the shipped grid).
 
 HELD OUT: wheel lag 0.6 s, seed 31 (neither used by the design set), the same takes, tachs and launchers.
 
-    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl [--lag 0.45] [--seed 29] [--procs 4]
+    PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --capture rows.jsonl [--lag 0.45] [--seed 29] [--procs 4] [--takes "0.5,1.5,...,0"]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score rows.jsonl[.gz] [--procs 4]
     PYTHONPATH=src:tests:firmware/esp32 python3 tests/take_survey_pick.py --score rows.jsonl[.gz] --grids "0,2,3,4,5,6,8;0,1,2,3,4,5,6,7,8"
+
+--takes (2026-11-18, eval/take-grid-nine-2026-11-18.md) replaces TAKES_MS for a capture. Sets D to F used the
+half-millisecond takes 0.5-7.5 ms, off both the shipped and the nine-point grid. --grids also prints each take's
+verdicts per grid.
 
 Simulated only: the simulator's first-order wheel and assumed half-sine take, the MCPWM capture tach at 1/8 us with
 0.5 us handler jitter (which the capture does not see) and the board's default jittery tach at 0.5 us; one seed per set.
@@ -67,19 +71,19 @@ DENSE_US = tuple(range(0, 8001, 250))
 
 
 def capture(args):
-    ti, ki, li, lag, seed = args
+    ti, ki, li, lag, seed, takes = args
     import min_fit_heldout as h
     import take_misfit_trace as tm
     import take_survey_sweep as tss
     tss.SEED = seed
-    tss.TAKES = tuple(tss.TAKES) + tuple((f"halfsine {ms:g} ms", ms, "halfsine") for ms in TAKES_MS)
+    tss.TAKES = tuple(tss.TAKES) + tuple((f"halfsine {ms:g} ms", ms, "halfsine") for ms in takes)
     plants = list(h.PLANTS)
     plants[TACH_PLANT] = (TACHS[ki][0], dict(h.PLANTS[TACH_PLANT][1], **TACHS[ki][1]))
     h.PLANTS = tuple(plants)
     a, r = tm.capture_survey((4 + ti, TACH_PLANT, li, lag))
     if "aborted" not in r:
         r["build"] = [ti, ki, li, lag, seed]
-        r["take_ms"] = TAKES_MS[ti]
+        r["take_ms"] = takes[ti]
         r["board_scores"] = [w["board"] for w in r["wheels"]]
     return (ti, ki, li, lag, seed), r
 
@@ -129,6 +133,7 @@ def picks(b, dense):
 def score(builds, procs):
     from tennisbots import host
     from feeder_sim import controller
+    import take_misfit_trace as tm
     builds = sorted(builds, key=lambda b: tuple(b["build"]))
     with multiprocessing.Pool(procs) as pool:
         dense = dict(pool.map(dense_rows, builds))
@@ -151,8 +156,10 @@ def score(builds, procs):
         print(f"{ms:g} | {TACHS[ki][0]} | {li} | {kept} | {dl:.2f} | {par:.2f} | {spl:.2f} | {share:.2f}"
               f"{'*' if adv else ''}")
         for key in (TACHS[ki][0], "all"):
-            tally.setdefault(key, []).append((ms, dl, par, spl, adv, ms in (0.0, 3.0, 6.0)))
-    print("\nOff-grid takes only (1, 2.5, 3.5, 4.5, 5.5, 7 ms); error in ms, signed mean and mean absolute:")
+            tally.setdefault(key, []).append((ms, dl, par, spl, adv, round(ms * 1000) in tm.PICK_US))
+    takes = sorted({b["take_ms"] for b in builds})
+    print("\nOff-grid takes only (" + ", ".join(f"{t:g}" for t in takes if round(t * 1000) not in tm.PICK_US)
+          + " ms); error in ms, signed mean and mean absolute:")
     print("tach | builds | dense least - true | parabola - true | spline - true | parabola - dense | spline - dense | "
           "within 0.5 ms of true: dense / parabola / spline")
     for key, rows in tally.items():
@@ -167,21 +174,22 @@ def score(builds, procs):
         print(f"{key} | {len(off)} | {m(lambda r: r[1] - r[0])} | {m(lambda r: r[2] - r[0])} | "
               f"{m(lambda r: r[3] - r[0])} | {m(lambda r: r[2] - r[1])} | {m(lambda r: r[3] - r[1])} | "
               f"{w[0]} / {w[1]} / {w[2]}")
-    print("\nOn-grid check (0, 3 and 6 ms): within 0.5 ms of true, dense / parabola / spline")
+    print("\nOn-grid check (" + ", ".join(f"{t:g}" for t in takes if round(t * 1000) in tm.PICK_US)
+          + " ms): within 0.5 ms of true, dense / parabola / spline")
     for key, rows in tally.items():
         on = [r for r in rows if r[5]]
         if on:
             w = [sum(abs(r[j] - r[0]) <= 0.5 + 1e-9 for r in on) for j in (1, 2, 3)]
             print(f"{key} | {len(on)} | {w[0]} / {w[1]} / {w[2]}")
     print("\nBy take (all tachs): mean signed error, dense / parabola / spline")
-    for ms in TAKES_MS:
+    for ms in takes:
         rows = [r for r in tally.get("all", []) if r[0] == ms]
         if rows:
             print(f"{ms:g} ms ({len(rows)}): " + " / ".join(f"{sum(r[j] - r[0] for r in rows) / len(rows):+.2f}"
                                                              for j in (1, 2, 3)))
 
 
-def grid_score(builds, dense, grid_ms, pick_name):
+def grid_score(builds, dense, grid_ms, pick_name, by_take=None):
     """The board's verdicts had it surveyed `grid_ms` (each a DENSE_US point) instead of the shipped grid: each wheel's
     row is its dense rms at those points, the board's trim and blind rule and `pick_name`'s pick, rounded to 0.5 ms
     as the Pi rounds it. (within 0.5 ms, within 1 ms, spread takes named within 1 ms and advised, spread takes,
@@ -205,6 +213,8 @@ def grid_score(builds, dense, grid_ms, pick_name):
         share = (min(sums) / sums[0]) ** 0.5 if sums[0] else 1.0
         adv = share <= host.TAKE_ADVISE_RATIO
         ms = b["take_ms"]
+        if by_take is not None:
+            by_take.setdefault(ms, []).append(got)
         n += 1
         w5 += abs(got - ms) <= 0.5
         w1 += abs(got - ms) <= 1.0
@@ -233,12 +243,23 @@ def main():
         print(f"{len(builds)} survey drills; each grid's verdicts from the dense refits (trim, blind rule and margin as "
               f"the board's); within 0.5 / 1 ms of true (of builds with a verdict), spread takes named within 1 ms and "
               f"advised, instant builds advised")
+        verdicts = {}
         for gs in sys.argv[sys.argv.index("--grids") + 1].split(";"):
             g = [float(x) for x in gs.split(",")]
             for pk in ("parabola", "spline"):
-                w5, w1, good, spread, bad, inst, n = grid_score(builds, dense, g, pk)
+                bt = verdicts.setdefault((gs, pk), {})
+                w5, w1, good, spread, bad, inst, n = grid_score(builds, dense, g, pk, bt)
                 print(f"  {gs:24} {pk:8}: within 0.5 ms {w5}/{n}, within 1 ms {w1}/{n}, named and advised "
                       f"{good}/{spread}, instant advised {bad}/{inst}")
+        print("\nBy take, parabola (the Pi's verdicts, rounded to 0.5 ms), each grid: within 0.5 ms, then the verdicts")
+        for ms in sorted({b["take_ms"] for b in builds}):
+            cells = []
+            for (gs, pk), bt in verdicts.items():
+                if pk == "parabola":
+                    v = bt.get(ms, [])
+                    cells.append(f"{gs}: {sum(abs(x - ms) <= 0.5 for x in v)}/{len(v)} "
+                                 f"[{' '.join(f'{x:g}' for x in v)}]")
+            print(f"  {ms:g} ms | " + " | ".join(cells))
         return
     out = sys.argv[sys.argv.index("--capture") + 1]
     lag = float(sys.argv[sys.argv.index("--lag") + 1]) if "--lag" in sys.argv else 0.45
@@ -249,10 +270,12 @@ def main():
         done = {tuple(r["build"]) for r in load(out)}
     except FileNotFoundError:
         pass
-    grid = [(ti, ki, li, lag, seed) for ki in range(len(TACHS)) for ti in range(len(TAKES_MS)) for li in range(3)]
+    takes = (tuple(float(x) for x in sys.argv[sys.argv.index("--takes") + 1].split(","))
+             if "--takes" in sys.argv else TAKES_MS)
+    grid = [(ti, ki, li, lag, seed) for ki in range(len(TACHS)) for ti in range(len(takes)) for li in range(3)]
     if only:
         grid = grid[:only]
-    grid = [g for g in grid if g not in done]
+    grid = [g + (takes,) for g in grid if g not in done]
     with multiprocessing.Pool(procs, maxtasksperchild=1) as pool:
         for a, r in pool.imap_unordered(capture, grid):
             if "aborted" in r:

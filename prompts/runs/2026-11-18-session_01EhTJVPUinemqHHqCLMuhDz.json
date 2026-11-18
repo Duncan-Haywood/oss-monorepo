@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPUinemqHHqCLMuhDz",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (develop, deploy, market, sell and support revenue generating software products)",
+  "input_sha256": "f5904e29d94c5d2c9adefd634e477273df62b478d180bf3bfc35ad813529388a",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T23:03:58Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17454",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "Bare `route` drew the research track although the scheduled prompt is a ventures prompt; only `--task` routed it correctly."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Routed with --task from the scheduled ventures prompt instead of the bare weighted draw (research).",
+      "did": "route --task",
+      "result": "ventures/1, flagship row 4"
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Bowling page build moved to a Web Worker. eval/browser-bowling.mjs: slow season 24x26 six off both ends, longest page-thread gap 7291 ms before -> 53 ms after; 19/19 checks. node --test bowling/page/polish/deploy: 96 pass 0 fail; new worker test passes. venture-preflight run locally (see PR).",
+  "corrections": [],
+  "redteam": null
+}

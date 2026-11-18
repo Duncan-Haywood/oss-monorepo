@@ -30,8 +30,12 @@ const ALIASES = {
 // Major-unit amount -> number. "1,234.50" and "1.234,50" both read 1234.5: a comma
 // followed by one or two final digits is a decimal comma (a thousands group is
 // always three digits), so a European export is not read 100 times too large.
+// Any currency sign (\p{Sc}: ¥, ₹, ₩, R$ ...) and a currency code or abbreviation
+// on either side ("USD 100", "100 CHF", "kr 99") are dropped; only $, £, € and a
+// trailing code were, so a yen or rupee export was skipped row by row (red team
+// 2026-11-18, second run). Letters inside the number still make it NaN.
 const plainAmount = (v) => {
-  const x = String(v).replace(/[$£€()\s]/g, "").replace(/[a-z]{3}$/i, "");
+  const x = String(v).replace(/[\p{Sc}()\s]/gu, "").replace(/^([+-]?)\p{L}{1,3}(?=[\d.,+-])/u, "$1").replace(/(?<=[\d.,])\p{L}{2,3}$/u, "");
   return /,\d{1,2}$/.test(x) ? x.replace(/\./g, "").replace(",", ".") : x.replace(/,/g, "");
 };
 export function parseAmount(v) {
