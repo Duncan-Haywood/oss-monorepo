@@ -133,6 +133,7 @@ import {
   SEARCH_INDEX_FILE,
   renderSearchIndex,
   isNodeOnlyScript,
+  CATCH_ALL_MAX,
 } from './build.mjs';
 import { LATE_NAV_DIRS, SITE_NAV, HEADER_MARKER, VENTURE_CHROME_CSS } from './site-nav.mjs';
 import { STORIES_PATH, STORY_VENTURES } from './stories.mjs';
@@ -5279,7 +5280,7 @@ test('the catch-all holds only what no section claims', async () => {
   // came out coherent — which is the behaviour the paragraph above asks for,
   // arrived at independently three times.
   assert.ok(
-    more.items.length <= 5,
+    more.items.length <= CATCH_ALL_MAX,
     `the catch-all has grown to ${more.items.length} tools — time for another category`,
   );
 });

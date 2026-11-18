@@ -4016,6 +4016,13 @@ const CATEGORY_RULES = [
   },
 ];
 
+// The most tools the catch-all may hold before build.test.mjs ('the catch-all
+// holds only what no section claims') fails and asks for a named section.
+// Exported so venture-preflight.mjs fails a new venture that would push it
+// over, instead of noting the placement and leaving CI to find it (#17406,
+// csp-policy-check, 2026-11-18: the sixth tool, one CI round).
+export const CATCH_ALL_MAX = 5;
+
 const FALLBACK_CATEGORY = {
   id: 'more',
   title: 'More free tools',
