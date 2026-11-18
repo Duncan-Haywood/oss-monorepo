@@ -1,9 +1,9 @@
 ---
 title: "How many frogs did nobody catch? Capture-recapture on 29 years of USGS data"
-seo_title: "Free capture-recapture calculator: Lincoln-Petersen, Chapman, Chao, M0/Mt/Mb"
+seo_title: "Free capture-recapture calculator: Lincoln-Petersen, Chapman, Chao"
 date: 2026-11-18
 tags: [capture-recapture, mark-recapture, ecology, statistics, research-algorithms, browser]
-description: "A free capture-recapture tool tried on USGS chorus frog data: two frogs for every one seen in 2010, a fourfold model disagreement in 1999, and where each estimator fails."
+description: "A free capture-recapture tool on USGS chorus frog data: two frogs per frog seen in 2010, a fourfold model split in 1999, and where each estimator fails."
 ---
 
 Catch some animals, mark them, let them go, and catch again. If a lot of the
