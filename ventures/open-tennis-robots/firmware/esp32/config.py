@@ -114,9 +114,10 @@ LAUNCH_CHECK_MS = 250
 # lags. The board reports it (ESC_TAU frame), and `tennisbots run` stops a calibration drill before its first ball
 # when it disagrees with the shot log's last survey (README "Checked before a calibration drill").
 ESC_TAU_US = 0
-# The survey's lags (six, the ESC_SURVEY frame's slots), or () to turn the survey off: it refits each turning wheel
-# six times after its record is out, one step a control tick, and a new stroke cuts a survey short.
-ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 200000, 400000)
+# The survey's lags (seven, the ESC_SURVEY frame's slots; 150 ms added 2026-11-18, README "The ESC-lag survey between
+# 100 and 200 ms"), or () to turn the survey off: it refits each turning wheel once a lag after its record is out, one
+# step a control tick, pausing while a stroke is under way.
+ESC_SURVEY_GRID_US = (0, 20000, 50000, 100000, 150000, 200000, 400000)
 # The ball's contact time the drop fit models, microseconds (2026-11-17, firmware/esp32/README.md "A take that lasts a
 # few milliseconds" and "The contact time surveyed on the board"). 0 (the default) models the take as one step. A real
 # ball is in the wheels for a few ms, and on the simulator a 6 ms take read the drop 0.98% (sd) off as a step and 0.19%
