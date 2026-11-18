@@ -94,7 +94,7 @@ test('--shape-word panel: West Germany is read against a centre of 21.8 (Norway 
   assert.match(t, /4 faded, 2 grew and 10 held on this reading/);
   assert.match(t, new RegExp(`${Math.round(PANEL_SHAPE.cleanPanel)}% of listed units with no event of their own got a word, against ${Math.round(PANEL_SHAPE.cleanPlain)}%`));
   assert.match(t, new RegExp(`a big one was called held ${Math.round(PANEL_SHAPE.bigSlopeHeldPanel)}% of the time \\(plain ${Math.round(PANEL_SHAPE.bigSlopeHeldPlain)}%\\)`));
-  assert.match(t, /Netherlands [^)]*its own gap held against the panel's growth, but grew towards the end on its own reading\)/, 'both words where they differ');
+  assert.match(t, /Netherlands [^)]*its own gap held against the panel's growth, but grew towards the end on its own reading, along a straight line from the date/, 'both words where they differ (and the line, README "A curvature word")');
   assert.deepEqual(r.above.map((x) => [x.name, x.plainShape]), [['Netherlands', 'grew'], ['Norway', 'grew']]);
   assert.ok(plain.above.every((x) => !('plainShape' in x)), 'the default above entries are unchanged');
   assert.match(synthText(plain), /--shape-word panel words each unit against the panel instead/, 'the plain note points to the option when most units share a word');
@@ -105,7 +105,8 @@ test('--shape-word panel: below a centre of 6 (the Basque Country, 2.36) the pla
   const p = synthResult({ ...opts, shapeWord: 'panel' }), q = synthResult(opts);
   assert.equal(p.shapeRelative, false);
   assert.deepEqual(p.placeboShapes, q.placeboShapes);
-  assert.deepEqual(p.above.map(({ plainShape, ...x }) => x), q.above);
+  assert.deepEqual(p.above.map(({ plainShape, bend, straight, ...x }) => x), q.above);
+  assert.doesNotMatch(synthText(p), /straight line/, 'the line is read only where the panel word is in force');
   assert.ok(p.above.every((x) => x.plainShape === x.gapShape), 'below 6 the two words agree');
   assert.match(synthText(p), /grew 2\.36 times .* under 6, so each word is the plain one/);
 });

@@ -205,7 +205,31 @@ export function gapShape(after) {
   const t = Math.floor(m / 3), ms = (a) => a.reduce((s, e) => s + e * e, 0) / a.length;
   const early = ms(after.slice(0, t)), late = ms(after.slice(m - t));
   const shape = early >= GAP_SHAPE_RATIO * late ? 'faded' : late >= GAP_SHAPE_RATIO * early ? 'grew' : 'held';
-  return { shape, early: Math.sqrt(early), late: Math.sqrt(late) };
+  return { shape, early: Math.sqrt(early), late: Math.sqrt(late), bend: gapBend(after) };
+}
+
+// How a gap after the date bends (README "A curvature word"): the signed mean of the middle third against the line
+// through the first and last thirds' signed means, as a share of that line's rise. 0 for a straight line from the
+// date (a slope), below 0 when the gap speeds up (compounding: the middle sits nearer the start), above 0 when it
+// slows (a pulse wearing off, a level reached). Between -0.5 and 0.5 when the middle third lies between the outer two;
+// null when the outer thirds are equal or there are fewer than 6 points. A description; it changes no p.
+export function gapBend(after) {
+  const m = after.length;
+  if (m < 6) return null;
+  const t = Math.floor(m / 3), mean = (a) => a.reduce((s, e) => s + e, 0) / a.length;
+  const a = mean(after.slice(0, t)), b = mean(after.slice(t, m - t)), c = mean(after.slice(m - t));
+  const rise = c - a;
+  if (!(Math.abs(rise) > 1e-12 * (Math.abs(a) + Math.abs(c)))) return null;
+  return (b - (a + c) / 2) / rise;
+}
+// 'straight' (README "A curvature word"): the plain word is 'grew' and the bend lies in STRAIGHT_BAND, a gap that grew
+// along a straight line from the date, the shape of a slope of the unit's own, rather than bending like a compounding
+// panel's gaps (each a smooth random path that bends either way). The band was read off an exploratory run
+// (eval/synth-shape-curve-explore.out.txt) and frozen in eval/synth-shape-curve-prereg-2026-11-18.md; all six bars held
+// on the confirmatory run. A pointer for the "ranked above" note under --shape-word panel; it changes no p.
+export const STRAIGHT_BAND = [-0.15, 0.1];
+export function gapStraight(shape) {
+  return !!shape && shape.shape === 'grew' && shape.bend != null && shape.bend >= STRAIGHT_BAND[0] && shape.bend <= STRAIGHT_BAND[1];
 }
 
 // The same word read against the panel's own trend (README "The shape word against the panel's own trend"). On series

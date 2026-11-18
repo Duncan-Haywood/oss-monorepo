@@ -1,0 +1,1380 @@
+Exploratory run, eval/synth-shape-curve-sim.mjs, SC_SEED_BASE=95000, 100 panels a cell, 8000 panels; the nine
+candidate bands compared (the first is the plain word 'grew' itself). [-0.15, 0.1] was chosen from this file and frozen in
+eval/synth-shape-curve-prereg-2026-11-18.md before the confirmatory run.
+
+==== BAND -1:1
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  51.4%  (n 13800)
+  clean above      grew  66.7%  flag  66.4%  (n 4636)
+  slope            grew  82.0%  flag  82.0%  (n 400)
+  slope above      grew  94.8%  flag  94.8%  (n 251)
+  big slope        grew  87.5%  flag  87.5%  (n 200)
+  big slope above  grew  97.8%  flag  97.8%  (n 138)
+  pulse            grew   1.8%  flag   1.8%  (n 400)
+  step             grew  16.5%  flag  16.5%  (n 200)
+  precision        grew  11.1%  flag  11.3%  (n 2947 / 2912)
+  slope lift       grew   29.9 pts  flag   30.6 pts
+  odds ratio       grew   4.19      flag   4.31
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  64.0%  (n 6412)
+  clean above      grew  78.5%  flag  78.3%  (n 2362)
+  slope            grew  88.2%  flag  88.2%  (n 262)
+  slope above      grew  97.6%  flag  97.6%  (n 168)
+  big slope        grew  90.6%  flag  90.6%  (n 139)
+  big slope above  grew  97.9%  flag  97.9%  (n 95)
+  pulse            grew   3.7%  flag   3.7%  (n 81)
+  step             grew  25.9%  flag  25.9%  (n 81)
+  precision        grew  10.4%  flag  10.5%  (n 2221 / 2195)
+  slope lift       grew   23.4 pts  flag   24.1 pts
+  odds ratio       grew   4.04      flag   4.19
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  49.8%  (n 41400)
+  clean above      grew  62.8%  flag  62.5%  (n 13516)
+  slope            grew  81.3%  flag  81.2%  (n 1200)
+  slope above      grew  93.4%  flag  93.4%  (n 757)
+  big slope        grew  89.7%  flag  89.7%  (n 600)
+  big slope above  grew  96.0%  flag  96.0%  (n 451)
+  pulse            grew   2.0%  flag   2.0%  (n 1200)
+  step             grew  14.8%  flag  14.7%  (n 600)
+  precision        grew  11.3%  flag  11.4%  (n 8640 / 8522)
+  slope lift       grew   30.7 pts  flag   31.4 pts
+  odds ratio       grew   4.24      flag   4.35
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  64.1%  (n 17950)
+  clean above      grew  78.3%  flag  78.1%  (n 6077)
+  slope            grew  87.9%  flag  87.9%  (n 743)
+  slope above      grew  96.5%  flag  96.5%  (n 491)
+  big slope        grew  92.6%  flag  92.6%  (n 408)
+  big slope above  grew  97.7%  flag  97.7%  (n 304)
+  pulse            grew   3.3%  flag   3.3%  (n 214)
+  step             grew  22.2%  flag  21.8%  (n 225)
+  precision        grew  10.4%  flag  10.6%  (n 6269 / 6183)
+  slope lift       grew   23.0 pts  flag   23.8 pts
+  odds ratio       grew   3.92      flag   4.07
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  43.4%  (n 13800)
+  clean above      grew  55.9%  flag  55.6%  (n 5145)
+  slope            grew  77.8%  flag  77.5%  (n 400)
+  slope above      grew  88.4%  flag  88.4%  (n 251)
+  big slope        grew  88.0%  flag  88.0%  (n 200)
+  big slope above  grew  92.4%  flag  92.4%  (n 158)
+  pulse            grew   2.3%  flag   2.3%  (n 400)
+  step             grew  17.5%  flag  17.0%  (n 200)
+  precision        grew  12.3%  flag  12.6%  (n 2525 / 2465)
+  slope lift       grew   33.2 pts  flag   34.1 pts
+  odds ratio       grew   4.36      flag   4.49
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  61.0%  (n 4083)
+  clean above      grew  74.3%  flag  73.9%  (n 1660)
+  slope            grew  86.2%  flag  86.2%  (n 174)
+  slope above      grew  93.0%  flag  93.0%  (n 115)
+  big slope        grew  93.0%  flag  93.0%  (n 100)
+  big slope above  grew  96.1%  flag  96.1%  (n 77)
+  pulse            grew   4.0%  flag   4.0%  (n 50)
+  step             grew  27.3%  flag  25.5%  (n 55)
+  precision        grew  10.8%  flag  11.1%  (n 1394 / 1354)
+  slope lift       grew   23.7 pts  flag   25.2 pts
+  odds ratio       grew   3.75      flag   3.99
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  54.6%  (n 13800)
+  clean above      grew  67.3%  flag  67.3%  (n 3735)
+  slope            grew  84.0%  flag  84.0%  (n 400)
+  slope above      grew  96.9%  flag  96.9%  (n 255)
+  big slope        grew  93.5%  flag  93.5%  (n 200)
+  big slope above  grew  98.1%  flag  98.1%  (n 155)
+  pulse            grew   2.0%  flag   2.0%  (n 400)
+  step             grew  10.5%  flag  10.5%  (n 200)
+  precision        grew  10.6%  flag  10.7%  (n 3168 / 3145)
+  slope lift       grew   28.9 pts  flag   29.4 pts
+  odds ratio       grew   4.28      flag   4.37
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  65.8%  (n 7455)
+  clean above      grew  81.3%  flag  81.2%  (n 2055)
+  slope            grew  88.6%  flag  88.6%  (n 307)
+  slope above      grew  97.6%  flag  97.6%  (n 208)
+  big slope        grew  94.1%  flag  94.1%  (n 169)
+  big slope above  grew  98.5%  flag  98.5%  (n 132)
+  pulse            grew   2.4%  flag   2.4%  (n 83)
+  step             grew  15.7%  flag  15.7%  (n 89)
+  precision        grew  10.2%  flag  10.3%  (n 2654 / 2634)
+  slope lift       grew   22.2 pts  flag   22.8 pts
+  odds ratio       grew   3.94      flag   4.04
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   5.5%  (n 23000)
+  clean above      grew   8.7%  flag   7.4%  (n 6134)
+  slope            grew  46.5%  flag  46.3%  (n 600)
+  slope above      grew  53.3%  flag  53.3%  (n 465)
+  big slope        grew  70.0%  flag  69.5%  (n 200)
+  big slope above  grew  74.3%  flag  74.3%  (n 171)
+  pulse            grew   0.4%  flag   0.4%  (n 800)
+  step             grew   5.5%  flag   4.8%  (n 400)
+  precision        grew  31.1%  flag  36.2%  (n 898 / 768)
+  slope lift       grew   39.5 pts  flag   40.8 pts
+  odds ratio       grew  11.51      flag  14.72
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  50.0%  (n 18)
+  slope            grew 100.0%  flag 100.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  18.2%  (n 12 / 11)
+  slope lift       grew   44.4 pts  flag   50.0 pts
+  odds ratio       grew Infinity      flag Infinity
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag  14.8%  (n 27600)
+  clean above      grew  21.5%  flag  20.8%  (n 8972)
+  slope            grew  53.8%  flag  53.5%  (n 800)
+  slope above      grew  61.5%  flag  61.5%  (n 543)
+  big slope        grew  65.0%  flag  65.0%  (n 400)
+  big slope above  grew  68.5%  flag  68.5%  (n 314)
+  pulse            grew   0.9%  flag   0.8%  (n 800)
+  step             grew   8.0%  flag   7.2%  (n 400)
+  precision        grew  20.4%  flag  21.4%  (n 2105 / 2003)
+  slope lift       grew   37.9 pts  flag   38.7 pts
+  odds ratio       grew   6.15      flag   6.63
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  53.9%  (n 232)
+  clean above      grew  71.4%  flag  68.8%  (n 112)
+  slope            grew  87.5%  flag  87.5%  (n 16)
+  slope above      grew  85.7%  flag  85.7%  (n 14)
+  big slope        grew  90.9%  flag  90.9%  (n 11)
+  big slope above  grew  88.9%  flag  88.9%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag  33.3%  (n 3)
+  precision        grew  13.0%  flag  14.0%  (n 108 / 100)
+  slope lift       grew   29.7 pts  flag   33.6 pts
+  odds ratio       grew   5.12      flag   5.99
+
+==== BAND -0.1:1
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  30.7%  (n 13800)
+  clean above      grew  66.7%  flag  42.4%  (n 4636)
+  slope            grew  82.0%  flag  59.8%  (n 400)
+  slope above      grew  94.8%  flag  74.5%  (n 251)
+  big slope        grew  87.5%  flag  72.0%  (n 200)
+  big slope above  grew  97.8%  flag  82.6%  (n 138)
+  pulse            grew   1.8%  flag   1.8%  (n 400)
+  step             grew  16.5%  flag  11.5%  (n 200)
+  precision        grew  11.1%  flag  13.2%  (n 2947 / 1805)
+  slope lift       grew   29.9 pts  flag   29.0 pts
+  odds ratio       grew   4.19      flag   3.35
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  37.8%  (n 6412)
+  clean above      grew  78.5%  flag  49.3%  (n 2362)
+  slope            grew  88.2%  flag  63.4%  (n 262)
+  slope above      grew  97.6%  flag  75.6%  (n 168)
+  big slope        grew  90.6%  flag  75.5%  (n 139)
+  big slope above  grew  97.9%  flag  84.2%  (n 95)
+  pulse            grew   3.7%  flag   3.7%  (n 81)
+  step             grew  25.9%  flag  22.2%  (n 81)
+  precision        grew  10.4%  flag  12.4%  (n 2221 / 1344)
+  slope lift       grew   23.4 pts  flag   25.6 pts
+  odds ratio       grew   4.04      flag   2.84
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  29.7%  (n 41400)
+  clean above      grew  62.8%  flag  40.8%  (n 13516)
+  slope            grew  81.3%  flag  64.1%  (n 1200)
+  slope above      grew  93.4%  flag  77.7%  (n 757)
+  big slope        grew  89.7%  flag  76.0%  (n 600)
+  big slope above  grew  96.0%  flag  82.7%  (n 451)
+  pulse            grew   2.0%  flag   2.0%  (n 1200)
+  step             grew  14.8%  flag   9.7%  (n 600)
+  precision        grew  11.3%  flag  14.4%  (n 8640 / 5336)
+  slope lift       grew   30.7 pts  flag   34.3 pts
+  odds ratio       grew   4.24      flag   4.21
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  37.5%  (n 17950)
+  clean above      grew  78.3%  flag  49.8%  (n 6077)
+  slope            grew  87.9%  flag  69.6%  (n 743)
+  slope above      grew  96.5%  flag  80.7%  (n 491)
+  big slope        grew  92.6%  flag  79.9%  (n 408)
+  big slope above  grew  97.7%  flag  85.9%  (n 304)
+  pulse            grew   3.3%  flag   3.3%  (n 214)
+  step             grew  22.2%  flag  16.0%  (n 225)
+  precision        grew  10.4%  flag  13.5%  (n 6269 / 3824)
+  slope lift       grew   23.0 pts  flag   32.1 pts
+  odds ratio       grew   3.92      flag   3.81
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  26.5%  (n 13800)
+  clean above      grew  55.9%  flag  37.3%  (n 5145)
+  slope            grew  77.8%  flag  56.5%  (n 400)
+  slope above      grew  88.4%  flag  68.1%  (n 251)
+  big slope        grew  88.0%  flag  66.5%  (n 200)
+  big slope above  grew  92.4%  flag  71.5%  (n 158)
+  pulse            grew   2.3%  flag   2.3%  (n 400)
+  step             grew  17.5%  flag  11.5%  (n 200)
+  precision        grew  12.3%  flag  14.6%  (n 2525 / 1544)
+  slope lift       grew   33.2 pts  flag   30.0 pts
+  odds ratio       grew   4.36      flag   3.60
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  36.7%  (n 4083)
+  clean above      grew  74.3%  flag  49.3%  (n 1660)
+  slope            grew  86.2%  flag  60.3%  (n 174)
+  slope above      grew  93.0%  flag  69.6%  (n 115)
+  big slope        grew  93.0%  flag  69.0%  (n 100)
+  big slope above  grew  96.1%  flag  72.7%  (n 77)
+  pulse            grew   4.0%  flag   4.0%  (n 50)
+  step             grew  27.3%  flag  18.2%  (n 55)
+  precision        grew  10.8%  flag  12.6%  (n 1394 / 836)
+  slope lift       grew   23.7 pts  flag   23.6 pts
+  odds ratio       grew   3.75      flag   2.62
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  32.0%  (n 13800)
+  clean above      grew  67.3%  flag  43.6%  (n 3735)
+  slope            grew  84.0%  flag  76.0%  (n 400)
+  slope above      grew  96.9%  flag  90.2%  (n 255)
+  big slope        grew  93.5%  flag  89.5%  (n 200)
+  big slope above  grew  98.1%  flag  94.2%  (n 155)
+  pulse            grew   2.0%  flag   2.0%  (n 400)
+  step             grew  10.5%  flag   6.0%  (n 200)
+  precision        grew  10.6%  flag  15.3%  (n 3168 / 1987)
+  slope lift       grew   28.9 pts  flag   44.0 pts
+  odds ratio       grew   4.28      flag   6.73
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  37.7%  (n 7455)
+  clean above      grew  81.3%  flag  50.8%  (n 2055)
+  slope            grew  88.6%  flag  80.1%  (n 307)
+  slope above      grew  97.6%  flag  90.9%  (n 208)
+  big slope        grew  94.1%  flag  89.9%  (n 169)
+  big slope above  grew  98.5%  flag  94.7%  (n 132)
+  pulse            grew   2.4%  flag   2.4%  (n 83)
+  step             grew  15.7%  flag   9.0%  (n 89)
+  precision        grew  10.2%  flag  15.0%  (n 2654 / 1644)
+  slope lift       grew   22.2 pts  flag   42.4 pts
+  odds ratio       grew   3.94      flag   6.66
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   3.0%  (n 23000)
+  clean above      grew   8.7%  flag   4.6%  (n 6134)
+  slope            grew  46.5%  flag  31.7%  (n 600)
+  slope above      grew  53.3%  flag  36.8%  (n 465)
+  big slope        grew  70.0%  flag  48.5%  (n 200)
+  big slope above  grew  74.3%  flag  53.2%  (n 171)
+  pulse            grew   0.4%  flag   0.4%  (n 800)
+  step             grew   5.5%  flag   3.3%  (n 400)
+  precision        grew  31.1%  flag  40.6%  (n 898 / 468)
+  slope lift       grew   39.5 pts  flag   28.6 pts
+  odds ratio       grew  11.51      flag  14.81
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  22.2%  (n 18)
+  slope            grew 100.0%  flag 100.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  33.3%  (n 12 / 6)
+  slope lift       grew   44.4 pts  flag   77.8 pts
+  odds ratio       grew Infinity      flag Infinity
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   9.1%  (n 27600)
+  clean above      grew  21.5%  flag  13.8%  (n 8972)
+  slope            grew  53.8%  flag  35.5%  (n 800)
+  slope above      grew  61.5%  flag  43.3%  (n 543)
+  big slope        grew  65.0%  flag  47.3%  (n 400)
+  big slope above  grew  68.5%  flag  51.0%  (n 314)
+  pulse            grew   0.9%  flag   0.8%  (n 800)
+  step             grew   8.0%  flag   4.5%  (n 400)
+  precision        grew  20.4%  flag  22.7%  (n 2105 / 1249)
+  slope lift       grew   37.9 pts  flag   26.4 pts
+  odds ratio       grew   6.15      flag   5.52
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  39.2%  (n 232)
+  clean above      grew  71.4%  flag  51.8%  (n 112)
+  slope            grew  87.5%  flag  62.5%  (n 16)
+  slope above      grew  85.7%  flag  57.1%  (n 14)
+  big slope        grew  90.9%  flag  72.7%  (n 11)
+  big slope above  grew  88.9%  flag  66.7%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  13.5%  (n 108 / 74)
+  slope lift       grew   29.7 pts  flag   23.3 pts
+  odds ratio       grew   5.12      flag   2.58
+
+==== BAND -0.15:1
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  37.0%  (n 13800)
+  clean above      grew  66.7%  flag  51.7%  (n 4636)
+  slope            grew  82.0%  flag  72.8%  (n 400)
+  slope above      grew  94.8%  flag  87.3%  (n 251)
+  big slope        grew  87.5%  flag  84.0%  (n 200)
+  big slope above  grew  97.8%  flag  94.9%  (n 138)
+  pulse            grew   1.8%  flag   1.8%  (n 400)
+  step             grew  16.5%  flag  14.0%  (n 200)
+  precision        grew  11.1%  flag  13.4%  (n 2947 / 2174)
+  slope lift       grew   29.9 pts  flag   35.8 pts
+  odds ratio       grew   4.19      flag   4.55
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  46.1%  (n 6412)
+  clean above      grew  78.5%  flag  60.5%  (n 2362)
+  slope            grew  88.2%  flag  78.6%  (n 262)
+  slope above      grew  97.6%  flag  90.5%  (n 168)
+  big slope        grew  90.6%  flag  87.8%  (n 139)
+  big slope above  grew  97.9%  flag  96.8%  (n 95)
+  pulse            grew   3.7%  flag   3.7%  (n 81)
+  step             grew  25.9%  flag  23.5%  (n 81)
+  precision        grew  10.4%  flag  12.6%  (n 2221 / 1631)
+  slope lift       grew   23.4 pts  flag   32.5 pts
+  odds ratio       grew   4.04      flag   4.30
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  35.7%  (n 41400)
+  clean above      grew  62.8%  flag  48.8%  (n 13516)
+  slope            grew  81.3%  flag  72.9%  (n 1200)
+  slope above      grew  93.4%  flag  86.9%  (n 757)
+  big slope        grew  89.7%  flag  85.0%  (n 600)
+  big slope above  grew  96.0%  flag  91.6%  (n 451)
+  pulse            grew   2.0%  flag   2.0%  (n 1200)
+  step             grew  14.8%  flag  12.2%  (n 600)
+  precision        grew  11.3%  flag  13.8%  (n 8640 / 6326)
+  slope lift       grew   30.7 pts  flag   37.3 pts
+  odds ratio       grew   4.24      flag   4.86
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  45.7%  (n 17950)
+  clean above      grew  78.3%  flag  60.6%  (n 6077)
+  slope            grew  87.9%  flag  79.8%  (n 743)
+  slope above      grew  96.5%  flag  90.6%  (n 491)
+  big slope        grew  92.6%  flag  88.5%  (n 408)
+  big slope above  grew  97.7%  flag  94.1%  (n 304)
+  pulse            grew   3.3%  flag   3.3%  (n 214)
+  step             grew  22.2%  flag  19.1%  (n 225)
+  precision        grew  10.4%  flag  13.0%  (n 6269 / 4572)
+  slope lift       grew   23.0 pts  flag   34.1 pts
+  odds ratio       grew   3.92      flag   4.69
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  30.4%  (n 13800)
+  clean above      grew  55.9%  flag  42.5%  (n 5145)
+  slope            grew  77.8%  flag  65.0%  (n 400)
+  slope above      grew  88.4%  flag  78.5%  (n 251)
+  big slope        grew  88.0%  flag  78.5%  (n 200)
+  big slope above  grew  92.4%  flag  82.9%  (n 158)
+  pulse            grew   2.3%  flag   2.3%  (n 400)
+  step             grew  17.5%  flag  13.5%  (n 200)
+  precision        grew  12.3%  flag  14.7%  (n 2525 / 1765)
+  slope lift       grew   33.2 pts  flag   34.6 pts
+  odds ratio       grew   4.36      flag   4.24
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  42.7%  (n 4083)
+  clean above      grew  74.3%  flag  56.9%  (n 1660)
+  slope            grew  86.2%  flag  71.3%  (n 174)
+  slope above      grew  93.0%  flag  81.7%  (n 115)
+  big slope        grew  93.0%  flag  82.0%  (n 100)
+  big slope above  grew  96.1%  flag  84.4%  (n 77)
+  pulse            grew   4.0%  flag   4.0%  (n 50)
+  step             grew  27.3%  flag  20.0%  (n 55)
+  precision        grew  10.8%  flag  13.0%  (n 1394 / 957)
+  slope lift       grew   23.7 pts  flag   28.6 pts
+  odds ratio       grew   3.75      flag   3.33
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  39.6%  (n 13800)
+  clean above      grew  67.3%  flag  53.7%  (n 3735)
+  slope            grew  84.0%  flag  81.0%  (n 400)
+  slope above      grew  96.9%  flag  94.9%  (n 255)
+  big slope        grew  93.5%  flag  92.5%  (n 200)
+  big slope above  grew  98.1%  flag  97.4%  (n 155)
+  pulse            grew   2.0%  flag   2.0%  (n 400)
+  step             grew  10.5%  flag   9.0%  (n 200)
+  precision        grew  10.6%  flag  13.6%  (n 3168 / 2387)
+  slope lift       grew   28.9 pts  flag   41.4 pts
+  odds ratio       grew   4.28      flag   6.51
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  47.1%  (n 7455)
+  clean above      grew  81.3%  flag  63.7%  (n 2055)
+  slope            grew  88.6%  flag  85.7%  (n 307)
+  slope above      grew  97.6%  flag  95.7%  (n 208)
+  big slope        grew  94.1%  flag  92.9%  (n 169)
+  big slope above  grew  98.5%  flag  97.7%  (n 132)
+  pulse            grew   2.4%  flag   2.4%  (n 83)
+  step             grew  15.7%  flag  14.6%  (n 89)
+  precision        grew  10.2%  flag  13.3%  (n 2654 / 1984)
+  slope lift       grew   22.2 pts  flag   38.6 pts
+  odds ratio       grew   3.94      flag   6.71
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   3.3%  (n 23000)
+  clean above      grew   8.7%  flag   4.8%  (n 6134)
+  slope            grew  46.5%  flag  36.2%  (n 600)
+  slope above      grew  53.3%  flag  41.7%  (n 465)
+  big slope        grew  70.0%  flag  57.5%  (n 200)
+  big slope above  grew  74.3%  flag  61.4%  (n 171)
+  pulse            grew   0.4%  flag   0.4%  (n 800)
+  step             grew   5.5%  flag   3.5%  (n 400)
+  precision        grew  31.1%  flag  42.1%  (n 898 / 516)
+  slope lift       grew   39.5 pts  flag   32.9 pts
+  odds ratio       grew  11.51      flag  16.63
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  27.8%  (n 18)
+  slope            grew 100.0%  flag 100.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  28.6%  (n 12 / 7)
+  slope lift       grew   44.4 pts  flag   72.2 pts
+  odds ratio       grew Infinity      flag Infinity
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag  10.0%  (n 27600)
+  clean above      grew  21.5%  flag  15.2%  (n 8972)
+  slope            grew  53.8%  flag  40.1%  (n 800)
+  slope above      grew  61.5%  flag  49.4%  (n 543)
+  big slope        grew  65.0%  flag  53.3%  (n 400)
+  big slope above  grew  68.5%  flag  58.3%  (n 314)
+  pulse            grew   0.9%  flag   0.8%  (n 800)
+  step             grew   8.0%  flag   5.0%  (n 400)
+  precision        grew  20.4%  flag  23.2%  (n 2105 / 1383)
+  slope lift       grew   37.9 pts  flag   30.2 pts
+  odds ratio       grew   6.15      flag   6.06
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  41.8%  (n 232)
+  clean above      grew  71.4%  flag  54.5%  (n 112)
+  slope            grew  87.5%  flag  75.0%  (n 16)
+  slope above      grew  85.7%  flag  71.4%  (n 14)
+  big slope        grew  90.9%  flag  90.9%  (n 11)
+  big slope above  grew  88.9%  flag  88.9%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  14.8%  (n 108 / 81)
+  slope lift       grew   29.7 pts  flag   33.2 pts
+  odds ratio       grew   5.12      flag   4.18
+
+==== BAND -0.2:0.1
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  33.2%  (n 13800)
+  clean above      grew  66.7%  flag  48.2%  (n 4636)
+  slope            grew  82.0%  flag  74.3%  (n 400)
+  slope above      grew  94.8%  flag  88.0%  (n 251)
+  big slope        grew  87.5%  flag  86.0%  (n 200)
+  big slope above  grew  97.8%  flag  95.7%  (n 138)
+  pulse            grew   1.8%  flag   0.0%  (n 400)
+  step             grew  16.5%  flag  13.0%  (n 200)
+  precision        grew  11.1%  flag  14.8%  (n 2947 / 2012)
+  slope lift       grew   29.9 pts  flag   41.0 pts
+  odds ratio       grew   4.19      flag   5.80
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  42.3%  (n 6412)
+  clean above      grew  78.5%  flag  57.4%  (n 2362)
+  slope            grew  88.2%  flag  80.2%  (n 262)
+  slope above      grew  97.6%  flag  91.1%  (n 168)
+  big slope        grew  90.6%  flag  89.9%  (n 139)
+  big slope above  grew  97.9%  flag  96.8%  (n 95)
+  pulse            grew   3.7%  flag   0.0%  (n 81)
+  step             grew  25.9%  flag  23.5%  (n 81)
+  precision        grew  10.4%  flag  13.9%  (n 2221 / 1516)
+  slope lift       grew   23.4 pts  flag   37.8 pts
+  odds ratio       grew   4.04      flag   5.50
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  31.6%  (n 41400)
+  clean above      grew  62.8%  flag  44.3%  (n 13516)
+  slope            grew  81.3%  flag  72.5%  (n 1200)
+  slope above      grew  93.4%  flag  86.5%  (n 757)
+  big slope        grew  89.7%  flag  86.2%  (n 600)
+  big slope above  grew  96.0%  flag  92.5%  (n 451)
+  pulse            grew   2.0%  flag   0.0%  (n 1200)
+  step             grew  14.8%  flag  11.8%  (n 600)
+  precision        grew  11.3%  flag  15.1%  (n 8640 / 5780)
+  slope lift       grew   30.7 pts  flag   40.9 pts
+  odds ratio       grew   4.24      flag   5.70
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  42.1%  (n 17950)
+  clean above      grew  78.3%  flag  56.9%  (n 6077)
+  slope            grew  87.9%  flag  79.9%  (n 743)
+  slope above      grew  96.5%  flag  90.4%  (n 491)
+  big slope        grew  92.6%  flag  90.2%  (n 408)
+  big slope above  grew  97.7%  flag  95.4%  (n 304)
+  pulse            grew   3.3%  flag   0.0%  (n 214)
+  step             grew  22.2%  flag  19.1%  (n 225)
+  precision        grew  10.4%  flag  14.0%  (n 6269 / 4242)
+  slope lift       grew   23.0 pts  flag   37.9 pts
+  odds ratio       grew   3.92      flag   5.49
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  23.0%  (n 13800)
+  clean above      grew  55.9%  flag  33.2%  (n 5145)
+  slope            grew  77.8%  flag  62.5%  (n 400)
+  slope above      grew  88.4%  flag  76.1%  (n 251)
+  big slope        grew  88.0%  flag  79.5%  (n 200)
+  big slope above  grew  92.4%  flag  84.2%  (n 158)
+  pulse            grew   2.3%  flag   0.0%  (n 400)
+  step             grew  17.5%  flag  12.5%  (n 200)
+  precision        grew  12.3%  flag  17.8%  (n 2525 / 1403)
+  slope lift       grew   33.2 pts  flag   39.5 pts
+  odds ratio       grew   4.36      flag   5.59
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  33.1%  (n 4083)
+  clean above      grew  74.3%  flag  45.1%  (n 1660)
+  slope            grew  86.2%  flag  69.0%  (n 174)
+  slope above      grew  93.0%  flag  79.1%  (n 115)
+  big slope        grew  93.0%  flag  85.0%  (n 100)
+  big slope above  grew  96.1%  flag  88.3%  (n 77)
+  pulse            grew   4.0%  flag   0.0%  (n 50)
+  step             grew  27.3%  flag  18.2%  (n 55)
+  precision        grew  10.8%  flag  15.9%  (n 1394 / 753)
+  slope lift       grew   23.7 pts  flag   35.9 pts
+  odds ratio       grew   3.75      flag   4.49
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  38.6%  (n 13800)
+  clean above      grew  67.3%  flag  54.6%  (n 3735)
+  slope            grew  84.0%  flag  80.8%  (n 400)
+  slope above      grew  96.9%  flag  95.3%  (n 255)
+  big slope        grew  93.5%  flag  93.0%  (n 200)
+  big slope above  grew  98.1%  flag  98.1%  (n 155)
+  pulse            grew   2.0%  flag   0.0%  (n 400)
+  step             grew  10.5%  flag  10.0%  (n 200)
+  precision        grew  10.6%  flag  13.7%  (n 3168 / 2365)
+  slope lift       grew   28.9 pts  flag   42.1 pts
+  odds ratio       grew   4.28      flag   6.66
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  46.7%  (n 7455)
+  clean above      grew  81.3%  flag  65.8%  (n 2055)
+  slope            grew  88.6%  flag  86.0%  (n 307)
+  slope above      grew  97.6%  flag  96.2%  (n 208)
+  big slope        grew  94.1%  flag  93.5%  (n 169)
+  big slope above  grew  98.5%  flag  98.5%  (n 132)
+  pulse            grew   2.4%  flag   0.0%  (n 83)
+  step             grew  15.7%  flag  15.7%  (n 89)
+  precision        grew  10.2%  flag  13.4%  (n 2654 / 1973)
+  slope lift       grew   22.2 pts  flag   39.2 pts
+  odds ratio       grew   3.94      flag   6.99
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   1.5%  (n 23000)
+  clean above      grew   8.7%  flag   2.1%  (n 6134)
+  slope            grew  46.5%  flag  25.0%  (n 600)
+  slope above      grew  53.3%  flag  28.8%  (n 465)
+  big slope        grew  70.0%  flag  42.5%  (n 200)
+  big slope above  grew  74.3%  flag  43.9%  (n 171)
+  pulse            grew   0.4%  flag   0.0%  (n 800)
+  step             grew   5.5%  flag   1.5%  (n 400)
+  precision        grew  31.1%  flag  51.7%  (n 898 / 290)
+  slope lift       grew   39.5 pts  flag   23.5 pts
+  odds ratio       grew  11.51      flag  22.02
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  22.2%  (n 18)
+  slope            grew 100.0%  flag  50.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  20.0%  (n 12 / 5)
+  slope lift       grew   44.4 pts  flag   27.8 pts
+  odds ratio       grew Infinity      flag   3.50
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   5.2%  (n 27600)
+  clean above      grew  21.5%  flag   7.8%  (n 8972)
+  slope            grew  53.8%  flag  31.1%  (n 800)
+  slope above      grew  61.5%  flag  38.1%  (n 543)
+  big slope        grew  65.0%  flag  42.3%  (n 400)
+  big slope above  grew  68.5%  flag  47.8%  (n 314)
+  pulse            grew   0.9%  flag   0.1%  (n 800)
+  step             grew   8.0%  flag   2.5%  (n 400)
+  precision        grew  20.4%  flag  29.4%  (n 2105 / 848)
+  slope lift       grew   37.9 pts  flag   25.9 pts
+  odds ratio       grew   6.15      flag   8.18
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  21.1%  (n 232)
+  clean above      grew  71.4%  flag  27.7%  (n 112)
+  slope            grew  87.5%  flag  37.5%  (n 16)
+  slope above      grew  85.7%  flag  42.9%  (n 14)
+  big slope        grew  90.9%  flag  54.5%  (n 11)
+  big slope above  grew  88.9%  flag  66.7%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  14.3%  (n 108 / 42)
+  slope lift       grew   29.7 pts  flag   16.4 pts
+  odds ratio       grew   5.12      flag   2.24
+
+==== BAND -0.15:0.05
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  25.6%  (n 13800)
+  clean above      grew  66.7%  flag  37.8%  (n 4636)
+  slope            grew  82.0%  flag  64.0%  (n 400)
+  slope above      grew  94.8%  flag  77.3%  (n 251)
+  big slope        grew  87.5%  flag  77.5%  (n 200)
+  big slope above  grew  97.8%  flag  88.4%  (n 138)
+  pulse            grew   1.8%  flag   0.0%  (n 400)
+  step             grew  16.5%  flag  11.5%  (n 200)
+  precision        grew  11.1%  flag  16.1%  (n 2947 / 1592)
+  slope lift       grew   29.9 pts  flag   38.4 pts
+  odds ratio       grew   4.19      flag   5.18
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  32.9%  (n 6412)
+  clean above      grew  78.5%  flag  45.1%  (n 2362)
+  slope            grew  88.2%  flag  69.8%  (n 262)
+  slope above      grew  97.6%  flag  81.5%  (n 168)
+  big slope        grew  90.6%  flag  82.7%  (n 139)
+  big slope above  grew  97.9%  flag  92.6%  (n 95)
+  pulse            grew   3.7%  flag   0.0%  (n 81)
+  step             grew  25.9%  flag  19.8%  (n 81)
+  precision        grew  10.4%  flag  15.2%  (n 2221 / 1205)
+  slope lift       grew   23.4 pts  flag   37.0 pts
+  odds ratio       grew   4.04      flag   4.73
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  24.2%  (n 41400)
+  clean above      grew  62.8%  flag  34.3%  (n 13516)
+  slope            grew  81.3%  flag  64.2%  (n 1200)
+  slope above      grew  93.4%  flag  77.4%  (n 757)
+  big slope        grew  89.7%  flag  78.5%  (n 600)
+  big slope above  grew  96.0%  flag  85.1%  (n 451)
+  pulse            grew   2.0%  flag   0.0%  (n 1200)
+  step             grew  14.8%  flag  10.7%  (n 600)
+  precision        grew  11.3%  flag  16.8%  (n 8640 / 4591)
+  slope lift       grew   30.7 pts  flag   40.0 pts
+  odds ratio       grew   4.24      flag   5.61
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  32.6%  (n 17950)
+  clean above      grew  78.3%  flag  44.5%  (n 6077)
+  slope            grew  87.9%  flag  72.3%  (n 743)
+  slope above      grew  96.5%  flag  82.3%  (n 491)
+  big slope        grew  92.6%  flag  83.6%  (n 408)
+  big slope above  grew  97.7%  flag  89.5%  (n 304)
+  pulse            grew   3.3%  flag   0.0%  (n 214)
+  step             grew  22.2%  flag  16.9%  (n 225)
+  precision        grew  10.4%  flag  15.8%  (n 6269 / 3399)
+  slope lift       grew   23.0 pts  flag   39.7 pts
+  odds ratio       grew   3.92      flag   5.40
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  16.7%  (n 13800)
+  clean above      grew  55.9%  flag  24.7%  (n 5145)
+  slope            grew  77.8%  flag  52.8%  (n 400)
+  slope above      grew  88.4%  flag  64.9%  (n 251)
+  big slope        grew  88.0%  flag  69.0%  (n 200)
+  big slope above  grew  92.4%  flag  72.2%  (n 158)
+  pulse            grew   2.3%  flag   0.0%  (n 400)
+  step             grew  17.5%  flag  11.5%  (n 200)
+  precision        grew  12.3%  flag  19.8%  (n 2525 / 1065)
+  slope lift       grew   33.2 pts  flag   36.0 pts
+  odds ratio       grew   4.36      flag   5.56
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  24.1%  (n 4083)
+  clean above      grew  74.3%  flag  33.9%  (n 1660)
+  slope            grew  86.2%  flag  60.9%  (n 174)
+  slope above      grew  93.0%  flag  67.8%  (n 115)
+  big slope        grew  93.0%  flag  74.0%  (n 100)
+  big slope above  grew  96.1%  flag  74.0%  (n 77)
+  pulse            grew   4.0%  flag   0.0%  (n 50)
+  step             grew  27.3%  flag  16.4%  (n 55)
+  precision        grew  10.8%  flag  18.2%  (n 1394 / 583)
+  slope lift       grew   23.7 pts  flag   36.8 pts
+  odds ratio       grew   3.75      flag   4.91
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  30.3%  (n 13800)
+  clean above      grew  67.3%  flag  43.4%  (n 3735)
+  slope            grew  84.0%  flag  75.8%  (n 400)
+  slope above      grew  96.9%  flag  89.8%  (n 255)
+  big slope        grew  93.5%  flag  89.0%  (n 200)
+  big slope above  grew  98.1%  flag  95.5%  (n 155)
+  pulse            grew   2.0%  flag   0.0%  (n 400)
+  step             grew  10.5%  flag   9.0%  (n 200)
+  precision        grew  10.6%  flag  15.7%  (n 3168 / 1934)
+  slope lift       grew   28.9 pts  flag   45.4 pts
+  odds ratio       grew   4.28      flag   7.18
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  36.9%  (n 7455)
+  clean above      grew  81.3%  flag  52.4%  (n 2055)
+  slope            grew  88.6%  flag  80.8%  (n 307)
+  slope above      grew  97.6%  flag  90.9%  (n 208)
+  big slope        grew  94.1%  flag  89.9%  (n 169)
+  big slope above  grew  98.5%  flag  96.2%  (n 132)
+  pulse            grew   2.4%  flag   0.0%  (n 83)
+  step             grew  15.7%  flag  14.6%  (n 89)
+  precision        grew  10.2%  flag  15.4%  (n 2654 / 1611)
+  slope lift       grew   22.2 pts  flag   43.9 pts
+  odds ratio       grew   3.94      flag   7.18
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   1.0%  (n 23000)
+  clean above      grew   8.7%  flag   1.4%  (n 6134)
+  slope            grew  46.5%  flag  19.2%  (n 600)
+  slope above      grew  53.3%  flag  22.8%  (n 465)
+  big slope        grew  70.0%  flag  31.5%  (n 200)
+  big slope above  grew  74.3%  flag  34.5%  (n 171)
+  pulse            grew   0.4%  flag   0.0%  (n 800)
+  step             grew   5.5%  flag   0.8%  (n 400)
+  precision        grew  31.1%  flag  53.7%  (n 898 / 214)
+  slope lift       grew   39.5 pts  flag   18.1 pts
+  odds ratio       grew  11.51      flag  22.49
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  22.2%  (n 18)
+  slope            grew 100.0%  flag  50.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  20.0%  (n 12 / 5)
+  slope lift       grew   44.4 pts  flag   27.8 pts
+  odds ratio       grew Infinity      flag   3.50
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   3.7%  (n 27600)
+  clean above      grew  21.5%  flag   5.6%  (n 8972)
+  slope            grew  53.8%  flag  21.5%  (n 800)
+  slope above      grew  61.5%  flag  26.3%  (n 543)
+  big slope        grew  65.0%  flag  30.3%  (n 400)
+  big slope above  grew  68.5%  flag  33.4%  (n 314)
+  pulse            grew   0.9%  flag   0.1%  (n 800)
+  step             grew   8.0%  flag   1.5%  (n 400)
+  precision        grew  20.4%  flag  28.9%  (n 2105 / 595)
+  slope lift       grew   37.9 pts  flag   17.8 pts
+  odds ratio       grew   6.15      flag   7.14
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  16.8%  (n 232)
+  clean above      grew  71.4%  flag  21.4%  (n 112)
+  slope            grew  87.5%  flag  31.3%  (n 16)
+  slope above      grew  85.7%  flag  35.7%  (n 14)
+  big slope        grew  90.9%  flag  45.5%  (n 11)
+  big slope above  grew  88.9%  flag  55.6%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  15.2%  (n 108 / 33)
+  slope lift       grew   29.7 pts  flag   14.4 pts
+  odds ratio       grew   5.12      flag   2.25
+
+==== BAND -0.1:0.05
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  19.3%  (n 13800)
+  clean above      grew  66.7%  flag  28.5%  (n 4636)
+  slope            grew  82.0%  flag  51.0%  (n 400)
+  slope above      grew  94.8%  flag  64.5%  (n 251)
+  big slope        grew  87.5%  flag  65.5%  (n 200)
+  big slope above  grew  97.8%  flag  76.1%  (n 138)
+  pulse            grew   1.8%  flag   0.0%  (n 400)
+  step             grew  16.5%  flag   9.0%  (n 200)
+  precision        grew  11.1%  flag  16.7%  (n 2947 / 1223)
+  slope lift       grew   29.9 pts  flag   31.7 pts
+  odds ratio       grew   4.19      flag   4.35
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  24.6%  (n 6412)
+  clean above      grew  78.5%  flag  33.9%  (n 2362)
+  slope            grew  88.2%  flag  54.6%  (n 262)
+  slope above      grew  97.6%  flag  66.7%  (n 168)
+  big slope        grew  90.6%  flag  70.5%  (n 139)
+  big slope above  grew  97.9%  flag  80.0%  (n 95)
+  pulse            grew   3.7%  flag   0.0%  (n 81)
+  step             grew  25.9%  flag  18.5%  (n 81)
+  precision        grew  10.4%  flag  15.6%  (n 2221 / 918)
+  slope lift       grew   23.4 pts  flag   30.0 pts
+  odds ratio       grew   4.04      flag   3.69
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  18.3%  (n 41400)
+  clean above      grew  62.8%  flag  26.4%  (n 13516)
+  slope            grew  81.3%  flag  55.3%  (n 1200)
+  slope above      grew  93.4%  flag  68.2%  (n 757)
+  big slope        grew  89.7%  flag  69.5%  (n 600)
+  big slope above  grew  96.0%  flag  76.3%  (n 451)
+  pulse            grew   2.0%  flag   0.0%  (n 1200)
+  step             grew  14.8%  flag   8.2%  (n 600)
+  precision        grew  11.3%  flag  18.4%  (n 8640 / 3601)
+  slope lift       grew   30.7 pts  flag   37.1 pts
+  odds ratio       grew   4.24      flag   5.54
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  24.3%  (n 17950)
+  clean above      grew  78.3%  flag  33.7%  (n 6077)
+  slope            grew  87.9%  flag  62.0%  (n 743)
+  slope above      grew  96.5%  flag  72.3%  (n 491)
+  big slope        grew  92.6%  flag  75.0%  (n 408)
+  big slope above  grew  97.7%  flag  81.3%  (n 304)
+  pulse            grew   3.3%  flag   0.0%  (n 214)
+  step             grew  22.2%  flag  13.8%  (n 225)
+  precision        grew  10.4%  flag  17.4%  (n 6269 / 2651)
+  slope lift       grew   23.0 pts  flag   37.7 pts
+  odds ratio       grew   3.92      flag   5.08
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  12.8%  (n 13800)
+  clean above      grew  55.9%  flag  19.4%  (n 5145)
+  slope            grew  77.8%  flag  44.3%  (n 400)
+  slope above      grew  88.4%  flag  54.6%  (n 251)
+  big slope        grew  88.0%  flag  57.0%  (n 200)
+  big slope above  grew  92.4%  flag  60.8%  (n 158)
+  pulse            grew   2.3%  flag   0.0%  (n 400)
+  step             grew  17.5%  flag   9.5%  (n 200)
+  precision        grew  12.3%  flag  21.0%  (n 2525 / 844)
+  slope lift       grew   33.2 pts  flag   31.5 pts
+  odds ratio       grew   4.36      flag   5.41
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  18.1%  (n 4083)
+  clean above      grew  74.3%  flag  26.2%  (n 1660)
+  slope            grew  86.2%  flag  50.0%  (n 174)
+  slope above      grew  93.0%  flag  55.7%  (n 115)
+  big slope        grew  93.0%  flag  61.0%  (n 100)
+  big slope above  grew  96.1%  flag  62.3%  (n 77)
+  pulse            grew   4.0%  flag   0.0%  (n 50)
+  step             grew  27.3%  flag  14.5%  (n 55)
+  precision        grew  10.8%  flag  18.8%  (n 1394 / 462)
+  slope lift       grew   23.7 pts  flag   31.9 pts
+  odds ratio       grew   3.75      flag   4.52
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  22.8%  (n 13800)
+  clean above      grew  67.3%  flag  33.3%  (n 3735)
+  slope            grew  84.0%  flag  70.8%  (n 400)
+  slope above      grew  96.9%  flag  85.1%  (n 255)
+  big slope        grew  93.5%  flag  86.0%  (n 200)
+  big slope above  grew  98.1%  flag  92.3%  (n 155)
+  pulse            grew   2.0%  flag   0.0%  (n 400)
+  step             grew  10.5%  flag   6.0%  (n 200)
+  precision        grew  10.6%  flag  18.4%  (n 3168 / 1534)
+  slope lift       grew   28.9 pts  flag   48.0 pts
+  odds ratio       grew   4.28      flag   8.21
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  27.5%  (n 7455)
+  clean above      grew  81.3%  flag  39.5%  (n 2055)
+  slope            grew  88.6%  flag  75.2%  (n 307)
+  slope above      grew  97.6%  flag  86.1%  (n 208)
+  big slope        grew  94.1%  flag  87.0%  (n 169)
+  big slope above  grew  98.5%  flag  93.2%  (n 132)
+  pulse            grew   2.4%  flag   0.0%  (n 83)
+  step             grew  15.7%  flag   9.0%  (n 89)
+  precision        grew  10.2%  flag  18.2%  (n 2654 / 1271)
+  slope lift       grew   22.2 pts  flag   47.7 pts
+  odds ratio       grew   3.94      flag   8.00
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   0.8%  (n 23000)
+  clean above      grew   8.7%  flag   1.1%  (n 6134)
+  slope            grew  46.5%  flag  14.7%  (n 600)
+  slope above      grew  53.3%  flag  17.8%  (n 465)
+  big slope        grew  70.0%  flag  22.5%  (n 200)
+  big slope above  grew  74.3%  flag  26.3%  (n 171)
+  pulse            grew   0.4%  flag   0.0%  (n 800)
+  step             grew   5.5%  flag   0.5%  (n 400)
+  precision        grew  31.1%  flag  53.0%  (n 898 / 166)
+  slope lift       grew   39.5 pts  flag   13.9 pts
+  odds ratio       grew  11.51      flag  21.79
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  16.7%  (n 18)
+  slope            grew 100.0%  flag  50.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  25.0%  (n 12 / 4)
+  slope lift       grew   44.4 pts  flag   33.3 pts
+  odds ratio       grew Infinity      flag   5.00
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   2.8%  (n 27600)
+  clean above      grew  21.5%  flag   4.2%  (n 8972)
+  slope            grew  53.8%  flag  16.9%  (n 800)
+  slope above      grew  61.5%  flag  20.3%  (n 543)
+  big slope        grew  65.0%  flag  24.3%  (n 400)
+  big slope above  grew  68.5%  flag  26.1%  (n 314)
+  pulse            grew   0.9%  flag   0.1%  (n 800)
+  step             grew   8.0%  flag   1.0%  (n 400)
+  precision        grew  20.4%  flag  29.3%  (n 2105 / 461)
+  slope lift       grew   37.9 pts  flag   14.1 pts
+  odds ratio       grew   6.15      flag   7.04
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  14.2%  (n 232)
+  clean above      grew  71.4%  flag  18.8%  (n 112)
+  slope            grew  87.5%  flag  18.8%  (n 16)
+  slope above      grew  85.7%  flag  21.4%  (n 14)
+  big slope        grew  90.9%  flag  27.3%  (n 11)
+  big slope above  grew  88.9%  flag  33.3%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  11.5%  (n 108 / 26)
+  slope lift       grew   29.7 pts  flag    4.5 pts
+  odds ratio       grew   5.12      flag   1.39
+
+==== BAND -0.2:0.05
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  29.8%  (n 13800)
+  clean above      grew  66.7%  flag  43.3%  (n 4636)
+  slope            grew  82.0%  flag  68.8%  (n 400)
+  slope above      grew  94.8%  flag  82.5%  (n 251)
+  big slope        grew  87.5%  flag  80.5%  (n 200)
+  big slope above  grew  97.8%  flag  90.6%  (n 138)
+  pulse            grew   1.8%  flag   0.0%  (n 400)
+  step             grew  16.5%  flag  11.5%  (n 200)
+  precision        grew  11.1%  flag  15.0%  (n 2947 / 1830)
+  slope lift       grew   29.9 pts  flag   38.9 pts
+  odds ratio       grew   4.19      flag   5.18
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  38.4%  (n 6412)
+  clean above      grew  78.5%  flag  51.9%  (n 2362)
+  slope            grew  88.2%  flag  75.2%  (n 262)
+  slope above      grew  97.6%  flag  86.9%  (n 168)
+  big slope        grew  90.6%  flag  85.6%  (n 139)
+  big slope above  grew  97.9%  flag  93.7%  (n 95)
+  pulse            grew   3.7%  flag   0.0%  (n 81)
+  step             grew  25.9%  flag  19.8%  (n 81)
+  precision        grew  10.4%  flag  14.3%  (n 2221 / 1381)
+  slope lift       grew   23.4 pts  flag   36.8 pts
+  odds ratio       grew   4.04      flag   4.87
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  28.4%  (n 41400)
+  clean above      grew  62.8%  flag  39.5%  (n 13516)
+  slope            grew  81.3%  flag  67.8%  (n 1200)
+  slope above      grew  93.4%  flag  81.4%  (n 757)
+  big slope        grew  89.7%  flag  81.3%  (n 600)
+  big slope above  grew  96.0%  flag  87.8%  (n 451)
+  pulse            grew   2.0%  flag   0.0%  (n 1200)
+  step             grew  14.8%  flag  11.3%  (n 600)
+  precision        grew  11.3%  flag  15.4%  (n 8640 / 5280)
+  slope lift       grew   30.7 pts  flag   39.4 pts
+  odds ratio       grew   4.24      flag   5.31
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  38.3%  (n 17950)
+  clean above      grew  78.3%  flag  51.5%  (n 6077)
+  slope            grew  87.9%  flag  76.2%  (n 743)
+  slope above      grew  96.5%  flag  86.4%  (n 491)
+  big slope        grew  92.6%  flag  86.5%  (n 408)
+  big slope above  grew  97.7%  flag  92.1%  (n 304)
+  pulse            grew   3.3%  flag   0.0%  (n 214)
+  step             grew  22.2%  flag  17.8%  (n 225)
+  precision        grew  10.4%  flag  14.5%  (n 6269 / 3909)
+  slope lift       grew   23.0 pts  flag   37.9 pts
+  odds ratio       grew   3.92      flag   5.15
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  19.8%  (n 13800)
+  clean above      grew  55.9%  flag  28.4%  (n 5145)
+  slope            grew  77.8%  flag  57.0%  (n 400)
+  slope above      grew  88.4%  flag  69.7%  (n 251)
+  big slope        grew  88.0%  flag  73.5%  (n 200)
+  big slope above  grew  92.4%  flag  77.2%  (n 158)
+  pulse            grew   2.3%  flag   0.0%  (n 400)
+  step             grew  17.5%  flag  12.5%  (n 200)
+  precision        grew  12.3%  flag  18.5%  (n 2525 / 1231)
+  slope lift       grew   33.2 pts  flag   37.2 pts
+  odds ratio       grew   4.36      flag   5.38
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  28.8%  (n 4083)
+  clean above      grew  74.3%  flag  39.0%  (n 1660)
+  slope            grew  86.2%  flag  65.5%  (n 174)
+  slope above      grew  93.0%  flag  73.9%  (n 115)
+  big slope        grew  93.0%  flag  80.0%  (n 100)
+  big slope above  grew  96.1%  flag  81.8%  (n 77)
+  pulse            grew   4.0%  flag   0.0%  (n 50)
+  step             grew  27.3%  flag  18.2%  (n 55)
+  precision        grew  10.8%  flag  16.8%  (n 1394 / 680)
+  slope lift       grew   23.7 pts  flag   36.7 pts
+  odds ratio       grew   3.75      flag   4.70
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  35.6%  (n 13800)
+  clean above      grew  67.3%  flag  50.1%  (n 3735)
+  slope            grew  84.0%  flag  77.8%  (n 400)
+  slope above      grew  96.9%  flag  91.8%  (n 255)
+  big slope        grew  93.5%  flag  90.0%  (n 200)
+  big slope above  grew  98.1%  flag  96.1%  (n 155)
+  pulse            grew   2.0%  flag   0.0%  (n 400)
+  step             grew  10.5%  flag  10.0%  (n 200)
+  precision        grew  10.6%  flag  14.0%  (n 3168 / 2219)
+  slope lift       grew   28.9 pts  flag   42.1 pts
+  odds ratio       grew   4.28      flag   6.31
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  43.5%  (n 7455)
+  clean above      grew  81.3%  flag  61.0%  (n 2055)
+  slope            grew  88.6%  flag  83.1%  (n 307)
+  slope above      grew  97.6%  flag  92.8%  (n 208)
+  big slope        grew  94.1%  flag  91.1%  (n 169)
+  big slope above  grew  98.5%  flag  97.0%  (n 132)
+  pulse            grew   2.4%  flag   0.0%  (n 83)
+  step             grew  15.7%  flag  15.7%  (n 89)
+  precision        grew  10.2%  flag  13.8%  (n 2654 / 1848)
+  slope lift       grew   22.2 pts  flag   39.6 pts
+  odds ratio       grew   3.94      flag   6.38
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   1.3%  (n 23000)
+  clean above      grew   8.7%  flag   1.6%  (n 6134)
+  slope            grew  46.5%  flag  21.2%  (n 600)
+  slope above      grew  53.3%  flag  24.7%  (n 465)
+  big slope        grew  70.0%  flag  34.5%  (n 200)
+  big slope above  grew  74.3%  flag  36.8%  (n 171)
+  pulse            grew   0.4%  flag   0.0%  (n 800)
+  step             grew   5.5%  flag   0.8%  (n 400)
+  precision        grew  31.1%  flag  51.8%  (n 898 / 245)
+  slope lift       grew   39.5 pts  flag   19.9 pts
+  odds ratio       grew  11.51      flag  20.95
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  22.2%  (n 18)
+  slope            grew 100.0%  flag  50.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  20.0%  (n 12 / 5)
+  slope lift       grew   44.4 pts  flag   27.8 pts
+  odds ratio       grew Infinity      flag   3.50
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   4.4%  (n 27600)
+  clean above      grew  21.5%  flag   6.5%  (n 8972)
+  slope            grew  53.8%  flag  25.5%  (n 800)
+  slope above      grew  61.5%  flag  31.1%  (n 543)
+  big slope        grew  65.0%  flag  34.5%  (n 400)
+  big slope above  grew  68.5%  flag  38.5%  (n 314)
+  pulse            grew   0.9%  flag   0.1%  (n 800)
+  step             grew   8.0%  flag   2.0%  (n 400)
+  precision        grew  20.4%  flag  28.5%  (n 2105 / 715)
+  slope lift       grew   37.9 pts  flag   21.1 pts
+  odds ratio       grew   6.15      flag   7.41
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  17.2%  (n 232)
+  clean above      grew  71.4%  flag  22.3%  (n 112)
+  slope            grew  87.5%  flag  31.3%  (n 16)
+  slope above      grew  85.7%  flag  35.7%  (n 14)
+  big slope        grew  90.9%  flag  45.5%  (n 11)
+  big slope above  grew  88.9%  flag  55.6%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  14.7%  (n 108 / 34)
+  slope lift       grew   29.7 pts  flag   14.0 pts
+  odds ratio       grew   5.12      flag   2.18
+
+==== BAND -0.25:0.1
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  36.1%  (n 13800)
+  clean above      grew  66.7%  flag  51.7%  (n 4636)
+  slope            grew  82.0%  flag  75.3%  (n 400)
+  slope above      grew  94.8%  flag  88.8%  (n 251)
+  big slope        grew  87.5%  flag  86.0%  (n 200)
+  big slope above  grew  97.8%  flag  95.7%  (n 138)
+  pulse            grew   1.8%  flag   0.0%  (n 400)
+  step             grew  16.5%  flag  14.0%  (n 200)
+  precision        grew  11.1%  flag  13.9%  (n 2947 / 2158)
+  slope lift       grew   29.9 pts  flag   39.1 pts
+  odds ratio       grew   4.19      flag   5.37
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  46.1%  (n 6412)
+  clean above      grew  78.5%  flag  61.6%  (n 2362)
+  slope            grew  88.2%  flag  81.3%  (n 262)
+  slope above      grew  97.6%  flag  91.7%  (n 168)
+  big slope        grew  90.6%  flag  89.9%  (n 139)
+  big slope above  grew  97.9%  flag  96.8%  (n 95)
+  pulse            grew   3.7%  flag   0.0%  (n 81)
+  step             grew  25.9%  flag  24.7%  (n 81)
+  precision        grew  10.4%  flag  13.1%  (n 2221 / 1632)
+  slope lift       grew   23.4 pts  flag   35.2 pts
+  odds ratio       grew   4.04      flag   5.09
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  34.4%  (n 41400)
+  clean above      grew  62.8%  flag  47.3%  (n 13516)
+  slope            grew  81.3%  flag  73.8%  (n 1200)
+  slope above      grew  93.4%  flag  87.2%  (n 757)
+  big slope        grew  89.7%  flag  86.7%  (n 600)
+  big slope above  grew  96.0%  flag  92.7%  (n 451)
+  pulse            grew   2.0%  flag   0.0%  (n 1200)
+  step             grew  14.8%  flag  12.2%  (n 600)
+  precision        grew  11.3%  flag  14.2%  (n 8640 / 6222)
+  slope lift       grew   30.7 pts  flag   39.3 pts
+  odds ratio       grew   4.24      flag   5.35
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  45.8%  (n 17950)
+  clean above      grew  78.3%  flag  60.8%  (n 6077)
+  slope            grew  87.9%  flag  81.3%  (n 743)
+  slope above      grew  96.5%  flag  90.8%  (n 491)
+  big slope        grew  92.6%  flag  90.7%  (n 408)
+  big slope above  grew  97.7%  flag  95.4%  (n 304)
+  pulse            grew   3.3%  flag   0.0%  (n 214)
+  step             grew  22.2%  flag  19.6%  (n 225)
+  precision        grew  10.4%  flag  13.2%  (n 6269 / 4577)
+  slope lift       grew   23.0 pts  flag   35.5 pts
+  odds ratio       grew   3.92      flag   5.14
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  25.3%  (n 13800)
+  clean above      grew  55.9%  flag  35.9%  (n 5145)
+  slope            grew  77.8%  flag  64.8%  (n 400)
+  slope above      grew  88.4%  flag  77.3%  (n 251)
+  big slope        grew  88.0%  flag  81.0%  (n 200)
+  big slope above  grew  92.4%  flag  84.8%  (n 158)
+  pulse            grew   2.3%  flag   0.0%  (n 400)
+  step             grew  17.5%  flag  12.5%  (n 200)
+  precision        grew  12.3%  flag  16.8%  (n 2525 / 1538)
+  slope lift       grew   33.2 pts  flag   39.4 pts
+  odds ratio       grew   4.36      flag   5.42
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  36.8%  (n 4083)
+  clean above      grew  74.3%  flag  49.0%  (n 1660)
+  slope            grew  86.2%  flag  71.8%  (n 174)
+  slope above      grew  93.0%  flag  80.0%  (n 115)
+  big slope        grew  93.0%  flag  87.0%  (n 100)
+  big slope above  grew  96.1%  flag  88.3%  (n 77)
+  pulse            grew   4.0%  flag   0.0%  (n 50)
+  step             grew  27.3%  flag  18.2%  (n 55)
+  precision        grew  10.8%  flag  14.9%  (n 1394 / 838)
+  slope lift       grew   23.7 pts  flag   35.1 pts
+  odds ratio       grew   3.75      flag   4.39
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  41.8%  (n 13800)
+  clean above      grew  67.3%  flag  57.4%  (n 3735)
+  slope            grew  84.0%  flag  81.3%  (n 400)
+  slope above      grew  96.9%  flag  95.3%  (n 255)
+  big slope        grew  93.5%  flag  93.0%  (n 200)
+  big slope above  grew  98.1%  flag  98.1%  (n 155)
+  pulse            grew   2.0%  flag   0.0%  (n 400)
+  step             grew  10.5%  flag  10.0%  (n 200)
+  precision        grew  10.6%  flag  12.9%  (n 3168 / 2526)
+  slope lift       grew   28.9 pts  flag   39.4 pts
+  odds ratio       grew   4.28      flag   6.03
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  50.6%  (n 7455)
+  clean above      grew  81.3%  flag  69.4%  (n 2055)
+  slope            grew  88.6%  flag  86.6%  (n 307)
+  slope above      grew  97.6%  flag  96.2%  (n 208)
+  big slope        grew  94.1%  flag  93.5%  (n 169)
+  big slope above  grew  98.5%  flag  98.5%  (n 132)
+  pulse            grew   2.4%  flag   0.0%  (n 83)
+  step             grew  15.7%  flag  15.7%  (n 89)
+  precision        grew  10.2%  flag  12.6%  (n 2654 / 2107)
+  slope lift       grew   22.2 pts  flag   36.1 pts
+  odds ratio       grew   3.94      flag   6.34
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   1.7%  (n 23000)
+  clean above      grew   8.7%  flag   2.6%  (n 6134)
+  slope            grew  46.5%  flag  27.7%  (n 600)
+  slope above      grew  53.3%  flag  32.3%  (n 465)
+  big slope        grew  70.0%  flag  47.5%  (n 200)
+  big slope above  grew  74.3%  flag  49.7%  (n 171)
+  pulse            grew   0.4%  flag   0.0%  (n 800)
+  step             grew   5.5%  flag   1.5%  (n 400)
+  precision        grew  31.1%  flag  50.0%  (n 898 / 332)
+  slope lift       grew   39.5 pts  flag   25.9 pts
+  odds ratio       grew  11.51      flag  21.50
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  33.3%  (n 18)
+  slope            grew 100.0%  flag  50.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  14.3%  (n 12 / 7)
+  slope lift       grew   44.4 pts  flag   16.7 pts
+  odds ratio       grew Infinity      flag   2.00
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   5.8%  (n 27600)
+  clean above      grew  21.5%  flag   8.6%  (n 8972)
+  slope            grew  53.8%  flag  33.3%  (n 800)
+  slope above      grew  61.5%  flag  39.6%  (n 543)
+  big slope        grew  65.0%  flag  43.5%  (n 400)
+  big slope above  grew  68.5%  flag  49.0%  (n 314)
+  pulse            grew   0.9%  flag   0.1%  (n 800)
+  step             grew   8.0%  flag   3.0%  (n 400)
+  precision        grew  20.4%  flag  28.4%  (n 2105 / 937)
+  slope lift       grew   37.9 pts  flag   27.4 pts
+  odds ratio       grew   6.15      flag   8.02
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  22.0%  (n 232)
+  clean above      grew  71.4%  flag  29.5%  (n 112)
+  slope            grew  87.5%  flag  37.5%  (n 16)
+  slope above      grew  85.7%  flag  42.9%  (n 14)
+  big slope        grew  90.9%  flag  54.5%  (n 11)
+  big slope above  grew  88.9%  flag  66.7%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag  33.3%  (n 3)
+  precision        grew  13.0%  flag  13.6%  (n 108 / 44)
+  slope lift       grew   29.7 pts  flag   15.5 pts
+  odds ratio       grew   5.12      flag   2.13
+
+==== BAND -0.15:0.1
+
+growing | all panels: 1200 panels, 538 switched (44.8%)
+  clean            grew  52.1%  flag  28.9%  (n 13800)
+  clean above      grew  66.7%  flag  42.6%  (n 4636)
+  slope            grew  82.0%  flag  69.5%  (n 400)
+  slope above      grew  94.8%  flag  82.9%  (n 251)
+  big slope        grew  87.5%  flag  83.0%  (n 200)
+  big slope above  grew  97.8%  flag  93.5%  (n 138)
+  pulse            grew   1.8%  flag   0.0%  (n 400)
+  step             grew  16.5%  flag  13.0%  (n 200)
+  precision        grew  11.1%  flag  15.7%  (n 2947 / 1774)
+  slope lift       grew   29.9 pts  flag   40.6 pts
+  odds ratio       grew   4.19      flag   5.59
+
+growing | switched: 538 panels, 538 switched (100.0%)
+  clean            grew  64.8%  flag  36.8%  (n 6412)
+  clean above      grew  78.5%  flag  50.6%  (n 2362)
+  slope            grew  88.2%  flag  74.8%  (n 262)
+  slope above      grew  97.6%  flag  85.7%  (n 168)
+  big slope        grew  90.6%  flag  87.1%  (n 139)
+  big slope above  grew  97.9%  flag  95.8%  (n 95)
+  pulse            grew   3.7%  flag   0.0%  (n 81)
+  step             grew  25.9%  flag  23.5%  (n 81)
+  precision        grew  10.4%  flag  14.6%  (n 2221 / 1340)
+  slope lift       grew   23.4 pts  flag   38.0 pts
+  odds ratio       grew   4.04      flag   5.09
+
+growing-all | all panels: 3600 panels, 1505 switched (41.8%)
+  clean            grew  50.6%  flag  27.4%  (n 41400)
+  clean above      grew  62.8%  flag  39.1%  (n 13516)
+  slope            grew  81.3%  flag  68.8%  (n 1200)
+  slope above      grew  93.4%  flag  82.6%  (n 757)
+  big slope        grew  89.7%  flag  83.3%  (n 600)
+  big slope above  grew  96.0%  flag  89.8%  (n 451)
+  pulse            grew   2.0%  flag   0.0%  (n 1200)
+  step             grew  14.8%  flag  11.2%  (n 600)
+  precision        grew  11.3%  flag  16.2%  (n 8640 / 5091)
+  slope lift       grew   30.7 pts  flag   41.4 pts
+  odds ratio       grew   4.24      flag   5.85
+
+growing-all | switched: 1505 panels, 1505 switched (100.0%)
+  clean            grew  64.9%  flag  36.3%  (n 17950)
+  clean above      grew  78.3%  flag  49.9%  (n 6077)
+  slope            grew  87.9%  flag  76.0%  (n 743)
+  slope above      grew  96.5%  flag  86.4%  (n 491)
+  big slope        grew  92.6%  flag  87.3%  (n 408)
+  big slope above  grew  97.7%  flag  92.8%  (n 304)
+  pulse            grew   3.3%  flag   0.0%  (n 214)
+  step             grew  22.2%  flag  18.2%  (n 225)
+  precision        grew  10.4%  flag  15.1%  (n 6269 / 3732)
+  slope lift       grew   23.0 pts  flag   39.7 pts
+  odds ratio       grew   3.92      flag   5.57
+
+growing-ar0.7 | all panels: 1200 panels, 347 switched (28.9%)
+  clean            grew  44.5%  flag  19.9%  (n 13800)
+  clean above      grew  55.9%  flag  29.5%  (n 5145)
+  slope            grew  77.8%  flag  58.3%  (n 400)
+  slope above      grew  88.4%  flag  71.3%  (n 251)
+  big slope        grew  88.0%  flag  75.0%  (n 200)
+  big slope above  grew  92.4%  flag  79.1%  (n 158)
+  pulse            grew   2.3%  flag   0.0%  (n 400)
+  step             grew  17.5%  flag  11.5%  (n 200)
+  precision        grew  12.3%  flag  18.8%  (n 2525 / 1237)
+  slope lift       grew   33.2 pts  flag   38.3 pts
+  odds ratio       grew   4.36      flag   5.61
+
+growing-ar0.7 | switched: 347 panels, 347 switched (100.0%)
+  clean            grew  62.5%  flag  28.4%  (n 4083)
+  clean above      grew  74.3%  flag  39.9%  (n 1660)
+  slope            grew  86.2%  flag  64.4%  (n 174)
+  slope above      grew  93.0%  flag  73.0%  (n 115)
+  big slope        grew  93.0%  flag  79.0%  (n 100)
+  big slope above  grew  96.1%  flag  80.5%  (n 77)
+  pulse            grew   4.0%  flag   0.0%  (n 50)
+  step             grew  27.3%  flag  16.4%  (n 55)
+  precision        grew  10.8%  flag  17.1%  (n 1394 / 656)
+  slope lift       grew   23.7 pts  flag   36.0 pts
+  odds ratio       grew   3.75      flag   4.56
+
+growing-ar0.97 | all panels: 1200 panels, 620 switched (51.7%)
+  clean            grew  55.1%  flag  33.3%  (n 13800)
+  clean above      grew  67.3%  flag  47.8%  (n 3735)
+  slope            grew  84.0%  flag  78.8%  (n 400)
+  slope above      grew  96.9%  flag  93.3%  (n 255)
+  big slope        grew  93.5%  flag  92.0%  (n 200)
+  big slope above  grew  98.1%  flag  97.4%  (n 155)
+  pulse            grew   2.0%  flag   0.0%  (n 400)
+  step             grew  10.5%  flag   9.0%  (n 200)
+  precision        grew  10.6%  flag  15.1%  (n 3168 / 2080)
+  slope lift       grew   28.9 pts  flag   45.4 pts
+  odds ratio       grew   4.28      flag   7.41
+
+growing-ar0.97 | switched: 620 panels, 620 switched (100.0%)
+  clean            grew  66.4%  flag  40.2%  (n 7455)
+  clean above      grew  81.3%  flag  57.2%  (n 2055)
+  slope            grew  88.6%  flag  83.7%  (n 307)
+  slope above      grew  97.6%  flag  94.2%  (n 208)
+  big slope        grew  94.1%  flag  92.3%  (n 169)
+  big slope above  grew  98.5%  flag  97.7%  (n 132)
+  pulse            grew   2.4%  flag   0.0%  (n 83)
+  step             grew  15.7%  flag  14.6%  (n 89)
+  precision        grew  10.2%  flag  14.8%  (n 2654 / 1736)
+  slope lift       grew   22.2 pts  flag   43.5 pts
+  odds ratio       grew   3.94      flag   7.64
+
+trendless | all panels: 2000 panels, 2 switched (0.1%)
+  clean            grew   7.0%  flag   1.3%  (n 23000)
+  clean above      grew   8.7%  flag   1.8%  (n 6134)
+  slope            grew  46.5%  flag  23.0%  (n 600)
+  slope above      grew  53.3%  flag  26.9%  (n 465)
+  big slope        grew  70.0%  flag  39.5%  (n 200)
+  big slope above  grew  74.3%  flag  41.5%  (n 171)
+  pulse            grew   0.4%  flag   0.0%  (n 800)
+  step             grew   5.5%  flag   1.5%  (n 400)
+  precision        grew  31.1%  flag  53.3%  (n 898 / 259)
+  slope lift       grew   39.5 pts  flag   21.7 pts
+  odds ratio       grew  11.51      flag  23.23
+
+trendless | switched: 2 panels, 2 switched (100.0%)
+  clean            grew  55.6%  flag  22.2%  (n 18)
+  slope            grew 100.0%  flag  50.0%  (n 2)
+  slope above      grew 100.0%  flag 100.0%  (n 1)
+  precision        grew  16.7%  flag  20.0%  (n 12 / 5)
+  slope lift       grew   44.4 pts  flag   27.8 pts
+  odds ratio       grew Infinity      flag   3.50
+
+wander | all panels: 2400 panels, 23 switched (1.0%)
+  clean            grew  15.9%  flag   4.5%  (n 27600)
+  clean above      grew  21.5%  flag   6.9%  (n 8972)
+  slope            grew  53.8%  flag  27.1%  (n 800)
+  slope above      grew  61.5%  flag  33.3%  (n 543)
+  big slope        grew  65.0%  flag  38.0%  (n 400)
+  big slope above  grew  68.5%  flag  42.7%  (n 314)
+  pulse            grew   0.9%  flag   0.1%  (n 800)
+  step             grew   8.0%  flag   2.0%  (n 400)
+  precision        grew  20.4%  flag  29.8%  (n 2105 / 728)
+  slope lift       grew   37.9 pts  flag   22.6 pts
+  odds ratio       grew   6.15      flag   7.87
+
+wander | switched: 23 panels, 23 switched (100.0%)
+  clean            grew  57.8%  flag  20.7%  (n 232)
+  clean above      grew  71.4%  flag  26.8%  (n 112)
+  slope            grew  87.5%  flag  37.5%  (n 16)
+  slope above      grew  85.7%  flag  42.9%  (n 14)
+  big slope        grew  90.9%  flag  54.5%  (n 11)
+  big slope above  grew  88.9%  flag  66.7%  (n 9)
+  pulse            grew   0.0%  flag   0.0%  (n 1)
+  step             grew  33.3%  flag   0.0%  (n 3)
+  precision        grew  13.0%  flag  14.6%  (n 108 / 41)
+  slope lift       grew   29.7 pts  flag   16.8 pts
+  odds ratio       grew   5.12      flag   2.30

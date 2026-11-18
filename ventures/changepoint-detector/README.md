@@ -6822,6 +6822,75 @@ curvature, which four-point thirds barely see. One shape of slope (linear from t
 81 of 9,600, too few for a bar. **Next:** a word that reads curvature (the middle third against the line through the
 outer two) so a linear slope can be told from compounding growth, pre-registered on these cells.
 
+### A curvature word: a slope runs straight, a compounding gap bends (2026-11-18, pre-registered; all six bars passed, ships under `--shape-word panel`)
+
+"The panel word scored where it switches on" ended: "a word that reads curvature (the middle third against the line
+through the outer two) so a linear slope can be told from compounding growth, pre-registered on these cells." On
+growing panels where the panel word is in force, it called a donor's own big slope 'held' 90% of the time, while the
+plain word flagged slopes but also worded two thirds of the units with no event of their own.
+
+`gapBend` (synth-control.mjs) takes the after-gap's signed means over its first, middle and last thirds a, b, c and
+returns (b - (a + c) / 2) / (c - a): how far the middle third sits from the straight line through the outer two, as a
+share of that line's rise. 0 for a straight line, below 0 when the gap speeds up, above 0 when it slows.
+
+**What the exploratory run showed first** (`eval/synth-shape-curve-explore.out.txt`, base 95000, 8,000 panels): the
+idea as named was wrong in one way. Clean units' gaps on compounding panels are **not** systematically convex: the bend
+of the clean units the plain word calls 'grew' has median -0.07 and spreads from -0.31 to 0.16 (10th to 90th
+percentile). Their spread grows with time, but each gap is a smooth random path that bends either way. A donor's slope
+is a straight ramp added on top, so its bend stays near the line (-0.15 to 0.04). So the reading is two-sided:
+**straight** means the plain word is 'grew' and the bend lies in [-0.15, 0.10] (`STRAIGHT_BAND`, `gapStraight`), the
+band with the best odds ratio of nine candidates listed in the exploratory file, frozen in
+`eval/synth-shape-curve-prereg-2026-11-18.md` before the confirmatory run.
+
+`eval/synth-shape-curve-sim.mjs` runs the same 80 cells as the switched-panel re-test (trendless, wandering, three
+growing generators, 11 and 16 units, one donor with its own step, slope or pulse) and records every placebo's plain
+word, panel word and bend. Confirmatory, base 97000, 400 panels a cell, 32,000 panels
+(`eval/synth-shape-curve-confirm.out.txt`). On the 5,995 growing panels where the panel word was in force:
+
+| line | plain 'grew' | straight |
+|---|---|---|
+| slope donors flagged (shock 1 and 2) | 86.0% | 73.3% |
+| big slope (twice the effect) flagged | 91.5% | **82.6%** |
+| clean units flagged (all / listed above the treated one) | 64.6% / 78.6% | **36.7% / 51.7%** |
+| slope lift over clean units | 21.4 pts | **36.6 pts** |
+| odds ratio, slope donor against clean unit | 3.37 | **4.74** |
+| pulse donors flagged | 3.9% | 0.0% |
+| step donors flagged | 21.8% | 14.2% |
+| share of flagged units that are the slope donor (panels with one) | 10.1% | 14.1% |
+
+Bars: (1) lift at least plain + 8: 36.6 against 29.4, holds. (2) odds ratio at least 1.2x plain: 4.74 against 4.04,
+holds. (3) clean units flagged at least 20 points below plain: 27.9, holds. (4) big slope at least 75%: 82.6%, holds.
+(5) bar 1 in each growing generator: 34.6 against 28.0 (AR 0.9), 32.0 against 30.6 (AR 0.7, the closest), 41.4 against
+29.9 (AR 0.97), holds. (6) pulses at most 5%: 0.0%, holds.
+
+**What it says.**
+- **A straight line is a sharper pointer at a slope than "grew".** On compounding panels it keeps three quarters of a
+  donor's slopes and drops more than half of the clean units "grew" would flag; the odds that a flagged unit is a slope
+  donor rather than a clean one rise 1.4x.
+- **It is still only a pointer.** Half the clean units listed above the treated unit read straight too, and where a
+  panel had one slope donor among 10-15 others, 14% of the units read straight were that donor. A straight line says
+  which unit to look into first, not that it had an event.
+- **Off compounding panels it would cost.** On trendless panels "grew" already separates slopes well (odds ratio 13);
+  requiring a straight line halves the slopes found (50% to 23%). So the line is read only where the panel word is in
+  force, which on these cells is almost only the growing panels (7 of 8,000 trendless, 70 of 9,600 wandering).
+- **On West Germany 1990** (a description, not pre-registered): of the two units ranked above West Germany, the
+  Netherlands (held against the panel, grew on its own reading) has bend -0.001, a straight line; Norway (grew on
+  both) has bend -0.18, speeding up, the shape of an oil economy compounding rather than a ramp. The Basque Country 1970
+  (centre 2.36) is unchanged: the panel word is not in force there, so no line is read.
+
+**Shipped (decided in the pre-registration).** Under `--shape-word panel`, on panels where the panel word is in force,
+each unit listed above the treated one whose plain word is 'grew' is said to have grown "along a straight line from the
+date (the shape of a slope of its own)" or to be "bending like the panel's compounding gaps rather than along a
+straight line"; `above[]` gains `bend` and `straight` in that mode only (default `--json` unchanged); the note quotes the
+rates above (`CURVE` in `synth-view.mjs`, each pinned to the confirmatory block "growing-all | switched"), clean units
+and precision included. The default word and every p are unchanged. `synth-shape-curve.test.mjs` re-checks every bar,
+pins `CURVE`, `gapBend` on fixed shapes and the West German reading.
+
+**Limits.** One slope shape (linear from the date); a slope that itself compounds (a share taken month by month on a
+growing base) would read as bending. Twelve points after the date, thirds of four. **Next:** a real deployer's panel
+of stores or regions with a known slope event; the line read on wandering panels if a set switches there often enough
+to score.
+
 ## Currency pegs: the update-rate check against documented dates (2026-11-18, pre-registered; D1 fails, a hang fixed)
 
 The update-rate check ("When a series starts updating less often") had only ever been scored in
