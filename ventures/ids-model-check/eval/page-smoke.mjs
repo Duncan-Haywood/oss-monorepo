@@ -14,7 +14,7 @@ for (const f of [V + "/samples/tiny-house.ifczip", V + "/samples/tiny-house.ifcx
   await p.waitForFunction(() => !/Reading/.test(document.getElementById("ifc-name").textContent));
   await p.evaluate(() => { document.getElementById("status").textContent = ""; });
   await p.click("#go"); await p.waitForFunction(() => /Done in|rror|ould not/.test(document.getElementById("status").textContent), null, { timeout: 60000 });
-  console.log(f.split("/").pop(), await p.textContent("#status"), (await p.textContent("body")).match(/a (IFC\w+) model with ([\d,]+) entities/)?.slice(1).join(" "));
+  console.log(f.split("/").pop(), await p.textContent("#status"), (await p.textContent("body")).match(/a (IFC\w+) model with (\d{1,3}(?:,\d{3})+|\d+) entities/)?.slice(1).join(" "));
 }
 await p.goto("http://127.0.0.1:8765/editor.html");
 await p.setInputFiles("#open-model", V + "/samples/tiny-house.ifc");
