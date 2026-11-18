@@ -43,14 +43,36 @@ const IANA = {
 };
 
 // --- reference offsets from the platform's tz database ----------------------
+// The offset is the zone's wall clock (year..minute, read from Intl) minus the
+// UTC instant. `format()` plus one strict regex reads the same fields as
+// `formatToParts()` at well under half the cost; an output it does not
+// recognise throws rather than being guessed at.
 const fmts = new Map();
+const WALL = /^(\d{1,2})\/(\d{1,2})\/(\d{4}), (\d{2}):(\d{2})$/;
 function realOffsetSeconds(zone, ms) {
   if (!fmts.has(zone)) fmts.set(zone, new Intl.DateTimeFormat('en-US', {
     timeZone: zone, hourCycle: 'h23', year: 'numeric', month: 'numeric',
     day: 'numeric', hour: 'numeric', minute: 'numeric' }));
-  const p = Object.fromEntries(fmts.get(zone).formatToParts(ms).map((x) => [x.type, x.value]));
-  const asUtc = Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute);
+  const s = fmts.get(zone).format(ms);
+  const m = WALL.exec(s);
+  if (!m) throw new Error(`unexpected Intl output for ${zone}: ${JSON.stringify(s)}`);
+  const asUtc = Date.UTC(+m[3], +m[1] - 1, +m[2], +m[4], +m[5]);
   return Math.round((asUtc - Math.floor(ms / 60000) * 60000) / 1000);
+}
+
+// Every whole UTC hour of 2025-2027, once per zone: the hourly sweep and the
+// transition search below both read it, and some cities share a zone.
+const HOUR0 = Date.UTC(2025, 0, 1);
+const HOURS = (Date.UTC(2028, 0, 1) - HOUR0) / 3600e3;
+const hourly = new Map();
+function hourlyOffsets(zone) {
+  let t = hourly.get(zone);
+  if (!t) {
+    t = new Int32Array(HOURS);
+    for (let h = 0; h < HOURS; h++) t[h] = realOffsetSeconds(zone, HOUR0 + h * 3600e3);
+    hourly.set(zone, t);
+  }
+  return t;
 }
 
 const fmtOff = (s) => `UTC${s >= 0 ? '+' : ''}${s / 3600}`;
@@ -86,9 +108,10 @@ test('effective offset (shipped .mc) equals the IANA offset at every hour of 202
   const summary = new Map();
   for (const c of CITIES) {
     if (KNOWN_DIVERGENT.has(c.name)) continue;
-    const zone = IANA[c.name];
-    for (let ms = Date.UTC(2025, 0, 1); ms < Date.UTC(2028, 0, 1); ms += 3600e3) {
-      const want = realOffsetSeconds(zone, ms);
+    const real = hourlyOffsets(IANA[c.name]);
+    for (let h = 0; h < HOURS; h++) {
+      const ms = HOUR0 + h * 3600e3;
+      const want = real[h];
       const got = MC.offsetAt(c, ms);
       if (want !== got) {
         const s = summary.get(c.name) ?? { hours: 0, first: new Date(ms).toISOString(), watch: got, real: want };
@@ -108,9 +131,11 @@ test('every DST transition instant 2025-2027 matches IANA to the minute', () => 
   let transitions = 0;
   for (const c of CITIES.filter((x) => x.dst !== 'none')) {
     const zone = IANA[c.name];
-    let prev = realOffsetSeconds(zone, Date.UTC(2025, 0, 1));
-    for (let ms = Date.UTC(2025, 0, 1, 1); ms < Date.UTC(2028, 0, 1); ms += 3600e3) {
-      const cur = realOffsetSeconds(zone, ms);
+    const real = hourlyOffsets(zone);
+    let prev = real[0];
+    for (let h = 1; h < HOURS; h++) {
+      const ms = HOUR0 + h * 3600e3;
+      const cur = real[h];
       if (cur !== prev) {
         transitions++;
         for (let t = ms - 2 * 3600e3; t < ms + 3600e3; t += 60e3) {

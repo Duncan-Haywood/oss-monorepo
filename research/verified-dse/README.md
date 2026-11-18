@@ -1,7 +1,7 @@
 # verified-dse: how much of a chip design search can cheap fidelity rungs save, with a guarantee?
 
 Research programme on multi-fidelity, verification-aware design-space search for
-open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 140 done;
+open-source chip flows (Yosys, ABC, OpenROAD) on SKY130. **Status: milestones 1 to 144 done;
 the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
 - **Cheap rungs mis-rank routed area x delay** (generic-gate tau-b median -0.04; the mapped rung is
   nearly exact only at a relaxed clock): [`experiments/rung_bias/`](experiments/rung_bias/results.txt).
@@ -161,6 +161,17 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **At the fast corner, SKY130 ff_n40C_1v95, the clipped ladder still beats equal-cost random routing on 20 of 27 blind designs
+  (milestone 144, flow run, six of seven predictions held).** Only the liberty changes, as at ss. The routed ranking between tt and
+  ff shares almost nothing (median tau-b 0.19, lower than tt against ss at 0.34; the routed-best sequence differs on all 27), and
+  random routing does worse at ff (10.06% mean regret against 6.35% at tt), while SWC has 4.03% (sign p = 0.019; interval of the
+  mean difference -10.06 to -1.14 points). Over tt 40%, tt 65%, ss and ff on these 27 designs SWC is ahead at all four on 14 and
+  behind at all four on none. Post hoc: all three carry-save adders and all three dot products lose at ff (division, the weak tt
+  family, wins all five by a mean 18.5 points). Some ff baselines are slower than tt (four 256-bit left clamps, 1.6 to 2.0 times)
+  because ABC maps a different netlist against the ff liberty, not because the cells are slower: on the same netlist ff is 42%
+  faster. The stopping rule was set after an interim look at 14 designs (written down in
+  [`STOP_RULE.md`](experiments/corner_ff_blind/STOP_RULE.md)):
+  [`experiments/corner_ff_blind/`](experiments/corner_ff_blind/results.txt).
 - **At a second library corner, SKY130 ss_100C_1v60, the clipped ladder beats equal-cost random routing on 24 of 27 blind
   designs, although the routed ranking barely carries over between corners (milestone 143, flow run, six of seven predictions
   held).** Only the liberty changes (40% utilisation, clocks from each design's own ss baseline, a median 2.19 times the tt

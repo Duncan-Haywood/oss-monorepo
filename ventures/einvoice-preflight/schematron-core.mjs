@@ -8,7 +8,13 @@ import { plainFix } from "./schematron-fixes.mjs";
 export const FILES = { ubl: "ubl.sef.json", cii: "cii.sef.json" };
 export const ADDONS = {
   xrechnung: { source: "xrechnung-schematron", match: /xrechnung/i, files: { ubl: "xrechnung-ubl.sef.json", cii: "xrechnung-cii.sef.json" } },
-  peppol: { source: "peppol-schematron", match: /peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
+  // Peppol BIS Billing. A Self-Billing file (BT-24 ...poacc:selfbilling:3.0) names peppol.eu
+  // too, but Billing's R004, R007 and P0112 reject every one of them (type code 389 is the
+  // self-billed invoice): it gets the Self-Billing set below instead (2026-11-18).
+  peppol: { source: "peppol-schematron", match: /^(?![\s\S]*poacc:selfbilling:3\.0)[\s\S]*peppol\.eu/i, files: { ubl: "peppol-ubl.sef.json", cii: "peppol-cii.sef.json" } },
+  // Peppol BIS Self-Billing 3.0.2 (in force 2026-08-17), the buyer issuing the invoice for its
+  // supplier. UBL only (OpenPeppol publishes no CII form); plain route only. build-plain-rules.mjs.
+  "peppol-sb": { source: "peppol-sb-schematron", match: /poacc:selfbilling:3\.0/i, plainOnly: true, files: { ubl: "peppol-sb-ubl.sef.json" } },
   // Romania's national rules (RO e-Factura, ANAF). UBL only; no Saxon form is built, so
   // only the plain route (browser and Node fallback) runs them: build-ro-rules.mjs.
   // CIUS-RO 1.0.9 sits on EN 16931 validation 1.3.8 (phive-rules-cius-ro's basedOn, and
@@ -46,6 +52,8 @@ export const PEPPOL_NEXT = {
   mandatory: "2027-02-24",
   source: "peppol-3.1.0-schematron",
   files: { ubl: "peppol-next-ubl.json", cii: "peppol-next-cii.json" },
+  // Self-Billing 3.1.0 comes out the same day on the same dates (branch selfbilling-2026-Q4-QA2).
+  selfBilling: { release: "3.1.0", current: "3.0.2", source: "peppol-sb-3.1.0-schematron", files: { ubl: "peppol-sb-next-ubl.json" } },
 };
 
 // Peppol PINT profiles (Singapore InvoiceNow, Australia/New Zealand). Their
@@ -133,7 +141,8 @@ export function plainOnlySets(xml, syntax, opts = {}) {
   if (profile) return [profile[0]];
   const extended = matchingExtendedBase(xml, syntax);
   const addons = matchingAddons(xml, syntax, opts);
-  const next = opts.peppolNext && addons.some(([name]) => name === "peppol") ? ["peppol-next"] : [];
+  const next = !opts.peppolNext ? [] : addons.some(([name]) => name === "peppol") ? ["peppol-next"]
+    : addons.some(([name]) => name === "peppol-sb") ? ["peppol-sb-next"] : [];
   return (extended ? [extended[0]] : []).concat(addons.filter(([, a]) => a.plainOnly).map(([name]) => name), next);
 }
 
@@ -168,7 +177,7 @@ export function parseSvrl(svrl, source = "en16931-schematron") {
 export function detectSyntax(xml) {
   // France's e-reporting file (Flux 10, root Report > ReportDocument): its own rule set. Checked
   // first, since its transactions report holds <Invoice> elements of its own (not UBL).
-  if (/^(?:\uFEFF)?\s*(?:<\?[\s\S]*?\?>\s*|<!--[\s\S]*?-->\s*)*<Report\b[^>]*>\s*(?:<!--[\s\S]*?-->\s*)*<ReportDocument\b/.test(xml)) return "flux10";
+  if (/^(?:\uFEFF)?\s*(?:<(?:\?[^?]*(?:\?(?!>)[^?]*)*\?>|!--[^-]*(?:-(?!->)[^-]*)*-->)\s*)*<Report\b[^>]*>\s*(?:<!--[^-]*(?:-(?!->)[^-]*)*-->\s*)*<ReportDocument\b/.test(xml)) return "flux10";
   // France's life-cycle status message (CDAR, "CDV" 200-228): its own rule set, no EN 16931 base.
   if (/<(?:\w+:)?CrossDomainAcknowledgementAndResponse\b/.test(xml)) return "cdar";
   if (/<(?:\w+:)?CrossIndustryInvoice\b/.test(xml)) return "cii";

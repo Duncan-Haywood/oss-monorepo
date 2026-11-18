@@ -124,9 +124,10 @@ flagships:
       kaydee/wildreceipt; Apache-2.0), SRD (eval/srd-fetch.mjs), CORD
       (eval/cord_images.py); tesseract via apt, RapidOCR via pip. WildReceipt all
       read (eval/wildreceipt-rescore-2026-11-17.md); next: VAT5%: 668. Russian slips
-      (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): tesseract hangs
-      on its photos (add an OCR time limit), a Cyrillic model, train shard 2 unread.
-      CORD leftovers: train-28, 1009 (eval/cord-shard0-lead-2026-11-17.md).
+      (cdek-ocr/receipt-ocr-ru, eval/receipt-ocr-ru-2026-11-18.md): tesseract runs
+      now (OCR_TIMEOUT; 68/145 val, eval/ocr-time-limit-2026-11-18.md), train shard
+      2 unread. CORD leftovers: train-28, 1009
+      (eval/cord-shard0-lead-2026-11-17.md).
     hosts: [https://huggingface.co/, https://raw.githubusercontent.com/]
 
   # Added 2026-10-21 third, on the owner's direction that day: "I want to make ai sales agents this is a long term
@@ -193,8 +194,9 @@ flagships:
       warning holds 42 of 43 false finds (README "Shocks that are not steps");
       anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
-      shock before the date"); next an uncertain lead (a range of backdates, no
-      best-p pick), a real deployer's panel. More open items: NEXT.md.
+      shock before the date"); uncertain lead 2026-11-18: --anticipation 0-4 ships
+      (range p 55-56% vs 28-35% stated, size 3.8%, README "An uncertain lead"); next
+      a real deployer's panel, few donors. More open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-
@@ -202,15 +204,17 @@ flagships:
       XRechnung, Peppol profiles) with a self-hosted API, Docker and Render
       deploy, ~48 test files, and a regulatory tailwind (EU e-invoicing mandates).
     next: >-
-      History: README and git (latest: Peppol BIS 3.1.0 preview, new findings
-      marked, 1,138/1,138 unit asserts; fontoxpath format-integer padding fixed,
-      ZATCA BR-CO-17/BR-S-09 (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real
-      sender's files through eval/peppol-next-diff.mjs; the browser's official rules
-      read whitespace as Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on
-      160 of 160 Saxon aborts (eval/xml-whitespace-crosscheck-2026-11-17.md);
-      INV-041 endpoint ids as OpenPeppol's PEPPOL-COMMON rules check them, 0 of
-      21,264 off (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's
-      warning-level IT/NL id formats as INV-061 warnings, 0 of 23,999 off
+      History: README and git (latest: Peppol BIS Self-Billing 3.0.2/3.1.0 rules in
+      place of Billing's (eval/peppol-self-billing-2026-11-18.md); Peppol BIS 3.1.0
+      preview, new findings marked, 1,138/1,138 unit asserts; fontoxpath
+      format-integer padding fixed, ZATCA BR-CO-17/BR-S-09
+      (eval/peppol-bis-3.1.0-2026-11-18.md); open: a real sender's files through
+      eval/peppol-next-diff.mjs; the browser's official rules read whitespace as
+      Saxon does, 161 of 528 to 0 vs SaxonC-HE, XML-VALUE-01 on 160 of 160 Saxon
+      aborts (eval/xml-whitespace-crosscheck-2026-11-17.md); INV-041 endpoint ids as
+      OpenPeppol's PEPPOL-COMMON rules check them, 0 of 21,264 off
+      (eval/endpoint-peppol-differential-2026-11-17.md); Peppol's warning-level
+      IT/NL id formats as INV-061 warnings, 0 of 23,999 off
       (eval/endpoint-peppol-warnings-2026-11-17.md); INV-062/063: the same rules on
       PartyIdentification/CompanyID, GlobalID/legal org ID
       (eval/party-id-peppol-differential-2026-11-17.md); France Flux 10 e-reporting,
@@ -230,8 +234,8 @@ flagships:
       OpenPeppol's branch 2026-Q4-QA2 at 90f078a, 1,138/1,138 unit asserts
       (eval/peppol-bis-3.1.0-2026-11-18.md). After 2026-11-23: rebuild peppol-next-*
       from the 3.1.0 tag on master (EINVOICE_PEPPOL_NEXT_BRANCH,
-      build-plain-rules.mjs) and diff; Peppol self-billing 3.1.0 (branch
-      selfbilling-2026-Q4-QA2) the same way if the checker reads self-billing. Every
+      build-plain-rules.mjs) and diff; peppol-sb-next likewise (Self-Billing, branch
+      selfbilling-2026-Q4-QA2; eval/peppol-self-billing-2026-11-18.md). Every
       plain-only set already matches SaxonC on whitespace and CASTABLE
       (eval/datetime-leaves-2026-11-18.md). No network beyond PyPI, Maven and
       GitHub.
@@ -382,13 +386,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The ESC-lag survey between 100 and 200
-      ms" (grid + 150 ms: an untold 150 ms ESC read 169-195, now 148-155; a 15% rms
-      band to flag unsure picks failed held out; above ~165 ms on slow wheels the
-      pick is unreliable; 7-lag surveys reach 16-18 wheels a drill,
-      eval/esc-grid-gap-2026-11-18.txt). Next: a flag the Pi can trust for long ESC
-      lags; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s
-      wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "Long ESC lags: the survey read too
+      little of the recovery" (survey refits read 16 revolutions after the ball, not
+      8: held out 28 of 28 drills, ESC 0-230 ms, within 15%, was 21;
+      eval/esc-survey-window-2026-11-18.txt). Next: the record fit's window on slow
+      wheels (same script); short lags read ~10% low with 16; SURVEY_QUEUE 3's heap;
+      ball hold: WHEEL_RPM_FULL error's cost on 0.2 s wheels; an ESC with its own
+      speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

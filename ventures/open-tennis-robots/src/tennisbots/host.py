@@ -377,6 +377,8 @@ def esc_lag_check(sv: dict | None, board_ms: int | None) -> str | None:
     if not sv or (sv.get("wheels") or 0) < ESC_SURVEY_MIN_WHEELS:
         return None
     pick = sv["refined_ms"]
+    if pick >= ESC_SURVEY_GRID_MS[-1]:
+        return None        # the grid's last lag names no number to set (esc_survey_advice says to scope the ESC)
     when = f" ({sv['wheels']} wheels{', ' + sv['at'] if sv.get('at') else ''})"
     if board_ms is None:
         return (f"the board does not report its ESC_TAU_US (firmware older than 2026-11-16): the last survey{when} picks "
@@ -436,7 +438,10 @@ def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     its balls pick and whether config.ESC_TAU_US should change. None without a survey. The survey sums each wheel's
     fit residual at seven lags (150 ms added 2026-11-18, README "The ESC-lag survey between 100 and 200 ms"); on the
     simulator its refined lag came within 15% of the true one up to 150 ms and 0 on a wheel with no ESC lag; 165-300 ms
-    on slow wheels read 20-60% off on some drills. `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
+    on slow wheels read 20-60% off on some drills until the board's refits read 16 revolutions after the ball, not 8
+    (2026-11-18, README "Long ESC lags: the survey read too little of the recovery"): then 70 of 70 simulated drills
+    with ESC lags of 0-250 ms came within 15%. A pick at the grid's last lag (400 ms) only says the lag is long.
+    `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
     pick does not depend on it."""
     if not sv or not sv.get("wheels"):
         return None
@@ -447,6 +452,9 @@ def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     if pick == 0:
         return f"ESC lag survey: {n} wheels pick no ESC lag; keep ESC_TAU_US = 0" + (
             f" (the board ran with {esc_tau_ms:g} ms: set it back to 0)" if esc_tau_ms else "")
+    if pick >= ESC_SURVEY_GRID_MS[-1]:
+        return (f"ESC lag survey: {n} wheels pick the grid's last lag, {pick} ms: the ESC's lag is long and this survey "
+                f"cannot name it; log the ESC's step response on a scope before setting ESC_TAU_US")
     same = esc_tau_ms and esc_tau_matches(pick, esc_tau_ms)
     return (f"ESC lag survey: {n} wheels pick {pick} ms (least on the grid {sv['least_ms']} ms)"
             + ("; ESC_TAU_US already matches" if same else f"; set ESC_TAU_US = {pick * 1000} in config.py and re-flash"))

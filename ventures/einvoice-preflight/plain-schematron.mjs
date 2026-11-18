@@ -8,14 +8,14 @@
 // Dependencies are injected so Node (slimdom) and the page (DOMParser) share
 // this file: createPlainRunner({ fontoxpath, parseXml }).
 import { FILES, ADDONS, PEPPOL_NEXT, PROFILES, detectSyntax, matchingAddons, matchingExtendedBase, matchingProfile } from "./schematron-core.mjs";
-import { plainFix } from "./schematron-fixes.mjs";
+import { plainFix, selfBillingFix } from "./schematron-fixes.mjs";
 import { CASTABLE, NON_XML_SPACE, spaceName, visibleSpaces } from "./xmlvalues.mjs";
 
 export const PLAIN_DIR = "plain/";
 const RULE_FILES = { ubl: "en16931-ubl.json", cii: "en16931-cii.json" };
 export const CDAR_FILE = "cdar-fr.json";
 export const FLUX10_FILE = "flux10-fr.json";
-export const PLAIN_ADDON_FILES = { "peppol-next": PEPPOL_NEXT.files, xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" }, "cius-fr": { ubl: "cius-fr-ubl.json", cii: "cius-fr-cii.json" } };
+export const PLAIN_ADDON_FILES = { "peppol-next": PEPPOL_NEXT.files, xrechnung: { ubl: "xrechnung-ubl.json", cii: "xrechnung-cii.json" }, peppol: { ubl: "peppol-ubl.json", cii: "peppol-cii.json" }, "peppol-sb": { ubl: "peppol-sb-ubl.json" }, "peppol-sb-next": PEPPOL_NEXT.selfBilling.files, "cius-ro": { ubl: "cius-ro-ubl.json" }, "cius-pt": { ubl: "cius-pt-ubl.json" }, "cius-hr": { ubl: "cius-hr-ubl.json" }, nlcius: { ubl: "nlcius-ubl.json", cii: "nlcius-cii.json" }, "cius-fr": { ubl: "cius-fr-ubl.json", cii: "cius-fr-cii.json" } };
 
 // fontoxpath works on IEEE doubles, the rules are written for exact xs:decimal.
 // A money equation like `BasisAmount = round(a*100) div 100 + round(b*100) div 100`
@@ -307,7 +307,7 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
       message = f.en ? tidy(f.en) : french;
       if (!f.en) french = undefined;
     }
-    return { rule: f.rule || withId?.[1] || "SCH", message, ...(french ? { message_fr: french } : {}), fix: plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
+    return { rule: f.rule || withId?.[1] || "SCH", message, ...(french ? { message_fr: french } : {}), fix: (/^peppol-sb/.test(source) && selfBillingFix(f.rule || withId?.[1])) || plainFix(f.rule || withId?.[1] || "SCH"), path: f.path, severity: f.flag, source };
   };
 
   // load(file) -> compiled rule set (parsed JSON) or null when that set is not shipped.
@@ -400,22 +400,23 @@ export function createPlainRunner({ fontoxpath, parseXml, xmlWhitespace = true }
     for (const [name, addon] of matchingAddons(xml, syntax, opts)) {
       const rules = await load(PLAIN_ADDON_FILES[name][syntax]);
       if (!rules) continue;
-      if (name === "peppol" && opts.peppolNext) {
-        const next = await load(PEPPOL_NEXT.files[syntax]);
+      const nextOf = name === "peppol" ? PEPPOL_NEXT : name === "peppol-sb" ? { ...PEPPOL_NEXT, ...PEPPOL_NEXT.selfBilling, label: "Peppol BIS Self-Billing" } : null;
+      if (nextOf && opts.peppolNext) {
+        const next = await load(nextOf.files[syntax]);
         if (next) {
           // The coming release replaces the current one; each finding the current release does
           // not raise (a new rule, or a warning that becomes fatal) says so and from when.
           const now = new Set(runRules(rules, doc).map((f) => `${f.rule || f.id}|${f.path}|${f.flag}`));
           const raw = runRules(next, doc);
-          sets.push("peppol-next");
+          sets.push(`${name}-next`);
           skipped.push(...raw.skipped);
-          if (raw.castFailed) castFailed ||= PEPPOL_NEXT.source;
+          if (raw.castFailed) castFailed ||= nextOf.source;
           for (const x of raw) {
-            const f = toFinding(x, PEPPOL_NEXT.source);
+            const f = toFinding(x, nextOf.source);
             if (seen.has(`${f.rule}|${f.path}`)) continue;
             if (!now.has(`${x.rule || x.id}|${x.path}|${x.flag}`)) {
               f.peppolNext = "new";
-              f.message += ` [New in Peppol BIS ${PEPPOL_NEXT.release}${f.severity === "fatal" ? `, rejected from ${PEPPOL_NEXT.mandatory}` : ""}; ${PEPPOL_NEXT.current}, in force today, does not raise this.]`;
+              f.message += ` [New in ${nextOf.label || "Peppol BIS"} ${nextOf.release}${f.severity === "fatal" ? `, rejected from ${nextOf.mandatory}` : ""}; ${nextOf.current}, in force today, does not raise this.]`;
             }
             findings.push(f);
           }

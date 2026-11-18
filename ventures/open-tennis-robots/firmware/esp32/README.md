@@ -2302,3 +2302,52 @@ venture's tests of the "run a drill, then the calibration drill is held" flow pa
 **Not known.** All simulated, one ESC shape (a first-order lag). Above about 165 ms on a slow wheel the survey's pick
 is not reliable, and nothing yet tells the Pi when it is in that range: log a real ESC's step response on a scope. Next:
 a real ESC's lag; whether `SURVEY_QUEUE` 3 fits the ESP32's heap, to win back the wheels the seventh lag costs.
+
+## Long ESC lags: the survey read too little of the recovery (2026-11-18, after the grid)
+
+**The item.** The section above ended with no flag the Pi could trust: above about 165 ms on a slow wheel the survey's
+pick was 20-30% off while it looked sure, and a band on the per-lag rms failed held out.
+
+**Noise or bias?** A flag built on the survey's own spread can only catch noise. Split in halves (odd and even wheels,
+or first and second half of the drill), the stored drills of `tests/esc_grid_gap.py` answered: the worst sure misses
+had halves that agreed on the wrong lag (165 ms at 0.35 s on the calibration drill: 117 / 121, read 119; 165 ms at
+0.5 s: 210 / 222, read 218). The misses were a bias, so no spread flag would have caught them, and the curves showed a
+second clue: a single wheel's best lag ranged from 35 to 400 ms on the same drill.
+
+**The window.** Each survey refit reads `drop_from_commands_steps`' default window, 4 revolutions before the ball's
+anchor and 8 after: about 0.16 s at 3,000 rpm, where the wheel's own lag is 0.3-0.6 s and a long ESC's 0.15-0.25 s.
+Two lags in series barely differ over the start of a recovery. The launched stroke's snapshot already runs to the
+verdict and holds 28-118 revolutions, so the board was throwing away most of what it had logged.
+
+`tests/esc_survey_window.py` captures drills with an untold ESC, keeps every surveyed wheel's inputs as the board passed
+them, and refits each wheel offline at the board's grid and refinement with 8, 12, 16 and 24 revolutions after the
+anchor, scored by the board's own sums and pick (eval/esc-survey-window-2026-11-18.txt). Design drills: ESC 0 / 50 / 120
+/ 165 / 180 / 210 / 250 ms, wheel lags 0.35 / 0.5 / 0.6 s, rally and calibration drills, seed 7:
+
+| window (revolutions after the anchor) | 42 design drills within 15% | of them ESC 165 ms or more (24) |
+| --- | --- | --- |
+| 8 (the board's) | 31 | 13 |
+| 12 | 41 | 23 |
+| 16 | 42 | 24 |
+| 24 | 42 | 24 |
+
+**Held out.** The prediction and decision rule were committed before the held-out capture ran (commit 3893f7c26): on
+ESC 0 / 40 / 90 / 140 / 175 / 195 / 230 ms, wheel lags 0.4 and 0.55 s, seed 11 and the third true launcher (28 drills),
+16 revolutions would put every counted drill within 15% (first-order 5 ms or less), and 8 would miss at least 3 of
+the 12 drills of 175 ms or more. It held: 16 put 28 of 28 within 15% (175 ms read 168-179, 195 ms 202-208, 230 ms
+247-249); 8 put 21, missing 6 of those 12 and one 140 ms drill (read 113).
+
+**What shipped.** The board's survey refits read `controller.ESC_SURVEY_AFTER = 16`. The record's own drop fit keeps
+8. With it the Pi's advice changes in one place: a pick at the grid's last lag (400 ms) only says the lag is long, so
+`esc_survey_advice` tells the builder to scope the ESC rather than set 400, and `esc_lag_check` does not hold a
+calibration drill on it. `tests/test_host.py` checks an untold 180 ms ESC on a 0.35 s wheel (106 ms with 8; 182 now).
+
+**The cost.** A refit has as many rows as revolutions in its window, 13 before and 21 now, so each of its 36 steps does
+about 1.6 times the arithmetic. The simulator gives every step one control tick, so its wheel counts did not move
+(16-18 a drill); on a real ESP32 a step that outlasts its tick would delay the survey, not the strokes, and time a
+survey there before trusting the count. Short lags now read a little low (40 ms: 35-37, 50 ms: 44-47, all within
+15%), and 250 ms reads 265-275, where the grid has nothing between 200 and 400.
+
+**Not known.** All simulated: a first-order ESC behind a first-order wheel, one seed per set. A real ESC's step
+response may not be one lag. Next: time a 16-revolution refit step on a real ESP32; a real ESC's lag on a scope;
+whether the record's own fit (window 8) reads the drop better with a longer window on slow wheels.
