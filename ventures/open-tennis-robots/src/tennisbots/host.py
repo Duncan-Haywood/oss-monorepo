@@ -443,6 +443,14 @@ def take_survey_advice(sv: dict | None) -> str | None:
     if pick == 0:
         return f"contact-time survey: {n} wheels pick an instant take; " + (
             "keep TAKE_US = 0" if board == 0 else "set TAKE_US = 0 in config.py and re-flash")
+    if pick >= TAKE_SURVEY_MS[-1]:
+        # the grid's last contact time: no candidate above it to refine against (2026-11-18, firmware/esp32/README.md
+        # "The take survey's pick between contact times": every simulated 7 ms take read 8 ms)
+        end = TAKE_SURVEY_MS[-1]
+        return (f"contact-time survey: {n} wheels pick the grid's last contact time, {end:g} ms: the balls' contact "
+                f"lasts about {end - 1:g} ms or longer and this survey cannot name it more closely; " +
+                (f"TAKE_US already matches ({board:g} ms)" if abs(end - board) <= 0.5 else
+                 f"set TAKE_US = {int(end * 1000)} in config.py and re-flash"))
     if abs(pick - board) <= 0.5:
         return f"contact-time survey: {n} wheels pick {pick:g} ms; TAKE_US already matches ({board:g} ms)"
     return (f"contact-time survey: {n} wheels pick {pick:g} ms (least on the grid {sv['least_ms10'] / 10:g} ms); "
