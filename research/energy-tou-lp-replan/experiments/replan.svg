@@ -26,19 +26,19 @@
 <circle cx="185.7" cy="123.4" r="3" fill="#1f6fb2"/>
 <circle cx="112.7" cy="119.0" r="3" fill="#1f6fb2"/>
 <circle cx="64.0" cy="120.4" r="3" fill="#1f6fb2"/>
-<rect x="234" y="32" width="14" height="10" fill="#1f6fb2"/><text x="254" y="41" font-family="sans-serif" font-size="11">clear-sky index</text>
+<rect x="215.8" y="32" width="14" height="10" fill="#1f6fb2"/><text x="235.8" y="41" font-family="sans-serif" font-size="11">clear-sky index</text>
 <polyline points="624.0,126.9 331.8,121.2 185.7,123.6 112.7,119.8 64.0,123.4" fill="none" stroke="#2e8b57" stroke-width="2"/>
 <circle cx="624.0" cy="126.9" r="3" fill="#2e8b57"/>
 <circle cx="331.8" cy="121.2" r="3" fill="#2e8b57"/>
 <circle cx="185.7" cy="123.6" r="3" fill="#2e8b57"/>
 <circle cx="112.7" cy="119.8" r="3" fill="#2e8b57"/>
 <circle cx="64.0" cy="123.4" r="3" fill="#2e8b57"/>
-<rect x="404" y="32" width="14" height="10" fill="#2e8b57"/><text x="424" y="41" font-family="sans-serif" font-size="11">index + nowcast</text>
+<rect x="342.8" y="32" width="14" height="10" fill="#2e8b57"/><text x="362.8" y="41" font-family="sans-serif" font-size="11">index + nowcast</text>
 <polyline points="624.0,71.2 331.8,71.2 185.7,71.2 112.7,71.2 64.0,71.2" fill="none" stroke="#8e44ad" stroke-width="2"/>
 <circle cx="624.0" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="331.8" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="185.7" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="112.7" cy="71.2" r="3" fill="#8e44ad"/>
 <circle cx="64.0" cy="71.2" r="3" fill="#8e44ad"/>
-<rect x="574" y="32" width="14" height="10" fill="#8e44ad"/><text x="594" y="41" font-family="sans-serif" font-size="11">perfect forecast</text>
+<rect x="469.8" y="32" width="14" height="10" fill="#8e44ad"/><text x="489.8" y="41" font-family="sans-serif" font-size="11">perfect forecast</text>
 </svg>
