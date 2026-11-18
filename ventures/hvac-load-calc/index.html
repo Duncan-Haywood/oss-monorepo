@@ -35,7 +35,7 @@
     .actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
     .room { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: #fff; margin-bottom: 10px; }
     .room .fields { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .wall { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr auto; gap: 6px; align-items: end; margin-top: 6px; }
+    .wall { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; align-items: end; margin-top: 6px; }
     .check { display: flex; gap: 6px; align-items: center; font-weight: 600; }
     .muted { color: var(--ink2); font-size: .84rem; }
     .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
@@ -269,6 +269,9 @@
             field('Length ft', w.lengthFt, v => { w.lengthFt = v; }, 'number', '0.5'),
             field('Window ft²', w.windowFt2 ?? 0, v => { w.windowFt2 = v; }),
             field('Door ft²', w.doorFt2 ?? 0, v => { w.doorFt2 = v; }),
+            field('Overhang ft', w.overhangFt ?? 0, v => { w.overhangFt = v; }, 'number', '0.5'),
+            field('Gap above window ft', w.overhangGapFt ?? 1, v => { w.overhangGapFt = v; }, 'number', '0.5'),
+            field('Window height ft', w.windowHeightFt ?? 5, v => { w.windowHeightFt = v; }, 'number', '0.5'),
             make('button', { type: 'button', class: 'small', text: 'Remove', 'aria-label': `Remove wall ${j + 1} of ${r.name || 'room'}`, on: { click: () => { r.walls.splice(j, 1); drawRooms(); } } }),
           ]));
         });
