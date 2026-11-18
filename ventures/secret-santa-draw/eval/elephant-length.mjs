@@ -2,6 +2,7 @@
 // rules allow (exact) and the median and 90th percentile of 2,000 simulated
 // games under a stated toy policy (steal with probability 0.5 whenever a steal
 // is allowed). `node eval/elephant-length.mjs` prints the guide's table.
+import { pathToFileURL } from "node:url";
 import { mulberry32 } from "../calc.mjs";
 import { maxMoves, simulate } from "../elephant.mjs";
 
@@ -28,6 +29,6 @@ export function table() {
   return rows;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   for (const r of table()) console.log(`${r.label} | ${r.n} | ${r.max} | ${r.median} | ${r.p90}`);
 }
