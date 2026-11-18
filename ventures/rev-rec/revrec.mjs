@@ -20,7 +20,7 @@ export function spread(line) {
   const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));
   let left = abs - parts.reduce((a, p) => a + p.v, 0);
   for (const p of [...parts].sort((a, b) => b.r - a.r)) { if (left <= 0) break; p.v++; left--; }
-  return Object.fromEntries(parts.map((p) => [p.m, sign * p.v]));
+  return Object.fromEntries(parts.map((p) => [p.m, sign * p.v + 0])); // + 0 turns -0 into 0
 }
 
 // Monthly roll-forward. Deferred revenue at month end = billed to date minus
@@ -69,10 +69,11 @@ export function backlog(rows, asOf = Date.now()) {
 
 // Double-entry rows per month, balanced by construction. Billing: debit the
 // receivable/cash account, credit deferred revenue. Recognition: debit
-// deferred revenue, credit revenue. Month-end dates, amounts in major units.
-export function journal(rows, { cash = "Accounts receivable", deferred = "Deferred revenue", revenue = "Subscription revenue" } = {}) {
-  const out = [];
-  const major = (n) => (Math.abs(n) / 100).toFixed(2);
+// deferred revenue, credit revenue. Month-end dates, amounts in major units
+// of `currency` (minor units per minorExponent).
+export function journal(rows, { cash = "Accounts receivable", deferred = "Deferred revenue", revenue = "Subscription revenue", currency = "usd" } = {}) {
+  const out = [], exp = minorExponent(currency);
+  const major = (n) => (Math.abs(n) / 10 ** exp).toFixed(exp);
   const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: "" } : { date, memo, account: dr, debit: "", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: "", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: "" }); };
   for (const r of rows) {
     const date = new Date(monthEnd(r.month)).toISOString().slice(0, 10);
@@ -100,7 +101,19 @@ export function summary(rows, asOf = Date.now()) {
   };
 }
 
+// Digits after the point in a currency's minor unit, as Stripe counts amounts:
+// JPY, KRW and the other zero-decimal currencies come in whole units, and the
+// three-decimal dinars in thousandths (stripe.com/docs/currencies). Dividing a
+// yen amount by 100 showed and journaled 12,000 yen as 120 (red team 2026-11-17).
+const ZERO = new Set(["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"]);
+const THREE = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
+export function minorExponent(currency = "usd") {
+  const c = String(currency || "usd").toLowerCase();
+  return ZERO.has(c) ? 0 : THREE.has(c) ? 3 : 2;
+}
+
 export function formatMoney(minor, currency = "usd") {
-  try { return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(minor / 100); }
-  catch { return `${(minor / 100).toFixed(0)} ${currency}`; }
+  const major = minor / 10 ** minorExponent(currency);
+  try { return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(major); }
+  catch { return `${major.toFixed(0)} ${currency}`; }
 }

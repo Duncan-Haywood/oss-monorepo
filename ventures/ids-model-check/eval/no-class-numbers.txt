@@ -1,0 +1,278 @@
+| file | attribute | value | opens as | why |
+| --- | --- | --- | --- | --- |
+| RichFileAttribute_Ifc2x3.ids | SupportedLength | >=  < 22.977674885630982 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SupportedLength | >= 22.928773478225473 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Coefficient | >= 28.643802235442077 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Coefficient | >= 31.300206275914963 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Thickness | >= 25.46539353781943 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Thickness | >= 40.40272647176384 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | TotalCrossSectionArea | 36.37022861062455 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | TotalCrossSectionArea | >=  < 12.898429876944508 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | BarCount | 27 | row | on xs:integer, as written |
+| RichFileAttribute_Ifc2x3.ids | BarCount | 24 | row | on xs:integer, as written |
+| RichFileAttribute_Ifc2x3.ids | PhysicalWeight | > 17.30949704297518 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PhysicalWeight | 20.346577785913365 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | TorsionalConstantX | >= 33.962914243251845 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | TorsionalConstantX | > 34.407871809057625 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | WarpingConstant | 19.1167782504264 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | WarpingConstant | 36.036494066233885 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MaximumSectionModulusY | 15.356628029862087 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MaximumSectionModulusY | >= 41.26181607400092 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PlasticShapeFactorY | 32.92410783421002 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PlasticShapeFactorY | 33.804464584881515 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Duration | 35.429661279007846 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Duration | 42.15010745648645 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | VolumeValue | 16.287502767393214 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | VolumeValue | 36.13634649681937 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | WeightValue | >=  < 23.7176475518001 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | WeightValue | 36.593891901223174 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | CombustionTemperature | >=  <= 14.386049160975125 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | CombustionTemperature | >=  < 14.197852663903182 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LowerHeatingValue | >=  <= 35.456700486774885 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LowerHeatingValue | >=  < 15.871761507788907 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MolecularWeight | > 44.408122658589676 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MolecularWeight | >=  < 39.95035642831334 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Porosity | 14.784714052363748 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Porosity | >=  <= 31.859513751433774 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MassDensity | 36.053364445023405 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MassDensity | 31.172225694379726 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | IsothermalMoistureCapacity | 13.603191343367277 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | IsothermalMoistureCapacity | 27.270064160027722 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | VaporPermeability | 35.594546579852555 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | VaporPermeability | >=  < 12.40947298952486 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MoistureDiffusivity | >=  < 41.71222106770355 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MoistureDiffusivity | >= 28.556517446292567 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | DynamicViscosity | >=  < 26.64594933920724 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | DynamicViscosity | 20.99131095116295 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | YoungModulus | >=  < 18.206626628623134 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | YoungModulus | 19.23903225975214 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ThermalExpansionCoefficient | >= 41.7743880056748 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ThermalExpansionCoefficient | >=  <= 22.43221717587502 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | CompressiveStrength | > 17.563532051644582 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | CompressiveStrength | > 21.1797693326952 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SpecificHeatCapacity | 23.940391460823562 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SpecificHeatCapacity | > 15.896013592446229 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ThermalConductivity | >= 40.73102953248387 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ThermalConductivity | 35.87745962953843 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Hardness | 22.88108058233353 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Hardness | >=  < 32.49743220879867 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PHLevel | >=  < 13.248706737822182 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PHLevel | >= 44.61157774091826 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MainPlaneAngle | 17.99071709539414 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MainPlaneAngle | 41.71303473448462 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LuminousIntensity | maxExclusive 13.263186975671202 | kept as written | audit warning: LuminousIntensity is a list on every class that has it (IfcLightDistributionData); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc2x3.ids | LuminousIntensity | 42.7735113824911 | kept as written | audit warning: LuminousIntensity is a list on every class that has it (IfcLightDistributionData); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc2x3.ids | LuminousFlux | >=  <= 18.585569272204474 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LuminousFlux | >= 37.8144319238957 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ConstantAttenuation | >=  <= 14.093640933364277 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ConstantAttenuation | 13.245377124160175 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SpreadAngle | 29.642539538626963 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SpreadAngle | 39.78872272902326 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | CoordinateSpaceDimension | 23 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc2x3.ids | CoordinateSpaceDimension | > 43 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc2x3.ids | InputVoltage | 15.526583458782916 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | InputVoltage | >= 22.774734850067247 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | InputFrequency | >= 35.15835279903547 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | InputFrequency | 24.791076280229703 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | FullLoadCurrent | 44.574292213767365 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | FullLoadCurrent | 18.58112766303693 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MaximumPowerInput | 24.40232456074132 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MaximumPowerInput | >=  < 30.058665985149492 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | VelocitySingleValue | 34.609611734964005 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | VelocitySingleValue | >= 28.718812252781436 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | TensionForce | 24.28618912350261 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | TensionForce | >= 43.75017008343897 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearStiffnessByLengthX | >= 19.803422446808067 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearStiffnessByLengthX | 42.97912000242274 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | RotationalStiffnessByLengthX | 42.33494252602432 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | RotationalStiffnessByLengthX | >=  <= 43.003699106312766 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearStiffnessByAreaX | >=  <= 44.37968149588501 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearStiffnessByAreaX | > 26.502763892042054 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearStiffnessX | 29.52428177372704 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearStiffnessX | >=  <= 39.37345176173789 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | RotationalStiffnessX | > 40.42276150689812 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | RotationalStiffnessX | >=  < 36.785415316355 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | WarpingStiffness | 17.927691228546056 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | WarpingStiffness | 39.75134556213443 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearForceX | >=  < 44.49737910889719 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearForceX | 32.37996877624782 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearMomentX | 24.623900938815645 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LinearMomentX | > 12.844005376875314 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PlanarForceX | >=  <= 29.22455830678635 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PlanarForceX | > 26.186244647206877 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Distortion | >=  < 12.054786667957792 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | Distortion | 28.306229544208122 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MomentX | 17.696531205529215 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MomentX | >=  < 28.21839651109767 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ColourComponents | > 19 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | ColourComponents | >= 39 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LastModifiedDate | >=  <= 39 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | LastModifiedDate | >=  < 45 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PointParameter | 29.165916925464888 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | PointParameter | >=  < 32.43540083616675 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | DayComponent | 28 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | DayComponent | >=  < 23 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MonthComponent | >=  < 40 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MonthComponent | 18 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | YearComponent | >=  < 38 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | YearComponent | 36 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | HourOffset | 27 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | HourOffset | 15 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MinuteOffset | >=  <= 21 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | MinuteOffset | >=  <= 34 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SecondComponent | 31.94968302012764 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | SecondComponent | 21.80406261701491 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | DaylightSavingOffset | > 30 | row | typed |
+| RichFileAttribute_Ifc2x3.ids | DaylightSavingOffset | >=  <= 27 | row | typed |
+| RichFileAttribute_Ifc4.ids | LastModifiedDate | 22 | row | typed |
+| RichFileAttribute_Ifc4.ids | LastModifiedDate | 14 | row | typed |
+| RichFileAttribute_Ifc4.ids | TensionFailureX | >=  < 38.877290048789334 | row | typed |
+| RichFileAttribute_Ifc4.ids | TensionFailureX | 37.16821730139815 | row | typed |
+| RichFileAttribute_Ifc4.ids | SlippageX | > 27.7644596358735 | row | typed |
+| RichFileAttribute_Ifc4.ids | SlippageX | >=  <= 14.31806720816676 | row | typed |
+| RichFileAttribute_Ifc4.ids | LinearForceX | 15.331405715405408 | row | typed |
+| RichFileAttribute_Ifc4.ids | LinearForceX | > 36.76916029688776 | row | typed |
+| RichFileAttribute_Ifc4.ids | LinearMomentX | >= 39.41137031808405 | row | typed |
+| RichFileAttribute_Ifc4.ids | LinearMomentX | >= 20.366529170434806 | row | typed |
+| RichFileAttribute_Ifc4.ids | PlanarForceX | >=  <= 19.56332133927925 | row | typed |
+| RichFileAttribute_Ifc4.ids | PlanarForceX | 17.971209136523463 | row | typed |
+| RichFileAttribute_Ifc4.ids | RotationalDisplacementRX | >=  < 13.49136286270333 | row | typed |
+| RichFileAttribute_Ifc4.ids | RotationalDisplacementRX | >= 22.053667847109384 | row | typed |
+| RichFileAttribute_Ifc4.ids | Distortion | >= 35.50789600223905 | row | typed |
+| RichFileAttribute_Ifc4.ids | Distortion | >=  < 26.43114397957494 | row | typed |
+| RichFileAttribute_Ifc4.ids | MomentX | >=  < 41.67256618117858 | row | typed |
+| RichFileAttribute_Ifc4.ids | MomentX | 42.58343609870378 | row | typed |
+| RichFileAttribute_Ifc4.ids | WarpingMoment | >=  <= 34.833445862602446 | row | typed |
+| RichFileAttribute_Ifc4.ids | WarpingMoment | 22.347608802602785 | row | typed |
+| RichFileAttribute_Ifc4.ids | DeltaTConstant | 40.85555498146898 | row | typed |
+| RichFileAttribute_Ifc4.ids | DeltaTConstant | 36.328120396086995 | row | typed |
+| RichFileAttribute_Ifc4.ids | ShearReinforcement | > 17.515845530135824 | row | typed |
+| RichFileAttribute_Ifc4.ids | ShearReinforcement | 25.255585342751726 | row | typed |
+| RichFileAttribute_Ifc4.ids | NominalDiameter | >= 34.58545177831621 | row | typed |
+| RichFileAttribute_Ifc4.ids | NominalDiameter | >=  <= 32.355911827720846 | row | typed |
+| RichFileAttribute_Ifc4.ids | CrossSectionArea | >=  < 13.450757624041666 | row | typed |
+| RichFileAttribute_Ifc4.ids | CrossSectionArea | 29.437223610714796 | row | typed |
+| RichFileAttribute_Ifc4.ids | PreStress | 19.28656588408085 | row | typed |
+| RichFileAttribute_Ifc4.ids | PreStress | >=  <= 19.592752097486855 | row | typed |
+| RichFileAttribute_Ifc4.ids | FrictionCoefficient | 28.384276621089697 | row | typed |
+| RichFileAttribute_Ifc4.ids | FrictionCoefficient | 28.53599207948976 | row | typed |
+| RichFileAttribute_Ifc4.ids | RelatingPriorities | minExclusive 21 | kept as written | audit warning: RelatingPriorities is a list on every class that has it (IfcRelConnectsPathElements); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | RelatingPriorities | 38 | kept as written | audit warning: RelatingPriorities is a list on every class that has it (IfcRelConnectsPathElements); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | CoordinateSpaceDimension | 16 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc4.ids | CoordinateSpaceDimension | > 24 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc4.ids | Precision | 17.086642968015973 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc4.ids | Precision | >=  < 39.1710880630895 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc4.ids | TargetScale | 24.41787664673686 | row | typed |
+| RichFileAttribute_Ifc4.ids | TargetScale | >= 19.998908061766883 | row | typed |
+| RichFileAttribute_Ifc4.ids | CountValue | 32 | row | on xs:integer, as written |
+| RichFileAttribute_Ifc4.ids | CountValue | >= 35 | row | on xs:integer, as written |
+| RichFileAttribute_Ifc4.ids | TimeValue | 33.995401660609815 | row | typed |
+| RichFileAttribute_Ifc4.ids | TimeValue | 26.235972895897774 | row | typed |
+| RichFileAttribute_Ifc4.ids | VolumeValue | > 39.010800037447225 | row | typed |
+| RichFileAttribute_Ifc4.ids | VolumeValue | 39.38322005644832 | row | typed |
+| RichFileAttribute_Ifc4.ids | WeightValue | 22.401109243890886 | row | typed |
+| RichFileAttribute_Ifc4.ids | WeightValue | > 35.84946903199831 | row | typed |
+| RichFileAttribute_Ifc4.ids | BottomFlangeFilletRadius | >= 19.35568459819988 | row | typed |
+| RichFileAttribute_Ifc4.ids | BottomFlangeFilletRadius | >=  <= 31.258173189854297 | row | typed |
+| RichFileAttribute_Ifc4.ids | LuminousIntensity | 26.890624451153826 | kept as written | audit warning: LuminousIntensity is a list on every class that has it (IfcLightDistributionData); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | LuminousIntensity | maxInclusive 42.992050878773114 | kept as written | audit warning: LuminousIntensity is a list on every class that has it (IfcLightDistributionData); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | LuminousFlux | 25.31254141327151 | row | typed |
+| RichFileAttribute_Ifc4.ids | LuminousFlux | 16.77934458410607 | row | typed |
+| RichFileAttribute_Ifc4.ids | SpreadAngle | 40.25817324567715 | row | typed |
+| RichFileAttribute_Ifc4.ids | SpreadAngle | > 13.00830081048241 | row | typed |
+| RichFileAttribute_Ifc4.ids | ColourIndex | 29 | kept as written | audit warning: ColourIndex is a list on every class that has it (IfcIndexedColourMap); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | ColourIndex | minExclusive 20 | kept as written | audit warning: ColourIndex is a list on every class that has it (IfcIndexedColourMap); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | TexCoordsList | 35.98414585922772 | kept as written | audit warning: TexCoordsList is a list on every class that has it (IfcTextureVertexList); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | TexCoordsList | minExclusive 40.342814688911794 | kept as written | audit warning: TexCoordsList is a list on every class that has it (IfcTextureVertexList); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | CardinalPoint | >=  < 20 | row | typed |
+| RichFileAttribute_Ifc4.ids | CardinalPoint | 43 | row | typed |
+| RichFileAttribute_Ifc4.ids | DayComponent | 24 | kept as written | audit warning: DayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | DayComponent | minInclusive 43 | kept as written | audit warning: DayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | WeekdayComponent | maxExclusive 35 | kept as written | audit warning: WeekdayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | WeekdayComponent | maxExclusive 17 | kept as written | audit warning: WeekdayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | MonthComponent | 18 | kept as written | audit warning: MonthComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4.ids | MonthComponent | minInclusive 20 | kept as written | audit warning: MonthComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | SupportedLength | 22.419827772322137 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | SupportedLength | >= 18.683851556152653 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Coefficient | 32.742653716282284 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Coefficient | >=  <= 39.20086978595776 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Thickness | 22.86819998905989 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Thickness | 38.330197377094116 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | AreaValue | 44.70186984528239 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | AreaValue | >=  <= 24.640579024329604 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | CountValue | >= 28 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | CountValue | 36 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | TimeValue | 19.5627410291524 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | TimeValue | 33.154134736284554 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | VolumeValue | 30.76604668504315 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | VolumeValue | 27.66606424268366 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | WeightValue | >= 43.71461504688319 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | WeightValue | >= 40.483774854843844 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | NumberValue | >=  < 18.609709258958244 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | NumberValue | >=  <= 28.451392242195016 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Fraction | 23.69021382485011 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Fraction | 12.597497958100686 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LayerThickness | 38.750682294323624 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LayerThickness | 38.199067355378105 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Priority | >=  <= 40 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Priority | 42 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | CardinalPoint | >=  < 44 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | CardinalPoint | 17 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | MainPlaneAngle | > 32.530375678606475 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | MainPlaneAngle | 25.24638965916781 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LuminousIntensity | minExclusive 30.14969806437553 | kept as written | audit warning: LuminousIntensity is a list on every class that has it (IfcLightDistributionData); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | LuminousIntensity | maxInclusive 35.34248965362032 | kept as written | audit warning: LuminousIntensity is a list on every class that has it (IfcLightDistributionData); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | ColourTemperature | > 36.28352070701175 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | ColourTemperature | >= 43.42199611883842 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LuminousFlux | 17.677139306512412 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LuminousFlux | 27.081928053926465 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | ConstantAttenuation | >= 17.830038586073286 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | ConstantAttenuation | >=  <= 34.53475246398159 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | SpreadAngle | > 17.550751371364967 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | SpreadAngle | 41.869017616259285 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | TensionForce | > 34.70816092674984 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | TensionForce | 42.3287867383341 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | PreStress | > 20.988701487981626 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | PreStress | 29.187087852587165 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | CoordinateSpaceDimension | 29 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc4x3.ids | CoordinateSpaceDimension | 18 | row | derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT |
+| RichFileAttribute_Ifc4x3.ids | TargetScale | 41.25915885836393 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | TargetScale | > 29.810490398204347 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LinearForceX | 15.885414988103221 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LinearForceX | >= 19.407966054480273 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LinearMomentX | 16.66780613030175 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LinearMomentX | > 26.555787672685597 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | PlanarForceX | 28.076766635765562 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | PlanarForceX | 17.372765572324784 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Distortion | 42.23756856718761 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | Distortion | 28.00309818082463 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | MomentX | 27.890888502528075 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | MomentX | >=  < 32.91747336921815 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | WarpingMoment | > 18.443770067715327 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | WarpingMoment | 13.780248959860195 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | ColourIndex | 22 | kept as written | audit warning: ColourIndex is a list on every class that has it (IfcIndexedColourMap); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | ColourIndex | 34 | kept as written | audit warning: ColourIndex is a list on every class that has it (IfcIndexedColourMap); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | TexCoordsList | 36.47035358940233 | kept as written | audit warning: TexCoordsList is a list on every class that has it (IfcTextureVertexList); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | TexCoordsList | minInclusive 28.380445086567683 | kept as written | audit warning: TexCoordsList is a list on every class that has it (IfcTextureVertexList); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | LastModifiedDate | >= 23 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | LastModifiedDate | >= 38 | row | typed |
+| RichFileAttribute_Ifc4x3.ids | DayComponent | 36 | kept as written | audit warning: DayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | DayComponent | 12 | kept as written | audit warning: DayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | WeekdayComponent | maxExclusive 30 | kept as written | audit warning: WeekdayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | WeekdayComponent | minInclusive 20 | kept as written | audit warning: WeekdayComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | MonthComponent | minExclusive 14 | kept as written | audit warning: MonthComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+| RichFileAttribute_Ifc4x3.ids | MonthComponent | minInclusive 40 | kept as written | audit warning: MonthComponent is a list on every class that has it (IfcRecurrencePattern); IDS cannot compare it with a value; every object this checks fails it |
+
+numeric lists: 114 open as rows, 12 kept; ranges: 120 rows, 16 kept
+  28  kept: a list attribute
+  8  row: derived on IFCGEOMETRICREPRESENTATIONSUBCONTEXT
+  4  row: on xs:integer, as written
+  222  row: typed
+
+Editor-written no-class specifications on samples/bsi-ifc43/Building-Hvac.ifc:
+  restriction bases written: xs:integer, xs:double, xs:integer
+  Contexts are 3D: pass, 1 applicable, 1 pass, 0 fail
+  Context precision at most 1 mm: pass, 1 applicable, 1 pass, 0 fail
+  Every context with a type is 3D: fail, 2 applicable, 1 pass, 1 fail
+    fail: {"id":12,"type":"IFCGEOMETRICREPRESENTATIONSUBCONTEXT","globalId":null,"name":null,"reasons":["required attribute \"CoordinateSpaceDimension\" = one of \"3\": attribute \"CoordinateSpaceDimension\" is
+  audit of the written file: clean

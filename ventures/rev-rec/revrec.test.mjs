@@ -95,3 +95,29 @@ test("a prorated refund linked to its line stops the schedule (ASC 606, quality 
   assert.equal(f("2026-02").closing, 0);
   assert.equal(rows.filter((r) => r.month >= "2026-03").reduce((a, r) => a + r.recognized, 0), 0);
 });
+
+test("zero-decimal currencies stay whole: Stripe sends JPY in yen, not sen (red team 2026-11-17)", async () => {
+  const { formatMoney, minorExponent } = await import("./revrec.mjs");
+  assert.equal(formatMoney(12000, "jpy"), "¥12,000");
+  assert.equal(formatMoney(12000, "usd"), "$120");
+  assert.equal(minorExponent("KRW"), 0);
+  assert.equal(minorExponent("kwd"), 3);
+  const rows = schedule([{ id: "a", billedAt: D(2026, 1, 5), start: D(2026, 1, 5), end: D(2026, 1, 5), amount: 12000 }], { asOf: D(2026, 1, 20) });
+  assert.equal(journal(rows, { currency: "jpy" })[0].debit, "12000");
+  assert.equal(journal(rows, { currency: "kwd" })[0].debit, "12.000");
+  assert.equal(journal(rows)[0].debit, "120.00");
+});
+
+test("spread of a zero line is +0, not -0 (red team 2026-11-17)", () => {
+  assert.deepStrictEqual(spread({ amount: 0, start: D(2026, 1, 1), end: D(2026, 1, 1) }), { "2026-01": 0 });
+  assert.deepStrictEqual(spread({ amount: -5, start: D(2026, 1, 1), end: D(2026, 1, 1) }), { "2026-01": -5 });
+});
+
+test("a credit linked to a one-off charge stays on its own date (red team 2026-11-17)", () => {
+  const rows = schedule([
+    { id: "fee", billedAt: D(2026, 3, 10), start: D(2026, 3, 10), end: D(2026, 3, 10), amount: 5000 },
+    { id: "cn", credits: "fee", billedAt: D(2026, 2, 1), start: D(2026, 2, 1), end: D(2026, 2, 1), amount: -5000 },
+  ], { asOf: D(2026, 4, 1) });
+  assert.equal(rows.find((r) => r.month === "2026-02").recognized, -5000);
+  assert.equal(rows.find((r) => r.month === "2026-03").recognized, 5000);
+});

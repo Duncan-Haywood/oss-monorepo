@@ -41,7 +41,7 @@ SHUTTLE_DROP_S = 0.14
 class SimFeeder:
     def __init__(self, elev_mode="pot", az_start_deg=12.0, wheel_tau_s=WHEEL_TAU_S, wheel_max_rpm=WHEEL_MAX_RPM,
                  rpm_full=None, jam_log=None, balls=None, wheel_inertia=0.00155, launch_eff=1.0,
-                 true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0):
+                 true_launcher=None, tach_jitter_us=0.0, esc_tau_s=0.0, seed=0, take_ms=0.0, take_shape="halfsine"):
         self.us = 1_000_000            # board clock, microseconds
         self.rx = bytearray()          # Pi -> board
         self.tx = bytearray()          # board -> Pi
@@ -169,6 +169,12 @@ class SimFeeder:
         # normal error of `tach_jitter_us`, and an ESC whose own speed control lags its command by `esc_tau_s`.
         self.tach_jitter_us, self.esc_tau = tach_jitter_us, esc_tau_s
         self._drive = [0.0, 0.0]
+        # The ball's take spread over `take_ms` (2026-11-17, tests/take_spread.py): 0 takes it at one instant, as since
+        # 2026-11-16; otherwise each plant step removes the share of the take that the force profile `take_shape`
+        # ("halfsine", or "front": a force falling linearly from its peak at first contact) puts inside that step.
+        self.take_ms, self.take_shape = take_ms, take_shape
+        self._takes = []               # [start us, (drop rpm top, drop rpm bottom)] of takes still under way
+        self.taken = []                # (wheel rpm at contact, total rpm taken) per ball, both wheels: the true drop
         self._rng = random.Random(seed)
         self._under_col_ms = 0
         self.shuttle_out_s, self.shuttle_back_s = SHUTTLE_OUT_S, SHUTTLE_BACK_S
@@ -208,6 +214,8 @@ class SimFeeder:
                     self._drive[i] = hw.esc_cmd[i]
                 target = self.wheel_max * self._drive[i]
                 self.wheel[i] += (target - self.wheel[i]) * 0.001 / self.wheel_tau
+                if self._takes:
+                    self.wheel[i] = max(0.0, self.wheel[i] - self._take_share(i, t0, t0 + 1000))
                 before = self.rev[i]
                 self.rev[i] += self.wheel[i] / 60000.0
                 if int(self.rev[i]) > int(before):   # one pulse per revolution, timed within the millisecond
@@ -217,6 +225,8 @@ class SimFeeder:
                         self.us += int(round(self._rng.gauss(0.0, self.tach_jitter_us)))
                     tach._p(None)
             self.us = t0 + 1000
+            if self._takes:
+                self._takes = [tk for tk in self._takes if self.us - tk[0] < self.take_ms * 1000]
             if hw.elev.mode != controller.ELEV_RC and not self.elev_jammed:
                 d = hw.elev.duty
                 v = self.cfg.ELEV_SPEED_EXT_MM_S if d > 0 else self.cfg.ELEV_SPEED_RET_MM_S
@@ -259,6 +269,28 @@ class SimFeeder:
         self.exits.append((v, spin))
         lin = ball.mass * v
         rot = 2.0 / 3.0 * ball.mass * ball.radius * spin
+        dws, at = [], tuple(self.wheel)
         for i, j in enumerate(((lin + rot) / 2, (lin - rot) / 2)):
             dw = self.launch_eff * j * lm.wheel_radius / self.wheel_inertia * 30 / 3.141592653589793
-            self.wheel[i] = max(0.0, self.wheel[i] - dw)
+            dws.append(min(dw, max(self.wheel[i], 0.0)))
+            if not self.take_ms:
+                self.wheel[i] = max(0.0, self.wheel[i] - dw)
+        self.taken.append((at, tuple(dws)))
+        if self.take_ms:
+            self._takes.append([self.us, tuple(dws)])
+
+    def _take_cdf(self, x):
+        """The share of a take done by fraction x (0..1) of its contact time."""
+        import math
+        x = min(max(x, 0.0), 1.0)
+        if self.take_shape == "front":
+            return 1.0 - (1.0 - x) ** 2
+        if self.take_shape == "halfsine":
+            return (1.0 - math.cos(math.pi * x)) / 2
+        raise ValueError(self.take_shape)
+
+    def _take_share(self, i, a_us, b_us):
+        """rpm the takes under way remove from wheel i between board times a_us and b_us."""
+        T = self.take_ms * 1000
+        return sum(dw[i] * (self._take_cdf((b_us - t) / T) - self._take_cdf((a_us - t) / T))
+                   for t, dw in self._takes)

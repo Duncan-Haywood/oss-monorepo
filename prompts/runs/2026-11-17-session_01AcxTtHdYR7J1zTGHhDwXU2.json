@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtHdYR7J1zTGHhDwXU2",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T21:06:07Z",
+  "ended": "2026-11-17T23:33:31Z",
+  "wall_minutes": 147.69,
+  "tokens_in": 7790241,
+  "tokens_out": 35629,
+  "cost_usd": 3.3597,
+  "tool_calls": 74,
+  "task": "research/verified-dse milestone 143: the 52 blind designs at the SKY130 ss_100C_1v60 corner",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17066",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first flow launch lost all 52 ss baselines when rng4r's baseline hit OpenROAD GRT-0183 (global-router heap underflow) inside Pool.map",
+      "fix": "base_task reads the no-wire period from the synth_netlist stage of the log and reuses logs already written; about 20 min lost"
+    },
+    {
+      "what": "efabless ss liberty URL on branch main 404s; the file is on branch master",
+      "fix": "used master, pinned sha256 in run.py"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/LOG.md",
+      "issue": "milestone 24's entry names 'the efabless mirror' for ss_100C_1v60 but gives no URL or branch; the obvious main-branch path 404s (it is on master). Milestone 143's run.py now records the URL and sha256."
+    },
+    {
+      "file": "research/verified-dse/experiments/ladder_confirm2/run.py",
+      "issue": "the baseline pool.map pattern (copied into new run scripts) aborts every baseline when one later OpenROAD stage fails, though the baseline needs only the synth_netlist stage."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/verified-dse/experiments/corner_ss_blind/analyse.py",
+      "why": "the ss sign p printed 0.0000 at four decimals",
+      "did": "changed its print precision to six decimals after the run (disclosed in LOG.md, as milestone 140 did)",
+      "result": "p = 0.000049 reported; no number changed"
+    },
+    {
+      "file": ".github/prompts/land-your-work.md",
+      "why": "the flow hit the 2 h background cap at 27 of 52 designs; the harness note says not to restart a job that already had the longest timeout",
+      "did": "analysed the complete prefix under the pre-registered prefix rule and left the 25 designs to a --resume run",
+      "result": "primary test decided on 27 designs (24 to 3)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-verified-dse-slow-corner.md",
+    "research/verified-dse/LOG.md (milestone 143)"
+  ],
+  "goal": null,
+  "notes": "Seven predictions committed in ff9fdbb08 before any point ran. Flow: Yosys 0.70 + OpenROAD 26Q3 (nixpkgs), 3,311 of 6,240 points in 2 h on 4 cores. Six of seven held; (7) division-worst refuted. Local checks: tests/test_corner_ss_blind.py, test_util65_rest.py, test_util65_blind.py pass (8 tests); research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; check_post_frontmatter ok; check_post_links ok; post_similarity 0 pairs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bfa66597-1202-5a33-aebe-65ff43e648e4",
+    "transcripts": 1,
+    "first": "2026-11-17T21:06:07Z",
+    "last": "2026-11-17T23:33:48Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 126,
+        "output": 35629,
+        "thinking": 5125,
+        "cache_read": 7650550,
+        "cache_write_5m": 0,
+        "cache_write_1h": 139565,
+        "api_equivalent_usd": 3.3597,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 126,
+      "output": 35629,
+      "thinking": 5125,
+      "cache_read": 7650550,
+      "cache_write_5m": 0,
+      "cache_write_1h": 139565,
+      "api_equivalent_usd": 3.3597,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 68,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 147.69,
+      "active_minutes": 147.69,
+      "model_minutes": 6.62,
+      "tool_minutes": 141.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an EDA researcher setting up a second-corner rerun, pre-registering, running 2 h of flow and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 297.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

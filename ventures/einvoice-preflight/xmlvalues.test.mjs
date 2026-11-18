@@ -7,7 +7,7 @@ import { readFileSync } from "node:fs";
 import { parseUblInvoice } from "./ubl.mjs";
 import { parseCiiInvoice } from "./cii.mjs";
 import { checkInvoice } from "./checks.mjs";
-import { unreadableValue, unreadableLeaves } from "./xmlvalues.mjs";
+import { unreadableValue, unreadableLeaves, CASTABLE } from "./xmlvalues.mjs";
 import { parseXmlTree } from "./ubl.mjs";
 
 const UBL = readFileSync(new URL("./examples/peppol-credit-note.xml", import.meta.url), "utf8");
@@ -21,6 +21,25 @@ test("unreadableValue: castable once JavaScript trims, not once XML trims", () =
   for (const v of ["238.00", " 238.00\n", "\t2026-11-17 ", "ACME\u00A0GmbH", "NL123456782B01\u00A0", "1\u00A0000.00", "", " 14:30:00 ", "14:30\u00A0"]) {
     assert.equal(unreadableValue(v), false, JSON.stringify(v));
   }
+});
+
+// 2026-11-18, eval/datetime-leaves-2026-11-18.md: CASTABLE agrees with SaxonC-HE's
+// castable-as on 5,024 of 5,075 swept values; the 51 others are zones past +14:00 on
+// xs:date and xs:time, which Saxon takes and XSD 1.1's timezoneFrag refuses.
+test("CASTABLE: dates with a timezone, signed and long years; XSD's ranges", () => {
+  for (const v of ["2024-01-31+01:00", "2024-01-31Z", "2024-01-31-05:00", "-0001-01-31", "12024-01-31", "0000-02-29", "2024-02-29", "2000-02-29", "24:00:00", "2024-01-31T24:00:00.0Z", "2024-01-31T10:00:00.5+14:00", "23:59:59.999-14:00"]) {
+    assert.equal(CASTABLE.test(v), true, v);
+  }
+  for (const v of ["2024-02-30", "2023-02-29", "1900-02-29", "2024-13-01", "2024-00-10", "2024-06-00", "02024-01-31", "25:00:00", "10:60:00", "10:00:60", "24:00:01", "24:00:00.5", "2024-01-31T10:00:00+15:00", "2024-01-31T10:00:00+14:01", "2024-01-31+01:60", "2024-01-31z", "2024-01-31T10:00"]) {
+    assert.equal(CASTABLE.test(v), false, v);
+  }
+});
+
+test("a timezone date with a no-break space is INV-065; an impossible date is not blamed on the space", () => {
+  assert.equal(unreadableValue("2024-01-31+01:00\u00A0"), true);
+  assert.equal(unreadableValue("\u202F2024-01-31Z"), true);
+  assert.equal(unreadableValue("2024-02-30\u00A0"), false);
+  assert.equal(unreadableValue("25:00:00\u00A0"), false);
 });
 
 test("unreadableLeaves decodes character references and names the path", () => {

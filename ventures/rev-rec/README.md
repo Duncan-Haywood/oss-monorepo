@@ -56,6 +56,10 @@ audit-ready revenue accounting.
   for billings and `Dr Deferred revenue / Cr Subscription revenue` for
   recognition, dated month end. Account names: `ACCOUNT_RECEIVABLE`,
   `ACCOUNT_DEFERRED`, `ACCOUNT_REVENUE`. `?through=YYYY-MM` limits the range.
+- **Currency units** follow Stripe: zero-decimal currencies (JPY, KRW, VND
+  and the rest of Stripe's list) are whole units, the dinars (BHD, JOD, KWD,
+  OMR, TND) thousandths, everything else cents. The journal CSV writes amounts
+  with that many decimals.
 
 ## Known gaps
 
@@ -69,7 +73,6 @@ From the first quality audit
   open invoices or follows `invoice.paid` events, run a full resync each month.
 - **Periods with a time of day count one extra day** (32 for a month, 366 for
   a year), pushing a sliver of revenue past the period end.
-- **Zero-decimal currencies** (JPY, KRW) are divided by 100.
 - **No period lock:** a late payment or proration rewrites months whose
   journal was already exported, and the billing entry debits Accounts
   receivable on the paid date, so AR never clears.

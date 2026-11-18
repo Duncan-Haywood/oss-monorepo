@@ -118,7 +118,7 @@ COMPANY_NAME=Acme node server.mjs
       $("msg").textContent = `${lines.length} lines read` + (skipped.length ? `; ${skipped.length} skipped (first: line ${skipped[0].line}, ${skipped[0].why})` : "") + (other ? `; one currency per schedule, so ${cur.toUpperCase()} only (left out: ${other})` : "") + ".";
       $("tiles").innerHTML = [["Deferred revenue now", M(s.deferredNow)], ["Recognised last month", s.lastMonth ? M(s.lastMonth.recognized) : "n/a"], ["Billed last month", s.lastMonth ? M(s.lastMonth.billed) : "n/a"], ["Still to recognise", M(s.backlog)]].map(([l, v]) => `<div>${esc(l)}<b>${esc(v)}</b></div>`).join("");
       $("table").innerHTML = scheduleTable(rows, cur);
-      csvOut = journalCsv(journal(rows.filter((r) => !r.future)));
+      csvOut = journalCsv(journal(rows.filter((r) => !r.future), { currency: cur }));
       $("dl").hidden = false; $("out").hidden = false;
       record("compute");
     }

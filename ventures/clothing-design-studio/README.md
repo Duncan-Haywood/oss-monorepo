@@ -109,6 +109,38 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "Go back to the cream": questions and earlier versions (2026-11-17)
+
+Designers ask and point back as often as they order. The keyword reader read
+every clause as an order, so "is embroidery more expensive?" switched the print
+to embroidery, "go back to the cream" ran one undo whatever the last change was,
+and "the previous colour", "undo the last two" and "start over" were not
+understood. `refer.mjs` now sorts each clause first:
+
+- **Questions for information** change nothing. The log answers them
+  (`answers.mjs`): cost questions are costed on your supplier sheet by applying
+  each named alternative to a copy of the design ("which is cheaper, dtg or
+  screen print?" gives both landed costs and the cheaper one; "how much does a
+  hoodie cost to make?" the difference), fabric and method questions give the
+  method note and the maker checks for that pairing, and colour, size and lead
+  time questions say where to look.
+- **Suggestions asked as questions** ("isn't navy better?", "what about a
+  crewneck", "why not embroider it", "wouldn't it look better in sage", "what if
+  we made it bigger") are tried, marked "Trying it (you asked)", and undoable.
+- **References to the history** are resolved against this session's versions:
+  "go back to the cream" or "the hoodie looked better" restores that value
+  only and says how many changes ago it was seen; "the previous colour", "the
+  original size", "the old position", "the other one" restore one attribute and
+  keep the rest; "undo the last two", "go back three steps" undo that many;
+  "back to the original" or "start over" returns to the session's first
+  version (one undo brings the current one back).
+
+`node eval/history-questions.mjs` (`eval/history-questions-2026-11-17.md`): on 41
+hand-written sentences `main` read 17 right and this reads 41; on 20 written
+after the code was frozen, 12 and 19 (the miss, "what if we did it in white",
+was fixed afterwards). Our sentences, not a designer's; real recorded feedback
+is still the test that matters. `refer.test.mjs`, `answers.test.mjs` (12 tests).
+
 ## "Not black, make it cream": negated feedback (2026-11-17)
 
 Spoken feedback is full of refusals, and both keyword readers (`commands.mjs`

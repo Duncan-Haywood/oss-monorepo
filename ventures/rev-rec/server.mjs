@@ -59,7 +59,7 @@ export function handler(cfg) {
       if (req.method === "GET" && url.pathname === "/v1/journal.csv") {
         const through = url.searchParams.get("through");
         const rs = rows.filter((r) => !r.future && (!through || r.month <= through));
-        return send(200, journalCsv(journal(rs, cfg.accounts)), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="rev-rec-journal.csv"' });
+        return send(200, journalCsv(journal(rs, { ...cfg.accounts, currency: cfg.state.currency || "usd" })), "text/csv; charset=utf-8", { "content-disposition": 'attachment; filename="rev-rec-journal.csv"' });
       }
       if (req.method === "POST" && url.pathname === "/v1/sync") return send(200, await runSync());
       return send(404, "not found\n", "text/plain");

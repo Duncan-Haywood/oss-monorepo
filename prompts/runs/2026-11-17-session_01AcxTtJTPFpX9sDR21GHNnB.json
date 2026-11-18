@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtJTPFpX9sDR21GHNnB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T22:07:06Z",
+  "ended": "2026-11-17T23:00:06Z",
+  "wall_minutes": 53.26,
+  "tokens_in": 11119790,
+  "tokens_out": 44815,
+  "cost_usd": 4.5307,
+  "tool_calls": 78,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17081",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A parallel background launch of two coda-check runs lost the second one: its output directory did not exist yet when its redirect opened; rerun serially (cost ~14 min).",
+    "venture-preflight's first run failed check_cli_entry.py on eval/release-cells.mjs (a file:// string entry guard); fixed with pathToFileURL, second preflight clean."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/eval/dark-nasal-diag.mjs",
+      "issue": "Run without --opt it reads with readCoda's defaults, not coda-check's MODES ({lipShut:true}); its hits and misses on part c disagreed with the report until --opt '{\"lipShut\":true}' was passed."
+    },
+    {
+      "file": "ventures/chant-forge/README.md",
+      "issue": "2,800 lines; the coda-reader rounds fill ~1,450 of them, so finding the current state of one item takes grep plus several reads."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The buildable item asked for a coda-reader rule for cluster-onset -um; frame-by-frame reading showed the fault is in the synthesis (murmur darkness follows the onset lead / beat phase), so no reader rule was registered.",
+      "did": "Shipped the diagnosis (cluster-um-diag + report), an opt-in reference rule (longTilt) measured on every part, and a reader-free cell selector for the next held-out part; rewrote buildable/next to point at sing.mjs and a registration.",
+      "result": "Item re-scoped with evidence; default reader unchanged (report byte-identical)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-chant-forge-when-the-reader-is-not-the-bug.md",
+    "ventures/chant-forge/README.md (Cluster onsets before -um)",
+    "ventures/chant-forge/eval/cluster-um-report.md",
+    "ventures/chant-forge/eval/release-cells-report.md"
+  ],
+  "goal": null,
+  "notes": "Verification: python3 platform/ci/run_venture_tests.py chant-forge -> ok (318 tests); eval/coda-check.mjs default run byte-identical to the committed report; --long-tilt on diffed against it (README numbers); post front matter/links/similarity checks clean; portfolio/router/validate.py clean. node platform/pages/venture-preflight.mjs chant-forge -> preflight clean (second run).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "88b8daa0-dc50-5b5d-a8b5-9e84c293afda",
+    "transcripts": 1,
+    "first": "2026-11-17T22:07:06Z",
+    "last": "2026-11-17T23:00:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 76,
+        "input": 148,
+        "output": 44815,
+        "thinking": 15222,
+        "cache_read": 10938892,
+        "cache_write_5m": 0,
+        "cache_write_1h": 180750,
+        "api_equivalent_usd": 4.5307,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 76,
+      "input": 148,
+      "output": 44815,
+      "thinking": 15222,
+      "cache_read": 10938892,
+      "cache_write_5m": 0,
+      "cache_write_1h": 180750,
+      "api_equivalent_usd": 4.5307,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 73,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 53.26,
+      "active_minutes": 53.26,
+      "model_minutes": 9.19,
+      "tool_minutes": 44.07,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an audio DSP engineer diagnosing a synthesiser/reader interaction: two full eval runs, two diagnostics, one rule and tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 132.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

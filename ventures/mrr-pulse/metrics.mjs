@@ -128,10 +128,22 @@ export function summarize(months) {
   };
 }
 
+// Digits in a currency's minor unit as Stripe counts amounts: JPY, KRW and the
+// other zero-decimal currencies come in whole units, the dinars in thousandths
+// (stripe.com/docs/currencies). Dividing yen by 100 showed 5,000 yen of MRR as
+// 50 (red team 2026-11-17).
+const ZERO_DECIMAL = new Set(["bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg", "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf"]);
+const THREE_DECIMAL = new Set(["bhd", "jod", "kwd", "omr", "tnd"]);
+export function minorExponent(currency = "usd") {
+  const c = String(currency || "usd").toLowerCase();
+  return ZERO_DECIMAL.has(c) ? 0 : THREE_DECIMAL.has(c) ? 3 : 2;
+}
+
 export function formatMoney(minor, currency = "usd") {
+  const major = minor / 10 ** minorExponent(currency);
   try {
-    return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(minor / 100);
-  } catch { return `${(minor / 100).toFixed(0)} ${currency}`; }
+    return new Intl.NumberFormat("en-US", { style: "currency", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(major);
+  } catch { return `${major.toFixed(0)} ${currency}`; }
 }
 
 // Signup-month cohorts: of the subscriptions that started in each of the last
@@ -235,7 +247,7 @@ export function concentration(live) {
 // Any cell that could be read as a formula is prefixed with a quote.
 export function monthsCsv(months, currency = "usd") {
   const head = ["month", "mrr", "customers", "new", "expansion", "reactivation", "contraction", "churn", "approximate"];
-  const major = (v) => (v / 100).toFixed(2);
+  const exp = minorExponent(currency), major = (v) => (v / 10 ** exp).toFixed(exp);
   const rows = months.map((m) => [m.month, major(m.mrr), m.customers, major(m.new), major(m.expansion), major(m.reactivation), major(m.contraction), major(m.churn), m.approximate ? "yes" : "no"]);
   const cell = (v) => { const s = String(v); return /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s; };
   return `# currency: ${String(currency).toUpperCase()}, amounts in major units\n` + [head, ...rows].map((r) => r.map(cell).join(",")).join("\n") + "\n";

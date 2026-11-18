@@ -1,7 +1,8 @@
 """SaxonC-HE's reading of each INV-065 mutant (eval/nbsp-amounts.mjs --out DIR).
 
 For every mutant row it asks SaxonC-HE (PyPI saxonche) whether the original
-and the mutated value can be cast to xs:decimal, xs:date or xs:boolean, which
+and the mutated value can be cast to xs:decimal, xs:date, xs:boolean, xs:dateTime or xs:time
+(the last two added 2026-11-18), which
 is what a validator's rules do with an amount, quantity, date or indicator.
 INV-065 is right on a row when Saxon casts the original and not the mutant.
     python3 -I eval/nbsp-amounts-saxonc.py DIR
@@ -13,7 +14,10 @@ from collections import Counter
 
 from saxonche import PySaxonProcessor
 
-TEST = "($v castable as xs:decimal) or ($v castable as xs:date) or ($v castable as xs:boolean)"
+TEST = (
+    "($v castable as xs:decimal) or ($v castable as xs:date) or ($v castable as xs:boolean)"
+    " or ($v castable as xs:dateTime) or ($v castable as xs:time)"
+)
 
 
 def main(out_dir: str) -> int:
@@ -38,6 +42,9 @@ def main(out_dir: str) -> int:
             tally["saxon casts original"] += before
             tally["saxon refuses mutant"] += not after
             tally["INV-065 and Saxon agree"] += agrees == fired
+            if row.get("kind") == "time":
+                tally["time/dateTime rows"] += 1
+                tally["time/dateTime agree"] += agrees == fired
             if agrees != fired:
                 print("disagree:", row["file"].rsplit("/", 1)[-1], row["xpath"], row["variant"], repr(row["mutated"]))
         print(proc.version)

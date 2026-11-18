@@ -6,7 +6,10 @@ export const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", 
 
 export function scheduleTable(rows, currency) {
   const $ = (n) => esc(formatMoney(n, currency));
-  const body = [...rows].reverse().map((r) => `<tr${r.future ? ' class="f"' : ""}><td>${esc(r.month)}${r.future ? " <abbr title='Already invoiced, not yet earned'>↗</abbr>" : ""}</td><td>${$(r.opening)}</td><td>+${$(r.billed)}</td><td>-${$(r.recognized)}</td><td>${$(r.closing)}</td></tr>`).join("");
+  // Billed adds to deferred, recognised takes from it: one sign each, so a
+  // credit-only month reads -$79 / +$79, not +-$79 / --$79 (red team 2026-11-17).
+  const signed = (n) => (n > 0 ? `+${$(n)}` : n < 0 ? `-${$(-n)}` : $(0));
+  const body = [...rows].reverse().map((r) => `<tr${r.future ? ' class="f"' : ""}><td>${esc(r.month)}${r.future ? " <abbr title='Already invoiced, not yet earned'>↗</abbr>" : ""}</td><td>${$(r.opening)}</td><td>${signed(r.billed)}</td><td>${signed(-r.recognized)}</td><td>${$(r.closing)}</td></tr>`).join("");
   return `<table><thead><tr><th>Month</th><th>Deferred, opening</th><th>Billed</th><th>Recognised</th><th>Deferred, closing</th></tr></thead><tbody>${body}</tbody></table>`;
 }
 
@@ -20,5 +23,5 @@ export function renderDashboard({ company, summary, rows, currency, lastSyncAt, 
 ${s ? `<div class="grid">${tile("Deferred revenue now", $(s.deferredNow), "invoiced, not yet earned")}${tile("Recognised last month", s.lastMonth ? $(s.lastMonth.recognized) : "n/a", s.lastMonth ? s.lastMonth.month : "")}${tile("Billed last month", s.lastMonth ? $(s.lastMonth.billed) : "n/a", s.lastMonth ? s.lastMonth.month : "")}${tile("Still to recognise", $(s.backlog), "after this month, already invoiced")}</div>
 <div class="card" style="overflow-x:auto">${scheduleTable(rows, currency)}</div>
 <p class="note"><a href="/v1/journal.csv">Download journal entries (CSV)</a> · <a href="/v1/schedule">schedule JSON</a>. Import the CSV into your accounting tool or hand it to your accountant.</p>` : `<p>No data yet. Click sync or wait for the first scheduled sync.</p>`}
-<p class="note">Revenue is recognised evenly per day over each invoice line's service period, on paid invoices, net of discounts and tax included in the price. Credit notes reduce revenue in the month they are issued. This is a working schedule for your bookkeeping, not accounting, tax or audit advice: check it against your own policy and with your accountant.</p></body></html>`;
+<p class="note">Revenue is recognised evenly per day over each invoice line's service period, on paid invoices, net of discounts and tax included in the price. A credit note that names the invoice line it credits reverses that line's unearned remainder from its issue date; one with no linked line reduces revenue on the day it is issued. This is a working schedule for your bookkeeping, not accounting, tax or audit advice: check it against your own policy and with your accountant.</p></body></html>`;
 }
