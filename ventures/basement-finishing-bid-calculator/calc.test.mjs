@@ -292,3 +292,23 @@ test('the customer summary names the basement and omits wages', () => {
   assert.doesNotMatch(text, /burden/i);
   assert.match(text, /not a building-code determination/i);
 });
+
+test('an omitted number counts as zero, for every numeric field', () => {
+  // Every number calculateBid reads defaults to 0 when the caller leaves it
+  // out (a shared link or an API caller may omit fields). A default that
+  // drifted from 0 would price a job the user never described.
+  for (const job of [special(), losingJob()]) {
+    for (const [key, value] of Object.entries(job)) {
+      if (typeof value !== 'number') continue;
+      const zeroed = { ...job, [key]: 0 };
+      const omitted = { ...job };
+      delete omitted[key];
+      let want;
+      try { want = calculateBid(zeroed); } catch (err) {
+        assert.throws(() => calculateBid(omitted), { message: err.message }, key);
+        continue;
+      }
+      assert.deepEqual(calculateBid(omitted), want, `${key} omitted should equal ${key}: 0`);
+    }
+  }
+});
