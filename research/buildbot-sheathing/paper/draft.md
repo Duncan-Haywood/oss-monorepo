@@ -708,6 +708,14 @@ where a joint in the controller's hold set flips and the leg preload cannot reac
 the residual is 0.003 mm. The zero-press stance therefore keeps a spec-grade plan at four of the
 H1's six re-leaned poses.
 
+The joint that flips at (1.4 m, −0.15 m) is the right hip roll, which the controller holds and the
+leg preload does reach: it is planned 0.030 N m above its threshold and a 0.2 N sensor error moves
+it 0.033 N m. A hold-first preload (milestone 45), which gives the held joints the largest margin
+the stance allows before the other legs take theirs, raises that margin only to 0.0339 N m, while
+the other legs had 0.19 N m to spare, so the residual stays 0.172 mm at every hose drag. The joint
+moves 0.163 N m per newton of sensor error along z, so that pose holds the spec only with a z error
+under about 0.19 N: 0.004 mm at 0.15 N, an ATI Mini45-class figure, against 0.172 mm at 0.2 N.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

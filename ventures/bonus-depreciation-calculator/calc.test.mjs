@@ -213,3 +213,33 @@ test('15- and 20-year property warns that land improvements are not Section 179 
   const seven = compareDepreciationPaths({ assetCost: 100000, recoveryYears: 7, taxableIncomeBeforeDeduction: 500000, ratePercent: 21 });
   assert.ok(!seven.findings.some((f) => /Land improvements/.test(f.detail)));
 });
+
+// -- Section 179 + bonus on the remainder (quality audit 2026-11-17, defect 0) --
+
+test('Section 179 path takes bonus on basis above the 179 limit: 3,000,000 at 21% saves 630,000, not 525,000', () => {
+  // Hand check (Pub. 946 ch. 3): 2025 limit 2,500,000, no phase-out below
+  // 4,000,000; 179 expenses 2,500,000, bonus takes the remaining 500,000.
+  // (2,500,000 + 500,000) x 21% = 630,000.
+  const r = compareDepreciationPaths({ assetCost: 3_000_000, taxableIncomeBeforeDeduction: 10_000_000, ratePercent: 21, taxYear: 2025 });
+  assert.equal(r.section179.elected, 2_500_000);
+  assert.equal(r.section179.remainderBasis, 500_000);
+  assert.equal(r.section179.remainderBonus, 500_000);
+  assert.ok(Math.abs(r.section179.cashSavings - 630_000) < 1e-6);
+  assert.ok(r.findings.some((f) => /remaining basis|above the Section 179 limit/i.test(f.title)));
+});
+
+test('bonus on the remainder is valued only against income left after the usable 179 amount', () => {
+  // 3,000,000 basis, 2,800,000 income: 179 uses 2,500,000, leaving 300,000
+  // of income for the 500,000 remainder; 200,000 is NOL-creating.
+  const r = compareDepreciationPaths({ assetCost: 3_000_000, taxableIncomeBeforeDeduction: 2_800_000, ratePercent: 21, taxYear: 2025 });
+  assert.equal(r.section179.usable, 2_500_000);
+  assert.equal(r.section179.remainderUsable, 300_000);
+  assert.equal(r.section179.remainderExcess, 200_000);
+  assert.ok(Math.abs(r.section179.cashSavings - 2_800_000 * 0.21) < 1e-6);
+});
+
+test('no remainder when the whole basis fits under the 179 limit', () => {
+  const r = compareDepreciationPaths({ assetCost: 100_000, taxableIncomeBeforeDeduction: 500_000, ratePercent: 21 });
+  assert.equal(r.section179.remainderBasis, 0);
+  assert.ok(!r.findings.some((f) => /above the Section 179 limit/i.test(f.title)));
+});

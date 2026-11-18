@@ -179,7 +179,8 @@
    "what": "The emergency/storm premium ('Emergency premium (% of billed time)') is added to the contractor's cost but never to the quoted price: with the storm box ticked the hero 'Price to quote' and the printed proposal stay $560 (default job) while cost rises 332.02 -> 425.32, and the proposal scope adds 'Dispatched as a storm / after-hours priority call' at the daytime price. The page, meta and llms.txt say it prices a job 'from ... an emergency/storm premium'. Test calc.test.mjs:53 pins this as intended, so it is a spec choice, but a contractor reading the hero number sends a storm call at day rate.",
    "where": "ventures/ice-dam-removal-bid-calculator/calc.mjs:144",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"
   },
   {
    "severity": "medium",
@@ -232,6 +233,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16786"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16786", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"],
  "verdict": "Correct arithmetic around a model that departs from how the trade prices. An auditor-written cost-plus oracle reproduces every output to the cent (default job cost $332.02, target $474.32, quote $560, break-even $4.15/ft; 15 ft job $22.13/ft on a $375 minimum; the comparison page's 4.5-hour overrun $484.34/$75.66), and the live page in headless Chrome shows the same. But the emergency/storm premium the page advertises raises only the contractor's cost, never the 'Price to quote' or the printed proposal (which says 'priority call' at the daytime $560); the trade mostly bills hourly with minimums, which the tool cannot model; steamer fuel does not scale with hours in the reconciliation; the default mileage rate is the 2024 IRS figure; and the privacy text says nothing is saved while business details go to localStorage. Tests pass 114/114 and caught 3 of 6 mutants (survivors at the zero-rate and equality boundaries). Disclaimers are present and the served llms.txt is clean. Does not meet the bar (correctness 2, claims 2, verification 2; median 2); finished (completeness 3). Fixable in a session: an emergency-adjusted quoted price, an hourly billing mode, fuel per hour, current mileage default, and corrected privacy text."
 }

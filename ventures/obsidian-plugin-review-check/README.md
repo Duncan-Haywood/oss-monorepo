@@ -19,8 +19,14 @@ finds them for you:
   submission that still carries any of these has not customized the template
   it was generated from.
 - **Missing required manifest fields** -- `id`, `name`, `version`,
-  `minAppVersion`, `description`, `author`. `authorUrl`, `fundingUrl`, and
-  `isDesktopOnly` are reported as recommended-but-not-required when absent.
+  `minAppVersion`, `description`, `author`, and the boolean `isDesktopOnly`,
+  as Obsidian's [Manifest reference](https://docs.obsidian.md/Reference/Manifest)
+  marks them. `authorUrl` and `fundingUrl` are reported as optional when absent.
+- **Manifest value rules** from the same reference: an `id` with characters
+  other than lowercase letters, digits and hyphens, containing `obsidian` or
+  ending in `plugin`; a `name` containing "Obsidian" or "Plugin"; a `version`
+  that is not `x.y.z`; an `isDesktopOnly` that is not a JSON boolean. Each
+  fails the check.
 - **`innerHTML`/`outerHTML`/`insertAdjacentHTML` usage** -- Obsidian's own
   developer guidelines name this pattern as a cross-site-scripting risk and
   recommend the DOM API or Obsidian's own `createEl`/`createSpan`/`createDiv`
@@ -79,8 +85,8 @@ approved for the community plugin list -- verify against
 before you submit.
 
 **Optional fields are reported, never counted against a clean result.**
-`authorUrl`, `fundingUrl`, and `isDesktopOnly` are listed as missing when
-absent but do not fail the check. **The two informational checks
+`authorUrl` and `fundingUrl` are listed as missing when absent but do not
+fail the check. **The two informational checks
 (`document`/`window.addEventListener`, `console.log`) never fail the check
 either** -- they are common review notes, not documented rejection causes on
 their own.
@@ -94,8 +100,7 @@ them.
 
 From the [2026-11-17 quality audit](../../portfolio/quality/audits/2026-11-17-obsidian-plugin-review-check.json), not yet fixed:
 
-- `isDesktopOnly` is reported as recommended, but the Manifest reference marks it required.
-- Manifest values are not validated: an id containing "obsidian", a name containing "Obsidian", a `v`-prefixed version or a vague description all pass.
+- Descriptions are not checked against the submission guidance (length, a self-referential "This plugin ..." opening).
 - A missing `versions.json` entry is called release-blocking; the submission docs do not require one.
 - The first `manifest.json` found in walk order wins, so a subfolder's file can be read instead of the root one, and a bundled `main.js` in the root is scanned as source.
 

@@ -189,7 +189,51 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Bowling: seasons where an even lane split is proved impossible (2026-11-18, latest)
+## Bowling lanes: every measured season at the bound (2026-11-18, latest)
+
+The six seasons the lane search left short (below, 2026-11-17) are closed: **36 of 36** measured
+seasons now have every team at the bound (worst spread 1, down from 2), at 0.64 s per season.
+Two additions to `assignLanes` in `bowling.mjs`: a stored answer is used first when the season has
+one, and the walk runs only when the polish ends with a count out of bounds:
+
+- **A focused walk** (`walkLanes`, the WalkSAT idea): each step picks a random team-pair cell
+  outside floor..ceil, and among the swaps that move one of that team's matches off (or onto)
+  that pair takes the one leaving the fewest out-of-bounds counts, or any of them with
+  probability 0.2. Deterministic per seed, a step budget instead of a clock. It closed 10x30,
+  18x26 and 24x34 (33 of 36 with the walk alone).
+- **Stored SAT assignments** (`bowling-lane-table.mjs`): the other three (12x30, 16x32, 20x30)
+  are seasons where P divides W, so every team needs every pair exactly W/P times. The week
+  re-solves, a tabu swap search and the walk all stalled 4 to 12 counts short there (tried this
+  session, up to 4 s and 200,000 steps each). `eval/bowling-lane-grid.mjs` runs the page's search on
+  every even league of 4 to 28 teams and 2 to 40 round-robin weeks; `eval/bowling-lane-table.py`
+  asks CaDiCaL about each miss and `eval/bowling-lane-table-merge.mjs` writes the solved ones as
+  one base-36 digit per match. `tablePlan` uses an entry only if it is a permutation every week
+  and puts every team at the bound for the rounds it is given, so a stale table costs speed,
+  never balance; the seed relabels the pairs (balance kept) for "Try another lane deal", and
+  the polish then cuts back-to-back repeats. Position weeks do not count, so the key is the
+  number of round-robin weeks.
+
+Repeats rose from 340 to 392 over the 36 seasons: balance comes first in the price, and the
+repaired seasons have 9 to 39 repeats against 6 to 21 before.
+
+**The wider grid** (`eval/bowling-lane-table.txt`): of 507 seasons (4 to 28 teams, 2 to 40
+weeks) the search with the walk misses 90. CaDiCaL solved 28 (all now stored and at the bound:
+every exact season of 12 to 20 teams up to 40 weeks, and the near-whole-cycle ones such as 18x17,
+20x29, 22x23), proved 35 impossible, and gave no answer to 27 within 420 s or before the batch's
+30-minute cap (16x40 and most seasons of 22 to 28 teams). Those 27 are where a longer SAT run, or a
+solver on a bigger machine, should go next; the table merges new answers with
+`eval/bowling-lane-table-merge.mjs`. The table is 6.4 kB.
+
+**Proved impossible.** CaDiCaL returns UNSAT for every season exactly P weeks long that it was
+asked about (6 to 24 teams), for 4 teams at all 21 lengths from 2 to 40 weeks where the search misses, and for 6x9, 8x3 and
+12x5. A P-week season at the bound needs each team on every pair exactly once, so each pair's P
+matches form a perfect matching with one edge from each round: a 1-factorization orthogonal to the
+circle method's P rounds. A SAT check (`eval/bowling-lane-blocks.py`; `eval/bowling-lane-table.txt`, "Blocks") found none
+for the first P rounds or for three random choices of P rounds at every even size from 6 to 20 teams
+(32 of 32 UNSAT), which is also why splitting a season into perfect P-week blocks, tried first
+this session, cannot work with these rounds. On those lengths the page's result is as close as the search gets.
+
+## Bowling: seasons where an even lane split is proved impossible (2026-11-18)
 
 The bowling page said "(best possible 0)" next to any team off the floor/ceil bound, which reads
 as a missed deal. For some seasons no deal exists. `eval/bowling-bound-sweep.mjs` ran a lane
@@ -221,8 +265,8 @@ not settled, almost all at 20 to 32 teams, where the SAT checks of 2026-11-17 to
 The engine sets `boundProvedOutOfReach` on an even league's season (and `laneReport` carries it)
 when its team count and round-robin weeks are listed; position rounds do not count, and an odd
 league is never flagged (its proof would cover the Vacancy's row). The page then says the even
-split is out of reach this season instead of "best possible". The search is unchanged here: PR
-#17107 is improving it in parallel.
+split is out of reach this season instead of "best possible". The search is improved in the section above (PR 17107), which
+brings every measured season at the bound; the seasons listed here stay out of reach for any search.
 
 ## Bowling leagues: lane pairs rotated evenly (2026-11-17)
 
@@ -275,8 +319,7 @@ Browser check: `node eval/browser-bowling.mjs` (`eval/browser-bowling.txt`, 10 c
 sample 8 of 8 at the bound, odd league with the Vacancy and a skip date, reshuffle, an error
 hiding the old schedule, no horizontal scroll, no console errors).
 
-Open: close the 6 misses (ship SAT-found assignments for common sizes, or a stronger move such as
-re-solving two weeks jointly); lane-pair preferences (a team that must avoid the end pair); a
+Open (the 6 misses closed 2026-11-18, above): lane-pair preferences (a team that must avoid the end pair); a
 "switch lanes each frame" note per pair for printed sheets; feeding real standings into the
 position rounds.
 

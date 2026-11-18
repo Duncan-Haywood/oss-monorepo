@@ -217,14 +217,16 @@
    "what": "isDesktopOnly is required per docs.obsidian.md Manifest reference (and validate-manifest), but is reported as optional and never fails the check; a manifest missing it exits 0.",
    "where": "ventures/obsidian-plugin-review-check/scan.mjs:33",
    "category": "domain-rule",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"
   },
   {
    "severity": "high",
    "what": "A manifest breaking five documented rules (id contains 'obsidian' and ends 'plugin', name contains Obsidian/Plugin, version 'v1.0' not x.y.z, no isDesktopOnly, self-referential description) reports clean and exits 0 as a CI gate.",
    "where": "ventures/obsidian-plugin-review-check/scan.mjs:73",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"
   },
   {
    "severity": "medium",
@@ -312,6 +314,6 @@
    "origin": "tests"
   }
  ],
- "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902"],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16902", "https://github.com/Duncan-Haywood/oss-monorepo/pull/17124"],
  "verdict": "Does not meet the bar. The code is small, tidy and its 63 tests pass, but checked against the real obsidian-sample-plugin repository and docs.obsidian.md, its domain facts are wrong where it matters: the 'Your Name' author placeholder has never been in the template, isDesktopOnly is required but treated as optional, none of the documented id/name/version/description rules are checked (a manifest breaking five of them exits 0), the innerHTML heuristic misses `+=` and any line after a URL string, and its one check eslint-plugin-obsidianmd lacks (versions.json entry) guards a condition the docs do not treat as blocking while failing plugins that have no versions.json. Pages repeat the wrong facts as Obsidian's. Disclaimers and served URLs are fine."
 }

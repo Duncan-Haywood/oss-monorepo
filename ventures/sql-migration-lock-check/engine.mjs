@@ -38,7 +38,7 @@
 //                                   errors at runtime
 // ---------------------------------------------------------------------------
 
-import { splitStatements, normalize, leadingKeyword } from './sql.mjs';
+import { splitStatements, normalize, leadingKeyword, transactionEffect } from './sql.mjs';
 
 export const RISK = 'risk';
 export const WARN = 'warn';
@@ -244,15 +244,19 @@ export function analyzeSql(text) {
     // Leaving a transaction clears both the per-transaction lock set and the
     // LOCAL-scoped timeout. Tracked conservatively: a `SET LOCAL` inside a
     // transaction stops applying at COMMIT.
-    if (/^\s*(COMMIT|END|ROLLBACK)\b/i.test(s)) {
+    const txEffect = transactionEffect(s);
+    if (txEffect === 'end' || txEffect === 'chain') {
       exclusiveInTx = [];
       reportedManyLocks = false;
       notValid.clear();
       continue;
     }
-    if (/^\s*(BEGIN|START\s+TRANSACTION)\b/i.test(s)) {
-      exclusiveInTx = [];
-      reportedManyLocks = false;
+    if (txEffect === 'begin') {
+      // A BEGIN inside an open block only warns; the locks it holds stay held.
+      if (!st.inTransaction) {
+        exclusiveInTx = [];
+        reportedManyLocks = false;
+      }
       continue;
     }
 

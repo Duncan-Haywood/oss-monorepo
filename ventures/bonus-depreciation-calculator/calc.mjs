@@ -190,7 +190,16 @@ export function compareDepreciationPaths({
   const bonusCashSavings = bonus.usable * rate;
 
   const section179 = section179Outcome({ eligibleBasis, otherQualifyingPurchases, incomeBeforeDeduction: income, taxYear });
-  const section179CashSavings = section179.usable * rate;
+  // Basis the Section 179 election does not cover (above the limit after
+  // phase-out) is not lost: bonus depreciation applies to the remaining
+  // basis in the same year, after the 179 amount (IRC 168(k)(1)(A); Pub. 946
+  // ch. 3, "Figuring the special depreciation allowance": basis is reduced by
+  // any 179 deduction first). Its cash value is capped by the income left
+  // after the usable 179 amount; any excess is NOL-creating like bonus.
+  // Quality audit 2026-11-17, defect 0: this remainder used to be dropped.
+  const remainderBasis = eligibleBasis - section179.elected;
+  const remainder = usableDeduction(remainderBasis, income - section179.usable);
+  const section179CashSavings = (section179.usable + remainder.usable) * rate;
 
   const macrsYear1Deduction = eligibleBasis * macrsRate;
   const macrs = usableDeduction(macrsYear1Deduction, income);
@@ -237,6 +246,14 @@ export function compareDepreciationPaths({
     });
   }
 
+  if (remainderBasis > 0 && section179.elected > 0) {
+    findings.push({
+      severity: 'medium',
+      title: 'Bonus depreciation covers the basis above the Section 179 limit',
+      detail: `Section 179 can only expense ${money(section179.elected)} of the ${money(eligibleBasis)} basis this year. The Section 179 column takes 100% bonus depreciation on the remaining ${money(remainderBasis)} in the same year, as a preparer would (bonus applies to basis after the 179 deduction, IRS Pub. 946 ch. 3). If you elect out of bonus for this class, the remainder gets ordinary MACRS instead, about ${money(remainderBasis * macrsRate)} in year one.`,
+    });
+  }
+
   if (bonus.createsOrIncreasesNol) {
     findings.push({
       severity: 'high',
@@ -275,7 +292,15 @@ export function compareDepreciationPaths({
     recoveryYears: recovery,
     macrsRate,
     bonus: { ...bonus, cashSavings: bonusCashSavings },
-    section179: { ...section179, cashSavings: section179CashSavings },
+    section179: {
+      ...section179,
+      remainderBasis,
+      remainderBonus: remainder.deduction,
+      remainderUsable: remainder.usable,
+      remainderExcess: remainder.excess,
+      totalUsable: section179.usable + remainder.usable,
+      cashSavings: section179CashSavings,
+    },
     macrs: { ...macrs, year1Deduction: macrsYear1Deduction, remainingBasis: macrsRemainingBasis, cashSavings: macrsCashSavings },
     findings,
   };
