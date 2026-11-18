@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnt1nk3361EEamk9sw",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T23:18:28Z",
+  "ended": "2026-11-18T23:40:36Z",
+  "wall_minutes": 22.27,
+  "tokens_in": 3796941,
+  "tokens_out": 33750,
+  "cost_usd": 2.1789,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17462",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A `git checkout -b && cat > file <<EOF` chain short-circuited on an existing branch, so the history note was silently not written; caught by a later edit failing."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) touch CODEOWNERS paths and cannot land in a run; the prompt anticipates this but the backlog still lists them first."
+    },
+    {
+      "file": "docs/reports/venture-suite-times-2026-11-11.md",
+      "issue": "The suite table predates many perf passes; checking which suites were already worked on meant grepping docs/history by venture name, and a venture whose note name was abbreviated (packaging-ladder-prefix) was missed at first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-packaging-optimizer-stopped-asking-every-customer-twenty-four-times.md",
+    "docs/history/ci-perf-2026-11-18-saas-packaging-last-plan-counting.md"
+  ],
+  "goal": null,
+  "notes": "Metric: saas-feature-packaging-optimizer suite wall time and analyze() on the largest survey. Before: node --test on 3 files, idle 4-core container, 3 runs 6.25/6.09/5.64 s; 500x8x3 analyze 4.3 s; 5-survey scratch benchmark 10.5 s. After, same method: 3.49/3.25/3.16 s; 2.3 s; 5.8 s. Page example 285-325 ms -> 110-140 ms. Benchmark SHA-256 of all analyze() JSON identical (b7d02bf8...). New pin test catches two mutants. run_workflow_locally --for-changes: 8/8 workflows passed (exit 0); steps not run locally: uses: steps, pytest-gated session-gate tests, ${{ }}-expression steps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f483856a-1dd2-58ca-bf18-4337df0a93ce",
+    "transcripts": 1,
+    "first": "2026-11-18T23:18:28Z",
+    "last": "2026-11-18T23:40:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 83,
+        "output": 33750,
+        "thinking": 12255,
+        "cache_read": 3701447,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95411,
+        "api_equivalent_usd": 2.1789,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 83,
+      "output": 33750,
+      "thinking": 12255,
+      "cache_read": 3701447,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95411,
+      "api_equivalent_usd": 2.1789,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 22.27,
+      "active_minutes": 22.27,
+      "model_minutes": 5.45,
+      "tool_minutes": 16.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, exact counting pass with tie-case proof, pin test with mutants, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 137.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
