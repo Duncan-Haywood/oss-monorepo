@@ -35,6 +35,10 @@
     {
       "what": "first draft of main.tex quoted the REMUS implied-hotel floor as 105.7 W (the k 0.2 row) instead of the file's minimum 104.1 W",
       "fix": "caught while adding check_numbers claims; corrected and claim added"
+    },
+    {
+      "what": "programme_check.py (research CI) failed: the new experiment scripts were not in README's Reproduce section",
+      "fix": "added both commands; found by run_workflow_locally.py --for-changes before CI ran"
     }
   ],
   "integrity_issues": [],
@@ -54,7 +58,7 @@
     "research/marine-hull/LOG.md (7u entry)"
   ],
   "goal": "advance the marine-hull programme's OCEANS paper toward 6 pages with its third figure",
-  "notes": "Routed research/0 by weighted draw; pick_track drew track 23 -> marine-hull. Security queue empty, IDEAS and website requests empty. Expectations committed (4d6ec685d) before the run. E1, E2 held; E3 refuted on the 4b speed grid (slope 0.850), post-hoc check found the 1.5 m/s AUV speed ceiling binding (55.6% of cases at x 20); widening to 4 m/s gives 0.653 and the crossover is unmoved at 4.87. E4 missed narrowly (0.9992 at the band floor). Verification: marine-hull pytest 412 passed; paper/check_numbers.py ok; paper compiles to 4 pages, no warnings; research/_homepage/build.py ok; check_md_links ok; check_posts ok; cite_check ok.",
+  "notes": "Routed research/0 by weighted draw; pick_track drew track 23 -> marine-hull. Security queue empty, IDEAS and website requests empty. Expectations committed (4d6ec685d) before the run. E1, E2 held; E3 refuted on the 4b speed grid (slope 0.850), post-hoc check found the 1.5 m/s AUV speed ceiling binding (55.6% of cases at x 20); widening to 4 m/s gives 0.653 and the crossover is unmoved at 4.87. E4 missed narrowly (0.9992 at the band floor). Verification: marine-hull pytest 412 passed; paper/check_numbers.py ok; paper compiles to 4 pages, no warnings; research/_homepage/build.py ok; check_md_links ok; check_posts ok; cite_check ok. Local run_workflow_locally --for-changes: research-ci programme_check failed once (fixed in a52010745), all other run steps ok; some steps unrun locally (uses: steps).",
   "corrections": [],
   "redteam": null,
   "usage": {
