@@ -524,5 +524,8 @@ flagships:
       512 to 304 MB, 68 IDS 640 to 448 MB; a 670 MB STEP past V8's string limit now
       checks). ifcXML from bytes 2026-11-18 (eval/ifcxml-bytes-2026-11-18.md: 374 MB
       ifcXML parses 800 to 448 MB, 68 IDS 832 to 448 MB; a 680 MB ifcXML now
-      checks). next: skip white-space-only text runs in the XML reader. More open
-      items: NEXT.md.
+      checks). xs:pattern as XML Schema regex 2026-11-18
+      (eval/xsd-regex-2026-11-18.md: same verdict as elementpath on 78 of 78 corpus
+      patterns; anchors, (?: and \/ flagged and repaired; 4 of 65 public IDS read
+      differently per tool). next: skip white-space-only text runs in the XML
+      reader; IfcTester's narrower bare \w. More open items: NEXT.md.

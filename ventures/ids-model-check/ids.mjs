@@ -13,6 +13,7 @@
 import { parseStep } from "./step.mjs";
 import { parseIfcXml, ifcXmlSchemaId, looksLikeXml } from "./ifcxml.mjs";
 import { parseXml, kids, kid } from "./xml.mjs";
+import { compileXsdRegex } from "./xsdregex.mjs";
 import { auditIds } from "./audit.mjs";
 import { structureIssues } from "./structure.mjs";
 import { temporalKind, temporalKey } from "./temporal.mjs";
@@ -269,7 +270,15 @@ function parseDouble(text) {
 }
 
 // XSD regular expressions are anchored and use a few classes JS lacks.
+// A pattern's matcher: the XSD meaning (xsdregex.mjs, the reading IfcTester
+// and the IDS text use) when the text is an XSD regex; otherwise the looser
+// JavaScript reading below, so a check still runs while the audit reports the
+// pattern (pattern-not-xsd); null when neither reads it.
 export function xsdRegex(p) {
+  return compileXsdRegex(p) || jsRegex(p);
+}
+
+export function jsRegex(p) {
   let s = p.replace(/\\i/g, "[A-Za-z_:]").replace(/\\c/g, "[-.0-9A-Za-z_:]").replace(/\\I/g, "[^A-Za-z_:]").replace(/\\C/g, "[^-.0-9A-Za-z_:]");
   try { return new RegExp("^(?:" + s + ")$", "u"); } catch { try { return new RegExp("^(?:" + s + ")$"); } catch { return null; } }
 }

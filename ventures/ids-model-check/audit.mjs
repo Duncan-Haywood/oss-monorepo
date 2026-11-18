@@ -28,6 +28,7 @@
 // ifcVersion names that were passed, or every passed schema when none match).
 
 import { temporalKind } from "./temporal.mjs";
+import { parseXsdRegex, repairXsdRegex } from "./xsdregex.mjs";
 
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
@@ -97,7 +98,7 @@ function valueProblem(value, prim, enumValues) {
   // true or false), but buildingSMART's test cases make one on a number invalid.
   if (r.pattern.length && numeric) return { error: `a pattern only applies to text; this value is ${prim === "double" ? "a number" : "an integer"}, so the pattern can never match` };
   if (r.pattern.length && (prim === "boolean" || prim === "logical") && (r.regexes || []).every(Boolean) && !["true", "false"].some((t) => r.regexes.some((re) => re.test(t)))) return { warning: `the pattern matches neither true nor false, so this boolean can never match` };
-  for (const [i, re] of (r.regexes || []).entries()) if (!re) return { error: `pattern /${r.pattern[i]}/ is not a valid regular expression` };
+  for (const [i, re] of (r.regexes || []).entries()) if (!re) return { error: `pattern /${r.pattern[i]}/ is not a valid regular expression: ${parseXsdRegex(r.pattern[i]).error}` };
   for (const t of r.enumeration) {
     const p = literalProblem(t, prim, "enumeration value");
     if (p) return { error: p };
@@ -146,7 +147,7 @@ function entityNameIssues(f, ctx, where) {
     }
   } else if (f.name.r && f.name.r.pattern.length) {
     const res = f.name.r.regexes || [];
-    if (res.some((re) => !re)) issues.push({ level: "error", code: "pattern-invalid", message: `${where}class name pattern is not a valid regular expression` });
+    if (res.some((re) => !re)) issues.push({ level: "error", code: "pattern-invalid", message: `${where}class name pattern is not a valid regular expression: ${f.name.r.pattern.map((p) => parseXsdRegex(p)).find((x) => !x.ok)?.error}` });
     else if (!ctx.list.some(({ S }) => Object.keys(S.entities).some((n) => res.some((re) => re.test(n))))) issues.push({ level: "warning", code: "class-pattern-empty", message: `${where}class name pattern ${f.name} matches no ${label} class` });
   }
   // A predefined type the class's enumeration lacks only matches USERDEFINED
@@ -506,6 +507,33 @@ function propertyIssues(f, ctx, spec, where) {
   return [...issues, ...tpl];
 }
 
+// Every xs:pattern in a facet read as XML Schema regex (xsdregex.mjs): one
+// that is not XSD (a "(?:" group, a lazy "*?", "{,3}") is an error, because
+// IfcTester stops on it and schema validators refuse it, even where this
+// checker's looser fallback still ran it; one that is XSD but means something
+// else in JavaScript or Python ("^" and "$" are characters, not anchors; "\w"
+// is wider) is a warning. Each says what to write instead. A pattern no
+// reader takes at all is reported by the value checks above, not twice.
+// (eval/xsd-regex-2026-11-18.md)
+function patternIssues(f) {
+  const out = [];
+  const values = Object.entries(f).filter(([, v]) => v && typeof v === "object" && "r" in v && "simple" in v);
+  if (f.entity) values.push(...Object.entries(f.entity).filter(([, v]) => v && typeof v === "object" && "r" in v && "simple" in v).map(([k, v]) => ["partOf " + k, v]));
+  for (const [key, v] of values) {
+    if (!v.r) continue;
+    v.r.pattern.forEach((p, i) => {
+      if (!v.r.regexes || !v.r.regexes[i]) return;
+      const r = parseXsdRegex(p);
+      const fix = repairXsdRegex(p);
+      const instead = fix !== null ? `; write /${fix}/` : "";
+      const label = key.replace(/([A-Z])/g, " $1").toLowerCase();
+      if (!r.ok) out.push({ level: "error", code: "pattern-not-xsd", message: `${label} pattern /${p}/ is not an XML Schema regex, which IDS patterns are: ${r.error}${instead}. IfcTester stops on it, so the file checks differently in each tool`, ...(fix !== null ? { fix } : {}) });
+      else for (const n of r.notes) out.push({ level: "warning", code: n.code, message: `${label} pattern /${p}/: ${n.message}${n.fix && fix !== null ? `; write /${fix}/` : ""}`, ...(n.fix && fix !== null ? { fix } : {}) });
+    });
+  }
+  return out;
+}
+
 export function auditIds(ids, { schemas, typeMap, psets } = {}) {
   // The file's structure against ids.xsd first (structure.mjs): element order,
   // allowed attributes and their fixed values. `structure: true` marks them.
@@ -543,6 +571,7 @@ export function auditIds(ids, { schemas, typeMap, psets } = {}) {
             if (!named.some((x) => x.level === "error")) issues.push(...abstractIssues(f.entity, ctx, "partOf: ", spec, false));
           }
         }
+        issues.push(...patternIssues(f));
         for (const x of issues) add(where + " " + f.describe(), x);
       }
     }
