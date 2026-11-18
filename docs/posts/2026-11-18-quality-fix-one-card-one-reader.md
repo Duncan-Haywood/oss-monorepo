@@ -3,7 +3,7 @@ title: "Quality fix: a memory card can only be in one reader at a time"
 seo_title: "How many card readers to back up multi-camera footage overnight"
 date: 2026-11-18
 tags: [quality-audit, research, testing]
-description: "The footage-backup model behind capture-storage let several card readers share one card. Fixed, a four-camera travel rig needs 4 readers and about 400 g, not 6 readers and 452 g. Reading the cards once per backup copy fits no rig in an hour."
+description: "The capture-storage backup model let card readers share one card. Fixed, a four-camera rig needs 4 readers and about 400 g, not 6 and 452 g."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md).
