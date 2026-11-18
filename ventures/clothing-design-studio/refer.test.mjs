@@ -90,3 +90,54 @@ test("parseCommand with a timeline: the restored state is what the words asked f
   assert.equal(h.present.garment, "hoodie");
   assert.equal(h.present.placements[0].method, "high-density");
 });
+
+// ------------------------------------------------ a whole earlier version
+import { describedVersion, versionFeatures } from "./refer.mjs";
+import { session as haloSession } from "./eval/whole-versions.mjs";
+
+const wline = () => { const h = haloSession(); return [...h.past, h.present]; };
+
+test("whole versions: the one with / without something restores that version", () => {
+  const l = wline();
+  assert.deepEqual(resolveReference("the one with the halo", l, parseClause).ui, [{ ui: "restore", index: 2 }]);
+  assert.deepEqual(resolveReference("the one without the text", l, parseClause).ui, [{ ui: "restore", index: 1 }]);
+  assert.deepEqual(resolveReference("the tee with the wings", l, parseClause).ui, [{ ui: "restore", index: 4 }]);
+  assert.deepEqual(resolveReference("revert to the version with the halo on the front", l, parseClause).ui, [{ ui: "restore", index: 2 }]);
+  assert.equal(resolveReference("the version with the halo on the back", l, parseClause).ui.length, 0, "the halo was never on the back");
+});
+
+test("whole versions: before a change", () => {
+  const l = wline();
+  assert.deepEqual(resolveReference("before I added the wings", l, parseClause).ui, [{ ui: "restore", index: 3 }]);
+  assert.deepEqual(resolveReference("the one before we made it navy", l, parseClause).ui, [{ ui: "restore", index: 5 }]);
+  assert.match(resolveReference("before the text", l, parseClause).did, /Back to the version before the text/);
+});
+
+test("whole versions: nothing changes when the present already matches or nothing did", () => {
+  const l = wline();
+  const has = resolveReference("the one with the wings", l, parseClause);
+  assert.deepEqual([has.ops, has.ui], [[], []]);
+  assert.match(has.did, /already has the angel wings/);
+  assert.match(resolveReference("the one with the crown", l, parseClause).did, /No earlier version/);
+  assert.equal(describedVersion("the other one", l), null, "no description: left to the older rules");
+  assert.equal(describedVersion("back to the cream one", l), null, "a value, not a version: restores the colour only");
+});
+
+test("whole versions: parseCommand no longer adds a second halo", () => {
+  const h = haloSession();
+  const r = parseCommand("the one with the halo", h.present, [...h.past, h.present]);
+  assert.equal(r.steps.length, 1);
+  assert.deepEqual(r.steps[0].ops, []);
+  assert.deepEqual(r.steps[0].ui, [{ ui: "restore", index: 2 }]);
+  assert.deepEqual(parseCommand("when it still had the halo", h.present, [...h.past, h.present]).steps[0].ui, [{ ui: "restore", index: 2 }]);
+  assert.equal(parseCommand("when it still had the halo?", h.present, [...h.past, h.present]).questions.length, 1, "with ? it is asked");
+  assert.equal(parseCommand("add a halo", h.present).steps[0].ops[0].op, "add");
+});
+
+test("versionFeatures reads what is and is not there", () => {
+  const f = versionFeatures("where it was a cream tee with the wings on the back without any text");
+  assert.ok(f.some(x => x.motif === "wings" && x.area === "back"));
+  assert.ok(f.some(x => x.garment === "tee"));
+  assert.ok(f.some(x => x.colour === "cream"));
+  assert.ok(f.some(x => x.kind === "text" && x.absent));
+});

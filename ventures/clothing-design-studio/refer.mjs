@@ -22,7 +22,8 @@
  * Deterministic and English only; nothing leaves the browser.
  */
 
-import { COLOURS } from "./catalogue.mjs";
+import { COLOURS, GARMENTS, METHODS } from "./catalogue.mjs";
+import { MOTIFS } from "./motifs.mjs";
 
 // ---------------------------------------------------------------- questions
 
@@ -65,6 +66,8 @@ export function readQuestion(clause, questionMark = false) {
   const c = String(clause ?? "").toLowerCase().replace(/’/g, "'").replace(/\s+/g, " ").trim();
   if (!c) return null;
   if (/^(?:never mind|no matter)\b/.test(c)) return null;
+  // "when it still had the halo" points at a version, not a question (unless asked with "?").
+  if (!questionMark && /^(?:back )?when (?:it|we|i) (?:still )?(?:had|was|were|used|made it)\b/.test(c)) return null;
   if (POLITE.test(c) && !/\b(?:better|nicer|cheaper|more expensive|cost|price)\b/.test(c)) return null;
   for (const [re, pick] of SUGGEST) {
     const m = re.exec(c);
@@ -177,6 +180,10 @@ export function resolveReference(clause, timeline, parse) {
     return { ops: [], ui: [{ ui: "restore", index: 0 }], did: "Back to the first version of this session (one undo brings this one back)" };
   }
 
+  // "the one with the halo", "the version without the text", "before I added the wings"
+  const whole = describedVersion(c, line);
+  if (whole) return whole;
+
   // "the previous colour", "the old fabric", "the other colour", "the colour before", "the original size"
   const named = ATTRIBUTES.find(a => a.words.test(c));
   const prevWord = new RegExp(String.raw`\b${PREV}\b`).exec(c)?.[0];
@@ -250,5 +257,157 @@ function restoreAttribute(attr, line, which) {
     ops: attr.restore(from, present, id),
     ui: [],
     did: `Back to the ${which === "first" ? "original" : "previous"} ${attr.label}: ${attr.show(from, id)} (from ${ago} change${ago === 1 ? "" : "s"} ago; the rest of the design is kept)`,
+  };
+}
+
+// ------------------------------------------------------- whole versions
+
+// What a clause says a version had. Words for the garment, decoration method
+// and print area, kept here (not imported from commands.mjs, which imports
+// this module).
+const V_GARMENTS = [
+  ["hoodie", /\b(?:hoodie|hoody|hooded)\b/],
+  ["crewneck", /\b(?:crew ?neck|sweatshirt|jumper|sweater)\b/],
+  ["longsleeve", /\blong[- ]?sleeve(?:d)?\b/],
+  ["tee", /\b(?:t-?shirt|tee)\b/],
+];
+const V_METHODS = [
+  ["3d-puff-embroidery", /\b(?:3d|puff|raised) embroider(?:y|ed)\b/],
+  ["embroidery", /\bembroider(?:y|ed)\b|\bstitched\b/],
+  ["puff", /\bpuff(?: print| ink)?\b/],
+  ["high-density", /\b(?:3d|raised|high[- ]density|embossed)(?: print)?\b/],
+  ["sublimation", /\bsublimat(?:ed|ion)\b|\ball[- ]over\b/],
+  ["dtf", /\b(?:dtf|transfer)\b/],
+  ["dtg", /\b(?:dtg|digital print)\b/],
+  ["screen", /\bscreen[- ]?print(?:ed|ing)?\b/],
+];
+const V_AREAS = /\bon (?:the )?(front|back|chest|left chest|sleeve)\b/;
+const V_COLOURS = Object.keys(COLOURS).sort((a, b) => b.length - a.length);
+const MOTIF_WORDS = Object.values(MOTIFS)
+  .flatMap(m => m.words.map(w => [w, m.id]))
+  .sort((a, b) => b[0].length - a[0].length);
+
+const AREA_ID = a => (a === "left chest" ? "chest" : a);
+
+/** Read the features named in a description ("with the halo on the back", "where it was a cream tee"). */
+export function versionFeatures(desc) {
+  let rest = ` ${desc} `;
+  const out = [];
+  // "without (any|the) X" and "no X" name what the version did not have.
+  const negs = [];
+  rest = rest.replace(/\b(?:without|with no|minus|before (?:it had|there was))\s+(?:any\s+|the\s+|a\s+|an\s+)?((?:[a-z"'-]+\s?){1,4}?)(?=\s+(?:and|but|on|in|where|with)\b|\s*$)/g, (_, w) => { negs.push(w); return " "; });
+  const read = (text, absent) => {
+    let t = ` ${text} `;
+    const found = [];
+    const quoted = /"([^"]{1,60})"/.exec(t)?.[1];
+    for (const [word, id] of MOTIF_WORDS) {
+      const m = new RegExp(String.raw`\b${word}\b(?:\s+(?:motif|print|graphic))?(\s+on (?:the )?(?:front|back|chest|left chest|sleeve)\b)?`).exec(t);
+      if (!m || found.some(f => f.motif === id)) continue;
+      const area = m[1] ? AREA_ID(V_AREAS.exec(m[1])[1]) : null;
+      found.push({ kind: "motif", motif: id, area, label: MOTIFS[id].label.toLowerCase() });
+      t = t.replace(m[0], " ");
+    }
+    const tm = /\b(?:text|words|lettering|writing|slogan|caption)\b(\s+on (?:the )?(?:front|back|chest|left chest|sleeve)\b)?/.exec(t);
+    if (tm || quoted) {
+      found.push({ kind: "text", text: quoted ?? null, area: tm?.[1] ? AREA_ID(V_AREAS.exec(tm[1])[1]) : null, label: quoted ? `"${quoted}"` : "text" });
+      if (tm) t = t.replace(tm[0], " ");
+    }
+    const im = /\b(?:image|picture|painting|photo|upload)\b(\s+on (?:the )?(?:front|back|chest|left chest|sleeve)\b)?/.exec(t);
+    if (im) { found.push({ kind: "image", area: im[1] ? AREA_ID(V_AREAS.exec(im[1])[1]) : null, label: "uploaded image" }); t = t.replace(im[0], " "); }
+    if (absent) return found;
+    for (const [id, re] of V_METHODS) if (re.test(t)) { found.push({ method: id, label: METHODS[id]?.label.toLowerCase() ?? id }); t = t.replace(re, " "); break; }
+    for (const [id, re] of V_GARMENTS) if (re.test(t)) { found.push({ garment: id, label: GARMENTS[id]?.label.toLowerCase() ?? id }); break; }
+    const colour = V_COLOURS.find(name => new RegExp(String.raw`\b${name}\b(?!\s+(?:ink|thread|text|letters|lettering))`).test(t));
+    if (colour) found.push({ colour, label: colour });
+    if (!found.some(f => f.kind)) {
+      const a = V_AREAS.exec(t);
+      if (a && /\b(?:print|artwork|design|graphic|logo|it)\b/.test(t)) found.push({ kind: null, area: AREA_ID(a[1]), label: `a print on the ${AREA_ID(a[1])}` });
+    }
+    return found;
+  };
+  out.push(...read(rest, false));
+  for (const n of negs) out.push(...read(n, true).map(f => ({ ...f, absent: true, label: `no ${f.label}` })));
+  return out;
+}
+
+function placementMatches(p, f) {
+  if (f.kind && p.kind !== f.kind) return false;
+  if (f.motif && p.motif !== f.motif) return false;
+  if (f.text && !String(p.text ?? "").toLowerCase().includes(f.text.toLowerCase())) return false;
+  if (f.area && p.area !== f.area) return false;
+  return true;
+}
+
+/** Does a design have every feature (and lack every absent one)? */
+export function versionMatches(d, features) {
+  return features.every(f => {
+    let ok;
+    if (f.garment) ok = d.garment === f.garment;
+    else if (f.colour) ok = d.colourName === f.colour || d.colour === COLOURS[f.colour];
+    else if (f.method) ok = d.placements.some(p => p.method === f.method);
+    else ok = d.placements.some(p => placementMatches(p, f));
+    return f.absent ? !ok : ok;
+  });
+}
+
+/** A short description of a version: "cream T-shirt; sunburst halo (front), "Ave Maria" (back)". */
+export function describeVersion(d) {
+  const art = d.placements.map(p => `${p.kind === "text" ? `"${p.text}"` : p.kind === "image" ? "image" : (MOTIFS[p.motif]?.label ?? p.label).toLowerCase()} (${p.area}, ${METHODS[p.method]?.label.toLowerCase() ?? p.method})`);
+  return `${d.colourName || d.colour} ${(GARMENTS[d.garment]?.label ?? d.garment).toLowerCase()}${art.length ? `; ${art.join(", ")}` : "; no artwork"}`;
+}
+
+const V_PRE = /^(?:(?:can|could|shall|should) (?:we|i|you) (?:please )?)?(?:(?:let's |lets )?(?:go|switch|change it|take (?:it|me|us)|get) back(?: to)?|back to|revert to|return to|bring back|show me|give me|pick|use|try|i (?:liked|preferred|prefer|want)|(?:let's |lets )?go with)?\s*/;
+const V_POST = /(?:\s+(?:was|looked|is|seemed|looks) (?:a lot |much |way )?(?:better|nicer|best|great|good))?(?:\s+(?:better|more|again|instead|please))*$/;
+const V_NOUN = String.raw`(?:one|version|design|look|option|variant)`;
+const CONNECT = /^(?:with|without|where|when|that|which|in|on|as|having|from when)\b/;
+
+/**
+ * "the one with the halo", "the version without the text", "the cream one with
+ * the wings", "when it still had the halo", "before I added the wings": a
+ * whole earlier version picked out by what it had, restored as it was (the
+ * present stays one undo away). Returns null for any other clause.
+ */
+export function describedVersion(clause, line) {
+  const body = clause.replace(V_PRE, "").replace(V_POST, "").replace(/^to\s+/, "").trim();
+  let mode = null;
+  let desc = null;
+  let m;
+  if ((m = new RegExp(String.raw`^(?:the (?:${V_NOUN}|way it was) )?before (?:i |we |you )?(?:added |put on |put |made it |changed it to |switched to |went to |adding |making it |changing it to |it was |it became |it had |there was |we had |the change to )?(?:the |a |an )?(.+)$`).exec(body))) {
+    mode = "before"; desc = m[1];
+  } else if ((m = /^(?:when|back when) (?:it|we|i) (?:still )?(?:had|was|were|used|did it (?:in|as)|made it) (.+)$/.exec(body))) {
+    mode = "with"; desc = m[1];
+  } else if ((m = new RegExp(String.raw`^(?:the|that|my) (?:([a-z -]+?) )?${V_NOUN}\s+(.+)$`).exec(body)) && CONNECT.test(m[2])) {
+    mode = "with"; desc = `${m[1] ?? ""} ${m[2]}`;
+  } else if ((m = /^(?:the|that) ([a-z -]+?) (with|without) (.+)$/.exec(body)) && (V_GARMENTS.some(([, re]) => re.test(m[1])) || V_COLOURS.includes(m[1].replace(/ (?:one|version)$/, "")))) {
+    mode = "with"; desc = `${m[1]} ${m[2]} ${m[3]}`;
+  }
+  if (!mode) return null;
+  const features = versionFeatures(desc);
+  if (!features.length) return null;
+  const what = features.map(f => (f.absent ? f.label : f.kind ? `the ${f.label}` : f.garment ? `a ${f.label}` : f.colour ? `a ${f.colour} garment` : f.label)).join(", ");
+  if (!line || !line.length) return { ops: [], ui: [], did: `No earlier version to look through yet` };
+  const last = line.length - 1;
+  const hit = d => versionMatches(d, features);
+  if (mode === "before") {
+    for (let i = last; i >= 1; i--) {
+      if (hit(line[i]) && !hit(line[i - 1])) {
+        if (i - 1 === last) break;
+        return restoreWhole(line, i - 1, `before ${what}`);
+      }
+    }
+    if (hit(line[0])) return { ops: [], ui: [], did: `It had ${what} from the first version; nothing changed` };
+    return { ops: [], ui: [], did: `No version in this session had ${what}; nothing changed` };
+  }
+  if (hit(line[last])) return { ops: [], ui: [], did: `This version already has ${what}; nothing changed` };
+  for (let i = last - 1; i >= 0; i--) if (hit(line[i])) return restoreWhole(line, i, `with ${what}`);
+  return { ops: [], ui: [], did: `No earlier version in this session had ${what}; nothing changed` };
+}
+
+function restoreWhole(line, index, why) {
+  const ago = line.length - 1 - index;
+  return {
+    ops: [],
+    ui: [{ ui: "restore", index }],
+    did: `Back to the version ${why}, from ${ago} change${ago === 1 ? "" : "s"} ago: ${describeVersion(line[index])} (one undo brings this one back)`,
   };
 }
