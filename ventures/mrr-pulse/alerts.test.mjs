@@ -51,3 +51,17 @@ test("only https webhooks are accepted", () => {
   assert.ok(validWebhook("https://hooks.slack.com/services/x"));
   assert.ok(!validWebhook("http://x")); assert.ok(!validWebhook("nope"));
 });
+
+// Red team 2026-11-18: both tests fail with a mutant that used to pass.
+test("churn alert stays quiet with no months, or a month that started with no MRR", () => {
+  assert.equal(churnAlert({ months: [], currency: "usd" }), null);
+  assert.equal(churnAlert({ months: [prior, row({ startMrr: 0, churn: 100 })], currency: "usd" }), null);
+});
+
+test("notify formats alerts in the synced currency, not always dollars", async () => {
+  const sent = []; const fetch = async (u, o) => { sent.push(JSON.parse(o.body).text); return { ok: true }; };
+  const cfg = { state: { currency: "eur" }, save() {}, now: () => NOW, fetch, webhook: "https://hooks.example/x", digestDays: 0 };
+  assert.equal((await notify(cfg, [prior, row({ churn: 600 })])).alert, true);
+  assert.match(sent[0], /€/);
+  assert.doesNotMatch(sent[0], /\$/);
+});

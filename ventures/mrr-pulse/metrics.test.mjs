@@ -265,3 +265,27 @@ test("concentration: one subscription at exactly a quarter of MRR is high risk",
   assert.equal(concentration({ a: 25, b: 25, c: 25, d: 25 }).risk, "high");
   assert.equal(concentration({ a: 10, b: 9, c: 9, d: 9, e: 9, f: 9, g: 9, h: 9, i: 9, j: 9, k: 9 }).risk, "moderate");
 });
+
+// Red team 2026-11-18 (mrr-pulse campaign): each test below fails with one
+// mutant that used to pass the whole suite.
+test("summarize: ARPA is 0 with no customers, and growth is the change over last month's MRR", () => {
+  const m = (month, mrr, customers) => ({ month, mrr, customers, startMrr: 1000, startCustomers: 1, new: 0, expansion: 0, contraction: 0, churn: 0, reactivation: 0, churnCount: 0 });
+  assert.equal(summarize([m("2026-10", 0, 0)]).arpa, 0);
+  const s = summarize([m("2026-09", 1000, 2), m("2026-10", 1100, 2)]);
+  assert.ok(Math.abs(s.growthPct - 0.1) < 1e-12);
+  assert.equal(s.arpa, 550);
+});
+
+test("forecast low takes the fewest adds and the least expansion of the basis months", () => {
+  const ms = [mo("2026-01", 1000, { new: 100 }), mo("2026-02", 1000, { new: 300, expansion: 100 }), mo("2026-03", 1000)];
+  const f = forecast(ms, { horizon: 1 });
+  // low: adds min 100, exp min 0, loss 0; high: adds 300, exp 0.1
+  assert.equal(f.low[0], 1100);
+  assert.equal(f.high[0], Math.round(1000 * 1.1 + 300));
+});
+
+test("concentration top10 sums exactly ten subscriptions", () => {
+  const c = concentration(Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`s${i}`, 100])));
+  assert.ok(Math.abs(c.top10 - 10 / 12) < 1e-12);
+  assert.ok(Math.abs(c.top5 - 5 / 12) < 1e-12);
+});
