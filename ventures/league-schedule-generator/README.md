@@ -233,6 +233,41 @@ for the first P rounds or for three random choices of P rounds at every even siz
 (32 of 32 UNSAT), which is also why splitting a season into perfect P-week blocks, tried first
 this session, cannot work with these rounds. On those lengths the page's result is as close as the search gets.
 
+## Bowling: seasons where an even lane split is proved impossible (2026-11-18)
+
+The bowling page said "(best possible 0)" next to any team off the floor/ceil bound, which reads
+as a missed deal. For some seasons no deal exists. `eval/bowling-bound-sweep.mjs` ran a lane
+search on every even league of 4 to 32 teams for 1 to 60 round-robin weeks (900 seasons) and
+`eval/bowling-bound-proof.py` gave each season it missed (145; the search was the page's
+polish plus a min-conflicts repair tried this session, not shipped here) to CaDiCaL with the CNF of
+`eval/bowling-lane-sat.py` over the exact weeks `bowlingSchedule()` plays. An UNSAT answer is a
+proof about the season, not the search: no lane deal of those weeks puts every team at the bound.
+Every such season is missed by every search, so the misses of any one search cover all of them;
+the gap is seasons the solver did not settle in its time (UNKNOWN, listed in
+`eval/bowling-bound-proof.txt`).
+
+Proved out of reach (`bowling-proofs.mjs`, `OUT_OF_REACH`; full list in
+`eval/bowling-bound-proof.txt`):
+
+- **A season exactly as long as the lane pairs:** P round-robin weeks on P pairs (4 teams x 2
+  weeks, 6 x 3, 8 x 4, ... 30 x 15): every league from 4 to 30 teams. Each team would need every
+  pair exactly once, and the circle method's first P rounds allow it at none of those sizes. 32 x 16 was not
+  settled in 150 s.
+- **4 teams (2 pairs):** whenever the round-robin weeks are 2, 3 or 4 more than a multiple of 6,
+  through 58 weeks (51 and 57 not settled). 4 x 2 by hand: week 1's two matches split the teams
+  across the pairs, so in week 2 every team must change pair, but each week-2 match joins one team
+  from each pair.
+- **Other short seasons:** 6 x 9, 8 x 3, 12 x 5.
+
+44 seasons in all; 17 misses were SAT (a deal at the bound exists: the search's fault) and 84 were
+not settled, almost all at 20 to 32 teams, where the SAT checks of 2026-11-17 took 30 s and more.
+
+The engine sets `boundProvedOutOfReach` on an even league's season (and `laneReport` carries it)
+when its team count and round-robin weeks are listed; position rounds do not count, and an odd
+league is never flagged (its proof would cover the Vacancy's row). The page then says the even
+split is out of reach this season instead of "best possible". The search is improved in the section above (PR 17107), which
+brings every measured season at the bound; the seasons listed here stay out of reach for any search.
+
 ## Bowling leagues: lane pairs rotated evenly (2026-11-17)
 
 `bowling-league-schedule.html` (engine `bowling.mjs`, tests `bowling.test.mjs`) builds a whole
