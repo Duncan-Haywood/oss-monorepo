@@ -812,11 +812,11 @@ export function parseReceipt(block, { dayFirst = null } = {}) {
   if (cents === null) {
     // A Russian slip with no ИТОГ amount (the line lost, or "MTOr" alone with the amount on
     // the card line below it): the card terminal's own slip printed under it, "СУММА (РУБ):
-    // 89.99" (CyMMa<Py6>, CyHMa(Py6)), is what was charged; failing that, the one amount on
+    // 89.99" (CyMMa<Py6>, CyHMa(Py6); "1'325.00" with its thousands mark), is what was charged; failing that, the one amount on
     // the card or cash lines (БЕЗНАЛИЧНЫМИ, НАЛИЧНЫМИ) when no change was given
     // and it is printed twice or more (eval/receipt-ocr-ru-train2-2026-11-18.md)
     const one = (vs) => (vs.size === 1 ? [...vs][0] : null);
-    const termAt = (l, i) => { const m = l.match(RU_TERMINAL_RE); if (!m) return []; const a = amountsIn(l.slice(m.index), comma).filter((v) => v > 0); return a.length ? a.slice(-1) : bare(lines[i + 1]).filter((v) => v > 0).slice(-1); };
+    const termAt = (l, i) => { const m = l.match(RU_TERMINAL_RE); if (!m) return []; const a = amountsIn(l.slice(m.index).replace(/(\d)['’](?=\d{3}[.,]\d{2}(?!\d))/g, "$1"), comma).filter((v) => v > 0); return a.length ? a.slice(-1) : bare(lines[i + 1]).filter((v) => v > 0).slice(-1); };
     const term = one(new Set(lines.flatMap(termAt)));
     const ru = term !== null || lines.some((l) => RU_TOTAL_RE.test(l) || RU_VAT_RE.test(l));
     if (term !== null) { cents = term; notes.push("no ИТОГ amount; took the card terminal's СУММА (РУБ): check the total"); }

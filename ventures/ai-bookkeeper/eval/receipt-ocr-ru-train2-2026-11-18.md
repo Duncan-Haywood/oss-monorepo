@@ -54,7 +54,8 @@ INN read as a price (`2149705630`, `180473100`), or a price before the discount.
 2. Failing that, on a slip with Russian evidence (a ИТОГ word or a `НДС`/`HAC 5%` line) and no
    change (`СДАЧА`, `RU_CHANGE_RE`) with an amount: the card or cash line's amount, when the card
    and cash lines agree on one amount **and it is printed on two lines or more**.
-3. `ruTotalLine` reads `1247 -00` as 1247.00, and the repeat rule (an ИТОГ amount printed once
+3. The terminal amount's thousands mark: `1'325.00` is 1325.00.
+4. `ruTotalLine` reads `1247 -00` as 1247.00, and the repeat rule (an ИТОГ amount printed once
    gives way to one printed more often below it) now reads the ИТОГ line the same way, so it
    counts that line's amount instead of none.
 
@@ -66,7 +67,7 @@ largest-amount fallback had been right. The card line without the printed-twice 
 seven café slips from one shop, where the engine's rows run one off and the card line carries the
 VAT amount (`6E3HAIM4H6M =26.77` on a 562.00 slip). With both, shard 2 read 193, below main's 196.
 
-Tests: `receipt-russian.test.mjs`, three new tests (3 failing on main), text made up in the
+Tests: `receipt-russian.test.mjs`, three new tests (3 failing on main; the thousands mark is a case in the first), text made up in the
 photos' style: the terminal amount, a lone `MTOr` over a repeated card line, a café slip whose
 card line is not taken, change given, `1247 -00`. The whole ai-bookkeeper suite passes (3,388
 tests, `python3 platform/ci/run_venture_tests.py ai-bookkeeper`).
@@ -77,10 +78,16 @@ tests, `python3 platform/ci/run_venture_tests.py ai-bookkeeper`).
 |---|---|---|
 | train shard 2, 221 (the rules were written from its misses) | 196 | **202** (91.4%) |
 | train shard 2, items make the total (202) | 181 | **185** |
-DEVROWS
+| val, 145 (re-read; earlier development set) | 138 | **140**, 0 lost |
+| test, 148 (re-read; see below) | 136 | **137**, 0 lost |
 | CORD hand-corrected text, train / validation / test | 767 / 97 / 94 | same |
 
-Six gained on shard 2 and none lost. Because the changes came from shard 2's misses, 202 is a
+Six gained on shard 2 and none lost. Val and test were read again with RapidOCR for this
+check, and main was scored on the same readings. On test the change first lost one slip,
+`IMG_1673`: the terminal printed `CYMMA(PY6.): 1'325.00` with an apostrophe as the thousands
+mark, read as 325.00. The terminal reader now drops that mark (a fourth test), and test then
+gained one and lost none. Train shards 0 and 1 were not read again (760 photos would have
+taken over two hours here). Because the changes came from shard 2's misses, 202 is a
 development figure. No untouched split of this dataset is left; the 88.7% above is the last
 clean one. The new patterns match none of the 12,697 lines of the venture's other text,
 JSONL, CSV and JSON files (the CORD and WildReceipt sets, the fixtures).

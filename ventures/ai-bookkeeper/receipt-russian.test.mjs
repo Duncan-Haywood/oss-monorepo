@@ -64,6 +64,8 @@ test("no ИТОГ amount: the card terminal's СУММА (РУБ) is the total",
   // "MTOr" alone, its amount on the line below with the VAT words
   assert.equal(read("TOBAP 2000.00\nMTOr\nCYMMA HAC20%  =39617.00\n=6602.83\nMIR  <E>*4913\nCyHMa<Py6>  39617.00\n453116.2").cents, 3961700);
   // "HTOD 89.9%": the ИТОГ amount unreadable, the terminal slip says 89.99
+  // the terminal's thousands mark: 1'325.00, not 325.00
+  assert.equal(read("1 YCAYFH AOCTaBKH  1225.00*1  WT. =1225.00\nCYMMA(PY6.):  1'325.00\nKOMMCCM9 6AHKA - 0 Py6.\nCYMMA HAC 7%  =86. 61").cents, 132500);
   assert.equal(read("NTOr 6E3 CKMAOK  99.99\nCKHAKA  10.00\nHTOD  89.9%\nYisa Credit  <E1>*2677\nCyMMa<Py6>  89.99 KOMHCCHA: 0 Py6.").cents, 8999);
 });
 
