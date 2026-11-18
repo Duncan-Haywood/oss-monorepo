@@ -57,7 +57,9 @@ export function handler(cfg) {
       if (url.pathname === "/healthz") return send(200, "ok\n", "text/plain");
       if (!authorized(req.headers.authorization, cfg.adminKey)) return send(401, "sign in with ADMIN_KEY as the password\n", "text/plain", { "www-authenticate": 'Basic realm="Rev Rec", charset="UTF-8"' });
       const now = cfg.now(), lines = usable(cfg.state);
-      const rows = schedule(lines, { asOf: now });
+      const closedThrough = url.searchParams.get("closed_through") || cfg.closedThrough || null;
+      if (closedThrough && !/^\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) return send(400, "closed_through must be YYYY-MM\n", "text/plain");
+      const rows = schedule(lines, { asOf: now, closedThrough });
       if (req.method === "GET" && url.pathname === "/") {
         return send(200, renderDashboard({ company: cfg.company || "Your company", summary: rows.length ? summary(rows, now) : null, rows, currency: cfg.state.currency || "usd", lastSyncAt: cfg.state.lastSyncAt, lineCount: lines.length, skipped: cfg.state.skipped }), "text/html; charset=utf-8", { "content-security-policy": "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'" });
       }
@@ -88,8 +90,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const statePath = env.STATE || "state.json";
   const state = Object.assign(newState(), readJson(statePath, {}));
   const save = () => { fs.writeFileSync(`${statePath}.tmp`, JSON.stringify(state)); fs.renameSync(`${statePath}.tmp`, statePath); };
-  const accounts = { cash: env.ACCOUNT_RECEIVABLE || "Accounts receivable", deferred: env.ACCOUNT_DEFERRED || "Deferred revenue", revenue: env.ACCOUNT_REVENUE || "Subscription revenue" };
-  const cfg = { state, save, stripe: createStripe({ key: env.STRIPE_SECRET_KEY, maxPages: Number(env.MAX_PAGES) || 500 }), adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME, currency: env.CURRENCY && env.CURRENCY.toLowerCase(), accounts, now: Date.now };
+  // ACCOUNT_CASH names the debit side of billings; ACCOUNT_RECEIVABLE is the
+  // older name, still read so existing deployments keep their account.
+  const accounts = { cash: env.ACCOUNT_CASH || env.ACCOUNT_RECEIVABLE || "Stripe balance", deferred: env.ACCOUNT_DEFERRED || "Deferred revenue", revenue: env.ACCOUNT_REVENUE || "Subscription revenue" };
+  const cfg = { state, save, stripe: createStripe({ key: env.STRIPE_SECRET_KEY, maxPages: Number(env.MAX_PAGES) || 500 }), adminKey: env.ADMIN_KEY, company: env.COMPANY_NAME, currency: env.CURRENCY && env.CURRENCY.toLowerCase(), closedThrough: env.CLOSED_THROUGH || null, accounts, now: Date.now };
   const h = handler(cfg);
   const tick = () => sync(cfg).then((r) => console.log("synced", JSON.stringify(r)), (e) => console.error("sync failed:", e.message));
   http.createServer(h).listen(Number(env.PORT || 8080), () => {

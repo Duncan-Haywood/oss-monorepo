@@ -104,3 +104,27 @@ test("sync: an invoice paid after the incremental window, and a voided credit no
   assert.ok(!cfg.state.lines["cn:1"], "and drops the voided credit note");
   assert.equal(r.lines, 1);
 });
+
+test("sync: an incremental pass overlaps the previous one by exactly three days", async () => {
+  const { cfg, feed } = setup();
+  await sync(cfg);
+  cfg.now = () => NOW + 6 * 3600000;
+  await sync(cfg);
+  assert.equal(feed.sinces[1], Math.floor((NOW - 3 * 86400000) / 1000));
+});
+
+test("closed_through locks closed months on the schedule and a malformed value is a 400, not a 500", async () => {
+  const { cfg, feed } = setup();
+  feed.lines = [line("late", 9000, D(2026, 7, 1), D(2026, 10, 1), { billedAt: D(2026, 10, 5) })];
+  await sync(cfg);
+  const { s, url } = await listen(cfg);
+  try {
+    const open = await (await fetch(`${url}/v1/schedule`, { headers: AUTH })).json();
+    assert.ok(open.months.find((m) => m.month === "2026-07").recognized > 0);
+    const locked = await (await fetch(`${url}/v1/schedule?closed_through=2026-09`, { headers: AUTH })).json();
+    assert.equal(locked.months.find((m) => m.month === "2026-10").recognized, 9000);
+    assert.ok(!locked.months.some((m) => m.month < "2026-10" && m.recognized !== 0));
+    const bad = await fetch(`${url}/v1/schedule?closed_through=Sept`, { headers: AUTH });
+    assert.equal(bad.status, 400);
+  } finally { s.close(); }
+});
