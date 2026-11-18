@@ -2093,3 +2093,25 @@ not advised. The 0.6 was chosen by looking at these builds. A second seed is no 
 preference for 2.5-3 ms is a misfit not yet traced. Its cause may be the simulator's 1 ms command steps against the
 0.1 ms physics, which a real ESC would not share. The survey's 5 s a ball on a real ESP32 under MicroPython is not
 measured. A real wheel's tach log around a ball would name the contact time directly.
+
+**The held-out check** (`--lag 0.6`, eval/take-survey-heldout-2026-11-17.txt, the margin fixed beforehand): the same
+24 builds at a wheel lag of 0.6 s.
+
+| take | picks, ms | told every pick: sd, spin mean (worst) | with the margin: advised, sd, spin mean (worst) | step: sd, spin |
+| --- | --- | --- | --- | --- |
+| instant | 0, 0, 0, 0, 1, 2.5 | 0.20%, 0.39% (0.80) | 0 of 6, 0.12%, 0.15% (0.47) | 0.12%, 0.15% (0.47) |
+| half-sine 3 ms | 0, 0, 1.5, 3, 3.5, 4 | 0.22%, 0.40% (1.06) | 1 of 6, 0.21%, 0.44% (1.09) | 0.22%, 0.39% (1.09) |
+| half-sine 6 ms | 5.5, 6, 6, 6, 6, 6 | 0.21%, 0.76% (1.98) | 6 of 6, 0.21%, 0.76% (1.98) | 0.77%, 2.53% (4.87) |
+| front 4 ms | 0, 1.5, 3, 3, 4, 4.5 | 0.39%, 1.30% (5.03) | 0 of 6, 0.39%, 0.59% (1.64) | 0.39%, 0.59% (1.64) |
+
+The margin held. No instant build was advised, though two picked 1 and 2.5 ms and read worse when told. Every 6 ms
+build was advised, and its scatter fell to about a quarter and its spin error to about a third. At this lag the
+front-loaded take picked anywhere from 0 to 4.5 ms and would have read the spin worse told its pick (worst 5.03%). The
+margin advised none of those builds, so here it saved a re-flash that would have hurt. A 3 ms take is too short to
+matter at 0.6 s (0.22% as a step), and the survey mostly says so. One 6 ms ESC build told 5.5 ms read its scatter
+better but its spin worse (0.77% to 1.98%), the one advised build where a re-flash cost something.
+
+**What changes.** The firmware and the Pi now survey the contact time on every calibration drill (about 42 s longer for
+12 balls), and the advice is conservative. Nothing changes until a person re-flashes `TAKE_US`. Next: trace the
+first-order plant's lag-0.3 s preference for 2.5-3 ms on instant takes. Then time the survey on a real ESP32, and log
+a real wheel's tach around one ball.

@@ -1,13 +1,13 @@
 ---
 title: "The tennis feeder's board now surveys how long a ball touches its wheels, with a margin it had to earn"
 seo_title: "Surveying a ball's contact time on the feeder's own board"
-date: 2026-11-17
+date: 2026-11-18
 tags: [open-tennis-robots, firmware, simulation, statistics]
-description: "The feeder's ESP32 now refits each calibration ball at seven contact times. It names spread contacts within 1 ms, but instant ones fooled it, so the advice has a margin."
+description: "The feeder's ESP32 now refits each calibration ball at seven contact times. Spread contacts were named within 1 ms; a margin keeps instant ones out."
 ---
 
 The open tennis-ball feeder reads each ball's momentum from how much its two
-launcher wheels slow down. Earlier today (the firmware README's "A take that
+launcher wheels slow down. On 17 November (the firmware README's "A take that
 lasts a few milliseconds", after
 [the run on the spin error](2026-11-17-the-tennis-feeders-spin-error-was-there-without-the-jitter.md)),
 a run found
@@ -76,10 +76,26 @@ some genuine 3 ms builds came in at up to 0.83. On these builds the margin
 advises none of the instant builds, 2 of the 3 ms ones, 4 of the 6 ms ones and
 5 of the front-loaded ones. The 6 ms build that got worse is not advised.
 
-The 0.6 was chosen after looking at these 24 builds, so it was checked on 24
-more builds with a different random seed:
+The 0.6 was chosen after looking at these 24 builds, so it needed a check on
+builds it had not seen. The first idea was a different random seed. That
+reproduced every figure to the last digit, because these simulated wheels have
+no noise for a seed to change. The real check reran all 24 builds with a wheel
+that responds half as fast (0.6 s instead of 0.3 s), with the margin fixed
+beforehand:
 
-HELDOUT
+| contact | advised with the margin | drop scatter, step → with the margin | spin error, step → with the margin |
+| --- | --- | --- | --- |
+| instant | 0 of 6 | 0.12% → 0.12% | 0.15% → 0.15% |
+| smooth 3 ms | 1 of 6 | 0.22% → 0.21% | 0.39% → 0.44% |
+| smooth 6 ms | 6 of 6 | 0.77% → 0.21% | 2.53% → 0.76% |
+| front-loaded 4 ms | 0 of 6 | 0.39% → 0.39% | 0.59% → 0.59% |
+
+Every build where a spread contact costs something was advised, and none of the
+builds where it costs nothing were. At the slower wheel the front-loaded
+contacts scattered their picks from 0 to 4.5 ms. Told those picks, their spin
+estimates would have got worse (the worst went from 1.64% to 5.03% off), and the
+margin advised none of them. One 6 ms build still lost on spin (0.77% to
+1.98%) while its scatter improved.
 
 ## What is still unknown
 
