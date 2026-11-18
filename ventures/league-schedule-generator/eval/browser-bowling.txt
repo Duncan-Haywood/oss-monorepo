@@ -1,1 +1,6 @@
-16 checks pass, 0 fail
+# node eval/browser-bowling.mjs, 2026-11-18 (headless Chromium, this container)
+# before: the same script on the previous page (build on the page thread):
+#   slow season (24 x 26, six off both ends): built in 7287 ms; longest page-thread gap 7291 ms (FAIL)
+# after (bowling-worker.mjs):
+slow season (24 x 26, six off both ends): built in 7172 ms; longest page-thread gap 53 ms
+19 checks pass, 0 fail

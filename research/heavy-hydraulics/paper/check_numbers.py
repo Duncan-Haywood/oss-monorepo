@@ -514,6 +514,11 @@ MANUSCRIPT_CHECKS = [
     # milestone 7p
     ("the left-out RMS is 0.0047", "gear_pump_leak_results.txt", "owdm   0.0047  (max 0.0056"),
     ("(0.0049 at unseen half idle speed)", "gear_pump_leak_results.txt", "owdm   0.0049  (+0.0002)"),
+    # milestone 7q
+    ("gives a left-out RMS of 0.0075", "gear_pump_table_results.txt", "owdt1  0.0075  (max 0.0102"),
+    ("and 0.0061 with every donor pooled", "gear_pump_table_results.txt", "owdtp  0.0061  (max 0.0076"),
+    ("no donor bends like Danfoss (1.781)", "gear_pump_table_results.txt", "danfoss                       b 1.781"),
+    ("charges that family 1.467 times", "gear_pump_table_results.txt", "t1 1.467"),
 ]
 
 

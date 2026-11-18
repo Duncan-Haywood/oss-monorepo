@@ -485,3 +485,27 @@ test("five or more limited teams: the most even of several legal dealings is kep
   // same input, same season
   assert.deepEqual(bowlingSchedule({ teams: names(10), weeks: 26, start: START, laneAvoid: avoid }).weeks, even.weeks);
 });
+
+test("the bowling page builds in a Web Worker that runs the same functions, with a page-thread fallback", async () => {
+  const html = page("bowling-league-schedule.html");
+  assert.match(html, /new Worker\("\.\/bowling-worker\.mjs", \{ type: "module" \}\)/);
+  assert.match(html, /catch \{ return fallback\(\); \}/);
+  const worker = page("bowling-worker.mjs");
+  assert.match(worker, /import \{ bowlingSchedule, laneReport, validateBowling \} from "\.\/bowling\.mjs"/);
+  // Run the worker's handler in-process: it posts the same season bowlingSchedule builds.
+  const posted = [];
+  const prev = globalThis.self;
+  globalThis.self = { postMessage: (m) => posted.push(m) };
+  try {
+    await import(`./bowling-worker.mjs?t=${Date.now()}`);
+    const spec = { teams: ["A", "B", "C", "D", "E", "F"], weeks: 10, start: START, laneAvoid: "" };
+    globalThis.self.onmessage({ data: spec });
+    globalThis.self.onmessage({ data: { ...spec, teams: ["Solo"] } });
+  } finally { globalThis.self = prev; }
+  const direct = bowlingSchedule({ teams: ["A", "B", "C", "D", "E", "F"], weeks: 10, start: START });
+  assert.equal(posted[0].ok, true);
+  assert.deepEqual(posted[0].season, direct);
+  assert.deepEqual(posted[0].report, laneReport(direct));
+  assert.deepEqual(posted[0].problems, []);
+  assert.ok(posted[1].season.errors.length && !posted[1].report);
+});

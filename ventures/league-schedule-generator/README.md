@@ -453,7 +453,34 @@ answers (`bowling-avoid-shapes.mjs`) were not re-solved for repeats; the lane-li
 (`eval/bowling-lane-avoid.txt`, `eval/bowling-avoid-shapes.txt`) were not re-measured for
 repeats (their balance cannot change: the anneal keeps only in-target seasons).
 
-## Five or more limited teams: the most even of several dealings (2026-11-18, latest)
+## The bowling page builds in a worker (2026-11-18, latest)
+
+The bowling page ran `bowlingSchedule` on the page thread. Since the most-even-dealing change
+below, a season with five or more limited teams can run several full lane searches, and on the
+slowest measured season (24 teams x 26 weeks, six teams off both end pairs) the tab froze for the
+whole build: no scrolling, no clicks, and the "Dealing the lanes..." line was the only sign of life.
+
+The search now runs in a Web Worker (`bowling-worker.mjs`: `bowlingSchedule`, `laneReport` and
+`validateBowling`, results posted back as plain data). The page shows a seconds counter while it
+works, a newer click (Build again, Reshuffle) terminates the older search so its result never
+lands, and where a worker cannot start (an old browser, a page opened from disk) it builds on the
+page thread as before. Same inputs, same season: the worker calls the same function.
+
+**Measured** (`node eval/browser-bowling.mjs`, `eval/browser-bowling.txt`, headless Chromium in
+this container; the script runs a 50 ms timer in the page and records the longest gap between
+ticks while the slow season builds):
+
+| | build time | longest page-thread gap |
+|---|---|---|
+| before (page thread; same script on the previous page) | 7,287 ms | 7,291 ms |
+| after (worker) | 7,172 ms | 53 ms |
+
+The build itself is no faster; the page stays usable while it runs. The script also checks that a
+second click during a search replaces its result (19 checks, all pass). Not done: a Stop button
+(a new click is the only way to cancel), and the round-robin page's other long builds were already
+in workers.
+
+## Five or more limited teams: the most even of several dealings (2026-11-18)
 
 With five or more teams under lane limits there is no stored shape answer, so the page deals teams
 to round-robin slots by search (`feasibleDealing`, below) and used to keep the first dealing whose
@@ -495,8 +522,7 @@ pair, teams off target fall with the default against `dealings: 1`, limits kept,
 season twice).
 
 Open: the remaining misses (10 x 32, 10 x 34 one team off; 24 x 26 three; 14 x 30 two) with more
-dealings or SAT answers for the 5+ shapes; the bowling page still builds on the page thread, so
-the slowest seasons (10 s here) want the worker the round-robin page already uses.
+dealings or SAT answers for the 5+ shapes; the bowling page now builds in a worker (section above).
 
 ## Five or more limited teams: a refused week re-dealt (2026-11-18)
 
