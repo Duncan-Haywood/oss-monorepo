@@ -19,6 +19,9 @@ for vals, c, mk, lab in (([nz(a["ml_robot"]) for a in A], "C1", "o", "one side p
                          ([nz(a["ml_star"]) for a in A], "C3", "^", "S*: best at zero drag (milestone 47)"),
                          ([nz(a["ml_h"]) for a in A], "C2", "s", "S_H: best over the hose sweep (this milestone)")):
     ax1.scatter(x, vals, color=c, marker=mk, s=18, label=lab, zorder=3)
+none = [i for i, a in enumerate(A) if a["ml_h"] is None]
+ax1.scatter(none, [0.04] * len(none), color="0.35", marker="x", s=22, zorder=3,
+            label="no side holds at every load (keeps milestone 46's)")
 ax1.axhline(R["goal"], color="0.3", ls="--", lw=1)
 ax1.text(0.5, R["goal"] * 1.15, "0.1/0.9 N m: the spec's preload fits", fontsize=7, color="0.3")
 ax1.set_yscale("log")
