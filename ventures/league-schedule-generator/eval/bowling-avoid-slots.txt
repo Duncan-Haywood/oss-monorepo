@@ -1,0 +1,27 @@
+# Lane-limit shapes on other circle-method slots, 2026-11-18 (eval/bowling-avoid-slots.py: CaDiCaL 1.5.3 via
+# python-sat, SYMBREAK=1, 4 tries at a time, 30 s each; slots 0, 1 were UNSAT in eval/bowling-avoid-shapes.txt).
+
+## 20 teams x 9 weeks, two teams off one pair
+20 teams x 9 weeks, shape 0:0;2:0: UNSAT in 0.0 s
+20 teams x 9 weeks, shape 0:0;3:0: UNSAT in 0.0 s
+20 teams x 9 weeks, shape 0:0;4:0: UNSAT in 0.1 s
+20 teams x 9 weeks, shape 0:0;5:0: SAT in 2.5 s
+
+## 18 teams x 8 weeks, two teams each off the same two pairs (33 slot pairs UNSAT, then SAT)
+18 teams x 8 weeks, shape 12:0,1;17:0,1: SAT in 0.4 s
+(UNSAT on slot 0 with every other slot 2-17, and on slot 17 with 1-11 and 13-16 tried; listed in run order:)
+0:0,1;2:0,1 0:0,1;5:0,1 0:0,1;4:0,1 0:0,1;3:0,1 0:0,1;7:0,1 0:0,1;8:0,1 0:0,1;6:0,1 0:0,1;9:0,1 
+0:0,1;11:0,1 0:0,1;12:0,1 0:0,1;13:0,1 0:0,1;10:0,1 0:0,1;15:0,1 0:0,1;14:0,1 0:0,1;16:0,1 
+0:0,1;17:0,1 1:0,1;17:0,1 2:0,1;17:0,1 3:0,1;17:0,1 4:0,1;17:0,1 5:0,1;17:0,1 7:0,1;17:0,1 
+6:0,1;17:0,1 8:0,1;17:0,1 9:0,1;17:0,1 11:0,1;17:0,1 10:0,1;17:0,1 13:0,1;17:0,1 15:0,1;17:0,1 
+14:0,1;17:0,1 17:0,1;1:0,1 16:0,1;17:0,1 17:0,1;0:0,1 
+
+## 22 teams x 23 weeks, two teams off one pair (eval/bowling-avoid-lns.py: the lane search's own plan on slots 0, 1)
+22 x 23 0:0;1:0: start 0 off (0 cells)
+22 teams x 23 weeks, shape 0:0;1:0: SAT (LNS) in 0.0 s, 0 steps
+
+## 24 teams x 13 weeks, one team off one pair: slots 1-4 TIMEOUT at 120 s each (slot sweep, stopped)
+24 teams x 13 weeks, shape 2:0: TIMEOUT after 120 s
+24 teams x 13 weeks, shape 3:0: TIMEOUT after 120 s
+24 teams x 13 weeks, shape 1:0: TIMEOUT after 120 s
+24 teams x 13 weeks, shape 4:0: TIMEOUT after 120 s

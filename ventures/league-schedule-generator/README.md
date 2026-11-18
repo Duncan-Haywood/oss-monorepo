@@ -189,7 +189,37 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Lane limits on the hard season lengths: stored answers per limit shape (2026-11-18, latest)
+## Lane limits: shapes stored on other slots, and the last misses (2026-11-18, latest)
+
+The stored lane-limit answers (next section) put the limited teams on the circle method's first
+slots, 0, 1 and so on. Six of the grid's 112 seasons were still missed: two shapes had no answer on
+those slots (UNSAT) and four timed out at 300 s. **Which slots the limited teams take changes the
+season**: in a season shorter than a full cycle, which teams meet in the first W weeks, and who
+meets the fixed slot, depends on the slots. Balance still does not see names, so any slots will do.
+
+- A shape key may now name its slots: `0:0;5:0` is two teams off one pair, on slots 0 and 5.
+  `matchShape` returns the slots too and `avoidShapeSlots` deals the limited teams those slots
+  (the other teams fill the rest in order). Keys on 0, 1, ... read as before; 171 old answers
+  unchanged.
+- `eval/bowling-avoid-slots.py` tries a shape on other slots (first team kept on slot 0, then
+  tuples with the fixed slot, then the rest), 4 at a time, and stops at the first SAT.
+  `eval/bowling-avoid-shapes.py` takes `SYMBREAK=1`: the pairs no limit names are interchangeable,
+  so week 1's matches go on them in increasing order (keeps at least one answer).
+- `eval/bowling-avoid-lns.py` repairs the search's near miss a few weeks at a time (Glucose,
+  interruptible; the other weeks kept), for shapes whose whole-season model is slow.
+
+**Results** (`eval/bowling-avoid-slots.txt`):
+
+| season, limit | before | now |
+|---|---|---|
+| 20 x 9, two teams off one pair | UNSAT on slots 0, 1 (and 0-2, 0-3, 0-4); page 17 of 20 | SAT on slots 0 and 5 in 2.5 s; page 20 of 20 |
+| 18 x 8, two teams each off the same two pairs | UNSAT on slots 0, 1 | SAT on slots 12 and 17 in 0.4 s; page 18 of 18 |
+| 22 x 23, two teams off one pair | SAT timed out at 300 s; page 20 of 22 | the search alone on slots 0 and 1 is in target (the page's own dealing missed by 2); page 22 of 22 |
+RESULTS_24_20
+
+On the 112-season grid the page now has every team in target in GRID_NOW of 112 (was 106).
+
+## Lane limits on the hard season lengths: stored answers per limit shape (2026-11-18)
 
 The lane-limit search (next section) missed 9 of 142 measured seasons; a SAT solver showed 3 of
 them, all 20 teams over 30 weeks, have a deal the search did not find. Restarting the walk from
@@ -237,9 +267,8 @@ search. Tests: `bowling.test.mjs` (shape matching, dealing, 20 x 30 under three 
 seeds all 20 of 20 in target, every pair of teams still meets once or twice). Browser check: 16
 checks (`eval/browser-bowling.txt`; new: 20 teams x 30 weeks, one team off both ends, 20 of 20).
 
-Not done: an UNSAT shape is UNSAT for that dealing only; another slot for the limited team (the
-circle method's fixed slot, say) may have a deal, so try the other slots before calling it out of
-reach. The 5 timeouts need a longer solve (or a symmetry-broken model). Shapes with more than 4
+Not done (2026-11-18, latest, above, took the first two): an UNSAT shape is UNSAT for that
+dealing only, so try other slots; the 5 timeouts need a longer solve. Shapes with more than 4
 limited teams fall back to the search.
 
 ## Bowling lane limits: a team that must never bowl on a pair (2026-11-18)
