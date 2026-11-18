@@ -1955,6 +1955,24 @@ render. The DiMAGE Z2's `.MRW` has no MRW header at all and is refused. Details:
 `eval/minolta-mrw-reader-2026-11-18.md`; checks: `tools/mrw_libraw_check.py`,
 `tools/mrw_develop_check.py`; tests: `tests/test_mrw.py`.
 
+### Hasselblad 3FR (2026-11-18)
+
+Hasselblad's 3FR files (H3D, H4D-60, X1D, X1D II, X2D, the CFV II 50C and CFV 100C backs, and the
+older CFV, CFV-50c and Ixpress CF132) now develop directly: `shootflow develop B0000079.3FR --out DIR`,
+with no `.dcp`, because a 3FR carries its own ColorMatrix1 and AsShotNeutral in IFD0; the grade stage
+takes them like a DNG (`src/shootflow/hasselblad.py`). The X-series and new backs store plain 16-bit
+words; the H-series and older backs use Hasselblad's own lossless JPEG (pairs of size codes, read from
+little-endian 32-bit words), decoded in C with a pure-Python reference. On ten real files from
+raw.pixls.us every one of 561.5 M sensels, the CFA and the white balance equal LibRaw 0.22's, 0.1-1.4 s
+a file. The H4D-60's data is black-subtracted and its noise wraps to the top of the 16-bit range (0.5% of
+the frame would develop as white specks); the reader finds that from the gap it leaves in the histogram
+and reads the frame with a 256 offset, as LibRaw does by model. The mean colour of each developed frame
+equals LibRaw's to four places with `--colour dcraw` on eight of ten bodies (the 100 MP two carry
+Hasselblad's own matrix). Writing the colour check found the MRW check's flaw: it undid LibRaw's BT.709
+output with the sRGB curve. Phocus `.fff` files and multi-shot frames are not read. Details:
+`eval/hasselblad-3fr-reader-2026-11-18.md`; checks: `tools/hasselblad_libraw_check.py`,
+`tools/hasselblad_develop_check.py`; tests: `tests/test_hasselblad.py`.
+
 ## Olympus ORF (2026-11-14)
 
 Olympus and OM System raw files no longer need Adobe's DNG Converter. `shootflow develop

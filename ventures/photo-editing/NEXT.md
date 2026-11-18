@@ -52,3 +52,13 @@
   for exposure may sit too low.
 - (2026-11-18) next a real shoot's picks
 - (2026-11-18) cull: zoom, pan windows, the 44 crop gate and an exact pair index 2026-11-18 (10,000 frames 251 to 42 s, eval/cull-grouping-index-*) (6% pans 0.85 to 1.00, eval/cull-crop-gate-*), whole-percent window offsets 2026-11-18 (7-10% pans 0.78-0.95 to 0.99-1.00, eval/cull-fine-offsets-*)
+- (2026-11-18) a real CR3 with tiles stacked one above another (2018-23 bodies store two across, read since 2026-11-18 with their old C-RAW: 0 of 986.8 M sensels differ on 39 files, eval/canon-cr3-every-body-*)
+
+## From the Hasselblad 3FR reader (2026-11-18, eval/hasselblad-3fr-reader-2026-11-18.md)
+
+- Phocus `.fff` files (raw.pixls.us has H4D-40, H5D-40, H5D-50c, CFV-50, H6D-100c MS and X2D ones; also TIFFs)
+  through the 3FR reader, checked against LibRaw the same way.
+- Rerun `tools/mrw_develop_check.py` with LibRaw's output in linear light (`gamma=(1, 1)`): it undid LibRaw's
+  BT.709 curve with the sRGB curve, so its 0.003-0.016 colour gaps are overstated. Needs the nine MRW files again.
+  (The CR2 and camera-DNG checks pass `gamma=(2.4, 12.92)` and are not affected.)
+- A real 3FR written with predictor 11 (all five compressed files at hand use 8).

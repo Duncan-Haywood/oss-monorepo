@@ -324,8 +324,9 @@ flagships:
       edge columns, real split rows, Z 6II curve, 12-bit black 2026-11-15
       (eval/nikon-nef-*). Canon CRW 2026-11-16 (eval/canon-crw-*). Coolpix NRW and
       E-series NEF, Minolta MRW 2026-11-18 (eval/nikon-nrw-reader-*,
-      eval/minolta-mrw-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E; 4 x
-      2 tiles (177 MP); no public file has a tone curve
+      eval/minolta-mrw-*); Hasselblad 3FR, own matrix, no .dcp, 10 bodies 2026-11-18
+      (eval/hasselblad-3fr-*). RW2 RawFormat 8 2026-11-18: S1R II, S5 IIX, S1 II E;
+      4 x 2 tiles (177 MP); no public file has a tone curve
       (eval/panasonic-rw2-format8-grid-*). S1R II 177 MP = LibRaw snapshot 202611,
       every sensel (eval/panasonic-rw2-177mp-libraw-*). Next: Sony's vignetting
       table vs an evenly lit frame; a real DNG and a vignetting-calibrated lens
@@ -333,10 +334,8 @@ flagships:
       (corners level after lensfun's vignetting?); a second maker-against-lensfun
       DNG pair; a real DNG carrying any opcode run only on synthetic files so far,
       or the SDK to check them; lateral colour measured on a real frame with sharp
-      corner edges; a real Adobe `.dcp` through the profile chooser; a real CR3 with
-      tiles stacked one above another (2018-23 bodies store two across, read since
-      2026-11-18 with their old C-RAW: 0 of 986.8 M sensels differ on 39 files,
-      eval/canon-cr3-every-body-*). More open items: NEXT.md.
+      corner edges; a real Adobe `.dcp` through the profile chooser. More open
+      items: NEXT.md.
 
   - venture: quick-pick-survey
     inputs_only: >-

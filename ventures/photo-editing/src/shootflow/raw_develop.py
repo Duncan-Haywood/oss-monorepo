@@ -978,7 +978,7 @@ class RawImage:
     # "nef" for a Nikon NEF read by ``shootflow.nef``, "orf" for an Olympus ORF read by ``shootflow.orf``, "rw2" for a
     # Panasonic RW2 read by ``shootflow.rw2``, "srw" for a Samsung SRW read by ``shootflow.srw`` or "pef" for a
     # Pentax PEF read by ``shootflow.pef``, "raf" for a Fujifilm RAF read by ``shootflow.raf``, "cr3" for a Canon
-    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``
+    # CR3 read by ``shootflow.cr3``, "crw" for a Canon CRW (CIFF) read by ``shootflow.crw``, "mrw" for a Minolta MRW read by ``shootflow.mrw``, "3fr" for a Hasselblad 3FR read by ``shootflow.hasselblad``
     # (DNG-equivalent tags, no colour matrix).
     source: str = "dng"
     notes: list[str] = field(default_factory=list)  # what the reader inferred, carried into the report
@@ -1085,9 +1085,9 @@ def read_raw(path: Path | str, cfa: str | None = None) -> RawImage:
 
 
 def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
-    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's or Minolta MRW's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
+    """A DNG's (or a Canon CRW's, CR2's, Sony ARW's, Nikon NEF's, Olympus ORF's, Panasonic RW2's, Samsung SRW's, Pentax PEF's, Fujifilm RAF's, Canon CR3's, Minolta MRW's or Hasselblad 3FR's) sensor data; ``cfa`` forces a CR2's 2x2 phase."""
 
-    from shootflow import arw, cr2, cr3, crw, mrw, nef, orf, pef, raf, rw2, srw
+    from shootflow import arw, cr2, cr3, crw, hasselblad, mrw, nef, orf, pef, raf, rw2, srw
 
     if mrw.is_mrw(data):
         return mrw.parse_mrw(data)
@@ -1111,6 +1111,8 @@ def parse_raw(data: bytes, cfa: str | None = None) -> RawImage:
         return pef.parse_pef(data)
     if srw.is_srw(data):
         return srw.parse_srw(data)
+    if hasselblad.is_3fr(data):
+        return hasselblad.parse_3fr(data)
     reader = _Reader(data)
     ifds = _all_ifds(reader)
     if not ifds:
@@ -2542,13 +2544,13 @@ def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
     """A decodable picture of a RAW still for proxies and analysis.
 
     The camera's embedded JPEG preview when there is one (fast, and what the
-    camera showed); otherwise, for a DNG, a half-size development of its sensor
+    camera showed); otherwise, for a DNG or a 3FR, a half-size development of its sensor
     data written into ``scratch``. ``None`` when neither exists (a non-DNG RAW
     with no preview). Raises ``DevelopError`` when a preview-less DNG cannot be
     developed.
     """
 
-    from shootflow.raw_preview import extract_preview, is_dng_path
+    from shootflow.raw_preview import extract_preview, is_3fr_path, is_dng_path
 
     source, scratch = Path(source), Path(scratch)
     preview = extract_preview(source)
@@ -2556,7 +2558,7 @@ def still_for_review(source: Path | str, scratch: Path | str) -> Path | None:
         jpeg = scratch / "preview.jpg"
         jpeg.write_bytes(preview)
         return jpeg
-    if not is_dng_path(source):
+    if not (is_dng_path(source) or is_3fr_path(source)):
         return None
     developed = scratch / "developed-half.tif"
     develop_file(source, developed, DevelopSettings(half=True, preview_quality=True))

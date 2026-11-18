@@ -3,11 +3,11 @@
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Develop CR3, ARW, NEF, RAF and RW2 raw files without Adobe DNG Converter | ShootFlow</title>
-  <meta name="description" content="Which camera RAW formats ShootFlow reads directly (DNG, CRW, CR2, CR3, ARW, NEF, NRW, ORF, RW2, SRW, PEF, RAF, MRW), the real camera files each was checked on, and what is still refused. Checked sensel for sensel against LibRaw 0.22.">
+  <meta name="description" content="Which camera RAW formats ShootFlow reads directly (DNG, CRW, CR2, CR3, ARW, NEF, NRW, ORF, RW2, SRW, PEF, RAF, MRW, 3FR), the real camera files each was checked on, and what is still refused. Checked sensel for sensel against LibRaw 0.22.">
   <meta name="robots" content="index,follow">
   <meta property="og:title" content="Develop camera RAW files without Adobe DNG Converter | ShootFlow">
-  <meta property="og:description" content="Eleven RAW formats read directly, each checked on real camera files against LibRaw 0.22, with what is still refused.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Which camera RAW files can ShootFlow develop without Adobe DNG Converter?","dateModified":"2026-11-18","about":"Camera RAW file decoding: DNG, CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW","isPartOf":{"@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
+  <meta property="og:description" content="Thirteen RAW formats read directly, each checked on real camera files against LibRaw 0.22, with what is still refused.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Which camera RAW files can ShootFlow develop without Adobe DNG Converter?","dateModified":"2026-11-18","about":"Camera RAW file decoding: DNG, CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF, MRW, 3FR","isPartOf":{"@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}}</script>
   <style>
     :root{color-scheme:light dark;font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;--bg:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--accent-soft:#f3e3dc;--panel:#fffdf8;--code:#fff;--ok:#2f6b3a;--ok-soft:#e3efe2}
     @media (prefers-color-scheme:dark){:root{--bg:#1b1d20;--ink:#ece6dc;--muted:#b4ada3;--line:#3a3d42;--accent:#f0a48c;--accent-soft:#3a2a24;--panel:#23262a;--code:#17191c;--ok:#8fd19e;--ok-soft:#1f3124}}
@@ -76,7 +76,7 @@
   <p class="eyebrow"><a href="./">ShootFlow</a> · camera raw support <span>· as of 2026-11-18</span></p>
   <h1>Which camera RAW files can ShootFlow develop without Adobe DNG Converter?</h1>
   <div class="answer">
-    <p><strong>Twelve formats, read directly:</strong> DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF (and Coolpix NRW), Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, including X-Trans and Fujifilm's compressed modes, and Minolta and Konica Minolta MRW. Leica's RWL is a Lumix RW2 under another name and is read too.</p>
+    <p><strong>Thirteen formats, read directly:</strong> DNG, Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF (and Coolpix NRW), Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF, Fujifilm RAF, including X-Trans and Fujifilm's compressed modes, Minolta and Konica Minolta MRW, and Hasselblad 3FR. Leica's RWL is a Lumix RW2 under another name and is read too.</p>
     <p>Each reader was checked on real camera files from public sample collections against LibRaw 0.22, the open-source decoder behind most raw software. For every format, every sensor value read was equal to LibRaw's, and so were the as-shot white balance and colour filter layout. Source: the project's <a href="https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/photo-editing/eval">evaluation records</a>, one per format.</p>
   </div>
   <div class="cta">
@@ -91,7 +91,7 @@
   </ul>
   <p class="jump" id="jump-h">Jump to a format</p>
   <ul class="chips" aria-labelledby="jump-h">
-    <li><a href="#f-dng">.DNG</a></li><li><a href="#f-crw">.CRW</a></li><li><a href="#f-cr2">.CR2</a></li><li><a href="#f-cr3">.CR3</a></li><li><a href="#f-arw">.ARW</a></li><li><a href="#f-nef">.NEF</a></li><li><a href="#f-nrw">.NRW</a></li><li><a href="#f-orf">.ORF</a></li><li><a href="#f-rw2">.RW2</a></li><li><a href="#f-rw2">.RWL</a></li><li><a href="#f-srw">.SRW</a></li><li><a href="#f-pef">.PEF</a></li><li><a href="#f-raf">.RAF</a></li><li><a href="#f-mrw">.MRW</a></li>
+    <li><a href="#f-dng">.DNG</a></li><li><a href="#f-crw">.CRW</a></li><li><a href="#f-cr2">.CR2</a></li><li><a href="#f-cr3">.CR3</a></li><li><a href="#f-arw">.ARW</a></li><li><a href="#f-nef">.NEF</a></li><li><a href="#f-nrw">.NRW</a></li><li><a href="#f-orf">.ORF</a></li><li><a href="#f-rw2">.RW2</a></li><li><a href="#f-rw2">.RWL</a></li><li><a href="#f-srw">.SRW</a></li><li><a href="#f-pef">.PEF</a></li><li><a href="#f-raf">.RAF</a></li><li><a href="#f-mrw">.MRW</a></li><li><a href="#f-3fr">.3FR</a></li>
   </ul>
 
   <section aria-labelledby="table-h">
@@ -113,6 +113,7 @@
         <tr id="f-srw"><td>SRW</td><td data-label="Checked">Samsung Galaxy NX, NX1, NX20, NX3000</td><td data-label="Result" class="ok">90.5 M sensor values equal</td><td data-label="Refused">None seen yet</td></tr>
         <tr id="f-pef"><td>PEF</td><td data-label="Checked">Pentax K-1 Mark II (the only real PEF at hand)</td><td data-label="Result" class="ok">36.6 M sensor values equal</td><td data-label="Refused">Uncompressed PEF and Pixel Shift</td></tr>
         <tr id="f-mrw"><td>MRW</td><td data-label="Checked">9 Minolta and Konica Minolta bodies of 2001-2005: DiMAGE 7, 7i, 7Hi, A1, A2, A200; Dynax 7D, Maxxum 7D and Alpha-7 Digital</td><td data-label="Result" class="ok">Every sensor value equal on all nine (54.1 M), and the white balance and CFA</td><td data-label="Refused">The DiMAGE Z2's headerless .MRW</td></tr>
+        <tr id="f-3fr"><td>3FR</td><td data-label="Checked">10 Hasselblad bodies and backs: H3D, H4D-60, X1D, X1D II 50C, X2D 100C, CFV II 50C, CFV 100C, CFV-50c, CFV, Ixpress CF132</td><td data-label="Result" class="ok">Every sensor value equal on all ten (561.5 M), and the white balance and CFA. Develops with the file's own colour matrix, no profile needed (since 2026-11-18)</td><td data-label="Refused">Multi-shot frames; Phocus .FFF files</td></tr>
         <tr id="f-dng"><td>DNG</td><td data-label="Checked">Converted Nikon and Canon files; camera DNGs from a Leica T, Pentax Q-S1, LG Nexus 5X, Google Pixel 3 XL, DJI Phantom 4</td><td data-label="Result" class="ok">Within one 8-bit step of LibRaw's render; camera DNGs a median 0.02 to 0.11 of a step</td><td data-label="Refused">Lossy, deflate and floating-point DNG; four-colour sensors</td></tr>
       </tbody>
     </table>
@@ -121,7 +122,7 @@
 
   <section aria-labelledby="run-h">
     <h2 id="run-h">Develop a file</h2>
-    <p>A DNG carries its own colour matrices. The other formats need the camera's <code>.dcp</code> profile. Adobe's free DNG Converter installs one per body, and RawTherapee and dcamprof write them too. Pass a folder and ShootFlow picks the right profile for each camera.</p>
+    <p>A DNG carries its own colour matrices, and so does a Hasselblad 3FR. The other formats need the camera's <code>.dcp</code> profile. Adobe's free DNG Converter installs one per body, and RawTherapee and dcamprof write them too. Pass a folder and ShootFlow picks the right profile for each camera.</p>
 <pre><code>git clone https://github.com/Duncan-Haywood/oss-monorepo
 cd oss-monorepo/ventures/photo-editing
 
@@ -147,6 +148,8 @@ PYTHONPATH=src python3 -m shootflow.cli develop DSCF0001.RAF \
     <p>Yes. ShootFlow reads full-quality CR3 and the smaller C-RAW setting directly, from the 2018 EOS M50 and EOS R through the 90D, M6 Mark II and R100 to the R5 Mark II and R6 Mark III. On 53 real files of 23 Canon cameras every sensor value matched LibRaw 0.22. You still need the camera's <code>.dcp</code> profile for colour.</p>
     <h3>Can it develop old Minolta and Konica Minolta MRW files?</h3>
     <p>Yes, from 2026-11-18, without converting them to DNG. On nine real MRW files (DiMAGE 7, 7i, 7Hi, A1, A2 and A200, and the Dynax 7D under all three of its names) every sensor value, the CFA and the as-shot white balance matched LibRaw 0.22. A file reads in a tenth of a second or less with numpy. The DiMAGE Z2 writes a file with no MRW header, and it is refused. Colour needs a <code>.dcp</code> profile for the camera.</p>
+    <h3>Can it develop Hasselblad 3FR files without Phocus?</h3>
+    <p>Yes, from 2026-11-18. ShootFlow reads both kinds of 3FR: the uncompressed files of the X1D, X1D II, X2D and CFV backs, and the H-series and older backs' files in Hasselblad's own lossless compression. On ten real files from ten bodies and backs, from an Ixpress CF132 and H3D to a 100 MP X2D, every sensor value, the CFA and the as-shot white balance matched LibRaw 0.22. A 3FR carries its own colour matrix, so it develops without a <code>.dcp</code> profile; a profile can still be passed. A 100 MP file reads in about half a second with the optional C decoder. Multi-shot frames are refused.</p>
     <h3>Does it read Fujifilm X-Trans RAF files, including compressed ones?</h3>
     <p>Yes: uncompressed, lossless compressed and lossy compressed RAFs, X-Trans and GFX Bayer. On ten real files from nine bodies every sensor value matched LibRaw. X-Trans files are demosaiced with a directional method written for the 6x6 layout.</p>
     <h3>Which newer Nikon and Panasonic files does it not read yet?</h3>
@@ -156,7 +159,7 @@ PYTHONPATH=src python3 -m shootflow.cli develop DSCF0001.RAF \
     <h3>Does it read Leica RWL files?</h3>
     <p>Yes, from 2026-11-16. Leica's D-LUX, V-LUX and C-LUX are built by Panasonic and write the same file as a Lumix under another name. On a real D-LUX (Typ 109) and V-LUX (Typ 114) file every one of 32.7 M sensor values, the white balance, black level, colour pattern and crop matched LibRaw 0.22. Colour needs Adobe's <code>.dcp</code> for the Leica model.</p>
     <h3>Will the card copy leave behind raw files it cannot develop?</h3>
-    <p>No, from 2026-11-16. The copy takes every common raw format (Canon CRW, Nikon Coolpix NRW, Sigma X3F, Hasselblad 3FR, Phase One IIQ, Kodak DCR and others), HEIF and HIF stills, MXF and M2TS video and XMP sidecars, and lists any other file it leaves on the card, so you see it before formatting the card. Formats it cannot develop are still culled from the preview the camera embedded, and stop at the grade with a message to convert to DNG.</p>
+    <p>No, from 2026-11-16. The copy takes every common raw format (Canon CRW, Nikon Coolpix NRW, Sigma X3F, Phase One IIQ, Kodak DCR and others), HEIF and HIF stills, MXF and M2TS video and XMP sidecars, and lists any other file it leaves on the card, so you see it before formatting the card. Formats it cannot develop are still culled from the preview the camera embedded, and stop at the grade with a message to convert to DNG.</p>
     <h3>Are my photos uploaded anywhere?</h3>
     <p>No. ShootFlow runs on your own computer and only reads your raw files. It never changes them.</p>
     <h3>What does it cost?</h3>
@@ -169,7 +172,7 @@ PYTHONPATH=src python3 -m shootflow.cli develop DSCF0001.RAF \
   </section>
   <section aria-labelledby="disc">
     <h2 id="disc">Disclaimer</h2>
-    <p>Early-stage software. Keep your original raw files and your own backups; do not use it as the only copy of anything. Camera and software names are trademarks of their owners and are used only to say which files are read; ShootFlow is not affiliated with or endorsed by Adobe, Canon, Fujifilm, Nikon, OM Digital Solutions, Panasonic, Pentax/Ricoh, Samsung, Sony or the LibRaw project.</p>
+    <p>Early-stage software. Keep your original raw files and your own backups; do not use it as the only copy of anything. Camera and software names are trademarks of their owners and are used only to say which files are read; ShootFlow is not affiliated with or endorsed by Adobe, Canon, Fujifilm, Hasselblad, Nikon, OM Digital Solutions, Panasonic, Pentax/Ricoh, Samsung, Sony or the LibRaw project.</p>
     <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   </section>
   <footer>More: <a href="./">ShootFlow</a>, safe ingest, offline culling and deliverables for photographers. Related: <a href="../photos-import-tools/">Photos Import Tools</a>. Open source. Part of the tool catalogue.</footer>
