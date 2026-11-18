@@ -196,9 +196,11 @@ flagships:
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
       shock before the date"); the note quotes it; two shocked donors 2026-11-18
       (README "Two shocked donors"): 54-56% to 27-28%, both left out 53-56%, one
-      35%; a shocked best match raises gap error 1.3-1.6x, leaving it out 1.36x;
-      notes quote it; next a donor slope or pulse, a real deployer's panel. More
-      open items: NEXT.md.
+      35%; notes quote it; donor slope or pulse 2026-11-18 (README "A donor's own
+      event that is not a step"): pulse 12-14%, slope 29-35%, step 37-40%; gapShape
+      word on listed units (pulse faded 90%, 20% false); on West Germany 12 of 16
+      placebos grew (note says so); next a real deployer's panel. More open items:
+      NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-

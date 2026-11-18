@@ -17,3 +17,11 @@ for (const c of Object.keys(CELLS).filter((c) => rows.some((r) => r.cell === c))
   const miss = a.filter((r) => r.rank > 1);
   console.log(`${c.padEnd(6)} ${String(a.length).padEnd(4)} ${(100 / a[0].units).toFixed(1).padStart(6)}% | ${pct(a, (r) => r.rank === 1).padStart(5)}%  ${pct(a, (r) => r.rank <= 2).padStart(6)}% | ${pct(a, (r) => r.rankRatio === 1).padStart(10)}% | ${mean(a, (r) => r.effect).padStart(8)}  ${mean(a, (r) => Math.abs(r.effect - e0)).padStart(7)} | ${mean(a, (r) => r.effectEnd).padStart(7)}  ${mean(a, (r) => Math.abs(r.effectEnd - e0)).padStart(11)} | ${mean(a, (r) => r.shockedWeight).padStart(14)} | ${pct(a, (r) => r.rankExcl === 1).padStart(10)}%, ${mean(a, (r) => Math.abs(r.effectExcl - e0))}, ${mean(a, (r) => Math.abs(r.effectEndExcl - e0))} | ${pct(miss, (r) => r.shockedAbove).padStart(24)}% | ${['held', 'grew', 'faded'].map((k) => pct(a.filter((r) => r.shockedAbove), (r) => r.shockedShape === k) + '%').join(', ').padStart(38)} | ${tot(a, 'cleanAbove')}, ${tot(a, 'cleanAboveShaped')}`);
 }
+// Bar 6 of the pre-registration, pooled over both unit counts: the shocked donor's shape when it is listed at or above
+// the treated unit, by cell group, and the clean units listed above given any shape, over every cell.
+const pool = (re, want) => {
+  const a = rows.filter((r) => re.test(r.cell) && r.shockedAbove);
+  return `${a.filter((r) => r.shockedShape === want).length} of ${a.length}, ${pct(a, (r) => r.shockedShape === want)}%`;
+};
+const ca = tot(rows, 'cleanAbove'), cs = tot(rows, 'cleanAboveShaped');
+console.log(`\npooled: pulse cells (PP, NP, PBP, PPE) faded ${pool(/^(PP|NP|PBP|PPE)\d/, 'faded')} | step cells (PD, PB) held ${pool(/^(PD|PB)\d/, 'held')} | PSE grew ${pool(/^PSE\d/, 'grew')} | slope 1.0 cells (PS, NS, PBS) grew ${pool(/^(PS|NS|PBS)\d/, 'grew')} | clean units above shaped ${cs} of ${ca}, ${(100 * cs / ca).toFixed(1)}%`);
