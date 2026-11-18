@@ -25,11 +25,14 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 6,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Dockerfile missed the new module (deploy.test.mjs caught it locally)",
+    "date check accepted 2026-02-30 (check_calendar_dates.py caught it in CI); fixed with a UTC round trip"
+  ],
   "integrity_issues": [],
   "doc_friction": [],
   "deviations": [
@@ -44,7 +47,7 @@
     "docs/posts/2026-11-18-league-notices-where-players-already-look.md"
   ],
   "goal": null,
-  "notes": "announcements.test.mjs 6/6 pass; full venture suite via run_venture_tests.py league-schedule-generator (see PR). check_posts ok.",
+  "notes": "announcements.test.mjs 6/6; run_venture_tests.py league-schedule-generator: 675 tests pass locally after the Dockerfile fix; check_calendar_dates.py and its unittest pass after the date fix; check_posts ok; promptctl validate ok.",
   "corrections": [],
   "redteam": null
 }

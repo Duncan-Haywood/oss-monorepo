@@ -14,6 +14,8 @@ test("parseNotice: text required and capped, dates checked, one team or everyone
   assert.match(parseNotice(form({ text: "  " }), teams, today).error, /Write the notice/);
   assert.match(parseNotice(form({ text: "x".repeat(MAX_NOTICE + 1) }), teams, today).error, /under 1000/);
   assert.match(parseNotice(form({ text: "hi", until: "18/11/2026" }), teams, today).error, /YYYY-MM-DD/);
+  assert.match(parseNotice(form({ text: "hi", until: "2027-02-30" }), teams, today).error, /YYYY-MM-DD/);
+  assert.match(parseNotice(form({ text: "hi", until: "2026-13-01" }), teams, today).error, /YYYY-MM-DD/);
   assert.match(parseNotice(form({ text: "hi", until: "2026-11-17" }), teams, today).error, /in the past/);
   assert.match(parseNotice(form({ text: "hi", until: "2028-01-01" }), teams, today).error, /more than a year/);
   assert.match(parseNotice(form({ text: "hi", team: "7" }), teams, today).error, /Pick a team/);

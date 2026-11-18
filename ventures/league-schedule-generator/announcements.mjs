@@ -9,7 +9,11 @@ export const MAX_NOTICES = 30; // bounds the state file
 export const MAX_NOTICE = 1000; // characters
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-const dateDay = (s) => (DATE.test(s) && !Number.isNaN(Date.parse(`${s}T00:00:00Z`)) ? Math.floor(Date.parse(`${s}T00:00:00Z`) / 86400000) : null);
+const dateDay = (s) => {
+  if (!DATE.test(s)) return null;
+  const [y, m, d] = s.split("-").map(Number), t = Date.UTC(y, m - 1, d);
+  return new Date(t).getUTCDate() === d && m >= 1 && m <= 12 ? Math.floor(t / 86400000) : null;
+};
 const isoDay = (d) => new Date(d * 86400000).toISOString().slice(0, 10);
 
 /**
