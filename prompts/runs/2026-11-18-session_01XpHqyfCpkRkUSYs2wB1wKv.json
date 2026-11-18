@@ -25,7 +25,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 4,
   "outcome": "success",
@@ -37,6 +37,10 @@
     {
       "what": "tools/cull_showcase.py fails under the system python3 (PIL _imaging import error)",
       "fix": "ran it with the interpreter platform/ci/pyenv.py returned for pytest numpy pillow"
+    },
+    {
+      "what": "CI lint (ruff F401): an unused import in tools/cull_pan_windows_tune.py",
+      "fix": "removed it; ran ruff 0.15.8 and mypy 1.19.1 (CI's pins) in a venv: clean. The system ruff 0.16.9 reports dozens of unrelated findings, so only the pinned one is a CI predictor"
     }
   ],
   "integrity_issues": [],

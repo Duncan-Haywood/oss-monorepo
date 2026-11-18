@@ -18,7 +18,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 sys.path.insert(0, "tools")
-from cull_crop_grouping_eval import pairs, variants  # noqa: E402
+from cull_crop_grouping_eval import pairs  # noqa: E402
 from shootflow.cull import burst_match  # noqa: E402
 from shootflow.frame_analysis import (  # noqa: E402
     CROP_STEPS, crop_dhashes, dhash_hex, pan_distance, zoom_dhashes, zoom_index)
