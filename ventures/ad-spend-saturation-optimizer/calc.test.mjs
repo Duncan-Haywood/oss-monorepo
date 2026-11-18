@@ -118,7 +118,10 @@ test("noise-free data is fitted essentially exactly", () => {
 
 test("allocate matches the analytic equal-marginal-return optimum for two exponential channels", () => {
   const c = [{ a: 100, k: 10 }, { a: 60, k: 5 }];
-  const curves = c.map((x) => ({ f: (s) => x.a * (1 - Math.exp(-s / x.k)), lo: 0, hi: 1000 }));
+  // Each channel may take the whole budget (hi = 20). A higher cap cannot change the split of
+  // 20: the frontier at 800 units only reads u <= 800 for either channel, in the same order, so
+  // hi = 1000 gave these exact numbers too, but built the frontier over 80,000 totals (5 s).
+  const curves = c.map((x) => ({ f: (s) => x.a * (1 - Math.exp(-s / x.k)), lo: 0, hi: 20 }));
   // 10 e^{-s1/10} = 12 e^{-s2/5}, s1 + s2 = 20: solve by bisection on s1.
   let lo = 0, hi = 20;
   for (let i = 0; i < 100; i++) {
