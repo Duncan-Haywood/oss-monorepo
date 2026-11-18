@@ -318,10 +318,13 @@ def measure(samples, dirs_of, width, record_every):
     for d, s in walkers.values():
         for f, _, _ in s:
             n_sec[f] = n_sec.get(f, 0) + 1
-    transits = [(s[-1][0] - s[0][0]) * record_every for d, s in walkers.values()
-                if abs(s[-1][1] - s[0][1]) >= TRANSIT_MIN]
+    crossed = [s for d, s in walkers.values() if abs(s[-1][1] - s[0][1]) >= TRANSIT_MIN]
+    transits = [(s[-1][0] - s[0][0]) * record_every for s in crossed]
+    # milestone 6g: the section density each crossing walker saw, averaged over its own frames
+    seen = [sum(n_sec[f] for f, _, _ in s) / len(s) / (2 * SECTION_HALF * width) for s in crossed]
     dens = (sum(n_sec.values()) / len(n_sec) / (2 * SECTION_HALF * width)) if n_sec else float("nan")
     return dict(walkers=len(walkers), share=(sum(flags) / len(flags)) if flags else float("nan"),
                 lane=lane, lane_frames=len(frames), speed=L.median(speeds), density=dens, flags=flags,
                 transit=(sum(transits) / len(transits)) if transits else float("nan"),
-                transits=len(transits))
+                transits=len(transits),
+                transit_density=(sum(seen) / len(seen)) if seen else float("nan"))
