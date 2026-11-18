@@ -1,5 +1,8 @@
 # Research log
 
+## 2026-11-18 · A merit that matches the QP: accept a step on the summed thermal excess (plan)
+- Plan, rule S (the merit's worst thermal excess replaced by the summed excess, every round) and predictions S1 to S6: `research/infra-dcopf/LOG.md` (2026-11-18); script `research/infra-dcopf/experiments/run_summerit.py`. Frozen on the 34 development cases, scored on the 19 held-out cases that reach the repair.
+
 ## 2026-11-17 · A margin-backoff rule for an empty margin-shifted set: outcome. Development 32 of 34 (case73 API clean at round 8, +0.96 %), none lost; held-out it fires on 1 of 19 and changes no verdict
 - Plan, outcome and Next: `research/infra-dcopf/LOG.md` (2026-11-17); numbers in `research/infra-dcopf/experiments/results_backoff.txt`. B1, B2, B4, B5, B6 held; B3, B7 refuted.
 - Rule B fires on case73 API and case24 API (margins halved once). case73 API finishes for the first time; case24 API finishes two rounds sooner at +0.17 % instead of +0.71 %. case240 TYP and SAD stay empty at an eighth of the margins, so the rule declines and their frozen finishes stand.
