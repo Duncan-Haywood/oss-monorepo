@@ -36,3 +36,15 @@ so it is weaker evidence than the first, and the write-up says so.
 - Adopt it (as a card-level option in the product) only if, on held rows: mean luma gain at least
   `pcaguard@0.8`'s minus 0.01 dB, mean colour gain at least its minus 0.01 dB, and no held row worse than `D`
   by over 0.1 dB; and on tune rows it has fewer rows worse than `D` by over 0.1 dB than `pcaguard@0.8` (18).
+
+## Third rule: `cap@1.5`, fixed, on bodies no sweep here has read (committed before they were fetched)
+
+The second rule's pick (`cap@1`) failed. `cap@1.5` was the near miss: its one tune row past 0.1 dB is a
+-0.10 dB row (two-decimal PSNRs) on which the cap does not bind, so it is what ships there too. That choice was
+made after seeing both sets, so it gets a fresh test: Bayer bodies from raw.pixls.us not in the first 29
+(Sony, Nikon, Canon, Panasonic, Olympus folders with two or more files; up to 4 files of at most 40 MB per body),
+repeat scenes dropped as before, every row scored once, no tune split and no other arm picked.
+
+Adopt `cap@1.5` as a card-level option only if, on those rows: (a) mean luma and colour gain over `D` each
+within 0.01 dB of `pcaguard@0.8`'s; (b) no more rows worse than `D` by over 0.1 dB than `pcaguard@0.8`, and
+none such that `pcaguard@0.8` keeps within 0.1 dB.

@@ -336,7 +336,7 @@ def fit(argv) -> int:
         def score(arm):
             return (gains(tune, "c", arm) + gains(tune, "l", arm)).mean()
 
-        picks = {"true": "true"}
+        picks = {"true": "true"} if "true" in arms else {}  # a ``--cap`` sweep carries no oracle
         fams = sorted({a.split("@")[0] for a in arms if "@" in a})
         for fam in fams:
             fam_arms = [a for a in arms if a.split("@")[0] == fam]
