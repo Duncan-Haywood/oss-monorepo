@@ -31,7 +31,9 @@
   "review_findings": null,
   "tests_added": 9,
   "outcome": "success",
-  "errors": [],
+  "errors": [
+    "Full venture suite failed once: deploy.test.mjs 'the Dockerfile copies every module server.mjs imports' (new reschedule.mjs not in the COPY line). Fixed; deploy, server, confirm and reschedule tests then 28/28."
+  ],
   "integrity_issues": [],
   "doc_friction": [
     {
@@ -49,7 +51,7 @@
     "ventures/league-schedule-generator/README.md (Move requests)"
   ],
   "goal": null,
-  "notes": "New reschedule.mjs + /league/move and /admin/move routes in server.mjs. A captain's date is dry-run through buildLeague with the rainout line appended and kept only if the fixture lands on that date with no new warning and no other fixture moved; approval re-checks and writes the line, then sends changeEmails. reschedule.test.mjs 9/9 pass. Chromium (playwright) run: ask -> other captain sees note and agrees -> admin approve -> 'Moved Net Ninjas v Spin Doctors to Thu 22 Oct 2026 19:00, Court 1', 0 page errors, 390px screenshot readable. Full venture suite and venture-preflight: see PR body for results. No agent doc in docs/reports: README section carries what the next run needs.",
+  "notes": "New reschedule.mjs + /league/move and /admin/move routes in server.mjs. A captain's date is dry-run through buildLeague with the rainout line appended and kept only if the fixture lands on that date with no new warning and no other fixture moved; approval re-checks and writes the line, then sends changeEmails. reschedule.test.mjs 9/9 pass. Chromium (playwright) run: ask -> other captain sees note and agrees -> admin approve -> 'Moved Net Ninjas v Spin Doctors to Thu 22 Oct 2026 19:00, Court 1', 0 page errors, 390px screenshot readable. Full venture suite (run_venture_tests.py league-schedule-generator): one real failure, the Dockerfile COPY line, fixed and re-run green on the affected files; venture-preflight result in the PR body. No agent doc in docs/reports: README section carries what the next run needs.",
   "corrections": [],
   "redteam": null,
   "usage": {
