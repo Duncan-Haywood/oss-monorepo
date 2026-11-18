@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKiuWEDMwXYVapwQ8RB",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T08:18:32Z",
+  "ended": "2026-11-18T08:28:37Z",
+  "wall_minutes": 14.82,
+  "tokens_in": 11496511,
+  "tokens_out": 36663,
+  "cost_usd": 4.3023,
+  "tool_calls": 86,
+  "task": "ids-model-check: file-order candidate list for specifications with no entity facet (flagship 12 next item)",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17236",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "A background wait loop used pgrep -f with an escaped alternation that never matched, so it exited at once; replaced by kill -0 on the shell's pid."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Start-here picked einvoice-preflight again although its own 'Left recently' line says 5 sessions in 2 days left it for the same reason (buildable item dated after 2026-11-23, everything else needs a real outside file); the reason still holds, so the pick cost a run's first minutes for the sixth time."
+    },
+    {
+      "file": "ventures/ids-model-check/eval/psets-cache-2026-11-18.md",
+      "issue": "'a candidate list in file order (an ordinal per entity)' did not say that real STEP exports number entities out of file order, which decides the design (an id sort is wrong on all four test exports)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Start-here row 3 einvoice-preflight: buildable item dated after 2026-11-23; every other open item needs a real outside file (checked manifest: EN16931 1.3.17, XRechnung and Peppol 3.0.22 sets are all current upstream).",
+      "did": "Took row 8 ids-model-check, whose next item (file-order candidate list) needed no outside input.",
+      "result": "Landed: pooled specs 2.9x faster in applies on HHS MEP and the federated model, reports identical."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-rules-with-no-class-skip-the-walk.md",
+    "ventures/ids-model-check/eval/file-order-candidates-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "node --test in ventures/ids-model-check: 197 tests, 195 pass, 2 skipped (fetched corpora). run_venture_tests.py ids-model-check ok. New file-order-candidates.test.mjs: 20 no-entity applicability sets on a model with ids against file order, pool and walk equal the facets' own tests on every entity; 4 planted faults each fail it. Report hashes identical to main on HHS MEP/architect/construction, Schultz Residence and the 219 MB federated model (68 IDS files). applies on the 24 pooled specs: HHS MEP 896 to 305 ms, federated 6,121 to 2,156 ms. No agent doc in docs/reports: the eval note and flagship next carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9471f224-bc72-5d01-a90c-f6b48ee28368",
+    "transcripts": 1,
+    "first": "2026-11-18T08:18:32Z",
+    "last": "2026-11-18T08:33:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 84,
+        "input": 164,
+        "output": 36663,
+        "thinking": 8963,
+        "cache_read": 11333640,
+        "cache_write_5m": 0,
+        "cache_write_1h": 162707,
+        "api_equivalent_usd": 4.3023,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 84,
+      "input": 164,
+      "output": 36663,
+      "thinking": 8963,
+      "cache_read": 11333640,
+      "cache_write_5m": 0,
+      "cache_write_1h": 162707,
+      "api_equivalent_usd": 4.3023,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.986,
+    "tool_calls": 86,
+    "tools": {
+      "Bash": 77,
+      "Write": 3,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.82,
+      "active_minutes": 14.82,
+      "model_minutes": 7.6,
+      "tool_minutes": 7.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer: design, brute-force test with planted faults, benchmarks on five models, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 139.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
