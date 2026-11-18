@@ -13,4 +13,4 @@
 
 ## Buildable here (added 2026-11-18)
 
-- A fresh survey capture with the stretched half-sine offsets live on the board (firmware/esp32/README.md, "The take fit's four parts and its high reading", which refitted stored wheels offline): do 7 ms takes now read about 7 rather than the grid's end, and do the 3 ms takes on the grid still read low as on that section's design set? `tests/take_survey_pick.py --capture` on a new seed and lag.
+- The nine-point take grid (0-8 ms by 1) decided on its own held-out set: offline from the dense refits it came within 0.5 ms on 47, 52 and 49 builds of 54 against the shipped grid's 43, 46 and 48 (eval/take-survey-fresh-2026-11-18.md). It lengthens the TAKE_SURVEY frame (nine rms values) and costs two fits a wheel, so check the frame, the Pi's parser and the survey's time per wheel too.

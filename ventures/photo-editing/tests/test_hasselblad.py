@@ -7,6 +7,8 @@ lossless JPEG (an SOF3 header, then pairs of size codes and differences read fro
 words). The encoder below predicts exactly as the decoder does, so the decoded sensels are checked exactly,
 through both the C decoder and the pure-Python reference. Ten real files from ten bodies against LibRaw
 (every sensel equal): ``tools/hasselblad_libraw_check.py`` and ``eval/hasselblad-3fr-reader-2026-11-18.md``.
+Phocus ``.fff`` exports (ColorMatrix2 or none, AnalogBalance-scaled R and B, series-only UniqueCameraModel):
+``PhocusFffTests`` and ``eval/hasselblad-fff-reader-2026-11-18.md``.
 """
 
 from __future__ import annotations
@@ -22,6 +24,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from shootflow import camera_profiles, hasselblad, ljpeg_native, raw_preview
+from shootflow.hasselblad import RGGB
 from shootflow import raw_develop as rd
 from shootflow.cli import main
 from test_raw_develop import _ifd_bytes
@@ -93,7 +96,7 @@ def encode(values, w, h, psv=1, minus_32768_as_ffff=True) -> bytes:
 
 def make_3fr(values=None, w=W, h=H, compression=1, psv=1, black=256.0, white=65535, crop=(2, 2, 20, 6),
              model="Hasselblad X1D", unique="Hasselblad X1D", spp=1, orientation=1, dng_version=None,
-             cm1=CM1, neutral=(0.6354, 1.0, 0.3868)) -> bytes:
+             cm1=CM1, neutral=(0.6354, 1.0, 0.3868), cm_tag=50721, analog=None) -> bytes:
     values = sensor(w, h) if values is None else values
     payload = struct.pack(f"<{len(values)}H", *values) if compression == 1 else encode(values, w, h, psv)
     ifd0 = [
@@ -104,7 +107,9 @@ def make_3fr(values=None, w=W, h=H, compression=1, psv=1, black=256.0, white=655
     if unique:
         ifd0.append((50708, 2, tuple(unique.encode() + b"\0")))
     if cm1:
-        ifd0.append((50721, 10, cm1))
+        ifd0.append((cm_tag, 10, cm1))  # 50722 (ColorMatrix2, no illuminant) on a Phocus .fff
+    if analog:
+        ifd0.append((50727, 5, analog))
     if neutral:
         ifd0.append((50728, 5, neutral))
     if dng_version:
@@ -228,6 +233,92 @@ class ReaderTests(unittest.TestCase):
     def test_names(self):
         self.assertEqual(hasselblad.camera_model(make_3fr()), "Hasselblad X1D")
         self.assertEqual(hasselblad.camera_model(make_3fr(unique="", model="H3D")), "Hasselblad H3D")
+
+
+class PhocusFffTests(unittest.TestCase):
+    """What a Phocus .fff export changes (eval/hasselblad-fff-reader-2026-11-18.md)."""
+
+    def test_names_take_the_model_when_unique_is_only_the_series(self):
+        for unique, model, want in (
+            ("Hasselblad H4D", "Hasselblad H4D-40", "Hasselblad H4D-40"),
+            ("Hasselblad", "Hasselblad CFV-50", "Hasselblad CFV-50"),
+            ("Hasselblad CFV", "CFV-50c/Flash Sync", "Hasselblad CFV-50c"),
+            ("Hasselblad H5D", "Hasselblad H5D-50c", "Hasselblad H5D-50c"),
+            ("Hasselblad X1D II 50C", "X1DM2-50c", "Hasselblad X1D II 50C"),  # not an extension
+            ("Hasselblad H4D", "Hasselblad H3D", "Hasselblad H4D"),  # a 3FR's own odd pair
+            ("Hasselblad X2D 100C", "X2D 100C", "Hasselblad X2D 100C"),
+        ):
+            with self.subTest(unique=unique, model=model):
+                self.assertEqual(hasselblad.camera_model(make_3fr(unique=unique, model=model)), want)
+
+    def test_colour_matrix_2_alone_develops(self):
+        raw = rd.parse_raw(make_3fr(sensor(64, 32, seed=4, lo=300, hi=30000), w=64, h=32, crop=(2, 2, 60, 28),
+                                    cm_tag=50722))
+        self.assertFalse([n for n in raw.notes if "needed" in n])
+        _w, _h, _rgb, report = rd.develop(raw, rd.DevelopSettings(engine="python"))
+        self.assertNotEqual(report.matrix, "identity")
+
+    def test_own_matrix_when_the_file_has_none(self):
+        raw = hasselblad.parse_3fr(make_3fr(model="X2D 100C", unique="Hasselblad X2D 100C", cm1=None))
+        self.assertEqual(raw.ifd0.get(rd.TAG_COLOR_MATRIX_1), hasselblad.OWN_MATRICES["Hasselblad X2D 100C"])
+        self.assertTrue(any("own, read from one of its 3FRs" in n for n in raw.notes))
+        unknown = hasselblad.parse_3fr(make_3fr(model="Hasselblad H6D-100cMS", unique="Hasselblad H6D", cm1=None))
+        self.assertIsNone(unknown.ifd0.get(rd.TAG_COLOR_MATRIX_1))
+        self.assertTrue(any(".dcp camera profile is needed" in n for n in unknown.notes))
+
+    @staticmethod
+    def _frame(w, h, black, gains, seed):
+        """A flat-ish frame, each colour spread over 1,024 codes; R and B times ``gains`` above black."""
+
+        rng = random.Random(seed)
+        plain, scaled = [], []
+        for i in range(w * h):
+            row, col = divmod(i, w)
+            colour = RGGB[(row % 2) * 2 + col % 2]
+            v = black + 4000 + rng.randrange(1024)
+            plain.append(v)
+            scaled.append(int(round(black + (v - black) * gains[colour])))
+        return plain, scaled
+
+    @unittest.skipUnless(hasselblad._numpy(), "the gain test reads histograms with numpy")
+    def test_analog_balance_scales_the_neutral_only_when_the_data_carries_it(self):
+        w, h, black = 800, 800, 256  # 160,000 sensels a colour: about 150 a code
+        neutral, ab = (0.38715, 1.0, 0.71211), (1.0281, 1.0, 1.0139)
+        plain, scaled = self._frame(w, h, black, ab, seed=11)
+        kw = dict(w=w, h=h, crop=(0, 0, w, h), black=float(black), neutral=neutral, analog=ab)
+        raw = hasselblad.parse_3fr(make_3fr(scaled, **kw))
+        for g, n, a in zip(raw.ifd0.get(rd.TAG_AS_SHOT_NEUTRAL), neutral, ab):
+            self.assertAlmostEqual(g, n * a, places=3)  # the writer stores rationals over 10000
+        self.assertTrue(any("applied to the data digitally" in n for n in raw.notes))
+        kept = hasselblad.parse_3fr(make_3fr(plain, **kw))  # the tag, but no gain in the data (an older export)
+        for g, n in zip(kept.ifd0.get(rd.TAG_AS_SHOT_NEUTRAL), neutral):
+            self.assertAlmostEqual(g, n, places=3)
+        self.assertTrue(any("not in the data" in n for n in kept.notes))
+        small = hasselblad.parse_3fr(make_3fr(neutral=neutral, analog=ab))  # too few sensels to tell
+        for g, n in zip(small.ifd0.get(rd.TAG_AS_SHOT_NEUTRAL), neutral):
+            self.assertAlmostEqual(g, n, places=3)
+
+    @unittest.skipUnless(hasselblad._numpy(), "the gain test reads histograms with numpy")
+    def test_fff_develops_as_its_3fr(self):
+        """R and B scaled by AnalogBalance above black, the neutral left alone: Phocus's export of a 3FR."""
+
+        w, h, black, ab = 800, 800, 256, (1.028, 1.0, 1.014)
+        plain, scaled = self._frame(w, h, black, ab, seed=9)
+        kw = dict(w=w, h=h, crop=(2, 2, w - 4, h - 4), black=float(black), neutral=(0.38, 1.0, 0.63))
+        a = rd.develop(rd.parse_raw(make_3fr(plain, **kw)), rd.DevelopSettings())
+        f = rd.develop(rd.parse_raw(make_3fr(scaled, analog=ab, cm_tag=50722, **kw)), rd.DevelopSettings())
+        import numpy as np
+
+        pa = np.frombuffer(a[2], dtype=np.uint16).astype(np.int64)
+        pf = np.frombuffer(f[2], dtype=np.uint16).astype(np.int64)
+        means = [abs(pa[c::3].mean() - pf[c::3].mean()) for c in range(3)]
+        self.assertLess(max(means), 20)  # 0.03% of full scale; unscaled, red alone is off by about 1,000
+        self.assertLess(float(np.abs(pa - pf).mean()), 40)
+
+    def test_fff_path_develops(self):
+        self.assertTrue(raw_preview.is_developable_path(Path("Job_0079.fff")))
+        self.assertTrue(raw_preview.is_3fr_path(Path("B0000420.FFF")))
+        self.assertFalse(raw_preview.needs_profile_path(Path("Job_0079.fff")))
 
 
 def array_of(values):

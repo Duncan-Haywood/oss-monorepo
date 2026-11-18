@@ -64,8 +64,15 @@ CLAIMS = [
     ("results_holtrop_yacht.txt", "[0.125-0.2] n83 med 2.16"),
     ("results_holtrop_yacht.txt", "[0.2-0.3] n110 med 0.76 in20% 42%"),
     ("results_holtrop_yacht.txt", "[0.2-0.3] n110 med 0.97 in20% 82%"),
+    ("results_range_speed.txt", "peak monohull     823.7 km at  1.00 m/s"),
+    ("results_range_speed.txt", "peak catamaran    713.1 km at  0.90 m/s; ratio to monohull 0.866"),
+    ("results_range_speed.txt", "peak SWATH        546.1 km at  0.70 m/s; ratio to monohull 0.663"),
+    ("results_range_speed.txt", "peak planing       80.3 km at  3.25 m/s; ratio to monohull 0.097"),
+    ("results_range_speed.txt", "peak hydrofoil    116.4 km at 10.25 m/s; ratio to monohull 0.141; feasible 9.00 to"),
+    ("results_range_speed.txt", "peak order: monohull > catamaran > SWATH > hydrofoil > planing"),
+    ("results_range_speed.txt", "hotel     5 W  peak  2669.6 km at 0.60 m/s"),
+    ("results_range_speed.txt", "hotel   120 W  peak   323.4 km at 1.65 m/s"),
 ]
-
 
 def check(claims=CLAIMS, root=EXP):
     """Return the claims whose string is missing from their results file."""

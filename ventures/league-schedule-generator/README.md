@@ -321,7 +321,43 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
-## Promotion and relegation into next season (2026-11-18, latest)
+## Play-off results fill the bracket (2026-11-18, latest)
+
+Until now the bracket stopped at seeding: every later game read "winner of R1M1" for the whole play-off, and the
+organiser redrew the bracket by hand each week. Now a **Play-off results** box (page section 4, the self-hosted
+`/admin` form, and the share link) takes the games as they are played, and the bracket fills in.
+
+- **What you type.** One game per line, any order: `Hawks 2 - 1 Owls`, `Hawks beat Owls` (no score),
+  `Hawks w/o Owls`, the league formats (`Owls lost to Hawks 1-2`), or a level score with the winner in brackets,
+  `Hawks 1 - 1 Owls (Hawks on penalties)`. A level score with no winner named is refused, since a play-off game
+  needs one. Names are matched case-blind against the play-off teams.
+- **How a line finds its game.** `playBracket(bracket, text)` in `calc.mjs` walks the bracket in round order and
+  gives each game whose two teams are known the first unused line naming that pair. So lines can be pasted in any
+  order, and a pair that meets twice (in double elimination: a winners-bracket game and the grand final, or the
+  grand final and its reset) takes its lines in the order typed. Winners fill `winner of` slots, losers fill
+  `loser of` slots (the losers' bracket and the third-place game), and the reset game is marked *not needed* when the
+  winners-bracket team takes the grand final.
+- **What it shows.** Each played game as `R1M2: #2 Owls 1 - 1 #3 Lynx (Lynx on penalties) -> Lynx`, later games with
+  the teams now known (`R2M1: #1 Hawks vs #3 Lynx`), then `Next up: ...` or, once decided, `Champion: Hawks.
+  Runner-up: Lynx. Third: Owls.` The same text goes to the league page download, the plain-text export and the
+  self-hosted `/league` page. A line that fits no game due is named with its line number (`no game between Hawks and
+  Bears is due in the bracket (check the earlier rounds' results and the spelling)`) on the page and in `/admin`.
+- **Kept apart from the table.** Play-off results never reach the standings, so the seeding cannot move under the
+  bracket once the play-off starts. "Start next season" clears them with the other results.
+- **Alternatives:** Challonge and similar bracket sites (a separate account and a second place to type the results),
+  or redrawing the bracket in a spreadsheet each round; league platforms do this on paid plans. Here the bracket
+  seeded from your own table carries on to the champion in the same page.
+- **Checked:** `playoff-results.test.mjs` (6 tests). Every single-elimination size from 2 to 24 teams, with and
+  without a third-place game, played out with random winners in five typing styles: every game played exactly once,
+  one champion with no losses, every other team out after one loss (two for the third-place loser), and the same
+  bracket text when the lines are shuffled. Double elimination at 3 to 20 teams, six random play-outs each (108):
+  the champion lost at most once and every other team exactly twice, the reset played or dropped as the grand final
+  fell (both seen), the game count equal to `games` or `maxGames`, and the same champion from shuffled lines. Plus
+  the error lines, penalties, the share link, and the self-hosted `buildLeague` path; and clicked in Chromium (6 teams,
+  4-team play-off with a third-place game: champion, runner-up, third and the bad line shown). Made-up leagues only;
+  no real league has used it yet.
+
+## Promotion and relegation into next season (2026-11-18)
 
 Leagues with tiers (Premier, Division 1, Division 2: darts, pool, squash, social football, pickleball ladders)
 end every season the same way: the organiser reads the tables, moves the top team of each division up and the

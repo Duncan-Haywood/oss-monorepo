@@ -2002,9 +2002,39 @@ the frame would develop as white specks); the reader finds that from the gap it 
 and reads the frame with a 256 offset, as LibRaw does by model. The mean colour of each developed frame
 equals LibRaw's to four places with `--colour dcraw` on eight of ten bodies (the 100 MP two carry
 Hasselblad's own matrix). Writing the colour check found the MRW check's flaw: it undid LibRaw's BT.709
-output with the sRGB curve. Phocus `.fff` files and multi-shot frames are not read. Details:
+output with the sRGB curve. Multi-shot frames are not read. Details:
 `eval/hasselblad-3fr-reader-2026-11-18.md`; checks: `tools/hasselblad_libraw_check.py`,
 `tools/hasselblad_develop_check.py`; tests: `tests/test_hasselblad.py`.
+
+### Hasselblad Phocus .fff (2026-11-18)
+
+Phocus's `.fff` files (what Hasselblad's tethering and export software writes) now develop like 3FRs:
+`shootflow develop Job_0079.fff --out DIR`, and the grade stage takes them. The sensor data is the 3FR
+layout written big-endian; on eleven real files from nine bodies on raw.pixls.us (713.7 M sensels; CFV-50, CFV-50c,
+H4D-40, H4D-50, H5D-40, H5D-50c, H6D-100c, X1D II 50C, X2D 100C) every sensel, the CFA and the stored
+white balance equal LibRaw 0.22's. Three things differ from a 3FR, and each is now read:
+
+- **Newer Phocus exports scale red and blue by AnalogBalance and keep the old neutral.** Two frames on
+  raw.pixls.us exist as both 3FR and `.fff` (an X2D 100C and a CFV-50c). Green sensels are identical; red
+  and blue are multiplied by the file's AnalogBalance (1.028 and 1.014 on the X2D) while AsShotNeutral is
+  copied unchanged. Read as the DNG specification reads it, that leaves a cast (chromaticity 0.008-0.017
+  off the 3FR's own develop; LibRaw has the same cast). A digital gain leaves its mark in the data: a gain
+  of g empties 1 - 1/g of the codes. On six of the eleven files (CFV-50c, X1D II, H6D-100c, X2D) every
+  channel's empty share equals its AnalogBalance's to 0.001, and there the reader scales the neutral by the
+  same gains; each paired `.fff` then develops to its 3FR's colour within 0.0001. The other five (CFV-50,
+  H4D-40, H4D-50, H5D-40, H5D-50c, older exports) carry the tag without that gain, and their neutral is
+  used as written.
+- **The colour matrix is ColorMatrix2, or missing.** Six files carry it as ColorMatrix2 with no
+  illuminant, used alone; five carry none. For the CFV-50c and X2D 100C the body's own matrix is taken
+  from its 3FR (`hasselblad.OWN_MATRICES`); the H4D-40 and H6D-100c have no public 3FR to read it from,
+  so those need a `.dcp` (the develop says so).
+- **UniqueCameraModel names only the series** ("Hasselblad H4D" on H4D-40 and H4D-50 files, whose
+  matrices differ), so the camera name for the profile chooser now comes from the Model tag when it
+  extends it ("Hasselblad H4D-40", "Hasselblad CFV-50c").
+
+Details: `eval/hasselblad-fff-reader-2026-11-18.md`; checks: `tools/hasselblad_fff_pair_check.py`
+(3FR against its `.fff`), `tools/hasselblad_libraw_check.py`, `tools/hasselblad_develop_check.py`;
+tests: `PhocusFffTests` in `tests/test_hasselblad.py`.
 
 ## Olympus ORF (2026-11-14)
 

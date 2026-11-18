@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVNuoduFkz9E4PXxh15",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "Scheduled: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's standing ventures brief)",
+  "input_sha256": "1dd7d23e06bc3892db8533079be8cf1718f31b7bfcb5f7804a423ba95111986b",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:55:58Z",
+  "ended": "2026-11-18T22:02:24Z",
+  "wall_minutes": 7.3,
+  "tokens_in": 6568938,
+  "tokens_out": 28150,
+  "cost_usd": 2.8658,
+  "tool_calls": 58,
+  "task": "Deepen (flagship 9) league-schedule-generator: play-off results fill the bracket to the champion",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17437",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "share-link round-trip test in calc.test.mjs enumerates every decoded field; adding playoffResults broke it on the first suite run",
+      "fix": "added the field to the expected object"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "plain `route` (no --task) drew perf for a scheduled run whose stored prompt is the owner's ventures brief; re-routing with --task picked ventures. A scheduled run carrying the ventures brief could default to --task."
+    },
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "league-schedule-generator next: sits at 1999 of 2000 characters; a one-clause landed note had to be cut twice to fit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's listed open items are SAT/bowling research tails; the owner's brief asks for revenue-relevant product depth, and the bracket never advanced past seeding, a gap every league running play-offs hits weekly.",
+      "did": "Built play-off result advancement (single and double elimination) across page, league page, text export and self-hosted server instead of a listed research item.",
+      "result": "merged with 6 new tests; flagship next: notes it"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-bracket-that-fills-itself-in.md",
+    "ventures/league-schedule-generator/README.md (Play-off results fill the bracket)"
+  ],
+  "goal": null,
+  "notes": "Checks: node --test playoff-results.test.mjs 6/6; calc.test.mjs 181/181; full venture suite via run_venture_tests.py and venture-preflight run (results in PR body); Chromium click on index.html with a 4-team play-off and third-place game rendered champion/runner-up/third and the bad-line warning.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "74fccd60-2555-571c-ab2d-bb0469650af1",
+    "transcripts": 1,
+    "first": "2026-11-18T21:55:58Z",
+    "last": "2026-11-18T22:03:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 53,
+        "input": 100,
+        "output": 28150,
+        "thinking": 4754,
+        "cache_read": 6442090,
+        "cache_write_5m": 0,
+        "cache_write_1h": 126748,
+        "api_equivalent_usd": 2.8658,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 53,
+      "input": 100,
+      "output": 28150,
+      "thinking": 4754,
+      "cache_read": 6442090,
+      "cache_write_5m": 0,
+      "cache_write_1h": 126748,
+      "api_equivalent_usd": 2.8658,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 58,
+    "tools": {
+      "Bash": 56,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.3,
+      "active_minutes": 7.3,
+      "model_minutes": 4.53,
+      "tool_minutes": 2.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a developer adding bracket advancement for single and double elimination with randomized tests, UI wiring and docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 209.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
