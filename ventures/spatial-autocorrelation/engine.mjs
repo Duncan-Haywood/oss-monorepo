@@ -45,7 +45,7 @@ const MAX_ROWS = 5000;
 export function parseCsv(text) {
   const rows = [];
   let row = [], f = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   const head = s.split(/\r?\n/, 1)[0];
   const delim = head.includes(",") ? "," : head.includes("\t") ? "\t" : head.includes(";") ? ";" : ",";
   for (let i = 0; i < s.length; i++) {
