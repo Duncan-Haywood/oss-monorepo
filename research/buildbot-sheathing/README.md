@@ -634,6 +634,29 @@ refuted. Statics.
 
 ![Worst common leg margin over the hose sweep per pose on three side rules, and each robot's worst residual along the wall](experiments/m48_loadside/figure.png)
 
+**Milestone 49: why do 8 poses have no plan under a backward hose?** The robot tips back; the solver is not wrong.
+At the 50 N press end of all 24 failing (pose, hose load) cells, no contact force balances the base inside the
+μ 0.5 friction cones (best cone slack &minus;23.77 to &minus;0.10 N), while the 25 N end balances at every cell and
+the preload margin LP solves at all 984 hold solutions there. Milestone 48's post hoc had misread its own table as a
+disagreement between two solvers. The soles' net horizontal load is at most 0.19 of the vertical, so it is not
+sliding: 13 of the G1's 18 cells do not balance even with unlimited friction. 20 N of backward drag lowers the top
+of the press window by about 15 N (G1 51.6 to 36.4 N, H1 58.7 to 42.8 N), below the 50 N firing press. Those poses
+need a forward lean that covers the drag, or a hose routed so it does not pull back. H199 and H200 refuted, H201 to
+H203 not tested (they were conditional on a solver fault). Statics.
+
+![Largest press the soles balance with and without each cell's hose drag, and the best friction-cone slack at a 50 N press](experiments/m49_backload/figure.png)
+
+**Milestone 50: can a forward lean fix it, and how much hose drag can a humanoid nailing a wall take?** No lean
+fixes it; the hose has to be managed. On a 5 mm grid of forward lean (0 to 150 mm, then refined), the worst
+friction-cone slack over 17 hose loads at a 25 and a 50 N press stays below zero at all 8 poses (best &minus;0.69 N
+for the G1 at 1.0 m grips, &minus;10.12 N at 1.2 m): leaning forward buys headroom against a hose pulling back and
+spends it against one pulling forward. At its current lean the G1 at 1.2 m grips tolerates only 4.0 to 4.2 N of hose
+tension pulling straight back, about 3 m of rubber air hose dragging on the floor at μ_f 0.5 (unsourced); at its
+best lean 11.4 to 13.4 N in every direction. The tolerated drag is linear in the press headroom, (top &minus; 50 N) / 0.78,
+to within 9% (H206 held); H204 and H205 refuted, H207 not tested. Statics.
+
+![Worst friction-cone slack over 17 hose loads against forward lean, and the hose tension each pose tolerates per direction](experiments/m50_relean/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).

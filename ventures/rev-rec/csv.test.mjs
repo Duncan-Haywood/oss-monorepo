@@ -106,3 +106,18 @@ test("a period end that is not a date is skipped, not read as a one-off (red tea
   assert.deepEqual(r.skipped, [{ line: 2, why: "period end is not a date" }]);
   assert.equal(r.lines.length, 1, "a blank period end is still a one-off charge");
 });
+
+test("an impossible calendar date is skipped, not rolled into the next month (red team 2026-11-18)", () => {
+  // Date.parse reads 2026-02-30 as 2 March; a typo must be flagged, not moved.
+  const r = linesFromCsv("amount,date,period start,period end\n10,2026-02-30,2026-02-01,2026-03-01\n10,2026-02-01,2026-02-31,2026-03-01\n10,2026-02-01,2026-02-01,2026-04-31\n10,2024-02-29,2024-02-29,2024-03-29");
+  assert.deepEqual(r.skipped.map((s) => s.why), ["billing date is not a date", "period start is not a date", "period end is not a date"]);
+  assert.equal(r.lines.length, 1, "29 Feb in a leap year is a real date");
+});
+
+test("an amount with more decimals than its currency is skipped, not read 1000x too small (red team 2026-11-18)", () => {
+  // "€ 1.000" in a European export is a thousand euros; reading it as 1.00 would
+  // shrink the schedule silently, so a third decimal in a two-decimal currency is flagged.
+  const r = linesFromCsv("amount,date,period start,currency\n€ 1.000,2026-01-01,2026-01-01,eur\n1.250,2026-01-01,2026-01-01,kwd\n12.5,2026-01-01,2026-01-01,usd\n100.5,2026-01-01,2026-01-01,jpy\n5000.00,2026-01-01,2026-01-01,jpy");
+  assert.deepEqual(r.skipped.map((s) => [s.line, s.why]), [[2, "amount has more decimals than EUR allows (is . a thousands separator?)"], [5, "amount has more decimals than JPY allows (is . a thousands separator?)"]]);
+  assert.deepEqual(r.lines.map((l) => l.amount), [1250, 1250, 5000]);
+});

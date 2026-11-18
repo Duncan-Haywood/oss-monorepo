@@ -1,0 +1,460 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqydKcjUW6uzsoPzxTzT",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T14:39:25Z",
+  "ended": "2026-11-18T14:40:06Z",
+  "wall_minutes": 6.45,
+  "tokens_in": 3850516,
+  "tokens_out": 21801,
+  "cost_usd": 1.8938,
+  "tool_calls": 45,
+  "task": "redteam: rev-rec revrec.mjs and mrr-pulse metrics.mjs",
+  "projects": [
+    "rev-rec",
+    "mrr-pulse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17330",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "rev-rec decimals check first compared the parsed number, which loses '1.000' -> 1; switched to inspecting the written string",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list is 12 entries, all control-plane or blocked on an eval set, and most already have an open control-plane PR; the list does not show which PR covers each, so every run re-searches open PRs to learn nothing is actionable."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for an automated guard for the class; a lint for impossible-date parsing is hard to make precise, and a grep showed the other date parsers in ventures/ already round-trip-check, so these two were outliers",
+      "did": "fixed both instances with tests and README notes instead of a new lint",
+      "result": "no new CI guard this run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-a-date-that-does-not-exist-moves-your-revenue.md"
+  ],
+  "goal": null,
+  "notes": "Campaigns: rev-rec/revrec.mjs 9/10, mrr-pulse/metrics.mjs 6/10; rerun 20/20. Local verification: python3 platform/ci/run_venture_tests.py mrr-pulse rev-rec -> ok rev-rec (74 tests), ok mrr-pulse (83 tests), site page checks ok. run_workflow_locally --for-changes: 10/10 selected workflows passed (DONE exit 0); not run locally: pytest-only steps (evidence-boundary, branch-hygiene, MLS photo-spec, break-even, session-gate), the catalogue-diff step (no base ref), agent-cross-review jobs and deploy jobs.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/rev-rec/revrec.mjs",
+        "test": "node --test ventures/rev-rec/**/*.test.mjs  (in .)",
+        "seed": 239703398,
+        "commit": "8766b6dbe",
+        "sites": 107,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 8,
+            "col": 65,
+            "operator": "le-to-lt",
+            "before": "const monthRange = (a, b) => { const out = []; for (let m = a; m <= b; m = nextMonth(m)) out.push(m); return out; };",
+            "after": "const monthRange = (a, b) => { const out = []; for (let m = a; m < b; m = nextMonth(m)) out.push(m); return out; };",
+            "line_text": "const monthRange = (a, b) => { const out = []; for (let m = a; m <= b; m = nextMonth(m)) out.push(m); return out; };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 21,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);",
+            "after": "const sign = amount < 0 ? -2 : 1, abs = Math.abs(amount);",
+            "line_text": "  const sign = amount < 0 ? -1 : 1, abs = Math.abs(amount);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 22,
+            "col": 82,
+            "operator": "times-to-div",
+            "before": "const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));",
+            "after": "const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs / d) / days), r: (abs * d) % days }));",
+            "line_text": "  const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 22,
+            "col": 104,
+            "operator": "times-to-div",
+            "before": "const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));",
+            "after": "const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs / d) % days }));",
+            "line_text": "  const parts = Object.entries(perMonth).map(([m, d]) => ({ m, v: Math.floor((abs * d) / days), r: (abs * d) % days }));",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 53,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "if (closedThrough != null && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "after": "if (closedThrough != null && !/^\\d{4}-(0[1-10]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "line_text": "  if (closedThrough != null && !/^\\d{4}-(0[1-9]|1[0-2])$/.test(closedThrough)) throw new Error(`closedThrough must be YYYY-MM, got ${closedThrough}`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 92,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: \"\" } : { date, memo, account: dr, debit: \"\", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: \"\", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: \"\" }); };",
+            "after": "const push = (date, memo, dr, cr, n) => { if (n === 1) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: \"\" } : { date, memo, account: dr, debit: \"\", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: \"\", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: \"\" }); };",
+            "line_text": "  const push = (date, memo, dr, cr, n) => { if (n === 0) return; out.push(n > 0 ? { date, memo, account: dr, debit: major(n), credit: \"\" } : { date, memo, account: dr, debit: \"\", credit: major(n) }, n > 0 ? { date, memo, account: cr, debit: \"\", credit: major(n) } : { date, memo, account: cr, debit: major(n), credit: \"\" }); };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "zero-amount guard: 1-cent month dropped; test journals a 1-cent month"
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 108,
+            "col": 42,
+            "operator": "lt-to-le",
+            "before": "const done = rows.filter((r) => r.month < cur);",
+            "after": "const done = rows.filter((r) => r.month <= cur);",
+            "line_text": "  const done = rows.filter((r) => r.month < cur);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 110,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "const now = rows.find((r) => r.month === cur);",
+            "after": "const now = rows.find((r) => r.month !== cur);",
+            "line_text": "  const now = rows.find((r) => r.month === cur);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 115,
+            "col": 68,
+            "operator": "const-plus-one",
+            "before": "backlog: backlog(rows, asOf).reduce((a, r) => a + r.recognized, 0),",
+            "after": "backlog: backlog(rows, asOf).reduce((a, r) => a + r.recognized, 1),",
+            "line_text": "    backlog: backlog(rows, asOf).reduce((a, r) => a + r.recognized, 0),",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rev-rec/revrec.mjs",
+            "line": 132,
+            "col": 132,
+            "operator": "const-plus-one",
+            "before": "try { return new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(major); }",
+            "after": "try { return new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: String(currency).toUpperCase(), maximumFractionDigits: 1 }).format(major); }",
+            "line_text": "  try { return new Intl.NumberFormat(\"en-US\", { style: \"currency\", currency: String(currency).toUpperCase(), maximumFractionDigits: 0 }).format(major); }",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/mrr-pulse/metrics.mjs",
+        "test": "node --test ventures/mrr-pulse/**/*.test.mjs  (in .)",
+        "seed": 393118961,
+        "commit": "8766b6dbe",
+        "sites": 274,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 6,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "export const PER_MONTH = { day: DAYS_PER_MONTH, week: DAYS_PER_MONTH / 7, month: 1, year: 1 / 12 };",
+            "after": "export const PER_MONTH = { day: DAYS_PER_MONTH, week: DAYS_PER_MONTH / 8, month: 1, year: 1 / 12 };",
+            "line_text": "export const PER_MONTH = { day: DAYS_PER_MONTH, week: DAYS_PER_MONTH / 7, month: 1, year: 1 / 12 };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 42,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "if (!(s.mrr > 0) || !s.created || paidFrom(s) > t) continue;",
+            "after": "if (!(s.mrr > 1) || !s.created || paidFrom(s) > t) continue;",
+            "line_text": "    if (!(s.mrr > 0) || !s.created || paidFrom(s) > t) continue;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "1-cent sub dropped from history; test mapAt with mrr 1"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 83,
+            "col": 45,
+            "operator": "const-plus-one",
+            "before": "export function backfill(subs, now, months = 12) {",
+            "after": "export function backfill(subs, now, months = 13) {",
+            "line_text": "export function backfill(subs, now, months = 12) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "backfill default months; test default length 12"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 111,
+            "col": 25,
+            "operator": "gt-to-ge",
+            "before": "const pct = (a, b) => (b > 0 ? a / b : null);",
+            "after": "const pct = (a, b) => (b >= 0 ? a / b : null);",
+            "line_text": "const pct = (a, b) => (b > 0 ? a / b : null);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "pct(0,0) NaN; test logoChurn null on zero base"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 122,
+            "col": 49,
+            "operator": "times-to-div",
+            "before": "month: cur.month, mrr: cur.mrr, arr: cur.mrr * 12, customers: cur.customers,",
+            "after": "month: cur.month, mrr: cur.mrr, arr: cur.mrr / 12, customers: cur.customers,",
+            "line_text": "    month: cur.month, mrr: cur.mrr, arr: cur.mrr * 12, customers: cur.customers,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 124,
+            "col": 73,
+            "operator": "minus-to-plus",
+            "before": "netNew: cur.new + cur.expansion + cur.reactivation - cur.contraction - cur.churn,",
+            "after": "netNew: cur.new + cur.expansion + cur.reactivation - cur.contraction + cur.churn,",
+            "line_text": "    netNew: cur.new + cur.expansion + cur.reactivation - cur.contraction - cur.churn,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 167,
+            "col": 75,
+            "operator": "const-plus-one",
+            "before": "if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }",
+            "after": "if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 1, logo: [], revenue: [] }); continue; }",
+            "line_text": "    if (!members.length) { rows.push({ month: ends[i].month, size: 0, mrr: 0, logo: [], revenue: [] }); continue; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 173,
+            "col": 56,
+            "operator": "div-to-times",
+            "before": "revenue.push(alive.reduce((a, s) => a + s.mrr, 0) / mrr);",
+            "after": "revenue.push(alive.reduce((a, s) => a + s.mrr, 0) * mrr);",
+            "line_text": "      revenue.push(alive.reduce((a, s) => a + s.mrr, 0) / mrr);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 201,
+            "col": 60,
+            "operator": "const-plus-one",
+            "before": "const ranked = Object.entries(customers).sort((a, b) => b[1] - a[1]);",
+            "after": "const ranked = Object.entries(customers).sort((a, b) => b[2] - a[1]);",
+            "line_text": "  const ranked = Object.entries(customers).sort((a, b) => b[1] - a[1]);",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "concentration sort comparator; test ranks largest first from unsorted input"
+          },
+          {
+            "file": "ventures/mrr-pulse/metrics.mjs",
+            "line": 226,
+            "col": 62,
+            "operator": "min-to-max",
+            "before": "high: { adds: Math.max(...rows.map((r) => r.adds)), loss: Math.min(...rows.map((r) => r.loss)), exp: Math.max(...rows.map((r) => r.exp)) },",
+            "after": "high: { adds: Math.max(...rows.map((r) => r.adds)), loss: Math.max(...rows.map((r) => r.loss)), exp: Math.max(...rows.map((r) => r.exp)) },",
+            "line_text": "    high: { adds: Math.max(...rows.map((r) => r.adds)), loss: Math.min(...rows.map((r) => r.loss)), exp: Math.max(...rows.map((r) => r.exp)) },",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rev-rec/csv.mjs",
+        "issue": "toMs accepted impossible dates (2026-02-30 -> 2 March), silently moving revenue to another month",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17330"
+      },
+      {
+        "file": "ventures/rev-rec/csv.mjs",
+        "issue": "parseAmount read '\u20ac 1.000' (European thousands) as 1.00; rows with more decimals than the currency are now skipped",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17330"
+      },
+      {
+        "file": "ventures/mrr-pulse/csv.mjs",
+        "issue": "unparseable ended at / trial end, impossible dates, and canceled rows with no end date were read as never-ended, counting the sub alive in every backfilled month",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17330"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5abbb5b0-4d7a-5e2a-b427-ae64e6e15f48",
+    "transcripts": 1,
+    "first": "2026-11-18T14:39:25Z",
+    "last": "2026-11-18T14:45:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 85,
+        "output": 21801,
+        "thinking": 5699,
+        "cache_read": 3762305,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88126,
+        "api_equivalent_usd": 1.8938,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 85,
+      "output": 21801,
+      "thinking": 5699,
+      "cache_read": 3762305,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88126,
+      "api_equivalent_usd": 1.8938,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.45,
+      "active_minutes": 6.45,
+      "model_minutes": 4.03,
+      "tool_minutes": 2.42,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: read two finance importers, seed/triage 20 mutants, fix 3 import defects with tests, README notes and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 211.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

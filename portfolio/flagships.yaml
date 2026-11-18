@@ -461,27 +461,28 @@ flagships:
       c (123 to 125 of 144, 3 wanted), opt-in; 2026-11-17: c's cluster-onset -um
       misses traced to the synthesised murmur's beat phase, not the reader
       (eval/cluster-um-report.md); longTilt opt-in; next: a held-out part on
-      eval/release-cells-report.md's cells; 2026-11-18 murmurSource 'one' (opt-in):
-      a steady murmur, mixed read-back, eval/murmur-one-check.md). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift, --organum over a
-      band); the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
-      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
-      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents, lines at true thickness; next: worn pages (new GABC needed),
-      mottled squares, hollow small notes bridged 2026-11-18 (77 of 84,
-      eval/one-step-hollow-check.md), split heads joined 2026-11-18 (FLECK: podatus
-      tops, quilismas, flecked squares; held out 13 of 13 real,
-      eval/fleck-check.md); 3439/3357 were not liquescentTail; next 3408's strokes,
-      3464's cephalicus, 3524/3421/3741 cephalici. More open items: NEXT.md.
+      eval/release-cells-report.md's cells; 2026-11-18 murmurSource 'one', then
+      'match' (opt-in; D3 losses traced to the chorus's frozen phase,
+      eval/murmur-match-check.md)). Open checks that need a person: listen to the
+      studio page, --sing, the options (--stretch, --halftime, --fills, --limit
+      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
+      the key lift sounds like a lift, --organum over a band); the Te
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; next: worn pages (new GABC needed), mottled squares, hollow small
+      notes bridged 2026-11-18 (77 of 84, eval/one-step-hollow-check.md), split
+      heads joined 2026-11-18 (FLECK: podatus tops, quilismas, flecked squares; held
+      out 13 of 13 real, eval/fleck-check.md); 3439/3357 were not liquescentTail;
+      next 3408's strokes, 3464's cephalicus, 3524/3421/3741 cephalici. More open
+      items: NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
       eval/release-cells-report.md's cells (picked before any reader runs) to
       register levelFade and longTilt (both opt-in; README "Cluster onsets before
-      -um", "A /u/ release read as a nasal"). One-voice murmur (murmurSource 'one',
-      opt-in, eval/murmur-one-check.md): steady in every phase, c 123 to 131, but D3
-      Graduale nasals lose (D 12 to 8 of 12); next: why, then pre-register. OMR
+      -um", "A /u/ release read as a nasal"). Level-matched murmur (murmurSource
+      'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs default 2,141,
+      but R, Z, A lose 1-2; next: fresh cells for the voiced-labial misreads. OMR
       (scan.mjs) items in next: 3408's strokes, 3464's cephalicus, the one-step
       cephalici 3524/3421/3741 (eval/fleck-check.md, What is left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
@@ -510,22 +511,21 @@ flagships:
       public facets editable); ifcXML and .ifczip read 2026-11-16
       (eval/ifcxml-xbim-2026-11-16.md); 43 IFC4 STEP/ifcXML twins 2026-11-18
       (eval/ifcxml-twins-2026-11-18.md: verdicts 108 to 129 of 129; href refs,
-      decimal commas, flat point lists; B-spline rows from knot counts); IDS editor
-      2026-11-16 (203,433 offered specs audit clean, 15,102 valid in ids.xsd; found
-      voids/fills token pair and classification-system gaps,
-      eval/editor-2026-11-16.md); IFC 4.3 infra/HVAC cross-check 2026-11-17 (348 of
-      348, eval/infra-mep-crosscheck-*); several IFC versions per spec 2026-11-17
-      (eval/multi-version-2026-11-17.md: opened in the schema that edits most, page
-      audit in every named schema, false page errors 18 to 0 on 18 public files).
-      attribute facets read geometry shallow 2026-11-18
-      (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS MEP 13.3 to 8.3 s,
-      same reports); ifcXML streams 2026-11-18 (eval/lazy-ifcxml-2026-11-18.md: 374
-      MB federated ifcXML 4.0 to 1.5 GB peak, fits 1 GB; strings keep whitespace,
-      731 MEP labels). nested IFC4 ifcXML at scale 2026-11-18
-      (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3 exports nested,
-      857,301 entities and 2,160 of 2,160 verdicts as STEP; schema from the root,
-      not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB 1,770 to 1,481
-      MB, fits 768 MB). attribute (any) = X shares one shape read per entity
-      2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer kept as
-      per-character chains). next: nested property sets held until the root closes.
-      More open items: NEXT.md.
+      decimal commas, flat point lists; B-spline rows from knot counts); IFC 4.3
+      infra/HVAC cross-check 2026-11-17 (348 of 348, eval/infra-mep-crosscheck-*);
+      several IFC versions per spec 2026-11-17 (eval/multi-version-2026-11-17.md:
+      opened in the schema that edits most, page audit in every named schema, false
+      page errors 18 to 0 on 18 public files). attribute facets read geometry
+      shallow 2026-11-18 (eval/attribute-any-geometry-2026-11-18.md: 68 IDS on HHS
+      MEP 13.3 to 8.3 s, same reports); ifcXML streams 2026-11-18
+      (eval/lazy-ifcxml-2026-11-18.md: 374 MB federated ifcXML 4.0 to 1.5 GB peak,
+      fits 1 GB; strings keep whitespace, 731 MEP labels). nested IFC4 ifcXML at
+      scale 2026-11-18 (eval/ifc4-layout-scale-2026-11-18.md: 4 real IFC4/IFC4X3
+      exports nested, 857,301 entities and 2,160 of 2,160 verdicts as STEP; schema
+      from the root, not ARCHICAD's 'IFC2x3 add-on'; nested geometry stubbed, 166 MB
+      1,770 to 1,481 MB, fits 768 MB). attribute (any) = X shares one shape read per
+      entity 2026-11-18 (eval/attribute-shape-2026-11-18.md; STEP strings no longer
+      kept as per-character chains). nested ifcXML read as it closes 2026-11-18
+      (eval/nested-early-2026-11-18.md: same numbers and notes on 57 files; smallest
+      heap 160 to 96 MB on C20, federated unchanged at 704 MB). next: a smaller
+      record per entity. More open items: NEXT.md.

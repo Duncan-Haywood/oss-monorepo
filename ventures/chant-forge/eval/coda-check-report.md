@@ -294,12 +294,12 @@ Misses:
 
 ## F. Final /l/ against the nasals: the 51 files of the other gregobase-1908-* folders
 
-78 files, none scored by this check before (the scan-check sets); same settings and filters as B. Pre-registered in this script's header before its first run: the murmur's own tilt (readCoda `murmurTilt`, 28 dB) against the same reader without it.
+79 files, none scored by this check before (the scan-check sets); same settings and filters as B. Pre-registered in this script's header before its first run: the murmur's own tilt (readCoda `murmurTilt`, 28 dB) against the same reader without it.
 
 | final consonant | read with the tilt rule | without it |
 |---|---|---|
 | /l/ (should read as none) | none 6 of 6 (100.0%), nasal 0 of 6 (0.0%) | none 5 of 6 (83.3%), nasal 1 of 6 (16.7%) |
-| m, n, gn (should read as nasal) | 206 of 215 (95.8%) | 206 of 215 (95.8%) |
+| m, n, gn (should read as nasal) | 209 of 218 (95.9%) | 209 of 218 (95.9%) |
 
 /l/ not read as none (with the rule):
 
@@ -746,5 +746,5 @@ crum as none 2; snum as none 2; drum as none 2; lo as nasal 1; trun as none 1; c
 
 ## C. Closing consonants in the corpus
 
-146 GABC files, 9903 sung syllables; 3634 of 9903 (36.7%) close on a consonant, 266 on a cluster. First phone: s 938, n 720, m 649, t 448, r 420, l 168, k 145, d 75, b 28, p 25, f 15, g 3.
+147 GABC files, 9999 sung syllables; 3665 of 9999 (36.7%) close on a consonant, 268 on a cluster. First phone: s 944, n 724, m 652, t 452, r 426, l 173, k 147, d 76, b 28, p 25, f 15, g 3.
 

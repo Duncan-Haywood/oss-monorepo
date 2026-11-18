@@ -739,6 +739,21 @@ press, and those keep the per-robot sides. The worst residuals are over the case
 the G1 has none in 258 of 1530 swept pose-cases (17%), the H1 in 41 of 1938, a coverage the G1 figures
 since milestone 41 also carry.
 
+Those missing plans are a stance limit (milestone 49). At the 50 N press end of all 24 failing cells
+no contact force balances the base inside the friction cones (best cone slack −23.77 to −0.10 N),
+while the 25 N end balances at every cell; the soles' net horizontal load stays at most 0.189 of the
+vertical, so the robot tips back rather than slides. With 20 N of drag pulling straight back, the
+largest press the G1 balances at its 1.2 m grips falls from 51.6 to 36.4 N, and the H1's at 1.6 m from
+58.7 to 42.8 N, below the 50 N press. A pose's lean must leave headroom above 50 N for the hose.
+
+No lean does that for a hose pulling in every direction (milestone 50). Over forward leans of 0 to
+150 mm, the worst friction-cone slack over the 17 hose loads at 25 and 50 N peaks at −0.69 N for the
+G1 at 1.0 m grips and −10.12 N at 1.2 m: what the lean gives to a hose pulling back it takes from one
+pulling forward. The drag a pose tolerates straight back is its press headroom over 50 N divided by
+0.78, to within 9% at all 8 poses; the G1 at its 1.2 m grips tolerates 4.0 N at its current lean and
+11.4 N in every direction at its best. A dragged rubber hose reaches 4.0 N with about 3 m on the
+floor (μ_f 0.5, unsourced), so at high grips the hose has to be fed or carried, not dragged.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every
