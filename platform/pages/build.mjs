@@ -6359,6 +6359,7 @@ const CATEGORY_STYLE = `
     .start-grid p { margin: 6px 0 0; color: var(--muted); font-size: .9rem; line-height: 1.5; }
     .start-grid .meta { font-size: .8rem; color: var(--soft); }
     .start-here .starting { margin-top: 16px; }
+    @media (max-width: 380px) { .start-here { margin-top: 22px; } .start-here .sub { margin-bottom: 12px; } }
     .answers { margin: 30px 0 0; padding: 18px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: 13px; }
     .answers ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px 22px;
                   grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
