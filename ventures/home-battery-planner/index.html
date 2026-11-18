@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home Battery Planner: What Would a Battery Save on My Own Meter Data?</title>
+  <meta name="description" content="Free home battery savings check: paste a year of your utility's Green Button data and your time-of-use rate, and see what a battery would have saved run self-powered, time-based, and at the perfect-foresight ceiling, by size, with payback. Nothing uploaded.">
+  <meta property="og:title" content="What would a home battery have saved you last year?">
+  <meta property="og:description" content="Hour-by-hour battery simulation on your own smart-meter data and rate plan, with solar exports. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231f5f4a'/%3E%3Crect x='9' y='8' width='14' height='19' rx='2' fill='none' stroke='%23fff' stroke-width='2.4'/%3E%3Crect x='13' y='5' width='6' height='3' fill='%23fff'/%3E%3Crect x='12' y='16' width='8' height='8' fill='%23fff'/%3E%3C/svg%3E">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Home Battery Planner", "applicationCategory": "UtilitiesApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Simulates a home battery hour by hour on a year of the household's own smart-meter data (Green Button CSV or XML, net of solar) under the household's own time-of-use rate and export credits, in self-powered and time-based modes and at the perfect-foresight ceiling, for several sizes, with payback. Runs in your browser.", "featureList": "Green Button CSV and XML reader with solar export, Smart Meter Texas CSV, time-of-use rate plans with seasons, weekends, holidays and export credits, several plans compared, self-powered and time-based battery modes, perfect-foresight dynamic programme checked against an exact linear programme, size sweep, payback"}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is a home battery worth it with solar?", "acceptedAnswer": {"@type": "Answer", "text": "It depends mostly on how your utility credits exports. Where exports earn far less than imports cost (California's net billing tariff, often called NEM 3, is the best-known case), storing midday solar for the evening is worth close to the full price gap on every kWh. Where exports earn about what imports cost (one-for-one or retail-minus net metering), storing solar earns little or nothing, and a battery only pays through time-of-use price differences. This tool bills your own year of meter data both ways."}}, {"@type": "Question", "name": "Self-powered or time-based mode?", "acceptedAnswer": {"@type": "Answer", "text": "On forty simulated California homes with solar and a low export credit, the self-powered setting reached a median 97% of the perfect-foresight ceiling, and a battery that waits for the peak window reached 25%, because it stays full and wastes the next day's solar. Where exports are credited near the retail price the order reverses. Run your own data: the tool shows both."}}, {"@type": "Question", "name": "What size battery do I need?", "acceptedAnswer": {"@type": "Answer", "text": "Savings flatten once a battery can hold the evening's use. In the forty-home check, going from 13.5 to 20 kWh added a median $7 a year per extra kWh under the low-export example plan. The size table shows the same curve for your own data."}}, {"@type": "Question", "name": "Where do I get my data?", "acceptedAnswer": {"@type": "Answer", "text": "Most US utilities with smart meters have a Green Button Download My Data button in the online account; Texas households use Smart Meter Texas. Download 12 months of hourly or 15-minute electric usage. With solar, make sure the file includes energy sent to the grid (negative values or a received column)."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #234e8c; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #214984; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #214984; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #234e8c; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #234e8c; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #214984; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
+  <style>
+    textarea { width: 100%; box-sizing: border-box; }
+    #plans { min-height: 220px; }
+    .ok { color: #1d6b3a; font-weight: 600; }
+    .no { color: #a3261b; font-weight: 600; }
+    .big { font-size: 1.25rem; font-weight: 700; }
+    progress { width: 100%; height: 10px; }
+    .check { display: flex; gap: 8px; align-items: center; font-weight: 600; margin: 14px 0 0; }
+    @media print { header .note, #inputs, footer, .noprint { display: none; } }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">HOME BATTERY PLANNER · YOUR METER DATA · YOUR RATE · RUNS IN YOUR BROWSER</p>
+    <h1>What would a home battery have saved you last year?</h1>
+    <p>Installers quote battery savings from a typical house and a hopeful controller. This runs a battery hour by hour through <strong>a year of your own smart-meter data</strong> (with your solar exports in it) on <strong>your own rate plan</strong>, in the two modes batteries are usually set to, <em>self-powered</em> and <em>time-based</em>, and next to the <em>perfect-foresight ceiling</em>, the most any schedule could have saved. It sizes the battery and compares rate plans with and without one.</p>
+    <p class="note">Arithmetic on what you enter. Not financial, tax, legal or engineering advice, and not a quote. The example meter data is a synthetic placeholder and the example rate plans use invented prices: type your own plan from your utility's tariff sheet. Your installer, your utility's tariff and your interconnection agreement decide what a real battery may do.</p>
+  </header>
+  <main>
+    <div id="inputs">
+    <section class="card" aria-labelledby="h-data">
+      <h2 id="h-data">1. Your meter data</h2>
+      <p>In your utility account look for <em>Green Button</em> or <em>Download my data</em> (Texas: Smart Meter Texas). Choose electric usage, hourly or 15-minute readings, the last 12 months. With solar, the file must include what you sent to the grid: negative readings, a received column, or a received series in the XML.</p>
+      <label for="data">Paste interval data (CSV or Green Button XML)</label>
+      <textarea id="data" rows="6" spellcheck="false"></textarea>
+      <p><label for="file">Or choose the file (read in your browser, never uploaded)</label> <input id="file" type="file" accept=".csv,.txt,.xml,text/csv,text/xml"></p>
+    </section>
+    <section class="card" aria-labelledby="h-plans">
+      <h2 id="h-plans">2. Your rate plan (or several, to compare)</h2>
+      <p>One line per price. <code>import: 0.32</code> prices every hour; a later line with months, a day type or hours overrides it for those hours, so write the general price first: <code>import jun-sep weekdays 16-21: 0.55</code>. Hours end before the second number. <code>export:</code> is the credit per kWh sent to the grid, by period like imports, or <code>export: import - 0.03</code>, or an hourly table (<code>export table weekdays:</code> then 12 lines of 24 credits, January first). <code>fixed:</code> is dollars a month; <code>holidays: weekend</code> prices US federal holidays as weekends. Separate plans with a line of <code>---</code>.</p>
+      <label for="plans">Rate plans</label>
+      <textarea id="plans" rows="14" spellcheck="false"></textarea>
+    </section>
+    <section class="card" aria-labelledby="h-bat">
+      <h2 id="h-bat">3. The battery</h2>
+      <div class="grid">
+        <div><label for="kwh">Usable capacity (kWh)</label><input id="kwh" type="text" inputmode="decimal" value="13.5"></div>
+        <div><label for="kw">Continuous power (kW)</label><input id="kw" type="text" inputmode="decimal" value="5"></div>
+        <div><label for="rt">Round-trip efficiency (%)</label><input id="rt" type="text" inputmode="decimal" value="90"></div>
+        <div><label for="reserve">Backup reserve kept for outages (%)</label><input id="reserve" type="text" inputmode="decimal" value="20"></div>
+        <div><label for="sizes">Sizes to compare (kWh/kW, commas)</label><input id="sizes" type="text" value="5/3.8, 10/5, 13.5/5, 20/7.6, 27/10"></div>
+        <div><label for="costFixed">Installed cost, fixed part ($, optional)</label><input id="costFixed" type="text" inputmode="decimal" value=""></div>
+        <div><label for="costPerKwh">Installed cost per usable kWh ($, optional)</label><input id="costPerKwh" type="text" inputmode="decimal" value=""></div>
+      </div>
+      <p class="check"><input id="gridCharge" type="checkbox"> <label for="gridCharge" style="margin:0">May charge from the grid (some incentives and tariffs forbid it)</label></p>
+      <p class="check"><input id="gridExport" type="checkbox"> <label for="gridExport" style="margin:0">May export stored energy to the grid (the ceiling only; your tariff decides)</label></p>
+      <p class="note">Leave the cost blank for savings only. Subtract any incentive you are sure you qualify for from the cost; this page assumes none.</p>
+    </section>
+    <section class="card">
+      <button type="button" id="run">Run the year</button>
+      <button type="button" class="secondary" id="example">Load the example</button>
+      <p id="busy" hidden><progress id="prog" max="1" value="0"></progress> <span id="busyLabel" class="note"></span></p>
+    </section>
+    </div>
+    <section class="card" id="out" aria-live="polite" hidden>
+      <h2>Result</h2>
+      <div id="result"></div>
+      <p class="noprint"><button type="button" class="secondary" id="print">Print</button></p>
+    </section>
+    <section class="card" aria-labelledby="h-how">
+      <h2 id="h-how">How it works</h2>
+      <p>Your file is turned into net kWh for every hour (use minus solar). A battery behind the meter changes only what flows through it, so each mode replays the year: <strong>self-powered</strong> stores solar the house is not using and covers the house whenever it would draw from the grid; <strong>time-based</strong> stores spare solar but discharges only in each day's highest-priced hours (and, if allowed, fills from the grid in the cheapest ones). The <strong>ceiling</strong> is a dynamic programme that knows the whole year in advance; checked against an exact linear programme (HiGHS) it came within 0.21% of the optimal saving in every one of 32 test cases. Losses are the square root of the round trip each way; the reserve is never spent; every mode starts the data at the reserve. Each hour is billed at its import price or credited at its export credit.</p>
+      <p>Measured on forty simulated California homes with solar (NREL ResStock, real 2018 weather): with a low export credit, self-powered reached a median 97% of the ceiling and the peak-only rule 25%; with exports credited near retail, self-powered <em>lost</em> a median $12 a year. <a href="./self-powered-vs-time-based.html">The write-up</a> has the numbers.</p>
+      <p><strong>Not decided here:</strong> whether your tariff, incentive or interconnection agreement allows grid charging or battery export; monthly or annual netting rules (credits are counted hour by hour in full; some plans pay year-end surplus at a lower rate); demand charges; battery wear and warranty limits; outages; taxes; tariff changes over the battery's life; financing.</p>
+    </section>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, accounting, compliance, engineering, or financial advice. Results are arithmetic on figures you type or paste; verify with a qualified professional before relying on them. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>year_run</code>, <code>example_loaded</code>, <code>file_read</code>, <code>result_printed</code>) are counted only in your browser's local storage, honour Do Not Track, and can be switched off below.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free and open source (MIT): <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/home-battery-planner">source code</a>. If this helped you, you can <a href="https://github.com/sponsors/Duncan-Haywood">sponsor the project on GitHub</a>. It stays free either way.</p>
+  </footer>
+  <script type="module">
+    import { analyzeSteps, MODE_NAMES } from "./report.mjs";
+    import { exampleCsv } from "./example.mjs";
+    import { EXAMPLE_TARIFFS } from "./tariff.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    const usd = (x) => (x < -0.5 ? "&minus;$" : "$") + Math.abs(Math.round(x)).toLocaleString("en-US");
+    const table = (head, rows, num = []) => '<div class="scroll"><table><thead><tr>' + head.map((h, i) => "<th" + (num.includes(i) ? ' class="n"' : "") + ">" + h + "</th>").join("") + "</tr></thead><tbody>" + rows.map((r) => "<tr>" + r.map((c, i) => "<td" + (num.includes(i) ? ' class="n"' : "") + ">" + c + "</td>").join("") + "</tr>").join("") + "</tbody></table></div>";
+    const n = (id) => Number(String($(id).value).replace(/[$,\s%]/g, ""));
+    let running = false;
+    async function run() {
+      if (running) return;
+      running = true;
+      $("busy").hidden = false;
+      const it = analyzeSteps({
+        meter: $("data").value,
+        tariffs: $("plans").value,
+        battery: { kwh: n("kwh"), kw: n("kw"), roundTrip: n("rt") / 100, reserve: n("reserve") / 100, gridCharge: $("gridCharge").checked, gridExport: $("gridExport").checked },
+        sizes: $("sizes").value,
+        costFixed: n("costFixed") || 0,
+        costPerKwh: n("costPerKwh") || 0,
+      });
+      let step = it.next();
+      while (!step.done) {
+        $("prog").value = step.value.progress;
+        $("busyLabel").textContent = "Running " + step.value.label + "...";
+        await new Promise((ok) => setTimeout(ok, 0));
+        step = it.next();
+      }
+      const r = step.value;
+      $("busy").hidden = true;
+      running = false;
+      render(r);
+    }
+    function render(r) {
+      let h = "";
+      for (const note of r.meter?.notes || []) h += '<p class="note">' + esc(note) + "</p>";
+      if (!r.ok) {
+        for (const e of r.errors) h += '<p><span class="pill error">Fix</span> ' + esc(e) + "</p>";
+        $("result").innerHTML = h; $("out").hidden = false; return;
+      }
+      const b = r.battery;
+      h += "<p>Battery: " + b.kwh + " kWh usable, " + b.kw + " kW, " + Math.round(b.roundTrip * 100) + "% round trip, " + Math.round(b.reserve * 100) + "% reserve" + (b.gridCharge ? ", may charge from the grid" : "") + (b.gridExport ? ", may export at the ceiling" : "") + (r.hasCost ? "; installed cost " + usd(r.batteryCost) : "") + ". Figures are per year" + (Math.abs(r.scale - 1) > 0.02 ? ", scaled from the days in your file" : "") + ".</p>";
+      for (const p of r.plans) {
+        h += '<div class="finding"><h3>' + esc(p.name) + "</h3>";
+        if (p.uncovered) h += '<p><span class="pill warn">Check</span> ' + p.uncovered + " hour(s) match no import line and were priced at $0.</p>";
+        h += '<p>Bill without a battery: <span class="big">' + usd(p.none.total * r.scale) + "</span> a year (" + usd(p.fixed * 12) + " of it fixed charges).</p>";
+        const self = p.modes[0], ceil = p.modes[2];
+        h += table(["Mode", "Saves a year", "Bill a year", "Payback", "Cycles a year"], p.modes.map((m) => [esc(MODE_NAMES[m.mode]), "<strong>" + usd(m.perYear) + "</strong>", usd(m.bill.total * r.scale), m.years ? m.years.toFixed(1) + " years" : r.hasCost ? "never" : "add a cost", Math.round(m.cycles)]), [1, 2, 3, 4]);
+        if (ceil.perYear > 1) h += "<p>Self-powered reaches <strong>" + Math.round((100 * self.perYear) / ceil.perYear) + "%</strong> of the ceiling on this plan; time-based " + Math.round((100 * p.modes[1].perYear) / ceil.perYear) + "%.</p>";
+        else h += "<p>Even perfect foresight saves nothing here: exports earn what imports cost, so storing energy only loses the round-trip losses.</p>";
+        if (self.perYear < 0) h += '<p><span class="pill warn">Note</span> Self-powered <em>costs</em> money on this plan: exported solar earns nearly what it saves later, and the battery loses ' + Math.round(100 - b.roundTrip * 100) + "% on the way.</p>";
+        if (p.sweep.length) h += table(["Size (kWh / kW)", "Self-powered saves", "Ceiling", r.hasCost ? "Payback, self-powered" : "Extra saving per extra kWh (self)"], p.sweep.map((s, i) => [s.kwh + " / " + s.kw, usd(s.self.perYear), usd(s.optimal.perYear), r.hasCost ? (s.self.years ? s.self.years.toFixed(1) + " years" : "never") : i ? usd((s.self.perYear - p.sweep[i - 1].self.perYear) / (s.kwh - p.sweep[i - 1].kwh)) : usd(s.self.perYear / s.kwh)]), [1, 2, 3]);
+        h += table(["Month", "From grid kWh", "To grid kWh", "Bill, no battery", "Bill, self-powered"], p.none.byMonth.map((m, i) => [m.month, Math.round(m.imported).toLocaleString("en-US"), Math.round(m.exported).toLocaleString("en-US"), usd(m.cost), usd(self.bill.byMonth[i].cost)]), [1, 2, 3, 4]);
+        h += "</div>";
+      }
+      if (r.plans.length > 1) h += '<div class="finding"><h3>Which plan</h3><p>Cheapest without a battery: <strong>' + esc(r.cheapestWithout) + "</strong>. With the battery self-powered: <strong>" + esc(r.cheapestWithSelf) + "</strong>. At the ceiling: <strong>" + esc(r.cheapestWithOptimal) + "</strong>. Check each plan's eligibility rules with your utility.</p></div>";
+      h += '<p class="note">The ceiling knows the year in advance; real controllers forecast, so expect between the mode figures and it at best. No battery wear, no outages, no tariff changes.</p>';
+      $("result").innerHTML = h;
+      $("out").hidden = false;
+      record("year_run");
+    }
+    $("plans").value = EXAMPLE_TARIFFS.split("---")[0].trim();
+    $("run").addEventListener("click", run);
+    $("example").addEventListener("click", () => { $("data").value = exampleCsv(); $("plans").value = EXAMPLE_TARIFFS; record("example_loaded"); run(); });
+    $("file").addEventListener("change", async (e) => { const f = e.target.files[0]; if (f) { $("data").value = await f.text(); record("file_read"); } });
+    $("print").addEventListener("click", () => { record("result_printed"); window.print(); });
+    $("optout").addEventListener("click", () => { setUsageOptOut(true); $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; });
+    if (usageOptedOut()) { $("optout").textContent = "Usage counting is off"; $("optout").disabled = true; }
+  </script>
+</body>
+</html>

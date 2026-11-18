@@ -1,0 +1,53 @@
+name: home-battery-planner
+description: >-
+  Free browser tool: replays a home battery hour by hour through a year of the household's own Green Button meter data
+  (net of solar) on their own time-of-use rate and export credits, in self-powered and time-based modes and at a
+  perfect-foresight ceiling checked against an exact linear programme; size sweep, payback and rate-plan comparison.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-18 in a ventures-track session. duplicate_check.py: top score 0.20 (service-load-check), then
+# texas-electricity-plan-checker 0.15 and demand-charge-interval-analyzer 0.14 (commercial demand charges, no export,
+# no residential modes). No venture simulated a home battery against solar exports.
+#
+# Why this niche: batteries are commonly sold alongside new residential solar where export credits fell (California's
+# net billing tariff), and the savings figure a household hears comes from the seller. The utility already gives every
+# smart-meter customer the hourly data that settles the question; turning it into an answer is a spreadsheet job
+# almost nobody does. Measured on forty ResStock homes: the mode setting alone moves the saving by 4x.
+#
+# First visitor: searches "is a battery worth it nem 3", "self-powered vs time-based", "battery savings calculator
+# green button", "how big a battery do I need with solar"; solar owners, buyers comparing quotes, energy advisors and
+# small installers who want an honest proposal. Volume not measured.
+#
+# Liability boundary: arithmetic on the user's own file and typed prices; example prices invented and labelled; the
+# page lists what it does not decide (tariff permissions, netting, incentives, wear).
+#
+# Path to revenue (payment rails stay off): lead magnet now; paid paths needing the owner: branded installer proposal
+# PDF, a maintained tariff library.
+
+hypotheses:
+  - claim: >-
+      Solar owners weighing a battery will paste their Green Button file and rate into a free tool, and will change
+      the mode or size they buy after seeing self-powered vs time-based on their own data.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A real Green Button file with solar reads wrongly in a way the tests did not catch, twice.
+
+links:
+  production: https://marisstella.app/home-battery-planner/
+  analytics: null

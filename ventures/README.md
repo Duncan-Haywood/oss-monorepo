@@ -1,6 +1,6 @@
 # Free business calculators, CSV checkers and self-hosted apps: the full catalogue
 
-Every tool in this folder (1392 when this list was last generated), grouped the way the live site
+Every tool in this folder (1393 when this list was last generated), grouped the way the live site
 groups them. Each line links to the **free web version**, which needs no account and, for all but the
 self-hosted apps, runs entirely in your browser, and to its **source code** here, MIT licensed, so you
 can run, fork or self-host your own copy.
@@ -19,7 +19,7 @@ free tools for each one (roofers, Etsy sellers, landlords, freelancers and more)
 - [Logistics, freight & cloud cost](#logistics-freight--cloud-cost) (37)
 - [Compliance checks & evidence records](#compliance-checks--evidence-records) (120)
 - [US personal tax, pay & retirement](#us-personal-tax-pay--retirement) (54)
-- [Household money, home & health bills](#household-money-home--health-bills) (31)
+- [Household money, home & health bills](#household-money-home--health-bills) (32)
 - [UK tax, pay & benefits](#uk-tax-pay--benefits) (56)
 - [Back-office money & contracts](#back-office-money--contracts) (181)
 - [CI checks & developer gates](#ci-checks--developer-gates) (188)
@@ -896,6 +896,7 @@ Your own mortgage, rent, loans, utility and medical bills: escrow shortages, mor
 - [Funeral price list checker: what is required, what is your choice](https://marisstella.app/funeral-price-list-checker/) · [code](funeral-price-list-checker/)
 - [Heat Pump vs Furnace Calculator — free, private, in your browser](https://marisstella.app/heat-pump-vs-furnace-calculator/) · [code](heat-pump-vs-furnace-calculator/)
 - [HELOC or cash-out refinance? Free calculator](https://marisstella.app/heloc-vs-cash-out-refinance-calculator/) · [code](heloc-vs-cash-out-refinance-calculator/)
+- [What would a home battery have saved you last year?](https://marisstella.app/home-battery-planner/) · [code](home-battery-planner/)
 - [Home Sale Net Proceeds Calculator — what you really walk away with](https://marisstella.app/home-sale-net-proceeds-calculator/) · [code](home-sale-net-proceeds-calculator/)
 - [Injury settlement calculator: how much do you actually keep? Free, private](https://marisstella.app/injury-settlement-net-proceeds-calculator/) · [code](injury-settlement-net-proceeds-calculator/)
 - [Insurance Denial Appeal Builder — free, private, in your browser](https://marisstella.app/insurance-denial-appeal-builder/) · [code](insurance-denial-appeal-builder/)
