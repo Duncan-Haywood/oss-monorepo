@@ -244,6 +244,8 @@ class Registry(unittest.TestCase):
                         "register in the same control-plane PR as framerate",
             "sticky-fit-check": "stuck cards that run past the window bottom; "
                                 "register in the same control-plane PR as framerate",
+            "fold-check": "first tool card on every c/for-* page within a 390x844 "
+                          "screen; register in the same control-plane PR as framerate",
         }
         # Browser tools run by hand on purpose, never by the nightly. Each
         # entry says why it is not a check.
