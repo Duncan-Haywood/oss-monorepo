@@ -63,6 +63,8 @@ M51 = E + "m51_envelope/results.txt"
 M51P = E + "m51_envelope/posthoc.txt"
 M52 = E + "m52_slackcal/results.txt"
 M53 = E + "m53_loadside/results.txt"
+M54 = E + "m54_lhs/results.txt"
+M54P = E + "m54_lhs/posthoc.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -260,6 +262,10 @@ CHECKS = [
     (M53, "  h1 | 1897 | 5 | 1902 | 1902 | 100.0%", "H1 1902 of 1902"),
     (M53, "H215 (per-load rule plans every one of the 33 drops): 31 recovered", "recovers 31 of the 33 drops"),
     (M53, "largest 0.0106 -> held", "largest recovered residual is 0.0106 mm"),
+    (M54, "H217 (every LHS pose-case inside milestone 51's envelope has a plan): g1 4002 of 4002, h1 5436 of 5436", "G1 4002 of 4002, H1 5436 of 5436"),
+    (M54, "worst g1 0.2841, h1 0.0423 -> refuted", "the worst 0.284 mm on the G1"),
+    (M54, "phi 202.6, limit 26.44 N, smaller neighbour 28.61 N, shortfall 2.17 N", "up to\n2.17 N optimistic"),
+    (M54P, "over 0.03 mm at offsets -1.75 to +3.00 deg (20 points)", "spans 2.75 to 4.75 degrees wide"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),

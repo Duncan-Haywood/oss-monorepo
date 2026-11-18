@@ -1,0 +1,43 @@
+Milestone 7ab verdicts AB1-AB7 (predictions in ../../LOG.md), from results.json. Stress: L2-45 = diverged flights at lever 2, 45 deg, cap, summed over 6 seeds; identified total = L2-45 summed over the 33, 36 and 39.1 ms laws (of 1152). Response: median over seeds of each design's median over 64 episodes at the 36 ms law; a rise time of 0 (never within 10 cm) counts as never.
+
+AB1 refuted: identified total lag39c100 <= midpoint(lag39, lag39c150): above 82 vs 98.5; below 109 vs 108.0
+AB2 refuted: identified total lag39c100 <= lag39c150 + 10: above 82 vs 37; below 109 vs 48
+AB3 held: L2-45 at 75 ms lag39c200 < lag39c150: above 50 vs 138; below 71 vs 131
+AB4 refuted: identified total lag39c200 > lag39c150: above 17 vs 27; below 36 vs 38
+AB5 held: rise90 lag39c100 < lag39c200: above 1.471 vs 2.022 s; below 1.536 vs 2.271 s
+AB6 held: new designs certified under all three identified laws: 24 of 24 (need >= 22; lag39c100 12, lag39c200 12)
+AB7 held: designs with position kp < 8, lag39c200 > lag39c100: 12 vs 9 (lag39c150 12)
+
+check: old sets reproduce (7aa: identified lag39 170, 178; lag39c150 27, 38; lag75 29, 33): lag39 170, 178; lag39c150 27, 38; lag75 29, 33
+check: responses reproduce (7aa: rise lag39 1.440, 1.387; lag39c150 2.231, 1.757; lag75 1.983, 1.860 s): lag39 1.440, 1.387; lag39c150 2.231, 1.757; lag75 1.983, 1.860
+context: L2-45 under           id 33 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 37 / 20 / 7 / 5 / 8; below 46 / 29 / 11 / 10 / 10
+context: L2-45 under          mid 36 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 61 / 28 / 9 / 6 / 10; below 59 / 38 / 12 / 12 / 11
+context: L2-45 under         id 39.1 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 72 / 34 / 11 / 6 / 11; below 73 / 42 / 15 / 14 / 12
+context: L2-45 under       stress 45 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 149 / 53 / 14 / 8 / 17; below 141 / 57 / 21 / 18 / 18
+context: L2-45 under  inherited 15 ms D^1.5, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 8 / 3 / 1 / 0 / 1; below 13 / 11 / 4 / 5 / 4
+context: L2-45 under       stress 52 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 210 / 111 / 31 / 17 / 26; below 210 / 117 / 31 / 26 / 32
+context: L2-45 under       stress 60 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 262 / 170 / 56 / 26 / 49; below 262 / 197 / 55 / 41 / 45
+context: L2-45 under       stress 75 ms D^0, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 331 / 266 / 138 / 50 / 117; below 339 / 277 / 131 / 71 / 103
+context: identified total, lag39 / lag39c100 / lag39c150 / lag39c200 / lag75: above 170 / 82 / 27 / 17 / 29; below 178 / 109 / 38 / 36 / 33
+context: margin passes under all three identified laws (of 12): lag39 12, lag39c100 12, lag39c150 12, lag39c200 12, lag75 12
+context: designs with position kp < 8 (of 12): lag39 8, lag39c100 9, lag39c150 12, lag39c200 12, lag75 11
+context: aware lag39 above: mass 1.420 kg, D 0.103 m, pos kp 20.8 (16.0, 23.7, 18.2, 25.1, 14.6, 27.1), J45_1 median -1.828
+context: aware lag39 below: mass 1.356 kg, D 0.111 m, pos kp 22.0 (19.0, 25.1, 19.0, 22.5, 20.0, 26.3), J45_1 median -1.667
+context: aware lag39c100 above: mass 1.423 kg, D 0.090 m, pos kp 21.8 (13.5, 28.4, 26.6, 21.9, 21.9, 18.5), J45_1 median -1.814, rejected 0.13
+context: aware lag39c100 below: mass 1.331 kg, D 0.098 m, pos kp 19.1 (19.9, 24.4, 14.1, 18.6, 21.7, 16.0), J45_1 median -1.714, rejected 0.10
+context: aware lag39c150 above: mass 1.451 kg, D 0.086 m, pos kp 17.6 (17.5, 18.0, 13.4, 20.1, 17.1, 19.2), J45_1 median -2.001
+context: aware lag39c150 below: mass 1.422 kg, D 0.092 m, pos kp 16.6 (16.7, 23.8, 13.6, 17.6, 15.5, 12.4), J45_1 median -1.862
+context: aware lag39c200 above: mass 1.546 kg, D 0.093 m, pos kp 12.1 (14.9, 11.7, 13.0, 9.7, 11.9, 11.4), J45_1 median -2.221, rejected 0.20
+context: aware lag39c200 below: mass 1.525 kg, D 0.102 m, pos kp 13.6 (15.1, 15.2, 9.1, 15.1, 16.8, 10.2), J45_1 median -2.052, rejected 0.17
+context: aware lag75 above: mass 1.431 kg, D 0.082 m, pos kp 19.1 (20.6, 17.3, 11.6, 14.5, 28.3, 22.2), J45_1 median -2.045
+context: aware lag75 below: mass 1.435 kg, D 0.092 m, pos kp 15.5 (15.5, 15.7, 12.8, 17.1, 17.6, 14.5), J45_1 median -1.895
+context: aware lag39 above at 36 ms: settle (censored) 2.045 s; rise90 1.440 s; overshoot 6.4 cm; wind6 peak 2.55 cm; wind3 peak 1.02 cm; dead 0
+context: aware lag39 below at 36 ms: settle (censored) 3.095 s; rise90 1.387 s; overshoot 9.7 cm; wind6 peak 1.86 cm; wind3 peak 0.82 cm; dead 0
+context: aware lag39c100 above at 36 ms: settle (censored) 5.018 s; rise90 1.471 s; overshoot 9.4 cm; wind6 peak 2.35 cm; wind3 peak 0.97 cm; dead 0
+context: aware lag39c100 below at 36 ms: settle (censored) 1.879 s; rise90 1.536 s; overshoot 5.2 cm; wind6 peak 2.19 cm; wind3 peak 0.89 cm; dead 0
+context: aware lag39c150 above at 36 ms: settle (censored) 3.390 s; rise90 2.231 s; overshoot 3.6 cm; wind6 peak 3.19 cm; wind3 peak 1.15 cm; dead 0
+context: aware lag39c150 below at 36 ms: settle (censored) 2.435 s; rise90 1.757 s; overshoot 3.5 cm; wind6 peak 1.90 cm; wind3 peak 0.83 cm; dead 0
+context: aware lag39c200 above at 36 ms: settle (censored) inf s; rise90 2.022 s; overshoot 6.8 cm; wind6 peak 4.33 cm; wind3 peak 1.41 cm; dead 0
+context: aware lag39c200 below at 36 ms: settle (censored) 2.567 s; rise90 2.271 s; overshoot 1.7 cm; wind6 peak 2.42 cm; wind3 peak 0.99 cm; dead 0
+context: aware lag75 above at 36 ms: settle (censored) 3.219 s; rise90 1.983 s; overshoot 4.8 cm; wind6 peak 3.29 cm; wind3 peak 1.24 cm; dead 0
+context: aware lag75 below at 36 ms: settle (censored) 2.171 s; rise90 1.860 s; overshoot 3.2 cm; wind6 peak 2.22 cm; wind3 peak 0.89 cm; dead 0

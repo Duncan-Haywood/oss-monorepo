@@ -3,7 +3,13 @@ decentralized ML training, without ground-truth recomputation on every step.
 """
 
 from .scoring_rules import log_score, brier_score, spherical_score, SCORING_RULES
-from .peer_prediction import peer_truth_serum, correlated_agreement_matrix, ca_payment
+from .peer_prediction import (
+    peer_truth_serum,
+    correlated_agreement_matrix,
+    ca_payment,
+    ca_score_matrix,
+    multi_task_ca_payment,
+)
 from .market_maker import LMSRMarketMaker
 from .agents import Verifier, generate_tasks
 from .reputation import (
@@ -22,6 +28,8 @@ __all__ = [
     "peer_truth_serum",
     "correlated_agreement_matrix",
     "ca_payment",
+    "ca_score_matrix",
+    "multi_task_ca_payment",
     "LMSRMarketMaker",
     "Verifier",
     "generate_tasks",

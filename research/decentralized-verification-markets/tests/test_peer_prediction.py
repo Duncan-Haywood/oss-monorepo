@@ -95,3 +95,52 @@ class TestCorrelatedAgreement(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMultiTaskCorrelatedAgreement(unittest.TestCase):
+    def setUp(self):
+        from verification_markets.peer_prediction import ca_score_matrix, multi_task_ca_payment
+        self.score = ca_score_matrix
+        self.pay = multi_task_ca_payment
+
+    def test_sign_score_matrix(self):
+        delta = {(0, 0): 0.1, (0, 1): -0.05, (1, 0): -0.05, (1, 1): 0.0}
+        s = self.score(delta, "sign")
+        self.assertEqual(s, {(0, 0): 1.0, (0, 1): 0.0, (1, 0): 0.0, (1, 1): 0.0})
+        self.assertEqual(self.score(delta, "delta"), delta)
+        with self.assertRaises(ValueError):
+            self.score(delta, "bogus")
+
+    def test_payment_is_bonus_minus_penalty(self):
+        # Hand case: identity score (agreement pays 1).
+        s = {(0, 0): 1.0, (1, 1): 1.0, (0, 1): 0.0, (1, 0): 0.0}
+        ri = {0: 1, 1: 0, 2: 1}
+        rj = {0: 1, 1: 1, 2: 0}
+        # bonus task 0 agrees (1); penalty pair (ri[1]=0, rj[2]=0) agrees (1).
+        self.assertEqual(self.pay(ri, rj, 0, 1, 2, s), 0.0)
+        # bonus task 0 agrees (1); penalty pair (ri[2]=1, rj[1]=1) agrees (1).
+        self.assertEqual(self.pay(ri, rj, 0, 2, 1, s), 0.0)
+        # bonus task 1 disagrees (0); penalty (ri[0]=1, rj[2]=0) disagrees (0).
+        self.assertEqual(self.pay(ri, rj, 1, 0, 2, s), 0.0)
+        # bonus task 2 disagrees; penalty (ri[0]=1, rj[1]=1) agrees -> -1.
+        self.assertEqual(self.pay(ri, rj, 2, 0, 1, s), -1.0)
+        with self.assertRaises(ValueError):
+            self.pay(ri, rj, 0, 0, 1, s)
+
+    def test_constant_reporter_earns_zero_in_expectation(self):
+        # Peer's reports iid Bernoulli(0.8); a constant "1" reporter's bonus
+        # and penalty agreement have the same distribution, so the mean
+        # payment over many draws is ~0 (closed form: 0).
+        rng = random.Random(3)
+        n = 4000
+        peer = {t: 1 if rng.random() < 0.8 else 0 for t in range(n)}
+        const = {t: 1 for t in range(n)}
+        s = {(0, 0): 1.0, (1, 1): 1.0, (0, 1): 0.0, (1, 0): 0.0}
+        total = 0.0
+        for b in range(n):
+            while True:
+                p, q = rng.randrange(n), rng.randrange(n)
+                if len({b, p, q}) == 3:
+                    break
+            total += self.pay(const, peer, b, p, q, s)
+        self.assertLess(abs(total / n), 0.03)

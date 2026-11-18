@@ -2139,6 +2139,23 @@ class TakeSurveyTest(unittest.TestCase):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_grid=grid)
         self.assertEqual(lc.take_survey.blind, controller.TAKE_SURVEY_BLIND)
 
+    def test_take_survey_spline_flag_picks_the_report(self):
+        grid = controller.TAKE_SURVEY_GRID_US
+        sums = [9.0, 6.0, 4.0, 2.5, 1.2, 1.0, 1.4]          # least at 6 ms, a shallow side toward 8
+        saved = controller.TAKE_SURVEY_SPLINE
+        try:
+            got = {}
+            for flag in (False, True):
+                controller.TAKE_SURVEY_SPLINE = flag
+                rs = controller.ResidualSurvey(grid, 0)
+                rs.add(sums)
+                got[flag] = rs.report(100)[2]
+            self.assertEqual(got[False], int(round(controller.survey_pick(grid, sums)[1] / 100)))
+            self.assertEqual(got[True], int(round(controller.survey_spline_pick(grid, sums)[1] / 100)))
+            self.assertEqual((got[False], got[True]), (61, 57))     # the two picks differ by 0.4 ms here
+        finally:
+            controller.TAKE_SURVEY_SPLINE = saved
+
     def test_take_us_sets_the_record_fit(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_us=6000)
         self.assertEqual(lc.take(), controller.take_offsets(6000))

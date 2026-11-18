@@ -779,6 +779,15 @@ largest recovered residual is 0.0106 mm, so no worst residual moves. The two cas
 limits at the calibration pose, and no side combination has a hold solution there. One side set per pose
 (milestones 46 to 48) cannot hold under every hose load; one per measured load can.
 
+Off the grid the coverage holds but the spec does not, quite (milestone 54). At 48 Latin-hypercube hose
+loads (0 to 20 N, any direction), with the drag limit bisected at each sampled direction, both robots plan
+every case inside the limits (G1 4002 of 4002, H1 5436 of 5436). But 4 of those 9438 cases leave the
+0.03 mm spec, the worst 0.284 mm on the G1. Each is one joint whose torque sits at the 0.2 N m friction
+threshold, so the plan from the measured load and the robot under the true load disagree on whether it is
+held; the excess lives in direction spans 2.75 to 4.75 degrees wide, which a 45 degree grid steps over.
+Per-load sides clear the 3 H1 cases but not the G1's, an arm joint. The grid's drag limits are also up to
+2.17 N optimistic between directions on the G1's low grips, though only at limits above 23 N.
+
 ### 5.12 What the remedies cost (milestone 13)
 
 Section 5.7's cost model, with each remedy's seconds charged (a line-laser or point read at every

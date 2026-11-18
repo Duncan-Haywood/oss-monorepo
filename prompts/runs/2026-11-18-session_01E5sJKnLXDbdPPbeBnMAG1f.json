@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnLXDbdPPbeBnMAG1f",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T19:09:52Z",
+  "ended": "2026-11-18T19:26:02Z",
+  "wall_minutes": 138.81,
+  "tokens_in": 6604926,
+  "tokens_out": 35694,
+  "cost_usd": 3.0732,
+  "tool_calls": 60,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17399",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First smoke launch used the bare python3, which lacks numpy and cma; reran with /usr/bin/python3.13 from pyenv.py (cma was not in my first pyenv request)."
+  ],
+  "integrity_issues": [
+    "AB7's committed verdicts.py read the stress run's pos_kp field, not the response-test position kp the prediction's reference values came from. It was corrected after the full run and before any reading was written, and disclosed in LOG.md, the post and a verdicts.py comment. AB7 held on the corrected field (12 vs 9), but the kp<8 threshold was poorly chosen (8-12 of every set fall below it); reported with the median-kp trend and the unsettled count."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py example lists 'pytest numpy matplotlib'; codesign-cant also needs cma and the project has no requirements.txt, so the first smoke run failed on import cma."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "A stop hook demands every untracked file be committed while a multi-hour experiment is still writing its cache; I committed partial (complete-per-file) caches and moved the unfilled run-record skeleton out of the tree to satisfy it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "Run record skeleton created early then moved to scratchpad so the stop hook would not force committing a blank record mid-run",
+      "did": "Recreated it at the end and committed it as the final commit",
+      "result": "worked"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-how-wide-a-motor-lag-range-to-train-a-drone-over.md",
+    "research/codesign-cant/LOG.md (7ab entry)",
+    "research/codesign-cant/README.md (7ab section)"
+  ],
+  "goal": null,
+  "notes": "codesign-cant milestone 7ab: lag-ceiling sweep 100/200 ms at the 39.1 ms floor. 7 predictions committed in 4cd7341ce before the full run; AB3, AB5, AB6, AB7 held. 48 CMA-ES runs 7167 s + 485 s stress on 4 cores. Checks: old sets reproduce 7aa counts and responses exactly; codesign-cant tests 59 passed 1 skipped; build.py ok; check_posts ok; check_md_links ok; programme_check ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d6bea44a-69da-5d94-9e6e-7b88c99268df",
+    "transcripts": 1,
+    "first": "2026-11-18T19:09:52Z",
+    "last": "2026-11-18T21:28:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 119,
+        "output": 35694,
+        "thinking": 4962,
+        "cache_read": 6471751,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133056,
+        "api_equivalent_usd": 3.0732,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 119,
+      "output": 35694,
+      "thinking": 4962,
+      "cache_read": 6471751,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133056,
+      "api_equivalent_usd": 3.0732,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 55,
+      "ScheduleWakeup": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 138.81,
+      "active_minutes": 29.58,
+      "model_minutes": 5.6,
+      "tool_minutes": 23.99,
+      "waiting_on_human_minutes": 109.22,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design the sweep, run 2.2 h of training, analyse and write up, as a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 195.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

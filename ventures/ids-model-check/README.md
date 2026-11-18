@@ -357,6 +357,19 @@ IDS 0.9 forms as "anything" (a property facet's `<name>`, `datatype`, a value
 with no `<simpleValue>`); it now reads them as written, which changes 48
 facets in 8 public files and nothing in buildingSMART's suite.
 
+### The editor repairs a file as it opens it (2026-11-18)
+
+**Open an IDS file** in the editor now runs the same repair first
+(`repairOnOpen` in `editor.mjs`) and lists each change in the open message.
+Before, a facet the editor keeps as written went back out with its fault, and
+a pattern such as `^\d{2}\.\d{3}$` kept anchors that XML Schema engines read as
+literal `^` and `$`. On 65 public IDS files the editor now writes back 60
+files that are valid and carry no pattern finding (was 55); the pattern
+findings in what it writes go from 9 to 0, and from 51 to 1 on the 80
+IDS-Audit-tool files. Facets editable and what each file asks for are
+unchanged apart from the rewritten patterns
+(`eval/editor-open-repair-2026-11-18.md`).
+
 ### Patterns read the way IfcTester reads them (2026-11-18)
 
 IDS patterns are XML Schema regular expressions, and IfcTester reads them that

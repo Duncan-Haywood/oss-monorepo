@@ -59,6 +59,24 @@ def main() -> None:
         verdict = "OK, incentive-compatible" if gap > 0 else "NEGATIVE -- see README §Limitations"
         print(f"  honest advantage over best deviation: {gap:+.4f} ({verdict})")
 
+    print_header("Published multi-task Correlated Agreement "
+                 "(Shnayder et al. 2016: bonus task minus penalty task pair)")
+    print("The 'Correlated Agreement' rows above are the bonus-only variant\n"
+          "(no penalty term). The published mechanism, on the same reports:")
+    for label, payoff in (
+        ("sign(Delta), full history", result.ca_multitask_payoff),
+        ("Delta, full history", result.ca_multitask_delta_payoff),
+        ("sign(Delta) from calibration window, held-out scoring",
+         result.ca_multitask_scoring_payoff),
+    ):
+        by_strategy = average_payoff_by_strategy(result, payoff)
+        gap = incentive_compatibility_gap(by_strategy)
+        verdict = "OK, incentive-compatible" if gap > 0 else "NEGATIVE"
+        print(f"  {label}:")
+        for strategy, payoff_value in sorted(by_strategy.items()):
+            print(f"    {strategy:>12}: {payoff_value:+.4f}")
+        print(f"    honest advantage over best deviation: {gap:+.4f} ({verdict})")
+
     print_header("Aggregate accuracy")
     print(f"LMSR market Brier score (0=perfect, 0.25=uninformed): "
           f"{market_brier_score(result):.4f}")

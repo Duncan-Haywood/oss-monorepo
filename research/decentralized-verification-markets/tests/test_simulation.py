@@ -93,6 +93,35 @@ class TestIncentiveCompatibility(unittest.TestCase):
         self.assertLess(gap, 0.0)
 
 
+    def test_multi_task_ca_survives_simultaneous_correlated_deviation(self):
+        # Same population that breaks the bonus-only variant above. The
+        # published mechanism's penalty term pays an uninformative report
+        # zero in expectation (Shnayder et al. 2016), so honest wins.
+        config = SimulationConfig(
+            n_tasks=800,
+            n_honest=14,
+            n_lazy=3,
+            n_colluding=3,
+            n_adversarial=2,
+            corruption_rate=0.15,
+            signal_noise=0.1,
+            seed=7,
+        )
+        result = run_simulation(config)
+        for payoff in (
+            result.ca_multitask_payoff,
+            result.ca_multitask_delta_payoff,
+            result.ca_multitask_scoring_payoff,
+        ):
+            by_strategy = average_payoff_by_strategy(result, payoff)
+            self.assertGreater(incentive_compatibility_gap(by_strategy), 0.0)
+            # Uninformative reporters earn ~0 (far below honest); the
+            # adversarial (negated-signal) reporter is paid below zero.
+            uninformed = max(abs(by_strategy["lazy"]), abs(by_strategy["colluding"]))
+            self.assertGreater(by_strategy["honest"], 5 * uninformed)
+            self.assertLess(by_strategy["adversarial"], 0.0)
+
+
 class TestTrustWeightedRepair(unittest.TestCase):
     # Follow-up to TestIncentiveCompatibility.test_ca_is_vulnerable_to_simultaneous_correlated_deviation:
     # bootstrapping trust weights from held-out PTS calibration data (see

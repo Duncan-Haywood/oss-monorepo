@@ -106,10 +106,12 @@ def is_mrw_path(path: Path) -> bool:
 
 
 def is_3fr_path(path: Path) -> bool:
-    """Hasselblad 3FR (H3D, H4D, X1D, X1D II, X2D, CF and CFV backs). It carries its own ColorMatrix1, so like a
-    DNG it develops without a camera profile."""
+    """Hasselblad 3FR (H3D, H4D, X1D, X1D II, X2D, CF and CFV backs) and Phocus's ``.fff`` export of one. Both
+    carry their own colour matrix (or ``hasselblad.OWN_MATRICES`` holds the body's), so like a DNG they develop
+    without a camera profile. An Imacon/FlexColor scanner ``.fff`` (RGB, no CFA image) is refused by the
+    reader with the reason."""
 
-    return path.suffix.lower() == ".3fr"
+    return path.suffix.lower() in (".3fr", ".fff")
 
 
 def is_iiq_path(path: Path) -> bool:

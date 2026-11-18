@@ -15,31 +15,33 @@ correctly" vs. not):
   fixed/random strategy earns expected payment 0.
 
 - Correlated Agreement (CA): Dasgupta & Ghosh (2013), "Crowdsourced Judgement
-  Elicitation with Endogenous Proficiency". The version here is a
-  deliberately simplified, practically-implementable variant: it estimates
-  the "same task" joint report distribution against a "different task"
-  baseline (via random cross-task pairing) and scores agreement by how much
-  more correlated same-task reports are than the baseline. This captures the
-  core CA idea -- reward reports that are *surprisingly* correlated with
-  peers on the same task, not just reports that match -- but does not
-  reproduce the full generality of the original theorem (which requires a
-  richer signal structure and a matrix-decomposition argument for strict
-  properness).
+  Elicitation with Endogenous Proficiency"; Shnayder, Agarwal, Frongillo &
+  Parkes (2016), "Informed Truthfulness in Multi-Task Peer Prediction".
+  ``multi_task_ca_payment`` is the published multi-task mechanism (bonus
+  task minus penalty task pair, scored by sign(Delta)). ``ca_payment`` is
+  the bonus-only variant this package first shipped, and everything said
+  below about vulnerability is about that variant only (quality audit
+  2026-11-17).
 
-  Concretely: the delta matrix below is estimated by pooling reports across
-  the *whole* population, including any deviating agents' own reports. The
-  original theorem's incentive-compatibility guarantee is for a single agent
-  unilaterally deviating while the rest of the population reports honestly;
-  it says nothing about a sub-population deviating *simultaneously* in a
-  correlated way (e.g. a colluding block that always reports the majority
-  label). See tests/test_simulation.py::test_ca_is_vulnerable_to_simultaneous_correlated_deviation
-  for a concrete demonstration: under a skewed base rate and a large enough
-  colluding/lazy block, the pooled delta matrix gets dominated by genuine
-  honest-honest correlation, and the colluding block can free-ride on it and
-  out-earn honest reporting. Peer Truth Serum's prior-normalization does not
-  have this failure mode in the same setting, because dividing by the peer's
-  marginal report probability directly cancels out the "always guess the
-  popular answer" exploit.
+  Delta[x][y] = P(same-task report pair = (x, y)) - P(cross-task pair =
+  (x, y)) is estimated from the population's pairwise reports, with a random
+  cross-task pairing as the baseline (``correlated_agreement_matrix``).
+
+  The bonus-only variant pays Delta[r_i][r_j] on the shared task and nothing
+  else. With a skewed base rate, Delta[(1, 1)] > 0, so a block that always
+  reports the popular label collects that bonus on every task without
+  looking (tests/test_simulation.py::test_ca_is_vulnerable_to_simultaneous_correlated_deviation).
+  The published mechanism subtracts the score on a pair of distinct penalty
+  tasks; a report independent of the signal agrees with its peer on the
+  penalty pair exactly as often as on the bonus task, so its expected pay is
+  zero. Shnayder et al. prove "informed truthfulness": truthful reporting
+  pays at least as much as any other strategy profile, deviators acting
+  together included, and strictly more than any uninformed one (given the
+  sign of Delta). The same 14/3/3/2 population
+  that breaks the bonus-only variant leaves the published one
+  incentive-compatible (test_multi_task_ca_survives_simultaneous_correlated_deviation).
+  What multi-task CA does not stop is a coordinated block that *does* look
+  at its signals in a correlated way, which none of the agents here do.
 """
 
 from __future__ import annotations
@@ -131,10 +133,56 @@ def correlated_agreement_matrix(
 
 
 def ca_payment(report_i: int, report_peer: int, delta: Dict[Tuple[int, int], float]) -> float:
-    """Correlated Agreement payment: reward reports whose pairwise pattern
-    with a peer is more common on shared tasks than on random cross-task
-    pairings, i.e. Delta[report_i][report_peer]."""
+    """Bonus-only Correlated Agreement payment: Delta[report_i][report_peer]
+    on the shared task, with no penalty term. This is *not* the published
+    mechanism; it is kept because the original experiments used it and its
+    collusion vulnerability comes from the missing penalty term. The
+    published mechanism is ``multi_task_ca_payment``."""
     return delta.get((report_i, report_peer), 0.0)
+
+
+def ca_score_matrix(
+    delta: Dict[Tuple[int, int], float], mode: str = "sign"
+) -> Dict[Tuple[int, int], float]:
+    """Score matrix S(x, y) used by multi-task Correlated Agreement.
+
+    ``mode="sign"`` is the published mechanism (Shnayder, Agarwal, Frongillo
+    & Parkes 2016, "Informed Truthfulness in Multi-Task Peer Prediction",
+    sec. 4): S(x, y) = 1 if Delta[x][y] > 0 else 0. ``mode="delta"`` uses
+    Delta itself, which keeps the same sign structure but weights each
+    pattern by its estimated strength.
+    """
+    if mode == "sign":
+        return {k: (1.0 if v > 0 else 0.0) for k, v in delta.items()}
+    if mode == "delta":
+        return dict(delta)
+    raise ValueError(f"unknown CA score mode {mode!r}")
+
+
+def multi_task_ca_payment(
+    reports_i: Dict[int, int],
+    reports_peer: Dict[int, int],
+    bonus_task: int,
+    penalty_task_i: int,
+    penalty_task_peer: int,
+    score: Dict[Tuple[int, int], float],
+) -> float:
+    """Multi-task Correlated Agreement payment (Dasgupta & Ghosh 2013;
+    Shnayder et al. 2016): the score on a shared *bonus* task minus the
+    score on a pair of *distinct penalty* tasks, one answered by each agent.
+
+        pay = S(r_i[b], r_j[b]) - S(r_i[p], r_j[q]),   b, p, q distinct
+
+    The penalty term is what makes any uninformative strategy (always
+    "correct", a fixed label, a coin flip) earn zero in expectation: such a
+    report agrees with the peer on the penalty pair exactly as often as on
+    the bonus task. ``ca_payment`` (bonus term only) lacks it.
+    """
+    if len({bonus_task, penalty_task_i, penalty_task_peer}) != 3:
+        raise ValueError("bonus and the two penalty tasks must be distinct")
+    bonus = score.get((reports_i[bonus_task], reports_peer[bonus_task]), 0.0)
+    penalty = score.get((reports_i[penalty_task_i], reports_peer[penalty_task_peer]), 0.0)
+    return bonus - penalty
 
 
 def empirical_prior(reports: Iterable[int]) -> float:

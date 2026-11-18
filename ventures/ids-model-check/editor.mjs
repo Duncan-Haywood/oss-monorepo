@@ -11,6 +11,7 @@
 
 import { temporalKind, temporalKey } from "./temporal.mjs";
 import { nearName } from "./audit.mjs";
+import { fixStructure } from "./fix.mjs";
 
 const own = (o, k) => (o && Object.hasOwn(o, k) ? o[k] : undefined);
 
@@ -1130,6 +1131,21 @@ export function idsSchemaChoices(parsed) {
     common = common ? common.filter((x) => ids.includes(x)) : ids;
   }
   return common || [];
+}
+
+// An IDS file's text as the editor opens it: the ids.xsd faults with one right
+// answer (fix.mjs: IDS 0.9 names, a bare "&", IFC4X3 for IFC4X3_ADD2, children
+// out of order, a pattern in another regex dialect) repaired first, so facets
+// kept as written are written back valid and patterns mean in every checker
+// what their authors wrote (eval/editor-open-repair-2026-11-18.md).
+// `parse` is parseIds; the repair is used only when its result parses.
+// Returns { text, fixes: [{ code, line, message }], remaining: [structure findings] }.
+export function repairOnOpen(text, parse) {
+  let fx;
+  try { fx = fixStructure(text); } catch { return { text, fixes: [], remaining: [] }; }
+  if (fx.error || !fx.fixes.length || fx.text === text) return { text, fixes: [], remaining: fx.error ? [] : fx.remaining };
+  try { parse(fx.text); } catch { return { text, fixes: [], remaining: [] }; }
+  return { text: fx.text, fixes: fx.fixes, remaining: fx.remaining };
 }
 
 // An opened IDS file as page state. `parsed` is parseIds(text); `loadFor(id)`

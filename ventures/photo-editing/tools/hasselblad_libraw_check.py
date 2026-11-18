@@ -6,7 +6,10 @@ For each 3FR: read it with ``shootflow.hasselblad.parse_3fr`` and compare with L
 * the CFA pattern at the sensor's corner against ``raw_pattern`` (gated);
 * the as-shot white balance (R/G, B/G, from the file's AsShotNeutral) against ``camera_whitebalance``
   (gated, to 1e-4: LibRaw rounds the neutral through its own float path);
-* the ColorMatrix1 in IFD0 against LibRaw's ``rgb_xyz_matrix`` (reported).
+* the ColorMatrix1 in IFD0 (a Phocus .fff's ColorMatrix2, or the body's own from ``OWN_MATRICES``) against
+  LibRaw's ``rgb_xyz_matrix`` (reported).
+
+Phocus ``.fff`` files are read the same way (``eval/hasselblad-fff-reader-2026-11-18.md``).
 
 Reported, not gated: the black and white levels (ours are the file's BlackLevel and WhiteLevel tags), the
 crop (ours is the file's DefaultCrop; LibRaw's margins come from its own table) and the read time with the
@@ -66,12 +69,13 @@ def check(path: Path) -> dict:
     ours_pat = "".join(CFA_NAMES[c] for c in raw.ifd.get(rd.TAG_CFA_PATTERN))
     lr_pat = "".join(desc[pat[y][x]] for y in (0, 1) for x in (0, 1))
     out["cfa"] = [ours_pat, lr_pat]
-    neutral = raw.ifd0.get(rd.TAG_AS_SHOT_NEUTRAL)
+    # The file's own AsShotNeutral: parse_3fr scales a .fff's by AnalogBalance, which LibRaw does not.
+    neutral = hasselblad._ifds(data)[0].get(rd.TAG_AS_SHOT_NEUTRAL)
     g = (wb[1] + wb[3]) / 2 if wb[3] > 0 else wb[1]
     lr_ratio = [wb[0] / g, wb[2] / g]
     ours_ratio = [neutral[1] / neutral[0], neutral[1] / neutral[2]] if neutral else None
     out["wb"] = [ours_ratio and [round(v, 6) for v in ours_ratio], [round(v, 6) for v in lr_ratio]]
-    cm = raw.ifd0.get(rd.TAG_COLOR_MATRIX_1)
+    cm = raw.ifd0.get(rd.TAG_COLOR_MATRIX_1) or raw.ifd0.get(rd.TAG_COLOR_MATRIX_2)
     out["cm1_equals_libraw"] = bool(cm) and all(abs(round(a, 4) - b) <= 1e-4 for a, b in zip(cm, lr_cm))
     out["white"] = [raw.ifd.one(rd.TAG_WHITE_LEVEL), out.pop("libraw_white")]
     out["black"] = [raw.ifd.get(rd.TAG_BLACK_LEVEL)[0], lr_black]

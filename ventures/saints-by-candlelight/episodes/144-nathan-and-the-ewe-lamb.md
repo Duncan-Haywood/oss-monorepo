@@ -1,0 +1,399 @@
+---
+number: 144
+slug: nathan-and-the-ewe-lamb
+title: Nathan and the Ewe Lamb
+published: 2026-11-18
+summary: King David has done a terrible thing and hidden it so well that nobody dares mention it, until the prophet Nathan comes to the palace with a story about a poor man and the one little lamb he loved; the king is furious with the rich man in the story, and then Nathan says four words. Told from the Second Book of Samuel, chapters eleven and twelve, with the fifty-first psalm and the day, years later, when Nathan and Bathsheba made Solomon king.
+figures: Nathan the prophet, King David, Bathsheba, Uriah the Hittite, Joab, the child, Solomon called Jedidiah
+tradition: Catholic and Orthodox; both read the Books of Samuel, Kings, Chronicles, the Psalms and Sirach as Scripture; David is honoured as a holy king and prophet in both traditions; Nathan is honoured among the prophets and the righteous of the Old Testament
+feast: King David is remembered on the twenty-ninth of December in the Roman Martyrology, and in the Orthodox Church on the Sunday after Christmas, with Joseph the Betrothed and James the brother of the Lord; Nathan is remembered with all the righteous of the Old Testament on the Sunday of the Holy Forefathers before Christmas in the Orthodox Church
+history: the story is Scripture, the Second Book of Samuel, chapters eleven and twelve, and the First Book of Kings, chapter one, told straight in a plain rendering; historians commonly place David's reign around a thousand years before Christ, and that date is given as approximate
+legend: none told as fact; the heading of the fifty-first psalm, which links it to Nathan's visit, is given as the psalm's own heading, and the old Christian habit of praying it as the psalm of repentance is labelled as a way of praying
+fiction: Nathan's walk to the palace, his rehearsing of the story, the doorkeeper, the weather, the thoughts of Nathan and David, and every word not given in the chapters are our own invention, told in the spirit of the original; nothing is added to what Nathan, David, Bathsheba, Uriah or Joab do in the books
+sources:
+  - The Second Book of Samuel, chapters eleven and twelve
+  - The Second Book of Samuel, chapter seven, and the First Book of Chronicles, chapter seventeen
+  - The First Book of Kings, chapter one, and chapter two, verse nineteen
+  - The Second Book of Samuel, chapter five, verse fourteen, and chapter twenty-three, verse thirty-nine, and the First Book of Chronicles, chapter three, verse five
+  - Psalm fifty-one, numbered fifty in the Greek and Orthodox psalter, with its heading
+  - The Wisdom of Jesus son of Sirach, chapter forty-seven, verses one to eleven
+  - The First Book of Chronicles, chapter twenty-nine, verse twenty-nine, and the Second Book of Chronicles, chapter nine, verse twenty-nine, and chapter twenty-nine, verse twenty-five
+  - The Gospel according to Matthew, chapter one, verse six, and the Gospel according to Luke, chapter three, verse thirty-one
+  - Psalm one hundred and three, verses eight to twelve
+---
+
+A man is standing in the great hall of a king's house, telling a story.
+
+He is not a young man. His beard has some grey in it. He is dressed plainly, the way a prophet dresses, and he is standing very still, with his hands folded in front of him, because if he does not fold them, they will shake.
+
+The king is sitting on a carved chair, listening. The king likes stories. The king, as it happens, used to be a shepherd, and this is a story about a lamb, and so he is leaning forward, with his chin on his hand, and his eyes are bright.
+
+And then the story ends, and the king is on his feet. His face is red. He is shouting. That man, he says, that man deserves to die. The servants by the doors are looking at the floor.
+
+And the man with the grey in his beard unfolds his hands. And he lifts one of them. And he points it, not very far, across the hall, at the king.
+
+And he says four words.
+
+But we're getting ahead of ourselves.
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is the day the prophet Nathan told King David a story about a poor man's lamb, from the Second Book of Samuel, which Catholic and Orthodox Christians read as Scripture, and Nathan's walk to the palace, his nerves and the doorkeeper at the gate are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+I should say at the start that tonight's story begins with a sad thing, and a wrong thing, done by a good man. It is not a frightening story. But it is a serious one, and I will tell the sad part quietly and quickly, the way the Bible itself does, and then we will spend most of our time with the prophet, and the lamb, and what happened after. Because what happened after is the reason anybody still tells this story at all.
+
+Let me set the scene.
+
+We are in Jerusalem, roughly a thousand years before Christ. Historians argue about the exact dates, as historians do, so let us just say: a long, long time ago, when Jerusalem was a small city on a narrow ridge of rock, with deep valleys on either side, and a wall around the top.
+
+The king of Israel is David.
+
+You know David. Everybody knows David. He is the shepherd boy who went down into the valley of Elah with a sling and five smooth stones, and came back up with the giant's sword. We told that story on this podcast a while ago. He is the boy who played the harp for King Saul when Saul was troubled. He is the young man who ran from Saul for years, hiding in caves, and twice had Saul at his mercy, and twice would not lift his hand against him, because Saul was the Lord's anointed.
+
+And now he is the king. He has been king for a good many years. He has taken the old Jebusite fortress of Jerusalem and made it his city. He has brought the ark of the Lord up into the city with music and dancing, and he danced in front of it with all his might, which embarrassed his first wife very much, and did not embarrass David at all. He has built himself a house of cedar wood, the finest house in the kingdom, high up on the ridge, so that from its roof you can see over the whole city.
+
+And he has a friend, and an advisor, and a prophet, called Nathan.
+
+* * *
+
+Let me tell you about Nathan, because he is the hero of tonight's story, and he is not as famous as he ought to be.
+
+We do not know where Nathan came from. We do not know who his father was, which is unusual for the Bible, which normally likes to tell you who everybody's father was, and grandfather, and occasionally great-great-grandfather, just to be on the safe side. Nathan simply appears, one day, in the king's house, and he is already there, already trusted, already the prophet. The Book of Sirach, which is a book of wisdom written many centuries later, says simply: after Samuel, Nathan rose up to prophesy in the days of David. As if that was all anybody needed to know.
+
+The first time we meet him, he is giving David good news, and then, overnight, changing it.
+
+It happened like this. David was sitting in his cedar house one day, and he looked around him at all the fine wood, and he felt bad. Here I am, he said to Nathan, living in a house of cedar, and the ark of God is living in a tent.
+
+And Nathan said, go ahead. Do whatever is in your heart. The Lord is with you.
+
+Which is what most of us would have said. Our friend wants to build a beautiful house for God. Lovely idea. Go for it.
+
+But that night, the word of the Lord came to Nathan. And the word was: go and tell my servant David, are you going to build me a house to live in? I have never lived in a house. I have gone about in a tent, ever since I brought my people up out of Egypt. Did I ever once complain about it?
+
+And then the word of the Lord turned the whole thing upside down. You will not build me a house, David. I will build you a house. Not a house of cedar. A house of sons and grandsons, a family, a kingdom, that will last for ever.
+
+So the next morning Nathan had to go back to the king and say, you know what I told you yesterday? About going ahead? I have had a further message.
+
+I have always liked Nathan for that. It cannot be easy, being a prophet, and having to go back to a king and say, I was wrong, it was only me talking yesterday, but this is the Lord. Nathan did it. He told David everything, just as he had heard it. And David, to his great credit, did not sulk. He went in and sat before the Lord, and prayed one of the most beautiful prayers in the whole Old Testament. Who am I, Lord God, and what is my house, that you have brought me this far?
+
+That promise, the house that would last for ever, is a very important promise. Christians have always understood it to be fulfilled, in the end, in a son of David born in Bethlehem a thousand years later, whose kingdom has no end. But that is a story for Christmas.
+
+For now, all you need to know is this. Nathan was the man who told David the truth. When it was good news, and when it was not.
+
+And there was about to be a day when it was not.
+
+* * *
+
+Here is the sad part. I will tell it quietly.
+
+It was spring. The Bible says, at the time of year when kings go out to battle, which is one of those phrases that tells you a great deal about the ancient world. Wars, like ploughing, had a season. You waited until the winter rains were over, and the roads were dry, and the barley was nearly in, and then you went off to fight your neighbours.
+
+That spring, David's army was fighting the Ammonites, and besieging their capital, a city called Rabbah, on the far side of the Jordan. If you ever go to Amman, the capital of the kingdom of Jordan today, with its traffic and its hills and its very good coffee, you will be standing more or less where Rabbah was.
+
+David's general, a hard and clever man called Joab, was there with the army. But David was not. David stayed at home in Jerusalem.
+
+And one evening, David got up from his afternoon rest, and walked on the flat roof of his house, the way people did in the cool of the evening. And from the roof, he saw a woman, in the courtyard of a house below. And she was very beautiful.
+
+David asked who she was. And they told him: that is Bathsheba, the wife of Uriah the Hittite.
+
+Uriah was one of David's own soldiers. Not just any soldier, either. Later in the Second Book of Samuel there is a list of David's mighty men, his bravest and most loyal warriors, the ones who had been with him since the caves. And near the end of that list, there is the name: Uriah the Hittite. He was away, that very evening, at the siege of Rabbah, fighting for his king.
+
+And David sent for Bathsheba, and took her as if she were his own, though she was another man's wife. And afterwards, she sent him word that she was going to have a child.
+
+Now, David could have stopped there. He could have said, I have done a great wrong, and owned it. But he did what people so often do, when they have done something wrong and are frightened of being found out. He tried to hide it. And the hiding made it worse.
+
+First he sent for Uriah, from the army, and asked him how the war was going, and told him, go home, rest, wash your feet. Spend the night in your own house. So that later on, everybody would think the child was Uriah's.
+
+And here is the strange, sad, beautiful thing about Uriah. He would not go home. He slept at the door of the king's house, with the servants. And when David asked him why, Uriah said: the ark of God, and the soldiers of Israel and Judah, are all living in tents. My commander Joab and the king's servants are camped out in the open field. And I am to go home, and eat and drink, and sleep comfortably in my own house? As you live, my lord, I will not do it.
+
+The soldier who was not even an Israelite by birth, a Hittite, from one of the old peoples of the land, was more faithful that night than the king of Israel.
+
+David tried again the next day. He had Uriah to dinner, and gave him a great deal to drink. And still Uriah would not go home. He slept at the door, with the servants, again.
+
+So David wrote a letter to Joab. And he gave it to Uriah, to carry back to the army himself. And the letter said: put Uriah in the front line, where the fighting is hardest, and then draw back from him.
+
+And Joab did. And Uriah the Hittite, the faithful soldier, died at the wall of Rabbah, with some of the other men around him.
+
+When the news came back to Jerusalem, David sent a message to Joab. It said, do not let this trouble you. The sword takes one man one day, and another man the next.
+
+And when Bathsheba's time of mourning was over, David sent for her and brought her into his house, and she became his wife, and bore him a son.
+
+And that, it seemed, was that. It was done. Everybody at court probably had their suspicions. But nobody said anything, because he was the king. The siege went on. The palace went on. The spring turned into summer, and the summer into the next year.
+
+And then the Second Book of Samuel ends that chapter with one quiet sentence, which is the hinge of the whole story.
+
+But the thing that David had done displeased the Lord.
+
+[pause]
+
+* * *
+
+And the Lord sent Nathan to David.
+
+That is the next sentence. The Lord sent Nathan to David. The Bible does not tell us how Nathan felt about it. So I am going to imagine it, a little, and you will remember that this part is our own invention.
+
+I imagine Nathan at home, the night before. Sitting with a lamp. Not sleeping much.
+
+Because think about what he has been asked to do. He has been asked to walk into the house of the most powerful man in the land, a man who has just shown that he is willing to have a loyal soldier killed rather than be found out, and tell him that he has been found out.
+
+Nathan is the king's friend. He is not a soldier. He does not have an army. He has a robe, and a staff, and the word of the Lord. And he has seen, very recently, what happens to people who are inconvenient to King David.
+
+And yet he does not think, for one moment, about not going. That is the kind of man he is.
+
+But he does think about how.
+
+Because here is the problem. If you walk up to a king and say, you have done a terrible thing, what does the king do? He gets angry. He defends himself. He makes excuses. He says, you do not understand, it was very complicated, it was war, people die in war, the sword takes one man one day and another the next. Everybody, faced with an accusation, starts building a wall.
+
+And David is very good at walls. He has been building one for a year.
+
+So Nathan does something very clever. He does not knock on the wall. He goes round it.
+
+He decides to tell the king a story.
+
+* * *
+
+I imagine him walking up the hill to the palace the next morning. It is early. The streets of Jerusalem are narrow and steep, and full of people, and donkeys, and somebody's goats who have got out again, which is the kind of thing that happens in a small city on a hill. Nathan walks slowly. He is practising.
+
+There were two men in a certain city, he says to himself, under his breath. One was rich, and one was poor.
+
+A woman selling bread looks at him oddly. He nods to her, politely, and keeps walking.
+
+The rich man had very many flocks and herds. The poor man had nothing.
+
+No. Nothing at all except.
+
+Nothing at all except one little ewe lamb.
+
+At the gate of the king's house, the doorkeeper knows him. Everybody knows Nathan. Good morning, prophet, the doorkeeper says. You are early. Is it business?
+
+It is a story, says Nathan.
+
+The doorkeeper, who has been on duty at that gate for a long time, and knows the look of a man who is about to say something important to a king, steps back and lets him through without another word.
+
+* * *
+
+The king sees him in the hall. Perhaps David is glad to see him. They have known each other a long time. Perhaps the king is a little bored, and a story is just the thing. Sit, Nathan, he says. What is it?
+
+And Nathan does not sit. He stands, with his hands folded. And he tells the story.
+
+I will tell it to you now, just as the Bible gives it, in a plain rendering.
+
+There were two men in a certain city. One was rich, and one was poor.
+
+The rich man had very many flocks and herds.
+
+But the poor man had nothing at all, except one little ewe lamb, which he had bought. And he looked after it, and it grew up with him and with his children. It used to eat from his own plate, and drink from his own cup, and sleep in his arms. It was like a daughter to him.
+
+Now a traveller came to visit the rich man. And the rich man did not want to take one of his own sheep, or one of his own cattle, to make a meal for the traveller who had come. So he took the poor man's lamb, and cooked it for his guest.
+
+That is the whole story. It is very short. Nathan did not need to make it long.
+
+And look at what he put in it. Not the war. Not the roof, or the letter, or the wall of Rabbah. Nothing that would make David think, wait a moment, this sounds familiar. Just a lamb.
+
+And Nathan knew exactly who he was talking to. He was talking to a man who had been a shepherd boy. Who had sat out on the hills above Bethlehem with his father's sheep, night after night, and fought off a lion and a bear to save a lamb from their jaws. Who had written songs about the Lord being a shepherd. The Lord is my shepherd, I shall not want.
+
+If there was one thing in the world David understood, it was how a man feels about a lamb.
+
+I should tell you, by the way, that pet lambs are a real thing. In farming villages, to this day, when a ewe has twins and cannot feed them both, or a lamb is born weak, somebody brings it into the house, and feeds it by hand, and it lives by the fire with the children. And it follows them around. And it thinks it is a person. Shepherds' children all over the world have had a lamb like that. David, almost certainly, had had one too.
+
+So when Nathan said, it used to eat from his plate, and drink from his cup, and sleep in his arms, the king knew exactly what that lamb was like. He could see it. He could feel the weight of it in his own arms.
+
+And when Nathan said, and the rich man took it, David was furious.
+
+* * *
+
+The Bible says David's anger blazed against the man.
+
+He was on his feet. As the Lord lives, he said, the man who did this deserves to die. He shall pay back for that lamb four times over, because he did this thing, and because he had no pity.
+
+And you can understand it. It is a horrible story. A man with so much, taking the one thing a poor man had. Without even needing to. Just because he could. Just because he did not want to use up anything of his own. Any of us, hearing it, would want to say, who is this man? Where does he live? Somebody should do something.
+
+David was the king. He was the one whose job it was to do something. And he was ready.
+
+And Nathan unfolded his hands. And pointed. And said:
+
+You are the man.
+
+[pause]
+
+In the old Hebrew, it is only two words. In English, it is four. Either way, they are some of the most famous words in the whole Bible.
+
+You are the man.
+
+I want you to imagine how quiet that hall went.
+
+And then, before David could say anything at all, Nathan went on. Because now he was not telling a story any more. Now he was speaking the word of the Lord.
+
+Thus says the Lord, the God of Israel. I anointed you king over Israel. I rescued you from the hand of Saul. I gave you your master's house, and the house of Israel and of Judah. And if that had been too little, I would have given you as much again.
+
+Why have you despised the word of the Lord, to do what is evil in his sight? You have struck down Uriah the Hittite with the sword, and taken his wife to be your wife.
+
+And then Nathan told the king the hard things that would come. That trouble would rise up against him out of his own house. That what he had done in secret would be paid for in the open. The rest of the Second Book of Samuel, which is a long and often sad book, tells how all of that came true, in David's own family, with his own sons. But that is a story for many other nights, and not a bedtime one.
+
+Now. Here is the moment of the story. This is the whole reason we are telling it.
+
+David had a choice.
+
+He was the king. Nathan was one man, standing in the king's hall, with the king's guards at every door. David had already shown that he was willing to have a man killed to keep this secret. He could have said, guards, take this man away. He could have said, how dare you. He could have built the wall back up, higher.
+
+Kings did that. Plenty of kings, in plenty of countries, before and since, have done exactly that to the prophets who told them the truth.
+
+David did not.
+
+David sat down, or perhaps he did not, the Bible does not say. But it does tell us what he said. And what he said was:
+
+I have sinned against the Lord.
+
+That is all. No excuses. No, it was complicated. No, it was the war. No, you do not understand. Just six plain words.
+
+I have sinned against the Lord.
+
+And Nathan, who had come into that hall with his hands shaking, said:
+
+The Lord has put away your sin. You shall not die.
+
+* * *
+
+I am going to pause here for a moment, because I think it is worth noticing something.
+
+Nathan's story worked. It worked because it let David see his own deed from the outside, before he knew it was his. When it was somebody else's, David saw it perfectly clearly. He did not need anybody to explain to him why it was wrong. He knew. He was so sure, he was shouting.
+
+It is very easy for all of us, I think, to see clearly when the wrong thing is somebody else's. It is very hard when it is ours. We build walls. We tell ourselves stories about why it was not really so bad. And so the Lord, who loves us, sometimes sends somebody to tell us a different story. A friend. A child. A sentence in a book. Something that goes round the wall.
+
+And then the question is the same question David had. Do we build the wall back up? Or do we say, quietly, I have sinned against the Lord?
+
+And here is the good news, which is the best news there is. When David said it, the answer came straight back. Not after years. Not after a long penance. Straight back, from the same mouth that had said, you are the man. The Lord has put away your sin.
+
+Much later, another psalm said it like this. The Lord is merciful and gracious, slow to anger, and abounding in steadfast love. As far as the east is from the west, so far has he removed our sins from us.
+
+* * *
+
+Now I need to tell you one more sad thing, and then I promise you the story turns towards the light.
+
+Nathan had told David that, because of what had been done, the child that Bathsheba had borne would not live. And after Nathan went home, the little boy fell ill.
+
+And David did what any father would do. He prayed. He pleaded with God for the child. He would not eat. He lay all night on the ground. The old men of his household came and stood over him and tried to lift him up, and he would not get up, and he would not eat with them.
+
+And on the seventh day, the child died.
+
+David's servants were afraid to tell him. They said to each other, while the child was still alive, he would not listen to us. How can we tell him now? He might do something terrible.
+
+But David saw them whispering. And he understood. Is the child dead, he said. And they said, he is dead.
+
+And then David did a thing that surprised everyone. He got up from the ground. He washed, and put oil on his face, and changed his clothes. And he went into the house of the Lord, and worshipped. And then he came home, and asked for food, and ate.
+
+His servants did not understand. While the child was alive, they said, you fasted and wept. And now he is dead, you get up and eat?
+
+And David said: while the child was still alive, I fasted and wept, because I thought, who knows? Perhaps the Lord will be gracious to me, and let the child live. But now he is dead. Why should I fast? Can I bring him back again?
+
+And then he said one of the gentlest sentences in all the Old Testament.
+
+I shall go to him. But he will not come back to me.
+
+Many parents, down all the centuries since, who have lost a little child, have held on to that sentence. I shall go to him. It is a sentence about a long road home, and somebody waiting at the end of it.
+
+[pause]
+
+* * *
+
+And then David went to Bathsheba, and comforted her.
+
+I want to stop and say something kind about Bathsheba, because the story is not always kind to her in the way people tell it. If you listen carefully to Nathan's story, you will notice who the lamb is. The lamb is not the one who did wrong. The lamb is the one who was taken. Nathan's word from the Lord was spoken to David, and it is David whom the whole story holds to account. That is one way of reading it, and I think it is a fair one.
+
+And Bathsheba, who had lost her husband and then her little son, was not forgotten. In time, she bore David another son.
+
+And David called him Solomon. That name comes from the Hebrew word for peace, shalom. A son of peace, after so much that had not been peaceful.
+
+You have met Solomon on this podcast. He is the king who prayed for wisdom instead of riches, and built the temple that his father was not allowed to build, and sat in judgement between two mothers and a baby. Well. Here he is, at the very beginning. A brand new baby, in the arms of a mother who had wept a great deal that year.
+
+And then the Bible says one of my favourite little things in the whole of the Second Book of Samuel. It says: and the Lord loved him.
+
+And the Lord sent a message, by Nathan the prophet. And Nathan gave the baby a second name. He called him Jedidiah, because of the Lord.
+
+Jedidiah means, beloved of the Lord.
+
+Think about that. The same prophet who had walked up the hill with his hands shaking, and pointed at the king, and said, you are the man. The same prophet who had told David that his first little son would not live. Now he walks up the same hill, through the same narrow streets, past the same woman selling bread, I like to think, and the same goats, and in through the same gate. And this time he has nothing hard to say at all. He has come to tell the king and the queen that the Lord loves their baby.
+
+I imagine the doorkeeper, seeing him come. Business, prophet, says the doorkeeper, a little nervously.
+
+A name, says Nathan. Only a name.
+
+That part, you will remember, is our invention. But the name is not. Jedidiah. Beloved of the Lord.
+
+That is how the story of Nathan and the ewe lamb really ends. Not with you are the man. With beloved of the Lord.
+
+* * *
+
+There is one more thing that came out of that year, according to the Bible's own heading. And it may be the most important thing of all.
+
+In the Book of Psalms, there is a psalm that most modern Bibles number fifty-one, and that the old Greek and Latin numbering, which the Orthodox still use, calls fifty. And at the top of it, there is a heading. It says: a psalm of David, when Nathan the prophet came to him, after he had gone in to Bathsheba.
+
+Scholars argue, as scholars do, about when those headings were written, and by whom. But the psalm has been prayed with that heading for well over two thousand years. And whoever first wrote down the words, they are the words of a man who has heard you are the man, and said, I have sinned against the Lord, and now does not know what to do next except pray.
+
+It begins: Have mercy on me, O God, according to your steadfast love. According to your great compassion, blot out my wrongdoing.
+
+And in the middle, it says: Create in me a clean heart, O God, and put a new and right spirit within me. Do not cast me away from your presence, and do not take your holy spirit from me. Give me back the joy of your salvation.
+
+And near the end it says: The sacrifice God wants is a humble spirit. A broken and humbled heart, O God, you will not turn away.
+
+That psalm has become the great prayer of being sorry, for the whole Church, East and West. Orthodox Christians say it in their services every single day. Catholics pray it every Friday morning in the Church's morning prayer, and on Ash Wednesday, and at many other times besides. Monks have prayed it in the dark before dawn for fifteen hundred years. Children have learned it by heart. People have whispered the first line of it in confession lines, and in hospital corridors, and in the middle of the night, when they could not sleep for thinking about something they had done.
+
+All of them, without perhaps knowing it, standing where David stood, in that quiet hall, after Nathan had finished speaking.
+
+So the story Nathan told did not only go round one king's wall. It has been going round walls ever since.
+
+[pause]
+
+* * *
+
+Let me tell you how it ended, for Nathan.
+
+He did not leave the king's house. He stayed. He was David's friend still, and David's prophet still, for years and years. I think that may be the most remarkable part of the whole story. David did not send him away. A man who had pointed at the king in his own hall, and said the hardest thing anybody ever said to him, was kept at the king's side until the end. David must have known, after that day, that here was one man who would always tell him the truth. And he must have decided that he wanted a man like that near him.
+
+The Books of Chronicles say that Nathan wrote down some of the history of David's reign, and of Solomon's, though those writings of his are lost to us. And they say that Nathan, with another prophet called Gad, helped David to arrange the music for the house of the Lord, the cymbals and the harps and the lyres. So the prophet who told the king a story about a lamb also helped the king's singers know where to stand. I like that.
+
+And then, years and years later, when David was very old, and lying in his bed in the cedar house, and could not get warm however many blankets they put on him, there was trouble about who would be king after him. One of David's older sons had decided to make himself king without asking anybody, and was having a great feast about it.
+
+And who went to see Bathsheba about it? Nathan.
+
+And who went in to the old king, together, one after the other, to remind him of his promise that Solomon would be king? Bathsheba, and Nathan.
+
+Think about those two, standing together in the king's bedroom. The woman whose husband had been taken from her. And the prophet who had come, long ago, to say so. They had both lived through that terrible year. And now here they were, grey-haired, side by side, looking after the baby the Lord had loved. Jedidiah. Who was not a baby any more.
+
+And the old king listened to them. And he said, Solomon shall be king. And he sent Nathan the prophet and Zadok the priest down to the spring of Gihon, below the city, with Solomon riding on the king's own mule. And there, by the spring, they anointed him with oil. And they blew the trumpet, and all the people shouted, long live King Solomon. And they played on pipes, and rejoiced so loudly, the Bible says, that the earth shook with the noise of them.
+
+That is the last time we see Nathan himself in the Bible. Down by the spring, with the priest's horn of oil, and the trumpets blowing, and the earth shaking with joy. Making the beloved of the Lord a king.
+
+We do not know how he died, or where he is buried. He simply goes quiet, the way he first appeared, without a word about it. He did what he was sent to do. Which, really, is all any prophet is for.
+
+[pause]
+
+And the Scripture remembered both of them.
+
+When Saint Matthew wrote the family tree of Jesus at the very beginning of his Gospel, he wrote: and David was the father of Solomon, by the wife of Uriah. He did not leave it out. He did not tidy it up. Right there, in the first page of the New Testament, in the family of Christ himself, is that whole sad, forgiven story, with Uriah's name in it.
+
+And the Book of Sirach, singing the praises of the great men of Israel, says of David: the Lord took away his sins, and lifted up his strength for ever. And just before that, it begins with one line for our prophet. After him, Nathan rose up, to prophesy in the days of David.
+
+That is all Sirach says about Nathan. It is enough.
+
+* * *
+
+Here are the notes for the curious.
+
+Tonight's story comes from the Second Book of Samuel, chapters eleven and twelve, told straight in our own plain rendering, not in any one translation. Nathan's first message to David, about the house, is from Second Samuel, chapter seven, and told again in First Chronicles, chapter seventeen. Nathan and Bathsheba going in to the old king, and Solomon anointed at the spring of Gihon, are from the First Book of Kings, chapter one. Uriah's name among David's mighty men is in Second Samuel, chapter twenty-three.
+
+The heading that links the fifty-first psalm, or the fiftieth in the Greek numbering, to Nathan's visit is the psalm's own heading. When those headings were added is debated, and we have told it that way. The lines about the east and the west are from Psalm one hundred and three. Nathan's writings and his help with the temple music are mentioned in First Chronicles, chapter twenty-nine, and Second Chronicles, chapters nine and twenty-nine. Sirach's lines are from chapter forty-seven, and Saint Matthew's from the first chapter of his Gospel.
+
+One small thing that confuses people. Saint Luke's family tree of Jesus goes through a Nathan too, but that is a different Nathan, a son of David born in Jerusalem, named in Second Samuel, chapter five, and, according to First Chronicles, chapter three, a son of Bathsheba. Perhaps, and this is only a guess, they named a son after their friend the prophet. The Bible does not say.
+
+Rabbah being on the site of Amman is the common view of historians. The date of David's reign is approximate. That Bathsheba is the lamb in Nathan's story, and not the one who did wrong, is one way of reading it.
+
+Nathan's walk up the hill, his practising, the woman with the bread, the goats, the doorkeeper, and every word not given in the chapters are our own invention.
+
+[pause]
+
+That's the story of Nathan and the ewe lamb for tonight. King David, who heard the truth and said, I have sinned against the Lord, is remembered on the twenty-ninth of December in the Roman Martyrology, and in the Orthodox Church on the Sunday after Christmas, with Joseph the Betrothed and James the brother of the Lord; and Nathan, who told him, is remembered with all the righteous of the Old Testament on the Sunday of the Holy Forefathers before Christmas in the Orthodox Church. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day.
+
+And here are a few lines from the fifty-first psalm, in a plain rendering, for the end of the day. Create in me a clean heart, O God, and put a new and right spirit within me. Do not cast me away from your presence. Give me back the joy of your salvation. Amen.
+
+Goodnight, and God bless.
