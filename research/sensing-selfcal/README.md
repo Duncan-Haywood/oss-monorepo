@@ -13,6 +13,17 @@ RA-L-shaped argument, *Can a field camera trust its own self-calibration?*, with
 checked against the stored results by [`paper/check_numbers.py`](paper/check_numbers.py) (290 of 290,
 revised with milestones 4e–4s and 3b–3g) and a list of what a submission still needs.
 
+**Milestone 3n headline** (is a rolling shutter what TUM's short self-calibration windows were getting wrong? the real TUM RGB-D
+video, each 1.2 s window re-solved with a rolling-shutter term driven by per-keyframe angular rates from the 100 Hz motion capture,
+readout free): **yes, in part, on both cameras.** The window finds a readout of **27.6 ms** on the Kinect (31 windows, robust sd
+4.0 ms) and **25.9 ms** on the Xtion (23 windows), positive (top to bottom) in all 54 windows, while rates taken from the wrong time
+give about 0 ms and never fit as well (51 of 51). The median focal error against the board calibration falls from 2.87% to 1.88%
+(fr1/desk), 5.00% to 3.96% (fr1/xyz) and 7.56% to **3.63%** (fr3, the slow Xtion sequence, which a mean-rate bound had said the
+shutter could not explain). The Xtion's readout depends on how the mocap rate is differenced (19&ndash;36 ms), the Kinect's much
+less (25&ndash;30 ms); a free linear velocity did not converge. Four of five predictions held. [Log](LOG.md).
+
+![TUM rolling-shutter test: readout per window against the mocap rate, focal error with and without the shutter term, and medians per sequence](experiments/m3n_tumrs/tumrs.png)
+
 **Milestone 3m headline** (does that gyro fix survive a wrong gyro? the same windows with the gyro rotated 1&ndash;10&deg; off the
 camera, scaled 2&ndash;5% or 2&ndash;20 ms late): **misalignment and timing are forgiving; a wrong readout is not.** Against the same
 window with an exact gyro, a 3&deg; camera&ndash;IMU rotation moves f a median 0.15% and 10&deg; 0.42%; a 5 ms time offset 0.14%,
@@ -1053,6 +1064,8 @@ python3 experiments/m3l_gyro/analyse.py        # seconds; summary.json, gyro.png
 python3 experiments/m3l_gyro/explore.py        # ~5 min; post hoc noise-off check, explore.json
 OMP_NUM_THREADS=1 python3 experiments/m3m_gyrofault/run.py 4   # ~6 min on 4 cores, no video; results.json
 python3 experiments/m3m_gyrofault/analyse.py   # seconds; summary.json, gyrofault.png
+OMP_NUM_THREADS=1 python3 experiments/m3n_tumrs/run.py tum 4   # ~2 h on 4 cores, needs the fetch above, resumable; results.json
+python3 experiments/m3n_tumrs/analyse.py   # seconds; summary.json, tumrs.png
 python3 experiments/m1_real/run.py        # ~40 min on 4 cores; results.json
 python3 experiments/m1_real/analyse.py    # summary.json, selfcal_vs_zhang.png
 python3 experiments/m1_real/planarity.py  # ~3 min; planarity.json
@@ -1155,6 +1168,12 @@ python3 paper/check_numbers.py             # seconds; the draft's numbers agains
   `PROPOSAL.md`).
 
 ## Next steps
+
+After milestone 3n: on real TUM video the shutter term with mocap rates finds a ~26&ndash;28 ms readout on both cameras and removes
+a third to a half of the median focal error; 1.9&ndash;4.0% remains, still far above the solver's sd. Next: estimate the
+mocap&ndash;camera time offset in the window (the Xtion's readout moves with the rate's smoothing, which an offset or high-frequency
+motion would explain); get the free-velocity model to converge (more iterations or a better start); re-run the jackknife and pooling
+of milestones 3c&ndash;3d with the term in, to see whether the sd becomes honest; then the track-bias re-track and longer windows.
 
 After milestone 3m: the gyro fix tolerates a few degrees of camera&ndash;IMU rotation and up to 10 ms of time offset, but a
 readout (or gyro scale) held fixed and 5% wrong biases f by 1.2% in one direction, so the readout should be estimated. Next: the TUM
@@ -1260,7 +1279,7 @@ whether any start beats the cold one on the Kinect.
 
 ## References
 
-Zhang (2000), *IEEE TPAMI* 22(11); Karpenko, Jacobs, Baek and Levoy (2011), *Digital video stabilization and rolling shutter correction using gyroscopes*, Stanford CS tech report CSTR 2011-03 (gyro-driven shutter correction, readout estimated from video); Hedborg, Forss&eacute;n, Felsberg and Ringaby (2012), *Rolling shutter bundle adjustment*, CVPR; Oth, Furgale, Kneip and Siegwart (2013), *Rolling shutter camera calibration*, CVPR (readout estimated with a target) (milestone 3l; these three were not looked up from this session); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
+Zhang (2000), *IEEE TPAMI* 22(11); Karpenko, Jacobs, Baek and Levoy (2011), *Digital video stabilization and rolling shutter correction using gyroscopes*, Stanford CS tech report CSTR 2011-03 (gyro-driven shutter correction, readout estimated from video); Hedborg, Forss&eacute;n, Felsberg and Ringaby (2012), *Rolling shutter bundle adjustment*, CVPR; Oth, Furgale, Kneip and Siegwart (2013), *Rolling shutter camera calibration*, CVPR (readout estimated with a target) (milestone 3l; these three were not looked up from this session); Kerl, St&uuml;ckler and Cremers (2015), *Dense continuous-time tracking and mapping with rolling shutter RGB-D cameras*, ICCV, [doi:10.1109/ICCV.2015.261](https://doi.org/10.1109/ICCV.2015.261) (models the rolling shutter of Kinect-class RGB-D cameras; milestone 3n); Sturm et al. (2012), IROS, the TUM RGB-D benchmark, [doi:10.1109/IROS.2012.6385773](https://doi.org/10.1109/IROS.2012.6385773) (milestone 4j's data, CC BY 4.0); Duda and Frese (2018), BMVC, accurate detection and localization of checkerboard corners (`findChessboardCornersSB`); Efron and Stein (1981), *Ann. Statist.* 9(3), the jackknife estimate of variance; White (1980), *Econometrica* 48(4), the sandwich covariance; Sturm and Maybank (1999), CVPR; Triggs et al. (2000), bundle adjustment: a modern
 synthesis; Strobl and Hirzinger (2011), ICCV workshops; Nobre, Kasper and Heckman (2017),
 ICRA; the full list with notes is in [`PROPOSAL.md`](PROPOSAL.md). Earlier synthetic work in
 this repository: [`sensing-bafocal`](../sensing-bafocal/README.md),

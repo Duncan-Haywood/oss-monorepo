@@ -3,7 +3,7 @@ milestone 3l's rolling-shutter term, driven by per-keyframe angular rates from T
 with the readout time free.
 
 Usage: OMP_NUM_THREADS=1 python3 run.py <tum dir> [n_workers] [limit]
-<tum dir> holds the sequences extracted by ../m3b_natural/fetch.sh. Writes results.json.
+<tum dir> holds the sequences extracted by ../m3b_natural/fetch.sh. Writes results.json (partial.jsonl checkpoints finished windows, so a rerun resumes).
 
 Per window (milestone 3b's 12 keyframes, every 3rd frame):
   1. SIFT tracks and milestone 3b's nfba solve from the starting f that won in milestone 3b
@@ -164,17 +164,23 @@ def main():
             if (key, w) in best:
                 jobs.append((tum, key, w, n, best[(key, w)]))
     jobs = jobs[:limit] if limit else jobs
-    print(len(jobs), "windows", flush=True)
-    res = []
-    with Pool(nw) as p:
-        for r in p.imap_unordered(job, jobs):
+    part = os.path.join(HERE, "partial.jsonl")     # checkpoint: one finished window per line
+    res = [json.loads(l) for l in open(part)] if os.path.exists(part) else []
+    done = {(r["seq"], r["window"]) for r in res}
+    todo = [j for j in jobs if (j[1], j[2]) not in done]
+    print(len(jobs), "windows,", len(todo), "to run", flush=True)
+    with Pool(nw) as p, open(part, "a") as fh:
+        for r in p.imap_unordered(job, todo):
             res.append(r)
+            fh.write(json.dumps(r) + "\n"); fh.flush()
             s = r.get("solves", {})
             print(r["seq"], r["window"], r["status"], round(r.get("seconds", 0)),
                   {k: round(v["t_r"] * 1e3, 1) for k, v in s.items()}, flush=True)
     res.sort(key=lambda r: (r["seq"], r["window"]))
     with open(os.path.join(HERE, "results.json" if not limit else "pilot.json"), "w") as fh:
         json.dump({"shuf_offset": SHUF, "deltas": DELTAS, "windows": res}, fh, indent=1)
+    if not limit:
+        os.remove(part)
     print("EXIT", flush=True)
 
 
