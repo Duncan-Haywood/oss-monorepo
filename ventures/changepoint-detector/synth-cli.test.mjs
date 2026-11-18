@@ -114,3 +114,19 @@ test('--anticipation N: the fit ends N points early; California 1989 keeps rank 
   assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: 'x' }), /whole number/);
   assert.throws(() => cli([PACKS, '--column', 'CA', '--anticipation', '1']), /go with --known-date/);
 });
+
+test('--anticipation 0-2: every lead together with one range p; California 1989 keeps p 0.026 at each lead and for the range (README "An uncertain lead")', () => {
+  const r = JSON.parse(cli([...caArgs, '--anticipation', '0-2', '--json']));
+  assert.equal(r.anticipation, 0);
+  assert.deepEqual(r.leadRange.leads.map((e) => [e.lead, e.fitEnd, e.p.toFixed(3), e.gapFromDate.toFixed(1)]), [[0, '1988', '0.026', '-19.5'], [1, '1987', '0.026', '-19.7'], [2, '1986', '0.026', '-18.5']]);
+  assert.equal(r.leadRange.p.toFixed(3), '0.026');
+  const t = synthText(r);
+  assert.match(t, /An uncertain lead \(--anticipation 0-2\)/);
+  assert.match(t, /Range test .*: p 0\.026\. Read this p, not the smallest in the table/);
+  assert.doesNotMatch(t, /rerun with --anticipation N/);
+  assert.doesNotMatch(t, /@@/);
+  const csv = readFileSync(PACKS, 'utf8');
+  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '3-1' }), /smaller lead first/);
+  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '0-15' }), /at most 13 leads/);
+  assert.throws(() => synthResult({ csv, column: 'CA', date: '1989', window: '1970:2000', donors: pool, anticipation: '2-16' }), /needs at least 5/);
+});
