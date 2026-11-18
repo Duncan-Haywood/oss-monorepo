@@ -72,6 +72,18 @@ CLAIMS = [
     ("results_range_speed.txt", "peak order: monohull > catamaran > SWATH > hydrofoil > planing"),
     ("results_range_speed.txt", "hotel     5 W  peak  2669.6 km at 0.60 m/s"),
     ("results_range_speed.txt", "hotel   120 W  peak   323.4 km at 1.65 m/s"),
+    ("results_glider_hotel_curve.txt", "share reaches 10% at x = 2.38"),
+    ("results_glider_hotel_curve.txt", "share reaches 50% at x = 4.88"),
+    ("results_glider_hotel_curve.txt", "share reaches 90% at x = 10.83"),
+    ("results_glider_hotel_curve.txt", "median ratio reaches 1 at x = 4.87"),
+    ("results_glider_hotel_curve.txt", "median ratio at x 0.1 (AUV nearly hotel-free): 0.083"),
+    ("results_glider_hotel_curve.txt", "median ratio log-log slope x 20 to 200: 0.850"),
+    ("results_glider_hotel_curve.txt", "x 20: AUV unconstrained best speed above 1.5 m/s in 55.6% of cases"),
+    ("results_glider_hotel_curve.txt", "share reaches 10/50/90% at x = 2.38, 4.89, 11.10; median ratio 1 at x = 4.87"),
+    ("results_glider_hotel_curve.txt", "x 20 to 200 0.653; capped grid x 1 to 10 0.645"),
+    ("results_glider_hotel_curve.txt", "x 20.8 to 249.8; min share in band 0.9996; share at band floor 0.9992"),
+    ("results_glider_hotel_curve.txt", "20\t0.9988\t"),
+    ("results_remus.txt", "implied hotel W: min 104.1, median 133.4, max 174.9"),
 ]
 
 def check(claims=CLAIMS, root=EXP):

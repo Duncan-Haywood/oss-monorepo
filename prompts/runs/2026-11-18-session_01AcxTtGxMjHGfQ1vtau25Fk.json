@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGxMjHGfQ1vtau25Fk",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T23:07:01Z",
+  "ended": "2026-11-18T23:15:03Z",
+  "wall_minutes": 8.65,
+  "tokens_in": 5399277,
+  "tokens_out": 28218,
+  "cost_usd": 2.5219,
+  "tool_calls": 54,
+  "task": "marine-hull milestone 7u: glider vs AUV as a curve in the hotel-load ratio (paper Fig. 2)",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17456",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of main.tex quoted the REMUS implied-hotel floor as 105.7 W (the k 0.2 row) instead of the file's minimum 104.1 W",
+      "fix": "caught while adding check_numbers claims; corrected and claim added"
+    },
+    {
+      "what": "programme_check.py (research CI) failed: the new experiment scripts were not in README's Reproduce section",
+      "fix": "added both commands; found by run_workflow_locally.py --for-changes before CI ran"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pdflatex install line (texlive-latex-recommended + fonts-recommended) is not enough for the marine-hull paper: IEEEtran.cls needs texlive-publishers as well (one more apt-get, about 3 min)"
+    },
+    {
+      "file": "research/marine-hull/README.md",
+      "issue": "no test command; plain `python3 -m unittest discover -s tests` shows 11 import errors (numpy, pytest absent); the suite needs `PY=$(python3 platform/ci/pyenv.py pytest numpy)` then `$PY -m pytest tests` (412 pass)"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-marine-hull-glider-auv-hotel-ratio.md",
+    "research/marine-hull/LOG.md (7u entry)"
+  ],
+  "goal": "advance the marine-hull programme's OCEANS paper toward 6 pages with its third figure",
+  "notes": "Routed research/0 by weighted draw; pick_track drew track 23 -> marine-hull. Security queue empty, IDEAS and website requests empty. Expectations committed (4d6ec685d) before the run. E1, E2 held; E3 refuted on the 4b speed grid (slope 0.850), post-hoc check found the 1.5 m/s AUV speed ceiling binding (55.6% of cases at x 20); widening to 4 m/s gives 0.653 and the crossover is unmoved at 4.87. E4 missed narrowly (0.9992 at the band floor). Verification: marine-hull pytest 412 passed; paper/check_numbers.py ok; paper compiles to 4 pages, no warnings; research/_homepage/build.py ok; check_md_links ok; check_posts ok; cite_check ok. Local run_workflow_locally --for-changes: research-ci programme_check failed once (fixed in a52010745), all other run steps ok; some steps unrun locally (uses: steps).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4b56fbe3-a24c-51a8-a14c-0c5bfe5c0411",
+    "transcripts": 1,
+    "first": "2026-11-18T23:07:01Z",
+    "last": "2026-11-18T23:15:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 96,
+        "output": 28218,
+        "thinking": 4204,
+        "cache_read": 5286701,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112480,
+        "api_equivalent_usd": 2.5219,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 96,
+      "output": 28218,
+      "thinking": 4204,
+      "cache_read": 5286701,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112480,
+      "api_equivalent_usd": 2.5219,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.65,
+      "active_minutes": 8.65,
+      "model_minutes": 5.48,
+      "tool_minutes": 3.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer re-deriving the curve, post-hoc grid check, TikZ figure, paper paragraph and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 237.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
