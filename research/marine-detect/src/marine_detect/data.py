@@ -25,6 +25,19 @@ SHA256 = {
 }
 
 
+def verify_archive(path: Path) -> None:
+    """Raise ValueError unless the archive's SHA-256 is the one pinned in SHA256 (the data scored here)."""
+    path = Path(path)
+    if path.name not in SHA256:
+        raise ValueError(f"{path.name}: no pinned SHA-256")
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    if h.hexdigest() != SHA256[path.name]:
+        raise ValueError(f"{path.name}: SHA-256 {h.hexdigest()} is not the pinned {SHA256[path.name]}")
+
+
 def frame_ids(root: Path) -> list[str]:
     """Ids (file stems without the mask suffix) that have both an image and a mask."""
     root = Path(root)
