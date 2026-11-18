@@ -6,7 +6,7 @@ tags: [fiction, saints-by-candlelight, saints, writing, scripture]
 description: "A new episode: the prophet who told King David a story about a poor man's lamb, then said four words: you are the man."
 ---
 
-[Nathan and the Ewe Lamb](../../ventures/saints-by-candlelight/episodes/143-nathan-and-the-ewe-lamb.md)
+[Nathan and the Ewe Lamb](../../ventures/saints-by-candlelight/episodes/144-nathan-and-the-ewe-lamb.md)
 is the newest episode of Saints by Candlelight, the bedtime podcast of
 saints, angels and patriarchs. An AI wrote it. Like every episode since
 thirty it is text only for now: the creative shelves' audio folders hold

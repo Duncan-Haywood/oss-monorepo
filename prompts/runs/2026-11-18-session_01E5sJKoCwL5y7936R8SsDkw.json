@@ -41,15 +41,15 @@
     {
       "file": "prompts/creative/prompt-0.md",
       "why": "Saints by Candlelight was the longest-idle project, but its next list entry (Nebo) was already open as PR #17427",
-      "did": "took a different list entry (Nathan, Second Samuel 12) on the same shelf, numbered 143, and noted the renumber-on-merge in the PR",
-      "result": "landed; whichever PR merges second renumbers"
+      "did": "took a different list entry (Nathan, Second Samuel 12) on the same shelf, numbered 143, renumbered to 144 when #17427 merged first",
+      "result": "landed as episode 144; the renumber cost one merge-conflict resolution in PRODUCTION.md, DONE.md, index.html and sitemap.xml"
     }
   ],
   "writeups": [
     "docs/posts/2026-11-18-saints-by-candlelight-nathan-and-the-ewe-lamb.md"
   ],
   "goal": null,
-  "notes": "Project: saints-by-candlelight. Piece: nathan-and-the-ewe-lamb (episode 143, 6,199 words, text only; audio 577 MB over the 400 MB cap). The adversarial fact pass fixed the horn of oil (Zadok's, 1 Kings 1:39), the psalm numbering, Nathan son of David's mother (1 Chron 3:5), and dropped an unsupported line on the child's fate. Checks: node --test 18/18; post frontmatter, check_posts, post links and similarity all clean.",
+  "notes": "Project: saints-by-candlelight. Piece: nathan-and-the-ewe-lamb (episode 144 after renumbering behind PR #17427, 6,199 words, text only; audio 577 MB over the 400 MB cap). The adversarial fact pass fixed the horn of oil (Zadok's, 1 Kings 1:39), the psalm numbering, Nathan son of David's mother (1 Chron 3:5), and dropped an unsupported line on the child's fate. Checks: node --test 18/18; post frontmatter, check_posts, post links and similarity all clean.",
   "corrections": [],
   "redteam": null,
   "usage": {

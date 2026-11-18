@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtM16Z8jnq7dEtHb9Wa",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T21:06:21Z",
+  "ended": "2026-11-18T21:11:42Z",
+  "wall_minutes": 11.03,
+  "tokens_in": 6116230,
+  "tokens_out": 22833,
+  "cost_usd": 2.6162,
+  "tool_calls": 56,
+  "task": "changepoint-detector (flagship row 2 by allocate.py): offer the panel-relative gap-shape word as an opt-in, the second 'Next' of README 'The shape word against the panel's own trend'",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17424",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "Full suite (run_venture_tests.py changepoint-detector, 205 s) failed 1 test: synth-page.test.mjs pinned the page's synth line ending at `|| 0 }`; my added shapeWord field broke the regex. Loosened to `|| 0[,}]`; synth-page + synth-shape-trend re-run 15/15 pass."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "none blocking; the full next: and README 'Next:' lines made the item easy to pick. Guessed a sibling post's filename for a link; check_posts caught it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No docs/reports agent doc: the README section and flagships next: carry everything the next run needs.",
+      "did": "README + flagships.yaml next: + llms.txt only",
+      "result": "next: names the remaining item (re-test scored where it switches)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-shape-word-against-the-panel-as-an-option.md",
+    "ventures/changepoint-detector/README.md section 'The panel word as an option'"
+  ],
+  "goal": null,
+  "notes": "Default output and --json unchanged (pinned). --shape-word panel on West Germany 1990: centre 21.8, placebos 4 faded/2 grew/10 held vs plain 0/12/4; rank 3 of 17, p 0.176 under both. Basque 1970 centre 2.36, words unchanged. Every quoted rate pinned to eval/synth-shape-trend-confirm.out.txt. node --test synth-shape-trend.test.mjs: 8 of 8 pass. Full venture suite: 1 failure (above), fixed; every other test passed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e93d93de-7f72-584d-9bc9-dce4a8f7d3bd",
+    "transcripts": 1,
+    "first": "2026-11-18T21:06:21Z",
+    "last": "2026-11-18T21:17:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 54,
+        "input": 109,
+        "output": 22833,
+        "thinking": 2552,
+        "cache_read": 5996138,
+        "cache_write_5m": 0,
+        "cache_write_1h": 119983,
+        "api_equivalent_usd": 2.6162,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 54,
+      "input": 109,
+      "output": 22833,
+      "thinking": 2552,
+      "cache_read": 5996138,
+      "cache_write_5m": 0,
+      "cache_write_1h": 119983,
+      "api_equivalent_usd": 2.6162,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "Monitor": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.03,
+      "active_minutes": 7.56,
+      "model_minutes": 5.31,
+      "tool_minutes": 2.25,
+      "waiting_on_human_minutes": 3.47,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "an engineer wiring an option through CLI, library, page and notes with tests pinned to an eval file, plus README and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 191.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

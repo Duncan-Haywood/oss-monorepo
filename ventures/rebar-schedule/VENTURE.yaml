@@ -1,0 +1,37 @@
+name: rebar-schedule
+description: Free browser tool and CLI that reads a bar bending schedule, works out BS 8666 cut lengths (shapes 00, 11, 21, 51 and any 90-degree shape by geometry) and weights per bar size, and plans the cutting from stock bars with the least steel bought, proven optimal against a column-generation lower bound.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Site engineers and small rebar shops who receive a bar bending schedule as a spreadsheet will paste it into a free page to check cut lengths and weigh the order, because detailing software is a paid seat they do not have; measured as the share of schedule_computed events from pasted or uploaded schedules rather than the example.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The cutting plan is the feature that brings people back, because it saves steel on every order (about 1% against cutting longest-first on generated schedules); measured as csv_downloaded events per schedule_computed.
+    status: untested
+    checked: null
+    evidence: in-repo
+  - claim: Searches such as "bar bending schedule calculator", "BS 8666 shape code cut length" and "rebar cutting optimization" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No real schedule from a detailer or contractor parses after three attempts with real exports.
+  - Fewer than three people use it on a real schedule within 90 days of it being discoverable.
+
+links:
+  production: https://marisstella.app/rebar-schedule/
+  analytics: null

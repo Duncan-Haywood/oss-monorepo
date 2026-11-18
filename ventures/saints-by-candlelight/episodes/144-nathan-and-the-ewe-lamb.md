@@ -1,5 +1,5 @@
 ---
-number: 143
+number: 144
 slug: nathan-and-the-ewe-lamb
 title: Nathan and the Ewe Lamb
 published: 2026-11-18
