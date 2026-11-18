@@ -66,8 +66,9 @@ export function readQuestion(clause, questionMark = false) {
   const c = String(clause ?? "").toLowerCase().replace(/’/g, "'").replace(/\s+/g, " ").trim();
   if (!c) return null;
   if (/^(?:never mind|no matter)\b/.test(c)) return null;
-  // "when it still had the halo" points at a version, not a question (unless asked with "?").
-  if (!questionMark && /^(?:back )?when (?:it|we|i) (?:still )?(?:had|was|were|used|made it)\b/.test(c)) return null;
+  // "when it still had the halo", "when the halo was bigger" point at a version,
+  // not a question (unless asked with "?"); "when was it ..." keeps the question order.
+  if (!questionMark && /^(?:back )?when (?:it|we|i|the (?!(?:samples?|shipment|delivery|factory|quote)\b)[a-z-]+(?: [a-z-]+)?) (?:still )?(?:had|was|were|sat|cost|looked|used|made it)\b/.test(c)) return null;
   if (POLITE.test(c) && !/\b(?:better|nicer|cheaper|more expensive|cost|price)\b/.test(c)) return null;
   for (const [re, pick] of SUGGEST) {
     const m = re.exec(c);
@@ -179,6 +180,10 @@ export function resolveReference(clause, timeline, parse) {
     if (!line || line.length < 2) return { ops: [], ui: [], did: "This is already the first version" };
     return { ops: [], ui: [{ ui: "restore", index: 0 }], did: "Back to the first version of this session (one undo brings this one back)" };
   }
+
+  // "the one where the halo was bigger", "when it was more expensive", "the cheapest one"
+  const compared = comparedVersion(c, line);
+  if (compared) return compared;
 
   // "the one with the halo", "the version without the text", "before I added the wings"
   const whole = describedVersion(c, line);
@@ -410,4 +415,150 @@ function restoreWhole(line, index, why) {
     ui: [{ ui: "restore", index }],
     did: `Back to the version ${why}, from ${ago} change${ago === 1 ? "" : "s"} ago: ${describeVersion(line[index])} (one undo brings this one back)`,
   };
+}
+
+// ------------------------------------------------- versions by comparison
+
+// A comparative word, what it measures and which way. `dim` is "size"
+// (artwork width), "y" / "x" (artwork position; y grows downwards, x to the
+// right), "price", "gsm" (fabric weight) or "quantity"; null takes the
+// dimension from the subject ("higher" is a price when the price is named).
+const CMP = [
+  [/^(?:bigger|larger|wider)$/, "size", 1], [/^(?:biggest|largest|widest)$/, "size", 1, true],
+  [/^(?:smaller|narrower|tinier)$/, "size", -1], [/^(?:smallest|narrowest|tiniest)$/, "size", -1, true],
+  [/^(?:higher(?: up)?|further up|more up|up higher)$/, null, 1, false, "up"], [/^highest(?: up)?$/, null, 1, true, "up"],
+  [/^(?:lower(?: down)?|further down|more down|down lower)$/, null, -1, false, "down"], [/^lowest(?: down)?$/, null, -1, true, "down"],
+  [/^(?:further|more to the) left$/, "x", -1], [/^(?:further|more to the) right$/, "x", 1],
+  [/^(?:cheaper|less expensive|less)$/, "price", -1], [/^(?:cheapest|least expensive)$/, "price", -1, true],
+  [/^(?:more expensive|pricier|dearer|more)$/, "price", 1], [/^(?:most expensive|priciest|dearest)$/, "price", 1, true],
+  [/^(?:heavier|thicker)$/, "gsm", 1], [/^(?:heaviest|thickest)$/, "gsm", 1, true],
+  [/^(?:lighter|thinner)$/, "gsm", -1], [/^(?:lightest|thinnest)$/, "gsm", -1, true],
+];
+const CMP_WORDS = String.raw`(?:more|less|(?:more to the|further) (?:left|right)|further (?:up|down)|higher up|lower down|more up|more down|less expensive|least expensive|more expensive|most expensive|[a-z]+(?:er|est))`;
+const DEGREE = String.raw`(?:(?:a (?:bit|little|lot|touch)|much|way|slightly|even|quite a bit|far) )?`;
+const SUBJ_PRICE = /^(?:the )?(?:(?:selling |retail )?price|cost)$/;
+const SUBJ_GSM = /^(?:the )?(?:fabric|material|cloth|weight|fabric weight|gsm|cotton)$/;
+const SUBJ_QTY = /^(?:the )?(?:run|order|quantity|run size|order size)$/;
+const SUBJ_GARMENT = /^(?:it|the (?:shirt|tee|t-shirt|garment|hoodie|sweatshirt|top|piece|design))$/;
+const SUBJ_ART = /^(?:it|the (?:print|artwork|graphic|design|logo|art|motif))$/;
+
+const C_POST = /(?:\s+(?:was|looked|is|seemed|looks) (?:a lot |much |way )?(?:better|nicer|best|great|good))?(?:\s+(?:better|again|instead|please))*$/;
+
+/** The comparison a clause makes against the present, or null. */
+function readComparison(clause) {
+  // V_POST without "more": "when it cost more" ends in its comparison.
+  let body = clause.replace(V_PRE, "").replace(C_POST, "").replace(/^to\s+/, "").replace(/^it\s+(?=when\b)/, "").trim();
+  let subj; let word; let verb = null;
+  let m;
+  const NOUN = String.raw`(?:${V_NOUN}|way it was)`;
+  if ((m = new RegExp(String.raw`^(?:(?:the|that|my) (?:[a-z-]+ )?${NOUN} |back )?(?:where|when|in which|from when) (.+?) (was|were|looked|sat|cost|is|got) ${DEGREE}(${CMP_WORDS})(?: than (?:now|this|it is now|this one|it is))?$`).exec(body))) {
+    subj = m[1]; verb = m[2]; word = m[3];
+  } else if ((m = new RegExp(String.raw`^(?:the|that|my) (?:${V_NOUN} )?(?:with|that had|having|where it had) (?:the |a |an )?(${CMP_WORDS}) (.+)$`).exec(body))) {
+    word = m[1]; subj = m[2];
+  } else if ((m = new RegExp(String.raw`^(?:the|that) (${CMP_WORDS}) (?:${V_NOUN})$`).exec(body))) {
+    // "the cheapest one", "the heavier version"; "the bigger one" may mean a
+    // variant on the panel, so size and position words stay edits here.
+    word = m[1]; subj = "it";
+    if (!CMP.some(([re, dim]) => re.test(word) && (dim === "price" || dim === "gsm"))) return null;
+  } else return null;
+  subj = subj.replace(/^(?:the )?((?:[a-z]+ )*?)(?:one|version)$/, "$1").trim() || "it";
+  const hit = CMP.find(([re]) => re.test(word));
+  if (!hit) return null;
+  let [, dim, sign, sup, dir] = hit;
+  // "the shirt cost more" / "it cost less": the price.
+  if (verb === "cost" && (word === "more" || word === "less")) dim = "price";
+  else if (word === "more" || word === "less") return null;
+  if (SUBJ_PRICE.test(subj)) {
+    if (dir) dim = "price";
+    if (dim !== "price") return null;
+  } else if (SUBJ_GSM.test(subj)) {
+    if (dim !== "gsm") return null;
+  } else if (SUBJ_QTY.test(subj)) {
+    if (dim === "size" || dir) dim = "quantity"; else return null;
+  } else if (dim === "price" || dim === "gsm") {
+    if (!SUBJ_GARMENT.test(subj)) return null;
+  } else if (dir) {
+    dim = "y"; sign = -sign; // higher means a smaller y
+  }
+  if (dim === "y" && !dir) sign = -sign;
+  return { dim, sign, sup: !!sup, subj, word };
+}
+
+const PLAIN = {
+  price: { get: d => d.price, label: "price", show: v => String(v) },
+  gsm: { get: d => d.gsm, label: "fabric", show: v => `${v} gsm` },
+  quantity: { get: d => d.quantity, label: "run", show: v => `${v} pieces` },
+};
+const ART_DIM = {
+  size: { get: p => p.w, show: v => `${round1(v)} cm wide` },
+  y: { get: p => p.y, show: v => `${round1(-v)} cm from the area's middle (up)` },
+  x: { get: p => p.x, show: v => `${round1(v)} cm from the area's middle (right)` },
+};
+
+/**
+ * "the one where the halo was bigger", "when the print sat lower", "when it
+ * was more expensive", "the version with the heavier fabric", "the cheapest
+ * one": the latest earlier version whose artwork size or position, price,
+ * fabric weight or run compared that way with the present (or, for "biggest",
+ * "cheapest", the extreme of the session, latest among equals), restored
+ * whole. The same piece of artwork is followed by its id across versions.
+ * Returns null for any other clause.
+ */
+export function comparedVersion(clause, line) {
+  const cmp = readComparison(clause);
+  if (!cmp) return null;
+  if (!line || !line.length) return { ops: [], ui: [], did: "No earlier version to look through yet" };
+  const present = line.at(-1);
+  const last = line.length - 1;
+  let value; let label; let show;
+  const plain = Object.hasOwn(PLAIN, cmp.dim) ? PLAIN[cmp.dim] : null;
+  const art = Object.hasOwn(ART_DIM, cmp.dim) ? ART_DIM[cmp.dim] : null;
+  if (plain) {
+    ({ label, show } = plain);
+    value = d => plain.get(d);
+  } else if (!art) {
+    return null;
+  } else {
+    let id;
+    if (SUBJ_ART.test(cmp.subj)) {
+      id = selectedId(present);
+      if (id == null || !placementOf(present, id)) return { ops: [], ui: [], did: "This version has no artwork to compare with; nothing changed" };
+    } else {
+      const features = versionFeatures(cmp.subj).filter(f => f.kind !== undefined && !f.absent);
+      if (!features.length) return null;
+      const f = features[0];
+      const p0 = present.placements.find(p => placementMatches(p, f));
+      if (!p0) {
+        const ever = line.some(d => d.placements.some(p => placementMatches(p, f)));
+        return { ops: [], ui: [], did: ever ? `This version has no ${f.label} to compare with; nothing changed (try "the one with the ${f.label}")` : `No version in this session had the ${f.label}; nothing changed` };
+      }
+      id = p0.id;
+    }
+    const p0 = placementOf(present, id);
+    const pname = p0.kind === "text" ? `"${p0.text}"` : p0.kind === "image" ? "image" : (MOTIFS[p0.motif]?.label ?? p0.label ?? "artwork").toLowerCase();
+    label = cmp.dim === "size" ? `${pname}'s size` : `${pname}'s position`;
+    show = art.show;
+    value = d => {
+      const p = placementOf(d, id);
+      if (!p || (cmp.dim !== "size" && p.area !== p0.area)) return undefined;
+      return art.get(p);
+    };
+  }
+  const now = value(present);
+  const EPS = 0.05;
+  const better = (a, b) => cmp.sign * (a - b) > EPS;
+  if (cmp.sup) {
+    let best = last;
+    for (let i = last - 1; i >= 0; i--) {
+      const v = value(line[i]);
+      if (v !== undefined && better(v, value(line[best]))) best = i;
+    }
+    if (best === last) return { ops: [], ui: [], did: `This version is already the ${cmp.word} in this session (${label}: ${show(now)}); nothing changed` };
+    return restoreWhole(line, best, `with the ${cmp.word} ${label} (${show(value(line[best]))}; now ${show(now)})`);
+  }
+  for (let i = last - 1; i >= 0; i--) {
+    const v = value(line[i]);
+    if (v !== undefined && better(v, now)) return restoreWhole(line, i, `where the ${label} was ${cmp.word} (${show(v)}; now ${show(now)})`);
+  }
+  return { ops: [], ui: [], did: `No earlier version had the ${label} ${cmp.word} than now (${show(now)}); nothing changed` };
 }

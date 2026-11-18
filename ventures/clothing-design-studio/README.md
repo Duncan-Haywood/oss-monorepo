@@ -109,6 +109,24 @@ and run it yourself.
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
 
+## "The one where the halo was bigger": a version by how it compared (2026-11-18)
+
+Designers also point back by comparison: "the one where the halo was bigger",
+"when it sat lower", "when it was more expensive", "the version with the
+heavier fabric", "the cheapest one". Before, none of these found a version and
+some did harm: "the one where the price was higher" moved the print up and set
+the price to 1. `refer.mjs` (`comparedVersion`) reads artwork size and position
+(a named piece, followed by its id, or the selected one), price, fabric weight
+and run, and restores whole the most recent earlier version that compared that
+way with the present (superlatives: the session's extreme, latest among equals).
+The log gives the value then and now; nothing changes when no version compared
+that way. "The bigger one" stays an edit, since it may mean a variant on the
+panel. Hand-written eval, dev 9 to 20 of 20, held out (written first) 3 to 11 of
+12 on the first run, 12 after one vocabulary fix
+([`eval/compared-versions-2026-11-18.md`](eval/compared-versions-2026-11-18.md)).
+Also fixed: "raise the price" and "the price is higher than I want" moved the
+artwork.
+
 ## "The one with the halo": a whole earlier version by what it had (2026-11-18)
 
 A designer who has moved on from a version points back at it by what it had:

@@ -141,3 +141,66 @@ test("versionFeatures reads what is and is not there", () => {
   assert.ok(f.some(x => x.colour === "cream"));
   assert.ok(f.some(x => x.kind === "text" && x.absent));
 });
+
+// ------------------------------------------------- versions by comparison
+import { comparedVersion } from "./refer.mjs";
+
+function sizeSession() {
+  let d = applyOp(newDesign(), { op: "add", kind: "motif", motif: "halo", label: "Halo", method: "high-density", colours: 1, w: 12 });
+  const h = new History(d);
+  h.apply([{ op: "width", value: 20 }]);            // 1
+  h.apply([{ op: "colour", value: "cream" }]);      // 2
+  h.apply([{ op: "move", dy: -4 }]);                // 3
+  h.apply([{ op: "price", value: 55 }]);            // 4
+  h.apply([{ op: "width", value: 9 }]);             // 5
+  h.apply([{ op: "gsm", value: 180 }]);             // 6
+  h.apply([{ op: "price", value: 39 }]);            // 7, the present
+  return h;
+}
+
+test("compared versions: the latest earlier version that compared that way, restored whole", () => {
+  const l = line(sizeSession());
+  const at = t => comparedVersion(t, l)?.ui?.[0]?.index;
+  assert.equal(at("the one where the halo was bigger"), 4);
+  assert.equal(at("the version with the larger halo"), 4);
+  assert.equal(at("the one where the halo was lower"), 2);
+  assert.equal(at("when it was more expensive"), 6);
+  assert.equal(at("when the shirt cost more"), 6);
+  assert.equal(at("the one where the fabric was heavier"), 5);
+  assert.equal(at("the most expensive version"), 6, "superlative: latest of the equal extremes");
+  assert.equal(at("the one where the halo was biggest"), 4);
+  assert.match(comparedVersion("the one where the halo was bigger", l).did, /20 cm wide; now 9 cm wide/);
+});
+
+test("compared versions: nothing changes when no version compared that way", () => {
+  const l = line(sizeSession());
+  for (const t of ["the one where the halo was smaller", "the cheapest one", "the version where the print was higher", "the one with the lighter fabric"]) {
+    const r = comparedVersion(t, l);
+    assert.ok(r, t);
+    assert.deepEqual([r.ops, r.ui], [[], []], t);
+    assert.match(r.did, /nothing changed/, t);
+  }
+  assert.match(comparedVersion("the one where the wings were bigger", l).did, /No version in this session had the angel wings/);
+});
+
+test("compared versions: edits and variant picks stay edits", () => {
+  const l = line(sizeSession());
+  for (const t of ["make it bigger", "make the halo higher", "the bigger the better", "go with the bigger one", "the bigger one", "the one with the halo"]) {
+    assert.equal(comparedVersion(t, l), null, t);
+  }
+  const h = sizeSession();
+  assert.equal(parseCommand("when was the halo bigger?", h.present, l).questions.length, 1, "asked with question order and ?");
+  const r = parseCommand("the one where the price was higher", h.present, l);
+  assert.deepEqual(r.steps[0].ui, [{ ui: "restore", index: 6 }]);
+  assert.deepEqual(r.steps[0].ops, [], "before: moved the print up and set the price to 1");
+});
+
+test("raising the price does not move the artwork", () => {
+  const h = sizeSession();
+  for (const t of ["raise the price", "the price is higher than I want", "lower the run"]) {
+    const r = parseCommand(t, h.present);
+    assert.ok(!r.steps.some(s => s.ops.some(o => o.op === "move")), t);
+  }
+  assert.equal(parseCommand("move it up", h.present).steps[0].ops[0].op, "move");
+  assert.equal(parseCommand("raise the print a bit", h.present).steps[0].ops[0].op, "move");
+});
