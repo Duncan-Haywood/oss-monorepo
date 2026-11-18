@@ -2,6 +2,20 @@
 
 Newest first.
 
+## 2026-11-18 · Milestone 7q: a pick table by drag-curve class, the builder-side stand-in for 7p's leak-free own picks (7p's Next x2; predictions written before any 7q number was computed)
+- Why: 7p's Next (x2). 7p's leak-free own-pick read (owdm, 0.0047 in (A)) still runs the full motion model on the held-out pump. A publisher who has run the model on the families it has can tabulate their picks once; a builder then looks up the row whose idle drag curve looks most like their pump's and averages their own curve over those sizes. 7q asks whether that table keeps any of owdm's gain over the two-price rule (owh 0.0056).
+- Disclosed before the run: no 7q donor, feature, fit or score has been computed or looked at; the bend ratio of each variant's idle curve has not been tabulated for this registration (7l/7m report qualitatively that Danfoss's bends). 7p's results file must reproduce byte for byte first on the rebuilt caches.
+- Method fixed now: `experiments/gear_pump_table.py`, on 7j to 7p's 22 conditions and 4312 cells unchanged. **Drag-curve class:** b(k) = P<sub>idle,k</sub>(79 L/min) / P<sub>idle,k</sub>(64 L/min) on the central-condition idle curve (7m's pick quartiles), a number a builder reads off the data sheet. **Table rows:** for held-out variant k, each donor j outside k's maker group contributes its own picks at k's leak-free efficiency e<sub>m</sub>(k) (7p), w<sub>j</sub>(q) = share of the 384 geometries picking q for pump j. **Features** (k's own idle curve, each condition, weight fixed at the central setting): kW<sub>t1</sub> with the weight of the single donor nearest in |log b|; kW<sub>t3</sub> with the mean weight of the three nearest; kW<sub>tp</sub> with the mean weight of every donor (no class). **Rules:** owh, owdw, owds, owdm (7p) as references; owdt1, owdt3, owdtp, the owds form whose held-out fold's test rows use the table feature while training rows keep 7n's kW<sub>s</sub> (as owdm). **Scores** exactly as 7j to 7p: (A) leave-one-condition-and-maker-family-out over 308 diagonals; (B1) nine half-speed conditions held out; (B2) S = 0.20 and 0.50 held out. **Diagnostics:** per variant b, the nearest donor, and kW<sub>t1</sub>/kW<sub>s</sub>, kW<sub>tp</sub>/kW<sub>s</sub> at the central condition.
+- Disclosures: the training rows still read 7n's own picks (the publisher's side, which does have the model); donors' picks use their own efficiency shape and idle curve, so the table carries shape as well as drag; e<sub>m</sub> is 7p's.
+- **Predictions:**
+  - PQ1: Danfoss's kW<sub>t1</sub>/kW<sub>s</sub> at the central condition is at least 1.05 (no other variant bends like it, so no donor picks as small). Prior 65%.
+  - PQ2: owdt1's (A) RMS is below owh's 0.0056. Prior 45%.
+  - PQ3: owdtp's (A) RMS is below owh's 0.0056. Prior 40%.
+  - PQ4: owdt1's (A) RMS is at most owdtp's (the class helps). Prior 50%.
+  - PQ5: none of owdt1, owdt3, owdtp reaches owdm's (A) RMS. Prior 75%.
+  - PQ6: Danfoss's per-variant (A) RMS under owdt1 is above owh's 0.0061. Prior 65%.
+  - PQ7: owdt1's B1 RMS is at most owh's 0.0059. Prior 45%.
+
 ## 2026-11-18 · Milestone 7p: does the own-pick oracle leak the answer? Own picks read at an efficiency the held-out cell never saw (7o's Next x; predictions written before any 7p number was computed)
 - Why: 7o's Next (x). 7n's own-pick read kW<sub>s</sub> beat the two-price rule by a quarter (0.0042 against 0.0056 in (A)), but it reads each variant's picks at the grid E nearest that variant's own central diagonal E<sub>50</sub>, the quantity (A) then predicts. Part of the gain may be that leak, not the drag the pump pays. 7p recomputes the held-out variant's own picks at an efficiency index that does not use its own E<sub>50</sub>, keeping everything else of 7n fixed, and asks how much of the quarter survives.
 - Disclosed before the run: no 7p pick, feature, fit or score has been computed or looked at; how far each variant's catalogue index E sits from its E<sub>50</sub> has not been looked at for this registration. 7n's results file must reproduce byte for byte first on the rebuilt caches.
