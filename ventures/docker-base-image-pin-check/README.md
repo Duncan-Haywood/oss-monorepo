@@ -139,4 +139,4 @@ From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-1
 - `COPY --from=<image>` and `RUN --mount=...,from=<image>` pull images too and are not checked.
 - `Containerfile` is not discovered, and a `# escape=` parser directive is ignored.
 
-Fixed in the quality-fix PR of 2026-11-18: build-arg `FROM` lines are resolved from their `ARG` defaults or reported `unresolved` (they were dropped and `--fail-on-risk` exited 0); a file whose `FROM` lines are all `scratch` or stages no longer says it has none; truncated and upper-case sha256 digests are no longer counted pinned; the lookup for a malformed digest on a tagged image no longer prints `name:tag:latest`.
+Fixed 2026-11-18 (quality-fix PR #17128): build-arg `FROM` lines are resolved from their `ARG` defaults or reported `unresolved` (they were dropped and `--fail-on-risk` exited 0); a file whose `FROM` lines are all `scratch` or stages no longer says it has none; truncated and upper-case sha256 digests are no longer counted pinned; the lookup for a malformed digest on a tagged image no longer prints `name:tag:latest`.
