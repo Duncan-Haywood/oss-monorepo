@@ -2459,3 +2459,32 @@ with 24, (b) the ESC 50 ms plant's mean share on spread takes is higher with 24 
 plant no build is advised at any window, and (d) no instant build is advised at any window. DECISION RULE: the take
 survey keeps `drop_from_commands_steps`' default of 8 unless 24 names and advises more spread builds than 8 on the
 held-out set with no instant build advised; then this section reports the miss and 24 is retested on a third set.
+
+**Held out** (run after the pre-registration was committed, 2b34515df; 36 survey drills, none aborted):
+
+| window | spread takes named within 1 ms and advised (of 27) | instant builds advised (of 9) | picks within 1 ms (of 36) | mean best / step share: first-order, tach 3 us, ESC 50 ms |
+| --- | --- | --- | --- | --- |
+| 8 (the board's) | 12 | 0 | 32 | 0.54, 0.96, 0.47 |
+| 12 | 11 | 0 | 29 | 0.56, 0.97, 0.53 |
+| 16 | 9 | 0 | 30 | 0.58, 0.97, 0.59 |
+| 24 | 9 | 0 | 30 | 0.59, 0.97, 0.63 |
+
+Every clause held: (a) 12 named and advised with 8 against 9 with 24; (b) the ESC 50 ms plant's share rose from 0.47
+to 0.63 (its 3 ms builds were advised 2 of 3 at 8 and 0 of 3 at 16 or 24); (c) no tach 3 us build was advised at any
+window (shares 0.90-1.00); (d) no instant build was advised. The design run's 6 ms jitter builds all picked 8 ms, but
+the held-out ones picked 5.5-6 ms, so that bias belongs to the 0.3 s lag. The jitter plant's picks scatter (an
+instant take read 0 to 5.5 ms, a 3 ms take 0 to 3.5), and its share keeps the advice at "keep 0" every time.
+
+**What shipped.** The take survey keeps a window of 8, now named `controller.TAKE_SURVEY_AFTER` and passed explicitly,
+so a later change to the default cannot move it unnoticed. The record fit keeps 24. The two fits want different
+windows because they ask different questions: the record fit's reading gains from averaging, while the survey's
+choice between contact times lives in the rows right after the ball.
+
+**What this says about a real board.** At a 3 us edge jitter the survey cannot see a 3-6 ms contact time at all. Its
+shares sit at 0.90-1.00 at every window, and the margin keeps it quiet, as it should. So on a real wheel the survey
+only speaks if the tach is much cleaner than 3 us. A logged tach on a spinning wheel answers this first. If the jitter
+is that large, a quieter edge (a debounced Hall sensor, or a timer capture in place of the pin interrupt) is worth more
+than any fit change.
+
+**Not known.** All simulated, one seed per set, Gaussian edge jitter, an assumed take profile. Next: the jitter level at
+which the take survey goes blind (a sweep of `tach_jitter_us` from 0.5 to 3 us), then a real tach's edge jitter.
