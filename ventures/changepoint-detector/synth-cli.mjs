@@ -85,6 +85,9 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
     labels, treatedSeries: y, synthetic: r.synth, gap: r.gap,
     // Placebos whose statistic is at least the treated unit's, largest first (README "Few donors"): describes the rank.
     above: placebosAbove(r),
+    // How many of all the placebos' own gaps faded, grew or held (gapShape, README "A donor's own event that is not a
+    // step"): when most share a word, as on long compounding series, the word on a listed unit says little.
+    placeboShapes: r.placebos.reduce((c, q) => { if (q.gapShape) c[q.gapShape.shape] += 1; return c; }, { faded: 0, grew: 0, held: 0 }),
   };
   if (lr) {
     out.leadRange = {
@@ -105,7 +108,7 @@ export function synthResult({ csv, column, labelColumn = null, date, donors = []
 export function placebosAbove(r) {
   const val = (q) => (r.statistic === 'post' ? q.postRmspe : q[r.statistic]), own = r.tests[r.statistic].value;
   return r.placebos.filter((q) => val(q) >= own - 1e-12 * Math.abs(own)).sort((a, b) => val(b) - val(a))
-    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0 }));
+    .map((q) => ({ name: q.name, statistic: val(q), preRmspe: q.preRmspe, postRmspe: q.postRmspe, weight: r.donorWeights?.[q.name] ?? 0, gapShape: q.gapShape?.shape ?? null }));
 }
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);
