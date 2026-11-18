@@ -1,6 +1,6 @@
 ---
 title: "Light times time: why a dusty UV lamp in a duct loses a fifth, and the fan on full wins back a little"
-seo_title: "In-duct UV-C dose, equivalent air changes and lamp dust, told as a story"
+seo_title: "In-duct UV-C dose, air changes and lamp dust, told as a story"
 date: 2026-11-18
 tags: [hearth-and-horizon, stories, science-fiction, air]
 description: "A new Hearth & Horizon story works out what a year of dust does to an in-duct UV lamp: the sensor falls to half, the hall loses a fifth of its cleaning."
