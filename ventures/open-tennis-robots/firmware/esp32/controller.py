@@ -470,12 +470,18 @@ TAKE_SURVEY_TRIM = 0
 # 1 (or 0) keeps every wheel. Chosen on ten stored sets, held out on two fresh ones (eval/take-survey-blind-2026-11-18.md).
 TAKE_SURVEY_BLIND = 1.5
 
+# The take survey's pick between grid sums (2026-11-18, eval/take-survey-fresh-2026-11-18.md): False refines the least
+# sum by `survey_pick`'s three-point parabola, True by `survey_spline_pick`'s natural spline on log(take + grid[1] / 2).
+# With the stretched offsets (TAKE_MATCH_SPREAD) the residual's own least sits on the true take on two fresh simulated
+# sets, and the parabola read off-grid takes about 0.5 ms below it on the capture tach (the spline 0.3-0.4).
+TAKE_SURVEY_SPLINE = False
+
 
 class ResidualSurvey:
     """Each surveyed wheel's squared residual rms per candidate on `grid` (the last SURVEY_KEEP wheels), summed over the
     wheels whose best fit is within `trim` times the median wheel's best (None reads SURVEY_TRIM; 0 sums every wheel),
     leaving out with `blind` > 1 a wheel whose worst candidate is within `blind` times its best (TAKE_SURVEY_BLIND),
-    and the least sum refined by `survey_pick`. The ESC-lag survey's arithmetic (LaunchCheck.survey_add /
+    and the least sum refined by `survey_pick` (or `survey_spline_pick` with TAKE_SURVEY_SPLINE). The ESC-lag survey's arithmetic (LaunchCheck.survey_add /
     _survey_sums) for another grid."""
 
     def __init__(self, grid, trim=None, blind=0):
@@ -526,7 +532,7 @@ class ResidualSurvey:
         if self.wheels == [] and self.blind_n:
             # every wheel so far take-blind: the count still goes out (the Pi waits on it), with no pick and no rms
             return (min(255, self.n), 0, 0, [0] * len(self.grid))
-        i, ref = survey_pick(self.grid, sums)
+        i, ref = (survey_spline_pick if TAKE_SURVEY_SPLINE else survey_pick)(self.grid, sums)
         if i is None:
             return None
         rms = [min(65535, int(round(1e6 * math.sqrt(v / self._kept)))) for v in sums]
