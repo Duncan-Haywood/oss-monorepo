@@ -71,3 +71,5 @@
   (The CR2 and camera-DNG checks pass `gamma=(2.4, 12.92)` and are not affected.)
 - A real 3FR written with predictor 11 (all five compressed files at hand use 8).
 - (2026-11-18) a real Adobe `.dcp` through the profile chooser
+- (2026-11-18) lateral colour measured on a real frame with sharp corner edges
+- (2026-11-18) a real DNG carrying any opcode run only on synthetic files so far, or the SDK to check them
