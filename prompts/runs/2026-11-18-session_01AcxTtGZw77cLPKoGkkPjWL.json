@@ -1,0 +1,448 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtGZw77cLPKoGkkPjWL",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T15:06:26Z",
+  "ended": "2026-11-18T15:07:08Z",
+  "wall_minutes": 12.2,
+  "tokens_in": 3184721,
+  "tokens_out": 19149,
+  "cost_usd": 1.5457,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17339",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Mistook an invisible U+0080 in sql.mjs's TAG class for a range bug ('_-\\uFFFF'); a fail-first check showed the old class was correct, so I corrected the comment and kept only the clearer escaped spelling."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "`targets --probe 20` lists a random sample of 20, so a recently changed file is easy to miss; `--under <venture dir> --limit 50` was what found the sql-migration-lock-check timings."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 12 open entries still reproduce, but 11 are control-plane fixes that need their own owner-approved PR, and the help-keeper stemmer entry needs a help-center eval set that does not exist yet.",
+      "did": "Checked each one on main (grep for the named fix), left them open, and seeded 20 mutants.",
+      "result": "No step-0 entry closed; the time went to two real defects."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-redteam-one-backslash-hid-a-table-lock.md"
+  ],
+  "goal": null,
+  "notes": "Targets: sql-migration-lock-check engine.mjs and sql.mjs (changed in the last 3 days, 0.4 s suite). Hunted the splitter against PostgreSQL's lexer rules and found 2 silent false negatives. Looked for the same class elsewhere: postgres-index-auditor parses normalized pg_get_indexdef output (only '' escapes), so it is not exposed. No new CI guard: the fix is lexer-specific, and the venture's tests already run in ventures-tests.yml. Verification: node --test ventures/sql-migration-lock-check/*.test.mjs gave 155 pass, 0 fail; check_posts.py on the post: ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/sql-migration-lock-check/engine.mjs",
+        "test": "node --test ventures/sql-migration-lock-check/**/*.test.mjs  (in .)",
+        "seed": 258300077,
+        "commit": "83c694dbb",
+        "sites": 81,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 121,
+            "col": 85,
+            "operator": "true-to-false",
+            "before": "if (/^\\s*DROP\\s+(TABLE|INDEX|VIEW|MATERIALIZED\\s+VIEW|SEQUENCE)\\b/.test(s)) return true;",
+            "after": "if (/^\\s*DROP\\s+(TABLE|INDEX|VIEW|MATERIALIZED\\s+VIEW|SEQUENCE)\\b/.test(s)) return false;",
+            "line_text": "  if (/^\\s*DROP\\s+(TABLE|INDEX|VIEW|MATERIALIZED\\s+VIEW|SEQUENCE)\\b/.test(s)) return true;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 220,
+            "col": 23,
+            "operator": "false-to-true",
+            "before": "let sessionTimeout = false;",
+            "after": "let sessionTimeout = true;",
+            "line_text": "  let sessionTimeout = false;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 286,
+            "col": 39,
+            "operator": "eq-flip",
+            "before": "if (txEffect === 'end' || txEffect === 'chain') {",
+            "after": "if (txEffect === 'end' || txEffect !== 'chain') {",
+            "line_text": "    if (txEffect === 'end' || txEffect === 'chain') {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 318,
+            "col": 59,
+            "operator": "const-plus-one",
+            "before": "if (concurrentIdx) concurrentIndexes.add(concurrentIdx[1].replace(/\"/g, '').toLowerCase());",
+            "after": "if (concurrentIdx) concurrentIndexes.add(concurrentIdx[2].replace(/\"/g, '').toLowerCase());",
+            "line_text": "    if (concurrentIdx) concurrentIndexes.add(concurrentIdx[1].replace(/\"/g, '').toLowerCase());",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 368,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "if (/^\\s*DROP\\s+INDEX\\b/i.test(s) && !/\\bCONCURRENTLY\\b/i.test(s)) {",
+            "after": "if (/^\\s*DROP\\s+INDEX\\b/i.test(s) || !/\\bCONCURRENTLY\\b/i.test(s)) {",
+            "line_text": "    if (/^\\s*DROP\\s+INDEX\\b/i.test(s) && !/\\bCONCURRENTLY\\b/i.test(s)) {",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 380,
+            "col": 86,
+            "operator": "and-to-or",
+            "before": "if (/^\\s*(VACUUM\\s+FULL|CLUSTER)\\b/i.test(upper) || (/^\\s*REINDEX\\b/i.test(upper) && !/\\bCONCURRENTLY\\b/i.test(upper))) {",
+            "after": "if (/^\\s*(VACUUM\\s+FULL|CLUSTER)\\b/i.test(upper) || (/^\\s*REINDEX\\b/i.test(upper) || !/\\bCONCURRENTLY\\b/i.test(upper))) {",
+            "line_text": "    if (/^\\s*(VACUUM\\s+FULL|CLUSTER)\\b/i.test(upper) || (/^\\s*REINDEX\\b/i.test(upper) && !/\\bCONCURRENTLY\\b/i.test(upper))) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 402,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (addCol && VOLATILE_DEFAULTS.includes(addCol[2].toLowerCase().replace(/^.*\\./, ''))) {",
+            "after": "if (addCol || VOLATILE_DEFAULTS.includes(addCol[2].toLowerCase().replace(/^.*\\./, ''))) {",
+            "line_text": "      if (addCol && VOLATILE_DEFAULTS.includes(addCol[2].toLowerCase().replace(/^.*\\./, ''))) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 442,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "if (addConstraint && !/NOT\\s+VALID\\s*$/i.test(s)) {",
+            "after": "if (addConstraint || !/NOT\\s+VALID\\s*$/i.test(s)) {",
+            "line_text": "      if (addConstraint && !/NOT\\s+VALID\\s*$/i.test(s)) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 454,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "const adopted = usingIndex && concurrentIndexes.has(usingIndex[1].replace(/\"/g, '').toLowerCase());",
+            "after": "const adopted = usingIndex && concurrentIndexes.has(usingIndex[2].replace(/\"/g, '').toLowerCase());",
+            "line_text": "        const adopted = usingIndex && concurrentIndexes.has(usingIndex[1].replace(/\"/g, '').toLowerCase());",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/engine.mjs",
+            "line": 457,
+            "col": 382,
+            "operator": "const-plus-one",
+            "before": "impact: `Adding a ${addKey[1].toUpperCase().includes('PRIMARY') ? 'primary key' : 'unique'} constraint builds the index it needs while holding an ACCESS EXCLUSIVE lock, so reads and writes block for the whole build \u2014 the same cost as a non-concurrent \\`CREATE INDEX\\`, reached by a different statement.${usingIndex ? ` This statement does say \\`USING INDEX ${usingIndex[1]}\\`, but nothing earlier in this file builds that index concurrently, so either it is built elsewhere \u2014 fine, and worth a comment \u2014 or the name is wrong.` : ''}`,",
+            "after": "impact: `Adding a ${addKey[1].toUpperCase().includes('PRIMARY') ? 'primary key' : 'unique'} constraint builds the index it needs while holding an ACCESS EXCLUSIVE lock, so reads and writes block for the whole build \u2014 the same cost as a non-concurrent \\`CREATE INDEX\\`, reached by a different statement.${usingIndex ? ` This statement does say \\`USING INDEX ${usingIndex[2]}\\`, but nothing earlier in this file builds that index concurrently, so either it is built elsewhere \u2014 fine, and worth a comment \u2014 or the name is wrong.` : ''}`,",
+            "line_text": "            impact: `Adding a ${addKey[1].toUpperCase().includes('PRIMARY') ? 'primary key' : 'unique'} constraint builds the index it needs while holding an ACCESS EXCLUSIVE lock, so reads and writes block for the whole build \u2014 the same cost as a non-concurrent \\`CREATE INDEX\\`, reached by a different statement.${usingIndex ? ` This statement does say \\`USING INDEX ${usingIndex[1]}\\`, but nothing earlier in this file builds that index concurrently, so either it is built elsewhere \u2014 fine, and worth a comment \u2014 or the name is wrong.` : ''}`,",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/sql-migration-lock-check/sql.mjs",
+        "test": "node --test ventures/sql-migration-lock-check/**/*.test.mjs  (in .)",
+        "seed": 512165193,
+        "commit": "83c694dbb",
+        "sites": 119,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 63,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (mark === 'string') inString[k] = true;",
+            "after": "if (mark !== 'string') inString[k] = true;",
+            "line_text": "      if (mark === 'string') inString[k] = true;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "inString is exported from maskNonCode but no test read it; added \"maskNonCode marks string characters, not comment characters, as inString\" in sql.test.mjs."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 68,
+            "col": 11,
+            "operator": "lt-to-le",
+            "before": "while (i < n) {",
+            "after": "while (i <= n) {",
+            "line_text": "  while (i < n) {",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "At i === n, c is undefined, no branch matches and out[n] = undefined, which Array.join renders as an empty string; masked, inString and isComment are unchanged."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 85,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "while (j < n && depth > 0) {",
+            "after": "while (j < n && depth > 1) {",
+            "line_text": "      while (j < n && depth > 0) {",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 86,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "if (text[j] === '/' && text[j + 1] === '*') { depth += 1; j += 2; continue; }",
+            "after": "if (text[j] === '/' && text[j + 2] === '*') { depth += 1; j += 2; continue; }",
+            "line_text": "        if (text[j] === '/' && text[j + 1] === '*') { depth += 1; j += 2; continue; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 86,
+            "col": 43,
+            "operator": "eq-flip",
+            "before": "if (text[j] === '/' && text[j + 1] === '*') { depth += 1; j += 2; continue; }",
+            "after": "if (text[j] === '/' && text[j + 1] !== '*') { depth += 1; j += 2; continue; }",
+            "line_text": "        if (text[j] === '/' && text[j + 1] === '*') { depth += 1; j += 2; continue; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 133,
+            "col": 15,
+            "operator": "lt-to-le",
+            "before": "while (j < n && TAG.test(text[j])) j += 1;",
+            "after": "while (j <= n && TAG.test(text[j])) j += 1;",
+            "line_text": "      while (j < n && TAG.test(text[j])) j += 1;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "At j === n, TAG.test(undefined) tests the string \"undefined\" and passes, so j stops at n + 1 instead of n; text[j] is undefined either way, so the $ is still read as a plain character."
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 137,
+            "col": 30,
+            "operator": "const-plus-one",
+            "before": "const stop = end === -1 ? n : end + tag.length;",
+            "after": "const stop = end === -2 ? n : end + tag.length;",
+            "line_text": "        const stop = end === -1 ? n : end + tag.length;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 158,
+            "col": 54,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < offset && i < text.length; i += 1) if (text[i] === '\\n') line += 1;",
+            "after": "for (let i = 0; i < offset && i < text.length; i += 2) if (text[i] === '\\n') line += 1;",
+            "line_text": "  for (let i = 0; i < offset && i < text.length; i += 1) if (text[i] === '\\n') line += 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 223,
+            "col": 57,
+            "operator": "true-to-false",
+            "before": "if (effect === 'begin' || effect === 'chain') open = true;",
+            "after": "if (effect === 'begin' || effect === 'chain') open = false;",
+            "line_text": "    if (effect === 'begin' || effect === 'chain') open = true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/sql-migration-lock-check/sql.mjs",
+            "line": 230,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "start = i + 1;",
+            "after": "start = i + 2;",
+            "line_text": "      start = i + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/sql-migration-lock-check/sql.mjs",
+        "issue": "maskNonCode ended an E'...' escape string at a backslash-escaped quote (E'it\\'s'), then opened a string at the next quote that ran to the end of the file, so every later statement was blanked: analyzeSql(\"UPDATE t SET note = E'it\\\\'s';\\nCREATE INDEX idx ON t (a);\") returned no findings instead of create-index-not-concurrent. Fixed: E/e prefix (not ending a name) turns on backslash escapes.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17339"
+      },
+      {
+        "file": "ventures/sql-migration-lock-check/sql.mjs",
+        "issue": "A $ inside an unquoted identifier (PostgreSQL allows a$b$c) was read as the dollar-quote tag $b$; with no closing tag the rest of the file was blanked and a later CREATE INDEX produced no finding. Fixed: a $ right after an identifier character continues the name.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17339"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "071283b1-538c-5311-8a5f-dbd970410214",
+    "transcripts": 1,
+    "first": "2026-11-18T15:06:26Z",
+    "last": "2026-11-18T15:18:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 19149,
+        "thinking": 5289,
+        "cache_read": 3117275,
+        "cache_write_5m": 0,
+        "cache_write_1h": 67365,
+        "api_equivalent_usd": 1.5457,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 19149,
+      "thinking": 5289,
+      "cache_read": 3117275,
+      "cache_write_5m": 0,
+      "cache_write_1h": 67365,
+      "api_equivalent_usd": 1.5457,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.2,
+      "active_minutes": 12.2,
+      "model_minutes": 4.18,
+      "tool_minutes": 8.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "read a SQL scanner against the PostgreSQL lexer rules, two fixes with tests, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 194.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
