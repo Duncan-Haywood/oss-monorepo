@@ -82,7 +82,7 @@ export function unwrapSignature(text) {
 export function parseSecurityTxt(text) {
   const { signed, body, lineOffset } = unwrapSignature(text ?? '');
   const hadBom = (text ?? '').charCodeAt(0) === 0xfeff;
-  const clean = hadBom ? body.replace(/^﻿/, '') : body;
+  const clean = hadBom ? body.replace(/^\uFEFF/, '') : body;
 
   const fields = [];
   const malformed = [];

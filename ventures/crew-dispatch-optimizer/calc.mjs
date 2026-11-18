@@ -47,7 +47,7 @@ function splitLine(line, delim) {
 }
 
 function rowsOf(text) {
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith("#"));
   if (!lines.length) return [];
   const delim = lines.some((l) => l.includes("\t")) ? "\t" : ",";
   return lines.map((l) => splitLine(l, delim));

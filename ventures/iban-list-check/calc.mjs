@@ -81,7 +81,7 @@ export function decodeBuffer(buf) {
   const b = new Uint8Array(buf);
   if (b[0] === 0xff && b[1] === 0xfe) return new TextDecoder("utf-16le").decode(b.subarray(2));
   if (b[0] === 0xfe && b[1] === 0xff) return new TextDecoder("utf-16be").decode(b.subarray(2));
-  return new TextDecoder("utf-8").decode(b).replace(/^﻿/, "");
+  return new TextDecoder("utf-8").decode(b).replace(/^\uFEFF/, "");
 }
 
 export function parseTable(text) {

@@ -128,7 +128,7 @@ const HEADERS = {
 };
 
 export function parseManifest(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   if (!src.trim()) return { error: "Paste or upload a manifest first." };
   const first = src.split(/\r?\n/, 1)[0];
   const counts = [["\t", (first.match(/\t/g) || []).length], [";", (first.match(/;/g) || []).length], [",", (first.match(/,/g) || []).length]].sort((x, y) => y[1] - x[1]);

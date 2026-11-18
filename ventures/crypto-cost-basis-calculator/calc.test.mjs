@@ -8,7 +8,7 @@ import {
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.005, `${msg ?? ""} ${a} != ${b}`);
 
 test("parseCsv handles quotes, embedded commas, CRLF and a BOM", () => {
-  const g = parseCsv('﻿a,b\r\n"x, y","say ""hi"""\r\n');
+  const g = parseCsv('\uFEFFa,b\r\n"x, y","say ""hi"""\r\n');
   assert.deepEqual(g, [["a", "b"], ["x, y", 'say "hi"']]);
 });
 

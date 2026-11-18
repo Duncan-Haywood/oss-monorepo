@@ -121,7 +121,7 @@ const VARIANTS = [
 const tally = { files: 0, mutants: 0, skipped: 0, byProfile: {} };
 for (const dir of dirs) {
   for (const path of walk(dir)) {
-    const xml = readFileSync(path, "utf8").replace(/^﻿/, "");
+    const xml = readFileSync(path, "utf8").replace(/^\uFEFF/, "");
     const syntax = detectSyntax(xml);
     let profile = syntax === "ubl" && !fr ? matchingProfile(xml, syntax) : null;
     if (fr && syntax) {

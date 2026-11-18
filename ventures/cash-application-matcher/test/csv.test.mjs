@@ -29,7 +29,7 @@ test('dates: ISO, US, day-first, dotted, named months; impossible dates refused'
 });
 
 test('CSV: quotes, doubled quotes, semicolons, CRLF, BOM', () => {
-  assert.deepEqual(parseCsv('﻿a,b\r\n"x, y","say ""hi"""\r\n'), [['a', 'b'], ['x, y', 'say "hi"']]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\r\n"x, y","say ""hi"""\r\n'), [['a', 'b'], ['x, y', 'say "hi"']]);
   assert.deepEqual(parseCsv('a;b\n1,5;2\n'), [['a', 'b'], ['1,5', '2']]);
 });
 

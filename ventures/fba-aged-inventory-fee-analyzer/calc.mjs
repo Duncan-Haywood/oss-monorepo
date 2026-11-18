@@ -74,7 +74,7 @@ export function parseCsv(text, delim = ",") {
   // Each row carries a non-enumerable `line`: the file line it starts on,
   // so a reader can name it after blank lines or quoted line breaks.
   let row = [], field = "", quoted = false, line = 1, start = 1;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {

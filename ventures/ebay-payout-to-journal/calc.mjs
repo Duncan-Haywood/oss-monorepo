@@ -66,7 +66,7 @@ function splitLine(line, d) {
   return out;
 }
 
-const norm = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
+const norm = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/[\s_]+/g, "-").replace(/\(.*\)$/, "").replace(/-+$/, "");
 
 const UNPAID = "(not yet paid out)";
 const MONTHS = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12 };
@@ -105,13 +105,13 @@ export function parseAmount(s) {
 }
 
 const FEE_COLUMNS = [["fvf-fixed", "final value fee - fixed", "final value fee – fixed", "final value fee fixed"], ["fvf-var", "final value fee - variable", "final value fee – variable", "final value fee variable"], ["nad", 'very high "not as described" fee', "very high 'not as described' fee", "very high not as described fee", "very high item not as described fee"], ["below", "below standard performance fee"], ["intl", "international fee"], ["deposit", "deposit processing fee"]];
-const normHead = (h) => h.trim().toLowerCase().replace(/^﻿/, "").replace(/^"|"$/g, "").replace(/""/g, '"').replace(/\s+/g, " ");
+const normHead = (h) => h.trim().toLowerCase().replace(/^\uFEFF/, "").replace(/^"|"$/g, "").replace(/""/g, '"').replace(/\s+/g, " ");
 
 // The report opens with a few metadata lines (name, seller, period) before the header, so the header is found, not assumed.
 export function parsePayouts(text, opts = {}) {
   const findings = [];
   const add = (severity, title, detail, line) => findings.push({ severity, title, detail, line: line || 0 });
-  const lines = String(text || "").replace(/^﻿/, "").split(/\r?\n/);
+  const lines = String(text || "").replace(/^\uFEFF/, "").split(/\r?\n/);
   const none = { payouts: [], findings, summary: { rows: 0, payouts: 0 } };
   if (!lines.some((l) => l.trim())) { add("error", "The file is empty", "Paste or choose an eBay Transaction report CSV."); return none; }
   const delim = (l) => ((l.match(/\t/g) || []).length > (l.match(/,/g) || []).length ? "\t" : ",");

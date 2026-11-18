@@ -19,7 +19,7 @@ const SCHEMA = new Set(["MX-002", "MX-003", "MX-004", "MX-005", "MX-006"]);
 const work = mkdtempSync(join(tmpdir(), "cp-public-"));
 const seen = new Set(), rows = [];
 for (const f of files) {
-  const t = readFileSync(f, "utf8").replace(/^﻿/, "");
+  const t = readFileSync(f, "utf8").replace(/^\uFEFF/, "");
   if (!/http:\/\/www\.sat\.gob\.mx\/CartaPorte31/.test(t) || !/http:\/\/www\.sat\.gob\.mx\/cfd\/4/.test(t)) continue;
   const m = /<([A-Za-z0-9_]+):CartaPorte\b[\s\S]*<\/\1:CartaPorte>/.exec(t);
   const h = createHash("sha256").update(t).digest("hex");

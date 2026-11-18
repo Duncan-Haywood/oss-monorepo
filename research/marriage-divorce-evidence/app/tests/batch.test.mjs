@@ -16,7 +16,7 @@ shareOod(lenses.map((l) => l.bundle));
 const mortality = JSON.parse(readFileSync(new URL('../data/us_mortality_wpp2024.json', import.meta.url)));
 
 test('CSV parsing: quotes, commas, newlines, CRLF, BOM', () => {
-  const rows = parseCsv('﻿a,b,c\r\n1,"x, y","say ""hi"""\n2,"multi\nline",\n\n');
+  const rows = parseCsv('\uFEFFa,b,c\r\n1,"x, y","say ""hi"""\n2,"multi\nline",\n\n');
   assert.deepEqual(rows, [['a', 'b', 'c'], ['1', 'x, y', 'say "hi"'], ['2', 'multi\nline', '']]);
   assert.equal(csvField('1–1,999 hours'), '"1–1,999 hours"');
   assert.equal(csvField('=HYPERLINK("x")'), '"\'=HYPERLINK(""x"")"', 'formulas are neutralised');

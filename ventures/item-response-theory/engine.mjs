@@ -144,7 +144,7 @@ function score01(v) {
  */
 export function parseResponses(text, opts = {}) {
   if (typeof text !== "string" || !text.trim()) throw new Error("No data: paste a table with one row per person and one column per item.");
-  const lines = text.replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
+  const lines = text.replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim() !== "" && !/^\s*#/.test(l));
   const sep = lines[0].includes("\t") ? "\t" : lines[0].includes(";") && !lines[0].includes(",") ? ";" : ",";
   let rows = lines.map((l) => splitLine(l, sep));
   const width = rows.reduce((m, r) => Math.max(m, r.length), 0);

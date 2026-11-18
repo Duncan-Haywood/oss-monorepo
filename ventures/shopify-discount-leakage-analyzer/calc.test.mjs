@@ -112,8 +112,8 @@ test("a UTF-16 export (Excel's 'Unicode text') is decoded, either byte order", (
   const text = "Name,Total\n#1,10";
   const le = new Uint8Array([0xff, 0xfe, ...[...text].flatMap((c) => [c.charCodeAt(0), 0])]);
   const be = new Uint8Array([0xfe, 0xff, ...[...text].flatMap((c) => [0, c.charCodeAt(0)])]);
-  assert.equal(decodeBuffer(le.buffer).replace(/^﻿/, ""), text);
-  assert.equal(decodeBuffer(be.buffer).replace(/^﻿/, ""), text);
+  assert.equal(decodeBuffer(le.buffer).replace(/^\uFEFF/, ""), text);
+  assert.equal(decodeBuffer(be.buffer).replace(/^\uFEFF/, ""), text);
   assert.equal(decodeBuffer(new TextEncoder().encode(text).buffer), text);
 });
 

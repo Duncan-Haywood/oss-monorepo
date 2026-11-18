@@ -17,7 +17,7 @@ export function sniffDelimiter(text) {
 
 /** RFC 4180 parser: quoted fields, doubled quotes, CRLF, a BOM. */
 export function parseCsv(text, delimiter = sniffDelimiter(text)) {
-  const src = text.replace(/^﻿/, '');
+  const src = text.replace(/^\uFEFF/, '');
   const rows = [];
   let row = [];
   let field = '';

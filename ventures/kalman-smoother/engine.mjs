@@ -764,7 +764,7 @@ export function parseNumber(s) {
 }
 
 export function parseCsv(text) {
-  const lines = String(text).replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
+  const lines = String(text).replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim() !== "");
   if (lines.length < 2) return { error: "Paste a CSV with a header row and at least a few rows." };
   const head = lines[0];
   const sep = [",", "\t", ";"].map((c) => [c, head.split(c).length]).sort((a, b) => b[1] - a[1])[0][0];

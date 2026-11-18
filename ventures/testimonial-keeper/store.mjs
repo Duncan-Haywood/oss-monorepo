@@ -6,7 +6,7 @@ export const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,31}$/;
 
 export const newState = () => ({ forms: {}, items: [], rate: {} });
 
-const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f‪-‮⁦-⁩]/g, "").replace(/[ \t]+/g, " ").trim().slice(0, max);
+const clean = (s, max) => String(s ?? "").replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g, "").replace(/[ \t]+/g, " ").trim().slice(0, max);
 
 export function createForm(state, { slug, title, prompt }, now) {
   const s = String(slug || "").toLowerCase();

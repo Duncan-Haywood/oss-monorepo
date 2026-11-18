@@ -259,7 +259,7 @@ const isNum = (s) => /^[+-]?(\d+\.?\d*|\.\d+)([eE][+-]?\d+)?$/.test(String(s).tr
  * (per-column flag), firstBad (per-column example of a non-numeric cell) }.
  */
 export function parseCsv(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a header row and numeric columns." };
   const first = lines[0];
   const delim = [",", "\t", ";"].map((d) => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];

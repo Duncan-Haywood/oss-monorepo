@@ -5,7 +5,7 @@ import { convert, parseCsv, detectDelimiter, makeIdentifiers, quoteString } from
 const col = (r, name) => r.columns.find((c) => c.name === name);
 
 test('parses quotes, embedded commas, embedded newlines, CRLF and a BOM', () => {
-  const { rows } = parseCsv('﻿a,b\r\n"x, y","line1\nline2"\r\n"he said ""hi""",z\r\n');
+  const { rows } = parseCsv('\uFEFFa,b\r\n"x, y","line1\nline2"\r\n"he said ""hi""",z\r\n');
   assert.deepEqual(rows, [['a', 'b'], ['x, y', 'line1\nline2'], ['he said "hi"', 'z']]);
 });
 

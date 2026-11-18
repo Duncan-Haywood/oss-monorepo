@@ -100,7 +100,7 @@ const SKU_HEAD = /^(sku|item|lineitem[ _-]?sku|product|product[ _-]?name|variant
 
 /** Parse pasted or uploaded text. Returns { rows: [{sku, day, qty}], skipped, skippedLines, returns, ambiguousDates } or { error }. */
 export function parseSales(text) {
-  const lines = String(text ?? "").replace(/^﻿/, "").split(/\r?\n/).filter((l) => l.trim());
+  const lines = String(text ?? "").replace(/^\uFEFF/, "").split(/\r?\n/).filter((l) => l.trim());
   if (!lines.length) return { error: "No data yet. Paste rows or upload a CSV with a date, a SKU and units sold." };
   const first = lines[0];
   const delim = [",", "\t", ";"].map((d) => [d, first.split(d).length]).sort((a, b) => b[1] - a[1])[0][0];

@@ -348,7 +348,7 @@ function splitLine(line, delim) {
 
 /** Parse a CSV with a header row, or a bare list of numbers. */
 export function parseCsv(text) {
-  const raw = String(text ?? "").replace(/^﻿/, "");
+  const raw = String(text ?? "").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r\n|\n|\r/).filter((l) => l.trim() !== "");
   if (!lines.length) return { error: "The data is empty. Paste a CSV with a date column and a value column, or a list of numbers." };
   if (lines.every((l) => l.split(/[\s;,\t]+/).filter(Boolean).every((t) => isNum(t) || isMissing(t))) && !lines[0].includes(",")) {

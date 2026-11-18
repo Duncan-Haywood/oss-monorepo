@@ -68,7 +68,7 @@ function features(text) {
 export function parseCsv(text) {
   const rows = [];
   let row = [], cur = "", q = false;
-  const s = String(text || "").replace(/^﻿/, "");
+  const s = String(text || "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) {

@@ -98,7 +98,7 @@ export const MUTATIONS = [
 
 const root = join(checkout, "FNFE_RFE_INVOICE/Z.example/TEST/CDAR");
 const files = readdirSync(root).filter((f) => f.endsWith(".xml")).sort();
-const strip = (x) => x.replace(/^﻿/, "");
+const strip = (x) => x.replace(/^\uFEFF/, "");
 const plainIds = (xml) => {
   const out = runner.runRules(rules, parseXmlDocument(xml));
   return { ids: new Set(out.map((f) => f.rule)), skipped: out.skipped };
