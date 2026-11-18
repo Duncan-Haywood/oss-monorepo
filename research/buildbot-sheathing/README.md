@@ -680,6 +680,20 @@ make the calibration load-dependent and is not modelled).
 
 ![Coverage inside the drag envelope with the calibration under load and with the hose slack, and the dropped cases that remain](experiments/m52_slackcal/figure.png)
 
+**Milestone 53: what fails at the last plan limits, and does choosing the hold sides per hose load fix them?** It
+does. At 20 of the 26 remaining plan limits the failing step is the leg preload, not the hold QP (H214 refuted): the
+pose's hold sides leave a common leg margin of only 0.004 to 0.092 N m on the G1 (0.019 to 0.062 N m on the H1)
+against the 0.1 N m asked, bound at an ankle roll or hip joint. Re-choosing the hold sides at each press from the
+measured load (keep the pose's sides when they plan, else the combination with the largest leg margin) gives a plan
+at 31 of the 33 dropped cases with 1.8 to 5.2 N m of margin, and inside milestone 51's drag envelope **both robots
+now plan every case: G1 1368 of 1368, H1 1902 of 1902**, with no worst residual changed (largest recovered 0.0106 mm;
+H216 held). The two left (H215 refuted) are G1 sensor-error cases outside milestone 51's envelope, where no side
+combination has a hold solution. The rule set: calibrate with the hose slack, keep each press inside its pose's drag
+limit, and pick the hold sides per measured load. Statics; the time and wear of switching sides between presses are
+not modelled.
+
+![Common leg margin on the pose's hold sides and on the sides chosen per load at each dropped case, and coverage inside the drag envelope for milestones 51 to 53](experiments/m53_loadside/figure.png)
+
 **Not a rated accuracy or a safety case.** Gaussian errors, mostly swept rather than measured;
 a single nail outside its window counts as a failed sheet, though a person could pull and
 re-drive it. Nailing near people needs a risk assessment (ISO 10218, ISO/TS 15066).
