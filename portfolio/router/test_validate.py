@@ -61,3 +61,12 @@ def test_flagship_hyphen_fold_is_reported(tmp_path):
     errors = []
     validate.check_flagships(errors, p)
     assert len(errors) == 1 and "flagships.yaml:4" in errors[0] and "flagship_field.py" in errors[0]
+
+
+def test_flagship_not_before_must_be_a_date(tmp_path):
+    p = tmp_path / "flagships.yaml"
+    p.write_text("flagships:\n  - venture: x\n    not_before: after the tag\n    next: ok\n"
+                 "  - venture: y\n    not_before: 2026-11-24\n    next: ok\n")
+    errors = []
+    validate.check_flagships(errors, p)
+    assert len(errors) == 1 and "x `not_before:`" in errors[0]

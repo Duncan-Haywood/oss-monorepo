@@ -23,6 +23,7 @@ from allocate import (
     load_flagships,
     load_flagship_field,
     load_inputs_only,
+    load_not_before,
     load_flagship_hosts,
     row_hosts,
     start_here,
@@ -762,6 +763,33 @@ class FlagshipTests(unittest.TestCase):
         self.assertTrue(task.startswith("Inputs only (flagship 1)"), task)
         self.assertIn("draw schedule", task)
         self.assertTrue(next_task(buildable).startswith("Deepen (flagship 2)"))
+
+    def test_not_before_row_waits_like_inputs_only_until_its_date(self):
+        from datetime import date
+        waiting = self.flag("waiting", 0)
+        waiting.flagship_not_before = date(2026, 11, 24)
+        buildable = self.flag("buildable", 1)
+        small = make("tiny-csv-check", merit=0.9)
+        ordered = [v.name for v in rank([small, waiting, buildable])]
+        self.assertEqual(ordered, ["buildable", "waiting", "tiny-csv-check"])
+        task = next_task(waiting)
+        self.assertTrue(task.startswith("Waiting (flagship 1)"), task)
+        self.assertIn("2026-11-24", task)
+        # Start here names only Deepen rows, so the waiting row is skipped.
+        queue = work_queue([waiting, buildable])
+        self.assertEqual(start_here(queue, {})[1], "buildable")
+
+    def test_load_not_before_keeps_only_dates_still_ahead(self):
+        from datetime import date
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "flagships.yaml"
+            self.assertEqual(load_not_before(p), {})
+            p.write_text("flagships:\n  - venture: a\n    not_before: 2026-11-24\n"
+                         "  - venture: b\n    not_before: 2026-11-01\n"
+                         "  - venture: c\n    not_before: soon\n  - venture: d\n")
+            self.assertEqual(load_not_before(p, date(2026, 11, 18)), {"a": date(2026, 11, 24)})
+            # On the date itself the row is buildable again.
+            self.assertEqual(load_not_before(p, date(2026, 11, 24)), {})
 
     def test_load_inputs_only_reads_marked_flagships(self):
         with tempfile.TemporaryDirectory() as d:
