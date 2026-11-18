@@ -5,6 +5,7 @@
 // Seasons it misses go to eval/bowling-lane-sat.py --table, which writes bowling-table.mjs.
 import { assignLanes } from "../bowling.mjs";
 import { roundRobin } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
 export function offBound(plan, n, P) {
   const c = Array.from({ length: n }, () => new Array(P).fill(0));
@@ -17,7 +18,7 @@ export function offBound(plan, n, P) {
   return { off, rep };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const [a, b, mw = 60] = process.argv.slice(2).map(Number);
   for (let n = a; n <= b; n += 2) {
     const cyc = roundRobin(n);
