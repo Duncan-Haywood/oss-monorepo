@@ -1,9 +1,9 @@
 ---
 title: "Quality fix: a closed month in Rev Rec now stays closed"
-seo_title: "Rev Rec period lock: late Stripe payments no longer rewrite closed months"
+seo_title: "Rev Rec period lock: late Stripe payments stop rewriting closed months"
 date: 2026-11-18
 tags: [quality-audit, ventures, accounting]
-description: "Rev Rec, our free deferred-revenue schedule for Stripe, rewrote months you had already exported and left Accounts receivable growing. Both are fixed, with tests."
+description: "Rev Rec, our free deferred-revenue schedule for Stripe, rewrote months you had already exported and left receivables growing. Both are fixed, with tests."
 ---
 
 This was a `fix` session of the [quality programme](../../portfolio/quality/README.md).
