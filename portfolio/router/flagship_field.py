@@ -355,6 +355,17 @@ def park_candidates(value: str, over: int, keep: tuple[str, ...] = ()) -> list[t
         freed += gain
         if freed >= over:
             break
+    # The item that reached `over` may free enough alone or with fewer of the
+    # tail items before it; those stay in the row. Why: runs reported parks
+    # past what the cap needed (2026-11-18T04:57: 67 over, two items and 147
+    # characters parked; 12:17: two items and 310 characters, 202 left spare).
+    # Only earlier-taken (later-in-row, less valuable) items are dropped, so
+    # nothing more valuable is parked than before, only less in total.
+    if freed >= over:
+        for k in range(len(out) - 2, -1, -1):
+            if freed - out[k][1] >= over:
+                freed -= out[k][1]
+                del out[k]
     return out
 
 
