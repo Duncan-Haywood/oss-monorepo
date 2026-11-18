@@ -194,9 +194,11 @@ flagships:
       warning holds 42 of 43 false finds (README "Shocks that are not steps");
       anticipation 2026-11-18: --anticipation N ships (power 25-40% to 54-55%
       backdated), warning holds 4 of 8 when a covariate moves 4 early (README "A
-      shock before the date"); uncertain lead 2026-11-18: --anticipation 0-4 ships
-      (range p 55-56% vs 28-35% stated, size 3.8%, README "An uncertain lead"); next
-      a real deployer's panel, few donors. More open items: NEXT.md.
+      shock before the date"); few donors 2026-11-18 (README "Few donors"): West
+      Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable
+      under 19 donors; FEW DONORS note and units-ranked-above ship); next size and
+      power at 10-20 units with one shocked donor, a real deployer's panel. More
+      open items: NEXT.md.
   - venture: einvoice-preflight
     hosts: [https://omawww.sat.gob.mx/]
     why: >-

@@ -7,6 +7,23 @@ export const LEAD_RANGE_NOTE = 'In simulation (39 units; eval/synth-lead-range-c
 
 const f = (v, d = 2) => Number(v).toFixed(d), g = (v) => Number(v).toPrecision(3);
 
+// Few donors (eval/synth-few-donors-prereg-2026-11-18.md, README "Few donors: the Basque Country and West Germany"):
+// with J donors the placebo p cannot go below 1 / (J + 1), so under 19 donors p <= 0.05 is out of reach whatever
+// happened. Arithmetic on the permutation test, shared by the CLI and the page; null when 0.05 is reachable.
+export function fewDonorsNote(h) {
+  if (!(h.minP > 0.05)) return null;
+  return `With ${h.donors + 1} units the placebo p cannot go below ${f(h.minP, 3)}: p <= 0.05 is out of reach whatever happened, so rank 1 (p ${f(h.minP, 3)}) is the strongest result this test can give, not a near-miss. On two real 17-unit panels (West Germany 1990, the Basque Country 1970) a donor or two with large gaps of their own put the treated unit 3rd and 4th; read the units ranked above it.`;
+}
+
+// The placebos whose statistic is at least the treated unit's (synthResult's h.above), largest first: a description,
+// it changes no p. A donor with a change of its own after the date (an oil boom, a mine closing) counts against the
+// treated unit; naming them lets a reader check, which is not a licence to drop them after seeing the result.
+export function aboveNote(h, max = 5) {
+  if (!h.above?.length) return null;
+  const shown = h.above.slice(0, max).map((q) => `${q.name} ${f(q.statistic, 1)} (before-gap ${g(q.preRmspe)}, after ${g(q.postRmspe)})`).join(', ');
+  return `Ranked at or above ${h.treated} (statistic ${f(h.tests[h.statistic].value, 1)}; before-gap ${g(h.preRmspe)}, after ${g(h.postRmspe)}): ${shown}${h.above.length > max ? `, +${h.above.length - max} more` : ''}. If one of these had a change of its own after the date, the test counts it against ${h.treated}; that is a reason to look into it and say so, not to drop it from the pool after seeing the result (a pool chosen after the result is not a test).`;
+}
+
 // Treated series (dark) and its synthetic (dashed red) on one axis, the date as a vertical rule.
 export function synthChartSvg(h, { width = 720, height = 240 } = {}) {
   const y = h.treatedSeries, s = h.synthetic, n = y.length;
@@ -32,7 +49,7 @@ export function synthHtml(h) {
   const scale = h.scale === 'log' ? 'logs (a gap of -0.1 is about 10% below)' : 'levels';
   const shown = h.weights.slice(0, 8).map((w) => `${esc(w.name)} ${f(w.weight, 3)}`).join(', ');
   const P = [];
-  P.push(`<p class="summary"><strong>${esc(h.treated)} after ${esc(h.lastBefore)}:</strong> ${g(h.effectAverage)} on average against its synthetic control (${g(h.effectAtEnd)} at the last point), on the ${scale}. Placebo test: rank ${h.rank} of ${h.donors + 1}, p ${f(h.p, 3)}${h.p <= 0.05 ? ', a gap larger than almost every donor shows at the same date' : ''}.</p>`);
+  P.push(`<p class="summary"><strong>${esc(h.treated)} after ${esc(h.lastBefore)}:</strong> ${g(h.effectAverage)} on average against its synthetic control (${g(h.effectAtEnd)} at the last point), on the ${scale}. Placebo test: rank ${h.rank} of ${h.donors + 1}, p ${f(h.p, 3)}${h.p <= 0.05 ? ', a gap larger than almost every donor shows at the same date' : h.rank === 1 && h.minP > 0.05 ? `, the largest of all ${h.donors + 1} units (the smallest p this many units allow)` : ''}.</p>`);
   if (h.anticipation) P.push(`<p class="note"><strong>Backdated ${h.anticipation} point${h.anticipation > 1 ? 's' : ''}:</strong> the synthetic control is fitted on the points up to ${esc(h.fitEnd)}, before people could react, so a change they saw coming is not fitted away; the gap and the test read from ${esc(h.fitEnd)} on. Mean gap from ${esc(h.firstAfter)} on: ${g(h.gapFromDate)}.</p>`);
   if (h.leadRange) {
     const R = h.leadRange;
@@ -44,6 +61,9 @@ export function synthHtml(h) {
   P.push(`<p class="note">Synthetic ${esc(h.treated)} = ${shown}${h.weights.length > 8 ? `, +${h.weights.length - 8} more` : ''} (weights at least zero, summing to one, matching every point from ${esc(h.from)} to ${esc(h.anticipation ? h.fitEnd : h.lastBefore)}).</p>`);
   P.push(`<p class="note">Fit before the date: RMSPE ${g(h.preRmspe)}; ${f(100 * h.preFitShare, 0)}% of the donors' own synthetic controls fit better.${h.fitWarning ? ` <strong>Fit warning:</strong> ${esc(h.treated)} is fitted worse than 80% of the placebos, so its gap after the date is hard to read (often it sits outside the donors' range).` : ''}</p>`);
   P.push(`<p class="note">Placebo test: each of the ${h.donors} donors is given the same date and its own synthetic control; the statistic is the after-gap over the before-gap, the before-gap floored at the median of all units. The smallest p ${h.donors + 1} units allow is ${f(h.minP, 3)}. The paper's plain ratio gives rank ${h.tests.ratio.rank}, p ${f(h.tests.ratio.p, 3)}.</p>`);
+  const few = fewDonorsNote(h), above = aboveNote(h);
+  if (few) P.push(`<p class="note" role="note" id="synth-few-donors"><strong>Few donors.</strong> ${esc(few)}</p>`);
+  if (above) P.push(`<p class="note" id="synth-above">${esc(above)}</p>`);
   if (h.balance) {
     const warned = h.balance.filter((c) => c.placeboWarning).map((c) => c.name);
     P.push('<h3>Covariate balance</h3><p class="note">A description of the fit, not a test: it changes no p. Std gap = (treated &minus; synthetic) / sd over all units; &ldquo;placebos matched better&rdquo; is the share of donors whose own synthetic control matches them more closely on that covariate.</p>');
