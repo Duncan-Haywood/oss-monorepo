@@ -61,6 +61,7 @@ M50 = E + "m50_relean/results.txt"
 M50P = E + "m50_relean/posthoc.txt"
 M51 = E + "m51_envelope/results.txt"
 M51P = E + "m51_envelope/posthoc.txt"
+M52 = E + "m52_slackcal/results.txt"
 
 CHECKS = [
     # 5.11 the slide as a mechanism (milestone 27)
@@ -250,6 +251,9 @@ CHECKS = [
     (M51P, "  h1 | 1938 | 1897 (97.9%) | 1902 | 1897 (99.7%) | 36", "the H1 1897 of 1902"),
     (M51P, "  g1 | 20 | 90 | calibration pose [1.0, 0.0] | calibration, plan limit | 45 | 57.0 (35% of it)", "45 under 20 N\npulling sideways, at 35% of the drag"),
     (M51, "H208 (every dropped pose-case lies outside the envelope): 101 inside -> refuted", "Of the\n101 cases inside with no plan"),
+    (M52, "inside milestone 51's envelope 1342 of 1368 (98.1%; loaded 93.0%)", "the G1 plans 1342 of the\n1368 cases inside the limits (98.1%, from 93.0%)"),
+    (M52, "H213 (the slack calibration plans at every sensor-error axis on both robots): 0 cases", "plans at every sensor-error axis"),
+    (M52, "  g1 | 20.0 | 519 | -0.0000 | +0.0000 | +0.0000 | 0.0107, 0.0107", "changes no residual"),
     (M36, "|e|  0.200 N | y +0.824", "leaves 0.824 mm"),
     (M36, "|e|  0.010 N | y -0.267", "already leaves 0.267 mm"),
     (M36, "| 0.0299-0.0547", "0.0014 to 0.05 N m"),
