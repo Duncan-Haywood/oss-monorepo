@@ -20,6 +20,8 @@ from shootflow.frame_analysis import (
     metrics_from_frames,
     noise_sigma_from_frame,
     tilt_from_frame,
+    zoom_dhashes,
+    zoom_distance,
 )
 from shootflow.frame_analysis import _aspect_from_banner
 from shootflow.story import AssetAnalysis
@@ -260,6 +262,40 @@ class CropHashTests(unittest.TestCase):
         crops = _ints(crop_dhashes(_view(_scene(4), 0.0, 0.0, 1.0)))
         self.assertEqual(crop_distance((), crops), 64)
         self.assertEqual(crop_distance(crops, crops[:4]), 64)
+
+
+class ZoomHashTests(unittest.TestCase):
+    def test_hundred_windows_and_metrics_carry_them(self) -> None:
+        frame = _view(_scene(5), 0.0, 0.0, 1.0)
+        zooms = zoom_dhashes(frame)
+        self.assertEqual(len(zooms), 100)
+        self.assertTrue(all(len(h) == 16 for h in zooms))
+        self.assertEqual(metrics_from_frames([frame]).dhash_zooms, zooms)
+
+    def test_a_corner_zoom_matches_a_zoom_window_better_than_the_crop_windows(self) -> None:
+        scene = _scene(6)
+        wide, tight = _view(scene, 0.0, 0.0, 1.0), _view(scene, 0.0, 0.0, 0.9)
+        whole = hamming_distance(dhash_hex(wide), dhash_hex(tight))
+        zoomed = zoom_distance(
+            int(dhash_hex(wide), 16), _ints(zoom_dhashes(wide)), int(dhash_hex(tight), 16), _ints(zoom_dhashes(tight))
+        )
+        shifted = crop_distance(_ints(crop_dhashes(wide)), _ints(crop_dhashes(tight)))
+        self.assertGreater(whole, 8)
+        self.assertLessEqual(zoomed, 2)
+        self.assertLess(zoomed, shifted)
+        # Symmetric: which frame is the tighter one does not matter.
+        self.assertEqual(
+            zoomed,
+            zoom_distance(
+                int(dhash_hex(tight), 16), _ints(zoom_dhashes(tight)), int(dhash_hex(wide), 16), _ints(zoom_dhashes(wide))
+            ),
+        )
+
+    def test_missing_zooms_never_match(self) -> None:
+        frame = _view(_scene(7), 0.0, 0.0, 1.0)
+        h, zooms = int(dhash_hex(frame), 16), _ints(zoom_dhashes(frame))
+        self.assertEqual(zoom_distance(h, (), h, zooms), 64)
+        self.assertEqual(zoom_distance(h, zooms, h, zooms[:25]), 64)
 
 
 class NearDuplicateGroupingTests(unittest.TestCase):
