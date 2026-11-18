@@ -6954,3 +6954,55 @@ where it does not. Pre-registered on fresh seeds, with these cells.
 Test: `update-rate-returns-dow.test.mjs` (the generic chain cost equals `bestReturn`, the weekday costs find the
 planted return with about twice the chain's gain or more, a fixed weekly schedule gains nothing, weekdays from ISO
 dates, and the committed verdict).
+
+## Short returns: the model chosen per stretch (2026-11-18, pre-registered; R1-R3 pass, the real check J1 fails 3 of 8, not offered)
+
+Round 3 above ended by pointing at a choice per stretch: the weekday cost where the stretch has a weekly
+pattern, the chain where it does not. This round tests exactly that. `weeklyPatternLR` in `update-rate.mjs`
+scores a stretch by the likelihood ratio of a two-state chain per weekday (14 parameters) against one two-state
+chain (2). Under a chain with no calendar it is about chi-square on 12 degrees of freedom, so clumps alone do not
+read as a schedule (the plain weekday-share test would: a sticky chain inflates it). `WEEKLY_TEST.crit` is the
+0.999 quantile, 32.909, fixed before any cell ran, not tuned. A stretch above it has its return scored with
+`'dow'`, any other with the fallback. `eval/update-rate-returns-auto.mjs` (header, rule and function committed in
+73e05bb58 before any cell ran) kept the 15 null cells, the 4 power cells, FOUND, R1-R3 and the J1 bar, with fresh
+seeds and two arms by fallback: `'dow|chain'` and `'dow|dowchain'`.
+
+**Calibration (seed 20261224, `eval/update-rate-returns-auto.out.txt`).** The test sorts the cells as intended:
+every Monday-Friday and Monday/Wednesday/Friday stretch reads as weekly, W5c's daily half does not, and at most
+0.5% of the chain-null stretches do. `'dow|chain'` meets the null budget at m 3 and finds 198 of 200 sixty-day
+returns there. `'dow|dowchain'` needs m 5 (196), so `'dow|chain'` at m 3 was chosen.
+
+**Confirmation (seed 20261225, `'dow|chain'` at m 3): all three simulation bars pass.**
+
+| confirmation, found of 200 | per stretch, m 3 | `'dow'` alone, m 3 | round 2's chain, m 3 |
+|---|---|---|---|
+| worst null cell, false returns a series | **0.000** (R1, bar 0.020) | 0.590 (M60 n600) | 0.000 |
+| 30 days of daily inside Monday-Friday | 167 | 167 | 0 |
+| 60 days | **200** (R2, bar 120) | 200 | 0 |
+| 90 days | 200 | 200 | 42 |
+| 60 days at 2% inside independent 25% | 23 | 8 | 23 |
+
+R3 passes too (200 more than the shipped check alone). So the real check ran, as pre-registered: JHU's eight
+documented returns to more frequent reporting, seen data (README "A provider's own schedule changes").
+
+**J1 fails: 3 of 8 dated, bar 4.** Idaho (Monday-Friday to daily, 2021-09-11) is dated 2021-09-06, a 62-day
+return with 3% repeats inside and 24% around; Vermont (2021-08-21) on the day; Michigan (Tuesday and Friday to
+Monday/Wednesday/Friday, 2021-08-09) the day before. Arkansas, Alaska, Nebraska and South Dakota are missed.
+Alabama's return is found but dated 2021-07-17, two months before the documented 2021-09-17, so it does not
+count. The pass stays in the module, off: `SHORT_RETURNS.mult` is still null, and nothing the CLI or the page
+prints changes.
+
+**What the real series show** (post hoc, read off J2, deciding nothing). Five of the twelve returns on the 27
+primary states have about the same share of repeats inside as around them (85% and 85% for Alaska 2022,
+Michigan 2022 and Utah's 20 days, 86% and 86% for Alabama 2022). They are not returns to more frequent
+publication at all. They are changes in *which* days publish. The weekday cost gains from any change in the
+weekday pattern, and the pass's only direction guard is that the raw share inside is lower, which a reshuffled
+schedule passes by a hair. The simulated nulls never moved publication from one set of days to another set of
+the same size, so the calibration could not see this. Next, pre-registered: a null cell that keeps the count of
+publication days and moves them (Tuesday/Friday to Monday/Thursday, and Wednesday to Monday), and a direction
+guard that asks for a real drop in repeats (for example, the repeat share inside at most half of the share
+around, fixed before it runs). Then J1 again. It is now seen twice, so it can only confirm, not choose.
+
+Test: `update-rate-returns-auto.test.mjs` (a Monday-Friday schedule reads as weekly and a clumpy chain does not,
+the statistic is a non-negative likelihood ratio, each stretch is scored with the cost its test picks, and the
+committed verdict).

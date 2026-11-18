@@ -31,3 +31,18 @@ test('per stretch, the weekday cost scores a weekly stretch and the fallback the
   const c = autoCandidates(valuesFrom(y), days.slice(0, 700), 'chain');
   assert.ok(c.length >= 1 && c.every((x) => x.kind === 'chain' && !x.weekly));
 });
+
+test('round 4 committed verdict: dow|chain at m 3 passes R1-R3, J1 dates 3 of 8 and fails', async () => {
+  const { readFileSync } = await import('node:fs');
+  const out = readFileSync(new URL('./eval/update-rate-returns-auto.out.txt', import.meta.url), 'utf8');
+  assert.match(out, /Chosen: arm 'dow\|chain', m 3/);
+  assert.match(out, /R1 every null cell <= 0\.020 \(worst 0\.000\): pass/);
+  assert.match(out, /R2 R60 found >= 120 \(200\): pass/);
+  assert.match(out, /R3 R60 gain over shipped >= 60 \(200\): pass/);
+  assert.match(out, /J1 dated 3 of 8 \(bar >= 4\): FAIL/);
+});
+
+test('the pass stays off by default after round 4', async () => {
+  const { SHORT_RETURNS } = await import('./update-rate.mjs');
+  assert.equal(SHORT_RETURNS.mult, null);
+});
