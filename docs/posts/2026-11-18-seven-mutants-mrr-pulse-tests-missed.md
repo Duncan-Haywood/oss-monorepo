@@ -22,7 +22,7 @@ tired person could plausibly make:
 | Change | What a user would have seen |
 |---|---|
 | ARPA `: 0` became `: 1` with no customers | an ARPA of 1 minor unit (a cent) instead of 0 in `/v1/metrics` on an empty account |
-| growth `/ prior.mrr` became `* prior.mrr` | growth multiplied by last month's MRR instead of divided: $100 to $110 in cents reads as +10,000,000% |
+| growth `/ prior.mrr` became `* prior.mrr` | growth multiplied by last month's MRR instead of divided: $100 to $110 in cents reads as +1,000,000,000% |
 | forecast Low used the *most* new business | a "worst case" no worse than the base case |
 | forecast Low used the *most* expansion | the same, from the other side |
 | Top 10 summed 11 subscriptions | concentration overstated past ten customers |
