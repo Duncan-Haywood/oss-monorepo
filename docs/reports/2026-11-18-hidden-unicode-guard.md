@@ -1,3 +1,8 @@
+---
+kind: note
+date: 2026-11-18
+topics: [ci, software-for-routine]
+---
 # Hidden-Unicode guard: state and the one step left
 
 *Agent doc, 2026-11-18 (explore run, PR #17207).*

@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKk5DQ2XQQj98y4yuDf",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T06:18:36Z",
+  "ended": "2026-11-18T06:29:38Z",
+  "wall_minutes": 16.76,
+  "tokens_in": 7370775,
+  "tokens_out": 38824,
+  "cost_usd": 3.216,
+  "tool_calls": 69,
+  "task": "explore: repository-wide hidden/bidi Unicode (Trojan Source) scan and ratchet",
+  "projects": [
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17207",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 19,
+  "outcome": "success",
+  "errors": [
+    "First scan script iterated characters in Python and took over 120 s; rewritten as a regex scan (2 s).",
+    "The guard's regex was first built from 128 escaped codepoints (22 s); switched to ranges (2 s).",
+    "Agent doc pushed without docs/reports front matter; check_post_frontmatter failed validate and build until `kind` was added."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to keep control-plane edits in their own PR, but the cloud harness allows pushing only the session's one branch, so the CI wiring for a new platform/ci check can't be opened in the same run; left as exact steps in docs/reports/2026-11-18-hidden-unicode-guard.md."
+    },
+    {
+      "file": "docs/reports/README.md",
+      "issue": "The front-matter requirement for agent reports isn't mentioned where CLAUDE.md asks for an agent doc, so a report without it fails CI only after the push."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Wiring the new check into conflict-markers-ci.yml is a control-plane edit and no second branch may be pushed from this session.",
+      "did": "Shipped the check, tests and baseline unwired; wrote the exact workflow steps in a docs/reports note for a later run or the owner.",
+      "result": "The check runs locally and through its own unittest test_repository_is_clean_against_its_baseline; CI enforcement still pending."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-hidden-unicode-in-our-own-repository.md",
+    "docs/reports/2026-11-18-hidden-unicode-guard.md"
+  ],
+  "goal": null,
+  "notes": "Idea: Trojan Source / invisible-Unicode sweep of the repository itself (a kind of sweep not on the explore prompt's already-clean list). platform/ci/check_hidden_unicode.py scans 68,913 tracked files in ~2 s. First pass: 533 characters in 341 files, none malicious; one accidental soft hyphen (claude-code-hooks-security-check README) removed. 311 files held only a literal mid-file U+FEFF; 305 JS files and 3 stores with a literal bidi range in a regex were rewritten to escapes, verified by acorn AST comparison (304 identical; 4 untagged templates differ only in raw text). Baseline now 33 files; agent-instruction/control-plane paths cannot be baselined. Verification: python3 -m unittest test_check_hidden_unicode (19 OK); check_hidden_unicode.py ok; run_venture_tests.py over all 196 touched ventures: '196 suites run, 0 failed' plus site page checks ok; the 4 store/README ventures re-run after the last edit: 4 suites, 0 failed; check_posts.py ok; doc_index.py check ok. Next: wire into conflict-markers-ci.yml (control-plane PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d6997571-3cb3-5add-bb5c-411e5aa20bb5",
+    "transcripts": 1,
+    "first": "2026-11-18T06:18:36Z",
+    "last": "2026-11-18T06:35:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 138,
+        "output": 38824,
+        "thinking": 9040,
+        "cache_read": 7246941,
+        "cache_write_5m": 0,
+        "cache_write_1h": 123696,
+        "api_equivalent_usd": 3.216,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 138,
+      "output": 38824,
+      "thinking": 9040,
+      "cache_read": 7246941,
+      "cache_write_5m": 0,
+      "cache_write_1h": 123696,
+      "api_equivalent_usd": 3.216,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 56,
+      "Write": 4,
+      "ToolSearch": 3,
+      "mcp__github__pull_request_read": 2,
+      "mcp__github__get_job_logs": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.76,
+      "active_minutes": 13.38,
+      "model_minutes": 9.08,
+      "tool_minutes": 4.3,
+      "waiting_on_human_minutes": 3.37,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "senior engineer: research Trojan Source/Tag attacks, write and test a repo-wide scanner and ratchet, rewrite and AST-verify 308 files, write post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 310.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
