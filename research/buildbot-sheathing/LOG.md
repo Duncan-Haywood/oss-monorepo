@@ -1,5 +1,18 @@
 # buildbot-sheathing research log
 
+## 2026-11-18 · Milestone 48 planned: score each pose's hold sides by the worst common leg margin over the hose sweep
+
+- **Why.** Milestone 47 picked each pose's hold sides S* by the common leg margin at zero hose force. That rescued the H1 (worst residual 0.032 to 0.010 mm at 20 N drag) but pushed the G1 over the 0.03 mm spec at 20 N (0.011 to 0.037 mm): at three G1 poses a leg joint, not a hold joint, flips under drag on S*. Its "Next" asked for sides scored at the loads the controller will meet.
+- **Nothing computed with the new score before registering.** Every number below that predicts is a hypothesis; no loaded margin has been computed for any side combination.
+- **Model.** Milestone 47's import (so M1 is the object milestones 41 to 47 built), with its side rule replaced. At every pose of both robots in milestone 41's set, S_H is the combination (16 for the H1, 64 for the G1) whose smallest common leg margin over both window ends and all 17 hose loads (0 N, and 5 and 20 N in each of 8 directions, the same loads section D sweeps), with an exact sensor, is largest; ties (1e-9 N m) keep the per-robot side. A pose takes S_H only if its zero-force margin reaches 0.1/β (β 0.9), so it plans with the spec's own 0.1 N m leg preload as in milestone 47; otherwise it keeps milestone 46's sides and plan. The score uses only the hose loads, not the sensor errors, and only margins, not residuals, so section D is not fitted to. Sections: A, per pose, per-robot sides, S* (milestone 47), S_H, the zero-force and loaded margins of each; B, the spec stack ('stock', 'braked') at every pose whose sides change, beside milestone 47's; C, each robot's worst spec stack; D, each robot's worst residual along the wall ('braked', |e| 0.2 N, S 10 N, H 0 / 5 / 20 N, every hose direction and sensor axis), beside milestone 47's and milestone 41's (G1) figures.
+- **Hypotheses, registered before the run.**
+  - **H193 (the G1 is back in spec).** The G1's worst residual is at most 0.03 mm at 0, 5 and 20 N drag. Refuted if any is larger.
+  - **H194 (the G1 loses nothing to the per-robot side).** The G1's worst residual is at most milestone 41's 0.016 / 0.011 / 0.011 mm plus 0.005 mm. Refuted if any is larger.
+  - **H195 (the H1 keeps milestone 47's gain).** The H1's worst residual is at most milestone 47's 0.010 / 0.014 / 0.010 mm plus 0.005 mm. Refuted if any is larger.
+  - **H196 (every pose carries the preload under load).** Every pose of both robots has an S_H loaded margin of at least 0.1/0.9 N m. Refuted if any is smaller.
+  - **H197 (sides cost no stack).** 'braked': each robot's worst spec stack is at least milestone 47's (H1 0.9655, G1 0.9257) minus 0.1 points. Refuted if lower.
+  - **H198 (no more lost cases).** The H1's swept cases with no plan at milestone 44's two poses are at most milestone 47's 18 of 204. Refuted if more.
+
 ## 2026-11-18 · Milestone 47 result: per-pose hold sides lift every pose's margin above the preload goal and add the H1's two skipped poses, and they lower the H1's worst residual at 20 N drag from 0.032 to 0.010 mm, but the G1 goes over the 0.03 mm spec at 20 N (0.011 to 0.037 mm) because the side is chosen at zero hose force; H187, H188, H189, H191 and H192 held, H190 refuted
 
 `experiments/m47_poseside/` (run, results, post hoc, figure; imports milestone 46's run with its single flip replaced by a per-pose rule), `reproduce.py` (m47 listed), `paper/draft.md` (section 5.11 paragraph), `paper/check_numbers.py`, README, PROPOSAL and project card. No new library code, so no new tests.
