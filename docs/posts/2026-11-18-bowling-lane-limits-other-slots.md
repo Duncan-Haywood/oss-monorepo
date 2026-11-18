@@ -3,7 +3,7 @@ title: "A bowling schedule the SAT solver called impossible, solved by moving tw
 seo_title: "Bowling lane limits: an impossible draw solved by moving teams"
 date: 2026-11-18
 tags: [ventures, league-schedule-generator, operations-research]
-description: "A lane-limit season a SAT solver proved impossible had an answer once the two limited teams took other places in the round robin. What that means for organisers."
+description: "A lane-limit season a SAT solver proved impossible had an answer once the two limited teams took other places in the round robin. What it means for organisers."
 ---
 
 The [bowling page](https://marisstella.app/league-schedule-generator/bowling-league-schedule.html)
@@ -48,12 +48,34 @@ the limited teams wherever the organiser typed them, the search came up 2 counts
 
 ## What is left
 
-RESULTS_POST
+The other four timeouts were 20 teams over 40 weeks and three shapes on 24 teams over 13 weeks.
+Moving teams did not help there at first (four places tried for one 24 x 13 shape, 2 minutes
+each, no answer). What did was telling the solver something it could not see for itself: the lane pairs
+no limit names are interchangeable, so any answer can be relabelled to put week 1's matches on
+them in order. Adding that one rule cut the search enough to answer three of them in 1.5 to 10
+minutes. The fourth, two teams off one pair on 24 x 13, still ran 30 minutes with no answer
+until the second team moved to the place the rotation holds fixed: then 110 seconds.
+
+A repair approach, starting from the page's near miss and re-solving a few weeks at a time, got
+nowhere on two of them (still 2 counts off after 25 minutes), so it stays a script, not part of
+the page.
+
+On the 112 hardest measured seasons, the page now gives every team its even share of the pairs
+it may use in **112 of 112** (it was 106). On a wider grid of 142 seasons with lane limits it is
+139 of 142. Of the three left, one is now proved impossible for every draw, not just one: 6
+teams over 32 weeks with one team off both end pairs is UNSAT on all six places. Another (6
+teams over 32 weeks, two teams off the last pair) is UNSAT on 14 of the 15 ways to place the two
+teams, and the last way is still unanswered. The third (6 teams over 26 weeks, three teams with
+random limits) is UNSAT on its draw; other places for its three teams are not tried yet.
+
+The lesson for anyone writing a scheduling solver: an UNSAT on one encoding is a proof about that
+encoding. If your model fixes an arbitrary choice the user never made (here, which teams sit in
+which places of the rotation), the proof says nothing about the problem the user has.
 
 ## For organisers
 
-If the page says a team is one game off its even share of the pairs under a lane limit, try
-"Try another lane deal", and, for the cases above, nothing: the page now finds the even
-schedule by itself. The measurements and scripts are in the
+For the seasons above there is nothing to do: the page now finds the even schedule by itself.
+Where it still reports a team one game off its share under a lane limit, that is either proved
+the best any schedule can do or, for the two open cases, not yet known. The measurements and scripts are in the
 [venture's README](https://github.com/Duncan-Haywood/oss-monorepo/tree/main/ventures/league-schedule-generator)
 ("Lane limits: shapes stored on other slots").

@@ -66,4 +66,14 @@ LNS did not close either near miss; the symmetry-broken whole-season model close
 6 teams x 32 weeks, shape 1:0;2:0: TIMEOUT after 60 s
 6 teams x 32 weeks, shape 2:0;1:0: TIMEOUT after 60 s
 6 teams x 32 weeks, shape 4:0;0:0: TIMEOUT after 60 s
-6 x 32, one team off both ends: slots 0 and 5 UNSAT (23.8 s, 33.4 s), slots 1-4 TIMEOUT at 30 s:
+6 x 32, one team off both ends: slots 0 and 5 UNSAT (23.8 s, 33.4 s); slots 1-4 TIMEOUT at 30 s, then (600 s cap, no SYMBREAK: one free pair):
+6 teams x 32 weeks, shape 1:0,1: UNSAT in 35.0 s
+6 teams x 32 weeks, shape 2:0,1: UNSAT in 25.2 s
+6 teams x 32 weeks, shape 3:0,1: UNSAT in 25.7 s
+6 teams x 32 weeks, shape 4:0,1: UNSAT in 28.1 s
+=> UNSAT on all 6 slots: out of reach for every dealing of the circle method, not just the page's.
+6 x 32, two teams off the last pair, the 3 unanswered slot pairs again at 300 s:
+6 teams x 32 weeks, shape 0:0;4:0: TIMEOUT after 300 s
+6 teams x 32 weeks, shape 1:0;2:0: UNSAT in 174.3 s
+6 teams x 32 weeks, shape 3:0;5:0: UNSAT in 162.7 s
+=> 14 of 15 slot pairs UNSAT; slots 0 and 4 open.

@@ -224,10 +224,10 @@ meets the fixed slot, depends on the slots. Balance still does not see names, so
 The symmetry break, not the slots, closed four of the five timeouts. The near-miss repair
 (`eval/bowling-avoid-lns.py`) did not close either near miss it was given (2 counts off after 25
 min on 20 x 40), so it stays a tool, not part of the page. Still out of reach on every dealing
-tried: 6 x 32 with two teams off the last pair (12 of 15 slot pairs UNSAT, 3 unanswered at 60 s)
-and with one team off both ends (slots 0 and 5 UNSAT; SIX32_ONE).
+tried: 6 x 32 with two teams off the last pair (14 of 15 slot pairs UNSAT; slots 0 and 4 unanswered at 300 s)
+and, proved, with one team off both ends: UNSAT on all six slots, so no dealing of the circle method has an even rotation there.
 
-On the 112-season grid the page now has every team in target in **112 of 112** (was 106; 0 counts off, was 14; `eval/bowling-avoid-shapes.txt`). GRID142 Tests: `bowling.test.mjs` (a shape on slots 0 and 5 matches and deals; 20 x 9, 18 x 8 and 22 x 23 seasons with those limits keep them, every team in target, no pair meeting twice in a cycle). 180 stored answers (171 before), 38 KB.
+On the 112-season grid the page now has every team in target in **112 of 112** (was 106; 0 counts off, was 14; `eval/bowling-avoid-shapes.txt`). On the 142-season limit grid (`eval/bowling-lane-avoid.txt`) it has **139 of 142** (was 137; 10 counts off, was 18). Tests: `bowling.test.mjs` (a shape on slots 0 and 5 matches and deals; 20 x 9, 18 x 8 and 22 x 23 seasons with those limits keep them, every team in target, no pair meeting twice in a cycle). 180 stored answers (171 before), 38 KB.
 
 ## Lane limits on the hard season lengths: stored answers per limit shape (2026-11-18)
 
