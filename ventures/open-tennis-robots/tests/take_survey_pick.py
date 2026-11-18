@@ -67,19 +67,19 @@ DENSE_US = tuple(range(0, 8001, 250))
 
 
 def capture(args):
-    ti, ki, li, lag, seed = args
+    ti, ki, li, lag, seed, takes = args
     import min_fit_heldout as h
     import take_misfit_trace as tm
     import take_survey_sweep as tss
     tss.SEED = seed
-    tss.TAKES = tuple(tss.TAKES) + tuple((f"halfsine {ms:g} ms", ms, "halfsine") for ms in TAKES_MS)
+    tss.TAKES = tuple(tss.TAKES) + tuple((f"halfsine {ms:g} ms", ms, "halfsine") for ms in takes)
     plants = list(h.PLANTS)
     plants[TACH_PLANT] = (TACHS[ki][0], dict(h.PLANTS[TACH_PLANT][1], **TACHS[ki][1]))
     h.PLANTS = tuple(plants)
     a, r = tm.capture_survey((4 + ti, TACH_PLANT, li, lag))
     if "aborted" not in r:
         r["build"] = [ti, ki, li, lag, seed]
-        r["take_ms"] = TAKES_MS[ti]
+        r["take_ms"] = takes[ti]
         r["board_scores"] = [w["board"] for w in r["wheels"]]
     return (ti, ki, li, lag, seed), r
 
@@ -129,6 +129,7 @@ def picks(b, dense):
 def score(builds, procs):
     from tennisbots import host
     from feeder_sim import controller
+    import take_misfit_trace as tm
     builds = sorted(builds, key=lambda b: tuple(b["build"]))
     with multiprocessing.Pool(procs) as pool:
         dense = dict(pool.map(dense_rows, builds))
@@ -151,8 +152,10 @@ def score(builds, procs):
         print(f"{ms:g} | {TACHS[ki][0]} | {li} | {kept} | {dl:.2f} | {par:.2f} | {spl:.2f} | {share:.2f}"
               f"{'*' if adv else ''}")
         for key in (TACHS[ki][0], "all"):
-            tally.setdefault(key, []).append((ms, dl, par, spl, adv, ms in (0.0, 3.0, 6.0)))
-    print("\nOff-grid takes only (1, 2.5, 3.5, 4.5, 5.5, 7 ms); error in ms, signed mean and mean absolute:")
+            tally.setdefault(key, []).append((ms, dl, par, spl, adv, round(ms * 1000) in tm.PICK_US))
+    takes = sorted({b["take_ms"] for b in builds})
+    print("\nOff-grid takes only (" + ", ".join(f"{t:g}" for t in takes if round(t * 1000) not in tm.PICK_US)
+          + " ms); error in ms, signed mean and mean absolute:")
     print("tach | builds | dense least - true | parabola - true | spline - true | parabola - dense | spline - dense | "
           "within 0.5 ms of true: dense / parabola / spline")
     for key, rows in tally.items():
@@ -167,14 +170,15 @@ def score(builds, procs):
         print(f"{key} | {len(off)} | {m(lambda r: r[1] - r[0])} | {m(lambda r: r[2] - r[0])} | "
               f"{m(lambda r: r[3] - r[0])} | {m(lambda r: r[2] - r[1])} | {m(lambda r: r[3] - r[1])} | "
               f"{w[0]} / {w[1]} / {w[2]}")
-    print("\nOn-grid check (0, 3 and 6 ms): within 0.5 ms of true, dense / parabola / spline")
+    print("\nOn-grid check (" + ", ".join(f"{t:g}" for t in takes if round(t * 1000) in tm.PICK_US)
+          + " ms): within 0.5 ms of true, dense / parabola / spline")
     for key, rows in tally.items():
         on = [r for r in rows if r[5]]
         if on:
             w = [sum(abs(r[j] - r[0]) <= 0.5 + 1e-9 for r in on) for j in (1, 2, 3)]
             print(f"{key} | {len(on)} | {w[0]} / {w[1]} / {w[2]}")
     print("\nBy take (all tachs): mean signed error, dense / parabola / spline")
-    for ms in TAKES_MS:
+    for ms in takes:
         rows = [r for r in tally.get("all", []) if r[0] == ms]
         if rows:
             print(f"{ms:g} ms ({len(rows)}): " + " / ".join(f"{sum(r[j] - r[0] for r in rows) / len(rows):+.2f}"
@@ -249,10 +253,12 @@ def main():
         done = {tuple(r["build"]) for r in load(out)}
     except FileNotFoundError:
         pass
-    grid = [(ti, ki, li, lag, seed) for ki in range(len(TACHS)) for ti in range(len(TAKES_MS)) for li in range(3)]
+    takes = (tuple(float(x) for x in sys.argv[sys.argv.index("--takes") + 1].split(","))
+             if "--takes" in sys.argv else TAKES_MS)
+    grid = [(ti, ki, li, lag, seed) for ki in range(len(TACHS)) for ti in range(len(takes)) for li in range(3)]
     if only:
         grid = grid[:only]
-    grid = [g for g in grid if g not in done]
+    grid = [g + (takes,) for g in grid if g not in done]
     with multiprocessing.Pool(procs, maxtasksperchild=1) as pool:
         for a, r in pool.imap_unordered(capture, grid):
             if "aborted" in r:
