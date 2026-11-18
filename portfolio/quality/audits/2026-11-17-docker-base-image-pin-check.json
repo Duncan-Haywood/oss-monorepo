@@ -188,7 +188,8 @@
    "what": "A FROM line using a build arg (`ARG NODE_VERSION=18` / `FROM node:${NODE_VERSION}-alpine`, the pattern Docker's own reference documents) is dropped silently: no finding, the CLI prints 'no FROM lines found to classify' (page: 'No FROM lines found to classify.') and --fail-on-risk exits 0, so a CI gate passes an unpinned base image. The ARG default is in the same file; at minimum the line should be reported as unresolved and counted, and a tag-position variable (`node:${V}`) cannot be a digest pin.",
    "where": "ventures/docker-base-image-pin-check/check.py:142",
    "category": "scope-gap",
-   "origin": "spec"
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "medium",
@@ -202,28 +203,32 @@
    "what": "The empty-result message 'no FROM lines found to classify' is printed when FROM lines exist but were all skipped (variable), which states something false about the file.",
    "where": "ventures/docker-base-image-pin-check/check.py:262",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "low",
    "what": "Digest validation accepts any length >= 32 and uppercase hex (it lowercases first), so a truncated 40-hex sha256 or `@SHA256:ABC...` is reported pinned although Docker rejects both as invalid references.",
    "where": "ventures/docker-base-image-pin-check/check.py:93",
    "category": "input-handling",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "low",
    "what": "For a malformed digest on a tagged image (`node:18@sha256:abc`) the remediation is `docker buildx imagetools inspect node:18:latest`, an invalid reference; the name keeps its tag and ':latest' is appended. Same in classify.mjs:87.",
    "where": "ventures/docker-base-image-pin-check/check.py:161",
    "category": "logic-error",
-   "origin": "implementation"
+   "origin": "implementation",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "low",
    "what": "Blank lines inside a backslash continuation are claimed skipped (llms.txt) but no Python test covers it: removing the blank-line skip at check.py:180 leaves all 49 tests green.",
    "where": "ventures/docker-base-image-pin-check/test_check.py:1",
    "category": "untested-core",
-   "origin": "tests"
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"
   },
   {
    "severity": "low",
@@ -233,6 +238,6 @@
    "origin": "spec"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/17128"],
  "verdict": "A tidy, honest, well-tested single-purpose checker whose core classifier is exact and whose gate has holes. Against the distribution/reference grammar (auditor's own encoding) the FROM classification matched on all 12 valid reference forms, including registry ports and tag+digest; Hadolint DL3006/DL3007 and Docker's digest-pinning guidance are quoted correctly; disclaimers are present; 110 tests pass and 5 of 6 seeded mutants were caught. But the commonest real-world unpinned patterns pass the --fail-on-risk gate: a FROM built from an ARG default (`FROM node:${NODE_VERSION}-alpine`) yields 'no FROM lines found to classify' and exit 0, and `COPY --from=nginx:latest` is invisible while the verdict says every base image is pinned. Smaller: truncated or uppercase digests count as pinned, and a malformed digest gets an invalid remediation command. Does not meet the bar (correctness 2; median 3); finished (completeness 3). Fixable in one session: resolve pre-FROM ARG defaults (or report variable lines as unresolved and fail the gate on them), scan COPY --from and RUN --mount from=, require 64 lowercase hex for sha256, and fix the empty-result message."
 }

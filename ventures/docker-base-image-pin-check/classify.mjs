@@ -14,14 +14,70 @@ export const MUTABLE = "mutable";
 export const STAGE = "stage";
 export const SCRATCH = "scratch";
 export const VARIABLE = "variable";
+export const UNRESOLVED = "unresolved";
 
-export const RISK_CLASSIFICATIONS = new Set([MUTABLE]);
+export const RISK_CLASSIFICATIONS = new Set([MUTABLE, UNRESOLVED]);
 
-// A digest reference is `@<algorithm>:<hex>`. sha256 is what every current
-// registry and buildkit version actually produces, but the reference grammar
-// allows any lowercase alphanumeric algorithm name, so this is not hardcoded
-// to "sha256".
-const DIGEST_RE = /^[a-z0-9]+(?:[+._-][a-z0-9]+)*:[0-9a-f]{32,}$/;
+// A digest reference is `@<algorithm>:<hex>`. The reference grammar allows
+// any lowercase alphanumeric algorithm with at least 32 hex characters; the
+// OCI image spec fixes sha256 at exactly 64 and sha512 at exactly 128
+// lowercase hex characters. Mirrors check.py's digest_is_valid.
+const DIGEST_RE = /^([a-z0-9]+(?:[+._-][a-z0-9]+)*):([0-9a-fA-F]{32,})$/;
+const REGISTERED_DIGEST_HEX = { sha256: 64, sha512: 128 };
+
+export function digestIsValid(digest) {
+  const m = DIGEST_RE.exec(digest);
+  if (!m) return false;
+  const want = REGISTERED_DIGEST_HEX[m[1]];
+  if (want === undefined) return true;
+  return m[2].length === want && m[2] === m[2].toLowerCase();
+}
+
+const ARG_RE = /^\s*ARG\s+(.+?)\s*$/i;
+const NAME_RE = /^[A-Za-z_][A-Za-z0-9_]*$/;
+const VAR_RE = /\$(?:\{([A-Za-z_][A-Za-z0-9_]*)(?:(:?[-+])([^}]*))?\}|([A-Za-z_][A-Za-z0-9_]*))/g;
+
+/** Record each `NAME` or `NAME=value` of one ARG instruction in `args`
+ * (a Map; a name with no default maps to null). Mirrors check.py's parse_arg. */
+export function parseArg(body, args) {
+  for (const token of body.split(/\s+/).filter(Boolean)) {
+    const eq = token.indexOf("=");
+    const name = eq === -1 ? token : token.slice(0, eq);
+    if (!NAME_RE.test(name)) continue;
+    if (eq === -1) {
+      if (!args.has(name)) args.set(name, null);
+      continue;
+    }
+    let value = token.slice(eq + 1);
+    if (value.length >= 2 && value[0] === value[value.length - 1] && (value[0] === '"' || value[0] === "'")) {
+      value = value.slice(1, -1);
+    }
+    const { text, missing } = expandArgs(value, args);
+    args.set(name, missing.length ? null : text);
+  }
+}
+
+/** Substitute build args as a plain `docker build` would. Returns
+ * {text, missing}. Mirrors check.py's expand_args. */
+export function expandArgs(text, args) {
+  const missing = [];
+  const out = text.replace(VAR_RE, (whole, braced, op, word = "", bare) => {
+    const name = braced || bare;
+    const value = args.has(name) ? args.get(name) : null;
+    const isSet = value !== null;
+    if (op === ":-") return isSet && value !== "" ? value : word;
+    if (op === "-") return isSet ? value : word;
+    if (op === ":+") return isSet && value !== "" ? word : "";
+    if (op === "+") return isSet ? word : "";
+    if (!isSet) {
+      missing.push(name);
+      return whole;
+    }
+    return value;
+  });
+  if (out.includes("$") && !missing.length) missing.push(out);
+  return { text: out, missing };
+}
 
 // Matches a `FROM` instruction, tolerating the optional `--platform=...` flag
 // and an optional `AS <stage-name>` suffix. Mirrors check.py's _FROM_RE
@@ -70,7 +126,7 @@ export function classifyFrom(ref, stageNames) {
   const { name, tag, digest } = splitNameAndRef(ref);
 
   if (digest !== null) {
-    if (DIGEST_RE.test(digest.toLowerCase())) {
+    if (digestIsValid(digest)) {
       return { classification: PINNED, name, tag: null, digest };
     }
     // Malformed digest-shaped suffix -- not this tool's job to validate
@@ -84,6 +140,10 @@ export function classifyFrom(ref, stageNames) {
 /** The exact, read-only command to look up the digest a mutable tag
  * currently resolves to. This page never runs it. */
 export function remediationCommand(name, tag) {
+  if (!tag) {
+    // A malformed digest on a tagged image keeps its tag in `name`.
+    ({ name, tag } = splitNameAndRef(name));
+  }
   const ref = tag ? `${name}:${tag}` : `${name}:latest`;
   return `docker buildx imagetools inspect ${ref}`;
 }
@@ -121,21 +181,55 @@ export function logicalLines(text) {
 
 /** Scan one Dockerfile's text. Returns a list of finding objects, in the
  * same shape check.py's --format json emits. `filename` is carried through
- * for display only. */
-export function scanText(text, filename = "<Dockerfile>") {
+ * for display only. When `stats` is an object, its `fromLines` count grows
+ * by the number of FROM instructions read. */
+export function scanText(text, filename = "<Dockerfile>", stats = null) {
   const findings = [];
   const stageNames = new Set();
+  const globalArgs = new Map();
+  let seenFrom = false;
   for (const [lineNumber, line] of logicalLines(text)) {
+    if (!seenFrom) {
+      const arg = ARG_RE.exec(line);
+      if (arg) {
+        parseArg(arg[1], globalArgs);
+        continue;
+      }
+    }
     const match = FROM_RE.exec(line);
     if (!match) continue;
-    const ref = match[1];
+    seenFrom = true;
+    if (stats) stats.fromLines = (stats.fromLines ?? 0) + 1;
+    const original = match[1];
     const alias = match[2];
-    const { classification, name, tag, digest } = classifyFrom(ref, stageNames);
+    let ref = original;
+    let missing = [];
+    if (looksVariable(ref)) ({ text: ref, missing } = expandArgs(ref, globalArgs));
+    let classification, name, tag, digest;
+    if (missing.length) {
+      [classification, name, tag, digest] = [UNRESOLVED, original, null, null];
+      const at = original.lastIndexOf("@");
+      const afterAt = at === -1 ? "" : original.slice(at + 1);
+      if (at !== -1 && !afterAt.includes("$") && digestIsValid(afterAt)) {
+        [classification, name, digest] = [PINNED, original.slice(0, at), afterAt];
+      }
+    } else {
+      ({ classification, name, tag, digest } = classifyFrom(ref, stageNames));
+    }
     if (alias) stageNames.add(alias.toLowerCase());
-    if (classification !== PINNED && classification !== MUTABLE) continue;
+    if (classification !== PINNED && classification !== MUTABLE && classification !== UNRESOLVED) continue;
     const finding = { file: filename, line: lineNumber, image: name, tag, digest, classification };
+    if (original !== ref || missing.length) finding.from_arg = original;
     if (classification === MUTABLE) {
       finding.remediation = remediationCommand(name, tag);
+    }
+    if (classification === UNRESOLVED) {
+      const names = [...new Set(missing.filter((m) => NAME_RE.test(m)))].sort();
+      finding.unresolved_args = names;
+      finding.note =
+        "no ARG default before the first FROM sets " +
+        (names.length ? names.join(", ") : "this substitution") +
+        "; give it one pinned to a digest, or check what --build-arg passes";
     }
     findings.push(finding);
   }
@@ -144,10 +238,10 @@ export function scanText(text, filename = "<Dockerfile>") {
 
 /** Scan one or more pasted Dockerfiles at once. `files` is an array of
  * {name, text}. Returns the concatenated findings, in the order given. */
-export function scanFiles(files) {
+export function scanFiles(files, stats = null) {
   const findings = [];
   for (const file of files) {
-    findings.push(...scanText(file.text, file.name || "<Dockerfile>"));
+    findings.push(...scanText(file.text, file.name || "<Dockerfile>", stats));
   }
   return findings;
 }
@@ -166,13 +260,24 @@ export function classificationCounts(findings) {
 }
 
 /** One-line headline for the page. */
-export function summaryLine(findings) {
-  if (!findings.length) return "No FROM lines found to classify.";
+export function summaryLine(findings, fromLines = 0) {
+  if (!findings.length) {
+    return fromLines
+      ? `All ${fromLines} FROM line${fromLines === 1 ? " is" : "s are"} scratch or earlier build stages, so nothing is pulled from a registry.`
+      : "No FROM lines found to classify.";
+  }
   const counts = classificationCounts(findings);
   const mutable = counts[MUTABLE] ?? 0;
   const pinned = counts[PINNED] ?? 0;
+  const unresolved = counts[UNRESOLVED] ?? 0;
+  const unresolvedText = unresolved
+    ? ` ${unresolved} built from a build arg with no default, so not shown to be pinned.`
+    : "";
   if (mutable) {
-    return `${mutable} mutable base image reference${mutable === 1 ? "" : "s"} found, ${pinned} already pinned to a digest.`;
+    return `${mutable} mutable base image reference${mutable === 1 ? "" : "s"} found, ${pinned} already pinned to a digest.${unresolvedText}`;
+  }
+  if (unresolved) {
+    return `No mutable tag found, ${pinned} pinned to a digest.${unresolvedText}`;
   }
   return `Every base image reference is pinned to a content digest. (${pinned} checked.)`;
 }

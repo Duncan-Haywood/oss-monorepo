@@ -60,6 +60,11 @@ REQUIRED = ("title", "date", "description", "tags")
 LIMITS = {"title": 110, "description": 160, "seo_title": 70}
 MIN_DESCRIPTION = 60
 PLACEHOLDER = "https://example.invalid"  # platform/pages/check.mjs PLACEHOLDER_ORIGIN
+# build.test.mjs's "no paywall language" test runs this on the hub, which shows
+# the three newest posts' title and description (home.mjs renderLatestWriting).
+# A post titled "A free trial is not churn" passed every post check and turned
+# PR #17115's site build red (2026-11-18). Kept in step by test_check_post_frontmatter.py.
+PAYWALL = re.compile(r"\bsubscribe\b|upgrade to|paid plan|\bfree trial\b", re.I)
 ENTITY = re.compile(r"&(#\d+|#x[0-9a-f]+|[a-z][a-z0-9]*);", re.I)  # entities.mjs DOUBLE_ESCAPED, unescaped
 
 
@@ -106,6 +111,11 @@ def problems(name, text, today=None):
     # main_health ran it: a title over 70 with no seo_title and no clean cut to 70.
     if not seo and len(title) > 70 and not _cut(title):
         out.append(f"title is {len(title)} characters with no clean cut to 70; add `seo_title:` (70 max)")
+    for key, value in (("title", title), ("description", desc)):
+        hit = PAYWALL.search(value)
+        if hit:
+            out.append(f"{key} holds `{hit.group(0)}`, which the hub shows and build.test.mjs's "
+                       "'no paywall language' test refuses; reword it")
     tags = fields.get("tags")
     if tags and not re.fullmatch(r"\[\s*[^\]\s][^\]]*\]", tags):
         out.append("`tags` is not a non-empty [list]")
