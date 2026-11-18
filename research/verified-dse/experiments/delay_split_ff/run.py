@@ -128,8 +128,17 @@ def task(a):
 
 
 def base_task(a):
+    """Milestone 145's baseline task with this milestone's design table (its own base_task installs milestone 145's designs)."""
+    d, wd, lib, pdk, orb = a
     install()
-    return M145.base_task(a)
+    sp = M145.M144.synth_period
+    log = Path(wd) / "openroad.log"
+    if log.exists() and sp(log.read_text()) is not None:
+        return d, sp(log.read_text())
+    try:
+        return d, flow.run_point(d, (), 10.0, wd, lib, pdk, orb)["synth_netlist_period_ns"]
+    except RuntimeError:
+        return d, sp(log.read_text()) if log.exists() else None
 
 
 def main():
