@@ -238,10 +238,10 @@ def capture_survey(args):
                   "board_levels": getattr(controller, "TAKE_SURVEY_LEVELS", 3), "wheels": wheels}
 
 
-def survey_score(wheels_rms):
+def survey_score(wheels_rms, trim=None):
     """The board's own scoring (controller.ResidualSurvey, survey_pick): (least, refined ms, rms per candidate in ppm,
-    best / step share)."""
-    rs = controller.ResidualSurvey(PICK_US)
+    best / step share). `trim` None is the board's take-survey trim (controller.TAKE_SURVEY_TRIM)."""
+    rs = controller.ResidualSurvey(PICK_US, getattr(controller, "TAKE_SURVEY_TRIM", None) if trim is None else trim)
     for got in wheels_rms:
         if got and all(g is not None for g in got):
             rs.add([g * g for g in got])
