@@ -16,6 +16,7 @@ def setUpModule():
     global H
     import run_width_hi9
     H = run_width_hi9
+    H.oc.use_clim(H.oc.OLD_CLIM)  # the import switches it only once per process
 
 
 def tearDownModule():
