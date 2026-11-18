@@ -333,5 +333,97 @@
    },
    ""
   ]
+ },
+ "batch2": {
+  "base_period_ns": {
+   "csum12": 16.47,
+   "csum16": 19.58,
+   "csum20": 22.84,
+   "csum24": 26.14,
+   "sad16": 8.02,
+   "sad20": 13.7,
+   "amin2": 5.14,
+   "amin4": 9.91,
+   "rng2n4": 10.48
+  },
+  "band": {
+   "csum12": null,
+   "csum16": "SLOW",
+   "csum20": "SLOW",
+   "csum24": "SLOW",
+   "sad16": "FAST",
+   "sad20": "FAST",
+   "amin2": "FAST",
+   "amin4": "FAST",
+   "rng2n4": "FAST"
+  },
+  "cells": {
+   "ADD-FAST": [],
+   "ADD-SLOW": [
+    "csum24",
+    "csum16",
+    "csum20"
+   ],
+   "CTRL-FAST": [
+    "rng2n4"
+   ],
+   "CTRL-SLOW": []
+  },
+  "clock": {
+   "csum24": "tight",
+   "csum16": "relaxed",
+   "csum20": "tight",
+   "rng2n4": "tight"
+  },
+  "order": [
+   "csum24",
+   "rng2n4",
+   "csum16",
+   "csum20"
+  ],
+  "designs": {
+   "csum24": [
+    "csumsh_w",
+    "csumsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "K": 24
+    },
+    ""
+   ],
+   "rng2n4": [
+    "rngsh_w",
+    "rngsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "N": 2,
+     "NB": 4,
+     "R": 1
+    },
+    ""
+   ],
+   "csum16": [
+    "csumsh_w",
+    "csumsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "K": 16
+    },
+    ""
+   ],
+   "csum20": [
+    "csumsh_w",
+    "csumsh_w",
+    {
+     "W": 128,
+     "SW": 7,
+     "K": 20
+    },
+    ""
+   ]
+  }
  }
 }

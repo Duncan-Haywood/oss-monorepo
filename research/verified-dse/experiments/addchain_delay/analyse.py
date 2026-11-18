@@ -198,6 +198,8 @@ def main(dst):
                 "cell means of d: " + ", ".join(
                     f"{s_}-{b_} {mean([ad[x] for x in ad if ast[x] == s_ and abd[x] == b_]):+.2f}" for s_, b_ in run.CELLS),
                 f"S = {aS:+.2f} points (p = {paS:.4f}); D = {aD:+.2f} points (p = {paD:.4f})",
+                "all 20: SWC better on {}, worse on {}, tied on {}; sign p = {:.4f}; mean regret SWC {:.2f}%, random {:.2f}%".format(
+                    *sign(ad), lb.mean(list(cc.values()) + list(c2.values()), swc), lb.mean(list(cc.values()) + list(c2.values()), rand)),
                 f"(2b) on batch 1 + batch 2, S > 0 with p < 0.05: {aS > 0 and paS < 0.05}"]
     fails = {}
     for r in rs:

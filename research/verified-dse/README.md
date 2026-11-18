@@ -161,6 +161,14 @@ the full list is in [`LOG.md`](LOG.md), newest first. Headline results so far:**
   where the ladder fails (15.64% against 16.63%) and gives up 0.97 where it is perfect. Four of six predictions refuted; the
   probe-guard search for this rule closes here:
   [`experiments/delay_check/`](experiments/delay_check/results.txt).
+- **Neither add-chain structure nor a short mapped path explains the ladder's fast-corner losses (milestone 146, flow run, blind
+  2 x 2, three of eight predictions held; the primary failed).** At ff_n40C_1v95, 16 fresh 128-bit designs were placed by a rule
+  fixed in advance into four cells: add-chain or compare-chain amount, by a short (<= 15 ns) or long (>= 16.5 ns) mapped no-wire
+  period. At matched delay the add-chain effect on SWC's advantage over equal-cost random routing is -5.06 points (stratified
+  permutation p = 0.46, the wrong sign), and the delay effect at matched structure +2.42 (p = 0.75). Four disclosed top-ups
+  (20 designs, 5 a cell) give -2.55 (p = 0.66) and -0.09 (p = 0.99). Milestone 145's 7.3-point gap does not replicate once the
+  confound is broken. SWC beats random on 15 of 20 (sign p = 0.0075; mean regret 2.09% against 9.50%):
+  [`experiments/addchain_delay/`](experiments/addchain_delay/results.txt).
 - **At the fast corner the ladder's edge is smaller on add-chain shift amounts, but it does not lose on most of them (milestone 145,
   flow run, blind, four of seven predictions held; the primary failed).** On 20 fresh 128-bit designs at ff_n40C_1v95, SWC loses
   to equal-cost random routing on 3 of 10 designs whose amount is a chain of multi-bit adds and on 0 of 10 compare, select or
