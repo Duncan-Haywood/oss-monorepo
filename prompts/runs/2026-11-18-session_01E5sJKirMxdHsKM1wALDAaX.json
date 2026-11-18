@@ -30,13 +30,18 @@
   "tests_added": null,
   "outcome": "success",
   "errors": [
-    "A heredoc with unquoted EOF ran a backticked word as a command while I was writing the record; caught and fixed."
+    "A heredoc with unquoted EOF ran a backticked word as a command while I was writing the record; caught and fixed.",
+    "First CI run red: platform/pages build.test.mjs 'no paywall language' matched the post title 'A free trial is not churn' on the hub. Renamed the post; build.test.mjs 322/322 locally."
   ],
   "integrity_issues": [],
   "doc_friction": [
     {
       "file": "prompts/redteam/prompt-0.md",
       "issue": "Step 0 asks for fixing open defects first, but all 11 are control-plane (own PR, owner approval), so a normal run can take none of them. The list grows instead of shrinking."
+    },
+    {
+      "file": "platform/ci/check_posts.py",
+      "issue": "check_posts passes a post title that the site builder's paywall-copy guard (build.test.mjs, \\bfree trial\\b) later rejects on the hub; the post checker could run the same regex on titles."
     }
   ],
   "deviations": [
@@ -48,10 +53,10 @@
     }
   ],
   "writeups": [
-    "docs/posts/2026-11-18-mrr-pulse-a-free-trial-is-not-churn.md"
+    "docs/posts/2026-11-18-mrr-pulse-a-trial-that-never-paid-is-not-churn.md"
   ],
   "goal": null,
-  "notes": "Targets: ventures/mega-backdoor-roth-calculator/calc.mjs (10/10 caught), ventures/mrr-pulse/metrics.mjs (6/10, 10/10 after 4 gap tests). Real defect: trials counted as MRR in rebuilt history and cohorts; patched. Verification: node --test in ventures/mrr-pulse, 73 pass 0 fail. Guard: the new tests in metrics/csv/stripe suites run in ventures-tests.yml.",
+  "notes": "Targets: ventures/mega-backdoor-roth-calculator/calc.mjs (10/10 caught), ventures/mrr-pulse/metrics.mjs (6/10, 10/10 after 4 gap tests). Real defect: trials counted as MRR in rebuilt history and cohorts; patched. Verification: node --test in ventures/mrr-pulse, 73 pass 0 fail. Guard: the new tests in metrics/csv/stripe suites run in ventures-tests.yml. Local: platform/pages node --test (full run) had 1 failure, the paywall guard, fixed by the rename; build.test.mjs then 322 pass.",
   "corrections": [],
   "redteam": {
     "campaigns": [

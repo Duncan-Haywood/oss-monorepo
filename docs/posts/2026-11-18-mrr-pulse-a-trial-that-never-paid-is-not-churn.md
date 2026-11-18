@@ -1,5 +1,5 @@
 ---
-title: "A free trial is not churn: the MRR history that counted trials as revenue"
+title: "A trial that never paid is not churn: the MRR history that counted trials as revenue"
 seo_title: "MRR backfill from Stripe: count from trial_end, not created"
 date: 2026-11-18
 tags: [mrr-pulse, stripe, saas-metrics, redteam]
