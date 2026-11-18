@@ -1,0 +1,32 @@
+name: formwork-pressure
+description: Free browser tool and CLI for the design lateral pressure of fresh concrete on wall and column forms by the ACI 347R equations, with the pressure envelope, resultant force, tie spacing and the fastest pour rate a form's rating allows.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Formwork foremen and small concrete contractors work out pour rates and tie spacing by rule of thumb or a spreadsheet, and a free page that also inverts a form's rated pressure into a pump rate is something they would use before a pour.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "formwork pressure calculator" and "concrete lateral pressure ACI 347" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three contractors or engineers use it on a real pour within 90 days of it being discoverable.
+
+links:
+  production: https://marisstella.app/formwork-pressure/
+  analytics: null
