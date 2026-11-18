@@ -558,6 +558,7 @@ ventures/hidden-unicode-check/usage.mjs
 ventures/hoa-reserve-fund-calculator/usage.mjs
 ventures/hoarding-cleanout-bid-calculator/usage.mjs
 ventures/holiday-light-bid-calculator/usage.mjs
+ventures/home-battery-planner/usage.mjs
 ventures/home-care-agency-margin-calculator/usage.mjs
 ventures/home-elevator-bid-calculator/usage.mjs
 ventures/home-inspection-business-profit-calculator/usage.mjs
