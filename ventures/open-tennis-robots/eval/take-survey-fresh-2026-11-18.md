@@ -29,3 +29,25 @@ sits near 7 while the grid's sums still pin the pick at its end, and the next it
 (scored offline with `--grids "0,2,3,4,5,6,8;0,2,3,4,5,6,7,8"` here; adopting it needs its own held-out set). If (b)
 fails, the stretched offsets' gain did not carry to fresh wheels and `TAKE_MATCH_SPREAD` is questioned in the README.
 If (c) or (d) fails, it is recorded as an open item.
+
+## Second prediction: the spline pick, on a third set (written after A and B were scored, before C was captured)
+
+A and B (scored below) showed something the first prediction did not ask about. With the offsets stretched, the
+residual curve's dense least now sits on the true take (+0.08 and -0.12 ms on the capture tach), and the parabola's
+pick between grid sums reads about half a millisecond below it (-0.51 and -0.50 ms off-grid on the capture tach).
+Before the stretch the parabola's low lean was partly cancelling the fit's high reading. The natural spline
+(`survey_spline_pick`, shipped for the ESC-lag survey) read -0.38 and -0.29. On the shipped grid, A and B together:
+within 0.5 ms 92 spline against 89 parabola, within 1 ms 105 against 104, named and advised 58 each, no instant build
+advised. That margin is small and was found on the same rows, so it decides nothing.
+
+Set C: wheel lag 0.5 s, seed 47 (unused by any earlier set).
+
+- (e) on the capture tach the parabola's signed mean on the off-grid takes is below -0.3 ms, and the spline's is closer
+  to zero than the parabola's;
+- (f) on the shipped grid the spline has at least as many builds within 0.5 ms as the parabola.
+
+Decision rule: the take survey's report moves to the spline (`TAKE_SURVEY_SPLINE = True`, a new flag, built off) only
+if on set C the spline has more builds within 0.5 ms than the parabola, no fewer within 1 ms, no fewer spread takes
+named within 1 ms and advised, and no more instant builds advised (all from `--grids` on the shipped grid). Otherwise
+the flag stays off. The nine-point grid is reported, not decided: it changes the TAKE_SURVEY frame and costs two fits a
+wheel, so it needs its own run.
