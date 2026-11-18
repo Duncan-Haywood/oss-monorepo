@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtH5tRNaCyE8u6foEbv",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T14:07:16Z",
+  "ended": "2026-11-18T14:28:27Z",
+  "wall_minutes": 21.45,
+  "tokens_in": 7992272,
+  "tokens_out": 36512,
+  "cost_usd": 3.4988,
+  "tool_calls": 67,
+  "task": "chant-forge (allocate.py start-here row 6): why murmurSource 'one' loses the D3 Graduale nasals, then pre-register a fix",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17320",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "A two-command shell line set $S in one subshell only; the second coda-check run wrote its report to /d-one.md (moved back to the scratchpad, no harm)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": ".github/prompts/cloud-session.md",
+      "issue": "The pgrep hook rejects a bracketed pattern if the bare word also appears elsewhere in the command line (a Monitor until-loop that names the output files coda-check-*.md); not mentioned in CLAUDE.md's one-line note on the hook."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-chant-forge-one-voice-too-loud-on-a-frozen-chorus.md",
+    "ventures/chant-forge/eval/murmur-match-check.md"
+  ],
+  "goal": "Deepen flagship 11 (chant-forge): close the open 'next: why' on the one-voice murmur",
+  "notes": "Diagnosis: on 242 ms D3 notes the five voices barely drift in phase, so the chorus's level is frozen per note at a random alignment; 'one' (voice / sqrt 5, the average) came out -4 to +11 dB against the chorus's murmur, and the four lost nasals were the +7 to +11 ones. New opt-in murmurSource 'match' follows the chorus's low-passed power (20 ms) and holds the gain at the coda's murmur start. Pre-registered and committed (c0243b93a) before the full run. Full coda-check (29 parts, default / one / match): nasals summed 2,141 / 2,163 / 2,220; D 12/8/12, F 209/200/213, a 116/124/134 of 144; 108 control cells identical. Prediction 1 partly failed (R 47 of 48, Z 44 of 48, wanted 48 and 46), so 'match' stays opt-in. Tests: run_venture_tests chant-forge ok (325 tests); check_posts ok; validate.py ok. coda-check-report.md refreshed (corpus had grown to 147 files). venture-preflight.mjs chant-forge: clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "cfc88639-8720-5260-933a-284ec281a8f7",
+    "transcripts": 1,
+    "first": "2026-11-18T14:07:16Z",
+    "last": "2026-11-18T14:28:43Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 132,
+        "output": 36512,
+        "thinking": 9334,
+        "cache_read": 7842188,
+        "cache_write_5m": 0,
+        "cache_write_1h": 149952,
+        "api_equivalent_usd": 3.4988,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 132,
+      "output": 36512,
+      "thinking": 9334,
+      "cache_read": 7842188,
+      "cache_write_5m": 0,
+      "cache_write_1h": 149952,
+      "api_equivalent_usd": 3.4988,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 21.45,
+      "active_minutes": 21.45,
+      "model_minutes": 7.29,
+      "tool_minutes": 14.17,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an audio DSP engineer diagnosing the level fault, writing the matched-gain option, pre-registering and reading three full read-backs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 171.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

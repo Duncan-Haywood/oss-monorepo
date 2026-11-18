@@ -211,6 +211,8 @@ function wallPow(hz, rate) {
 // Each nasal also has its antiformant, the side branch's zero (Fujimura 1962: /m/ 750-1250 Hz,
 // /n/ 1450-2200 Hz; Z in PHONES), which takes out the band just above the murmur that the low-pass leaves.
 const NASAL_DB = 7;
+// murmurSource 'match': how long the chorus's and the one voice's power are averaged over (one 20 ms frame)
+const MATCH_TAU = 0.02;
 // Openings now sing the same murmur as codas (2026-11-15, README "Openings on the coda murmur"): its gain
 // worked out per note against the vowel it goes to, its antiformant and its broad low resonance. Before,
 // an opening nasal kept the first version's murmur (this fixed gain, no antiformant, a vowel-width F1),
@@ -443,8 +445,13 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const out = new Float64Array(total);
   const rand = rng(seed);
   const src = new Float64Array(total);
-  // o.murmurSource 'one': the murmur (and a nasal's hum) is taken from one voice, not the beating chorus (src1)
-  const one = o.murmurSource === 'one', src1 = one ? new Float64Array(total) : null;
+  // o.murmurSource 'one': the murmur (and a nasal's hum) is taken from one voice, not the beating chorus (src1).
+  // 'match' (2026-11-18, README "One voice at the chorus's level"; eval/murmur-one-diag.mjs): the same voice, its
+  // level matched to the chorus's low-passed source just before a coda's murmur starts. On a short low note the
+  // five voices barely drift in phase, so the chorus's power is frozen for the note anywhere from near zero to
+  // five times its average, while 'one' sits at the average: on part D's D3 eighth notes the one-voice murmur
+  // came out 4 dB under to 11 dB over the chorus's, and the four nasals it lost were the +7 to +11 dB ones.
+  const match = o.murmurSource === 'match', one = o.murmurSource === 'one' || match, src1 = one ? new Float64Array(total) : null;
   let vi = 0;
   for (const dt of o.detunes) {
     const ff = f * 2 ** (dt / 1200);
@@ -476,6 +483,10 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
   const g0 = Math.round((lead + o.glideFrom * dur) * rate), g1 = Math.max(g0 + 1, Math.round((cd ? cd.plan.codaAt - TRANSITION * cd.plan.scale : lead + dur) * rate));
   const st = new Float64Array(10); // two state values per resonator
   let co = null, lp = 0, lp2 = 0, lpm = 0, lpm2 = 0, az = null, zx1 = 0, zx2 = 0;
+  // 'match': the chorus's and the one voice's low-passed power, smoothed over MATCH_TAU; the gain between them
+  // follows until a coda's murmur starts and is held from there (an opening's murmur follows throughout)
+  const MK = 1 - Math.exp(-1 / (MATCH_TAU * rate));
+  let pc = 0, po = 0, mg = 1;
   // the murmur's gain against the vowel it leaves (or, in an opening, the one it goes to)
   const onCoda = o.onsetMurmur !== 'first'; // an opening nasal sings the coda's murmur
   const gains = new Map(), gainOf = (z, V, side) => { // per nasal (its zero) and vowel (the one it leaves or goes to)
@@ -499,7 +510,10 @@ function rawSing(f, dur, rate, vowel, glide, opts, seed) {
     const nOn = on ? on.nas[i] : 0, nCd = cd ? cd.nas[i] : 0, nz = Math.max(nOn, nCd);
     lp += NASAL_LP * (x - lp); lp2 += NASAL_LP * (lp - lp2);
     if (one) { lpm += NASAL_LP * (src1[i] * avi - lpm); lpm2 += NASAL_LP * (lpm - lpm2); }
-    const mm = one ? lpm2 : lp2; // the murmur's source, low-passed
+    if (match) {
+      if (!(cd && cd.nas[i] > 0)) { pc += MK * (lp2 * lp2 - pc); po += MK * (lpm2 * lpm2 - po); if (po > 1e-12) mg = Math.sqrt(pc / po); }
+    }
+    const mm = one ? (match ? lpm2 * mg : lpm2) : lp2; // the murmur's source, low-passed
     // the antiformant: an inverse resonator (Klatt's antiresonator, unity gain at 0 Hz) on the murmur
     const zf = nCd >= nOn ? cd && cd.nas.z[i] : onCoda && on.nas.z[i];
     if (zf && (!az || az.f !== zf)) { const [A, B, C] = reson(zf, NASAL_ZBW, rate); az = { f: zf, a: 1 / A, b: -B / A, c: -C / A }; }

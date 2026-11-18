@@ -461,27 +461,28 @@ flagships:
       c (123 to 125 of 144, 3 wanted), opt-in; 2026-11-17: c's cluster-onset -um
       misses traced to the synthesised murmur's beat phase, not the reader
       (eval/cluster-um-report.md); longTilt opt-in; next: a held-out part on
-      eval/release-cells-report.md's cells; 2026-11-18 murmurSource 'one' (opt-in):
-      a steady murmur, mixed read-back, eval/murmur-one-check.md). Open checks that
-      need a person: listen to the studio page, --sing, the options (--stretch,
-      --halftime, --fills, --limit pumping, stems, sections, breakdown, riser, the a
-      cappella verse and whether the key lift sounds like a lift, --organum over a
-      band); the Te Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md).
-      master-cli passed EBU Tech 3341/3342 from their text; open: the EBU's WAVs
-      (403), Apple/Amazon/Tidal levels. scan.mjs reads rhombi, quilismas,
-      liquescents, lines at true thickness; next: worn pages (new GABC needed),
-      mottled squares, hollow small notes bridged 2026-11-18 (77 of 84,
-      eval/one-step-hollow-check.md), split heads joined 2026-11-18 (FLECK: podatus
-      tops, quilismas, flecked squares; held out 13 of 13 real,
-      eval/fleck-check.md); 3439/3357 were not liquescentTail; next 3408's strokes,
-      3464's cephalicus, 3524/3421/3741 cephalici. More open items: NEXT.md.
+      eval/release-cells-report.md's cells; 2026-11-18 murmurSource 'one', then
+      'match' (opt-in; D3 losses traced to the chorus's frozen phase,
+      eval/murmur-match-check.md)). Open checks that need a person: listen to the
+      studio page, --sing, the options (--stretch, --halftime, --fills, --limit
+      pumping, stems, sections, breakdown, riser, the a cappella verse and whether
+      the key lift sounds like a lift, --organum over a band); the Te
+      Deum/3427/3912/3775 fixes (eval/scan-check-verdicts.md). master-cli passed EBU
+      Tech 3341/3342 from their text; open: the EBU's WAVs (403), Apple/Amazon/Tidal
+      levels. scan.mjs reads rhombi, quilismas, liquescents, lines at true
+      thickness; next: worn pages (new GABC needed), mottled squares, hollow small
+      notes bridged 2026-11-18 (77 of 84, eval/one-step-hollow-check.md), split
+      heads joined 2026-11-18 (FLECK: podatus tops, quilismas, flecked squares; held
+      out 13 of 13 real, eval/fleck-check.md); 3439/3357 were not liquescentTail;
+      next 3408's strokes, 3464's cephalicus, 3524/3421/3741 cephalici. More open
+      items: NEXT.md.
     buildable: >-
       Coda reader, no outside input: a held-out part built on
       eval/release-cells-report.md's cells (picked before any reader runs) to
       register levelFade and longTilt (both opt-in; README "Cluster onsets before
-      -um", "A /u/ release read as a nasal"). One-voice murmur (murmurSource 'one',
-      opt-in, eval/murmur-one-check.md): steady in every phase, c 123 to 131, but D3
-      Graduale nasals lose (D 12 to 8 of 12); next: why, then pre-register. OMR
+      -um", "A /u/ release read as a nasal"). Level-matched murmur (murmurSource
+      'match', opt-in, eval/murmur-match-check.md): 2,220 nasals vs default 2,141,
+      but R, Z, A lose 1-2; next: fresh cells for the voiced-labial misreads. OMR
       (scan.mjs) items in next: 3408's strokes, 3464's cephalicus, the one-step
       cephalici 3524/3421/3741 (eval/fleck-check.md, What is left).
   # Added 2026-11-16 (new venture, construction direction): buildingSMART IDS 1.0
