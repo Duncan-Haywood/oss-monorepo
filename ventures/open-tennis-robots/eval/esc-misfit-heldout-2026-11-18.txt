@@ -1,0 +1,68 @@
+# tests/esc_misfit_trace.py part 2, 2026-11-18: held out, board at ESC_SURVEY_REFINE = 5, SURVEY_QUEUE = 2, Pi end wait ESC_SURVEY_S = 20 / SURVEY_QUIET_S = 3
+## calibration drill with the take survey on (as tennisbots run runs it), lag 0.45 s
+12 calibration drills, board at ESC_SURVEY_REFINE 5, Pi wait 20.0 s; per build: the board's refined pick, wheels in the Pi's last ESC_SURVEY / wheels the board surveyed, surveys cut
+  lag 0.45 instant       first-order 8k  launcher 0 | pick 0 ms (least 0) ok | wheels 24 / 24 | cut 0 | rms [49, 263, 426, 512, 570, 603] | take survey 22 wheels, held 106.7 s (cap 12.0 s a ball)
+  lag 0.45 instant       first-order 8k  launcher 1 | pick 0 ms (least 0) ok | wheels 24 / 24 | cut 0 | rms [49, 330, 523, 635, 703, 740] | take survey 22 wheels, held 106.7 s (cap 12.0 s a ball)
+  lag 0.45 instant       first-order 8k  launcher 2 | pick 0 ms (least 0) ok | wheels 24 / 24 | cut 0 | rms [46, 291, 463, 569, 634, 666] | take survey 22 wheels, held 106.7 s (cap 12.0 s a ball)
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 0 | pick 0 ms (least 0) ok | wheels 24 / 24 | cut 0 | rms [69, 314, 476, 570, 630, 662] | take survey 22 wheels, held 105.2 s (cap 12.0 s a ball)
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 1 | pick 0 ms (least 0) ok | wheels 24 / 24 | cut 0 | rms [54, 346, 543, 655, 722, 760] | take survey 22 wheels, held 106.0 s (cap 12.0 s a ball)
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 2 | pick 0 ms (least 0) ok | wheels 24 / 24 | cut 0 | rms [72, 318, 492, 593, 657, 691] | take survey 22 wheels, held 106.7 s (cap 12.0 s a ball)
+  lag 0.45 instant       ESC 50 ms told  launcher 0 | pick 53 ms (least 50) ok | wheels 24 / 24 | cut 0 | rms [451, 188, 53, 129, 191, 222] | take survey 22 wheels, held 105.5 s (cap 12.0 s a ball)
+  lag 0.45 instant       ESC 50 ms told  launcher 1 | pick 54 ms (least 50) ok | wheels 24 / 24 | cut 0 | rms [466, 188, 35, 118, 188, 222] | take survey 22 wheels, held 105.1 s (cap 12.0 s a ball)
+  lag 0.45 instant       ESC 50 ms told  launcher 2 | pick 54 ms (least 50) ok | wheels 24 / 24 | cut 0 | rms [528, 219, 63, 146, 220, 263] | take survey 22 wheels, held 105.1 s (cap 12.0 s a ball)
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 0 | pick 55 ms (least 50) ok | wheels 24 / 24 | cut 0 | rms [446, 202, 85, 138, 195, 230] | take survey 22 wheels, held 105.7 s (cap 12.0 s a ball)
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 1 | pick 50 ms (least 50) ok | wheels 24 / 24 | cut 0 | rms [538, 218, 80, 176, 247, 288] | take survey 22 wheels, held 104.3 s (cap 12.0 s a ball)
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 2 | pick 52 ms (least 50) ok | wheels 24 / 24 | cut 0 | rms [458, 206, 69, 147, 216, 255] | take survey 22 wheels, held 105.1 s (cap 12.0 s a ball)
+
+12 of 12 builds meet the prediction (first-order <= 5 ms, ESC 50 ms 40-60 ms, every wheel counted, none cut)
+
+## the same drill with the take survey off (no hold between balls): lags 0.45 (both plants), tach 3 us at 0.3 / 0.45, on-grid 0.4. 'cut' = queued surveys that gave way
+36 calibration drills, board at ESC_SURVEY_REFINE 5, Pi wait 20.0 s; per build: the board's refined pick, wheels in the Pi's last ESC_SURVEY / wheels the board surveyed, surveys cut
+  lag 0.3  instant       tach 3 us 10k   launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [296, 616, 940, 1132, 1252, 1315]
+  lag 0.3  instant       tach 3 us 10k   launcher 1 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [300, 630, 985, 1199, 1334, 1410]
+  lag 0.3  instant       tach 3 us 10k   launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [294, 656, 1011, 1226, 1359, 1432]
+  lag 0.3  halfsine 6 ms tach 3 us 10k   launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [350, 625, 942, 1131, 1249, 1458]
+  lag 0.3  halfsine 6 ms tach 3 us 10k   launcher 1 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [352, 713, 1045, 1246, 1374, 1445]
+  lag 0.3  halfsine 6 ms tach 3 us 10k   launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [315, 649, 1009, 1223, 1359, 1620]
+  lag 0.4  instant       first-order 8k  launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [60, 359, 582, 699, 772, 810]
+  lag 0.4  instant       first-order 8k  launcher 1 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [39, 374, 607, 739, 815, 859]
+  lag 0.4  instant       first-order 8k  launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [46, 369, 596, 723, 802, 845]
+  lag 0.4  halfsine 6 ms first-order 8k  launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [51, 380, 597, 719, 793, 834]
+  lag 0.4  halfsine 6 ms first-order 8k  launcher 1 | pick 0 ms (least 0) ok | wheels 20 / 20 | cut 2 | rms [52, 372, 608, 745, 828, 871]
+  lag 0.4  halfsine 6 ms first-order 8k  launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [47, 368, 599, 735, 819, 864]
+  lag 0.4  instant       ESC 50 ms told  launcher 0 | pick 52 ms (least 50) ok | wheels 18 / 18 | cut 3 | rms [507, 204, 54, 146, 213, 252]
+  lag 0.4  instant       ESC 50 ms told  launcher 1 | pick 54 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [589, 249, 47, 161, 247, 295]
+  lag 0.4  instant       ESC 50 ms told  launcher 2 | pick 53 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [564, 250, 66, 167, 250, 289]
+  lag 0.4  halfsine 6 ms ESC 50 ms told  launcher 0 | pick 50 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [503, 215, 65, 165, 239, 280]
+  lag 0.4  halfsine 6 ms ESC 50 ms told  launcher 1 | pick 51 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [600, 257, 76, 189, 266, 314]
+  lag 0.4  halfsine 6 ms ESC 50 ms told  launcher 2 | pick 53 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [489, 220, 63, 152, 236, 282]
+  lag 0.45 instant       first-order 8k  launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [46, 316, 502, 602, 666, 698]
+  lag 0.45 instant       first-order 8k  launcher 1 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [41, 320, 508, 619, 688, 726]
+  lag 0.45 instant       first-order 8k  launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [36, 288, 459, 573, 635, 671]
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 0 | pick 0 ms (least 0) ok | wheels 20 / 20 | cut 2 | rms [134, 367, 525, 622, 684, 717]
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 1 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [87, 346, 555, 674, 743, 781]
+  lag 0.45 halfsine 6 ms first-order 8k  launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [61, 318, 502, 609, 677, 711]
+  lag 0.45 instant       tach 3 us 10k   launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [260, 438, 643, 766, 842, 884]
+  lag 0.45 instant       tach 3 us 10k   launcher 1 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [287, 518, 757, 895, 981, 1027]
+  lag 0.45 instant       tach 3 us 10k   launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [265, 460, 678, 813, 898, 940]
+  lag 0.45 halfsine 6 ms tach 3 us 10k   launcher 0 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [322, 489, 688, 811, 888, 928]
+  lag 0.45 halfsine 6 ms tach 3 us 10k   launcher 1 | pick 0 ms (least 0) ok | wheels 20 / 20 | cut 2 | rms [341, 565, 790, 928, 1013, 1059]
+  lag 0.45 halfsine 6 ms tach 3 us 10k   launcher 2 | pick 0 ms (least 0) ok | wheels 18 / 18 | cut 3 | rms [327, 524, 703, 820, 895, 938]
+  lag 0.45 instant       ESC 50 ms told  launcher 0 | pick 53 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [439, 187, 57, 130, 192, 228]
+  lag 0.45 instant       ESC 50 ms told  launcher 1 | pick 52 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [510, 226, 58, 163, 232, 270]
+  lag 0.45 instant       ESC 50 ms told  launcher 2 | pick 53 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [488, 219, 60, 147, 223, 267]
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 0 | pick 47 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [443, 209, 141, 194, 246, 279]
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 1 | pick 53 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [499, 225, 54, 155, 232, 274]
+  lag 0.45 halfsine 6 ms ESC 50 ms told  launcher 2 | pick 51 ms (least 50) ok | wheels 20 / 20 | cut 2 | rms [485, 212, 64, 161, 240, 284]
+
+0 of 36 builds meet the prediction (first-order <= 5 ms, ESC 50 ms 40-60 ms, every wheel counted, none cut)
+
+## part 3: rally and example drills (no hold), launcher 0, lag 0.45 s (--rally; refine 0 = the old fit, both with the queue)
+  refine 0 lag 0.45 first-order 8k  drill.rally.json    | launched wheels 32, surveyed 32, cut  0 | pick 0 ms | rms [321, 656, 1322, 1583, 1682, 1725]
+  refine 0 lag 0.45 first-order 8k  drill.example.json  | launched wheels  8, surveyed 8, cut  0 | pick 0 ms | rms [282, 631, 1248, 1628, 1774, 1802]
+  refine 0 lag 0.45 ESC 50 ms told  drill.rally.json    | launched wheels 32, surveyed 32, cut  0 | pick 83 ms | rms [697, 791, 382, 295, 536, 700]
+  refine 0 lag 0.45 ESC 50 ms told  drill.example.json  | launched wheels  8, surveyed 8, cut  0 | pick 86 ms | rms [654, 701, 340, 250, 448, 587]
+  refine 5 lag 0.45 first-order 8k  drill.rally.json    | launched wheels 32, surveyed 18, cut  7 | pick 0 ms | rms [41, 343, 637, 839, 963, 1032]
+  refine 5 lag 0.45 first-order 8k  drill.example.json  | launched wheels  8, surveyed 6, cut  1 | pick 0 ms | rms [34, 324, 605, 776, 898, 963]
+  refine 5 lag 0.45 ESC 50 ms told  drill.rally.json    | launched wheels 32, surveyed 18, cut  7 | pick 49 ms | rms [648, 337, 62, 265, 437, 531]
+  refine 5 lag 0.45 ESC 50 ms told  drill.example.json  | launched wheels  8, surveyed 6, cut  1 | pick 51 ms | rms [648, 323, 35, 238, 388, 476]
