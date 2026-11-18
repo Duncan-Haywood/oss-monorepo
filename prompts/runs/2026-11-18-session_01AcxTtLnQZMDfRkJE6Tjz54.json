@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtLnQZMDfRkJE6Tjz54",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T09:05:55Z",
+  "ended": "2026-11-18T09:18:11Z",
+  "wall_minutes": 45.17,
+  "tokens_in": 15434906,
+  "tokens_out": 63871,
+  "cost_usd": 5.7529,
+  "tool_calls": 107,
+  "task": "Deepen flagship 12 (ids-model-check): a facet-result cache across specs that apply to most of a model",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17244",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "First cache version ran out of memory on the 219 MB federated model under a 1 GB heap (caught by the benchmark before merge, fixed in the same PR)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ids-model-check/eval/psets-cache-2026-11-18.md",
+      "issue": "The model fetch steps live in model-attr-codes-2026-11-17.md, two hops from the eval notes that use them; a fetch-models.sh next to fetch-audit-corpus.sh would save the lookup."
+    },
+    {
+      "file": "(my own bench script)",
+      "issue": "Building the IDS list with `ls | tr '\\n' ' '` split the public files whose names hold spaces (idsErrors 19 instead of 1); pass the globs directly."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-ids-checks-stop-repeating-the-same-test.md",
+    "ventures/ids-model-check/eval/applies-cache-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 12 item 'facet-result cache across specs'. 68 IDS on HHS MEP: facet tests 11.38M (7.87M repeats) to 3.65M; 6.3-7.0 s to 5.0-5.3 s; federated 219 MB 60.4 to 43.1 s at 2 GB, 92-100 to 55-57 s at 1 GB; report hashes identical on 5 models. First version OOMed at 1 GB (main has <40 MB headroom): fixed by Int32Array storage and a preallocated allBut list; 6 of 6 1 GB runs finish after. Local checks: node --test *.test.mjs 200 tests, 198 pass, 2 skipped; venture-preflight clean; check_posts ok; validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4018b70a-ae35-5462-9975-6db444e82905",
+    "transcripts": 1,
+    "first": "2026-11-18T09:05:55Z",
+    "last": "2026-11-18T09:51:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 109,
+        "input": 217,
+        "output": 63871,
+        "thinking": 16973,
+        "cache_read": 15256783,
+        "cache_write_5m": 0,
+        "cache_write_1h": 177906,
+        "api_equivalent_usd": 5.7529,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 109,
+      "input": 217,
+      "output": 63871,
+      "thinking": 16973,
+      "cache_read": 15256783,
+      "cache_write_5m": 0,
+      "cache_write_1h": 177906,
+      "api_equivalent_usd": 5.7529,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 107,
+    "tools": {
+      "Bash": 98,
+      "ToolSearch": 2,
+      "Monitor": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 45.17,
+      "active_minutes": 44.32,
+      "model_minutes": 11.97,
+      "tool_minutes": 32.36,
+      "waiting_on_human_minutes": 0.84,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a senior JS engineer profiling, designing two caches, chasing a 1 GB heap regression and writing the eval note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 173.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

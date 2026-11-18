@@ -1,6 +1,6 @@
 // Turns a pasted layout, SKU locations and orders into pick routes and cart
 // batches, and compares picking policies on walking distance, hours and cost.
-import { optimalRoute, sShapeRoute, largestGapRoute, returnRoute } from "./route.mjs";
+import { optimalRoute, optimalLength, sShapeRoute, largestGapRoute, returnRoute } from "./route.mjs";
 
 export const DEFAULTS = {
   aisles: 10,
@@ -143,7 +143,7 @@ export function makeRouter(inp) {
     length(keys) {
       const sorted = [...new Set(keys)].sort();
       const k = sorted.join(",");
-      if (!cache.has(k)) cache.set(k, optimalRoute(pointsOf(sorted), layout).length);
+      if (!cache.has(k)) cache.set(k, optimalLength(pointsOf(sorted), layout));
       return cache.get(k);
     },
     route(keys, policy = "optimal") {

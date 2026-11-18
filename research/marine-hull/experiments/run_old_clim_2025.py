@@ -43,7 +43,24 @@ sys.path.insert(0, os.path.join(HERE, "..", "src"))
 import run_fresh_years as fy  # noqa: E402
 
 OLD_CLIM = tuple(range(2005, 2015))
-fy.CLIM_YEARS = OLD_CLIM  # before any fy._clim call, so every cache below is built on the old decade
+DEFAULT_CLIM = fy.CLIM_YEARS
+
+
+def _clear_caches():
+    """Clear every lru_cache in the loaded experiment modules (the climatology feeds several of them)."""
+    for m in list(sys.modules.values()):
+        if getattr(m, "__name__", "").startswith("run_"):
+            for v in list(vars(m).values()):
+                if callable(getattr(v, "cache_clear", None)):
+                    v.cache_clear()
+
+
+def use_clim(years):
+    fy.CLIM_YEARS = tuple(years)
+    _clear_caches()
+
+
+use_clim(OLD_CLIM)  # on import, before any fy._clim call, so every cache below is built on the old decade
 import run_oos_2025 as oz  # noqa: E402
 
 OOS = oz.OOS

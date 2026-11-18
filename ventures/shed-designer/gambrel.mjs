@@ -318,10 +318,46 @@ export function loftSpan(d, wallDepth) {
 }
 
 /**
- * Size the gussets and check every part of a truss.
+ * The design fields gambrelAnalysis reads (with gambrelShape and kneeRun), and
+ * nothing else: its answer is a function of these alone. A test pins the list
+ * against the fields the analysis is seen to read.
+ */
+export const ANALYSIS_FIELDS = /** @type {const} */ (['width', 'pitch', 'gambrelLower', 'gambrelKnee', 'rafterSize', 'rafterSpacing', 'studSize', 'tieSize', 'loft', 'loftJoist', 'snowLoad', 'windLoad']);
+
+/** @param {any} v */
+const keyPart = (v) => (typeof v === 'string' ? JSON.stringify(v) : Object.is(v, -0) ? '-0' : `${typeof v}:${v}`);
+/** @type {Map<string, any>} */
+const analysisMemo = new Map();
+/** @template T @param {T} o @returns {T} */
+function deepFreeze(o) {
+  if (o && typeof o === 'object' && !Object.isFrozen(o)) { Object.freeze(o); for (const v of Object.values(o)) deepFreeze(v); }
+  return o;
+}
+
+/**
+ * Size the gussets and check every part of a truss. One design is analysed
+ * five or six times over (wall loads, the checks, the model, utilisation) and
+ * a search re-asks for the same sizes, so answers are remembered by the fields
+ * in ANALYSIS_FIELDS and returned frozen: a caller that writes to one throws
+ * instead of changing the next caller's answer.
  * @param {any} d a normalized gambrel design
  */
 export function gambrelAnalysis(d) {
+  const vals = ANALYSIS_FIELDS.map((k) => d[k]);
+  // A junk object or function in a field has no faithful string key: work it out.
+  if (vals.some((v) => (v !== null && typeof v === 'object') || typeof v === 'function')) return analyseGambrel(d);
+  const key = vals.map(keyPart).join(',');
+  let hit = analysisMemo.get(key);
+  if (!hit) {
+    hit = deepFreeze(analyseGambrel(d));
+    if (analysisMemo.size >= 2000) analysisMemo.clear();
+    analysisMemo.set(key, hit);
+  }
+  return hit;
+}
+
+/** gambrelAnalysis without the memo (the tests compare the two). @param {any} d */
+export function analyseGambrel(d) {
   const g = gambrelShape(d, 0);
   const s = d.rafterSpacing;
   const loft = d.loft === 'full' || d.loft === 'half';

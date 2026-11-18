@@ -1,0 +1,26 @@
+# Formwork pressure calculator
+
+> Free, open-source calculator for the design lateral pressure of fresh concrete on wall and column forms by the ACI 347R equations (rate of placement, concrete temperature, unit weight and chemistry coefficients, 600·Cw minimum, full liquid head cap), with the pressure envelope, the resultant force and its height, tie spacing from a tie's safe working load, and the fastest pour rate for a form's rated pressure. US or metric units. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are estimates, not engineering advice; the formwork designer, the form supplier's data and the engineer of record govern.
+
+## Pages
+
+- [The tool](https://marisstella.app/formwork-pressure/)
+- [Formwork pressure explained, with a worked example](https://marisstella.app/formwork-pressure/formwork-pressure-explained.html)
+
+## Inputs
+
+- Element: wall (a plan dimension over 6.5 ft / 2 m) or column.
+- Placement height, rate of placement (or delivery rate and plan area), concrete temperature, unit weight.
+- Cement chemistry: Type I/II/III with or without a retarder, other cements or blends, high slag or fly ash blends.
+- Whether the concrete is outside the equations' conditions (SCC, slump over 7 in, pumped from the base, external vibration): full liquid head.
+- Optional: tie safe working load and horizontal spacing; the form system's rated pressure.
+
+## Worked example
+
+10 ft wall, 5 ft/h, 70 °F, 150 lb/ft³, Type I cement: 150 + 9000 × 5 / 70 = 793 psf, peaking 5.29 ft below the top; 5,833 lb per ft of wall; 3,000 lb ties at 2 ft across need at most 1.89 ft vertical spacing.
+
+## Source
+
+- [Source code, CLI and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/formwork-pressure): MIT licensed. `node cli.mjs --wall --height 10 --rate 5 --temp 70 --tie 3000 --tie-across 2`.

@@ -32,3 +32,6 @@
 - (2026-11-18) few-donor power 2026-11-18 (README "Few donors: size and power"): one donor shocked as much as a 2 sd step cuts rank 1 from 54-60% to 35-40%, leaving it out beforehand restores it
 - (2026-11-18) few donors 2026-11-18 (README "Few donors"): West Germany and Basque gaps replicate, ranks 3 and 4 of 17 (p <= 0.05 unreachable under 19 donors; FEW DONORS note and units-ranked-above ship)
 - (2026-11-18) a shocked best match raises gap error 1.3-1.6x, leaving it out 1.36x
+- (2026-11-18) next a real deployer's panel
+- (2026-11-18) on West Germany 12 of 16 placebos grew (note says so)
+- (2026-11-18) gapShape word on listed units (pulse faded 90%, 20% false)

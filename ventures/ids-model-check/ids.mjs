@@ -930,6 +930,80 @@ function versionMatches(spec, model) {
 // walk: true visits every entity, as before the candidate pools; kept for
 // file-order-candidates.test.mjs, which compares the two.
 export function applies(spec, model, ctx, walk = false) {
+  if (walk || ctx.noCache) return appliesUncached(spec, model, ctx, walk).hits;
+  // Specifications in one IDS, and the IDS files CI checks against one parsed
+  // model, repeat the same applicability: 539 specifications in the 68 public
+  // and starter files have 153 distinct ones, and the ten that take every
+  // entity of HHS MEP (665,224) each ran every facet on every entity
+  // (eval/applies-cache-2026-11-18.md). The result is kept per model, keyed
+  // on the facets' full content, and held off the JS heap (the 219 MB
+  // federated model's run fits a 1 GB heap with almost nothing to spare): a
+  // result in file order that takes most of the model as the file positions
+  // of the entities it leaves out, any other as its entities' ids, both in
+  // Int32Arrays.
+  const c = appliesCacheFor(model, ctx);
+  const key = facetsKey(spec.applicability);
+  const got = c.map.get(key);
+  if (got) return got.except ? allBut(model, got.except) : got.ids ? fromIds(model, got.ids) : got.hits;
+  const r = appliesUncached(spec, model, ctx, false);
+  const hits = r.hits;
+  const n = model.entities.size;
+  if (r.fileOrder && hits.length > n / 2) {
+    const left = n - hits.length;
+    if (c.budget >= left) {
+      const except = new Int32Array(left);
+      let i = 0, j = 0, pos = 0;
+      for (const e of model.entities.values()) { if (hits[i] === e) i++; else except[j++] = pos; pos++; }
+      c.budget -= left;
+      c.map.set(key, { except });
+    }
+  } else if (c.budget >= hits.length) {
+    c.budget -= hits.length;
+    const ids = hits.every((e) => (e.id | 0) === e.id) ? Int32Array.from(hits, (e) => e.id) : null;
+    c.map.set(key, ids ? { ids } : { hits });
+  }
+  return hits;
+}
+
+// What a facet tests, for the applicability cache's key: its own fields, not
+// the caches a facet keeps on itself (_hits) or the regexes compiled from its
+// patterns (the patterns are in the key).
+export function facetsKey(facets) {
+  return JSON.stringify(facets, (k, v) => (k.startsWith("_") || k === "regexes" ? undefined : v));
+}
+
+// One cache per model and per check context: an IFC2X3 entity facet reads
+// the type map, and a property value's units read measureUnits. The budget is
+// the model's entity count in kept entries (4 bytes each, 15 MB on the 219 MB
+// federated model), so the cache cannot grow past that however many IDS files
+// are checked.
+function appliesCacheFor(model, ctx) {
+  const c = model._appliesCache;
+  if (c && c.typeMap === ctx.typeMap && c.measureUnits === model.measureUnits) return c;
+  return (model._appliesCache = { typeMap: ctx.typeMap, measureUnits: model.measureUnits, map: new Map(), budget: model.entities.size, verdicts: new Map() });
+}
+
+// Every entity in file order but those at the (ascending) positions given.
+// The list is allocated at its final size: grown by push, a 3.7 million
+// entry list leaves its outgrown copies as garbage, enough to tip the 219 MB
+// federated run over a 1 GB heap.
+function allBut(model, except) {
+  const out = new Array(model.entities.size - except.length);
+  let i = 0, j = 0, pos = 0;
+  for (const e of model.entities.values()) { if (j < except.length && except[j] === pos) j++; else out[i++] = e; pos++; }
+  return out;
+}
+
+function fromIds(model, ids) {
+  const out = new Array(ids.length);
+  for (let i = 0; i < ids.length; i++) out[i] = model.entities.get(ids[i]);
+  return out;
+}
+
+// fileOrder: true when the hits are in the entities Map's order (a walk, or a
+// no-entity-facet pool put back in file order); an entity facet's pool is in
+// class order.
+function appliesUncached(spec, model, ctx, walk) {
   let pool = null;
   for (const f of spec.applicability) {
     if (f.kind === "entity") {
@@ -944,7 +1018,14 @@ export function applies(spec, model, ctx, walk = false) {
   // them geometry), so these keep the full tests, which parse arguments, to the
   // entities that can match (eval/no-entity-facet-2026-11-17.md).
   const pre = spec.applicability.map((f) => prefilter(f, model)).filter(Boolean);
-  const keep = (e) => pre.every((p) => p(e)) && spec.applicability.every((f) => f.test(e, model, ctx).ok);
+  // A pool that covers most of the model reads each facet's verdict through
+  // the per-facet cache (facetVerdicts, below); a small one tests directly.
+  const keepFor = (size) => {
+    const slots = walk ? null : spec.applicability.map((f) => verdictSlot(f, model, ctx, size));
+    if (!slots || slots.every((x) => !x)) return (e) => pre.every((p) => p(e)) && spec.applicability.every((f) => f.test(e, model, ctx).ok);
+    return (e) => pre.every((p) => p(e)) && spec.applicability.every((f, k) => (slots[k] ? verdict(slots[k], f, e, model, ctx) : f.test(e, model, ctx).ok ? OK : FAIL) === OK);
+  };
+  let keep;
   if (!pool) {
     // No entity facet: take the smallest candidate list a prefilter can name
     // (the entities its own index holds), put it back in file order, and skip
@@ -952,11 +1033,54 @@ export function applies(spec, model, ctx, walk = false) {
     pool = walk ? null : noEntityPool(spec, model);
     if (!pool) {
       const out = [];
+      keep = keepFor(model.entities.size);
       for (const e of model.entities.values()) if (keep(e)) out.push(e);
-      return out;
+      return { hits: out, fileOrder: true };
     }
+    return { hits: pool.filter(keepFor(pool.length)), fileOrder: true };
   }
-  return pool.filter(keep);
+  return { hits: pool.filter(keepFor(pool.length)), fileOrder: false };
+}
+
+// The per-facet verdict cache. Specifications that apply to most of a model
+// test the same facet on the same hundreds of thousands of entities: on HHS
+// MEP the 68 public and starter IDS files test `attribute (any)` 2.0 million
+// times on 665,224 entities, 1.3 million of them repeats (two applicability
+// facets, a requirement written twice in one specification, and one more
+// specification; eval/applies-cache-2026-11-18.md). A facet run over a pool
+// of more than a quarter of the model keeps each entity's verdict in one byte
+// by file position: 0 not yet tested, OK, ABSENT (the test failed with
+// absent: true), FAIL. Keyed on the facet's content without its cardinality
+// (the test does not read it), per model and check context. At most
+// VERDICT_SLOTS facets are kept (3.7 MB each on the 219 MB federated model),
+// the least recently used dropped first.
+const OK = 1, ABSENT = 2, FAIL = 3;
+const VERDICT_SLOTS = 8;
+function verdictSlot(f, model, ctx, size) {
+  if (ctx.noCache || size <= model.entities.size / 4) return null;
+  const c = appliesCacheFor(model, ctx);
+  const key = f._key || (f._key = JSON.stringify(f, (k, v) => (k.startsWith("_") || k === "regexes" || k === "cardinality" ? undefined : v)));
+  let slot = c.verdicts.get(key);
+  if (slot) c.verdicts.delete(key); // re-set below: the Map's order is least recently used first
+  else {
+    if (c.verdicts.size >= VERDICT_SLOTS) c.verdicts.delete(c.verdicts.keys().next().value);
+    slot = { bytes: new Uint8Array(model.entities.size), ord: fileOrder(model) };
+  }
+  c.verdicts.set(key, slot);
+  return slot;
+}
+function verdict(slot, f, e, model, ctx) {
+  const i = slot.ord(e);
+  let v = slot.bytes[i];
+  if (!v) { const r = f.test(e, model, ctx); slot.bytes[i] = v = r.ok ? OK : r.absent ? ABSENT : FAIL; }
+  return v;
+}
+// checkRequirement's pass, from a cached verdict.
+function passFromVerdict(f, v) {
+  if (f.kind === "entity") return v === OK;
+  if (f.cardinality === "prohibited") return v !== OK;
+  if (f.cardinality === "optional") return v !== FAIL;
+  return v === OK;
 }
 
 // The position of each entity in the file (the entities Map's order, which is
@@ -1120,7 +1244,9 @@ export function checkIds(idsText, ifcText, opts = {}) {
   const ids = typeof idsText === "string" ? parseIds(idsText) : idsText;
   const model = ifcText instanceof Model ? ifcText : new Model(ifcText, opts.schemas);
   model.measureUnits = opts.measureUnits || null;
-  const ctx = { typeMap: opts.typeMap || null };
+  // opts.facetCache === false turns off the applicability and facet-verdict
+  // caches (applies-cache.test.mjs compares the two).
+  const ctx = { typeMap: opts.typeMap || null, noCache: opts.facetCache === false };
   // The IDS audit (audit.mjs): a specification with an error is reported as
   // invalid and not run (template errors excepted, below). opts.audit === false
   // turns it off.
@@ -1182,11 +1308,12 @@ export function checkIds(idsText, ifcText, opts = {}) {
     // element the report keeps. Specifications applying to every entity check
     // millions of geometry items this way (eval/no-entity-facet-2026-11-17.md).
     const reqPre = spec.requirements.map((f) => prefilter(f, model));
+    const reqSlots = spec.requirements.map((f) => verdictSlot(f, model, ctx, hits.length));
     const meets = (e) => {
       for (let k = 0; k < spec.requirements.length; k++) {
         const f = spec.requirements[k];
         const p = reqPre[k];
-        const pass = p && !p(e) ? f.cardinality === "prohibited" || f.cardinality === "optional" : checkRequirement(f, e, model, ctx).pass;
+        const pass = p && !p(e) ? f.cardinality === "prohibited" || f.cardinality === "optional" : reqSlots[k] ? passFromVerdict(f, verdict(reqSlots[k], f, e, model, ctx)) : checkRequirement(f, e, model, ctx).pass;
         if (!pass) return false;
       }
       return true;

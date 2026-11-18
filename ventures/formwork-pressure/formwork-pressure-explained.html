@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23475569'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EP%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Formwork Pressure Explained | Why Pour Rate and Temperature Decide Tie Spacing</title>
+  <meta name="description" content="How fresh concrete loads a wall form, why a cold or fast pour pushes harder, how the ACI 347R equations turn rate and temperature into a design pressure, and a worked example from a 10 ft wall to tie spacing.">
+  <link rel="canonical" href="./formwork-pressure-explained.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Article","headline":"Formwork pressure explained","about":"Lateral pressure of fresh concrete on formwork","author":{"@type":"Organization","name":"marisstella.app"}}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2125; background: #e9ebee; }
+    body { max-width: 760px; margin: 0 auto; padding: 32px 16px; }
+    main { background: #fbfbfc; border: 1px solid #c6cbd2; border-radius: 12px; padding: 22px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.05; letter-spacing: -.03em; margin: 0 0 12px; }
+    h2 { font-size: 1.15rem; margin-top: 26px; }
+    p, li { line-height: 1.55; }
+    code { background: #eef0f3; padding: 1px 4px; border-radius: 4px; }
+    table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: .92rem; }
+    th, td { text-align: left; padding: 6px; border-bottom: 1px solid #e1e4e8; }
+    .cta { display: inline-block; background: #334155; color: #fff; padding: 10px 14px; border-radius: 8px; text-decoration: none; font-weight: 650; }
+    footer { margin-top: 22px; font-size: .82rem; color: #555c63; }
+    a { color: #92400e; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Formwork pressure explained</h1>
+    <p>For the foreman deciding how fast the pump can run, the carpenter spacing snap ties, and the engineer checking a form supplier's layout. This page explains where the pressure on a form comes from and walks one wall through the numbers. <a class="cta" href="./">Open the calculator</a></p>
+
+    <h2>The problem in plain words</h2>
+    <p>Fresh concrete behaves like a heavy liquid: 150 lb/ft³, so ten feet of it pushes 1,500 lb on every square foot at the bottom of the form. But concrete does not stay liquid. Within an hour or two the lower part starts to stiffen and stops pushing as hard. So the real pressure depends on a race: how fast the concrete rises (the rate of placement) against how fast it stiffens (mostly the temperature and the cement chemistry). A slow, warm pour pushes far less than the liquid head. A fast, cold, retarded pour can push the full liquid head, and forms built for less have blown out.</p>
+
+    <h2>The ACI 347R equations</h2>
+    <p>ACI 347R, the American Concrete Institute's guide to formwork, turns that race into design equations for concrete with a slump of 7 in or less placed with normal internal vibration no deeper than 4 ft. With R the rate of placement in ft/h and T the concrete temperature in °F:</p>
+    <ul>
+      <li><strong>Columns</strong> (no plan dimension over 6.5 ft), and <strong>walls placed under 7 ft/h no more than 14 ft high</strong>: <code>p = Cw·Cc·(150 + 9000·R/T)</code> psf.</li>
+      <li><strong>Walls over 14 ft placed under 7 ft/h, and all walls placed at 7 to 15 ft/h</strong>: <code>p = Cw·Cc·(150 + 43,400/T + 2800·R/T)</code> psf.</li>
+      <li>Never less than <code>600·Cw</code> psf, and never more than the liquid head <code>w·h</code>.</li>
+      <li>Walls placed faster than 15 ft/h, self-consolidating concrete, slumps over 7 in, concrete pumped in from the bottom and externally vibrated forms: full liquid head, <code>w·h</code>.</li>
+    </ul>
+    <p>Cw corrects for unit weight (1.0 for 140 to 150 lb/ft³ concrete). Cc corrects for chemistry: 1.0 for plain Type I, II or III cement, 1.2 with a retarder or for other cements and moderate fly ash or slag blends, 1.4 for those blends with a retarder or for heavy slag or fly ash mixes. The two wall equations give the same answer at exactly 7 ft/h, so there is no jump at the boundary.</p>
+
+    <h2>A worked example</h2>
+    <p>A 10 ft basement wall, 8 in thick, normal-weight concrete (150 lb/ft³), Type I cement with no retarder, concrete at 70 °F, poured at 5 ft of rise per hour. Ties rated at 3,000 lb safe working load, spaced 2 ft across.</p>
+    <table>
+      <tbody>
+        <tr><th scope="row">Which equation</th><td>Wall, R = 5 &lt; 7 ft/h, h = 10 ≤ 14 ft: 150 + 9000·R/T</td></tr>
+        <tr><th scope="row">Equation value</th><td>150 + 9000 × 5 / 70 = 150 + 643 = 793 psf</td></tr>
+        <tr><th scope="row">Check the limits</th><td>Minimum 600 psf; liquid head 150 × 10 = 1,500 psf. 793 psf governs.</td></tr>
+        <tr><th scope="row">Where it peaks</th><td>793 / 150 = 5.29 ft below the top; constant below that</td></tr>
+        <tr><th scope="row">Force on the form</th><td>½ × 150 × 5.29² + 793 × (10 − 5.29) = 2,095 + 3,737 = 5,833 lb per ft of wall</td></tr>
+        <tr><th scope="row">Area per tie</th><td>3,000 / 793 = 3.78 ft²</td></tr>
+        <tr><th scope="row">Tie spacing</th><td>3.78 / 2 = 1.89 ft, so ties at most about 22 in apart vertically in the lower part</td></tr>
+      </tbody>
+    </table>
+    <p>Now change one thing. On a 40 °F morning the same pour gives 150 + 9000 × 5 / 40 = 1,275 psf, 61% more, and the ties have to close up to about 14 in. Add a retarder (Cc 1.2) and it is 1,530 psf, above the 1,500 psf liquid head, so the form is designed for full liquid head. That is why the pour rate is a decision to make with the temperature in hand, and the calculator's "fastest pour for the form rating" turns a form system's rated pressure back into a pump rate.</p>
+
+    <h2>When to use something else</h2>
+    <ul>
+      <li>Self-consolidating concrete: ACI 347R and ACI 237R discuss designing for less than full liquid head when pressures are measured or established by testing; this tool simply gives full liquid head.</li>
+      <li>Slip forms, tunnel forms and other systems with their own design methods.</li>
+      <li>The members of the form (sheathing, studs, walers, braces): check each against the pressure with the supplier's data or a formwork designer.</li>
+      <li>Outside the US, your local standard (for example CIRIA Report 108 in the UK or DIN 18218 in Germany) may give different pressures.</li>
+    </ul>
+
+    <h2>Sources</h2>
+    <p>American Concrete Institute, ACI 347R, <em>Guide to Formwork for Concrete</em>, section 4.2 (lateral pressure of concrete). The equations above are reproduced in most formwork texts, including Hurd, <em>Formwork for Concrete</em> (ACI SP-4).</p>
+  </main>
+  <footer>
+    <p><strong>No warranty.</strong> This page and the calculator are provided free and as-is, without warranty of any kind. They are not engineering, structural, construction, legal or financial advice, and they do not replace the formwork designer, the form supplier's data or the engineer of record. You are responsible for reviewing and verifying any result before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from their use.</p>
+    <p><a href="./">Formwork pressure calculator</a> · <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/formwork-pressure" rel="noopener">Source (MIT)</a> · <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">Support</a></p>
+  </footer>
+</body>
+</html>

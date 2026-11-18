@@ -1941,6 +1941,23 @@ class TakeSurveyTest(unittest.TestCase):
         sim.sleep(0.05)                                        # the board reads the drill's last frame
         self.assertFalse(sim.hw.launch.take_on)                # turned off at the drill's end
 
+    def test_take_survey_keeps_the_straddling_wheels(self):
+        # 2026-11-18, README "Take-blind rows traced": take-blind wheels fit every candidate alike and well; a wheel
+        # whose take straddles a revolution's edge tells them apart but fits worse at every candidate. SURVEY_TRIM's
+        # 5 x the median best drops it and the pick falls to the step; the take survey sums every wheel.
+        blind = [(3e-6 + 1e-7 * i) ** 2 for i in range(7)]          # 3.0-3.6 ppm, the step least
+        straddle = [(300e-6 - 40e-6 * i) ** 2 for i in range(6)] + [(200e-6) ** 2]   # 6 ms (index 5) at 100 ppm
+        for trim, pick, dropped in ((None, 0, 1), (controller.TAKE_SURVEY_TRIM, 5, 0)):
+            rs = controller.ResidualSurvey(controller.TAKE_SURVEY_GRID_US, trim)
+            for _ in range(10):
+                rs.add(blind)
+            rs.add(straddle)
+            self.assertEqual(rs.report(100)[1], controller.TAKE_SURVEY_GRID_US[pick] // 100)
+            self.assertEqual(rs.trimmed, dropped)
+        self.assertEqual(controller.TAKE_SURVEY_TRIM, 0)
+        lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_grid=controller.TAKE_SURVEY_GRID_US)
+        self.assertEqual(lc.take_survey.trim, controller.TAKE_SURVEY_TRIM)
+
     def test_take_us_sets_the_record_fit(self):
         lc = controller.LaunchCheck(0.00155, 0.0577, 0.075, 0.0335, 0.85, 0.5, take_us=6000)
         self.assertEqual(lc.take(), controller.take_offsets(6000))

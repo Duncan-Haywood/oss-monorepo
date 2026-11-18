@@ -165,3 +165,18 @@ entries:
         caught; driven in headless Chromium at 1200 and 390 px with no console
         errors. Not yet run on a real company's AR and bank exports.
     mrr_end: 0
+  - venture: formwork-pressure
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/formwork-pressure, a free
+        browser page and Node CLI for the design lateral pressure of fresh
+        concrete on wall and column forms by the ACI 347R equations (Cw, Cc,
+        600 Cw minimum, w h cap, full-liquid-head cases), with the pressure
+        envelope and resultant, tie spacing from a tie's working load and the
+        fastest pour rate for a form's rated pressure. Explainer page with a
+        worked example, llms.txt, post. 29 tests against hand calculations;
+        four seeded bugs caught; driven in headless Chromium with no console
+        errors and no overflow at 375 px. Not yet used on a real pour.
+    mrr_end: 0
