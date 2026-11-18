@@ -11,3 +11,4 @@
 - (2026-11-17) open: AR statutes, a real return layout
 - (2026-11-17) 23 discounts, IN's band and day from the book (README)
 - (2026-11-17) (8) `salestax return`: the last six listed states read (eval/state-pages-2026-11-14e.md)
+- (2026-11-18) (7) IRIS NEC and MISC rents files on IRS TY2025 guidelines (HISTORY): open: a real upload, TY2026 template

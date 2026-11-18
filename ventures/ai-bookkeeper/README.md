@@ -3062,6 +3062,19 @@ to 165; unmeasured on CORD, which could not be fetched). Details:
 [`eval/sroie-five-readings-2026-11-18.md`](eval/sroie-five-readings-2026-11-18.md).
 Tests: `receipt-sroie-five.test.mjs`.
 
+### SROIE merchant names with RapidOCR leading (2026-11-18)
+
+With RapidOCR leading the readings, SROIE merchant names were 67-69% exact, against 83-86% from
+the dataset's own box text. RapidOCR mostly found the name; the reader then printed it as misread
+(`San Bhd`, `SONBHD`, `5dn Bhd`, `SDN 3HD`, `C0.`, `F00DICI0US`, `5/B`). On some slips a registration
+number in full-width or unclosed brackets (`(126926-H）`) made the right line fail, and glued
+boilerplate (`TQFORSHOPPING...`, `For feedtack`) was taken instead. The merchant line is now
+cleaned (`shopName`) and those lines are read for what they are. Held-out exact merchants
+**215 to 229 of 313 (68.7% to 73.2%)**, 14 better and none worse; dev 211 to 239; box text 261/270
+to 263/272; dates, totals and CORD unchanged. Details:
+[`eval/sroie-merchant-names-2026-11-18.md`](eval/sroie-merchant-names-2026-11-18.md). Tests:
+`receipt-sroie-merchant.test.mjs`.
+
 ### Russian slips: tesseract's Cyrillic model behind RapidOCR (2026-11-18)
 
 Would tesseract with its Russian model (`RECEIPT_OCR_CMD='tesseract {file} stdout --psm 6 -l rus+eng'`,
