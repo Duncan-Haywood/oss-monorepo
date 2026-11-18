@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtHoRjw8xaX8QELZjpt",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T10:06:10Z",
+  "ended": "2026-11-18T10:19:25Z",
+  "wall_minutes": 27.49,
+  "tokens_in": 6016357,
+  "tokens_out": 34439,
+  "cost_usd": 2.6999,
+  "tool_calls": 67,
+  "task": "perf: gaussian-process-regression fit linear algebra",
+  "projects": [
+    "gaussian-process-regression"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17263",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/suite_file_times.py",
+      "issue": "Reported 'no earlier perf pass on record' for gaussian-process-regression although ci-perf-2026-11-14-gaussian-process-... covers it: the history match needs the full slug in the file name or title. Named this run's write-up with the slug and left the heuristic alone (its docstring explains the false positives a looser match caused)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes stops at the post front-matter check before the sweep (description 173 > 160 chars). That is useful, but on a first pass it costs a full rerun; check_post_frontmatter could be run first on its own."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-the-same-matrix-factored-twice.md",
+    "docs/history/ci-perf-2026-11-18-gaussian-process-regression-reused-factor-and-2x4-tiles.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of a scratch bench (analyze on the Mauna Loa example with smooth-quasiperiodic + 2 predictions, auto over all seven kernels, auto on 60 irregular points; sha256 over JSON of all three), node 22, 4 cores. Before 15.5-15.9 s, after 10.7 s, hash 09dcbf6830701fe4 both. Steps: reuse factor 15.5->13.3 s; 2-column Cholesky ->12.3 s; 2x4 inverse ->10.7 s. CLI four runs concatenated sha256 3ee6a8c6... identical, 32.2 s -> 23.0 s. run_venture_tests.py gaussian-process-regression 12.0 s -> 8.5 s (49 -> 50 tests). Per file alone: engine.test 12.3 -> 9.8 s, cli.test 5.5 -> 4.1 s. Mutant dropping a tile term fails 12 tests; mutant removing the reuse guard survives (path unreached by fixtures), noted in the write-up. Local checks: run_workflow_locally --for-changes: 8/8 selected workflows passed (uses: steps, agent-cross-review and deploy jobs not run locally).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da08a2c8-6653-549e-ad38-6d05a2a0f0b8",
+    "transcripts": 1,
+    "first": "2026-11-18T10:06:10Z",
+    "last": "2026-11-18T10:33:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 125,
+        "output": 34439,
+        "thinking": 9143,
+        "cache_read": 5912727,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103505,
+        "api_equivalent_usd": 2.6999,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 125,
+      "output": 34439,
+      "thinking": 9143,
+      "cache_read": 5912727,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103505,
+      "api_equivalent_usd": 2.6999,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 62,
+      "Write": 2,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 27.49,
+      "active_minutes": 27.49,
+      "model_minutes": 7.44,
+      "tool_minutes": 20.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "profile, two bit-identical loop tilings with tests, one reuse change, write-up and post for a senior numerical engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 222.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
