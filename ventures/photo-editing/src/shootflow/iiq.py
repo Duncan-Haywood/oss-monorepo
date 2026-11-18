@@ -110,9 +110,9 @@ def directory(data: bytes) -> dict[int, tuple[int, int, int, int]]:
     return out
 
 
-def _value(entries, tag: int, default: int | None = None) -> int | None:
+def _value(entries, tag: int, default: int = 0) -> int:
     hit = entries.get(tag)
-    return default if hit is None else hit[2]
+    return default if hit is None else int(hit[2])
 
 
 def _floats(data: bytes, entries, tag: int, n: int) -> tuple[float, ...] | None:
