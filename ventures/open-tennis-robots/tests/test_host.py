@@ -1502,6 +1502,16 @@ class EscSurveyTest(unittest.TestCase):
         self.assertEqual(sv["refined_ms"], 0)
         self.assertIn("keep ESC_TAU_US = 0", host.esc_survey_advice(sv))
 
+    def test_a_long_esc_lag_on_a_slow_wheel_is_named(self):
+        # 2026-11-18 (README "Long ESC lags: the survey read too little of the recovery"): reading 8 revolutions after
+        # the ball, an untold 180 ms ESC on a 0.35 s wheel picked 106 ms on the calibration drill; the board's refits
+        # now read ESC_SURVEY_AFTER = 16 and it picks 182
+        import esc_survey_sweep as S
+        self.assertEqual(controller.ESC_SURVEY_AFTER, 16)
+        sv = S.drill(S.sim_for({"esc_tau_s": 0.18}, 0.35, 0.95, 0.65), "drill.calibration.json").esc_survey
+        self.assertGreaterEqual(sv["wheels"], host.ESC_SURVEY_MIN_WHEELS)
+        self.assertAlmostEqual(sv["refined_ms"], 180, delta=27)
+
     def test_a_new_stroke_pauses_the_survey_not_the_record(self):
         # 2026-11-18 (README "The ESC-lag survey's search, traced"): a new stroke no longer cuts the last ball's
         # survey; no survey step runs while the stroke is under way, and it resumes once the stroke's verdict is in.
@@ -1545,6 +1555,11 @@ class EscSurveyTest(unittest.TestCase):
         self.assertIsNone(host.esc_survey_advice(None))
         self.assertIn("run more balls", host.esc_survey_advice({"wheels": 6, "least_ms": 50, "refined_ms": 44}))
         self.assertIn("already matches", host.esc_survey_advice({"wheels": 30, "least_ms": 50, "refined_ms": 44}, 45))
+        # a pick at the grid's last lag names no number (README "Long ESC lags: the survey read too little of the
+        # recovery"): the advice says to scope the ESC, and the calibration drill is not held on it
+        end = {"wheels": 30, "least_ms": 400, "refined_ms": 400}
+        self.assertIn("cannot name it", host.esc_survey_advice(end))
+        self.assertIsNone(host.esc_lag_check(end, 0))
         frame = P.encode(P.ESC_SURVEY, 30, 100, 79, 817, 808, 361, 290, 330, 566, 65535)
         (cmd, vals), = list(P.Decoder().feed(frame))
         self.assertEqual((cmd, vals[:3]), (P.ESC_SURVEY, (30, 100, 79)))
