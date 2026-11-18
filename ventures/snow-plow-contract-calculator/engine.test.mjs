@@ -176,3 +176,21 @@ test("worstYear is the minimum non-null effective rate over the years", () => {
     assert.equal(m.worstYear, vals.length ? Math.min(...vals) : null, m.id);
   }
 });
+
+test("a typed zero is a real answer at the bottom of every range (fuel paid by the client)", () => {
+  assert.equal(normalizeOptions({ fuelPerHr: 0 }).fuelPerHr, 0);
+  assert.equal(normalizeOptions({ bladeWearPerHr: "0" }).bladeWearPerHr, 0);
+  assert.throws(() => normalizeOptions({ fuelPerHr: -1 }), /fuelPerHr must be between 0/);
+});
+
+test("year odds written as fractions summing to 1 are accepted, only all-zero odds are refused", () => {
+  assert.deepEqual(normalizeOptions({ probs: "0.2,0.5,0.3" }).probs, [0.2, 0.5, 0.3]);
+  assert.deepEqual(normalizeOptions({ probs: "0,1,0" }).probs, [0, 1, 0]);
+  assert.throws(() => normalizeOptions({ probs: "0,0,0" }), /must not all be zero/);
+});
+
+test("each site's walk-away price is its normal-year cost plus the walk-away share of target pay", () => {
+  const c = compare(one, { ...opts, targetHourly: 40, walkAwayPct: 50 });
+  close(c.perSite[0].walkAway, 600 + 7.6 * 40 * 0.5);
+  close(c.perSite[0].walkAway, c.flat.walkAway);
+});
