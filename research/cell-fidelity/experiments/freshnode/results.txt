@@ -1,0 +1,22 @@
+cell-fidelity milestone 5zy: node-gain profiles learned on 5zk's 40 designs, tested on 32 fresh DFN designs
+(8 per set, same pools, none of 5z's picks). Profiles T (median), K (3 nearest), L (thickness line), G (L where
+the training Spearman(L_n, h_sep) >= 0.5, else NS). Set medians over the fresh designs.
+
+set           n   rho gate    eNS    eNT    eNK    eNL    eNG     eC    eTs NT<NS NK<NS NL<NS out
+Ai2020        8 -0.45   no  0.044  0.054  0.056  0.050  0.044  0.036  0.038     2     2     4   1
+Chen2020      8  0.42   no  0.075  0.075  0.070  0.065  0.075  0.041  0.046     4     4     4   4
+OKane2022     8  0.46   no  0.072  0.062  0.067  0.056  0.072  0.015  0.047     4     4     5   4
+NCA_Kim2011   8  0.73  yes  0.033  0.028  0.029  0.025  0.025  0.003  0.011     6     7     6   3
+
+set            levN   levT   levK   levL  levTs    d3   |pred - own| sep-node gain T, K, L
+Ai2020         2.28   0.94   1.33   0.67   0.57  0.67   0.39  0.59  0.51
+Chen2020       4.36   3.55   3.25   3.72   1.11  0.71   0.20  0.17  0.23
+OKane2022      7.06   2.37   2.09   3.05   1.52  0.71   0.43  0.35  0.38
+NCA_Kim2011   19.94  17.83  16.71   4.92   0.63  0.64   0.17  0.19  0.12
+
+(rho = training Spearman of anode thickness against the separator-node late gain; e = |ln(L_pred(99) / L_DFN(99))| at kappa = 25.3, line through cycles 2..10, q_S, no drift; eTs = the design's own late gains, reads cycle 99, an in-sample ceiling; out = fresh designs outside the training thickness range; lev in mV)
+
+H248 (gated line beats NS on every gated set): supported (gated ['NCA_Kim2011'], wins 1)
+H249 (OKane2022 e_NL <= (e_NS + e_C)/2): inconclusive
+H250 (NL < NS on the gated designs, one-sided sign test p <= 0.05): inconclusive (6 of 8, p = 0.145)
+H251 (5zw's median profile replicates on fresh OKane2022: e_NT < e_NS): supported
