@@ -1,6 +1,6 @@
 ---
 title: "Quality fix: Correlated Agreement was never broken, the penalty term was missing"
-seo_title: "Correlated Agreement peer prediction with its penalty term: honest wins 10/10 seeds"
+seo_title: "Correlated Agreement with its penalty term: honest wins 10 of 10 seeds"
 date: 2026-11-18
 tags: [quality-audit, research, peer-prediction]
 description: "A research headline said Correlated Agreement fails against a colluding block. With the published penalty term restored, honest reporting wins on all ten seeds."
