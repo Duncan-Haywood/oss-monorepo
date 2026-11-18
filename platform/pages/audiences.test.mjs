@@ -5,6 +5,8 @@ import assert from 'node:assert/strict';
 
 import {
   AUDIENCES,
+  MAX_HERO_WORDS,
+  MAX_INTRO_WORDS,
   MIN_AUDIENCE_TOOLS,
   audienceGroups,
   audienceMatches,
@@ -25,6 +27,15 @@ test('ids are unique and slug-shaped, and every audience has its copy', () => {
       assert.ok(typeof a[key] === 'string' && a[key].trim(), `${a.id}: ${key}`);
     }
     assert.ok(a.match instanceof RegExp, `${a.id}: match`);
+  }
+});
+
+test('intros stay short enough that "Start here" begins on a phone\'s first screen', () => {
+  for (const a of AUDIENCES) {
+    const words = a.intro.trim().split(/\s+/).length;
+    assert.ok(words <= MAX_INTRO_WORDS, `${a.id}: intro is ${words} words (max ${MAX_INTRO_WORDS})`);
+    const hero = words + a.starting.trim().split(/\s+/).length;
+    assert.ok(hero <= MAX_HERO_WORDS, `${a.id}: intro + starting is ${hero} words (max ${MAX_HERO_WORDS})`);
   }
 });
 
