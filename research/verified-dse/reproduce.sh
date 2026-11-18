@@ -66,3 +66,4 @@ $PY experiments/ladder_rest/analyse.py   # milestone 140 (no flow; about 5 s; th
 $PY experiments/util65_blind/analyse.py   # milestone 141 (no flow; the flow is VDSE_UTIL=65 experiments/util65_blind/run.py, stopped at its 2 h limit after 2,468 points, 20 of 52 designs complete)
 $PY experiments/util65_rest/analyse.py   # milestone 142 (no flow; VDSE_UTIL=65 experiments/util65_rest/run.py re-runs it)
 $PY experiments/corner_ss_blind/analyse.py   # milestone 143 (no flow; the flow is experiments/corner_ss_blind/run.py --lib <ss_100C_1v60 liberty>, stopped at its 2 h limit after 3,311 of 6,240 points, 27 of 52 designs complete)
+$PY experiments/addchain_ff/analyse.py; $PY experiments/delay_split_ff/analyse.py   # milestones 145, 146 (no flow; each run.py re-runs its flow, about 70 and 45 min on 4 cores)
