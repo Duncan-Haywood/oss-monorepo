@@ -642,8 +642,9 @@ def next_task(v: Venture) -> str:
             "Land a working slice, then rewrite this venture's `next:` in portfolio/flagships.yaml "
             f"(now {next_budget(v)}, validate.py's cap: replace what you landed, don't append; "
             f"`portfolio/router/flagship_field.py {v.name} --replace OLD NEW` edits it across line breaks; "
-            "add `--make-room` to the same call when there is no room: it parks items from the end of "
-            "the row to the venture's NEXT.md, or `--park ITEM` to choose which)."
+            "an edit that would pass the cap parks open items from the end of the row to the "
+            "venture's NEXT.md by itself, just enough to fit, and says what it moved; `--dry-run` "
+            "previews it, `--park ITEM` chooses which, `--no-make-room` refuses instead)."
             + buildable_edit
         )
     if not v.measured:

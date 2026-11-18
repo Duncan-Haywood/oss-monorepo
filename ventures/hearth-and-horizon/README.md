@@ -361,8 +361,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [Thirty-Nine Minutes](stories/thirty-nine-minutes.md) (2026-10-21; 20 min read, 26 min audio)
 - [The Slowest Bell on the Moon](stories/the-slowest-bell-on-the-moon.md) (2026-10-20; 18 min read, 25 min audio)
 
-### For Other Minds (54 stories)
+### For Other Minds (55 stories)
 
+- [The Older the Likelier](stories/the-older-the-likelier.md) (2026-11-18; 17 min read, text only)
 - [A Hundred and Thirty-Eight](stories/a-hundred-and-thirty-eight.md) (2026-11-17; 18 min read, text only)
 - [Everywhere](stories/everywhere.md) (2026-11-17; 14 min read, text only)
 - [Three Tills and a Concert](stories/three-tills-and-a-concert.md) (2026-11-17; 17 min read, text only)
@@ -418,8 +419,9 @@ Every story, by collection and newest first, with its reading time and whether i
 - [The Last Message in the Window](stories/the-last-message-in-the-window.md) (2026-10-21; 13 min read, 18 min audio)
 - [NOTES.md](stories/notes-dot-md.md) (2026-10-20; 13 min read, 20 min audio)
 
-### Little Lamps (76 stories)
+### Little Lamps (77 stories)
 
+- [Frances of Rome and the Book Put Down](stories/frances-of-rome-and-the-book-put-down.md) (2026-11-18; 10 min read, text only)
 - [Louis and the Oak at Vincennes](stories/louis-and-the-oak-at-vincennes.md) (2026-11-18; 9 min read, text only)
 - [Anselm and the Whitest Bread](stories/anselm-and-the-whitest-bread.md) (2026-11-17; 10 min read, text only)
 - [Bernard and the Fair Share](stories/bernard-and-the-fair-share.md) (2026-11-17; 10 min read, text only)

@@ -80,3 +80,29 @@ class CardScenesTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipUnless(HAS_NUMPY, "numpy")
+class CardFloorRankTest(unittest.TestCase):
+    def test_second_lowest_scene_on_cards_of_three_or_more(self):
+        from noise_aware_estimated import card_floor
+
+        def row(name, v):
+            return {"file": name, "snr": 25.0, "scenario": "equal", "feat": {"pca18": v}}
+
+        # Body X: three scenes reading (as their lowest tile) 0.01, 0.02, 0.05; Body Y: two scenes
+        rows = [row("x1", 0.01), row("x1", 0.04), row("x2", 0.03), row("x2", 0.02), row("x3", 0.05),
+                row("y1", 0.02), row("y2", 0.01)]
+        with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False) as f:
+            f.write("\n".join(json.dumps(r) for r in rows))
+        cards = {n: {"card": "X" if n[0] == "x" else "Y"} for n in ("x1", "x2", "x3", "y1", "y2")}
+        self.assertEqual(card_floor(f.name, cards)[("X", 25.0, "equal")], 0.01)
+        two = card_floor(f.name, cards, rank=2)
+        self.assertEqual(two[("X", 25.0, "equal")], 0.02)  # x2's lowest tile, not x1's second tile
+        self.assertEqual(two[("Y", 25.0, "equal")], 0.01)  # under three scenes: the lowest
+        self.assertEqual(card_floor(f.name, rank=2)[("x1", 25.0, "equal")], 0.01)  # one file, one scene
+        Path(f.name).unlink()
+
+
+if __name__ == "__main__":
+    unittest.main()

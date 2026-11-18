@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01AcxTtL4o1jhx2ctaTJKLbF",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T03:07:05Z",
+  "ended": "2026-11-18T03:12:29Z",
+  "wall_minutes": 15.55,
+  "tokens_in": 3030938,
+  "tokens_out": 19495,
+  "cost_usd": 1.6071,
+  "tool_calls": 38,
+  "task": "quality fix mode: high defect in ventures/youtube-chapters-check (DaVinci Resolve EDL claim)",
+  "projects": [
+    "ventures/youtube-chapters-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17156",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Steps 1-5 describe only a sample round; the mode/fix procedure lives in portfolio/quality/README.md, so a fix-mode session reads the track prompt's steps and then has to discard most of them."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Post front-matter check ran before the sweep and failed on a 179-char description; useful, but check_posts.py could be named in the track prompt so a post is checked before the long run starts."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "mode said fix, so no sample draw or round post",
+      "did": "fixed audit defects 0 (high), 3 and 4 of 2026-11-17-youtube-chapters-check.json and wrote a quality-fix post instead of a round post",
+      "result": "defects marked fixed_by PR #17156; validate 0 problems"
+    },
+    {
+      "file": "prompts/goals.md",
+      "why": "no Resolve install to export a real EDL",
+      "did": "tests use hand-written EDLs in Resolve's layout; README and post say so",
+      "result": "limit stated rather than claimed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-quality-fix-the-hour-that-is-not-an-hour.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw, 19 high open). Queue seed 2026-11-18-2a43. Took ventures/youtube-chapters-check #0 high (Resolve EDL overclaim), #3 medium untested boundaries, #4 low WebVTT '-->'. Not a sample round: no seed drawn, no share-at-bar figure. Verification: node --test ventures/youtube-chapters-check/ 39/39 pass; quality_mutate: startHour=0 mutant caught, len<10 -> <=10 mutant caught (survived before per audit); Playwright page load with pasted EDL at 25 fps -> '0:00 Intro / 0:48 Middle / 3:15 End', no page errors; run_workflow_locally --for-changes: pages.yml 6/6 run steps ok, 14/14 selected workflows passed locally (review bots and deploy jobs not run outside CI). Fix PR: #17156.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "40b51e3b-1e89-5fe2-b5a8-b7431527e7e7",
+    "transcripts": 1,
+    "first": "2026-11-18T03:07:05Z",
+    "last": "2026-11-18T03:22:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 69,
+        "output": 19495,
+        "thinking": 3198,
+        "cache_read": 2952571,
+        "cache_write_5m": 0,
+        "cache_write_1h": 78298,
+        "api_equivalent_usd": 1.6071,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 69,
+      "output": 19495,
+      "thinking": 3198,
+      "cache_read": 2952571,
+      "cache_write_5m": 0,
+      "cache_write_1h": 78298,
+      "api_equivalent_usd": 1.6071,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 35,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.55,
+      "active_minutes": 15.55,
+      "model_minutes": 3.61,
+      "tool_minutes": 11.94,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "EDL format research, parser, frame-rate edge case, tests, docs, post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 186.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

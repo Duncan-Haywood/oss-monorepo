@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqybf3UXmNgMwa63cuRV",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T02:39:27Z",
+  "ended": "2026-11-18T02:55:52Z",
+  "wall_minutes": 16.58,
+  "tokens_in": 5741051,
+  "tokens_out": 38104,
+  "cost_usd": 3.033,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17150",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First version of the synthetic click unit test used independent random clicks, which do not correlate, and had an indexing slip; rewritten before any run with a repeated click template (disclosed in LOG.md).",
+    "First figure drew wrong-among-accepted bars from 1-2 accepted windows, hiding the result; redrawn as raw failure plus share kept (numbers unchanged)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py is documented as slow on first use; this time it returned in well under a minute with /usr/bin/python3.13 already holding numpy/scipy/pytest/matplotlib, so the background start was harmless but unneeded."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-audio-sync-typing-noise-envelope-normalisation.md",
+    "research/capture-sync/LOG.md (step 3h plan and outcome)",
+    "research/capture-sync/README.md (step 3h section and headline)"
+  ],
+  "goal": null,
+  "notes": "Advanced capture-sync (track 13) with step 3h: pre-registered 8 predictions; replayed step 3c's 62,000 windows bit for bit (62/62 cells). Envelope-normalised GCC cuts impulsive independent-noise failure at -10 dB from 21-80% to 0-0.3% (Neighbor 67-74% to 8-9%) and the 1% gate keeps 84-91% of those windows (PSR on plain GCC 4-5%); 9/10 types meet 2% vs 4/10. Steady noise worsens (AirConditioner +7-9 pts, Vacuum +3-4), so prediction (c) failed; the sub-window consistency gate failed (d,e,g,h). Local checks: pytest 43 passed in research/capture-sync/tests; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; cite_check ok incl. doi:10.1109/78.542175; check_posts ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "083c4a94-d26a-5c3b-bf64-e4226fb01d4e",
+    "transcripts": 1,
+    "first": "2026-11-18T02:39:27Z",
+    "last": "2026-11-18T02:56:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 92,
+        "output": 38104,
+        "thinking": 8451,
+        "cache_read": 5597069,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143890,
+        "api_equivalent_usd": 3.033,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 92,
+      "output": 38104,
+      "thinking": 8451,
+      "cache_read": 5597069,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143890,
+      "api_equivalent_usd": 3.033,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 43,
+      "ToolSearch": 2,
+      "Read": 2,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.58,
+      "active_minutes": 16.58,
+      "model_minutes": 6.03,
+      "tool_minutes": 10.55,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "experiment design, implementation, 11-min run, analysis and write-up of one pre-registered research step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 395.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

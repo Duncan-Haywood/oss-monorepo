@@ -443,8 +443,12 @@ def test_replace_over_the_cap_parks_by_itself(tmp_path, capsys):
     base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
     assert ff.main(base + ["--replace", old, longer]) == 0
     got = ff.read_value(f.read_text(), "b", "next")
-    assert longer in got and len(got) <= ff.FLAGSHIP_NEXT_TARGET
-    assert "--make-room parked" in capsys.readouterr().err
+    # an implicit park moves only what the cap needs (ten run records,
+    # 2026-11-17..18: it parked four to eight items for one longer clause)
+    assert longer in got and ff.FLAGSHIP_NEXT_TARGET < len(got) <= ff.FLAGSHIP_NEXT_MAX
+    err = capsys.readouterr().err
+    assert "--make-room parked" in err and "parking 1 item(s)" in err
+    assert "parks by itself" in err
     assert (tmp_path / "ventures" / "b" / "NEXT.md").exists()
 
 
@@ -491,3 +495,40 @@ def test_park_candidates_skip_an_item_spanning_two_sentences():
     assert cands and not any("carry-forward" in c for c in cands)
     # a version number or file name is not a sentence break
     assert not ff.SENTENCE.search("ships v1.2 and reads a.csv files")
+
+
+def test_explicit_make_room_still_parks_to_the_target(tmp_path):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    longer = "(3) item 3 next a much longer follow-up " + "z" * 170
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures")]
+    assert ff.main(base + ["--replace", old, longer, "--make-room"]) == 0
+    assert len(ff.read_value(f.read_text(), "b", "next")) <= ff.FLAGSHIP_NEXT_TARGET
+
+
+def test_park_candidates_never_offer_a_landed_clause():
+    # 2026-11-18: an implicit park moved landed results into NEXT.md as if
+    # they were open items; a landed clause is cut, not parked.
+    landed = "(10) odd leagues landed: 8 on 2x6 UNSAT " + "l" * 150
+    v = _full_row(9, 190)[:-1] + "; " + landed + "."
+    cands = [c for c, _ in ff.park_candidates(v, 400)]
+    assert cands and not any("landed" in c for c in cands)
+
+
+def test_dry_run_writes_nothing(tmp_path, capsys):
+    row = _full_row(10, 195)
+    doc = DOC.replace("    next: >-\n      Only b.\n", "".join(ff.wrap("next", row)))
+    f = tmp_path / "flagships.yaml"
+    f.write_text(doc)
+    (tmp_path / "ventures" / "b").mkdir(parents=True)
+    old = "(3) item 3 " + "w" * 183
+    base = ["b", "--file", str(f), "--ventures-dir", str(tmp_path / "ventures"), "--dry-run"]
+    assert ff.main(base + ["--replace", old, old + " " + "z" * 100]) == 0
+    assert "would park" in capsys.readouterr().err
+    assert f.read_text() == doc and not (tmp_path / "ventures" / "b" / "NEXT.md").exists()
+    assert ff.main(base + ["--field", "buildable", "--replace", "x", "y"]) in (0, 1)
+    assert f.read_text() == doc
