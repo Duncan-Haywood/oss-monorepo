@@ -1392,5 +1392,37 @@ class MainFlagshipsTest(unittest.TestCase):
         self.assertNotIn("zz", load_flagships(FLAGSHIPS_PATH))
 
 
+class FoldedRowsTests(unittest.TestCase):
+    """The default table folds rows whose task is shared advice (2026-11-18: 1,326
+    such rows were 545 KB of a 578 KB table, past the tool output cap)."""
+
+    def test_kinds(self):
+        from allocate import folded_kind, MAINTAIN_TASK, NO_HYPOTHESIS_PREFIX
+        self.assertIsNotNone(folded_kind(MAINTAIN_TASK))
+        self.assertIsNotNone(folded_kind(NO_HYPOTHESIS_PREFIX + " -- add one"))
+        self.assertIsNotNone(folded_kind('Explore (awaiting visitors; x): "y"'))
+        self.assertIsNone(folded_kind("Deepen (flagship 1): BUILDABLE HERE: z"))
+        self.assertIsNone(folded_kind('Explore: test the untested hypothesis -- "q"'))
+
+    def test_real_table_stays_small_and_all_lists_every_row(self):
+        import contextlib
+        import io
+        from allocate import main
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            self.assertEqual(main(["--no-deepen", "--no-claims"]), 0)
+        text = out.getvalue()
+        self.assertLess(len(text), 120_000, "default table grew past the fold")
+        self.assertIn("Deepen (flagship", text)
+        folded = sum(int(line.split()[2]) for line in text.splitlines()
+                     if line.startswith("... and "))
+        full = io.StringIO()
+        with contextlib.redirect_stdout(full):
+            main(["--no-deepen", "--no-claims", "--all"])
+        self.assertNotIn("\n... and ", full.getvalue())
+        self.assertEqual(len(full.getvalue().splitlines()) - len(text.splitlines()),
+                         folded - sum(1 for l in text.splitlines() if l.startswith("... and ")))
+
+
 if __name__ == "__main__":
     unittest.main()

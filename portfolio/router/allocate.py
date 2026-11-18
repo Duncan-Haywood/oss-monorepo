@@ -595,6 +595,20 @@ MAINTAIN_TASK = (
 
 NO_HYPOTHESIS_PREFIX = "Explore: no hypothesis recorded"
 NO_HYPOTHESIS_ROWS = 3
+AWAITING_PREFIX = "Explore (awaiting visitors"
+# Rows whose task is the same advice for every member print only their first few;
+# the rest fold into one count line (`--all` or `--json` lists them). On
+# 2026-11-18 the 661 Maintain-only and 665 awaiting-visitors rows were 545 KB of
+# the table's 578 KB, so a plain `allocate.py` overran the tool output cap and a
+# session saw the start-here lines plus a truncated wall of calculators.
+FOLDED_ROWS = (
+    (NO_HYPOTHESIS_PREFIX, NO_HYPOTHESIS_ROWS,
+     "more ventures with no hypothesis recorded (identical task)"),
+    (AWAITING_PREFIX, 5,
+     "more ventures awaiting visitors (each needs distribution or a usage reading, not features)"),
+    ("Maintain only", 3,
+     "more calculators on Maintain only (fix if broken, otherwise no new work)"),
+)
 FLAGSHIP_NEXT_CHARS = 500
 # validate.py's FLAGSHIP_NEXT_MAX (test_allocate pins the two together). The
 # task line prints the current length against it: nothing a flagship run read
@@ -1414,9 +1428,20 @@ def requests_line(queue: list[dict], path: Path = REQUESTS_PATH) -> str:
     return " ".join(parts)
 
 
+def folded_kind(task: str) -> Optional[int]:
+    """Index into FOLDED_ROWS for a task whose advice is shared by its whole
+    class, or None. Claim notes ("OPEN PR ...", "[older open PRs ...]") come
+    before the task in the printed row, not in `task`, so they do not hide it."""
+    for k, (prefix, _, _) in enumerate(FOLDED_ROWS):
+        if task.startswith(prefix):
+            return k
+    return None
+
+
 def print_table(ventures: list[Venture], queue: list[dict],
                 recent: Optional[dict[str, int]] = None,
-                claims: Optional[dict[str, list]] = None) -> None:
+                claims: Optional[dict[str, list]] = None,
+                show_all: bool = False) -> None:
     later_cap = sum(v.monthly_cap for v in ventures if v.later_stage)
     early_cap = sum(v.monthly_cap for v in ventures if not v.later_stage)
     total_cap = later_cap + early_cap
@@ -1499,13 +1524,14 @@ def print_table(ventures: list[Venture], queue: list[dict],
     )
     if recent is None:
         recent = recent_commits()
-    empty_shown = 0
-    empty_hidden = 0
+    shown = [0] * len(FOLDED_ROWS)
+    hidden = [0] * len(FOLDED_ROWS)
     for i, item in enumerate(queue, 1):
-        if item["task"].startswith(NO_HYPOTHESIS_PREFIX):
-            empty_shown += 1
-            if empty_shown > NO_HYPOTHESIS_ROWS:
-                empty_hidden += 1
+        kind = folded_kind(item["task"]) if not show_all else None
+        if kind is not None:
+            shown[kind] += 1
+            if shown[kind] > FOLDED_ROWS[kind][1]:
+                hidden[kind] += 1
                 continue
         merit = f"{item['merit']:.2f}" if item["merit"] is not None else "-"
         print(
@@ -1517,11 +1543,9 @@ def print_table(ventures: list[Venture], queue: list[dict],
             f"{claim_note(claims[item['venture']]) if claims and item['venture'] in claims else ''}"
             f"{item['task']}"
         )
-    if empty_hidden:
-        print(
-            f"... and {empty_hidden} more ventures with no hypothesis recorded "
-            f"(identical task; `--json` lists them all)."
-        )
+    for (_, _, label), n in zip(FOLDED_ROWS, hidden):
+        if n:
+            print(f"... and {n} {label}; `--all` or `--json` lists them.")
 
     decisions = decisions_by_merit(ventures)
     if decisions:
@@ -1577,6 +1601,9 @@ def main(argv: Optional[list[str]] = None) -> int:
                         help="skip the open-PR lookup (one `gh api` search) that marks rows already being worked")
     parser.add_argument("--no-probe", action="store_true",
                         help="with --venture: skip probing the hosts the flagship row needs")
+    parser.add_argument("--all", action="store_true",
+                        help="print every table row (by default Maintain-only, awaiting-visitors "
+                             "and no-hypothesis rows fold into a count after their first few)")
     parser.add_argument("--venture", metavar="SLUG",
                         help="print one venture's row in full (untruncated flagship `next:`, open PRs, last landing)")
     args = parser.parse_args(argv)
@@ -1628,7 +1655,7 @@ def main(argv: Optional[list[str]] = None) -> int:
     else:
         if claims is None and not args.no_claims:
             print("(open PRs not read: `gh api` search failed; search PR titles before taking a row)")
-        print_table(ventures, queue, recent=recent, claims=claims)
+        print_table(ventures, queue, recent=recent, claims=claims, show_all=args.all)
         print(post_limits_line())
     return 0
 
