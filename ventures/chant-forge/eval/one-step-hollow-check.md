@@ -71,16 +71,28 @@ stem test was not loosened for one place.
 
 ## Registered before the held-out pages were read
 
-`one-step-hollow-fresh-pages.json` was written by `eval/one-step-hollow-fresh.mjs` (made from
-`one-step-fresh.mjs`) with this section, before any of its pages was downloaded: GregoBase ids 3000 to
-6999 in no earlier list, the thirteen lists included, none of whose four leaves an earlier list reads,
-Graduale Romanum 1908 only, with a one-step cephalicus in the GABC. Predictions, bridge as frozen above:
+The plan was a held-out piece list like `one-step-fresh-pages.json`. `eval/one-step-hollow-fresh.mjs`
+(made from `one-step-fresh.mjs`, GregoBase ids 3000 to 6999 in no earlier list, the thirteen lists
+included, none of whose four leaves an earlier list reads, Graduale Romanum 1908 only, with a one-step
+cephalicus in the GABC) found one piece: GregoBase 3357 *Ecce oculi* (leaf 456, one cephalicus). The
+earlier lists have used up GregoBase's 1908 Graduale transcriptions, so a list with GABC to align
+against is too small to say anything. Two held-out checks instead, both written down here and
+committed before any of their pages was downloaded:
 
-1. The bridge reads at least as many one-step cephalici at their pitch as the rule without it, and
-   at least one more, if the list holds a hollow small note the rule misses (the tuning lists gained 3
-   of 10).
-2. No scan note that agrees with its GABC note without the bridge disagrees with it (agreeing does not
-   fall, differing does not rise).
-3. False liquescents do not rise.
-4. Every place the bridge changes, inside or outside the aligned pieces, is a one-step cephalicus
-   when looked at.
+- **Aligned:** `one-step-hollow-fresh-pages.json` (the one piece), through `one-step-check.mjs
+  --before gap`.
+- **Unaligned:** `one-step-hollow-leaves.json`, 31 Graduale leaves no list reads (leaves 40 to 899,
+  one in every 16 of the unread ones, `eval/one-step-hollow-leaves.mjs --pick`), each read with and
+  without the bridge. There is no GABC, so this measures precision only: every note that changes is
+  listed and looked at as a crop.
+
+Predictions, bridge as frozen above:
+
+1. On the one aligned piece, agreeing notes do not fall and differing notes do not rise.
+2. On the 31 leaves, the bridge changes at least one place (the tuning lists' 128 pieces, about 330
+   leaves, gave four places, so about one place in 80 leaves; 31 leaves may well give none, and a
+   zero would not count against the bridge, only leave it untested here).
+3. Every place the bridge changes, on either check, is a one-step cephalicus when looked at: the
+   head, a hairline stem down its left side and the small note one step below under its right half.
+4. The bridge only adds liquescents where it changes anything: no note is moved to another pitch
+   except the small note being read and the split piece it replaces.

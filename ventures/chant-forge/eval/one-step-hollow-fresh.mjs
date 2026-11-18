@@ -21,6 +21,8 @@ import { readFileSync, writeFileSync, readdirSync, existsSync, mkdirSync } from 
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { execFileSync } from 'node:child_process';
+// GABC_CACHE=DIR: read <id>.gabc from DIR (a parallel download of the same
+// GregoBase URLs) before fetching one at a time; the choice is unchanged.
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = join(here, '..');
@@ -47,7 +49,8 @@ for (let id = 3000; id <= 6999 && pieces.length < 15; id++) {
   const file = join(dir, `${id}.gabc`);
   let src;
   try {
-    src = existsSync(file) ? readFileSync(file, 'utf8') : execFileSync('curl', ['-sSf', '-m', '60', `https://gregobase.selapa.net/download.php?id=${id}&format=gabc&elem=1`], { encoding: 'utf8' });
+    const pre = process.env.GABC_CACHE && join(process.env.GABC_CACHE, `${id}.gabc`);
+    src = existsSync(file) ? readFileSync(file, 'utf8') : pre && existsSync(pre) ? readFileSync(pre, 'utf8') : execFileSync('curl', ['-sSf', '-m', '60', `https://gregobase.selapa.net/download.php?id=${id}&format=gabc&elem=1`], { encoding: 'utf8' });
   } catch { continue; }
   const book = /^book:(.*);/m.exec(src)?.[1]?.trim() ?? '';
   const pg = /^Graduale Romanum, 1908, p\. (\[?)(\d+)\]?$/.exec(book);
