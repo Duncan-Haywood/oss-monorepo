@@ -26,7 +26,7 @@ hypotheses:
       events followed by dxf_downloaded.
     status: untested
     checked: null
-    evidence: usage-counter
+    evidence: in-repo
 
 economics:
   currency: USD

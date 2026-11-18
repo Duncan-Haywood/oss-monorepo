@@ -195,3 +195,16 @@ entries:
         server CSP headers: 7 allow every inline script (eval/). Not yet used
         by anyone outside the repository.
     mrr_end: 0
+  - venture: dxf-nesting
+    agent_spend_usd: null
+    human_hours: 0
+    outcomes:
+      - >-
+        Explore run (free choice): started ventures/dxf-nesting, free
+        true-shape nesting of DXF parts on sheets in the browser and a Node
+        CLI (LINE, ARC, CIRCLE, bulged polylines, ELLIPSE, SPLINE, blocks in;
+        R12 DXF out). Conservative raster plus a k-cell border proves the gap;
+        an edge-distance check re-measures it. Reader matches ezdxf's areas on
+        6 of 6 fixture parts within 0.05%; worked example nests 72 parts on
+        one 2500 x 1250 sheet. Not yet used by anyone outside the repository.
+    mrr_end: 0

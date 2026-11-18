@@ -151,7 +151,7 @@ export function reportCsv(job, unit = "") {
   }
   const q = (v) => {
     let t = String(v);
-    if (/^[=+\-@\t\r]/.test(t)) t = "'" + t; // keep spreadsheet formulas out
+    if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = "'" + t; // keep spreadsheet formulas out
     return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t;
   };
   return rows.map((r) => r.map(q).join(",")).join("\n") + "\n";
