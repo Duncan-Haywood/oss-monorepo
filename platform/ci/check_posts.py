@@ -33,6 +33,7 @@ import check_post_links  # noqa: E402
 import post_similarity  # noqa: E402
 
 DIRS = ("docs/posts", "docs/reports")
+STALE_HINT_AT = 8  # a branch adds a post and a report or two, rarely more
 
 
 def _git(*args, root=ROOT):
@@ -99,6 +100,11 @@ def main(argv=None):
         print(f"check_posts: no docs/posts under {args.root}: is --root the repository?")
         return 2
     files = args.files or changed_files(Path(args.root))
+    if not args.files and len(files) > STALE_HINT_AT:
+        # A run that merged a newer main than its clone's origin/main saw 64
+        # files here for its one post (run record, 2026-11-17).
+        print(f"check_posts: {len(files)} files differ from origin/main; if this branch adds fewer, "
+              "origin/main is stale: `git fetch --depth=1 origin main` and rerun, or name the post")
     return run(files, root=Path(args.root), strict=args.strict)
 
 
