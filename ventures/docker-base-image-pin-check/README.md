@@ -72,9 +72,22 @@ before it merges.
   stage in the same file, not a registry pull. Skipped.
 - **scratch** — `FROM scratch`, Docker's empty virtual base image. Cannot be
   repointed. Skipped.
-- **variable** — the reference contains a build-arg substitution (`$FOO` /
-  `${FOO}`), so the actual image cannot be determined from the file alone.
-  Skipped — resolve the build arg yourself and re-run.
+- **unresolved** — the reference uses a build arg (`$FOO` / `${FOO}`) that
+  no `ARG` before the first `FROM` gives a default, so nothing in the file
+  shows it is pinned. Flagged, and `--fail-on-risk` exits 2.
+
+**Build args.** `ARG NAME=value` lines before the first `FROM` are the only
+build args a `FROM` line can use (Docker's Dockerfile reference, "Understand
+how ARG and FROM interact"). Their defaults are substituted (`$X`, `${X}`,
+`${X:-word}`, `${X-word}`, `${X:+word}`, `${X+word}`) and the result is
+classified as above; the finding keeps the original text in `from_arg`. A
+`--build-arg` at build time can override a default, so this checks what a
+plain `docker build` would pull.
+
+**Digests.** sha256 must be exactly 64 and sha512 exactly 128 lowercase hex
+characters (OCI image spec, "Registered algorithms"); other algorithms need at
+least 32 hex characters, as the reference grammar says. A truncated or
+upper-case `@sha256:` is reported mutable, because Docker rejects it.
 
 ## Disclaimers
 
@@ -123,6 +136,7 @@ contact has happened yet — that is the next, non-code step (see
 
 From the [2026-11-17 census quality audit](../../portfolio/quality/audits/2026-11-17-docker-base-image-pin-check.json), not yet fixed:
 
-- A `FROM` built from a build argument (`ARG NODE_VERSION=18` then `FROM node:${NODE_VERSION}-alpine`) is classified `variable` and dropped from the report: the CLI says "no FROM lines found to classify" and `--fail-on-risk` exits 0. Resolving `ARG` defaults, or at least reporting the line as unresolved, is the fix.
 - `COPY --from=<image>` and `RUN --mount=...,from=<image>` pull images too and are not checked.
-- A digest is accepted after lower-casing and without checking its length, so a truncated digest counts as pinned; the suggested lookup for a tagged image with no tag shown can print `name:tag:latest`.
+- `Containerfile` is not discovered, and a `# escape=` parser directive is ignored.
+
+Fixed in the quality-fix PR of 2026-11-18: build-arg `FROM` lines are resolved from their `ARG` defaults or reported `unresolved` (they were dropped and `--fail-on-risk` exited 0); a file whose `FROM` lines are all `scratch` or stages no longer says it has none; truncated and upper-case sha256 digests are no longer counted pinned; the lookup for a malformed digest on a tagged image no longer prints `name:tag:latest`.

@@ -37,6 +37,7 @@
     .pill { display: inline-block; font-size: .72rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 3px 8px; border-radius: 999px; }
     .pill.mutable { background: #fde8e8; color: #9a3412; }
     .pill.pinned { background: #dcefe4; color: #14532d; }
+    .pill.unresolved { background: #fef3c7; color: #78350f; }
     pre.cmd { background: #f7f9fb; padding: 12px; border-radius: 8px; font-size: .88rem; line-height: 1.6; overflow-x: auto; }
     code { overflow-wrap: anywhere; word-break: break-word; }
     .copy-cmd { display: flex; gap: 8px; align-items: baseline; }
@@ -104,7 +105,7 @@ python3 check.py --fail-on-risk   # exit 2 if any mutable (unpinned) base image 
     <h3>Does a clean scan mean my build is supply-chain safe?</h3>
     <p>No. This checks one specific, well-documented thing: whether a <code>FROM</code> line references its base image by content digest. It is not a security audit, and it makes no claim about your build's overall supply-chain security or the safety of the code inside a pinned image.</p>
     <h3>What about multi-stage builds and <code>FROM scratch</code>?</h3>
-    <p>A <code>FROM</code> line that names an earlier build stage (<code>FROM builder</code>, after a prior <code>FROM ... AS builder</code>) is not a registry pull and is skipped, as is <code>FROM scratch</code>, Docker's empty virtual base image that cannot be repointed. A <code>FROM</code> line containing a build-arg substitution like <code>${BASE_IMAGE}</code> is also skipped, since the actual image cannot be determined from the Dockerfile text alone — resolve the build argument's value and re-run.</p>
+    <p>A <code>FROM</code> line that names an earlier build stage (<code>FROM builder</code>, after a prior <code>FROM ... AS builder</code>) is not a registry pull and is skipped, as is <code>FROM scratch</code>, Docker's empty virtual base image that cannot be repointed. A <code>FROM</code> line built from a build argument (<code>ARG NODE_VERSION=18</code>, then <code>FROM node:${NODE_VERSION}-alpine</code>) is checked with the <code>ARG</code> defaults declared before the first <code>FROM</code>, the only ones a <code>FROM</code> line can use; a <code>--build-arg</code> at build time can override them. A build argument with no default is reported as <code>unresolved</code> and counts as a risk, since nothing in the file shows it is pinned.</p>
     <p>More: <a href="how-to-pin-a-docker-base-image-to-a-digest.html">how to pin a Docker base image to a digest</a>. Already run <a href="vs-hadolint.html">Hadolint</a>? See <a href="vs-hadolint.html">how this checker compares</a> for the pinning question specifically. Prefer to just read the file? See <a href="vs-reading-a-dockerfile-by-hand.html">this checker vs. reading a Dockerfile by hand</a>.</p>
   </section>
 
@@ -181,6 +182,7 @@ CMD ["node", "dist/server.js"]
     }
 
     function refDisplay(f) {
+      if (f.classification === "unresolved") return `<span class="note">unknown (build arg)</span>`;
       if (f.digest) return `<code>@${escapeHtml(f.digest)}</code>`;
       if (f.tag) return `<code>:${escapeHtml(f.tag)}</code>`;
       return `<span class="note">(none — resolves to :latest)</span>`;
@@ -188,16 +190,19 @@ CMD ["node", "dist/server.js"]
 
     function renderRows(findings) {
       els.rows.innerHTML = findings.map((f) => {
+        const fromArg = f.from_arg && f.classification !== "unresolved" ? `<div class="note">from <code>${escapeHtml(f.from_arg)}</code> with its ARG defaults</div>` : "";
         const cmd = f.remediation
           ? `<div class="copy-cmd"><code>${escapeHtml(f.remediation)}</code><button type="button" class="secondary small copy-btn" data-cmd="${escapeHtml(f.remediation)}">Copy</button></div>`
-          : "<span class=\"note\">already pinned</span>";
+          : f.note
+            ? `<span class="note">${escapeHtml(f.note)}</span>`
+            : "<span class=\"note\">already pinned</span>";
         return `
         <tr>
           <td><code>${escapeHtml(f.file)}:${f.line}</code></td>
           <td><code>${escapeHtml(f.image)}</code></td>
           <td>${refDisplay(f)}</td>
           <td><span class="pill ${f.classification}">${f.classification}</span></td>
-          <td>${cmd}</td>
+          <td>${cmd}${fromArg}</td>
         </tr>`;
       }).join("");
 
@@ -220,8 +225,9 @@ CMD ["node", "dist/server.js"]
         return;
       }
       let findings;
+      const stats = {};
       try {
-        findings = scanFiles(files);
+        findings = scanFiles(files, stats);
       } catch (err) {
         els.status.innerHTML = `<span class="error">${escapeHtml(err.message)}</span>`;
         els.reportCard.hidden = true;
@@ -229,7 +235,7 @@ CMD ["node", "dist/server.js"]
       }
       const risk = hasUnresolvedRisk(findings);
       els.verdict.className = `verdict ${risk ? "risk" : ""}`;
-      els.verdict.textContent = summaryLine(findings);
+      els.verdict.textContent = summaryLine(findings, stats.fromLines ?? 0);
       renderRows(findings);
       els.reportCard.hidden = false;
       els.status.textContent = "";
