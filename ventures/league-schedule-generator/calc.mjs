@@ -3323,10 +3323,111 @@ export function doubleEliminationBracket(seedNames, { afterDay = null, weekdays 
 function slotText(s) {
   if (!s || s.none) return "BYE";
   if (s.loserOf) return `loser of ${s.loserOf}`;
-
-  if (!s) return "BYE";
   if (s.from) return `winner of ${s.from}`;
   return `#${s.seed} ${s.name}`;
+}
+
+/**
+ * Read one play-off result line against the bracket's teams. A play-off game needs a winner, so
+ * besides the league formats ("Hawks 3 - 1 Owls", "Hawks beat Owls 3-1", "Hawks w/o Owls") it takes
+ * "Hawks beat Owls" with no score, and a level score with the winner named in brackets:
+ * "Hawks 2 - 2 Owls (Hawks on penalties)". Returns { a, b, winner, score } (indexes into names) or { error }.
+ */
+function readPlayoffLine(line, names) {
+  const plain = line.replace(/[\u2212\u2012\u2013\u2014]/g, "-").replace(/[.\s]+$/, "");
+  const note = plain.match(/^(.*?)\s*\(([^()]*)\)$/);
+  const noScore = (note ? note[1] : plain).match(/^(.*?)\s+(?:beat|beats|defeated|def\.?|won against|knocked out)\s+(.*)$/i);
+  if (noScore && !/\d+\s*[-:]\s*\d+\s*$/.test(noScore[2])) {
+    const a = teamIndex(names, noScore[1]), b = teamIndex(names, noScore[2]);
+    if (a < 0 || b < 0) return { error: `"${a < 0 ? noScore[1] : noScore[2]}" is not in the play-off.` };
+    if (a === b) return { error: "a team cannot play itself." };
+    return { a, b, winner: a, score: null };
+  }
+  const pr = parseResults(plain, names, { walkover: [1, 0] });
+  if (pr.errors.length) return { error: pr.errors[0].replace(/^Result line \d+: /, "").replace(/"([^"]*)" is not one of the teams\./, '"$1" is not in the play-off.') };
+  if (!pr.results.length) return { error: 'write it like "Hawks 3 - 1 Owls" or "Hawks beat Owls".' };
+  const r = pr.results[0];
+  const score = r.walkover && r.ga === 1 && r.gb === 0 && /w\/o|walkover|\bwo\b/i.test(plain) ? "w/o" : `${r.ga} - ${r.gb}`;
+  if (r.ga !== r.gb) return { a: r.a, b: r.b, winner: r.ga > r.gb ? r.a : r.b, score };
+  const named = note ? [r.a, r.b].filter((t) => new RegExp(`(^|[^a-z0-9])${names[t].toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}([^a-z0-9]|$)`).test(note[2].toLowerCase())) : [];
+  if (named.length !== 1) return { error: `a play-off game needs a winner: add it in brackets, like "${names[r.a]} ${r.ga} - ${r.gb} ${names[r.b]} (${names[r.a]} on penalties)".` };
+  return { a: r.a, b: r.b, winner: named[0], score: `${score} (${note[2].trim()})` };
+}
+
+/**
+ * Play the bracket forward from typed results, one game per line, in any order. Each line is matched
+ * to the earliest game in the bracket whose two teams are known and are the two named, so a pair that
+ * meets twice (a double-elimination final, or the grand final and its reset) takes its lines in the
+ * order typed. Winners and losers fill the slots that name their game; in double elimination the
+ * reset game is dropped when the winners-bracket team takes the grand final.
+ * Returns a copy of the bracket whose matches carry `teams` ([slot, slot], a slot null while
+ * unknown), `winner`/`loser` (slots) and `score`, plus `champion`, `runnerUp`, `third` (slots or null),
+ * `next` (games ready to play) and `errors` (lines that match no game due, with their line numbers).
+ */
+export function playBracket(bracket, text) {
+  const out = { ...bracket, rounds: bracket.rounds.map((r) => ({ ...r, matches: r.matches.map((m) => ({ ...m })) })) };
+  const all = out.rounds.flatMap((r) => r.matches);
+  const byId = new Map(all.map((m) => [m.id, m]));
+  const names = [];
+  for (const m of all) for (const s of [m.a, m.b]) if (s && s.name && !names.includes(s.name)) names.push(s.name);
+  const errors = [];
+  const lines = [];
+  for (const [i, raw] of String(text ?? "").split(/\r?\n/).entries()) {
+    const line = raw.trim();
+    if (!line) continue;
+    const r = readPlayoffLine(line, names);
+    if (r.error) errors.push(`Play-off line ${i + 1}: ${r.error}`);
+    else lines.push({ ...r, n: i + 1, used: false });
+  }
+  const resolve = (s) => {
+    if (!s || s.none) return null;
+    if (s.from) { const m = byId.get(s.from); return m && m.winner ? m.winner : null; }
+    if (s.loserOf) { const m = byId.get(s.loserOf); return m && m.loser ? m.loser : null; }
+    return s;
+  };
+  for (const m of all) {
+    if (m.bye || m.dead) continue;
+    m.teams = [resolve(m.a), resolve(m.b)];
+    if (m.id === "GF2") {
+      const gf = byId.get("GF1");
+      if (gf && gf.winner && gf.teams && gf.winner === gf.teams[0]) { m.skipped = true; continue; }
+    }
+    const [ta, tb] = m.teams;
+    if (!ta || !tb) continue;
+    const ia = names.indexOf(ta.name), ib = names.indexOf(tb.name);
+    const hit = lines.find((l) => !l.used && ((l.a === ia && l.b === ib) || (l.a === ib && l.b === ia)));
+    if (!hit) continue;
+    hit.used = true;
+    const aWon = hit.winner === ia;
+    m.winner = aWon ? ta : tb;
+    m.loser = aWon ? tb : ta;
+    m.score = hit.score === null ? null : hit.a === ia ? hit.score : hit.score.replace(/^(\d+) - (\d+)/, "$2 - $1");
+    m.line = hit.n;
+  }
+  for (const l of lines) if (!l.used) errors.push(`Play-off line ${l.n}: no game between ${names[l.a]} and ${names[l.b]} is due in the bracket (check the earlier rounds' results and the spelling).`);
+  let final = null;
+  if (bracket.type === "double") {
+    const gf2 = byId.get("GF2"), gf1 = byId.get("GF1");
+    final = gf2 && !gf2.skipped && gf2.winner ? gf2 : gf1 && gf1.winner && gf2 && gf2.skipped ? gf1 : null;
+  } else {
+    const last = out.rounds[out.rounds.length - 1].matches.find((m) => m.id !== "3P");
+    final = last && last.winner ? last : null;
+  }
+  const tp = byId.get("3P");
+  out.finalId = final ? final.id : null;
+  out.champion = final ? final.winner : null;
+  out.runnerUp = final ? final.loser : null;
+  out.third = tp && tp.winner ? tp.winner : null;
+  out.next = all.filter((m) => !m.bye && !m.dead && !m.skipped && !m.winner && m.teams && m.teams[0] && m.teams[1]);
+  out.errors = errors;
+  out.played = all.filter((m) => m.winner).length;
+  return out;
+}
+
+/** A slot for display once the bracket is played: the team when known, else what it waits on. */
+function playedSlotText(m, side) {
+  const t = m.teams ? m.teams[side] : null;
+  return t ? `#${t.seed} ${t.name}` : slotText(side ? m.b : m.a);
 }
 
 export function bracketText(bracket) {
@@ -3334,15 +3435,27 @@ export function bracketText(bracket) {
   for (const r of bracket.rounds) {
     const real = r.matches.filter((m) => !m.bye && !m.dead);
     if (real.length) lines.push(`${r.name}${r.day ? " - " + dayLabel(r.day) : ""}`);
-    for (const m of real) lines.push(`  ${m.id}: ${slotText(m.a)} vs ${slotText(m.b)}`);
+    for (const m of real) {
+      if (m.skipped) { lines.push(`  ${m.id}: not needed (${m.teams[0].name} won GF1)`); continue; }
+      if (m.winner) {
+        const [a, b] = m.teams;
+        const sc = !m.score ? "v" : m.score.startsWith("w/o") ? "w/o" : m.score.replace(/ \(.*$/, "");
+        const note = m.score && / \(/.test(m.score) ? " " + m.score.replace(/^[^(]*/, "") : "";
+        lines.push(`  ${m.id}: #${a.seed} ${a.name} ${sc} #${b.seed} ${b.name}${note} -> ${m.winner.name}${m.id === "3P" ? " (third place)" : m.id === bracket.finalId ? " (champion)" : ""}`);
+        continue;
+      }
+      lines.push(`  ${m.id}: ${m.teams ? playedSlotText(m, 0) : slotText(m.a)} vs ${m.teams ? playedSlotText(m, 1) : slotText(m.b)}`);
+    }
     for (const m of r.matches.filter((x) => x.bye)) lines.push(`  Bye: ${slotText(!m.a || m.a.none ? m.b : m.a)}`);
   }
+  if (bracket.champion) lines.push(`Champion: ${bracket.champion.name}. Runner-up: ${bracket.runnerUp.name}.${bracket.third ? ` Third: ${bracket.third.name}.` : ""}`);
+  else if (bracket.next && bracket.played) lines.push(`Next up: ${bracket.next.map((m) => `${m.id} ${m.teams[0].name} vs ${m.teams[1].name}`).join("; ")}.`);
   return lines.join("\n");
 }
 
 // ---------------------------------------------------------------- share link
 
-const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
+const SHARE_KEYS = ["teams", "double", "carryOver", "carryOverPick", "carryOverKeep", "start", "weekdays", "skip", "blackouts", "timeLimits", "courtLimits", "courtClosures", "courts", "times", "seed", "minutes", "rounds", "balanceSeeds", "gamesPerNight", "results", "playoff", "playoffDouble", "playoffThird", "playoffResults", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy", "officials", "grounds", "linked", "scoring", "duties", "sheetTitle", "sheetContact", "platformLocation", "teamSnapDivision", "teamSnapArrival", "sportsEngineIds"];
 
 /** Page fields -> URL-safe text for the `#` part of a link. The fragment is never sent to a server. */
 export function encodeFields(f) {
@@ -3372,7 +3485,7 @@ export function decodeFields(text) {
       rounds: o.rounds === undefined || o.rounds === "" ? "" : String(o.rounds).slice(0, 4), balanceSeeds: o.balanceSeeds === true,
       gamesPerNight: /^[1-4]$/.test(String(o.gamesPerNight ?? "")) ? String(o.gamesPerNight) : "",
       results: str(o.results), playoff: Number.isFinite(Number(o.playoff)) ? Math.trunc(Number(o.playoff)) : 0,
-      playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true,
+      playoffDouble: o.playoffDouble === true, playoffThird: o.playoffThird === true, playoffResults: str(o.playoffResults),
       pins: str(o.pins), rainouts: str(o.rainouts), withdrawals: str(o.withdrawals), lateTeams: str(o.lateTeams), finishBy: /^\d{4}-\d{2}-\d{2}$/.test(str(o.finishBy)) ? o.finishBy : "", officials: str(o.officials), grounds: str(o.grounds), linked: str(o.linked), scoring: str(o.scoring),
       duties: str(o.duties), sheetTitle: str(o.sheetTitle), sheetContact: str(o.sheetContact),
       platformLocation: str(o.platformLocation), teamSnapDivision: str(o.teamSnapDivision), teamSnapArrival: str(o.teamSnapArrival), sportsEngineIds: str(o.sportsEngineIds),
@@ -3871,7 +3984,7 @@ export function nextSeasonFields(fields, { lastDay = null, gapWeeks = 8 } = {}) 
     f.start = dayIso(day);
   }
   f.seed = (Number(f.seed) || 0) + 1;
-  for (const k of ["skip", "blackouts", "results", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
+  for (const k of ["skip", "blackouts", "results", "playoffResults", "pins", "rainouts", "withdrawals", "lateTeams", "finishBy"]) if (k in f) f[k] = "";
   const dropped = String(fields.teams || "").split(/\n+/).map((t) => t.trim()).filter((t) => t && gone.has(t.toLowerCase()));
   return { fields: f, dropped, added: late.filter((t) => kept.includes(t)) };
 }

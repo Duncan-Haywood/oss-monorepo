@@ -23,7 +23,7 @@
 import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
-import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
+import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, playBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS, dayLabel } from "./calc.mjs";
 import { pathToFileURL } from "node:url";
 import { upcomingGames, parseAvailability, recordAvailability, availabilityHtml, shortTeamsHtml, dayNumber, parseRosters, parseContacts, availabilityCsv, remindersDue, EMAIL, REMINDER_DAYS } from "./availability.mjs";
 import { smtpConfig, sendMail } from "./mailer.mjs";
@@ -37,7 +37,7 @@ import { cleanWaiverText, currentVersion, rememberVersion, parseSignature, parse
 import { regSettings, closedReason, parseRegistration, namesInUse, addRegistration, allowSignup, approveRegistration, declineRegistration, togglePaid, registrationsCsv, registerFormHtml, registeredHtml, adminRegistrationsHtml, signupEmail } from "./registration.mjs";
 
 const MAX_BODY = 64 * 1024;
-const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts"];
+const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring", "rosters", "contacts", "playoffResults"];
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
@@ -77,7 +77,10 @@ export function buildLeague(f) {
     seeds = table.map((r) => r.name);
   }
   const want = Math.trunc(Number(f.playoff) || 0);
-  if (want >= 2 && want <= s.teams.length) bracket = playoffBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
+  if (want >= 2 && want <= s.teams.length) {
+    bracket = playoffBracket(seeds.slice(0, want), { afterDay: s.stats.lastDay, weekdays: s.config.weekdays, skipDays: s.config.skipDays });
+    if (String(f.playoffResults || "").trim()) { bracket = playBracket(bracket, f.playoffResults); warnings.push(...bracket.errors); }
+  }
   return { schedule: s, table, bracket, warnings };
 }
 
@@ -135,7 +138,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
   const csv = games.length ? `<p><a href="/admin/availability.csv?key=${k}">Download everyone's answers (CSV)</a> for the next games, with roster players who have not answered.</p>` : "";
   const smtp = smtpConfig(env);
   const mailNote = !smtp ? "Reminder emails are off: set SMTP_HOST, SMTP_FROM (and SMTP_USER, SMTP_PASS) on the server to send them from your own mail account." : smtp.error ? `Reminder emails are off: ${smtp.error}.` : `Reminder emails are on: a team still short ${REMINDER_DAYS} days out gets one email at these addresses${EMAIL.test(env.REMINDER_TO || "") ? ", copied to " + env.REMINDER_TO : ""}. ${Object.keys(state.remindersSent || {}).length} sent for the next games.`;
-  const parseNotes = [...rp.errors, ...cp.errors].slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("");
+  const parseNotes = [...rp.errors, ...cp.errors, ...(built.bracket?.errors ?? [])].slice(0, 8).map((e) => `<li>${esc(e)}</li>`).join("");
   const pending = (state.pending || []).map((r, i) => names[r.a] === undefined || names[r.b] === undefined ? "" : `<li>${esc(resultLine(names, r))} <form method="post" action="/admin/result?key=${k}" style="display:inline"><input type="hidden" name="i" value="${i}"><button name="act" value="approve">Approve</button><button name="act" value="decline">Decline</button></form></li>`).join("");
   const waiting = (pending ? `<h2>Scores waiting for you</h2><ul>${pending}</ul>` : "") + (built.schedule && state.published ? adminReportsHtml(openReports(state.reports || {}, built.schedule), key) + adminMovesHtml(openMoves(state.moves || {}, built.schedule), key) : "");
   const token = env.LEAGUE_TOKEN || "", capBase = base;
@@ -154,7 +157,7 @@ function adminPage(state, key, note = "", today = dayNumber(Date.now()), env = p
 <label>Play-off spots (0 for none)<input name="playoff" value="${esc(f.playoff ?? 0)}"></label>
 <label>Players a team needs on the night (0 = do not flag short teams)<input name="minPlayers" inputmode="numeric" value="${esc(f.minPlayers ?? 0)}"></label>
 <label><input type="checkbox" name="double" value="1" style="width:auto" ${f.double ? "checked" : ""}> Double round robin</label>
-${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}
+${area("teams", "Teams, one per line")}${area("courts", "Courts, one per line")}${area("times", "Time slots, e.g. 18:00, 19:00")}${area("skip", "Skip dates")}${area("blackouts", "Blackouts, e.g. Team: 2026-10-20")}${area("rainouts", "Rainouts")}${area("withdrawals", "Withdrawals")}${area("lateTeams", "Late teams")}${area("results", "Results, e.g. Hawks 3 - 2 Owls")}${area("playoffResults", "Play-off results, e.g. Hawks 2 - 1 Owls or Hawks 1 - 1 Owls (Hawks on penalties). They fill the bracket and never touch the table")}${area("rosters", "Rosters (optional), e.g. Hawks: Ana, Ben, Cara. Players pick their name from the list, and you see who has not answered")}${area("contacts", "Team contacts for reminder emails (optional), e.g. Hawks: captain@example.org")}
 <fieldset><legend>Team sign-ups</legend>
 <label><input type="checkbox" name="regOpen" value="1" style="width:auto" ${rs.open ? "checked" : ""}> Open sign-ups at <code>/register</code> (a public page: share it anywhere)</label>
 <label>Fee per team, as you want it shown (optional), e.g. $450<input name="regFee" maxlength="60" value="${esc(f.regFee ?? "")}"></label>
