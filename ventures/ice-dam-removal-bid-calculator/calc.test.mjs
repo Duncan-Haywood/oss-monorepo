@@ -50,7 +50,27 @@ test('an emergency call adds a premium on billed time only, not on fuel or equip
   const without = calculateQuote(DEFAULTS);
   close(withEmergency.emergencySurcharge, 83.3);
   close(withEmergency.cost - without.cost, withEmergency.emergencySurcharge * (1 + DEFAULTS.overheadRate / 100));
-  assert.equal(withEmergency.belowTargetMargin, true, 'the rate card price does not itself rise for an emergency call, so it can fall below the higher target price');
+  assert.equal(withEmergency.rateCardPrice, without.rateCardPrice, 'the per-foot rate card prices a scheduled call');
+});
+
+test('an emergency call raises the price to quote, not only the cost (audit 2026-11-17 defect 0)', () => {
+  const storm = calculateQuote({ ...DEFAULTS, emergencyCall: true });
+  const day = calculateQuote(DEFAULTS);
+  // Hand check: surcharge 2 techs x 3.5 h x $34 x 35% = 83.30; x 1.12
+  // overhead = 93.296; / (1 - 0.30) = 133.28 billed on top of the $560 card.
+  close(storm.emergencyPremium, 133.28);
+  close(storm.quotedPrice, 693.28);
+  assert.ok(storm.quotedPrice > day.quotedPrice);
+  close(storm.quotedPrice - day.quotedPrice, storm.emergencySurcharge * 1.12 / 0.7);
+  assert.equal(storm.belowTargetMargin, false, 'the passed-through premium keeps a storm call at or above the target price');
+  assert.equal(day.emergencyPremium, 0);
+});
+
+test('the storm premium is added on top of the minimum service charge too', () => {
+  const r = calculateQuote({ ...DEFAULTS, edgeFeet: 15, emergencyCall: true });
+  assert.equal(r.minimumApplied, true);
+  close(r.baseQuotedPrice, 375);
+  close(r.quotedPrice, 375 + r.emergencyPremium);
 });
 
 test('emergencyCall=false ignores emergencyPct entirely', () => {

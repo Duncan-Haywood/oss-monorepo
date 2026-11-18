@@ -66,7 +66,9 @@ All in [`calc.mjs`](calc.mjs), as pure functions with no dependencies:
 - **`compareDepreciationPaths`** — runs bonus depreciation, a Section 179
   election, and plain MACRS on the same purchase: eligible basis, each
   path's usable deduction and cash tax saving this year, the Section 179
-  phase-out and carryforward, and the MACRS remaining basis.
+  phase-out and carryforward, and the MACRS remaining basis. When the basis
+  is larger than the Section 179 limit, the Section 179 column takes 100%
+  bonus on the remainder in the same year, as a preparer would (Pub. 946 ch. 3).
 - **`section179Outcome`** — applies the year's dollar limit, the
   dollar-for-dollar phase-out against total qualifying purchases, and the
   income cap (producing a carryforward, never an NOL).
@@ -90,11 +92,6 @@ All in [`calc.mjs`](calc.mjs), as pure functions with no dependencies:
 From [the census audit](../../portfolio/quality/audits/2026-11-17-bonus-depreciation-calculator.json),
 not yet fixed:
 
-- **High:** when an asset costs more than the Section 179 limit, the Section
-  179 column ignores the rest of the basis. A preparer takes bonus or MACRS on
-  the remainder in the same year (IRC 168(k)(1)(A), Pub. 946 ch. 3): a
-  $3,000,000 asset in 2025 at 21% shows $525,000 where Section 179 plus bonus
-  on the remainder gives $630,000.
 - There is no acquisition-date input: 2025 property acquired before
   January 20, 2025 gets 40% bonus, not 100%.
 - No mid-quarter convention warning; the MACRS rate test compares the output
