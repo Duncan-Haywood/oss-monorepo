@@ -2613,3 +2613,44 @@ jitter cannot reach a capture's periods; what these runs check is the code path 
 The viper function, the register writes and the GPIO matrix routing have not run on a board; bench it with the wheels off before turning it on. Next:
 the capture's 12.5 ns resolution is floored to whole microseconds for `PeriodTach`; periods in finer units would lower
 the clean tach's 0.4 us floor, and might lift the clean row's 11-14 of 18.
+
+## Periods finer than a microsecond (2026-11-18, after "A tach timed in hardware"; built, kept at 1 by its pre-registered rule)
+
+**The item.** The capture latches an 80 MHz counter, 12.5 ns a tick, but `CaptureClock` floored its periods to whole
+microseconds for `PeriodTach`, putting back an error of up to 1 us on every edge (0.29 us standard deviation). The
+section above guessed that finer periods would lower the clean tach's 0.4 us reading and might lift the clean row's
+11-14 of 18 spread takes named.
+
+**What shipped.** `PeriodTach(sub=N)` and `CaptureClock(sub=N)` keep periods in units of 1 / N us (N divides 80).
+Everything the interrupt touches stays a small int (a 250 ms stall at N = 80 is 2e7, under MicroPython's 2^30);
+`recent()` hands the drop fits microseconds, and `rpm()` / `rpm_last()` still take microseconds. `config.TACH_CAPTURE_SUB`
+sets it for the board's capture tachs, `tach_log.run(34, 600, capture=True, sub=8)` logs fractional microseconds, and
+`tennisbots tach-jitter` now keeps the fractions it reads (it used to truncate them). At N = 1 every path is bit-identical
+to before: the held-out survey rerun through the new code at sub 1 reads exactly the earlier file's 7, 7, 6, 7, 8, 8.
+
+**The jitter reading.** On the example drill the capture's edge jitter reads 0.40 us at whole microseconds and 0.26 us at
+1/8 us (`tests/test_capture.py`); the difference in quadrature is 0.29 us, the floor's own error to within 0.05. What is
+left is the drill's real wheel motion between revolutions. A builder logging a steady wheel at sub 8 sees the sensor
+without the clock in the way; the advice bands in `tennisbots tach-jitter` were set at whole microseconds, so read them
+from a sub-1 log.
+
+**The survey: failed held out.** `tests/take_survey_jitter.py --tach-capture --sub 8`, pre-registered before the held-out
+set ran (eval/take-survey-capture-sub8-2026-11-18.txt):
+
+| set | whole us: spread takes named and advised (of 54) | 1/8 us: the same | 1/8 us: instant builds advised (of 18) |
+| --- | --- | --- | --- |
+| design (lag 0.3 s, seed 7) | 25 | 45 | 0 |
+| held out (lag 0.45 s, seed 11) | 43 | 14 | 1 |
+
+Every clause failed held out, an instant build was advised, and by the rule `TACH_CAPTURE_SUB` is 1. The six jitter
+columns of a capture run are near-repeats of one plant (the handler's jitter cannot reach the periods), so each set is
+about one draw: the design set's gain and the held-out set's loss are both that size.
+
+**Why, as far as traced.** Not the fit's window: `controller._anchor` picks the same slowest revolution on 21 of 22
+wheels at either unit (`tests/take_survey_sub_anchor.py`). What the per-wheel rows show is that several take candidates
+reach the identical residual to four digits, 0 ms and 6 ms alike, and the rest jump above it by amounts that do not
+follow the candidate. At whole microseconds the floor's error lifts every candidate to a common level and the jumps are
+small beside it; at 1/8 us that level falls 2-4 times and the jumps decide the sum. So the survey's verdicts have been
+trimmed sums of mostly take-blind rows, and how much of its 43 of 54 the take itself earned is open. Next: why the
+residual is identical across candidates (does the fit's t0 land where all of the take's parts fall in one revolution,
+or do the take columns drop out of the solve), on these 22 wheels.

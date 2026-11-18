@@ -893,15 +893,24 @@ class PeriodTach:
     `stall_us` reads 0, and the first pulse after such a gap starts the average afresh. Edges closer together than `min_period_us` (above `max_rpm`) are electrical noise, ignored.
     """
 
-    def __init__(self, n=4, max_rpm=12000, stall_us=250000, ring=PERIOD_RING, window_us=None):
+    def __init__(self, n=4, max_rpm=12000, stall_us=250000, ring=PERIOD_RING, window_us=None, sub=1):
         self.periods = [0] * n
+        # `sub` (2026-11-18, README "Periods finer than a microsecond"): edge() takes periods in units of 1 / sub us,
+        # so a capture-timed tach (CaptureClock(sub=...)) keeps the 80 MHz counter's resolution instead of flooring it
+        # to whole microseconds. Everything stored (periods, ring, carry) is in those units, still small ints (a stall's
+        # 250,000 us at sub 80 is 2e7, under MicroPython's 2**30); recent() hands the fits microseconds, and rpm() /
+        # rpm_last() still take `since_us` in microseconds. 1 is the old whole-microsecond tach, unchanged.
+        self.sub = sub
         # The reading averages the newest periods until they span `window_us`, at most `n` of them (2026-11-16, README
         # "A tach that averages a fixed time"); 0 averages all `n`, as before. None reads TACH_WINDOW_US.
         self.window_us = TACH_WINDOW_US if window_us is None else window_us
+        self._window = self.window_us * sub
         self.i = 0
         self.count = 0
-        self.min_period = 60000000 // max_rpm
+        self.min_period = 60000000 * sub // max_rpm
         self.stall_us = stall_us
+        self._stall = stall_us * sub
+        self._rpm_k = 60000000 * sub
         self._carry = 0
         # Every accepted period, newest at ring[(edges - 1) % len], for LaunchCheck's per-shot drop fit (2026-11-16,
         # README "The drop from the pulse times"). Periods, not times: they stay small ints, so the IRQ never
@@ -910,7 +919,8 @@ class PeriodTach:
         self.edges = 0
 
     def edge(self, period_us):
-        if period_us > self.stall_us:
+        # period_us is in units of 1 / self.sub us (whole microseconds at the default sub 1)
+        if period_us > self._stall:
             self.reset()                     # first pulse after a stop: its "period" is the whole time stopped
             return
         period_us += self._carry
@@ -933,25 +943,29 @@ class PeriodTach:
         """The last `n` periods (oldest first) up to edge count `upto` (default now), as far as the ring holds."""
         end = self.edges if upto is None else min(upto, self.edges)
         k = min(n, end, len(self.ring))
-        return [self.ring[j % len(self.ring)] for j in range(end - k, end)]
+        if self.sub == 1:
+            return [self.ring[j % len(self.ring)] for j in range(end - k, end)]
+        s = self.sub
+        return [self.ring[j % len(self.ring)] / s for j in range(end - k, end)]   # microseconds, for the fits
 
     def rpm(self, since_us):
         if self.count == 0 or since_us > self.stall_us:
             return 0
         k = self.count
-        if self.window_us > 0:
+        if self._window > 0:
             n = len(self.periods)
             total = j = 0
             while j < k:
                 total += self.periods[(self.i - 1 - j) % n]
                 j += 1
-                if total >= self.window_us:
+                if total >= self._window:
                     break
             mean = total / j
         else:
             mean = sum(self.periods[:k]) / k
-        period = since_us if since_us > mean else mean
-        return int(60000000 / period + 0.5)
+        since = since_us * self.sub
+        period = since if since > mean else mean
+        return int(self._rpm_k / period + 0.5)
 
     def rpm_last(self, since_us):
         """The speed over the last revolution alone (or the open one, if longer), unaveraged: what `LaunchCheck` reads
@@ -960,12 +974,13 @@ class PeriodTach:
         if self.count == 0 or since_us > self.stall_us:
             return 0
         last = self.periods[(self.i - 1) % len(self.periods)]
-        period = since_us if since_us > last else last
-        return int(60000000 / period + 0.5)
+        since = since_us * self.sub
+        period = since if since > last else last
+        return int(self._rpm_k / period + 0.5)
 
 
 class CaptureClock:
-    """Whole-microsecond periods from a hardware capture's tick counts (2026-11-18, README "A tach timed in hardware").
+    """Whole-microsecond (or, with `sub`, 1 / sub us) periods from a hardware capture's tick counts (2026-11-18, README "A tach timed in hardware").
 
     `period(ticks, since_us)` takes the capture counter's ticks since the previous edge (capture.Capture.ticks(): -1
     for a gap too long to count) and the pin interrupt's own ticks_us() gap, and returns the period to hand to
@@ -976,8 +991,13 @@ class CaptureClock:
     restart. 0 ticks (the interrupt ran with no new capture) returns -1: nothing to hand on. Small ints only.
     """
 
-    def __init__(self, stall_us=250000, ticks_per_us=80):
-        self.k = ticks_per_us
+    def __init__(self, stall_us=250000, ticks_per_us=80, sub=1):
+        # `sub` (2026-11-18, README "Periods finer than a microsecond"): periods in units of 1 / sub us, for a
+        # PeriodTach made with the same sub; it must divide ticks_per_us (80: 1, 2, 4, 5, 8, 10, 16, 20, 40 or 80).
+        if sub < 1 or ticks_per_us % sub:
+            raise ValueError("sub must divide ticks_per_us")
+        self.k = ticks_per_us // sub
+        self.sub = sub
         self.stall_us = stall_us
         self.max_ticks = stall_us * ticks_per_us
         self.rem = 0
@@ -989,7 +1009,7 @@ class CaptureClock:
         if not self.primed or ticks < 0 or ticks > self.max_ticks or since_us > self.stall_us:
             self.primed = True
             self.rem = 0
-            return self.stall_us + 1
+            return self.stall_us * self.sub + 1
         t = ticks + self.rem
         us = t // self.k
         self.rem = t - us * self.k

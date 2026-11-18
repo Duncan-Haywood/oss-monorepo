@@ -82,6 +82,53 @@ class CaptureClockTest(unittest.TestCase):
         self.assertEqual(clock.period(80 * 251000, 251000), 250001)
 
 
+class SubMicrosecondTest(unittest.TestCase):
+    """Periods in 1 / sub us (2026-11-18, firmware/esp32/README.md "Periods finer than a microsecond")."""
+
+    def test_clock_periods_add_up_in_finer_units(self):
+        clock = controller.CaptureClock(sub=8)
+        self.assertEqual(clock.period(1, 0), 250000 * 8 + 1)             # a restart, in the tach's units
+        edges, t = [0], 0
+        for k in range(2000):
+            t += 80 * 6000 + (k * 37) % 79 - 39
+            edges.append(t)
+        got = [clock.period(b - a, 6000) for a, b in zip(edges, edges[1:])]
+        self.assertEqual(got, [b // 10 - a // 10 for a, b in zip(edges, edges[1:])])
+        with self.assertRaises(ValueError):
+            controller.CaptureClock(sub=3)
+
+    def test_tach_reads_the_same_speeds_in_finer_units(self):
+        whole, fine = controller.PeriodTach(), controller.PeriodTach(sub=8)
+        for p in (6000, 6001, 5999, 6002):
+            whole.edge(p)
+            fine.edge(8 * p)
+        for since in (0, 3000, 7000, 300000):
+            self.assertEqual(whole.rpm(since), fine.rpm(since))
+            self.assertEqual(whole.rpm_last(since), fine.rpm_last(since))
+        self.assertEqual(fine.recent(2), [5999.0, 6002.0])
+        fine.edge(8 * 250001)                                              # a stop restarts it, as before
+        self.assertEqual(fine.count, 0)
+        fine.edge(8 * 3000)                                                # 20,000 rpm: over max_rpm, folded in
+        self.assertEqual(fine.count, 0)
+        w1, w8 = controller.PeriodTach(window_us=12000), controller.PeriodTach(window_us=12000, sub=8)
+        for p in (6000, 6000, 6000, 5000):
+            w1.edge(p)
+            w8.edge(8 * p)
+        self.assertEqual(w8.rpm(0), w1.rpm(0))
+        self.assertEqual(w8.rpm(0), int(60e6 * 3 / 17000 + 0.5))             # 5000 + 6000 + 6000 spans the window
+
+    def test_a_clean_capture_reads_under_the_microsecond_floor(self):
+        _, r1, p1 = drill_periods(tach_capture=True, tach_capture_sub=1)
+        _, r8, p8 = drill_periods(tach_capture=True, tach_capture_sub=8)
+        self.assertTrue(r1.ok and r8.ok)
+        j1 = tach.edge_jitter([p for p in p1 if p < 20000])["jitter_us"]
+        j8 = tach.edge_jitter([p / 8 for p in p8 if p < 8 * 20000])["jitter_us"]
+        # What the finer unit removes is the floor's own error, uniform over a microsecond per edge (sd 1/sqrt(12) =
+        # 0.29 us); what is left is the drill's real wheel motion between revolutions (the loop, the balls)
+        self.assertLess(j8, j1 - 0.1)
+        self.assertAlmostEqual((j1 * j1 - j8 * j8) ** 0.5, 12 ** -0.5, delta=0.05)
+
+
 def drill_periods(**plant):
     with open(os.path.join(HERE, "..", "drill.example.json")) as f:
         import json
@@ -103,7 +150,7 @@ def drill_periods(**plant):
 class SimulatedCaptureTest(unittest.TestCase):
     def test_capture_reads_the_same_periods_as_a_clean_interrupt(self):
         a, ra, pa = drill_periods()
-        b, rb, pb = drill_periods(tach_capture=True)
+        b, rb, pb = drill_periods(tach_capture=True, tach_capture_sub=1)
         self.assertIsNone(a.hw.tach_top.cap)
         self.assertIsNotNone(b.hw.tach_top.cap)
         self.assertTrue(ra.ok and rb.ok)
@@ -124,7 +171,7 @@ class SimulatedCaptureTest(unittest.TestCase):
 
     def test_handler_latency_does_not_reach_the_periods(self):
         _, ri, pi = drill_periods(tach_jitter_us=3.0)
-        _, rc, pc = drill_periods(tach_jitter_us=3.0, tach_capture=True)
+        _, rc, pc = drill_periods(tach_jitter_us=3.0, tach_capture=True, tach_capture_sub=1)
         _, r0, p0 = drill_periods()
         self.assertTrue(ri.ok and rc.ok and r0.ok)
         ji, jc, j0 = (tach.edge_jitter([p for p in ps if p < 20000])["jitter_us"] for ps in (pi, pc, p0))
@@ -133,7 +180,7 @@ class SimulatedCaptureTest(unittest.TestCase):
         self.assertAlmostEqual(jc, j0, delta=0.1)
 
     def test_the_sensor_own_error_still_shows(self):
-        _, rc, pc = drill_periods(tach_sensor_jitter_us=2.0, tach_capture=True)
+        _, rc, pc = drill_periods(tach_sensor_jitter_us=2.0, tach_capture=True, tach_capture_sub=1)
         self.assertTrue(rc.ok)
         self.assertGreater(tach.edge_jitter([p for p in pc if p < 20000])["jitter_us"], 1.6)
 

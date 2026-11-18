@@ -34,15 +34,17 @@ SURVEY_SPEAKS_US = 0.55       # below: the simulator's clean tach (reads 0.40)
 SURVEY_BLIND_US = 1.35        # from here: 1.5 us and up (reads 1.59 and more), none advised
 
 
-def read_periods(path: str) -> list[int]:
-    """Periods in microseconds from a text file: whitespace- or comma-separated integers (tach_log.py's output), lines
-    starting with '#' skipped."""
+def read_periods(path: str) -> list[float]:
+    """Periods in microseconds from a text file: whitespace- or comma-separated numbers (tach_log.py's output: whole
+    microseconds, or fractions of one from a capture log with sub > 1), lines starting with '#' skipped. Fractions are
+    kept (2026-11-18, README "Periods finer than a microsecond"): truncating them would put the whole-microsecond floor
+    back."""
     out = []
     with open(path) as f:
         for line in f:
             line = line.split("#", 1)[0]
             for tok in line.replace(",", " ").split():
-                out.append(int(float(tok)))
+                out.append(float(tok))
     return out
 
 

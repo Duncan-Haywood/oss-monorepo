@@ -11,6 +11,10 @@ WHEEL_RPM_FULL = 9000          # launcher wheel free speed at full ESC throttle,
 # out. Not yet run on a board: log both ways with tach_log.run(34, 600) and tach_log.run(34, 600, capture=True), read
 # each with `tennisbots tach-jitter`, and turn it on only if the capture reads lower. Copy capture.py to the board too.
 TACH_CAPTURE = False
+# With TACH_CAPTURE on, its periods in units of 1 / TACH_CAPTURE_SUB us (README "Periods finer than a microsecond").
+# Must divide 80. 1 (whole microseconds) by the pre-registered rule: at 8 the contact-time survey named 45 of 54 spread
+# takes on the design set but 14 of 54 held out (whole microseconds: 25 and 43), and advised one instant build.
+TACH_CAPTURE_SUB = 1
 # Launcher spin-up ramp (cad: Feeder.power_distribution): each wheel's target rises at most WHEEL_RAMP_MAX_RPM_S, and
 # above that at WHEEL_SPINUP_W of shaft power, so two wheels spinning up with everything else running stay under the
 # BMS's continuous limit. WHEEL_INERTIA_KGM2 is one wheel and its motor's rotor (cad Feeder.launch_wheel_kgm2): weigh
