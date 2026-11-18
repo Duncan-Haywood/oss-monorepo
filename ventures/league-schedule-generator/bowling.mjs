@@ -23,6 +23,16 @@ import { roundRobin, dayLabel, dayIso, csvCell, parseTeams, mulberry32 } from ".
 
 export const VACANCY = "Vacancy";
 
+// Seasons where a SAT solver proved the floor/ceil lane bound out of reach (bowling-proofs.mjs,
+// from eval/bowling-bound-proof.py): "teams,round-robin weeks" for roundRobin(teams) played in
+// order from round 1, as bowlingSchedule() plays it. Only even leagues: an odd league's proof would
+// include the Vacancy's row, which says nothing about the real teams.
+import { OUT_OF_REACH } from "./bowling-proofs.mjs";
+const outOfReach = new Set(OUT_OF_REACH);
+export function boundOutOfReach(nTeams, rrWeeks) {
+  return outOfReach.has(`${nTeams},${rrWeeks}`);
+}
+
 /** Minimum-cost perfect assignment of rows to columns of a square matrix (Hungarian, O(n^3)). */
 export function hungarian(cost) {
   const n = cost.length;
@@ -239,7 +249,8 @@ export function bowlingSchedule(spec) {
     out.push({ week: w, day, kind: "round", cycle: info.cycle, round: info.round, matches });
     ri++;
   }
-  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length };
+  const boundProvedOutOfReach = !odd && boundOutOfReach(n, rrRounds.length);
+  return { errors: [], teams, odd, nPairs, labels, weeks: out, skipped, cycleLength: cycle.length, boundProvedOutOfReach };
 }
 
 function ordinal(i) {
@@ -272,7 +283,9 @@ export function laneReport(season) {
     return { name: r.name, counts: r.counts, weeks: r.weeks, spread, bound, repeats: r.repeats };
   });
   const real = out.filter((r, i) => !(season.odd && i === n - 1));
-  return { rows: out, worstSpread, atBound, teams: n, repeats, realRows: real };
+  // boundProvedOutOfReach: no lane deal of this season's round-robin weeks puts every team at the
+  // bound (proved by a SAT solver), so a team off it is the season's limit, not a missed deal.
+  return { rows: out, worstSpread, atBound, teams: n, repeats, realRows: real, boundProvedOutOfReach: Boolean(season.boundProvedOutOfReach) };
 }
 
 /** Independent check: every week, each team once and each pair once; every pair of teams meets as often as the cycles say. */
