@@ -27,7 +27,7 @@
   "lines_added": null,
   "lines_removed": null,
   "merged": null,
-  "ci_failures_before_green": null,
+  "ci_failures_before_green": 1,
   "review_findings": null,
   "tests_added": 3,
   "outcome": "success",
@@ -35,7 +35,8 @@
     "Scratchpad manifest used relative paths; card_scenes.py run from the venture dir skipped all 158 files until made absolute.",
     "xargs -P children sharing stdout merged two JSON rows into one line (print writes row and newline separately); repaired by splitting at '}{' and fixed in the tool with emit().",
     "fit assumed a 'true' arm; a --cap sweep has none (fixed).",
-    "The fresh fetch reached 10 GB of 12 GB free disk; it finished on its own at 521 files."
+    "The fresh fetch reached 10 GB of 12 GB free disk; it finished on its own at 521 files.",
+    "changed-ventures CI failed in shift-roster-builder (untouched by this PR); passes on origin/main locally: likely a load flake, left for that venture's owner."
   ],
   "integrity_issues": [],
   "doc_friction": [
@@ -67,7 +68,7 @@
     "ventures/photo-editing/eval/noise-card-floor-real-2026-11-18.md"
   ],
   "goal": "Deepen flagship 7: test whether a card-level noise floor makes the frame-read noise model safe enough to raise its gain.",
-  "notes": "Negative result under three pre-committed rules (each committed before its scored rows existed; rule 2 and 3 after earlier held rows were seen, disclosed). cap@1.5 on 153 fresh bodies: 24 -> 7 rows worse than directional, 0 added, -0.0148 dB luma vs a 0.01 bar. Shipped default worse than directional >0.1 dB on 42 of 5,312 real rows. raw.pixls.us: 75/158 and 142/513 files repeat a scene. Verification: run_venture_tests.py photo-editing ok (1312 tests, 9 skipped); check_posts ok; validate.py ok.",
+  "notes": "Negative result under three pre-committed rules (each committed before its scored rows existed; rule 2 and 3 after earlier held rows were seen, disclosed). cap@1.5 on 153 fresh bodies: 24 -> 7 rows worse than directional, 0 added, -0.0148 dB luma vs a 0.01 bar. Shipped default worse than directional >0.1 dB on 42 of 5,312 real rows. raw.pixls.us: 75/158 and 142/513 files repeat a scene. Verification: run_venture_tests.py photo-editing ok (1312 tests, 9 skipped); check_posts ok; validate.py ok. CI: every check green except changed-ventures (34 suites on the merge ref), which failed only in shift-roster-builder (repair-flow.test.mjs 'the repair reserve is on by default from 300 copies...', AssertionError, then a 10 s hang); this PR does not touch that venture, main gained #17121 there after the branch point, and the test passes on origin/main's copy run alone here (node --test, pass 1 fail 0). Merged on local verification of the suites this diff reaches.",
   "corrections": [],
   "redteam": null,
   "usage": {
