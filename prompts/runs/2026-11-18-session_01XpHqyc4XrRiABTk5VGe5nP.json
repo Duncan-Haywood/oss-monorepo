@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01XpHqyc4XrRiABTk5VGe5nP",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T16:39:27Z",
+  "ended": "2026-11-18T16:49:01Z",
+  "wall_minutes": 13.21,
+  "tokens_in": 9595955,
+  "tokens_out": 50157,
+  "cost_usd": 4.217,
+  "tool_calls": 75,
+  "task": "photo-editing (flagship 7): read Minolta / Konica Minolta MRW raws directly",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17360",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 13,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first develop check compared means of sRGB-encoded values and failed the A200 at 0.036",
+      "fix": "compared in linear light over unclipped pixels (0.003); kept the story in the eval doc"
+    },
+    {
+      "what": "test_camera_profiles pinned the old refusal text and failed in the full suite",
+      "fix": "updated the regex"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "photo-editing's BUILDABLE HERE pointed only at noise-gate and sample-reader items already worked; an untouched format (MRW, among the 27 the card copy keeps) was the clearer buildable item and was not listed"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-18-develop-minolta-mrw-files-without-converting.md",
+    "ventures/photo-editing/eval/minolta-mrw-reader-2026-11-18.md"
+  ],
+  "goal": null,
+  "notes": "New src/shootflow/mrw.py (PRD/WBG/TTW blocks; 12-bit packed and 16-bit BE), wired into parse_raw, camera_profiles, raw_preview, site page, llms.txt, README. tools/mrw_libraw_check.py on 9 raw.pixls.us files (DiMAGE 7/7i/7Hi/A1/A2/A200, Dynax/Maxxum/Alpha-7 7D): 54,057,952 sensels, CFA, WB, black equal LibRaw 0.22.2; Z2 headerless file refused. tools/mrw_develop_check.py: whole develop with LibRaw's matrix as stand-in DCP, mean chromaticity within 0.017 of LibRaw's render on all 9. Local: run_venture_tests.py photo-editing 1365 tests, 1 failure (pinned message) fixed and that file re-run green (12 tests); venture-preflight clean. White level differs from LibRaw's per-model table on 5 of 9 (reported, not gated).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9ce3f558-112d-5404-a36f-6c2b41d953f3",
+    "transcripts": 1,
+    "first": "2026-11-18T16:39:27Z",
+    "last": "2026-11-18T16:52:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 141,
+        "output": 50157,
+        "thinking": 9304,
+        "cache_read": 9429896,
+        "cache_write_5m": 0,
+        "cache_write_1h": 165918,
+        "api_equivalent_usd": 4.217,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 141,
+      "output": 50157,
+      "thinking": 9304,
+      "cache_read": 9429896,
+      "cache_write_5m": 0,
+      "cache_write_1h": 165918,
+      "api_equivalent_usd": 4.217,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 70,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.21,
+      "active_minutes": 13.21,
+      "model_minutes": 7.67,
+      "tool_minutes": 5.54,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer writing and LibRaw-checking a new raw-format reader with tests and docs, as for the CRW and NRW readers",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 237.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
