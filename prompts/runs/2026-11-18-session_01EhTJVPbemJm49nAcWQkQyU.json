@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01EhTJVPbemJm49nAcWQkQyU",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-18T02:23:10Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship (row 2): anticipation (a shock before the date) for the synthetic control's placebo warning, and backdating",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": 17137,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/flagship_field.py",
+      "issue": "--replace made room (parked 4 items) without --make-room, which allocate.py's hint says is needed for that"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "flagship_field.py --replace parked 4 items to NEXT.md on its own to fit the new item; kept, since the parked items are older balance results already in the README",
+      "did": "accepted the automatic park",
+      "result": "next: 1646 of 2000 chars, validate.py passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-changepoint-synthetic-control-anticipation.md"
+  ],
+  "goal": "deepen a flagship: a pre-registered simulation and a shipped CLI/page option",
+  "notes": "Pre-registration committed (08f599df5) before the confirmatory run (base 73000, 400 a cell, eval/synth-anticip-confirm.out.txt). Bars 1, 4, 5 passed; bar 2 failed (A4 warned p<=.05 5.1% vs 1.2%, +3.9 < 5; bias 2.4x passed); 3 and 6 reported. As pre-registered: --anticipation N shipped in CLI and page; warning text narrowed to shocks that start at the date. Prop 99 backdated 1-2 years keeps rank 1 (illustration, not pre-registered). Local checks: run_venture_tests.py changepoint-detector ok (842 tests, 198.5 s); venture-preflight.mjs changepoint-detector clean; check_posts ok; portfolio/router/validate.py ok.",
+  "corrections": [],
+  "redteam": null
+}
