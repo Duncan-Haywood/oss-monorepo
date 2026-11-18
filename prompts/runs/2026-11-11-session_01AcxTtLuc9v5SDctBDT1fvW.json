@@ -1,0 +1,131 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLuc9v5SDctBDT1fvW",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T15:07:05Z",
+  "ended": "2026-11-11T15:16:16Z",
+  "wall_minutes": 9.41,
+  "tokens_in": 3959723,
+  "tokens_out": 27255,
+  "cost_usd": 2.243,
+  "tool_calls": 38,
+  "task": "marine-hull milestone 6t: is the Wave Glider's mid-mission speed loss a step or a ramp?",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14812",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [
+    {
+      "issue": "The pre-registered rule (hours <= 300 km from a buoy) left a 67-day July gap that made the step location unidentifiable; the analysis that located the step was added after seeing that, and is labelled post hoc in the script docstring, LOG, README and post. Pre-registered predictions were scored as written (P1, P2 refuted)."
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "6p to 6s never reported per-month counts of hours within 300 km; July has zero, which a pre-registration needs to know. Count qualifying data per period before writing a rule."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-wave-glider-speed-loss-step-or-fouling.md",
+    "research/marine-hull/LOG.md (6t entry)"
+  ],
+  "goal": null,
+  "notes": "Programme drawn by pick_track.py (marine-hull). No open research PRs to land first. Stdlib run 7 s; marine-hull pytest 128 passed (python3.13); research/_homepage/build.py ok; check_md_links ok; post front-matter/links/similarity ok. Headline: 7 Aug 2015 14-15 UTC through-water 0.63 -> 0.51 m/s, GPS over-ground ratio 0.76; step beats ramp by 15-21 BIC (post hoc); post-step decline 0.2-0.3%/day; June step reversed after 7 days.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "657a55af-feb7-55f7-96b1-15d408aa03d7",
+    "transcripts": 1,
+    "first": "2026-11-11T15:07:05Z",
+    "last": "2026-11-11T15:16:30Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 27255,
+        "thinking": 5910,
+        "cache_read": 3843533,
+        "cache_write_5m": 0,
+        "cache_write_1h": 116118,
+        "api_equivalent_usd": 2.243,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 27255,
+      "thinking": 5910,
+      "cache_read": 3843533,
+      "cache_write_5m": 0,
+      "cache_write_1h": 116118,
+      "api_equivalent_usd": 2.243,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 38,
+    "tools": {
+      "Bash": 34,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.41,
+      "active_minutes": 9.41,
+      "model_minutes": 5.2,
+      "tool_minutes": 4.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a postdoc designing, running and writing up a change-point analysis on an existing telemetry set",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 356.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

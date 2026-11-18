@@ -1,0 +1,271 @@
+"""Milestone 4: tack, then measure. How coarsely may a robot hang the sheet?
+
+Milestone 1 (`budget.py`) found that a sheet must hang to about 0.4 mm and 0.03 deg (1 sigma) on
+single-2x joints, and milestone 2 (`asbuilt.py`) found that the joint framing sets the window
+once studs bow. This module puts the sheet's pose on milestone 2's as-built studs and adds what a
+robot can do about a coarse hang:
+
+* **hold**: the robot holds the sheet while it nails. The edge is measured once after hanging;
+  each nail then sees the hung pose plus an independent sway (`s_sway`, a translation along the
+  wall) that the robot does not see;
+* **tack**: two tack nails in the field studs freeze the pose (`s_sway` = 0; any shift while
+  tacking folds into the hang); the edge is measured after;
+* **reject** (either of the above, `accept_half` set): after measuring, the robot predicts each
+  joint nail's window from its measured edge and its stud estimate, and re-hangs the sheet if the
+  narrowest predicted half-window is below `accept_half`, up to `max_hangs` hangs (the last is
+  nailed whatever it predicts). A held sheet is nudged, a tacked one has its tacks pulled; the
+  model treats both as a fresh, independent hang.
+
+Geometry, studs and sensing are milestone 2's. On each joint stud the robot means to centre the
+1/8 in gap on the middle of its estimate of the stud's range; panels are cut to fit. The sheet is
+then off by a translation x and a rotation theta about its centre (both Gaussian):
+
+    e_L(z) = r_L + GAP/2 + x + theta (z - H/2),   e_R(z) = r_R - GAP/2 + x + theta (z - H/2)
+
+Aim policies: "edge" aims each joint nail at the middle of the window between the measured edge
+line (+EDGE; the measured line has the true slope and an offset error s_edge per edge) and the
+estimated far side of the stud; "nominal" aims as if the sheet hung where intended.
+
+Units are metres and radians.
+"""
+import numpy as np
+
+from .asbuilt import (BOW_LIMIT, READ_U, TWIST_LIMIT, U_FIELD, U_JOINT, Band, _fit,
+                      draw_magnitude, to_wall_bow, to_wall_twist_angle)
+from .budget import EDGE, GAP, HEIGHT, R, Z_JOINT, plate_halves
+from .straighten import shape as shape_mid
+
+ZC = Z_JOINT - HEIGHT / 2           # joint-nail heights about the sheet centre
+TOP = HEIGHT / 2 - EDGE             # lever arm of the top and bottom joint nails
+
+
+def simulate(trials=20000, seed=4, *, policy="three", bow_mean=0.0, twist_mean=0.0,
+             shape="halfnormal", s_layout=0.0, s_read=0.5e-3, s_robot=0.9e-3, s_edge=0.5e-3,
+             band=None, joint_band=None, s_x=0.0, s_theta=0.0, s_sway=0.0, aim="edge",
+             accept_half=None, max_hangs=5, rng=None, theta_draw=None, straighten=None,
+             s_push=None, profiles=None, u_joint=None, return_hits=False, tool=None):
+    """Monte Carlo of one sheet's 62 nails on four as-built studs, hung with a pose error.
+
+    s_x, s_theta   the hang: translation along the wall and rotation about the sheet centre
+    s_sway         per-nail translation of a held sheet after the edge was measured (0: tacked)
+    aim            "edge" or "nominal"
+    theta_draw     optional callable (rng, n) -> n rotations (rad), replacing the Gaussian s_theta
+                   draw (milestone 3: the tilt a ledger and the panel's geometry leave)
+    straighten     optional ``straighten.Straightener`` (milestone 9): both joint studs are pushed
+                   toward the line through the robot's estimate of their ends before nailing (on
+                   measured profiles or local reads: a mid push by superposition, milestone 12). The
+                   push is set from a read, so the stud is straightened as if its bow were
+                   b + N(0, s_push) (s_push defaults to s_read); the robot believes the shape the
+                   policy leaves for its own estimate of the bow. Needs the three or dense policy.
+    policy "local" (milestone 12) reads each stud at every nail height (17 joint, 7 field) and
+                   aims each nail at its own read, with no fitted shape
+    profiles       optional measured studs (milestone 11): a tuple (g, D, PHI) with g the n_g
+                   points of u in [0, 1], D (n_prof, n_g) each stud's face line about its chord (m)
+                   and PHI (n_prof, n_g) its section rotation (rad). Each of the four studs is
+                   drawn from them with a random left-right and top-bottom flip, in place of the
+                   parabolic bow and linear twist; layout lean (s_layout) still applies.
+    u_joint        optional joint-nail heights as fractions of the sheet height (milestone 14: a
+                   denser joint-edge schedule); default the 17 heights of a 6 in schedule
+    tool           optional ``tool_lean.ToolError`` (milestone 29): a (surface, depth) offset pair per
+                   nail in place of the s_robot Gaussian
+    return_hits    also return ``hits`` (trials, n) booleans in the order left joint edge, right
+                   joint edge, field stud 1, field stud 2, 7 bottom-plate and 7 top-plate nails
+    accept_half    re-hang while the narrowest predicted joint half-window is below this (None:
+                   never re-hang); max_hangs caps the hangs a sheet
+    Other arguments are milestone 2's (`asbuilt.simulate`).
+
+    Returns a dict: clean (P all 62 nails in), missed (mean nails missed a sheet), feasible
+    (P both joint windows non-empty at every height, final hang), hangs (mean hangs a sheet).
+    """
+    rng = np.random.default_rng(seed) if rng is None else rng
+    UJ = U_JOINT if u_joint is None else np.asarray(u_joint, float)
+    ZCJ = UJ * HEIGHT - HEIGHT / 2
+    band = Band() if band is None else band
+    jband = band if joint_band is None else joint_band
+    t = trials
+    b = to_wall_bow(draw_magnitude(rng, (t, 4), bow_mean, BOW_LIMIT, shape))
+    T = to_wall_twist_angle(draw_magnitude(rng, (t, 4), twist_mean, TWIST_LIMIT, shape))
+    a0 = rng.normal(0, s_layout, (t, 4)) if s_layout > 0 else np.zeros((t, 4))
+    a1 = rng.normal(0, s_layout, (t, 4)) if s_layout > 0 else np.zeros((t, 4))
+    if profiles is not None:
+        g, D, PHI = (np.asarray(v, float) for v in profiles)
+        pick_ = rng.integers(0, D.shape[0], (t, 4))
+        lr = rng.choice([-1.0, 1.0], (t, 4))
+        ud = rng.random((t, 4)) < 0.5
+
+        def _prof(A, u, sign):
+            u = np.asarray(u, float)
+            vals = np.stack([np.interp(u, g, row) for row in A])            # (n_prof, len u)
+            rev = np.stack([np.interp(1 - u, g, row) for row in A])
+            out = np.where(ud[..., None], rev[pick_], vals[pick_])
+            return out * (lr[..., None] if sign else 1.0)
+
+        def line(u):
+            uu = np.asarray(u)[None, None, :]
+            return a0[..., None] + (a1 - a0)[..., None] * uu + _prof(D, u, True)
+
+        def phi(u):
+            # a left-right mirror reverses the section's rotation as well as the bow
+            return _prof(PHI, u, True)
+    else:
+        def line(u):
+            u = np.asarray(u)[None, None, :]
+            return a0[..., None] + (a1 - a0)[..., None] * u + 4 * b[..., None] * u * (1 - u)
+
+        def phi(u):
+            return T[..., None] * (np.asarray(u)[None, None, :] - 0.5)
+
+    if policy == "local":
+        # milestone 12: read the stud at every nail height and aim each nail at its own read
+        nj = len(UJ)
+        ur = np.concatenate([UJ, U_FIELD])
+        reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
+        est_j, est_f = reads[..., :nj].copy(), reads[..., nj:]
+    else:
+        ur = READ_U[policy]
+        reads = line(ur) + (rng.normal(0, s_read, (t, 4, len(ur))) if s_read > 0 else 0.0)
+        est_j = _fit(policy, ur, reads, UJ)
+        est_f = _fit(policy, ur, reads, U_FIELD)
+    true_j, true_f = line(UJ), line(U_FIELD)
+    if straighten is not None and (profiles is not None or policy == "local"):
+        # milestone 12: a mid push on any stud shape, by superposition. The stud's mid-height
+        # point moves by its offset from its own chord plus N(0, s_push), times the pinned (or
+        # fixed) point-load shape; the robot believes its estimate moved by its own estimated
+        # offset (a parabola through its reads) times the same shape.
+        if straighten.policy != "mid":
+            raise ValueError("measured studs and local reads support the mid push only")
+        sp = s_read if s_push is None else s_push
+        w = shape_mid(UJ, straighten.ends)[None, :]
+        rj = reads[..., :len(UJ)] if policy == "local" else None
+        pol, uu, rr = ("dense", UJ, rj) if policy == "local" else (policy, ur, reads)
+        e01 = _fit(pol, uu, rr, [0.0, 1.0])
+        b_hat = _fit(pol, uu, rr, [0.5])[..., 0] - (e01[..., 0] + e01[..., 1]) / 2
+        ends_ = line([0.0, 1.0])                                         # pinned at the plates
+        mid_true = line([0.5])[..., 0] - (ends_[..., 0] + ends_[..., 1]) / 2
+        for k in (0, 3):
+            d = mid_true[:, k] + (rng.normal(0, sp, t) if sp > 0 else 0.0)
+            true_j[:, k] = true_j[:, k] - d[:, None] * w
+            est_j[:, k] = est_j[:, k] - b_hat[:, k, None] * w
+    elif straighten is not None:
+        if policy not in ("three", "dense"):
+            raise ValueError("straightening needs a bow estimate: policy three or dense")
+        sp = s_read if s_push is None else s_push
+        e01 = _fit(policy, ur, reads, [0.0, 1.0])                        # (t, 4, 2)
+        tgt = e01[..., :1] + (e01[..., 1:] - e01[..., :1]) * UJ[None, None, :]
+        b_hat = _fit(policy, ur, reads, [0.5])[..., 0] - (e01[..., 0] + e01[..., 1]) / 2
+        true_line = a0[..., None] + (a1 - a0)[..., None] * UJ[None, None, :]
+        for k in (0, 3):
+            b_push = b[:, k] + (rng.normal(0, sp, t) if sp > 0 else 0.0)
+            true_j[:, k] = true_line[:, k] + straighten.left(b_push)
+            est_j[:, k] = tgt[:, k] + straighten.left(b_hat[:, k])
+    blo_j, bhi_j = jband(phi(UJ))
+    blo_f, bhi_f = band(phi(U_FIELD))
+    hj = jband.face / 2 - R
+    ref = (est_j.max(axis=-1) + est_j.min(axis=-1)) / 2
+    loL_true_hi = true_j[:, 0] + bhi_j[:, 0]          # far side of the left joint stud's band
+    loR_true_lo = true_j[:, 3] + blo_j[:, 3]
+    estL_hi = est_j[:, 0] + hj
+    estR_lo = est_j[:, 3] - hj
+
+    # hangs: draw every candidate pose up front, keep the first one the robot accepts
+    m = max(1, int(max_hangs)) if accept_half is not None else 1
+    x = rng.normal(0, s_x, (t, m)) if s_x > 0 else np.zeros((t, m))
+    if theta_draw is not None:
+        th = np.asarray(theta_draw(rng, t * m), dtype=float).reshape(t, m)
+    else:
+        th = rng.normal(0, s_theta, (t, m)) if s_theta > 0 else np.zeros((t, m))
+    dL = rng.normal(0, s_edge, (t, m)) if s_edge > 0 else np.zeros((t, m))
+    dR = rng.normal(0, s_edge, (t, m)) if s_edge > 0 else np.zeros((t, m))
+    if accept_half is None:
+        pick = np.zeros(t, dtype=int)
+    else:
+        shift = x[..., None] + th[..., None] * ZCJ[None, None, :]          # (t, m, 17)
+        mL = ref[:, 0:1, None] + GAP / 2 + shift + dL[..., None]          # measured edges
+        mR = ref[:, 3:4, None] - GAP / 2 + shift + dR[..., None]
+        halfL = (estL_hi[:, None, :] - (mL + EDGE)) / 2
+        halfR = ((mR - EDGE) - estR_lo[:, None, :]) / 2
+        worst = np.minimum(halfL.min(axis=-1), halfR.min(axis=-1))        # (t, m)
+        ok = worst >= accept_half
+        ok[:, -1] = True                                                  # the last hang is nailed
+        pick = ok.argmax(axis=1)
+    rows = np.arange(t)
+    x, th, dL, dR = x[rows, pick][:, None], th[rows, pick][:, None], dL[rows, pick][:, None], dR[rows, pick][:, None]
+    shift = x + th * ZCJ[None, :]
+    eL = ref[:, 0:1] + GAP / 2 + shift
+    eR = ref[:, 3:4] - GAP / 2 + shift
+    if aim == "edge":
+        aimL = ((eL + dL + EDGE) + estL_hi) / 2
+        aimR = (estR_lo + (eR + dR - EDGE)) / 2
+    elif aim == "nominal":
+        aimL = ((ref[:, 0:1] + GAP / 2 + EDGE) + estL_hi) / 2
+        aimR = (estR_lo + (ref[:, 3:4] - GAP / 2 - EDGE)) / 2
+    else:
+        raise ValueError(aim)
+
+    def noise(shape_):
+        return rng.normal(0, s_robot, shape_) if s_robot > 0 else 0.0
+
+    # sway moves the sheet (edge) under the nail; the stud does not move
+    sw = lambda: rng.normal(0, s_sway, eL.shape) if s_sway > 0 else 0.0  # noqa: E731
+    swL, swR = sw(), sw()
+    if tool is None:
+        nL = aimL + noise(aimL.shape)
+        nR = aimR + noise(aimR.shape)
+        hits = [(nL >= eL + swL + EDGE) & (nL <= loL_true_hi),
+                (nR >= loR_true_lo) & (nR <= eR + swR - EDGE)]
+        for k in (1, 2):
+            n = est_f[:, k] + noise(est_f[:, k].shape)
+            hits.append((n >= true_f[:, k] + blo_f[:, k]) & (n <= true_f[:, k] + bhi_f[:, k]))
+        for h in plate_halves():
+            n = noise((t, 1)) if s_robot > 0 else np.zeros((t, 1))
+            hits.append(np.abs(n) <= h)
+    else:
+        # milestone 29 (tool_lean): the panel-edge bound sees the nail at the surface, the
+        # stud and plate bounds see it 44 mm deep, where the nailer's length and lean move it
+        sL, dL_ = tool.draw(rng, aimL.shape, "y")
+        sR, dR_ = tool.draw(rng, aimR.shape, "y")
+        hits = [(aimL + sL >= eL + swL + EDGE) & (aimL + dL_ <= loL_true_hi),
+                (aimR + dR_ >= loR_true_lo) & (aimR + sR <= eR + swR - EDGE)]
+        for k in (1, 2):
+            _, d = tool.draw(rng, est_f[:, k].shape, "y")
+            n = est_f[:, k] + d
+            hits.append((n >= true_f[:, k] + blo_f[:, k]) & (n <= true_f[:, k] + bhi_f[:, k]))
+        for h in plate_halves():
+            _, d = tool.draw(rng, (t, 1), "z")
+            hits.append(np.abs(d) <= h)
+    allhit = np.concatenate(hits, axis=1)
+    feasible = np.all(eL + EDGE <= loL_true_hi, axis=1) & np.all(loR_true_lo <= eR - EDGE, axis=1)
+    out = {"clean": float(allhit.all(axis=1).mean()),
+           "missed": float((~allhit).sum(axis=1).mean()),
+           "feasible": float(feasible.mean()),
+           "hangs": float((pick + 1).mean())}
+    if return_hits:
+        out["hits"] = allhit
+    return out
+
+
+def success(**kw):
+    return simulate(**kw)["clean"]
+
+
+def largest(param, target=0.95, hi=0.05, iters=16, **kw):
+    """Largest value of the sigma `param` with clean >= target (bisection, fixed seed); 0 if
+    even a zero value misses the target, `hi` if `hi` still meets it."""
+    if success(**{**kw, param: 0.0}) < target:
+        return 0.0
+    if success(**{**kw, param: hi}) >= target:
+        return hi
+    lo = 0.0
+    for _ in range(iters):
+        mid = (lo + hi) / 2
+        if success(**{**kw, param: mid}) >= target:
+            lo = mid
+        else:
+            hi = mid
+    return lo
+
+
+def geometric_hangs(p_accept, max_hangs):
+    """Mean hangs a sheet when each hang is accepted with probability p, capped at max_hangs."""
+    q = 1 - p_accept
+    return sum(q ** k for k in range(max_hangs))

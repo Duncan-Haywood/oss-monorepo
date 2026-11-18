@@ -23,7 +23,7 @@ def theil_sen(t, d):
 def predict(ts, ds, t_next, keep=6, floor_s=0.002, k_mad=4.0, cap_s=None):
     """(centre, half-width) in s for the delay at t_next from the last `keep` estimates.
     One point: the half-width must cover the worst drift, SLOPE_PPM x gap. Two or more: k_mad x the robust scatter
-    of the residuals (floor_s at least), and never more than the drift bound while the line has few points.
+    of the residuals (floor_s at least).
     cap_s, if given, caps the half-width (use below the clip's period)."""
     ts, ds = np.asarray(ts[-keep:], float), np.asarray(ds[-keep:], float)
     m, c = theil_sen(ts, ds)

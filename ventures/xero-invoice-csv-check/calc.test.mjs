@@ -221,7 +221,7 @@ test("spreadsheet error values and wrong cell count", () => {
 });
 
 test("BOM and utf-8 decoding", () => {
-  const buf = new TextEncoder().encode("﻿" + sampleFile());
+  const buf = new TextEncoder().encode("\uFEFF" + sampleFile());
   assert.equal(validate(decodeBuffer(buf)).findings.filter((f) => f.severity !== "info").length, 0);
 });
 

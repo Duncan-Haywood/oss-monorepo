@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKibTmtXQQ7T3AHw2EF",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:22:20Z",
+  "ended": "2026-11-13T23:31:08Z",
+  "wall_minutes": 11.14,
+  "tokens_in": 7647570,
+  "tokens_out": 49477,
+  "cost_usd": 3.8252,
+  "tool_calls": 62,
+  "task": "research programme sensing-selfcal (pick_track draw 0.992): milestone 4g, score the f-alone update test on every disjoint split from milestone 4f's stored solves, test a robust (MAD) jackknife, fold milestones 4f and 4g into the paper draft",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15652",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First run of analyse.py returned NaN for the pre-registered leave-one-view-out ranges at k = 6: every 7 + 6 split uses all 13 views, so dropping a view leaves no split. Reported as undefined, with the k = 5 ranges added and labelled as added after the first run."
+  ],
+  "integrity_issues": [
+    "Milestone 4g corrects a published headline: milestone 4d's (and the paper draft's) 61% power for the borrowed-threshold f-alone test came from 60 splits and a 99th percentile of 180 statistics; on every split it is 43%. Corrected in the paper, the project README (with a pointer at the 4d headline), project.json and the post; the old figure is reproduced exactly (61.25%) on the old splits, so it was not a code error."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to run `pyenv.py pytest numpy matplotlib` for project tests, but sensing-selfcal's tests import cv2; the first pytest run failed at collection until opencv-python-headless was added (pyenv maps it to cv2 correctly). The project's requirements.txt route (`pytest -r <project>/requirements.txt`) would have avoided it; the short form is what a run reaches for first."
+    },
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "Default markers are DONE or EXIT; my log ended with 'exit 0' (lowercase), so it waited the full timeout although the job had finished. Minor; the help text is accurate."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "The output standards ask to compare against the strongest published methods; this milestone compares only variants of the programme's own test (plain jackknife, borrowed threshold, robust jackknife), because the question was internal (does the 4d headline survive every split, and does a robust scale remove the borrowed threshold).",
+      "did": "Scored the three variants on every split; external baselines stay with the paper's Section 10 list.",
+      "result": "A correction and a better variant landed; external comparison remains open in the paper's to-do list."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-a-sixty-split-sample-flattered-our-camera-update-test.md",
+    "research/sensing-selfcal/LOG.md (milestone 4g planned and result)",
+    "research/sensing-selfcal/paper/draft.md (Sections 4, 7, 8, 9, 10 and abstract revised; check_numbers 125 of 125)"
+  ],
+  "goal": null,
+  "notes": "Pre-registration committed (4dc5e4cb7) before analyse.py existed. Results: H52 refuted (J vs chi2_1 17.7% inside band; J vs borrowed threshold 43.3% outside 51-71%; left false alarms 4.4% < 5%), H53 refuted (robust/real scale 0.88 left, 0.48 right), H54 refuted narrowly (robust false alarms 3.4% left, 1.2% right; bar 3%), H55 held (robust vs chi2_1 catches +-2% at k=6 in 53.8%). Post hoc: code reproduces 4d's 61.25% on 4b's 60 splits; with 4d's thresholds on every split 57.8% / 10.4% left false alarms. Verification run here: `python3.13 -m pytest -q research/sensing-selfcal/tests` 32 passed in 44 s; `paper/check_numbers.py` 125 of 125; `research/_homepage/build.py` ok (1080 projects); `research_live_links.py --write` and `check_md_links.py` ok; `check_post_frontmatter.py` on the new post silent (ok). No new citations, so cite_check not rerun.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "02103173-4b71-5337-a8cf-07ba3d428881",
+    "transcripts": 1,
+    "first": "2026-11-13T23:22:20Z",
+    "last": "2026-11-13T23:33:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 49477,
+        "thinking": 15324,
+        "cache_read": 7480056,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167405,
+        "api_equivalent_usd": 3.8252,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 49477,
+      "thinking": 15324,
+      "cache_read": 7480056,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167405,
+      "api_equivalent_usd": 3.8252,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 54,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.14,
+      "active_minutes": 11.14,
+      "model_minutes": 7.79,
+      "tool_minutes": 3.34,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistics-literate CV researcher: design and pre-register the all-split analysis, write and test the scorer, diagnose the threshold correction, revise five paper sections with number checks, write the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 261.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

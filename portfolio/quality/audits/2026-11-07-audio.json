@@ -28,12 +28,14 @@
   {
    "severity": "medium",
    "what": "The loudness test allows +/-1.0 LU, so a +0.8 dB calibration error in master() (seeded mutation) passes all 24 tests; the file already lands 0.3 to 0.4 LU below target.",
-   "where": "platform/audio/test_narrate.py:196"
+   "where": "platform/audio/test_narrate.py:196",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15903"
   },
   {
    "severity": "medium",
    "what": "master() on silent or near-silent input does not fail: loudnorm returns -inf, gain becomes +inf and ffmpeg is called with 'volume=inf dB'; an all-zero clip yields a file silently, noise at 1e-6 amplitude is delivered at -28.2 LUFS, and an empty array raises a bare CalledProcessError.",
-   "where": "platform/audio/narrate.py:339"
+   "where": "platform/audio/narrate.py:339",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15903"
   },
   {
    "severity": "medium",
@@ -51,6 +53,8 @@
    "where": "platform/audio/narrate.py:328"
   }
  ],
- "fix_prs": [],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15903"
+ ],
  "verdict": "platform/audio is a single 354-line narration engine whose mastering half is sound and independently verified: on a synthetic piece my own BS.1770-4 implementation and ffmpeg ebur128 agree (-29.60 and -29.6 LUFS in, -16.37 and -16.4 out), the MP3 is 32 kHz mono 40 kbps CBR as claimed, and true peak stays under the ceiling. It falls short of the bar on verification and claims: the loudness test's 1 LU tolerance let a seeded +0.8 dB gain bug through (another seeded bug, in the cache key, was caught), the 24 tests are not run by CI although five pipelines depend on the module, the voicing path could not be run here (no model) and is mock-tested only, and silent input is accepted without error. The delivered loudness sits 0.3 to 0.8 LU under the -16 LUFS target and no pass checks the encoded file. Good craft and the right professional method, one fixable test tolerance and one wiring gap short of meeting the bar."
 }

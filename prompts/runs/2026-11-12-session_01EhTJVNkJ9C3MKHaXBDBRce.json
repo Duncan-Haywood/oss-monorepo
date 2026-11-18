@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVNkJ9C3MKHaXBDBRce",
+  "track": "research",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T20:01:50Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "heavy-hydraulics milestone 6: non-DOI sources into refs.bib, figures numbered once with own captions",
+  "projects": [
+    "heavy-hydraulics"
+  ],
+  "pr": 15240,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "zenodo.org, huggingface.co, doi.org, arxiv.org, crossref refused by the proxy (403 CONNECT) about 20:00 UTC; 6b Next (a) and (b) not runnable",
+    "first apt-get install of texlive failed without apt-get update (as research/CLAUDE.md warns)"
+  ],
+  "integrity_issues": [
+    "Self-caught before merge: a first draft of refs.bib had first names/initials and a Danfoss subtitle written from memory, not from the log; removed so every field is backed by LOG.md/PROPOSAL.md. Also caught a wrong test count (58 vs 56) and an unverifiable '19 of 21 opened' claim in the post; corrected."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "texlive install line omits texlive-latex-extra and librsvg2-bin that heavy-hydraulics/paper/build_tex.py --pdf needs; installed both fine after apt-get update"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-a-reference-list-that-says-what-was-read.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: pytest research/heavy-hydraulics/tests 56 passed; paper/check_numbers.py 205 claims 0 missing; paper/build_tex.py --pdf 10 pages, 21 refs, 0 undefined citations, 0 overfull, 0 BibTeX warnings; research/_homepage/build.py ok; check_md_links ok. cite_check on Juza DOI not re-run live (hosts refused); project-level cite_check.json confirmed it 2026-11-12.",
+  "corrections": [],
+  "redteam": null
+}

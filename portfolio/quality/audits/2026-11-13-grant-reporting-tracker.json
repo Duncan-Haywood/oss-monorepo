@@ -1,0 +1,243 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/grant-reporting-tracker",
+ "stratum": "venture",
+ "seed": "2026-11-13-b",
+ "drawn_by": "sample",
+ "round": 56,
+ "auditor": "agent session (Claude), quality-audit round 56",
+ "status": "audited",
+ "professional": "a post-award grants administrator / grants manager at a small nonprofit who keeps the reporting calendar for federal pass-through and foundation awards; they check first that each due date follows the award's fixed reporting schedule (reporting periods tied to the period of performance or calendar quarters, due N days after period end: 30 for quarterly/semiannual, 90 for annual, 120 after period end for the final report under 2 CFR 200.329 and 200.344), that a late or early filing does not move the next due date, that the final/closeout report is on the calendar, and that 'Overdue' means past the actual deadline",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Ran calc.mjs on 13 inputs (node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs). Arithmetic is right: month-end clamp 2026-01-31+1 -> 2026-02-28 and 2024-01-31+1 -> 2024-02-29 (hand calendar), 30 days out -> 'Due soon', 31 -> 'On track', due today -> 'Due soon', restricted balance 24,000-8,500 = 15,500, fractional/zero/non-numeric intervals -> 'Check inputs', CSV quoting correct. But the due dates a grants manager acts on are wrong in two ways checked against eCFR 2 CFR 200.329/200.344: (1) after any off-schedule filing the schedule drifts, because reportAnchor uses the filing date as the new anchor (calc.mjs:102): semiannual award 2026-01-15, first report filed late on 2026-08-01 -> tool says next report 2027-02-01, 'Due soon, 12 days' on 2027-01-20, while the schedule's next report is 2027-01-15 and is already overdue; the page's own 'Filed today' button stamps today, so every late filing pushes all future reports later, every early one pulls them earlier. (2) The due date is taken to be the period end itself: a federal quarterly award starting 2026-01-01 shows 'Overdue, -14 days' on 2026-04-15 though the Q1 report is due 2026-04-30; an annual award starting 2025-10-01 shows 'Overdue -43' on 2026-11-13 though it is due 2026-12-29. A 30 Feb date from storage rolls to 2 Mar silently. Not 3 because the rolling-forward output, the feature the README promotes for multi-year awards, is wrong; not 1 because first-cycle dates are conservative (early, not late).",
+  "completeness": "README/page features exercised: add award (form fields map to calc inputs), sorted review queue (reviewAll, ties by source order), restricted balance, CSV export with all 11 fields (toCsv run), per-row Remove by source index (removeGrant), Filed today (markReportFiled), sample grants (3 statuses at -21/14/96 days, run for 2026-11-13), damaged-localStorage recovery (loadGrants), usage toggle persistence, related pages. All work in node; DOM wiring read, not clicked in a browser. Served https://marisstella.app/grant-reporting-tracker/ returned 200 and the served calc.mjs is byte-identical to source; the three subpages 307 to extensionless URLs and load 200. No TODOs or stubs. The explainer page's method section was not updated for the lastReportFiled feature.",
+  "verification": "cd ventures/grant-reporting-tracker && node --test '*.test.mjs': 32 tests, 32 pass, 0 fail (104 ms). Eight mutations via platform/ci/quality_mutate.py: 2 caught (removing the future-filed-date guard; removing the month-end clamp), 4 meaningful survivors (Due-soon boundary days<=30 -> days<30; Overdue boundary days<0 -> days<=0, so a report due today shows Overdue; restricted balance clamped at 0 hiding an overspend; queue tie-break reversed) and 2 equivalent mutants not counted (Math.ceil->Math.floor on whole-day UTC differences; a no-op rewrite of the balance). The status thresholds, the core of a deadline tracker, are untested at their edges, and no test checks a due date against an external schedule, so the drift defect is pinned in (calc.test.mjs:41 asserts filed+interval).",
+  "craft": "Read calc.mjs (195 lines), calc.test.mjs, index.html (inline module script lines 47-98), vs-*.test.mjs. calc.mjs is pure, small and commented; output in the queue goes through escapeHtml, nextReport/status are internal strings. Defects: the page script is minified one-liners (index.html:83-95) that a reviewer cannot read or diff; localToday is duplicated in the page as todayLocal (index.html:94); addMonths is a copied engine shared by hand with ventures/grant-deadline-tracker/calc.mjs:32 ('Mirrors the same fix ...'); parseDate accepts impossible dates (2026-02-30 -> 2026-03-02) because new Date rolls over; a negative restricted balance (overspend) is displayed as -2000.00 with no flag; the indentation slip at index.html:65.",
+  "claims": "Backed: no-warranty disclaimer on all pages (served index contains 'No warranty'); no network calls (no fetch/XHR in the page; vs-granthub test); data stays in localStorage; GrantHub comparison makes no price claim and disclaims affiliation; worked-example balances 15,500 and 16,800 recompute. Unbacked or wrong: when-is-my-grant-report-due.html:46 (also served) says 'the smallest award is the one that needs attention first' but the overdue award is the $24,000 one and the smallest is the $15,000 capital award; the same page's FAQ answers 'How do I calculate when a grant report is due?' with 'Add the reporting interval in months to the award date', a general rule that contradicts 2 CFR 200.329 (due 30/90 days after the reporting period, final 120 days after the period of performance) for federal awards; README.md:17 lists the usage events but omits report_filed which index.html:95 records; the in-page note 'the next due date has rolled forward one interval' describes rolling from today, not from the schedule. The page FAQ does say the queue does not 'confirm a funder's actual deadline', which limits but does not cure the explainer's how-to.",
+  "fitness": "Walked a grants manager's job: three awards, one federal pass-through (quarterly, POP 2026-01-01 to 2026-12-31), one foundation (semiannual from award), one annual state award. The tool can hold them and sort them, but the manager cannot enter the period of performance end, the report lag, the report type (financial SF-425 vs performance), or a fixed schedule; the federal award shows Overdue two weeks before it is due; after one late filing the foundation award's next date silently moves later; there is no final report or closeout (120 days after POP end, 2 CFR 200.344(b)) so an award that has ended shows the next 'periodic' report a year out (check C9: POP ended 2026-06-30, tool says next report 2027-07-01 On track, final was due 2026-10-28). A past filing date can only be set when adding an award, not on a saved one. Useful as a reminder list for simple foundation grants; not one a post-award administrator would sign off as the reporting calendar.",
+  "domain": "Compared with 2 CFR 200.329(c)(1) and 200.344(b) (eCFR text fetched this session) and with common foundation practice (due dates stated in the grant agreement, tied to fixed reporting periods). Departures: due date = anchor + interval with no lag after the reporting period; the schedule re-anchors on the filing date instead of staying fixed to the award's periods; no period-of-performance end, final report or closeout; one report stream per award (financial and performance reports often differ). The explainer page teaches the anchor+interval rule as the general answer to 'when is my grant report actually due'. The month-end clamp convention is right."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "month-end clamp and leap year",
+   "method": "hand calendar (Gregorian; 2024 leap year)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "2026-02-28, 2024-02-29, 2025-02-28 (from 2024-02-29 +12)",
+   "observed": "2026-02-28 | 2024-02-29 | 2025-02-28",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "status boundaries on 2026-11-13: due in 30 days, 31 days, today",
+   "method": "hand day count Nov 13 -> Dec 13 = 30 days; page FAQ definition 'within 30 days', 'already passed'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "30 Due soon; 31 On track; 0 Due soon",
+   "observed": "30 Due soon; 31 On track; 0 Due soon",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "semiannual award 2026-01-15, first report (due 2026-07-15) filed late 2026-08-01, reviewed 2027-01-20",
+   "method": "fixed reporting schedule: periods run from the award, so the second report is due 2026-01-15 + 12 months = 2027-01-15 regardless of when the first was filed (2 CFR 200.329(c)(1) ties due dates to the reporting period; foundation agreements state fixed dates)",
+   "command": "node -e \"import('/home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs').then(m=>{const r=m.reviewGrant({awardDate:'2026-01-15',intervalMonths:6,lastReportFiled:'2026-08-01',awardAmount:1,spentAmount:0},'2027-01-20');console.log(r.nextReport,r.daysUntilReport,r.status)})\"",
+   "expected": "2027-01-15 -5 Overdue",
+   "observed": "2027-02-01 12 Due soon",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "federal quarterly award, period of performance from 2026-01-01, reviewed 2026-04-15",
+   "method": "eCFR 2 CFR 200.329(c)(1) as of 2026-01-01, fetched this session: curl --compressed 'https://www.ecfr.gov/api/versioner/v1/full/2026-01-01/title-2.xml?part=200&section=200.329' ('Reports submitted quarterly or semiannually must be due no later than 30 calendar days after the reporting period'; annual 90; final performance report 120 days after the period of performance); Q1 ends 2026-03-31, due 2026-04-30",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "due 2026-04-30, 15 days, Due soon",
+   "observed": "2026-04-01 -14 Overdue",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "federal annual award from 2025-10-01, reviewed 2026-11-13",
+   "method": "2 CFR 200.329(c)(1): annual report due 90 calendar days after the reporting period; period ends 2026-09-30 -> due 2026-12-29",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "2026-12-29, 46 days, On track",
+   "observed": "2026-10-01 -43 Overdue",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "award whose period of performance ended 2026-06-30, last annual report filed 2026-07-01, reviewed 2026-11-13",
+   "method": "eCFR 2 CFR 200.344(b): all reports due no later than 120 calendar days after the end of the period of performance -> 2026-10-28",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "final report 2026-10-28, overdue",
+   "observed": "2027-07-01 230 On track (no final report modelled)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "restricted balance on the sample and on an overspend",
+   "method": "hand subtraction 24,000-8,500; 48,000-31,200; 10,000-12,000",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "15500, 16800, -2000 flagged",
+   "observed": "15500, 16800, -2000 with no flag",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/grant-reporting-tracker && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "32 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "explainer: 'the smallest award is the one that needs attention first'",
+   "method": "compare with the page's own worked-example table (overdue award $24,000; capital award $15,000) on the served page",
+   "command": "curl -sSL https://marisstella.app/grant-reporting-tracker/when-is-my-grant-report-due.html | grep -o 'smallest award is the one[^.]*'",
+   "expected": "the overdue award is the smallest",
+   "observed": "overdue award is $24,000, smallest is $15,000; sentence is false",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "explainer FAQ 'How do I calculate when a grant report is due? Add the reporting interval in months to the award date'",
+   "method": "eCFR 2 CFR 200.329(c)(1) as of 2026-01-01, fetched this session: curl --compressed 'https://www.ecfr.gov/api/versioner/v1/full/2026-01-01/title-2.xml?part=200&section=200.329' ('Reports submitted quarterly or semiannually must be due no later than 30 calendar days after the reporting period'; annual 90; final performance report 120 days after the period of performance)",
+   "command": "grep -n 'Add the reporting interval' ventures/grant-reporting-tracker/when-is-my-grant-report-due.html",
+   "expected": "due a stated number of days after the reporting period ends, or 'check your agreement'",
+   "observed": "award date + interval presented as the general method",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README usage-event list vs events the page records",
+   "method": "grep track( calls in index.html",
+   "command": "grep -o \"track('[a-z_]*')\" ventures/grant-reporting-tracker/index.html | sort -u; grep -n grant_removed ventures/grant-reporting-tracker/README.md",
+   "expected": "README lists every event incl. report_filed",
+   "observed": "report_filed recorded (index.html:95) but not listed (README.md:17)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, privacy, served page and llms.txt hosts",
+   "method": "curl served pages; grep for network calls",
+   "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/grant-reporting-tracker/",
+   "expected": "200, No warranty present, llms.txt on marisstella.app",
+   "observed": "200; 'No warranty' present; served llms.txt URLs on marisstella.app; served calc.mjs identical to source; no fetch/XHR",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "impossible date from storage",
+   "method": "calendar: 2026-02-30 does not exist",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/4d40ef56-18b0-5820-a3ae-5a4c926539dc/scratchpad/grant-reporting-tracker/check.mjs /home/user/oss-monorepo/ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "Check inputs",
+   "observed": "rolled to 2026-03-02 -> next 2026-04-02 Overdue",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "final/closeout report and report lag modelled",
+   "method": "2 CFR 200.344(b); 200.329(c)(1)",
+   "command": "grep -n -i 'period of performance\\|closeout\\|final report' ventures/grant-reporting-tracker/*.html ventures/grant-reporting-tracker/calc.mjs",
+   "expected": "an end date and final report, or a lag field",
+   "observed": "none",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:114",
+   "change": "days <= 30 ? 'Due soon' -> days < 30 ? 'Due soon'",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:114",
+   "change": "days < 0 ? 'Overdue' -> days <= 0 ? 'Overdue'",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:108",
+   "change": "award - spent -> Math.max(0, award - spent) (hides overspend)",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:121",
+   "change": "tie-break a.sourceIndex - b.sourceIndex -> b.sourceIndex - a.sourceIndex",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:101",
+   "change": "removed 'if (asOf && filed > asOf) return grant.awardDate;'",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:35",
+   "change": "setUTCDate(Math.min(day, lastDay)) -> setUTCDate(day)",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Next report date re-anchors on the date a report was filed (lastReportFiled + interval) instead of following the award's fixed schedule, so a late filing pushes every later due date later and an early one pulls them earlier. Semiannual award 2026-01-15 with the first report filed 2026-08-01: on 2027-01-20 the tool shows 2027-02-01 'Due soon' while the scheduled report (2027-01-15) is already overdue. The page's 'Filed today' button always stamps today, so this hits every off-schedule filing.",
+   "where": "ventures/grant-reporting-tracker/calc.mjs:102",
+   "category": "logic-error",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Due date equals the reporting-period end; no lag after the period (2 CFR 200.329(c)(1): 30 days quarterly/semiannual, 90 annual) and no period-of-performance end or final report (200.344(b): 120 days). Federal awards show 'Overdue' up to 30/90 days before they are due, and an ended award shows a periodic report a year out instead of an overdue final report.",
+   "where": "ventures/grant-reporting-tracker/calc.mjs:106",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Explainer 'When is my grant report actually due?' answers its title with 'add the reporting interval in months to the award date' as the general method, which contradicts the federal rule (due N days after the reporting period) and is not caveated there; it also says 'the smallest award is the one that needs attention first' when its own table shows the overdue award is $24,000 and the smallest is $15,000.",
+   "where": "ventures/grant-reporting-tracker/when-is-my-grant-report-due.html:46",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Status thresholds untested at their edges: changing days<=30 to <30, or days<0 to <=0 (a report due today shown Overdue), leaves all 32 tests green; an overspend clamp to 0 also survives. Tests pin filed+interval (calc.test.mjs:41), locking in the drift.",
+   "where": "ventures/grant-reporting-tracker/calc.test.mjs:30",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "parseDate accepts impossible dates (2026-02-30 rolls to 2026-03-02) from localStorage or edited rows; negative restricted balance shown with no overspend flag; page script minified into one-liners; localToday duplicated in the page; addMonths copied by hand from grant-deadline-tracker.",
+   "where": "ventures/grant-reporting-tracker/calc.mjs:2",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "README usage-event list omits report_filed, which the page records.",
+   "where": "ventures/grant-reporting-tracker/README.md:17",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15312"
+ ],
+ "verdict": "A tidy, private reminder list: month arithmetic, status thresholds, restricted balance and CSV export all recompute correctly, the disclaimer and privacy claims hold on the served page, and 32 tests pass. But the dates a grants manager acts on are not right once an award has history. The next report rolls forward from the day a report was filed, not from the award's fixed schedule, so one late filing silently moves every later deadline (a semiannual report due 2027-01-15 shows 'Due soon, 12 days' five days after it was due). Due dates are taken as the period end with no 30/90-day lag (2 CFR 200.329, checked against eCFR), so federal awards read 'Overdue' weeks early, and there is no period-of-performance end or 120-day final report (200.344(b)). The explainer page teaches 'award date plus interval' as the answer to 'when is my report due' and contains a false sentence about its own example. Four of six meaningful seeded mutations survived, including both status boundaries. It does not meet the bar: correctness, claims and verification are 2."
+}

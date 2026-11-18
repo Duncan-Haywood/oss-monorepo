@@ -1,0 +1,50 @@
+cell-fidelity milestone 5o: a closed-form salt floor before 5n's union screen, on fresh conditions
+
+Probe (baseline design, 2 cycles): NCA_Kim2011@0.875x ok, Chen2020@1.75x ok, Ai2020@0.875x ok
+
+NCA_Kim2011@0.875x: n 64; best design 29 on (U, r_kt) layer 2, U percentile 0.02, r_kt +0.31
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.152, kept 29, resumed 8; floor / union time 0.57
+  by floor, gap (time ratio): -0.5 0.0000 (0.197); -0.3 0.0000 (0.172); -0.2 0.0000 (0.152); -0.15 0.0000 (0.139); -0.1 0.0000 (0.129); 0.0 0.0000 (0.107)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.207, kept 42, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0142 (0.143, 15); L2 0.0000 (0.184, 32); L3 0.0000 (0.207, 42); L4 0.0000 (0.235, 52); L5 0.0000 (0.249, 57); L6 0.0000 (0.260, 61)
+  5n union 0.0000 (0.266); 5m ladder 0.0000 (0.220); 5k front L1 DFN@100 0.0142 (0.235), L2 0.0000 (0.486)
+  dropped: []; r_kt median 0.044 s per design
+Chen2020@1.75x: n 64; best design 39 on (U, r_kt) layer 1, U percentile 0.77, r_kt -0.04
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.158, kept 38, resumed 6; floor / union time 0.48
+  by floor, gap (time ratio): -0.5 0.0000 (0.257); -0.3 0.0000 (0.207); -0.2 0.0000 (0.158); -0.15 0.0000 (0.136); -0.1 0.0000 (0.132); 0.0 0.0930 (0.110)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.266, kept 43, resumed 8
+  by layers, gap (time ratio, kept): L1 0.0000 (0.142, 13); L2 0.0000 (0.208, 31); L3 0.0000 (0.266, 43); L4 0.0000 (0.293, 51); L5 0.0000 (0.305, 55); L6 0.0000 (0.317, 59)
+  5n union 0.0000 (0.328); 5m ladder 0.0000 (0.261); 5k front L1 DFN@100 0.0000 (0.188), L2 0.0000 (0.452)
+  dropped: []; r_kt median 0.043 s per design
+Ai2020@0.875x: n 64; best design 31 on (U, r_kt) layer 1, U percentile 0.50, r_kt +0.36
+  salt floor r_kt >= -0.2 then union: gap 0.0000, wall / all-DFN@100 0.197, kept 39, resumed 7; floor / union time 0.79
+  by floor, gap (time ratio): -0.5 0.0000 (0.211); -0.3 0.0000 (0.200); -0.2 0.0000 (0.197); -0.15 0.0000 (0.190); -0.1 0.0000 (0.185); 0.0 0.0000 (0.175)
+  cut to 3 layers then union: gap 0.0000, wall / all-DFN@100 0.152, kept 33, resumed 5
+  by layers, gap (time ratio, kept): L1 0.0000 (0.105, 13); L2 0.0000 (0.118, 24); L3 0.0000 (0.152, 33); L4 0.0000 (0.206, 43); L5 0.0000 (0.220, 49); L6 0.0000 (0.230, 54)
+  5n union 0.0000 (0.249); 5m ladder 0.0000 (0.243); 5k front L1 DFN@100 0.0000 (0.222), L2 0.0000 (0.399)
+  dropped: []; r_kt median 0.042 s per design
+
+Pooled over conditions (median, max, exact):
+  floor_gap: 0.0000, 0.0000, 3 of 3
+  floor_t_ratio: 0.1583, 0.1972, 0 of 3
+  floor_over_union_t: 0.5738, 0.7906, 0 of 3
+  gap: 0.0000, 0.0000, 3 of 3
+  t_ratio: 0.2071, 0.2660, 0 of 3
+  union_gap: 0.0000, 0.0000, 3 of 3
+  union_t_ratio: 0.2655, 0.3285, 0 of 3
+  ladder_gap: 0.0000, 0.0000, 3 of 3
+  ladder_t_ratio: 0.2432, 0.2606, 0 of 3
+  L1_gap: 0.0000, 0.0142, 2 of 3
+  L1_t_ratio: 0.1420, 0.1434, 0 of 3
+  L2_gap: 0.0000, 0.0000, 3 of 3
+  L2_t_ratio: 0.1836, 0.2085, 0 of 3
+  L3_gap: 0.0000, 0.0000, 3 of 3
+  L3_t_ratio: 0.2071, 0.2660, 0 of 3
+  L4_gap: 0.0000, 0.0000, 3 of 3
+  L4_t_ratio: 0.2347, 0.2933, 0 of 3
+  L5_gap: 0.0000, 0.0000, 3 of 3
+  L5_t_ratio: 0.2491, 0.3053, 0 of 3
+  L6_gap: 0.0000, 0.0000, 3 of 3
+  L6_t_ratio: 0.2598, 0.3170, 0 of 3
+
+Verdicts: H92 supported, H93 supported, H94 supported, H95 supported

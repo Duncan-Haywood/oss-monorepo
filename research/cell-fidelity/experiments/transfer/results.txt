@@ -1,0 +1,71 @@
+cell-fidelity milestone 5b: transfer to Ecker2015 and Ai2020 (64 Sobol seed-2 designs each)
+OKane2022 (256 designs, milestones 2 and 5a): untrusted 33; t* = 0.07, misclassification 0.023, AUC 0.997
+
+== Ecker2015 ==
+fails before cycle 100: SPM 0, SPMe 0, DFN 0
+DFN@100: best 336.7, median 291.5 Wh/kg, zeros 0
+SPMe r_min: median 0.370, 10th pct 0.119, <= 0.1: 4
+untrusted 1 of 64
+t* = 0.07: misclassification 0.016 (flagged 2); own best threshold 0.00 (0.000)
+AUC of -r_min 1.000 (2-cycle r_min 1.000)
+Spearman with DFN@100: SPM@2 0.849, SPM@10 0.852, SPM@30 0.852, SPM@100 0.844, SPMe@2 0.964, SPMe@10 0.969, SPMe@30 0.976, SPMe@100 0.982, DFN@2 0.959, DFN@10 0.965, DFN@30 0.977, DFN@100 1.000
+Spearman(SPMe@10) - Spearman(SPMe@100) = -0.012 (95% CI -0.034 to 0.004)
+median T1 (s) on 30 pools of 32, this set's costs (OKane2022 fresh in brackets); p vs GP-EI:
+  GP-EI DFN@100                         105.7 (  195.9)  p nan
+  screen SPM@2                           71.3 (   96.4)  p 0.00014
+  screen SPM@100                         91.7 (   82.7)  p 0.062
+  screen DFN@2                           61.4 (   67.6)  p 1.8e-05
+  screen SPMe@2                          68.7 (   52.5)  p 5.1e-05
+  screen SPMe@10                         70.0 (   73.7)  p 6.1e-05
+  screen SPMe@30                         85.7 (  138.6)  p 0.0053
+  screen SPMe@100                       151.0 (  227.3)  p 0.00028
+  coKrig MF-UCB DFN@2 cheap-start        56.5 (   89.6)  p 0.00019
+Spearman of the 9 methods' median T1, OKane2022 vs Ecker2015: 0.733
+baseline cost (s): SPM@2 0.34, SPM@10 0.44, SPM@30 0.64, SPM@100 1.45, SPMe@2 0.73, SPMe@10 1.01, SPMe@30 1.74, SPMe@100 4.25, DFN@2 0.98, DFN@10 2.13, DFN@30 5.05, DFN@100 15.10
+
+== Ai2020 ==
+fails before cycle 100: SPM 13, SPMe 0, DFN 0
+DFN@100: best 113.0, median 84.8 Wh/kg, zeros 0
+SPMe r_min: median -0.000, 10th pct -0.010, <= 0.1: 46
+untrusted 57 of 64
+t* = 0.07: misclassification 0.203 (flagged 44); own best threshold 0.33 (0.016)
+AUC of -r_min 0.995 (2-cycle r_min 0.995)
+Spearman with DFN@100: SPM@2 0.318, SPM@10 0.327, SPM@30 0.329, SPM@100 0.324, SPMe@2 0.798, SPMe@10 0.691, SPMe@30 0.714, SPMe@100 0.802, DFN@2 0.926, DFN@10 0.945, DFN@30 0.973, DFN@100 1.000
+Spearman(SPMe@10) - Spearman(SPMe@100) = -0.111 (95% CI -0.259 to 0.020)
+median T1 (s) on 30 pools of 32, this set's costs (OKane2022 fresh in brackets); p vs GP-EI:
+  GP-EI DFN@100                         130.3 (  195.9)  p nan
+  screen SPM@2                          207.4 (   96.4)  p 3e-05
+  screen SPM@100                        171.1 (   82.7)  p 0.00061
+  screen DFN@2                           53.2 (   67.6)  p 2.3e-05
+  screen SPMe@2                          62.0 (   52.5)  p 1.3e-05
+  screen SPMe@10                         51.4 (   73.7)  p 0.038
+  screen SPMe@30                        104.7 (  138.6)  p 0.52
+  screen SPMe@100                       200.5 (  227.3)  p 8.1e-06
+  coKrig MF-UCB DFN@2 cheap-start        71.0 (   89.6)  p 2.2e-05
+Spearman of the 9 methods' median T1, OKane2022 vs Ai2020: 0.700
+baseline cost (s): SPM@2 0.37, SPM@10 0.42, SPM@30 0.52, SPM@100 0.99, SPMe@2 0.77, SPMe@10 1.03, SPMe@30 1.53, SPMe@100 3.36, DFN@2 1.08, DFN@10 2.90, DFN@30 6.93, DFN@100 18.61
+
+F. Spearman of SPMe@n with DFN@100, by cycle count n (for the figure)
+n OKane2022 Ecker2015 Ai2020
+2 0.676 0.964 0.798
+10 0.668 0.969 0.691
+30 0.591 0.976 0.714
+100 0.575 0.982 0.802
+
+H. hypotheses (fixed in LOG.md before the run), per set and overall
+H29 refuted: Ecker2015 supported, Ai2020 refuted
+H30 inconclusive / not supported: Ecker2015 inconclusive, Ai2020 supported
+H31 refuted: Ecker2015 refuted, Ai2020 refuted
+H32 supported: Ecker2015 supported, Ai2020 supported
+
+G. (extra, after the verdicts, no hypothesis) ratio of each method's median T1 to the fastest method's, pools of 32
+method                             OKane2022 Ecker2015    Ai2020  worst
+screen SPMe@2                           1.00      1.22      1.21   1.22
+screen DFN@2                            1.29      1.09      1.03   1.29
+screen SPMe@10                          1.40      1.24      1.00   1.40
+coKrig MF-UCB DFN@2 cheap-start         1.71      1.00      1.38   1.71
+screen SPMe@30                          2.64      1.52      2.04   2.64
+screen SPM@100                          1.58      1.62      3.33   3.33
+GP-EI DFN@100                           3.73      1.87      2.53   3.73
+screen SPM@2                            1.84      1.26      4.03   4.03
+screen SPMe@100                         4.33      2.67      3.90   4.33

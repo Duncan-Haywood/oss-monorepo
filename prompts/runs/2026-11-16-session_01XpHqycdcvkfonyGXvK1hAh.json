@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01XpHqycdcvkfonyGXvK1hAh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T13:40:13Z",
+  "ended": "2026-11-16T13:47:57Z",
+  "wall_minutes": 7.9,
+  "tokens_in": 3881600,
+  "tokens_out": 25205,
+  "cost_usd": 2.1326,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16590",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First step 19 rerun failed with ModuleNotFoundError: wntr, because pyenv.py -r requirements.txt installs only the test deps; installed wntr==1.5.0 and reran."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/water-leaks/requirements.txt",
+      "issue": "lists only test deps; every experiment from step 11 on needs wntr, so `pyenv.py -r requirements.txt` gives an interpreter that cannot run the steps. Added an `experiments` extra to pyproject.toml (scipy, wntr==1.5.0) instead of widening CI's install."
+    },
+    {
+      "file": "research/water-leaks/LOG.md",
+      "issue": "step 20 recorded zenodo.org as refused by the proxy; this session it answered (HTTP 206 range request), so a host's reachability is per session and worth re-probing before routing around it."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-the-leak-tracker-was-drowning-in-drift.md",
+    "research/water-leaks/LOG.md (step 21 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Programme water-leaks, step 21 (milestone 3, H3): plan pre-registered and committed before any tracker output on D. Step 19 rerun from cold cache reproduced its results.txt and leaks.tsv byte for byte. T-D 13 of 32 within 300 m (incipient 3 of 17), 9 of 17 incipient dated, median 8 atoms active; 5 of 6 predictions held, (f) paired vs step 20 failed (9 vs 4, P = 0.27). Checks: water-leaks pytest 46 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; programme_check ok; post front matter, links and similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "47460328-a960-501b-b39f-574fa20eb2bf",
+    "transcripts": 1,
+    "first": "2026-11-16T13:40:13Z",
+    "last": "2026-11-16T13:48:07Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 72,
+        "output": 25205,
+        "thinking": 2913,
+        "cache_read": 3772315,
+        "cache_write_5m": 0,
+        "cache_write_1h": 109213,
+        "api_equivalent_usd": 2.1326,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 72,
+      "output": 25205,
+      "thinking": 2913,
+      "cache_read": 3772315,
+      "cache_write_5m": 0,
+      "cache_write_1h": 109213,
+      "api_equivalent_usd": 2.1326,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.972,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 38,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.9,
+      "active_minutes": 7.9,
+      "model_minutes": 4.12,
+      "tool_minutes": 3.78,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a researcher writing the plan, adapting the tracker script, rebuilding the leak-free simulation and writing up one pre-registered step",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 281.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

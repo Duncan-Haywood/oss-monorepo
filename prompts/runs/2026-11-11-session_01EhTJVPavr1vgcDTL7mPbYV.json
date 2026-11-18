@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVPavr1vgcDTL7mPbYV",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T02:03:53Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "R-0005: painting finder with print-resolution check for clothing-design-studio",
+  "projects": [
+    "ventures/clothing-design-studio"
+  ],
+  "pr": 14660,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 12,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "api.artic.edu and collectionapi.metmuseum.org refused by the session proxy (403 CONNECT)",
+      "impact": "museum parsers tested on documented response shapes and mocked APIs, not a live search"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "why": "Took website request R-0005 (prompt.md: requests before flagships) rather than the top flagship row",
+      "did": "built the painting finder the request's first interview implies",
+      "result": "landed with tests and a mocked browser run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-public-domain-paintings-print-resolution.md"
+  ],
+  "goal": null,
+  "notes": "Verification: run_venture_tests.py clothing-design-studio ok; headless Chromium e2e with routes mocking both APIs (search, measure, Met no-CORS fallback, hand-off into studio, method-note ppi warning, no console errors); venture-preflight run in this session (see PR).",
+  "corrections": [],
+  "redteam": null
+}

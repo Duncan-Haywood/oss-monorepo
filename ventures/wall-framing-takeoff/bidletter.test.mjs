@@ -65,3 +65,13 @@ test("printable HTML carries the price, escapes typed text, has no script and st
   assert.ok(proposalHtml(proposal(mk({ unpriced: ["Hold-downs"] }), { partial: true })).includes("Hold-downs"));
   assert.ok(proposalHtml(proposal(mk({ unpriced: ["x"] }))).includes("Proposal not issued"));
 });
+
+test("proposal and proposalHtml refuse a missing or malformed budget with a reason", async () => {
+  const { proposal, proposalHtml } = await import("./bidletter.mjs");
+  for (const bad of [null, 5, "x", {}, []]) {
+    const q = proposal(bad);
+    assert.equal(q.ok, false);
+    assert.match(q.error, /needs a budget/);
+  }
+  assert.match(proposalHtml(null), /Proposal not issued/);
+});

@@ -1,0 +1,32 @@
+# Kalman smoother: the real level under a noisy series, and did it shift?
+
+> Free online Kalman filter and smoother for structural time-series models (Durbin & Koopman 2012; Harvey 1989): local level, random walk with drift and local linear trend, with an optional dummy seasonal of any period. Exact diffuse initialisation (Koopman 1997); variances by maximum likelihood on the diffuse loglikelihood; trend form chosen by AIC counting diffuse elements. Returns the smoothed level with a band at every period, slope and seasonal, missing values filled, forecasts with intervals, outliers and level shifts as standardised auxiliary residuals (Harvey & Koopman 1992; de Jong & Penzer 1998), and Ljung-Box, normality and heteroscedasticity checks. Filter and smoother agree with statsmodels 0.15.0's exact diffuse UnobservedComponents to a relative 1e-10 on five reference cases; the Nile local level variances are 15,098.5 and 1,469.2. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial or professional advice. A flagged shift or outlier is not proof that anything happened; a forecast is not a promise.
+
+## Pages
+
+- [The tool](https://marisstella.app/kalman-smoother/)
+
+## Use it from code
+
+- `node cli.mjs series.csv [--column NAME] [--time NAME] [--slope auto|none|fixed|stochastic] [--season auto|0|N] [--log] [--level 0.9] [--horizon N] [--threshold 2.5] [--top 8] [--csv|--json]`
+- `node platform/agents/tools.mjs call kalman-smoother analyze --input '{"csv":"month,sales\n2024-01,310\n2024-02,\n...","log":true}'`
+- `node platform/agents/tools.mjs call kalman-smoother analyze --input '{"y":[1120,1160,null,1210],"slope":"none"}'`
+- From JavaScript: `buildModel(spec, variances)`, `kalmanFilter(model, y)`, `kalmanSmoother(model, filter)`, `fitModel(spec, y)`.
+
+## What it answers
+
+- What is the underlying level of this series at each period, and how sure is that?
+- How much of the movement is real and how much is noise?
+- Which points are one-off outliers, and where did the level itself shift?
+- What are the missing values likely to be, and what comes next?
+
+## Examples
+
+- Nile flow at Aswan, 1871-1970: the largest level shift is 1898 to 1899 (t about -3), the largest outlier 1913.
+- UK car drivers killed or seriously injured, 1969-1984, on logs with a 12-month seasonal: the largest level shift is January to February 1983 (t about -3.8); the front-seat belt law took effect on 31 January 1983.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/kalman-smoother): MIT licensed.

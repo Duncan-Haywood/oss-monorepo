@@ -1,0 +1,29 @@
+record 220099 samples, 440.2 s; noise-floor q_min lift 0.800, tilt 1.763 L/min; spools E, E
+checks: A + 24.9 B equals 5n's LS model; OC equals measured_motion.oc (a, c) and spool_floor.oc_floor (b);
+        numpy twin equals the tested stdlib trace_breakeven on the first 50,000 samples
+measured LS pump hydraulic energy 3867 kJ = A + m_eff B with m_eff 21.3 bar (the constant margin that costs what the machine spent)
+LS counts 0.00% of samples as still (no section with q > 0 and a known pressure), so a standby flow there has almost nothing to act on; open-centre counts 36.2% as still
+while open-centre moves: fixed-pump flow mean 93.8 L/min, demand mean 52.7 L/min (ratio 1.78); demand above the fixed pump in 23.4% of those samples
+
+whole record: m* = (S + D + I) / B, bar; S, D, I as shares of S + D + I
+  a floor, no drop, p_n 5        q_sb 0.0: m*  82.9  S 94.1%  D  0.0%  I  5.9%  (S 78.0, D 0.0, I 4.9 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 58.0 bar
+  a floor, no drop, p_n 5        q_sb 2.0: m*  82.9  S 94.1%  D  0.0%  I  5.9%  (S 78.0, D 0.0, I 4.9 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 58.0 bar
+  a floor, no drop, p_n 5        q_sb 5.0: m*  82.9  S 94.1%  D  0.0%  I  5.9%  (S 78.0, D 0.0, I 4.9 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 58.0 bar
+  b PVG 32 orifice floor, p_n 5  q_sb 0.0: m*  87.0  S 89.7%  D  4.8%  I  5.6%  (S 78.0, D 4.1, I 4.9 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 62.1 bar
+  b PVG 32 orifice floor, p_n 5  q_sb 2.0: m*  87.0  S 89.7%  D  4.8%  I  5.6%  (S 78.0, D 4.1, I 4.9 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 62.1 bar
+  b PVG 32 orifice floor, p_n 5  q_sb 5.0: m*  87.0  S 89.7%  D  4.8%  I  5.6%  (S 78.0, D 4.1, I 4.9 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 62.1 bar
+  c 10 bar spool drop, p_n 10    q_sb 0.0: m* 105.5  S 73.9%  D 16.9%  I  9.2%  (S 78.0, D 17.8, I 9.7 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 80.6 bar
+  c 10 bar spool drop, p_n 10    q_sb 2.0: m* 105.5  S 73.9%  D 16.9%  I  9.2%  (S 78.0, D 17.8, I 9.7 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 80.6 bar
+  c 10 bar spool drop, p_n 10    q_sb 5.0: m* 105.5  S 73.9%  D 16.9%  I  9.2%  (S 78.0, D 17.8, I 9.7 bar); dm*/dd 1.78, dm*/dp_n 0.97; headroom over 24.9 80.6 bar
+
+per Y-cycle (18 cycles, q_sb 0): median, 95% bootstrap of the mean, min, max of m*_c, bar
+  a floor, no drop, p_n 5       : median  76.9  mean  82.9 (72.6 to 95.0)  min  54.9  max 139.4;  median S share 94%; cycles with m*_c <= 24.9: 0
+  b PVG 32 orifice floor, p_n 5 : median  81.2  mean  87.1 (76.9 to 99.2)  min  59.0  max 143.0;  median S share 90%; cycles with m*_c <= 24.9: 0
+  c 10 bar spool drop, p_n 10   : median  99.0  mean 105.1 (93.9 to 118.4)  min  75.3  max 168.9;  median S share 74%; cycles with m*_c <= 24.9: 0
+  m*_c per cycle (b): 59.0 91.8 71.5 67.4 85.5 60.7 95.4 126.6 82.5 73.0 78.1 68.1 95.3 65.4 91.6 132.8 80.0 143.0
+
+T1 REFUTED (whole-record m* under b in 50 to 80 bar: 87.0)
+T2 HOLDS (every cycle m*_c > 24.9 under b: min 59.0)
+T3 HOLDS (S share under b > 70%: 89.7%)
+T4 HOLDS (2 L/min standby lowers m* under b by < 15%: 0.00%; vacuous if LS is almost never still, see above)
+T5 HOLDS (median m*_c under a > 2 x 20.53: 76.9)

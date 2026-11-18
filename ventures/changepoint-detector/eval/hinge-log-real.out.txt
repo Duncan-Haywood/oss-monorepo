@@ -1,0 +1,33 @@
+Bar L
+L1 Australian gas, annual totals (1956-1994, n 39)
+  logs:   refused (line rho 1.00, hinge rho 0.95, cut bar 0.61)
+  levels: refused (line rho 0.97, hinge rho 0.83, cut bar 0.61)
+  predicted (logs): tested, p <= 0.05, knot 1966-1976, slope after below before
+L2 US electricity, annual totals (1973-2012, n 40)
+  logs:   refused (line rho 0.89, hinge rho 0.71, cut bar 0.62)
+  levels: refused (line rho 0.82, hinge rho 0.72, cut bar 0.62)
+  predicted (logs): tested, p <= 0.05, knot 1998-2008, slope after below before
+
+Bar C
+C Lake Huron (1875-1972, n 98)
+  logs:   refused (line rho 0.80, hinge rho 0.75, cut bar 0.29)
+  levels: refused (line rho 0.80, hinge rho 0.75, cut bar 0.29)
+  predicted (logs): refused
+C Michigan-Huron (1918-2009, n 92)
+  logs:   refused (line rho 0.87, hinge rho 0.80, cut bar 0.28)
+  levels: refused (line rho 0.87, hinge rho 0.80, cut bar 0.28)
+  predicted (logs): refused
+C US female murder rate (1950-2004, n 55)
+  logs:   refused (line rho 0.97, hinge rho 0.79, cut bar 0.52)
+  levels: refused (line rho 0.97, hinge rho 0.80, cut bar 0.52)
+  predicted (logs): refused
+
+Reported, no bar
+CO2 annual means (1959-2025, n 67)
+  logs:   refused (line rho 0.96, hinge rho 0.90, cut bar 0.45)
+  levels: refused (line rho 0.97, hinge rho 0.92, cut bar 0.45)
+  predicted (logs): refused
+Canada fertility (1931-1968, n 38)
+  logs:   refused (line rho 0.91, hinge rho 0.79, cut bar 0.61)
+  levels: refused (line rho 0.92, hinge rho 0.77, cut bar 0.61)
+  predicted (logs): none

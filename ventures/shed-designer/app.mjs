@@ -986,6 +986,19 @@ function wire() {
     document.body.append(a); a.click(); a.remove();
     count('pictures-saved');
   });
+  // The shed as a 3D model file (glTF binary): every board a named node, grouped by layer,
+  // for Blender, Windows 3D Viewer or a site model. Loaded on demand, so the page does not pay for it.
+  $('#save-model').addEventListener('click', async () => {
+    if (!lastShed) return;
+    const { shedGlb } = await import('./gltf.mjs');
+    const blob = new Blob([/** @type {BlobPart} */ (shedGlb(lastShed, { name: design().name }))], { type: 'model/gltf-binary' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `${slug()}.glb`;
+    document.body.append(a); a.click();
+    setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    count('models-saved');
+  });
   $('#show-outlines').addEventListener('change', (e) => viewer?.setOutlines(e.target.checked));
   $('#show-scenery').addEventListener('change', (e) => viewer?.setScenery(e.target.checked));
   // Presentation: every finished layer, no board outlines or dimension lines, a

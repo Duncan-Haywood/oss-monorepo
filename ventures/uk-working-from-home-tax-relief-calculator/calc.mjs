@@ -11,7 +11,7 @@ export const YEARS = { 2021: "2021/22", 2022: "2022/23", 2023: "2023/24", 2024: 
 export const RATES = [19, 20, 21, 40, 42, 45, 48];
 export const P87_LIMIT = 2500;
 
-const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 const r2 = (n) => Math.round(n * 100) / 100;
 const yn = (v) => v === true || v === "yes";
 
@@ -33,7 +33,7 @@ export function parse(input) {
   const rate = Number(i.rate);
   if (!RATES.includes(rate)) errors.push("Pick your income tax rate.");
   const asOf = String(i.asOf || "");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf) || Number.isNaN(Date.parse(asOf))) errors.push("Enter today's date.");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(asOf) || Number.isNaN(Date.parse(asOf)) || new Date(asOf + "T00:00:00Z").toISOString().slice(0, 10) !== asOf) errors.push("Enter today's date.");
   if (!errors.length && !Object.values(weeks).some((w) => w > 0)) errors.push("Enter the weeks you worked from home in at least one tax year.");
   return { errors, weeks, reimbursed, actual, rate, asOf, required: yn(i.required), sa: yn(i.sa) };
 }

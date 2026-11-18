@@ -1,0 +1,67 @@
+name: probability-calibration
+description: >-
+  Free browser tool, CLI and agent call for data scientists, ML engineers,
+  forecasters, meteorologists, credit-risk and clinical-prediction analysts:
+  paste probability forecasts and outcomes and get the CORP reliability
+  diagram with a consistency band, the exact Brier and log score split into
+  miscalibration, discrimination and uncertainty, a resampling test,
+  ECE, Spiegelhalter's test, the calibration slope, the AUC and an isotonic or
+  Platt recalibration map. Matches scikit-learn and scipy. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-16 on an explore run, as the twentieth tool of "research
+# algorithms as tools" (portfolio/research-tools/README.md). No venture in the
+# tree checked probability forecasts against outcomes; project-estimate-
+# calibrator calibrates estimates of a quantity, conformal-prediction-intervals
+# interval coverage.
+# Implemented from the papers' mathematics; no third-party code was ported.
+# scikit-learn 1.9.1, scipy 1.18.1 and numpy 2.5.3 (BSD-3-Clause) were used only
+# to produce eval/reference.json.
+# Example data: FiveThirtyEight's nfl-elo-game nfl_games.csv (MIT, ABC News
+# Internet Ventures; data/SOURCE.md).
+#
+# First visitor: searches such as "reliability diagram online", "calibration
+# curve", "brier score decomposition", "expected calibration error
+# calculator", "is my model calibrated"; ML practitioners with a column of
+# predicted probabilities and a column of labels. Volume not measured with an
+# external tool.
+#
+# Alternatives: scikit-learn's calibration_curve and CalibrationDisplay, R's
+# reliabilitydiag and verification packages, netcal (code). The
+# differentiators here: no install and no upload, the bin-free CORP diagram
+# with its band and exact decomposition beside the binned ECE people quote,
+# and the observed/expected count test the shape test misses (README, "What
+# the example shows").
+#
+# Liability: statistical output from supplied data, not advice; the page says
+# a gap is not proof of an error and does not replace a regulator's
+# validation method. Data never leave the browser (tests assert no network
+# calls).
+
+hypotheses:
+  - claim: >-
+      People who need to check a model's or forecaster's probabilities will use
+      a no-install page that draws a bin-free reliability diagram and splits
+      the Brier score, over writing scikit-learn or R code themselves.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a result that disagrees with scikit-learn or the reliabilitydiag R package on the same data beyond rounding, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/probability-calibration/
+  analytics: null

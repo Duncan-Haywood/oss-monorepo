@@ -54,6 +54,15 @@
     .check { display: flex; gap: 8px; align-items: center; font-weight: 400; margin: 12px 0 0; }
     .check input { width: auto; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.row3:has(#kind) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 265px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>

@@ -1,7 +1,7 @@
 # Subdomain Takeover Checker
 
 A free tool for anyone who manages a DNS zone: follows a hostname's real CNAME chain over public
-DNS-over-HTTPS, matches the final target against 25 known takeover-prone hosting providers (S3,
+DNS-over-HTTPS, matches any target in the chain against 24 known takeover-prone hosting providers (S3,
 Heroku, GitHub Pages, Azure, Fastly, Shopify, and more), and — for a match — sends one live GET
 request checked against that specific provider's own "nothing is claimed at this name" fingerprint
 page.
@@ -34,7 +34,9 @@ node check.mjs <hostname> [<hostname> ...] [--json] [--timeout <ms>]
 
 Not run from a browser tab, so it is never subject to CORS. Exit code `0` when no hostname is
 confirmed or unconfirmed-risky; `1` when at least one is, or a lookup could not be completed at
-all. Wire it into a recurring DNS-zone-audit job:
+all. A pasted URL (`https://blog.example.com/path`) is checked as the hostname inside it; an
+argument that is not a hostname at all counts as a failed lookup (exit `1`), never as clean.
+Wire it into a recurring DNS-zone-audit job:
 
 ```yaml
 # in your own CI, not this portfolio's -- your zone, your pipeline
@@ -52,7 +54,7 @@ the full table and the reasoning behind each entry.
 
 ## Coverage, deliberately partial
 
-25 providers, chosen for how frequently they appear in public subdomain-takeover research and
+24 providers, chosen for how frequently they appear in public subdomain-takeover research and
 write-ups. This is not, and does not claim to be, the complete set of services with this failure
 mode — new hosting providers appear, and existing ones change their "unclaimed" page wording or
 ship mitigations over time. A hostname whose CNAME points somewhere this table doesn't recognise is
@@ -63,7 +65,9 @@ scored and why it never changes a `dangling-confirmed` verdict.
 ## What this is, and isn't
 
 **Evidence, not a determination.** One DNS lookup and, for a provider match, one GET request per
-hostname — not a full security assessment. It does not enumerate your DNS zone or guess at other
+hostname (over HTTPS, retried once over plain HTTP when HTTPS gets no response at all, since S3
+website endpoints serve no HTTPS and an unclaimed Heroku or GitHub Pages name fails the certificate
+check) — not a full security assessment. It does not enumerate your DNS zone or guess at other
 subdomains; it only checks the exact hostnames you give it. A clean report means none of the
 hostnames this run checked matched a known provider with a confirming response — not that the
 domain has no exposure anywhere.

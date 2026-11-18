@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "eda-gridorder"
 version = "0.1.0"
-description = "Does the order a grid proposer walks a chip-design space change how fast it finds the Pareto front? Lexicographic vs stride vs farthest-point vs random"
+description = "Does the order a grid proposer walks a chip-design space change how fast it finds the Pareto front? lexicographic vs Halton vs farthest-point vs Latin vs random"
 requires-python = ">=3.9"
 dependencies = []
 license = { text = "MIT" }

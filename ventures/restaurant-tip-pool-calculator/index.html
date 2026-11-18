@@ -35,7 +35,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #e3eaee; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -155,7 +155,7 @@
       $("#report-stats").innerHTML = `<strong>${money(s.pool)} to share</strong> among ${s.people} people over ${s.hours} hours · card fee ${money(s.fee)} · ${s.balanced ? "payouts equal the pool to the cent" : "payouts do not equal the pool"}`;
       $("#report-note").textContent = (r.errors.length ? `${r.errors.length} row${r.errors.length === 1 ? "" : "s"} skipped: ${r.errors.slice(0, 3).join(" ")} ` : "") + r.detail;
       $("#rows").innerHTML = r.rows.map((x) => `<tr><td>${esc(x.name)}</td><td>${esc(x.role)}</td><td class="n">${x.hours.toFixed(2)}</td><td class="n">${money(x.ownTips)}</td><td class="n">${money(x.payout)}</td><td class="n">${money(x.perHour)}</td></tr>`).join("");
-      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h4><span class="pill medium">check</span></h4><p>${esc(w)}</p></div>`).join("");
+      $("#report-findings").innerHTML = r.warnings.map((w) => `<div class="finding"><h3><span class="pill medium">check</span></h3><p>${esc(w)}</p></div>`).join("");
       report.hidden = false;
       status.textContent = `${s.people} people paid.`;
       report.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });

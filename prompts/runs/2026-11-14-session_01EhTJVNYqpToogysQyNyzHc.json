@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNYqpToogysQyNyzHc",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T13:00:55Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 8 quick-pick-survey, item (t): correct the team tau's low bias",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 15855,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-the-constant-that-was-not-constant.md"
+  ],
+  "goal": "Team combine's random-effects tau read near its true value so the 'Wider' rank ranges are honest",
+  "notes": "Root cause: populationFromInfos dropped each person's quadratic constant k = l(c) - grad'c - c'Jc/2 although the expansion point c moves with tau, which made the read PQL, not Laplace. linearize now returns k and the marginal adds it. Calibration (scripts/team-ranges-calibration.mjs --runs 40, docs/team-ranges-laplace-2026-11-14.jsonl): tau 2 read 1.99-2.27 (was 0.61-0.85), tau 1 0.97-1.20 (was 0.36-0.49), tau 0 0.15-0.34; Wider cover 0.955-1.00 in every cell (was 0.90-1.00). New test fails on the old read (0.84, 0.71, 0.57) and passes on the new one; checked by toggling laplace:false. run_venture_tests.py quick-pick-survey: ok, 1 suite, 0 failed. node --test site/rank-core.test.mjs: 31 pass. Page word thresholds moved to 0.4/0.8. Timing: 0.18 s at 25x5, 0.9 s at 60x5, 2.0 s at 60x10.",
+  "corrections": [],
+  "redteam": null
+}

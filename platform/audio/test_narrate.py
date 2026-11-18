@@ -1,6 +1,8 @@
 """Tests for the narration engine's text, timing and cache logic. No model needed:
 the voice is stood in for by audio written into the cache first."""
+import os
 import shutil
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -104,6 +106,11 @@ class Render(unittest.TestCase):
         self.assertNotEqual(k, N.Narrator(models=self.n.models, g2p="misaki")._key("x"))
         self.assertEqual(k, N.Narrator(models=self.n.models, g2p="espeak")._key("x"))
 
+    def test_store_into_an_existing_shard_directory(self):
+        self.n._store("ab" + "0" * 62, np.zeros(10, dtype=np.float32))
+        self.n._store("ab" + "1" * 62, np.zeros(10, dtype=np.float32))  # same shard: must not raise
+        self.assertIsNotNone(self.n._cached("ab" + "1" * 62))
+
     def test_cache_round_trip_is_close(self):
         audio = np.sin(np.linspace(0, 100, 4800)).astype(np.float32) * 0.8
         self.n._store("ab" * 32, audio)
@@ -126,7 +133,7 @@ class Voicing(unittest.TestCase):
         models = self.dir / "a" / "b"
 
         def fake(url, dest):
-            self.assertTrue(str(dest).endswith(".part"))
+            self.assertTrue(str(dest).endswith(f".{os.getpid()}.part"))
             Path(dest).write_bytes(b"x")
 
         with mock.patch.object(N.urllib.request, "urlretrieve", side_effect=fake) as get:
@@ -134,7 +141,7 @@ class Voicing(unittest.TestCase):
             self.assertEqual(get.call_count, len(N.MODEL_FILES))
             for name in N.MODEL_FILES:
                 self.assertTrue((models / name).exists())
-                self.assertFalse((models / f"{name}.part").exists())
+                self.assertEqual(list(models.glob(f"{name}*.part")), [])
             N.ensure_models(models)  # present files are not fetched again
             self.assertEqual(get.call_count, len(N.MODEL_FILES))
 
@@ -148,6 +155,30 @@ class Voicing(unittest.TestCase):
             N._load(str(self.dir), 2)
         self.assertEqual(rt.InferenceSession.call_args[0][0], str(self.dir / N.MODEL_FILES[0]))
         self.assertEqual(kokoro_onnx.Kokoro.from_session.call_args[0][1], str(self.dir / N.MODEL_FILES[1]))
+
+    def test_misaki_g2p_is_built_without_the_transformer_and_per_accent(self):
+        import types
+        from unittest import mock
+
+        misaki = types.SimpleNamespace(en=mock.MagicMock(), espeak=mock.MagicMock())
+        mods = {
+            "onnxruntime": mock.MagicMock(),
+            "kokoro_onnx": types.SimpleNamespace(Kokoro=mock.MagicMock()),
+            "misaki": misaki,
+            "misaki.en": misaki.en,
+            "misaki.espeak": misaki.espeak,
+        }
+        old = (N._KOKORO, N._G2P)
+        try:
+            with mock.patch.dict(sys.modules, mods):
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-gb")
+                N._load(str(self.dir), 1, g2p="misaki", lang="en-us")
+        finally:
+            N._KOKORO, N._G2P = old
+        gb, us = misaki.en.G2P.call_args_list
+        self.assertIs(gb.kwargs["trf"], False)  # the transformer is a heavy optional dependency
+        self.assertIs(gb.kwargs["british"], True)
+        self.assertIs(us.kwargs["british"], False)
 
     def test_few_units_never_get_a_pool_when_one_worker_asked(self):
         from unittest import mock
@@ -296,6 +327,42 @@ class Master(unittest.TestCase):
         chain = seen[0][seen[0].index("-af") + 1]
         self.assertIn(f"alimiter=limit={10 ** (N.TRUE_PEAK / 20):.4f}:", chain)
 
+    def _chain_for(self, lufs):
+        """The -af chain master() builds when the input measures `lufs`."""
+        seen = []
+        old, old_measure = N._ffmpeg, N.measure
+        N._ffmpeg = lambda args, pcm: seen.append(args) or type("R", (), {"stderr": b""})()
+        N.measure = lambda pcm, pre="": {"lufs": lufs, "lra": 0.0, "peak": 0.0}
+        try:
+            with tempfile.TemporaryDirectory() as tmp:
+                try:
+                    N.master(np.full(10, 0.1, dtype=np.float32), Path(tmp) / "x.mp3")
+                except subprocess.CalledProcessError:
+                    pass  # ffprobe on the unwritten file; the chain was already captured
+        finally:
+            N._ffmpeg, N.measure = old, old_measure
+        return seen[0][seen[0].index("-af") + 1]
+
+    def test_gain_is_exactly_target_minus_measured(self):
+        # Pins the calibration a +/-1 LU end-to-end band cannot: a +0.8 dB error survived it.
+        self.assertIn("volume=12.25dB,", self._chain_for(-28.25))
+        self.assertIn("volume=-3.00dB,", self._chain_for(-13.0))
+
+    def test_refuses_silent_and_near_silent_input(self):
+        # ffmpeg reports -inf LUFS below the R128 -70 gate; that used to become volume=inf dB.
+        for lufs in (float("-inf"), float("nan"), -70.0, N.MIN_INPUT_LUFS - 0.1):
+            with self.subTest(lufs=lufs), self.assertRaises(ValueError):
+                self._chain_for(lufs)
+        self.assertIn("volume=", self._chain_for(N.MIN_INPUT_LUFS))
+
+    def test_refuses_empty_and_non_finite_samples(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for pcm in (np.zeros(0, dtype=np.float32), np.array([0.1, np.nan], dtype=np.float32),
+                        np.array([0.1, np.inf], dtype=np.float32)):
+                with self.subTest(n=pcm.size), self.assertRaises(ValueError):
+                    N.master(pcm, Path(tmp) / "x.mp3")
+
+
 class MasterEndToEnd(unittest.TestCase):
     def test_lands_on_target_loudness(self):
         t = np.arange(N.RATE * 12) / N.RATE
@@ -310,7 +377,10 @@ class MasterEndToEnd(unittest.TestCase):
             raw = subprocess.run(["ffmpeg", "-v", "error", "-i", str(out), "-f", "f32le", "-ac", "1", "-ar", str(N.RATE), "-"],
                                  capture_output=True, check=True).stdout
             m = N.measure(np.frombuffer(raw, "<f4"), pre="")
-            self.assertAlmostEqual(m["lufs"], N.LOUDNESS, delta=1.0)
+            # The limiter and the MP3 encode land it 0.3 to 0.5 LU under target (-16.45 here,
+            # 2026-11-14); a band that wide either side let a +0.8 dB gain error through.
+            self.assertGreater(m["lufs"], N.LOUDNESS - 0.8)
+            self.assertLess(m["lufs"], N.LOUDNESS + 0.2)
             self.assertLess(m["peak"], -0.5)
 
 

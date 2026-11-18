@@ -11,7 +11,7 @@
 /** Quote a free-text cell and neutralise a leading formula trigger. */
 export function csvCell(value) {
   const raw = String(value ?? '');
-  const text = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  const text = /^[=+\-@\t\r]/.test(raw) && !/^-?\d+(\.\d+)?$/.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

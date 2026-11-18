@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { placeBreaks, placeRestBreaks, laborPercent, budgetCheck, dailyLabor, salesPerLaborHour, fairnessReport, hoursThresholds, tipPool, trimOptions, scheduleFlags, unsupervisedStretches, loneStretches, shortShifts, daysOffRuns,
   parseTime, parseDaySpec, parseAvailability, parseStaff, parseShifts, buildRoster, coverOptions, coverChain, absencePlan, swapOptions, checkTrade, rosterCsv, hoursCsv, rosterIcs, rosterMessages, openShiftPost,
-  sampleStaff, openFloorByPricing, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
+  sampleStaff, openFloorByPricing, scoreBoundByColumnGeneration, branchedScoreBound, optimalityText, sampleShifts, fmtClock, money, money2, _internals,
 } from "./calc.mjs";
 
 const staffOf = (t) => { const r = parseStaff(t); assert.deepEqual(r.errors, []); return r.staff; };
@@ -232,10 +232,23 @@ test("exact mode on a deliberately weak anneal finds the improvement and reports
 
 test("exact mode gives up honestly: a tiny node limit reports a bound, not a proof", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false });
+  // coverLP and scoreCG off: both branch-and-prices have their own limits and would find and prove the 15-hour roster here.
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false, scoreCG: false });
   assert.equal(r.optimality.status, "bounded");
   assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
   assert.ok(r.optimality.gap >= 0);
+});
+
+test("branch-and-price hands its roster to the cost search: the sample week reaches the proven 15 open hours", () => {
+  // The anneal leaves 19 h open; an integral LP inside branch-and-price finds 15 h (the known least). That roster must reach the
+  // result: an earlier wiring kept its score as the incumbent but dropped the roster, so the week was reported optimal at 19 h.
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const r = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false });
+  assert.equal(r.unfilledHours, 15);
+  assert.equal(r.optimality.forcedOpenHours, 15);
+  assert.ok(r.optimality.coverageProven);
+  assert.ok(Math.abs(r.score - r.optimality.bestScore) < 1e-6);
+  assert.ok(r.optimality.lowerBound <= r.score + 1e-6);
 });
 
 test("the exact bound sees that hours, overlaps and rest force shifts open, and never overstates", () => {
@@ -251,7 +264,10 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
   // Hours terms inside the coverage flow (tangent lines under each person's convex hours curve): who can work when is priced with the
   // balance targets, and the gap falls to cents. The same flow without them (flowBalance: false) leaves the older Lagrangian gap.
   assert.ok(r.score - r.optimality.lowerBound < 1, `flow gap ${r.score - r.optimality.lowerBound}`);
-  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false });
+  const old = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false, scoreCG: false, scoreFloor: false });
+  // With the priced clique LP on (cliqueScoreFloor, 2026-11-14) the bound is never lower and never above the roster.
+  const priced = buildRoster(staff, slots, { exact: true, exactNodes: 20, flowBalance: false, scoreCG: false, deferCover: false });
+  assert.ok(priced.optimality.lowerBound <= priced.score + 1e-6 && priced.optimality.lowerBound >= old.optimality.lowerBound - 1e-6);
   assert.ok(old.score - old.optimality.lowerBound > 50);
   // Random tight weeks (caps, overlaps, rest rules all biting): the exact answer still equals brute force.
   let seed = 7;
@@ -271,9 +287,24 @@ test("the exact bound sees that hours, overlaps and rest force shifts open, and 
 
 test("same input gives the same roster", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
-  const a = buildRoster(staff, slots, {}), b = buildRoster(staff, slots, {});
+  const a = buildRoster(staff, slots, { memo: false }), b = buildRoster(staff, slots, { memo: false }); // two real builds
   assert.deepEqual(a.owner, b.owner);
   assert.equal(a.cost, b.cost);
+});
+
+test("a repeat build of the same input is remembered and returns a copy, not the stored roster", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const opts = { exact: false, balance: 31 };
+  const a = buildRoster(staff, slots, opts);
+  a.owner[0] = -99; a.unfilled.length = 0;
+  const b = buildRoster(staff, slots, { ...opts });
+  assert.notEqual(b.owner[0], -99, "a caller's edit must not reach the next caller");
+  assert.deepEqual(b.owner, buildRoster(staff, slots, { ...opts, memo: false }).owner);
+  // An input JSON would misread is built fresh, and a changed option is a different input.
+  assert.notEqual(buildRoster(staff, slots, { ...opts, balance: 0 }).score, undefined);
+  assert.equal(_internals.memoKey([{ s: new Set([1]) }]), null);
+  assert.equal(_internals.memoKey([{ f: () => 1 }]), null);
+  assert.notEqual(_internals.memoKey([{ x: NaN }]), _internals.memoKey([{ x: null }]));
 });
 
 test("the example fills most shifts, beats filling in listed order, and names who is critical", () => {
@@ -744,6 +775,17 @@ test("dailyLabor: hours and base-wage cost per day, labor share where sales are 
   assert.equal(dailyLabor(r, staff, "").hasSales, false);
   const b = buildRoster(staff, slots, { minRestHours: 0, burdenPct: 10 });
   assert.ok(Math.abs(dailyLabor(b, staff, "").days[0].cost - 88) < 1e-9);
+});
+
+test("dailyLabor: '$2,400' is one day's sales, not two (red team 2026-11-12)", () => {
+  const staff = staffOf("Ann,10,40,0,any");
+  const slots = slotsOf("Mon,8,12,1\nMon,13,17,1\nWed,9,13,1");
+  const r = buildRoster(staff, slots, { minRestHours: 0 });
+  const d = dailyLabor(r, staff, "$2,000 $1,000 $1,000");
+  assert.deepEqual(d.days.slice(0, 3).map((x) => x.sales), [2000, 1000, 1000]);
+  assert.ok(Math.abs(d.days[0].pct - 4) < 1e-9);
+  assert.ok(Math.abs(d.days[2].pct - 4) < 1e-9);
+  assert.deepEqual(dailyLabor(r, staff, "2000,1000;1,000").days.slice(0, 3).map((x) => x.sales), [2000, 1000, 1000]);
 });
 
 test("an unpaid meal break lowers pay on long shifts only, never the hours a person is scheduled", () => {
@@ -1430,13 +1472,14 @@ test("ownerValid judges a person's shifts in time order, whatever order the slot
   }
 });
 
-test("exact search runs by itself on small weeks and can be switched off", () => {
+test("exact search runs by itself on every week and can be switched off", () => {
   const staff = staffOf("Ana,15,24,0,Mon-Fri 8-18\nBen,12,16,8,Mon-Wed 6-16\nCy,18,40,0,any");
   const small = slotsOf("Mon,8,14,1\nTue,8,16,1\nWed,6,12,2");
   assert.ok(buildRoster(staff, small).optimality, "a 4-shift week is checked without asking");
   assert.equal(buildRoster(staff, small, { exact: false }).optimality, null);
   const big = slotsOf("Mon,8,16,3\nTue,8,16,3\nWed,8,16,3\nThu,8,16,3\nFri,8,16,3");
-  assert.equal(buildRoster(staff, big).optimality, null, "15 shifts is past the automatic limit");
+  assert.ok(buildRoster(staff, big).optimality, "a 15-shift week is checked too (on at every size since 2026-11-12)");
+  assert.equal(buildRoster(staff, big, { exact: false }).optimality, null);
 });
 
 test("exact search treats people who differ only by name as interchangeable: same optimum as brute force, and big twin crews are now proven", () => {
@@ -1586,8 +1629,8 @@ test("reduced-cost fixing keeps the proven optimum and never costs nodes", () =>
 test("coverRepair: exact repair of the open hours covers the sample week's 15-hour optimum that the walk leaves at 16", () => {
   const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
   const open = (r) => r.unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0);
-  const off = buildRoster(staff, slots, { minRestHours: 0 });
-  const on = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true });
+  const off = buildRoster(staff, slots, { minRestHours: 0, exact: false });
+  const on = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, exact: false });
   assert.equal(open(off), 16);
   assert.equal(open(on), 15);
   assert.equal(buildRoster(staff, slots, { minRestHours: 0, exact: true }).unfilled.reduce((a, u) => a + (u.slot.end - u.slot.start) / 60, 0), 15);
@@ -1610,7 +1653,7 @@ test("coverRepair: a node budget ends the search, so the roster does not depend 
   const b = buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairMs: 600000 });
   assert.equal(JSON.stringify(a.assignments ?? a.unfilled), JSON.stringify(b.assignments ?? b.unfilled));
   assert.equal(open(a), 15);
-  assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0 })), 16);
+  assert.equal(open(buildRoster(staff, slots, { minRestHours: 0, coverRepair: true, coverRepairNodes: 0, exact: false })), 16);
 });
 
 test("coverRepair: openShiftWeight prices an open shift in hours, so the repair can trade hours for fewer open shifts", () => {
@@ -1856,4 +1899,98 @@ test("CSV exports defuse spreadsheet formulas and still read back", async () => 
   for (const k of lastShiftEnds(csv).values()) assert.ok(!k.name.startsWith("'"));
   assert.ok(!/(^|\n)[=+\-@]/.test(hoursCsv(r)));
   assert.match(hoursCsv(r), /^person,/);
+});
+
+test("whole-score column generation: its bound never passes brute force, and with no incumbent it finds the optimum", () => {
+  // Every score term the pricing oracle has to bound: overtime (weekly and daily), double time, burden, unpaid meals, split-shift
+  // premium, a pay differential, shortfall and fairness, tough-shift history, avoid and prefer windows.
+  let seed = 11;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed"];
+  const extras = ["", ",avoid: Tue", ",prefer: Mon", ",tough: 3", ",avoid: Mon 6-12", ",prefer: Wed"];
+  let checked = 0;
+  for (let c = 0; c < 60; c++) {
+    const st = Array.from({ length: 2 + rnd(2) }, (_, p) => `P${p},${10 + rnd(10)},${8 + rnd(4) * 4},${rnd(3) * 4},${days[rnd(3)]}-Wed ${6 + rnd(3)}-${18 + rnd(5)}${extras[rnd(extras.length)]}`).join("\n");
+    const sh = Array.from({ length: 5 + rnd(3) }, () => { const a = 6 + rnd(10); return `${days[rnd(3)]},${a},${a + 3 + rnd(6)},${1 + rnd(2)}`; }).join("\n");
+    const stf = staffOf(st), sl = slotsOf(sh);
+    if (sl.length > 8) continue;
+    const opts = [{ balance: 40 }, { otAfter: 10, otMult: 1.5, burdenPct: 12 }, { dailyOtAfter: 6, dailyDtAfter: 9, mealAfter: 5 },
+      { splitPremium: 20, splitGap: 1 }, { toughBalance: 50, diffWhen: "Mon-Wed 18-24", diffPerHour: 2, diffPct: 10 }][c % 5];
+    const brute = bruteForceBest(stf, sl, opts);
+    const free = scoreBoundByColumnGeneration(stf, sl, opts, { nodeLimit: 20000, ms: 20000 });
+    assert.ok(free.floor <= brute + 1e-6, `case ${c}: bound ${free.floor} above optimum ${brute}`);
+    assert.ok(free.proven, `case ${c} not proven`);
+    assert.ok(Math.abs(free.best - brute) < 1e-6, `case ${c}: column generation best ${free.best} vs brute force ${brute}`);
+    // With the optimum as incumbent and no tolerance, the bound proves it and stays at or below it.
+    const at = scoreBoundByColumnGeneration(stf, sl, opts, { incumbentScore: brute, nodeLimit: 20000, ms: 20000 });
+    assert.ok(at.proven && at.floor <= brute + 1e-6, `case ${c}: at-optimum bound ${at.floor}`);
+    checked++;
+  }
+  assert.ok(checked >= 25, `only ${checked} cases checked`);
+});
+
+test("buildRoster proves the sample week by whole-score column generation where the exact search alone stops short", () => {
+  const staff = staffOf(sampleStaff()), slots = slotsOf(sampleShifts());
+  const off = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false, scoreCG: false });
+  const on = buildRoster(staff, slots, { exact: true, exactNodes: 50, coverRepair: false, coverLP: false });
+  assert.equal(off.optimality.status, "bounded");
+  assert.ok(["optimal", "improved"].includes(on.optimality.status), on.optimality.status);
+  assert.ok(on.optimality.scoreCG.proven);
+  assert.ok(on.score <= off.score + 1e-6);
+  assert.ok(on.optimality.lowerBound <= on.score + 1e-6);
+});
+
+test("validList (bit-mask days) agrees with the original Set-and-sort check on 90,000 random lists", async () => {
+  const { _validListPair: m } = await import("./calc.mjs");
+  const { parseStaff: ps0, parseShifts: sh0 } = await import("./calc.mjs");
+  let seed = 1;
+  const rnd = (n) => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return (seed >> 8) % n; };
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  let n = 0, yes = 0;
+  for (let c = 0; c < 300; c++) {
+    const st = Array.from({ length: 5 }, (_, p) => `P${p},15,${12 + rnd(30)},0${rnd(2) ? " ,daily: " + (4 + rnd(8)) : ""}`).join("\n");
+    const sh = Array.from({ length: 20 }, () => { const a = rnd(18); return `${days[rnd(7)]},${a},${a + 2 + rnd(8)},1`; }).join("\n");
+    const staff = ps0(st).staff, parsed = sh0(sh);
+    if (parsed.error || !staff.length) continue;
+    const ctx = m.buildContext(staff, parsed.slots, { maxDailyHours: rnd(3) ? 0 : 6 + rnd(4), maxConsecDays: 2 + rnd(5), minRestHours: rnd(12) });
+    for (let k = 0; k < 300; k++) {
+      const p = rnd(staff.length);
+      const list = [...new Set(Array.from({ length: 1 + rnd(6) }, () => rnd(parsed.slots.length)))];
+      if (rnd(2)) list.sort((a, b) => ctx.slots[a].start - ctx.slots[b].start || a - b);
+      const fast = m.validList(ctx, p, list);
+      assert.equal(fast, m.validListSlow(ctx, p, list), `case ${c}, list ${list}`);
+      n++; if (fast) yes++;
+    }
+  }
+  assert.ok(n > 50000 && yes > n / 5 && yes < n * 0.8, `n ${n}, valid ${yes}`);
+});
+
+// Quality fix 2026-11-11: a quoted "$1,200" (what a spreadsheet CSV export writes) used to split
+// at the comma and shift every later field. See docs/posts/2026-11-11-quality-fix-thousands-commas.md.
+import { splitCells as splitCellsForTest } from "./calc.mjs";
+import { test as testSplit } from "node:test";
+import assertSplit from "node:assert/strict";
+testSplit("splitCells keeps a quoted thousands comma, reads tabs, and treats a mid-cell quote as text", () => {
+  assertSplit.deepEqual(splitCellsForTest('Item,"$1,200",800'), ["Item", "$1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest("Item\t1,200\t800"), ["Item", "1,200", "800"]);
+  assertSplit.deepEqual(splitCellsForTest('17" rims,"say ""hi""",5'), ['17" rims', 'say "hi"', "5"]);
+  assertSplit.deepEqual(splitCellsForTest("a, b ,c"), ["a", "b", "c"]);
+});
+
+test("the default time budget starts strictly above 150 shifts (red-team 2026-11-13)", async () => {
+  const { defaultBudgetMs } = await import("./calc.mjs");
+  assert.equal(defaultBudgetMs(149), 0);
+  assert.equal(defaultBudgetMs(150), 0);
+  assert.equal(defaultBudgetMs(151), 20000);
+});
+
+import { parseSiteWage as _psw } from "./calc.mjs";
+test("parseSiteWage: a long run of parts with doubled tabs does not backtrack exponentially (ReDoS)", () => {
+  const spec = "\t AT LEAS" + "T0\t+0\t\tAT LEAS".repeat(40) + "M\t+0";
+  const t0 = performance.now();
+  _psw(spec);
+  assert.ok(performance.now() - t0 < 1000, "parseSiteWage took over a second");
+  const r = _psw("Airport +2 \t +10 %; Downtown min 20.17");
+  assert.deepEqual(r.errors, []);
+  assert.deepEqual(r.rules.map((x) => [x.site, x.add, x.pct, x.min]), [["airport", 2, 10, 0], ["downtown", 0, 0, 20.17]]);
 });

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { layoutDeck, sampleDeck, deckText, validateDeck } from "./deck.mjs";
+import { layoutDeck, sampleDeck, deckText, validateDeck, checkDeckLedger } from "./deck.mjs";
 
 test("16 x 12 ft deck: joists on layout, posts even, post length from the surface down", () => {
   const l = layoutDeck(sampleDeck());
@@ -225,4 +225,24 @@ test("validateDeck refuses text, zero and huge optional numbers that used to giv
   const good = { postInset: 12, maxPostSpacing: 96, railPostSpacing: 72, screwsPerBox: 350, footing: { diameter: 12, depth: 42, bagYield: 0.6 }, deckBoard: { width: 5.5, thickness: 1, gap: 0.1875 }, blocking: { every: 96 } };
   assert.deepEqual(validateDeck({ ...sampleDeck(), ...good }), []);
   assert.deepEqual(validateDeck(sampleDeck()), []);
+});
+
+test("ledgerCheck: hand-worked reaction per foot and fastener spacing", () => {
+  const l = layoutDeck({ ...sampleDeck(), ledgerCheck: { deadPsf: 10, livePsf: 40, fastenerCapacity: 300 } });
+  assert.ok(l.ok && l.ledgerCheck.ok);
+  const L = l.joistSpan, c = l.overhang;
+  const perFt = 50 * (L * L - c * c) / (2 * L) / 12; // lb per ft of ledger
+  assert.ok(Math.abs(l.ledgerCheck.loadPerFoot - perFt) < 1e-9);
+  assert.ok(Math.abs(l.ledgerCheck.requiredSpacing - 300 / (perFt / 12)) < 1e-9);
+  assert.equal(l.ledgerCheck.fastenersNeeded, Math.ceil(perFt * 16 / 300)); // 16 ft ledger
+  assert.equal(l.ledgerCheck.hardwareQty, 24);
+  assert.ok(deckText(l).join("\n").includes("Ledger check"));
+});
+
+test("ledgerCheck: weak fasteners fail, loose spacing fails, freestanding and bad figures refused", () => {
+  assert.equal(layoutDeck({ ...sampleDeck(), ledgerCheck: { deadPsf: 10, livePsf: 40, fastenerCapacity: 100 } }).ledgerCheck.passes, false);
+  assert.equal(layoutDeck({ ...sampleDeck(), ledgerCheck: { deadPsf: 10, livePsf: 40, fastenerCapacity: 600, perFastenerSpacing: 8 } }).ledgerCheck.passes, true);
+  assert.equal(layoutDeck({ ...sampleDeck(), ledgerCheck: { deadPsf: 10, livePsf: 40, fastenerCapacity: 600, perFastenerSpacing: 48 } }).ledgerCheck.passes, false);
+  assert.equal(layoutDeck({ ...sampleDeck(), freestanding: true, ledgerCheck: { deadPsf: 10, livePsf: 40, fastenerCapacity: 300 } }).ledgerCheck.ok, false);
+  assert.equal(checkDeckLedger({ width: 192, joistSpan: 141, overhang: 12, hardwareQty: 24 }, { deadPsf: 10, livePsf: 40, fastenerCapacity: 0 }).ok, false);
 });

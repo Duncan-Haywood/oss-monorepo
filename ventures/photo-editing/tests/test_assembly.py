@@ -29,7 +29,7 @@ class AssemblyPlanningTests(unittest.TestCase):
         ]
         production_plan = build_production_plan(assets, shoot_slug="editorial-launch")
         reel_asset = "graded/grade_asset_00000/A001.MOV"
-        first_photo = "graded/grade_asset_00001/IMG_0001.CR3"
+        first_photo = "graded/grade_asset_00001/IMG_0001.CR3.tif"
         second_photo = "graded/grade_asset_00002/IMG_0002.JPG"
 
         storyline = StorylinePlan(
@@ -101,7 +101,7 @@ class AssemblyPlanningTests(unittest.TestCase):
         production_plan = build_production_plan(assets, shoot_slug="multi-reel-launch")
         hero_asset = "graded/grade_asset_00000/A001.MOV"
         fast_asset = "graded/grade_asset_00001/A002.MOV"
-        photo_asset = "graded/grade_asset_00002/IMG_0001.CR3"
+        photo_asset = "graded/grade_asset_00002/IMG_0001.CR3.tif"
         storyline = StorylinePlan(
             reel=ContentSequence(
                 output_kind="instagram_reel",
@@ -280,7 +280,7 @@ class AssemblyPlanningTests(unittest.TestCase):
         ]
         production_plan = build_production_plan(assets, shoot_slug="wrong-sequence-type")
         video_asset = "graded/grade_asset_00000/A001.MOV"
-        photo_asset = "graded/grade_asset_00001/IMG_0001.CR3"
+        photo_asset = "graded/grade_asset_00001/IMG_0001.CR3.tif"
         storyline = StorylinePlan(
             reel=ContentSequence(
                 output_kind="instagram_reel",
@@ -360,7 +360,7 @@ class AssemblyPlanningTests(unittest.TestCase):
     def test_rejects_production_jobs_with_noncanonical_deliverable_outputs(self) -> None:
         assets = [MediaAsset(path="card/DCIM/IMG_0001.CR3", media_type="photo")]
         production_plan = build_production_plan(assets, shoot_slug="canonical-outputs")
-        photo_asset = "graded/grade_asset_00000/IMG_0001.CR3"
+        photo_asset = "graded/grade_asset_00000/IMG_0001.CR3.tif"
         storyline = StorylinePlan(
             reel=ContentSequence(
                 output_kind="instagram_reel",
@@ -407,7 +407,7 @@ class AssemblyPlanningTests(unittest.TestCase):
         ]
         production_plan = build_production_plan(assets, shoot_slug="chunked-photo-set")
         photo_assets = tuple(
-            f"graded/grade_asset_{index:05d}/IMG_{index + 1:04d}.CR3"
+            f"graded/grade_asset_{index:05d}/IMG_{index + 1:04d}.CR3.tif"
             for index in range(5)
         )
         storyline = StorylinePlan(
@@ -762,7 +762,7 @@ class AssemblyPlanningTests(unittest.TestCase):
                     aspect_ratio="4:5",
                     inputs=(
                         "analysis/instagram_storylines.json",
-                        "graded/grade_asset_00000/IMG_0001.CR3",
+                        "graded/grade_asset_00000/IMG_0001.CR3.tif",
                     ),
                     outputs=("deliverables/instagram_photo_set/photo_00001.jpg",),
                     depends_on=("rank_instagram_storylines", "grade_asset_00000"),
@@ -776,7 +776,7 @@ class AssemblyPlanningTests(unittest.TestCase):
                     aspect_ratio="4:5",
                     inputs=(
                         "analysis/instagram_storylines.json",
-                        "graded/grade_asset_00001/IMG_0002.CR3",
+                        "graded/grade_asset_00001/IMG_0002.CR3.tif",
                     ),
                     outputs=("deliverables/instagram_photo_set/photo_00001.jpg",),
                     depends_on=("rank_instagram_storylines", "grade_asset_00001"),
@@ -801,7 +801,7 @@ class AssemblyPlanningTests(unittest.TestCase):
                     aspect_ratio="4:5",
                     inputs=(
                         "analysis/instagram_storylines.json",
-                        "graded/grade_asset_00000/IMG_0001.CR3",
+                        "graded/grade_asset_00000/IMG_0001.CR3.tif",
                     ),
                     outputs=("deliverables/instagram_photo_set/photo_00001.jpg",),
                     depends_on=("rank_instagram_storylines", "grade_asset_00000"),
@@ -902,7 +902,7 @@ class AssemblyPlanningTests(unittest.TestCase):
         ]
         production_plan = build_production_plan(assets, shoot_slug="manifest-contract")
         reel_asset = "graded/grade_asset_00000/A001.MOV"
-        photo_asset = "graded/grade_asset_00001/IMG_0001.CR3"
+        photo_asset = "graded/grade_asset_00001/IMG_0001.CR3.tif"
         storyline = StorylinePlan(
             reel=ContentSequence(
                 output_kind="instagram_reel",
@@ -941,7 +941,7 @@ class AssemblyPlanningTests(unittest.TestCase):
         ]
         production_plan = build_production_plan(assets, shoot_slug="chunked-manifest")
         photo_assets = tuple(
-            f"graded/grade_asset_{index:05d}/IMG_{index + 1:04d}.CR3"
+            f"graded/grade_asset_{index:05d}/IMG_{index + 1:04d}.CR3.tif"
             for index in range(photo_count)
         )
         storyline = StorylinePlan(

@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtK6mp2bJicLjk8jCcW",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T01:16:41Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality track, fix mode: close high-severity defects from the open queue",
+  "projects": [
+    "ventures/restaurant-delivery-commission-analyzer",
+    "research/replay-memory"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15675",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 says to run `sample`, but portfolio/quality/README.md says `mode` picks one of four modes; mode returned `fix` (11 high defects open). The track prompt and the area README disagree on what a quality session does first."
+    },
+    {
+      "file": "platform/ci/quality_audit.py",
+      "issue": "`queue` reports 'changed since audit: unknown' for every row in a shallow clone; it names the fetch to run, but the fix-mode check it supports needs history the default clone lacks."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Ran the `fix` mode that `quality_audit.py mode` chose instead of the prompt's `sample` round: high defects in a published paper and a live tool are worth more than four new scores.",
+      "did": "Fixed 3 high defects (restaurant-delivery Math.abs; replay-memory's non-exact closure and its Monte-Carlo-error claim), recorded the PR in both audits' fix_prs, no new audit files.",
+      "result": "open high defects 11 -> 8; validate 0 problems"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-quality-fixes-a-kept-buffer-is-not-a-fresh-draw.md"
+  ],
+  "goal": null,
+  "notes": "Mode fix (seeded draw; 11 high open). No sample seed used (`sample` printed 2026-11-14-0d0f, round 74, not audited). Fixes in PR 15675: (1) restaurant-delivery-commission-analyzer: per-column sign convention, refunds reduce sales and are not orders; 22 calc tests + 10 page + usage pass; quality_mutate on both halves caught. (2) replay-memory: exact 3x3 fixed-buffer law (2x2 kept as fresh=True); checked against simulation E1 20k runs max gap 0.0005, Bernoulli total d=12 r=4 m=1 q=1 sim 0.731 vs law 0.727 (fresh 0.589 vs 0.581); paper sections 1,3,4 and abstract rewritten with a correction note (fixed-budget gap is 2-50 points, not 0.1-6; fixed-rate saving linear, not concave); 11 tests pass in 12 s; two seeded mutants caught. Share meeting the bar: not measured this run (fix mode). Scores in both audits left as scored; a later round re-audits.",
+  "corrections": [],
+  "redteam": null
+}

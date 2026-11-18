@@ -123,7 +123,7 @@ export function removeForm(state, formId) {
 export const submissions = (state, formId, { spam = false } = {}) => state.subs.filter((s) => s.form === formId && s.spam === spam).reverse();
 
 // Spreadsheet-safe CSV: a leading = + - @ would run as a formula when opened in Excel or Sheets.
-const cell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t)) t = `'${t}`; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const cell = (v) => { let t = String(v ?? ""); if (/^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t)) t = `'${t}`; return /[",\n\r]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 export function toCsv(subs) {
   const cols = [];
   for (const s of subs) for (const k of Object.keys(s.data)) if (!cols.includes(k)) cols.push(k);

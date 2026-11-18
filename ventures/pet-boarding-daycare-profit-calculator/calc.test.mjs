@@ -86,3 +86,40 @@ test("occupancy is capped at full when demand is scaled up", () => {
   const full = month(r.input, 1, 0);
   near(top.profit, full.profit);
 });
+
+test("daycare cannot be open more days than the 30-day model month (no dogs beyond the spots)", () => {
+  // 10 spots, always full, 5 dogs per attendant: never more than 10 dogs, so 2 attendants. Open 31 days put 10.33 on site and 3 on duty.
+  const day = { runs: "0", daySpots: "10", dayRate: "40", dayFillPct: "100", dogsPerAttendant: "5", openHours: "10", minStaff: "1", wage: "20" };
+  assert.ok(compute({ ...day, daysOpen: "31" }).errors.length > 0);
+  const r = compute({ ...day, daysOpen: "30" });
+  assert.deepEqual(r.errors, []);
+  near(r.steady.onSite, 10); assert.equal(r.steady.staff, 2);
+});
+
+test("blank optional fields take their documented defaults", () => {
+  const p = parse(BASE);
+  assert.equal(p.depositMonths, 0); assert.equal(p.launch, 0); assert.equal(p.startPct, 100); assert.equal(p.rampMonths, 0);
+  near(startupCost(parse({ ...BASE, buildoutPerRun: "100" })).total, 1000);
+});
+
+test("ramp-up may last the whole 60-month horizon but no longer", () => {
+  assert.deepEqual(compute({ ...BASE, rampMonths: "60", startPct: "50" }).errors, []);
+  assert.ok(compute({ ...BASE, rampMonths: "61" }).errors.length > 0);
+});
+
+test("annual insurance is one twelfth a month in fixed cost", () => {
+  near(month(parse({ ...BASE, insuranceYear: "1200" }), 0.6, 0).fixed, 1000 + 100);
+});
+
+test("demand sweep scales daycare fill up and down with boarding occupancy", () => {
+  const r = compute({ ...BASE, daySpots: "10", dayRate: "30", dayFillPct: "50", daysOpen: "20" });
+  const half = r.demandSweep[0];
+  near(half.dogs, 10 * 0.6 * 0.5 + 10 * 0.5 * 0.5 * 20 / 30);
+});
+
+test("price sweep moves every price by the stated percent", () => {
+  const r = compute({ ...BASE, nightly: "100" });
+  const base = month(r.input, 0.6, 0);
+  for (const x of r.priceSweep) near(x.profit, Math.round(month(r.input, 0.6, 0, { priceScale: 1 + x.pct / 100 }).profit * 100) / 100);
+  near(r.priceSweep.at(-1).profit - base.profit, base.revenue * 0.2);
+});

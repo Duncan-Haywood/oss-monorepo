@@ -1,0 +1,232 @@
+{
+ "date": "2026-11-15",
+ "subject": "ventures/codeowners-shadow-check",
+ "stratum": "venture",
+ "seed": "2026-11-15-8354",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a platform/DevSecOps engineer who maintains branch protection and CODEOWNERS for a large monorepo. They would check first that every pattern form in their file (directory names with and without a trailing slash, **/name, dir/*, ownerless lines that unset ownership) resolves to the same owner GitHub picks, that the CLI reads the CODEOWNERS file GitHub actually uses, and that files whose winning rule has no owners (no review required) are surfaced, since those are the review gaps they are hunting",
+ "scores": {
+  "correctness": 1,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 1,
+  "fitness": 1,
+  "domain": 1
+ },
+ "evidence": {
+  "correctness": "Recomputed against GitHub's CODEOWNERS docs (docs.github.com 'About code owners', fetched this session) and against real git 2.x check-ignore. (a) GitHub's own example file (12 rules: *, *.js, *.go, *.txt, /build/logs/, docs/*, apps/, /docs/, /scripts/, **/logs, /apps/, /apps/github) on 9 paths via node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/owners.mjs: 6 match the docs' stated owners, 3 are wrong: build/logs/a.log and deeply/nested/logs/x.txt should be **/logs @octocat (docs: '@octocat owns any file in a /logs directory such as /build/logs ... /deeply/nested/logs') but the tool gives /build/logs/ @doctocat and *.txt @octo-org/octocats; apps/github/x.js should have no owners (docs: '@octocat owns any file in /apps ... except for /apps/github') but the tool gives /apps/ @octocat. (b) Single-pattern matching vs git -c core.excludesFile=... check-ignore --no-index (/tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/oracle.mjs, 22 cases): 12 agree; 10 differ, of which 7 are tool bugs (/docs, docs, src/payments, /apps/github, **/logs do not match files inside the named directory; logs/ and /src/ match a FILE named logs/src, which git's dir-only rule rejects) and 3 are git departing from GitHub (docs/*, /*, foo** match nested files in git through the parent directory; GitHub's docs say docs/* does not, and the tool follows GitHub). Root cause codeowners.mjs:130-133: a pattern without a trailing slash is matched against the full path only, never against a parent directory, so the most common way people write a directory rule ('/src/payments @team') matches no file. (c) Last-match-wins itself is right: on this monorepo's .github/CODEOWNERS (18 rules) x 63,570 git ls-files paths the tool's winners agree with git -v on 55,741 paths; the 7,829 disagreements are all under /prompts/runs/, /prompts/derived/, /prompts/drift/, ownerless lines after /prompts/, where git stops at the excluded parent and GitHub (and the tool) take the later line. Not 2: a whole, common pattern form is wrong and the error is reported as a reassuring 'unmatched, probably a sample gap' notice.",
+  "completeness": "Each README/page feature run: shadowed rules (worked example and real repo: flags /CLAUDE.md and /AGENTS.md shadowed by **/CLAUDE.md, **/AGENTS.md, correct), unmatched rules, uncovered files (55,440 on the real repo), syntax errors for a bare 'golang-team' owner, CLI auto-detect, explicit path, --paths file, missing file rc=1, no CODEOWNERS rc=1 with a clear message, browser page imports the shipped codeowners.mjs (index.html:161) and the same EXAMPLE is checked by page.test.mjs. All run end to end. Gaps: the page never shows noOwnerRules (grep finds no 'noOwner' in index.html) and a file whose winning rule has no owners is not 'uncovered' (codeowners.mjs:194), so the review gaps an ownerless line creates are invisible; '--paths' with no value silently falls back to git ls-files. Served page not loaded (marisstella.app source-only rule); no URL defect filed.",
+  "verification": "`cd ventures/codeowners-shadow-check && node --test '*.test.mjs'`: 57 pass, 0 fail; `node --test 'cli/*.test.mjs'`: 7 pass; `node --test`: 64 pass. Note '*.test.mjs' alone skips cli/check.test.mjs. 5 seeded mutants via quality_mutate.py: 3 caught (first-match-wins, shadow every->some, trailing-slash ** -> *), 2 survived ('?' wildcard widened to [^/]*; trailing-comment strip made unconditional). No test covers a directory pattern without a trailing slash, **/name, an ownerless line unsetting a broader owner, '?' or '#' inside a pattern; codeowners.test.mjs:65-68 asserts /build matches the path 'build' only, so the suite never exercised the GitHub case that fails.",
+  "craft": "Read codeowners.mjs (227 lines), cli/check.mjs (76), codeowners.test.mjs, cli/check.test.mjs, index.html script. Zero-dependency, one pure module shared by CLI and page, clear doc comments, recursion over segments rather than regex soup, 1.5 s for 63,570 paths x 18 rules. Defects: stripComment's comment is a broken sentence ('outside of... CODEOWNERS has no quoting'); rules whose owners fail OWNER_RE are still used in resolution (codeowners.mjs:42) though GitHub skips invalid lines; parseArgs accepts '--paths' with no value; buildReport drops path-list lines starting with '#', so a real file '#notes' cannot be checked; an ownerless winner is treated as covered.",
+  "claims": "Checked: 'resolves ownership the way GitHub actually does' and 'Implements GitHub's gitignore-style pattern matching, including anchored paths ... trailing-slash directories, and **' (index.html:21,25, README, VENTURE.yaml) fail for directory patterns without a trailing slash and **/name, which GitHub's own docs use as examples; cli/check.mjs:2-3 says it checks the three locations 'in the same order' GitHub does, but GitHub checks .github/ first and the CLI checks root first (CANDIDATE_LOCATIONS, line 16); 'nothing uploaded' backed (page imports only ./codeowners.mjs and ./usage.mjs); disclaimer and no-warranty on page (index.html:329) and README; llms.txt carries a calculator boilerplate line ('estimates from the numbers typed in') that does not describe this tool. 'Last matching pattern wins' is backed by code and tests.",
+  "fitness": "Job walked: a DevSecOps engineer runs the CLI in a repo with '.github/CODEOWNERS' and pastes the JSON. If a stray root CODEOWNERS also exists, they are shown the wrong file (reproduced in a temp repo: codeownersPath 'CODEOWNERS', not '.github/CODEOWNERS'). Their '/src/payments @payments-team' line is reported as 'unmatched, probably a sample gap' while every payments file is shown owned by the catch-all, so the exact silent-review-loss the tool exists to find is missed; a later 'secrets/ ' ownerless line that strips review from secrets/** is not listed anywhere on the page. For files written only with trailing-slash or glob-extension patterns the report is right and useful. Nearest tools: GitHub's own CODEOWNERS error view (syntax and unknown owners only), mszostok/codeowners-validator (syntax, owners, 'not owned' files, no shadow analysis), hmarr/codeowners CLI (resolves owners per file with directory matching). The shadow analysis is a real gap in those tools, but the matcher underneath is weaker than hmarr/codeowners.",
+  "domain": "Against GitHub's 'About code owners' doc: last-match-wins, case sensitivity, docs/* not matching nested files, apps/ at any depth, /build/logs/ subtree, and ownerless lines resolving to no owners are right. Departures: (1) a pattern naming a directory without a trailing slash (/apps/github, **/logs, /src/payments) does not own the files beneath it; (2) invalid lines are used in resolution though GitHub skips them, so a later line with a bad owner is reported as shadowing an earlier valid rule GitHub still applies; (3) CLI location order root, .github/, docs/ vs GitHub's .github/, root, docs/; (4) '!' and '[ ]' patterns, which GitHub says do not work, are accepted silently as literals; (5) ownerless winners are not reported as review gaps. A senior reviewer would not sign off on (1)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "GitHub docs example: build/logs/a.log owner with /build/logs/ then later **/logs",
+   "method": "GitHub docs 'About code owners' example file and comments (last match wins; **/logs owns /build/logs)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/owners.mjs /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/ghdocs.CODEOWNERS /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/ghdocs.paths",
+   "expected": "line 10 **/logs @octocat",
+   "observed": "line 5 /build/logs/ @doctocat",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GitHub docs example: apps/github/x.js with /apps/ @octocat then ownerless /apps/github",
+   "method": "GitHub docs: '@octocat owns any file in /apps ... except for /apps/github'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/owners.mjs /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/ghdocs.CODEOWNERS /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/ghdocs.paths",
+   "expected": "no owners (line 12)",
+   "observed": "line 11 /apps/ @octocat",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "GitHub docs example: docs/getting-started.md, docs/build-app/troubleshooting.md, scripts/deploy.sh, main.go, README.md, apps/web/y.rb",
+   "method": "GitHub docs example comments (docs/* not nested; /docs/ subtree; *.go; * default)",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/owners.mjs /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/ghdocs.CODEOWNERS /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/ghdocs.paths",
+   "expected": "/docs/ @doctocat, /docs/ @doctocat, /scripts/, *.go, *, /apps/",
+   "observed": "all six as expected",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "single-pattern matching on 22 pattern/path pairs",
+   "method": "real git check-ignore --no-index with the pattern as core.excludesFile, minus documented GitHub departures",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/oracle.mjs /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners",
+   "expected": "agree with git except where GitHub's docs depart (docs/*-style parent inheritance)",
+   "observed": "12 agree; 7 tool bugs (/docs, docs, src/payments, /apps/github, **/logs miss files inside; logs/ and /src/ match a file); 3 git-only departures",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "last-match winners on this monorepo's .github/CODEOWNERS x 63,570 tracked paths",
+   "method": "git check-ignore -v -n --stdin last-matching line vs tool winner line",
+   "command": "git ls-files > /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/paths.txt; node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/cmp.mjs .github/CODEOWNERS /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/paths.txt /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners",
+   "expected": "agree except where git stops at an excluded parent (GitHub does not)",
+   "observed": "55,741 agree; all 7,829 disagreements are ownerless /prompts/runs|derived|drift/ lines after /prompts/, where the tool matches GitHub",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "line with an invalid owner after a valid rule",
+   "method": "GitHub docs: 'If any line ... contains invalid syntax, that line will be skipped'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/rep.mjs '/src/ @core\\n/src/ core-team' 'src/a.js'",
+   "expected": "winner /src/ @core, nothing shadowed",
+   "observed": "winner '/src/ core-team', '/src/ @core' reported shadowed, ok:false",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "CLI chooses which CODEOWNERS when root and .github/ both exist",
+   "method": "GitHub docs: locations .github/, root, docs/ searched 'in that order', first found used",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/r && node /home/user/oss-monorepo/ventures/codeowners-shadow-check/cli/check.mjs | head -3",
+   "expected": ".github/CODEOWNERS",
+   "observed": "CODEOWNERS (root)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "ownerless winning rule surfaced as a review gap",
+   "method": "run buildReport; grep index.html for noOwnerRules",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/98bb4f26-7393-5019-a94a-3eb571cb7a13/scratchpad/codeowners/rep.mjs '* @everyone\\n*.lock' 'yarn.lock\\napp.js'; grep -c noOwner ventures/codeowners-shadow-check/index.html",
+   "expected": "yarn.lock reported as having no required reviewer",
+   "observed": "uncovered [], ok:true; noOwnerRules exists in the report but the page never renders it (0 matches)",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "CLI flags and errors",
+   "method": "run them",
+   "command": "node cli/check.mjs; node cli/check.mjs /nope; (cd /tmp && node .../cli/check.mjs)",
+   "expected": "JSON rc 0; rc 1 no such file; rc 1 naming the three locations",
+   "observed": "as expected",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/codeowners-shadow-check && node --test '*.test.mjs' && node --test 'cli/*.test.mjs'",
+   "expected": "all pass",
+   "observed": "57 + 7 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'applies GitHub's own gitignore-style pattern matching ... the way GitHub actually does'",
+   "method": "checks above",
+   "command": "grep -n 'gitignore-style' ventures/codeowners-shadow-check/index.html",
+   "expected": "backed for documented pattern forms",
+   "observed": "fails for directory patterns without trailing slash and **/name (index.html:21,25)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "disclaimer, no-upload, MIT",
+   "method": "read index.html, README, LICENSE",
+   "command": "grep -n 'No warranty\\|import ' ventures/codeowners-shadow-check/index.html",
+   "expected": "present; only local modules imported",
+   "observed": "no-warranty at index.html:329; imports ./codeowners.mjs and ./usage.mjs only; MIT LICENSE present",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "codeowners.mjs:147",
+   "change": "matches[matches.length - 1] -> matches[0] (first match wins)",
+   "caught": true,
+   "test_cmd": "sh -c node --test *.test.mjs cli/*.test.mjs"
+  },
+  {
+   "where": "codeowners.mjs:89",
+   "change": "'?' -> '[^/]' widened to '[^/]*'",
+   "caught": false,
+   "test_cmd": "sh -c node --test *.test.mjs cli/*.test.mjs"
+  },
+  {
+   "where": "codeowners.mjs:67",
+   "change": "if (/\\s$/.test(before)) return before; -> return before;",
+   "caught": false,
+   "test_cmd": "sh -c node --test *.test.mjs cli/*.test.mjs"
+  },
+  {
+   "where": "codeowners.mjs:166",
+   "change": "matchedRows.every( -> matchedRows.some(",
+   "caught": true,
+   "test_cmd": "sh -c node --test *.test.mjs cli/*.test.mjs"
+  },
+  {
+   "where": "codeowners.mjs:106",
+   "change": "trailing-slash implicit '**' -> '*'",
+   "caught": true,
+   "test_cmd": "sh -c node --test *.test.mjs cli/*.test.mjs"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "A pattern naming a directory without a trailing slash (/apps/github, **/logs, /src/payments, docs) never matches files inside that directory, though GitHub's docs and gitignore both say it does. GitHub's own example file resolves wrong on 3 of 9 paths; the rule is then reported as a harmless 'unmatched' notice and its files shown owned by an earlier catch-all, so a lost review requirement is hidden rather than found",
+   "where": "ventures/codeowners-shadow-check/codeowners.mjs:130",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "medium",
+   "what": "CLI checks CODEOWNERS locations in the order root, .github/, docs/; GitHub uses .github/ first, so with two files present the CLI reports on the file GitHub ignores (the code comment claims 'the same order')",
+   "where": "ventures/codeowners-shadow-check/cli/check.mjs:16",
+   "category": "domain-rule",
+   "origin": "spec",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"
+  },
+  {
+   "severity": "medium",
+   "what": "Lines whose owners fail validation still take part in last-match resolution, though GitHub skips invalid lines: a later bad-owner line is shown as the winner and the earlier valid rule GitHub applies is reported shadowed",
+   "where": "ventures/codeowners-shadow-check/codeowners.mjs:42",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "A file whose winning rule has no owners (no review required) is counted as covered and the page never renders noOwnerRules, so the review gaps ownerless lines create are invisible",
+   "where": "ventures/codeowners-shadow-check/codeowners.mjs:194",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'!' negation and '[ ]' range patterns, which GitHub says do not work, are accepted silently as literal patterns with no warning",
+   "where": "ventures/codeowners-shadow-check/codeowners.mjs:31",
+   "category": "input-handling",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "No test covers a directory pattern without trailing slash, **/name, '?' or an ownerless line overriding an owner; two seeded mutants ('?' widened, trailing-comment rule removed) leave all 64 tests green",
+   "where": "ventures/codeowners-shadow-check/codeowners.test.mjs:65",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Dir-only pattern 'logs/' or '/src/' matches a file whose whole path is 'logs' or 'src'; git rejects this",
+   "where": "ventures/codeowners-shadow-check/codeowners.mjs:106",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "llms.txt carries calculator boilerplate ('Results are estimates from the numbers typed in') that does not describe this checker",
+   "where": "ventures/codeowners-shadow-check/llms.txt:5",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16371"],
+ "verdict": "A small, clean, zero-dependency checker whose central idea (find rules that last-match-wins makes dead) is right, implemented right for the forms it understands, and agrees with git on 55,741 of 63,570 real paths, with every disagreement a case where the tool follows GitHub and git does not. It does not meet the bar: its matcher drops the most common way to write a directory rule. '/src/payments @team', '/apps/github' and '**/logs', all forms GitHub's own docs use, match no file beneath the directory, so GitHub's example file resolves wrong on 3 of 9 paths and the lost rule is shown as a reassuring 'unmatched' notice, the exact silent failure the tool exists to catch. The CLI also reads the root CODEOWNERS before .github/ (GitHub does the reverse), invalid lines take part in resolution though GitHub skips them, and ownerless winners, which remove required review, are never shown on the page. 3 of 5 seeded mutants were caught."
+}

@@ -22,6 +22,54 @@ class T(unittest.TestCase):
                 '<img src="http://localhost:3000/a.png"><svg xmlns="http://www.w3.org/2000/svg"></svg>')
         self.assertEqual(self.run_on(html), [])
 
+    def test_flags_loaders_the_regex_missed(self):
+        # Red team 2026-11-11: each of these loads plain-http content on an
+        # https page and each passed the old quoted-src/href/action regex.
+        cases = [
+            '<img src=http://a/x.png>',
+            '<link rel=stylesheet href=http://a/s.css>',
+            '<img srcset="https://a/1.png 1x, http://a/2.png 2x">',
+            '<link rel="preload" as="image" imagesrcset="http://a/p.png 2x">',
+            '<video poster="http://a/p.jpg"></video>',
+            '<object data="http://a/o.svg"></object>',
+            '<button formaction="http://a/post">x</button>',
+            '<track src="http://a/t.vtt">',
+            '<input type="image" src="http://a/i.png">',
+            '<img alt="a>b" src="http://a/x.png">',
+            '<base href="http://a/">',
+            '<div style="background:url(http://a/b.png)"></div>',
+            "<style>@import 'http://a/a.css'; .x{background:url( \"http://a/c.png\" )}</style>",
+        ]
+        for html in cases:
+            with self.subTest(html=html):
+                self.assertTrue(self.run_on(html), html)
+        self.assertEqual(len(self.run_on(cases[-1])), 2)
+
+    def test_allows_https_relative_data_and_scripts_text(self):
+        html = ('<img srcset="https://a/1.png 1x, /2.png 2x, data:image/png;base64,AA 3x">'
+                '<div style="background:url(/b.png)"></div><style>.x{background:url(https://a/b.png)}</style>'
+                '<script>var u = "<img src=http://a/x.png>";</script>'
+                '<p>see http://example.org</p><a href=http://example.org>x</a>'
+                '<link rel="canonical" href="https://a/"><img src="http://127.0.0.1/a.png">')
+        self.assertEqual(self.run_on(html), [])
+
+    def test_reports_the_url_itself(self):
+        self.assertEqual(self.run_on('<img srcset="https://a/1.png 1x, http://a/2.png 2x">'),
+                         ["http://a/2.png"])
+
+    def test_css_scan_stops_at_end_of_style(self):
+        prose = "<p>write background:url(http://a/x.png) in your CSS</p>"
+        for html in ("<style>.x{}</style>" + prose, "<style/>" + prose):
+            with self.subTest(html=html):
+                self.assertEqual(self.run_on(html), [])
+
+    def test_main_scans_css_files(self):
+        rc, out = self.main_on({"a.css": "body{background:url('http://a/b.png')}",
+                                "ok.css": "body{background:url(https://a/b.png)}"})
+        self.assertEqual(rc, 1)
+        self.assertIn("a.css: http://a/b.png", out)
+        self.assertNotIn("ok.css", out)
+
     def main_on(self, files):
         import contextlib, io
         with tempfile.TemporaryDirectory() as d:

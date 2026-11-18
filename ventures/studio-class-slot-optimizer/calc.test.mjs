@@ -18,6 +18,12 @@ test("headerless rows read as slot, attended", () => {
   assert.deepEqual(p.rows, [{ slot: "Mon", attended: 5, capacity: null }, { slot: "Tue", attended: 6, capacity: null }]);
 });
 
+test("a headerless first row that names a class is data, not a header", () => {
+  const p = parseRows("Spin class Mon 6am,5,12\nYoga Tue,6,12");
+  assert.equal(p.rows.length, 2);
+  assert.deepEqual(p.rows[0], { slot: "Spin class Mon 6am", attended: 5, capacity: 12 });
+});
+
 test("sample: empty slots are cut candidates, busy ones kept, full one flagged", () => {
   const r = analyze(sample(), base);
   const v = Object.fromEntries(r.rows.map((s) => [s.slot, s.verdict]));

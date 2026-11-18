@@ -1,8 +1,11 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { fileURLToPath } from 'node:url';
 import { run } from './cli.mjs';
 
-const f = 'corpus/dies-irae.gabc';
+// Resolved from this file, not the working directory: `node --test` from the
+// repository root (redteam.py, CLAUDE.md's checklist) read a missing file.
+const f = fileURLToPath(new URL('./corpus/dies-irae.gabc', import.meta.url));
 
 test('--auto-final reports a final inside E2-E4', () => {
   const r = run([f, '--auto-final', '--json']);

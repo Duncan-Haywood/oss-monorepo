@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKk1sUs559CHhv3ieWk",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T21:18:25Z",
+  "ended": "2026-11-11T22:01:11Z",
+  "wall_minutes": 43.14,
+  "tokens_in": 5659414,
+  "tokens_out": 22292,
+  "cost_usd": 2.2578,
+  "tool_calls": 68,
+  "task": "perf: slowest local venture suite an agent session waits on",
+  "projects": [
+    "shed-designer"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14901",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first timing loop used /usr/bin/time, which the container lacks; reran with date arithmetic",
+      "cost": "one wasted run (seconds)"
+    },
+    {
+      "what": "a 'before' run of a copy of browser.test.mjs from the scratchpad failed instantly (its ./model.mjs import resolved against the scratchpad); retook the before number by checking the HEAD file out in place",
+      "cost": "one extra 160 s run"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated, and P064 is reported landed on 2026-11-08 (ci-perf-2026-11-10-pool-and-page-weight-reading.md) yet its backlog row is still open."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "No per-venture suite timing table exists, so finding the slowest suite meant timing several by hand; a script that times each touched venture's files would make item 3 one command."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-browser-tests-were-waiting-not-working.md",
+    "docs/history/ci-perf-2026-11-11-shed-browser-concurrent.md"
+  ],
+  "goal": "faster CI and agent sessions",
+  "notes": "Metric: wall time of ventures/shed-designer/browser.test.mjs (node --test, 4-core cloud container, Node v22.23.4, AXE=axe-core 4.13.0 so all 43 tests run). Before 159 s (HEAD file, one run; 146 s without AXE). After: 74, 74, 72, 75, 74 s over five runs, 43 pass 0 fail each. The shed-designer-browser.yml step (browser, picker.browser, gambrel.browser, renders): 160 s to 89 s, 65 pass. Sweep without AXE: c=1 146, 2 103, 3 72, 4 68, 6 66 s. Profile: time showed 145 s real against 14.6 s user + 4.9 s sys; top 45-90% idle. The shared ventures-tests job has no Playwright, so the file skips there and that job is unchanged; the saving lands on the shed-designer browser workflow and on agent sessions (Playwright at /opt/node-tools). Reading of other suites: sales-agent 3.0 s, einvoice-preflight 6.8 s, clothing-design-studio 8.5 s, ai-bookkeeper 53.8 s, shed-designer 218 s.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c54d0112-8a87-5057-a659-020d40bb3e04",
+    "transcripts": 1,
+    "first": "2026-11-11T21:18:25Z",
+    "last": "2026-11-11T22:01:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 125,
+        "output": 22292,
+        "thinking": 5164,
+        "cache_read": 5572157,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87132,
+        "api_equivalent_usd": 2.2578,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 125,
+      "output": 22292,
+      "thinking": 5164,
+      "cache_read": 5572157,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87132,
+      "api_equivalent_usd": 2.2578,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 2,
+      "ReadNotifications": 2,
+      "Write": 2,
+      "Monitor": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.14,
+      "active_minutes": 43.14,
+      "model_minutes": 6.41,
+      "tool_minutes": 36.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an engineer timing suites, profiling idle time, sweeping concurrency and writing up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 132.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

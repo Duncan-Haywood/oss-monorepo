@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtKkWvuEH9z9XEdZ2mg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T04:06:40Z",
+  "ended": "2026-11-11T04:19:03Z",
+  "wall_minutes": 12.77,
+  "tokens_in": 5727496,
+  "tokens_out": 46951,
+  "cost_usd": 3.2335,
+  "tool_calls": 56,
+  "task": "research draw: track 25 (heavy); heavy-hydraulics was BLOCKED on a measured pressure/fuel trace; found one on Zenodo and ran milestone 5n",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14685",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 9,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first run of measured_loader.py counted every small filtered flow as motion, so the open-centre counterfactual never opened its bypass (OC/LS 2.29, +35.5% fuel)",
+      "fix": "added a q_min threshold and swept it; both runs reported in LOG.md"
+    },
+    {
+      "what": "LOG first said P4 held in 8/27 cells; the script's count was cells inside the range (19/27)",
+      "fix": "corrected LOG and made the script's wording explicit"
+    },
+    {
+      "what": "run_workflow_locally.py --for-changes exceeded the 120 s foreground timeout",
+      "fix": "reran in the background"
+    }
+  ],
+  "integrity_issues": [
+    {
+      "issue": "q_min threshold was chosen after seeing the first (buggy) run; predictions did not anticipate it",
+      "handling": "stated in LOG, README, project summary and post; full 27-cell sweep reported; P3 and P4 reported refuted overall"
+    }
+  ],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/BLOCKED",
+      "issue": "named only excavator leads; the blocker was generic (a measured pressure/fuel trace) and a Zenodo keyword search for 'wheel loader bucket filling' found one in minutes, so BLOCKED files should list searches tried, not just leads"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "pointed at the next free milestone slug (heavy-digtwin) and at a blocked programme's README; the programme bar says steps go inside programmes, so a blocked programme with an unblock path is worth checking first"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land open research PRs first): the three open research PRs (#14650, #14683, #12154) belong to other sessions, two updated within the hour",
+      "did": "left them alone and worked on an unclaimed programme step",
+      "result": "no conflict; my PR touched only heavy-hydraulics and a post"
+    },
+    {
+      "file": "research/PROJECTS.md",
+      "why": "draw suggested opening heavy-digtwin as a new slug; advancing the blocked heavy-hydraulics programme with newly found real data serves the programme bar better than a new slug",
+      "did": "unblocked heavy-hydraulics with milestone 5n",
+      "result": "first measured-machine test in the programme landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-measured-wheel-loader-load-sensing-vs-open-centre.md",
+    "research/heavy-hydraulics/LOG.md (5n)",
+    "research/heavy-hydraulics/README.md (Milestone 5n)"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: heavy-hydraulics tests 25 passed (/usr/bin/python3.13 -m pytest); research/_homepage/build.py ok (1069 projects); research_live_links --write ok; check_md_links ok; programme_check ok; cite_check ok for doi:10.5281/zenodo.10639199; check_post_frontmatter and check_post_links ok; post_similarity 0 pairs >= 0.25. Data file (96 MB) not committed; script downloads instructions in docstring.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bb607c60-9a68-51fd-bfeb-847d9866b944",
+    "transcripts": 1,
+    "first": "2026-11-11T04:06:40Z",
+    "last": "2026-11-11T04:19:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 46951,
+        "thinking": 13023,
+        "cache_read": 5580143,
+        "cache_write_5m": 0,
+        "cache_write_1h": 147261,
+        "api_equivalent_usd": 3.2335,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 46951,
+      "thinking": 13023,
+      "cache_read": 5580143,
+      "cache_write_5m": 0,
+      "cache_write_1h": 147261,
+      "api_equivalent_usd": 3.2335,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 56,
+    "tools": {
+      "Bash": 50,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.77,
+      "active_minutes": 12.77,
+      "model_minutes": 8.36,
+      "tool_minutes": 4.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "finding the dataset, parsing the .mat and documentation, writing and testing the analysis and sweep, and writing it up: about a day and a half for a fluid-power researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 309.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

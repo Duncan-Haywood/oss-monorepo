@@ -1,0 +1,12 @@
+== As one shop (before): 180 person-hours needed, 180 scheduled
+Mon/Tue/Wed/Thu, 7:00, 15:00, 3
+Fri/Sat/Sun, 7:00, 13:00, 1
+Fri/Sat/Sun, 7:00, 15:00, 2
+Fri/Sat/Sun, 13:00, 19:00, 1
+
+== Main St alone: 168 person-hours needed, 168 scheduled
+Mon/Tue/Wed/Thu/Fri/Sat/Sun, 7:00, 15:00, 3
+
+== Harbour alone: 24 person-hours needed, 24 scheduled
+Fri/Sat/Sun, 11:00, 19:00, 1
+

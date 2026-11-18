@@ -78,7 +78,7 @@ export function parseCatalog(text) {
   const header = splitLine(lines[0], delimiter).map(norm);
   const column = {};
   for (const [field, names] of Object.entries(ALIASES)) {
-    const at = header.findIndex((h) => names.includes(h));
+    const at = (names.map((n) => header.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (at !== -1) column[field] = at;
   }
   if (column.price === undefined || column.itemCost === undefined) {
@@ -171,7 +171,7 @@ export function compareCatalog(entries, baselineId = "ebay", overrides = {}) {
 // A cell starting with = + - @ is read as a formula by spreadsheet apps.
 const safeCell = (value) => {
   const text = String(value);
-  const guarded = /^[=+\-@\t\r]/.test(text) ? `'${text}` : text;
+  const guarded = /^[=+\-@\t\r]/.test(text) && !/^-?\d+(\.\d+)?$/.test(text) ? `'${text}` : text;
   return /[",\n]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
 };
 

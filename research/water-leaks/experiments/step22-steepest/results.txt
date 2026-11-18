@@ -1,0 +1,71 @@
+# water-leaks step 22: step 21's tracker on the demand-oracle residual D, unchanged; estimate = among the
+# active atoms on day k with onset in [k - 30, k], the one whose daily fitted flow over [k - 13, k] has the
+# largest least-squares slope (fallback: latest onset); rule 300 m along pipes
+
+chance: expected 1.40 of 32 within 300 m
+
+## within 300 m (P(chance >=); median error m)
+  S30, primary                                 14 of 32 (0.0000;   517); abrupt 8 of 15, incipient 6 of 17
+  ref: T-D latest onset (step 21)              13 of 32 (0.0000;   521); abrupt 10 of 15, incipient 3 of 17
+  ref: A on D1 regression (step 11)            15 of 32 (0.0000;   436); abrupt 10 of 15, incipient 5 of 17
+  ref: J on F (step 20)                        14 of 32 (0.0000;   397); abrupt 9 of 15, incipient 5 of 17
+  ref: one-leak oracle (step 17)               28 of 32 (0.0000;    68); abrupt 13 of 15, incipient 15 of 17
+
+## variants (no verdicts)
+  S14 (onset within 14 days)                   15 of 32 (0.0000;   411); abrupt 9 of 15, incipient 6 of 17
+  S60 (within 60 days)                         12 of 32 (0.0000;   781); abrupt 8 of 15, incipient 4 of 17
+  Sall (no onset limit)                        11 of 32 (0.0000;   907); abrupt 6 of 15, incipient 5 of 17
+  S30, 7-day slope                             14 of 32 (0.0000;   403); abrupt 10 of 15, incipient 4 of 17
+  F30 (largest flow, onset within 30 days)     11 of 32 (0.0000;   632); abrupt 8 of 15, incipient 3 of 17
+
+## paired, 300 m hits (exact sign test on discordant leaks)
+  S30 only 5, TD only 4: P = 1.000
+  S30 only 4, d1 only 5: P = 1.000
+  S30 only 3, JF only 3: P = 1.000
+  S30 only 5, F30 only 2: P = 0.453
+  S30 only 0, or17 only 14: P = 0.000
+
+## the candidate set (onset within 30 days) on day k
+  candidates median 6 (range 1 to 12); empty for 0
+  a candidate within 300 m: abrupt 12 of 15, incipient 8 of 17; S30 picks it for 14 of 20
+
+  pipe  kind       t                 |  k  |  S30 |  T-D |  F30 | cand | near
+   p232 incipient  2018-02-02T15    |  33 |  102 |  102 |  102 |    4 |    1
+   p673 abrupt     2018-03-05T16    |  64 |  267 |  267 |  267 |    6 |    2
+   p461 incipient  2018-03-09T04    |  68 | 2414 | 2414 | 2414 |    5 |    1
+   p427 incipient  2018-04-18T21    | 108 | 1328 | 1062 | 1062 |    2 |    0
+   p628 incipient  2018-05-12T08    | 132 |  208 | 1576 |  208 |    6 |    1
+   p538 abrupt     2018-05-18T09    | 138 |  989 |  218 |  426 |    9 |    2
+   p866 abrupt     2018-06-01T09    | 152 |  198 | 2299 |  198 |    9 |    2
+    p31 incipient  2018-07-23T18    | 204 |  666 |  666 |  666 |    1 |    0
+   p183 abrupt     2018-08-07T03    | 219 |  128 |  128 |  128 |    2 |    1
+   p654 incipient  2018-08-26T14    | 238 |  171 |  171 | 1965 |    6 |    1
+   p810 incipient  2018-10-05T14    | 278 |  918 |  918 |  918 |    4 |    0
+   p158 abrupt     2018-10-06T03    | 279 |   83 |   83 |   83 |    4 |    1
+   p369 abrupt     2018-10-26T02    | 299 |  435 |  435 |  435 |    2 |    0
+   p523 abrupt     2019-01-15T23    | 380 |   86 |   86 |   86 |    9 |    1
+   p827 abrupt     2019-01-24T19    | 389 | 2801 |  242 |  229 |   12 |    2
+   p280 abrupt     2019-02-10T13    | 406 | 1254 | 1254 | 1254 |    4 |    0
+   p710 abrupt     2019-03-24T14    | 448 |  141 |  142 |  815 |    6 |    1
+   p514 abrupt     2019-04-02T21    | 457 | 1005 |   77 |   77 |    8 |    3
+   p653 incipient  2019-04-07T12    | 462 |  896 |  323 |  896 |   11 |    1
+   p331 abrupt     2019-04-20T10    | 475 | 1266 |  277 | 1266 |    7 |    1
+   p142 abrupt     2019-06-12T20    | 528 |  281 |  482 |  281 |    5 |    1
+   p193 incipient  2019-07-05T22    | 551 | 2682 | 2682 | 2682 |    5 |    0
+   p680 abrupt     2019-07-10T09    | 556 |  109 |  109 | 1469 |    2 |    1
+   p277 incipient  2019-07-21T22    | 567 | 2153 | 1602 |  407 |    6 |    0
+   p586 incipient  2019-08-18T21    | 595 |  193 | 1551 |  193 |    9 |    1
+   p800 incipient  2019-09-01T10    | 609 |   97 | 2836 | 2070 |    9 |    1
+   p721 incipient  2019-09-08T03    | 616 | 1140 |  559 | 1140 |    7 |    0
+   p426 abrupt     2019-10-25T13    | 663 |  387 | 1523 |  387 |    3 |    0
+   p123 incipient  2019-11-07T22    | 676 |  599 |  563 |  599 |    6 |    0
+   p762 incipient  2019-11-17T03    | 686 | 1523 | 2428 | 1523 |    4 |    0
+   p455 incipient  2019-11-24T22    | 693 |  137 |  137 | 1606 |    3 |    1
+   p879 incipient  2019-12-19T21    | 718 | 1741 | 1741 | 1741 |    2 |    0
+
+## pre-registered predictions (LOG.md, step 22 plan)
+  (a) S30 puts more than 13 of 32 within 300 m: 14: HELD
+  (b) S30 puts more than 3 of 17 incipient leaks within 300 m: 6: HELD
+  (c) S30 puts at least 15 of 32 within 300 m: 14: FAILED
+  (d) S30 keeps at least 9 of 15 abrupt leaks: 8: FAILED
+  (e) S30 beats T-D at P < 0.05: S30 only 5, T-D only 4, P = 1.000: FAILED

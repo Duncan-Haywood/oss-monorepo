@@ -148,3 +148,8 @@ test('no page ever prints a literal example secret value into the DOM outside a 
   // is displaying; the page must describe values as never shown.
   assert.match(html, /Variable values are never read,\s*stored,\s*or\s*shown/i);
 });
+
+test('the page verdict is not green, and says so, when some paths could not be checked', () => {
+  assert.match(html, /verdict \$\{report\.ok && !report\.incomplete \? 'ok' : 'bad'\}/);
+  assert.match(html, /could not be checked/);
+});

@@ -1,0 +1,213 @@
+{
+  "date": "2026-11-13",
+  "subject": "research/energy-lcos-sourced",
+  "stratum": "research",
+  "seed": "2026-11-13-j",
+  "drawn_by": "sample",
+  "round": 64,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a senior energy-storage techno-economic analyst (the kind who builds LCOS models for Lazard/PNNL-style cost assessments), who would first check that each sourced input means what the model uses it as (round-trip vs one-way efficiency, units, cost year), how block lifetimes shorter than the project life are handled (replacements), and whether the result is new against Schmidt et al. 2019 (Joule) and PNNL's own LCOS figures",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 2,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Arithmetic is right and reproduces from an independent source. '/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests' then 'python3 experiments/run.py' (8.1 s) and 'python3 experiments/run_price.py' regenerate results.txt and results_price.txt with no git diff. Own script /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py (python3 -I, imports nothing from the subject or energy-lcos) reads the upstream PyPSA technology-data outputs/costs_2030.csv at commit 65244b4c fetched from raw.githubusercontent.com (not the repo copy), applies the Schmidt et al. 2019 LCOS form (discounted capex+FOM+charging over discounted MWh out) with the model's stated conventions (7%, $30/MWh, 2000 h budget, energy-lcos cycle life and fade), closed-form annuity for the no-fade techs: Li-ion 4 h 120.60 (repo 121), cavern CAES 8 h 114.14 (114), pumped hydro 8 h 142.57 (143), hydrogen 500 h 425.19 (425), CAES 500 h 257.97 (258). Every committed input checked (11 technologies x 4 parameters at 2030) equals the upstream row. ATB Moderate 2030 4 h OCC 1300.15 $/kW and PSH Moderate 2030 class range 1729.5 to 4500.6 $/kW in data/atb.csv match the README. Not 4: the method choices below (capital-weighted life, Li-ion RTE reading) move Li-ion 4 h to 130 and hydrogen 500 h to 496 under standard practice; winners do not change at the point estimate. ECB 2025 EUR/USD 1.12998 could not be checked (ECB API 403 through the proxy).",
+    "completeness": "Every README item runs: 10 tests pass (0.09 s), experiments/run.py (8 s, README 'about 10 s'), run_price.py (needs ../energy-thermal-real data, present), winshare.svg committed, results A to I all present in results.txt/results_price.txt and quoted numbers match (A: 121/114/143/253/364 at 8 h; C: 52/22/27 at 8 h, >=95% CAES from 48 h; F: 1.33, 1.69, 2.19, 3.61, 1.83; G: 164 and 150; H: 671/1,100/1,958 inside ATB). fetch_params.py not run (100 MB, optional) but its upstream technology-data URL resolves (HTTP 200) and the rows match. Next steps (second estimate for cavern air and hydrogen, sourced cycle life, correlated draws) are stated as open. Live page not loadable from this container (proxy 403).",
+    "verification": "'/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests': 10 passed in 0.09 s. Four seeded mutants with platform/ci/quality_mutate.py: rte squaring removed (caught), capital-weighted life replaced by max life (caught), EUR/MWh unit threshold raised (caught), pumped-hydro ATB site-class spread zeroed at sourced.py:106 (SURVIVED, though it drives the headline 'pumped hydro 52% at 8 h'). No test pins any headline LCOS value or any win share beyond the coarse 1 h / 500 h >0.9 check, and results.txt is not compared in CI.",
+    "craft": "Read src/energy_lcos_sourced/sourced.py (158 lines), tests/test_sourced.py, experiments/run.py, run_price.py, data/fetch_params.py, ../energy-lcos/src/energy_lcos/model.py. Small, stdlib-only, readable. Defects: units are guessed from magnitude (sourced.py:61 '>1000' means EUR/MWh, :64 '>20000' means EUR/MW) although techdata.csv carries a unit column; dead branch sourced.py:57-59 re-assigns the same efficiency; dead lambda run.py:59 ('if False else None'); data/atb.csv stores every battery row twice (fetch_params keeps both crpyear/case variants) - uniform so the least-squares fit is unaffected, but undocumented; test_charge_price execs a split of run_price.py source instead of importing a function.",
+    "claims": "Headline numbers are all backed by results.txt and reproduce. Failures: README.md:16 says the DEA 'battery inverter' efficiency is '96% one way' and the code squares it to 0.9216 (sourced.py:68), but the upstream row's description is ':  Round trip efficiency DC' (costs_2030.csv at 65244b4c), so the 'sourced' Li-ion efficiency is a misreading of its source; README.md:30 says '9 tests', there are 10. Viswanathan rows' one-way reading is backed (upstream notes 'AC-AC efficiency at transformer level 0.8^0.5' etc.). Limitations section is unusually honest (unsourced cycle life, spread not a probability, CAES single value, ATB/EUR inflation misalignment).",
+    "fitness": "A researcher can build on it: pinned commit, committed rows with attribution, deterministic seeded runs, stdlib. But nearest prior work is not cited or compared: Schmidt, Melchior, Hawkes and Staffell 2019 (Joule 3:81) publish exactly this map (cheapest technology by discharge duration and cycles, with Monte Carlo cost uncertainty, 2015-2050), and Viswanathan et al. 2022 (PNNL-33283), the source of four of the five cost sets, publishes its own LCOS by technology and duration that the project never compares against. Novelty is a reanalysis of PNNL/DEA inputs through a 90-line model; not the PhD-level programme research/CLAUDE.md asks for.",
+    "domain": "Compared against Schmidt et al. 2019 / Lazard LCOS practice. Departures an analyst hits in the first hour: (1) blocks with lives shorter than the project are not replaced; instead the project life is the capital-weighted mean of block lives (sourced.py:81), so the Li-ion inverter (10 y) and the fuel cell (10 y, inside a 54.6 y weighted life at 500 h) are amortised over the wrong period; replacing the Li-ion inverter at year 10 raises 4 h LCOS from 120.6 to 130.4 $/MWh (margin over CAES 134 shrinks from 13 to 4), and per-block annuitisation raises hydrogen 500 h from 425 to 496 (/tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py); (2) Li-ion RTE taken as 0.96^2 although the source value is a DC round trip (AC-AC for LFP is nearer 0.85-0.88, NREL ATB uses 0.85); (3) no end-of-life cost or construction period; (4) the 2,000 h/yr discharge budget is not a market-derived dispatch. Point-estimate winners survive these; Monte Carlo shares at 4-10 h would move toward CAES/PSH."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Li-ion (LFP) 4 h LCOS at 7%, $30/MWh",
+      "method": "own Schmidt-2019-form script from upstream technology-data costs_2030.csv @65244b4c",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py",
+      "expected": "121 (results.txt A)",
+      "observed": "120.60",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "cavern compressed air 8 h LCOS",
+      "method": "closed-form annuity from upstream Viswanathan 2022 rows",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py",
+      "expected": "114",
+      "observed": "114.14",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "pumped hydro 8 h LCOS",
+      "method": "closed-form annuity from upstream Viswanathan 2022 rows",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py",
+      "expected": "143",
+      "observed": "142.57",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "hydrogen (cavern) 500 h LCOS and CAES 500 h",
+      "method": "closed-form annuity from upstream DEA rows",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py",
+      "expected": "425 and 258",
+      "observed": "425.19 and 257.97",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "committed techdata.csv 2030 inputs equal the pinned upstream rows",
+      "method": "grep of upstream costs_2030.csv at 65244b4c",
+      "command": "curl raw.githubusercontent.com/PyPSA/technology-data/65244b4c.../outputs/costs_2030.csv | grep ...",
+      "expected": "same values",
+      "observed": "all 43 rows identical",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README.md:16 'battery inverter ... 96% one way'",
+      "method": "upstream row description",
+      "command": "grep '^battery inverter,efficiency' costs_2030.csv",
+      "expected": "one-way efficiency",
+      "observed": "':  Round trip efficiency DC'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Viswanathan efficiencies are one way (0.8944^2 = 0.80 PSH)",
+      "method": "upstream note column",
+      "command": "grep 'Pumped-Storage-Hydro-bicharger,efficiency' costs_2030.csv",
+      "expected": "one way",
+      "observed": "'AC-AC efficiency at transformer level 0.8^0.5'",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "ATB PSH Moderate 2030 site-class range $1,730 to $4,501/kW; ATB Li-ion 4 h $1,300/kW",
+      "method": "read data/atb.csv (ATB 2024 v4.0.0 extract)",
+      "command": "grep Pumped data/atb.csv | grep Moderate | grep ,2030, | sort -u",
+      "expected": "1730 to 4501; 1300",
+      "observed": "1729.5 to 4500.6; 1300.15",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "results.txt and results_price.txt reproduce",
+      "method": "rerun author scripts, git diff",
+      "command": "cd research/energy-lcos-sourced && python3 experiments/run.py && python3 experiments/run_price.py && git diff --stat .",
+      "expected": "no diff",
+      "observed": "no diff, 8.1 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "README.md:30 '9 tests'",
+      "method": "run suite",
+      "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+      "expected": "9",
+      "observed": "10 passed",
+      "result": "fail"
+    },
+    {
+      "dimension": "domain",
+      "what": "short-lived blocks replaced (Li-ion inverter 10 y)",
+      "method": "Schmidt 2019 / Lazard: replacement capex discounted in-year",
+      "command": "python3 -I /tmp/claude-0/-home-user-oss-monorepo/27f32908-f8a8-5080-a56e-0c9dfcf6bcdb/scratchpad/recompute.py",
+      "expected": "replacement at y10 within the 16.4 y cycle-limited life",
+      "observed": "no replacement; capital-weighted life 21.7 y; LCOS 120.6 vs 130.4 with replacement",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+      "expected": "pass",
+      "observed": "10 passed in 0.09 s",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/energy_lcos_sourced/sourced.py:106",
+      "change": "return vals[0] / med, vals[-1] / med -> return 1.0, 1.0",
+      "caught": false,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "src/energy_lcos_sourced/sourced.py:68",
+      "change": "rte=eff * eff -> rte=eff",
+      "caught": true,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "src/energy_lcos_sourced/sourced.py:81",
+      "change": "capital-weighted life -> max(life_p, life_e)",
+      "caught": true,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+    },
+    {
+      "where": "src/energy_lcos_sourced/sourced.py:61",
+      "change": "> 1000 -> > 100000 (EUR/MWh unit threshold)",
+      "caught": true,
+      "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Blocks shorter-lived than the project are never replaced: project life is the capital-weighted mean of block lives, so the Li-ion inverter (10 y) and fuel cell (10 y) are amortised over 16-55 y. Inverter replacement at y10 moves Li-ion 4 h from $121 to $130/MWh (margin over CAES $134 shrinks from 13 to 4); per-block annuitisation moves hydrogen 500 h from $425 to $496. Point winners hold; Monte Carlo shares at 4-10 h are biased toward Li-ion.",
+      "where": "research/energy-lcos-sourced/src/energy_lcos_sourced/sourced.py:81",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "DEA battery-inverter efficiency 0.96 is labelled upstream ':  Round trip efficiency DC' but the README calls it '96% one way' and the code squares it to RTE 0.9216; the 'sourced' Li-ion efficiency misreads its source (LCOS effect ~1.3 $/MWh at 4 h; an AC-AC figure would be lower still).",
+      "where": "research/energy-lcos-sourced/README.md:16",
+      "category": "source-data",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Zeroing the ATB pumped-hydro site-class spread (which drives the headline '8 h: pumped hydro 52%') leaves all 10 tests green; no test pins a headline LCOS or win share.",
+      "where": "research/energy-lcos-sourced/src/energy_lcos_sourced/sourced.py:106",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "medium",
+      "what": "Nearest prior work not cited or compared: Schmidt et al. 2019 (Joule) publish the same cheapest-technology-by-duration map with Monte Carlo, and PNNL-33283 (source of four cost sets) publishes its own LCOS by duration; novelty is a reanalysis through a simple model.",
+      "where": "research/energy-lcos-sourced/README.md:11",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "low",
+      "what": "README says '9 tests'; the suite has 10.",
+      "where": "research/energy-lcos-sourced/README.md:30",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    },
+    {
+      "severity": "low",
+      "what": "Units inferred from magnitude (>1000 means EUR/MWh, >20000 means EUR/MW) though techdata.csv has a unit column; dead re-assignment at sourced.py:57-59 and dead lambda at experiments/run.py:59.",
+      "where": "research/energy-lcos-sourced/src/energy_lcos_sourced/sourced.py:61",
+      "category": "code-craft",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    15469
+  ],
+  "verdict": "Does not meet the bar (verification 2, claims 2, median 2); finished (completeness 3). The arithmetic is sound: five headline LCOS values recompute to within rounding from the upstream technology-data file with an independent script, and both experiment scripts reproduce byte-identically. What a storage techno-economic analyst would reject is the method around the numbers: short-lived blocks (Li-ion inverter, fuel cell) are averaged into a capital-weighted life instead of replaced, which understates Li-ion 4 h by ~8% and hydrogen 500 h by ~17%; the Li-ion efficiency misreads a DC round-trip figure as one-way; the PSH spread behind the 52% headline is untested; and Schmidt et al. 2019 and PNNL's own LCOS, the obvious comparisons, are absent. Point-estimate winners survive all of these."
+}

@@ -1,0 +1,4 @@
+# Only the two modules the admin page imports are served as static files (wrangler.jsonc "assets").
+*
+!calc.mjs
+!bnp.mjs

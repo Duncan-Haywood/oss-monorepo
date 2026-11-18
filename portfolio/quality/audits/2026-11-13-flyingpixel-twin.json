@@ -1,0 +1,219 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/flyingpixel-twin",
+ "stratum": "research",
+ "seed": "2026-11-13-s-690a",
+ "drawn_by": "sample",
+ "round": 73,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a lidar sensing / robot perception researcher who referees for IEEE RA-L, ICRA or IEEE Sensors (mixed-pixel and full-waveform lidar). They would check first that the mixed-pixel range model matches how real receivers range merged pulses (peak, constant-fraction or matched-filter detection, not an energy centroid), whether 'beam width' means the Gaussian std, FWHM or 1/e^2 diameter, and whether the nearest prior work on mixed pixels (Hebert & Krotkov 1992; Tang, Huber & Akinci 2007) and on beam-divergence lidar simulation (HELIOS++, Winiwarter et al. 2022) is cited",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `PYTHONPATH=src python3 experiments/run.py` (2.1 s): output byte-identical to experiments/results.txt. Independent script (scratchpad fp/indep.py, run with python3 -I, no import of the subject; Phi via math.erf, inverses by bisection on the forward model E2/(E1+E2) rather than the author's u_of_f formula) reproduces: symmetric width 2z_{1-e} = 4.6527/2.5631/0.5067/0.0501 at e=0.01/0.1/0.4/0.49 (textbook z_0.90 = 1.2816, z_0.99 = 2.3263); kappa = 0.01/0.1/10/100 bands, widths 1.6711/2.2247/2.2247/1.6711, centres -2.224/-1.178/1.178/2.224 and strongest-return u* -2.330/-1.335/1.335/2.330; absolute-scale widths 0.507/1.935/2.563/3.290 at D = 0.25/0.6/1/2 m; persistence by exact quadrature of P(Binom(5,p(u0)) >= 3) over u0 uniform in the band gives 0.9917/0.9834/0.9501/0.8040 vs the Monte Carlo 0.9918/0.9837/0.9503/0.8036. eps_for_width values checked by hand: 1-Phi(0.5) = 0.3085, 1-Phi(0.25) = 0.4013, 1-Phi(0.125) = 0.4503. Every number is right under the stated centroid model; held at 3, not 4, because the numbers are right only for that model (see domain).",
+  "completeness": "Every README/paper result section (1 width, 2 brightness, 3 tolerance and absolute scale, 4 scan Monte Carlo, 5 persistence, 6 worked example) is printed by experiments/run.py and matches the text; figure.py regenerated ghost_band.svg byte-identical in a private copy; 13 tests as claimed; live page https://marisstella.app/research/flyingpixel-twin/ returns 200. No stubs or TODOs. The README run time ('about 1 min') is wrong (2.1 s).",
+  "verification": "`PYTHONPATH=src python3 -m unittest discover -s tests`: 13 tests OK in 0.25 s; pytest 13 passed. Tests compare the closed form to statistics.NormalDist and to a grid scan, which catches algebra slips (kappa mutant in strongest_return_edge_shift caught; scan q-scaling mutant caught). But 2 of 4 non-equivalent mutants survived: halving p_edge_has_ghost (model.py:77, backs README claim 3 'at least one ghost') and changing the 3-of-5 persistence rule to 4-of-5 (model.py:129, backs headline claim 5). A fifth mutant (narrowing the u0 sampling range, model.py:124) survived but is near-equivalent (changes only the sample count). The 'independent' direct scan (ghost_width_scan) and the scan simulation reuse far_fraction, so nothing in the suite checks the physics, only the inversion.",
+  "craft": "Read src/flyingpixel_twin/model.py (131 lines), tests/test_model.py, experiments/run.py, experiments/figure.py. Small, stdlib-only, clear docstrings stating units and sign conventions, seeded RNGs, results reproducible to the byte. Minor: ghost_persistence returns (0.0, 0.0) floats for the empty case vs (int, float) otherwise; simulate_scan assigns each beam to the nearest nominal edge rather than the nearest jittered edge (harmless because f saturates); section 4 of results.txt has headers misaligned with columns.",
+  "claims": "Numbers in README and paper all trace to results.txt (pass). But the README title and results quote the band in 'beam widths' (README:1 '2.6 beam widths', README:3 '0.5 beam widths', 'jitter of 0.05 ... 1 beam widths') while the unit is the Gaussian std of the footprint; a lidar reader takes beam width as FWHM (2.355 sigma) or 1/e^2 diameter (4 sigma), so '2.6 beam widths' reads as 6 to 10 sigma, 2.4 to 4x the computed 2.56 sigma. The paper uses 'beam std' correctly. The title's 2.6 holds only at eps/D = 0.1, which the title omits. Paper:15 'Only motion that exceeds a beam width starts to remove them' is not backed: no jitter above 1 std is run, and 1 std already removes 19.6%. README:10 runtime 'about 1 min' observed 2.1 s. Limitations section is candid (centroid detector, hard merge, no real data).",
+  "fitness": "Nearest prior work: mixed pixels at depth edges are analysed by Hebert & Krotkov (1992, Image and Vision Computing, '3D measurements from imaging laser radars') and Tang, Huber & Akinci (2007, 3DIM, comparative analysis of mixed-pixel detection), neither cited; beam-divergence lidar simulation that already produces mixed returns exists (HELIOS++, Winiwarter et al. 2022, Remote Sensing of Environment; BlenSor 2011), so the single-ray twin is a straw-man baseline, which the paper half-concedes ('a beam-aware twin reproduces these results by construction'). The closed form is a two-line inversion of an energy-centroid formula; correct but elementary, and with no real scans it does not establish the size of the effect on any sensor. A researcher could build on the code as a teaching model; not a publishable result on its own.",
+  "domain": "Compared against how lidar receivers range merged echoes: discrete-return units use peak, constant-fraction or matched-filter detection, not an energy centroid. Independent script (scratchpad fp/peakband.py): with a peak detector on the sum of two Gaussian pulses, eps/D = 0.1, kappa = 1, the ghost band is 2.470/2.140/1.580/0.745 sigma at pulse separations 0.5/1.0/1.5/2.0 pulse-sigma vs the centroid's constant 2.563; at amplitude ratio 3 and separation 1.5 sigma the peak sits at 0.874 of the gap vs the centroid's 0.750. So the headline width is an upper bound that can be 3.4x too large near the merge limit, and the hard merge threshold (centroid right up to D = R, then fully resolved) is internally inconsistent with any pulse shape. The limitation is listed in the paper but the headline numbers are stated without it."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "symmetric ghost-band width 2*Phi^-1(1-eps/D) at eps/D = 0.01, 0.1, 0.4, 0.49",
+   "method": "independent script, Phi via math.erf, inverse by bisection; textbook normal quantiles z_0.90 = 1.2816, z_0.99 = 2.3263",
+   "command": "python3 -I <scratchpad>/fp/indep.py",
+   "expected": "4.6527, 2.5631, 0.5067, 0.0501",
+   "observed": "results.txt section 1: 4.6527, 2.5631, 0.5067, 0.0501",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "unequal-energy band, width, centre and strongest-return switch at kappa = 0.01, 0.1, 10, 100 (eps/D = 0.1)",
+   "method": "independent bisection on the forward model f(u) = k(1-Phi(u))/(Phi(u)+k(1-Phi(u))) for f = 0.9, 0.1, 0.5, not the author's u_of_f inversion",
+   "command": "python3 -I <scratchpad>/fp/indep.py",
+   "expected": "kappa 10: band (0.066, 2.291), width 2.2247, centre 1.178, u* 1.335; kappa 100: width 1.6711, centre 2.224, u* 2.330",
+   "observed": "results.txt section 2 identical to 3-4 dp for all four kappas",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "persistence fraction of ghost samples passing 3-of-5 at jitter 0.05, 0.1, 0.3, 1",
+   "method": "exact quadrature over u0 of P(Binom(5, p(u0)) >= 3), p(u0) = Phi((hi-u0)/j) - Phi((lo-u0)/j); no Monte Carlo",
+   "command": "python3 -I <scratchpad>/fp/indep.py",
+   "expected": "0.9917, 0.9834, 0.9501, 0.8040",
+   "observed": "results.txt section 6 (Monte Carlo): 0.9918, 0.9837, 0.9503, 0.8036",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "absolute-scale widths for eps = 0.10 m at D = 0.25, 0.6, 1, 2 m and eps_for_width targets",
+   "method": "hand: 2*z_{1-0.1/D}; eps for width w = 1 - Phi(w/2)",
+   "command": "python3 -I <scratchpad>/fp/indep.py",
+   "expected": "0.507, 1.935, 2.563, 3.290; 0.1587, 0.3085, 0.4013, 0.4503",
+   "observed": "results.txt sections 3-4 identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "rerun experiments/run.py and diff against committed results.txt; regenerate figure in a private copy",
+   "method": "diff / cmp",
+   "command": "cd research/flyingpixel-twin && PYTHONPATH=src python3 experiments/run.py > /tmp/r.txt && diff /tmp/r.txt experiments/results.txt",
+   "expected": "no diff",
+   "observed": "no diff; ghost_band.svg byte-identical; run took 2.1 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "unittest and pytest",
+   "command": "cd research/flyingpixel-twin && PYTHONPATH=src python3 -m unittest discover -s tests",
+   "expected": "13 tests pass (README)",
+   "observed": "Ran 13 tests in 0.248s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "is the energy-centroid range what a merged-pulse lidar reports? ghost width under a peak detector",
+   "method": "independent script: argmax of a1*N(x;0,1) + a2*N(x;D,1) with a1 = Phi(u), a2 = 1-Phi(u), eps/D = 0.1",
+   "command": "python3 -I <scratchpad>/fp/peakband.py",
+   "expected": "same 2.563 if the centroid is a fair model of ranging",
+   "observed": "2.470 / 2.140 / 1.580 / 0.745 at pulse separation 0.5 / 1.0 / 1.5 / 2.0 pulse-sigma",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README unit 'beam widths' for the band (README:1, README:3)",
+   "method": "model.py:3 defines offsets in beam std; FWHM = 2.355 sigma, 1/e^2 diameter = 4 sigma (Gaussian beam optics)",
+   "command": "grep -n 'beam width' research/flyingpixel-twin/README.md; sed -n 3p research/flyingpixel-twin/src/flyingpixel_twin/model.py",
+   "expected": "unit stated as beam std, as the paper does",
+   "observed": "README says 'beam widths' throughout; paper says 'beam std'",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README run time 'about 1 min' (README:10)",
+   "method": "time the command",
+   "command": "time (PYTHONPATH=src python3 experiments/run.py >/dev/null)",
+   "expected": "about 1 min",
+   "observed": "2.1 s",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "paper:15 'Only motion that exceeds a beam width starts to remove them'",
+   "method": "read results.txt section 6 and run.py jitter list",
+   "command": "sed -n '/== 6/,/== 7/p' research/flyingpixel-twin/experiments/results.txt",
+   "expected": "a jitter sweep above 1 std showing removal begins there",
+   "observed": "largest jitter is 1 std, where 19.6% are already removed; no data above 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited",
+   "method": "reference list vs Hebert & Krotkov 1992, Tang/Huber/Akinci 2007, HELIOS++ 2022",
+   "command": "sed -n '/References/,$p' research/flyingpixel-twin/paper/whitepaper.md",
+   "expected": "mixed-pixel models and beam-divergence simulators cited",
+   "observed": "only Tuley 2005 and Sotoodeh 2006",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP GET",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/flyingpixel-twin/",
+   "expected": "200",
+   "observed": "200",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/flyingpixel_twin/model.py:77",
+   "change": "return min(1.0, ghosts_per_edge(eps_over_D, kappa, q)) -> return min(1.0, 0.5 * ghosts_per_edge(eps_over_D, kappa, q))",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flyingpixel_twin/model.py:129",
+   "change": "if hits >= k_min: -> if hits > k_min:",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flyingpixel_twin/model.py:106",
+   "change": "u = (-d if k % 2 == 0 else d) / q -> u = (-d if k % 2 == 0 else d) * q",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flyingpixel_twin/model.py:82",
+   "change": "return Phi_inv(kappa / (1.0 + kappa)) -> return Phi_inv(1.0 / (1.0 + kappa))",
+   "caught": true,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/flyingpixel_twin/model.py:124",
+   "change": "u0 = rng.uniform(lo - 1.0, hi + 1.0) -> u0 = rng.uniform(lo, hi + 1.0) (near-equivalent: changes sample count only)",
+   "caught": false,
+   "test_cmd": "env PYTHONPATH=src python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Headline ghost-band widths assume the receiver reports the energy centroid of merged pulses; peak/CFD/matched-filter receivers do not. With a peak detector the band at eps/D = 0.1 is 2.47, 2.14, 1.58, 0.745 sigma at pulse separations 0.5-2.0 pulse-sigma vs the constant 2.563, so the headline is an upper bound up to 3.4x too large near the merge limit, and the hard merge threshold (exact centroid up to D = R) is inconsistent with any pulse shape. Listed as a limitation but not carried into the headline",
+   "where": "research/flyingpixel-twin/src/flyingpixel_twin/model.py:8",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "README title and results give the band in 'beam widths' while the unit is the footprint's Gaussian std; a lidar reader reads beam width as FWHM (2.355 sigma) or 1/e^2 diameter (4 sigma), so '2.6 beam widths' overstates the computed 2.56 sigma by 2.4-4x. Title also omits that 2.6 holds only at eps/D = 0.1",
+   "where": "research/flyingpixel-twin/README.md:1",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Nearest prior work not cited: mixed-pixel range models (Hebert & Krotkov 1992; Tang, Huber & Akinci 2007) and beam-divergence lidar simulators that already produce mixed returns (HELIOS++ 2022, BlenSor 2011). The single-ray twin is a straw-man baseline and the closed form is an elementary inversion; novelty is not established",
+   "where": "research/flyingpixel-twin/paper/whitepaper.md:24",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests do not pin the headline persistence or per-edge numbers: changing the 3-of-5 rule to 4-of-5 and halving P(edge has ghost) both leave all 13 tests green; the 'independent' direct scan and scan simulation reuse far_fraction, so only the inversion algebra is checked, not the model",
+   "where": "research/flyingpixel-twin/tests/test_model.py:63",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "'Only motion that exceeds a beam width starts to remove them' is not backed: the jitter sweep stops at 1 std, where 19.6% of ghost samples are already removed",
+   "where": "research/flyingpixel-twin/paper/whitepaper.md:15",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "README says experiments/run.py takes about 1 min; it takes 2.1 s",
+   "where": "research/flyingpixel-twin/README.md:10",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653"
+ ],
+ "verdict": "A small, clean, fully reproducible model: every number in README, paper and results.txt reruns byte-identically and four independent recomputations (normal quantiles, bisection on the forward model for unequal energies, exact binomial quadrature for persistence, hand inversion of the tolerance targets) agree to 3-4 dp. It misses the bar on claims (README reports the band in 'beam widths' when the unit is the Gaussian std, plus an unbacked persistence sentence and a stale runtime), verification (2 of 4 non-equivalent mutants survive, headline claims 3 and 5 are unpinned) and on the field's standard: the centroid range model is not how merged-pulse receivers range, and a peak detector shrinks the headline band by up to 3.4x; prior mixed-pixel models and beam-aware simulators are not cited, so the novelty of an elementary closed form is unestablished."
+}

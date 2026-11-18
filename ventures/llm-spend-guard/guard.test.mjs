@@ -31,6 +31,9 @@ test('price lookup: exact, then longest prefix, then fallback', () => {
   assert.equal(priceFor(p, 'claude-x-20250101').in, 1);
   assert.equal(priceFor(p, 'claude-x-mini-2025').in, 0.1);
   assert.equal(priceFor(p, 'other').in, 9);
+  assert.equal(priceFor(p, 'claude-x-pro').in, 9, 'a variant name is not a snapshot');
+  assert.equal(priceFor(normalisePolicy({ prices: { 'gpt-5': { in: 1.25, out: 10 } } }), 'gpt-5-pro'), null);
+  assert.equal(priceFor(normalisePolicy({ prices: { 'gpt-5': { in: 1.25, out: 10 } } }), 'gpt-5-2025-08-07').in, 1.25);
   assert.equal(priceFor(normalisePolicy({}), 'other'), null);
 });
 
@@ -56,6 +59,7 @@ test('UTC windows and their ends', () => {
 test('input estimate errs high (bytes / 3)', () => {
   assert.equal(estimateInputTokens('abcdef'), 2);
   assert.equal(estimateInputTokens(null), 0);
+  assert.equal(estimateInputTokens('x'.repeat(300)), 100); // 300 bytes / 3 (bytes / 4 would give 75)
   assert.ok(estimateInputTokens({ messages: [{ role: 'user', content: 'hello world' }] }) > 'hello world'.length / 4);
 });
 
@@ -245,4 +249,38 @@ test('a throwing event handler never breaks a decision', () => {
   const g = createGuard({ prices: PRICES }, { onEvent: () => { throw new Error('webhook down'); } });
   g.halt('x');
   assert.equal(g.check({ model: 'big', inputTokens: 1, maxOutputTokens: 1 }).allowed, false);
+});
+
+test('a zero output cap is no cap: refused when a cap is required, defaulted when one is configured', () => {
+  // maxOutputTokens: 0 would price the call's output at $0; the guard must not read it as a real cap.
+  const { g } = clockGuard({});
+  const d = g.check({ model: 'big', inputTokens: 10, maxOutputTokens: 0 });
+  assert.equal(d.allowed, false);
+  assert.equal(d.reasons[0].code, 'no-output-cap');
+  const withDefault = clockGuard({ defaultMaxOutputTokens: 500 }).g.check({ model: 'big', inputTokens: 10, maxOutputTokens: 0 });
+  assert.equal(withDefault.allowed, true);
+  assert.equal(withDefault.maxOutputTokens, 500);
+  assert.equal(withDefault.warnings[0].code, 'output-cap-added');
+});
+
+test('the repeat window defaults to 300 s: a repeat 300 s later is a fresh call', () => {
+  const { g, clock } = clockGuard({ breakers: [{ id: 'loop', scope: 'run', maxRepeats: 1, cooldownSec: 10 }] });
+  const call = () => g.check({ model: 'small', input: 'same', maxOutputTokens: 10, scope: { run: 'r' } });
+  const first = call();
+  assert.equal(first.allowed, true);
+  g.settle(first.id, { output: 10 });
+  clock.t += 300_000;
+  assert.equal(call().allowed, true, 'outside the default 300 s window');
+  clock.t += 299_000;
+  assert.equal(call().reasons[0].code, 'breaker-tripped', 'inside the window');
+});
+
+test('an alert fires when float sums land a hair under the line', () => {
+  // 400 calls of 3000 output tokens at $75/M are $90 exactly, but the float sum is
+  // 89.99999999999963: the 90% alert on a $100 budget must still fire.
+  const { g, events } = clockGuard({ prices: { opus: { in: 15, out: 75 } }, budgets: [{ id: 'd', limitUsd: 100, alertAt: [0.9] }] });
+  for (let i = 0; i < 400; i++) { const d = g.check({ model: 'opus', inputTokens: 0, maxOutputTokens: 3000 }); g.settle(d.id, { output: 3000 }); }
+  const alerts = events.filter((e) => e.type === 'alert');
+  assert.equal(alerts.length, 1);
+  assert.equal(alerts[0].threshold, 0.9);
 });

@@ -38,7 +38,7 @@ const r2 = (n) => Math.round(n * 100) / 100;
 function headerTokens(text) {
   const line = String(text || "").split(/\r?\n/).find((l) => l.trim() !== "") || "";
   const delim = line.includes("\t") ? "\t" : line.split(";").length > line.split(",").length ? ";" : ",";
-  return line.split(delim).map((h) => h.replace(/^﻿/, "").replace(/^"|"$/g, "").trim().toLowerCase());
+  return line.split(delim).map((h) => h.replace(/^\uFEFF/, "").replace(/^"|"$/g, "").trim().toLowerCase());
 }
 
 /**
@@ -112,11 +112,14 @@ function ebayChannel(files, costText) {
   out.net = s.operating;
   out.from = s.firstMonth;
   out.to = s.lastMonth;
-  if (s.anyCosted) {
+  if (s.anyCosted && s.allCosted) {
     out.cogs = s.cogsTotal;
-    out.costedShare = s.allCosted ? 1 : null;
+    out.costedShare = 1;
     out.profit = s.profit;
-    if (!s.allCosted) out.notes.push("Only some eBay items have a cost, so eBay profit is left blank rather than overstated.");
+  } else if (s.anyCosted) {
+    // Same rule as the other channels: a partly costed channel would count the
+    // uncosted items as free and overstate profit, so leave it blank.
+    out.notes.push("Only some eBay items have a cost, so eBay profit is left blank rather than overstated.");
   }
   const months = r.months.map((m) => ({ month: m.key, sales: m.sales, refunds: m.refunds, deductions: r2(m.net - m.sales - m.refunds), net: m.net, cogs: null }));
   return { line: out, months, detail: r, skipped: skipped.length, costBad: costs.bad.length };
@@ -241,7 +244,7 @@ function itemChannel(channel, engine, files, costText, feeMode) {
   let skipped = 0;
   for (const f of files) {
     const delim = engine.detectDelimiter(f.text);
-    const n = engine.normalizeRows(engine.parseCsv(f.text, delim), { decimalComma: delim === ";", feeMode });
+    const n = engine.normalizeRows(engine.parseCsv(f.text, delim), { decimalComma: engine.detectDecimalComma(engine.parseCsv(f.text, delim), delim), feeMode });
     if (n.error) return { error: `${f.name}: ${n.error}` };
     items.push(...n.items);
     skipped += (n.skipped || []).length;
@@ -454,7 +457,7 @@ export function toCsv(result) {
 }
 
 export function summaryText(result) {
-  const m = (v) => (v === null || v === undefined ? "–" : (v < 0 ? "-$" : "$") + Math.abs(v).toFixed(2));
+  const m = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(v).toFixed(2)));
   const out = [`Reseller books: ${result.channels.map((c) => c.label).join(", ")}`];
   const t = result.total;
   out.push(`Sales ${m(t.sales)}, refunds ${m(t.refunds)}, fees ${m(t.platformFees)}, postage ${m(t.labels)}, ads ${m(t.ads)}, other ${m(t.other)}, net payout ${m(t.net)}.`);
@@ -481,5 +484,5 @@ export function sampleFiles() {
   };
 }
 
-export const money = (v) => (v === null || v === undefined ? "–" : (v < 0 ? "-" : "") + Math.abs(v).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+export const money = (v) => (v === null || v === undefined ? "–" : ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(v).toLocaleString("en-US", { style: "currency", currency: "USD" })));
 export const decodeBuffer = poshmark.decodeBuffer;

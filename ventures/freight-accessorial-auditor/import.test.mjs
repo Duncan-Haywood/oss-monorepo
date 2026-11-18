@@ -40,7 +40,7 @@ test("a file with no trailing newline keeps its last row and gains no empty one"
 });
 
 test("a byte-order mark does not become part of the first header", () => {
-  const table = readTable("﻿Invoice,Amount\nINV-1,50\n");
+  const table = readTable("\uFEFFInvoice,Amount\nINV-1,50\n");
   assert.deepEqual(table.header, ["Invoice", "Amount"]);
   assert.equal(suggestMapping(table.header).invoice, 0);
 });

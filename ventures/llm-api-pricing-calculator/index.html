@@ -228,7 +228,7 @@
     try {
       const w = workload();
       providerMonthlyCost({ name: "workload check", ...w, inputRate: 0, cachedInputRate: 0, outputRate: 0 }); // validates w
-      $("workloadOut").innerHTML = `Monthly workload: <strong>${w.freshInputTokens.toLocaleString()}</strong> fresh input + <strong>${w.cachedInputTokens.toLocaleString()}</strong> cached input + <strong>${w.outputTokens.toLocaleString()}</strong> output tokens.`;
+      $("workloadOut").innerHTML = `Monthly workload: <strong>${w.freshInputTokens.toLocaleString('en-US')}</strong> fresh input + <strong>${w.cachedInputTokens.toLocaleString('en-US')}</strong> cached input + <strong>${w.outputTokens.toLocaleString('en-US')}</strong> output tokens.`;
       const providers = providerRows(w);
       renderResults(providers);
       renderCacheOut(w, providers);

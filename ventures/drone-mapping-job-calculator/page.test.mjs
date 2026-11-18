@@ -260,7 +260,7 @@ test('the page makes no network request of any kind', () => {
 
 test('the usage counter is opt-out from the page and never records a figure', () => {
   assert.match(html, /id="optout"/);
-  assert.match(html, /recordUsage\(globalThis\.localStorage, \$\('optout'\)\.checked/);
+  assert.match(html, /recordUsage\(usageStorage\(\), \$\('optout'\)\.checked/);
   assert.match(html, /Do&nbsp;Not&nbsp;Track/);
 });
 

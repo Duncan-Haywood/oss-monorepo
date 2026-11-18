@@ -7,7 +7,7 @@ import math, random
 
 DT = 0.002            # s, integration step
 M_TIP = 0.30          # kg, default effective moving mass at the spoon (osrobot-assist value; ASSUMED)
-KP, KD = 400.0, 28.0  # N/m, N s/m, tip position loop (ASSUMED; about critically damped for M_TIP)
+KP, KD = 400.0, 28.0  # N/m, N s/m, tip position loop (ASSUMED; damping ratio 1.28 for M_TIP, over-damped)
 DAMP_RATIO = KD / (2 * (KP * M_TIP) ** 0.5)   # 1.28: kept for every tip mass so only the mass changes
 F_ACT = 20.0          # N, actuator force limit per axis (ASSUMED)
 K_LIP, C_LIP = 800.0, 1.5   # N/m, s/m, lip wall: Hunt-Crossley F = K x (1 + C v), no force step at touch (ASSUMED)

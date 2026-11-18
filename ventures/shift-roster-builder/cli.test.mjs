@@ -279,8 +279,8 @@ test("--tips splits a pot to the cent and --short-under lists short shifts", () 
   assert.equal(t.code, 0);
   const cents = [...t.out.matchAll(/ h\s+\$(\d+)\.(\d\d)\s/g)].reduce((a, m) => a + +m[1] * 100 + +m[2], 0);
   assert.equal(cents, 20001);
-  const s = run(staff, shifts, { shortUnder: 6 });
-  assert.match(s.out, /shift\(s\) under 6 h/);
+  const s = run(staff, shifts, { shortUnder: 9 }); // since 2026-11-12 the default roster leaves the 3 h lunch shifts open
+  assert.match(s.out, /shift\(s\) under 9 h/);
   assert.match(run(staff, shifts, { shortUnder: 0.5 }).out, /No assigned shift/);
 });
 
@@ -314,4 +314,32 @@ test("--swap checks one trade and names the rule that stops it", () => {
 test("--days-off lists people without that many days off in a row", () => {
   assert.throws(() => parseArgs(["--days-off", "7"]), /1 to 6/);
   assert.equal(parseArgs(["--days-off", "2"]).daysOff, 2);
+});
+
+test("--budget compares payroll with a budget and lists drops that close the gap", () => {
+  assert.throws(() => parseArgs(["--budget", "0"]), /positive dollar/);
+  assert.equal(parseArgs(["--budget", "$1,200", "a", "b"]).budget, 1200);
+  const staff = "Ana, 10, 60, 0, Mon 6-22; Tue 6-22\nBen, 20, 60, 0, Mon 6-22; Tue 6-22\n";
+  const shifts = "Mon, 8, 16, 2, a\nTue, 8, 16, 1, b\n";
+  assert.match(run(staff, shifts, { budget: 1000 }).out, /under/);
+  const lo = run(staff, shifts, { budget: 300 });
+  assert.match(lo.out, /\$\d+\.\d\d over/);
+  assert.match(lo.out, /saves \$/);
+});
+
+test("CLI: --plain-cut stretches every short run; the default prices them without --short-cost", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { writeFileSync, mkdtempSync } = await import("node:fs");
+  const { tmpdir } = await import("node:os");
+  const cli = new URL("./cli.mjs", import.meta.url).pathname;
+  const dir = mkdtempSync(tmpdir() + "/pc-");
+  const rows = ["datetime,sales"];
+  for (let w = 0; w < 12; w++) { const day = new Date(Date.UTC(2026, 0, 5 + 7 * w)).toISOString().slice(0, 10); for (let h = 8; h < 16; h++) rows.push(`${day} ${h}:00,${h === 12 ? (w % 4 === 0 ? 900 : 150) : 90}`); }
+  writeFileSync(dir + "/s.csv", rows.join("\n"));
+  const run = (...a) => spawnSync("node", [cli, "--from-sales", dir + "/s.csv", "--splh", "100", ...a], { encoding: "utf8" });
+  const priced = run(), plain = run("--plain-cut");
+  assert.equal(priced.status, 0, priced.stderr); assert.equal(plain.status, 0, plain.stderr);
+  assert.match(priced.stderr, /Left unstaffed/);
+  assert.doesNotMatch(plain.stderr, /Left unstaffed/);
+  assert.notEqual(priced.stdout, plain.stdout);
 });

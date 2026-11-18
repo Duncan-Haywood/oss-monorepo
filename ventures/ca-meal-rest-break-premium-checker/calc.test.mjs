@@ -49,6 +49,11 @@ test("first meal waiver works up to six hours and not beyond", () => {
   assert.deepEqual(kinds(run("A, 2026-10-20, 09:00, 15:01, , , 2, 16, waiver")), ["meal-missed"]);
 });
 
+test("a waived first meal taken late on a six-hour shift is not a late-meal premium", () => {
+  assert.deepEqual(kinds(run("A, 2026-10-20, 08:00, 14:00, 13:30-14:00, , 1, 16, waiver")), []);
+  assert.deepEqual(kinds(run("A, 2026-10-20, 08:00, 14:30, 13:30-14:00, , 1, 16")), ["meal-late"]);
+});
+
 test("second meal: required after ten hours of work, waivable to twelve only if the first was taken", () => {
   assert.deepEqual(kinds(run("A, 2026-10-20, 06:00, 16:30, 10:00-10:30, , 3")), []);              // 10:00 work, none needed
   assert.deepEqual(kinds(run("A, 2026-10-20, 06:00, 16:31, 10:00-10:30, , 3")), ["meal-missed"]);  // 10:01 work

@@ -21,12 +21,14 @@ sys.path.insert(0, str(HERE.parent))
 import h3_llm_width as H3  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 REPS = int(ARGS[1]) if len(ARGS) > 1 else 500
 SIG = float(ARGS[2]) if len(ARGS) > 2 else 0.0
 SEED = 20261104
 N, CORPUS, PREV = 1000, 6000, 0.02
-RULES = (("pooled", 2.0, 0), ("cells g0", 0.0, 0), ("cells g5", 0.0, 5), ("cells g10", 0.0, 10), ("library", A.TAU, A.GUARD), ("tau.3 g5", A.TAU, 5))
+RULES = (("pooled", 2.0, 0), ("cells g0", 0.0, 0), ("cells g5", 0.0, 5), ("cells g10", 0.0, 10), ("library", A.TAU_6AM, A.GUARD_6AM), ("tau.3 g5", A.TAU_6AM, 5))
 
 
 def main():
@@ -57,7 +59,7 @@ def main():
             cov, hw, nc = 0, 0.0, 0
             for d, pilot in enumerate(draws):
                 labels = {i: human[i] for i in pilot}
-                plan = A.plan_audit(f, labels, N, tau=tau, guard=guard)
+                plan = A.plan_audit_pre7ar(f, labels, N, tau=tau, guard=guard, width_margin=None)
                 nc += plan["design"] == "cells"
                 for cell, t in zip(plan["cells"], plan["to_label"]):
                     for i in sub[d].sample([i for i in cell if i not in labels], t):

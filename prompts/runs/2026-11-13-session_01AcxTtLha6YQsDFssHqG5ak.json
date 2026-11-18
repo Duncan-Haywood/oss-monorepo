@@ -1,0 +1,155 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtLha6YQsDFssHqG5ak",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T21:07:22Z",
+  "ended": "2026-11-13T21:20:44Z",
+  "wall_minutes": 13.82,
+  "tokens_in": 8522463,
+  "tokens_out": 53413,
+  "cost_usd": 4.0121,
+  "tool_calls": 75,
+  "task": "Open research programme civ-seeding (track 24 draw: no open civ programme) and land milestone 1, a reproduction of Banerjee et al. (2013)'s information-model estimate on their CC0 data",
+  "projects": [
+    "civ-seeding"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15616",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Harvard Dataverse download of the BCDJ archive refused without a guestbook form (name/email); read the same datav4.0 archive from a public GitHub mirror instead (ftschofenig/EmergentDirectedness) and recorded provenance in data/build_dataset.py",
+      "fixed": true
+    },
+    {
+      "what": "first test run: adoption-probability test used beta 5 (p = 0.993) and flaked by construction; changed to 50",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "Track 24 draw said to open a programme but its 'next step' lookup found no Next steps section in civ-levers/civ-patterns; the actual open items live in PROJECTS.md's milestone notes, which it did not surface."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says to attach a GitHub-hosted dataset with add_repo; for public repos add_repo only says read access is already available and to clone yourself. A sparse, blob-filtered clone (git clone --filter=blob:none --sparse) was what made a large mirror usable; worth a line."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Deep-tech direction asks new programmes to come from chips/robotics/energy etc.; the draw sent this run to track 24 (civ, a curiosity track by the owner's request). Opened the programme there anyway and framed the application as energy/farm technology rollouts, stating that transfer from microfinance is a hypothesis.",
+      "did": "civ programme with a named deep-tech application section",
+      "result": "proposal passes programme_check; application is honest but indirect"
+    },
+    {
+      "file": "research/PROGRAMMES.md",
+      "why": "A proposal is a full session's work and counts; did the proposal plus milestone 1 (a real-data reproduction) in one PR since the data and the reproduction define the programme's baseline.",
+      "did": "proposal + M1 in one PR",
+      "result": "landed both"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-rerunning-the-diffusion-of-microfinance.md",
+    "research/civ-seeding/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Results: port reproduces take-up (0.187 vs 0.185; leaders 0.247 vs 0.248), qP>qN in 98.4% of 1000 bootstrap draws, and the qN=0 counterfactual (drop 0.337 vs 0.32), but the grid minimum is (0.05, 0.30) for three seeds vs published (0.10, 0.50), which scores 11x the minimum; qP 95% bootstrap interval [0.15, 1.0]. Post-hoc: two-step weights qP 0.20-0.25; quarters (0.05, 0.15); months (0.01, 0.10). 15/15 DOIs ok via cite_check. Local checks: pytest 10 passed; research/_homepage/build.py ok; check_md_links ok; programme_check ok; post frontmatter/links/similarity ok; run_workflow_locally --for-changes output in PR. No agent doc in docs/reports: LOG.md and README Next steps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "92fcc583-1822-589a-b43c-2b84d28c7494",
+    "transcripts": 1,
+    "first": "2026-11-13T21:07:22Z",
+    "last": "2026-11-13T21:21:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 67,
+        "input": 132,
+        "output": 53413,
+        "thinking": 12320,
+        "cache_read": 8363508,
+        "cache_write_5m": 0,
+        "cache_write_1h": 158823,
+        "api_equivalent_usd": 4.0121,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 67,
+      "input": 132,
+      "output": 53413,
+      "thinking": 12320,
+      "cache_read": 8363508,
+      "cache_write_5m": 0,
+      "cache_write_1h": 158823,
+      "api_equivalent_usd": 4.0121,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 75,
+    "tools": {
+      "Bash": 62,
+      "Write": 7,
+      "mcp__claude-code-remote__add_repo": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.82,
+      "active_minutes": 13.82,
+      "model_minutes": 10.3,
+      "tool_minutes": 3.53,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "data sourcing and conversion ~4h, port of the BCDJ Matlab estimator with tests ~8h, grid/bootstrap runs and robustness ~4h, proposal with 15 checked references ~6h, write-up ~2h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 598.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

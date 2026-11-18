@@ -1,0 +1,60 @@
+name: extreme-value-analysis
+description: >-
+  Free browser tool, CLI and agent call for engineers, hydrologists, insurers,
+  facility and energy planners: paste annual maxima or a long daily series and
+  get return levels (the 100-year flood, design wind speed or peak load) from
+  GEV, Gumbel and generalized Pareto fits, with profile-likelihood intervals,
+  declustering, threshold stability, a trend test and design-life risk, checked
+  against scipy. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-16 on an explore run, as a research-algorithm tool for the
+# industrial, energy and construction directions: the repository had changepoint,
+# trend and survival tools but nothing for the tail. Implemented from Coles (2001)
+# and the cited papers; no third-party code was ported. scipy was used only to
+# produce eval/reference.json. Example data: USGS 01646500 (public domain),
+# data/SOURCE.md.
+#
+# First visitor: searches such as "100 year flood calculator", "return period
+# calculator", "gev distribution fit online", "gumbel distribution calculator",
+# "peaks over threshold", "design wind speed return period"; civil engineering
+# students, small consultancies and analysts without R's extRemes or Python's
+# pyextremes. Volume not measured with an external tool.
+#
+# Alternatives: R's extRemes, ismev and evd; Python's pyextremes and scipy;
+# USGS PeakFQ (Bulletin 17C, the US federal standard for flood frequency);
+# commercial hydrology suites. Differentiators here: no install, profile
+# intervals by default (with the coverage evidence on the page), both methods on
+# one series, and tests pinned to scipy.
+#
+# Liability: statistical output, not an engineering study or design value; the
+# page names Bulletin 17C and states the stationarity, independence and
+# extrapolation limits. Data never leave the browser (tests assert no network).
+
+hypotheses:
+  - claim: >-
+      Engineers and students who need a 100-year value from a gauge or weather
+      record will use a no-install tool that shows an honest interval, and will
+      link or cite it.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a fit or return level that disagrees with R's extRemes or scipy on the same data and options, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/extreme-value-analysis/
+  analytics: null

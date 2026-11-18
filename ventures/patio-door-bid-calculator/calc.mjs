@@ -122,12 +122,19 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
   return result;
 }
 
+// A checkbox arrives as a boolean from the page and as a word from a shared
+// link, a CLI or an agent calling the engine. Boolean('no') is true, so a
+// word this does not know is an error rather than a silent "yes".
+const FLAG_TRUE = ['true', '1', 'yes', 'y', 'on'];
+const FLAG_FALSE = ['false', '0', 'no', 'n', 'off', ''];
+
 function flag(value) {
-  if (value === true || value === 'true' || value === '1' || value === 1) return true;
-  if (value === false || value === 'false' || value === '0' || value === 0 || value === '' || value == null) {
-    return false;
-  }
-  return Boolean(value);
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0 || value == null) return false;
+  const word = String(value).trim().toLowerCase();
+  if (FLAG_TRUE.includes(word)) return true;
+  if (FLAG_FALSE.includes(word)) return false;
+  throw new Error(`Expected yes or no, got "${value}"`);
 }
 
 /**
@@ -203,6 +210,26 @@ export function suggestedAccessKit(access) {
   if (id === 'ground') return { hoursAccess: 0 };
   if (id === 'balcony') return { hoursAccess: 1.8 };
   throw new Error('Unknown patio-door access');
+}
+
+/**
+ * Which restored (saved or shared) fields count as hand-entered. A value
+ * that differs from the kit its own restored selects would suggest is a
+ * rate the shop tuned and must survive the next kit apply; one equal to the
+ * suggestion is not, so changing a select on a later visit still moves it.
+ * Marking every restored field as edited froze the price after the first
+ * visit (quality audit 2026-11-17-patio-door-bid-calculator).
+ */
+export function restoredOverrides(values, choices = {}) {
+  const pick = (id) => values[id] ?? choices[id];
+  const kit = {
+    ...suggestedConfigKit(pick('config')),
+    ...suggestedFrameKit(pick('frame')),
+    ...suggestedGlazingKit(pick('glazing')),
+    ...suggestedInstallKit(pick('install')),
+    ...suggestedAccessKit(pick('access')),
+  };
+  return Object.keys(values).filter((id) => !(id in kit) || Number(values[id]) !== kit[id]);
 }
 
 /**
@@ -307,7 +334,7 @@ export function calculateBid(input) {
   const price = totalCost / (1 - targetMargin / 100);
   const profit = price - totalCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);

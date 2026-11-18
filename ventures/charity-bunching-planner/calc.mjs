@@ -30,10 +30,10 @@ export const DEFAULTS = {
   years: 10,
   maxGap: 4,
   annualGift: 8000,
-  standardDeduction: 32000,
+  standardDeduction: 32200,
   otherItemized: 22000,
   agi: 180000,
-  ratePct: 32,
+  ratePct: 22,
   stateRatePct: 5,
   nonItemizerCap: 2000,
   inflationPct: 2.5,
@@ -53,7 +53,7 @@ const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
 export function money(x) {
   if (!Number.isFinite(x)) return "n/a";
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function pct(x, d = 1) {
   return Number.isFinite(x) ? (x * 100).toFixed(d) + "%" : "n/a";

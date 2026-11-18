@@ -160,7 +160,7 @@ test("a bad date is an error and the row is left out", () => {
 });
 
 test("tab-separated exports and a BOM are read", () => {
-  const tsv = "﻿" + sampleReport().replace(/,/g, "\t");
+  const tsv = "\uFEFF" + sampleReport().replace(/,/g, "\t");
   assert.equal(validate(tsv, sampleOpts()).journals.length, 2);
 });
 
@@ -207,4 +207,11 @@ test("generic journals CSV and workings CSV carry their headers and every row's 
   const w = workingsCsv(res.workings).trim().split("\r\n");
   assert.equal(w.length, 5);
   assert.match(w[1], /0\.735,0\.75,/);
+});
+
+test("an unquoted thousands separator is an error on that line, not a $1.00 payment", () => {
+  const r = parseRows("Date,Description,Amount\n2026-09-21,Google AdSense payment,1,842.17\n2026-09-21,US tax withholding,-144.83");
+  assert.deepEqual(r.rows.map((x) => x.line), [3]);
+  assert.match(r.findings.find((f) => f.severity === "error").title, /^Line 2 has 4 fields but the header has 3/);
+  assert.equal(parseRows("Date,Description,Amount\n2026-09-21,Google AdSense payment,842.17,").rows[0].amount, 84217);
 });

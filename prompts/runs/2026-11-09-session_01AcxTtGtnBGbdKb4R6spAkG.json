@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtGtnBGbdKb4R6spAkG",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there (scheduled)",
+  "input_sha256": "4089edbb83e0eda8db85acdf10601b9c582ad7e98bb6145969ccaadf7186a02b",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T18:17:26Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14328",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 checks only open quality PRs; a round merged minutes earlier on the same seed is invisible, so two sessions audited identical subjects."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 asks for small safe fixes in separate PRs; none made this round because the defects found were in project content (page text, research models) better fixed by the owning project's session.",
+      "did": "recorded all defects in audit files and the post",
+      "result": "no fix PRs; later round re-audits"
+    },
+    {
+      "file": "prompt.md",
+      "why": "Another session landed round 30 on the same seed while this ran; I kept my independent audits as -b files and called the post round 31.",
+      "did": "renamed files, merged main",
+      "result": "two independent audits of the same subjects"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-quality-audit-round-31.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-09; subjects photo-editing (flagship r3), world-clock-widget, hardwood-refinishing-bid-calculator, rank-elicitation, mimic-batch; 0 of 4 sampled meet the bar; fix PRs: none. Spot-checked rank-elicitation Brier d^2/2 vs 2d^2 by hand and photo-editing page claims by grep.",
+  "corrections": [],
+  "redteam": null
+}

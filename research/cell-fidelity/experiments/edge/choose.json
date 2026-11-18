@@ -1,0 +1,45 @@
+{
+ "counts": {
+  "Ecker2015@1.5x": {
+   "starved": 27,
+   "sound": 13
+  },
+  "Marquis2019@3x": {
+   "starved": 39,
+   "sound": 9
+  },
+  "Mohtat2020@3x": {
+   "starved": 13,
+   "sound": 36
+  },
+  "NCA_Kim2011@0.75x": {
+   "starved": 49,
+   "sound": 4
+  },
+  "OKane2022@1.75x": {
+   "starved": 46,
+   "sound": 5
+  },
+  "Chen2020@2.5x": {
+   "starved": 60,
+   "sound": 0
+  },
+  "Ecker2015@3x": {
+   "starved": 60,
+   "sound": 0
+  },
+  "Ai2020@0.375x": {
+   "starved": 10,
+   "sound": 44
+  },
+  "Ai2020@0.625x": {
+   "starved": 29,
+   "sound": 25
+  }
+ },
+ "chosen": [
+  "Ecker2015@1.5x",
+  "Mohtat2020@3x",
+  "Ai2020@0.375x"
+ ]
+}

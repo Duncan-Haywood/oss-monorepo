@@ -1,0 +1,383 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqydJmNxZfZCQ12nmnr3",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T10:38:57Z",
+  "ended": "2026-11-14T10:39:26Z",
+  "wall_minutes": 6.99,
+  "tokens_in": 4888861,
+  "tokens_out": 29752,
+  "cost_usd": 2.4413,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15823",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 asks to fix every open entry first, but all 11 are control-plane fixes that already have PRs waiting for the owner; the open list should mark entries whose fix PR is open so runs skip the re-check (took ~3 min to match each to a PR)."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 1 suggests `git log --since=3.days --name-only origin/main` to pick a target, but the clone is shallow (depth 1), so it prints nothing until you fetch --depth=40."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-blank-field-silently-filled-with-the-example.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 (random draw) film-tax usage.mjs 7/8; campaign 2 calc.mjs 4/8. All 5 escapes are gaps; tests added, rerun all caught_after_fix true (68.8% -> 100%). Hunt: page opts() swapped blank fields for DEFAULTS unseen; same line in 36 index.html pages, fixed by writing the fallback back into the field (button-only pages, checked: no input listeners). Guards: new platform/ci/check_blank_defaults.py + test (36 hits on main, 0 after; run by unwired_checks.py on ventures PRs). usage_contract.mjs now checks opt-out persistence across a fresh module import and usageOptedOut() false on blocked storage (global throws, and methods throw); 1058 copies pass; 3 new fixture mutants rejected. Probe before writing it: all 1058 copies already persist the opt-out. Left for a later run: the same fallback in library parsers franchise-item-19-reality-check/calc.mjs fieldsToCosts and mortgage-extra-payment-vs-invest-calculator/calc.mjs clean() (not reproduced as a user-visible defect; the lint scopes to .html). Verification: node --test in all 36 changed ventures (36 exit 0); test_check_blank_defaults 5 OK; test_check_storage_guard 41 OK; check_storage_guard.py exit 0; Chromium on film-tax page: blanked uplift fields show 20/10 after Run, no console errors.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+        "test": "node --test ventures/film-tax-credit-net-value-calculator/**/*.test.mjs  (in .)",
+        "seed": 796246332,
+        "commit": "93f3ff1cd",
+        "sites": 24,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 11,
+            "col": 31,
+            "operator": "eq-flip",
+            "before": "return typeof localStorage === \"undefined\";",
+            "after": "return typeof localStorage !== \"undefined\";",
+            "line_text": "    return typeof localStorage === \"undefined\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 24,
+            "col": 24,
+            "operator": "and-to-or",
+            "before": "return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "after": "return !noStorage() || localStorage.getItem(OPT_OUT) === \"1\";",
+            "line_text": "    return !noStorage() && localStorage.getItem(OPT_OUT) === \"1\";",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 27,
+            "col": 11,
+            "operator": "false-to-true",
+            "before": "return false;",
+            "after": "return true;",
+            "line_text": "    return false;",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Blocked-store branch of usageOptedOut (getItem throws). No copy's suite but sql-migration-lock-check's stored a throwing getItem; the page disables its opt-out button on true. Added usage.test.mjs case, and usage_contract.mjs now checks usageOptedOut() on both blocked shapes plus opt-out persistence across a fresh module load, for all 1058 copies."
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 34,
+            "col": 37,
+            "operator": "or-to-and",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" && navigator.globalPrivacyControl) return true;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 45,
+            "col": 51,
+            "operator": "or-to-and",
+            "before": "current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "after": "current = JSON.parse(localStorage.getItem(KEY) && \"{}\");",
+            "line_text": "    current = JSON.parse(localStorage.getItem(KEY) || \"{}\");",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/usage.mjs",
+            "line": 62,
+            "col": 35,
+            "operator": "eq-flip",
+            "before": "return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "after": "return parsed && typeof parsed !== \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "line_text": "    return parsed && typeof parsed === \"object\" && !Array.isArray(parsed) ? parsed : {};",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+        "test": "node --test ventures/film-tax-credit-net-value-calculator/**/*.test.mjs  (in .)",
+        "seed": 150655748,
+        "commit": "93f3ff1cd",
+        "sites": 161,
+        "baseline_seconds": 0.1,
+        "mutants": [
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 28,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "bridgeRatePct: 12,",
+            "after": "bridgeRatePct: 13,",
+            "line_text": "  bridgeRatePct: 12,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Example defaults were pinned only by inequalities. Added a hand-worked example test (gross 669,600, bridge 42,184.80, received 525,367.20)."
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 37,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);",
+            "after": "const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 1);",
+            "line_text": "const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 51,
+            "col": 69,
+            "operator": "div-to-times",
+            "before": "const upliftBase = qualified * Math.min(nz(o.upliftSharePct), 100) / 100;",
+            "after": "const upliftBase = qualified * Math.min(nz(o.upliftSharePct), 100) * 100;",
+            "line_text": "  const upliftBase = qualified * Math.min(nz(o.upliftSharePct), 100) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 53,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "const gross = belowMin ? 0 : qualified * nz(o.baseRatePct) / 100 + upliftBase * nz(o.upliftRatePct) / 100;",
+            "after": "const gross = belowMin ? 1 : qualified * nz(o.baseRatePct) / 100 + upliftBase * nz(o.upliftRatePct) / 100;",
+            "line_text": "  const gross = belowMin ? 0 : qualified * nz(o.baseRatePct) / 100 + upliftBase * nz(o.upliftRatePct) / 100;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 61,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "const years = nz(o.monthsToCash) / 12;",
+            "after": "const years = nz(o.monthsToCash) / 13;",
+            "line_text": "  const years = nz(o.monthsToCash) / 12;",
+            "caught": true,
+            "seconds": 0.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 66,
+            "col": 49,
+            "operator": "div-to-times",
+            "before": "const headline = qualified * nz(o.baseRatePct) / 100;",
+            "after": "const headline = qualified * nz(o.baseRatePct) * 100;",
+            "line_text": "  const headline = qualified * nz(o.baseRatePct) / 100;",
+            "caught": false,
+            "seconds": 0.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "headline was asserted only by received < headline + 1e9, a vacuous bound. Test now pins headline = qualified x base rate and compares received with granted."
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 111,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "w(r.granted > 0 && r.received < 0, \"Fees and financing cost more than the credit is worth at these inputs.\");",
+            "after": "w(r.granted > 1 && r.received < 0, \"Fees and financing cost more than the credit is worth at these inputs.\");",
+            "line_text": "  w(r.granted > 0 && r.received < 0, \"Fees and financing cost more than the credit is worth at these inputs.\");",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "No test had a credit between 0 and 1 dollar. Added: budget 4, fixed cost 1000, granted 0.4, loss warning must fire."
+          },
+          {
+            "file": "ventures/film-tax-credit-net-value-calculator/calc.mjs",
+            "line": 114,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const shares = [30, 45, 60, 75, 90].map((p) => ({ p }));",
+            "after": "const shares = [31, 45, 60, 75, 90].map((p) => ({ p }));",
+            "line_text": "  const shares = [30, 45, 60, 75, 90].map((p) => ({ p }));",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Grid share labels never asserted. Added deepEqual on [30,45,60,75,90]."
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/film-tax-credit-net-value-calculator/index.html",
+        "issue": "opts() replaced any blank or unparseable field with the example value (DEFAULTS[k]) while the field stayed empty: blanking the two uplift fields added a 20% x 10% uplift, blanking the minimum restored a $250,000 floor, unseen. Same line in 35 more calculator pages. Fixed: the fallback is written back into the field so the form shows what was computed; platform/ci/check_blank_defaults.py flags the silent form (36 hits on main, 0 after).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15823"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b42919ff-6419-5cb5-8e45-deb07166dd68",
+    "transcripts": 1,
+    "first": "2026-11-14T10:38:57Z",
+    "last": "2026-11-14T10:45:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 29752,
+        "thinking": 8805,
+        "cache_read": 4777475,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111294,
+        "api_equivalent_usd": 2.4413,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 29752,
+      "thinking": 8805,
+      "cache_read": 4777475,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111294,
+      "api_equivalent_usd": 2.4413,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 46,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 6.99,
+      "active_minutes": 6.99,
+      "model_minutes": 4.89,
+      "tool_minutes": 2.1,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior engineer: two mutation campaigns, a 36-page fix with browser check, a new lint and contract extension with tests",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 204.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

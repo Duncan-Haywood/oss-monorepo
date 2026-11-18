@@ -12,7 +12,7 @@ test("CSV parsing handles quoted fields, embedded commas, quotes and newlines", 
   const rows = parseCsv('a,b\n"Smith, Jo","say ""hi"""\n"line\nbreak",3\n');
   assert.deepEqual(rows[1], ["Smith, Jo", 'say "hi"']);
   assert.deepEqual(rows[2], ["line\nbreak", "3"]);
-  assert.equal(parseCsv("﻿x,y\r\n1,2\r\n")[0][0], "x");
+  assert.equal(parseCsv("\uFEFFx,y\r\n1,2\r\n")[0][0], "x");
 });
 
 test("money, dates, delimiters and UTF-16 are read", () => {

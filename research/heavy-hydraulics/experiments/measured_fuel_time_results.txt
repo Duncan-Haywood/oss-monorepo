@@ -1,0 +1,48 @@
+record 440.2 s, fuel 0.935 L (7.65 L/h mean); measured hydraulic 3867 kJ, authors' shaft estimate 4725 kJ -> eta 0.818 (central; swept (0.75, 0.85, 0.95))
+check: Willans slope refitted 0.2332 L/kWh (5n: 0.2332), intercept -0.940 L/h, r 0.957
+f_t, fuel rate over the extra time, L/h: (i) still 5.99 (over 36.2% of samples, engine power there 28.6 kW); (ii) rest of machine 5.15 (central: 7.65 less 0.2332 x 10.73 kW); (iii) low, p5 of 1 s means 1.48
+load-sensing at the measured 24.9 bar margin: model hydraulic 3957 kJ (measured 3867), fuel 0.942 L
+load-sensing time with its own 63 cc limit 444.6 s against the record's 440.2 s (5w's data check: the derived demand exceeds the 63 cc pump in places; both circuits carry it, so only T_OC - T_LS is charged)
+check: at 5w's V_eq 28.51 cc, m* 24.90 bar and the hydraulic part is +0.00 mL (zero by construction)
+
+whole record, fuel per unit of work: open-centre minus load-sensing, central eta and f_t (rest of machine)
+  Vg cc  T_oc/T_ls  hyd mL  time mL  total mL  OC/LS fuel
+  63.00     0.9997   122.6     -0.2     122.4     1.1299
+  56.00     1.0287    90.5     18.2     108.8     1.1154
+  50.00     1.0670    67.2     42.6     109.8     1.1165
+  45.00     1.1096    49.4     69.6     119.0     1.1263
+  40.00     1.1659    32.9    105.4     138.3     1.1468
+  36.00     1.2248    20.7    142.9     163.6     1.1736
+  32.00     1.3012     9.3    191.4     200.7     1.2130
+  28.00     1.4033    -1.3    256.3     255.0     1.2706
+  25.00     1.5046    -8.7    320.7     312.0     1.3310
+  28.51     1.3884     0.0    246.9     246.9     1.2619
+fuel-minimising Vg (0.5 cc grid, central): 53.5 cc, open-centre +107.9 mL (+11.5% of load-sensing fuel); on the registered sweep 56 cc
+
+sensitivity: OC/LS fuel at 63 cc, at the fuel-minimising Vg (0.5 cc grid) and at V_eq, for each f_t and eta
+  f_t     L/h   eta   63 cc   best Vg (OC/LS)   V_eq   any Vg with OC <= LS
+  still   5.99 0.750  1.1417   54.5 (1.1269)     1.3047   no
+  still   5.99 0.850  1.1250   56.0 (1.1150)     1.3047   no
+  still   5.99 0.950  1.1118   57.5 (1.1049)     1.3047   no
+  still   5.99 0.818  1.1298   55.5 (1.1185)     1.3047   no
+  rest    5.15 0.750  1.1417   52.5 (1.1221)     1.2619   no
+  rest    5.15 0.850  1.1250   54.0 (1.1113)     1.2619   no
+  rest    5.15 0.950  1.1119   55.5 (1.1021)     1.2619   no
+  rest    5.15 0.818  1.1299   53.5 (1.1145)     1.2619   no
+  low     1.48 0.750  1.1419   35.5 (1.0676)     1.0755   no
+  low     1.48 0.850  1.1252   37.0 (1.0647)     1.0755   no
+  low     1.48 0.950  1.1120   38.5 (1.0620)     1.0755   no
+  low     1.48 0.818  1.1300   36.5 (1.0656)     1.0755   no
+
+per Y-cycle (18 cycles), central: OC/LS fuel at 63 cc, at V_eq and the per-cycle fuel-minimising Vg (1 cc grid)
+  OC/LS fuel at 63 cc    median 1.120 (min 1.076, max 1.217)
+  OC/LS fuel at V_eq     median 1.260 (min 1.195, max 1.328)
+  best Vg, cc            median 54.500 (min 45.000, max 60.000)
+  OC/LS fuel at best Vg  median 1.106 (min 1.067, max 1.164)
+  cycles where some Vg gives OC <= LS fuel: 0 of 18
+
+X1 HOLDS (OC fuel at V_eq > 1.15 x LS, central: 1.2619)
+X2 HOLDS (no Vg with OC fuel <= LS under any f_t reading and eta 0.75 to 0.95)
+X3 HOLDS (fuel-minimising Vg in 45 to 56 cc, central: 53.5)
+X4 HOLDS (minimum penalty 7 to 13%, central: 11.5%)
+X5 REFUTED (still rate below rest-of-machine rate: 5.99 vs 5.15 L/h)

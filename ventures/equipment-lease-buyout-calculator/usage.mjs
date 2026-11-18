@@ -56,7 +56,8 @@ export function recordEvent(eventName) {
   try {
     const ls = storage();
     if (!ls) return;
-    const current = JSON.parse(ls.getItem(KEY) || '{}');
+    let current = JSON.parse(ls.getItem(KEY) || '{}');
+    if (!current || typeof current !== 'object' || Array.isArray(current)) current = {};
     current[eventName] = (current[eventName] || 0) + 1;
     ls.setItem(KEY, JSON.stringify(current));
   } catch {
@@ -81,7 +82,11 @@ export function saveScenario(store, scenario) {
   try {
     const value = {};
     for (const field of SCENARIO_FIELDS) {
-      const number = Number(scenario?.[field]);
+      const raw = scenario?.[field];
+      // Number('') and Number(null) are 0: a cleared field must not save as
+      // zero when the calculator itself refuses a blank.
+      if (raw === null || raw === undefined || String(raw).trim() === '') return false;
+      const number = Number(raw);
       if (!Number.isFinite(number) || number < 0) return false;
       value[field] = number;
     }

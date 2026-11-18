@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydvFpPUSwguZz4Ns2d",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:39:24Z",
+  "ended": "2026-11-15T06:50:27Z",
+  "wall_minutes": 31.07,
+  "tokens_in": 7470399,
+  "tokens_out": 77219,
+  "cost_usd": 4.3429,
+  "tool_calls": 62,
+  "task": "Hearth & Horizon story: galvanic corrosion from copper roof runoff (after a first story on frost heave was beaten to main by #16124)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16125",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "First frost model run used dz=0.02 m with dt=1800 s (explicit scheme unstable) and reported 0 m frost; caught and rerun at dz=0.025 m, dt=150 s with numpy.",
+    "Wrote a full frost-heave story ('A Metre Forty', ~5,200 words) from the bible's one open H&H proposal; at merge time PR #16124 had landed 'The Water That Walks Up' from the same proposal minutes earlier, near-identical in setting (near Sejny, 1931 bell, 78-year-old mason). Dropped it and wrote a second story from a proposal this run drafted itself."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "'Pick the project that has gone longest without a new piece' via git log is unreliable on the shallow clone: the last 15 commits touching the folders all looked like hearth-and-horizon, while saints-by-candlelight episodes dated 2026-11-15 already existed. Episode front-matter dates were the better signal."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "Finishing the only open Hearth & Horizon proposal leaves the shelf empty, so the run has to write a new proposal and probe overlap.mjs several times (water hammer, heat pump, borehole all taken) before finding an unused subject; a short list of unused subjects would save a run several minutes."
+    },
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "With one open proposal per shelf, two parallel creative runs both took the same proposal and produced near-identical stories; the open-PR search found nothing because the other run opened its PR late. A claim marker (e.g. an early draft PR or a 'claimed by <session>' line pushed first) or two proposals per shelf would cut collisions."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The finished frost-heave story duplicated one merged minutes earlier (#16124); landing a second near-identical piece serves no reader.",
+      "did": "Reset the branch, discarded 'A Metre Forty', wrote 'What the Rain Carries' from the galvanic-corrosion proposal this run had drafted, reused PR #16125.",
+      "result": "One distinct story lands; about half the run's writing was discarded."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-what-the-rain-carries-galvanic-corrosion.md"
+  ],
+  "goal": "creative: Hearth & Horizon (headline shelf)",
+  "notes": "Project: hearth-and-horizon, piece: what-the-rain-carries (Hearth & Horizon shelf, about 3,700 words, text only: audio folders at 474 MB, over the 400 MB cap). Numbers: 28 m\u00b2 copper, 1.5 g/m\u00b2/yr (published 1-2 range), 42 g/yr, 2.3 mg/L, 1.03 g Zn per g Cu, illustrative 3.4 \u00b5m/yr average vs observed pits; footbath 11,000x; weekdays and Advent checked in code. Discarded first story (a-metre-forty, frost heave) after #16124 landed the same proposal; its 1D enthalpy frost model is described in the run's transcript only. Checks: node generate.mjs --check current, venture node --test 17/17, check_post_frontmatter, check_post_links, post_similarity clean. BIBLE: proposal added as done (moved to DONE.md), 2058 timeline row; the shelf still has one open H&H proposal (pipe contraction).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "72bc6f95-08e7-50a4-86fc-7072284b2bb6",
+    "transcripts": 1,
+    "first": "2026-11-15T06:39:24Z",
+    "last": "2026-11-15T07:10:28Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 77219,
+        "thinking": 36323,
+        "cache_read": 7303106,
+        "cache_write_5m": 0,
+        "cache_write_1h": 167184,
+        "api_equivalent_usd": 4.3429,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 77219,
+      "thinking": 36323,
+      "cache_read": 7303106,
+      "cache_write_5m": 0,
+      "cache_write_1h": 167184,
+      "api_equivalent_usd": 4.3429,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 62,
+    "tools": {
+      "Bash": 52,
+      "Write": 4,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.07,
+      "active_minutes": 18.54,
+      "model_minutes": 14.47,
+      "tool_minutes": 4.07,
+      "waiting_on_human_minutes": 12.53,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "writing and fact-checking two science fiction stories (one discarded as a duplicate), with a freezing model and corrosion arithmetic",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 276.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

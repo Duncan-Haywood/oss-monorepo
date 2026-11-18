@@ -1,0 +1,232 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/qual-highrecall",
+ "stratum": "research",
+ "seed": "2026-11-13-s-690a",
+ "drawn_by": "sample",
+ "round": 73,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a survey statistician who referees for the Journal of Survey Statistics and Methodology or JASA (and knows the classifier-assisted prevalence / prediction-powered inference literature). They would check first that the stratified variance and Neyman allocation match Cochran (1977, ch. 5), whether the Monte Carlo adds anything over the closed form, whether the right baseline (proportional allocation, not only equal allocation and simple random sampling) is in the comparison, and whether the stated audit sizes are the ones actually drawn",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Reran experiments/run.py through a wrapper that redirects its output to the scratchpad (PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/rerun.py /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/rerun; GoEmotions goemotions_1.csv sha256 cac04903...): diff against the committed experiments/results.txt is empty (byte-identical). Independent script /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py (own csv parser + numpy, Demszky et al. 2020 negative-sentiment grouping, Cochran 1977 ch. 5 formulas, own numpy sampler) reproduces: 5,313 examples and prevalence 0.2469; SRS Wald width 0.1195 at n=200; Neyman negative shares 0.425/0.183/0.000 (README 0.425/0.184/0.000); analytic stratified widths at 200 items for shares >= 0.1 within 0.003 of the table (e.g. x2.0 s=0.5 0.115, x3.0 s=0.2 0.115 vs 0.116, x4.0 s=0.02 0.120); Monte Carlo worst-coder coverage at 200 items 0.455/0.771/0.942 for shares 0.02/0.05/0.2 against 0.480/0.772/0.942 (within MC error of 1,000 reps). Recall/precision/miss-rate rows are mutually consistent. Numbers are right; the defects are in labelling and design, not arithmetic.",
+  "completeness": "Everything the README lists exists and runs: run.py (about a minute plus the 14 MB download), figure.py and the SVG, two unit tests (pass), results.txt sections 1-7, live page https://marisstella.app/research/qual-highrecall/ returns 200. Next steps (LLM coder, Wilson stratum interval) are honestly marked open. No stubs or dead links found.",
+  "verification": "`cd research/qual-highrecall && /usr/bin/python3.13 -m unittest test_highrecall`: Ran 2 tests, OK in 0.03 s. One test exercises dependency code on a synthetic recall-1 corpus (an inequality that is nearly guaranteed); the other parses the committed results.txt, a static file, so nothing in run.py is ever executed by the suite. Three mutants seeded with platform/ci/quality_mutate.py in run.py (interval width halved, recall formula replaced by precision, baseline variance p(1-p) -> p): all three SURVIVED.",
+  "craft": "Read experiments/run.py, experiments/figure.py, test_highrecall.py and the dependency chain qual-lowrate/qualrate.py -> qual-labelaudit/qualaudit.py -> qual-gate/qualgate.py and qual-real/qualreal.py. Compact, readable, seeded, stdlib-only, reuses the track's estimator instead of copying it. Nits a reviewer would raise: run.py:32-33 skip branch is dead (draw always returns >= 2 per stratum, so `skipped` is always 0); `import run as real` puts a module named `run` in sys.modules (fragile if another `run` is imported); run.py writes results.txt into the tree with no output flag; the draw silently caps the negative stratum at its size (see defects).",
+  "claims": "Every number in the README and project.json traces to results.txt, and the limitations (not an LLM, weak classifier, one corpus, Wald only, no FPC) are stated plainly. But: (a) the table titled '200 audited items' includes x4.0 cells at shares 0.3 and 0.5 that audited 180 and 140 items, because the coder-negative stratum has only 40 items and draw() caps it without reallocating; (b) the headline 'best share each ... 0.119' for the recall-1.00 coder is the share-0 (positives-only) cell, not shown in the README table, whose best shown cell is 0.120; (c) 'the recall 1.00 coder is fine (0.95-0.97)' - at 200 items it is 0.942-0.969, at 100 0.934-0.954; (d) 'yes, a low rate helps' is relative to equal allocation; against proportional allocation (25.9% of the audit for the recall-0.90 coder, analytic width 0.117) the gain of the 10-20% share is about 1.5%, which the README does not say.",
+  "fitness": "A researcher can build on it: reproducible byte-for-byte, seeded, small, and it answers the open question left by qual-lowrate. Nearest prior work: Cochran (1977) ch. 5 (stratified variance, Neyman vs proportional allocation, and the known small gain of stratification for proportions unless stratum proportions differ widely), prediction-powered inference (Angelopoulos et al. 2023, cited in qual-lowrate but not here) and the classifier-assisted sampling-for-evaluation literature (e.g. Bennett & Carvalho 2010; Sawade et al. 2010; Katariya et al. 2012), none of which this README cites beyond Cochran. The width results are a closed-form consequence of Cochran's formula (my analytic widths match the Monte Carlo to 0.003); the only empirical content beyond the formula is the coverage failure of Wald intervals when audited negatives are all zero, which is also well known. Sound, not new; a step in a programme rather than a publishable result.",
+  "domain": "Stratified estimator, Wald SE and Neyman allocation are textbook-correct (Cochran 5.2-5.5). Departures a survey statistician would flag: no proportional-allocation baseline (the standard comparator, which is never worse than SRS); the coder is binarised at one cut-off when the continuous naive-Bayes score is available for multi-stratum or difference/regression (PPI) estimation, so 'no gain over a random audit' is specific to two strata; the cut-off k = ratio x (number of human positives in the evaluated set) uses the evaluation labels (run.py:53 -> qual-gate/qualgate.py:40); Wald coverage failure with zero-variance strata is acknowledged but the remedy is left open; FPC ignored even where the x4.0 negative stratum is audited in full (40 of 40)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "rerun of the experiment reproduces results.txt",
+   "method": "rerun through a wrapper writing to the scratchpad, diff against the committed file",
+   "command": "PYTHONDONTWRITEBYTECODE=1 /usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/rerun.py /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/rerun && diff /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/rerun/results.txt research/qual-highrecall/experiments/results.txt",
+   "expected": "no diff",
+   "observed": "no diff (byte-identical)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "example count and human prevalence from the raw GoEmotions CSV",
+   "method": "own csv parser; Demszky et al. (2020) negative-sentiment grouping (11 emotions), majority of >= 3 raters, unclear dropped",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py",
+   "expected": "5313 examples; evaluated-set prevalence 0.2469",
+   "observed": "5313; 0.2469",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "no-coder baseline width at n=100/200/400",
+   "method": "Wald width 2*1.959964*sqrt(p(1-p)/n), statistical standard",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py",
+   "expected": "0.1690 / 0.1195 / 0.0845",
+   "observed": "0.1195 at n=200 (others by hand: 0.1690, 0.0845)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Neyman (oracle) negative share per coder",
+   "method": "Cochran (1977) eq. 5.26 n_h proportional to W_h S_h, from stratum proportions computed with numpy",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py",
+   "expected": "README 0.425 / 0.184 / 0.000",
+   "observed": "0.425 / 0.183 / 0.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "width table, 200 items, shares >= 0.1",
+   "method": "Cochran (1977) eq. 5.6 V = sum W_h^2 p_h q_h / n_h, closed form",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py",
+   "expected": "x2.0: 0.165/0.130/0.118/0.115; x3.0: 0.119/0.116/0.119/0.136; x4.0: 0.125/0.132/0.141/0.167",
+   "observed": "x2.0: 0.168/0.131/0.118/0.115; x3.0: 0.120/0.115/0.119/0.136; x4.0: 0.125/0.133/0.142/0.168",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "worst-coder coverage at 200 items, shares 0.02/0.05/0.2",
+   "method": "independent numpy Monte Carlo, 4,000 draws, sample-variance Wald",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py",
+   "expected": "README 0.48 / 0.77 / 0.94",
+   "observed": "0.455 / 0.771 / 0.942 (x2.0 coder); MC SE about 0.016 at 1,000 reps",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Width of the 95% interval, 200 audited items' table",
+   "method": "count the items qr.draw returns for the x4.0 coder (negative stratum size 40)",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/negsize.py; qr.draw(200, s, neg[40], pos[3148])",
+   "expected": "200 items in every cell",
+   "observed": "x4.0 at s=0.3: 180 items; s=0.5: 140 items (400-item row: 361/321/241 at 0.2/0.3/0.5)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline 'best share each ... 0.115, 0.116 and 0.119'",
+   "method": "compare to results.txt section 3",
+   "command": "sed -n '21,32p' research/qual-highrecall/experiments/results.txt",
+   "expected": "best shown cell for x4.0 = 0.119",
+   "observed": "0.119 is the share-0 (positives-only) cell; best cell in the README table (shares >= 0.02) is 0.120",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "'The recall 1.00 coder is fine (0.95-0.97)'",
+   "method": "results.txt section 2",
+   "command": "grep nb_x4.0 research/qual-highrecall/experiments/results.txt | head -3",
+   "expected": "0.95-0.97",
+   "observed": "200 items: 0.942-0.969; 100 items: 0.934-0.954",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "bias within +/-0.005 in every cell with audited negatives",
+   "method": "results.txt section 4",
+   "command": "sed -n '33,44p' research/qual-highrecall/experiments/results.txt",
+   "expected": "|bias| <= 0.005",
+   "observed": "max |bias| 0.0048",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "'yes, a low rate helps' for the recall-0.90 coder",
+   "method": "Cochran proportional allocation (share = W_neg = 0.259) vs the 10-20% share, closed form",
+   "command": "by hand: 3.92*sqrt((0.259*0.0955*0.9045+0.741*0.300*0.700)/200)",
+   "expected": "a material gain over the standard proportional design",
+   "observed": "proportional 0.117 vs best 0.115-0.116: about 1.5%; the README compares only to 50%",
+   "result": "partial"
+  },
+  {
+   "dimension": "verification",
+   "what": "unit tests",
+   "method": "run the suite",
+   "command": "cd research/qual-highrecall && /usr/bin/python3.13 -m unittest test_highrecall",
+   "expected": "tests pass and exercise run.py",
+   "observed": "Ran 2 tests OK; neither executes run.py (one reads the static results.txt)",
+   "result": "partial"
+  },
+  {
+   "dimension": "fitness",
+   "what": "novelty against Cochran's closed form",
+   "method": "analytic widths vs Monte Carlo widths",
+   "command": "/usr/bin/python3.13 /tmp/claude-0/-home-user-oss-monorepo/812f5267-05ea-5e15-ae34-c8989a2ee225/scratchpad/indep.py",
+   "expected": "Monte Carlo adds information beyond the formula",
+   "observed": "widths match the closed form within 0.003 for shares >= 0.1; only the low-share coverage failure is extra, and it is a known Wald failure",
+   "result": "fail"
+  },
+  {
+   "dimension": "completeness",
+   "what": "live page",
+   "method": "HTTP GET",
+   "command": "curl -s -o /dev/null -w '%{http_code}' https://marisstella.app/research/qual-highrecall/",
+   "expected": "200",
+   "observed": "200",
+   "result": "pass"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "experiments/run.py:37",
+   "change": "width += 2 * q.Z95 * se -> width += q.Z95 * se",
+   "caught": false,
+   "test_cmd": "cd research/qual-highrecall && /usr/bin/python3.13 -m unittest test_highrecall"
+  },
+  {
+   "where": "experiments/run.py:65",
+   "change": "{tp / (tp + fn):.3f} -> {tp / len(pos):.3f} (recall replaced by precision)",
+   "caught": false,
+   "test_cmd": "cd research/qual-highrecall && /usr/bin/python3.13 -m unittest test_highrecall"
+  },
+  {
+   "where": "experiments/run.py:95",
+   "change": "(truth * (1 - truth) / n) ** 0.5 -> (truth / n) ** 0.5 (baseline variance)",
+   "caught": false,
+   "test_cmd": "cd research/qual-highrecall && /usr/bin/python3.13 -m unittest test_highrecall"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Research design: the comparison omits proportional allocation, the standard comparator, and the width results are a closed-form consequence of Cochran's stratified variance (Monte Carlo matches the formula within 0.003); 'yes, a low rate helps' is only relative to equal allocation (gain vs proportional about 1.5%); nearest prior work (prediction-powered inference, classifier-assisted sampling for evaluation) is not cited here",
+   "where": "research/qual-highrecall/README.md:34",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "The x4.0 coder's negative stratum has 40 items; qr.draw caps the negative audit at 40 without reallocating the rest, so cells labelled '200 audited items' at shares 0.3/0.5 audited 180/140 items (400-item row: 361/321/241 at 0.2/0.3/0.5); the README table and section-5 mean over coders mix budgets",
+   "where": "research/qual-highrecall/experiments/run.py:31",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests never execute run.py: one test parses the committed results.txt, the other checks dependency code on a synthetic corpus; 3/3 seeded mutants in run.py survived",
+   "where": "research/qual-highrecall/test_highrecall.py:37",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Coder cut-off k = ratio x sum(human) uses the evaluation set's human labels, so the 'coder' knows the estimand's numerator; not deployable as written and unstated",
+   "where": "research/qual-highrecall/experiments/run.py:53",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Headline '0.119 (best share each)' for the recall-1.00 coder is the share-0 positives-only cell, not in the README table, whose best shown cell is 0.120",
+   "where": "research/qual-highrecall/README.md:3",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "'The recall 1.00 coder is fine (0.95-0.97)': results.txt gives 0.942-0.969 at 200 items and 0.934-0.954 at 100",
+   "where": "research/qual-highrecall/README.md:35",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "Dead branch: qr.draw always returns >= 2 items per stratum when share > 0, so `skipped` is always 0",
+   "where": "research/qual-highrecall/experiments/run.py:32",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15653"
+ ],
+ "verdict": "The numbers are right: the experiment reruns byte-identically, and an independent numpy/Cochran recomputation reproduces the prevalence, the baseline, the Neyman shares, the width table (within 0.003 for shares >= 0.1) and the low-share coverage failure. Where it falls short of a survey-statistics referee: the width results follow in closed form from Cochran's stratified variance, the standard proportional-allocation baseline is missing (against it the 'low rate helps' gain is about 1.5%), the x4.0 cells labelled 200 items audited 180 or 140 because the 40-item negative stratum is silently capped, and the tests never run the experiment code (3/3 mutants survive). Honest limitations, a sound and reproducible step in the qual track, not a new result. Does not meet the bar (verification 1, claims 2)."
+}

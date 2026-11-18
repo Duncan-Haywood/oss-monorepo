@@ -64,14 +64,17 @@ only in this browser's local storage. `byok.mjs` is a synced copy of
 | `launchkit.mjs` | Description, captions, hashtags, store CSV |
 | `eyewear.mjs`, `sunglasses.html` | Sunglasses: stock frame, size, logos, case, cost, quote request |
 | `wardrobe.mjs`, `wardrobe.html` | Capsule wardrobe from a profile, outfit count, first drop within a budget |
-| `camera.mjs`, `camera.html` | Photo and live-camera try-on: tap two shoulders, the garment outline in the chosen size is scaled (shoulder span over the body model's shoulder width) and rotated onto the picture; on-device, no pose model |
+| `camera.mjs`, `camera.html` | Photo and live-camera try-on: tap two shoulders, the garment outline in the chosen size is scaled (shoulder span over the body model's shoulder width) and rotated onto the picture; on-device. `pose.mjs`: "Find my shoulders" places the two points with an on-device pose model (MediaPipe, loaded on click) |
 | `fit.mjs`, `fit.html` | Size from body measurements with ease per size; size run for a quantity from the audience chest curve; typical size chart, replaceable by the factory's |
+| `drape.mjs`, `drape.html` | Virtual sewing and drape: the drafted front and back panels meshed, sewn at shoulders and side seams around a body from chest/waist/hip/height, settled under gravity (XPBD); stretch, gap, touch and Laplace pressure at chest, waist, hip and hem, hem height, front/side/back views coloured by stretch. Sleeves sewn into the armholes round arms held out 45 degrees (bicep, elbow and cuff stretch, where the cuff lands); `sleeves: false` for the panels alone |
 | `markets.mjs`, `prices.html` | One margin target to a shelf price per market (EU/UK VAT included, US before sales tax), price endings, the real margin at the rounded price. VAT rates are standard rates cross-checked against commercial 2026 tables on 2026-11-05 (not the Commission's own table, unreachable), editable |
 | `duty.mjs`, `duty.html` | Landed cost into the US, EU and UK: duty on the right customs value (US factory price only; EU and UK factory price plus freight and insurance), extra-tariff field, zero-duty least-developed-country origins only with an origin proof, import VAT shown apart, freight per garment. Duty rates for four knitted garment types are typed from memory and unchecked (official tariff sites blocked from the build host, 2026-11-06); hand-worked tests only |
 | `labels.mjs`, `labels.html` | Fibre-content label wording for the EU (8 languages) and US, checklist of other required label items, starting care text |
 | `caresymbols.mjs` | The five care symbols (wash, bleach, tumble dry, iron, professional care) drawn as SVG from the starting care text, shown on the label page and downloadable one file each |
 | `commission.mjs`, `partners.html` | Multi-brand shop money: payout per sale after VAT, commission and card fees (shop, brand or split), shelf price for a target payout, settlement statement per partner with refunds, per-partner terms, CSV. Seller-of-record and VAT treatment are assumptions to check with an accountant |
 | `marketing.mjs` | Ad affordability (break-even cost per sale and ROAS) and a launch calendar of drafts from the break-even |
+| `indexsep.mjs` | Index separation: the flat separation's inks laid down as square dots by error diffusion, with the garment as a free colour; films, brief, and a flat-vs-index distance at three viewing distances; dot-gain model, model-based compensation, calibration strip and gain read-back; `cleanLoneDots`, no single dots (every dot touches another of its ink), with a Lab-error search under that rule |
+| `inkfit.mjs` | Inks chosen for the dots: moves the index separation's inks so the dots can mix the painting's darks, lights and strong colours, weighed against grain at a viewing distance, and keeps whichever ink set (flat inks included) the eye model puts closest |
 | `usage.mjs` | Anonymous local usage counts |
 
 Roadmap: [`ROADMAP.md`](ROADMAP.md).
@@ -105,6 +108,365 @@ and run it yourself.
 
 MIT licence: [`LICENSE`](LICENSE). Sponsor: https://github.com/sponsors/Duncan-Haywood
 
+
+## "The one where the halo was bigger": a version by how it compared (2026-11-18)
+
+Designers also point back by comparison: "the one where the halo was bigger",
+"when it sat lower", "when it was more expensive", "the version with the
+heavier fabric", "the cheapest one". Before, none of these found a version and
+some did harm: "the one where the price was higher" moved the print up and set
+the price to 1. `refer.mjs` (`comparedVersion`) reads artwork size and position
+(a named piece, followed by its id, or the selected one), price, fabric weight
+and run, and restores whole the most recent earlier version that compared that
+way with the present (superlatives: the session's extreme, latest among equals).
+The log gives the value then and now; nothing changes when no version compared
+that way. "The bigger one" stays an edit, since it may mean a variant on the
+panel. Hand-written eval, dev 9 to 20 of 20, held out (written first) 3 to 11 of
+12 on the first run, 12 after one vocabulary fix
+([`eval/compared-versions-2026-11-18.md`](eval/compared-versions-2026-11-18.md)).
+Also fixed: "raise the price" and "the price is higher than I want" moved the
+artwork.
+
+## "The one with the halo": a whole earlier version by what it had (2026-11-18)
+
+A designer who has moved on from a version points back at it by what it had:
+"the one with the halo", "the version without the text", "the tee with the
+wings", "when it still had the halo", "before I added the wings", "the one
+before we made it navy". The keyword reader took "with" as "add", so the first
+of those added a second halo. `refer.mjs` (`describedVersion`) now reads the
+description (motifs, text, an uploaded image, each optionally "on the back";
+garment; garment colour; decoration method; "without X" for what was absent)
+and returns the **most recent earlier version** that matches it, whole, as it
+was. The log says which version and how many changes ago, and lists its
+garment, colour and artwork; one undo brings the current version back. "Before
+X" returns the version just before X last appeared. When the current version
+already matches, or no version ever did, nothing changes and the log says so.
+"Back to the cream one" still restores only the colour (a value, not a version).
+
+`node eval/whole-versions.mjs` (`eval/whole-versions-2026-11-18.md`): on 23 dev
+sentences `main` read 6 (only the controls) and this reads 23; on 12 held-out
+sentences written before the code, 1 and 12. Before, 20 of the 29 version
+sentences were acted on wrongly. Our sentences, not a designer's.
+`refer.test.mjs` (13 tests).
+
+## "Go back to the cream": questions and earlier versions (2026-11-17)
+
+Designers ask and point back as often as they order. The keyword reader read
+every clause as an order, so "is embroidery more expensive?" switched the print
+to embroidery, "go back to the cream" ran one undo whatever the last change was,
+and "the previous colour", "undo the last two" and "start over" were not
+understood. `refer.mjs` now sorts each clause first:
+
+- **Questions for information** change nothing. The log answers them
+  (`answers.mjs`): cost questions are costed on your supplier sheet by applying
+  each named alternative to a copy of the design ("which is cheaper, dtg or
+  screen print?" gives both landed costs and the cheaper one; "how much does a
+  hoodie cost to make?" the difference), fabric and method questions give the
+  method note and the maker checks for that pairing, and colour, size and lead
+  time questions say where to look.
+- **Suggestions asked as questions** ("isn't navy better?", "what about a
+  crewneck", "why not embroider it", "wouldn't it look better in sage", "what if
+  we made it bigger") are tried, marked "Trying it (you asked)", and undoable.
+- **References to the history** are resolved against this session's versions:
+  "go back to the cream" or "the hoodie looked better" restores that value
+  only and says how many changes ago it was seen; "the previous colour", "the
+  original size", "the old position", "the other one" restore one attribute and
+  keep the rest; "undo the last two", "go back three steps" undo that many;
+  "back to the original" or "start over" returns to the session's first
+  version (one undo brings the current one back).
+
+`node eval/history-questions.mjs` (`eval/history-questions-2026-11-17.md`): on 41
+hand-written sentences `main` read 17 right and this reads 41; on 20 written
+after the code was frozen, 12 and 19 (the miss, "what if we did it in white",
+was fixed afterwards). Our sentences, not a designer's; real recorded feedback
+is still the test that matters. `refer.test.mjs`, `answers.test.mjs` (12 tests).
+
+## "Not black, make it cream": negated feedback (2026-11-17)
+
+Spoken feedback is full of refusals, and both keyword readers (`commands.mjs`
+in the studio, `guide.mjs` in the wardrobe chat) used to read a refused word as
+a request: "don't make it bigger" made the print 15% bigger, "no embroidery,
+screen print it" applied both methods, "not for men" chose men's fit and "not
+luxury" chose luxury. `negation.mjs` now cuts each negated stretch out first
+(from "not", "no", "don't", "never", "without", "nothing", "instead of",
+"rather than" and the like to the end of the clause: the next comma, "but",
+"and", "just", another negation, at most four words). Quoted text, names
+("call it Not Today") and phrases that only look negative ("not just", "no
+more than", "never mind", "not sure") are left alone.
+
+- **Studio:** a refused command is never applied; it is listed as "Left alone
+  (you said no)" in the command log (`parseCommand(...).declined`, also through
+  the optional model's rewrite).
+- **Wardrobe chat:** turning down the current answer undoes it ("not luxury"
+  sets the tier back to premium, the default) and the question is asked again;
+  a refused occasion comes off the list. "Skip", "not sure", "any" or "no
+  preference" in reply to a question keeps the current answer and moves on,
+  and "men ... women too" said apart reads as unisex.
+
+`node eval/negated-feedback.mjs` (`eval/negated-feedback-2026-11-17.md`): on 30
+hand-written studio sentences, `main` read 15 right and this reads 29; on 12
+wardrobe sentences, 3 and 12. The six controls without negation pass both.
+The one miss is a question ("isn't navy better", read as turning navy down).
+The sentences are ours, not a designer's: real recorded feedback is still the
+test that matters. `negation.test.mjs` (9 tests).
+
+## Virtual drape: the pattern sewn onto a body (2026-11-13)
+
+`drape.mjs` and `drape.html`. The interviews asked to see a garment on the
+wearer, and every earlier view (`garment3d.mjs`, `tryon.mjs`) was geometry
+with "no drape". This is cloth: the drafted front and back stitch lines from
+`pattern.mjs` are meshed on a grid (2.5 cm by default), each grid edge is an
+XPBD spring set from the fabric's tensile stiffness Kt (N/m) and the mass
+from its g/m2, the shoulder and side seams are pulled shut with gravity off,
+then gravity settles the garment on a body of stacked ellipses whose girths
+are the chest, waist and hip entered (height proportions as in `tryon.mjs`;
+contact along the surface normal with friction). It reports, at chest, waist,
+hip and hem: stretch round the body (area-weighted course strain), the most
+stretched triangle, the mean gap to the body, the share of cloth touching,
+and pressure by Laplace's law (Kt x strain / girth radius); plus the hem
+height against a straight drop of the pattern length from the HPS, seam gaps,
+points inside the body and whether it settled. Front, side and back SVG views
+are drawn back to front, coloured by stretch.
+
+**Checked against closed forms** (`node --test drape.test.mjs`, 7 tests, about
+5 s): a strip hanging under its own weight stretches rho g L^2 / 2Kt (within
+2% at 1.25 and 2.5 cm meshes; before outline springs were given half a cell
+it stretched 11% and 23% too little, depending on the mesh, which is how that was found);
+a stiff strip between two pins sags like the catenary of its length (within
+3%); a tube 10% short of a 10 cm cylinder takes the hoop strain the girths
+dictate (within 0.01), and the contact force the solver feels approaches
+Laplace's law as the step shrinks (0.46, 0.77, 0.95 of T/R at 1 cm/32,
+2 cm/32 and 2 cm/64 substeps: one XPBD iteration softens a constraint by
+1/(1 + k w dt^2)), so the page reports T/R from the strain rather than the raw
+contact force. Garment tests: a regular M tee on a 100 cm chest hangs with no
+stretch; a slim XS (90 cm garment chest) stretches 12.3% round the chest,
+touches all round, and nothing passes through the body.
+
+**Measured on one body** (chest 100, waist 88, hip 98, height 178 cm; jersey
+preset 160 g/m2, 60 N/m; `node eval/drape-sizes.mjs`, 24 drapes, all settled,
+0.8-1.3 s each in Node):
+
+| garment | fit | size | tape ease at chest (cm) | chest stretch % | chest clearance (cm) | chest touching % | chest pressure (mmHg) | hem stretch % | hem higher than flat (cm) | seam gap (cm) | settled | ms |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tee | slim | XS | -10 | 12.3 | 0.2 | 100 | 0.3 | 10.1 | 0.4 | 0.32 | yes | 1268 |
+| tee | slim | S | -2 | 2.9 | 0.2 | 100 | 0.1 | 0.8 | 6.9 | 0 | yes | 962 |
+| tee | slim | M | 6 | 0 | 0.6 | 67 | 0 | 0 | 6.3 | 0 | yes | 842 |
+| tee | slim | L | 14 | 0 | 1.5 | 54 | 0 | 0 | 6.2 | 0 | yes | 992 |
+| tee | regular | XS | -4 | 4.9 | 0.2 | 100 | 0.1 | 2.4 | 6.5 | 0 | yes | 920 |
+| tee | regular | S | 4 | 0 | 0.5 | 74 | 0 | 0.1 | 6.7 | 0 | yes | 795 |
+| tee | regular | M | 12 | -0.1 | 1.3 | 51 | 0 | 0 | 6.4 | 0 | yes | 840 |
+| tee | regular | L | 20 | -0.1 | 1.6 | 51 | 0 | 0 | 6.2 | 0 | yes | 933 |
+| crewneck | slim | XS | -6 | 7.3 | 0.2 | 100 | 0.2 | 3.4 | 5.3 | 0 | yes | 952 |
+| crewneck | slim | S | 2 | 0.1 | 0.3 | 75 | 0 | 0.1 | 6.9 | 0 | yes | 773 |
+| crewneck | slim | M | 10 | -0.1 | 1.1 | 48 | 0 | 0 | 6.6 | 0 | yes | 890 |
+| crewneck | slim | L | 18 | -0.1 | 1.6 | 48 | 0 | 0 | 6.5 | 0 | yes | 911 |
+| crewneck | regular | XS | 0 | 0.7 | 0.2 | 100 | 0 | 0 | 6.6 | 0 | yes | 828 |
+| crewneck | regular | S | 8 | 0.1 | 0.7 | 65 | 0 | 0 | 7.8 | 0 | yes | 851 |
+| crewneck | regular | M | 16 | -0.1 | 1.7 | 47 | 0 | 0 | 6.6 | 0 | yes | 916 |
+| crewneck | regular | L | 24 | -0.1 | 1.9 | 51 | 0 | 0 | 5.9 | 0 | yes | 950 |
+| hoodie | slim | XS | -2 | 2.7 | 0.2 | 100 | 0.1 | 0.2 | 7.4 | 0 | yes | 831 |
+| hoodie | slim | S | 6 | 0 | 0.6 | 61 | 0 | 0.1 | 7.2 | 0 | yes | 822 |
+| hoodie | slim | M | 14 | -0.1 | 1.4 | 56 | 0 | 0 | 6.4 | 0 | yes | 881 |
+| hoodie | slim | L | 22 | -0.1 | 1.7 | 47 | 0 | 0 | 5.7 | 0 | yes | 909 |
+| hoodie | regular | XS | 4 | 0 | 0.4 | 70 | 0 | 0.1 | 7.4 | 0 | yes | 798 |
+| hoodie | regular | S | 12 | -0.1 | 1.5 | 45 | 0 | 0 | 6.5 | 0 | yes | 798 |
+| hoodie | regular | M | 20 | -0.1 | 1.6 | 53 | 0 | 0 | 6.5 | 0 | yes | 993 |
+| hoodie | regular | L | 28 | -0.1 | 1.4 | 39 | 0 | 0 | 5.9 | 0 | yes | 966 |
+
+What the sweep says: stretch at the chest appears only when the tape ease is
+negative or about zero, and then it is close to the girth shortfall (tape
+ease -10 cm gives 12.3%, -4 gives 4.9%, -2 gives 2.7-2.9%); positive ease
+never stretches but the gap to the body saturates near 1.5-1.9 cm, because
+gravity lays the cloth on the chest and shoulder blades and the extra width
+falls into folds at the sides rather than standing off evenly. Every garment
+that is not stretched ends 5.7-7.8 cm higher than its body length measured
+straight down from the shoulder: that length goes over the shoulder and round
+the chest and back. A tight one ends lower (XS slim tee +0.4 cm) because the
+stretched cloth pulls down. These are model results on a smooth ellipse body
+with no arms; none has been compared with a real garment on a real person.
+
+Not yet (sleeves landed the same day, next section): hood, rib bands, anisotropic knit
+(course and wale differ a lot in real jersey), measured fabric stiffness (the
+presets are rough guesses; strain where tight is set by the body, pressure
+scales with Kt), and a body scan instead of ellipses. Usage events
+`drape_open`, `drape_run` (local counts only).
+
+## Sleeves in the drape, and the sleeve pattern they caught (2026-11-13)
+
+`drape.mjs` now sews the sleeves in (on by default; `sleeves: false` gives the
+body panels alone, as in the table above). The body gains two straight arms
+held out 45 degrees from the sides (an A pose, as fitting avatars use): round
+tapered capsules from the upper arm girth to the wrist (typed or assumed at
+0.31 and 0.165 of the chest), with a deltoid cap 12% fuller at the top that
+carries the shoulder out onto the arm. The drafted sleeve is meshed twice and
+wrapped round each arm; its underarm seam is closed row by row and its cap is
+sewn into the armhole by `pairEdges`, joining each vertex on either curve to
+the one at the same fraction of the other's length, so the cap's ease is
+gathered in. The page (`drape.html`) has optional upper arm and wrist inputs,
+a sleeves switch, an optional flat bicep for the designer's own sleeve width,
+a sleeve table (stretch, gap, touch and pressure at the bicep, elbow and cuff)
+and where the cuff ends on the arm.
+
+**What it found: the drafted sleeve was half as wide as it should be, and a
+cap height too long.** `pattern.mjs` took a flat (laid-down) bicep figure and
+drew it as the sleeve's full width, so the M tee's sleeve was 24 cm round
+against a typical 31 cm upper arm; on the drape it stretched 37% round the
+bicep (45% with the final arm shape). Its length ran from the underarm rather
+than from the shoulder point, which is how `spec.mjs` and `tryon.mjs` define
+sleeve length, so every sleeve came out a cap height (15 to 19 cm) too long.
+Both were in every DXF and SVG pattern this venture produced. Now the piece
+width is twice the flat bicep (0.17 x body chest + 0.1 x garment ease, about
+18 cm flat at M), the cap height that follows is 9.7 to 11.8 cm (typical for a
+knit tee), and the length is measured from the cap's top. A designer can set
+their own flat bicep (`bicepCm`). These are still typical drafting ratios
+typed from general knowledge, not a pattern maker's block; no real sample has
+been sewn from either version.
+
+`node eval/drape-sleeves.mjs` (one body: chest 100, waist 88, hip 98, height
+178; arm 31 and wrist 16.5 cm assumed; jersey 160 g/m2, 60 N/m). "Old width"
+reproduces the old sleeve width at the corrected length:
+
+| garment | size | sleeve | bicep girth (cm) | cap (cm) | bicep stretch % | most stretched % | touching % | cuff past wrist (cm) | chest stretch % | seam gap (cm) | inside | settled | ms |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| tee | S | old width | 22.44 | 15.48 | 60 | 93.6 | 100 | -34.7 | 0.8 | 0.34 | 0 | yes | 3674 |
+| tee | S | drafted now | 33.68 | 9.66 | 6.5 | 23.6 | 100 | -34.5 | 0.2 | 0.09 | 0 | yes | 3882 |
+| tee | M | old width | 24.2 | 16.63 | 44.8 | 78.5 | 100 | -34.7 | 0.1 | 0.19 | 0 | yes | 3476 |
+| tee | M | drafted now | 36.4 | 10.28 | 1 | 5.1 | 74 | -34.6 | 0.1 | 0.05 | 0 | yes | 4001 |
+| tee | L | old width | 25.96 | 17.79 | 31.1 | 42.9 | 100 | -34.7 | 0 | 0.08 | 0 | yes | 4045 |
+| tee | L | drafted now | 39.12 | 10.91 | 0.2 | 1.6 | 55 | -32 | 0.1 | 0.01 | 0 | yes | 4193 |
+| longsleeve | S | old width | 22.44 | 15.48 | 60 | 93.6 | 100 | 5.3 | 0.8 | 0.34 | 0 | yes | 4448 |
+| longsleeve | S | drafted now | 33.68 | 9.66 | 6.5 | 24.5 | 100 | 5.5 | 0.2 | 0.09 | 0 | yes | 5235 |
+| longsleeve | M | old width | 24.2 | 16.63 | 44.7 | 78.5 | 100 | 5.4 | 0.1 | 0.2 | 0 | yes | 4626 |
+| longsleeve | M | drafted now | 36.4 | 10.28 | 1.1 | 6.7 | 82 | 5.7 | 0.1 | 0.04 | 0 | yes | 4994 |
+| longsleeve | L | old width | 25.96 | 17.79 | 31 | 42.4 | 100 | 5.4 | 0.1 | 0.08 | 0 | yes | 5101 |
+| longsleeve | L | drafted now | 39.12 | 10.91 | 0 | 1.1 | 53 | 8.5 | 0.1 | 0.01 | 0 | yes | 5676 |
+| hoodie | S | old width | 23.24 | 16.67 | 50.7 | 85.1 | 100 | 6.2 | 0.2 | 0.26 | 0 | yes | 4520 |
+| hoodie | S | drafted now | 35.28 | 10.57 | 0.4 | 1 | 82 | 7.5 | 0.1 | 0.07 | 0 | yes | 4972 |
+| hoodie | M | old width | 25 | 17.82 | 36.4 | 62.8 | 100 | 6.3 | 0.2 | 0.05 | 0 | yes | 5058 |
+| hoodie | M | drafted now | 38 | 11.19 | 0.3 | 5.6 | 67 | 8.6 | 0 | 0.03 | 0 | yes | 5363 |
+| hoodie | L | old width | 26.76 | 18.96 | 26.6 | 49.6 | 100 | 6.4 | 0.1 | 0 | 0 | yes | 5257 |
+| hoodie | L | drafted now | 40.72 | 11.8 | 0 | 0.3 | 58 | 8.7 | 0 | 0 | 0 | yes | 5974 |
+
+The old width stretched 27-60% round the bicep in every size; the drafted
+sleeve stretches 0-1% on the sizes that fit this body (6.5% on S, cut for a
+92 cm chest). No vertex ends inside the body, every seam closes within
+0.35 cm and every drape settles. The long sleeve's cuff lands 5-9 cm past the
+wrist with the arm held out, so the default 62 cm may be long for a 178 cm
+body; it is a model reading, not a checked one.
+
+Three solver lessons, each found by a measurement: (1) the shoulder point,
+where the shoulder seam and both halves of the cap meet, gapped 3 cm from
+Gauss-Seidel ordering alone; twelve seam passes per substep close it to under
+0.75 cm even on a tight XS. (2) With the arm's joint a full upper-arm radius
+below the shoulder, the arm's top fell away 1.5 cm under the shoulder shelf
+and the sewn tee slid 10 cm down onto the arms, stretching the yoke 14%; the
+higher joint and deltoid cap fixed that. (3) A grid outline stops short of a
+curve's ends (the sleeve's 2 cm grid reached only 28-86% of each cap half), so
+the cap and armhole are matched over the span their vertices actually cover.
+The arm angle matters: an M tee's yoke (above 140 cm) stretches 13.8% on
+average at 20 degrees, 6.6% at 30 and 3.4% at 45, because an arm near the side
+makes the underarm wrap under it; hence 45 by default. `drape.test.mjs`
+checks the arm girths and the edge pairing; `drape-sleeves.test.mjs` the M tee's sleeves (under 3% at the
+bicep, cuff above the elbow, yoke under 5%), the old width caught over 15%,
+and the XS slim chest still at the tape arithmetic's 8-16% with sleeves on.
+
+The fix moved the nesting numbers: with whole-width sleeves, one M tee's true
+outlines no longer beat the rectangle marker (99.5 against 99 cm; the sleeves
+go below the body panels either way), while two or more still do by 8-23%
+(two M tees 182 against 198 cm). It also showed that the greedy nester could
+end longer when allowed to turn pieces than when not (194 against 182 cm), so
+`nest()` now tries every starting order unturned as well and keeps the
+shorter. Earlier marker figures in this README were measured on the narrow
+sleeves.
+
+**Known artifact, diagnosed 2026-11-13 (still open):** with sleeves on, the M
+tee's neckline reads 6.7% stretch round the body (cloth within 3 cm of the
+high point of the shoulder) against 0.8% for the panels alone. Real tees don't
+pull at the neck when the arms are 45 degrees out, so treat the colour at the
+neck as the model, not the pattern. What it is and is not, measured on the
+M tee (`node eval/drape-arms-down.mjs`, table in
+`eval/drape-arms-down-2026-11-13.md`):
+
+| change | neck stretch |
+|---|---|
+| default (deltoid cap, friction 0.4, arms at 45) | 6.7% |
+| deltoid lowered so its top is flush with the shoulder point (it stood 4 cm above) | 7.6% (worse) |
+| contact friction 0.05 instead of 0.4 | 12.1% (doubles) |
+| arms raised to 60 degrees | 3.8% (halves) |
+| settle 4 s instead of 2 | 6.7% (unchanged: it is settled) |
+| panels alone | 0.8% |
+
+So the deltoid's bump is not it, nor an unsettled run. The sleeves sit on the
+arms by friction; the less they grip, or the more the arm slopes down, the
+harder they pull the shoulders outward along the arm, and the neckline takes
+the stretch. A real arm is not a smooth capsule and a real sleeve's cap is
+held by its own shape, so the next thing to try is the sleeve's own weight
+path: pin the cap's top to the shoulder point with a stiffer seam, or give the
+cap a bending stiffness so it holds its dome.
+
+### Lowered arms (2026-11-13): tried, kept off by default
+
+`drapeGarment(..., { lowerArms: true })` sews at 45 degrees, then swings both
+arms about their shoulder joints (smoothstep over 0.8 s) down to
+`hangAngleDeg(body)`, the lowest angle that keeps the arm 1.2 cm off the torso
+below the armpit, carrying the sleeves by contact and friction, then settles.
+`lowerArms: 35` asks for a set angle; `setArmAngle(body, deg)` moves the
+arms of a body model. On the 100 cm chest the arms reach **28.5 degrees**, not
+straight down: the torso is stacked ellipses whose girths are true but which
+have no soft tissue, wider at the armpit than a real chest the arm squashes.
+
+| tee, 100 cm chest | arms out (45) | arms lowered (29) |
+|---|---|---|
+| S: neck / bicep mean / bicep peak / inside body | 10.5% / 6.5% / 23.6% / 0 | 10.5% / 8.9% / 58.8% / 8 |
+| M | 6.7% / 1.0% / 5.1% / 0 | 7.1% / 4.0% / 22.9% / 0 |
+| L | 6.9% / 0.2% / 1.6% / 0 | 7.1% / 1.0% / 13.6% / 0 |
+| M hem vs straight drop | 8.8 cm higher | 8.2 cm higher |
+
+Across tee, long sleeve and hoodie in S, M and L, lowering moves the hem 0 to
+0.6 cm and the neck by at most 0.7 points; the cuff lands within 0.5 cm except
+the S hoodie (2.5 cm further). What it adds is false: the cloth pinched between
+the arm and the side reads as a bicep peak of up to 61% (tee and long sleeve),
+eight underarm points end inside the body on the S tee and long sleeve, and two lowered runs (tee L, hoodie L) did not
+settle in the time given. So the page keeps the 45 degree pose. Arms that
+really hang need a torso that gives under the arm (a soft layer, or a section
+shaped from a scan) before the sleeve's fall can be read.
+
+### A soft torso the arms rest against (2026-11-16)
+
+`drapeGarment(..., { lowerArms: true, softTissueCm: 3 })`, and "Arms: lowered
+to the side" with "Side gives (cm)" on `drape.html`. Below the shoulder shelf
+the torso is carved away round a lowered arm (`dentContact`), leaving 1.2 cm
+for the two layers of cloth at the side, as a real side gives under a resting
+arm; `hangAngleDeg` lets the arm press up to `softTissueCm` into the rigid
+ellipse below the armpit. The side only softens once the arms start down, so
+arms held out at 45 degrees drape bit-identically to before. The pressed
+flesh is not bulged out at front and back, and **the give is an assumption**
+(arm and side together; nobody has measured it for this page).
+
+`node eval/drape-soft-torso.mjs`, table and reading in
+`eval/drape-soft-torso-2026-11-16.md` (tee, long sleeve and hoodie in S, M and
+L on the 100 cm chest):
+
+| | rigid (0 cm) | 2 cm | 3 cm | 4 cm |
+|---|---|---|---|---|
+| arm angle | 28.5 | 22 | 18 | 15 |
+| drapes settled, of 9 | 7 | 8 | 9 | 9 |
+| points inside the body (S tee + S long sleeve) | 16 | 0 | 0 | 0 |
+| M tee: worst sleeve triangle / bicep peak | 138% / 22.9% | 95% / 22.6% | 98% / 23.6% | 100% / 24.5% |
+
+What it does not fix: the cloth pinched between arm and side still reads as a
+bicep peak (M and L peaks rise 1-4 points as the arm comes closer; S falls
+from about 60% to 46%), so the bicep's mean is the reading to trust in this
+pose. Against the rigid lowered runs the hem moves at most 0.7 cm. A first
+version carved the side only below the armpit: the sleeve's underarm caught
+between the arm and the rigid torso just above it (one triangle at 213%) and
+the M tee never settled; carving up to the shoulder shelf fixed both.
+`drape-soft-torso.test.mjs` (4 tests, about 5 s) pins the angles, the carving
+and the bit-identical held-out drape. The page still opens with the arms out.
+
+Not yet: elbow bend, a non-round arm section, volume kept when the side is
+pressed, a measured give, the hood and rib bands, and any real garment
+compared.
 
 ## Turntable preview (2026-11-04)
 
@@ -170,6 +532,397 @@ not a printer's word: strike a test first. Checked by `halftone.test.mjs`
 on a 30 degree grid, determinism, escaping). Wired into the studio page 2026-11-04 as `singleInkFilm(sep, ...)`: the separation's palette lightness against the garment sets each region's dot size, so a painting prints as one ink in several tones on one screen ("Download one-ink halftone film", with lpi, mesh and ink fields; a contrasting ink is picked until you choose one, and ink too close to the garment warns). Checked by `halftone.test.mjs` and a headless-Chromium download (3,068 dots from a test card, no console errors). Per-ink halftones of separated spot colours are not offered: a flat ink has one tone. Next: a real painting through a real printer.
 - 2026-11-05: `marker.mjs` and a "Cutting plan" block on `fit.html`: pattern pieces per size packed onto the fabric width (grain-aligned rectangles, first-fit-decreasing shelves), lays x plies within the ply limit and table length, spares counted as cloth. `node --test marker.test.mjs`. Rectangles, so cautious against a factory's CAD marker.
 
-- 2026-11-06: `salestax.mjs`, `salestax.html`: US economic-nexus check by state (sales and order thresholds, "and"/"or" rules as in New York, planned sales that will cross, tax on later sales at the base rate, clothing exemptions as a note). 24 states, thresholds, rates and clothing rules typed from memory, unchecked, all overridable; local taxes and marketplace sales left out. `node --test salestax.test.mjs`. Next: check each state against its revenue department; the remaining states.
+- 2026-11-06: `salestax.mjs`, `salestax.html`: US economic-nexus check by state (sales and order thresholds, "and"/"or" rules as in New York, planned sales that will cross, tax on later sales at the base rate, clothing exemptions as a note). 24 states, thresholds, rates and clothing rules typed from memory, unchecked, all overridable; local taxes and marketplace sales left out. `node --test salestax.test.mjs`. Next: check each state against its revenue department.
 - 2026-11-07: `camera.mjs` and `camera.html`: photo or live-camera try-on. Two taps on the shoulders set scale and tilt; the `tryOn` outline (neck, shoulder, chest, hem) is drawn to scale over the picture with ease and hem/sleeve words. `node --test camera.test.mjs` (hand-computed scale, hem drop, tilt, bad taps) and a headless-Chromium run of both paths (file upload; fake camera device, freeze frame): no page errors. Unproven: a real photo of a real person, where perspective and posture skew the scale; no pose model, no drape.
+- 2026-11-10: automatic shoulders (`pose.mjs`, "Find my shoulders" on `camera.html`). On the click the page loads MediaPipe Pose Landmarker lite (Apache-2.0, 0.10.21, about 6 MB from cdn.jsdelivr.net and storage.googleapis.com) and runs it in the page; the picture is never sent. `shouldersFromPose` turns landmarks 11/12 into the two picture points `cameraOverlay` takes (picture-left first), keeps the nearest of several people, names a back view or mirrored selfie, and calls the body turned when the shoulder span is under 0.45 of the shoulder-to-hip drop. Checked by `node --test pose.test.mjs` (6 tests, hand-placed landmarks) and a headless-Chromium run with the real model on one real photo (MediaPipe's own `pose.jpg` test picture, a front-on yoga pose, model files served locally): no request to either host before the click, both dots on the shoulders, outline drawn, no page errors. One reading only: span/drop 0.511, below the body model's 0.868 because the model marks shoulder joints, not the bony shoulder points, so the outline is likely drawn narrow; `widen` (default 1) corrects that once a tape-measured photo fixes it. Unproven: a turned body, a real shopper's photo against a tape measure, phones on a slow line.
+- 2026-11-11: live tracking (`OneEuro`, `ShoulderTracker`, `detectPoseVideo` in `pose.mjs`; "Follow me live" on `camera.html` once the live camera is on). The same on-device model runs in VIDEO mode on a copy of each frame at most every 66 ms (about 15 a second), and the four shoulder coordinates go through a One Euro filter (Casiez, Roussel and Vogel, CHI 2012) so a still shopper gets a steady outline and a moving one is followed. A wider-than-120 px jump between detections (another person, a model swap) restarts the filter rather than gliding across; lost shoulders are held 600 ms, then dropped. Defaults (0.3 Hz minimum cut-off, beta 0.005) were picked from a sweep on synthetic 15 fps frames with 4 px detector jitter: jitter cut to 0.32 of the raw, about 16 px of lag when stepping sideways at 300 px/s (higher beta trades jitter for lag: 0.02 gives 0.47 and 6 px). Checked by `node --test posetrack.test.mjs` (6 tests: jitter, lag, hold then drop, jump restart, steadier span, refusals) and a headless-Chromium run with a fake camera and a mocked model (VIDEO mode, rising timestamps at least 66 ms apart, outline drawn, hold note shown during a 5-frame loss, freeze keeps the outline, no console errors). Unproven: a real person on a real webcam, phone frame rates, and whether the defaults feel right; the real model was not loaded in this check.
 - 2026-11-08: `orderlines.mjs`, `orderlines.html`: colour x size order matrix with a per-colour minimum check, spares and a PO CSV. `node --test orderlines.test.mjs`. Arithmetic on typed shares; no real factory order.
+- 2026-11-08: `salestax.mjs` now covers every state with a sales tax plus DC (47 entries: 46 states and DC; the other 23 states added from memory, same unchecked label; the build host still cannot reach any revenue department site). Still to do: check each state against its own page; local taxes.
+- 2026-11-09: `salestax.mjs`: Illinois (200-order test dropped 2026-01-01), Kentucky (2026-08-01, HB 757), Utah (2025-07-01) and Alaska (2025-01-01) are now sales-only, from web search results citing Avalara (Apr 2026) and Taxually (Oct 2026); the revenue-department sites are still unreachable from the build host. Maine is listed as dropped by one source and left as typed. Test in `salestax.test.mjs`. Other states remain from memory.
+
+## Pattern pieces, graded (2026-11-09)
+
+`pattern.mjs` + `pattern.html` draft a tee, long sleeve or crewneck as front and back (half pieces on the fold: round neck, shoulder slope, scooped armhole) and a set-in sleeve. The sleeve cap is solved (nested bisection) so its front and back halves are as long as the front and back armholes plus a typed ease: the tape-along-the-curve check a pattern maker does by hand. Each piece has its stitch line, a cutting line (seam allowance edge by edge with mitred corners; deeper hem allowance; none on the fold), notches and a grain line. `grade()` drafts every size and prints how each key point moves between sizes. SVG output is in cm (prints 1:1) and DXF has CUT, STITCH, GRAIN and NOTCH layers. Checked by `pattern.test.mjs` (10 tests: offset area by hand, self-crossing detection, cap length equals armhole plus ease for six sizes and three eases, an independent polyline walk, every piece simple, grade steps of 2 cm in half-chest) and a headless-Chromium run (3 pieces, 3 grading overlays, DXF download, bad allowance refused, no console errors); the drawn shapes were looked at as an image. Proportions are typical drafting ratios typed from common practice, **not checked against a real block or a sewn sample**; hoodies are not drafted. Next: a real tee measured against these pieces, a nesting marker from these outlines (replacing `marker.mjs`'s rectangles), tiled PDF for home printers, a pocket and a hood.
+
+## Tiled PDF for home printers (2026-11-09)
+
+`tiledpdf.mjs` (no dependencies) writes a PDF of the drafted pieces at 1:1 on A4 or US Letter: a calibration page (5 cm square, 10 cm line, to check the printer is not scaling), then each piece cut into pages with 1 cm overlap, corner crop marks, a dotted line where the next page starts, a "row/col" label, solid cut line, dashed stitch line, grain arrows and notch ticks. Button on `pattern.html`. `node --test tiledpdf.test.mjs` (hand-counted page grids including a float edge, xref offsets and stream lengths exact, calibration square 141.73 pt, Letter media box 612 x 792, refusals); `pdfinfo` reads a 17-page tee L file and one page was rendered and looked at. Unproven: a real printout taped together and checked against a ruler; pieces are not nested onto shared pages, so small pieces use a page each.
+
+## Nesting marker from the real outlines (2026-11-09)
+
+`nest.mjs` packs the drafted cut outlines (`pattern.mjs`) onto a fabric width, replacing the rectangles of `marker.mjs` for the page's estimate. Cut-on-fold pieces are unfolded, a pair is a piece and its mirror, each outline is rasterised on a 0.5 cm grid (every cell the edge touches or the inside covers is busy), pieces keep the grain and may turn 180 degrees (`oneWay` forbids it), and are placed bottom-left; the shortest of 15 orders (area, length, width, seeded shuffles) wins. `verifyNest` re-checks the result in exact arithmetic (no crossing edges, nothing inside another piece, all inside the usable width). On `pattern.html` ("Nest on the cloth") with width, count and one-way fields. `node --test nest.test.mjs` (8 tests: hand-counted rectangles, unfolded area, exact no-overlap on tees and a four-size ratio, determinism, refusals) and a headless-Chromium run (marker drawn and looked at, narrow cloth refused, no console errors).
+
+Measured 2026-11-09, 150 cm cloth: one tee M 85.1 cm (77.5% of the cloth is pattern); tee S+2M+L 341.5 cm, 0.87 m per garment; crewneck 2S+3M+3L+2XL 1,087.6 cm, 1.09 m per garment (73.1%); one long sleeve M 144.7 cm (52.7%: the sleeves are 28 x 83 cm and cannot tilt). Not comparable to `marker.mjs` lengths, which use rectangles with a different seam allowance. Greedy raster packing, grain-locked: a CAD marker (small off-grain turns, tuned gaps) will usually beat it by some points; stripes, plaids and nap repeats are not matched. Next: a factory's real marker consumption for the same tee to compare with; wiring the cutting plan (`cuttingPlan`) to these lengths; small off-grain turns for long sleeves.
+
+## Cutting plan can use the nested outlines (2026-11-09)
+
+`cuttingPlan(..., { nested: true })` (a checkbox on `fit.html`) picks lays and plies on the fast rectangle packing, then re-lays each chosen marker from the drafted outlines with `nest.mjs` and quotes those lengths; the lay drawings become the nested outlines. Tee, long sleeve and crewneck only (hoodies fall back to rectangles). Measured: S20 M60 L50 XL20 XXL6 tees, 150 cm cloth, 149.1 m by rectangles, 144.5 m nested (78.1% covered), 6.8 s. Seconds per plan, hence the checkbox. `node --test marker.test.mjs` (nested plan is shorter, same lays and plies, draws, hoodie falls back). Headless Chromium on `fit.html`. Not a factory marker; a real consumption figure still wins.
+
+## A search over the piece order, and a placer 10x faster (2026-11-12)
+
+The nest above is greedy: pieces go down bottom-left in one of 15 fixed orders. `nest(shapes, { improve: n })` (and `nestRatio`, `markerFor`/`cuttingPlan` as `searchSteps`) now runs `n` steps of local search on the best order: swap two pieces or move one elsewhere in the order (mostly a few places apart), re-place, keep the change when the marker is no longer, with ties broken by how far down the cloth the pieces end in total. Seeded, so the same inputs give the same marker; the result reports `lengthBeforeSearchCm`, `searchSteps` and `searchAccepted`, and `verifyNest` re-checks it exactly. `pattern.html` has a "Search steps" field (default 100); `fit.html` uses 60 steps when nesting is ticked.
+
+To afford the search the placer got faster with the same answers: a blocked span now jumps past the rightmost busy cell under it (binary search on the row's running count) instead of trying every column, and rows that are already full are skipped. Every marker length below is unchanged at 0 steps; a test compares the jump against testing every column on 40 random strips.
+
+Measured 2026-11-12, 150 cm cloth, greedy against 100 search steps (300 in brackets):
+
+| marker | greedy | 100 steps | change |
+| --- | --- | --- | --- |
+| tee S+2M+L | 341.5 cm | 334.2 cm (328.5) | -2.1% (-3.8%) |
+| crewneck 2S+3M+3L+2XL | 1,087.6 cm, 12.5 s before / 1.2 s now | 1,037.6 cm in 8.3 s (1,036.6) | -4.6% |
+| hoodie 4M | 570.4 cm | 551.9 cm (544.4) | -3.2% (-4.6%) |
+| long sleeve S+2M+L | 381.8 cm | 381.8 cm (381.7) | 0 |
+| tee M, long sleeve M (one garment) | 85.1, 144.7 cm | same | 0 |
+
+Cutting plan, S20 M60 L50 XL20 XXL6 tees nested: 144.54 m to buy greedy, 143.14 m at 40 steps, 142.83 m at 100 steps (5.9 s, faster than the greedy plan took before). Long sleeves do not move: their 83 cm sleeves are locked to the grain.
+
+Tried and not shipped: letting pieces tilt 1 to 3 degrees off grain (a CAD marker's grain tolerance) as extra orientations. With the greedy placer choosing a tilt piece by piece it helped the crewneck by about 2% but made the long-sleeve run longer at 1 degree (393.3 against 381.8 cm), and with the search it was worse than the search alone (crewneck 1,047.8 against 1,037.6 cm). A tilt chosen by the search rather than the placer may still pay; not tried. Still a greedy raster marker, so a factory's CAD marker and its consumption figure win.
+
+## Hoodie: hood and kangaroo pocket drafted (2026-11-09)
+
+`pattern.mjs` now drafts a `hoodie`: the crewneck body and sleeve, a two-piece hood (cut two, one reversed) and a kangaroo pocket. The hood's neck edge is a straight line as long as the body's neck seam (front neck + back neck, one side), reported as `hoodNeckEdgeCm` against `neckSeamCm`; the face opening and forehead are one smooth curve (a hard corner made the seam allowance loop), the face edge carries the deeper hem allowance for a drawcord casing, and the centre seam over the crown the seam allowance. The pocket is wider at the bottom, with the slanted hand openings at a slightly larger allowance. `offsetRing` now blends allowances at near-parallel joins where they change (it used to throw the point far out). `nest.mjs` and `cuttingPlan(..., {nested:true})` take the hoodie: 4 hoodies M, 150 cm cloth, 5.76 m nested against 6.17 m by rectangles. Checked by `pattern.test.mjs` (hood edge equals neck seam for XS, M, XXL; independent walk of the stitch ring; every piece simple; sizes grow; grading monotone), `nest.test.mjs`, `marker.test.mjs` and a headless-Chromium load of `pattern.html` (hoodie selected, no console errors). Not checked against a real hood block or a sewn sample; no rib at hem or cuffs; hood height 33 to 48 cm and depth 26 to 37 cm across XS to XXL are typed ratios. Next: a real hoodie measured against these pieces; hem and cuff rib bands; a zip front.
+
+## Rib hem and cuffs (2026-11-09)
+
+`draft(garment, size, { rib: true })` (crewneck and hoodie; a checkbox on `pattern.html`) adds a hem band (cut one) and a cuff band (cut two). Each is one strip folded along its length (cut height twice the finished 6 cm), as long as a stated share (0.85, typed) of the opening it joins, since rib stretches: hem opening is the full front plus back hem width, cuff opening the flat sleeve hem doubled. The body and sleeve are cut shorter by the band height and their hem allowance drops to the plain seam allowance (the hood face keeps its drawcord allowance); `checks` reports openings, band lengths and the finished body length, which equals the unribbed length. Checked by `pattern.test.mjs` (band length against an independent read of the front hem width for XS, M, XXL, both garments; stitch rectangle size; sleeve shortened by 7.5 cm of outline; bad ratio and non-rib garments refused) and a headless-Chromium run of `pattern.html` (hoodie, rib on: rib line shown, 7 pieces drawn, no console errors). Rib ratio and band height are typed, not measured from a real rib; the bands are not yet in the nesting marker or the cut plan. Next: nest the bands, a zip front, a real hoodie to compare.
+
+## Rib on the cutting plan: self-fabric or its own knit (2026-11-10)
+
+`cuttingPlan(..., { nested: true, rib: "self" | "separate", ribWidthCm })` (crewneck and hoodie; a select on `fit.html`). `self` nests the drafted hem and cuff bands into the body cloth's lays. `separate` lays the body without bands, then lays the bands alone on a rib knit of its own width (default 150 cm; the bands lie across the width, an XL hoodie hem band is about 118 cm) and reports `ribMetresToBuy` beside the body metres. Measured 2026-11-10, hoodie S6 M12 L10 XL4, 150 cm cloth: 50.07 m plain hem, 51.48 m with self-fabric bands, 46.37 m body plus 6.74 m rib knit separate. Greedy raster nest, typed 0.85 stretch ratio and 6 cm height, no real rib compared; the mill's yield wins. Test: `node --test marker.test.mjs`.
+
+## Zip-front hoodie
+
+`draft("hoodie", size, { zip: true })` (checkbox on `pattern.html`) cuts the front as two halves with a 1.5 cm centre-front allowance (`zipSeamCm`, 0.5 to 4) instead of a fold, reports the centre-front stitch length for buying an open-end zip, and nests in the cutting plan. Typed drafting allowance, not checked against a real hoodie or zip tape.
+
+## Painting finder and print resolution (2026-11-11)
+
+`artwork.html` + `artwork.mjs`. The first interview's line is classical and
+devotional paintings on garments, and the studio used to stop at a list of
+museum links. Now the designer searches the Art Institute of Chicago and The
+Met open-access APIs from the page (calls go from the browser to the museum;
+nothing passes through us), sees only works the museum flags as public domain
+(paintings only by default), and gets a print verdict per image at the planned
+width and method: pixels per inch, sharp / acceptable / too low against
+typical figures (300 sharp and 150 floor for DTG, DTF and sublimation; 200
+floor for high-density and puff, whose relief exaggerates edges; 150 enough
+for embroidery, which a digitiser redraws), the largest sharp width, and a
+halftone note at 1.5 x the ruling. "Use in the studio" puts a preview copy on
+the garment and keeps the original's pixel size on the placement (`srcPx`);
+uploads keep it too. The studio's method note then says whether the chosen
+print width is sharp, which matters because the studio stores a 1400 px
+preview: a 25 cm print of that preview would be 142 ppi.
+
+Checked: `artwork.test.mjs` (11 tests: ppi worked by hand, verdict per method,
+halftone note, both museums' parsers on their documented response shapes,
+one museum down, the hand-off read once and refusing stale or non-image data)
+and a design test that `srcPx` survives a saved design; a headless-Chromium run
+with both APIs mocked: search, measure, a Met image served without CORS (the
+page measures it and says to save it from the museum page instead of copying
+it), hand-off to the studio and the warning in the method note, no console
+errors. Not checked: the live APIs. From the build session both hosts were
+refused by the network proxy, so the field names come from the museums' public
+API documentation, not a live response. The rights flag is the museum's, not a
+legal check; the ppi figures are print-shop guidance, not a standard.
+
+## Index separation for paintings (2026-11-11)
+
+`indexsep.mjs`, the "Index separation (dots, for paintings)" button under
+"Separate a painting for screen print" on the studio page. The first
+interview's line is classical and devotional paintings on garments, and the
+flat separation turns a painting into a few flat inks. Measured on nine real
+public-domain paintings, flat inks leave the print a mean CIE76 delta E of 6 to
+14 from the painting even at 8 inks (about 2 is barely visible, 5 plain to
+see): flat colour cannot carry a painting's shading.
+
+The index separation keeps the same inks and screens but lays them down as
+square dots, one per finest dot the mesh holds (0.3 mm by default, coarser when
+the image is small), by serpentine Floyd-Steinberg error diffusion in linear
+RGB, nearest ink chosen in CIE Lab, with the bare garment as a free extra
+colour. Crop, surround removal and knock-outs carry over from the flat
+separation. The page shows a preview, the dot size, how much is bare garment,
+and the distance from the painting for flat and index at 0.5, 1 and 3 m, and
+downloads the films (underbase first on dark garments) and a printer brief.
+The page now decodes uploads at up to 1200 px (was 640) so the dots can reach
+0.3 mm at 25 cm wide.
+
+"Distance seen from" is a rough eye model: painting and print are both blurred
+by a Gaussian of 1 arcminute at that distance (0.29 mm at 1 m) in linear RGB
+and compared in CIE76. It is not S-CIELAB, and it is used only to compare the
+two methods on the same footing.
+
+### Measured (eval/index-paintings.mjs)
+
+Nine paintings fetched from public GitHub repositories (museum hosts were
+blocked from the build session): Van Gogh's Starry Night, Munch's Scream and a
+184 x 250 px Madonna thumbnail, Turner's Shipwreck of the Minotaur, Matisse's
+Woman with a Hat, Hokusai's Great Wave, Picabia's Udnie, Sassoferrato's
+Madonna in Prayer and a framed Barocci. Decoded at up to 640 px in Chromium's
+canvas, printed 28 cm wide. Mean delta E over the nine:
+
+| Garment, inks | 0.5 m flat / index | 1 m flat / index | 3 m flat / index | index closer at 1 m |
+|---|---|---|---|---|
+| white, 3 | 14.85 / 15.88 | 13.78 / 12.14 | 12.19 / 9.79 | 8 of 9 |
+| white, 4 | 13.43 / 14.48 | 12.30 / 10.64 | 10.71 / 8.34 | 8 of 9 |
+| white, 6 | 11.72 / 12.61 | 10.52 / 8.94 | 8.90 / 6.68 | 8 of 9 |
+| near-black, 4 | 13.43 / 14.41 | 12.15 / 11.04 | 10.29 / 8.78 | 7 of 9 |
+
+- Up close (0.5 m) the dots show and index is further from the painting; from
+  1 m it is closer on 8 of 9, and from 3 m four inks as index (8.34) sit closer
+  than six flat inks (8.90): two fewer screens for the same look across a room.
+- The one loser at 1 m is the 184 px Munch thumbnail: its dots are 1.5 mm, too
+  coarse to mix at that distance. The page says when the source limits the dot.
+- Neither gets near "barely visible": four inks cannot reach many of a
+  painting's colours. Index removes the banding, not the gamut limit.
+- Tuning, measured on the same set: unclamped error diffusion was worse than
+  flat (runaway error from out-of-gamut colours, 12.77 at 1 m with 4 inks);
+  clamping the corrected colour fixed it. Clamping exactly at 0..1 cost tone at
+  the ends of a grey ramp (4.1 delta E after blur against 0.9), so the clamp has
+  a 0.25 margin, which cost paintings about 0.3 at 1 m (five-painting partial
+  run: 9.32 vs 9.65). Damping the error (0.8) scored slightly better on
+  paintings but printed linear mid grey as 43% dots instead of 50%, so it is
+  off. Refitting the inks to what the dither asked of them diverged (worse
+  than flat), and pushing inks outward from the mean helped only at 3 m.
+  Inks chosen with grain counted (2026-11-14, below) do help at 1 m.
+
+Checked: `indexsep.test.mjs` (8 tests: grid size, blur width, a grey ramp that
+matches once blurred, linear mid grey at about 50% dots, unprinted surround
+kept, index closer than flat on a shaded test card and repeatable, films with
+underbase first and cm sizing, brief text) and a headless-Chromium run of the
+page with Starry Night and the Sassoferrato (index in 2.7 and 3.6 s, films 1.3
+and 1.8 MB, brief downloaded, no console errors). Not checked: a real screen
+printer's index print. Whether 0.3 mm single dots hold on their mesh, how dot
+gain darkens the result, and registration on a dark garment's underbase are
+all for a proof.
+
+### Inks from the printer's stock (2026-11-16)
+
+Every ink "Chosen for the dots" picks is a custom mix, and a shop charges to
+match each colour to a sample. Most shops that print index separations have a
+shelf of ready-made inks instead. `stockinks.mjs`, the choices "From the
+printer's stock, seen from 1 m / 3 m" on the studio page, picks as many inks
+as the separation has screens from a pasted stock list (one ink per line, a
+name and `#RRGGBB` or three numbers 0-255), so nothing has to be mixed.
+
+- **Score.** The colours dots can reach are the convex hull of the inks and
+  the bare garment in linear RGB, so a subset is scored by `mixCost` from
+  `inkfit.mjs` (mean Lab distance from sampled painting colours to what the
+  dots can mix, plus the grain term for that viewing distance).
+- **Search.** Two starts, each improved by swap descent (replace one chosen
+  ink with one unchosen while the score falls): each flat ink's nearest stock
+  ink, and greedy forward selection. The chosen inks go on the screens by the
+  assignment closest in Lab to the flat inks, so print order holds.
+- **Check.** The nearest-ink pick (what a person matching by eye would do)
+  and both searched sets are dotted with the real index separation and scored
+  by the eye model; the closest wins, so it is never worse than the pick by
+  eye on that measure. The brief lists screen, stock ink name and colour.
+- **The starter shelf** filled in on the page (`STARTER_STOCK`, 25 inks) is
+  made up: common colour names with approximate colours, not any ink maker's
+  swatches. A printer's own list is what to use.
+
+Measured (`eval/index-stock.mjs`, the nine paintings at 640 px, 28 cm, the
+starter shelf; mean delta E after the eye blur; full output
+`eval/index-stock-2026-11-16.md`):
+
+| Garment, inks | Seen from | Dots, flat (custom) inks | Nearest stock ink each | Chosen from stock | Freely mixed (`inkfit.mjs`) | Chosen closer than nearest |
+|---|---|---|---|---|---|---|
+| white, 3 | 1 m | 12.14 | 15.32 | 13.62 | 10.95 | 7 of 9 |
+| white, 3 | 3 m | 9.79 | 12.24 | 7.65 | 6.31 | 9 of 9 |
+| white, 4 | 1 m | 10.64 | 14.07 | 12.25 | 9.55 | 7 of 9 |
+| white, 4 | 3 m | 8.34 | 10.94 | 5.93 | 4.51 | 8 of 9 |
+| white, 6 | 1 m | 8.94 | 11.89 | 10.95 | 7.85 | 7 of 9 |
+| white, 6 | 3 m | 6.68 | 8.17 | 4.85 | 3.78 | 8 of 9 |
+| near-black, 4 | 1 m | 11.04 | 14.18 | 11.51 | 9.20 | 9 of 9 |
+| near-black, 4 | 3 m | 8.78 | 11.36 | 5.17 | 4.37 | 9 of 9 |
+
+- Matching each flat ink to its nearest shelf ink costs 1.5 to 3.4 delta E
+  against the custom flat inks. The search wins back 0.9 to 2.7 of that at
+  1 m and all of it and more at 3 m, where the chosen stock set beats the
+  custom flat inks in 32 of 36 runs (12 of 36 at 1 m).
+- What custom mixing still buys over the chosen stock set: 0.8 to 1.4 delta E
+  at 3 m, 2.3 to 3.1 at 1 m. So for a print seen across a room, stock inks
+  come close to custom ones; for a print seen up close, mixing is worth its fee
+  on this measure.
+- The search picks far-apart inks (Starry Night on white, 3 inks: lemon
+  yellow, cyan, black) where the eye would pick look-alikes (nearest 12.41, chosen 7.51 at
+  3 m). Swap descent from the nearest inks won 25 of 36 runs at 1 m and 30 at
+  3 m, greedy selection 5 and 4, and the nearest inks were kept 6 and 2 times.
+- A choice takes 0.3 to 5.5 s on one CPU at 640 px (more inks, longer).
+
+Not checked: a real printer's shelf (real inks are not the starter colours)
+and a real proof. The eye model is the same rough blur as above; dot gain and
+the single-dot cleanup run after the choice, not inside it.
+
+### Inks chosen for the dots (2026-11-14)
+
+The flat separation picks its inks as cluster centres: each ink is the
+average colour of the area it fills. Dots mix by area in linear light, so the
+only colours an index print can reach are those between its inks and the bare
+garment (their convex hull in linear RGB). Averages sit inside a painting's
+colours, so that hull leaves out its darkest, lightest and most saturated
+passages, and the dither has to clamp them. That, not banding, was most of
+the 10-11 delta E left in the table above.
+
+`inkfit.mjs`, the "Inks for the dots" choice beside the index button (default
+"Chosen for the dots, seen from 1 m"):
+
+- **Fit.** For about 1,500 sampled colours of the painting, each colour's best
+  mix of the inks and garment is found (pairwise Frank-Wolfe on the mixing
+  weights), scoring sqrt(miss^2 + lambda x spread^2) in CIE Lab: *miss* is how
+  far the mix is from the painting's colour, *spread* how far the dots' own
+  colours are from the mix (grain). lambda is the share of grain the eye's
+  blur lets through: about kappa / (4 pi sigma^2), sigma the 1-arcminute blur
+  in dots at the chosen distance. Each ink is then moved by pattern search in
+  sRGB (steps 0.25 down to 0.01) while the mean score falls.
+- **Choice.** Fits with kappa 0.25, 0.5 and 1 and the flat inks are each dotted
+  with the real index separation and scored by the eye model at the chosen
+  distance; the closest wins. The flat inks are always a candidate, so the
+  choice is never further from the painting than them at that distance (on
+  this measure; tested).
+- The page shows each flat ink and the ink chosen for the dots, the scores
+  tried, and the brief and films carry the new inks with the flat ones noted.
+
+Measured (`eval/index-inks.mjs`, the same nine paintings at 640 px, 28 cm;
+full output `eval/index-inks-2026-11-14.md`). Mean delta E at 0.5 / 1 / 3 m:
+
+| Garment, inks | Flat | Index, flat inks | Index, inks for 1 m | Index, inks for 3 m | Closer than index with flat inks at 1 m (inks for 1 m) |
+|---|---|---|---|---|---|
+| white, 3 | 14.85 / 13.78 / 12.19 | 15.88 / 12.14 / 9.79 | 16.39 / 10.95 / 8.27 | 27.07 / 14.01 / 6.31 | 9 of 9 |
+| white, 4 | 13.43 / 12.30 / 10.71 | 14.48 / 10.64 / 8.34 | 15.83 / 9.55 / 6.24 | 23.52 / 11.53 / 4.51 | 9 of 9 |
+| white, 6 | 11.72 / 10.52 / 8.90 | 12.61 / 8.94 / 6.68 | 13.19 / 7.85 / 5.07 | 19.83 / 9.67 / 3.78 | 8 of 9 |
+| near-black, 4 | 13.43 / 12.15 / 10.29 | 14.41 / 11.04 / 8.78 | 15.06 / 9.20 / 6.00 | 23.10 / 11.33 / 4.37 | 8 of 9 |
+
+- Chosen for 1 m, the dots move about 1 to 1.8 closer at 1 m and 2 to 2.8
+  closer at 3 m; four inks chosen for the dots (9.55 at 1 m) beat six flat
+  inks dotted (8.94) only from 3 m (6.24 vs 6.68), but they match them at 1 m
+  within 0.6 with two fewer screens.
+- Chosen for 3 m, four inks reach 4.51 at 3 m, against 6.68 for six flat inks
+  dotted: the first time the table gets near "plain to see" (5) from across a
+  room. Up close those far-apart inks are grainy (23.52 at 0.5 m), so choose
+  the distance the garment will be seen from.
+- Choosing for 1 m costs a little at 0.5 m (14.48 to 15.83 for white, 4 inks).
+  Choosing for 0.5 m mostly keeps the flat inks or moves them slightly (13.76).
+- The two misses at 1 m are the 184 px Munch thumbnail, whose 1.5 mm dots are
+  too coarse to mix, where the flat inks are kept.
+- On the studio page with Starry Night at 1200 px on a near-black garment
+  (0.3 mm dots, 4 inks), headless Chromium: 12.71 to 6.50 at 1 m and 9.60 to
+  3.03 at 3 m, in 6.7 s against 2.2 s for the flat inks, no console errors.
+- Speed: 1 to 12 s per choice in the eval (one CPU, 640 px images); most of it
+  is the extra index runs.
+
+Not checked: any real ink. The chosen colours are plain sRGB targets; whether
+a printer can mix each one in plastisol or water-based ink (and how it reads
+on cotton) is for a proof, and on a dark garment the white underbase changes
+how a light ink looks. The eye model is the same rough blur as above, so
+treat the gains as relative, not as what a person will see.
+
+### No single dots (2026-11-14)
+
+A dot one cell wide is the first thing a screen loses: the stencil may not
+wash out round it, or the ink may not go through. Error diffusion leaves a lot
+of them: 5.8 to 9.3% of all cells on the nine paintings below are a dot with no
+neighbour of its own ink. On a press that loses every one of them, plain dots
+go from 10.64 to 15.60 delta E at 1 m (white, 4 inks), worse than flat inks.
+
+`cleanLoneDots` in `indexsep.mjs`, the "Single dots" choice on the studio page
+(default "None, refined"):
+
+- **Cleanup.** Each single dot gets the cheapest of: give it up (the cell takes
+  the garment or the ink of a 4-neighbour, joining that neighbour's dot), or
+  grow it into a pair (a 4-neighbour takes its ink, unless that would leave the
+  neighbour's old ink with a single dot). No move creates a single dot, so one
+  pass leaves none (tested; 0 left in 36 runs).
+- **Judged by the score itself.** "Cheapest" is the change in the squared CIE
+  Lab distance between the painting and the print once both are blurred as
+  seen from the chosen distance, linearised Gauss-Newton style: Lab's Jacobian
+  is taken at the current blurred print, and kept current as cells change.
+- **Refining.** Then up to `passes` sweeps let any cell change to any ink or
+  the garment when that lowers the same error and creates no single dot (a
+  direct-binary-search pass under the minimum-dot rule), relinearised each pass.
+
+Measured (`eval/index-mindot.mjs`, the same nine paintings at 640 px, 28 cm,
+flat inks; mean delta E at 0.5 / 1 / 3 m; full output
+`eval/index-mindot-2026-11-14.md`):
+
+| Garment, inks | Plain dots | Plain, singles lost on press | No singles | No singles + 3 passes | Search with singles allowed | Same, singles lost | Closer than plain at 1 m |
+|---|---|---|---|---|---|---|---|
+| white, 3 | 15.88 / 12.14 / 9.79 | 17.82 / 15.83 / 14.74 | 15.61 / 12.23 / 9.92 | 15.16 / 11.74 / 9.85 | 15.20 / 11.32 / 9.77 | 17.39 / 15.66 / 15.15 | 8 of 9 |
+| white, 4 | 14.48 / 10.64 / 8.34 | 17.13 / 15.60 / 14.99 | 14.07 / 10.71 / 8.53 | 13.62 / 10.17 / 8.39 | 13.61 / 9.66 / 8.26 | 16.50 / 15.19 / 15.06 | 9 of 9 |
+| white, 6 | 12.61 / 8.94 / 6.68 | 16.59 / 15.98 / 16.16 | 12.09 / 8.96 / 6.95 | 11.62 / 8.37 / 6.71 | 11.72 / 7.79 / 6.48 | 16.16 / 15.82 / 16.35 | 7 of 9 |
+| near-black, 4 | 14.41 / 11.04 / 8.78 | 15.74 / 12.74 / 10.45 | 13.99 / 11.01 / 8.90 | 13.58 / 10.05 / 8.32 | 13.37 / 9.50 / 8.01 | 15.19 / 11.68 / 10.01 | 9 of 9 |
+
+- The cleanup alone costs under 0.1 at 1 m (10.64 to 10.71) and up to 0.27 at
+  3 m, and is closer up close (14.48 to 14.07). With three refining passes the
+  single-dot-free print is closer than plain dots at 1 m in 33 of 36 runs
+  (10.64 to 10.17); the three misses are by 0.01 to 0.04.
+- The same search with single dots allowed goes further (9.66) on a press that
+  holds them, and falls to 15.19 on one that does not. The rule costs about 0.5
+  at 1 m where single dots hold, and saves about 5 where they don't. The page
+  offers "Keep them" for a printer who has proved their mesh holds single dots.
+- On the page at the full 0.3 mm grid (Starry Night at 1,280 px, 933 x 583
+  dots, near-black, 4 inks): plain 11.88 at 1 m, cleanup 11.47 in 1.8 s, three
+  passes 9.44 in 6.9 s. In headless Chromium with the 640 px image: 12.36 to
+  9.95 at 1 m and 8.66 to 7.16 at 3 m, 3.5 s, no console errors; the brief's
+  per-screen line reads "0% single dots".
+- Two dead ends on the way, kept for the next run: judging moves by squared
+  error in linear RGB (no Lab) made the refining passes worse than none (they
+  under-weigh the darks), and linearising Lab at the painting's colour rather
+  than at the print's made them raise the true squared error (242 to 339 on
+  Starry Night), since the print sits about 13 delta E away. Weighing each cell
+  by 1 / its error to aim at the mean rather than the mean square scored the
+  same on four paintings and was left out.
+
+Not checked: any real screen. Whether a given mesh holds a 2-dot pair at 0.3 mm
+(and loses single dots at all) is for a proof; the calibration strip still
+prints a checkerboard of single dots, and a pair strip is the next thing to
+add. The refining ignores dot gain (the error-diffusion compensation does not
+carry into it), and the eye model is the same rough blur as above.
+
+### Dot gain (2026-11-11)
+
+Ink spreads past its film on press, so dots print bigger than drawn and the
+print goes darker. `indexsep.mjs` now models it and can compensate for it:
+
+- **Model.** An isolated dot covers (1 + gain) cells, so each 4-neighbour
+  takes gain/4 of it. A cell takes that share from every neighbour printed
+  *after* it: ink onto bare garment, and a later ink over an earlier one (wet
+  on wet, in print order). Mixing is by area in linear light.
+- **Compensation.** With a gain set ("Dot gain on press" on the studio page),
+  the error diffusion is model-based (after Pappas and Neuhoff's printer-model
+  halftoning): each candidate ink is judged by how the cell will look beside
+  its already-placed neighbours, and the ink it spills onto them is counted as
+  error already spent. Gain 0 gives the old dots cell for cell (tested).
+- **Calibration.** "Measure dot gain from a proof" downloads a strip per ink
+  (10 mm solid, 50% checkerboard of single dots, bare). Pick the three colours
+  from one photo of the printed proof; `gainFromPatch` solves the model for the
+  gain (every bare checkerboard cell touches four dots, so its inked share is
+  0.5 + gain/200), warns on dot *loss* (the mesh is not holding the dots) and on
+  fill-in, and enters the figure.
+
+Measured (`eval/index-gain.mjs`, the same nine paintings at 640 px, 28 cm,
+four inks; mean delta E at 1 m with the print rendered at the true gain):
+
+| Garment, true gain | No gain at all | Plain dots | Compensated for the true gain | for half | for double |
+|---|---|---|---|---|---|
+| white, 15% | 10.64 | 10.54 | 10.54 (5 of 9 better) | 10.52 (7 of 9) | 10.60 (3 of 9) |
+| white, 30% | 10.64 | 10.53 | 10.40 (7 of 9) | 10.43 (9 of 9) | 10.76 (2 of 9) |
+| near-black, 15% | 11.04 | 10.94 | 10.94 (4 of 9) | 10.92 (6 of 9) | 11.04 (2 of 9) |
+| near-black, 30% | 11.04 | 10.91 | 10.86 (6 of 9) | 10.83 (7 of 9) | 10.88 (3 of 9) |
+
+- On paintings, gain is not what keeps the print from the painting: four inks
+  cannot mix many of a painting's colours, and that 10-11 delta E swamps it.
+  Under this model gain even helps plain dots slightly (it blurs them together).
+  Compensation is worth 0.1-0.26 at 30% (3 m, white: 8.54 to 8.28).
+- A guess too high is worse than no compensation (double: 2-3 of 9 better);
+  half the true gain is as good as the truth. Measure, or guess low.
+- Where colours are in reach of the inks, gain matters a lot: a grey ramp in
+  black on white (`indexsep.test.mjs`) is 0.89 delta E blurred with no gain,
+  3.39 with 20% gain uncompensated, and 0.78 compensated (10%: 1.90 to 0.82;
+  30%: 5.09 to 0.80; 50%: 9.12 to 0.62). One-ink and tonal prints are where
+  the setting earns its keep.
+- An earlier version that let ink spread onto bare garment only measured even
+  smaller effects (compensation within 0.05 at 1 m); the wet-on-wet term is
+  what the table above uses.
+
+Not checked: any real press. The spread model is a first-order guess (no
+ink-trapping, flash or squeegee direction), and whether a real printer's
+proof follows it is what the calibration strip is for.

@@ -18,7 +18,7 @@ export const REVIEW_HEADER = 'status,payout_date,deposit_date,amount_cents,depos
  */
 export function csvCell(value) {
   const raw = String(value ?? '');
-  const text = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  const text = /^[=+\-@\t\r]/.test(raw) && !/^-?\d+(\.\d+)?$/.test(raw) ? `'${raw}` : raw;
   return /[",\r\n]/.test(text) ? `"${text.replaceAll('"', '""')}"` : text;
 }
 

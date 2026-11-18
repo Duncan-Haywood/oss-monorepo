@@ -345,8 +345,13 @@ export function reportCsv(r) {
   return out.map((row) => row.map(q).join(",")).join("\n") + "\n";
 }
 
-export const money = (v) => (v < 0 ? "-$" : "$") + Math.round(Math.abs(v)).toLocaleString("en-US");
-export const money2 = (v) => (v === null || v === undefined ? "n/a" : "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.round(Math.abs(v)).toLocaleString("en-US"));
+export const money2 = (v) => {
+  const format = (v) => (v === null || v === undefined ? "n/a" : "$" + v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+  if (!(Number(v) < 0)) return format(v);
+  const text = format(Math.abs(v));
+  return /[1-9]/.test(text) ? `-${text}` : text;
+};
 export const pct = (v, d = 1) => (v === null || v === undefined ? "n/a" : (v * 100).toFixed(d) + "%");
 export const yrs = (v) => (v === null || v === undefined ? "never" : v.toFixed(1) + " years");
 export const months = (v) => (v === null || v === undefined ? "not within 10 years" : "month " + v);

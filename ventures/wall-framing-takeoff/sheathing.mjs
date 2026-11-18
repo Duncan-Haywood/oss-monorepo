@@ -99,6 +99,7 @@ function bearingCentres(plan, w, ops, cover) {
  * @returns {string[]}
  */
 export function sheathingErrors(cfg) {
+  if (cfg == null || typeof cfg !== "object" || Array.isArray(cfg)) return ["Sheathing settings are an object."];
   const e = [];
   const num = (k, lo, hi, nullOk = true) => {
     const v = cfg[k];

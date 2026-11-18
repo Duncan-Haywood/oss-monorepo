@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "NIIT Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Net investment income tax (3.8% surtax, Form 8960) calculator with threshold headroom, what-if for extra gains, two-year gain splitting and MAGI levers. Runs in your browser.", "featureList": "Form 8960 lines, headroom, extra-gain what-if, split-gain comparison, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the net investment income tax (NIIT)?", "acceptedAnswer": {"@type": "Answer", "text": "A 3.8% federal surtax on the lesser of your net investment income or the amount your modified adjusted gross income exceeds a threshold: $200,000 for single and head of household, $250,000 for married filing jointly, $125,000 for married filing separately. It is reported on Form 8960 and added to your Form 1040 tax."}}, {"@type": "Question", "name": "Is the $200,000 threshold indexed for inflation?", "acceptedAnswer": {"@type": "Answer", "text": "No. The thresholds are written into the statute and have never been adjusted, so each year more households cross them as wages and asset prices rise."}}, {"@type": "Question", "name": "What counts as net investment income?", "acceptedAnswer": {"@type": "Answer", "text": "Interest, dividends, capital gains, passive rental and royalty income, annuity income and income from passive businesses or trading in financial instruments, less deductions properly allocable to them. Wages, active business income, Social Security, tax-exempt interest and qualified retirement plan distributions are not NII."}}, {"@type": "Question", "name": "Do retirement withdrawals and Roth conversions trigger it?", "acceptedAnswer": {"@type": "Answer", "text": "The withdrawal or conversion itself is not net investment income, but it raises your MAGI. That can push you over the threshold so that your existing investment income becomes taxable at 3.8%. Enter it in the wages box to see the effect."}}, {"@type": "Question", "name": "How can I reduce the NIIT?", "acceptedAnswer": {"@type": "Answer", "text": "You can lower MAGI (pre-tax retirement or HSA contributions, qualified charitable distributions), spread a large gain over two tax years, harvest losses, or hold income in tax-exempt bonds or retirement accounts. The splitting and lever sections of the result put numbers on these for your figures."}}, {"@type": "Question", "name": "Is this tax advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on the figures you type. Figures such as the gain on a home sale exclusion, passive-activity status, and estimated-tax safe harbors need a professional. Verify with Form 8960 instructions and IRS Topic 559."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #1e3a8a; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #1e3a8a; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #1e3a8a; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #1e3a8a; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e3a8a; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #1e3a8a; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -103,11 +141,11 @@
       for (const w of a.warnings) h += `<div class="finding"><span class="pill">Check</span> ${esc(w)}</div>`;
       if (!a.result) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const r = a.result;
-      if (r.tax === 0) h += `<div class="finding"><h4>No net investment income tax on these figures</h4><p>${a.belowThreshold ? `MAGI of ${money(r.magi)} is ${money(a.headroom)} under the ${money(a.opts.threshold)} threshold: that much more income, of any kind, can be added before the tax starts.` : "Your net investment income is zero, so there is nothing to tax."}</p></div>`;
-      else h += `<div class="finding"><h4>NIIT of ${money(r.tax)}</h4><p>3.8% of ${money(r.base)}, the smaller of net investment income (${money(r.nii)}) and MAGI over the threshold (${money(r.over)}). ${r.limitedBy === "magi" ? "The excess over the threshold is the limit, so lowering MAGI by up to " + money(r.over) + " would remove the tax." : "Your investment income is the limit, so lowering MAGI will not help unless it drops below the threshold; only less investment income will."}</p></div>`;
-      h += `<div class="finding"><h4>Levers</h4><p>A $10,000 cut in MAGI (a pre-tax retirement or HSA contribution, a qualified charitable distribution) changes the tax by ${money(a.tenKMagiLever)}. $10,000 less gain (a harvested loss) changes it by ${money(a.tenKGainLever)}.</p></div>`;
-      h += `<div class="finding"><h4>What an extra ${money(a.opts.extraGain)} of gain costs</h4>${table(["Extra gain", "Added NIIT", "Rate on the extra"], a.grid.map((g) => [money(g.extra), money(g.added), pct(g.effective)]))}<p>Taking ${money(a.opts.extraGain)} in one year adds ${money(a.oneYear)}; half in each of two years like this one adds ${money(a.twoYears)}${a.splitSaves > 0 ? ", saving " + money(a.splitSaves) + " of NIIT" : ""}. Income tax rates and your own plans may point the other way.</p></div>`;
-      h += `<div class="finding"><h4>Form 8960, filled in</h4>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
+      if (r.tax === 0) h += `<div class="finding"><h3>No net investment income tax on these figures</h3><p>${a.belowThreshold ? `MAGI of ${money(r.magi)} is ${money(a.headroom)} under the ${money(a.opts.threshold)} threshold: that much more income, of any kind, can be added before the tax starts.` : "Your net investment income is zero, so there is nothing to tax."}</p></div>`;
+      else h += `<div class="finding"><h3>NIIT of ${money(r.tax)}</h3><p>3.8% of ${money(r.base)}, the smaller of net investment income (${money(r.nii)}) and MAGI over the threshold (${money(r.over)}). ${r.limitedBy === "magi" ? "The excess over the threshold is the limit, so lowering MAGI by up to " + money(r.over) + " would remove the tax." : "Your investment income is the limit, so lowering MAGI will not help unless it drops below the threshold; only less investment income will."}</p></div>`;
+      h += `<div class="finding"><h3>Levers</h3><p>A $10,000 cut in MAGI (a pre-tax retirement or HSA contribution, a qualified charitable distribution) changes the tax by ${money(a.tenKMagiLever)}. $10,000 less gain (a harvested loss) changes it by ${money(a.tenKGainLever)}.</p></div>`;
+      h += `<div class="finding"><h3>What an extra ${money(a.opts.extraGain)} of gain costs</h3>${table(["Extra gain", "Added NIIT", "Rate on the extra"], a.grid.map((g) => [money(g.extra), money(g.added), pct(g.effective)]))}<p>Taking ${money(a.opts.extraGain)} in one year adds ${money(a.oneYear)}; half in each of two years like this one adds ${money(a.twoYears)}${a.splitSaves > 0 ? ", saving " + money(a.splitSaves) + " of NIIT" : ""}. Income tax rates and your own plans may point the other way.</p></div>`;
+      h += `<div class="finding"><h3>Form 8960, filled in</h3>${table(["Line", "Amount"], a.form.map(([k, v]) => [esc(k), money(v)]))}<p><button type="button" class="secondary" id="csv">Download (CSV)</button></p></div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

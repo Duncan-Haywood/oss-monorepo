@@ -1,0 +1,6 @@
+P1 forecast within max(5 points, 3 SE): 72 of 72; misses []; largest gap 3.2
+P2 coverage >= 93% in every cell and rule: yes
+tau=0.05: worst lexicon ratio 1.061; informative cells keep 100% of the tau 0 gain (9 cells with tau-0 ratio < 0.97)
+tau=0.1: worst lexicon ratio 1.028; informative cells keep 99% of the tau 0 gain (9 cells with tau-0 ratio < 0.97)
+tau=0.2: worst lexicon ratio 1.005; informative cells keep 99% of the tau 0 gain (9 cells with tau-0 ratio < 0.97)
+Decision rule: recommended tau = 0.1

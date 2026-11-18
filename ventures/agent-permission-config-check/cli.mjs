@@ -20,6 +20,7 @@ import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { parseConfig, analyze } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const execFileAsync = promisify(execFile);
 
@@ -160,7 +161,7 @@ export async function run(argv, { cwd = process.cwd() } = {}) {
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

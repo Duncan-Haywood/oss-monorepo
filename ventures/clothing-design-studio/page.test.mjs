@@ -1,12 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { newDesign, applyOp } from "./design.mjs";
 import { EXAMPLE_SUPPLIER } from "./suppliers.mjs";
 import { economics, quantityBreaks } from "./costing.mjs";
 
 const read = f => readFileSync(new URL(`./${f}`, import.meta.url), "utf8");
-const PAGES = ["index.html", "for-independent-clothing-designers.html", "how-much-does-it-cost-to-make-a-t-shirt.html", "sunglasses.html", "wardrobe.html", "fit.html", "quotes.html", "labels.html", "prices.html", "preorder.html", "duty.html", "import-duty-on-clothing.html", "clothing-minimum-order-quantity.html", "wholesale.html", "reorder.html", "orderlines.html", "returns.html", "cashflow.html", "tna.html", "salestax.html", "discount.html", "spec.html", "timeline.html", "tiers.html", "startup.html"];
+// Every page in the folder: a hand-kept list had reached 33 of 52 pages by
+// 2026-11-12, and eight of the unlisted pages had lost the sponsor link or JSON-LD.
+const PAGES = readdirSync(new URL("./", import.meta.url)).filter((f) => f.endsWith(".html")).sort();
 
 test("every page carries the no-warranty clause, a sponsor link and its own title and description", () => {
   for (const f of PAGES) {
@@ -56,7 +58,7 @@ test("llms.txt and sitemap list every page", () => {
   const llms = read("llms.txt");
   const sitemap = read("sitemap.xml");
   assert.match(llms, /\d{4}-\d{2}-\d{2}/);
-  for (const f of PAGES.slice(1)) {
+  for (const f of PAGES.filter((f) => f !== "index.html")) {
     assert.ok(llms.includes(f), f);
     assert.ok(sitemap.includes(f), f);
   }
@@ -104,4 +106,37 @@ test("the MOQ guide matches what preorder.mjs computes", async () => {
   assert.ok(html.includes(money(paid.adCost)));
   assert.equal(fast.pFunded < 0.001, true);
   assert.match(html, /an assumption typed for illustration/);
+});
+
+test("the sunglasses profit page matches what returns.mjs computes", async () => {
+  const { returnsPlan } = await import("./returns.mjs");
+  const html = read("sunglasses-profit-margin.html");
+  const landed = Math.round((21.5 + 21.5 * 0.029) * 100) / 100;
+  assert.equal(landed, 22.12);
+  const run = (shelf, returnPct, extra = {}) => returnsPlan({ price: Math.round((shelf / 1.21) * 100) / 100, landed, shipOut: 4, feePct: 2.9, feeFixed: 0.3, returnPct, exchangePct: 0, resaleablePct: 90, salvagePct: 20, returnLabel: 5, handling: 1.5, ...extra });
+  for (const shelf of [60, 65, 70]) for (const rp of [5, 12, 20]) {
+    const r = run(shelf, rp);
+    assert.ok(html.includes(`<td class="num">${r.perOrder.profit.toFixed(2)}</td>`), `${shelf}/${rp}`);
+  }
+  const main = run(65, 12);
+  assert.equal(main.perOrder.profit, 20.96);
+  assert.ok(html.includes(`${main.perOrder.profit.toFixed(2)} per order`) && html.includes(`${main.marginPct}% of the net price`));
+  assert.equal(Math.round((65 - 65 / 1.21) * 100) / 100, 11.28);
+  assert.equal(Math.round((25 - main.perOrder.profit) * 100) / 100, 4.04);
+  assert.equal(Math.round((run(65, 5).perOrder.profit - run(65, 20).perOrder.profit) * 100) / 100, 5.98);
+  assert.equal(Math.round((run(70, 12).perOrder.profit - run(60, 12).perOrder.profit) * 100) / 100, 7.03);
+  const target = run(65, 12, { targetProfit: 10 }).priceForTarget;
+  assert.ok(html.includes((Math.round(target * 1.21 * 100) / 100).toFixed(2)), "price for target");
+  assert.match(html, /an assumption typed for illustration/);
+});
+
+test("the studio's form rows shrink with the column and style untyped inputs (no sideways scroll at 901 to 1,300 px)", () => {
+  // 2026-11-12: #sep-crop and #sep-knock have no type attribute, so the
+  // input[type=text] width rule missed them; at the browser's default width
+  // inside `1fr` tracks (minimum: content) they pushed the page 161 px wider
+  // than a 960 px window and squashed the paper select to "F".
+  const html = read("index.html");
+  assert.match(html, /input:not\(\[type\]\), input\[type=text\]/);
+  assert.match(html, /\.row \{ display: grid; grid-template-columns: minmax\(0, 1fr\) minmax\(0, 1fr\);/);
+  assert.match(html, /\.row3 \{ display: grid; grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/);
 });

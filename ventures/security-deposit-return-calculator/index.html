@@ -35,7 +35,7 @@
     .price.owed { color: #9a3412; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -45,6 +45,10 @@
     .deduction-row { display: grid; grid-template-columns: 1fr 140px auto; gap: 8px; align-items: center; margin-bottom: 8px; }
     footer { margin-top: 28px; border-top: 1px solid #d6e0e6; padding-top: 16px; }
   </style>
+  <!-- rows-reserve:start -->
+  <style>@media (scripting:enabled){html:not(.pf-rows-ready) #deduction-rows:empty{min-height:39px}}</style>
+  <script>addEventListener('DOMContentLoaded',function(){document.documentElement.classList.add('pf-rows-ready')})</script>
+  <!-- rows-reserve:end -->
 </head>
 <body>
   <header>
@@ -196,8 +200,13 @@
 
     const $ = (sel) => document.querySelector(sel);
 
+    // Descriptions are typed text; "Replace <oven> knob" must not become markup.
+    function escapeHtml(text) {
+      return String(text).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    }
+
     function money(n) {
-      const format = (n) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      const format = (n) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
       const text = format(Math.abs(n));
       return n < 0 && /[1-9]/.test(text) ? `-${text}` : text;
     }
@@ -209,7 +218,7 @@
       }
       container.innerHTML = findings.map((f) => `
         <div class="finding">
-          <h4><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h4>
+          <h3><span class="pill ${f.severity}">${f.severity}</span>${f.title}</h3>
           <p>${f.detail}</p>
         </div>`).join("");
     }
@@ -236,8 +245,8 @@
       const row = document.createElement("div");
       row.className = "deduction-row";
       row.innerHTML = `
-        <input type="text" class="deduction-description" placeholder="e.g. carpet cleaning" value="${description}">
-        <input type="number" class="deduction-amount" min="0" step="0.01" placeholder="Amount" value="${amount}">
+        <input type="text" class="deduction-description" placeholder="e.g. carpet cleaning" value="${escapeHtml(description)}">
+        <input type="number" class="deduction-amount" min="0" step="0.01" placeholder="Amount" value="${escapeHtml(amount)}">
         <button type="button" class="secondary small remove-deduction">Remove</button>`;
       row.querySelector(".remove-deduction").addEventListener("click", () => row.remove());
       depositEls.rows.appendChild(row);
@@ -261,7 +270,7 @@
       const result = computeDepositSettlement({ depositAmount, deductions, depositInterest: interestResult.interestAmount });
 
       depositEls.body.innerHTML = result.lineItems
-        .map((d) => `<tr><td>${d.description || "(no description)"}</td><td>${money(d.amount)}</td></tr>`)
+        .map((d) => `<tr><td>${d.description ? escapeHtml(d.description) : "(no description)"}</td><td>${money(d.amount)}</td></tr>`)
         .join("");
       const summaryRow = result.balanceOwed > 0
         ? `<strong>Balance owed: <span class="price owed">${money(result.balanceOwed)}</span></strong>`

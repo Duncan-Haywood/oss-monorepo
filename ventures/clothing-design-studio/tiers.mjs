@@ -51,7 +51,7 @@ export function tierLadder(design, sheet, tiers, plan = DEFAULT_PLAN) {
 
 /** Spreadsheet-safe CSV of a ladder. */
 export function ladderCsv(ladder) {
-  const safe = s => { const t = String(s ?? ""); return /^[=+\-@\t\r]/.test(t) ? "'" + t : t; };
+  const safe = s => { const t = String(s ?? ""); return /^[=+\-@\t\r]/.test(t) && !/^-?\d+(\.\d+)?$/.test(t) ? "'" + t : t; };
   const q = s => `"${safe(s).replace(/"/g, '""')}"`;
   const lines = [["tier", "fabric", "landed", "price", "profit_per_sale", "margin_pct", "break_even_units", "step_cost", "step_price"].join(",")];
   for (const r of ladder.rows) {

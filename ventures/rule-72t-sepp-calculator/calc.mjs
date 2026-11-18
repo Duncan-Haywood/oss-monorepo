@@ -20,7 +20,7 @@ export function num(v) {
   return Number.isFinite(n) ? n : NaN;
 }
 
-export const money = (v) => (v < 0 ? "-" : "") + "$" + Math.round(Math.abs(v)).toLocaleString("en-US");
+export const money = (v) => ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.round(Math.abs(v)).toLocaleString("en-US"));
 export const pct = (v, d = 1) => (v * 100).toFixed(d).replace(/\.0+$/, "") + "%";
 
 // Years the payments must continue: the later of 5 years and reaching 59 1/2.

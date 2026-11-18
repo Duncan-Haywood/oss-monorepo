@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjiyVXZS1Crbb1AoBf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T21:18:02Z",
+  "ended": "2026-11-12T21:32:09Z",
+  "wall_minutes": 15.12,
+  "tokens_in": 7336824,
+  "tokens_out": 27413,
+  "cost_usd": 2.9024,
+  "tool_calls": 67,
+  "task": "Flagship 9 (league-schedule-generator), first next: item: re-measure the page's best-of-k picks with everything landed since 2026-11-11.",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15261",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First venture preflight failed: the new post's description was 190 characters (limit 160).",
+      "fix": "Shortened it to 156 and reran."
+    },
+    {
+      "what": "CI validate failed: flagships.yaml next: was 2,154 characters (cap 2,000); local checks run did not include portfolio/router/validate.py.",
+      "fix": "Folded the earlier 2026-11-12 history into a pointer to the README and reran validate.py."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/league-schedule-generator/eval/best-of-k.mjs",
+      "issue": "--picks still ran the four-try, three-choice search of 2026-11-11 after the page moved to 8 + 2 tries and four choices, so the flagship's 'picks' figures were silently stale; added --page, which calls the page's own carryOverTry/combineCarryOverTries."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The Bash tool blocks a plain foreground sleep; waiting on long evals needs run_in_background until-loops or Monitor, which the cloud-session notes mention only for test suites."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "No agent doc in docs/reports/: the README section and flagships.yaml next: carry everything the next run needs.",
+      "did": "Wrote the README section, eval output, llms.txt line and a post instead.",
+      "result": "Next run's pointer is in flagships.yaml."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-league-schedule-ten-searches-four-results.md",
+    "ventures/league-schedule-generator/README.md (section 'The page's four choices, re-measured on its own ten tries')"
+  ],
+  "goal": null,
+  "notes": "No ideas, website requests or security alerts were pending. allocate.py picked row 7, league-schedule-generator. Measured node eval/best-of-k.mjs --page on 18/20 teams (seeds 1-5) and 11-19 odd (seeds 1-3); output in eval/best-of-k-page.txt. Findings: 18 teams most even 1,355/93 to fewest 2,493/48 (dominates 4/6 real seasons); 20 teams 1,460/117 on every seed, fewest 5,039/54 (dominates 0/14); at 19 teams 7 of 8 weighted tries are the same season, so the page read-out now folds repeats (carryOverCandidatesText, carryOverDistinct; kept season unchanged). Capped tries were never kept at 11 teams and kept once in 12 choices at 13. Verification: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (82.2s); best-of-k.test.mjs 18/18 pass; venture-preflight clean after the description fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "afd76e4f-bafd-5ed2-a474-e93c5deb6100",
+    "transcripts": 1,
+    "first": "2026-11-12T21:18:02Z",
+    "last": "2026-11-12T21:33:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 147,
+        "output": 27413,
+        "thinking": 6201,
+        "cache_read": 7223055,
+        "cache_write_5m": 0,
+        "cache_write_1h": 113622,
+        "api_equivalent_usd": 2.9024,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 147,
+      "output": 27413,
+      "thinking": 6201,
+      "cache_read": 7223055,
+      "cache_write_5m": 0,
+      "cache_write_1h": 113622,
+      "api_equivalent_usd": 2.9024,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 67,
+    "tools": {
+      "Bash": 61,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "TaskStop": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.12,
+      "active_minutes": 10.28,
+      "model_minutes": 6.49,
+      "tool_minutes": 3.79,
+      "waiting_on_human_minutes": 4.83,
+      "human_prompts": 6,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "writing the page-exact eval, ~45 min of runs, reading the tries, the read-out change with tests, README section and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 172.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

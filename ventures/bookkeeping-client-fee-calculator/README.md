@@ -12,7 +12,7 @@ node cli.mjs roster fixtures/roster.csv --target 80
 cat clients.csv | node cli.mjs roster - --json
 ```
 
-Roster rows: `client,fee,hours[,software]`. See `fixtures/roster.csv`.
+Roster rows: `client,fee,hours[,software]`. Quote a field that contains a comma (`"Smith, Jones"`, `"$1,200"`); an unquoted `$1,200` is refused rather than read as a $1 fee. See `fixtures/roster.csv`.
 
 ## Your numbers, not market rates
 

@@ -1,0 +1,150 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLEtjeFtRo8MogF2BB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T16:05:48Z",
+  "ended": "2026-11-11T16:19:34Z",
+  "wall_minutes": 14.09,
+  "tokens_in": 6282575,
+  "tokens_out": 44792,
+  "cost_usd": 3.3732,
+  "tool_calls": 55,
+  "task": "research programme marine-hull, milestone 6u (redrawn after the first draw, track 15 sensing, collided with open PR #14818)",
+  "projects": [
+    "marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14823",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "f35590df",
+    "eb495e21"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "ERDDAP returned one transient HTTP 503; the fetch script now retries with backoff",
+    "first full marine-hull pytest run had 6 collection errors (numpy missing from the default python3); pyenv.py installed numpy/scipy, then 134 passed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "the draw is cached per branch for 12 h, so when the drawn area was already claimed by a sibling's open PR (#14818, sensing-selfcal) a re-run gave the same track; only --new redraws, and PROJECTS.md 'Picking work' does not mention it"
+    },
+    {
+      "file": "research/marine-hull/LOG.md",
+      "issue": "6t's limits said the ERDDAP telemetry has no power or mode fields; the dataset does carry total_power, desired_heading and sub_heading, and the vehicle's own MOSE wave and weather datasets sit on the same server. Earlier runs fetched only the columns they named. Listing a dataset's variables (info/<id>/index.csv) before declaring a field absent would have saved five milestones of buoy-proxy fits"
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py note says it returns at once when an interpreter imports everything; a project whose tests are mostly stdlib but six of whose files need numpy gives no hint until collection fails, so plain python3 -m pytest looks broken"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/_shared/pick_track.py",
+      "why": "the first draw (track 15, sensing) had just been claimed by an open, actively landing PR (#14818) opening a sensing programme; research/prompts says pick something else if taken",
+      "did": "redrew with --new and advanced the drawn programme (marine-hull)",
+      "result": "no duplicate; a real-data milestone landed"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-wave-glider-onboard-waves.md",
+    "research/marine-hull/LOG.md (6u entry)",
+    "research/marine-hull/paper/DRAFT.md section 2.6"
+  ],
+  "goal": "advance a research programme with a real-data result",
+  "notes": "Milestone 6u: on-board Datawell MOSE waves, weather and battery for the 2015 Honey Badger Wave Glider (NOAA ERD ERDDAP), unused before. Pre-registered (7 predictions committed in f35590df before the run): P1 held (b_ob 0.354, 95% 0.299-0.415, vs 0.22 with buoys), P2 refuted (buoy-onboard within-month corr 0.20), P3 refuted (period exponent -0.71, overturning 6s), P4 refuted (no headwind effect), P5 held (Hs alone adds no forecast skill), P6 and P7 refuted. Post hoc: (Hs/T)^0.53 fits 1,430 BIC better than Hs alone; oracle Hs+period cuts 24 h persistence error to 0.77 (0.67-0.87), reversing 6q; 7 Aug step ~70% vehicle-side; June drop mostly sea state. Local checks: marine-hull pytest 134 passed; research/_homepage/build.py ok; programme_check ok; research_live_links 0 updated; check_md_links ok; post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "38de7ef7-126e-5849-91b7-a80e1bdb1e28",
+    "transcripts": 1,
+    "first": "2026-11-11T16:05:48Z",
+    "last": "2026-11-11T16:19:54Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 50,
+        "input": 97,
+        "output": 44792,
+        "thinking": 11250,
+        "cache_read": 6126008,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156470,
+        "api_equivalent_usd": 3.3732,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 50,
+      "input": 97,
+      "output": 44792,
+      "thinking": 11250,
+      "cache_read": 6126008,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156470,
+      "api_equivalent_usd": 3.3732,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 46,
+      "Write": 4,
+      "mcp__github__pull_request_read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.09,
+      "active_minutes": 14.09,
+      "model_minutes": 7.96,
+      "tool_minutes": 6.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "data sourcing, pre-registered analysis, post-hoc checks and write-up for one empirical milestone by a marine robotics PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 177.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

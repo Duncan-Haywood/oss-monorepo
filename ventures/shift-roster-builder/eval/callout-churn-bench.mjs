@@ -3,12 +3,13 @@
 // person coverOptions finds. Counts the shifts that change for other people and prices short-notice premiums
 // with scheduleChanges. Invented staff and wages. Run: node eval/callout-churn-bench.mjs
 import { parseStaff, parseShifts, buildRoster, rosterCsv, coverOptions, scheduleChanges, sampleStaff, sampleShifts } from "../calc.mjs";
+import { pathToFileURL } from "node:url";
 
-export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), changedAt = 1 * 1440 + 17 * 60, noticeHours = 336 } = {}) {
+export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), changedAt = 1 * 1440 + 17 * 60, noticeHours = 336, exact = "auto", extra = {} } = {}) {
   const slots = parseShifts(shiftsText).slots;
   const base = (text) => { const p = parseStaff(text); if (p.errors.length) throw new Error(p.errors[0]); return p.staff; };
   const staff = base(staffText);
-  const posted = buildRoster(staff, slots, { minRestHours: 10 });
+  const posted = buildRoster(staff, slots, { exact, minRestHours: 10, ...extra });
   const postedCsv = rosterCsv(posted);
   const wages = Object.fromEntries(staff.map((s) => [s.name, s.wage]));
   const rows = [];
@@ -17,7 +18,7 @@ export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), ch
     if (!idx.length) continue;
     // (a) rebuild the whole week with the person off Wednesday
     const text = staffText.split("\n").map((l, n) => (n === 0 ? l + ", off" : l.startsWith(person + ",") ? l + ", off: Wed" : l)).join("\n");
-    const rebuilt = buildRoster(base(text), slots, { minRestHours: 10 });
+    const rebuilt = buildRoster(base(text), slots, { exact, minRestHours: 10, ...extra });
     const rebuiltCsv = rosterCsv(rebuilt);
     // (b) patch: each of their Wednesday shifts to the cheapest person who fits, else left open
     const owner = posted.owner.slice(); const patched = { ...posted, owner };
@@ -33,14 +34,14 @@ export function run({ staffText = sampleStaff(), shiftsText = sampleShifts(), ch
     const a = scheduleChanges(postedCsv, rebuiltCsv, opt), b = scheduleChanges(postedCsv, patchedCsv, opt);
     const others = (r) => r.changes.filter((c) => c.person !== person);
     rows.push({ person, wedShifts: idx.length,
-      rebuild: { changes: a.changes.length, others: others(a).length, people: new Set(others(a).map((c) => c.person)).size, owed: a.owed, open: rebuilt.unfilled.length, cost: rebuilt.cost },
+      rebuild: { status: rebuilt.optimality?.status, changes: a.changes.length, others: others(a).length, people: new Set(others(a).map((c) => c.person)).size, owed: a.owed, open: rebuilt.unfilled.length, cost: rebuilt.cost },
       patch: { changes: b.changes.length, others: others(b).length, people: new Set(others(b).map((c) => c.person)).size, owed: b.owed, open: left, cost: posted.cost + patchCost } });
   }
-  return { postedCost: posted.cost, postedOpen: posted.unfilled.length, rows };
+  return { postedStatus: posted.optimality?.status, postedCost: posted.cost, postedOpen: posted.unfilled.length, rows };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
-  const r = run();
-  console.log(`posted: $${r.postedCost}, ${r.postedOpen} open`);
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  const r = run({ exact: process.env.EXACT === "off" ? false : "auto" });
+  console.log(`posted: $${r.postedCost}, ${r.postedOpen} open, ${r.postedStatus}`);
   for (const x of r.rows) console.log(x.person.padEnd(5), x.wedShifts, "rebuild", JSON.stringify(x.rebuild), "patch", JSON.stringify(x.patch));
 }

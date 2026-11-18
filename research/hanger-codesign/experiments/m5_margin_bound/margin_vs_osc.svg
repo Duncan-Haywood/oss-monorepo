@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 420" role="img" font-family="sans-serif" font-size="12">
+<title>Decision margin of the cheap tier against the spread of the paired tier error, 50 instances</title>
+<rect width="560" height="420" fill="white"/>
+<line x1="60.0" y1="370.0" x2="500.0" y2="70.0" stroke="#888" stroke-dasharray="4 3"/>
+<text x="223.55805659775763" y="116.77921347662931" fill="#555">certified above the line (margin &gt; osc)</text>
+<text x="60.0" y="388" text-anchor="middle">0.001</text>
+<text x="52" y="374.0" text-anchor="end">0.001</text>
+<text x="185.71428571428572" y="388" text-anchor="middle">0.01</text>
+<text x="52" y="288.2857142857143" text-anchor="end">0.01</text>
+<text x="311.42857142857144" y="388" text-anchor="middle">0.1</text>
+<text x="52" y="202.57142857142858" text-anchor="end">0.1</text>
+<text x="437.1428571428571" y="388" text-anchor="middle">1</text>
+<text x="52" y="116.85714285714289" text-anchor="end">1</text>
+<line x1="60" y1="370" x2="500" y2="370" stroke="#333"/>
+<line x1="60" y1="70" x2="60" y2="370" stroke="#333"/>
+<text x="280.0" y="408" text-anchor="middle">osc of paired tier error, max e − min e (cm)</text>
+<text transform="translate(16 210.0) rotate(-90)" text-anchor="middle">cheap tier margin (cm)</text>
+<circle cx="440.7" cy="172.4" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="445.1" cy="164.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="446.1" cy="172.4" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="449.6" cy="164.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="445.0" cy="170.5" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="448.7" cy="166.0" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="443.1" cy="223.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="429.4" cy="204.1" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="440.3" cy="197.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="436.8" cy="190.3" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="437.9" cy="223.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="446.0" cy="172.4" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="439.4" cy="197.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="435.3" cy="203.8" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="435.2" cy="204.7" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="446.3" cy="168.1" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="441.1" cy="195.4" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="436.5" cy="204.0" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="433.8" cy="206.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="445.1" cy="172.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="440.1" cy="197.8" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="437.3" cy="204.8" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="433.2" cy="206.2" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="412.1" cy="204.1" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="444.2" cy="164.6" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="440.1" cy="190.3" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="432.7" cy="202.5" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="434.7" cy="205.3" r="4" fill="#c0392b" fill-opacity="0.75"/>
+<circle cx="357.7" cy="273.1" r="4" fill="#1f6fb2" fill-opacity="0.75"/>
+<circle cx="360.8" cy="233.0" r="4" fill="#1f6fb2" fill-opacity="0.75"/>
+<circle cx="360.8" cy="280.7" r="4" fill="#1f6fb2" fill-opacity="0.75"/>
+<circle cx="388.8" cy="292.6" r="4" fill="#1f6fb2" fill-opacity="0.75"/>
+<circle cx="256.3" cy="287.4" r="4" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="327.5" cy="305.9" r="4" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="298.2" cy="285.8" r="4" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="352.8" cy="315.7" r="4" fill="#2e8b57" fill-opacity="0.75"/>
+<circle cx="361.2" cy="246.6" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="294.0" cy="235.0" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="188.4" cy="207.9" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="380.7" cy="249.1" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="325.5" cy="261.6" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="288.1" cy="215.4" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="378.8" cy="308.6" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="337.0" cy="252.3" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="295.0" cy="245.8" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="388.9" cy="245.8" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="334.7" cy="233.5" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="296.4" cy="199.9" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="366.6" cy="305.9" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="410.5" cy="315.7" r="4" fill="#8e44ad" fill-opacity="0.75"/>
+<circle cx="330" cy="20" r="4" fill="#c0392b"/><text x="340" y="24">2D chain -> 3D sheet</text>
+<circle cx="330" cy="36" r="4" fill="#1f6fb2"/><text x="340" y="40">3000 iterations -> converged</text>
+<circle cx="330" cy="52" r="4" fill="#2e8b57"/><text x="340" y="56">mesh change</text>
+<circle cx="330" cy="68" r="4" fill="#8e44ad"/><text x="340" y="72">guessed EA / default -> KES-sourced</text>
+</svg>

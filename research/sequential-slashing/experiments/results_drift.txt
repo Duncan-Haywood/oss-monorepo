@@ -1,0 +1,49 @@
+E8. an honest verifier whose reports drift: 0.4 for 300 rounds, then 0.1 for 1700 (T=2000, alpha=0.05)
+  constant-p mixture at the average report 0.145 (exact): P(slash) = 1.000000
+  per-round mixture, one-sided (2000 trials):  0.045 [0.037, 0.056]  median delay 11
+  per-round mixture, two-sided (2000 trials):  0.040 [0.032, 0.050]  median delay 29
+E9. which bet family? reports p_t i.i.d.; slash rate within T and median delay (alpha=0.05, K=32)
+  reports U[0.05, 0.35] (mean 0.200), T=3000, 400 trials each
+    cheater, true rate 1.5 p_t     pooled constant-p mixture, uniform grid    1.000 [0.990, 1.000]  median delay 128
+    cheater, true rate 1.5 p_t     pooled constant-p mixture, log grid        1.000 [0.990, 1.000]  median delay 133
+    cheater, true rate 1.5 p_t     per-round additive, uniform grid           1.000 [0.990, 1.000]  median delay 160
+    cheater, true rate 1.5 p_t     per-round additive, log grid               1.000 [0.990, 1.000]  median delay 157
+    cheater, true rate 1.5 p_t     per-round scale family                     1.000 [0.990, 1.000]  median delay 131
+    cheater, true rate 1.5 p_t     per-round both (additive log + scale)      1.000 [0.990, 1.000]  median delay 136
+    cheater, true rate p_t + 0.02  pooled constant-p mixture, uniform grid    0.333 [0.288, 0.380]  median delay 1425
+    cheater, true rate p_t + 0.02  pooled constant-p mixture, log grid        0.552 [0.504, 0.600]  median delay 1628
+    cheater, true rate p_t + 0.02  per-round additive, uniform grid           0.400 [0.353, 0.449]  median delay 1305
+    cheater, true rate p_t + 0.02  per-round additive, log grid               0.615 [0.566, 0.661]  median delay 1345
+    cheater, true rate p_t + 0.02  per-round scale family                     0.350 [0.305, 0.398]  median delay 1616
+    cheater, true rate p_t + 0.02  per-round both (additive log + scale)      0.575 [0.526, 0.623]  median delay 1428
+    honest                         pooled constant-p mixture, uniform grid    0.035 [0.021, 0.058]  median delay 12
+    honest                         pooled constant-p mixture, log grid        0.037 [0.023, 0.061]  median delay 608
+    honest                         per-round additive, uniform grid           0.037 [0.023, 0.061]  median delay 5
+    honest                         per-round additive, log grid               0.022 [0.012, 0.042]  median delay 57
+    honest                         per-round scale family                     0.033 [0.019, 0.055]  median delay 4
+    honest                         per-round both (additive log + scale)      0.022 [0.012, 0.042]  median delay 6
+    over-reporter, true 0.5 p_t    per-round additive, two-sided              1.000 [0.990, 1.000]  median delay 87
+    over-reporter, true 0.5 p_t    per-round scale, two-sided                 1.000 [0.990, 1.000]  median delay 85
+    over-reporter, true 0.5 p_t    per-round both, two-sided                  1.000 [0.990, 1.000]  median delay 101
+  reports log-uniform [0.01, 0.3] (mean 0.085), T=3000, 400 trials each
+    cheater, true rate 1.5 p_t     pooled constant-p mixture, uniform grid    1.000 [0.990, 1.000]  median delay 476
+    cheater, true rate 1.5 p_t     pooled constant-p mixture, log grid        1.000 [0.990, 1.000]  median delay 354
+    cheater, true rate 1.5 p_t     per-round additive, uniform grid           0.980 [0.961, 0.990]  median delay 1124
+    cheater, true rate 1.5 p_t     per-round additive, log grid               0.993 [0.978, 0.997]  median delay 722
+    cheater, true rate 1.5 p_t     per-round scale family                     1.000 [0.990, 1.000]  median delay 328
+    cheater, true rate 1.5 p_t     per-round both (additive log + scale)      1.000 [0.990, 1.000]  median delay 388
+    cheater, true rate p_t + 0.02  pooled constant-p mixture, uniform grid    0.652 [0.605, 0.698]  median delay 1794
+    cheater, true rate p_t + 0.02  pooled constant-p mixture, log grid        0.840 [0.801, 0.873]  median delay 1316
+    cheater, true rate p_t + 0.02  per-round additive, uniform grid           0.958 [0.933, 0.973]  median delay 1188
+    cheater, true rate p_t + 0.02  per-round additive, log grid               0.983 [0.964, 0.991]  median delay 740
+    cheater, true rate p_t + 0.02  per-round scale family                     0.708 [0.661, 0.750]  median delay 1509
+    cheater, true rate p_t + 0.02  per-round both (additive log + scale)      0.980 [0.961, 0.990]  median delay 910
+    honest                         pooled constant-p mixture, uniform grid    0.020 [0.010, 0.039]  median delay 5
+    honest                         pooled constant-p mixture, log grid        0.025 [0.014, 0.045]  median delay 160
+    honest                         per-round additive, uniform grid           0.033 [0.019, 0.055]  median delay 3
+    honest                         per-round additive, log grid               0.028 [0.015, 0.049]  median delay 58
+    honest                         per-round scale family                     0.037 [0.023, 0.061]  median delay 6
+    honest                         per-round both (additive log + scale)      0.035 [0.021, 0.058]  median delay 8
+    over-reporter, true 0.5 p_t    per-round additive, two-sided              1.000 [0.990, 1.000]  median delay 224
+    over-reporter, true 0.5 p_t    per-round scale, two-sided                 1.000 [0.990, 1.000]  median delay 227
+    over-reporter, true 0.5 p_t    per-round both, two-sided                  1.000 [0.990, 1.000]  median delay 263

@@ -36,8 +36,9 @@
  *
  *   - a `CNAME` on the serving branch means the site answers at that host, so
  *     the base URL is `https://<cname>/` (`publish-branch.sh:184`);
- *   - otherwise the build's own `DEFAULT_BASE_URL` applies, which is where
- *     GitHub serves a project Pages site for this repository.
+ *   - otherwise the build's own `DEFAULT_BASE_URL` applies. That was the
+ *     project Pages address until 2026-11-10; it is now the Cloudflare origin
+ *     (https://marisstella.app/), and `gh-pages` only carries redirect pages.
  *
  * This module answers the same question for readers that are not the
  * publisher -- today the nightly sweep. It **imports** `DEFAULT_BASE_URL`
@@ -134,7 +135,8 @@ export function readServingCname({ repoRoot = REPO_ROOT, branch = SERVING_BRANCH
  * `source` is the part callers must not throw away:
  *   - `cname`            a custom domain is configured; this is measured.
  *   - `project-pages`    the serving branch was read and carries no custom
- *                        domain, so the project Pages URL is the answer.
+ *                        domain, so the build default is the answer (the
+ *                        name predates the move off project Pages).
  *   - `assumed-default`  the serving branch is not in this clone, so this is
  *                        the build default and *not* a reading. Correct when
  *                        no custom domain exists; a guess otherwise.
@@ -154,7 +156,7 @@ export function publishedBaseUrl(opts = {}) {
 
 const NOTE = {
   cname: (r) => `custom domain on ${SERVING_BRANCH}: ${r.cname}`,
-  'project-pages': () => `${SERVING_BRANCH} carries no CNAME, so the project Pages URL is the origin`,
+  'project-pages': () => `${SERVING_BRANCH} carries no CNAME, so the build default is the origin`,
   'assumed-default': () =>
     `'${SERVING_BRANCH}' is not in this clone, so this is the build default and NOT a reading of the ` +
     `published site; fetch that branch first if a custom domain may be configured`,

@@ -1154,3 +1154,106 @@ test("a wall too long for one board with only an opening between its jacks splic
   assert.ok(w.joints.top.length >= 1 && w.joints.cap.length >= 1);
   for (const c of w.joints.cap) for (const t of w.joints.top) assert.ok(Math.abs(c - t) >= plan.topPlateLap - 1e-9);
 });
+
+test("a whole-house order (180+ lengths, 900+ pieces, 7 boards) finishes and sits within 1% of its bound", async () => {
+  const { optimizeStock } = await import("./engine.mjs");
+  let s = 987654321;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  const lens = Array.from({ length: 190 }, () => Math.round((8 + r() * 100) * 8) / 8);
+  const pieces = Array.from({ length: 950 }, (_, i) => ({ length: lens[Math.floor(r() * lens.length)], qty: 1, ref: `p${i}` }));
+  const stock = [96, 104, 116, 120, 144, 192, 240].map((length) => ({ length, price: Math.round(length / 12 * 0.75 * 100) / 100 }));
+  const t0 = Date.now();
+  const o = optimizeStock(pieces, stock);
+  const ms = Date.now() - t0;
+  assert.ok(o.bound <= o.cost + 1e-9, "the bound is a floor");
+  assert.ok(o.cost <= o.bound * 1.01, `cost ${o.cost} within 1% of bound ${o.bound}`);
+  assert.equal(o.bars.reduce((n, b) => n + b.cuts.length, 0), 950, "every piece is cut");
+  assert.ok(ms < 30000, `took ${ms} ms`);
+});
+
+test("layoutWall, layoutFasteners and layoutInsulation refuse missing plan or result with a plain message", async () => {
+  const { layoutWall } = await import("./engine.mjs");
+  const { layoutFasteners } = await import("./fasteners.mjs");
+  const { layoutInsulation } = await import("./insulation.mjs");
+  assert.throws(() => layoutWall({}, null), /layoutWall needs/);
+  assert.throws(() => layoutWall(null, {}), /layoutWall needs/);
+  assert.throws(() => layoutFasteners({}, {}, {}), /layoutFasteners needs/);
+  assert.throws(() => layoutInsulation({}, {}, undefined), /layoutInsulation needs/);
+});
+
+test("a door wider than 4 ft on the default jacks and kings gets a note; explicit jacks or a narrow door do not", () => {
+  const plan = base();
+  const mk = (extra, width = 120) => ({ id: "W", length: 288, openings: [{ kind: "door", label: "Garage", offset: 60, width, height: 82.5, header: "2x12", ...extra }] });
+  const wide = layoutWall(plan, mk({}));
+  assert.ok(wide.notes.some((n) => /Garage \(120"\) wider than 4 ft.*default 1 jack and 1 king/.test(n)), wide.notes.join("\n"));
+  assert.ok(!layoutWall(plan, mk({ jacks: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
+  assert.ok(!layoutWall(plan, mk({ kings: 2 })).notes.some((n) => /wider than 4 ft/.test(n)));
+  assert.ok(!layoutWall(plan, mk({}, 36)).notes.some((n) => /wider than 4 ft/.test(n)));
+});
+
+// The table is filled on weights / gcd (2026-11-12 perf pass). Pin it against the plain DP on
+// the original weights, values and counts both, including caps that are not multiples of the gcd.
+function referenceKnapsack(weights, values, bounds, caps) {
+  const top = Math.max(...caps);
+  const chunks = [];
+  weights.forEach((w, i) => {
+    let left = Math.min(bounds[i], Math.floor(top / w));
+    for (let k = 1; left > 0; k *= 2) {
+      const take = Math.min(k, left);
+      chunks.push({ i, n: take, w: w * take, v: values[i] * take });
+      left -= take;
+    }
+  });
+  const best = new Float64Array(top + 1);
+  const keep = chunks.map(() => new Uint8Array(top + 1));
+  chunks.forEach((ch, k) => {
+    if (ch.v <= 0) return;
+    for (let c = top; c >= ch.w; c--) {
+      const cand = best[c - ch.w] + ch.v;
+      if (cand > best[c] + 1e-12) { best[c] = cand; keep[k][c] = 1; }
+    }
+  });
+  return caps.map((cap) => {
+    const counts = new Array(weights.length).fill(0);
+    let c = cap;
+    for (let k = chunks.length - 1; k >= 0; k--) if (keep[k][c]) { counts[chunks[k].i] += chunks[k].n; c -= chunks[k].w; }
+    return { value: best[cap], counts };
+  });
+}
+
+test("boundedKnapsackMulti on weights with a common factor matches the unscaled table exactly", async () => {
+  const { boundedKnapsackMulti } = await import("./engine.mjs");
+  let s = 11;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let t = 0; t < 300; t++) {
+    const g = 1 + Math.floor(r() * 4);
+    const n = 1 + Math.floor(r() * 10);
+    const w = Array.from({ length: n }, () => g * (1 + Math.floor(r() * 200)));
+    const v = Array.from({ length: n }, () => (r() < 0.1 ? -r() : r() * 3));
+    const b = Array.from({ length: n }, () => 1 + Math.floor(r() * 5));
+    const caps = Array.from({ length: 1 + Math.floor(r() * 3) }, () => 100 + Math.floor(r() * 1500));
+    assert.deepEqual(boundedKnapsackMulti(w, v, b, caps), referenceKnapsack(w, v, b, caps), `case ${t}, gcd ${g}`);
+  }
+});
+
+test("boundedKnapsackMulti equals one knapsack per capacity", async () => {
+  const { boundedKnapsack, boundedKnapsackMulti } = await import("./engine.mjs");
+  let s = 42;
+  const r = () => (s = (s * 1103515245 + 12345) % 2147483648) / 2147483648;
+  for (let t = 0; t < 20; t++) {
+    const n = 3 + Math.floor(r() * 8);
+    const w = Array.from({ length: n }, () => 20 + Math.floor(r() * 200));
+    const v = Array.from({ length: n }, () => r() * 2);
+    const b = Array.from({ length: n }, () => 1 + Math.floor(r() * 4));
+    const caps = [300, 500, 900].map((c) => c + Math.floor(r() * 50));
+    const multi = boundedKnapsackMulti(w, v, b, caps);
+    caps.forEach((cap, k) => {
+      const one = boundedKnapsack(w, v, b, cap);
+      assert.ok(Math.abs(multi[k].value - one.value) < 1e-9);
+      const used = multi[k].counts.reduce((a, c, i) => a + c * w[i], 0);
+      assert.ok(used <= cap);
+      const val = multi[k].counts.reduce((a, c, i) => a + c * v[i], 0);
+      assert.ok(Math.abs(val - multi[k].value) < 1e-9);
+    });
+  }
+});

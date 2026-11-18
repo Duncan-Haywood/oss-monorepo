@@ -1,0 +1,18 @@
+# What will your SSH server really do? sshd_config Check
+
+> Paste /etc/ssh/sshd_config and the files in /etc/ssh/sshd_config.d: the tool reads them in sshd's order and shows the value that wins for each setting (sshd keeps the first value it reads), lines sshd ignores (a cloud-init drop-in's PasswordAuthentication yes beating your no), drop-ins it never reads (names without .conf), flush-left lines that still belong to a Match block, keywords that stop sshd starting, and PermitRootLogin yes, password logins (also through PAM keyboard-interactive), weak ciphers, MACs and key exchange, StrictModes no, PermitUserEnvironment and forwarding options. Each finding has its file, line and fix. Free, runs in your browser, nothing uploaded.
+
+Free and open source (MIT). A static read of the files you give it, not a security audit and not sshd -T; a clean result is not proof a server is safe. The reading follows OpenSSH 9.6p1's servconf.c and the sshd_config(5) manual of that release (Ubuntu 24.04's version); defaults may differ on other releases. Not affiliated with the OpenSSH project.
+
+## Pages
+
+- [The tool](https://marisstella.app/sshd-config-check/)
+- [sshd_config mistakes explained: ignored lines, unread drop-ins, Match traps and the fix](https://marisstella.app/sshd-config-check/sshd-config-mistakes-explained.html)
+
+## CLI
+
+- `sudo node check.mjs /etc/ssh` reads sshd_config and every file its Include lines match, in order, and prints file:line findings and how people can log in; `./ssh` reads a copy in a repo as if it were /etc/ssh; `--user U --group G --addr A --host H` shows what one connection gets from the Match blocks; `--format json`; `--fail-on-risk` (exit 2 on an error, high or medium). Node 18+, no dependencies.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/sshd-config-check): MIT licensed.

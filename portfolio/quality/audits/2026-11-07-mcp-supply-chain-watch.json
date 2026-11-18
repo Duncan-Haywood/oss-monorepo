@@ -26,6 +26,6 @@
     {"severity": "low", "what": "kind is 'description_changed' for schema and metadata changes; Python and JS Markdown formats differ", "where": "ventures/mcp-supply-chain-watch/src/mcp_watch.py:84"},
     {"severity": "low", "what": "sitemap.xml and robots.txt Sitemap line use relative URLs, invalid per the sitemap protocol; llms.txt uses workers.dev host unlike README", "where": "ventures/mcp-supply-chain-watch/site/sitemap.xml"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14747"],
   "verdict": "A small, honest, well-disclaimed prototype that does the plain diff correctly (added, removed, changed, deterministic ordering, input validation) and ships a working browser page and CLI, so it is finished against what it claims. It does not meet the bar: the one thing a security reviewer needs from it, flagging model-directed text in a changed manifest, only looks at the top-level description, is masked when the old text already matched, and its tests are too thin to notice (two seeded mutations to the classifier both passed 5 Python and 38 JS tests). Verification 1 and correctness/claims 2 fail the bar. Fix forward: scan schema property descriptions recursively, drop the prior-match mask by comparing match sets, return a non-zero exit on ALERT, and add classifier tests that fail under the two mutations tried here."
 }

@@ -52,6 +52,25 @@ stairs is many more. Pricing access from cubic feet — minutes per flight per
 7. **Price.** Cost ÷ (1 − target margin %), because margin is quoted as a share
    of price, not a markup on cost.
 
+8. **Hourly quote.** Most local moves are sold as "$X an hour for a crew and
+   truck, N-hour minimum". The page suggests a rate (the lump-sum price over
+   the estimated clock hours, rounded up to $5) or takes the one you post,
+   then splits the job into fixed cost (truck, fuel, materials, other, with
+   overhead) and cost per crew hour (loaded labor with overhead). The
+   **minimum billed hours** is the break-even, fixed ÷ (rate − cost per
+   hour), rounded up to the half hour and never under 2; "earns your margin
+   from" is fixed ÷ (rate × (1 − margin) − cost per hour). A table shows the
+   job running 25% short, on estimate and 25% long, billed hourly against
+   the flat price, so the mover sees which way the risk of a long day falls.
+   A rate under the crew's loaded labor gets no minimum and says why.
+9. **Valuation.** Estimated weight (cubic feet × 7 lb, an editable rule of
+   thumb), the released-value cap at 60 cents per pound per article (the
+   federal interstate figure, 49 CFR 375.201 and the "Waiver of Full Value
+   Protection" option in FMCSA's *Your Rights and Responsibilities When You
+   Move*; local moves follow state rules, so it is an input), and, for a
+   declared value, the full value protection charge at the rate per $1,000
+   your own insurer or tariff sets and the exposure above released value.
+
 It then reports the numbers a mover sanity-checks a bid against: price per
 cubic foot, effective hourly per mover, the share of the day that is access,
 and the **walk-away price** — total job cost, below which the Saturday makes

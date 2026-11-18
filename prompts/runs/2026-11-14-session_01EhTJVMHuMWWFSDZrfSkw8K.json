@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVMHuMWWFSDZrfSkw8K",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T15:21:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Perf: unwired checks in ventures-tests took ~70 s per PR; memoize renderIcon, one pool, unskip ios.test.mjs",
+  "projects": [
+    "platform/ci",
+    "platform/pages",
+    "platform/distribution"
+  ],
+  "pr": 15891,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "My new post's description (183 chars) turned hub/content.test.mjs and shorts.test.mjs red in the after-bench; shortened to under 160 before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Step 2 points at workflow-level ci_profile numbers; the largest cost here was hidden inside one step (unwired_checks inside run_venture_tests), visible only in the job log timestamps. Worth a line: read the heaviest step's log before profiling."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-one-icon-drawn-1284-times.md",
+    "docs/history/ci-perf-2026-11-14-icon-memo-unwired-pool.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall clock of unwired_checks.run_everything() (runs in every ventures-tests job). Before 70.3 s: local scratch bench on 4 cores timing the four phases (checks 20.2, suites 21.3, node 28.8, extra 0.1), matching CI log (run 43606574945: venture suites done 14:49:22, step end 14:50:32). After 42.0 s and 42.8 s: run_everything() timed in-process on the same container, now including ios.test.mjs (formerly NODE_SLOW-skipped). android.test.mjs 23.4 -> 1.9 s, desktop.test.mjs 10.2 -> 6.9 s, ios.test.mjs >724 s (stopped) -> 5.8 s, all by `node --test` wall clock. Byte-identity: sha256 over every file buildAndroid/buildExtension/buildIos produce for 150 ventures identical old vs new (b1a76fec...); 254.1 s -> 4.4 s. Local checks: see PR body; run_workflow_locally --for-changes origin/main: checklist-coverage, conflict-markers, control-plane-guard, doc-refs, duplicate-symbols all run: steps pass; portfolio-pages build pre-checks pass (Build the site skipped locally); 'Test the site builder' handed off detached, result in PR CI. ventures-tests did not trigger on this PR's paths, so the in-process run_everything() timing (161 items, only red items were caused by my post's description, fixed) is the check of the pool change.",
+  "corrections": [],
+  "redteam": null
+}

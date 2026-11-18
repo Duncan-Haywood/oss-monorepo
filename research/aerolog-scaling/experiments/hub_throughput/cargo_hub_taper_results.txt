@@ -1,0 +1,23 @@
+Fit: tau = 0.1705 h, CC ends at SOC 0.833 (1C), 0.666 (2C, assumed same tau)
+Check: 0 -> 100% at 1C (to the C/50 cut-off) = 90.0 min (datasheet: 90 min)
+
+Charge time, 70% of capacity, 1C:
+  linear 20-90% (6b)    42.0 min   8-charger limit 11.43 flights/h
+  CC-CV 20-90%          43.1 min   8-charger limit 11.14 flights/h
+  CC-CV 30-100%         72.0 min   8-charger limit  6.67 flights/h
+
+Charge time for 20-90% by C-rate (CC-CV vs linear):
+  0.5C:  84.0 min vs linear  84.0
+  1.0C:  43.1 min vs linear  42.0
+  2.0C:  25.9 min vs linear  21.0
+
+Poisson arrivals at 6.0 flights/h: mean / p95 wait (s) by spares
+model               | sp   9       | sp  12       | sp  16       | sp  24       | sp  32       | sp  40      
+linear 20-90% (6b)  |    20 /    0 |     1 /    0 |     0 /    0 |     0 /    0 |     0 /    0 |     0 /    0
+CC-CV 20-90%        |    24 /   22 |     2 /    0 |     0 /    0 |     0 /    0 |     0 /    0 |     0 /    0
+CC-CV 30-100%       |  1775 / 7045 |   977 / 5397 |   442 / 3246 |    91 /   67 |    25 /    0 |     9 /    0
+
+fewest spares (of those tried) with p95 wait <= 300 s:
+  linear 20-90% (6b)  9
+  CC-CV 20-90%        9
+  CC-CV 30-100%       24

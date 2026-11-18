@@ -17,8 +17,12 @@
 
 import { NILE_CSV } from './example-data.mjs';
 import { slopeBreaks } from './slope-breaks.mjs';
+import { hingeTest } from './hinge-test.mjs';
+import { twoHingeTest } from './two-hinge.mjs';
+import { knownDateTest, placeboCheck } from './known-date.mjs';
 
 import { groupRamps } from './ramps.mjs';
+import { updateRateChanges, updateRateLines } from './update-rate.mjs';
 
 export const PAPERS = [
   {
@@ -75,7 +79,7 @@ export const DEFAULTS = {
   model: 'mean',
   // 'bic', 'aic', 'hannan-quinn', or a number (the cost of one extra change).
   penalty: 'bic',
-  // Shortest segment PELT may return; null means 2 for 'mean' and 5 for
+  // Shortest segment PELT may return; null means 2 for 'mean' and 10 for
   // 'meanvar', where a variance fitted to two or three points is so unreliable
   // that its likelihood gain alone would justify a change.
   minSegment: null,
@@ -294,13 +298,15 @@ function solveSym(H, b) {
 const RANGE_TEMPER = 1.15;
 // Clumpy counts scored with the NB cost: 1.15 held the planted bend on 145 of 161 found bends (90%), 1.4 on 153 (95%), 1.7 on 157 (README, 2026-10-26).
 const RANGE_TEMPER_NB = 1.4;
-// Measured coverage (README, 2026-10-26 and 27): 94% over 277 found bends on tuning-free seeds, 82% (65 of 79) where the slope bump is steep (0.04).
-const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 94% of simulated series, but only about 82% where the growth change is steep (and the range narrow): treat a narrow range as optimistic.';
-export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, diag = null } = {}) {
+// Measured coverage with the local NB size (README "Clumpy counts that grow", 2026-11-15): 299 of 301 found bends on seeds 3 and 11, 278 of 280 steep ones
+// on fresh seeds (it was 94% and 80% while the size was read against the global mean). The temper was not retuned, so ranges may be wider than needed.
+const GROWTH_RANGE_NB_NOTE = 'Clumpy-count ranges held the true bend on about 99% of simulated series, steep growth changes included, so they may be wider than a 95% range needs; checked on simulations, not yet on a real series with a documented break in growth.';
+export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, passes = 12, bend = false, knotMargin = 0.1, scale = 1, nbSize = 0, nb1Delta = 0, diag = null } = {}) {
   const n = x.length;
   const nb = nbSize > 0 && Number.isFinite(nbSize);
+  const nb1 = !nb && nb1Delta > 0 && Number.isFinite(nb1Delta), nbAny = nb || nb1;
   // nb: PELT and the cost that ranks knots use the negative-binomial likelihood (size nbSize); the growth steps stay Poisson score steps (a quasi-likelihood)
-  const peltFit = (e, poisson = false) => pelt(x, nb && !poisson ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
+  const peltFit = (e, poisson = false) => pelt(x, nb && !poisson ? { model: 'negbin', penalty, minSegment, size: nbSize, exposure: e } : nb1 && !poisson ? { model: 'negbin1', penalty, minSegment, size: nb1Delta, exposure: e } : { model: 'poisson', penalty, minSegment, exposure: e });
   const u = Array.from({ length: n }, (_, t) => (t - (n - 1) / 2) / Math.max(1, n - 1));
   const b = (t) => (base ? base[t] : 1);
   const y = x.map((v, t) => Math.log((v + 0.5) / b(t)));
@@ -345,8 +351,8 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
       if (big < 1e-5) { done++; converged = true; break; }
     }
     // PELT's cost leaves out sum x log(exposure), which is constant for a fixed exposure but not across fits; add it back.
-    // (the negative-binomial cost keeps it, since the mean enters through lam e[t])
-    const linAt = (gv) => nb && !poisson ? 0 : x.reduce((a, v, t) => a + v * gv.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
+    // (the negative-binomial costs, NB2 and NB1, keep it, since the mean enters through lam e[t])
+    const linAt = (gv) => nbAny && !poisson ? 0 : x.reduce((a, v, t) => a + v * gv.reduce((c, gj, j) => c + gj * phi[j][t], 0), 0);
     // A converged Newton step (under 1e-5) moved the exposures too little to change the cost at the profiled optimum, so the last pass's PELT cost stands in for another run.
     if (converged) return { g, phi, cost: last.cost - 2 * linAt(last.g), passes: done };
     return { g, phi, cost: peltFit(expo(phi, g), poisson).cost - 2 * linAt(g), passes: done };
@@ -385,7 +391,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
       if (poisson) scanned.push(f);
       else if (!best || f.cost < best.cost) best = f;
     };
-    const quick = nb && n >= 80;
+    const quick = nbAny && n >= 80;
     for (let kt = lo; kt <= hi; kt += step) tryKnot(kt, quick);
     if (quick) {
       if (!scanned.length) break;
@@ -427,7 +433,7 @@ export function poissonTrend(x, { base = null, penalty = 'bic', minSegment = 2, 
     }
     if (!ks.includes(k)) { ks.push(k); cs.push(fit([u, ...phis], cur.g).cost); }
     const m = Math.min(...cs);
-    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (rangeScale * (nb ? RANGE_TEMPER_NB : RANGE_TEMPER))));
+    const w = cs.map((v) => Math.exp(-(v - m) / 2 / (rangeScale * (nbAny ? RANGE_TEMPER_NB : RANGE_TEMPER))));
     const tot = w.reduce((a, v) => a + v, 0);
     let acc = 0, from = Infinity, to = -Infinity;
     for (const i of w.map((_, i) => i).sort((a, b) => w[b] - w[a])) { acc += w[i] / tot; from = Math.min(from, ks[i]); to = Math.max(to, ks[i]); if (acc >= 0.95) break; }
@@ -558,7 +564,7 @@ export function lineRss(x, ks) {
  * Returns { adjusted, slope } with the slope per point; the adjusted series
  * keeps the mean level of the input.
  */
-export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false, knotMargin = 0.1 } = {}) {
+export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, ar1 = false, bend = false, joint = false, knotMargin = 0.1, quad = false } = {}) {
   const n = x.length;
   const d = [];
   for (let i = 1; i < n; i++) d.push(x[i] - x[i - 1]);
@@ -591,11 +597,24 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     // with ar1, sticky noise widens the scale, so its wandering is not cut into steps that then bend the slope
     return pelt(y, { model: 'mean', penalty: mult * penaltyValue(penalty, n, 'mean'), minSegment, sigma: ar1 ? longRunSd(sd, ar1Rho(y)) : sd }).changepoints;
   };
+  // Every fit starts from the same slope, median(d), on every piece, so its first pass removes the same straight line whatever the
+  // knots (each knot adds (s[j+1] - s[j]) * (t - knot) = 0 exactly): that pass's steps are computed once, not once per fit. A fit is
+  // a pure function of its knots, and the greedy grid, the refinement and the knot-range scan revisit some knot sets, so each set
+  // is fitted once (docs/history/ci-perf-2026-11-12-trend-fit-memo.md).
+  const start = median(d);
+  let firstSteps = null;
+  const fits = new Map();
   const fit = (knots) => {
+    const key = knots.join(',');
+    let f = fits.get(key);
+    if (!f) { f = fitOnce(knots); fits.set(key, f); }
+    return f;
+  };
+  const fitOnce = (knots) => {
     const edges = [0, ...knots.map((k) => k + 1), n];
-    let s = new Array(knots.length + 1).fill(median(d));
+    let s = new Array(knots.length + 1).fill(start);
     for (let k = 0; k < passes; k++) {
-      const cps = segment(detrend(line(s, knots)), 3);
+      const cps = k === 0 ? (firstSteps ??= segment(detrend(line(s, knots)), 3)) : segment(detrend(line(s, knots)), 3);
       const bounds = [0, ...cps, n];
       const next = s.map((v, j) => pooled(bounds, edges[j], edges[j + 1], v));
       const done = next.every((v, j) => Math.abs(v - s[j]) < 1e-9);
@@ -619,6 +638,48 @@ export function trendAdjust(x, { penalty = 'bic', minSegment = 2, passes = 10, a
     return { s, knots, y, bic: (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + params * Math.log(n) };
   };
   let best = fit([]);
+  if (quad && n >= 40) {
+    // a smooth curve: slope s plus curvature q (slope grows by 2q per point), both fitted within the steps' segments
+    const qline = (s, q) => (t) => s * (t - c) + q * (t - c) ** 2;
+    let s = best.s[0], q = 0;
+    const pooled2 = (bounds) => {
+      let a11 = 0, a12 = 0, a22 = 0, b1 = 0, b2 = 0;
+      for (let i = 0; i + 1 < bounds.length; i++) {
+        const lo = bounds[i], hi = bounds[i + 1], len = hi - lo;
+        if (len < 8) continue;
+        let mu = 0, mw = 0, mx = 0;
+        for (let t = lo; t < hi; t++) { mu += t - c; mw += (t - c) ** 2; mx += x[t]; }
+        mu /= len; mw /= len; mx /= len;
+        for (let t = lo; t < hi; t++) {
+          const u = t - c - mu, w = (t - c) ** 2 - mw, z = x[t] - mx;
+          a11 += u * u; a12 += u * w; a22 += w * w; b1 += u * z; b2 += w * z;
+        }
+      }
+      const det = a11 * a22 - a12 * a12;
+      if (!(det > 1e-12 * a11 * a22) || !(a11 > 0)) return null;
+      return [(b1 * a22 - b2 * a12) / det, (a11 * b2 - a12 * b1) / det];
+    };
+    for (let k = 0; k < passes; k++) {
+      const cps = segment(detrend(qline(s, q)), 3);
+      const next = pooled2([0, ...cps, n]);
+      if (!next) break;
+      const done = Math.abs(next[0] - s) < 1e-9 && Math.abs(next[1] - q) < 1e-12;
+      [s, q] = next;
+      if (done) break;
+    }
+    const y = detrend(qline(s, q)), cps = segment(y, 1), bounds = [0, ...cps, n];
+    let rss = 0;
+    for (let i = 0; i + 1 < bounds.length; i++) {
+      let m = 0; for (let t = bounds[i]; t < bounds[i + 1]; t++) m += y[t];
+      m /= bounds[i + 1] - bounds[i];
+      for (let t = bounds[i]; t < bounds[i + 1]; t++) rss += (y[t] - m) ** 2;
+    }
+    const infl = ar1 ? longRunSd(1, ar1Rho(y)) ** 2 : 1;
+    const bic = (n * Math.log(Math.max(rss, 1e-12) / n)) / infl + (2 + 2 * cps.length) * Math.log(n);
+    // keep the curvature only if it lowers the BIC against the straight line under steps
+    if (bic < best.bic) return { adjusted: y, slope: s, curvature: q, curved: true };
+    return { adjusted: detrend(line(best.s, [])), slope: best.s[0], curved: false };
+  }
   if (maxBends && n >= 40) {
     const step = Math.max(1, Math.round(n / 40));
     const gap = Math.ceil(0.15 * n);
@@ -753,10 +814,16 @@ export function stepResiduals(x, cps) {
 export function fisherG(r) {
   const n = r.length, q = Math.floor((n - 1) / 2);
   if (q < 2) return { g: 0, p: 1, period: null };
+  // cos and sin of 2 pi k t / n depend only on k t mod n, so one table of n values replaces n q trig calls (n = 8,609: 679 ms
+  // to tens of ms). The table angle is exact in the integer, so its rounding error is that of 2 pi j / n with j < n, where the old
+  // 2 pi k t / n carried an argument error growing with k t; the sums run in the same order
+  // (docs/history/ci-perf-2026-11-15-changepoint-fisher-table.md).
+  const C = new Float64Array(n), Sn = new Float64Array(n);
+  for (let j = 0; j < n; j++) { const a = 2 * Math.PI * j / n; C[j] = Math.cos(a); Sn[j] = Math.sin(a); }
   let tot = 0, best = 0, bk = 1;
   for (let k = 1; k <= q; k++) {
     let c = 0, s = 0;
-    for (let t = 0; t < n; t++) { const a = 2 * Math.PI * k * t / n; c += r[t] * Math.cos(a); s += r[t] * Math.sin(a); }
+    for (let t = 0, j = 0; t < n; t++) { c += r[t] * C[j]; s += r[t] * Sn[j]; j += k; if (j >= n) j -= n; }
     const I = c * c + s * s;
     tot += I;
     if (I > best) { best = I; bk = k; }
@@ -918,7 +985,7 @@ export function ar2ProfileFit(x, { penalty = 'bic', minSegment = 3, phi1s = rang
 // ---------------------------------------------------------------- input
 
 /** Split one CSV line, honouring double quotes. */
-function splitLine(line, semi = false) {
+export function splitLine(line, semi = false) {
   const out = [];
   let cur = '';
   let q = false;
@@ -936,7 +1003,7 @@ function splitLine(line, semi = false) {
   return out;
 }
 
-const numCell = (s, decimalComma = false) => {
+export const numCell = (s, decimalComma = false) => {
   if (s == null) return NaN;
   const t = decimalComma
     ? String(s).replace(/[$\s.]/g, '').replace(',', '.')
@@ -996,9 +1063,44 @@ export function parseSeries(csv, column = null, labelColumn = null) {
 // ---------------------------------------------------------------- helpers
 
 function median(a) {
-  const s = [...a].sort((x, y) => x - y);
-  const m = s.length >> 1;
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+  // The same value a numeric sort would put in the middle, found by selection in O(n) rather than an O(n log n) sort:
+  // median runs on every robustSd, ar1Rho and trend pass (docs/history/ci-perf-2026-11-11-median-select-pelt-one-pass.md).
+  const n = a.length;
+  const s = Float64Array.from(a);
+  const m = n >> 1;
+  for (let i = 0; i < n; i++) if (s[i] !== s[i]) { s.sort(); return n % 2 ? s[m] : (s[m - 1] + s[m]) / 2; } // NaN: keep the sort's order
+  select(s, m);
+  let hi = s[m];
+  let lo = 0;
+  if (n % 2 === 0) { lo = s[0]; for (let i = 1; i < m; i++) if (s[i] > lo) lo = s[i]; }
+  if (hi === 0 || (n % 2 === 0 && lo === 0)) {
+    // the sort orders -0 before +0, and selection does not: sorted position k holds -0 exactly when k < (count of x < 0 or -0)
+    let neg = 0;
+    for (let i = 0; i < n; i++) if (a[i] < 0 || Object.is(a[i], -0)) neg++;
+    if (hi === 0) hi = m < neg ? -0 : 0;
+    if (n % 2 === 0 && lo === 0) lo = m - 1 < neg ? -0 : 0;
+  }
+  return n % 2 ? hi : (lo + hi) / 2;
+}
+
+/** Partial sort in place (no NaN): afterwards s[k] holds the k-th smallest value, everything before it is <= s[k]. */
+function select(s, k) {
+  let l = 0, r = s.length - 1;
+  while (r > l) {
+    // median-of-three pivot, Hoare partition
+    const mid = (l + r) >> 1;
+    let a = s[l], b = s[mid], c = s[r];
+    const p = a < b ? (b < c ? b : a < c ? c : a) : (a < c ? a : b < c ? c : b);
+    let i = l, j = r;
+    while (i <= j) {
+      while (s[i] < p) i++;
+      while (s[j] > p) j--;
+      if (i <= j) { const t = s[i]; s[i] = s[j]; s[j] = t; i++; j--; }
+    }
+    if (k <= j) r = j;
+    else if (k >= i) l = i;
+    else return;
+  }
 }
 
 /** Robust noise sd from successive differences: MAD(diff) / (0.6745 * sqrt 2). Immune to a few level shifts. */
@@ -1015,19 +1117,58 @@ export function robustSd(x) {
   return Math.sqrt(v) || 1;
 }
 
+// Lanczos coefficients (g = 7, n = 9), built once: lgamma runs millions of times inside bocpd, and a literal
+// array in its body was rebuilt on every call (docs/history/ci-perf-2026-11-14-changepoint-bocpd-hoists.md).
+const LANCZOS_G = 7;
+const LANCZOS_C = new Float64Array([0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
+  -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7]);
+const HALF_LOG_2PI = 0.5 * Math.log(2 * Math.PI);
+
 function lgamma(z) {
   // Lanczos approximation (g = 7, n = 9), accurate to ~1e-15 for z > 0.
-  const g = 7;
-  const c = [0.99999999999980993, 676.5203681218851, -1259.1392167224028, 771.32342877765313,
-    -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  const g = LANCZOS_G, c = LANCZOS_C;
   if (z < 0.5) return Math.log(Math.PI / Math.sin(Math.PI * z)) - lgamma(1 - z);
   z -= 1;
   let a = c[0];
   const t = z + g + 0.5;
   for (let i = 1; i < g + 2; i++) a += c[i] / (z + i);
-  return 0.5 * Math.log(2 * Math.PI) + (z + 0.5) * Math.log(t) - t + Math.log(a);
+  return HALF_LOG_2PI + (z + 0.5) * Math.log(t) - t + Math.log(a);
 }
 export { lgamma };
+
+// Digamma and trigamma for z > 0: recurrence up to z >= 6, then the asymptotic series (error below 1e-10 there).
+function digamma(z) {
+  let r = 0;
+  while (z < 6) { r -= 1 / z; z += 1; }
+  const f = 1 / (z * z);
+  return r + Math.log(z) - 0.5 / z - f * (1 / 12 - f * (1 / 120 - f * (1 / 252 - f * (1 / 240 - f / 132))));
+}
+function trigamma(z) {
+  let r = 0;
+  while (z < 6) { r += 1 / (z * z); z += 1; }
+  const f = 1 / (z * z);
+  return r + 1 / z + f / 2 + (f / z) * (1 / 6 - f * (1 / 30 - f * (1 / 42 - f / 30)));
+}
+export { digamma, trigamma };
+
+// For a count x > 0 and c > 0: NBP = [lgamma(x + c) - lgamma(c), digamma(x + c) - digamma(c), trigamma(x + c) - trigamma(c)],
+// the three terms of the NB1 cost, from one shift-and-series pass per argument (two logs each) instead of separate calls.
+const NBP = new Float64Array(3);
+function lgdt(z, o) {
+  let lp = 1, sd = 0, st = 0;
+  while (z < 8) { lp *= z; sd += 1 / z; st += 1 / (z * z); z += 1; }
+  const iz = 1 / z, f = iz * iz, lz = Math.log(z);
+  // Stirling for lgamma, the asymptotic series for digamma and trigamma, at z >= 8 (errors below 1e-11)
+  o[0] = (z - 0.5) * lz - z + HALF_LOG_2PI + iz * (1 / 12 - f * (1 / 360 - f * (1 / 1260 - f / 1680))) - (lp !== 1 ? Math.log(lp) : 0);
+  o[1] = lz - 0.5 * iz - f * (1 / 12 - f * (1 / 120 - f * (1 / 252 - f / 240))) - sd;
+  o[2] = iz + f / 2 + f * iz * (1 / 6 - f * (1 / 30 - f * (1 / 42 - f / 30))) + st;
+}
+const NBA = new Float64Array(3), NBB = new Float64Array(3);
+function nbPair(x, c) {
+  lgdt(x + c, NBA); lgdt(c, NBB);
+  NBP[0] = NBA[0] - NBB[0]; NBP[1] = NBA[1] - NBB[1]; NBP[2] = NBA[2] - NBB[2];
+}
+export function nbPairCheck(x, c) { nbPair(x, c); return [...NBP]; }
 
 // ---------------------------------------------------------------- PELT
 
@@ -1119,16 +1260,48 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
     // No prefix sums for a median, so each segment is sorted on demand (cached by its ends: PELT asks again).
     const floor = Math.max(1e-9, sigma * 1e-3);
     const memo = new Map();
+    const fromSorted = (seg, m) => {
+      const med = m % 2 ? seg[(m - 1) / 2] : (seg[m / 2 - 1] + seg[m / 2]) / 2;
+      let ad = 0;
+      for (let i = 0; i < m; i++) ad += Math.abs(seg[i] - med);
+      return 2 * m * (Math.log(2 * Math.max(floor, ad / m)) + 1);
+    };
+    // PELT asks for each start s with t rising by one, so each start keeps its segment sorted and takes x[t-1] by one
+    // binary-search insert instead of a fresh copy and sort per pair (the robust CAC run went from 183 s to about 2 s,
+    // docs/history/ci-perf-2026-11-10-laplace-cost-sorted-runs.md). Same sorted values, same sum order, same cost.
+    // Any other order of asking falls back to the sort, memoised as before.
+    // A start PELT has pruned is never asked again: every 256 steps, buffers untouched for 256 steps are freed, so
+    // memory follows the starts still in play, not n^2/2 values (8,609 DJIA days would otherwise hold ~300 MB).
+    // Freeing is always safe: a start asked again is rebuilt from x.
+    const runs = new Map();
+    let sweptAt = 0;
     return (s, t) => {
+      if (t > sweptAt + 256) {
+        for (const [k, q] of runs) if (q.t < t - 256) runs.delete(k);
+        sweptAt = t;
+      }
+      let r = runs.get(s);
+      if (r === undefined && t > s) { r = { buf: new Float64Array(n - s), t: s, c: 0 }; runs.set(s, r); }
+      if (r !== undefined && t >= r.t && t > s) {
+        if (t === r.t) return r.c;
+        const buf = r.buf;
+        for (let k = r.t; k < t; k++) {
+          const v = x[k];
+          let lo = 0, hi = k - s;
+          while (lo < hi) { const mid = (lo + hi) >>> 1; if (buf[mid] <= v) lo = mid + 1; else hi = mid; }
+          buf.copyWithin(lo + 1, lo, k - s);
+          buf[lo] = v;
+        }
+        r.t = t;
+        r.c = fromSorted(buf, t - s);
+        return r.c;
+      }
       const key = s * (n + 1) + t;
       const hit = memo.get(key);
       if (hit !== undefined) return hit;
       const m = t - s;
       const seg = Array.from(x.subarray ? x.subarray(s, t) : x.slice(s, t)).sort((a, b) => a - b);
-      const med = m % 2 ? seg[(m - 1) / 2] : (seg[m / 2 - 1] + seg[m / 2]) / 2;
-      let ad = 0;
-      for (let i = 0; i < m; i++) ad += Math.abs(seg[i] - med);
-      const c = 2 * m * (Math.log(2 * Math.max(floor, ad / m)) + 1);
+      const c = fromSorted(seg, m);
       memo.set(key, c);
       return c;
     };
@@ -1259,7 +1432,44 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
       return -2 * ((a > 0 ? a * Math.log(mu / (mu + size)) : 0) + m * size * Math.log(size / (mu + size)));
     };
   }
-  throw new Error(`Unknown model "${model}": use "mean", "meanvar", "trend", "poisson" or "negbin".`);
+  if (model === 'negbin1') {
+    // NB1 (variance phi mu, delta = phi - 1): the point at mean mu = lam e is NB with size mu / delta and p = 1 / (1 + delta),
+    // so the clumping grows with the level instead of being one size r for the whole series (eval/nb1-preregistration.md).
+    // ll(lam) = sum [lgamma(x + lam e / delta) - lgamma(lam e / delta)] - (lam E / delta) log(1 + delta), the x-only terms
+    // dropped. The NB1 mean has no closed-form maximum, and the moment estimate S / E is not it once the exposures differ
+    // (on a 100-fold ramp it left enough misfit that splitting a segment paid: 1.0 false changes per series where NB2 gave
+    // 0.6, development seeds), so S / E is polished by Newton steps on the exact score, warm-started per segment start as
+    // the NB2 cost does. O(segment length) per step.
+    if (!(size > 0)) throw new Error('The NB1 cost needs a dispersion delta > 0.');
+    const delta = size, L1 = Math.log1p(delta);
+    const EP = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) EP[i + 1] = EP[i] + (exposure ? exposure[i] : 1);
+    const ex = exposure || new Float64Array(n).fill(1);
+    const lamAt = new Float64Array(n + 1);
+    return (s, t) => {
+      const a = S1[t] - S1[s], E = EP[t] - EP[s];
+      if (!(a > 0) || !(E > 0)) return 0;
+      // One pass at a starting rate lam0 (the last fitted rate for this start, else S / E) gives ll, its score g and
+      // curvature h; the maximum is ll - g^2 / (2 h) to second order, and lam0 - g / h is kept as the next warm start
+      // (PELT asks for (s, t) with t rising, and one more point barely moves the rate). Within 1e-6 of a full Newton
+      // solve on the ramps of eval/nb1.mjs, at a sixth of the special-function work.
+      const lam = lamAt[s] > 0 && t - s > 3 ? lamAt[s] : a / E;
+      let ll = -lam * E * L1 / delta, g = -E * L1 / delta, h = 0;
+      for (let i = s; i < t; i++) {
+        if (!(x[i] > 0)) continue;
+        const w = ex[i] / delta;
+        nbPair(x[i], lam * w);
+        ll += NBP[0]; g += w * NBP[1]; h += w * w * NBP[2];
+      }
+      if (h < 0) {
+        const next = lam - g / h;
+        lamAt[s] = next > 0 ? next : lam / 2;
+        ll -= (g * g) / (2 * h);
+      }
+      return -2 * ll;
+    };
+  }
+  throw new Error(`Unknown model "${model}": use "mean", "meanvar", "trend", "poisson", "negbin" or "negbin1".`);
 }
 
 /**
@@ -1270,11 +1480,124 @@ export function makeCost(x, model = 'mean', sigma = robustSd(x), rho = 0, exposu
  */
 export function negbinSize(x) {
   if (x.length < 8) return Infinity;
+  // Each first difference is read against the level around it (a 7-point window), not the series mean: under NB2 a pair at
+  // level m has E d^2 = 2 (m + m^2 / r). Solve mean_t min(z_t, K) = E min(chi2_1, K) for c = 1 / r, z_t = d_t^2 / (2 (m_t + c m_t^2)),
+  // K = 6.63 (chi2_1's 99th percentile), so a step's few huge differences are capped instead of driving the size, and the mean
+  // has no lattice on small counts (the median did). Poisson (Infinity) unless the c = 0 mean clears its target by two standard
+  // errors (1.5 for the overlap of neighbouring differences). The old estimator compared small local spreads with a large global
+  // mean and returned Infinity on growing counts (README, 2026-11-15).
+  const n = x.length, H = 3, pre = [0];
+  for (let t = 0; t < n; t++) pre.push(pre[t] + x[t]);
+  const d2 = [], m = [];
+  for (let t = 1; t < n; t++) {
+    const a = Math.max(0, t - 1 - H), z = Math.min(n, t + 1 + H);
+    const mt = (pre[z] - pre[a]) / (z - a);
+    if (mt > 0) { d2.push((x[t] - x[t - 1]) ** 2); m.push(mt); }
+  }
+  if (d2.length < 8) return Infinity;
+  const K = 6.635, TARGET = 0.9813;  // E min(chi2_1, K) = P(chi2_3 < K) + K P(chi2_1 > K)
+  const zs = (c) => d2.map((v, i) => Math.min(K, v / (2 * (m[i] + c * m[i] * m[i]))));
+  const meanAt = (c) => zs(c).reduce((s, v) => s + v, 0) / d2.length;
+  const z0 = zs(0), mu0 = z0.reduce((s, v) => s + v, 0) / z0.length;
+  const se = Math.sqrt(1.5 * z0.reduce((s, v) => s + (v - mu0) ** 2, 0) / (z0.length - 1) / z0.length);
+  if (!(mu0 > TARGET + 2 * se)) return Infinity;
+  let lo = 0, hi = 1;
+  while (meanAt(hi) > TARGET && hi < 1e6) hi *= 4;
+  for (let k = 0; k < 60; k++) { const c = (lo + hi) / 2; if (meanAt(c) > TARGET) lo = c; else hi = c; }
+  const c = (lo + hi) / 2;
+  return c > 0 ? 1 / c : Infinity;
+}
+
+// What `--overdispersion nb|nb1` used, and which law the counts look like (clumpingLaw), with a hint when the other fits better.
+function clumpingOut(asked, nbSize, nb1Delta, x) {
+  const law = clumpingLaw(x);
+  const used = asked === 'nb1' ? { law: 'nb1', phi: round(1 + nb1Delta, 3) } : { law: 'nb2', size: Number.isFinite(nbSize) && nbSize > 0 ? round(nbSize, 2) : null };
+  const other = asked === 'nb1' ? 'nb2' : 'nb1';
+  const hint = law.law === other
+    ? (other === 'nb1' ? 'These counts clump in proportion to their level (variance about phi times the mean), which one negative-binomial size cannot describe: --overdispersion nb1 fits that law (on simulated NB1 counts that moved 100-fold the NB2 cost gave 4 to 7 times its usual false changes, README).'
+      : 'These counts clump more at high levels than in proportion to the level (variance mu + mu^2 / r): --overdispersion nb fits that law.')
+    : null;
+  return { used, fits: law.law, levelSpan: law.levelSpan, ...(hint ? { hint } : {}) };
+}
+
+/** The size against the global mean (the estimator before 2026-11-15), kept for comparison. */
+export function negbinSizeGlobal(x) {
+  if (x.length < 8) return Infinity;
   const d = [];
   for (let t = 1; t < x.length; t++) d.push((x[t] - x[t - 1]) ** 2);
   const v = median(d) / (2 * 0.4549);
   const mu = x.reduce((a, b) => a + b, 0) / x.length;
   return v > 1.05 * mu && mu > 0 ? (mu * mu) / (v - mu) : Infinity;
+}
+
+// First differences read against the 7-point local level (of x / e when there are exposures), as negbinSize does:
+// d2[i] the squared difference, m[i] the local rate, w[i] = (1 / e_t + 1 / e_(t-1)) / 2 (1 without exposures).
+function localDiffs(x, exposure = null) {
+  const n = x.length, H = 3, y = exposure ? x.map((v, t) => v / exposure[t]) : x, pre = [0];
+  for (let t = 0; t < n; t++) pre.push(pre[t] + y[t]);
+  const d2 = [], m = [], w = [];
+  for (let t = 1; t < n; t++) {
+    const a = Math.max(0, t - 1 - H), z = Math.min(n, t + 1 + H);
+    const mt = (pre[z] - pre[a]) / (z - a);
+    if (!(mt > 0)) continue;
+    if (exposure) {
+      // x_t - (e_t / e_(t-1)) x_(t-1) has mean 0 at a common rate; scaled to the x / e pair it has variance phi m (1 / e_t + 1 / e_(t-1))
+      d2.push((y[t] - y[t - 1]) ** 2); m.push(mt); w.push((1 / exposure[t] + 1 / exposure[t - 1]) / 2);
+    } else { d2.push((x[t] - x[t - 1]) ** 2); m.push(mt); w.push(1); }
+  }
+  return { d2, m, w };
+}
+const NB_K = 6.635, NB_TARGET = 0.9813;  // chi2_1's 99th percentile and E min(chi2_1, K)
+const cappedMean = (z) => z.reduce((s, v) => s + Math.min(NB_K, v), 0) / z.length;
+
+/**
+ * NB1 dispersion phi (variance phi mu) of counts, read against each point's local level like negbinSize: solve
+ * mean min(d^2 / (2 phi m w), 6.635) = 0.9813 for phi. Returns 1 (Poisson) unless phi = 1 is rejected by two standard
+ * errors (1.5 for overlapping differences). exposure: per-point factors (a season, a trend) the rate is multiplied by.
+ */
+export function nb1Dispersion(x, exposure = null) {
+  if (x.length < 8) return 1;
+  const { d2, m, w } = localDiffs(x, exposure);
+  if (d2.length < 8) return 1;
+  const z0 = d2.map((v, i) => Math.min(NB_K, v / (2 * m[i] * w[i]))), mu0 = cappedMean(z0);
+  const se = Math.sqrt(1.5 * z0.reduce((s, v) => s + (v - mu0) ** 2, 0) / (z0.length - 1) / z0.length);
+  if (!(mu0 > NB_TARGET + 2 * se)) return 1;
+  const at = (phi) => cappedMean(d2.map((v, i) => v / (2 * phi * m[i] * w[i])));
+  let lo = 1, hi = 2;
+  while (at(hi) > NB_TARGET && hi < 1e6) hi *= 2;
+  for (let k = 0; k < 60; k++) { const c = (lo + hi) / 2; if (at(c) > NB_TARGET) lo = c; else hi = c; }
+  return (lo + hi) / 2;
+}
+
+/**
+ * Which clumping law the counts follow: NB2 (variance mu + mu^2 / r, one size r) or NB1 (variance phi mu). Both are
+ * fitted to the same local differences; under the right law z = d^2 / (2 var) has the same capped mean on the lower
+ * and upper halves of the local level. Returns { law: 'nb1' | 'nb2' | 'either', phi, size, levelSpan, gapNb1, gapNb2 }
+ * (gaps in standard errors, upper half minus lower). 'either': the level spans less than 3 times, the counts read as
+ * Poisson, or neither law is clearly worse.
+ */
+export function clumpingLaw(x) {
+  const size = negbinSize(x), phi = nb1Dispersion(x);
+  const { d2, m } = localDiffs(x);
+  const out = { law: 'either', phi: Math.round(phi * 1000) / 1000, size: Number.isFinite(size) ? Math.round(size * 100) / 100 : null };
+  if (d2.length < 20) return { ...out, levelSpan: null };
+  const order = m.map((_, i) => i).sort((a, b) => m[a] - m[b]);
+  const half = Math.floor(order.length / 2), low = order.slice(0, half), high = order.slice(order.length - half);
+  const mid = (idx) => median(idx.map((i) => m[i]));
+  const levelSpan = mid(high) / mid(low);
+  const gap = (vf) => {
+    const z = (idx) => idx.map((i) => Math.min(NB_K, d2[i] / (2 * vf(m[i]))));
+    const zl = z(low), zh = z(high), ml = cappedMean(zl), mh = cappedMean(zh);
+    const v = (a, mu) => a.reduce((s, q) => s + (q - mu) ** 2, 0) / (a.length - 1) / a.length;
+    return (mh - ml) / Math.sqrt(1.5 * (v(zl, ml) + v(zh, mh)));
+  };
+  const gapNb1 = gap((mu) => phi * mu), gapNb2 = gap((mu) => mu + (Number.isFinite(size) ? mu * mu / size : 0));
+  const r = { ...out, levelSpan: Math.round(levelSpan * 100) / 100, gapNb1: Math.round(gapNb1 * 100) / 100, gapNb2: Math.round(gapNb2 * 100) / 100 };
+  if (!(levelSpan >= 3) || (phi <= 1 && !Number.isFinite(size))) return r;
+  const a1 = Math.abs(gapNb1), a2 = Math.abs(gapNb2);
+  if (a2 > 2 && a2 > a1 + 1) return { ...r, law: 'nb1' };
+  if (a1 > 2 && a1 > a2 + 1) return { ...r, law: 'nb2' };
+  return r;
 }
 
 /** Penalty per extra change. Parameters added by one change: its location plus the new segment's parameters. */
@@ -1298,29 +1621,102 @@ export function pelt(x, { model = 'mean', penalty = 'bic', minSegment = 2, sigma
   const n = x.length;
   const beta = penaltyValue(penalty, n, model);
   const minSeg = Math.max(1, Math.floor(minSegment));
-  const cost = makeCost(x, model, sigma ?? robustSd(x), rho, exposure, size);
+  // The count costs (poisson, negbin, negbin1) never read sigma, so their noise sd is not estimated: robustSd's two medians
+  // were about 5% of a Poisson trend fit (docs/history/ci-perf-2026-11-16-changepoint-poisson-inline.md). 1 is a placeholder.
+  const counts = model === 'poisson' || model === 'negbin' || model === 'negbin1';
+  const sd = sigma ?? (counts ? 1 : robustSd(x));
+  const mean = model === 'mean';
+  const poisson = model === 'poisson';
+  // 'mean' and 'poisson' build their own prefix sums below, so their closures are only needed for the short-series answer
+  const cost = (mean || poisson) && n >= 2 * minSeg ? null : makeCost(x, model, sd, rho, exposure, size);
   if (n < 2 * minSeg) return { changepoints: [], cost: n ? cost(0, n) : 0, penalty: beta };
   const F = new Float64Array(n + 1).fill(Infinity);
   const last = new Int32Array(n + 1).fill(-1);
   F[0] = -beta;
-  let R = [0];
+  // The candidate starts R live in a typed array compacted in place, and each start's value in a parallel one: no array,
+  // closure or boxed number per step. The 'mean' cost (most calls: every trend and seasonal pass) is written out inline,
+  // the same expression in the same order as makeCost's, so the call is not a megamorphic closure call.
+  // Pruning is deferred one step and folded into the next step's scan: at step t a start whose value at t - 1 failed the
+  // prune test against F(t - 1) is dropped as it is reached, so R is walked once per step, not twice. The same starts are
+  // scored in the same order against the same values, so the same changepoints
+  // (docs/history/ci-perf-2026-11-11-pelt-inner-loop.md, ci-perf-2026-11-11-median-select-pelt-one-pass.md).
+  // The 'mean' cost runs in its own loop, peltMeanLoop, with nothing else in its body: about 23% faster per call on the 195-point
+  // trend fits, the same bits (docs/history/ci-perf-2026-11-17-changepoint-pelt-mean-loop.md).
+  let R = new Int32Array(n + 1), V = new Float64Array(n + 1), r = 1;
+  V[0] = -Infinity; // a new start is kept unconditionally, as before
+  let S1 = null, S2 = null, s2 = 0;
+  if (mean) {
+    S1 = new Float64Array(n + 1); S2 = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) { S1[i + 1] = S1[i] + x[i]; S2[i + 1] = S2[i] + x[i] * x[i]; }
+    s2 = sd * sd;
+  }
+  let P1 = null, PE = null;
+  if (poisson) {
+    // the same prefix sums, in the same order, as makeCost's poisson branch (S1 and E)
+    P1 = new Float64Array(n + 1); PE = new Float64Array(n + 1);
+    for (let i = 0; i < n; i++) { P1[i + 1] = P1[i] + x[i]; PE[i + 1] = PE[i] + (exposure ? exposure[i] : 1); }
+  }
+  let prev = Infinity; // F at the previous step, the bound the stored values are pruned against
+  if (mean) return peltMeanLoop(n, minSeg, beta, F, last, R, V, S1, S2, s2);
   for (let t = minSeg; t <= n; t++) {
     let best = Infinity;
     let arg = -1;
-    const vals = [];
-    for (const s of R) {
-      if (t - s < minSeg) { vals.push(null); continue; }
-      const v = F[s] + cost(s, t) + beta;
-      vals.push(v);
+    let k = 0;
+    for (let i = 0; i < r; i++) {
+      // Prune: s can never be the last change for any t' > t - 1 if F(s) + C(s,t - 1) > F(t - 1) (K = 0). A start too recent
+      // to score was marked -Infinity, which keeps it, as the old null did; a NaN cost is pruned, as before.
+      if (!(V[i] - beta <= prev)) continue;
+      const s = R[i];
+      R[k] = s;
+      if (t - s < minSeg) { V[k++] = -Infinity; continue; }
+      let c;
+      if (poisson) {
+        const m = PE[t] - PE[s];
+        const a = P1[t] - P1[s];
+        c = a > 0 && m > 0 ? 2 * (a - a * Math.log(a / m)) : 0;
+      } else c = cost(s, t);
+      const v = F[s] + c + beta;
+      V[k++] = v;
       if (v < best) { best = v; arg = s; }
     }
     F[t] = best;
     last[t] = arg;
-    // Prune: s can never be the last change for any t' > t if F(s) + C(s,t) > F(t) (K = 0).
-    const next = [];
-    R.forEach((s, i) => { if (vals[i] === null || vals[i] - beta <= best) next.push(s); });
-    if (Number.isFinite(F[t])) next.push(t);
-    R = next;
+    if (Number.isFinite(best)) { R[k] = t; V[k++] = -Infinity; }
+    r = k;
+    prev = best;
+  }
+  const cps = [];
+  for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
+  cps.reverse();
+  return { changepoints: cps, cost: F[n], penalty: beta };
+}
+
+// PELT's step loop for the 'mean' cost alone: the same starts, the same pruning, the same cost expression in the same order as
+// the general loop's mean branch, so the same F, the same changepoints and the same cost to the bit.
+function peltMeanLoop(n, minSeg, beta, F, last, R, V, S1, S2, s2) {
+  let r = 1, prev = Infinity;
+  for (let t = minSeg; t <= n; t++) {
+    let best = Infinity;
+    let arg = -1;
+    let k = 0;
+    const St1 = S1[t], St2 = S2[t];
+    for (let i = 0; i < r; i++) {
+      const vi = V[i];
+      if (!(vi - beta <= prev)) continue;
+      const s = R[i];
+      R[k] = s;
+      const m = t - s;
+      if (m < minSeg) { V[k++] = -Infinity; continue; }
+      const a = St1 - S1[s];
+      const v = F[s] + Math.max(0, St2 - S2[s] - (a * a) / m) / s2 + beta;
+      V[k++] = v;
+      if (v < best) { best = v; arg = s; }
+    }
+    F[t] = best;
+    last[t] = arg;
+    if (Number.isFinite(best)) { R[k] = t; V[k++] = -Infinity; }
+    r = k;
+    prev = best;
   }
   const cps = [];
   for (let t = n; last[t] > 0; t = last[t]) cps.push(last[t]);
@@ -1397,17 +1793,16 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
   // Poisson counts: Gamma(alpha, beta) rate prior, negative-binomial predictive; mu and kappa are unused.
   const p0 = prior ?? (useNb ? defaultNbPrior(x, nbSize) : pois ? defaultPoissonPrior(x) : defaultPrior(x));
   // Parallel arrays over current run lengths r = 0..R-1 (index = run length, possibly pruned to a tail).
-  let mu = [p0.mu];
-  let kappa = [p0.kappa];
-  let alpha = [p0.alpha];
-  let beta = [p0.beta];
-  let rl = [0];
-  let logR = [0];
+  let mu = Float64Array.of(p0.mu);
+  let kappa = Float64Array.of(p0.kappa);
+  let alpha = Float64Array.of(p0.alpha);
+  let beta = Float64Array.of(p0.beta);
+  let rl = Int32Array.of(0);
+  let logR = Float64Array.of(0);
   const mapRun = new Int32Array(n);
   const expRun = new Float64Array(n);
   const changeProb = new Float64Array(n);
-  // Posterior P(r_t = r) for the last lag + 1 steps, as maps keyed by run length.
-  const window = [];
+  const logH = Math.log(H), log1mH = Math.log1p(-H), logPrune = Math.log(prune);
   let logEvidence = 0;
   for (let t = 0; t < n; t++) {
     const xt = x[t];
@@ -1450,13 +1845,16 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
     let cpTerms = -Infinity;
     for (let i = 0; i < m; i++) {
       const a = logR[i] + logPred[i];
-      grow[i] = a + Math.log1p(-H);
-      cpTerms = logAdd(cpTerms, a + Math.log(H));
+      grow[i] = a + log1mH;
+      cpTerms = logAdd(cpTerms, a + logH);
     }
-    // New run-length list: 0 then each old run length + 1.
-    let nrl = [0, ...rl.map((r) => r + 1)];
-    let nlog = [cpTerms, ...grow];
-    let nmu = [p0.mu], nk = [p0.kappa], na = [p0.alpha], nb = [p0.beta];
+    // New run-length list: 0 then each old run length + 1, in typed arrays of m + 1 filled in one pass (the per-step
+    // spreads, pushes, maps and filters of plain arrays were most of bocpd's own time; the arithmetic is unchanged,
+    // docs/history/ci-perf-2026-11-14-changepoint-bocpd-hoists.md).
+    const m1 = m + 1;
+    let nrl = new Int32Array(m1), nlog = new Float64Array(m1);
+    let nmu = new Float64Array(m1), nk = new Float64Array(m1), na = new Float64Array(m1), nb = new Float64Array(m1);
+    nlog[0] = cpTerms; nmu[0] = p0.mu; nk[0] = p0.kappa; na[0] = p0.alpha; nb[0] = p0.beta;
     let ngrids = null;
     if (useNbGrid) {
       ngrids = [priorGrid];
@@ -1467,65 +1865,75 @@ export function bocpd(x, { hazardLambda = 100, lag = 5, prior, prune = 1e-10, mo
       }
     }
     for (let i = 0; i < m; i++) {
+      const j = i + 1;
+      nrl[j] = rl[i] + 1;
+      nlog[j] = grow[i];
       if (rho && !pois) {
         const a = aAt(i), z = zAt(i), k1 = kappa[i] + a * a;
-        nmu.push((kappa[i] * mu[i] + a * z) / k1);
-        nk.push(k1);
-        na.push(alpha[i] + 0.5);
-        nb.push(beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1));
+        nmu[j] = (kappa[i] * mu[i] + a * z) / k1;
+        nk[j] = k1;
+        na[j] = alpha[i] + 0.5;
+        nb[j] = beta[i] + (kappa[i] * (z - a * mu[i]) ** 2) / (2 * k1);
         continue;
       }
       const k1 = kappa[i] + 1;
-      nmu.push((kappa[i] * mu[i] + xt) / k1);
-      nk.push(k1);
+      nmu[j] = (kappa[i] * mu[i] + xt) / k1;
+      nk[j] = k1;
       if (useNbGrid) {
-        na.push(0); nb.push(0);
+        na[j] = 0; nb[j] = 0;
       } else if (useNb) {
-        na.push(alpha[i] + nbSize);
-        nb.push(beta[i] + xt);
+        na[j] = alpha[i] + nbSize;
+        nb[j] = beta[i] + xt;
       } else if (pois) {
-        na.push(alpha[i] + xt / phi);
-        nb.push(beta[i] + (exposure ? exposure[t] : 1) / phi);
+        na[j] = alpha[i] + xt / phi;
+        nb[j] = beta[i] + (exposure ? exposure[t] : 1) / phi;
       } else {
-        na.push(alpha[i] + 0.5);
-        nb.push(beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1));
+        na[j] = alpha[i] + 0.5;
+        nb[j] = beta[i] + (kappa[i] * (xt - mu[i]) ** 2) / (2 * k1);
       }
     }
     let z = -Infinity;
-    for (const v of nlog) z = logAdd(z, v);
+    for (let i = 0; i < m1; i++) z = logAdd(z, nlog[i]);
     logEvidence += z;
-    nlog = nlog.map((v) => v - z);
-    // Prune negligible run lengths, always keeping r = 0.
-    const keep = nlog.map((v, i) => i === 0 || v > Math.log(prune));
-    if (keep.some((k) => !k)) {
-      const f = (arr) => arr.filter((_, i) => keep[i]);
-      nrl = f(nrl); nmu = f(nmu); nk = f(nk); na = f(na); nb = f(nb); nlog = f(nlog);
-      if (ngrids) ngrids = f(ngrids);
+    // Normalise, and prune negligible run lengths in place, always keeping r = 0.
+    let k = 0;
+    for (let i = 0; i < m1; i++) {
+      const v = nlog[i] - z;
+      if (i !== 0 && !(v > logPrune)) continue;
+      nrl[k] = nrl[i]; nmu[k] = nmu[i]; nk[k] = nk[i]; na[k] = na[i]; nb[k] = nb[i]; nlog[k] = v;
+      if (ngrids) ngrids[k] = ngrids[i];
+      k++;
+    }
+    if (k < m1) {
+      nrl = nrl.subarray(0, k); nmu = nmu.subarray(0, k); nk = nk.subarray(0, k);
+      na = na.subarray(0, k); nb = nb.subarray(0, k); nlog = nlog.subarray(0, k);
+      if (ngrids) ngrids.length = k;
       let z2 = -Infinity;
-      for (const v of nlog) z2 = logAdd(z2, v);
-      nlog = nlog.map((v) => v - z2);
+      for (let i = 0; i < k; i++) z2 = logAdd(z2, nlog[i]);
+      for (let i = 0; i < k; i++) nlog[i] -= z2;
     }
     rl = nrl; mu = nmu; kappa = nk; alpha = na; beta = nb; logR = nlog;
     if (ngrids) grids = ngrids;
-    let best = 0, bestV = -Infinity, e = 0;
-    const post = new Map();
+    let best = 0, bestV = -Infinity, e = 0, pLag = 0;
     for (let i = 0; i < rl.length; i++) {
       const p = Math.exp(logR[i]);
-      post.set(rl[i], p);
+      if (rl[i] === lag + 1) pLag = p;
       e += p * rl[i];
       if (logR[i] > bestV) { bestV = logR[i]; best = rl[i]; }
     }
     mapRun[t] = best;
     expRun[t] = e;
-    window.push(post);
-    if (window.length > lag + 1) window.shift();
     // r_t counts the points of the current run up to and including x[t], so
-    // the run started at x[t - lag] iff r_t = lag + 1.
-    if (t - lag >= 1) changeProb[t - lag] = post.get(lag + 1) ?? 0;
+    // the run started at x[t - lag] iff r_t = lag + 1. Run lengths are distinct, so
+    // pLag is P(r_t = lag + 1), 0 when pruned (as the per-step Map of the posterior gave;
+    // only the last step's posterior is read again, below).
+    if (t - lag >= 1) changeProb[t - lag] = pLag;
   }
   // Points within `lag` of the end are scored with the data available.
-  for (let i = Math.max(0, n - lag); i < n; i++) {
-    changeProb[i] = window[window.length - 1]?.get(n - i) ?? 0;
+  if (n > 0) {
+    const last = new Map();
+    for (let i = 0; i < rl.length; i++) last.set(rl[i], Math.exp(logR[i]));
+    for (let i = Math.max(0, n - lag); i < n; i++) changeProb[i] = last.get(n - i) ?? 0;
   }
   changeProb[0] = 0; // The series starts a segment by definition; not a change.
   return { mapRun: [...mapRun], expectedRun: [...expRun], changeProb: [...changeProb], logEvidence, prior: p0, hazard: H };
@@ -1773,6 +2181,7 @@ export function analyze(input = {}) {
   let burstInfo = null;
   const rawCounts = values;
   if (o.episodes && model !== 'poisson') throw new Error('Episodes are for counts: use model "poisson".');
+  if (o.spikes && model === 'poisson') throw new Error('Spikes are for continuous series: use model "mean" or "meanvar"; counts have --bursts and --episodes.');
   if (o.bursts) {
     if (model !== 'poisson') throw new Error('The burst rule is for counts: use model "poisson".');
     const b = findBursts(values, { period, ratio: typeof o.bursts === "number" ? o.bursts : 2.5, runs: o.burstRuns || 0, ...(o.burstRunRatio ? { runRatio: o.burstRunRatio } : {}) });
@@ -1780,8 +2189,8 @@ export function analyze(input = {}) {
     values = b.counts;
   }
   let phi = null, penalty = o.penalty;
-  let nbSize = 0;
-  if (o.overdispersion === 'nb') {
+  let nbSize = 0, nb1Delta = 0;
+  if (o.overdispersion === 'nb' || o.overdispersion === 'nb1') {
     if (model !== 'poisson') throw new Error('The negative-binomial cost is for counts: use model "poisson".');
   } else if (o.overdispersion) {
     if (model !== 'poisson') throw new Error('The dispersion correction is for counts: use model "poisson".');
@@ -1826,18 +2235,19 @@ export function analyze(input = {}) {
       exposure = holidayFit.exposure;
     }
   }
-  let slope = null, slopeAfter, knot, knots, slopes, knotRanges;
+  let slope = null, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved;
   let growth = null, countKnot, growthAfter, countKnots, countRates, countRanges;
-  const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); };
+  const nbAfterExposure = () => { if (o.overdispersion === 'nb') nbSize = negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : values); else if (o.overdispersion === 'nb1') nb1Delta = nb1Dispersion(original, exposure) - 1; };
   if (o.trend && model === 'poisson') {
     if (o.trend !== true && o.trend !== 'bend' && o.trend !== 'bends') throw new Error('For counts, --trend takes one common growth rate under the steps, "bend" for one change of growth rate or "bends" for up to two.');
     const fit = poissonTrend(original, { base: exposure, penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || 2)), bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 2 : false, knotMargin: o.knotMargin, scale: phi ?? 1, diag: o.diagBends || null,
-      nbSize: o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0 });
+      nbSize: o.overdispersion === 'nb' ? negbinSize(exposure ? original.map((v, t) => v / exposure[t]) : original) : 0,
+      nb1Delta: o.overdispersion === 'nb1' ? nb1Dispersion(original, exposure) - 1 : 0 });
     exposure = fit.exposure;
     growth = fit.g;
     if (fit.knot !== undefined) { countKnot = fit.knot; growthAfter = fit.slopeAfter; countKnots = fit.knots; countRates = fit.rates; countRanges = fit.knotRanges; }
   } else if (o.trend) {
-    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges } = trendAdjust(values, { penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
+    ({ adjusted: values, slope, slopeAfter, knot, knots, slopes, knotRanges, curvature, curved } = trendAdjust(values, { quad: o.trend === 'quad', penalty: o.penalty, minSegment: Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : 2))), ar1: !!o.ar1 && model === 'mean', bend: o.trend === 'bend' ? 1 : o.trend === 'bends' ? 3 : false, joint: !!o.jointKnots, knotMargin: o.knotMargin }));
   }
   nbAfterExposure();
   let sigma = robustSd(values);
@@ -1847,14 +2257,30 @@ export function analyze(input = {}) {
   const noiseFloorK = o.noiseFloor === true ? 1 : Number(o.noiseFloor) || 0;
   let noiseFloorHit = false;
   if (noiseFloorK > 0 && values.length > 2) {
-    const fl = noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
+    // order 2 (o.noiseFloorOrder === 2) uses second differences, which cancel a steady drift per step; the factor 0.578
+    // (= 0.954 / 1.651, the white-noise medians of |d1| and |d2| in sd units) keeps k on the same scale as order 1.
+    // order 3 uses third differences (cancel a quadratic drift); 0.3166 = 0.955 / 3.016 keeps k on the same white-noise scale.
+    // 'local': residuals of a least-squares line (or quadratic, noiseFloorDegree 2) over each centred window of
+    // noiseFloorWindow points (default 7), rescaled to the white-noise first-difference scale (localFitScale).
+    const localW = Math.floor(Number(o.noiseFloorWindow) || 7) | 1, localDeg = o.noiseFloorDegree === 2 ? 2 : 1;
+    const fl = o.noiseFloorOrder === 'local' && values.length > localW
+      ? noiseFloorK * localFitScale(values, localW, localDeg)
+      : o.noiseFloorOrder === 3 && values.length > 4
+      ? noiseFloorK * 0.3166 * median(values.slice(3).map((v, i) => Math.abs(v - 3 * values[i + 2] + 3 * values[i + 1] - values[i])))
+      : o.noiseFloorOrder === 2 && values.length > 3
+      ? noiseFloorK * 0.578 * median(values.slice(2).map((v, i) => Math.abs(v - 2 * values[i + 1] + values[i])))
+      : noiseFloorK * median(values.slice(1).map((v, i) => Math.abs(v - values[i])));
     if (fl > sigma) { sigma = fl; noiseFloorHit = true; }
   }
   let rho = null;
   const joint = o.ar1 === 'joint';
   if (o.ar1) {
     if (model !== 'mean') throw new Error('The autocorrelation correction is for the "mean" model only.');
-    rho = ar1Rho(values);
+    // o.ar1Rho: a rho the caller fixes (watch.mjs: a cap, or the rho read at the baseline), clipped like the estimate
+    rho = !joint && o.ar1Rho != null && Number.isFinite(Number(o.ar1Rho)) ? Math.max(0, Math.min(0.95, Number(o.ar1Rho))) : ar1Rho(values);
+    // o.ar1RhoCap: an upper bound on the estimate (watch.mjs uses 0.8: at the 0.95 clip a wandering level reads every
+    // real move as persistence, eval/watch-replay-round4.out.txt)
+    if (!joint && o.ar1RhoCap != null && Number.isFinite(Number(o.ar1RhoCap))) rho = Math.min(rho, Math.max(0, Number(o.ar1RhoCap)));
     if (!joint) sigma = longRunSd(sigma, rho);
   }
   const minSegment = Math.max(1, Math.floor(Number(o.minSegment) || (model === 'meanvar' ? 10 : model === 'trend' ? 4 : 2)));
@@ -1865,7 +2291,7 @@ export function analyze(input = {}) {
   if (joint) {
     p = ar1JointFit(values, { penalty: o.penalty, minSegment });
     ({ rho, sigma } = p);
-  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : pelt(values, { model: robust ? 'meanvarlaplace' : model, penalty, minSegment, sigma, exposure });
+  } else p = isFinite(nbSize) && nbSize > 0 ? pelt(values, { model: 'negbin', penalty, minSegment, size: nbSize, exposure }) : nb1Delta > 0 ? pelt(values, { model: 'negbin1', penalty, minSegment, size: nb1Delta, exposure }) : pelt(values, { model: robust ? 'meanvarlaplace' : model, penalty, minSegment, sigma, exposure });
   // dispersion: refit with the penalty scaled by the squared residuals' dispersion (heavy tails, clustered volatility)
   let dispersion = null;
   if (o.dispersion) {
@@ -1880,6 +2306,20 @@ export function analyze(input = {}) {
     const bp = bootstrapPenalty(values, { minSegment, model, sigma, exposure });
     const bic = penaltyValue(penalty ?? 'bic', values.length, model);
     if (bp > bic * 1.0001) { bootstrap = round(bp, 2); p = pelt(values, { model, penalty: bp, minSegment, sigma, exposure }); }
+  }
+  // garch: cuts searched jointly with a segment-wise GARCH(1,1) likelihood (clustered volatility; not for heavy tails alone)
+  let garchFit = null;
+  if (o.garch) {
+    if (model !== 'meanvar' || robust || o.dispersion || o.bootstrap || o.ar1 || o.trend || period) throw new Error('The GARCH search is for the "meanvar" model without --robust, --dispersion, --bootstrap, --ar1, --trend or --period.');
+    if (values.length > 20000) throw new Error(`The GARCH search takes at most 20,000 points (each step rescans every segment); got ${values.length}. Aggregate first, or use --bootstrap.`);
+    const ln = Math.log(values.length);
+    const g = garchCuts(values, { pen: GARCH_CUT_PEN * ln, garchPen: GARCH_TERM_PEN * ln, minSeg: minSegment, maxCuts: 40, stride: Math.max(1, Math.ceil(values.length / 250)) });
+    garchFit = { clustered: g.garch, alpha: g.a, beta: g.b, cutPenalty: round(GARCH_CUT_PEN * ln, 3), garchPenalty: round(GARCH_TERM_PEN * ln, 3) };
+    garchFit.note = g.garch
+      ? `The volatility clusters (a shared GARCH(1,1), a ${g.a}, b ${g.b}), so these cuts are changes the clustering does not explain; a burst it can explain, even a crash, is not cut (33 years of the Dow: no cut at all, README "Cuts searched jointly with a GARCH likelihood"). For bursts as changes use --bootstrap. Not for heavy tails without clustering: on t3 noise it raised a false change on 44-49% of series.`
+      : 'No volatility clustering worth its penalty, so these are plain mean-and-variance cuts at a slightly higher penalty (1.5 times BIC).';
+    // penalty reported in pelt's units (twice the log-likelihood)
+    p = { changepoints: g.cuts.slice().sort((a, b) => a - b), penalty: 2 * GARCH_CUT_PEN * ln };
   }
   const bounds = [0, ...p.changepoints, values.length];
   const segments = [];
@@ -1909,15 +2349,19 @@ export function analyze(input = {}) {
   // robust: the Bayesian pass reads the series clipped at the median +- 2 robust sds, so a heavy-tailed outlier is one
   // bounded surprise, not evidence of a new segment (eval/meanvar-bayes-tails.mjs, README)
   if (robust) { const m = median(bvals), c = 2 * robustSd(bvals); bvals = bvals.map((v) => Math.max(m - c, Math.min(m + c, v))); }
-  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? 1, nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
+  const b = bocpd(bvals, { ...(rho ? { rho, prior: { ...defaultPrior(prewhiten(values, rho)), mu: median(values) } } : {}), hazardLambda: Number(o.hazardLambda) || 100, lag: Math.max(1, Math.floor(Number(o.lag) || 5)), model: model === 'trend' ? 'mean' : model, exposure, dispersion: phi ?? (nb1Delta > 0 ? 1 + nb1Delta : 1), nbSize: isFinite(nbSize) && nbSize > 0 ? nbSize : 0 });
   const det = peaks(b.changeProb, Number(o.threshold) || 0.5);
   // joint AR(1) fits use their own likelihood, so no range is offered for them
   let ranges = null;
   if (!joint && o.intervals !== false) {
     const nbOn = isFinite(nbSize) && nbSize > 0;
-    ranges = changeIntervals(p.changepoints, values.length, nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : makeCost(values, robust ? 'meanvarlaplace' : model, sigma, 0, exposure), { minSegment, level: 0.95 });
+    // GARCH cuts with clustering: the range comes from the same segment likelihood that chose them, (a, b) held at the fit
+    const cost = garchFit?.clustered ? garchCost(values, garchFit.alpha, garchFit.beta)
+      : nbOn ? makeCost(values, 'negbin', sigma, 0, exposure, nbSize) : nb1Delta > 0 ? makeCost(values, 'negbin1', sigma, 0, exposure, nb1Delta) : makeCost(values, robust ? 'meanvarlaplace' : model, sigma, 0, exposure);
+    ranges = changeIntervals(p.changepoints, values.length, cost, { minSegment, level: 0.95 });
   }
   // the range assumes independent noise: on sticky series without --ar1 it is far too narrow (57% and 30% coverage, README)
+  const clumping = o.overdispersion === 'nb' || o.overdispersion === 'nb1' ? clumpingOut(o.overdispersion, nbSize, nb1Delta, original) : null;
   let rangeWarning = null;
   if (ranges && model === 'mean' && !o.ar1 && values.length >= 20) {
     const r0 = ar1Rho(values);
@@ -1926,7 +2370,7 @@ export function analyze(input = {}) {
     if (r0 >= 0.3) rangeWarning = `The series looks autocorrelated (rho about ${round(r0, 2)}), so these ranges are too narrow: use --ar1 (page: allow for autocorrelation).${p.changepoints.length >= 5 ? ` With ${p.changepoints.length} steps at this rho, many may be false alarms: on real cycles with no documented step the default found 23 (lynx) and 46 (sunspots), --ar1 found none and --ar1 joint kept a 2 sd step (README, cyclic series).` : ''}`;
   }
   // the same for counts that vary more than Poisson: the plain Poisson range held the date in 6% to 42% of overdispersed series (README)
-  if (ranges && !rangeWarning && model === 'poisson' && !phi && !(isFinite(nbSize) && nbSize > 0) && values.length >= 90) {
+  if (ranges && !rangeWarning && model === 'poisson' && !phi && !(isFinite(nbSize) && nbSize > 0) && !(nb1Delta > 0) && o.overdispersion !== 'nb1' && values.length >= 90) {
     const d0 = countDispersion(values, period);
     if (d0 >= 2.5) rangeWarning = `These counts vary about ${round(d0, 1)} times more than Poisson counts would, so these ranges are too narrow: use the negative-binomial cost (--overdispersion nb).`;
   }
@@ -1938,7 +2382,9 @@ export function analyze(input = {}) {
   }
   // a variance model assumes Gaussian noise: on heavy-tailed, autocorrelated or volatility-clustered noise with no change at all it
   // reported one 35% to 68% of the time (eval/meanvar-robustness.mjs, README). Warn from the segment-standardised residuals.
-  if (!rangeWarning && model === 'meanvar' && values.length >= 40) {
+  // GARCH cuts with clustering: the ranges come from the GARCH fit (garchCost above); on fresh seeds they held the planted
+  // change in 93-98% of series where the independent-noise range held it in 75-94% (eval/meanvar-garch-range-prereg-2026-11-13.md)
+  if (!rangeWarning && model === 'meanvar' && values.length >= 40 && !garchFit?.clustered) {
     const nd = meanvarNoiseCheck(values, p.changepoints, robust);
     if (nd) rangeWarning = nd;
   }
@@ -1959,6 +2405,24 @@ export function analyze(input = {}) {
     const fg = fisherG(stepResiduals(values, p.changepoints));
     if (fg.p < 0.01 && fg.period >= 3) cycleWarning = `The residuals about these ${p.changepoints.length} steps carry a periodic component (peak at about ${round(fg.period, 1)} points, p ${fg.p < 1e-4 ? '< 0.0001' : round(fg.p, 4)}), so some steps may be a cycle read as regime changes, not separate changes: on sunspots (an 11-year cycle) the default found 46 steps and none were real. If the period is known, give it with --period; otherwise read the dates with care.`;
   }
+  // over-cut check (TCPD, eval/tcpd-defaults.mjs, README 2026-11-10): on the 31 Turing Change Point Dataset series the plain
+  // level model scored below reporting no change (F1 0.477 vs 0.663), mostly by cutting smooth or trending series into
+  // hundreds of steps. A noise floor of 2x the local-line residual scale (window 25) raised F1 on 27 of the 28 series where it
+  // differed (+0.21). So when the plain level model cuts 5 or more times and that floor halves the count, say so.
+  let overcut = null;
+  if (model === 'mean' && !noiseFloorK && !o.ar1 && !o.trend && !period && !o.log && p.changepoints.length >= 5 && values.length > 25) {
+    const floorSd = 2 * localFitScale(values, 25, 1);
+    if (floorSd > sigma) {
+      const refit = pelt(values, { model: 'mean', penalty, minSegment, sigma: floorSd });
+      if (refit.changepoints.length * 2 <= p.changepoints.length) overcut = { cuts: p.changepoints.length, refitCuts: refit.changepoints.length, floorSd: round(floorSd), refitAt: refit.changepoints.map((i) => labels[i]) };
+    }
+  }
+  const overcutWarning = overcut ? `${overcut.cuts} steps may be over-cutting a smooth or trending series: with the noise floor set to twice the scatter about a local line (--noise-floor 2 --noise-floor-local 25; page: smooth or trending series) the same search keeps ${overcut.refitCuts}${overcut.refitCuts ? ` (${overcut.refitAt.slice(0, 8).join(', ')}${overcut.refitCuts > 8 ? ', ...' : ''})` : ''}. On 31 labelled real series (Turing Change Point Dataset) that floor matched the annotators better on 27 of 28 that it changed; neither setting reliably beat reporting no change, so check the dates.` : null;
+  // update-rate check (update-rate.mjs, README "When a series starts updating less often"): when the share of steps that
+  // repeat the previous value exactly changed. It reads only the values (before any log), so it is the same check the drift
+  // model shows; jumps near such a date may be catch-ups after a stale stretch, whatever model dated them.
+  const updateRate = updateRateChanges(original0);
+  const updateRateWarning = updateRateLines(updateRate, labels)[0] ?? null;
   const changes = p.changepoints.map((i, k) => {
     const before = segments[k];
     const after = segments[k + 1];
@@ -1996,21 +2460,29 @@ export function analyze(input = {}) {
     noiseSd: round(sigma),
     ...(noiseFloorHit ? { noiseFloor: noiseFloorK } : {}),
     ...(period ? { seasonal: { period, profile: profile.map((v) => round(v, exposure || seasonMultiplicative ? 3 : undefined)), ...(exposure || seasonMultiplicative ? { multiplicative: true } : {}) } } : {}),
-    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
+    ...(slope !== null ? { trend: { slopePerPoint: round(slope, 6), ...(curved !== undefined ? { curved, ...(curved ? { curvaturePerPoint2: round(curvature, 9), slopeChangePerPoint: round(2 * curvature, 9) } : {}) } : {}), ...(knot !== undefined ? { slopeAfter: round(slopeAfter, 6), slopeChangesAt: knot, ...(knotRanges ? { slopeChangeRange95: knotRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })) } : {}), ...(knots.length > 1 ? { slopeChangesAtAll: knots, slopes: slopes.map((v) => round(v, 6)) } : {}) } : {}) } } : {}),
     ...(growth !== null ? { trend: { logGrowthAcrossSeries: round(growth, 4), growthFactorAcrossSeries: round(Math.exp(growth), 4), multiplicative: true, ...(countKnot !== undefined ? { growthChangesAt: countKnot, logGrowthAcrossSeriesAfter: round(growthAfter, 4), ...(countRanges ? { growthChangeRange95: countRanges.map((r) => ({ at: labels[r.knot], from: labels[r.from], to: labels[r.to], fromIndex: r.from, toIndex: r.to })), ...(o.overdispersion === 'nb' ? { growthChangeRangeNote: GROWTH_RANGE_NB_NOTE } : {}) } : {}), ...(countKnots.length > 1 ? { growthChangesAtAll: countKnots, logGrowthAcrossSeriesRates: countRates.map((v) => round(v, 4)) } : {}) } : {}) } } : {}),
     ...(holidayFit ? { holidays: { count: holidayFit.count, factor: round(holidayFit.factor, 3), ...(holidayFit.kinds ? { kinds: holidayFit.kinds.map((k) => ({ ...k, factor: round(k.factor, 3) })) } : {}) } } : {}),
     ...(dispersion ? { dispersion } : {}),
     ...(bootstrap ? { bootstrapPenalty: bootstrap } : {}),
+    ...(garchFit ? { garch: garchFit } : {}),
     ...(rangeWarning ? { rangeWarning } : {}),
     ...(driftWarning ? { driftWarning } : {}),
     ...(cycleWarning ? { cycleWarning } : {}),
+    ...(overcutWarning ? { overcutWarning, overcut } : {}),
+    ...(updateRateWarning ? { updateRateWarning, updateRate: { changes: updateRate.changes, stretches: updateRate.stretches } } : {}),
     ...(rho !== null ? { ar1: { rho: round(rho, 3) } } : {}),
     ...(phi !== null ? { dispersion: round(phi, 3) } : {}),
+    ...(clumping ? { clumping, ...(clumping.hint ? { clumpingWarning: clumping.hint } : {}) } : {}),
     ...(burstInfo ? { bursts: burstInfo } : {}),
     ...(o.episodes ? { episodes: findEpisodes(changes, values.length, typeof o.episodes === 'number' ? { maxLen: o.episodes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex] })) } : {}),
+    ...(o.spikes ? { spikes: findSpikes(changes, sigma, typeof o.spikes === 'number' ? { maxSpan: o.spikes } : {}).map((e) => ({ ...e, from: labels[e.startIndex], to: labels[e.endIndex], base: round(e.base), baseAfter: round(e.baseAfter), excursion: round(e.excursion), excursionInNoiseSd: e.excursionInNoiseSd === null ? null : round(e.excursionInNoiseSd, 1) })) } : {}),
     ...(excursions.length ? { excursions } : {}),
     ...(changes.length > 1 && groupRamps(changes, segments, values.length, { values }).length ? { ramps: groupRamps(changes, segments, values.length, { values }) } : {}),
     ...(o.slopeBreaks ? { slopeBreaks: slopeBreakReport(values, labels, o.slopeBreaks) } : {}),
+    ...(o.hingeTest ? { hingeTest: hingeTestReport(values, labels, o.hingeTest, { log: !!o.log }) } : {}),
+    ...(o.twoHingeTest ? { twoHingeTest: twoHingeTestReport(values, labels, o.twoHingeTest, { log: !!o.log }) } : {}),
+    ...(o.knownDate != null && o.knownDate !== '' && o.knownDate !== false ? { knownDate: knownDateReport(values, labels, o.knownDate, { log: !!o.log, period: Number(o.period) || 0 }) } : {}),
     pelt: { penalty: round(p.penalty), minSegment, changepoints: changes, segments },
     bocpd: {
       hazardLambda: Number(o.hazardLambda) || 100,
@@ -2041,6 +2513,95 @@ export function slopeBreakReport(values, labels, opt) {
     critical: r.critical,
     note: 'Sup-Wald test on the differences; the bar is calibrated for 100 or more points, so on fewer it is only a guide. Weak by construction: a miss is not evidence of no break.',
     breaks: r.knots.map((k) => ({ index: k.index + 1, label: labels[k.index + 1] ?? String(k.index + 1), wald: Number(k.wald.toFixed(2)), slopeBefore: Number(k.before.toPrecision(4)), slopeAfter: Number(k.after.toPrecision(4)) })),
+  };
+}
+
+/**
+ * One change of slope tested on the levels (hinge-test.mjs): a sup-F over one continuous hinge with AR(1) noise and a
+ * parametric bootstrap. Far more power than the differences test when the series wanders about a trend rather than
+ * drifting (global temperature 1880-2024: knot 1976, p 0.001, where the differences test gives 0.80), and it refuses
+ * when the residuals about a line look like a unit root (log GDP, productivity), the case the differences test is for.
+ * `opt` is true or { reps, seed }. 30 to 600 points (the bootstrap reruns the whole scan, which is quadratic in n).
+ */
+export function hingeTestReport(values, labels, opt, { log = false } = {}) {
+  const n = values.length;
+  if (n < 30) throw new Error(`The hinge test needs at least 30 points; got ${n}.`);
+  if (n > 600) throw new Error(`The hinge test takes at most 600 points (its bootstrap is quadratic in length); got ${n}. Aggregate first (monthly to yearly).`);
+  const o = typeof opt === 'object' && opt ? opt : {};
+  const h = hingeTest(values, { reps: Number(o.reps) || 499, seed: Number(o.seed) || 1 });
+  // With logs on (`--log`), `values` are already logged, so the test runs on the logs and a slope is a growth rate
+  // (0.02 a step is about 2% a step). Measured on 2026-11-15 (eval/hinge-log-prereg-2026-11-15.md): size holds at n 40,
+  // but logs admitted neither short growth series the levels test refuses (gas, electricity), so no refusal suggests it.
+  const scale = log ? 'on the logs (values were logged first, so a slope is a growth rate: 0.02 a step is about 2% a step)' : 'on the levels';
+  const note = 'One change of slope against a straight line, ' + scale + ', assuming AR(1) noise about the trend; the p-value is from a parametric bootstrap. A level step can pass for a hinge (on the Nile it rejects with a knot in 1913, though the change is the 1898 drop; a step of 2 noise sd made it reject in 14-42% of synthetic series), so run the step models too; a small p says the straight line is wrong, not that exactly one bend is right.';
+  if (h.refused) return { refused: true, reason: h.reason, note, scale: log ? 'log' : 'levels' };
+  return {
+    refused: false, scale: log ? 'log' : 'levels', index: h.index, label: labels[h.index] ?? String(h.index), f: Number(h.f.toFixed(2)), bar95: Number(h.bar95.toFixed(2)),
+    p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
+    slopeBefore: Number(h.slopeBefore.toPrecision(4)), slopeAfter: Number(h.slopeAfter.toPrecision(4)), significant: h.p <= 0.05, note,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoHinge: Number(h.rhoHinge.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+  };
+}
+
+/**
+ * A step and a change of slope at a date the user names (known-date.mjs; README "A date you name", round 5 ships):
+ * segmented regression with AR(1) noise and a parametric bootstrap, the CLI's `--known-date` settings. `opt` is the
+ * label of the first row after the change, or { date, reps, seed }. `values` are already logged when `log` is on.
+ * A series let through only by the random-walk cut comes back `calibrated: false`: round 6 (README, "Round 6") found
+ * that neither round 5's p nor a bootstrap conditioned on the cut tells a real step from noise on those series.
+ */
+export function knownDateReport(values, labels, opt, { log = false, period = 0 } = {}) {
+  const o = typeof opt === 'object' && opt ? opt : { date: opt };
+  const date = String(o.date ?? '').trim();
+  const k = labels.findIndex((l) => String(l) === date);
+  if (k < 0) throw new Error(`Known date ${date}: no row has that label (labels run ${labels[0]} to ${labels[labels.length - 1]}; give the first row after the change).`);
+  const h = knownDateTest(values, k, { period, reps: Number(o.reps) || 499, seed: Number(o.seed) || 1, rhoGenMethod: 'gated', gateRho: 0.5 });
+  const scale = log ? 'log' : 'levels';
+  const note = 'Segmented regression at the date you named: a line before it, a step and a change of slope at it, AR(1) noise, p-values from a parametric bootstrap (pre-registered over five rounds; at p 0.05 it flagged 1.0-5.8% of simulated no-change lines of 40-120 points). A small p says the line before the date does not carry on through it, not what caused the change; a control series the change should not touch is the best check.';
+  const base = { date, firstAfter: labels[k] ?? String(k), lastBefore: k > 0 ? labels[k - 1] ?? String(k - 1) : null, scale, note };
+  if (h.refused) return { refused: true, reason: h.reason, ...base };
+  const r3 = (v) => Number(Number(v).toPrecision(3)), r4 = (v) => Number(v.toFixed(4));
+  return {
+    refused: false, ...base, k, period: h.period, reps: h.reps,
+    step: r3(h.step), stepRange95: h.stepRange95.map(r3), pStep: r4(h.pStep),
+    slopeBefore: r3(h.slopeBefore), slopeChange: r3(h.slopeChange), slopeChangeRange95: h.slopeChangeRange95.map(r3), pSlope: r4(h.pSlope),
+    p: r4(h.p), pTable: r4(h.pTable), effectAverage: r3(h.effectAverage), effectAtEnd: r3(h.effectAtEnd),
+    rho: Number(h.rho.toFixed(3)), gated: !!h.gated, rhoGen: h.rhoGen.map((v) => Number(v.toFixed(3))),
+    calibrated: !h.admittedByCut, significant: !h.admittedByCut && h.p <= 0.05,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
+    ...(o.placebo === false ? {} : { placebo: placeboFields(values, k, labels, period, Number(o.seed) || 1, Math.min(199, Number(o.reps) || 499)) }),
+  };
+}
+
+// In-time placebos beside the named-date test (README "In-time placebos", eval/known-date-prereg-placebo-2026-11-17.md):
+// the same test on the before-period only, at up to three dates; `warn` when 2 or more give p <= 0.05. Off with
+// knownDate: { placebo: false }.
+function placeboFields(values, k, labels, period, seed, reps) {
+  const pc = placeboCheck(values, k, { period, seed, reps });
+  return { dates: pc.dates.map((d) => (d.refused ? { label: labels[d.k] ?? String(d.k), refused: true } : { label: labels[d.k] ?? String(d.k), refused: false, p: Number(d.p.toFixed(4)) })), tested: pc.tested, fired: pc.fired, warn: pc.warn };
+}
+
+/**
+ * Two changes of slope against a straight line, on the levels (two-hinge.mjs; README "Two changes of slope", pre-registered
+ * 2026-11-16, eval/two-hinge-prereg-2026-11-16.md): the hinge test with a second knot, for a series that speeds up and
+ * levels off, or rises, holds and falls. Same AR(1) noise, bootstrap and rho-cut guard. 30 to 300 points (the scan
+ * over knot pairs is cubic in n). `opt` is true or { reps, seed }.
+ */
+export function twoHingeTestReport(values, labels, opt, { log = false } = {}) {
+  const n = values.length;
+  if (n < 30) throw new Error(`The two-hinge test needs at least 30 points; got ${n}.`);
+  if (n > 300) throw new Error(`The two-hinge test takes at most 300 points (its bootstrap scans every pair of knots); got ${n}. Aggregate first (monthly to yearly).`);
+  const o = typeof opt === 'object' && opt ? opt : {};
+  const h = twoHingeTest(values, { reps: Number(o.reps) || 499, seed: Number(o.seed) || 1 });
+  const scale = log ? 'on the logs (a slope is a growth rate per step)' : 'on the levels';
+  const note = 'Two changes of slope against a straight line, ' + scale + ', assuming AR(1) noise about the trend; the p-value is from a parametric bootstrap. A level step can pass for two close bends (on the Nile it rejects with knots in 1892 and 1907, a 15-year plunge standing in for the 1898 drop), so run the step models too. A small p says the straight line is wrong, not that exactly two bends are right; under 60 points it refuses most sticky series.';
+  if (h.refused) return { refused: true, reason: h.reason, note, scale: log ? 'log' : 'levels' };
+  const lab = (i) => labels[i] ?? String(i);
+  return {
+    refused: false, scale: log ? 'log' : 'levels', index1: h.index1, index2: h.index2, label1: lab(h.index1), label2: lab(h.index2),
+    f: Number(h.f.toFixed(2)), bar95: Number(h.bar95.toFixed(2)), p: Number(h.p.toFixed(4)), reps: h.reps, rho: Number(h.rho.toFixed(3)),
+    slopes: h.slopes.map((v) => Number(v.toPrecision(4))), significant: h.p <= 0.05, note,
+    ...(h.admittedByCut ? { admittedByCut: true, rhoLine: Number(h.rhoLine.toFixed(3)), rhoTwo: Number(h.rhoTwo.toFixed(3)), cutBar: Number(h.cutBar.toFixed(3)) } : {}),
   };
 }
 
@@ -2089,6 +2650,34 @@ export function findEpisodes(cps, n, { maxLen = Math.max(5, Math.round(n / 10)),
     if (net >= maxNet * jump) continue;
     out.push({ kind: up ? 'burst' : 'dip', startIndex: a.index, endIndex: b.index - 1, length: len, level: a.meanAfter, baseBefore: a.meanBefore, baseAfter: b.meanAfter, jumpFactor: Math.round(Math.exp(jump) * 100) / 100, netFactor: Math.round(Math.exp(net) * 100) / 100 });
     k++;
+  }
+  return out;
+}
+
+/**
+ * Spikes in a continuous series: a run of adjacent changes that spans at most `maxSpan` points and leaves the
+ * level where it began (the level after the last change within `maxNet` of the excursion of the level before the
+ * first) is one outlier, not a regime. A bad price or a one-day shock is reported by the mean model as a pair or
+ * triple of changes either side of it. Labels only: the changes themselves are not altered.
+ * `cps` are the changes from analyze() (index, meanBefore, meanAfter); sd is the noise sd; n the series length.
+ * The excursion must be at least `minSd` noise sd, so a small wobble is not labelled.
+ */
+export function findSpikes(cps, sd, { maxSpan = 5, maxNet = 0.5, minSd = 3 } = {}) {
+  const out = [];
+  for (let k = 0; k + 1 < cps.length;) {
+    let best = -1;
+    for (let j = k + 1; j < cps.length && cps[j].index - cps[k].index <= maxSpan; j++) {
+      const base = cps[k].meanBefore, end = cps[j].meanAfter;
+      let ex = 0, sign = 0;
+      for (let m = k; m < j; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) { ex = d; sign = Math.sign(d); } }
+      if (Math.abs(ex) >= minSd * sd && Math.abs(end - base) < maxNet * Math.abs(ex)) best = j;
+    }
+    if (best < 0) { k++; continue; }
+    const base = cps[k].meanBefore;
+    let ex = 0;
+    for (let m = k; m < best; m++) { const d = cps[m].meanAfter - base; if (Math.abs(d) > Math.abs(ex)) ex = d; }
+    out.push({ kind: ex > 0 ? 'spike' : 'dip', startIndex: cps[k].index, endIndex: cps[best].index - 1, length: cps[best].index - cps[k].index, changes: best - k + 1, base, baseAfter: cps[best].meanAfter, excursion: ex, excursionInNoiseSd: sd > 0 ? ex / sd : null });
+    k = best + 1;
   }
   return out;
 }
@@ -2241,3 +2830,170 @@ export function garchSigma(x) {
   }
   return h(best[0], best[1]).map(Math.sqrt);
 }
+
+// Median absolute residual of centred local polynomial fits (window w, odd; degree 1 = line, 2 = quadratic), divided by the
+// white-noise value of that median so the result is on the first-difference scale (0.954 sd on white noise).
+// The fitted value at the centre of a least-squares fit is a fixed linear filter (Savitzky-Golay): for a line it is the
+// window mean; for a quadratic, c_j = (3(3m^2+3m-1) - 15 j^2) / ((2m-1)(2m+1)(2m+3)) with m = (w-1)/2. The residual is a
+// projection, so its variance on white noise is (1 - c_0) sd^2 and, for Gaussian noise, its median |.| is 0.6745 times that sd
+// exactly (the 7-point line gives 0.6245; the 0.627 used before 2026-11-10 was a simulation of the same number).
+export function localFitScale(v, w = 7, degree = 1) {
+  w = Math.floor(Number(w) || 7); if (w % 2 === 0) w += 1;
+  const m = (w - 1) / 2;
+  if (degree !== 1 && degree !== 2) throw new Error('The local-fit noise floor takes degree 1 (line) or 2 (quadratic).');
+  if (degree === 1 ? w < 3 : w < 5) throw new Error(`The local-fit noise floor needs a window of at least ${degree === 1 ? 3 : 5} points for degree ${degree}.`);
+  const c = [];
+  for (let j = -m; j <= m; j++) c.push(degree === 1 ? 1 / w : (3 * (3 * m * m + 3 * m - 1) - 15 * j * j) / ((2 * m - 1) * (2 * m + 1) * (2 * m + 3)));
+  const c0 = c[m];
+  const res = [];
+  for (let t = m; t < v.length - m; t++) {
+    let f = 0;
+    for (let j = -m; j <= m; j++) f += c[j + m] * v[t + j];
+    res.push(Math.abs(v[t] - f));
+  }
+  if (!res.length) return 0;
+  return median(res) / (0.67449 * Math.sqrt(1 - c0)) * 0.954;
+}
+
+/**
+ * `meanvar` cuts on clustered volatility (`garch: true`, CLI `--garch`). Each segment has its own mean and scale; inside a
+ * segment the standardised residual follows a unit-variance GARCH(1,1) whose a and b are shared by all segments and read
+ * off an 18-point grid (a + b under 0.98). A greedy forward search adds the cut, at any position, that raises the best-over-grid
+ * quasi-log-likelihood most. It runs twice, with independent noise (a = b = 0) and on the GARCH grid, and keeps the cut
+ * set with the highest LL - pen per cut - (garchPen if GARCH). Pre-registered against `--bootstrap` on fresh seeds
+ * (eval/meanvar-garch-choose-prereg-2026-11-13.md, README "Cuts searched jointly with a GARCH likelihood").
+ */
+// Per-cut and GARCH-term penalties in multiples of ln n (log-likelihood units), fixed before the fresh-seed run.
+export const GARCH_CUT_PEN = 1.5, GARCH_TERM_PEN = 0.25;
+// Penalty on the Student t paths (garchCuts' tPen, off in analyze), in multiples of ln n: tuned in sample and run on fresh
+// seeds, where it failed one line of the bar (eval/meanvar-tgarch-prereg-2026-11-13.md; README "Heavy tails in the GARCH
+// search"). Eval only until a new pre-registration passes.
+export const GARCH_T_PEN = 0.5;
+export const GARCH_T_NUS = [4, 8];
+export const GARCH_GRID = []; for (const a of [0, 0.05, 0.1, 0.2, 0.3]) for (const b of [0, 0.5, 0.7, 0.85, 0.93]) if (a + b < 0.98) GARCH_GRID.push([a, b]);
+
+// quasi-log-lik of x[lo..hi) given (a, b), own mean and scale (two fixed-point passes), as in meanvar-garch-segments.mjs.
+// With nu finite the standardised residual is a unit-variance Student t with nu degrees of freedom (Bollerslev 1987's
+// t-GARCH); mean and scale then come from EM passes (each point weighted by (nu + 1) / (nu - 2 + z^2)), and the
+// log-likelihood carries the t's normalising constant less the Gaussian's, so it compares with the Gaussian value
+// (which omits -0.5 ln 2 pi per point) on one scale.
+export function garchSegLL(x, lo, hi, a, b, nu = Infinity) {
+  if (isFinite(nu)) return garchSegLLt(x, lo, hi, a, b, nu);
+  let m = 0; for (let i = lo; i < hi; i++) m += x[i]; m /= hi - lo;
+  let s2 = 0; for (let i = lo; i < hi; i++) s2 += (x[i] - m) ** 2; s2 = Math.max(s2 / (hi - lo), 1e-12);
+  let ll = 0;
+  for (let pass = 0; pass < 2; pass++) {
+    let h = 1, num = 0; ll = 0;
+    for (let i = lo; i < hi; i++) {
+      const z2 = (x[i] - m) ** 2 / s2;
+      ll += -0.5 * (Math.log(s2 * h) + z2 / h);
+      num += z2 / h;
+      h = (1 - a - b) + a * z2 + b * h;
+    }
+    s2 *= num / (hi - lo);
+  }
+  return ll;
+}
+
+const T_CONST = new Map();
+function tConst(nu) {
+  if (!T_CONST.has(nu)) T_CONST.set(nu, lgamma((nu + 1) / 2) - lgamma(nu / 2) - 0.5 * Math.log(Math.PI * (nu - 2)) + 0.5 * Math.log(2 * Math.PI));
+  return T_CONST.get(nu);
+}
+export const GARCH_T_PASSES = 4;
+function garchSegLLt(x, lo, hi, a, b, nu) {
+  const len = hi - lo, c = tConst(nu);
+  // start from the median and the Gaussian scale; EM passes move both toward the t fit
+  let m = 0; for (let i = lo; i < hi; i++) m += x[i]; m /= len;
+  let s2 = 0; for (let i = lo; i < hi; i++) s2 += (x[i] - m) ** 2; s2 = Math.max(s2 / len, 1e-12);
+  let ll = 0;
+  for (let pass = 0; pass <= GARCH_T_PASSES; pass++) {
+    let h = 1, sw = 0, swx = 0, ss = 0; ll = 0;
+    for (let i = lo; i < hi; i++) {
+      const z2 = (x[i] - m) ** 2 / s2, q = z2 / h;
+      ll += c - 0.5 * Math.log(s2 * h) - 0.5 * (nu + 1) * Math.log1p(q / (nu - 2));
+      const w = (nu + 1) / (nu - 2 + q);
+      sw += w / h; swx += w * x[i] / h; ss += w * q;
+      h = (1 - a - b) + a * z2 + b * h;
+    }
+    if (pass === GARCH_T_PASSES) break;
+    s2 = Math.max(s2 * ss / len, 1e-12);
+    m = swx / sw;
+  }
+  return ll;
+}
+
+// The GARCH segment likelihood as a changeIntervals cost (twice the negative log-likelihood, a and b fixed), so the 95%
+// range of a `--garch` cut comes from the model that chose it (README, "A range from the GARCH fit").
+export function garchCost(x, a, b) { return (lo, hi) => -2 * garchSegLL(x, lo, hi, a, b); }
+
+// Greedy forward search. Returns { cuts, gains }: cuts in the order added, gains[k] the likelihood rise of step k.
+// Stops when the best gain falls under minPen or no segment can be split.
+export function garchForward(x, { minPen, minSeg = 10, maxCuts = 8, grid = GARCH_GRID, stride = 1 } = {}) {
+  const n = x.length; let cuts = []; const added = [], gains = [];
+  const segsOf = (c) => { const e = [0, ...c.slice().sort((p, q) => p - q), n]; return e.slice(0, -1).map((lo, k) => [lo, e[k + 1]]); };
+  // per grid point, the LL of each current segment
+  let cache = grid.map(([a, b, nu]) => segsOf(cuts).map(([lo, hi]) => garchSegLL(x, lo, hi, a, b, nu)));
+  let cur = Math.max(...cache.map((s) => s.reduce((p, q) => p + q, 0)));
+  const base = cur;
+  // best (LL, cut, segment) over positions t in [from, to] of the given segments, stepping by `step`
+  const scan = (segs, ks, from, to, step) => {
+    let bestLL = -Infinity, bestT = -1, bestK = -1;
+    for (let g = 0; g < grid.length; g++) {
+      const [a, b, nu] = grid[g], tot = cache[g].reduce((p, q) => p + q, 0);
+      for (const k of ks) {
+        const [lo, hi] = segs[k];
+        for (let t = Math.max(lo + minSeg, from ?? -Infinity); t <= Math.min(hi - minSeg, to ?? Infinity); t += step) {
+          const v = tot - cache[g][k] + garchSegLL(x, lo, t, a, b, nu) + garchSegLL(x, t, hi, a, b, nu);
+          if (v > bestLL) { bestLL = v; bestT = t; bestK = k; }
+        }
+      }
+    }
+    return { bestLL, bestT, bestK };
+  };
+  while (added.length < maxCuts) {
+    const segs = segsOf(cuts);
+    // long series: a coarse pass every `stride` points, then every point within a stride of the coarse best
+    let { bestLL, bestT, bestK } = scan(segs, segs.map((_, k) => k), null, null, stride);
+    if (stride > 1 && bestT >= 0) ({ bestLL, bestT } = scan(segs, [bestK], bestT - stride + 1, bestT + stride - 1, 1));
+    if (bestT < 0 || bestLL - cur < minPen) break;
+    gains.push(bestLL - cur); added.push(bestT); cuts = [...cuts, bestT];
+    cache = grid.map(([a, b, nu]) => segsOf(cuts).map(([lo, hi]) => garchSegLL(x, lo, hi, a, b, nu)));
+    cur = Math.max(...cache.map((s) => s.reduce((p, q) => p + q, 0)));
+  }
+  return { cuts: added, gains, base };
+}
+
+// Model choice on top of the search: the GARCH terms must earn their keep too. Runs the forward search twice, once with
+// independent noise (grid a = b = 0, i.e. plain mean-and-variance segments) and once on the GARCH grid, and keeps the
+// cut set with the highest LL - pen x cuts - (GARCH ? garchPen : 0). On noise with no clustering a variance step is then
+// a cut, not a GARCH path that partly explains it away. Penalties in log-likelihood units.
+export function garchCuts(x, { pen, garchPen, tPen = null, nus = GARCH_T_NUS, minSeg = 10, maxCuts = 8, stride = 1 } = {}) {
+  let bestScore = -Infinity, best = null;
+  // tPen null: Gaussian innovations only (the 2026-11-13 search). Otherwise also Student t innovations, nu from `nus`,
+  // each t path paying tPen on top.
+  const withNu = (g, nu) => g.map(([a, b]) => [a, b, nu]);
+  const paths = [[false, false, [[0, 0]]], [true, false, GARCH_GRID]];
+  if (tPen != null) paths.push([false, true, nus.flatMap((nu) => withNu([[0, 0]], nu))], [true, true, nus.flatMap((nu) => withNu(GARCH_GRID, nu))]);
+  for (const [garch, heavy, grid] of paths) {
+    const { cuts, gains, base } = garchForward(x, { minPen: pen, minSeg, maxCuts, grid, stride });
+    let ll = base;
+    for (let k = 0; k <= cuts.length; k++) {
+      if (k) ll += gains[k - 1];
+      const score = ll - pen * k - (garch ? garchPen : 0) - (heavy ? tPen : 0);
+      if (score > bestScore) { bestScore = score; best = { cuts: cuts.slice(0, k), garch, heavy, grid }; }
+    }
+  }
+  // the shared (a, b, nu) of the kept fit, for the report
+  const e = [0, ...best.cuts.slice().sort((p, q) => p - q), x.length];
+  let top = -Infinity;
+  for (const [a, b, nu = Infinity] of best.grid) {
+    let t = 0; for (let k = 0; k + 1 < e.length; k++) t += garchSegLL(x, e[k], e[k + 1], a, b, nu);
+    if (t > top) { top = t; best.a = a; best.b = b; best.nu = nu; }
+  }
+  delete best.grid;
+  // the GARCH path can end on a = b = 0; the same cuts then score higher without the GARCH term
+  if (best.garch && best.a === 0 && best.b === 0) best.garch = false;
+  return best;
+}
+

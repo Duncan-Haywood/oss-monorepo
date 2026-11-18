@@ -99,3 +99,47 @@ test('a post that reuses a tool page title is renamed, not left to fail the depl
   assert.deepEqual(checkPageIdentity(pages), []);
   assert.deepEqual(resolvePostTitleClashes(new Map([['tool/index.html', tool]])), []);
 });
+
+test('a post with its own title is left alone, and a skipped page does not reserve a title', () => {
+  const pages = new Map([
+    ['writing/a/index.html', '<title>Own title</title><h1>A</h1>'],
+    ['404.html', '<title>Not found</title><h1>x</h1>'],
+    ['writing/b/index.html', '<title>Not found</title><h1>B</h1>'],
+  ]);
+  assert.deepEqual(resolvePostTitleClashes(pages), []);
+});
+
+test('loadPages keeps serial walk order while reading concurrently', async () => {
+  // More pages than the 32 reads in flight, spread over nested directories, so
+  // a finishing order that leaked into the Map would show.
+  const files = {};
+  for (let i = 0; i < 80; i += 1) files[`d${i % 7}/p${i}/${i % 3 ? 'index' : 'other'}.html`] = page(`T${i}`, `<h1>${i}</h1>${'x'.repeat(i * 997)}`);
+  const dir = await mkSite(files);
+  const serial = [];
+  const walk = async (d, prefix) => {
+    for (const e of await fs.readdir(d, { withFileTypes: true })) {
+      const rel = prefix ? `${prefix}/${e.name}` : e.name;
+      if (e.isDirectory()) await walk(path.join(d, e.name), rel);
+      else if (e.name.endsWith('.html')) serial.push([rel, await fs.readFile(path.join(d, e.name), 'utf8')]);
+    }
+  };
+  await walk(dir, '');
+  assert.deepEqual([...(await loadPages(dir)).entries()], serial);
+});
+
+test('loadPages with a cache returns the cached texts in walk order and reads the rest', async () => {
+  // check.mjs hands over the pages it already read; the result must be the
+  // same Map an uncached load gives, keys in the same order.
+  const dir = await mkSite({
+    'a/index.html': page('A', '<h1>A</h1>'),
+    'b/index.html': page('B', '<h1>B</h1>'),
+    'b/c/index.html': page('C', '<h1>C</h1>'),
+  });
+  const uncached = [...(await loadPages(dir)).entries()];
+  const cache = new Map([['b/index.html', page('B', '<h1>B</h1>')], ['a/index.html', '']]);
+  const cached = [...(await loadPages(dir, { cache })).entries()];
+  assert.deepEqual(cached.map(([rel]) => rel), uncached.map(([rel]) => rel));
+  // A cached text wins, even an empty one: the caller read it from this file.
+  assert.equal(new Map(cached).get('a/index.html'), '');
+  assert.equal(new Map(cached).get('b/c/index.html'), page('C', '<h1>C</h1>'));
+});

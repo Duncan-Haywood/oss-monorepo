@@ -1,0 +1,32 @@
+pump 45 L/min; p_n 10.91 bar (PVG 32 neutral, 2n); load factor 0.346; LS standby 2 L/min; eta 0.883; 3,000 cycles per cell; same cycles as 2n
+check: constant-6-bar path equals cycle_energy's open-centre rung
+actuator floor drops (orifice, 3g sizing): median 4.78 bar, 5-95% 1.92 to 7.70; spools used A 496, B 9446, C 8310, D 2748
+
+constant 6 bar (2n): energy-weighted extra OC drop while moving 6.00 bar; break-even dp_ls = 28.0 bar
+  10:0.689 12:0.724 14:0.759 16:0.794 18:0.828 20:0.863 22:0.897 24:0.932 26:0.966 28:1.000 30:1.034 32:1.068 34:1.103 36:1.137 38:1.172 40:1.205
+  dp_ls 14: LS/OC median 0.759 (0.610 to 0.926); LS worse in 0.8% of cycles
+  dp_ls 25: LS/OC median 0.949 (0.765 to 1.151); LS worse in 33.6% of cycles
+
+floor, orifice, 3g sizing: energy-weighted extra OC drop while moving 4.77 bar; break-even dp_ls = 26.5 bar
+  10:0.707 12:0.742 14:0.778 16:0.813 18:0.849 20:0.884 22:0.919 24:0.955 26:0.990 28:1.027 30:1.061 32:1.096 34:1.132 36:1.166 38:1.200 40:1.235
+  dp_ls 14: LS/OC median 0.778 (0.622 to 0.950); LS worse in 1.6% of cycles
+  dp_ls 25: LS/OC median 0.972 (0.780 to 1.184); LS worse in 41.7% of cycles
+
+floor, power law, 3g sizing: energy-weighted extra OC drop while moving 5.26 bar; break-even dp_ls = 27.2 bar
+  10:0.698 12:0.733 14:0.768 16:0.803 18:0.840 20:0.874 22:0.908 24:0.943 26:0.979 28:1.014 30:1.049 32:1.083 34:1.118 36:1.152 38:1.186 40:1.221
+  dp_ls 14: LS/OC median 0.768 (0.615 to 0.941); LS worse in 1.3% of cycles
+  dp_ls 25: LS/OC median 0.961 (0.773 to 1.171); LS worse in 38.3% of cycles
+
+floor, orifice, one size up: energy-weighted extra OC drop while moving 1.64 bar; break-even dp_ls = 22.6 bar
+  10:0.759 12:0.798 14:0.837 16:0.875 18:0.913 20:0.951 22:0.989 24:1.027 26:1.065 28:1.102 30:1.139 32:1.176 34:1.212 36:1.250 38:1.288 40:1.326
+  dp_ls 14: LS/OC median 0.837 (0.666 to 1.026); LS worse in 8.6% of cycles
+  dp_ls 25: LS/OC median 1.046 (0.832 to 1.284); LS worse in 61.7% of cycles
+
+floor, power law, one size up: energy-weighted extra OC drop while moving 2.16 bar; break-even dp_ls = 22.9 bar
+  10:0.753 12:0.791 14:0.830 16:0.868 18:0.906 20:0.943 22:0.982 24:1.020 26:1.058 28:1.094 30:1.132 32:1.168 34:1.205 36:1.243 38:1.279 40:1.316
+  dp_ls 14: LS/OC median 0.830 (0.660 to 1.022); LS worse in 7.6% of cycles
+  dp_ls 25: LS/OC median 1.039 (0.822 to 1.278); LS worse in 59.4% of cycles
+
+S1 HOLDS (break-even 24 to 29 bar: 26.5)
+S2 HOLDS (LS/OC at 14 bar < 0.85: 0.778)
+S3 HOLDS (energy-weighted floor drop 3 to 7 bar: 4.77)

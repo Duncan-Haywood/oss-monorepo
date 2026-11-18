@@ -11,6 +11,14 @@ def rsimplex(K, rng):
 
 
 class T(unittest.TestCase):
+    def test_zero_report(self):
+        # a zero reported on the realised class costs infinite log loss, and KL to a
+        # report that zeroes a class the truth gives mass is infinite (quality audit
+        # 2026-11-13: both branches were untested)
+        self.assertEqual(log_loss([0.0, 1.0, 0.0], 0), math.inf)
+        self.assertEqual(kl([0.5, 0.5, 0.0], [1.0, 0.0, 0.0]), math.inf)
+        self.assertEqual(kl([0.5, 0.5, 0.0], [0.5, 0.5, 0.0]), 0)
+
     def test_strictly_proper(self):
         rng = random.Random(1)
         for _ in range(300):
@@ -72,3 +80,18 @@ class T(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ZeroMass(unittest.TestCase):
+    """Quality audit round 62: the log score's zero handling had no test."""
+
+    def test_log_regret_infinite_for_zero_report(self):
+        self.assertEqual(kl([.5, .5], [1, 0]), math.inf)
+        self.assertEqual(log_loss([0, 1], 0), math.inf)
+        self.assertEqual(regret(log_loss, [1, 0], [.5, .5]), math.inf)
+
+    def test_zero_truth_mass_is_skipped(self):
+        p, r = [0, .5, .5], [0, .25, .75]
+        want = .5 * math.log(.5 / .25) + .5 * math.log(.5 / .75)
+        self.assertAlmostEqual(regret(log_loss, r, p), want, places=12)
+        self.assertAlmostEqual(kl(p, r), want, places=12)

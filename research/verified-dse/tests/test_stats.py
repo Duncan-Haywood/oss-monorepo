@@ -24,6 +24,15 @@ class T(unittest.TestCase):
         self.assertTrue(topk_hit(cheap, ref, 3))   # optimum (index 2, cheap=2) is 3rd best
         self.assertFalse(topk_hit(cheap, ref, 2))
 
+    def test_pick_regret_picks_the_cheap_minimum_not_the_maximum(self):
+        # cheap minimum is index 0 (ref 3.0); the cheap maximum is index 2 (ref 8.0): the two differ.
+        cheap, ref = [1, 2, 3], [3.0, 4.0, 8.0]
+        self.assertAlmostEqual(pick_regret(cheap, ref), 0.0)
+        self.assertAlmostEqual(pick_regret([3, 2, 1], ref), 8.0 / 3.0 - 1)
+
+    def test_pick_regret_averages_over_cheap_ties_only(self):
+        self.assertAlmostEqual(pick_regret([1, 1, 5], [2.0, 4.0, 1.0]), 3.0 / 1.0 - 1)
+
 
 if __name__ == "__main__":
     unittest.main()

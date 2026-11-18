@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKfLsUkdUoPNUdfwkf",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T23:06:17Z",
+  "ended": "2026-11-12T23:17:32Z",
+  "wall_minutes": 15.45,
+  "tokens_in": 9180433,
+  "tokens_out": 53876,
+  "cost_usd": 4.0845,
+  "tool_calls": 78,
+  "task": "Deepen (flagship 7) photo-editing: WarpRectilinear2 (DNG opcode 14), the allocator's BUILDABLE HERE item",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15290",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 1,
+  "review_findings": null,
+  "tests_added": 21,
+  "outcome": "success",
+  "errors": [
+    "First edit script never ran: `git checkout -b` on a branch the harness had already created failed, and the && chain stopped; re-ran on the existing branch.",
+    "The full photo-editing suite caught test_dng_opcodes using WarpRectilinear2 as its 'named, not run' example; switched that test to FixBadPixelsConstant in OpcodeList3.",
+    "mypy (CI lint) flagged a variable name reused across branches in warp_source and an untyped parser dict; fixed before merge. mypy under python3.13 fails on numpy's own stubs (environment), so it was run under python3.11 without numpy, as CI's lint job does.",
+    "portfolio-validate failed: photo-editing next: grew to 2317 chars (cap 2000) by appending; condensed the history part to a README pointer.",
+    "Merge conflict with PR #15292 (another session, same venture, same hour: opcode audit against 1.7.1.0 and the centre measured between pixel centres). Merged main in; WarpRectilinear2 follows the new frame via _warp_frame; updated test_dng_warp2's independent formula and lensfun_warp_fit's exact check to it (still 1.8e-12 px); suite ok 73.5 s."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "The buildable note said WarpRectilinear2 needs the 1.7 spec text 'not from memory' but not where it is; Adobe's helpx PDF (DNG_Spec_1_7_1_0.pdf) answers through the proxy. Named in the eval doc for the next run."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The harness had already created and checked out the session branch; 'create these branches if needed' plus habit led to a failing `git checkout -b`. Minor."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says to rewrite the venture's next: but not that portfolio/router/validate.py caps it at 2000 characters; run validate.py locally after editing flagships.yaml."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The buildable item was only the opcode on synthetic files; with no real file carrying it, I also measured whether it matters, on lensfun's 5,440 real lens profiles, so the slice has a real-data result and not just a spec reading.",
+      "did": "tools/lensfun_warp_fit.py plus a minimax fit; reported the minimax (17% over 1 px) as the headline rather than the more dramatic least-squares figure (52%).",
+      "result": "An honest, reproducible number for the post and README, and the next buildable feature (lensfun profiles as exact WarpRectilinear2) found by the same arithmetic."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-four-even-terms-are-not-enough-for-one-lens-in-six.md",
+    "ventures/photo-editing/eval/warp-rectilinear2-2026-11-12.md"
+  ],
+  "goal": "Deepen a flagship with a hard engineering slice",
+  "notes": "Verification: photo-editing suite via platform/ci/run_venture_tests.py photo-editing: ok (76.6 s, 808+ tests, after the test_dng_opcodes fix); tests/test_dng_warp2.py 21 tests pass with numpy (byte-identical engines) and without; ruff check . clean; mypy clean (python3.11). lensfun fit: 5,440 ptlens entries / 1,079 lenses, 4,741 with odd terms; WarpRectilinear2 mapping vs lensfun formula 1.8e-12 px; rectilinear (5,411) best even fit: median 0.30 px, >1 px 17.2%, >2 px 5.5%, max 14.4 px; least squares: median 1.06 px, >1 px 51.8%. Gap found, not fixed: plan() skips preview-quality-flagged opcodes in every develop (spec p.105 says full quality needs them); queued as buildable in flagships.yaml.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9bfaeebb-6f7b-53ad-9cc8-a6add7f2f8e5",
+    "transcripts": 1,
+    "first": "2026-11-12T23:06:17Z",
+    "last": "2026-11-12T23:21:44Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 72,
+        "input": 137,
+        "output": 53876,
+        "thinking": 9749,
+        "cache_read": 9030245,
+        "cache_write_5m": 0,
+        "cache_write_1h": 150051,
+        "api_equivalent_usd": 4.0845,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 72,
+      "input": 137,
+      "output": 53876,
+      "thinking": 9749,
+      "cache_read": 9030245,
+      "cache_write_5m": 0,
+      "cache_write_1h": 150051,
+      "api_equivalent_usd": 4.0845,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 70,
+      "Write": 4,
+      "Monitor": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.45,
+      "active_minutes": 15.45,
+      "model_minutes": 10.33,
+      "tool_minutes": 5.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "spec reading, opcode + skip rule with two engines, 21 tests, lensfun fit study and write-up: a senior imaging engineer's day and a bit",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 244.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKjcFfq8wHWCMcvc3RR",
+  "track": "polish",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T01:18:35Z",
+  "ended": "2026-11-16T01:29:45Z",
+  "wall_minutes": 11.33,
+  "tokens_in": 5178206,
+  "tokens_out": 28302,
+  "cost_usd": 2.3986,
+  "tool_calls": 54,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16408",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "git checkout -b failed: the harness had already created and checked out the work branch"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Suggests screenshotting five surfaces after a 3-20 min build; for a change confined to writing.mjs, overlaying `node platform/pages/writing.mjs --out=<dist>` (5 s) on one full build was the fast loop and is not mentioned."
+    },
+    {
+      "file": "platform/pages/check.mjs",
+      "issue": "After a writing-only overlay on dist, every new writing page reports 'absent from every sitemap' because the hub sitemap is from the old build; expected but noisy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "why": "Screenshotted only the topic and project pages, not hub/flagship/research/stories/post, because the work came from three reports' carried-over item rather than a fresh survey",
+      "did": "Picked the by-project index directly from the reports' 'Still weakest' lists",
+      "result": "Shipped the item three runs had deferred"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-a-page-per-project-for-2595-tool-posts.md",
+    "docs/reports/polish-2026-11-16-project-pages.md"
+  ],
+  "goal": null,
+  "notes": "node --test 'platform/pages/*.test.mjs': pass 1692, fail 0, skipped 26. check.mjs over a full build with the writing section overlaid: 17 expected sitemap misses (stale hub sitemap) and one real duplicate <title> (post seo_title equal to a tool page title), fixed in this PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4b4b1e40-d7b1-5c9a-a5ce-10ac224f422b",
+    "transcripts": 1,
+    "first": "2026-11-16T01:18:35Z",
+    "last": "2026-11-16T01:29:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 52,
+        "input": 100,
+        "output": 28302,
+        "thinking": 6056,
+        "cache_read": 5075992,
+        "cache_write_5m": 0,
+        "cache_write_1h": 102114,
+        "api_equivalent_usd": 2.3986,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 52,
+      "input": 100,
+      "output": 28302,
+      "thinking": 6056,
+      "cache_read": 5075992,
+      "cache_write_5m": 0,
+      "cache_write_1h": 102114,
+      "api_equivalent_usd": 2.3986,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 48,
+      "Read": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.33,
+      "active_minutes": 11.33,
+      "model_minutes": 5.08,
+      "tool_minutes": 6.24,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "senior front-end dev: grouping logic, page template, CSS, tests, screenshots and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 208.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

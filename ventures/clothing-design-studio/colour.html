@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Colour Approval: Lab Dip and Print Swatch Delta E Check for Clothing Brands</title>
+  <meta name="description" content="Free colour approval check for clothing: compare the factory lab dip or printed swatch with your target colour in CIEDE2000, pass or fail per colour, with words to send back. Runs in your browser.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%236b1e2c'/%3E%3Cpath%20d='M8%2010h16M16%206v4M8%2010l-2%2016h20l-2-16'%20stroke='%23efe4cc'%20stroke-width='2'%20fill='none'/%3E%3C/svg%3E">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Colour approval check">
+  <meta property="og:description" content="Delta E 2000 between your target colour and the factory swatch, pass or fail. Free, in your browser.">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Colour approval check (Clothing Design Studio)","applicationCategory":"BusinessApplication","operatingSystem":"Any (web browser)","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+  <style>
+    :root { --ink:#221d1a; --muted:#6a605a; --paper:#f5f0e8; --card:#fffdf9; --line:#ddd2c4; --accent:#6b1e2c; font-family: ui-sans-serif, system-ui, sans-serif; color: var(--ink); background: var(--paper); }
+    body { max-width: 1180px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
+    h1 { font: 700 clamp(1.8rem, 4.2vw, 2.8rem)/1.1 Georgia, serif; margin: 6px 0 10px; }
+    a { color: var(--accent); }
+    .grid { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 7fr); gap: 16px; align-items: start; }
+    @media (max-width: 860px) { .grid { grid-template-columns: 1fr; } }
+    section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; } h3 { font-size: .95rem; margin: 12px 0 6px; }
+    label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
+    fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 8px 0; } legend { font-size: .85rem; font-weight: 600; }
+    fieldset label { display: inline-flex; gap: 4px; font-weight: 400; margin-right: 10px; }
+    input, select, button { font: inherit; }
+    input[type=number], select { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .pieces { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+    .piece { border: 1px solid var(--line); border-radius: 10px; padding: 8px; background: #fff; font-size: .88rem; }
+    .dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; vertical-align: -2px; margin-right: 4px; box-shadow: 0 0 0 1px #0002; }
+    .tag { font-size: .75rem; color: var(--muted); }
+    .big { font-size: 1.6rem; font-weight: 750; }
+    .notes { background: #fbf0e1; border-left: 4px solid #b98a2e; padding: 8px 10px; border-radius: 6px; font-size: .88rem; }
+    table { border-collapse: collapse; width: 100%; font-size: .9rem; } td, th { padding: 4px 6px; border-bottom: 1px solid #eee4d6; text-align: left; } td.num { text-align: right; }
+    td input { width: 90px; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; }
+    .placeholder { color: #9a3412; font-weight: 650; font-size: .85rem; }
+    footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
+  </style>
+  <style>
+    .sz td.hit, .sz tr.hit td { background: #f3e3c4; font-weight: 650; }
+  </style>
+</head>
+<body>
+<main>
+  <p><a href="./">Clothing Design Studio</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="inspection.html">Final inspection</a> · <a href="launch.html">Launch path</a></p>
+  <h1>Is the factory's colour close enough to approve?</h1>
+  <p>Before a run, a factory sends a lab dip (dyed cloth) or a printed swatch. Type your target colour and the colour measured on the swatch, one row per colour, and get the CIEDE2000 colour difference (ΔE) and a pass or fail against your limit, plus the words to send back: "2 darker, 5 yellower".</p>
+  <p class="placeholder">Use measured Lab from a spectrophotometer, under the same illuminant and observer for both (write <code>lab:52.1,-3.2,18.4</code>). Hex colours are screen colours, not measurements of cloth: a phone photo will not do. Limits are typical choices, not a standard; agree yours with the factory in writing.</p>
+  <div class="grid">
+    <section>
+      <h2>Limit</h2>
+      <label for="limit">Approve when ΔE2000 is at most</label>
+      <select id="limit"><option value="1">1.0, tight (solid brand colour)</option><option value="2" selected>2.0, usual</option><option value="3.5">3.5, loose (tone-on-tone, heathers)</option></select>
+      <h2 style="margin-top:14px">Colours</h2>
+      <div id="rows"></div>
+      <p><button type="button" id="add">Add a colour</button></p>
+    </section>
+    <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
+  </div>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>5. Make it and check it</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="timeline.html">Production timeline</a> · <a href="tna.html">Time and action calendar</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="testing.html">Safety tests to ask for</a></div>
+    <div>Before: <a href="spec.html">Measurement spec and sample check</a> · Next: <a href="testing.html">Safety tests to ask for</a></div>
+  </nav>
+  <!-- /journey -->
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Conversion and traffic are your estimates; the result is a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Privacy.</strong> Everything runs in your browser; your answers are not uploaded. Anonymous counts of which features are used stay in this browser.</p>
+    <p>Free and open source (MIT). <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/clothing-design-studio">Source code</a> · <a href="https://marisstella.app/custom-development/R-0005/">Feedback</a> · <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor (github.com/sponsors/Duncan-Haywood)</a></p>
+  </footer>
+
+
+  <script type="module">
+    import { colourCheck, colourComments } from "./colour.mjs";
+    import { recordUsage } from "./usage.mjs";
+    const $ = s => document.querySelector(s);
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+    const rows = $("#rows");
+    function addRow(name = "", target = "", sample = "") {
+      const d = document.createElement("div");
+      d.className = "piece"; d.style.marginBottom = "8px";
+      d.innerHTML = `<label>Name<input type="text" class="n" value="${esc(name)}"></label><label>Target<input type="text" class="t" value="${esc(target)}" placeholder="#c8102e or lab:L,a,b"></label><label>Factory swatch<input type="text" class="s" value="${esc(sample)}" placeholder="same form"></label><button type="button" class="rm">Remove</button>`;
+      rows.appendChild(d);
+    }
+    function check() {
+      const data = [...rows.children].map(d => ({ name: d.querySelector(".n").value, target: d.querySelector(".t").value, sample: d.querySelector(".s").value }));
+      try {
+        const c = colourCheck(data, { limit: +$("#limit").value });
+        $("#result").innerHTML = `<p class="big">${esc(c.summary)}</p><table><tr><th scope="col">Colour</th><th scope="col" class="num">ΔE2000</th><th scope="col">Verdict</th><th scope="col">Sample is</th></tr>${c.rows.map(r => `<tr><td>${esc(r.name)}</td><td class="num">${r.dE ?? ""}</td><td>${r.verdict === "pass" ? "pass" : "<b>" + esc(r.verdict) + "</b>"}</td><td>${esc(r.direction.join(", "))}</td></tr>`).join("")}</table>${c.rows.some(r => r.screenOnly) ? '<p class="notes">Some rows are hex colours: these are screen colours, a check of the artwork file, not of cloth.</p>' : ""}<h3>Note for the factory</h3><pre style="white-space:pre-wrap">${esc(colourComments(c))}</pre>`;
+      } catch (e) { $("#result").innerHTML = `<p class="placeholder">${esc(e.message)}</p>`; }
+    }
+    addRow("Burgundy", "lab:30,40,20", "lab:30.5,41,22"); addRow("Gold", "lab:75,10,60", "lab:73,10,65");
+    $("#add").onclick = () => { addRow(); check(); };
+    rows.addEventListener("click", e => { if (e.target.classList.contains("rm")) { e.target.closest(".piece").remove(); check(); } });
+    document.addEventListener("input", () => { check(); recordUsage("colour_check"); });
+    check(); recordUsage("colour_open");
+  </script>
+</body>
+</html>

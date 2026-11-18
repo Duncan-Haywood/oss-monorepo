@@ -26,7 +26,7 @@ function fmtDate(fmt, d) {
 }
 // four lines: signed cents, memo, date
 const TX = [[-450, "COFFEE SHOP 4411", { y: 2026, m: 3, d: 13 }], [120000, "PAYROLL ACME LTD", { y: 2026, m: 3, d: 14 }], [-95000, "RENT MARCH", { y: 2026, m: 3, d: 15 }], [2000, "REFUND AMAZON", { y: 2026, m: 3, d: 16 }]];
-const money = (c, comma) => { const s = (Math.abs(c) / 100).toFixed(2); return (c < 0 ? "-" : "") + (comma ? s.replace(".", ",") : s); };
+const money = (c, comma) => { const s = (Math.abs(c) / 100).toFixed(2); return ((t) => (c < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)((comma ? s.replace(".", ",") : s)); };
 const results = [];
 for (const s of sections) {
   const kv = { ...dflt, ...s.kv };

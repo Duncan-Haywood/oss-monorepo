@@ -74,3 +74,7 @@ test("the guide's worked example is the engine's answer", () => {
     assert.ok(html.includes(row), row);
   }
 });
+
+test("footer links the estate item divider, its fair-division sibling", () => {
+  assert.match(page("index.html"), /href="\.\.\/estate-item-divider\/"/);
+});

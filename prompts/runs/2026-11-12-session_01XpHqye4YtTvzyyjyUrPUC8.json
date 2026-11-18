@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqye4YtTvzyyjyUrPUC8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T04:45:37Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "research programme marine-hull, milestone 6z (drawn by pick_track.py): twelve-month, latitude flip map of deck-solar boat vs 2015 Wave Glider",
+  "projects": [
+    "research/marine-hull"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15005",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "new data file power_flip_2024.json matched tests/test_solar_sites.py's power_*.json glob and broke 2 existing tests",
+      "fix": "renamed to sun_flip_2024.json after the pre-registration commit; disclosed in LOG"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/marine-hull/tests/test_solar_sites.py",
+      "issue": "globs experiments/data/power_*.json and asserts exactly 5 files, so any new NASA POWER file with that prefix fails the suite; a naming trap not written anywhere"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-wave-glider-or-solar-boat-month-by-month.md",
+    "research/marine-hull/LOG.md (6z entry)",
+    "research/marine-hull/README.md (6z paragraph)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered in aeffabfa before fetching 2024 ERA5 (Open-Meteo) and NASA POWER for 26 transect points + 5 corridor sites (both hosts reachable through the proxy). 8 of 9 predictions held; P9 (flip latitude robust to ERA5's 10% bias) refuted by one near-tie point. Local checks: marine-hull pytest 154 passed; research/_homepage/build.py ok; research_live_links ok; check_md_links ok; run_workflow_locally --for-changes output below if appended.",
+  "corrections": [],
+  "redteam": null
+}

@@ -48,7 +48,7 @@
 <body>
   <header>
     <p class="note">PET BOARDING AND DAYCARE PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
-    <h1>What occupancy does your dog boarding and daycare business need to break even, and how much cash does the ramp-up eat?</h1>
+    <h1>What occupancy does your dog boarding and daycare business need to break even?</h1>
     <p>Enter your runs and daycare spots, prices, expected occupancy and the number of dogs one attendant looks after. You get <strong>monthly profit</strong> with <strong>staffing that steps up</strong> as dogs are added, <strong>break-even occupancy</strong>, the <strong>price change that hits your target margin</strong>, how <strong>wage changes</strong> move profit, a sixty-month <strong>ramp-up</strong> with the lowest cash point and payback, and <strong>loan coverage</strong>.</p>
     <p class="note">It works from your own figures. It does not know what kennels near you charge, how full they are, or what your licence requires.</p>
   </header>
@@ -65,7 +65,7 @@
       <div><label for="dayspots">Daycare spots, dogs at one time</label><input id="dayspots" inputmode="decimal" value="" placeholder="25"></div>
       <div><label for="dayrate">Daycare price per day, dollars</label><input id="dayrate" inputmode="decimal" value="" placeholder="38"></div>
       <div><label for="dayfillpct">Average daycare fill on days open, %</label><input id="dayfillpct" inputmode="decimal" value="" placeholder="80"></div>
-      <div><label for="daysopen">Daycare days open per month</label><input id="daysopen" inputmode="decimal" value="" placeholder="26"></div>
+      <div><label for="daysopen">Daycare days open per month (of 30)</label><input id="daysopen" inputmode="decimal" value="" placeholder="26"></div>
       <div><label for="suppliesperdog">Supplies per dog per day: food extras, cleaning, laundry, waste, dollars</label><input id="suppliesperdog" inputmode="decimal" value="" placeholder="6.50"></div>
       <div><label for="feespct">Card and booking-software fees, % of revenue</label><input id="feespct" inputmode="decimal" value="" placeholder="3"></div>
       <div><label for="dogsperattendant">Dogs per attendant (your ratio, insurer or state rule)</label><input id="dogsperattendant" inputmode="decimal" value="" placeholder="12"></div>
@@ -161,7 +161,7 @@
     let last = null;
     const map = {runs: "runs", nightly: "nightly", occpct: "occPct", staynights: "stayNights", addon: "addOn", dayspots: "daySpots", dayrate: "dayRate", dayfillpct: "dayFillPct", daysopen: "daysOpen", suppliesperdog: "suppliesPerDog", feespct: "feesPct", dogsperattendant: "dogsPerAttendant", openhours: "openHours", minstaff: "minStaff", wage: "wage", payrollpct: "payrollPct", rentmonthly: "rentMonthly", utilitiesmonthly: "utilitiesMonthly", managermonthly: "managerMonthly", insuranceyear: "insuranceYear", othermonthly: "otherMonthly", buildoutperrun: "buildoutPerRun", equipmenttotal: "equipmentTotal", launch: "launch", depositmonths: "depositMonths", contingencypct: "contingencyPct", startpct: "startPct", rampmonths: "rampMonths", ltcpct: "ltcPct", loanrate: "loanRate", termyears: "termYears", targetmargin: "targetMargin"};
     const IDLE = "Fill in your facility, then click Work out the business. Boarding runs or daycare spots, a price and a staffing ratio are required; the rest default to zero or the neutral choice.";
-    const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+    const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
     const pct = (n) => (n * 100).toFixed(1) + "%";
     const sgn = (n) => (n > 0 ? "+" : "") + n + "%";
 

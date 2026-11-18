@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkefZiWis1tZykdDP5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T16:27:24Z",
+  "ended": "2026-11-13T16:31:43Z",
+  "wall_minutes": 4.43,
+  "tokens_in": 2820976,
+  "tokens_out": 20735,
+  "cost_usd": 1.6662,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15541",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "two new tests first failed on my own expectations (note spelled Ab3 not G#3; the default DP prefers one handoff over passing through the full choir), fixed in the tests",
+    "post description first ran 208 characters; venture-preflight caught it (cap 160), shortened"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "studio page not given an --overlap switch: it uses textbook ranges where the option measurably never fires (0 direct swaps on 67 files)",
+      "did": "CLI and API only, noted in README and post",
+      "result": "no dead UI control"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-when-tenors-hand-straight-to-basses.md",
+    "ventures/chant-forge/eval/overlap-report.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 11 chant-forge: --overlap landed. Corpus: direct tenor/bass swaps only under octave-wide ranges (7/13/9 by mode), all overlappable, 0 breaks. Local: run_venture_tests.py chant-forge ok (27.1s), split.test.mjs 18/18, validate.py ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "52d4c950-940e-52f6-afe8-d84b7a009b90",
+    "transcripts": 1,
+    "first": "2026-11-13T16:27:24Z",
+    "last": "2026-11-13T16:31:50Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 63,
+        "output": 20735,
+        "thinking": 4996,
+        "cache_read": 2732825,
+        "cache_write_5m": 0,
+        "cache_write_1h": 88088,
+        "api_equivalent_usd": 1.6662,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 63,
+      "output": 20735,
+      "thinking": 4996,
+      "cache_read": 2732825,
+      "cache_write_5m": 0,
+      "cache_write_1h": 88088,
+      "api_equivalent_usd": 1.6662,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.969,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 30,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 4.43,
+      "active_minutes": 4.43,
+      "model_minutes": 3.29,
+      "tool_minutes": 1.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "a developer adding an option, eval script, tests and docs to an existing DP",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 240.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

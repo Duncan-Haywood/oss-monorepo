@@ -132,3 +132,8 @@ test("sample data parses cleanly and analyses", () => {
   assert.ok(!r.error && r.fit.b < 0);
   assert.match(reportCsv(r), /Never answered/);
 });
+
+test("parseMinutes refuses a clock time past :59 instead of stretching it", () => {
+  assert.equal(parseMinutes("1:30"), 90);
+  assert.ok(Number.isNaN(parseMinutes("1:75")));
+});

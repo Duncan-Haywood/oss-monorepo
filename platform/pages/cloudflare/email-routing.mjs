@@ -53,10 +53,21 @@ export function desiredRules(cfg) {
   });
 }
 
+/** A matcher or action list as a string that ignores key order. Cloudflare
+ *  answers `{ field, type, value }` where desiredRules builds `{ type, field,
+ *  value }`, so a plain JSON.stringify called every already-correct rule
+ *  drifted and a re-run rewrote all of them (quality audit 2026-11-10). */
+export function canonical(list) {
+  const sortKeys = (v) => Array.isArray(v) ? v.map(sortKeys)
+    : v && typeof v === 'object' ? Object.fromEntries(Object.keys(v).sort().map((k) => [k, sortKeys(v[k])]))
+    : v;
+  return JSON.stringify(sortKeys(list ?? []));
+}
+
 function sameRule(a, b) {
   return a.enabled === b.enabled &&
-    JSON.stringify(a.matchers) === JSON.stringify(b.matchers) &&
-    JSON.stringify(a.actions) === JSON.stringify(b.actions);
+    canonical(a.matchers) === canonical(b.matchers) &&
+    canonical(a.actions) === canonical(b.actions);
 }
 
 /** What to change: creates, updates (by rule id) and disables. Pure. */
@@ -103,7 +114,10 @@ export async function apply({ cfg, cf, write, log = console.log }) {
     if (write) await cf('POST', `/zones/${zoneId}/email/routing/enable`, {});
   }
 
-  const existing = await cf('GET', `/zones/${zoneId}/email/routing/rules`);
+  // Cloudflare pages this list (20 by default); 50 is its largest page. A
+  // rule past the first page would look missing and be created twice.
+  const existing = await cf('GET', `/zones/${zoneId}/email/routing/rules?per_page=50`);
+  if ((existing || []).length >= 50) throw new Error('50 or more routing rules: add paging before applying');
   const ops = plan(existing || [], desiredRules(cfg));
   if (!ops.length) log('rules already match email-routing.json');
   for (const o of ops) {

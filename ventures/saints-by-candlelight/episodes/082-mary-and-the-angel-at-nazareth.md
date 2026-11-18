@@ -1,0 +1,231 @@
+---
+number: 82
+slug: mary-and-the-angel-at-nazareth
+title: Mary and the Angel at Nazareth
+published: 2026-11-09
+summary: An ordinary afternoon in a small Galilean town, a greeting from an angel that makes a young woman wonder what kind of greeting it is, and a quiet question and a quiet answer. Luke, chapter one, told straight, with a bedtime telling of the morning before and the evening after.
+figures: Mary the Mother of God, the Archangel Gabriel, Joseph, Elizabeth
+tradition: Catholic and Orthodox; both honour Mary, the Orthodox with the title Theotokos, God-bearer, and the Catholic Church with the title Mother of God, and both honour Gabriel as an archangel
+feast: the Catholic Church keeps the Annunciation on the twenty-fifth of March, and the Orthodox Church keeps the same feast on the twenty-fifth of March by its own calendar, so the date falls on different days of the civil calendar in some places
+history: the story is told in the Gospel according to Luke, chapter one, verses twenty-six to thirty-eight, which Catholic and Orthodox Christians read as Scripture; Matthew chapter one tells the same event from Joseph's side
+legend: later tradition shows a house and a well in Nazareth and gives Mary's age, her parents' names and her days in the Temple from writings that are not Scripture; we mention these in the notes and leave them out of the story
+fiction: the morning at the well, the household, the neighbour's remark, the long quiet after the angel leaves and the evening meal are our own invention, told in the spirit of the original; what the angel says and what Mary says follow the Gospel, in our own plain wording
+sources:
+  - The Gospel according to Luke, chapter one, verses twenty-six to thirty-eight (Catholic and Orthodox New Testament), above all the words of Gabriel and the answer of Mary
+  - The Gospel according to Matthew, chapter one, verses eighteen to twenty-five, the same event as it comes to Joseph
+  - The Second Book of Samuel, chapter seven, verses twelve to sixteen, the promise to David which Gabriel's words recall
+  - The Book of Daniel, chapters eight and nine, where Gabriel is named as a messenger
+  - The Gospel according to John, chapter one, verse forty-six, where Nathanael wonders about Nazareth
+---
+
+The angel, when he comes, does not come with a trumpet.
+
+That is the first surprising thing. If you were to ask a hundred people to imagine the most important message in the history of the world arriving, I think most of them would picture a great light in the sky, and a chorus, and every bell in the land ringing at once. And Luke, who tells it, does nothing of the kind. He tells us a date, a town, a name, and a greeting. And he tells us that the young woman who received it was troubled, not by the sight of the angel at all, but by his words.
+
+But we are getting ahead of ourselves.
+
+[pause]
+
+Hello, and welcome to Saints by Candlelight, stories of saints, angels and patriarchs from the Catholic and Orthodox traditions, told for bedtime. These episodes are written by an AI and read by a synthetic voice, and they try very hard to be faithful. Tonight's story is the Annunciation, from the first chapter of the Gospel of Luke, which Catholic and Orthodox Christians read as Scripture, and a few of the small things around it, like the morning at the well and the evening afterwards, are our own invention, told in the spirit of the original. So get comfortable. Dim the lights. And let's begin.
+
+[pause]
+
+First, a word about who is in the story, because it is a short story with very few people in it.
+
+There is a young woman called Mary. There is an angel called Gabriel. There is, in the background, a man called Joseph, to whom Mary is engaged. And there is, at the other end of the chapter, an older cousin called Elizabeth, whom we met in an earlier story, and who is expecting a baby of her own. That is the whole cast. No crowds, no villains, no weather to speak of. It is the quietest big story there is.
+
+Luke begins it with a kind of careful bookkeeping. In the sixth month, he says, the angel Gabriel was sent from God to a town of Galilee called Nazareth. The sixth month of what? Of Elizabeth's expecting, which Luke has just been telling us about. So he is stitching two stories together, like a good tailor, and we are being told that the angel who has just visited a priest in the Temple at Jerusalem now has another errand, in the north, a long way from the Temple and its smoke and its crowds.
+
+Now about Nazareth. If you are picturing a pilgrim town, you will have to put that picture away. As far as anyone can tell, Nazareth in those days was a small place, a village of farmers and craftsmen, tucked in the hills of Lower Galilee. The archaeologists, who are careful people, make guesses at how many lived there, and the guesses are small, a few hundred perhaps, and no one can be sure. The Old Testament never mentions it once. There is a line in John's Gospel where a man called Nathanael hears where Jesus is from and says, can anything good come out of Nazareth? Which tells us it was not famous, and that people from the next valley felt free to be rude about it. Rather like a joke about a town you have never visited and where nothing ever happens.
+
+And that is where God sends the angel. Not to the Temple, which has been waiting. Not to the palace. To the small town that nobody mentions. I think that is the thing to hold on to, tonight, as the candle burns down.
+
+[pause]
+
+* * *
+
+Let us begin, then, a little before the angel, with an ordinary morning. Luke does not tell us about it, so this part is our own. We are going to imagine it, and I will say so again at the end, so that nobody is misled.
+
+It is early, and cool, and the light is coming over the hills the colour of weak tea. Mary is up before most of the village. We do not know what her house looked like, and I will not pretend to, except to say that houses in a village like that were simple things, of stone and packed earth, with a flat roof, and a lamp, and a few jars, and very likely a courtyard shared with a cousin or two. There is a good chance that animals slept close by at night, which is the sort of detail that makes you glad you live in an age of doors.
+
+She goes to the well, with a jar on her shoulder, the way every young woman in the village does. And the well is the newspaper. If you want to know who is getting married and whose goat has eaten whose barley, you go to the well, and you stay a little longer than the water needs.
+
+This morning a neighbour, an older woman, is there already, and she has an opinion about the weather and a second opinion about her sister's husband and a third about the price of oil. She says to Mary, you look tired, child. And Mary says, I slept well, thank you. Which is true, and also does not say much. The neighbour looks at her for a moment, the way neighbours do, and then goes back to the price of oil.
+
+I mention this because there is a thing that Luke says about Mary that we will meet again. He will say that she pondered things. That she turned them over. That she was, in the language of the Gospel, a person who keeps words and weighs them. And I think she would have been exactly that kind of young woman on an ordinary morning too. One of those people who say little and notice a great deal.
+
+She fills her jar. She carries it home. She helps with the bread. And nothing at all happens, which is how almost every day in Nazareth went, and how almost every great day begins.
+
+[pause]
+
+* * *
+
+Now, Luke tells us two things about Mary before the angel speaks, and both are worth looking at.
+
+The first is that she was a virgin, engaged to a man whose name was Joseph, of the house of David. Engaged, in that world, was a more serious thing than it is now. It was not a promise to think about it. It was a binding agreement, made between families, and it would be followed, after a time, by the husband taking his wife home. The couple were already spoken of as husband and wife, though they did not yet live together. That is the situation. Mary is spoken for, and Joseph is a man of David's line, and the house of David, in those days, had no palace. Its heirs were carpenters and farmers and shopkeepers, and the old promises about David's throne must have sounded, in a village like Nazareth, like something from a very old song.
+
+The second thing Luke tells us is her name. Mary. It was a common name then, as it still is, which is a pleasant thing to think about. The mother of the Lord was given a name you would have heard shouted across any courtyard. Nothing grand. Nothing fancy.
+
+And then the angel comes in.
+
+[pause]
+
+* * *
+
+I said the angel does not come with a trumpet, and I meant it. Luke says only that the angel came to her and said, Hail, full of grace, the Lord is with you.
+
+Let me say a little about those words, because they are the heart of the scene and also a place where a careful narrator ought to be honest.
+
+The Greek word that the older Latin Bibles gave as full of grace is a very rare word. It is a kind of name, or a title, as if the angel were saying, you who have been shown favour. Catholics and the Orthodox have both loved this greeting for fifteen centuries, and both sing it in their prayers, the Catholic Hail Mary and the Orthodox Rejoice, O Virgin Theotokos. Some modern translations say, greetings, favoured one, and that is a fair way to put it too. What matters for tonight is that Gabriel does not say, Mary, I have a job for you. He says something about what she already is in God's eyes. He greets her before he asks her anything at all.
+
+And what does Mary do? This is my favourite part. She does not shout, or faint, or fall on her face, as people do in some other stories where an angel appears. Luke says she was greatly troubled at the saying, and wondered what sort of greeting this might be.
+
+Think about that. She is not frightened of the angel. She is puzzled by the sentence. She is, in a way, doing what a thoughtful person does when someone says something too large to fit through the door. She turns it over. What kind of greeting is this? Why would anyone say that to me?
+
+Now, I am a narrator, and I would like to point out that if an angel arrived in my kitchen, my first response would be to look for the exit. So I find this admirable. Mary hears words that no one has ever said to her, and her first move is to think.
+
+The angel sees it. And the angel says, do not be afraid, Mary, for you have found favour with God.
+
+That is the kindest sentence in the whole scene, I think. It does not scold, and it does not hurry. It names her, plainly, and calms her. If you ever want a model for how to speak to someone who is startled, this is one.
+
+[pause]
+
+* * *
+
+Then comes the message itself, and it is a long sentence, so I will take it slowly.
+
+You will conceive in your womb, says the angel, and bear a son, and you shall call his name Jesus. He will be great, and will be called the Son of the Most High. The Lord God will give him the throne of his father David, and he will reign over the house of Jacob for ever, and of his kingdom there will be no end.
+
+Let me stop there, because there is a lot in it.
+
+The name first. Jesus, in the language Mary spoke at home, is a form of the old name Joshua, and it means, the Lord saves. It was an ordinary name, like hers. Plenty of boys in Galilee were called by it. But when the angel says, you shall call his name Jesus, Mary will have heard the meaning too, as you would hear it in a name like Hope, or Faith, or Grace. The Lord saves. A child with that name.
+
+Then the throne. This is the old promise to David, from the second book of Samuel, where God tells David that his house and his kingdom will be made sure for ever. Every Jew knew that promise, and had been waiting on it for a long time, through exile and foreign rulers and a good deal of disappointment. And here is an angel in a small town saying, it is about to come true, and you are the mother.
+
+I want to say, as honestly as I can, that Luke does not explain all of this, and neither shall we. We say what the Gospel says, and we do not make it neater than it is. A child, a name, a throne, and a kingdom without end. The listener is left to feel how big that is.
+
+And what does Mary say to all of this? Here is the bit that people sometimes miss. She does not say, yes, at once. She asks a question.
+
+How can this be, she says, since I do not know a man?
+
+[pause]
+
+I would like to say something about that question, because it has been read in different ways, and because it tells us what kind of person she was.
+
+Some readers have taken it as a simple, practical remark. She is engaged but not married, and she is saying, I have not yet been with Joseph, so how would this happen? Some readers in the old Church took it to mean more, that she had resolved to give her life wholly to God, and so was asking, how, if that is my path. Both Catholics and the Orthodox have honoured her as ever virgin, and both have read the question in that light, and we will not argue about it tonight. The Gospel does not say more, and a bedtime story is no place to settle what the Gospel leaves open.
+
+What we can say with certainty is this. Mary asks. She is not doubting God, as we will see when Luke tells us what happened to a priest called Zechariah, who asked a question in the previous scene and was struck silent for it. Her question is a different kind of question. It is not, I do not believe this. It is, how will this come about? It is the question of someone who is willing, and wants to understand what she is being asked to be willing for.
+
+And the angel does not scold her, as he did Zechariah. He answers.
+
+The Holy Spirit will come upon you, he says, and the power of the Most High will overshadow you. Therefore the child to be born will be called holy, the Son of God.
+
+I will not add one word to that. It is as much as the Gospel says, and as much as we are told, and the old Church was always careful to stay near those words and not to go past them. A holy child, the Son of God. The Spirit coming. The power of the Most High, like a shadow, like a cloud over a tent, which is a picture the Old Testament uses of the glory of God resting on the place of worship in the desert. If you want to hear an echo, there it is. But it is an echo, and we call it a reading, and leave it.
+
+[pause]
+
+* * *
+
+Then the angel gives her a sign, and I find this the tenderest moment of all.
+
+He does not give her a thunderclap. He does not give her a wonder. He tells her something about a relative. And behold, he says, your kinswoman Elizabeth in her old age has also conceived a son, and this is the sixth month with her who was called barren. For nothing will be impossible with God.
+
+Think what a gift that is. Mary has just been told the largest thing anyone has ever been told, and the angel says, here is something you can go and see for yourself. There is a woman in the hill country, whom you know, who is old, and who was said never to be able to have a child, and she is six months along. Go and look.
+
+It is like being told something extraordinary, and then being handed a smaller, solid, ordinary proof, that you can hold in your hand. Go and see your cousin. Her baby is kicking. God has been busy.
+
+And then comes that last line, which people have written on walls and embroidered on cushions for two thousand years. For nothing will be impossible with God.
+
+Some translations say, no word from God will be without power. The Greek can bear either meaning, and both are good. Nothing God says will fail. Nothing God plans cannot be done.
+
+[pause]
+
+* * *
+
+Now we come to the moment that the whole chapter has been leaning towards, and it is very small.
+
+Luke does not tell us how long she was silent. He does not tell us what she was thinking. He does not give us a pause, or a deep breath, or a look at the sky. He gives us one sentence.
+
+And Mary said, Behold, I am the handmaid of the Lord. Let it be to me according to your word.
+
+That is all. Seventeen words in English, in the version most of us know. And I think the best thing a narrator can do with a sentence like that is to be quiet beside it.
+
+But I will say two small things.
+
+The first is about the word handmaid. In our ears it sounds old-fashioned, and a little humble, as if she were putting herself down. It is the opposite. The word means a servant of the household of the king. It is a title of honour. Elsewhere in the Old Testament, people who stand before God say, I am your servant, and mean, I am at your disposal, and I am glad to be. Mary is not saying, I am nobody. She is saying, I belong to the Lord, and whatever he asks, I am ready.
+
+The second thing is about the words, let it be. In the old Latin, fiat. In the Greek, a form that means, may it happen. It is not a sigh. It is not a shrug. It is, in the way that people have always read it, a free and glad yes. The angel asked, and she was free to refuse. And the whole of what happens afterward, the whole of the Gospel, rests on a young woman in a small town saying yes to something she could not possibly have fully understood.
+
+And that is why, down the centuries, so many people have loved her. Not because she was grand. Because she was brave, and calm, and willing.
+
+And then, Luke says, the angel departed from her.
+
+That is how it ends. Not with a flourish. The angel simply goes. And she is alone in the room, as she was before.
+
+[pause]
+
+* * *
+
+Let us stay with her a little while, in that room, after the angel has gone. Luke does not tell us what she did next. I will tell you what I imagine, and I will say plainly that this is our own invention.
+
+I imagine the room is quiet. I imagine the light has barely changed. The bread is still on the table, and the jar from the well is still by the door, and somewhere outside a neighbour is shouting at a donkey. It is exactly the same world. And she is standing in the middle of it, and nothing is the same.
+
+I imagine she sits down. Not because she is weak, but because the legs sometimes do that when the mind has been somewhere very large. I imagine she looks at her hands. And I imagine that she does what Luke says, in a later chapter, she always did, which is to keep these things and ponder them in her heart.
+
+What would she think about? Perhaps Joseph. How would she tell him? That is a question the Gospel of Matthew answers, from his side, and we will leave that for another night. Perhaps her mother, if her mother was alive. Perhaps the old stories of David, and the song of Hannah that she will sing when she meets her cousin. Perhaps nothing at all, for a long while, just the quiet.
+
+And then, I think, a very ordinary thing. Someone calls from the courtyard. Mary, the bread. And she gets up and goes.
+
+I find that rather wonderful. After the greatest moment in history, someone needs the bread turned. And she turns it.
+
+[pause]
+
+* * *
+
+That evening, in our imagining, the household sits down to eat. A simple meal, as simple meals were. Bread and olives and perhaps a little cheese, and some lentils in a pot. A lamp is lit, and the smell of the oil is warm and a little sweet.
+
+There is talk, as there is at every table. Someone's cousin is getting married in Cana. Someone has lost a tool. The old neighbour from the well has been telling the whole village about the price of oil, and everyone has heard it before.
+
+And Mary is at the table, and she is eating, and she is saying very little. Nobody notices, because she often says very little. Only perhaps one person, an old aunt, glances at her across the lamp, and glances away, and says nothing at all, and takes another piece of bread.
+
+I like that. Because we know, from the Gospel, that the big thing had happened and that nobody in that house yet knew. The world did not stop. The meal went on. And I think that is one of the quiet lessons of the story. God does not need the world to hold its breath. He comes into the middle of a Tuesday.
+
+I cannot tell you it was a Tuesday. I am the narrator, and I am allowed one small joke.
+
+[pause]
+
+* * *
+
+Now let us wind down, and talk about what came after, and how the Church has remembered this day.
+
+The very next thing Luke tells us, after the angel leaves, is that Mary arose in those days and went with haste into the hill country, to the town of Judah where her cousin lived. We told that story in an earlier episode, the meeting at the door, and the song. If you have not heard it, it follows this one very naturally. The sign the angel gave, the old woman who was expecting, is exactly where she goes first.
+
+And as for the feast, it is one of the oldest and most loved in the Christian year. The Catholic Church keeps the Annunciation on the twenty-fifth of March, and the Orthodox Church keeps the same feast on the twenty-fifth of March by its own calendar. Nine months later comes Christmas, which is a pleasant piece of arithmetic that tells you the feast was set with some care. In the Orthodox Church it is one of the great feasts, and there is an old and lovely custom that on this day, even in the middle of the Great Fast, the strict rule is relaxed a little, and fish is allowed at the table. I rather like that. Even in a season of fasting, this day is a day to rejoice.
+
+In the Catholic tradition, the angel's greeting became the first half of the Hail Mary, and the Angelus, the prayer rung out by church bells at morning, noon and evening, was born from this very scene. Think of it. For many centuries, across half the world, bells have rung three times a day to remind the faithful of one sentence, the angel declared to Mary, and she conceived by the Holy Spirit. In the Orthodox Church, the hymns to the Theotokos on this feast, and the great Akathist hymn sung in Lent, begin with the angel's greeting and unfold it, line by line, as a long song of rejoicing.
+
+Both traditions, in their own ways, have never stopped looking at that small room in Nazareth, and what happened there.
+
+[pause]
+
+And what became of the town? Nazareth is now a city, a good deal larger than it was, and a place of pilgrimage. There is a great church there, and under it, a cave and some old stones that tradition identifies with her home. We should be honest and say that this is later tradition. The Gospel does not describe the house, and we cannot know whether the place pilgrims are shown is the very spot. But for over a thousand years, believers have knelt there, and there is a real kindness in the thought that a small town, which nobody once mentioned, now has people arriving from every country on earth, and that they come to be quiet.
+
+[pause]
+
+* * *
+
+Now the notes for the curious.
+
+The whole of tonight's story is in the Gospel according to Luke, chapter one, verses twenty-six to thirty-eight. It is short, and I would recommend reading it, slowly, once, tonight or tomorrow, and noticing how very little it says, and how much room it leaves. Matthew, in his first chapter, tells the same event from the side of Joseph, and we have only touched on that.
+
+What we have kept from Luke: the sixth month; the angel Gabriel sent from God; Nazareth in Galilee; the virgin engaged to Joseph of the house of David; the name Mary; the greeting, hail, full of grace, the Lord is with you; Mary's trouble at the saying and her wondering what sort of greeting it was; do not be afraid, you have found favour with God; the conceiving, the son, the name Jesus; the greatness, the Son of the Most High, the throne of David, the kingdom without end; her question, how can this be, since I do not know a man; the Holy Spirit coming upon her, the power of the Most High overshadowing her, the holy child, the Son of God; the sign of Elizabeth in her old age, six months along; nothing impossible with God; Mary's answer, behold, the handmaid of the Lord, let it be to me according to your word; and the angel departing.
+
+What we flagged as a reading or as later tradition. The rendering of the Greek word in the greeting as full of grace follows the older Latin tradition, and modern translations often say favoured one, and we gave both. The meaning of Mary's question has been read as a plain remark about her being engaged and not yet married, and as a sign of an earlier resolve, and both the Catholic and the Orthodox traditions honour her as ever virgin; we have not argued either reading. The overshadowing as an echo of the cloud of glory over the tent of meeting is a reading from the Fathers, and is not stated in Luke. The word handmaid as a title of honour is how the word is commonly understood, and the free yes in her answer is a reading shared by both traditions. The house and well shown at Nazareth, her age, her parents' names and her years in the Temple come from writings outside Scripture, such as the Protoevangelium of James, and we did not tell them as history. Nathanael's remark about Nazareth is in John, chapter one. The guess at the size of the village is a modern scholarly estimate and is uncertain. Gabriel is named in the Book of Daniel and in Luke, and both traditions honour him as an archangel.
+
+What we invented: the morning at the well; the neighbour and the price of oil; the courtyard and the bread; the long quiet in the room after the angel left; the call from the courtyard; the evening meal; the old aunt's glance; and the narrator's remarks about Tuesdays. None of it is in Luke, and none of it changes what happens or what it means. We have put no words in the angel's mouth beyond Luke's, and no words in Mary's.
+
+For further reading, the Magnificat, in the same chapter, is the natural next thing, and so is the story of Zechariah and the writing tablet, which is the scene just before this one.
+
+[pause]
+
+That's the story of Mary and the angel for tonight. The Catholic Church keeps the Annunciation on the twenty-fifth of March, and the Orthodox Church keeps the same feast, one of its great ones, on the same date by its own calendar. Thank you for listening to Saints by Candlelight. If you enjoyed it, share it with someone who could use a gentle story at the end of a long day. Hail, Mary, full of grace, the Lord is with you. Holy Mary, Mother of God, pray for us, now and at the hour of our death. Goodnight, and God bless.

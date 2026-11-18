@@ -25,7 +25,10 @@ applies rules a raw dump doesn't surface:
    that domain's parent, and so on. A tool that queries only the exact name reports "no CAA record,
    any CA may issue" for a subdomain whose parent actually restricts issuance — the single most
    common source of "why does my subdomain suddenly fail to renew" confusion on Let's Encrypt's own
-   community support forum.
+   community support forum. A name that is a CNAME is checked at its alias target only; if the
+   target has no CAA set, the walk goes on to the *typed* name's parent, never the target's
+   (RFC 8659 section 3; the older RFC 6844 climbed the target's tree, and this tool did until
+   2026-11-11, see `portfolio/quality/audits/2026-11-08-caa-record-check.json`).
 2. **The `issuewild` fallback.** Wildcard certificates are governed by `issuewild` when it's present
    at all; if it's entirely absent, `issue` covers both wildcard and non-wildcard. Get this backwards
    and you'll misreport which CAs can issue a wildcard cert.
@@ -128,3 +131,7 @@ layer with an injected fake resolver covering the tree-walk and CNAME hop (`look
 CAA-set analysis and per-CA verdicts (`analyze.test.mjs`), the CLI's orchestration and argument
 parsing (`check.test.mjs`), the usage counter (`usage.test.mjs`), and the pages' structure and
 disclaimers (`page.test.mjs`).
+
+## Known gaps (quality audit 2026-11-08)
+
+- Unquoted values (`0 issue letsencrypt.org`) are reported malformed; hostnames are not normalised; `accounturi` and `validationmethods` do not change the verdict.

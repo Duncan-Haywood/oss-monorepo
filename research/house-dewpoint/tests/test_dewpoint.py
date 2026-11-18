@@ -56,3 +56,17 @@ def test_poly_stops_winter_condensation_in_duluth_vs_paint():
     paint = condensation(build_wall("paint", "none"), *w)["total"]
     poly = condensation(build_wall("poly", "none"), *w)["total"]
     assert paint > poly
+
+
+def test_chicago_paint_pins_rate_and_condensing_plane():
+    # Regression pin (quality audit round 65): absolute rates and the condensing
+    # interface. Independently recomputed with IAPWS saturation pressure and the
+    # taut-string Glaser construction: 6.22 g/m2/day (Magnus here: 6.18).
+    w = CLIMATES["Chicago (5A)"]["winter"]
+    to_g_day = 86400 / 1e9
+    batt_osb = 2  # node after gypsum and batt: the inner face of the OSB
+    for ext, expected in (("none", 6.18), ("xps1", 2.34), ("xps2", 0.0)):
+        r = condensation(build_wall("paint", ext), *w)
+        assert abs(r["total"] * to_g_day - expected) < 0.05, (ext, r["total"] * to_g_day)
+        # foam warms the condensing plane; it does not move it
+        assert all(x == 0 for i, x in enumerate(r["rates"]) if i != batt_osb)

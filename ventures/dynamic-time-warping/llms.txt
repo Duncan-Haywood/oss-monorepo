@@ -1,0 +1,27 @@
+# Dynamic time warping: align two series in a CSV, and find a pattern in a long one
+
+> Free online dynamic time warping (DTW) calculator. Paste a CSV with one series per column; get the DTW distance (Sakoe & Chiba 1978) per step, the share of the point-for-point difference that warping removes, the alignment path, and a lag profile that says at each point how far one series runs ahead of or behind the other, reading each point as timing, level, or a hop across a peak or trough. Band and Itakura windows, the symmetric1, symmetric2 and asymmetric step patterns (Giorgino 2009), a distance matrix between every pair of columns, and open-begin, open-end subsequence search for a short pattern in a long series (Tormene et al. 2009; Müller 2007). Checked against dtw-python 1.9.0: 120 alignments with identical paths, 6 pattern searches. Runs in your browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical summaries of the data you supply, not legal, tax, financial or professional advice. A lag or a distance is not proof of a cause.
+
+## Pages
+
+- [The tool](https://marisstella.app/dynamic-time-warping/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --a before --b after [--mode pair|subsequence] [--step symmetric2|symmetric1|asymmetric] [--window-type band|itakura|none] [--window 20] [--dist abs|squared] [--smooth 7] [--znorm] [--matches 5] [--csv|--json]`
+- `node platform/agents/tools.mjs call dynamic-time-warping analyze --input '{"csv":"day,a,b\n1,2.0,1.5\n...","a":"a","b":"b"}'`
+- From JavaScript: `dtw(x, y, {step, windowType, window, dist})` returns `distance`, `normalizedDistance` and `path`; `subsequenceSearch(query, series, {matches})` returns the best non-overlapping matches.
+
+## What it answers
+
+- How alike are two series that run at different speeds?
+- Where does one series run ahead of or behind the other, and by how many rows?
+- Is the difference at a point one of timing or of level?
+- Where in a long series does this short pattern recur, even stretched or squeezed?
+- Which of several series are closest in shape?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/dynamic-time-warping): MIT licensed.

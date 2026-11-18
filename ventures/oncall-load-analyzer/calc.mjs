@@ -13,24 +13,26 @@ const ALIASES = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -44,11 +46,16 @@ export function parseTime(v) {
   if (!m) return null;
   const [, y, mo, d, h = "0", mi = "0", se = "0", z] = m;
   let t = Date.UTC(+y, +mo - 1, +d, +h, +mi, +se);
-  if (Number.isNaN(t) || +mo > 12 || +d > 31 || +h > 23 || +mi > 59) return null;
+  // Date.UTC rolls 30 February over to 2 March, so round-trip the calendar day.
+  const day = new Date(Date.UTC(+y, +mo - 1, +d));
+  if (Number.isNaN(t) || +mo < 1 || +mo > 12 || day.getUTCMonth() !== +mo - 1 || day.getUTCDate() !== +d
+    || +h > 23 || +mi > 59 || +se > 59) return null;
   if (z && !/^(z|utc)$/i.test(z)) {
     const sign = z[0] === "-" ? -1 : 1;
     const digits = z.slice(1).replace(":", "");
-    t -= sign * (+digits.slice(0, 2) * 60 + +digits.slice(2)) * 60000;
+    const zh = +digits.slice(0, 2), zm = +digits.slice(2);
+    if (zh > 14 || zm > 59) return null;
+    t -= sign * (zh * 60 + zm) * 60000;
   }
   return t;
 }
@@ -59,12 +66,17 @@ export function normalizeRows(table) {
   if (!table.length) return { error: "No rows found. Paste the CSV text including its header row.", incidents: [], skipped: [] };
   const header = table[0].map(HEADER_KEY);
   const idx = {};
-  for (const [k, names] of Object.entries(ALIASES)) idx[k] = header.findIndex((h) => names.includes(h));
+  // Each alias list is in priority order: an export with both service_id and
+  // service_name (or team and service) must group by the name, wherever it sits.
+  for (const [k, names] of Object.entries(ALIASES)) {
+    const hit = names.find((name) => header.includes(name));
+    idx[k] = hit === undefined ? -1 : header.indexOf(hit);
+  }
   if (idx.time < 0) return { error: `No timestamp column. Expected one of: ${ALIASES.time.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   if (idx.person < 0) return { error: `No responder column. Expected one of: ${ALIASES.person.slice(0, 5).join(", ")}. Found: ${header.join(", ")}.`, incidents: [], skipped: [] };
   const incidents = [], skipped = [];
   table.slice(1).forEach((r, n) => {
-    const line = n + 2;
+    const line = r.line ?? n + 2;
     const t = parseTime(r[idx.time]);
     if (t === null) { skipped.push({ line, reason: "unreadable timestamp" }); return; }
     const person = String(r[idx.person] ?? "").split(/[;|]/)[0].trim();

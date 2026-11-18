@@ -65,6 +65,18 @@ class Dupes(unittest.TestCase):
             self.assertEqual(list(groups), ["The real description, long enough to count."])
             self.assertEqual(total, 1)
 
+    def test_first_description_wins_and_earlier_tags_do_not_set_it(self):
+        with tempfile.TemporaryDirectory() as r:
+            d = Path(r, "ventures", "a")
+            d.mkdir(parents=True)
+            (d / "index.html").write_text(
+                '<html lang="en"><head><title>T</title><meta charset="utf-8">'
+                '<meta name="description" content="First description, long enough to count.">'
+                '<meta name="description" content="Second description, also long enough."></head></html>')
+            groups, total = scan(r)
+            self.assertEqual(list(groups), ["First description, long enough to count."])
+            self.assertEqual(total, 1)
+
     def test_duplicate_report_is_capped_at_25_groups(self):
         with tempfile.TemporaryDirectory() as r:
             for i in range(26):

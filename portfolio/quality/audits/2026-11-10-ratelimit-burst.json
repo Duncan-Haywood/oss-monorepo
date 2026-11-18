@@ -1,0 +1,237 @@
+{
+  "date": "2026-11-10",
+  "subject": "research/ratelimit-burst",
+  "stratum": "research",
+  "seed": "2026-11-10",
+  "drawn_by": "sample",
+  "auditor": "agent session (Claude), independent quality audit, see run record",
+  "status": "audited",
+  "professional": "an SRE who designs API rate limiters (GCRA / token bucket / Cloudflare-style sliding counters) and a networking researcher reviewing for a workshop who would first ask what adversary model the worst case is taken over (network calculus arrival curves)",
+  "scores": {
+    "correctness": 1,
+    "completeness": 3,
+    "verification": 1,
+    "craft": 2,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "The five limiters are individually implemented correctly: an independent exact-arithmetic GCRA (ATM Forum TM 4.0 virtual scheduling, I=W/L, tau=(L-1)I) agrees with LeakyBucket and TokenBucket on 2,800 random traces for dyadic rates; an independent brute-force rolling-window count finds 0 sliding-log violations in 500 random traces; the token-bucket worst case equals floor(b + r(W-1)) = 19/39/99, matching the table. But the project's one claimed contribution, the sliding-window-counter worst case of 1.40/1.45/1.48 L ('looks like 1.5 L'), is wrong. Both searches send at most one request per tick and every configuration has L = W/2, so the adversary itself can offer at most W = 2L per window. With batched arrivals (scratch batch.py, the shipped SlidingCounter): 10 requests at tick 19 then 10/tick in window 1 admits 19 in (18,38] for L=10,W=20 (1.90 L, hand-derived: prev=L, then curr+1 <= L*e/W gives 9 more by e=18), and 39 for L=20,W=40 (1.95 L). Even the shipped one-per-tick flood search gives 17, 18, 19 for L=10 at W=40, 100, 200. The true limit approaches 2 L, the same as token bucket. The fixed-window '2.00' is likewise exactly the adversary cap (L=30,W=20 gives 0.67 under the shipped search, 2.00 with batches). Float token accounting drifts for non-dyadic rates (L=3,W=10: 0.9999999999999998 tokens at t=10, request refused that exact GCRA admits). Poisson fixed-window rate at load 0.8 (39.7) matches E[min(Poisson(40),50)] = 39.82.",
+    "completeness": "Everything the README says it ran runs: 7 tests pass in 0.83 s; experiments/run.py reproduces experiments/results.txt byte-identically in 11.8 s (README says about 15 s, run.py docstring says about 20 s). Searches, Poisson test and all three table sizes are present. Not done but listed as next steps: smaller bucket capacities, proof of the sliding-counter limit. Live page could not be loaded from this container (proxy 403), so the served page was not checked.",
+    "verification": "`PYTHONPATH=src python3 -m pytest -q tests`: 7 passed. 4 effective mutations: 2 survived, including the weight in the sliding-counter estimate (limiters.py:57, the line that produces the headline row) and the leaky-bucket admission test (limiters.py:93). The sliding-counter test asserts only 10 < worst < 20, so it would pass on the wrong 14 and on the true 19 alike, and no test exercises more than one request per tick in the adversarial searches, so the central flaw is invisible to the suite. A fifth mutation (TokenBucket starting with 1.5x tokens) was equivalent (clamped by min) and is not counted.",
+    "craft": "Read limiters.py, analysis.py, run.py, tests/test_limiters.py. Small, clear stdlib code. Defects: float accumulation in TokenBucket/LeakyBucket (limiters.py:73, :91) instead of integer/rational or GCRA TAT arithmetic that production limiters use; adversary functions hard-code one arrival per tick (analysis.py:28, :44) with no parameter; two_burst_search is O(W^3) simulations and so is skipped at W=100, leaving the largest column unsearched by the second family; tests import *.",
+    "claims": "Backed: fixed window 2x at the boundary (true, independently confirmed with batches), sliding log exact (confirmed), token/leaky 2L-1 (confirmed by b+rT), token and leaky give identical numbers (confirmed via GCRA equivalence), Poisson long-run rate about L. Not backed: the sliding-counter row and bullet (README.md:17, :22), the 'looks like 1.5 L' conjecture, the recommendation to set the counter's limit to L/1.5 (README.md:26), which would leave a downstream exposed to about 1.3x its true capacity, the stated contribution (README.md:30), and 'for W <= 40 the two agree, which suggests the flood pattern is enough' (README.md:34): both families share the one-per-tick cap, so their agreement says nothing. The 'one request per tick' restriction appears in the Method paragraph but not in the Question (which says the adversary 'chooses arrival times') or in Limitations. Disclaimer and stylised-model note present.",
+    "fitness": "A researcher could not build on the headline: the only non-textbook number is an artefact of the adversary model. Nearest prior work, none of it cited: network calculus (Cruz 1991; Le Boudec and Thiran 2001), where a (b, r) token bucket gives arrival curve b + r t and hence the 2L-in-W bound exactly; ATM Forum TM 4.0 / ITU-T I.371 GCRA (the leaky-bucket meter, equivalent to the token bucket); RFC 2697/2698 meters; Cloudflare's 2017 sliding-window-counter write-up, which measured the approximation's error on real traffic. With these, the side-by-side adversarial comparison is a known result and the sliding-counter result as stated is incorrect, so there is no new sound finding. The Poisson table is a reasonable small illustration.",
+    "domain": "A rate-limiter designer takes the worst case over all arrival sequences, including bursts within a clock quantum (many requests in one millisecond is the normal case for an API). The project's adversary sends at most one request per tick, at L/W = 0.5 in every configuration, which caps every limiter's measurable burst at 2L and suppresses the sliding counter's. Leaky bucket modelled as a meter (GCRA) is the right choice and is correctly distinguished from a queue in the README; token bucket starting full vs leaky meter starting empty is handled. The recommendation section departs from practice for the sliding counter."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Token-bucket worst admitted in a rolling window, L=10/20/50, W=20/40/100",
+      "method": "Arrival-curve bound b + r*T (Cruz 1991; Le Boudec & Thiran, Network Calculus), T = W-1 ticks inside (t-W, t], exact fractions",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/indep.py",
+      "expected": "19, 39, 99",
+      "observed": "19, 39, 99 (results.txt)",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "LeakyBucket and TokenBucket equal GCRA",
+      "method": "Independent exact-arithmetic GCRA virtual scheduling (ATM Forum TM 4.0, I=W/L, tau=(L-1)I), 400 random traces per config",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/gcra2.py",
+      "expected": "0 mismatches",
+      "observed": "0 mismatches for (10,20),(7,14),(5,3),(30,20),(50,100),(7,3); 29 and 39 mismatches for (3,10), all from float drift (exact-arithmetic leaky bucket: 0)",
+      "result": "partial"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sliding log never exceeds L in a true rolling window",
+      "method": "Auditor brute-force window count over every end tick, 500 random traces incl. multiple requests per tick",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/indep.py",
+      "expected": "0 violations",
+      "observed": "0 violations",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Fixed window boundary burst",
+      "method": "Textbook 2x boundary burst: L at tick W-1, L at tick W",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/indep.py",
+      "expected": "2L for any L, W",
+      "observed": "20, 60, 100 for (10,20),(30,20),(50,100); shipped search gives 0.67 L at (30,20) because of the one-per-tick cap",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sliding-window counter worst case, L=10 W=20 and L=20 W=40",
+      "method": "Hand derivation: prev=L from a batch at the last tick of window k, then curr+1 <= L*e/W admits floor(L(W-2)/W) more by e=W-2; checked with a batched adversary on the shipped SlidingCounter",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/witness.py; python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/batch.py",
+      "expected": "19 (1.90 L) and 39 (1.95 L), tending to 2L",
+      "observed": "README/results.txt: 14 (1.40 L) and 29 (1.45 L)",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sliding counter 'looks like 1.5 L' under the shipped one-per-tick search at finer ticks",
+      "method": "Shipped flood_pattern_search at L=10 with W=40, 100, 200",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/finer.py",
+      "expected": "about 15 if the conjecture held",
+      "observed": "17, 18, 19",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Poisson overload: fixed-window admitted per window at load 0.8",
+      "method": "Analytic E[min(N, L)], N ~ Poisson(40)",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/pois.py",
+      "expected": "39.82 (and 50.00 at 1.5x, 3x, 10x)",
+      "observed": "39.7, 50.0, 50.0, 50.0",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "Float token accounting at a non-dyadic rate",
+      "method": "L=3, W=10: drain at t=0, one request per tick; exact arithmetic has 1 token at t=10",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/float.py",
+      "expected": "request at t=10 admitted",
+      "observed": "tokens 0.9999999999999998, refused",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "Test suite",
+      "method": "run",
+      "command": "cd research/ratelimit-burst && PYTHONPATH=src python3 -m pytest -q tests",
+      "expected": "7 tests pass",
+      "observed": "7 passed in 0.83s",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Results reproduce",
+      "method": "rerun and diff",
+      "command": "cd research/ratelimit-burst && PYTHONPATH=src python3 experiments/run.py | diff - experiments/results.txt",
+      "expected": "identical, about 15 s",
+      "observed": "identical, 11.8 s",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "'for W <= 40 the two [searches] agree, which suggests the flood pattern is enough'",
+      "method": "Both families restricted to one request per tick; batched two-phase family run",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/batch.py",
+      "expected": "agreement implies near-worst",
+      "observed": "batched family finds 19 vs 14 (L=10,W=20)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Recommendation 'set ... L/1.5 (sliding counter)'",
+      "method": "Batched worst case 1.90-1.95 L",
+      "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/4e13da33-5f13-550f-9816-636906e63a2b/scratchpad/ratelimit/batch.py",
+      "expected": "L/1.5 keeps window count <= L",
+      "observed": "L/1.5 still admits about 1.3 L",
+      "result": "fail"
+    },
+    {
+      "dimension": "fitness",
+      "what": "Prior work cited",
+      "method": "README 'Builds on' section vs network calculus, GCRA (ATM Forum TM 4.0), RFC 2697/2698, Cloudflare 2017 sliding-window counter",
+      "command": "sed -n 28,31p research/ratelimit-burst/README.md",
+      "expected": "nearest prior work named",
+      "observed": "'I cite no paper for any number and use none'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Live page",
+      "method": "load served page",
+      "command": "curl -sS https://marisstella.app/research/ratelimit-burst/",
+      "expected": "200",
+      "observed": "proxy 403 from this container; not checked",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "src/ratelimit_burst/limiters.py:93",
+      "change": "self.level + 1 <= self.cap -> self.level < self.cap",
+      "caught": false,
+      "test_cmd": "cd research/ratelimit-burst && PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/ratelimit_burst/limiters.py:57",
+      "change": "(self.window - elapsed) -> (self.window - elapsed - 1) in sliding-counter weight",
+      "caught": false,
+      "test_cmd": "cd research/ratelimit-burst && PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/ratelimit_burst/limiters.py:54",
+      "change": "carry prev count -> self.prev = 0 (degenerates to fixed window)",
+      "caught": true,
+      "test_cmd": "cd research/ratelimit-burst && PYTHONPATH=src python3 -m pytest -q tests"
+    },
+    {
+      "where": "src/ratelimit_burst/analysis.py:10",
+      "change": "times[lo] <= t - window -> times[lo] < t - window",
+      "caught": true,
+      "test_cmd": "cd research/ratelimit-burst && PYTHONPATH=src python3 -m pytest -q tests"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Headline sliding-window-counter worst case (1.40/1.45/1.48 L, 'looks like 1.5 L') is an artefact of an adversary that sends at most one request per tick with L = W/2; batched arrivals give 19/20 and 39/40 (1.90/1.95 L), approaching 2L, and even the shipped search reaches 1.9 L at L=10, W=200. The project's stated contribution is wrong.",
+      "where": "research/ratelimit-burst/src/ratelimit_burst/analysis.py:28",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "high",
+      "what": "Recommendation to set a sliding counter's limit to L/1.5 is unsafe: it still admits about 1.3x the protected capacity in a rolling window",
+      "where": "research/ratelimit-burst/README.md:26",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "'The two searches agree, which suggests the flood pattern is enough': both share the one-per-tick cap, so agreement is not evidence; the cap is absent from Question and Limitations, and every configuration has L/W = 0.5 so the fixed-window 2.00 equals the adversary's own ceiling",
+      "where": "research/ratelimit-burst/README.md:34",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "No prior work cited: network calculus arrival curves (b + rT), ATM Forum GCRA, RFC 2697/2698, Cloudflare's sliding-window counter analysis; novelty claimed for a known comparison",
+      "where": "research/ratelimit-burst/README.md:30",
+      "category": "research-design",
+      "origin": "design"
+    },
+    {
+      "severity": "medium",
+      "what": "Sliding-counter test asserts only 10 < worst < 20, and no test uses multiple requests per tick; mutating the counter's weight or the leaky-bucket admission comparison leaves all 7 tests green",
+      "where": "research/ratelimit-burst/tests/test_limiters.py:21",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Float token/level accounting drifts at non-dyadic rates (L=3, W=10: 0.9999999999999998 tokens at t=10, request refused that exact GCRA admits); harmless for the README's L/W=0.5 configs",
+      "where": "research/ratelimit-burst/src/ratelimit_burst/limiters.py:73",
+      "category": "logic-error",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "Runtime drift: README says about 15 s, run.py docstring about 20 s, measured 11.8 s",
+      "where": "research/ratelimit-burst/experiments/run.py:1",
+      "category": "stale-docs",
+      "origin": "maintenance"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/14588"
+  ],
+  "verdict": "Does not meet the bar. The five limiters are coded correctly (they match an independent exact GCRA and the b + rT arrival-curve bound, and the sliding log never exceeds L), and the results reproduce byte for byte. But the one result the README claims as its contribution, a 1.4-1.5 L worst case for the sliding-window counter, is wrong: the adversarial search sends at most one request per tick and every configuration has L = W/2, so the adversary cannot offer more than 2L per window. Ten requests in one tick followed by a flood gets the shipped SlidingCounter to 19 of a limit of 10 in a 20-tick window (1.9 L), and the true limit tends to 2L, the same as a token bucket. The L/1.5 sizing advice built on it is unsafe. Tests are loose enough that two of four seeded bugs in core logic survive, and the nearest prior work (network calculus, GCRA, Cloudflare's counter) is not cited."
+}

@@ -1,0 +1,14 @@
+g1: mass 33.34 kg, sole 0.170 m, (m + tool) g sole 61.27 N m; ceiling for 0-50 N: grip height 1.225 m
+  z 1.0 dy -0.15: grip 0.985 m, top 58.6 N, margin above 50 N 8.6 N
+  z 1.0 dy +0.00: grip 0.985 m, top 62.2 N, margin above 50 N 12.2 N
+  z 1.0 dy +0.15: grip 0.985 m, top 62.2 N, margin above 50 N 12.2 N
+  z 1.2 dy -0.15: grip 1.185 m, top 51.6 N, margin above 50 N 1.6 N
+  z 1.2 dy +0.00: grip 1.185 m, top 51.6 N, margin above 50 N 1.6 N
+  z 1.2 dy +0.15: grip 1.185 m, top 51.7 N, margin above 50 N 1.7 N
+h1: mass 51.44 kg, sole 0.175 m, (m + tool) g sole 94.14 N m; ceiling for 0-50 N: grip height 1.883 m
+  z 1.4 dy -0.15: grip 1.400 m, top 67.2 N, margin above 50 N 17.2 N
+  z 1.4 dy +0.00: grip 1.400 m, top 67.2 N, margin above 50 N 17.2 N
+  z 1.4 dy +0.15: grip 1.400 m, top 67.2 N, margin above 50 N 17.2 N
+  z 1.6 dy -0.15: grip 1.600 m, top 58.7 N, margin above 50 N 8.7 N
+  z 1.6 dy +0.00: grip 1.600 m, top 58.7 N, margin above 50 N 8.7 N
+  z 1.6 dy +0.15: grip 1.600 m, top 58.7 N, margin above 50 N 8.7 N

@@ -1,0 +1,6 @@
+mean | steps: 1960 1966 1970 1973 1976 1983 1986 1995 1997 2002 | slope changes: none
+mean, ar1 auto | steps: 1966 | slope changes: none
+trend | steps: 1963 1976 1983 1994 2001 | slope changes: none
+meanvar | steps: 1960 1971 1995 | slope changes: none
+mean, trend bend | steps: 1966 1971 1973 1976 1983 1986 1994 1996 1998 2002 | slope changes: 1980[1970..1983]
+mean, trend bends | steps: 1966 1971 1973 1976 1983 1994 1996 1998 2002 | slope changes: 1980[1975..1983] 1993[1990..1994]

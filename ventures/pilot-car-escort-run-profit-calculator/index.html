@@ -36,7 +36,17 @@
     td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
     footer { margin-top: 28px; border-top: 1px solid #d5daea; padding-top: 16px; }
     @media (max-width: 720px) { body { padding: 16px; } }
-  </style></head>
+  </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 480px) { div.row3:has(#bmd) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 238px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
+</head>
 <body>
   <header>
     <p class="note">PILOT CAR ESCORT RUN PROFIT CALCULATOR · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>

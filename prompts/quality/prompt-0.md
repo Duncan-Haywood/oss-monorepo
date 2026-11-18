@@ -25,9 +25,9 @@ it; it is short. Then:
 
 1. `python3 platform/ci/quality_audit.py sample` draws today's subjects
    (seeded by the date: one flagship in rotation, two ventures, two research
-   projects, one platform directory). Take the draw as it comes. If another
-   open PR titled `quality:` already holds today's seed, use
-   `--seed <date>-b`.
+   projects, one platform directory). Take the draw as it comes. If an open
+   `quality:` PR already audits a subject you drew, use `--seed <date>-b`
+   (the README, "One round", explains why seeds and flagships repeat).
 2. Audit each subject against the seven dimensions. The audits are
    independent, so one agent per subject in parallel is a good fit; give
    each the README and the subject, and have it write its own

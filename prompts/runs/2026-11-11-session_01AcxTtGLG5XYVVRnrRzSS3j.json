@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtGLG5XYVVRnrRzSS3j",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T10:15:02Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 2) ai-bookkeeper, item (9): EITC against the printed Schedule EIC / EIC Table",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14759",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A Bash heredoc writing a test file with ${...} template literals was refused by the rm-safety check (could not parse); wrote the file with the Write tool instead.",
+    "run_workflow_locally.py has no --dry-run flag (tried it from memory of the 'dry run prints step count' commit title)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "ai-bookkeeper next: said irs.gov was blocked for items (8b)/(9); it answered on 2026-11-11, so probe before trusting a 'blocked host' note. Also the next: was already ~2,216 characters against its own 2,000 limit."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/ai-bookkeeper/index.html",
+      "why": "Turned eitcTable on in the page although the CLI keeps it opt-in: both IRS worksheets look the credit up in the table, so the table figure is what the return shows.",
+      "did": "eitcTable: true in estOpts()",
+      "result": "page.test.mjs and the full suite pass"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-every-cell-of-the-eic-table.md",
+    "ventures/ai-bookkeeper/README.md (Earned income credit, checked against the printed 2025 EIC Table)",
+    "ventures/ai-bookkeeper/HISTORY.md"
+  ],
+  "goal": "Check the earned income credit against the IRS's printed table instead of summary figures",
+  "notes": "irs.gov answered (i1040gi.pdf, rp-24-40, rp-25-32 all 200). Parsed the 2025 EIC Table with pdftotext -layout: 1,374 contiguous rows, 8 columns, 8 footnotes. Fitted rule reproduces 10,992/10,992 cells (python fit, then JS eic-table.test.mjs). Worksheet A reading exposed a bug: phase-out subtracted from phase-in credit, not the maximum (single 1 child, $5k wages + $25k other: $637 -> $1,709). Verification: python3 platform/ci/run_venture_tests.py ai-bookkeeper -> ok (49.0s), 1 suite, 0 failed; node --test eic-table/estimatedtax/estimatedtax-property/page tests: 74 pass. run_workflow_locally --for-changes and venture-preflight results below.",
+  "corrections": [],
+  "redteam": null
+}

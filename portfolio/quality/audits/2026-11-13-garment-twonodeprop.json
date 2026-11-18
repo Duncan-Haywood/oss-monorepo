@@ -1,0 +1,215 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/garment-twonodeprop",
+ "stratum": "research",
+ "seed": "2026-11-13-g",
+ "drawn_by": "sample",
+ "round": 61,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a control engineer who reviews thermoregulation / smart-textile control papers (IEEE Transactions on Control Systems Technology, Building and Environment). They would check first whether on/off vs proportional is compared fairly (same tuning budget, grid resolution, sampled-loop gain), whether the 'softness costs comfort' result is just the textbook steady-state offset of P-only control with zero actuation cost, how the lag is discretised, and whether the open question (switch cost) is answered when the code to answer it already exists",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 3,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Rerun in a scratch copy of research/garment-twonode* (run.py overwrites results.txt): `cd /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research/garment-twonodeprop && /usr/bin/python3.13 experiments/run.py` (26.5 s) is byte-identical to the committed experiments/results.txt; figure.py regenerates softness_cost.svg byte-identically. Independent re-implementation /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/indep.py (own proportional gate with numpy.clip, own hysteresis on/off gate, own lag, own numpy discomfort proxy, own tuning loop; imports only garment_twonodemet.met.simulate physics) reproduces the headline cells exactly: ours lag 0 on/off 33.6-33.7 0.880/0.834/1.354 vs prop 33.6-33.7 0.879/0.836/1.356 (+0.002/+0.002); ours lag 10 -0.005/+0.003; ref lag 0 prop 33.6-33.8 +0.010/+0.004; ref lag 10 -0.006/+0.000. Closed forms: forward-Euler lag tau_10 = 0.8-0.65*(0.8)^10 = 0.73020678144 = code; linear law at tsk 33.55 in band 33.2-34.6 = 0.15+0.25*0.65 = 0.3125 = code; numpy proxy equals code score to 10 dp on two held-out scenarios. Capped at 3: the two-node physics, transmittances and lag values are inherited assumptions, unvalidated against any fabric.",
+  "completeness": "Claimed and checked: 'python3 -m pytest -q tests  # 5 tests' (5 passed, 0.79 s after installing scipy, which the Reproduce line lists); run.py 'about 40 s' (26.5 s, deterministic, byte-identical); figure.py (identical SVG; needs garment-twonodelag/experiments/figure.py, documented in its docstring); results table rows for lag 0/5/10 present in results.txt (lag 2 omitted from the README table but in results.txt); softness experiment W>=0.6/1.4/3.0 present; tau-range section present; live page https://marisstella.app/research/garment-twonodeprop/ returns 200 with the same summary. No stubs or TODOs.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests` in research/garment-twonodeprop: 5 passed. Four mutants via platform/ci/quality_mutate.py in src/garment_twonodeprop/prop.py: ramp denominator +0.5 (line 20) CAUGHT; tune argmin -> argmax (line 42) CAUGHT; deleting the 0.1 and 0.2 C widths from grid() (line 29) SURVIVED, although it removes the very bands the headline says the search picks; tau_range returning (min, min) (line 49) SURVIVED, although run.py's 'reaches the full 0.15-0.80 range' claim rests on it. Tests check the law, lag step and properties; none pins a results.txt number or a tuned band.",
+  "craft": "Read src/garment_twonodeprop/prop.py (49 lines), tests/test_prop.py, experiments/run.py, experiments/figure.py, and upstream lag.py, held.py, met.py, switch.py. Small, readable, deterministic, reuses upstream rather than copying. Nits: imports via a sys.path chain five projects deep (prop -> lag -> held -> met -> optics/switch); run.py re-tunes the proportional band three times per lag (lines 18, 26, 32) instead of caching; the win count (run.py:39) counts x < 0, so the ref lag 5 'between' cell printed -0.000 counts as a win; results.txt prints '-0.000'.",
+  "claims": "Every number checked against results.txt: table rows lag 0/5/10 backed; '5 of 16 cells' backed (but one is a printed -0.000 tie); 'every difference within 0.010 C' backed (max +0.010); 'bands only 0.1 to 0.2 C wide' backed; 'full 0.15-0.80 range' backed; '1.4 C adds 0.05-0.07 between, 0.02-0.04 outside, ours, lag 0 and 10' backed (0.074/0.046, 0.044/0.023); '3.0 C adds up to 0.14' backed (0.137); 'about 40 s' backed (26.5 s). The 'Why' paragraph is labelled a hypothesis. Limitations, AI-assistance note and 'model, not measured' are present and honest. Minor: 'the same first-order lag' is a forward-Euler update with a 1-min step (inherited), which responds faster than a continuous first-order lag with that time constant (0.730 vs 0.712 after 10 min at lag 5).",
+  "fitness": "The negative result is sound and robust: a finer grid (lows every 0.05 C, widths 0.02-0.5 C, on/off widths 0-0.4 C; scripts/indep.py fine) gives the same answer, both families collapse onto the 33.7 C setpoint and differ by at most 0.008 C. But it is the textbook expectation: with no actuation cost and a pure regulation-error score, near-bang-bang is optimal, and a wider P-only band adds steady-state offset (Astrom and Murray, Feedback Systems, ch. 10-11; Astrom and Hagglund, PID controllers). No control literature is cited and no novelty holds beyond the repository. The open question the README leaves (switch cost) is answerable in seconds with the upstream penalty sweep: with garment-twonodelag's 0.01 C/switch penalty, proportional wins all four ours cells at lag 0 and 10 (-0.011 to -0.033 C; scripts/penalty.py), and the narrow on/off gate crosses the midpoint 14 and 24 times in the 20 C held-out scenarios vs 1 for proportional (scripts/indep.py chatter). One 49-line module, the 45th garment-* slug, rather than a step inside a programme (research/CLAUDE.md); far below the publishable bar.",
+  "domain": "Against control practice: the comparison is fair in tuning budget and protocol (same train/held-out split, exhaustive grids), but a reviewer would ask for PI (named as untested), an actuation/switching cost (named as absent), a defined switch count for a continuous actuator (midpoint crossings is not one), and a continuous-time or exact-discretised lag rather than forward Euler. The score is |tsk-33.7|, explicitly a proxy, not PMV/ISO 7730 or a two-node thermal sensation model. Usable as a caveated what-if inside the chain; not a method a control engineer would sign off on as an answer to 'does proportional beat on/off'."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Headline held-out cells, ours/ref at lag 0 and 10, both families tuned on train",
+   "method": "auditor's separate implementation of both gates, lag, proxy (numpy) and tuning; only upstream met.simulate physics imported",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research headline",
+   "expected": "results.txt: ours lag 0 +0.002/+0.002, ours lag 10 -0.005/+0.003, ref lag 0 +0.010/+0.004, ref lag 10 -0.006/+0.000, same tuned bands",
+   "observed": "identical bands and identical values to 3 dp in all four rows",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "first-order lag step response and linear-law value",
+   "method": "closed form tau_n = c-(c-t0)(1-1/L)^n; hand value 0.15+0.25*0.65",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research lagclosed",
+   "expected": "0.73020678144 and 0.3125",
+   "observed": "0.73020678144 and 0.3125 (continuous exp form would give 0.7120)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "discomfort proxy on two held-out scenarios",
+   "method": "numpy mean(abs(tsk-33.7)) over the trace from the auditor's own gate",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research proxy",
+   "expected": "equal to P.score",
+   "observed": "1.1523437227 and 0.8019940862, equal to 10 dp",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "is the negative result an artefact of the coarse grid (0.2 C lows, widths jumping 0.2 -> 0.6)?",
+   "method": "auditor's finer grids for both families (lows every 0.05 C, widths 0.02-0.5 C)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research fine",
+   "expected": "if an artefact, proportional would gain markedly",
+   "observed": "differences +0.000/+0.001, +0.000/-0.004, +0.005/-0.008 at lag 0/5/10: the negative result holds",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "headline experiment reproduces",
+   "method": "rerun run.py in a scratch copy and diff",
+   "command": "cd /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research/garment-twonodeprop && /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/garment-twonodeprop/experiments/results.txt",
+   "expected": "byte-identical, about 40 s",
+   "observed": "byte-identical, 26.5 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "figure regenerates",
+   "method": "rerun figure.py and diff",
+   "command": "/usr/bin/python3.13 experiments/figure.py && diff -q experiments/softness_cost.svg <committed>",
+   "expected": "identical",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run tests",
+   "command": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "5 tests pass (README)",
+   "observed": "5 passed in 0.79 s (scipy had to be installed, as Reproduce says)",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'proportional beats on/off in 5 of 16 cells'",
+   "method": "count negative differences in results.txt",
+   "command": "grep -E '^ +[0-9]+ \\|' experiments/results.txt",
+   "expected": "5 strictly negative",
+   "observed": "5, but ref lag 5 'between' is printed -0.000 (a tie at the printed precision)",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "softness cost '0.05-0.07 between, 0.02-0.04 outside at W>=1.4, up to 0.14 at 3.0'",
+   "method": "results.txt softness section",
+   "command": "grep 'ours lag' experiments/results.txt",
+   "expected": "within those ranges",
+   "observed": "0.074/0.046 between, 0.044/0.023 outside, 0.137 max",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'every difference within 0.010 C' and 'bands only 0.1-0.2 C wide'",
+   "method": "results.txt both choice sets",
+   "command": "grep -E '^ +[0-9]+ \\|' experiments/results.txt",
+   "expected": "max |diff| <= 0.010; widths 0.1-0.2",
+   "observed": "max +0.010; widths 0.1-0.2",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "the README's open question: does a switch penalty make proportional win?",
+   "method": "upstream garment-twonodelag penalty sweep applied to both families (midpoint-crossing switch count)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/penalty.py /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research",
+   "expected": "left open by the README",
+   "observed": "at 0.01 C/switch proportional wins all 4 ours cells (-0.011 to -0.033 C); at 0.03 wins 'between' but loses 'outside'",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "nearest prior work cited (P-only offset, bang-bang optimality, PI)",
+   "method": "compare with Astrom and Murray, Feedback Systems; Astrom and Hagglund, PID controllers",
+   "command": "grep -n -i 'astrom\\|PID\\|offset\\|bang' research/garment-twonodeprop/README.md",
+   "expected": "control literature cited",
+   "observed": "only 'PI' named as untested; no control reference",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "lag discretisation",
+   "method": "continuous first-order step response vs code",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/scripts/indep.py /tmp/claude-0/-home-user-oss-monorepo/f7515bb0-e016-533b-984e-ed93d3ca1870/scratchpad/twonodeprop/tree/research lagclosed",
+   "expected": "exp(-t/lag) form 0.7120 at 10 min, lag 5",
+   "observed": "0.7302 (forward Euler, inherited from garment-twonodeswitch)",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/garment_twonodeprop/prop.py:20",
+   "change": "(self.hi - self.lo) -> (self.hi - self.lo + 0.5) in the ramp",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeprop/prop.py:29",
+   "change": "widths (0.1, 0.2, 0.6, ...) -> (0.6, ...): narrow bands removed",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeprop/prop.py:42",
+   "change": "key=lambda x: x[1] -> key=lambda x: -x[1] (argmax)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeprop/prop.py:49",
+   "change": "return min(ts), max(ts) -> return min(ts), min(ts)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The README leaves 'with a per-switch cost proportional control might help' as the open question, but the upstream garment-twonodelag penalty sweep answers it in seconds: at 0.01 C/switch proportional wins all four ours cells at lag 0 and 10 (-0.011 to -0.033 C), and the narrow on/off gate chatters 14-24 midpoint crossings per 180 min in 20 C rooms vs 1 for proportional. No control-theory prior work (P-only steady-state offset, bang-bang optimality with free actuation; Astrom and Murray) is cited, so the 'softness costs comfort' result is presented without noting it is the textbook expectation.",
+   "where": "research/garment-twonodeprop/README.md:34",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "2 of 4 seeded mutants survive: removing the 0.1/0.2 C widths from grid() (the bands the headline says win) and making tau_range return (min, min) (which backs the 'full 0.15-0.80 range' claim). No test pins a tuned band or a results.txt number.",
+   "where": "research/garment-twonodeprop/tests/test_prop.py:26",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "Win count uses x < 0, so the ref lag 5 'between' cell printed -0.000 is counted in '5 of 16'; at the printed precision it is a tie (4 strict wins).",
+   "where": "research/garment-twonodeprop/experiments/run.py:39",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "'the same first-order lag' is a forward-Euler update tau += (cmd-tau)/lag on a 1-min step (inherited from garment-twonodeswitch); it responds faster than a continuous first-order lag (0.730 vs 0.712 after 10 min at lag 5; much more at lag 2) and is not stated.",
+   "where": "research/garment-twonodeprop/src/garment_twonodeprop/prop.py:22",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "run.py re-tunes the proportional band up to three times per lag/choice set (lines 18, 26, 32) instead of reusing the result; harmless but triples runtime of the tuning.",
+   "where": "research/garment-twonodeprop/experiments/run.py:26",
+   "category": "code-craft",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15397"
+ ],
+ "verdict": "Reproducible and arithmetically right: run.py and figure.py regenerate results.txt and the SVG byte-for-byte, an independent implementation of both gates and the tuning loop reproduces the headline cells exactly, three closed-form checks match, and a finer grid confirms the negative result (proportional within 0.008 C of on/off). Every README number is backed. It does not meet the bar: verification is 2 (2 of 4 seeded mutants survive, including deleting the very bands the headline says win), and as research it is a one-module step that restates the textbook expectation (free actuation favours near-bang-bang; a wide P band adds offset) without citing control literature, while leaving open a question the upstream penalty sweep answers in seconds (at 0.01 C/switch proportional wins all four ours cells). Limitations are honest."
+}

@@ -19,7 +19,7 @@ Input: rows of `name,price,materials,service_min,earliest,latest_start,east_mile
 
 A signing earns fee less print and supply cost less your hourly cost of its appointment minutes. Each drive costs a
 per-mile amount plus the hourly cost of the drive minutes; drive minutes are straight-line miles x circuity /
-speed. Waiting for a window to open is free. You leaves the home base at shift start and must be home by shift
+speed. Waiting for a window to open is free. You leave the home base at shift start and must be home by shift
 end. The best day is found exactly by dynamic programming over (set of signings done, last signing), keeping every
 non-dominated (finish time, profit) pair per state; the tests check it against every ordering of every subset.
 A declined signing's break-even price is exact: its price plus the gap between the best day and the best day forced to

@@ -12,7 +12,7 @@ export const YEARS = { 2023: "2023/24", 2024: "2024/25", 2025: "2025/26", 2026: 
 export const MIN_FIXED = 300;
 export const DAY = 86400000;
 
-const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => "GBP " + Number(Math.round(n * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0");
 const r2 = (n) => Math.round(n * 100) / 100;
 
 export function toDate(s) {

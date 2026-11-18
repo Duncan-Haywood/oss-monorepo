@@ -44,6 +44,7 @@ import path from 'node:path';
 import process from 'node:process';
 
 import { REPO_ROOT, discoverSurfaces, isPublishable, publishedPages } from './build.mjs';
+import { pathToFileURL } from 'node:url';
 
 /**
  * PRODUCT_PLAYBOOK.md 5b, first clause: free and as-is, no warranty of any
@@ -2816,6 +2817,6 @@ export async function main(
   return 0;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   process.exit(await main());
 }

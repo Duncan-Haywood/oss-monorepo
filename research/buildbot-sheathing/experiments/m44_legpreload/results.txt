@@ -1,0 +1,59 @@
+(milestone 38's setup, imported with milestone 32's leans recorded:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 35 (skipped: [['h1', 0.4, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+(milestone 38's setup, imported again on the re-leaned poses:)
+# Milestone 38: a two-hand squeeze as the arm-joint preload
+leaned poses balancing 25-50 N (milestone 32's set): 36
+poses with a 'hold-min' solution: 34 (skipped: [['h1', 0.4, -0.15], ['h1', 1.6, -0.15]])
+check: a zero hose force reproduces the no-hose torques to 0.0e+00 N m (expect 0)
+grip height above the floor over the poses: G1 0.385-1.185 m, H1 0.400-1.600 m
+
+
+# Milestone 44: a per-pose leg preload m_k = min(0.1, beta t_min) on the zero-press poses
+## A. Poses whose stance cannot carry 0.1 N m with beta 0.9: robot | pose | t_min (N m) | m_k (N m)
+  h1 [1.4, -0.15] | 0.0333 | 0.0300
+  h1 [1.6, 0.0] | 0.0946 | 0.0851
+  (changed poses are exactly milestone 43's two dropped poses: True)
+
+## B. No-hose clean-sheet stack at the two poses: robot | pose | case | beta | m_k (N m) | spec stack | squeeze (N) | change vs milestone 40 old-lean spec (points) | 'hold-min' (zero-press lean)
+  h1 [1.4, -0.15] | stock  | 0.00 | 0.0000 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.4, -0.15] | braked | 0.00 | 0.0000 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.6, 0.0] | stock  | 0.00 | 0.0000 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.6, 0.0] | braked | 0.00 | 0.0000 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.4, -0.15] | stock  | 0.25 | 0.0083 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.4, -0.15] | braked | 0.25 | 0.0083 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.6, 0.0] | stock  | 0.25 | 0.0236 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.6, 0.0] | braked | 0.25 | 0.0236 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.4, -0.15] | stock  | 0.50 | 0.0166 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.4, -0.15] | braked | 0.50 | 0.0166 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.6, 0.0] | stock  | 0.50 | 0.0473 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.6, 0.0] | braked | 0.50 | 0.0473 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.4, -0.15] | stock  | 0.90 | 0.0300 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.4, -0.15] | braked | 0.90 | 0.0300 | 0.9715 | -10.00 | -0.08 | 0.9620
+  h1 [1.6, 0.0] | stock  | 0.90 | 0.0851 | 0.9668 | -10.00 | -0.27 | 0.9610
+  h1 [1.6, 0.0] | braked | 0.90 | 0.0851 | 0.9668 | -10.00 | -0.27 | 0.9610
+
+## C. H1 worst spec stack over its zero-press poses (beta 0.9): case | worst | at | poses with a plan | milestone 43 (fixed 0.1 N m)
+  stock  | 0.9655 | [1.6, 0.15] | 19 | 0.9655 at [1.6, 0.15]
+  braked | 0.9655 | [1.6, 0.15] | 19 | 0.9655 at [1.6, 0.15]
+
+(section D tasks: H 0 11 s, H 5 87 s, H 20 72 s)
+## D. H1 worst residual along the wall (mm), 'braked', |e| 0.2 N, S 10 N, beta 0.9: H | all poses | other poses (milestone 41, all poses) | the two poses (where, phi) | cases at the two poses with no plan
+    0.0 | 0.172 | 0.010 (0.010) | 0.172 at [1.4, -0.15] phi 0 | 0 of 12
+    5.0 | 0.172 | 0.019 (0.019) | 0.172 at [1.4, -0.15] phi 135 | 5 of 96
+   20.0 | 0.241 | 0.032 (0.032) | 0.241 at [1.4, -0.15] phi 45 | 19 of 96
+check: the other poses reproduce milestone 41's H1 worst residual to 0.000 mm (expect 0.000)
+
+## E. Hypotheses (registered in LOG.md before this run)
+H170 (beta 0.9: both poses have a spec plan at zero hose force): 4 of 4 pose-cases -> held
+H171 (both poses keep a plan in every swept case): 24 of 204 cases have none -> refuted
+H172 ('braked': each pose within 0.5 points of its old-lean spec stack): losses +0.08, +0.27 -> held
+H173 ('braked': the H1's worst spec stack at least 0.9600): 0.9655 -> held
+H174 (the H1's worst residual at most 0.03 mm at 5 N and 0.05 mm at 20 N): 0.172, 0.241 -> refuted
+
+(run time 162 s; python 3.13.18, numpy 2.5.3, mujoco 4.0.1)

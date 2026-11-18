@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Retreat & Workshop Profit Calculator — Pricing, Break-Even and Venue Guarantee","applicationCategory":"BusinessApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Profit, break-even guests, venue guarantee cost and the price for a profit target for a retreat, workshop or group trip. Runs in your browser.","featureList":"Break-even guests, early-bird cost, venue guaranteed minimum, price for profit target, fill and price sensitivity, CSV export"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How many people do I need to break even on a retreat?","acceptedAnswer":{"@type":"Answer","text":"Add every fixed cost (venue, instructors, marketing, insurance, your travel), then find the smallest turnout where ticket revenue minus card fees and the per-person lodging and meals covers it. Free staff spots and any venue guaranteed minimum raise the bill, so the tool includes both. The result panel shows the exact number and the profit at each fill level."}},{"@type":"Question","name":"What is a venue guaranteed minimum and why does it matter?","acceptedAnswer":{"@type":"Answer","text":"Many venues bill for a minimum number of people (or room nights) whether or not they show up. If you guarantee 16 and 8 paying guests and 2 staff come, you still pay for 6 empty places. The result shows that cost separately so you can negotiate the guarantee down or a later cutoff before signing."}},{"@type":"Question","name":"How much should an early-bird price cost me?","acceptedAnswer":{"@type":"Answer","text":"Every early-bird seat gives up the difference between the regular and early price. The tool prints that exact amount for your turnout, so you can compare it with what the early sales do for your cash flow and your confidence in the date. Set early-bird seats to 0 to see the plain regular-price picture."}},{"@type":"Question","name":"What price do I need to charge to make a profit target?","acceptedAnswer":{"@type":"Answer","text":"The tool solves for the regular price that gives the profit you typed at the turnout you expect, after card fees, lodging and meals, and fixed costs. It also re-runs profit at prices 20% under to 20% over, so you can see how much of a price change a few extra guests would have to cover."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #0f766e; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #0a514c; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #0a514c; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #0f766e; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #0f766e; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #0a514c; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -107,16 +145,16 @@
       if (!r.ok) { $("result").innerHTML = h; $("out").hidden = false; return; }
       last = r;
       const b = r.base;
-      h += '<div class="finding"><h4>' + (b.profit >= 0 ? "Profit" : "Loss") + " with " + r.n + " paying guests: " + money(b.profit) + "</h4><p>" + (r.margin == null ? "" : pct(r.margin) + " of ticket revenue. ") + (r.be == null ? "No turnout up to capacity breaks even on these costs." : "You break even at " + r.be + " paying guests (" + pct(r.be / Math.max(1, r.v.capacity - r.v.comps)) + " of the seats for sale).") + "</p></div>";
-      h += '<div class="finding"><h4>Where the money goes</h4>' + table(["", "Amount"], [
+      h += '<div class="finding"><h3>' + (b.profit >= 0 ? "Profit" : "Loss") + " with " + r.n + " paying guests: " + money(b.profit) + "</h3><p>" + (r.margin == null ? "" : pct(r.margin) + " of ticket revenue. ") + (r.be == null ? "No turnout up to capacity breaks even on these costs." : "You break even at " + r.be + " paying guests (" + pct(r.be / Math.max(1, r.v.capacity - r.v.comps)) + " of the seats for sale).") + "</p></div>";
+      h += '<div class="finding"><h3>Where the money goes</h3>' + table(["", "Amount"], [
         ["Ticket revenue", money(b.gross)], ["Card and platform fees", "-" + money(b.fees)],
         ["Lodging and meals (" + b.billed + " people billed)", "-" + money(b.variable)], ["Fixed costs", "-" + money(b.fixed)], ["Profit", money(b.profit)],
       ]) + "</div>";
-      if (b.empty > 0) h += '<div class="finding"><h4>Venue guarantee: ' + money(r.guaranteeCost) + " for " + b.empty + " empty places</h4><p>You guaranteed " + r.v.guarantee + " people and " + (r.n + r.v.comps) + " are coming. Negotiate the minimum down or a later cutoff.</p></div>";
-      if (r.v.earlySeats > 0) h += '<div class="finding"><h4>Early-bird tier gives up ' + money(r.earlyCost) + "</h4><p>That is what the same turnout would add at the regular price instead of the early price on the first " + Math.min(r.n, r.v.earlySeats) + " seats.</p></div>";
-      h += '<div class="finding"><h4>Price for your profit target</h4><p>' + (r.goalPrice == null ? "No regular price reaches " + money(r.v.target) + " with " + r.n + " guests; the early-bird seats and costs already exceed it." : "To make " + money(r.v.target) + " with " + r.n + " guests, charge " + money(r.goalPrice) + " for regular seats (you typed " + money(r.v.price) + ").") + "</p></div>";
-      h += '<div class="finding"><h4>If turnout is different</h4>' + table(["Fill", "Paying guests", "Profit"], r.fills.map((f) => [pct(f.fill), f.guests, money(f.profit)])) + "</div>";
-      h += '<div class="finding"><h4>If the regular price is different (at ' + r.n + " guests)</h4>" + table(["Price change", "Regular price", "Profit"], r.prices.map((p) => [(p.step > 0 ? "+" : "") + Math.round(p.step * 100) + "%", money(p.price), money(p.profit)])) + "</div>";
+      if (b.empty > 0) h += '<div class="finding"><h3>Venue guarantee: ' + money(r.guaranteeCost) + " for " + b.empty + " empty places</h3><p>You guaranteed " + r.v.guarantee + " people and " + (r.n + r.v.comps) + " are coming. Negotiate the minimum down or a later cutoff.</p></div>";
+      if (r.v.earlySeats > 0) h += '<div class="finding"><h3>Early-bird tier gives up ' + money(r.earlyCost) + "</h3><p>That is what the same turnout would add at the regular price instead of the early price on the first " + Math.min(r.n, r.v.earlySeats) + " seats.</p></div>";
+      h += '<div class="finding"><h3>Price for your profit target</h3><p>' + (r.goalPrice == null ? "No regular price reaches " + money(r.v.target) + " with " + r.n + " guests; the early-bird seats and costs already exceed it." : "To make " + money(r.v.target) + " with " + r.n + " guests, charge " + money(r.goalPrice) + " for regular seats (you typed " + money(r.v.price) + ").") + "</p></div>";
+      h += '<div class="finding"><h3>If turnout is different</h3>' + table(["Fill", "Paying guests", "Profit"], r.fills.map((f) => [pct(f.fill), f.guests, money(f.profit)])) + "</div>";
+      h += '<div class="finding"><h3>If the regular price is different (at ' + r.n + " guests)</h3>" + table(["Price change", "Regular price", "Profit"], r.prices.map((p) => [(p.step > 0 ? "+" : "") + Math.round(p.step * 100) + "%", money(p.price), money(p.profit)])) + "</div>";
       h += '<p><button type="button" class="secondary" id="csv">Download profit by turnout (CSV)</button></p>';
       $("result").innerHTML = h;
       $("out").hidden = false;

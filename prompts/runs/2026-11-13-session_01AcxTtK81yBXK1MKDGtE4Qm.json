@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtK81yBXK1MKDGtE4Qm",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T14:23:27Z",
+  "ended": "2026-11-13T14:30:55Z",
+  "wall_minutes": 7.67,
+  "tokens_in": 3216614,
+  "tokens_out": 15632,
+  "cost_usd": 1.4771,
+  "tool_calls": 44,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15511",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first form-control check used html.indexOf('<form'), but index.html has no <form> element, so it matched 0 controls and passed without testing anything. The ids.length > 25 assertion caught it, and the check was dropped (the page holds several tools, so the whole page is the wrong list)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "The backlog held only owner rows again. Of the friction entries checked, the quality round collision was already fixed, and the redteam `awaiting` field sits in prompts/ (control plane), so it would wait on the owner. A product bug noted in a run record (league lateTeams) was the landable fix."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "All 9 entries from `redteam.py open` are control-plane workflow edits waiting on owner approval. An `awaiting: <pr>` field, as the 11-13 redteam friction suggests, needs a control-plane PR, so this run did not ship it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "In critique mode the run shipped a product fix (a share-link field drop that a run record's doc_friction named) plus a test that guards the class, rather than a process-tool change. Process-tool candidates were either already fixed or in the control plane.",
+      "did": "Fixed league-schedule-generator share links, added the guard test, and scanned the other 30 SHARE_KEYS ventures for the same gap (none found).",
+      "result": "merged"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-league-share-links-dropped-late-teams.md"
+  ],
+  "goal": null,
+  "notes": "Verification: main_health.py reports 62/62 checks pass. node --test calc.test.mjs passes 180/180. run_venture_tests.py league-schedule-generator: ok (220.2s), 0 failed. The share-link round-trip test fails with the old calc.mjs (pass 0, fail 1). No backlog ids touched.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "bbb8b1c0-0176-5a9a-8267-61105eebb03b",
+    "transcripts": 1,
+    "first": "2026-11-13T14:23:27Z",
+    "last": "2026-11-13T14:31:08Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 79,
+        "output": 15632,
+        "thinking": 2898,
+        "cache_read": 3149762,
+        "cache_write_5m": 0,
+        "cache_write_1h": 66773,
+        "api_equivalent_usd": 1.4771,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 79,
+      "output": 15632,
+      "thinking": 2898,
+      "cache_read": 3149762,
+      "cache_write_5m": 0,
+      "cache_write_1h": 66773,
+      "api_equivalent_usd": 1.4771,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 42,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.67,
+      "active_minutes": 7.67,
+      "model_minutes": 3.65,
+      "tool_minutes": 4.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "find, fix and test a two-field share-link drop, plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 101.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

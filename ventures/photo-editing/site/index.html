@@ -2,72 +2,222 @@
 <html lang="en">
 <head>
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ShootFlow | Safe ingest and deliverables for photographers</title>
-  <meta name="description" content="ShootFlow is an early-stage open-source toolkit for safely ingesting photo and video media and planning graded reels, carousels and photo sets.">
+  <title>ShootFlow | Cull, develop raw and grade a shoot offline on your Mac</title>
+  <meta name="description" content="Free, open-source ShootFlow copies a card with checksums, culls blurred and duplicate frames, develops 12 camera raw formats and renders graded reels overnight. Nothing uploaded.">
   <meta name="robots" content="index,follow">
-  <meta property="og:title" content="ShootFlow | Safe ingest and deliverables for photographers">
-  <meta property="og:description" content="ShootFlow is an early-stage open-source toolkit for safely ingesting photo and video media and planning graded reels, carousels and photo sets.">
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","operatingSystem":"macOS","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"ShootFlow is an early-stage open-source toolkit for safely ingesting photo and video media and planning graded reels, carousels and photo sets."}</script>
+  <meta property="og:title" content="ShootFlow | Cull, develop raw and grade a shoot offline on your Mac">
+  <meta property="og:description" content="Free, open-source ShootFlow copies a card with checksums, culls blurred and duplicate frames, develops 12 camera raw formats and renders graded reels overnight. Nothing uploaded.">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"ShootFlow","applicationCategory":"MultimediaApplication","operatingSystem":"macOS, Linux","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Early-stage open-source command-line toolkit for photographers and videographers: checksum-verified card copies, offline culling, camera raw development checked against LibRaw, and overnight ffmpeg grading of reels, carousels and masters."}</script>
   <style>
-    :root{font:16px/1.5 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--panel:#fffdf8}
+    :root{font:16px/1.55 system-ui,sans-serif;color:#20252b;background:#f5f1e8;--ink:#20252b;--muted:#4f585f;--line:#d9d2c5;--accent:#8f3420;--accent-soft:#f3e3dc;--panel:#fffdf8;--code:#fff}
+    @media (prefers-color-scheme:dark){:root{color:#ece6dc;background:#1b1d20;--ink:#ece6dc;--muted:#b4ada3;--line:#3a3d42;--accent:#f0a48c;--accent-soft:#3a2a24;--panel:#23262a;--code:#17191c}}
     *{box-sizing:border-box}body{margin:0;color:var(--ink)}
-    main{max-width:860px;margin:auto;padding:3rem 1.25rem}
-    h1{font-size:clamp(2rem,6vw,3.5rem);line-height:1.05;margin:0 0 1rem}
-    h2{margin-top:0}p.lede{font-size:1.15rem;color:var(--muted)}
-    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem;margin:1.5rem 0}
-    pre{background:#fff;border:1px solid var(--line);border-radius:8px;padding:.75rem;overflow:auto;font-size:.85rem}
-    img{max-width:100%;height:auto;border-radius:8px}
+    main{max-width:960px;margin:auto;padding:3rem 1.25rem}
+    h1{font-size:clamp(2rem,5.2vw,3.25rem);line-height:1.06;margin:0 0 1rem;letter-spacing:-.01em;max-width:18ch}
+    h2{margin:0 0 .75rem;font-size:1.45rem;line-height:1.2}
+    h3{margin:1.25rem 0 .35rem;font-size:1.05rem}
+    p.lede{font-size:1.15rem;color:var(--muted);max-width:60ch;margin:0 0 1.5rem}
     a{color:var(--accent)}
-    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem}
+    code{font-size:.88em;overflow-wrap:anywhere}
+    pre{background:var(--code);border:1px solid var(--line);border-radius:8px;padding:.85rem 1rem;overflow:auto;font-size:.82rem;line-height:1.5;margin:.75rem 0}
+    pre code{overflow-wrap:normal}
+    pre .c{color:var(--muted)}
+    .eyebrow{font-size:.8rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin:0 0 .6rem}
+    .cta{display:flex;flex-wrap:wrap;gap:.6rem;margin:0 0 2rem}
+    .btn{display:inline-block;padding:.6rem 1rem;border-radius:8px;border:1px solid var(--accent);text-decoration:none;font-weight:600}
+    .btn.primary{background:var(--accent);color:var(--panel)}
+    .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:.75rem;margin:0 0 2.5rem;padding:0;list-style:none}
+    .facts li{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;font-size:.92rem;color:var(--muted)}
+    .facts strong{display:block;color:var(--ink);font-size:1.05rem}
+    section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.5rem;margin:1.5rem 0}
+    section.plain{background:none;border:0;padding:0}
+    .flow{list-style:none;margin:0 0 .5rem;padding:0;display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;counter-reset:s}
+    .flow li{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.85rem .8rem .9rem;font-size:.86rem;color:var(--muted);counter-increment:s}
+    .flow li::before{content:counter(s);display:inline-grid;place-items:center;width:1.6rem;height:1.6rem;border-radius:50%;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:.85rem;margin-bottom:.4rem}
+    .flow b{display:block;color:var(--ink);font-size:.98rem;margin-bottom:.15rem}
+    .flow li:not(:last-child)::after{content:"";position:absolute;right:-.42rem;top:50%;width:.6rem;height:.6rem;border-top:2px solid var(--accent);border-right:2px solid var(--accent);transform:translateY(-50%) rotate(45deg);background:none;z-index:1}
+    .flow-note{font-size:.85rem;color:var(--muted);margin:0}
+    .cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:1rem}
+    .cards article{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:1.25rem}
+    .cards h3{margin-top:0}
+    .cards p{margin:.4rem 0;font-size:.95rem}
+    .proof{font-size:.85rem;color:var(--muted);border-left:3px solid var(--accent);padding-left:.6rem}
+    table{width:100%;border-collapse:collapse;font-size:.92rem}
+    th,td{text-align:left;vertical-align:top;padding:.55rem .5rem;border-top:1px solid var(--line)}
+    th{font-weight:600}
+    thead th{border-top:0;color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+    .table-wrap{overflow-x:auto}
+    td:first-child code{overflow-wrap:normal}
+    .chips{display:flex;flex-wrap:wrap;gap:.4rem;list-style:none;padding:0;margin:.5rem 0 1rem}
+    .chips li{border:1px solid var(--line);border-radius:999px;padding:.2rem .7rem;font-size:.85rem;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+    .split ul{margin:.25rem 0;padding-left:1.1rem}.split li{margin:.3rem 0}
+    .shot{margin:1rem 0 0}
+    .shot img{display:block;width:100%;max-width:760px;height:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+    .shot figcaption{font-size:.85rem;color:var(--muted);margin-top:.6rem}
+    footer{color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:1.25rem;margin-top:2rem}
+    @media (max-width:760px){
+      .flow{grid-template-columns:1fr;gap:1.1rem}
+      .flow li:not(:last-child)::after{right:auto;left:1.55rem;top:auto;bottom:-.88rem;transform:rotate(135deg)}
+      .cards,.split{grid-template-columns:1fr}
+      section{padding:1.15rem}
+    }
   </style>
 </head>
 <body>
 <main>
-  <h1>Ingest safely. Plan deliverables.</h1>
-  <p class="lede">An early-stage toolkit for photographers and videographers: copy media with checksums and manifests, never delete the source, and plan the render tasks for reels, carousels and graded intermediates.</p>
-  <section>
-    <h2>What exists today</h2>
-    <ul>
-      <li>Safe ingest: planned copies with checksums, manifests and conflict detection; source media is never deleted.</li>
-      <li>A catalog built from ingest manifests, and loaders for per-asset analysis output bound to a trusted production plan.</li>
-      <li>Assembly of explicit render tasks, with resumable, lock-protected status files and a dry-run worker and scheduler.</li>
-      <li><strong>Cull a folder of photos offline:</strong> <code>shootflow cull FOLDER --out REPORT</code> scores every still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom/Bridge sidecars (keeper 4 stars, alternate 2, reject -1). Your photos are only read, and nothing is uploaded.</li>
-      <li>Check it against your own taste: <code>--picks FILE</code> lists the frames you would keep and the report shows how often its keeper was one of yours and how many of your picks it flagged reject. It has not yet been measured on a real wedding or event shoot, so run that check before trusting it.</li>
+  <p class="eyebrow">Free and open source · early stage</p>
+  <h1>Cull, develop and grade a shoot overnight, on your own Mac.</h1>
+  <p class="lede">ShootFlow copies your card with checksums, sets aside blurred and duplicate frames, develops camera raw files and renders graded reels, carousels and masters while you sleep. Nothing is uploaded and the card is never wiped.</p>
+  <div class="cta">
+    <a class="btn primary" href="#run">Run it yourself</a>
+    <a class="btn" href="camera-raw-formats.html">Which cameras it reads</a>
+  </div>
+  <ul class="facts" aria-label="At a glance">
+    <li><strong>12 raw formats</strong>DNG, Canon, Sony, Nikon, Fujifilm and more, each checked on real files against LibRaw</li>
+    <li><strong>Nothing uploaded</strong>Runs on your machine with Python and ffmpeg; no account, no cloud</li>
+    <li><strong>Card never deleted</strong>Every copy is verified by SHA-256 and listed in a manifest</li>
+  </ul>
+
+  <section class="plain" aria-labelledby="how">
+    <h2 id="how">What happens to a shoot</h2>
+    <ol class="flow">
+      <li><b>Copy</b>Card to SSD, each file checked by SHA-256. Anything left behind is listed.</li>
+      <li><b>Cull</b>Scores sharpness and exposure, groups bursts and keeps the best frame of each.</li>
+      <li><b>Develop</b>Raw sensor data to a neutral 16-bit master with the camera's colour.</li>
+      <li><b>Grade</b>Your 3D LUT (<code>.cube</code>) on every master, in parallel ffmpeg jobs.</li>
+      <li><b>Deliver</b>1080×1920 reels, 4:5 carousels and photo sets, plus review proxies.</li>
+    </ol>
+    <p class="flow-note">One command runs all five; <code>launchd</code> can run it at 01:30 every night. A job that fails stops for a person and is listed for review instead of being guessed at.</p>
+  </section>
+
+  <section aria-labelledby="report">
+    <h2 id="report">What a cull report looks like</h2>
+    <p>Two bursts from a real run of <code>shootflow cull --thumbs</code>. The original frame is kept in the first; the darkened copy is rejected for exposure and the softened one becomes an alternate. In the second, the blurred copy is rejected, and the keeper is a slightly reframed copy that tied the original at 0.79, so the report marks it a close call to check by eye.</p>
+    <figure class="shot">
+      <img src="cull-report.webp" width="1200" height="987" loading="lazy" decoding="async" alt="ShootFlow cull report: a summary line (13 photos in 5 groups: 5 keepers, 6 alternates, 2 rejects, 2 close calls) and a contact sheet of two bursts. Building: original kept with a green border (0.86), a softened copy and a 4% tighter reframe faded as alternates in the same group (0.79, 0.86). Butterfly: original kept (0.93), a dark copy rejected with a red border for bad exposure (0.57), a softened copy faded as an alternate (0.81).">
+      <figcaption>The full run was 13 frames made from five OpenCV sample photos (Apache-2.0) by blurring, darkening or reframing them, so every right answer is known. Two of its 13 calls fall short: a copy at 30% brightness was kept as an alternate instead of rejected, and a 4% reframe was split into its own group. <code>tools/cull_showcase.py</code> rebuilds this report; it has not been tested on a real wedding or event shoot.</figcaption>
+    </figure>
+  </section>
+
+  <section aria-labelledby="what">
+    <h2 id="what">What exists today</h2>
+    <div class="cards">
+      <article>
+        <h3>Cull a folder offline</h3>
+        <p>Scores every still for sharpness and exposure, groups near-identical burst frames (including ones the camera panned or zoomed a few percent between), keeps the best of each group and flags blurred or badly exposed frames. It writes an HTML report and, with <code>--write-xmp</code>, Lightroom and Bridge ratings (keeper 4 stars, alternate 2, reject −1).</p>
+        <p class="proof">Not yet measured on a real wedding or event shoot. Pass <code>--picks FILE</code> with the frames you would keep to see how often its keeper matched yours.</p>
+      </article>
+      <article>
+        <h3>Develop raw without Lightroom</h3>
+        <p><code>shootflow develop IMG_0001.dng</code> writes a neutral 16-bit TIFF master: as-shot white balance, the camera's colour matrix and its <code>.dcp</code> profile, sRGB. Bayer files are demosaiced along their edges when numpy is installed.</p>
+        <p class="proof">Sensor values equal LibRaw's on real files from Nikon, Canon, Olympus, Lumix, Leica and Fujifilm bodies; 9–78% less false colour than bilinear on five real frames.</p>
+      </article>
+      <article>
+        <h3>Grade and render overnight</h3>
+        <p>Each proxy, grade and render is its own ffmpeg process, using the Mac's hardware encoders (VideoToolbox) for H.264 and ProRes. Reruns skip finished work and existing outputs are never overwritten.</p>
+        <p class="proof">Tested on synthetic media and small sets, not yet on a full real shoot or 4K camera footage.</p>
+      </article>
+      <article>
+        <h3>Grade only the picks</h3>
+        <p><code>--grade-scope selected</code> gives full-resolution masters only to the clips and photos that reach a reel, carousel or photo set; the rest get a graded proxy and a note on how to make a full master later.</p>
+        <p class="proof">On 12 synthetic 1080p clips and three 24 MP photos the whole run went from 214 s to 129 s with the same deliverables.</p>
+      </article>
+    </div>
+  </section>
+
+  <section aria-labelledby="out">
+    <h2 id="out">What you get in the shoot folder</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th scope="col">Folder</th><th scope="col">Contents</th></tr></thead>
+        <tbody>
+          <tr><td><code>proxies/</code></td><td>Review proxies: photos up to 1024 px, H.264 video up to 960 px</td></tr>
+          <tr><td><code>graded/</code></td><td>Full-resolution masters with your LUT: ProRes 422 HQ for <code>.MOV</code>, high-bitrate H.264 for <code>.MP4</code>, 16-bit TIFF for developed raw files</td></tr>
+          <tr><td><code>deliverables/<wbr>instagram_reel.mp4</code></td><td>1080×1920 H.264 reels cut from the selected clips (up to 4 s each, 90 s in total, no audio)</td></tr>
+          <tr><td><code>deliverables/<wbr>instagram_carousel/</code></td><td>1080×1350 (4:5) JPEGs, and the same for <code>instagram_photo_set/</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="fmt">
+    <h2 id="fmt">Camera raw files it reads</h2>
+    <ul class="chips" aria-label="Raw formats">
+      <li>DNG</li><li>CR3</li><li>CR2</li><li>CRW</li><li>ARW</li><li>NEF</li><li>RAF</li><li>ORF</li><li>RW2</li><li>RWL</li><li>PEF</li><li>SRW</li>
     </ul>
+    <p>Canon, Sony, Nikon, Fujifilm (X-Trans and compressed included), Olympus and OM System, Panasonic Lumix, Leica, Pentax and Samsung, each checked on real camera files against LibRaw. The card copy also takes 27 raw formats, HEIF stills, MXF and M2TS video and XMP sidecars; a format with no reader is culled from its embedded preview and asks to be converted to DNG before grading. <a href="camera-raw-formats.html">Which cameras were checked, and what is still refused</a>.</p>
   </section>
-  <section>
-    <h2>What does not exist yet</h2>
-    <p>The renderers are dry-run placeholders: ShootFlow does not yet render video or grade images, and there is no app. The direction is a Mac app for human review or editor handoff. Treat this as a design and a tested core, not a finished product.</p>
+
+  <section aria-labelledby="limits">
+    <h2 id="limits">Measured, and not yet</h2>
+    <div class="split">
+      <div>
+        <h3>Checked</h3>
+        <ul>
+          <li>Raw decoding against LibRaw on real files from dozens of bodies.</li>
+          <li>Closed eyes, with an optional face model you download: 6 of 6 closed-eye photos flagged and 0 of 99 others, on 105 real CC0 photos labelled by an agent, not a photographer.</li>
+          <li>The card copy left none of 71 public camera raw files behind.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>Not yet</h3>
+        <ul>
+          <li>No app and no installed command: run it as <code>PYTHONPATH=src python3 -m shootflow.cli</code>.</li>
+          <li>No full real shoot through the overnight pipeline, and no photographer's picks to score the culling against.</li>
+          <li>Which shot wins is technical (sharpness, exposure, framing), not taste. The scene and look stages are stand-ins.</li>
+        </ul>
+      </div>
+    </div>
   </section>
-  <section id="faq">
-    <h2>Questions</h2>
+
+  <section id="run" aria-labelledby="run-h">
+    <h2 id="run-h">Run it yourself</h2>
+    <p>Needs Python 3.10+ and ffmpeg (<code>brew install ffmpeg</code>). From a clone of the repository:</p>
+<pre><code>git clone https://github.com/Duncan-Haywood/oss-monorepo
+cd oss-monorepo/ventures/photo-editing
+
+<span class="c"># 1. Copy the card with checksums (never deletes the card)</span>
+PYTHONPATH=src python3 -m shootflow.cli execute-ingest \
+  --source /Volumes/EOS_DIGITAL --destination /Volumes/SSD/shoots \
+  --shoot-date 2026-10-18 --shoot-slug wedding --confirm
+
+<span class="c"># 2. Optional: your look as a 3D LUT</span>
+cp MyLook.cube /Volumes/SSD/shoots/2026-10-18_wedding/color/shoot_look.cube
+
+<span class="c"># 3. Run every stage (or write-launchd-plist to run it nightly)</span>
+PYTHONPATH=src python3 -m shootflow.cli run-local-pipeline \
+  --ingest-manifest /Volumes/SSD/shoots/2026-10-18_wedding/ingest_manifest.json \
+  --max-concurrency 3</code></pre>
+    <p>Just culling: <code>PYTHONPATH=src python3 -m shootflow.cli cull FOLDER --out REPORT</code>. The README in that folder has every option.</p>
+  </section>
+
+  <section id="faq" aria-labelledby="faq-h">
+    <h2 id="faq-h">Questions</h2>
     <h3>Does ShootFlow delete or change the photos on my memory card?</h3>
     <p>No. Ingest copies with checksums and writes a manifest, and the source media is never deleted. Keep your own backups regardless: this is early-stage software.</p>
     <h3>How do I cull a folder of photos offline?</h3>
-    <p>Run <code>shootflow cull FOLDER --out REPORT</code>. It scores each still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. Your photos are only read, and nothing is uploaded.</p>
+    <p>Run <code>PYTHONPATH=src python3 -m shootflow.cli cull FOLDER --out REPORT</code>. It scores each still for sharpness and exposure, groups near-identical burst frames, keeps the best of each group and flags blurred or badly exposed frames as rejects. Your photos are only read, and nothing is uploaded.</p>
     <h3>Can it write Lightroom or Bridge ratings?</h3>
     <p>Yes, with <code>--write-xmp</code> it writes sidecar files: keeper 4 stars, alternate 2, reject -1.</p>
+    <h3>Can it develop raw files without Lightroom?</h3>
+    <p>Yes. <code>develop</code> turns DNG, Canon CR3, CR2 and CRW, Sony ARW, Nikon NEF, Fujifilm RAF, Olympus ORF, Panasonic RW2, Leica RWL, Pentax PEF and Samsung SRW files into neutral 16-bit TIFF masters. Formats other than DNG need the camera's <code>.dcp</code> profile. Other formats can go through Adobe's free DNG Converter first.</p>
     <h3>Does it render video or grade images yet?</h3>
-    <p>No. The renderers are dry-run placeholders and there is no app yet. Treat it as a design and a tested core.</p>
+    <p>Yes, through local ffmpeg: graded masters, review proxies, reels and carousels, with your LUT. It has been tested on synthetic media and small sets, not yet on a full real shoot, and there is no app yet. Treat it as a tested core.</p>
     <h3>Has the culling been tested on real shoots?</h3>
     <p>Not yet on a real wedding or event shoot. Pass <code>--picks FILE</code> with the frames you would keep and the report shows how often its keeper matched yours, so you can check it against your own taste first.</p>
   </section>
-  <section>
-    <h2>Run it yourself</h2>
-    <pre>git clone https://github.com/Duncan-Haywood/oss-monorepo
-cd oss-monorepo/ventures/photo-editing</pre>
-    <p>The README in that folder has the full steps.</p>
+
+  <section aria-labelledby="priv">
+    <h2 id="priv">Privacy and usage</h2>
+    <p>This page has no scripts, cookies or analytics, and records nothing about you. The tool runs on your own machine and sends nothing anywhere.</p>
   </section>
-  <section>
-    <h2>Privacy and usage</h2>
-    <p>This page has no scripts, cookies or analytics, and records nothing about you.</p>
-  </section>
-  <section>
-    <h2>Disclaimer</h2>
+  <section aria-labelledby="disc">
+    <h2 id="disc">Disclaimer</h2>
     <p>Early-stage software. Keep your own backups of all media; do not use it as the only copy of anything.</p>
     <p><strong>No warranty.</strong> This software is provided free and as-is, without warranty of any kind, express or implied. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
   </section>
-  <footer>Related: <a href="../photos-import-tools/">Photos Import Tools</a>, resumable photo import for macOS. Open source. Part of the tool catalogue.</footer>
+  <footer>Related: <a href="../photos-import-tools/">Photos Import Tools</a>, resumable photo import for macOS. Open source, MIT licensed. Part of the tool catalogue.</footer>
 </main>
 </body>
 </html>

@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01AcxTtJwjLfQ5LSQTTKSEf4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read prompt.md and follow it (scheduled)",
+  "input_sha256": "737006b0f4bc18860d404cf84f19027af11203f9da1a8fe009cf1537e3acce51",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T23:09:14Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14376",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "route re-run with --track ventures drew version 2, not the version 1 of the first draw; unclear which to follow"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-09-spikes-label-on-real-stock-returns.md"
+  ],
+  "goal": null,
+  "notes": "",
+  "corrections": [],
+  "redteam": null
+}

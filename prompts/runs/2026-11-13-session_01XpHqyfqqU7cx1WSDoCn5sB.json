@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyfqqU7cx1WSDoCn5sB",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T10:39:02Z",
+  "ended": "2026-11-13T11:21:33Z",
+  "wall_minutes": 42.67,
+  "tokens_in": 6122123,
+  "tokens_out": 32171,
+  "cost_usd": 2.8097,
+  "tool_calls": 57,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15467",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First wait_for.py on the 34-minute training job used the default 30-minute background limit and was killed; restarted with a longer timeout (the job itself was unaffected)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/ledger/supersede_check.py",
+      "issue": "Took several minutes on a shallow clone (it seems to deepen history); run it in the background."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "Land-before-you-build listed a 13-day-old draft (#12154) whose milestone had already landed via another PR; the only evidence was LOG.md on main, which the step does not mention checking."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-stability-margin-as-a-training-constraint-costs-under-one-percent.md"
+  ],
+  "goal": null,
+  "notes": "Research track, draw -> track 14, programme codesign-cant. Closed stale draft PR #12154 (lowcomm-training 6o, already on main). Milestone 7e: CMA-ES (24 runs x 3200 evals, ~34 min on 4 cores) with milestone 7c's 0.8x linear ki ceiling as a feasibility constraint. Predictions E1-E5 committed before the full run; E1,E2,E3,E5 held, E4 refuted. Follow-up (post hoc, labelled): at a 45/59 deg tilt limit above-geometry unconstrained designs diverge 13/384, constrained 0. Checks: project tests 42 passed 1 skipped; homepage build ok; research_live_links, check_md_links, post frontmatter/links ok. Merged main (7d landed meanwhile) and resolved the LOG.md conflict.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "ac7e6dfb-dd3b-5563-92e9-1402e37d1f2c",
+    "transcripts": 1,
+    "first": "2026-11-13T10:39:02Z",
+    "last": "2026-11-13T11:21:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 123,
+        "output": 32171,
+        "thinking": 8452,
+        "cache_read": 6001305,
+        "cache_write_5m": 0,
+        "cache_write_1h": 120695,
+        "api_equivalent_usd": 2.8097,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 123,
+      "output": 32171,
+      "thinking": 8452,
+      "cache_read": 6001305,
+      "cache_write_5m": 0,
+      "cache_write_1h": 120695,
+      "api_equivalent_usd": 2.8097,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 57,
+    "tools": {
+      "Bash": 50,
+      "ToolSearch": 2,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__add_issue_comment": 1,
+      "mcp__github__update_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 42.67,
+      "active_minutes": 9.85,
+      "model_minutes": 5.55,
+      "tool_minutes": 4.3,
+      "waiting_on_human_minutes": 32.82,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "an engineer designing a constrained tuning study, running it and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 427.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

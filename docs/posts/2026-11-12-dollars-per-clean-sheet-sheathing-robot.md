@@ -1,0 +1,20 @@
+---
+title: "What does a robot-nailed sheet of wall sheathing cost?"
+date: 2026-11-12
+tags: [buildbot-sheathing, construction-robotics, cost-model, humanoid, automation]
+seo_title: "Cost per sheet: humanoid, lift-base robot, gantry or hand crew?"
+description: "A G1 on a lift base is the cheapest sheathing robot below about 500 houses a year and beats a hand crew in 37% of draws at 100. The extra stud does not pay."
+---
+
+The `buildbot-sheathing` programme asks whether a robot can hang a 4x8 sheet of wall sheathing and land all 62 nails where the code and the panel maker want them. Earlier today the [cycle step](2026-11-12-seconds-per-clean-sheet-sheathing-robot.md) timed the whole job in seconds. It found that doubling the joint stud (two 2x where two sheets meet) saves a robot 18 to 65 s a sheet of re-driving missed nails. This step turns those seconds into dollars and asks which machine a builder should buy.
+
+We compared four ways to sheath a wall. A **hand crew** works at the minutes in our task book: 8.5 person-minutes a sheet to carry it, hold it square and drive 62 nails. A **walking Unitree H1** nails from the floor. A **G1 humanoid on a drive-and-lift base** works from a platform. A **nailing gantry** sits in a panel plant. Neither humanoid can carry the 22 kg sheet, so a person still brings it to the wall for both. Each robot's price, life, interest and upkeep is spread over the wall sheets of 10 to 1,000 houses a year. We added the person-time spent supervising the robot and carrying the sheet, the robot's own time re-driving missed nails, and the extra stud wherever doubled joints were chosen. We logged four hypotheses before the run, then drew 4,000 combinations of the uncertain inputs. Every class saw the same draws.
+
+- **Put the arm on a lift base, not on legs.** The G1 on a base is cheaper than the walking H1 in **every draw**, at every volume, because the H1 costs more and its 85 to 265 s of nailing (it walks between stances) is slower than the base's 54 to 121 s.
+- **A robot pays only at volume.** The hand crew costs **$5.21 a sheet** in the median draw. The base costs $54 at 10 houses a year, $19 at 30, **$7.03 at 100** and $3.48 at 300. Comparing draw by draw, it is cheaper than the crew in **37% of draws at 100 houses a year** and 74% at 300.
+- **The gantry needs a plant's volume.** At an unsourced price of $40k to $600k, the gantry beats the base in the median draw only from about **500 houses a year**. We had predicted somewhere between 30 and 300, so that hypothesis failed.
+- **The extra joint stud doesn't pay in dollars.** A precut stud costs $3.41 to $5.56 in the retail listings we found. With a framer's minute or two, that comes to **$5.42 a sheet**. The rework it saves is under a dollar of robot and supervisor time. Every robot chose single 2x joints with three stud reads, in every draw. Doubling pays only if a missed nail costs about **$6.50 more than re-driving it**, which is roughly ten minutes of a carpenter's time. That's true if misses are found at inspection and someone has to come back. It isn't true if the robot catches and fixes its own misses.
+
+That last result reverses the advice of the cycle step, so the paper will report both. On clean sheets and seconds, doubled joints win clearly. On dollars they lose, unless a miss is expensive or the shear-wall design calls for the doubled joint anyway.
+
+These numbers should be treated with care. The prices of the base and the gantry, every machine life and upkeep figure, and every stage time except the nailing are swept, not sourced. The base's cost depends most on how long it lasts and what it costs, and we have a measurement for neither. The hand crew's minutes are an estimate, and its own missed nails aren't charged, which favours it. A site robot here does nothing but wall sheathing, with no cost for moving it between jobs. Code, numbers, the figure and the pre-registered plan: [`research/buildbot-sheathing`](https://marisstella.app/research/buildbot-sheathing/).

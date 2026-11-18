@@ -1,0 +1,147 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01E5sJKjepDFt1y1YbAjEq98",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:18:28Z",
+  "ended": "2026-11-16T06:51:10Z",
+  "wall_minutes": 33.08,
+  "tokens_in": 5477047,
+  "tokens_out": 23107,
+  "cost_usd": 2.3404,
+  "tool_calls": 55,
+  "task": "shift-roster-builder flagship: test a 4 s repair reserve against the 2 s default (pre-registered)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16482",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Wrote a README line blaming the repair's 60-round limit before measuring it; a 180-round run showed rounds change nothing, corrected to the node budget in the same PR."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "issue": "The previous section said the 2 s reserve's repair ran 0.5-1.2 s without saying what stopped it; the next item ('a longer reserve (4 s)') assumed time was the limit, when the 3M node budget is. Worth recording the stopping cause next to any timing."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "The stop hook asks to commit untracked files while a long eval is still writing its .jsonl; writing in-progress output to the scratchpad and copying it in at the end avoids partial commits."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/shift-roster-builder/README.md",
+      "why": "The flagship's next item proposed 4 s 'on the same fresh seeds' (13-24); I used new seeds 25-36 so the pre-registered test was not run on seeds that had already shaped the previous decision.",
+      "did": "pre-registered on seeds 25-36, 48 paired builds",
+      "result": "a clean refusal: 11 better / 27 worse, -64 h"
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "venture-preflight.mjs checks site-wide page surfaces; this PR changed only an eval, a README section, a code comment and a post",
+      "did": "skipped it, ran the venture's test suite and the post checks instead",
+      "result": "see PR verification"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-shift-roster-twice-the-reserve-worse-rosters.md",
+    "ventures/shift-roster-builder/README.md#a-4-s-repair-reserve-measured-and-refused-2026-11-16-later"
+  ],
+  "goal": null,
+  "notes": "Pre-registered (eval/repair-reserve-4s-prereg.md): 4 s reserve vs 2 s default, 4 above-floor weeks x seeds 25-36: fewer open on 11, more on 27, tied 10, net -64 h, one-sided p = 0.997, rule not met, default stays 2 s. Repair ran 1.2 s either way. Exploratory: 180 rounds identical on 4 builds; 9M nodes repair 2.3 s, 342 gains, still -47 h vs 2 s. Code change: calc.mjs comment only. Verification: node --test repair-flow.test.mjs 6/6; run_venture_tests.py shift-roster-builder (see PR); post front matter, links and similarity checks clean. The commit-level venture-preflight was skipped: no page, route or user-facing surface changed.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4dfcabd5-1449-5ff3-b705-ad518ab85d3c",
+    "transcripts": 1,
+    "first": "2026-11-16T06:18:28Z",
+    "last": "2026-11-16T06:51:33Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 56,
+        "input": 119,
+        "output": 23107,
+        "thinking": 5221,
+        "cache_read": 5376619,
+        "cache_write_5m": 0,
+        "cache_write_1h": 100309,
+        "api_equivalent_usd": 2.3404,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 56,
+      "input": 119,
+      "output": 23107,
+      "thinking": 5221,
+      "cache_read": 5376619,
+      "cache_write_5m": 0,
+      "cache_write_1h": 100309,
+      "api_equivalent_usd": 2.3404,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 55,
+    "tools": {
+      "Bash": 49,
+      "Monitor": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 33.08,
+      "active_minutes": 8.29,
+      "model_minutes": 5.71,
+      "tool_minutes": 2.57,
+      "waiting_on_human_minutes": 24.79,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "an OR engineer pre-registering, running and writing up 3 x 48-build timing experiments",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 170.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

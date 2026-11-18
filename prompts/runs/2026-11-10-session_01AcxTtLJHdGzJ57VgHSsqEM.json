@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtLJHdGzJ57VgHSsqEM",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md (scheduled)",
+  "input_sha256": "cd0ba3c28e72eb05ac54bcdc8633f268035f29bc0285e41b0b6670e660ff0be6",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T02:08:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14407",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/explore/prompt-0.md",
+      "why": "Skipped CLAUDE.md's flagship/depth default for a small finishable tax-id extension; explore track permits free choice.",
+      "did": "Added MZ check digit and CR shape",
+      "result": "merged-ready, 0 mismatches vs stdnum"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-mozambique-nuit-costa-rica-tax-id-e-invoice.md"
+  ],
+  "goal": null,
+  "notes": "Idea: extend einvoice-preflight party tax-ID checks to countries in python-stdnum not yet wired (MZ, CR). Local runs: vat.test.mjs 34/34; full suite not run.",
+  "corrections": [],
+  "redteam": null
+}

@@ -9,6 +9,7 @@
 import { readFileSync } from "node:fs";
 import { suggest, trainClassifier, buildMemory, historyRecord } from "../categorize.mjs";
 import { parseLedger, MAP, INCOME } from "./hackclub-ledger.mjs";
+import { pathToFileURL } from "node:url";
 
 export function replay(rows, { learn = true } = {}) {
   const hist = [];
@@ -35,7 +36,7 @@ export function replay(rows, { learn = true } = {}) {
   return out;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const rows = parseLedger(readFileSync(process.argv[2] ?? "/tmp/hc/main.ledger", "utf8"));
   const pct = (a, b) => (b ? (100 * a / b).toFixed(1) + "%" : "-");
   for (const [name, o] of [["keywords only", replay(rows, { learn: false })], ["learning online", replay(rows)]]) {

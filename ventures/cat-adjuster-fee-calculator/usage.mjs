@@ -23,7 +23,8 @@ export function recordEvent(event = 'deployment-priced') {
   try {
     const ls = storage();
     if (!ls) return;
-    const counts = JSON.parse(ls.getItem(KEY) || '{}');
+    let counts = JSON.parse(ls.getItem(KEY) || '{}');
+    if (!counts || typeof counts !== 'object' || Array.isArray(counts)) counts = {};
     counts[event] = (counts[event] || 0) + 1;
     ls.setItem(KEY, JSON.stringify(counts));
   } catch { /* Private browsing must not break the calculator. */ }

@@ -38,7 +38,7 @@
 
 import { readFileSync, writeFileSync, globSync } from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const DRY = process.argv.includes('--dry');
@@ -52,7 +52,7 @@ const SKIP_BASENAMES = new Set(['proposal.mjs']);
  * `money`-shaped names only. `signedMoney` and friends already decide a sign of
  * their own — often a "+" as well — and prefixing another one would be wrong.
  */
-const NAME = String.raw`(?:money|moneyLabel|fmtMoney|formatMoney|money0|money2|usd|dollars|fmtUsd|formatUsd|formatUSD|currency)`;
+const NAME = String.raw`(?:money|moneyLabel|moneyCents|fmtMoney|formatMoney|money0|money2|usd|usd3|dollars|fmtUsd|formatUsd|formatUSD|currency|fmt|m|cad|cents|amt|\$)`;
 
 // A single-line template that opens with the currency symbol: `` `$${…}` ``.
 // `[^`]*` is safe because every one of these is one line with no nested
@@ -101,6 +101,62 @@ function rewriteDecl(match, name, param, expr, offset, source) {
   ].join('\n');
 }
 
+// Everything else check_money_sign.py flags (red team 2026-11-16): a one-line
+// expression body that puts the symbol before the number anywhere in it, by
+// template or by concatenation (`"$" + n.toFixed(2)`), often behind a guard
+// (`n == null ? "—" : "$" + ...`), and sometimes with a second parameter. The
+// original expression is kept whole as `format`, so guards, digits and grouping
+// are unchanged for anything that is not a negative number; a negative is
+// formatted as its magnitude and signed only when a nonzero digit shows.
+const SYMBOL = String.raw`(?:\`\$\$\{|["']\$["']\s*\+)`;
+const PARAMS = String.raw`\(\s*([A-Za-z_$][\w$]*)((?:\s*,[^()]*)?)\)|([A-Za-z_$][\w$]*)`;
+const ARROW_ANY = new RegExp(
+  String.raw`^([ \t]*)((?:export\s+)?(?:const|let)\s+)(${NAME})(\s*=\s*)(?:${PARAMS})\s*=>\s*(?!\{)([^\n]*${SYMBOL}[^\n]*);[ \t]*$`,
+  'gm'
+);
+const DECL_ANY = new RegExp(
+  String.raw`^([ \t]*)((?:export\s+)?function\s+)(${NAME})\s*\(\s*([A-Za-z_$][\w$]*)((?:\s*,[^()]*)?)\)\s*\{\s*return\s+([^\n]*${SYMBOL}[^\n]*);\s*\}[ \t]*$`,
+  'gm'
+);
+const SIGNED_ALREADY = /Math\.abs\s*\(|[-−]\$/;
+
+function generalBody(indent, param, expr) {
+  return [
+    `${indent}  const format = (${param}) => ${expr};`,
+    `${indent}  if (!(Number(${param}) < 0)) return format(${param});`,
+    `${indent}  const text = format(Math.abs(${param}));`,
+    `${indent}  return /[1-9]/.test(text) ? \`-\${text}\` : text;`,
+  ].join('\n');
+}
+
+function rewriteArrowAny(match, indent, kw, name, eq, p1, rest, p2, expr) {
+  if (SIGNED_ALREADY.test(expr)) return match;
+  const param = p1 || p2;
+  return [`${indent}${kw}${name}${eq}(${param}${rest || ''}) => {`, generalBody(indent, param, expr), `${indent}};`].join('\n');
+}
+
+function rewriteDeclAny(match, indent, kw, name, param, rest, expr) {
+  if (SIGNED_ALREADY.test(expr)) return match;
+  return [`${indent}${kw}${name}(${param}${rest || ''}) {`, generalBody(indent, param, expr), `${indent}}`].join('\n');
+}
+
+/** The source with every flagged formatter rewritten, and how many were. */
+export function rewrite(before) {
+  let count = 0;
+  const tally = (fn) => (...args) => {
+    const out = fn(...args);
+    if (out !== args[0]) count += 1;
+    return out;
+  };
+  const after = before
+    .replace(ARROW, tally(rewriteArrow))
+    .replace(DECL, tally(rewriteDecl))
+    .replace(ARROW_ANY, tally(rewriteArrowAny))
+    .replace(DECL_ANY, tally(rewriteDeclAny));
+  return { after, count };
+}
+
+function main() {
 const files = [
   ...globSync('ventures/*/*.html', { cwd: ROOT }),
   ...globSync('ventures/*/*.mjs', { cwd: ROOT }),
@@ -117,14 +173,7 @@ let changedSites = 0;
 for (const rel of files) {
   const abs = path.join(ROOT, rel);
   const before = readFileSync(abs, 'utf8');
-  let count = 0;
-  const tally = (fn) => (...args) => {
-    count += 1;
-    return fn(...args);
-  };
-  const after = before
-    .replace(ARROW, tally(rewriteArrow))
-    .replace(DECL, tally(rewriteDecl));
+  const { after, count } = rewrite(before);
   if (after === before) continue;
   changedFiles += 1;
   changedSites += count;
@@ -135,3 +184,6 @@ for (const rel of files) {
 console.log(
   `${DRY ? 'Would rewrite' : 'Rewrote'} ${changedSites} money() definition(s) in ${changedFiles} file(s).`
 );
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) main();

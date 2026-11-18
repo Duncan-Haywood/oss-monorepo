@@ -166,3 +166,9 @@ test("agrees with an independent closed-form log-log OLS with HC1 errors", () =>
   const t = tQuantile(0.975, n - 2);
   assert.ok(Math.abs(r.ci95[0] - (b - t * se)) < 1e-9 && Math.abs(r.ci95[1] - (b + t * se)) < 1e-9);
 });
+
+test("parseDate refuses 30 February instead of reading it as 2 March", () => {
+  assert.ok(Number.isNaN(parseDate("2026-02-30")));
+  assert.ok(Number.isNaN(parseDate("02/30/2026")));
+  assert.equal(parseDate("2024-02-29"), Date.UTC(2024, 1, 29));
+});

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqygCsWiirTSd6JtVDFh",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T07:40:15Z",
+  "ended": "2026-11-13T07:56:08Z",
+  "wall_minutes": 16.09,
+  "tokens_in": 8902741,
+  "tokens_out": 43173,
+  "cost_usd": 4.001,
+  "tool_calls": 68,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15422",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "The registered Willans fit (fuel on pump-side shaft power and engine speed) gave an impossible 0.055 L/kWh slope; diagnosed post hoc (pump estimates cover 35% of ECU power, HST shaft estimate wrong-signed) and reported as a failed method, with F4/F5 marked void rather than held.",
+    "run_workflow_locally --for-changes left 3 site-builder steps UNRUN on its 300 s budget (docs/posts triggers the site build); relied on CI for those."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md",
+      "issue": "6b-6d's Next (a) asked for a sourced no-load fuel rate; an hour of host probing (NCSU repository 000, core.ac.uk 403, semantic scholar 429, CARB report figures only) found none; the record already in hand gave the usable reading (low idle). A note in the programme that idle rates are rarely tabulated would have saved time."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally --for-changes on a research PR with a docs/posts file pulls in the full site-builder test, which exceeds its own 300 s budget and reports UNRUN; for research+post PRs the local run is mostly noise."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/heavy-hydraulics/LOG.md (6e method)",
+      "why": "The registered method said to evaluate at the nearest speed edge if 2100 rpm fell outside p5-p95; the script evaluated at 2100 anyway.",
+      "did": "Disclosed in the outcome; the fit is void for an independent reason (impossible slope), so the headline does not rest on it.",
+      "result": "no effect on conclusions"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-what-an-excavator-engine-burns-doing-nothing.md",
+    "research/heavy-hydraulics/LOG.md (6e)",
+    "research/heavy-hydraulics/README.md (Milestone 6e)"
+  ],
+  "goal": null,
+  "notes": "Advanced heavy-hydraulics (track 25) with milestone 6e. New sourced input: XE80E engine (Kubota V3307CRTE5, 3.3 L, 54.6 kW at 2200 rpm) from the opened XCMG brochure. Measured: loader low-idle 1.463 L/h at 800 rpm with pumps < 3 kW (28 s). Post-hoc floor (assumption labelled): >= 2.53 L/h at 2100 rpm carried by rated power; above 6c's threshold in 381/384 geometries at central parameters. Tests 59 pass; build.py ok; check_md_links ok; post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e153c342-7cdc-5717-8368-80a277368005",
+    "transcripts": 1,
+    "first": "2026-11-13T07:40:15Z",
+    "last": "2026-11-13T07:56:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 126,
+        "output": 43173,
+        "thinking": 13405,
+        "cache_read": 8728698,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173917,
+        "api_equivalent_usd": 4.001,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 126,
+      "output": 43173,
+      "thinking": 13405,
+      "cache_read": 8728698,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173917,
+      "api_equivalent_usd": 4.001,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 58,
+      "WebSearch": 4,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.09,
+      "active_minutes": 16.09,
+      "model_minutes": 7.08,
+      "tool_minutes": 9.01,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "source search, data diagnosis and write-up of one programme step by a hydraulics PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 249.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

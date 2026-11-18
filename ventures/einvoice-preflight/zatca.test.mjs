@@ -104,3 +104,17 @@ test("a simplified debit note (an Invoice document with type code 383) passes, a
     .replace(/\n\s*<cbc:InstructionNote>[^<]*<\/cbc:InstructionNote>/, "");
   assert.deepEqual(rules(await runPlain(xml)), [...ALWAYS, "BR-KSA-17", "BR-KSA-56"].sort());
 });
+
+// BR-KSA-F-13 binds $is-supplier := self::cac:AccountingSupplierParty as a rule variable and reads
+// it inside a predicate. Pasted in as text (before 2026-11-17) it asked the cbc:ID itself, so a
+// seller's ids were checked against the buyer's scheme list. plain-compile.mjs now binds it at the
+// party, as XSLT does: a sequential seller CRN still fails; a seller id under NAT (a buyer-only
+// scheme) is no longer read as a seller id by F-13.
+test("BR-KSA-F-13 uses the seller's scheme list for the seller", { skip }, async () => {
+  const base = read("zatca-simplified-invoice.xml");
+  assert.match(base, /<cbc:ID schemeID="CRN">1010010000<\/cbc:ID>/);
+  const f13 = async (xml) => (await runPlain(xml)).findings.filter((f) => f.rule === "BR-KSA-F-13").length;
+  assert.equal(await f13(base), 0);
+  assert.equal(await f13(base.replace('<cbc:ID schemeID="CRN">1010010000</cbc:ID>', '<cbc:ID schemeID="CRN">1234567890</cbc:ID>')), 1);
+  assert.equal(await f13(base.replace('<cbc:ID schemeID="CRN">1010010000</cbc:ID>', '<cbc:ID schemeID="NAT">1234567890</cbc:ID>')), 0);
+});

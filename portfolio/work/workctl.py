@@ -239,10 +239,22 @@ def cmd_next(args, directions, tasks) -> int:
     return 0
 
 
+def _shallow_fetch(args, cwd, timeout=None):
+    """`git fetch <args>` through platform/ci/shallow_repair.py, which drops the bogus
+    `.git/shallow` entry a --shallow-since fetch can leave (every later fetch then failed with
+    "error in object: unshallow", 2026-11-14). Falls back to a plain fetch if it cannot load."""
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "platform" / "ci"))
+        import shallow_repair
+        return shallow_repair.fetch(args, cwd=cwd, timeout=timeout, run=subprocess.run)
+    except ImportError:
+        return subprocess.run(["git", "fetch", *args], cwd=cwd, capture_output=True, text=True, timeout=timeout)
+
+
 def cmd_coverage(args, directions, tasks) -> int:
     if args.fetch:
         since = (datetime.now(timezone.utc) - timedelta(days=args.days + 1)).strftime("%Y-%m-%d")
-        subprocess.run(["git", "fetch", "-q", f"--shallow-since={since}", "origin", "main"], cwd=REPO)
+        _shallow_fetch(["-q", f"--shallow-since={since}", "origin", "main"], cwd=REPO)
     commits, oldest = commit_files(args.days)
     counts = coverage(directions, commits)
     open_by = {}

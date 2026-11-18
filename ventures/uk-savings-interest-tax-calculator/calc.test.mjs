@@ -59,3 +59,29 @@ test("zero interest is zero tax", () => {
   assert.equal(r.tax, 0);
   assert.equal(r.effective, 0);
 });
+
+// Quality audit round 61 (portfolio/quality/audits/2026-11-13-uk-savings-interest-tax-calculator.json).
+// Hand figures: tax on (other + interest) minus tax on other alone, 2026/27 GOV.UK bands.
+test("over £100,000 the tax counts the personal allowance the interest removes", () => {
+  // £100k + £10k: PA 7,570; taxable 102,430 -> 33,432 - 200 PSA relief = 33,232; other alone 27,432.
+  assert.equal(savingsTax(100000, 10000).tax, 5800);
+  assert.equal(savingsTax(100000, 10000).taperTax, 2000);
+  assert.equal(savingsTax(100000, 500).tax, 100);
+  assert.equal(savingsTax(120000, 10000).tax, 5271);
+  assert.equal(taxFreeInterest(100000), 0);
+  // Below the taper nothing changes.
+  assert.equal(savingsTax(60000, 2000).taperTax, 0);
+});
+
+test("band edges and whole-pound tax-free ceiling", () => {
+  assert.equal(savingsTax(49000, 1500).tax, 246); // PSA drops to £500 once taxable income passes 37,700
+  assert.equal(savingsTax(124000, 2000).psa, 0); // taxable 125,860 > 125,140: additional rate, no PSA
+  assert.equal(taxFreeInterest(0), 18570);
+  assert.equal(taxFreeInterest(30000), 1000);
+  assert.equal(taxFreeInterest(16000), 2570);
+});
+
+test("GOV.UK worked examples", () => {
+  assert.equal(savingsTax(16000, 200).tax, 0);
+  assert.equal(savingsTax(30000, 1300).tax, 60);
+});

@@ -19,8 +19,22 @@ export const REGIMES = {
   CH: "UWG art. 3(1)(o) (from memory, text unread): mass advertising email needs prior consent, a sender identity and a free opt-out. Hold cold email.",
   EU: "ePrivacy rules differ by country; many want consent or an existing relationship. Check the recipient's country before sending."
 };
+// Country names and common spellings people type instead of the 2-letter code (found 2026-11-09:
+// "Germany" fell through to "no rule recorded", so a consent hold was silently lost).
+const COUNTRY_NAMES = {
+  "united states": "US", "united states of america": "US", usa: "US", america: "US",
+  "united kingdom": "GB", uk: "GB", "great britain": "GB", britain: "GB", england: "GB", scotland: "GB", wales: "GB", "northern ireland": "GB",
+  canada: "CA", germany: "DE", deutschland: "DE", austria: "AT", "osterreich": "AT", "österreich": "AT",
+  australia: "AU", "new zealand": "NZ", switzerland: "CH", schweiz: "CH", suisse: "CH", france: "FR",
+  italy: "IT", italia: "IT", spain: "ES", "españa": "ES", espana: "ES", netherlands: "NL", "the netherlands": "NL", holland: "NL",
+  belgium: "BE", denmark: "DK", sweden: "SE", finland: "FI", ireland: "IE", poland: "PL", portugal: "PT",
+  "czech republic": "CZ", czechia: "CZ", greece: "GR", hungary: "HU", romania: "RO", bulgaria: "BG", croatia: "HR",
+  slovakia: "SK", slovenia: "SI", lithuania: "LT", latvia: "LV", estonia: "EE", luxembourg: "LU", malta: "MT", cyprus: "CY",
+  "european union": "EU", europe: "EU"
+};
 export function regime(country) {
-  const c = String(country || "").trim().toUpperCase();
+  const raw = String(country || "").trim().replace(/\.$/, "").replace(/\s+/g, " ");
+  const c = (COUNTRY_NAMES[raw.toLowerCase()] || raw).toUpperCase();
   if (!c) return { code: "", kind: "unknown", text: "No recipient country given, so only the checks that apply everywhere ran." };
   if (c === "UK") return regime("GB");
   if (REGIMES[c]) return { code: c, kind: c === "DE" || c === "AT" || c === "CA" || c === "AU" || c === "NZ" || c === "CH" ? "consent" : "notice", text: REGIMES[c] };
@@ -28,8 +42,8 @@ export function regime(country) {
   return { code: c, kind: "unknown", text: `No rule of thumb recorded for ${c}; check local law before sending.` };
 }
 
-const POSTAL = /\b\d{1,6}\s+[\w.'-]+(\s+[\w.'-]+){0,4}\s+(st|street|ave|avenue|rd|road|blvd|boulevard|ln|lane|dr|drive|way|ct|court|pl|place|suite|ste|floor|box|strasse|straße|rue|calle)\b|\bP\.?O\.?\s*Box\s*\d+|\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b|\b\d{5}-\d{4}\b|,\s*[A-Za-z]{2}\s+\d{5}\b/i;
-const OPT_OUT = /unsubscribe|opt[- ]?out|not hear from me|stop (emailing|contacting|these)|reply (with )?(stop|no)|remove me/i;
+const POSTAL = /\b\d{1,6}\s+[\w.'-]+(\s+[\w.'-]+){0,4}\s+(st|street|ave|avenue|rd|road|blvd|boulevard|ln|lane|dr|drive|way|ct|court|pl|place|suite|ste|floor|box|strasse|straße|rue|calle)\b|\bP\.?O\.?\s*Box\s*\d+|\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b|\b\d{5}-\d{4}\b|,\s*[A-Za-z]{2}\s+\d{5}\b|\b[\wäöüß.-]*(str\.|straße|strasse|gasse|platz|allee|weg|laan|straat)\s*\d+[a-z]?\b|,\s*\d{4,5}\s+[A-ZÄÖÜ][\wäöüß-]+/i;
+const OPT_OUT = /unsubscribe|opt[- ]?out|not hear from me|stop (emailing|contacting|these)|reply (with )?['\"“‘]?(stop|no)\b|(say|tell me|let me know|write) ?(me )?(to )?['\"“‘]?stop|remove (me|you)\b|take (me|you) off|no more (emails|messages)|abmelden|austragen|se désabonner|désinscri|darse de baja|cancelar suscripci/i;
 const FAKE_FWD = /^\s*(re|fw|fwd)\s*:/i;
 const DECEPTIVE = [[/\b(your (invoice|order|payment|account|package)|security alert|action required|urgent)\b/i, "Subject looks like a transactional or alarm message; CAN-SPAM bans deceptive subject lines"], [/\bfree (gift|trial|money)\b/i, "Subject leads with a free offer; make sure the body delivers exactly that"]];
 const SHOUT = /[A-Z]{4,}(\s+[A-Z]{4,}){1,}/;

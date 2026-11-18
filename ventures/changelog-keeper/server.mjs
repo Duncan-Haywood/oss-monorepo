@@ -8,6 +8,7 @@ import { newState, createEntry, updateEntry, remove, publicEntries, stats, plain
 import { toAtom, toJsonFeed } from "./feed.mjs";
 import { renderChangelog, renderAdmin } from "./page.mjs";
 import { widgetSource } from "./widget.mjs";
+import { pathToFileURL } from "node:url";
 
 export { newState };
 const env = process.env;
@@ -89,7 +90,7 @@ function readJson(path, fallback) {
   try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return fallback; throw e; }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const missing = ["ADMIN_KEY", "PUBLIC_URL"].filter((k) => !env[k]);
   if (missing.length) { console.error(`missing env: ${missing.join(", ")}`); process.exit(1); }
   const statePath = env.STATE || "state.json";

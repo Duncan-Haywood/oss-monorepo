@@ -3,6 +3,7 @@ import http.server
 import json
 import os
 import sys
+import ssl
 import threading
 import unittest
 from unittest import mock
@@ -38,7 +39,8 @@ class PlainProbe(unittest.TestCase):
     def setUpClass(cls):
         cls.srv = http.server.HTTPServer(("127.0.0.1", 0), Handler)
         cls.port = cls.srv.server_address[1]
-        threading.Thread(target=cls.srv.serve_forever, daemon=True).start()
+        # 0.05 s poll: shutdown() waits one poll, 0.5 s by default (perf run 2026-11-14).
+        threading.Thread(target=cls.srv.serve_forever, kwargs={"poll_interval": 0.05}, daemon=True).start()
 
     @classmethod
     def tearDownClass(cls):
@@ -46,6 +48,10 @@ class PlainProbe(unittest.TestCase):
 
     def probe(self, path):
         class NoTLS:
+            # http.client reads verify_mode and check_hostname off the context.
+            verify_mode = ssl.CERT_NONE
+            check_hostname = False
+
             def wrap_socket(self, sock, server_hostname=None):
                 return sock
         with mock.patch.dict(os.environ, {"HTTPS_PROXY": "", "https_proxy": ""}):
@@ -81,6 +87,19 @@ class PlainProbe(unittest.TestCase):
 
 
 class Proxy(unittest.TestCase):
+    def test_bare_host_proxy_defaults_to_port_80(self):
+        with mock.patch.dict(os.environ, {"HTTPS_PROXY": "proxy.test"}, clear=True):
+            self.assertEqual(site_probe._proxy_for("marisstella.app"), ("proxy.test", 80))
+        with mock.patch.dict(os.environ, {"HTTPS_PROXY": "proxy.test:3128"}, clear=True):
+            self.assertEqual(site_probe._proxy_for("marisstella.app"), ("proxy.test", 3128))
+
+    def test_is_ok_status_boundaries(self):
+        ok = lambda s: site_probe.is_ok({"status": s, "total": 0.1})
+        self.assertTrue(ok(200) and ok(399))
+        # a missing total counts as 0 s, so even a tight budget leaves it up
+        self.assertTrue(site_probe.is_ok({"status": 200}, slow=0.5))
+        self.assertFalse(ok(199) or ok(400) or ok(None))
+
     def test_no_proxy_match(self):
         env = {"HTTPS_PROXY": "http://127.0.0.1:3128", "NO_PROXY": "localhost,.example.com"}
         with mock.patch.dict(os.environ, env, clear=True):
@@ -89,6 +108,16 @@ class Proxy(unittest.TestCase):
             self.assertIsNone(site_probe._proxy_for("localhost"))
         with mock.patch.dict(os.environ, {}, clear=True):
             self.assertIsNone(site_probe._proxy_for("marisstella.app"))
+
+
+class ProbeCli(unittest.TestCase):
+    def test_probe_exits_zero_when_the_site_is_down(self):
+        # Documented: a probe records an outage, it does not fail on one.
+        import io
+        import contextlib
+        with mock.patch.dict(os.environ, {"HTTPS_PROXY": "", "https_proxy": ""}):
+            with contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(site_probe.main(["probe", "--url", "https://127.0.0.1:1", "--quiet"]), 0)
 
 
 class Summary(unittest.TestCase):
@@ -113,6 +142,15 @@ class Summary(unittest.TestCase):
         # The timed-out request has no status, so it is not in the latency figures.
         self.assertEqual(root["total_max"], 5.0)
         self.assertEqual(s["/writing/"]["cache_miss_share"], 1.0)
+
+    def test_exactly_at_the_slow_threshold_is_up(self):
+        # is_ok counts total <= slow as up, so the failure tally must not call
+        # a request that took exactly `slow` seconds "over" it.
+        rec = {"group": "static", "path": "/", "t": "2026-11-07T00:00:00Z",
+               "status": 200, "ttfb": 1.0, "total": 3.0, "cache": "HIT", "error": None}
+        row = site_probe.summarise([rec], slow=3.0)[0]
+        self.assertEqual(row["ok"], 1)
+        self.assertEqual(row["failures"], {})
 
     def test_since_filters_the_window(self):
         s = site_probe.summarise(self.recs(), since="2026-11-07T00:06:00")

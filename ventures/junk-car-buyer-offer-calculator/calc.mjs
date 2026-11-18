@@ -74,8 +74,8 @@ export function maxTowMiles(o) {
 // Share of the pulled parts that must sell for the ask to leave your target profit (NaN = even all of it is not enough, 0 = not needed).
 export function breakEvenSellThrough(o) {
   const per = o.partsRetail * (1 - o.partsFeePct / 100) / 100; // dollars per sell-through point
-  if (!(per > 0)) return NaN;
   const e = carEconomics(o);
+  if (!(per > 0)) return e.profitAtAsk >= o.targetProfit ? 0 : NaN; // no parts: the ask either works without them or never does
   const need = o.sellerAsk + o.targetProfit - (e.net - e.parts);
   const s = need / per;
   if (s <= 0) return 0;
@@ -83,16 +83,21 @@ export function breakEvenSellThrough(o) {
 }
 
 const rung = (o, ov) => { const e = carEconomics(o, ov); return { ...ov, profit: e.profitAtAsk, maxOffer: e.maxOffer }; };
-export const scrapLadder = (o, steps = [0.6, 0.8, 1, 1.25, 1.5]) => steps.map((k) => ({ scrapPricePerTon: Math.round(o.scrapPricePerTon * k), ...rung(o, { scrapPricePerTon: o.scrapPricePerTon * k }) }));
-export const converterLadder = (o, steps = [0, 0.5, 1, 2, 4]) => steps.map((k) => ({ converterValue: Math.round(o.converterValue * k), ...rung(o, { converterValue: o.converterValue * k }) }));
+export const scrapLadder = (o, steps = [0.6, 0.8, 1, 1.25, 1.5]) => steps.map((k) => ({ ...rung(o, { scrapPricePerTon: o.scrapPricePerTon * k }), scrapPricePerTon: Math.round(o.scrapPricePerTon * k) }));
+export const converterLadder = (o, steps = [0, 0.5, 1, 2, 4]) => steps.map((k) => ({ ...rung(o, { converterValue: o.converterValue * k }), converterValue: Math.round(o.converterValue * k) }));
 export const sellThroughLadder = (o, steps = [0, 25, 50, 75, 100]) => steps.map((s) => ({ partsSellThroughPct: s, ...rung(o, { partsSellThroughPct: s }) }));
 export const towLadder = (o, steps = [5, 15, 30, 50, 80]) => steps.map((m) => ({ towMiles: m, ...rung(o, { towMiles: m }) }));
-export const weightLadder = (o, steps = [0.6, 0.8, 1, 1.2, 1.5]) => steps.map((k) => ({ weightLbs: Math.round(o.weightLbs * k), ...rung(o, { weightLbs: o.weightLbs * k }) }));
+export const weightLadder = (o, steps = [0.6, 0.8, 1, 1.2, 1.5]) => steps.map((k) => ({ ...rung(o, { weightLbs: o.weightLbs * k }), weightLbs: Math.round(o.weightLbs * k) }));
 
 export function analyze(raw) {
   const o = { ...DEFAULTS };
-  for (const k of Object.keys(DEFAULTS)) if (raw && Number.isFinite(num(raw[k]))) o[k] = num(raw[k]);
   const warnings = [];
+  // A field left out takes its default; a field given but blank or unreadable is reported, never silently replaced by the example value.
+  for (const k of Object.keys(DEFAULTS)) {
+    if (!raw || raw[k] === undefined || raw[k] === null) continue;
+    if (Number.isFinite(num(raw[k]))) o[k] = num(raw[k]);
+    else warnings.push(`${k} is blank or not a number; enter 0 if it does not apply.`);
+  }
   for (const k of Object.keys(DEFAULTS)) if (o[k] < 0) warnings.push(`${k} cannot be negative.`);
   if (!(o.weightLbs > 0)) warnings.push("Enter the car's weight above zero.");
   if (o.removedLbs > o.weightLbs) warnings.push("The parts you pull cannot weigh more than the car.");

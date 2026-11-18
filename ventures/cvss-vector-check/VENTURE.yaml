@@ -1,0 +1,53 @@
+name: cvss-vector-check
+description: >-
+  Free browser tool and CLI for security engineers and maintainers: scores
+  CVSS v3.1 and v3.0 vector strings (base, temporal, environmental) with every
+  metric explained, compares two vectors metric by metric with the effect of
+  each difference, and audits a pasted report, CSV or NVD / OSV / scanner JSON
+  for stated scores and severity labels that do not match their own vectors,
+  naming the likely cause. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Screened 2026-11-17 in an explore run. duplicate_check.py: top score 0.09
+# (cors-misconfig-check), nothing near the 0.45 bar; no venture names CVSS.
+# npm-audit-triage, pip-audit-triage and cargo-audit-triage sort scanner
+# findings by reachability; none recomputes or checks a CVSS score.
+#
+# Why a tool and not a chatbot answer: a CVSS score is exact arithmetic with a
+# rounding rule that floating point gets wrong (228 of 259,200 v3.0 temporal
+# scores under a naive Math.ceil), and an audit of a 300-row report is a job
+# for code. The engine agrees with Red Hat's independent `cvss` package on the
+# whole base+temporal space of both versions (oracle/, README).
+#
+# First visitor: people searching "cvss score does not match vector", "cvss
+# 3.0 vs 3.1 difference", "why is nvd score different from vendor score";
+# volume not measured with an external tool.
+
+hypotheses:
+  - claim: >-
+      Security engineers who meet two different scores for one vulnerability,
+      or who publish advisories, will use a paste-in tool that names the
+      differing metrics and flags mismatched stated scores, rather than
+      re-entering each vector into FIRST's calculator by hand.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a pasted report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a CVSS v3 vector where this tool's score disagrees with FIRST's published calculator and the cause is the engine, twice after fixes.
+
+links:
+  production: https://marisstella.app/cvss-vector-check/
+  analytics: null

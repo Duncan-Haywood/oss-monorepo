@@ -11,6 +11,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { parseTransactions, overview, toDisposalsCsv, fmtQty, round2, SAMPLE_CSV, TAX_YEARS } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `UK crypto capital gains from a CSV: HMRC same-day, 30-day and Section 104 pool matching.
 
@@ -116,7 +117,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { code, text } = await run(process.argv.slice(2));
     (code === 0 ? process.stdout : process.stderr).write(text.endsWith("\n") ? text : text + "\n");

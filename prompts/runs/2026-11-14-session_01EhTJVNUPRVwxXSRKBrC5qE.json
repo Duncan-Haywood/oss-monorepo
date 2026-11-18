@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01EhTJVNUPRVwxXSRKBrC5qE",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures brief (continue work on the repo ... merge when done)",
+  "input_sha256": "3f292b268e63b0d72b6982886f7530a713ccb708bab3de8d9cc166b1c9e89c6c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T02:04:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen flagship 6 (shift-roster-builder): staff shared between sites",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": 15689,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says website requests come first for venture work, but the router's allocate.py output names a flagship row to start on and never mentions portfolio/requests/. All five requests show status building with no slug, so it is unclear whether a run should take one. I followed the router."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-one-staff-list-for-two-shops.md",
+    "ventures/shift-roster-builder/README.md#staff-shared-between-sites-2026-11-14"
+  ],
+  "goal": "One build plans several shops from one staff list, with the hour limits holding across them, and a measurement of what pooling buys.",
+  "notes": "Landed site: on shifts and sites: on people, with eligibility in available() so the search, the exact check and branch-and-price all see the rule through ctx.elig. Also: the siteSplit report (CLI text and JSON, a page table), a site column in the roster CSV (added only when sites are used), site-aware pinStarted, keep and slotKey, and --each-location tagging its lines. Verification: python3 platform/ci/run_venture_tests.py shift-roster-builder passed (126.8 s; 521 existing tests plus 8 new in sites.test.mjs). The eval (eval/shared-staff-sites.out.txt, 40 made-up weeks): separate 1,040 open hours; joint with f=0 also 1,040 on every seed; f=1 gave 464. A headless Chromium run of a two-site week on index.html showed the By site table with no page errors. venture-preflight is in the PR summary.",
+  "corrections": [],
+  "redteam": null
+}

@@ -7,7 +7,7 @@ const num = (v) => (v === "" || v === null || v === undefined ? NaN : Number(v))
 export function money(x) {
   const v = r2(x);
   const s = Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return (v < 0 ? "-$" : "$") + s;
+  return ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(s);
 }
 
 export function loanPayment(principal, aprPct, months) {

@@ -78,8 +78,10 @@ following it, so recipients can check a link before opening it.
 Per link and day: clicks, bot hits, unique visitors, referrer **host** (never
 the path or query), device class, browser family and, when your proxy sends
 `CF-IPCountry`, `X-Vercel-IP-Country` or `X-Country`, a two-letter country.
-Unique visitors use a hash with a random salt that is discarded at the end of
-each UTC day. No IP address, raw User-Agent or cookie is ever stored, and a
+Unique visitors use a hash with a random salt that is replaced on the first
+click of each new UTC day; until that click the previous day's salt stays in
+the state file next to that day's hashes, so on a quiet link it can sit on
+disk for days. No IP address, raw User-Agent or cookie is ever stored, and a
 visitor cannot be followed across days. Bots (crawlers, link-preview fetchers,
 `curl`) are counted apart. Daily rows are kept 400 days.
 

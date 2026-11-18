@@ -1,0 +1,36 @@
+replay of the committed default ratios (7aj k=3, 7ah tau=0.1): 27 of 27 identical; differ []
+P1 coverage >= 93% in every cell and rule: yes
+(observation) oracle sign right (7 costly, 15 gain cells): no, misses [('1.5B fear', 500)]
+0.5B fear n 500: oracle 1.049; default 1.027 (17% cells, cov 95.1), m=0 1.002 (2% cells, cov 94.1), m=0.02 1.001 (1% cells, cov 93.9); mean pilot forecast when admitted 1.066
+0.5B fear n 1000: oracle 0.941; default 0.961 (64% cells, cov 96.2), m=0 0.961 (52% cells, cov 95.8), m=0.02 0.963 (44% cells, cov 95.7); mean pilot forecast when admitted 0.937
+0.5B fear n 2000: oracle 0.901; default 0.914 (90% cells, cov 94.3), m=0 0.914 (90% cells, cov 94.3), m=0.02 0.914 (89% cells, cov 94.3); mean pilot forecast when admitted 0.894
+0.5B sadness n 500: oracle 1.032; default 1.027 (56% cells, cov 95.4), m=0 0.993 (16% cells, cov 94.2), m=0.02 0.993 (11% cells, cov 94.1); mean pilot forecast when admitted 1.033
+0.5B sadness n 1000: oracle 1.035; default 1.027 (88% cells, cov 95.5), m=0 0.987 (31% cells, cov 94.8), m=0.02 0.988 (24% cells, cov 94.6); mean pilot forecast when admitted 1.019
+0.5B sadness n 2000: oracle 0.945; default 0.942 (97% cells, cov 95.0), m=0 0.946 (84% cells, cov 95.0), m=0.02 0.950 (75% cells, cov 95.4); mean pilot forecast when admitted 0.942
+1.5B admiration n 500: oracle 0.819; default 0.910 (59% cells, cov 95.6), m=0 0.910 (59% cells, cov 95.6), m=0.02 0.910 (59% cells, cov 95.6); mean pilot forecast when admitted 0.858
+1.5B admiration n 1000: oracle 0.801; default 0.801 (96% cells, cov 95.9), m=0 0.801 (96% cells, cov 95.9), m=0.02 0.801 (96% cells, cov 95.9); mean pilot forecast when admitted 0.798
+1.5B admiration n 2000: oracle 0.752; default 0.742 (100% cells, cov 93.4), m=0 0.742 (100% cells, cov 93.4), m=0.02 0.742 (100% cells, cov 93.4); mean pilot forecast when admitted 0.745
+1.5B fear n 500: oracle 0.933; default 1.014 (13% cells, cov 94.6), m=0 1.001 (3% cells, cov 94.2), m=0.02 1.000 (2% cells, cov 94.3); mean pilot forecast when admitted 1.052
+1.5B fear n 1000: oracle 0.834; default 0.918 (56% cells, cov 96.1), m=0 0.920 (53% cells, cov 96.3), m=0.02 0.926 (49% cells, cov 96.1); mean pilot forecast when admitted 0.892
+1.5B fear n 2000: oracle 0.818; default 0.831 (94% cells, cov 96.0), m=0 0.831 (94% cells, cov 96.0), m=0.02 0.831 (94% cells, cov 96.0); mean pilot forecast when admitted 0.826
+1.5B sadness n 500: oracle 0.796; default 0.973 (26% cells, cov 95.1), m=0 0.974 (21% cells, cov 95.1), m=0.02 0.976 (18% cells, cov 95.1); mean pilot forecast when admitted 0.932
+1.5B sadness n 1000: oracle 0.775; default 0.856 (71% cells, cov 97.3), m=0 0.856 (70% cells, cov 97.4), m=0.02 0.857 (69% cells, cov 97.2); mean pilot forecast when admitted 0.818
+1.5B sadness n 2000: oracle 0.715; default 0.714 (99% cells, cov 93.7), m=0 0.714 (99% cells, cov 93.7), m=0.02 0.714 (99% cells, cov 93.7); mean pilot forecast when admitted 0.714
+lexicon-en 0.02 n 600: oracle 1.218; default 1.024 (8% cells, cov 95.1), m=0 1.000 (0% cells, cov 94.1), m=0.02 1.000 (0% cells, cov 94.1); mean pilot forecast when admitted 1.190
+lexicon-en 0.02 n 2000: oracle 1.051; default 1.007 (12% cells, cov 94.5), m=0 1.003 (3% cells, cov 94.0), m=0.02 1.004 (1% cells, cov 95.7); mean pilot forecast when admitted 1.010
+lexicon-en 0.05 n 600: oracle 1.220; default 1.028 (15% cells, cov 95.2), m=0 1.000 (0% cells, cov 94.7), m=0.02 1.000 (0% cells, cov 94.7); mean pilot forecast when admitted 1.196
+lexicon-en 0.05 n 2000: oracle 1.063; default 1.000 (3% cells, cov 95.7), m=0 1.000 (0% cells, cov 94.3), m=0.02 1.000 (0% cells, cov 94.3); mean pilot forecast when admitted 1.042
+lexicon-en 0.1 n 600: oracle 1.221; default 1.014 (8% cells, cov 95.2), m=0 1.000 (0% cells, cov 94.3), m=0.02 1.000 (0% cells, cov 94.3); mean pilot forecast when admitted 1.215
+lexicon-en 0.1 n 2000: oracle 1.087; default 1.003 (1% cells, cov 95.3), m=0 1.000 (0% cells, cov 96.2), m=0.02 1.000 (0% cells, cov 96.2); mean pilot forecast when admitted 1.076
+nb-in-language 0.02 n 600: oracle 0.919; default 0.993 (13% cells, cov 94.3), m=0 0.995 (9% cells, cov 95.2), m=0.02 0.998 (7% cells, cov 93.5); mean pilot forecast when admitted 0.975
+nb-in-language 0.02 n 2000: oracle 0.915; default 0.929 (85% cells, cov 95.3), m=0 0.927 (81% cells, cov 95.0), m=0.02 0.935 (76% cells, cov 95.0); mean pilot forecast when admitted 0.919
+nb-in-language 0.05 n 600: oracle 0.933; default 0.963 (69% cells, cov 94.8), m=0 0.961 (58% cells, cov 95.5), m=0.02 0.964 (49% cells, cov 95.6); mean pilot forecast when admitted 0.949
+nb-in-language 0.05 n 2000: oracle 0.929; default 0.926 (100% cells, cov 94.9), m=0 0.928 (98% cells, cov 95.1), m=0.02 0.931 (93% cells, cov 94.5); mean pilot forecast when admitted 0.926
+nb-in-language 0.1 n 600: oracle 0.950; default 0.953 (98% cells, cov 94.9), m=0 0.950 (87% cells, cov 95.2), m=0.02 0.957 (70% cells, cov 96.1); mean pilot forecast when admitted 0.954
+nb-in-language 0.1 n 2000: oracle 0.948; default 0.951 (100% cells, cov 94.0), m=0 0.951 (100% cells, cov 95.3), m=0.02 0.952 (95% cells, cov 94.5); mean pilot forecast when admitted 0.949
+m=0: worst ratio in the 7 cells the default made wider than 1.010: 1.002; worst ratio in any cell 1.003; keeps 100% of the default's gain over the 15 cells with default ratio < 0.97
+m=0.02: worst ratio in the 7 cells the default made wider than 1.010: 1.001; worst ratio in any cell 1.004; keeps 98% of the default's gain over the 15 cells with default ratio < 0.97
+P2 m=0 brings every costly cell to <= 1.010: yes
+P3 m=0 keeps >= 90% of the gain: yes
+P4 m=0.02 keeps less of the gain than m=0: yes
+Decision rule: WIDTH_MARGIN 0 becomes the default

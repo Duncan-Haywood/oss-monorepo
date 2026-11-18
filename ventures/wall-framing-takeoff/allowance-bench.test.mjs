@@ -59,3 +59,14 @@ test("break-even waste: the rule's own 10% waste is the break-even when it alrea
   assert.ok(Math.abs(b.perFoot - 0) < 1e-12);   // 110 / 1.1 = 100: zero waste matches
   assert.ok(Math.abs(b.onCentre - (-0.5)) < 1e-12); // 200 raw vs 100 counted: -50%
 });
+
+test("the rules size studs from each wall's own studLength when it has one", () => {
+  const base = { ...samplePlan(), studLength: 96 };
+  const wall = (studLength) => ({ id: "A", length: 192, stud: "2x4", ...(studLength ? { studLength } : {}) });
+  const flat = compare({ ...base, walls: [wall()] });
+  const tall = compare({ ...base, walls: [wall(120)] });
+  assert.ok(flat.ok && tall.ok);
+  // per-foot rule by hand: 16 ft wall, one stud per foot at 8 ft (or 10 ft) plus three plates, +10% waste
+  assert.ok(Math.abs(flat.perFoot - 1.1 * (16 * 8 + 48)) < 1e-9);
+  assert.ok(Math.abs(tall.perFoot - 1.1 * (16 * 10 + 48)) < 1e-9);
+});

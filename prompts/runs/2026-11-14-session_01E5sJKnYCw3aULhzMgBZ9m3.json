@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKnYCw3aULhzMgBZ9m3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T00:18:50Z",
+  "ended": "2026-11-14T00:31:27Z",
+  "wall_minutes": 12.87,
+  "tokens_in": 4654704,
+  "tokens_out": 29049,
+  "cost_usd": 2.4306,
+  "tool_calls": 44,
+  "task": "heavy-hydraulics milestone 6n: put the Casappa (6k) and Danfoss (6m) break-even sweeps on one efficiency axis; paper sections 3.7m and 3.7n",
+  "projects": [
+    "research/heavy-hydraulics"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15665",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first run of gear_pump_crux.py filtered the shared flow range with a rounded 157.3 L/min and dropped Casappa's largest size (157.35), contrary to the pre-registered method",
+      "fix": "range computed from the two tables; corrected before any result was used, disclosed in LOG.md"
+    },
+    {
+      "what": "blog post seo_title 85 characters failed check_post_frontmatter and the site-builder tests",
+      "fix": "shortened to 59"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "'Cloud sessions: data hosts' says probe first; this session's proxy refused huggingface.co, which 6k and 6m had reached, so the heavy-hydraulics motion cache could not be refilled. Programme LOG 'Next' items that need a rerun should say whether they need network, so an offline session can pick a step without probing."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "LOG Next (a), a measured gear-pump efficiency, needs reachable literature/maker hosts and all probed hosts answered 403",
+      "did": "took a step computable from committed results (a cross-maker crux analysis) plus Next (b), the paper section",
+      "result": "landed a new result (both makers flip at 0.828 to 0.831 at the optimum size) and the paper section"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-two-gear-pump-makers-one-number.md",
+    "research/heavy-hydraulics/LOG.md (6n)"
+  ],
+  "goal": null,
+  "notes": "Local checks: heavy-hydraulics pytest 67 passed (python3.13); paper/check_numbers.py 288 claims 0 missing; build_tex 0 problems; research/_homepage/build.py ok; research_live_links and check_md_links ok; check_post_frontmatter ok after the seo_title fix. run_workflow_locally --for-changes: research-ci 3/3 run steps passed; the only failures were the seo_title length (fixed). No docs/reports agent doc: the LOG.md entry carries what the next run needs. platform/pages node --test after the fix: 1617 pass, 0 fail, 26 skipped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "da9a5101-937d-511c-8dbb-ea2cb176a84d",
+    "transcripts": 1,
+    "first": "2026-11-14T00:18:50Z",
+    "last": "2026-11-14T00:31:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 81,
+        "output": 29049,
+        "thinking": 5006,
+        "cache_read": 4536882,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117741,
+        "api_equivalent_usd": 2.4306,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 81,
+      "output": 29049,
+      "thinking": 5006,
+      "cache_read": 4536882,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117741,
+      "api_equivalent_usd": 2.4306,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 39,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.87,
+      "active_minutes": 12.87,
+      "model_minutes": 4.64,
+      "tool_minutes": 8.22,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer reading two results files, writing the cross-maker analysis, figure and two paper sections",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 246.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

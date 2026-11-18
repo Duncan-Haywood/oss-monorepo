@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNPAPt8qRgtzBjatva",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T04:04:48Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "einvoice-preflight flagship slice: ISS rate band (LC 116 art. 8, 8-A, 8-B) on ABRASF and national NFS-e",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16084,
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "planalto.gov.br, lexml.gov.br and pt.wikisource.org refused by the proxy",
+      "fix": "read LC 116 from a public JSON mirror found by GitHub code search"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-brazil-iss-rate-two-to-five-percent.md",
+    "ventures/einvoice-preflight/eval/iss-rate-band-2026-11-15.md"
+  ],
+  "goal": "Close the 'municipal rates' open item as far as federal law allows: judge every stated ISS rate against the national 2%-5% band.",
+  "notes": "New iss-rate.mjs (band, 7.02/7.05/16.01 exceptions, 2029-2032 art. 8-B scaling, burden after a municipal benefit) wired as ABR-024 and NFSE-024. 489 public NFS-e files (326 ABRASF, 163 national; 376 with a nonzero rate): 11 flagged, all Unimake test fixtures with impossible rates (6.3, 10, 1000%); 8 Simples Nacional files under 2% skipped and said; no other hit. Local checks: run_venture_tests.py einvoice-preflight ok (iss-rate.test.mjs 7/7, abrasf/nfse/dsf/report 78/78); venture-preflight run in background, result in PR.",
+  "corrections": [],
+  "redteam": null
+}

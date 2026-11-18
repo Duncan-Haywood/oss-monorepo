@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 import { extractWithAi } from "./ai.mjs";
 import { configFromEnv } from "./byok.mjs";
 import { extract, actionsCsv, actionsMarkdown, actionsIcs, followUpEmail, slackMessage, carryOver, carryOverMarkdown, workload, workloadMarkdown } from "./extract.mjs";
+import { pathToFileURL } from "node:url";
 
 export async function main(argv, io = { log: console.log, err: console.error, read: (f) => readFile(f, "utf8"), env: process.env, fetch: undefined }) {
   const opt = (name) => (argv.includes(name) ? argv[argv.indexOf(name) + 1] : null);
@@ -42,4 +43,4 @@ export async function main(argv, io = { log: console.log, err: console.error, re
   return r.counts.unowned ? 1 : 0; // exit 1: something still needs an owner, so a CI step can gate on it
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) process.exit(await main(process.argv.slice(2)));
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) process.exit(await main(process.argv.slice(2)));

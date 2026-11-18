@@ -6,7 +6,9 @@ the estimator Stata's `svy: mean, over()` and R's `survey::svyby` use. Strata wi
 single PSU are pooled into one stratum ("adjust" in Stata terms is not used; pooling is
 the conservative "certainty-collapse" choice and is reported by `design_summary`).
 """
+import math
 from math import sqrt
+
 import numpy as np
 
 Z95 = 1.959963984540054
@@ -108,10 +110,45 @@ def logit(X, y, w, dom, strata, psu, iters=50, tol=1e-10):
     return b, Hi @ V @ Hi, int(ok.sum())
 
 
+def _chi2_sf(x, k):
+    """Chi-square survival function without scipy: Q(k/2, x/2), series or continued fraction."""
+    if x <= 0:
+        return 1.0
+    a, z = k / 2.0, x / 2.0
+    lg = math.lgamma(a)
+    if z < a + 1:
+        term = tot = 1.0 / a
+        n = a
+        for _ in range(1000):
+            n += 1
+            term *= z / n
+            tot += term
+            if abs(term) < abs(tot) * 1e-15:
+                break
+        return max(0.0, 1.0 - tot * math.exp(-z + a * math.log(z) - lg))
+    tiny = 1e-300
+    bb = z + 1 - a
+    c = 1 / tiny
+    d = 1 / bb
+    h = d
+    for i in range(1, 1000):
+        an = -i * (i - a)
+        bb += 2
+        d = an * d + bb
+        d = tiny if abs(d) < tiny else d
+        c = bb + an / c
+        c = tiny if abs(c) < tiny else c
+        d = 1 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1) < 1e-15:
+            break
+    return h * math.exp(-z + a * math.log(z) - lg)
+
+
 def wald(b, cov, idx):
     """Wald chi-square statistic, df and p-value that the coefficients at idx are all zero."""
-    from scipy.stats import chi2
     idx = list(idx)
     bb = b[idx]
     stat = float(bb @ np.linalg.solve(cov[np.ix_(idx, idx)], bb))
-    return stat, len(idx), float(chi2.sf(stat, len(idx)))
+    return stat, len(idx), _chi2_sf(stat, len(idx))

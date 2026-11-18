@@ -1,0 +1,513 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqycFmXLfemHMGpSN8fH",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T20:39:26Z",
+  "ended": "2026-11-13T20:40:01Z",
+  "wall_minutes": 16.26,
+  "tokens_in": 4149391,
+  "tokens_out": 19658,
+  "cost_usd": 1.849,
+  "tool_calls": 49,
+  "task": "redteam campaign (scheduled run, weighted draw)",
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15610",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "Blog post description was 168 chars; check_post_frontmatter.py caught it in the local run and it was shortened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix the open list first, but all 10 open entries are control-plane workflow edits that already have owner-gated PRs (#14612, #12926/#14877, #14808, #14698, #14894, #15201, #15248, #15561, #12928). A run on one branch can do nothing with them, and `redteam.py open` does not show the existing PR, so each run spends time searching for it. Suggest a `pr` field on open entries and a filter that hides entries waiting on the owner."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The suggested aim at files that changed on main in the last 3 days (shift-roster-builder, changepoint-detector) found only suites over 20 s, so the run fell back to the random draw."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a guard that runs without an agent. The defect class (keyword regexes with no word boundaries in transaction categorisers) is in only one file in ventures/ (grep for unit\\s?\\w+ and |lease|), and a generic lint would fire on many legitimate substring patterns.",
+      "did": "Covered it with a test of lookalike words in the venture's own suite, which ventures-tests.yml runs on every PR. No new lint.",
+      "result": "The guard covers this venture only."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-united-airlines-is-not-rent.md"
+  ],
+  "goal": null,
+  "notes": "Three campaigns (visit-keeper/usage.mjs, rental-property-schedule-e-categorizer/calc.mjs, crypto-cost-basis-calculator/calc.mjs), 8 mutants each: 18 of 24 caught (78% of the 23 non-equivalent). Of the 6 escapes, 1 is equivalent and 5 are gaps (rerun: all caught_after_fix true). One real defect was found by reading the code and patched. Checked locally: node --test in all three ventures (44, 129, 43 pass) and run_workflow_locally.py --for-changes. platform/pages suite run locally after the post fix: 1616 pass, 1 fail ('an identical build produces an identical cache name', build.test.mjs:3437). It passes alone (--test-name-pattern), so it depends on order or concurrency in a full parallel run and is unrelated to this diff. The test job in CI was green.",
+  "corrections": [
+    "First count in the PR body and post said 19 of 24 caught; the tally says 18 of 24 (7+5+6). Corrected before merge."
+  ],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/visit-keeper/usage.mjs",
+        "test": "node --test ventures/visit-keeper/**/*.test.mjs  (in .)",
+        "seed": 872377134,
+        "commit": "2d6a68b60",
+        "sites": 24,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 13,
+            "col": 11,
+            "operator": "true-to-false",
+            "before": "return true;",
+            "after": "return false;",
+            "line_text": "    return true;",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "noStorage() catch path: when reading the localStorage global throws, every later access in record/readUsage/setUsageOptOut/usageOptedOut is inside its own try/catch, so returning false only routes the same SecurityError to a different catch; no counter, flag or exception differs."
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 22,
+            "col": 39,
+            "operator": "true-to-false",
+            "before": "if (globalThis.__usageOptOut) return true;",
+            "after": "if (globalThis.__usageOptOut) return false;",
+            "line_text": "  if (globalThis.__usageOptOut) return true;",
+            "caught": true,
+            "seconds": 0.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 34,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack !== \"1\" || navigator.globalPrivacyControl) return true;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 34,
+            "col": 79,
+            "operator": "true-to-false",
+            "before": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "after": "if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return false;",
+            "line_text": "    if (navigator.doNotTrack === \"1\" || navigator.globalPrivacyControl) return true;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 49,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "after": "if (!current || typeof current !== \"object\" && Array.isArray(current)) current = {};",
+            "line_text": "  if (!current || typeof current !== \"object\" || Array.isArray(current)) current = {};",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 50,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 1) + 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 50,
+            "col": 41,
+            "operator": "plus-to-minus",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) - 1;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/visit-keeper/usage.mjs",
+            "line": 50,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "current[event] = (current[event] || 0) + 1;",
+            "after": "current[event] = (current[event] || 0) + 2;",
+            "line_text": "  current[event] = (current[event] || 0) + 1;",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+        "test": "node --test ventures/rental-property-schedule-e-categorizer/**/*.test.mjs  (in .)",
+        "seed": 840918276,
+        "commit": "2d6a68b60",
+        "sites": 300,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 141,
+            "col": 129,
+            "operator": "const-plus-one",
+            "before": "const usd = (n) => (n < 0 ? \"-$\" : \"$\") + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 });",
+            "after": "const usd = (n) => (n < 0 ? \"-$\" : \"$\") + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 3 });",
+            "line_text": "const usd = (n) => (n < 0 ? \"-$\" : \"$\") + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: summary flag text for a 100.004 threshold reads $100.00"
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 166,
+            "col": 32,
+            "operator": "const-plus-one",
+            "before": "} else if ((m = s.match(/^(\\d{1,2})\\s+([A-Za-z]{3})[a-z]*\\.?,?\\s+(\\d{4})/))) {",
+            "after": "} else if ((m = s.match(/^(\\d{2,2})\\s+([A-Za-z]{3})[a-z]*\\.?,?\\s+(\\d{4})/))) {",
+            "line_text": "  } else if ((m = s.match(/^(\\d{1,2})\\s+([A-Za-z]{3})[a-z]*\\.?,?\\s+(\\d{4})/))) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 167,
+            "col": 121,
+            "operator": "const-plus-one",
+            "before": "mo = \"jan feb mar apr may jun jul aug sep oct nov dec\".split(\" \").indexOf(m[2].toLowerCase()) + 1; d = +m[1]; y = +m[3];",
+            "after": "mo = \"jan feb mar apr may jun jul aug sep oct nov dec\".split(\" \").indexOf(m[2].toLowerCase()) + 1; d = +m[1]; y = +m[4];",
+            "line_text": "    mo = \"jan feb mar apr may jun jul aug sep oct nov dec\".split(\" \").indexOf(m[2].toLowerCase()) + 1; d = +m[1]; y = +m[3];",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 202,
+            "col": 24,
+            "operator": "lt-to-le",
+            "before": "for (let i = h + 1; i < table.length; i++) {",
+            "after": "for (let i = h + 1; i <= table.length; i++) {",
+            "line_text": "  for (let i = h + 1; i < table.length; i++) {",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 271,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (/security dep|deposit/.test(d) && /security/.test(d)) return { key: \"security_deposit\", source: \"built-in\" };",
+            "after": "if (/security dep|deposit/.test(d) || /security/.test(d)) return { key: \"security_deposit\", source: \"built-in\" };",
+            "line_text": "    if (/security dep|deposit/.test(d) && /security/.test(d)) return { key: \"security_deposit\", source: \"built-in\" };",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: SECURITY CAMERA REFUND credit stays uncategorised"
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 289,
+            "col": 32,
+            "operator": "minus-to-plus",
+            "before": "const outOfYear = txns.length - inYear.length;",
+            "after": "const outOfYear = txns.length + inYear.length;",
+            "line_text": "  const outOfYear = txns.length - inYear.length;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 349,
+            "col": 26,
+            "operator": "plus-to-minus",
+            "before": "const income = t.rent + t.other_income;",
+            "after": "const income = t.rent - t.other_income;",
+            "line_text": "    const income = t.rent + t.other_income;",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: rent + late fee income = 1050"
+          },
+          {
+            "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+            "line": 350,
+            "col": 60,
+            "operator": "eq-flip",
+            "before": "const lines = lineKeys.filter((k) => CATEGORIES[k].kind === \"expense\").map((k) => ({ key: k, label: CATEGORIES[k].label, line: CATEGORIES[k].line, amount: r2(k === \"mortgage_interest\" ? interest : -t[k]) }));",
+            "after": "const lines = lineKeys.filter((k) => CATEGORIES[k].kind !== \"expense\").map((k) => ({ key: k, label: CATEGORIES[k].label, line: CATEGORIES[k].line, amount: r2(k === \"mortgage_interest\" ? interest : -t[k]) }));",
+            "line_text": "    const lines = lineKeys.filter((k) => CATEGORIES[k].kind === \"expense\").map((k) => ({ key: k, label: CATEGORIES[k].label, line: CATEGORIES[k].line, amount: r2(k === \"mortgage_interest\" ? interest : -t[k]) }));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/crypto-cost-basis-calculator/calc.mjs",
+        "test": "node --test ventures/crypto-cost-basis-calculator/**/*.test.mjs  (in .)",
+        "seed": 860024682,
+        "commit": "2d6a68b60",
+        "sites": 738,
+        "baseline_seconds": 1.0,
+        "mutants": [
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 169,
+            "col": 97,
+            "operator": "times-to-div",
+            "before": "if (usd === null && priceRaw !== null && !Number.isNaN(priceRaw)) usd = Math.abs(priceRaw) * qty;",
+            "after": "if (usd === null && priceRaw !== null && !Number.isNaN(priceRaw)) usd = Math.abs(priceRaw) / qty;",
+            "line_text": "      if (usd === null && priceRaw !== null && !Number.isNaN(priceRaw)) usd = Math.abs(priceRaw) * qty;",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: swap priced from price column, 2 ETH x $3000 = $6000"
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 203,
+            "col": 14,
+            "operator": "eq-flip",
+            "before": "if (rep === undefined) out.skipped.push(`Line ${line}: \"${get(\"reported\")}\" in the reported column is not basis, nobasis or none; treated as none.`);",
+            "after": "if (rep !== undefined) out.skipped.push(`Line ${line}: \"${get(\"reported\")}\" in the reported column is not basis, nobasis or none; treated as none.`);",
+            "line_text": "      if (rep === undefined) out.skipped.push(`Line ${line}: \"${get(\"reported\")}\" in the reported column is not basis, nobasis or none; treated as none.`);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 338,
+            "col": 50,
+            "operator": "or-to-and",
+            "before": "const buys = txs.filter((t) => t.kind === \"buy\" || t.kind === \"income\").map((t) => ({ ...t, left: t.qty }));",
+            "after": "const buys = txs.filter((t) => t.kind === \"buy\" && t.kind === \"income\").map((t) => ({ ...t, left: t.qty }));",
+            "line_text": "  const buys = txs.filter((t) => t.kind === \"buy\" || t.kind === \"income\").map((t) => ({ ...t, left: t.qty }));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 546,
+            "col": 63,
+            "operator": "const-plus-one",
+            "before": "const a = byAsset.get(t.asset) || { asset: t.asset, count: 0, qty: 0, usd: 0, first: t.date, last: t.date };",
+            "after": "const a = byAsset.get(t.asset) || { asset: t.asset, count: 1, qty: 0, usd: 0, first: t.date, last: t.date };",
+            "line_text": "    const a = byAsset.get(t.asset) || { asset: t.asset, count: 0, qty: 0, usd: 0, first: t.date, last: t.date };",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 773,
+            "col": 67,
+            "operator": "plus-to-minus",
+            "before": "const extraTax = cents(estimateTax({ shortGain: base.shortGain + shortGain, longGain: base.longGain + longGain }, rates) - taxBefore);",
+            "after": "const extraTax = cents(estimateTax({ shortGain: base.shortGain - shortGain, longGain: base.longGain + longGain }, rates) - taxBefore);",
+            "line_text": "    const extraTax = cents(estimateTax({ shortGain: base.shortGain + shortGain, longGain: base.longGain + longGain }, rates) - taxBefore);",
+            "caught": true,
+            "seconds": 0.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 827,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "const taxAvoided = cents(Math.max(0, gain) * longRate);",
+            "after": "const taxAvoided = cents(Math.max(1, gain) * longRate);",
+            "line_text": "  const taxAvoided = cents(Math.max(0, gain) * longRate);",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "new test: underwater and break-even donations avoid $0 tax"
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 916,
+            "col": 8,
+            "operator": "const-plus-one",
+            "before": "2024-09-20,sell,BTC,0.60,36000,36,Exchange A",
+            "after": "2024-09-21,sell,BTC,0.60,36000,36,Exchange A",
+            "line_text": "2024-09-20,sell,BTC,0.60,36000,36,Exchange A",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/crypto-cost-basis-calculator/calc.mjs",
+            "line": 917,
+            "col": 8,
+            "operator": "const-plus-one",
+            "before": "2024-11-02,sell,ETH,1,3300,3,Exchange A",
+            "after": "2024-11-3,sell,ETH,1,3300,3,Exchange A",
+            "line_text": "2024-11-02,sell,ETH,1,3300,3,Exchange A",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/rental-property-schedule-e-categorizer/calc.mjs",
+        "issue": "Rent keyword regex had no word boundaries (unit\\s?\\w+, lease, rental), so credits like UNITED AIRLINES REFUND, COMMUNITY BANK INTEREST, ESCROW SURPLUS RELEASE and RENTAL CAR REFUND were booked as Schedule E rent, inflating rental income. Fixed with \\bunit\\b, \\blease, \\brental(?!\\s+car); test added.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e7cbe16e-04a9-5487-9b6b-5052c516b75e",
+    "transcripts": 1,
+    "first": "2026-11-13T20:39:26Z",
+    "last": "2026-11-13T20:55:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 94,
+        "output": 19658,
+        "thinking": 4801,
+        "cache_read": 4069092,
+        "cache_write_5m": 0,
+        "cache_write_1h": 80205,
+        "api_equivalent_usd": 1.849,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 94,
+      "output": 19658,
+      "thinking": 4801,
+      "cache_read": 4069092,
+      "cache_write_5m": 0,
+      "cache_write_1h": 80205,
+      "api_equivalent_usd": 1.849,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.26,
+      "active_minutes": 16.26,
+      "model_minutes": 3.43,
+      "tool_minutes": 12.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "senior engineer: mutation triage of 3 files, regex defect fix with tests, blog post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 216.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

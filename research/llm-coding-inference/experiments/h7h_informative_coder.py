@@ -15,6 +15,8 @@ sys.path.insert(0, str(HERE.parent))
 import h3_llm_width as H3  # noqa: E402
 import h7g_tuned_threshold as G  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 REPS = int(ARGS[0]) if ARGS else 500
 SEED = 20261101
@@ -30,7 +32,7 @@ def main():
     out = [f"NaijaSenti negative share, nb-in-language coder: corpus {len(idx)} tweets, prevalence {truth:.4f}, corpus J {jc:.3f}, coder-positive share {sum(f) / len(f):.3f}; {REPS} draws",
            "n | design | coverage % | half-width pts | share using cells"]
     for n in (400, 1000):
-        for name, tau in (("screen", A.TAU), ("pooled", 2.0)):
+        for name, tau in (("screen", A.TAU_6AM), ("pooled", 2.0)):
             rr = random.Random(SEED + n)
             r = [G.one(f, human, n, truth, rr, tau) for _ in range(REPS)]
             line = (f"{n} | {name} | {100 * sum(x[1] for x in r) / REPS:.1f} | {100 * sum(x[0] for x in r) / REPS:.3f} | "

@@ -1,0 +1,17 @@
+# PYTHONPATH=src python3 tools/cull_group_timing.py WORK --n N --repeat 1 --compare (the same comparison: cull._group with
+# index=True, then index=False, on N frames drawn (seed 1) from the 24,163 eval variants); 4-core cloud container, 2026-11-18.
+n=2000
+indexed: 279 groups 3.59s
+all-pairs: 279 groups 9.98s; identical: True
+n=500
+indexed: 229 groups 0.56s
+all-pairs: 229 groups 0.55s; identical: True
+n=1000
+indexed: 284 groups 1.35s
+all-pairs: 284 groups 2.27s; identical: True
+n=5000
+indexed: 257 groups 13.29s
+all-pairs: 257 groups 62.97s; identical: True
+n=10000
+indexed: 244 groups 42.46s
+all-pairs: 244 groups 250.84s; identical: True

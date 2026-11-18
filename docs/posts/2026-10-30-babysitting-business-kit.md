@@ -1,7 +1,7 @@
 ---
 title: "A back office for a one-person babysitting business"
 date: 2026-10-30
-tags: [babysitting-business-kit, small-business, taxes]
+tags: [babysitting-business-kit, small-business, tax]
 description: "A free app for self-employed babysitters: score inquiries, schedule sits, chase unpaid ones, set aside self-employment tax, and track references with consent."
 ---
 

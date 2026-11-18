@@ -11,7 +11,7 @@
 // breaks (a non-convex cost) be handled by search instead of a formula.
 
 export const num = (v, d = 0) => (Number.isFinite(v) ? v.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }) : "n/a");
-export const money = (v) => (Number.isFinite(v) ? (v < 0 ? "-" : "") + "$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "n/a");
+export const money = (v) => (Number.isFinite(v) ? ((t) => (v < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(v).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })) : "n/a");
 export const pct = (v, d = 1) => (Number.isFinite(v) ? (v * 100).toFixed(d) + "%" : "n/a");
 
 const DRAWS = 4000;

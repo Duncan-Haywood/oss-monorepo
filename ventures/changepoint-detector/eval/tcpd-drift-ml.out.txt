@@ -1,0 +1,82 @@
+
+TCPD shipped (31): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+    binseg (published)                       0.714  0.671  
+    pelt (published)                         0.704  0.672  
+  * consensus: every setting                 0.702  0.633     59
+  * drift level, ML noise (primary)          0.694  0.622    226
+  * drift level, lag noise (shipped)         0.677  0.592    247
+    bocpd (published)                        0.673  0.616  
+    zero (published)                         0.663  0.568  
+  * level, following the over-cut warning    0.655  0.561    653
+  * level (default)                          0.477  0.374   1329
+
+TCPD held out (7): mean F1 / cover / total cuts (margin 5; * = this detector, others TCPDBench published defaults)
+    binseg (published)                       0.727  0.731  
+  * consensus: every setting                 0.711  0.742     25
+    bocpd (published)                        0.683  0.605  
+    zero (published)                         0.639  0.597  
+    pelt (published)                         0.636  0.639  
+  * drift level, ML noise (primary)          0.527  0.576    180
+  * level, following the over-cut warning    0.497  0.394    233
+  * drift level, lag noise (shipped)         0.420  0.524    284
+  * level (default)                          0.296  0.191    585
+
+Paired F1, primary minus ..., shipped (31) (bootstrap over series, sign test):
+  drift, lag noise             +0.018 [95% -0.036, 0.071]; better on 14, worse on 10, sign p 0.541
+  level (default)              +0.217 [95% 0.147, 0.293]; better on 25, worse on 1, sign p 0.000
+  level following the warning  +0.040 [95% -0.048, 0.131]; better on 14, worse on 11, sign p 0.690
+  consensus every setting      -0.008 [95% -0.080, 0.064]; better on 9, worse on 15, sign p 0.307
+  zero                         +0.031 [95% -0.076, 0.133]; better on 16, worse on 10, sign p 0.327
+  binseg                       -0.019 [95% -0.109, 0.071]; better on 11, worse on 16, sign p 0.442
+
+Paired F1, primary minus ..., held out (7) (bootstrap over series, sign test):
+  drift, lag noise             +0.107 [95% -0.043, 0.321]; better on 5, worse on 2, sign p 0.453
+  level (default)              +0.232 [95% 0.097, 0.444]; better on 7, worse on 0, sign p 0.016
+  level following the warning  +0.031 [95% -0.115, 0.199]; better on 4, worse on 3, sign p 1.000
+  consensus every setting      -0.184 [95% -0.358, -0.020]; better on 1, worse on 5, sign p 0.219
+  zero                         -0.112 [95% -0.406, 0.115]; better on 2, worse on 4, sign p 0.688
+  binseg                       -0.200 [95% -0.491, 0.040]; better on 1, worse on 6, sign p 0.125
+
+Per series: cuts and F1 for level+warning / drift with lag noise / drift with ML noise; annotators' median count.
+  shipped (31)
+    bank                   n  581  warn   3 0.400  lag  48 0.040  ML  63 0.031  annotators 0  zero 1.000
+    brent_spot             n  500  warn  13 0.577  lag   6 0.726  ML   4 0.773  annotators 5  zero 0.315
+    businv                 n  330  warn  19 0.249  lag  18 0.348  ML   3 0.559  annotators 3  zero 0.588
+    centralia              n   15  warn   3 1.000  lag   1 0.909  ML   3 1.000  annotators 1  zero 0.763
+    children_per_woman     n  301  warn  65 0.216  lag  24 0.485  ML  19 0.571  annotators 2  zero 0.507
+    co2_canada             n  215  warn   8 0.854  lag  25 0.542  ML  14 0.625  annotators 5  zero 0.361
+    construction           n  319  warn   5 0.634  lag   0 0.696  ML   0 0.696  annotators 1  zero 0.696
+    debt_ireland           n   21  warn   6 0.923  lag   9 0.824  ML   9 0.824  annotators 2  zero 0.469
+    gdp_argentina          n   59  warn   4 0.889  lag   4 0.720  ML   4 0.720  annotators 0  zero 0.824
+    gdp_croatia            n   24  warn   7 0.400  lag  10 0.308  ML   6 0.444  annotators 1  zero 0.824
+    gdp_iran               n   58  warn   2 0.622  lag   5 0.888  ML   9 0.655  annotators 2  zero 0.652
+    gdp_japan              n   58  warn   4 0.571  lag   2 0.800  ML   4 0.571  annotators 0  zero 0.889
+    global_co2             n  104  warn  27 0.303  lag   8 0.481  ML   7 0.523  annotators 0  zero 0.846
+    homeruns               n  118  warn   4 0.800  lag   7 0.723  ML   5 0.667  annotators 1  zero 0.659
+    jfk_passengers         n  468  warn   4 0.490  lag   0 0.723  ML   0 0.723  annotators 1  zero 0.723
+    lga_passengers         n  468  warn   5 0.526  lag   1 0.693  ML   1 0.693  annotators 3  zero 0.535
+    nile                   n  100  warn   1 1.000  lag   0 0.824  ML   1 1.000  annotators 1  zero 0.824
+    ozone                  n   54  warn   2 0.650  lag   0 0.723  ML   4 0.560  annotators 1  zero 0.723
+    quality_control_1      n  313  warn   3 0.667  lag   0 0.667  ML   1 1.000  annotators 1  zero 0.667
+    quality_control_2      n  283  warn   1 1.000  lag   0 0.750  ML   1 1.000  annotators 1  zero 0.750
+    quality_control_3      n  366  warn   1 1.000  lag   4 0.571  ML   3 0.333  annotators 1  zero 0.667
+    quality_control_4      n  500  warn   4 0.726  lag   1 0.936  ML   3 0.638  annotators 1  zero 0.780
+    quality_control_5      n  325  warn   0 1.000  lag   0 1.000  ML   0 1.000  annotators 0  zero 1.000
+    rail_lines             n   37  warn   1 0.846  lag   5 0.800  ML   5 0.800  annotators 2  zero 0.537
+    seatbelts              n  192  warn   1 0.474  lag   1 0.824  ML   0 0.621  annotators 2  zero 0.621
+    shanghai_license       n  205  warn  10 0.422  lag  20 0.310  ML   6 0.416  annotators 1  zero 0.636
+    uk_coal_employ         n  105  warn   5 0.863  lag   9 0.670  ML  11 0.749  annotators 5  zero 0.513
+    unemployment_nl        n  214  warn   9 0.776  lag  12 0.817  ML   9 0.930  annotators 3  zero 0.566
+    us_population          n  816  warn 406 0.015  lag   1 0.615  ML   0 0.889  annotators 0  zero 0.889
+    usd_isk                n  247  warn   9 0.632  lag   6 0.780  ML  10 0.749  annotators 2  zero 0.489
+    well_log               n  675  warn  21 0.764  lag  20 0.785  ML  21 0.764  annotators 9  zero 0.237
+  held out (7)
+    bitcoin                n  774  warn  74 0.349  lag 103 0.281  ML  52 0.407  annotators 4  zero 0.450
+    iceland_tourism        n  199  warn   2 0.486  lag   5 0.281  ML   0 0.947  annotators 0  zero 0.947
+    measles                n  991  warn  40 0.047  lag  30 0.062  ML  39 0.049  annotators 0  zero 0.947
+    ratner_stock           n  600  warn  23 0.452  lag  46 0.291  ML  30 0.324  annotators 2  zero 0.571
+    robocalls              n   52  warn   2 0.966  lag   3 0.966  ML   5 0.778  annotators 2  zero 0.636
+    scanline_126007        n  481  warn  10 0.772  lag  28 0.581  ML  27 0.593  annotators 1  zero 0.644
+    scanline_42049         n  481  warn  82 0.404  lag  69 0.478  ML  27 0.593  annotators 7  zero 0.276
+
+Drift ML-noise run time over all 38 series: 566 ms (about 20 O(n^2) fits a series; machine-dependent).

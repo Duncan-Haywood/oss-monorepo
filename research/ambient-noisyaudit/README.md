@@ -14,6 +14,8 @@ Track 2 (ambient AI assistant), follow-up to `ambient-confest` (its "Next steps"
 - Horvitz (1999), "Principles of mixed-initiative user interfaces", CHI (<https://doi.org/10.1145/302979.303030>; citation as listed in `PROJECTS.md`, not re-read here): choosing an action by expected utility under uncertainty.
 - Dawid and Skene (1979), "Maximum likelihood estimation of observer error-rates using the EM algorithm", *Applied Statistics* 28(1), 20-28 (citation from memory, not re-read here): the idea of fitting error rates by EM over an unseen true class. The EM here is a simplified case in which one observer's matrix is known and only the classifier's matrix and the mix are fitted.
 
+- Prior work on the same correction, not cited before the round-65 quality audit (citations from memory, not re-read here): Gart and Buck (1966) and Staquet et al. (1981) correct a diagnostic test's accuracy for an imperfect reference standard of known sensitivity and specificity; Natarajan et al. (2013, NeurIPS) and Patrini et al. (2017, CVPR) correct learning for label noise with a known noise matrix. With unlimited data the EM here gives exactly that closed-form inversion; what this project adds is the translation of the bias into lost decision utility in a stylised model, not the correction itself.
+
 No research group from `prompt.md` is built on; there is no lab tag.
 
 ## Method (`src/ambient_noisyaudit/est.py`)
@@ -42,7 +44,7 @@ Reference values: blind 0.3824; Bayes with the true parameters 0.3917 at label a
 2. **A mildly noisy auditor costs little.** A 0.9 auditor costs 0.0013 (label 0.7) and 0.0020 (label 0.9) in the population limit, 14% and 8% of the gain.
 3. **Naive-learned policies stayed above blind in this model.** In every population-limit cell the naive map beat blind (lowest 0.3853 against 0.3824). At finite n the fraction of audit sets with naive below blind was 0.21 at n = 50 and 0.11 at n = 200 for the worst cell (label 0.7, auditor 0.7), falling to 0.02 at n = 1000. So the damage here is a lost share of the gain, not a harmful policy, except for small audit sets with a poor classifier.
 4. **Correcting for a known auditor removes the bias.** EM reaches the true-parameter value in the population limit in every cell (0.3917 and 0.4066), and at n = 1000 it is within 0.0009 of it for every auditor accuracy (worst: label 0.7, auditor 0.7, 0.3908 against 0.3917), where naive is 0.0066 below at label 0.7 / auditor 0.7 and 0.0131 below at label 0.9 / auditor 0.7.
-5. **EM is not free at small n.** At n = 50 with label 0.7 and auditor 0.7 EM has mean 0.3838 against naive 0.3845, with a larger spread (std 0.0079 against 0.0031) and 23% of audit sets below blind against 21%. With noisy labels and few audits the extra latent-class uncertainty costs about what the bias does. By n = 200 EM is ahead in every noisy-auditor cell (for example 0.3891 against 0.3849 in that cell).
+5. **EM is not free at small n.** At n = 50 with label 0.7 and auditor 0.7 EM has mean 0.3838 against naive 0.3845, with a larger spread (std 0.0079 against 0.0031) and 23% of audit sets below blind against 21%. The difference in means is within Monte Carlo error (paired difference -0.0007, SE 0.0005 over the 200 sets, from the round-65 quality audit, `portfolio/quality/audits/2026-11-13-ambient-noisyaudit.json`), so at this n EM is not shown to be worse than naive on average; its cost is the spread, more than twice as large. By n = 200 EM is ahead in every noisy-auditor cell (for example 0.3891 against 0.3849 in that cell).
 6. **A perfect auditor reproduces `ambient-confest`'s pattern**: naive and EM agree to within 0.0002 once n is 200 or more (at n = 50, label 0.9: naive 0.4044, EM 0.4055, because naive keeps the alpha = 1 smoothing and EM does not).
 
 ![Mean utility against auditor accuracy](experiments/audit.png)
@@ -58,8 +60,8 @@ Reference values: blind 0.3824; Bayes with the true parameters 0.3917 at label a
 
 ## Next steps
 
-- Jointly estimate the auditor's accuracy from two auditors per message (Dawid-Skene) and measure the cost of wrong assumed accuracies.
-- A gold-subset variant: how many perfectly audited messages replace how many noisy ones?
+- Jointly estimate the auditor's accuracy from two auditors per message (Dawid-Skene) and measure the cost of wrong assumed accuracies (done: `research/ambient-dsaudit`).
+- A gold-subset variant: how many perfectly audited messages replace how many noisy ones? (done: `research/ambient-goldaudit`)
 - Correlated auditor errors, a non-uniform mix and adjacent-only errors.
 - A real classifier's confusion matrix and real audit labels, if the owner supplies them.
 

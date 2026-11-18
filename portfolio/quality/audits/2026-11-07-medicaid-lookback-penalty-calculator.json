@@ -22,6 +22,6 @@
     {"severity": "medium", "what": "llms.txt points to the retired github.io host instead of marisstella.app, and sitemap.xml uses a relative loc './index.html' that crawlers will not accept", "where": "ventures/medicaid-lookback-penalty-calculator/llms.txt:9"},
     {"severity": "low", "what": "No tests with a real state divisor or month-end and leap-day window starts; no usage of the community spouse or home exemption categories as explicit choices", "where": "ventures/medicaid-lookback-penalty-calculator/calc.test.mjs:1"}
   ],
-  "fix_prs": [],
+  "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14750"],
   "verdict": "A small, honest prototype whose arithmetic is right: three hand recomputations from 42 USC 1396p(c) (penalty months and days, end date, care gap, window edge) matched exactly, and 25 of 25 tests pass. It does not meet the bar because verification is only partly effective (one of three seeded mutations, the 30-day month factor, survived) and because the exemption logic is a keyword guess that silently zeroes out gifts whose note merely contains words like 'disabled' or 'trust', which an elder-law attorney would reject first. The page's disclaimers and no-upload claim are backed by tests, but llms.txt and sitemap.xml are stale. Browser behaviour was not exercised here, so the HTML layer is scored from reading only."
 }

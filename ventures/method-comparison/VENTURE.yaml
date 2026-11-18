@@ -1,0 +1,63 @@
+name: method-comparison
+description: >-
+  Free browser tool, CLI and agent call that compares two measurement
+  methods on the same samples: Passing-Bablok regression with its
+  rank-based intervals and CUSUM linearity test, Deming and weighted
+  Deming regression with jackknife intervals, Bland-Altman bias and
+  limits of agreement, and the difference between the methods at
+  decision levels. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run as a research-algorithm tool: no
+# venture README mentioned Deming regression, Passing-Bablok or method
+# comparison (searched all venture READMEs). inter-rater-agreement has a
+# Bland-Altman plot for raters; this adds the regression side clinical labs
+# need (proportional and constant bias, decision levels). Implemented from
+# Passing & Bablok 1983, Cornbleet & Gochman 1979, Linnet 1990/1993, Bland &
+# Altman 1986/1999 and Knight 1966; no third-party code was ported. The
+# Python package methcomp 1.0.0 (MIT) was read while choosing references
+# and not used: its Deming slope uses np.cov(x, y)[1][1] (the variance of
+# y) where the covariance belongs.
+#
+# First visitor: searches such as "passing bablok regression online",
+# "deming regression calculator", "method comparison study excel",
+# "bland altman calculator", "bias at medical decision level". Volume not
+# measured with an external tool.
+#
+# Alternatives: R mcr, MedCalc and Analyse-it (paid), EP Evaluator (paid),
+# Excel templates. Differentiators here: no install, both regressions and
+# Bland-Altman in one view, Passing-Bablok on thousands of pairs.
+#
+# Liability: a statistical estimate, not a method validation report or
+# medical advice; the page says a standard or regulator may require a
+# different protocol. Data never leave the browser (tests assert no
+# network calls).
+
+hypotheses:
+  - claim: >-
+      Laboratory scientists, quality managers and clinical researchers
+      validating a new assay or device will use a no-install tool that gives
+      Passing-Bablok, Deming and Bland-Altman with the bias at their decision
+      levels in one view.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a slope or interval that differs from R mcr with the same settings, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/method-comparison/
+  analytics: null

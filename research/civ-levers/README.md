@@ -167,8 +167,36 @@ logged before the run (`LOG.md`); `python3 experiments/cascades/run.py` reproduc
 - Against our own guess, hubs beat random seeds at T = 2 once rewiring makes degrees uneven.
 
 This agrees in direction with Centola and Macy (2007); it is not a reproduction of their
-figures, and Centola et al. (2018)'s 25% tipping point (a naming game) is not checked.
+figures; Centola et al. (2018)'s 25% tipping point is checked in the next section.
 T, k and the graph family are chosen, not measured; the finding is about simulated people.
+
+## Follow-up: how big must a committed minority be to flip a convention? (`experiments/convention/`, `src/civ_levers/convention.py`)
+
+Centola et al. (2018) found that a convention held by groups of 20 people flipped only once a
+committed minority reached about 25% of the group. Is 25% a constant, and does it matter where
+the committed people sit? In a memory-M naming game (each person says the name most frequent
+among the last M they heard; committed people always say the new one), **the critical mass is
+set by memory: 11% at M = 3, 24% at M = 11, 26% at M = 13, 32% at M = 31 and 42% at M = 201
+(mean field), so 25% corresponds to people weighing about the last 11 to 13 names they heard.**
+Simulated groups of 20 track the mean field within 0.03 for M from 3 to 15, but a 50-round
+horizon instead of 200 adds about one person (0.30 at M = 11 to 15). **Placement reverses the
+complex-contagion advice above: on a ring lattice (n 1000, k 8, M 12) a clustered patch of
+committed people never flips the rest, even at half the population, while randomly placed ones
+do from 10%**, under half the mean-field figure; rewiring narrows the gap (random 0.175 against
+patch 0.225 at p = 1) but the patch never wins. A contagion's adopters stay, so a patch
+reinforces its own edge; under a majority rule the edge still hears the old name from the other
+side and never sees more than half its contacts committed.
+`python3 experiments/convention/run.py` reproduces `results.txt` in about 30 s.
+
+![Critical committed fraction against memory length: mean field and simulated groups of 20](experiments/convention/critical_mass.svg)
+
+- Check: the Xie et al. (2011) binary agreement game's mean-field critical fraction, re-derived
+  from its interaction cases and integrated here, is 0.0979, the published value; simulated on
+  1,000 people it holds the old word at 8% committed and flips at 10%.
+- Limits: people hear one random neighbour per round rather than playing in pairs as in the
+  experiment; M is not measured for anyone and is swept; the paper's own model settings could
+  not be read from this session, so this checks the model class, not their figure; one lattice
+  size and one M on networks, 10 graphs per cell, no intervals there.
 
 ## Follow-up: Axelrod's culture model with a broadcast (`experiments/culture/`, `src/civ_levers/culture.py`)
 
@@ -211,6 +239,23 @@ global media culture met with probability B per step (Shibanai, Yasuno and Ishig
   (L = 40), 230 (L = 80), rising toward their 300; the collision-rate mapping predicted 147,
   199, 240 (within 10%). The uniform-trait runs above were a different parameterisation, not a
   bug. L = 150 was not run.
+
+- **Broadcast on an ordered society at larger lattices (2026-11-09, `experiments/culture/media.py`,
+  `media_results.txt`, `axelrod.c ... <mode> B`).** The Python run above started broadcasts at
+  q where the society was already one culture only for small L. With the C core, q at 60 to 70% of
+  the B = 0 transition (so no media gives one culture, S 0.79 to 0.99), L = 20 and 40, uniform F = 3
+  and F = 10 and Poisson F = 10, 24 runs per cell: **a weak broadcast homogenises and a strong
+  one fragments, with a threshold that falls as the lattice grows.** F = 10 uniform, L = 40, q = 30:
+  at B = 0.01 the largest region is 0.98 and 98% of sites hold the media culture exactly; at
+  B = 0.03, 0.92; at B = 0.1, 0.60 (234 regions); at B = 0.3, 0.10. The B where S crosses 0.5
+  is about 0.2 at L = 20 and 0.11 at L = 40 (F = 10 uniform), about 0.09 and 0.04 (Poisson F = 10),
+  and about 0.02 and 0.01 (F = 3, from a lower start at L = 20): it falls with L in all three, so
+  I would not extrapolate a fixed B_c to a country-sized lattice; only two sizes were run. F = 3 at L = 40
+  shows no homogenising stage: S is 0.94 without media and 0.87 at B = 0.003. This
+  refines the earlier "fragments rather than homogenises" reading, which came from q where the
+  society was already disordered (q = 20, 40) or from B above this threshold. Not run: noise
+  (Klemm et al. 2003), more than one media culture, L > 40, a fixed media seed per cell (one seed
+  base, 24 runs; each run draws its own media culture).
 
 F, q, B and the single global media culture are chosen, not measured; the finding is about
 simulated agents. Next: L = 150 and more runs per cell, noise (Klemm et al. 2003), and
@@ -257,6 +302,12 @@ Needs Python 3.9+ with numpy (and pytest); the app has no dependencies.
 - Shibanai, Y., Yasuno, S. and Ishiguro, I. (2001). Effects of global information feedback on diversity: extensions to Axelrod's adaptive culture model. *Journal of Conflict Resolution* 45(1):80–96.
 - Bail, C. A. et al. (2018). Exposure to opposing views on social media can increase political
   polarization. *PNAS* 115(37):9216–9221.
+- Centola, D., Becker, J., Brackbill, D. and Baronchelli, A. (2018). Experimental evidence for
+  tipping points in social convention. *Science* 360(6393), 1116–1119. doi:10.1126/science.aas8827
+- Xie, J., Sreenivasan, S., Korniss, G., Zhang, W., Lim, C. and Szymanski, B. K. (2011). Social
+  consensus through the influence of committed minorities. *Physical Review E* 84, 011130.
+  arXiv:1102.3931 (doi:10.1103/PhysRevE.84.011130). Both 2018 and 2011 entries were checked by web
+  search on 2026-11-11; `cite_check.py` could not reach doi.org or arXiv from that session.
 - Centola, D. and Macy, M. (2007). Complex contagions and the weakness of long ties.
   *American Journal of Sociology* 113(3):702–734.
 - Deffuant, G., Neau, D., Amblard, F. and Weisbuch, G. (2000). Mixing beliefs among interacting
@@ -288,6 +339,30 @@ Milestone 7 of track 24 (Turchin 2003; Turchin and Nefedov 2009). A fixed-land e
 **Second run (lags, `experiments/history/lag_results.txt`):** adding a generational delay to elite recruitment (`lag`) and a delay to political stress (`plag`) gives oscillations with a period in the 150 to 400 year band in up to 23 of 54 cells (lag 200 years), none at lag 50 or below. But the largest population swing in any of 1350 cells is 8.9% of the mean (most under 3%) with no unrest, so the period check passes and the amplitude check fails: delay alone does not make secular cycles. Next is a collapse reset. See `LOG.md` (2026-10-31).
 
 **Third run (collapse reset, `experiments/history/collapse_results.txt`):** a state collapse that fires when instability reaches a threshold (elites lose 50%, peasants 20%, fiscal strength to a tenth) lifts the largest population swing to 0.42 of the mean (from 0.09). In 55 of 576 cells the period is 150 to 400 years with swing >= 0.10, but 29 of those are chained collapses at the 50-year refractory floor; 16 cells, all with a 200-year elite lag, have collapses 150 to 400 years apart. Elite cap and welfare do not change collapse counts (mean 31.2, 31.2, 31.0), so the policy question stays open. Reset sizes are chosen, not measured. See `LOG.md` (2026-11-08).
+
+**Fourth run (levers, paired cell by cell, `experiments/history/levers_results.txt`): which policy levers prevent collapse in a toy civilization?** The third run's "no lever changes anything" was an artefact of a pooled number. Comparing each of the 330 collapsing cells with itself under each lever (sign test over cells), **the tax share is the lever that matters**: raising it from 0.3 to 0.45 cuts collapses in 207 cells (by two or more in 184) and ends them in 66 (sign test p = 1e-62); lowering it to 0.2 adds collapses in every one of the 179 cells it changes and starts them in 70 of 246 quiet cells. An **elite cap** helps only where it binds, which is rarely: a cap at 0.06 (E* = 0.05) cuts collapses in 15 cells, at 0.04 in 89 (dose-monotone; 13 of the 15 at a 200-year elite lag). A **welfare transfer** of 0.4 of rent cuts them in 148 cells but mostly by one, and raises mean population by 110%. The pooled mean barely moves under any lever (31.2 collapses with none, 29.9 at tax 0.45) because it averages only over cells that still collapse.
+
+Why: averaged over the run, the only one of the three stress terms above its neutral value in collapsing cells is the weak state (mean log(1/S) +0.49; elites at log(E/E*) -1.30 and wages at log(s0/w) -0.63 sit below), and collapsing cells are mostly those with a costly state (131 of 144 cells at g = 16, 30 of 144 at g = 2). So in this closure collapse is fiscal, not elite overproduction, which is not Turchin's emphasis: the model needs an elite term strong enough to compete before it can test his reading. Pre-registered (`LOG.md`, 2026-11-12): H1 (elite cap cuts collapses in most cells) refuted; H2 half held (welfare does not cut collapses by two or more in most cells, but peasants' income sits at 1.9 times subsistence, not near it, so the Malthusian-absorption mechanism I proposed is wrong: collapses keep population below carrying capacity); H3 (cap dose-monotone) held; H4 (levers start collapses in quiet cells) held only for the lower tax. The model is deterministic (one run per cell), every parameter is swept, and the levers are the model's, not real policies.
+
+**Fifth run (is "collapse is fiscal" built into the model?, `experiments/history/offset_results.txt`, `run_offset.py`, 16 s plus 20 s on 4 cores): mostly yes, and the fourth run's reading was wrong.** Three findings, the first two pre-registered (`LOG.md`, 2026-11-12):
+
+1. **The tax lever and the state cost are one knob.** The elite aspiration is e0 = (1 &minus; tau) R* / E*, so tau cancels from elite income over aspiration, and fiscal strength relaxes to tau R / (g E). The model therefore depends on tax share and state cost only through tau / g: runs at (tau 0.45, g 24) and (tau 0.3, g 16) agree to 7e-15 with identical collapse years (`tests/test_history.py`). Raising the tax from 0.3 to 0.45 is exactly cutting the state's cost by a third. Political stress decomposes as log PSI = log(E/E*) + log(s0/w) + log(S*/S) + log(g / (10 tau)): three deviations from equilibrium plus a constant offset that moves the midpoint of the instability curve.
+2. **The offset, not a fiscal dynamic, precedes collapse.** Averaged over the 25 years before each collapse, the offset is the largest of the four terms in 313 of 330 collapsing cells (H2 held; 316 with a 100-year window). All three dynamic terms are *below* equilibrium on average (elite &minus;0.95, wage &minus;0.58, fiscal &minus;0.48); the least negative is fiscal in 218 cells (H3 held) and wage in 112, elite in none. At the neutral offset (g 3, tau 0.3; 432 cells) 155 cells still collapse and the elite term is again never the largest (H4 refuted); an elite cap of 0.06 cuts collapses in 35 cells against 51 for welfare 0.2 (H5 refuted), though tighter caps (0.04: 72 cuts, 66 stopped) rival welfare 0.4 (80 cuts, 37 stopped).
+3. **Not pre-registered: the collapse reset feeds itself.** A collapse resets the lagged stress to PSI = 1, where instability is 0.5, at or above every threshold swept. At a 200-year stress lag 82% of the gaps between collapses sit on the 50-year refractory floor. Resetting the memory to calm (0) instead ends floor-chaining at lags of 100 and 200 years and drops collapsing cells from 330 to 258 (neutral grid: 155 to 94); in those 94 neutral cells the weak state is the only term above equilibrium before collapse (+0.08) and is the largest dynamic term in 93. Keeping the memory (no reset) gives 309 and 125.
+
+So the fourth run's "collapse is fiscal, the tax share is the lever" restates one parameter ratio, and no variant here lets elite overproduction (Turchin's mechanism) drive a collapse: a collapse halves the elites by assumption and instability kills them, so elites are below E* whenever a collapse could fire. Testing his reading needs an elite term that can overshoot, which is the next step. The model is deterministic; the reset rule, window lengths and neutral point are choices; nothing here is about a real state.
+
+**Sixth run (does population pressure drive political stress in the toy civilization?, `experiments/history/split_results.txt`, `run_split.py`, 22 s on 4 cores): no, it cancels out.** Fiscal strength relaxes to S_ss = tau R / (g E), so political stress splits exactly into log PSI = 2 log(E/E*) + (1 &minus; 2a) log N + log(S_ss/S) + offset (checked to 2e-15 over 4,320 runs; `tests/test_history.py`). At the model's labour share a = 0.5 the peasant population drops out of stress entirely: the fifth run's "wage" and "fiscal" terms were the same log N with opposite signs. For a > 0.5 the sign flips, so stress rises when peasants are scarce: at a = 0.7 the population term is positive before collapse in all 35 collapsing neutral cells, and collapsing cells fall from 113 to 35 as a goes from 0.4 to 0.7. The elite term enters squared but never overshoots, because the resting point already has instability 0.5. Removing the fiscal crash at collapse changes nothing (94 collapsing cells either way). And with the stress memory reset to calm, every neutral-state collapse fires at the lowest threshold (0.1), below the resting stress; at thresholds 0.3 and 0.5 the neutral society never collapses. So this closure has no endogenous crisis, and its policy results are about where its thresholds and offset sit. Land shares 0.4 to 0.7 are swept, not sourced; nothing here is about a real state. See `LOG.md`, 2026-11-13.
+
+## Calibrating the tolerance on a real panel (milestone 6, first run: a negative result) (`experiments/calibrate/`)
+
+**Can a real panel survey tell us how tolerant people are of other views (the bounded-confidence ε)?** Not with this design. Using the General Social Survey 2016-2020 panel (the same people re-asked on 40 attitude items, 42,687 respondent pairs over 70 item and wave-pair tables), a mean-field Deffuant map with a finite ε beats a plain pull toward the mean in 3 of 70 tables at the 5% level, which is the false-positive rate (3.5 expected); no tail bin moves away from the population mean (0 of 134 with z at or below -2), so there is no sign of backfire either. A simulation of the same design says why: if ε were 0.3 of the scale, it would be detected 14% of the time (27% at 0.4, 43% at 0.5). Respondents shrink about half-way toward the mean in 2 to 4 years (median pull 0.50), but regression to the mean and answer noise give the same curve.
+
+- Data: NORC's GSS 2016-2020 panel, release 1 (public download). The cumulative GSS file has no respondent linkage and cannot be used. Only per-item cross-tables are committed (`crosstabs.json`); `extract.py` rebuilds them.
+- Model: E[x1 | x0] = x0 + κ Σ p_j (x_j − x0) 1{|x_j − x0| ≤ ε}, p the wave-1 distribution, answers rescaled to [0, 1]; ε at or above 1 is the unbounded pull. No interaction partners are observed, so this is a mean-field reading, not an estimate of a person-to-person ε.
+- Results: `experiments/calibrate/results.txt` (per table ε̂ with a 400-draw bootstrap interval; 84% of tables pick the unbounded model) and `power.txt` (power at true ε of 0.2, 0.3, 0.4, 0.5, 0.7).
+- Consequence for the rest of the programme: ε stays a swept parameter. Rerunning milestones 1 and 2 at a "fitted" ε would have claimed a precision the data does not have. A design that could identify ε needs who talked to whom (a contact diary or a network panel), or an experiment that assigns exposure.
+- Limits: ordinal items treated as equally spaced; 2016-2020 survivors only; sampling error is modelled in the power study, measurement error is not (it would lower power further); US attitudes 2016-2020 only. `python3 experiments/calibrate/fit.py` (10 s), `power.py` (3 s), `pytest tests/test_calibrate.py`.
 
 ## Likert agents and a pluggable policy (milestone 8, stub only)
 

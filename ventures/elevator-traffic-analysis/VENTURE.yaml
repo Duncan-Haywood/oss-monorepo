@@ -1,0 +1,48 @@
+name: elevator-traffic-analysis
+description: >-
+  Free browser tool for architects, building services engineers and developers: up-peak lift (elevator) round trip time,
+  interval and five-minute handling capacity by the Barney and dos Santos formulae with Peters' 2000 corrections
+  (jerk-limited flight times, unequal floors, express zones), a search over lifts, rated loads and speeds for designs that
+  meet interval and handling targets, and a random-arrival simulation of waiting times. Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-14 in an explore-track session. slug_dupe.py: no duplicate. duplicate_check.py: nothing >= 0.45 (top
+# 0.10). The portfolio had home-elevator and stair-lift bid calculators but no traffic analysis; it sits beside
+# hvac-load-calc, water-supply-sizing and sprinkler-hydraulic-calc as building-services sizing.
+#
+# Why this niche: lift count, size and speed are fixed early in a building's design and shape the core; feasibility-stage
+# checks are done by consultants with paid software or by hand from textbooks. A free, checked first pass with waits
+# (which the RTT method cannot give) is useful to architects and developers before a consultant is engaged.
+#
+# First visitor: searches for "elevator traffic analysis", "lift round trip time calculator", "how many elevators does a
+# building need", "elevator handling capacity"; architecture and building services students. Volume not measured.
+#
+# Liability boundary: an estimate on typed inputs; not engineering advice or code compliance (every page says so).
+#
+# Path to revenue (payment rails stay off): donations; a paid general-analysis or lunch-peak simulation tier later.
+
+hypotheses:
+  - claim: >-
+      Architects and building services engineers will use a free up-peak check with simulated waits at feasibility stage.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user shows a round trip time that disagrees with the published formulae on the same inputs.
+
+links:
+  production: https://marisstella.app/elevator-traffic-analysis/
+  analytics: null

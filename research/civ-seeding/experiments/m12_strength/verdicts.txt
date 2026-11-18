@@ -1,0 +1,63 @@
+# Milestone 12: seeding rules under recall that falls with tie strength, milestone 6's joint bootstrap
+B = 500 joint draws; worst-case regret over I, T, R; recall by s6 stratum 0 / 1 / 2+: measured 0.606 / 0.805 / 0.942; matched 0.820 / 0.820 / 0.820; stress 0.303 / 0.805 / 0.942; reference set = milestone 6's 23 rules + milestone 10's 9 + milestone 11's 12 + 9
+
+## rule per setting: point fit | joint median [5%, 95%] | share of draws: beats perfect-recall census top degree / minimax
+  census-degree          perfect      (degree                          ) 0.041 | 0.042 [0.033, 0.054] | 0.000 / 0.000
+  census-degree          uniform 0.85 (census-degree-r0.85             ) 0.035 | 0.037 [0.026, 0.051] | 0.848 / 0.000
+  census-degree          measured     (census-degree-measured          ) 0.045 | 0.051 [0.037, 0.071] | 0.134 / 0.000
+  census-degree          matched      (census-degree-matched           ) 0.051 | 0.050 [0.038, 0.066] | 0.076 / 0.000
+  census-degree          stress       (census-degree-stress            ) 0.040 | 0.042 [0.031, 0.057] | 0.464 / 0.000
+  census-dd              perfect      (dd-0.05                         ) 0.013 | 0.012 [0.007, 0.023] | 1.000 / 0.004
+  census-dd              uniform 0.85 (census-dd-r0.85                 ) 0.008 | 0.011 [0.002, 0.027] | 0.994 / 0.218
+  census-dd              measured     (census-dd-measured              ) 0.012 | 0.009 [0.002, 0.019] | 1.000 / 0.270
+  census-dd              matched      (census-dd-matched               ) 0.015 | 0.018 [0.008, 0.032] | 0.988 / 0.010
+  census-dd              stress       (census-dd-stress                ) 0.013 | 0.016 [0.007, 0.031] | 1.000 / 0.022
+  adaptive-dd-0.5-s0.75  perfect      (adaptive-dd-0.5-s0.75           ) 0.015 | 0.018 [0.008, 0.031] | 0.992 / 0.014
+  adaptive-dd-0.5-s0.75  uniform 0.85 (adaptive-dd-0.5-s0.75-r0.85     ) 0.017 | 0.019 [0.011, 0.031] | 0.998 / 0.000
+  adaptive-dd-0.5-s0.75  measured     (adaptive-dd-0.5-s0.75-measured  ) 0.018 | 0.022 [0.014, 0.034] | 0.984 / 0.000
+  adaptive-dd-0.5-s0.75  matched      (adaptive-dd-0.5-s0.75-matched   ) 0.022 | 0.022 [0.014, 0.041] | 0.956 / 0.000
+  adaptive-dd-0.5-s0.75  stress       (adaptive-dd-0.5-s0.75-stress    ) 0.027 | 0.029 [0.019, 0.047] | 0.904 / 0.000
+
+## milestone 11 rows re-drawn (sanity: within about 0.4 point of m11_recall/verdicts.txt)
+  census-degree-r0.85          0.035 | 0.037 [0.026, 0.051]
+  census-dd-r0.85              0.008 | 0.011 [0.002, 0.027]
+  adaptive-dd-0.5-r0.85        0.014 | 0.020 [0.011, 0.036]
+  adaptive-dd-0.5-s0.75-r0.85  0.017 | 0.019 [0.011, 0.031]
+  census-degree-r0.75          0.038 | 0.041 [0.031, 0.057]
+  census-dd-r0.75              0.012 | 0.018 [0.008, 0.035]
+  adaptive-dd-0.5-r0.75        0.019 | 0.029 [0.019, 0.044]
+  adaptive-dd-0.5-s0.75-r0.75  0.024 | 0.027 [0.018, 0.043]
+  census-degree-r0.5           0.045 | 0.043 [0.030, 0.058]
+  census-dd-r0.5               0.018 | 0.021 [0.013, 0.038]
+  adaptive-dd-0.5-r0.5         0.019 | 0.022 [0.014, 0.032]
+  adaptive-dd-0.5-s0.75-r0.5   0.022 | 0.024 [0.016, 0.037]
+
+## median regret per family, joint draws
+  census-degree-measured           I 0.044  T 0.047  R 0.024
+  census-dd-measured               I 0.006  T 0.005  R 0.006
+  adaptive-dd-0.5-s0.75-measured   I 0.020  T 0.017  R 0.012
+  census-degree-matched            I 0.037  T 0.050  R 0.023
+  census-dd-matched                I 0.015  T 0.010  R 0.008
+  adaptive-dd-0.5-s0.75-matched    I 0.019  T 0.019  R 0.011
+  census-degree-stress             I 0.033  T 0.042  R 0.018
+  census-dd-stress                 I 0.013  T 0.011  R 0.004
+  adaptive-dd-0.5-s0.75-stress     I 0.023  T 0.025  R 0.015
+
+## paired: share of joint draws where the first rule's worst case is lower
+  census-degree-measured vs census-degree-matched: 0.500
+  census-degree-stress vs census-degree-measured: 0.902
+  census-dd-measured vs census-dd-matched: 0.880
+  census-dd-stress vs census-dd-measured: 0.202
+  adaptive-dd-0.5-s0.75-measured vs adaptive-dd-0.5-s0.75-matched: 0.574
+  adaptive-dd-0.5-s0.75-stress vs adaptive-dd-0.5-s0.75-measured: 0.146
+  census-dd-measured vs census-degree-measured: 1.000
+  adaptive-dd-0.5-s0.75-measured vs census-degree-measured: 1.000
+  census-dd-matched vs census-degree-matched: 0.998
+  adaptive-dd-0.5-s0.75-matched vs census-degree-matched: 0.994
+  census-dd-stress vs census-degree-stress: 1.000
+  adaptive-dd-0.5-s0.75-stress vs census-degree-stress: 0.904
+
+H27 (adaptive-dd-0.5-s0.75-measured joint median <= 2.5% and below perfect-recall census top degree in >= 90% of draws): held; median 0.0218, share 0.984
+H28 (measured and matched joint medians within 0.5 point for census dd and the s0.75 survey): refuted; census-dd -0.0086, adaptive-dd-0.5-s0.75 -0.0007
+H29 (census dd under stress beats perfect-recall census top degree in >= 90% of draws): held; 1.000
+prediction (not tested): top degree barely moves: measured 0.0509, matched 0.0503, stress 0.0424 (perfect 0.0418)

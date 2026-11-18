@@ -11,6 +11,44 @@
   <link rel="canonical" href="./index.html">
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Rent vs Buy Break-Even Calculator", "applicationCategory": "FinanceApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Month-by-month rent versus buy comparison: break-even year, net worth at your move-out year, the rent that makes them equal, and a sensitivity grid. Runs in your browser; nothing is uploaded.", "featureList": "Break-even year, net worth comparison, break-even rent, PMI, itemized-deduction test, appreciation and investment-return sensitivity grid, CSV export"}</script>
   <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "Is it cheaper to rent or buy a home?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on how long you stay, the price-to-rent ratio, the mortgage rate and what the cash you would put into a house could earn elsewhere. This tool runs both households month by month with the same total monthly spending, invests the renter's difference, and shows the year buying pulls ahead and the net-worth gap at the year you plan to leave."}}, {"@type": "Question", "name": "What is the rent-vs-buy break-even point?", "acceptedAnswer": {"@type": "Answer", "text": "The first year in which the buyer's net worth (sale price less selling costs less the loan balance) exceeds the renter's investment account. Closing costs, selling costs and early interest-heavy payments mean buying usually loses for the first few years even when it wins later."}}, {"@type": "Question", "name": "Why does the model include investing the down payment?", "acceptedAnswer": {"@type": "Answer", "text": "Cash tied up in a house is not earning anything else. The renter keeps the down payment and closing costs invested at the return you type, and also invests every month that renting costs less than owning. Leaving this out is the most common reason rent-vs-buy comparisons favour buying."}}, {"@type": "Question", "name": "Do I get a tax break for the mortgage interest?", "acceptedAnswer": {"@type": "Answer", "text": "Only if your mortgage interest, property tax (up to the state-and-local cap) and other itemized deductions together exceed your standard deduction. Most households do not, so the model gives owning a tax saving only when itemizing beats the standard deduction. Type your own deduction figures to match your filing status."}}, {"@type": "Question", "name": "What rent makes buying and renting equal?", "acceptedAnswer": {"@type": "Answer", "text": "The tool solves for it: the starting monthly rent at which both households finish with the same net worth at the horizon you set. If comparable rents are above that number, buying wins on these assumptions; below it, renting wins."}}, {"@type": "Question", "name": "Is this financial advice?", "acceptedAnswer": {"@type": "Answer", "text": "No. It is arithmetic on assumptions you type, and home prices, rents, rates and investment returns are uncertain. It does not know your job security, family plans, local market or taxes beyond the simple deduction model. Check the result with a qualified adviser and your lender's actual figures."}}]}</script>
+  <style data-base-style>
+    /* Base look shared by the generated tools (platform/pages/bare-tool.mjs). :where() keeps every rule below any rule of the page's own. */
+    :where(:root) { font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: #1b1f2a; background: #f4f5f7; }
+    :where(body) { max-width: 1000px; margin: auto; padding: 28px; }
+    @media (max-width: 600px) { :where(body) { padding: 16px; } }
+    :where(a) { color: #166534; }
+    :where(h1) { font-size: clamp(1.75rem, 4.6vw, 2.6rem); line-height: 1.1; margin: 0 0 14px; color: #12542b; text-wrap: balance; }
+    :where(h2) { font-size: 1.15rem; line-height: 1.3; margin: 0 0 10px; color: #12542b; }
+    :where(h3) { font-size: 1rem; margin: 18px 0 4px; }
+    :where(p, li) { line-height: 1.55; }
+    :where(.note, footer) { font-size: .86rem; color: #4a5664; }
+    :where(header > .note:first-child) { letter-spacing: .04em; }
+    :where(code) { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(.card) { background: #fff; border: 1px solid #d9dfe6; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px rgba(27, 31, 42, .06); margin: 18px 0; }
+    @media (max-width: 600px) { :where(.card) { padding: 16px; } }
+    :where(.grid) { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 4px 14px; align-items: end; }
+    :where(label) { display: block; font-weight: 600; margin: 12px 0 4px; }
+    :where(input, select, textarea) { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #a9b4c0; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; color: inherit; }
+    :where(input[type=checkbox], input[type=radio]) { width: auto; }
+    :where(textarea) { min-height: 120px; font: 13px/1.45 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    :where(input, select, textarea, button):focus-visible { outline: 2px solid #166534; outline-offset: 2px; }
+    :where(button) { border: 0; border-radius: 8px; padding: 11px 15px; background: #166534; color: #fff; font: 700 15px system-ui, sans-serif; cursor: pointer; margin: 14px 8px 0 0; }
+    :where(button.secondary) { background: #e6ebf0; color: #12542b; }
+    :where(button):hover { filter: brightness(1.08); }
+    :where(table) { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    :where(th, td) { text-align: left; padding: 8px; border-bottom: 1px solid #e6e9ee; vertical-align: top; }
+    :where(th) { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4a5664; }
+    :where(td.n, th.n) { text-align: right; font-variant-numeric: tabular-nums; }
+    :where(.scroll) { overflow-x: auto; }
+    :where(.finding) { border-bottom: 1px solid #e6e9ee; padding: 12px 0; }
+    :where(.finding:last-child) { border-bottom: 0; }
+    :where(.finding h3, .finding h4) { margin: 0 0 4px; font-size: 1rem; }
+    :where(.pill) { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; background: #e3e9ef; color: #1f3a4d; }
+    :where(.pill.high, .pill.error) { background: #fde8e8; color: #9a3412; }
+    :where(.pill.medium, .pill.warn) { background: #fdf0d5; color: #6b500c; }
+    :where(.stats) { font-size: .95rem; color: #333c46; margin: 4px 0 10px; }
+    :where(footer) { margin-top: 28px; border-top: 1px solid #d9dfe6; padding-top: 16px; }
+  </style>
 </head>
 <body>
   <header>
@@ -116,13 +154,13 @@
       if (!a.rows.length) { $("result").innerHTML = h; $("out").hidden = false; return; }
       const y = a.opts.horizonYears, hz = a.horizon;
       const gap = money(Math.abs(hz.advantage));
-      h += `<div class="finding"><h4>${hz.advantage >= 0 ? "Buying is ahead" : "Renting is ahead"} by ${gap} after ${y} years</h4><p>Buyer walks away with ${money(hz.buyerNet)} after selling; the renter has ${money(hz.renterNet)} invested. ${a.breakEvenYear ? "Buying first pulls ahead in year " + a.breakEvenYear + "." : "Buying does not pull ahead within 30 years on these figures."}</p></div>`;
-      h += `<div class="finding"><h4>Rent that makes them equal: ${money(a.breakEvenRent)} a month</h4><p>If a comparable rental costs more than this today, buying wins at ${y} years on these assumptions; if less, renting wins. You entered ${money(a.opts.rentMonthly)}. Cash needed to buy: ${money(a.upfront)}.</p></div>`;
+      h += `<div class="finding"><h3>${hz.advantage >= 0 ? "Buying is ahead" : "Renting is ahead"} by ${gap} after ${y} years</h3><p>Buyer walks away with ${money(hz.buyerNet)} after selling; the renter has ${money(hz.renterNet)} invested. ${a.breakEvenYear ? "Buying first pulls ahead in year " + a.breakEvenYear + "." : "Buying does not pull ahead within 30 years on these figures."}</p></div>`;
+      h += `<div class="finding"><h3>Rent that makes them equal: ${money(a.breakEvenRent)} a month</h3><p>If a comparable rental costs more than this today, buying wins at ${y} years on these assumptions; if less, renting wins. You entered ${money(a.opts.rentMonthly)}. Cash needed to buy: ${money(a.upfront)}.</p></div>`;
       const pick = [1, 3, 5, 7, 10, 15, 20, 30];
-      h += `<div class="finding"><h4>Net worth by year</h4>${table(["Year", "Home value", "Loan left", "Buyer", "Renter", "Buying ahead by"], a.rows.filter((r) => pick.includes(r.year) || r.year === y).map((r) => [r.year, money(r.homeValue), money(r.balance), money(r.buyerNet), money(r.renterNet), money(r.advantage)]))}<p><button type="button" class="secondary" id="csv">Download all 30 years (CSV)</button></p></div>`;
+      h += `<div class="finding"><h3>Net worth by year</h3>${table(["Year", "Home value", "Loan left", "Buyer", "Renter", "Buying ahead by"], a.rows.filter((r) => pick.includes(r.year) || r.year === y).map((r) => [r.year, money(r.homeValue), money(r.balance), money(r.buyerNet), money(r.renterNet), money(r.advantage)]))}<p><button type="button" class="secondary" id="csv">Download all 30 years (CSV)</button></p></div>`;
       const r0 = a.rows[0];
-      h += `<div class="finding"><h4>Monthly cost in year 1</h4><p>Owning ${money(r0.buyerMonthly)} (loan, taxes, insurance, upkeep${r0.pmi ? ", mortgage insurance" : ""}, after any tax saving) versus renting ${money(r0.renterMonthly)}.</p></div>`;
-      h += `<div class="finding"><h4>How the answer moves: buying ahead by, at ${y} years</h4>${table(["Home price growth ↓ / invest return →", ...a.grid[0].cells.map((c) => c.invest + "%")], a.grid.map((g) => [g.appreciation + "%", ...g.cells.map((c) => money(c.advantage))]))}</div>`;
+      h += `<div class="finding"><h3>Monthly cost in year 1</h3><p>Owning ${money(r0.buyerMonthly)} (loan, taxes, insurance, upkeep${r0.pmi ? ", mortgage insurance" : ""}, after any tax saving) versus renting ${money(r0.renterMonthly)}.</p></div>`;
+      h += `<div class="finding"><h3>How the answer moves: buying ahead by, at ${y} years</h3>${table(["Home price growth ↓ / invest return →", ...a.grid[0].cells.map((c) => c.invest + "%")], a.grid.map((g) => [g.appreciation + "%", ...g.cells.map((c) => money(c.advantage))]))}</div>`;
       $("result").innerHTML = h;
       $("out").hidden = false;
       const c = $("csv");

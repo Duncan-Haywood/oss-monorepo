@@ -31,11 +31,20 @@ test("one bill in the last month with an empty account needs the cushion", () =>
   assert.equal(a.summary.paymentAfterShortage, 100);
 });
 
-test("a bill in the first month makes a large required starting balance and a deficiency", () => {
+test("a bill in the first month makes a large shortage, not a deficiency, from a zero balance", () => {
+  // 12 CFR 1024.17(b): a deficiency is a negative balance in the account; a
+  // projected low point below zero is part of the shortage.
   const a = analyze(base({ items: [{ name: "Tax", amount: "1200", month: 1 }] }));
   assert.equal(a.summary.needed, 1300);
   assert.equal(a.summary.shortage, 1300);
-  assert.equal(a.summary.deficiency, 1100);
+  assert.equal(a.summary.deficiency, 0);
+  assert.equal(a.summary.shortageOnly, 1300);
+});
+
+test("a negative account balance is a deficiency", () => {
+  const a = analyze(base({ startBalance: "-150" }));
+  assert.equal(a.summary.deficiency, 150);
+  assert.equal(a.summary.shortage, 350);
   assert.equal(a.summary.shortageOnly, 200);
 });
 
@@ -107,9 +116,56 @@ test("a shortage under one month's payment may be collected in 30 days, so no sp
 });
 
 test("a deficiency is not held to the 12-month rule", () => {
-  const a = analyze(base({ items: [{ name: "Tax", amount: "1200", month: 1 }], startBalance: "0", statedShortage: "1300", statedShortageMonthly: "1300" }));
+  const a = analyze(base({ startBalance: "-300", statedShortage: "500", statedShortageMonthly: "500" }));
   assert.equal(a.findings.some((x) => x.id === "spread"), false);
   assert.ok(a.findings.some((x) => x.id === "spread-def"));
+});
+
+test("a projected low point below zero is a shortage held to the 12-month rule", () => {
+  const a = analyze(base({ items: [{ name: "Tax", amount: "1200", month: 1 }], startBalance: "0", statedShortage: "1300", statedShortageMonthly: "650" }));
+  const f = a.findings.find((x) => x.id === "spread");
+  assert.ok(f, "a 2-month recovery of a shortage must be flagged");
+  assert.equal(f.severity, "high");
+});
+
+// CFPB, Regulation X Appendix E, aggregate example: $500 July, $360 September,
+// $700 December, escrow year starting July. Monthly 130, cushion 260, target
+// start balance 1040, low point 260 in December.
+const appE = (over = {}) => ({ startMonth: 7, items: [
+  { name: "Tax", amount: "500", month: 7 }, { name: "Insurance", amount: "360", month: 9 }, { name: "Tax 2", amount: "700", month: 12 }], ...over });
+
+test("Appendix E: payment, cushion and target balance match the CFPB example", () => {
+  const a = analyze(appE({ startBalance: "1040" }));
+  assert.equal(a.summary.monthly, 130);
+  assert.equal(a.summary.cushionMax, 260);
+  assert.equal(a.summary.needed, 1040);
+  assert.equal(a.summary.shortage, 0);
+  assert.equal(a.summary.surplus, 0);
+});
+
+test("Appendix E: a $540 shortage from a positive balance over 6 months is flagged", () => {
+  const a = analyze(appE({ startBalance: "500", statedShortage: "540", statedShortageMonthly: "90" }));
+  assert.equal(a.summary.deficiency, 0);
+  const f = a.findings.find((x) => x.id === "spread");
+  assert.ok(f);
+  assert.equal(f.severity, "high");
+});
+
+test("spread boundary: 12 months is allowed, 11 is flagged", () => {
+  const twelve = analyze(appE({ startBalance: "500", statedShortage: "540", statedShortageMonthly: "45" }));
+  assert.equal(twelve.findings.some((x) => x.id === "spread"), false);
+  const eleven = analyze(appE({ startBalance: "500", statedShortage: "539", statedShortageMonthly: "49" }));
+  assert.ok(eleven.findings.some((x) => x.id === "spread"));
+});
+
+test("one-month boundary: a shortage of exactly one month's payment is held to 12 months", () => {
+  const a = analyze(appE({ startBalance: "910", statedShortage: "130", statedShortageMonthly: "130" }));
+  assert.ok(a.findings.some((x) => x.id === "spread"));
+});
+
+test("surplus boundary: $49.99 is not raised, $50.00 is", () => {
+  assert.equal(analyze(appE({ startBalance: "1089.99" })).findings.some((x) => x.id === "surplus"), false);
+  assert.ok(analyze(appE({ startBalance: "1090" })).findings.some((x) => x.id === "surplus"));
 });
 
 test("surplus is not raised as a refund due when the borrower is not current", () => {

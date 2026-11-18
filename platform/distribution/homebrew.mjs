@@ -40,7 +40,7 @@ const rubyString = (s) => s.replace(/\\/g, '\\\\').replace(/"/g, '\\"').replace(
 export function formula({ slug, description, sha256, name = slug, version = VERSION }) {
   const cls = className(slug);
   if (!cls || !/^[0-9a-f]{64}$/.test(sha256)) return null;
-  const desc = rubyString(description.replace(/\.$/, '')).slice(0, 80);
+  const desc = rubyString(description.replace(/\.$/, '').slice(0, 80));
   return `class ${cls} < Formula
   desc "${desc}"
   homepage "${tagUrl(toolUrl(slug), 'homebrew')}"

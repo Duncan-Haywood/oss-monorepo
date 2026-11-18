@@ -38,6 +38,15 @@ class VariantTest(unittest.TestCase):
                     open(f, "w").write(variants.variant(src, kinds, 5))
                     self.assertTrue(equivalent(ref, top, f, top), (top, kinds))
 
+    def test_non_equivalent_is_rejected(self):
+        # Negative case for the prover behind "0 of 288 unproved": an adder that drops the carry-in
+        # bit 0 of b must not prove equivalent (removing `-verify` from `sat` made it pass; 2026-11-17 audit).
+        with tempfile.TemporaryDirectory() as d:
+            f = os.path.join(d, "bad.v")
+            open(f, "w").write("module add16(input [15:0] a, input [15:0] b, output [16:0] s);\n"
+                               "  assign s = a + {b[15:1], 1'b0};\nendmodule\n")
+            self.assertFalse(equivalent(ADD, "add16", f, "add16"))
+
     def test_score_runs_on_variant(self):
         with tempfile.TemporaryDirectory() as d:
             f = os.path.join(d, "v.v")

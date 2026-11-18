@@ -1,0 +1,12 @@
+[Service]
+DynamicUser=yes
+ExecStart=/usr/local/bin/good
+NoNewPrivileges=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+SystemCallFilter=@system-service
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=~CAP_SYS_ADMIN

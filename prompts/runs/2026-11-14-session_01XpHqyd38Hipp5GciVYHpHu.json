@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyd38Hipp5GciVYHpHu",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T10:38:12Z",
+  "ended": "2026-11-14T10:44:37Z",
+  "wall_minutes": 17.48,
+  "tokens_in": 4467683,
+  "tokens_out": 20611,
+  "cost_usd": 2.0681,
+  "tool_calls": 49,
+  "task": "Little Lamps story: Saint Rose of Lima (BIBLE next-up proposal)",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15822",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "check_post_frontmatter.py rejected an 80-char seo_title; shortened to under 70."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Rose of Lima proposal called her 23 August feast a 'memorial'; liturgical calendars (Catholic Culture, Divine Office) list it as an optional memorial. Corrected in the Done entry."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "Committing already-written files mid-sweep was reported as UNSTABLE CHECKOUT and voided every workflow, although the tool's own hint says committing is fine."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-little-lamps-rose-of-lima.md"
+  ],
+  "goal": null,
+  "notes": "Creative track. Project hearth-and-horizon, shelf Little Lamps, slug rose-and-the-hut-in-the-garden (about 1,240 words before the prayer; text only, audio dirs 474 MB > 400 MB). Sources: Catholic Encyclopedia 1912 (gives the death as 30 Aug; 24 Aug used, disagreement named), en/es Wikipedia, Palma's 'Los mosquitos de Santa Rosa' on Wikisource (mosquito pact told as tradition). Penances and the 1615 Dutch fleet episode left out. Added a Bede Little Lamps proposal so the shelf's next-up list is not empty. Verification: node --test in ventures/hearth-and-horizon 15/15 pass; check_post_frontmatter OK; run_workflow_locally --for-changes: every run: step passed in all 11 triggered workflows (portfolio-validate 100/100, ventures-tests 5/5, portfolio-pages 6/6; pages.yml 'no _site' check needs the skipped build). The sweep was flagged void as unstable because I committed mid-sweep; the content was unchanged. No agent doc: nothing a later run needs beyond the BIBLE/DONE entries.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "94e0eee2-9a05-56a1-ad72-373d67bbc76b",
+    "transcripts": 1,
+    "first": "2026-11-14T10:38:12Z",
+    "last": "2026-11-14T10:55:41Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 96,
+        "output": 20611,
+        "thinking": 4672,
+        "cache_read": 4369902,
+        "cache_write_5m": 0,
+        "cache_write_1h": 97685,
+        "api_equivalent_usd": 2.0681,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 96,
+      "output": 20611,
+      "thinking": 4672,
+      "cache_read": 4369902,
+      "cache_write_5m": 0,
+      "cache_write_1h": 97685,
+      "api_equivalent_usd": 2.0681,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 32,
+      "WebFetch": 6,
+      "ToolSearch": 3,
+      "WebSearch": 3,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.48,
+      "active_minutes": 17.48,
+      "model_minutes": 3.9,
+      "tool_minutes": 13.58,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "researching a saint's life from three sources and writing a checked 1,250-word children's story with notes and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 193.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

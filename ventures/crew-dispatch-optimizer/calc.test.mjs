@@ -236,3 +236,8 @@ test("formatters", () => {
   assert.equal(money(1234.4), "$1,234");
   assert.equal(money(-50), "−$50");
 });
+
+test("hours on site as h:mm must have minutes under 60", () => {
+  assert.ok(!parseJobs("a,1,2,1:30").error);
+  assert.match(parseJobs("a,1,2,1:75").error, /hours on site/);
+});

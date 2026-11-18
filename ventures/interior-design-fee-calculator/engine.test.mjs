@@ -113,3 +113,12 @@ test("money and pct format and tolerate non-numbers", () => {
   assert.equal(money(Infinity), "n/a");
   assert.equal(pct(0.5, 0), "50%");
 });
+
+// redteam 2026-11-16: "A,flat,$1,200,40" read as a $1 fee and 200 hours.
+test("parseProjects reads a quoted $1,200 and refuses an unquoted one", () => {
+  assert.equal(parseProjects('A,flat,"$1,200",40').projects[0].fee, 1200);
+  const r = parseProjects("A,flat,$1,200,40");
+  assert.equal(r.projects.length, 0);
+  assert.match(r.errors[0], /^Line 1: .*thousands comma/);
+  assert.match(parseProjects('"A, B,flat,300,4').errors[0], /^Line 1: a double quote is never closed/);
+});

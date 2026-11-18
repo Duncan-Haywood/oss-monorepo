@@ -64,6 +64,7 @@ export function validateFasteners(d) {
   rng("waste", 0, 0.5, "Fastener waste");
   rng("nailsPerBox", 50, 20000, "Nails per box");
   rng("price", 0, 1e6, "Box price");
+  for (const k of ["studEndNails", "headerEndNails", "sillEndNails", "blockingEndNails", "headerRows", "nailsPerBox"]) if (d[k] != null && !Number.isInteger(Number(d[k]))) e.push(`${k} is a whole number.`);
   const h = d.holdDowns;
   if (h != null) {
     if (typeof h !== "object") e.push("holdDowns must be an object with wallEnds, openingMinWidth and price.");
@@ -111,6 +112,9 @@ const along = (/** @type {number} */ len, /** @type {number} */ sp) => Math.ceil
  * @param {{ walls: any[], sheathing?: any }} result the takeoff result (members placed per wall)
  */
 export function layoutFasteners(d, plan, result) {
+  if (!plan || typeof plan !== "object" || !result || typeof result !== "object" || !Array.isArray(result.walls)) {
+    throw new TypeError("layoutFasteners needs a plan and a takeoff result with a walls list");
+  }
   const errors = validateFasteners(d);
   if (errors.length) return { ok: false, errors };
   const c = { ...DEFAULTS, ...Object.fromEntries(Object.entries(d).filter(([, v]) => v != null)) };

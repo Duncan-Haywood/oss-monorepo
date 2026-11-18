@@ -35,7 +35,7 @@ function num(v) {
 
 export function money(n) {
   const value = Number(n) || 0;
-  const text = `$${Math.abs(value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const text = `$${Math.abs(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   return value < 0 && /[1-9]/.test(text) ? `-${text}` : text;
 }
 
@@ -50,7 +50,8 @@ export function catchUpFor(age) {
 export function netSelfEmploymentEarnings(netProfit) {
   const profit = Math.max(0, num(netProfit));
   const base = profit * SE_NET_EARNINGS_FACTOR;
-  const se = Math.min(base, SOCIAL_SECURITY_WAGE_BASE_2026) * 0.124 + base * 0.029;
+  // Schedule SE: net earnings under $400 owe no SE tax, so there is no half to subtract.
+  const se = base < 400 ? 0 : Math.min(base, SOCIAL_SECURITY_WAGE_BASE_2026) * 0.124 + base * 0.029;
   return Math.min(Math.max(0, profit - se / 2), LIMITS_2026.compensationLimit);
 }
 

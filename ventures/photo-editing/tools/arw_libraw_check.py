@@ -1,0 +1,88 @@
+"""Check the Sony ARW reader against LibRaw on real files.
+
+For each ARW: read it with ``shootflow.arw.parse_arw`` (both engines with
+``--engines python,numpy``), and compare with LibRaw through ``rawpy``:
+
+* every sensel of the stored sensor against LibRaw's ``raw_image``;
+* the as-shot white balance (R/G, B/G) against ``camera_whitebalance``;
+* the per-channel black level against ``black_level_per_channel``;
+* the CFA pattern against ``raw_pattern``.
+
+Usage (from ``ventures/photo-editing``)::
+
+    python3 -m venv /tmp/v && /tmp/v/bin/pip install rawpy numpy
+    PYTHONPATH=src /tmp/v/bin/python tools/arw_libraw_check.py FILE.ARW [...] [--engines numpy,python]
+
+Prints one JSON line per file and exits 1 if any file differs. Real files used
+on 2026-11-14: the six ARWs in drewnoakes/metadata-extractor-images (``arw/``),
+``eval/sony-arw-reader-2026-11-14.md``.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+import time
+from pathlib import Path
+
+from shootflow import arw
+from shootflow import raw_develop as rd
+
+CFA_NAMES = {0: "R", 1: "G", 2: "B", 3: "G"}
+
+
+def check(path: Path, engines: list[str]) -> dict:
+    import numpy as np
+    import rawpy
+
+    data = path.read_bytes()
+    lib = rawpy.imread(str(path))
+    ref = lib.raw_image
+    out: dict = {"file": path.name, "camera": arw.camera_model(data)}
+    for engine in engines:
+        t = time.perf_counter()
+        raw = arw.parse_arw(data, engine=engine)
+        out[f"read_s_{engine}"] = round(time.perf_counter() - t, 2)
+        ours = np.frombuffer(raw.values, dtype=np.uint16).reshape(raw.height, raw.width)
+        same_shape = ours.shape == ref.shape
+        out[f"sensels_differing_{engine}"] = int((ours != ref).sum()) if same_shape else "shape differs"
+    out["sensels"] = int(ref.size)
+    out["storage"] = raw.notes[0] if raw.notes else ""
+    e = raw.ifd.entries
+    neutral = e.get(rd.TAG_AS_SHOT_NEUTRAL)
+    ours_wb = [round(1 / neutral[0], 4), round(1 / neutral[2], 4)] if neutral else None
+    cw = lib.camera_whitebalance
+    lib_wb = [round(cw[0] / cw[1], 4), round(cw[2] / cw[1], 4)] if cw[1] else None
+    out["wb_ours"], out["wb_libraw"] = ours_wb, lib_wb
+    out["black_ours"] = [int(b) for b in e[rd.TAG_BLACK_LEVEL]]
+    out["black_libraw"] = [int(b) for b in lib.black_level_per_channel]
+    pat = e[rd.TAG_CFA_PATTERN]
+    out["cfa_ours"] = "".join(CFA_NAMES[p] for p in pat)
+    out["cfa_libraw"] = "".join(CFA_NAMES[int(p)] for p in lib.raw_pattern.ravel())
+    out["white_ours"], out["white_libraw"] = int(e[rd.TAG_WHITE_LEVEL][0]), int(lib.white_level)
+    out["ok"] = (
+        all(out[f"sensels_differing_{en}"] == 0 for en in engines)
+        and ours_wb == lib_wb
+        and out["black_ours"] == out["black_libraw"]
+        and out["cfa_ours"] == out["cfa_libraw"]
+    )
+    return out
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
+    ap.add_argument("files", nargs="+", type=Path)
+    ap.add_argument("--engines", default="numpy", help="comma-separated: numpy, python")
+    args = ap.parse_args(argv)
+    engines = [e.strip() for e in args.engines.split(",") if e.strip()]
+    bad = 0
+    for path in args.files:
+        row = check(path, engines)
+        bad += not row["ok"]
+        print(json.dumps(row, sort_keys=True))
+    return 1 if bad else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -34,6 +34,7 @@ const pct = (/** @type {number[]} */ sorted, /** @type {number} */ p) => sorted[
  * @param {{ runs?: number, seed?: number }} [opts]
  */
 export function scheduleRisk(input, opts = {}) {
+  if (opts == null || typeof opts !== "object") return { ok: false, errors: ["Risk options are an object (runs, seed)."] };
   const runs = opts.runs ?? 1000;
   if (!(Number.isInteger(runs) && runs >= 10 && runs <= 20000)) return { ok: false, errors: ["runs must be a whole number from 10 to 20000."] };
   const base = /** @type {any} */ (schedule(input));
@@ -66,7 +67,9 @@ export function scheduleRisk(input, opts = {}) {
   // instead derive from the base run's day-to-date mapping through a one-activity probe.
   const dateOfDays = (/** @type {number} */ n) => /** @type {any} */ (schedule({ start: input.start, holidays: input.holidays, weatherDays: input.weatherDays, activities: [{ id: "x", days: Math.max(1, n) }] })).finishDate;
   const at = (/** @type {number} */ p) => ({ workingDays: pct(sorted, p), date: dateOfDays(pct(sorted, p)) });
-  const sd = Math.sqrt(finishes.reduce((t, x) => t + (x - finishes.reduce((u, v) => u + v, 0) / runs) ** 2, 0) / runs);
+  // The mean is taken once: the sum used to be recomputed inside this reduce (runs^2 additions, 4e8 at 20000 runs).
+  const meanOfRuns = finishes.reduce((u, v) => u + v, 0) / runs;
+  const sd = Math.sqrt(finishes.reduce((t, x) => t + (x - meanOfRuns) ** 2, 0) / runs);
   const deadlineIdx = base.deadline ? base.leveledDays - base.deadline.daysLate : null;
   return {
     ok: true, runs, seed: opts.seed ?? 1, plannedDays: base.leveledDays, plannedFinish: base.leveledFinishDate,

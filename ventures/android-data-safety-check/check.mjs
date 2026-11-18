@@ -15,6 +15,7 @@
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, extname } from 'node:path';
 import { detectDataTypes, buildReport, parseDeclaredList, suggestedAction, DATA_SAFETY_CATEGORIES } from './scan.mjs';
+import { pathToFileURL } from 'node:url';
 
 const SCANNABLE_NAMES = new Set(['AndroidManifest.xml', 'build.gradle', 'build.gradle.kts']);
 const SKIP_DIRS = new Set([
@@ -184,6 +185,6 @@ function main() {
   process.exit(result.report.ok ? 0 : 1);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main();
 }

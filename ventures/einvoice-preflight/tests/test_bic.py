@@ -5,7 +5,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from einvoice_preflight.bic import inspect_payment_bic, looks_like_complete_bic, normalize_bic
+from einvoice_preflight.bic import aba_checksum_ok, classify_provider_id, inspect_payment_bic, looks_like_complete_bic, normalize_bic
 from einvoice_preflight.checks import check_invoice
 from einvoice_preflight.cli import main
 from einvoice_preflight.ubl import parse_ubl_invoice
@@ -192,3 +192,39 @@ class BicInvoiceIntegrationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ClearingCodeTest(unittest.TestCase):
+    """BT-86 admits a national clearing code as well as a BIC (mirrors bic.test.mjs, 2026-11-12)."""
+
+    def test_clearing_codes_are_not_malformed(self):
+        for code in ("20-00-00", "37040044", "062-000", "021000021", "SBIN0001234", "7171", "951234567"):
+            self.assertEqual(inspect_payment_bic({"payment": {"bic": code}}), [], code)
+            self.assertEqual(classify_provider_id(code), "clearing", code)
+        for code in ("BA11", "[BIC]", "US33", "COBADEFFXX"):
+            self.assertEqual(classify_provider_id(code), "unknown", code)
+
+    def test_bad_us_routing_number(self):
+        self.assertTrue(aba_checksum_ok("021000021"))
+        self.assertTrue(aba_checksum_ok("121000358"))
+        findings = inspect_payment_bic({"payment": {"bic": "121000359"}})
+        self.assertEqual([f["rule"] for f in findings], ["INV-026"])
+        # Leading 0 could be Canadian EFT or a Russian BIK: a note in JS, silent here.
+        self.assertEqual(inspect_payment_bic({"payment": {"bic": "021000022"}}), [])
+
+    def test_clearing_code_against_iban(self):
+        cases = [
+            ("DE89370400440532013000", "37040044", []),
+            ("DE89370400440532013000", "37040045", ["INV-027"]),
+            ("GB29NWBK60161331926819", "60-16-13", []),
+            ("GB29NWBK60161331926819", "20-00-00", ["INV-027"]),
+            ("CH9300762011623852957", "762", []),
+            ("CH9300762011623852957", "9000", ["INV-027"]),
+            ("IT60X0542811101000000123456", "05428", []),
+            ("IT60X0542811101000000123456", "0542811101", []),
+            ("FR1420041010050500013M02606", "2004101005", []),
+            ("NL91ABNA0417164300", "123456", []),
+        ]
+        for iban, bic, rules in cases:
+            findings = inspect_payment_bic({"payment": {"iban": iban, "bic": bic}})
+            self.assertEqual([f["rule"] for f in findings], rules, f"{iban} {bic}")

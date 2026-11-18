@@ -1,0 +1,426 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtK7N2U3x1fhRwoz4TQ",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T04:06:36Z",
+  "ended": "2026-11-11T04:07:15Z",
+  "wall_minutes": 43.55,
+  "tokens_in": 15771314,
+  "tokens_out": 55052,
+  "cost_usd": 5.5053,
+  "tool_calls": 127,
+  "task": "redteam campaign on einvoice-preflight report.mjs and ubl.mjs (the files the last merge on main changed); hunted number parsing across the JS and Python checkers",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14691",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    "The two 8-mutant campaigns took about 40 min, not the ~2 min baseline x mutants suggests: 5 of 16 mutants were 'caught' only by the 300 s suite timeout (report.mjs:98, :201; ubl.mjs:25, :381, :471), so a failing einvoice-preflight test hangs `node --test` instead of failing it. Not investigated in this run."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "The baseline x mutants estimate assumes a failing suite exits. When a mutant makes a suite hang it costs the full --timeout (300 s); here that was 5 of 16 mutants. A lower default timeout of about 10x baseline would have saved ~20 min."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "'Keep control-plane edits in their own small PR' conflicts with the cloud harness rule to push only to the one designated branch, so this run could not open the workflow PR and left it as an open real_defect with the exact step."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun cannot tell 'the guard exists but CI skips it' (optional npm deps) from 'no guard', so report.mjs:123 and :150 read caught_after_fix false even though the tests catch them once slimdom+fontoxpath are installed."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "The control-plane workflow fix (install slimdom+fontoxpath in einvoice-preflight-ci.yml) belongs in its own PR, but the session may push only to claude/magical-faraday-0bszwh.",
+      "did": "Recorded it as an open real_defect with the exact command and versions, so step 0 of the next red-team run (or the owner) can land it.",
+      "result": "Two gap mutants stay caught_after_fix false until that PR lands."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0's three open entries are all control-plane fixes with PRs already waiting on owner approval (#14612 and others).",
+      "did": "Left them as they are and went on to seeding.",
+      "result": "No step-0 changes in this run."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-0x64-is-not-an-amount.md"
+  ],
+  "goal": null,
+  "notes": "Catch rate on the 16 seeded mutants: 8/16 = 50% before, 14/16 after with the rerun as CI runs today (1 equivalent: ubl.mjs:332). With slimdom+fontoxpath installed, the remaining 2 are caught too (checked by hand). Real defects: 5 found, 4 patched (JS read 0x64 as 100; Python crashed on a non-numeric UBL amount, an inf/nan gross and a 1e27 quantity), 1 open (control-plane CI step). Guard against the class: numbers.mjs and numbers.py are now the only number readers in the checks, ubl, cii and isdoc readers on both sides, with parity tests (numbers.test.mjs, tests/test_numbers.py). Verification: node --test '**/*.test.mjs' in ventures/einvoice-preflight gives 1387 pass, 0 fail, 60 skipped without the optional packages and 1432 pass, 0 fail, 15 skipped with them; PYTHONPATH=src python3 -m unittest discover -s tests gives 362+7 OK. The new Python tests fail 3 of 7 on the old src; the new JS tests fail 3 of 7 on the old modules.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/einvoice-preflight/report.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 390478455,
+        "commit": "439f3a81",
+        "sites": 67,
+        "baseline_seconds": 5.8,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 69,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "const name = input.name || \"invoice.json\";",
+            "after": "const name = input.name && \"invoice.json\";",
+            "line_text": "    const name = input.name || \"invoice.json\";",
+            "caught": true,
+            "seconds": 5.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 98,
+            "col": 38,
+            "operator": "and-to-or",
+            "before": "if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {",
+            "after": "if (!looksLikePdf(name, source) || looksLikeFa3(peek)) {",
+            "line_text": "      if (!looksLikePdf(name, source) && looksLikeFa3(peek)) {",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 120,
+            "col": 18,
+            "operator": "false-to-true",
+            "before": "let own = false;",
+            "after": "let own = true;",
+            "line_text": "        let own = false;",
+            "caught": false,
+            "seconds": 5.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "numbers.test.mjs: a JSON draft under schematron:true keeps its INV-024 (own must stay false with no XML)."
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 123,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "own = plain.status === \"ok\" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));",
+            "after": "own = plain.status !== \"ok\" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));",
+            "line_text": "          own = plain.status === \"ok\" && (plain.sets || []).some((s) => /^(pint|zatca)/.test(s));",
+            "caught": false,
+            "seconds": 5.9,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Caught by report-plain-route.test.mjs only when slimdom+fontoxpath are installed; no CI job installs them, so its tests are always skipped. Guard: install step in einvoice-preflight-ci.yml (control plane, own PR). Checked by hand with slimdom 4.3.5 + fontoxpath 3.34.0 installed: report-plain-route.test.mjs fails 2 tests on this mutant. caught_after_fix is false because rerun ran without them, as CI does today."
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 150,
+            "col": 84,
+            "operator": "and-to-or",
+            "before": "const dropped = (e) => drop.has(e.rule) || (zatca && e.rule === \"INV-038\" && /repeats the same tax percentage/.test(e.message));",
+            "after": "const dropped = (e) => drop.has(e.rule) || (zatca && e.rule === \"INV-038\" || /repeats the same tax percentage/.test(e.message));",
+            "line_text": "          const dropped = (e) => drop.has(e.rule) || (zatca && e.rule === \"INV-038\" && /repeats the same tax percentage/.test(e.message));",
+            "caught": false,
+            "seconds": 5.9,
+            "triage": "gap",
+            "caught_after_fix": false,
+            "note": "Not caught even with slimdom+fontoxpath. New test in report-plain-route.test.mjs (a doubled PINT tax subtotal keeps its INV-038 'repeats' finding) fails on the mutant with the packages installed (checked by hand). caught_after_fix is false because that test is skipped without them, as in CI today; the install step is the control-plane follow-up."
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 201,
+            "col": 53,
+            "operator": "or-to-and",
+            "before": "ruleCounts[error.rule] = (ruleCounts[error.rule] || 0) + 1;",
+            "after": "ruleCounts[error.rule] = (ruleCounts[error.rule] && 0) + 1;",
+            "line_text": "    ruleCounts[error.rule] = (ruleCounts[error.rule] || 0) + 1;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 245,
+            "col": 36,
+            "operator": "const-plus-one",
+            "before": "const suffix = item.count !== 1 ? ` (${item.count} occurrence(s))` : \"\";",
+            "after": "const suffix = item.count !== 2 ? ` (${item.count} occurrence(s))` : \"\";",
+            "line_text": "      const suffix = item.count !== 1 ? ` (${item.count} occurrence(s))` : \"\";",
+            "caught": false,
+            "seconds": 5.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "numbers.test.mjs: checklist suffix for a rule seen twice and none for a rule seen once."
+          },
+          {
+            "file": "ventures/einvoice-preflight/report.mjs",
+            "line": 287,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "if (report.errors.length === 0) {",
+            "after": "if (report.errors.length === 1) {",
+            "line_text": "    if (report.errors.length === 0) {",
+            "caught": true,
+            "seconds": 6.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/einvoice-preflight/ubl.mjs",
+        "test": "node --test ventures/einvoice-preflight/**/*.test.mjs  (in .)",
+        "seed": 826807358,
+        "commit": "d68c1fb0",
+        "sites": 173,
+        "baseline_seconds": 5.8,
+        "mutants": [
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 25,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "const text = typeof source === \"string\" ? source : new TextDecoder().decode(source);",
+            "after": "const text = typeof source !== \"string\" ? source : new TextDecoder().decode(source);",
+            "line_text": "  const text = typeof source === \"string\" ? source : new TextDecoder().decode(source);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 117,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;",
+            "after": "if (!schemeId && vatId || !/^[A-Za-z]{2}/.test(vatId.trim())) continue;",
+            "line_text": "    if (!schemeId && vatId && !/^[A-Za-z]{2}/.test(vatId.trim())) continue;",
+            "caught": true,
+            "seconds": 5.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 134,
+            "col": 56,
+            "operator": "const-plus-one",
+            "before": "const contactNode = descendants(partyNode, \"Contact\")[0];",
+            "after": "const contactNode = descendants(partyNode, \"Contact\")[1];",
+            "line_text": "  const contactNode = descendants(partyNode, \"Contact\")[0];",
+            "caught": true,
+            "seconds": 5.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 330,
+            "col": 64,
+            "operator": "const-plus-one",
+            "before": "const supplier = descendants(root, \"AccountingSupplierParty\")[0] || root;",
+            "after": "const supplier = descendants(root, \"AccountingSupplierParty\")[1] || root;",
+            "line_text": "  const supplier = descendants(root, \"AccountingSupplierParty\")[0] || root;",
+            "caught": false,
+            "seconds": 5.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ubl.test.mjs: a file with the customer party before the supplier party must still read the supplier (root fallback took the first Party)."
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 332,
+            "col": 59,
+            "operator": "or-to-and",
+            "before": "const total = descendants(root, \"LegalMonetaryTotal\")[0] || root;",
+            "after": "const total = descendants(root, \"LegalMonetaryTotal\")[0] && root;",
+            "line_text": "  const total = descendants(root, \"LegalMonetaryTotal\")[0] || root;",
+            "caught": false,
+            "seconds": 5.5,
+            "triage": "equivalent",
+            "caught_after_fix": null,
+            "note": "TaxExclusiveAmount, TaxInclusiveAmount, PrepaidAmount, PayableAmount and PayableRoundingAmount occur only inside LegalMonetaryTotal in UBL 2.1 Invoice/CreditNote, so reading them from the root finds the same elements; with LegalMonetaryTotal absent both read the root."
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 381,
+            "col": 52,
+            "operator": "false-to-true",
+            "before": "const businessProcess = textOf(root, \"ProfileID\", false);",
+            "after": "const businessProcess = textOf(root, \"ProfileID\", true);",
+            "line_text": "  const businessProcess = textOf(root, \"ProfileID\", false);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 417,
+            "col": 39,
+            "operator": "and-to-or",
+            "before": "if (!indicator && !amount && !base && !percent && !reason && !reasonCode) continue;",
+            "after": "if (!indicator && !amount && !base || !percent && !reason && !reasonCode) continue;",
+            "line_text": "    if (!indicator && !amount && !base && !percent && !reason && !reasonCode) continue;",
+            "caught": false,
+            "seconds": 5.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "ubl.test.mjs: a header allowance with indicator and amount but no reason or percent must still be read."
+          },
+          {
+            "file": "ventures/einvoice-preflight/ubl.mjs",
+            "line": 471,
+            "col": 78,
+            "operator": "true-to-false",
+            "before": "if (typeof name === \"string\" && name.toLowerCase().endsWith(\".xml\")) return true;",
+            "after": "if (typeof name === \"string\" && name.toLowerCase().endsWith(\".xml\")) return false;",
+            "line_text": "  if (typeof name === \"string\" && name.toLowerCase().endsWith(\".xml\")) return true;",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/einvoice-preflight/checks.mjs",
+        "issue": "The browser checks (checks, linenet, tax, adjustment, breakdown, ubl, cii, isdoc) parsed amounts with Number(), which reads '0x64' as 100, '0b11' as 3 and '0o7' as 7: a UBL/CII/JSON invoice with hex amounts passed the page clean while the Python CLI flagged INV-009/010/013 and a receiver (xs:decimal) rejects it. Fixed with numbers.mjs (one decimal pattern shared with numbers.py); numbers.test.mjs fails 3 tests without the fix.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14691"
+      },
+      {
+        "file": "ventures/einvoice-preflight/src/einvoice_preflight/ubl.py",
+        "issue": "A UBL amount that is not a number raised decimal.InvalidOperation (an ArithmeticError, not the ValueError cli.py catches), so a directory run crashed with a traceback instead of listing one unreadable file. Fixed: ubl._number raises ValueError via parse_decimal; tests/test_numbers.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14691"
+      },
+      {
+        "file": "ventures/einvoice-preflight/src/einvoice_preflight/creditlink.py",
+        "issue": "_cents did int(float(gross)), so a gross of 'inf', 'nan' or '1e400' on any credit note or its invoice raised OverflowError/ValueError and killed a directory run. Fixed with parse_decimal and Decimal rounding; tests/test_numbers.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14691"
+      },
+      {
+        "file": "ventures/einvoice-preflight/src/einvoice_preflight/checks.py",
+        "issue": "A quantity of 1e27 (or a 26-digit amount) overflowed Decimal's default 28-digit context when the line was rounded to cents, so check_invoice raised InvalidOperation. Fixed: amounts of 1e15 or more are not read as numbers (both sides), and check_invoice runs at 80 digits; tests/test_numbers.py.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14691"
+      },
+      {
+        "file": ".github/workflows/einvoice-preflight-ci.yml",
+        "issue": "browser-test runs `node --test` without slimdom/fontoxpath, so 45 tests of the official PINT/ZATCA/plain-runner route (report-plain-route, pint, zatca, pint-current and others) are always skipped in CI; mutants at report.mjs:123 and :150 survived because of it. Fix: add `npm i --no-save --no-package-lock slimdom@4.3.5 fontoxpath@3.34.0` before `node --test` in the browser-test job (suite goes 5 s -> 12 s, all 1432 pass locally). Control plane: its own PR, owner approval.",
+        "patched": false
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "fa315619-486b-57c7-b641-291897149595",
+    "transcripts": 1,
+    "first": "2026-11-11T04:06:36Z",
+    "last": "2026-11-11T04:50:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 126,
+        "input": 242,
+        "output": 55052,
+        "thinking": 17093,
+        "cache_read": 15610939,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160133,
+        "api_equivalent_usd": 5.5053,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 126,
+      "input": 242,
+      "output": 55052,
+      "thinking": 17093,
+      "cache_read": 15610939,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160133,
+      "api_equivalent_usd": 5.5053,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.99,
+    "tool_calls": 127,
+    "tools": {
+      "Bash": 123,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 43.55,
+      "active_minutes": 43.25,
+      "model_minutes": 12.4,
+      "tool_minutes": 30.85,
+      "waiting_on_human_minutes": 0.3,
+      "human_prompts": 2,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a senior engineer: mutation triage of 16 mutants, reproducing 5 defects across JS and Python, a shared parser in 15 call sites with parity tests, and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 109.0,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

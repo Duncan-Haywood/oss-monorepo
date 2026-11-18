@@ -1,0 +1,129 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtGtYYWDZGSvXVU9SWW",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T07:07:06Z",
+  "ended": "2026-11-14T07:20:27Z",
+  "wall_minutes": 13.71,
+  "tokens_in": 9850103,
+  "tokens_out": 44684,
+  "cost_usd": 4.1175,
+  "tool_calls": 78,
+  "task": "Deepen flagship 8 (quick-pick-survey), item d10: use a fast turn to move a slot run's cut back under a wandering pace",
+  "projects": [
+    "quick-pick-survey"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15768",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "A combined Bash call (a sweep-script edit plus an rm of scratch files) was refused by the rm safety check. The script edit in the same call never ran, so the first full sweep lacked the planned backFar variant; it was dropped rather than rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "d10's wording ('a slot run's start as the one candidate for a timing step ... scored against the panel's slow turns') did not say what the result would change. Once the slot run is cut from its start, confirming a timing step at that start changes nothing, so I read d10 as moving the cut back to an earlier turn and recorded the stricter one-candidate version as d11."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-quick-pick-survey-the-coin-flips-before-the-run.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md (new section 'A slot run's cut moved back to an earlier fast turn')"
+  ],
+  "goal": "flagship depth",
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed ventures/2; allocate.py row 6 quick-pick-survey, claimed via PR 15768 (claim_check HOLD). Sweep: scripts/slot-turn-back-sweep.ts, 110 cells (seed bases 9100 and 51000), raw rows in docs/slot-turn-back-2026-11-14.jsonl. Shipped 'back' (slotBlocksBackToTurns at looseFastTurns): under wander with the run after the speed-up, +0.0008 mean vs the d9 default (40 cells, max +0.0045, 7 above by 2 SE, 0 below); worst cell -0.0011; never more than 0.0008 below the pre-d9 default; honest moved 0-0.2%. Not shipped: 'loose' (slotRunsAtTurns at loose turns), which added 0.1-0.4% honest flags and was mixed on the second seed set. Local verify: npm run verify (typecheck, lint with 1 pre-existing warning at groupRanking.ts slotFlags, 568 tests, build) exit 0. DB integration tests and simulations were left to CI.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "2f046700-e29f-5771-9d18-b9039a1d1bd5",
+    "transcripts": 1,
+    "first": "2026-11-14T07:07:06Z",
+    "last": "2026-11-14T07:20:49Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 75,
+        "input": 146,
+        "output": 44684,
+        "thinking": 12914,
+        "cache_read": 9689287,
+        "cache_write_5m": 0,
+        "cache_write_1h": 160670,
+        "api_equivalent_usd": 4.1175,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 75,
+      "input": 146,
+      "output": 44684,
+      "thinking": 12914,
+      "cache_read": 9689287,
+      "cache_write_5m": 0,
+      "cache_write_1h": 160670,
+      "api_equivalent_usd": 4.1175,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 73,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 13.71,
+      "active_minutes": 13.71,
+      "model_minutes": 8.69,
+      "tool_minutes": 5.02,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "Designing and running a two-seed 110-cell simulation sweep, implementing and testing the cut-back rule, and writing it up: about a day and a half for a statistician-engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 242.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

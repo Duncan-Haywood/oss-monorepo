@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVMPJ3tXuFmABMAB13X",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "scheduled: continue work on the repo (develop, deploy, market, sell revenue software); merge when done",
+  "input_sha256": "1ac37a052859b1f454eae959706191b7e908911186c7614c2d5a5440ea360c36",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T23:01:27Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 14917,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "The 22:16 report that --for-changes skipped the site-builder suite predates #14897 (22:52 UTC); read_only_jobs now allows portfolio-pages' test job, so I found no live fault there."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; most top doc-friction targets were CODEOWNERS-gated (prompts/, CLAUDE.md, redteam.py) or already fixed, leaving small ungated tool fixes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompt.md",
+      "why": "The scheduled brief asks for revenue products; I followed the router's process draw as CLAUDE.md says."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "Critique mode via doc friction. Fixed platform/ci/wait_for.py: --pattern alias, timeout reports log size/idle/last line. test_wait_for 20 OK; main_health 57/57 (run on the pre-fetch checkout); check_post_frontmatter clean. No backlog ids touched (backlog under gated /prompts/).",
+  "corrections": [],
+  "redteam": null
+}

@@ -39,7 +39,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5268; }
     .finding { border-bottom: 1px solid #e2efeb; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -89,7 +89,7 @@
         <div><label for="pkg-discount">Discount for a 3-run package (%)</label><input id="pkg-discount" type="number" min="0" max="60" step="1" value="10"></div>
         <div><label for="pkg-discount-6">Discount for a 6-run package (%)</label><input id="pkg-discount-6" type="number" min="0" max="60" step="1" value="15"></div>
       </div>
-      <p class="note">Booking curve assumed: 35% of final bookings are in 28 days out, 60% at 14, 80% at 7, 92% at 3. Replace it with your own history when you have it.</p>
+      <p class="note">Booking curve assumed: 35% of final bookings are in 28 days out, 60% at 14, 80% at 7, 92% at 3. Your own booking curve is not yet an input.</p>
     </section>
 
     <section class="card" id="out" aria-live="polite" hidden>
@@ -117,7 +117,7 @@
   </main>
 
   <footer>
-    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace an qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a qualified advisor. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, and for meeting any obligation it helps you think about. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
     <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you type, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere by this tool.</p>
     <p>Everything runs in your browser. Your answers are never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>plan_run</code>, <code>example_loaded</code>) are counted only in local storage on your device. The counts can be deleted with the button below. Do Not Track and Global Privacy Control are honoured.</p>
     <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
@@ -148,15 +148,15 @@
       const sc = priceScenarios({ price, slots, anchorRate, e: fit.e, runsPerMonth: perMonth });
       const daysOut = num($("days-out").value), soldNow = num($("sold-now").value);
       const pace = Number.isFinite(daysOut) && Number.isFinite(soldNow) ? pacing({ slots, soldNow, daysOut, typicalFinalRate: anchorRate }) : null;
-      let h = `<div class="finding"><h4>History</h4><p class="stats">${percent(s.rate)} sold across ${s.runs} runs · ${money(s.revenue)} booked of ${money(s.capacity)} at the prices you charged (${money(s.unsold)} unsold)</p>`
+      let h = `<div class="finding"><h3>History</h3><p class="stats">${percent(s.rate)} sold across ${s.runs} runs · ${money(s.revenue)} booked of ${money(s.capacity)} at the prices you charged (${money(s.unsold)} unsold)</p>`
         + `<div class="scroll"><table><thead><tr><th>Run</th><th class="n">Sold</th><th class="n">Price</th><th class="n">Sell-through</th><th class="n">Revenue</th></tr></thead><tbody>`
         + s.perRow.map((r) => `<tr><td>${esc(r.label)}</td><td class="n">${r.sold}/${r.offered}</td><td class="n">${money(r.price)}</td><td class="n">${percent(r.rate)}</td><td class="n">${money(r.revenue)}</td></tr>`).join("")
         + `</tbody></table></div></div>`;
-      for (const f of diagnose({ summary: s, fit, rec, pace })) h += `<div class="finding"><h4><span class="pill ${LEVEL[f.level]}">${f.level === "info" ? "Note" : f.level === "high" ? "Act" : "Watch"}</span>${esc(f.title)}</h4><p>${esc(f.text)}</p></div>`;
-      h += `<div class="finding"><h4>Price scenarios (${slots} slots, anchored on ${percent(anchorRate >= 0.999 ? 1 : anchorRate)} sold at ${money(price)}, response ${fit.e.toFixed(2)} ${fit.source})</h4><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Price</th><th class="n">Expected sold</th><th class="n">Per run</th><th class="n">Per month</th></tr></thead><tbody>`
+      for (const f of diagnose({ summary: s, fit, rec, pace })) h += `<div class="finding"><h3><span class="pill ${LEVEL[f.level]}">${f.level === "info" ? "Note" : f.level === "high" ? "Act" : "Watch"}</span>${esc(f.title)}</h3><p>${esc(f.text)}</p></div>`;
+      h += `<div class="finding"><h3>Price scenarios (${slots} slots, anchored on ${percent(anchorRate >= 0.999 ? 1 : anchorRate)} sold at ${money(price)}, response ${fit.e.toFixed(2)} ${fit.source})</h3><div class="scroll"><table><thead><tr><th>Price change</th><th class="n">Price</th><th class="n">Expected sold</th><th class="n">Per run</th><th class="n">Per month</th></tr></thead><tbody>`
         + sc.map((r) => `<tr><td>${r.change > 0 ? "+" : ""}${Math.round(r.change * 100)}%</td><td class="n">${money(r.price)}</td><td class="n">${percent(r.rate)}</td><td class="n">${money(r.perRun)}</td><td class="n">${money(r.perMonth)}</td></tr>`).join("")
         + `</tbody></table></div><p class="note">Change one price at a time and give it three runs before judging it.</p></div>`;
-      if (pace) h += `<div class="finding"><h4>Next run: ${pace.status}</h4><p>${soldNow} of ${slots} slots sold with ${daysOut} days to go. Typically about ${percent(pace.share)} of bookings are in by now`
+      if (pace) h += `<div class="finding"><h3>Next run: ${pace.status}</h3><p>${soldNow} of ${slots} slots sold with ${daysOut} days to go. Typically about ${percent(pace.share)} of bookings are in by now`
         + (pace.projected !== null ? `, which projects ${pace.projected.toFixed(1)} sold and ${pace.projectedUnsold.toFixed(1)} unsold.` : ".") + `</p>`;
       if (pace && pace.projectedUnsold !== null) {
         const lm = lastMinute({ unsold: pace.projectedUnsold, price, floorPct: num($("floor-pct").value) / 100, fillChance: num($("fill-chance").value) / 100 });
@@ -165,7 +165,7 @@
       if (pace) h += `</div>`;
       const tiers = [{ runs: 3, discount: num($("pkg-discount").value) / 100 }, { runs: 6, discount: num($("pkg-discount-6").value) / 100 }];
       const pk = packages({ price, tiers });
-      h += `<div class="finding"><h4>Multi-run packages</h4><table><thead><tr><th>Package</th><th class="n">Per slot</th><th class="n">Committed</th><th class="n">Given up vs list</th></tr></thead><tbody>`
+      h += `<div class="finding"><h3>Multi-run packages</h3><table><thead><tr><th>Package</th><th class="n">Per slot</th><th class="n">Committed</th><th class="n">Given up vs list</th></tr></thead><tbody>`
         + pk.map((p) => `<tr><td>${p.runs} runs at ${percent(p.discount)} off</td><td class="n">${money(p.each)}</td><td class="n">${money(p.committed)}</td><td class="n">${money(p.vsList)}</td></tr>`).join("")
         + `</tbody></table><p class="note">Worth it when the committed runs would otherwise sell below list or not at all. Not worth it for slots that already sell out.</p></div>`;
       $("result").innerHTML = h;

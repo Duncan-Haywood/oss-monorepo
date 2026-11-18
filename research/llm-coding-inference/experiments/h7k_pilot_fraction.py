@@ -14,6 +14,8 @@ sys.path.insert(0, str(HERE))
 sys.path.insert(0, str(HERE.parent))
 import h3_llm_width as H3  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 REPS = int(ARGS[0]) if ARGS else 500
 SEED = 20261102
@@ -23,7 +25,7 @@ N = 1000
 def one(f, human, share, truth, rr, tau, guard):
     pilot = rr.sample(range(len(f)), round(share * N))
     labels = {i: human[i] for i in pilot}
-    plan = A.plan_audit(f, labels, N, tau=tau, guard=guard)
+    plan = A.plan_audit_pre7ar(f, labels, N, tau=tau, guard=guard, width_margin=None)
     for cell, t in zip(plan["cells"], plan["to_label"]):
         for i in rr.sample([i for i in cell if i not in labels], t):
             labels[i] = human[i]

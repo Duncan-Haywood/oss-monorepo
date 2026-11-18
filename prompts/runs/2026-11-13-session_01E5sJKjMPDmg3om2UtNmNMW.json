@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKjMPDmg3om2UtNmNMW",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T08:18:15Z",
+  "ended": "2026-11-13T08:26:51Z",
+  "wall_minutes": 8.76,
+  "tokens_in": 6022790,
+  "tokens_out": 22939,
+  "cost_usd": 2.5061,
+  "tool_calls": 61,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15434",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Wrote run_venture_tests.py and pyenv.py fixes before searching open PRs; PR #15426 (same hour, same two items) already did both, so that work was stashed and not opened."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/polish/prompt-0.md",
+      "issue": "Says a full build.mjs takes 3 to 20 minutes; here a warm full build (4 cores) took 109 s. The stale number drives the recurring '--only=<slug>' requests."
+    },
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Critique mode sends every concurrent process run to the same newest rows of 'Doc friction by file'; two runs in the same hour fixed the same two items (#15426 and this run). Searching open PRs before writing code, not before opening the PR, is the step that matters; the prompt could say so."
+    },
+    {
+      "file": "prompts/promptctl.py",
+      "issue": "measure's doc-friction table shows reports that were fixed since (check_post_frontmatter exit code, cite_check ancestor cache, run_workflow_locally UNRUN); 3 of 5 rows tried were stale."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-five-friction-reports-one-still-open.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode; no backlog ids touched (only owner/blocked rows open). main_health.py 62/62 pass. Checked 5 friction reports: check_post_frontmatter exit code (exits 1 correctly, stale), cite_check ancestor cache (already fixed), run_workflow_locally UNRUN budget (already fixed), run_venture_tests/pyenv pin (duplicate of open PR #15426), pick_track free-choice pointer (fixed here). test_pick_track 44 OK; check_post_frontmatter rc 0; check_post_links 0 broken. Full site build timing: node platform/pages/build.mjs --out=<scratch> 109 s warm.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e2d05d85-b50f-54a4-be6e-06ea5b9cad9a",
+    "transcripts": 1,
+    "first": "2026-11-13T08:18:15Z",
+    "last": "2026-11-13T08:27:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 111,
+        "output": 22939,
+        "thinking": 6285,
+        "cache_read": 5914681,
+        "cache_write_5m": 0,
+        "cache_write_1h": 107998,
+        "api_equivalent_usd": 2.5061,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 111,
+      "output": 22939,
+      "thinking": 6285,
+      "cache_read": 5914681,
+      "cache_write_5m": 0,
+      "cache_write_1h": 107998,
+      "api_equivalent_usd": 2.5061,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 57,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.76,
+      "active_minutes": 8.76,
+      "model_minutes": 3.95,
+      "tool_minutes": 4.81,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 1.5,
+      "basis": "triage of five reports plus a small tool change and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 150.0
+    },
+    "leverage": 59.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -66,3 +66,20 @@ test('default sample traces add one request and one storage key', () => {
   assert.equal(result.storage.added.length, 1);
   assert.equal(result.requests.removed.length, 0);
 });
+
+// Quality audit 2026-11-17: a GA4 beacon whose per-hit `_p` differs is the
+// same tracker still firing, not one added and one removed.
+test('a rotating query string is the same request', () => {
+  const S = 'https://s.example';
+  const r = compareTraces(
+    {site:S, requests:[{url:'https://region1.google-analytics.com/g/collect?v=2&_p=111', method:'POST'}]},
+    {site:S, requests:[{url:'https://region1.google-analytics.com/g/collect?v=2&_p=222', method:'POST'}]});
+  assert.deepEqual([r.requests.added.length, r.requests.removed.length, r.requests.unchanged.length], [0, 0, 1]);
+  assert.match(reportAsText(r), /FIRE REGARDLESS\)\n  - POST https:\/\/region1\.google-analytics\.com\/g\/collect/);
+});
+
+test('method case does not split a request', () => {
+  const S = 'https://s.example', U = 'https://t.example/p';
+  const r = compareTraces({site:S, requests:[{url:U, method:'post'}]}, {site:S, requests:[{url:U, method:'POST'}]});
+  assert.equal(r.requests.unchanged.length, 1);
+});

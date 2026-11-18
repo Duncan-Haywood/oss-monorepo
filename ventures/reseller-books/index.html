@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -152,7 +152,7 @@
       last = r;
       const t = r.total;
       $("#report-stats").innerHTML = `${r.channels.length} channel(s), ${t.orders} orders. Sales ${money(t.sales)}, net payout ${money(t.net)} (<strong>${pctOf(t.keepRate)}</strong> of sales kept before the cost of goods)` + (t.profit === null ? "." : `, profit <strong>${money(t.profit)}</strong> after ${money(t.cogs)} of goods.`);
-      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4>${f.detail ? `<p>${esc(f.detail)}</p>` : ""}</div>`).join("");
+      $("#report-findings").innerHTML = r.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3>${f.detail ? `<p>${esc(f.detail)}</p>` : ""}</div>`).join("");
       const row = (c) => `<tr><th scope="row">${esc(c.label)}</th><td class="n">${c.orders}</td><td class="n">${money(c.sales)}</td><td class="n">${money(c.refunds)}</td><td class="n">${money(c.platformFees)}</td><td class="n">${money(c.labels)}</td><td class="n">${money(c.ads)}</td><td class="n">${money(c.other)}</td><td class="n">${money(c.net)}</td><td class="n">${pctOf(c.keepRate)}</td><td class="n">${money(c.cogs)}</td><td class="n">${money(c.profit)}</td></tr>`;
       $("#by-channel").innerHTML = r.channels.map(row).join("") + (r.channels.length > 1 ? row({ label: "All channels", ...t, keepRate: t.keepRate }) : "");
       $("#by-month").innerHTML = r.months.map((m) => `<tr><th scope="row">${esc(m.month)}</th><td class="n">${money(m.sales)}</td><td class="n">${money(m.refunds)}</td><td class="n">${money(m.deductions)}</td><td class="n">${money(m.net)}</td><td class="n">${m.costedChannels === m.channelsPresent ? money(m.cogs) : "–"}</td><td class="n">${money(m.profit)}</td></tr>`).join("");

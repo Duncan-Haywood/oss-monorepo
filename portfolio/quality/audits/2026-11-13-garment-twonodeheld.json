@@ -1,0 +1,245 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/garment-twonodeheld",
+ "stratum": "research",
+ "seed": "2026-11-13-o",
+ "drawn_by": "sample",
+ "round": 69,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a thermal-comfort and clothing-thermophysiology researcher who knows the Gagge two-node model and ISO 7730 / ASHRAE 55 (the kind who reviews for Building and Environment or Energy and Buildings), reading with a control engineer's eye on the hysteresis thermostat. Not a cloth-simulation or robotic-garment-manipulation reviewer: the project models heat balance of a person wearing an infrared-gating textile, not fabric mechanics. They would check first that the two-node model matches pythermalcomfort, that the comfort proxy's target is right for the activity level, and whether 'held-out rooms' is a real generalisation test or one the setup guarantees",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 3,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Every headline number reproduces and recomputes. Rerun: `cd research/garment-twonodeheld && /usr/bin/python3.13 experiments/run.py` (4.1 s, needs scipy, which the bare python3 lacked) is byte-identical to the committed experiments/results.txt (diff empty). Independent script /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/indep.py re-implements the 'ours' two-node model, hysteresis gate, proxy, four-schedule oracle and the 54-band tuning from the documented equations (Gagge 1986 two-node, ISO 7730 f_cl and 3.96e-8 radiation constant) with its own bisection root finder instead of scipy brentq, and imports nothing from the repository. It gives: tuned band (33.6, 33.7), train mean 0.880, 4 of 54 bands within 0.02 C; tuned/default/closed/open means 0.880/0.834/1.354, 0.935/0.882/1.405, 1.104/1.068/1.557, 1.575/1.520/2.056; oracle 0.920/0.825/1.364; switch counts tuned [1,2,1,2,14,24,1,1], default [1,2,1,2,0,0,1,1]. All equal results.txt to 3 dp. External tool check of the 'ref' choice set: pythermalcomfort 4.6.1 two_nodes_gagge (pip-installed in a scratch venv) at tau=0, 60 min, 0.5 clo, 50% rh, 0.1 m/s gives tsk/tcr 33.4028/36.8313 (24 C, 1 met), 33.7296/36.9444 (22 C, 2 met), 34.3273/36.8615 (28 C, 1 met), 31.3475/36.8156 (20 C, 1 met); the repository's flex.run(opts=REF) gives the same to 1e-4. Not 4: the 'ref' gate numbers were reproduced only by the package's own run (no independent ref reimplementation), and the proxy target is a modelling choice I question under domain.",
+  "completeness": "README promises: 54-band grid (54 confirmed), train/between/outside splits (held.py:16-18, as stated), references untuned/closed/open/oracle (all in run.py and results.txt), per-scenario table and switch counts (present), reproduce in seconds (4 s), `python3 -m pytest -q tests` 4 tests (4 passed in 1.5 s), live page https://marisstella.app/research/garment-twonodeheld/ (HTTP 200, title 'If a thermostat infrared-gating band is tuned... | Open research', AI-assistance and 'simulated or stylised' notice present), listed in research/README.md:594. experiments/held.svg is built by figure.py, which parses results.txt rather than retyping. Everything claimed runs end to end. Next steps (lag, switch penalty) were later done in garment-twonodelag, which this README does not link.",
+  "verification": "`/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests` from research/garment-twonodeheld: 4 passed in 1.50 s. The CI-style `python3 -m unittest discover` finds 0 tests (bare pytest functions), and no workflow runs this project's tests at all: .github/workflows/research-ci.yml only builds the homepage and runs programme_check; the slug is on research/_shared/legacy_projects.txt:422. Seven seeded mutants via platform/ci/quality_mutate.py, 2 caught, 5 survived: tune() picking the max instead of the min (held.py:41) caught; moving the 'outside' rooms inside the training range (held.py:18) caught; dropping the 0.1 C width, i.e. the winning band (held.py:21) survived; scoring every gate with lag 1 instead of the requested lag (held.py:27) survived; mean_score averaging only the first scenario (held.py:32) survived; upstream, a gate that never closes (garment-twonodeswitch switch.py:24) survived; the proxy target 33.7 -> 33.2 (garment-twonodemet met.py:12) survived. No test pins any value in results.txt, the tuned band or a switch count. Four downstream projects (garment-twonodelag, -prop, -pen, -wide) reuse held.py, so these survivors propagate.",
+  "craft": "Read src/garment_twonodeheld/held.py (41 lines), tests/test_held.py, experiments/run.py, experiments/figure.py, and the upstream met.py, switch.py, flex.py. Small, readable, deterministic, docstrings state the protocol. Defects: imports work only by sys.path.insert into three sibling research directories (held.py:5, met.py:6-7, switch.py:5) and pyproject declares only numpy and scipy, so the package does not install or run outside this tree; tests are not unittest-discoverable; run.py recomputes mean_score for every band twice (tune, then the 0.02 C sensitivity at run.py:31) and calls private module attributes through h.met.sw; warnings are globally silenced in run.py:5.",
+  "claims": "Checked against results.txt and my recomputation: the results table (README:23-32) is exact; 'beats untuned by 0.01 to 0.06 C' (0.048, 0.051, 0.059, 0.014: true); oracle comparisons 0.009 worse / 0.010 better (ours) and 0.024 better / equal (ref): true; 'both choice sets pick the same band, 0.1 C wide': true; '4 of 54 and 2 of 54 within 0.02 C': true; switch counts: true; '20 C (ref) all gates and fixed closed score the same' (1.876, 1.574): true. Limits are explicit and honest (stylised, zero lag and cost, coarse grid, narrowest width chosen after widening, proxy not a comfort index), and the 'Citation check' line says Zhang et al. (2019) was not re-read. Minor problems: the headline 'carries over' rests on mean gaps of 0.01 to 0.06 C over 4 scenarios and does not say the tuned band loses on some held-out scenarios (ref 23 C 2->1: 0.515 vs default 0.483; ours 28 C 2->1: 0.798 vs open 0.795); README:37 'that was not run' is stale since garment-twonodelag ran it.",
+  "fitness": "Job: a researcher deciding whether a thermostat band for an infrared-gating garment can be tuned once and reused. The protocol is runnable and the numbers are right, but the result is guaranteed by the setup: the score is mean |tsk - 33.7| and the gate acts on tsk, so the best band is the one that brackets 33.7 whatever the room, and a held-out room cannot move it. My finer grid (lows every 0.05 C, widths 0.02/0.05/0.1; /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/indep.py) picks 33.70-33.72 with train 0.873, between 0.828, outside 1.341: the optimum collapses toward a zero-width bang-bang controller at the setpoint, the textbook answer for a free, instant, wear-free actuator. Nearest prior work: Zhang et al. 2019 (Science, dynamic infrared gating textile) and Hsu et al. 2016 (Science, nanoPE personal thermal management) for the textile; Gagge, Fobelets & Berglund 1986 for the model; relay/hysteresis control and the chatter-versus-error trade-off for the controller; personal comfort systems (e.g. Vesely & Zeiler 2014 review) for model-based garment or local conditioning control. None of the control or comfort-system literature is cited and no novelty is claimed, but none exists either: it is a ~40-line step in a chain of 45 garment-* slugs, not in any programme in research/PROGRAMMES.md, which the research brief says should be steps inside a programme.",
+  "domain": "The underlying model is faithful to pythermalcomfort 4.6.1 (checked above), which a thermophysiologist would accept for a stylised study. They would not sign off the proxy: a fixed 33.7 C skin target regardless of activity departs from the comfort relation the repository's own base.py uses (Fanger / ISO 7730: tsk = 35.7 - 0.028 M, i.e. 34.07 C at 1 met and 32.44 C at 2 met), so half of every scenario is scored against the wrong target. With that met-dependent target (/tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/fanger.py, my reimplementation) the same band still wins, but all errors roughly double (tuned 1.603/1.576/1.975) and the 'outside' advantage over the untuned band falls from 0.051 to 0.001 C. They would also note differences of 0.01 C are below any skin-temperature sensor's resolution and any sensation threshold, and that zero lag, zero cost and 24 switches in 3 h are not a realistic actuator (disclosed)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "tuned band, train mean and near-optimum count (ours)",
+   "method": "independent reimplementation of the two-node model, gate and 54-band grid with own bisection solver, no repository imports",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/indep.py",
+   "expected": "(33.6, 33.7), 0.880, 4 of 54",
+   "observed": "(33.6, 33.7), 0.880, 4 of 54",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "held-out means for tuned, untuned, fixed closed, fixed open (ours, all three sets)",
+   "method": "same independent script",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/indep.py",
+   "expected": "0.880/0.834/1.354; 0.935/0.882/1.405; 1.104/1.068/1.557; 1.575/1.520/2.056 (results.txt)",
+   "observed": "identical to 3 dp",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "four-schedule oracle means and held-out switch counts (ours)",
+   "method": "same independent script, oracle as min over 4 open/closed schedules",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/indep.py",
+   "expected": "oracle 0.920/0.825/1.364; tuned [1,2,1,2,14,24,1,1]; default [1,2,1,2,0,0,1,1]",
+   "observed": "identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "'ref' choice set equals pythermalcomfort 4.6.1 two_nodes_gagge at tau=0, constant met, 60 min",
+   "method": "pythermalcomfort 4.6.1 in a scratch venv vs flex.run(opts=REF)",
+   "command": "/tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/ptc/bin/python -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/ptc_check.py",
+   "expected": "24 C 1 met tsk 33.4028 tcr 36.8313; 22 C 2 met 33.7296/36.9444; 28 C 1 met 34.3273/36.8615",
+   "observed": "repository 33.4029/36.8313, 33.7296/36.9444, 34.3273/36.8615, 31.3476/36.8156 (agree to 1e-4)",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "experiment reproduces committed results.txt",
+   "method": "rerun and diff",
+   "command": "cd research/garment-twonodeheld && /usr/bin/python3.13 experiments/run.py > out.txt && diff out.txt experiments/results.txt",
+   "expected": "no diff, seconds",
+   "observed": "no diff, 4.1 s (bare python3 fails: no scipy, as README's pip line warns)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "README test command",
+   "method": "run it",
+   "command": "cd research/garment-twonodeheld && /usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests",
+   "expected": "4 tests pass",
+   "observed": "4 passed in 1.50s",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "CI-style discovery and CI coverage",
+   "method": "run unittest discover; read research-ci.yml",
+   "command": "cd research/garment-twonodeheld && /usr/bin/python3.13 -m unittest discover -s tests",
+   "expected": "4 tests run in CI",
+   "observed": "Ran 0 tests (NO TESTS RAN); research-ci.yml runs no project tests",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:34 oracle and untuned comparisons (0.01-0.06; 0.009 worse, 0.010 better; 0.024 better, equal)",
+   "method": "arithmetic on results.txt",
+   "command": "grep -n 'tuned gate\\|default gate\\|oracle' research/garment-twonodeheld/experiments/results.txt",
+   "expected": "as stated",
+   "observed": "0.048/0.051/0.059/0.014; 0.009; 0.010; 0.024; 0.000",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "headline 'the tuned band carries over' at per-scenario level",
+   "method": "read per-scenario rows of results.txt",
+   "command": "sed -n 10,17p research/garment-twonodeheld/experiments/results.txt; sed -n 29,36p research/garment-twonodeheld/experiments/results.txt",
+   "expected": "tuned no worse than untuned in each held-out scenario if 'carries over' holds per room",
+   "observed": "ref 23 C 2->1 tuned 0.515 vs default 0.483; ours 28 C 2->1 tuned 0.798 vs open 0.795; mean gaps 0.01-0.06 C, unstated",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page",
+   "method": "HTTP fetch",
+   "command": "curl -sS -o page.html -w '%{http_code}' https://marisstella.app/research/garment-twonodeheld/",
+   "expected": "200 with headline and disclaimer",
+   "observed": "200, title 'If a thermostat infrared-gating band is tuned... | Open research', 'Produced with AI assistance' and 'simulated or stylised' notice",
+   "result": "pass"
+  },
+  {
+   "dimension": "fitness",
+   "what": "is the tuned band a learned room-independent property or the setpoint of the score?",
+   "method": "finer grid of narrow bands (lows every 0.05 C, widths 0.02/0.05/0.1) in the independent script",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/indep.py",
+   "expected": "if tuning learns something beyond the target, the optimum stays at a finite width",
+   "observed": "optimum 33.70-33.72, train 0.873, between 0.828, outside 1.341: collapses to bang-bang at the 33.7 target",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "comfort target vs activity: fixed 33.7 C vs Fanger/ISO 7730 tsk = 35.7 - 0.028 M",
+   "method": "rerun the protocol with a met-dependent target in my reimplementation",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/5126774c-bade-554d-9a1e-517d514005d7/scratchpad/held/fanger.py (via indep.py)",
+   "expected": "target 34.07 C at 1 met, 32.44 C at 2 met; conclusions robust",
+   "observed": "same band wins; errors double (tuned 1.603/1.576/1.975); outside advantage over untuned 0.051 -> 0.001 C",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/garment_twonodeheld/held.py:41",
+   "change": "tune key=lambda x: x[1] -> -x[1] (pick the worst band)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:18",
+   "change": "TEST_OUTSIDE rooms (20, 28) -> (22, 28)",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:21",
+   "change": "widths=(0.1, 0.2, 0.6, ...) -> (0.2, 0.6, ...) (drop the winning width)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:27",
+   "change": "Gate(band[0], band[1], lag) -> Gate(band[0], band[1], 1.0) (ignore requested lag)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "src/garment_twonodeheld/held.py:32",
+   "change": "mean_score over scs -> over scs[:1] (average only the first scenario)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/garment-twonodeswitch/src/garment_twonodeswitch/switch.py:24",
+   "change": "self.cmd = CLOSED -> self.cmd = self.cmd (gate never closes)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  },
+  {
+   "where": "research/garment-twonodemet/src/garment_twonodemet/met.py:12",
+   "change": "NEUTRAL_TSK = 33.7 -> 33.2",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q -p no:cacheprovider tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "Tests would not catch real bugs and never run in CI: 5 of 7 seeded mutants survive (dropping the winning 0.1 C width, ignoring the lag argument, averaging one scenario, a gate that never closes, a different proxy target); no test pins the tuned band, a results.txt value or a switch count, though four downstream projects reuse held.py",
+   "where": "research/garment-twonodeheld/tests/test_held.py:17",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "Tests are bare pytest functions, so `python3 -m unittest discover` runs 0 tests, and research-ci.yml runs no project tests at all; nothing would notice if the suite broke",
+   "where": "research/garment-twonodeheld/tests/test_held.py:6",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "medium",
+   "what": "The held-out generalisation is guaranteed by the setup: the score is mean |tsk - 33.7| and the gate thresholds tsk, so the best band brackets 33.7 in any room; a finer grid gives 33.70-33.72 (train 0.873), i.e. zero-width bang-bang at the setpoint. The README presents 'carries over' as a finding without saying so",
+   "where": "research/garment-twonodeheld/README.md:34",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "Comfort proxy uses a fixed 33.7 C skin target at both 1 and 2 met; Fanger/ISO 7730 (used in the repo's own base.py pmv) gives 34.07 and 32.44 C. With the met-dependent target errors double and the outside advantage over the untuned band drops from 0.051 to 0.001 C",
+   "where": "research/garment-twonodeheld/README.md:12",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "Headline 'carries over' rests on mean gaps of 0.01-0.06 C (below sensor resolution) and omits held-out scenarios where the tuned band loses (ref 23 C 2->1: 0.515 vs 0.483 untuned; ours 28 C 2->1: 0.798 vs 0.795 open)",
+   "where": "research/garment-twonodeheld/README.md:34",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "A ~40-line protocol step published as its own slug (one of 45 garment-* directories), not in any programme in research/PROGRAMMES.md; relay/hysteresis control and personal-comfort-system control literature uncited",
+   "where": "research/garment-twonodeheld/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "Imports resolve only via sys.path.insert into sibling research directories; pyproject declares numpy and scipy but not garment-twonodemet/-switch/-optics, so the package does not install or run outside this tree",
+   "where": "research/garment-twonodeheld/src/garment_twonodeheld/held.py:5",
+   "category": "repo-hygiene",
+   "origin": "build"
+  },
+  {
+   "severity": "low",
+   "what": "'A non-zero lag or an actuation cost might change which band wins; that was not run' and the Next steps item are stale: garment-twonodelag ran exactly that, and this README does not link it",
+   "where": "research/garment-twonodeheld/README.md:37",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15569"
+ ],
+ "verdict": "A correct, honest, very small step. Every 'ours' number I recomputed with an independent reimplementation (own solver, no repository imports) matches results.txt to 3 dp, the experiment reproduces byte-for-byte in 4 s, and the 'ref' model matches pythermalcomfort 4.6.1 to 1e-4. It misses the bar on verification: the 4 tests are invisible to unittest and to CI, and 5 of 7 seeded mutants survive. As research it is below the PhD bar: the held-out 'carry-over' is built into the setup (the score's target is the gate's threshold variable, and a finer grid collapses the band onto the setpoint), the fixed 33.7 C target departs from the ISO 7730 activity-dependent comfort skin temperature, and the headline effect is 0.01 to 0.06 C."
+}

@@ -11,7 +11,7 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Biohazard Cleanup Bid Calculator","applicationCategory":"BusinessApplication","operatingSystem":"Any web browser","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Browser-local calculator that prices a biohazard or trauma-scene remediation job from crew labor, PPE decon cycles, regulated-waste disposal rounded up to whole containers, supplies, equipment, and travel, applies a target margin with a minimum-job floor, and checks a quoted price against the true direct cost."}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Why does PPE cost scale with decon cycles instead of just one set per technician?","acceptedAnswer":{"@type":"Answer","text":"Because a technician who leaves the contaminated area — for a break, to run equipment out, or across a shift change — has to doff the PPE they were wearing before re-entering. Used PPE cannot be re-donned, so re-entry needs a fresh set. A count that assumes one set per technician undercounts every job with more than one decon cycle per tech."}},{"@type":"Question","name":"Why is disposal billed per container instead of per pound?","acceptedAnswer":{"@type":"Answer","text":"Because that is how a licensed regulated-waste hauler actually invoices: a per-container pickup charge, not a per-pound rate. A container that is 10% full costs the same as one that is completely full, up to its rated capacity. This calculator rounds your waste estimate up to the next whole container before pricing it, the way your hauler's invoice will, instead of multiplying pounds by a linear per-pound rate that undercounts whenever a container isn't full."}},{"@type":"Question","name":"What does the minimum job fee do?","acceptedAnswer":{"@type":"Answer","text":"It floors the quoted price at your company's stated minimum. A very small scope — one room, a short on-site window, little waste — can price below a sensible minimum on cost-plus-margin arithmetic alone, even though the job still needs a full truck roll, a hauler pickup, and travel regardless of size."}},{"@type":"Question","name":"Does anything I type get uploaded?","acceptedAnswer":{"@type":"Answer","text":"No. Every field on this page runs in your browser only. Nothing is sent to a server, there is no account, and nothing you type is saved anywhere unless you choose to save it. Usage counting only tallies anonymous feature events, and you can turn it off with the button above. The Save button writes your scenario to this browser's own local storage on this device only, and Forget deletes it. Copy shareable link puts the same numbers in the page's URL fragment instead of a server — nothing about your scenario leaves your device either way, but whoever holds the link can read it."}}]}</script>
 <style>
-:root{font:16px/1.5 system-ui,sans-serif;color:#151a24;background:#eef1f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3.9rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a1a3a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe4f0;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f5ab8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7e0;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0e2a5c;color:#fff;border-color:#0e2a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5468}.result .note{color:#c9d7ee}.err{color:#ffd0a6;font-weight:700}.warn{background:#fff0e0;border:1px solid #f0b987;color:#7a3f06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650;margin:0 0 8px}.result .warn{background:#3a1f08;border-color:#c9843b;color:#ffdcb0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7e0;background:#fff;cursor:pointer;color:#151a24}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
+:root{font:16px/1.5 system-ui,sans-serif;color:#151a24;background:#eef1f6}body{max-width:980px;margin:auto;padding:28px 18px}header{max-width:720px}h1{font-size:clamp(2.1rem,6.5vw,3rem);line-height:.98;letter-spacing:-.05em;margin:.2rem 0 1rem}.lede{font-size:1.12rem}.layout{display:grid;grid-template-columns:1fr .82fr;gap:18px;align-items:start}section{background:#fff;border:1px solid #cfd9e8;border-radius:16px;padding:20px;box-shadow:0 8px 24px #0a1a3a08;margin-bottom:18px}h2{margin-top:0;font-size:1.15rem}h3{margin-bottom:.3rem}fieldset{border:1px solid #dbe4f0;border-radius:10px;margin:0 0 14px;padding:10px 12px 14px}legend{font-size:.82rem;font-weight:700;color:#1f5ab8;padding:0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:grid;gap:4px;font-size:.85rem;font-weight:650}input{width:100%;box-sizing:border-box;padding:9px;border:1px solid #b7c7e0;border-radius:8px;font:inherit;background:#fbfdff}.result{background:#0e2a5c;color:#fff;border-color:#0e2a5c;position:sticky;top:14px}.result a{color:inherit}.big{font-size:2.8rem;font-weight:750;letter-spacing:-.04em}dl{display:grid;grid-template-columns:1fr auto;gap:7px}dt,dd{margin:0}dd{font-variant-numeric:tabular-nums;font-weight:650}.note{font-size:.83rem;color:#4a5468}.result .note{color:#c9d7ee}.err{color:#ffd0a6;font-weight:700}.warn{background:#fff0e0;border:1px solid #f0b987;color:#7a3f06;border-radius:8px;padding:8px 10px;font-size:.85rem;font-weight:650;margin:0 0 8px}.result .warn{background:#3a1f08;border-color:#c9843b;color:#ffdcb0}button{font:inherit;padding:7px 10px;border-radius:7px;border:1px solid #b7c7e0;background:#fff;cursor:pointer;color:#151a24}.privacy{margin-top:6px;font-size:.84rem}footer{margin-top:24px;font-size:.85rem}[hidden]{display:none!important}@media(max-width:720px){.layout{grid-template-columns:1fr}.result{position:static}.fields{grid-template-columns:1fr}}
 /* proposal:begin — generated by platform/proposal/adopt.mjs */
     .proposal-status { font-size: .8rem; color: #5c5854; }
 
@@ -81,7 +81,16 @@
       a { text-decoration: none; color: inherit; }
       @page { margin: 16mm; }
     }
-/* proposal:end */</style></head>
+/* proposal:end */
+    /* pf-result-column: on a wide window the result card owns the right-hand
+       column for every row and everything else stacks on the left, so the
+       sticky card has room to travel and never slides over the FAQ or the
+       proposal (docs/reports/polish-2026-11-11-result-column.md). */
+    @media (min-width: 721px) {
+      main.layout > :not(.result), main.layout > section:not(.result), main.layout > #proposalSection { grid-column: 1; }
+      main.layout > .result { grid-column: 2; grid-row: 1 / span 2; }
+    }
+</style></head>
 <body>
 <header><p>FOR BIOHAZARD / TRAUMA-SCENE REMEDIATION TECHNICIANS</p><h1>"Day rate plus a hazmat fee" isn't a quote. It's a guess.</h1><p class="lede">Two costs quietly move a biohazard cleanup job past a flat day-rate-plus-hazmat-fee guess: PPE that has to be replaced every time a technician re-enters the scene, and regulated-waste disposal that your hauler bills per container, not per pound. This free calculator prices one job from crew labor, PPE decon cycles, container-rounded disposal, supplies, equipment, and travel, applies your target margin with a minimum-job floor, and lets you check a price you're already quoting against the real direct cost.</p><p class="note"><a href="./vs-a-flat-rate-per-pound-quote.html">Already pricing off a flat day rate and a per-pound hazmat estimate? Here's what it misses.</a> Wondering why a small scene still costs so much? Read <a href="./how-much-does-biohazard-cleanup-cost.html">how much does biohazard cleanup cost</a>.</p></header>
 
@@ -396,8 +405,15 @@ updateProposed(false);
         "Site travel"
       ];
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -426,7 +442,7 @@ updateProposed(false);
     function showProposal() {
       const result = calculateJobBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -482,7 +498,7 @@ updateProposed(false);
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';

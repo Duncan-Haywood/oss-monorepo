@@ -28,7 +28,8 @@
   {
    "severity": "medium",
    "what": "inline-signals returns 'pass' for the whole page on the first storage write that has a signal guard, so a GPC-gated draft save masks an ungated usage counter in the same page (scratch fixture 'two-writes' -> status pass). Contradicts the header's 'never toward a silent pass'.",
-   "where": "platform/privacy/inline-signals.mjs:371"
+   "where": "platform/privacy/inline-signals.mjs:371",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16447"
   },
   {
    "severity": "medium",
@@ -53,9 +54,10 @@
   {
    "severity": "low",
    "what": "Duplicated comment paragraph.",
-   "where": "platform/privacy/one-opt-out.mjs:33"
+   "where": "platform/privacy/one-opt-out.mjs:33",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16447"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16447"],
  "verdict": "platform/privacy is a set of six CI checkers that hold the catalogue's voluntary Do Not Track / Global Privacy Control promise, opt-out persistence, one opt-out key per venture, recordUsage argument order and fragment-only share links. Its verdicts on today's catalogue are right: 106/106 tests pass, two seeded mutations were caught (3 and 9 failures), and an independent Playwright run of 5 random venture pages under GPC and DNT showed 0 third-party requests, 0 cookies and no usage key written, with independent greps agreeing on network calls and share links. It falls short of the senior-privacy-engineer bar on claims and domain: it watches device storage only, not what is transmitted; the inline checker can silently pass an ungated counter that sits next to a gated draft save, against its own stated design; the coverage test's claim regex is narrow; and nothing records the ePrivacy 5(3) judgement behind on-by-default local analytics counters. Finished, useful as a regression guard, does not meet the bar until the false-pass paths are closed and its limits are written down."
 }

@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01XpHqyf2LDYRmTUULc2sZHa",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "doing quality audit on the cicd process and infra set ups for cloudflare. thorough continue topic",
+  "input_sha256": "ac54814ed783fa1ed6a150e30e99af33c1221f21ec8a089435170ff4ddd3371f",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T04:18:35Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "topical quality audit: CI/CD process and Cloudflare infrastructure (continues 2026-11-08 platform/ci audit)",
+  "projects": [
+    ".github/workflows",
+    "platform/pages/cloudflare",
+    "platform/edge",
+    "ventures/actions-minutes-estimator",
+    "platform/ci"
+  ],
+  "pr": 14427,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": 2,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First pushes went red on validate/build/test",
+      "why": "main was red (two flagships.yaml next: fields over the cap, a 75-character seo_title); ported the fix into the PR"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "The programme only knew sampled strata; an audit someone asks for had nowhere honest to go. Added a topical stratum (reported apart, outside the 90-day skip)."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says the CODEOWNERS gate applies 'once the ruleset is applied'; nothing records that it still is not (API 2026-11-10). Added an owner ask."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "The owner asked for a topical audit, not a sampled round, so no `sample` draw was taken; subjects were the three areas the request names.",
+      "did": "audited .github/workflows, platform/pages/cloudflare, platform/edge with stratum topical",
+      "result": "0 of 3 meet the bar; kept out of the sampled share"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-quality-audit-ci-cd-and-cloudflare.md",
+    "docs/reports/2026-11-10-ci-cd-cloudflare-audit.md"
+  ],
+  "goal": "Measure whether the CI/CD process and Cloudflare setup are at a senior professional's bar, and fix what is small and safe",
+  "notes": "Topical audit, seed 'topical: owner request 2026-11-10'. Subjects: .github/workflows (3,3,3,2,2,2,3), platform/pages/cloudflare (3,2,2,3,3,3,2), platform/edge (2,2,2,3,2,2,2). Share meeting the bar: 0 of 3 (topical stratum, not sampled). Three parallel auditor agents (workflow static checks; edge/email/DNS; run history via API); spot-checked myself: live ruleset 26239454 via API (no required checks, no code-owner review vs .github/rulesets/main.json), DNS-over-HTTPS MX/TXT/_dmarc (none/none/NXDOMAIN), curl -sI security headers (none), estimator cronRunsPerMonth('41 * * * *') = 730 > 720, email-routing key-order (seeded mutants), live version.json = last successful deploy head 206aca44. Fix PR 14427: verify-live.sh requires version.json == GITHUB_SHA (+ verify-live.test.mjs, mutant caught); baseline security headers on both Workers via _headers (+ test; checked live content types so nosniff blocks nothing); email-routing canonical comparison and per_page=50 (+2 tests, both prior mutants now caught); .wrangler/ state removed and ignored (39 files incl. cf.json with runner geo); minutes estimator hourly threshold 730 (+ test, mutant caught); quality_audit topical stratum (+ test); red main fixed (flagships next: caps, seo_title). Checks run: node --test verify-live, cloudflare/*, actions-minutes-estimator (93 pass), pytest test_quality_audit (10 pass), quality_audit validate (186 files, 0 problems), validate.py, check_post_frontmatter, decision_queue --check; Portfolio Pages PR run 42754300301 green on a6c0657. Owner ask added: cloudflare-mail-and-ruleset. Not fixed (control plane or larger, listed in docs/reports/2026-11-10-ci-cd-cloudflare-audit.md): /hit origin+rate limit, SQL tests on real SQLite, front-matter lint blocking deploys, CI_RUNNER indirection, prompts-ci red 14h (fix under /prompts/). Pre-existing failure seen: test_no_duplicate_yaml_keys on venture-scores.yaml.",
+  "corrections": [],
+  "redteam": null
+}

@@ -10,6 +10,13 @@ developed master and is never used as one.
 No parsing of any maker format: the file is scanned for JPEG start markers and
 each candidate is walked segment by segment to find where it really ends, then
 the candidate with the most pixels wins. Thumbnails lose to the preview.
+
+Only 8-bit lossy JPEGs count as pictures. CR2 stores the sensor data itself as
+a lossless JPEG (SOF3, 12 to 14 bit, two or four interleaved Bayer components)
+and DNG usually stores it as lossless JPEG tiles or strips. Those are real JPEG
+streams, often with more "pixels" than the preview, and ffmpeg decodes them, so
+counting them would score a Bayer mosaic as the photo (found 2026-11-10 with a
+real ffmpeg ``ljpeg`` stream beside a baseline preview; tests/test_raw_preview.py).
 """
 
 from __future__ import annotations
@@ -18,14 +25,91 @@ import mmap
 import struct
 from pathlib import Path
 
-RAW_EXTENSIONS = frozenset({".arw", ".cr2", ".cr3", ".dng", ".nef", ".orf", ".raf", ".rw2"})
+# Every raw format a card holds (``ingest.RAW_PHOTO_EXTENSIONS``, kept equal by a test):
+# cull reads each one's embedded preview. Only the formats below with a reader develop.
+RAW_EXTENSIONS = frozenset(
+    {".3fr", ".arw", ".cr2", ".cr3", ".crw", ".dcr", ".dng", ".erf", ".fff", ".gpr", ".iiq", ".kdc", ".mef", ".mos",
+     ".mrw", ".nef", ".nrw", ".orf", ".pef", ".raf", ".raw", ".rw2", ".rwl", ".sr2", ".srf", ".srw", ".x3f"}
+)
 MIN_PREVIEW_PIXELS = 160 * 120
 _SOI = b"\xff\xd8\xff"
 _SOF = frozenset(set(range(0xC0, 0xD0)) - {0xC4, 0xC8, 0xCC})
+# Baseline, extended, progressive (Huffman or arithmetic): the frame types a
+# camera writes for a picture meant to be shown. Lossless (C3, C7, CB, CF) and
+# hierarchical (C5-C7, CD-CF) frames are sensor data or exotic, never previews.
+_PICTURE_SOF = frozenset({0xC0, 0xC1, 0xC2, 0xC9, 0xCA})
+_PICTURE_PRECISION = 8
 
 
 def is_raw_path(path: Path) -> bool:
     return path.suffix.lower() in RAW_EXTENSIONS
+
+
+def is_dng_path(path: Path) -> bool:
+    """True for a .dng file, the one RAW format ``raw_develop`` renders."""
+
+    return path.suffix.lower() == ".dng"
+
+
+def is_cr2_path(path: Path) -> bool:
+    return path.suffix.lower() == ".cr2"
+
+
+def is_cr3_path(path: Path) -> bool:
+    return path.suffix.lower() == ".cr3"
+
+
+def is_crw_path(path: Path) -> bool:
+    """Canon's CIFF raw (EOS D30, D60, 10D, 300D; PowerShot G2 to G6, Pro1, S30 to S70)."""
+
+    return path.suffix.lower() == ".crw"
+
+
+def is_arw_path(path: Path) -> bool:
+    return path.suffix.lower() == ".arw"
+
+
+def is_nef_path(path: Path) -> bool:
+    """Nikon NEF, and the Coolpix NRW (the same TIFF layout under another name)."""
+
+    return path.suffix.lower() in (".nef", ".nrw")
+
+
+def is_orf_path(path: Path) -> bool:
+    return path.suffix.lower() == ".orf"
+
+
+def is_rw2_path(path: Path) -> bool:
+    """Panasonic RW2, and Leica's RWL: the D-LUX, V-LUX and C-LUX are Lumix bodies and
+    write the same file (two real RWLs read sensel for sensel as LibRaw does,
+    eval/leica-rwl-and-card-formats-2026-11-16.md)."""
+
+    return path.suffix.lower() in (".rw2", ".rwl")
+
+
+def is_srw_path(path: Path) -> bool:
+    return path.suffix.lower() == ".srw"
+
+
+def is_pef_path(path: Path) -> bool:
+    return path.suffix.lower() == ".pef"
+
+
+def is_raf_path(path: Path) -> bool:
+    return path.suffix.lower() == ".raf"
+
+
+def needs_profile_path(path: Path) -> bool:
+    """True for the RAW formats that carry no colour matrix and develop with a camera profile (CRW, CR2, CR3, ARW, NEF, ORF, RW2, SRW, PEF, RAF)."""
+
+    return is_crw_path(path) or is_cr2_path(path) or is_cr3_path(path) or is_arw_path(path) or is_nef_path(path) or is_orf_path(path) or is_rw2_path(path) or is_srw_path(path) or is_pef_path(path) or is_raf_path(path)
+
+
+def is_developable_path(path: Path) -> bool:
+    """True for the RAW formats ``raw_develop`` reads from sensor data: DNG, and
+    Canon CRW, CR2 and CR3, Sony ARW, Nikon NEF, Olympus ORF, Panasonic RW2, Samsung SRW, Pentax PEF and Fujifilm RAF given a camera profile (``camera_profiles``)."""
+
+    return is_dng_path(path) or needs_profile_path(path)
 
 
 def extract_preview(path: Path) -> bytes | None:
@@ -94,6 +178,8 @@ def _walk_jpeg(data: "mmap.mmap | bytes", start: int) -> tuple[int, int] | None:
         if length < 2 or pos + 2 + length > size:
             return None
         if marker in _SOF and length >= 8:
+            if marker not in _PICTURE_SOF or data[pos + 4] != _PICTURE_PRECISION:
+                return None  # lossless or high-precision: sensor data, not a preview
             height, width = struct.unpack(">HH", data[pos + 5 : pos + 9])
             pixels = width * height
         pos += 2 + length

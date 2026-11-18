@@ -63,3 +63,24 @@ test("a cost that is NaN, infinite, negative or text is refused, not summed", ()
   }
   assert.equal(procurement(s, [{ item: "Trusses", for: id, leadDays: 20, cost: 0 }]).ok, true);
 });
+
+test("a date that does not exist (Feb 30) is refused, not rolled into March", () => {
+  const p = procurement(s, [{ item: "Trusses", for: "walls", leadDays: 28 }], "2026-02-30");
+  assert.equal(p.ok, false);
+  assert.match(p.errors[0], /not a date/);
+  assert.equal(procurement(s, [{ item: "Trusses", for: "walls", leadDays: 28 }], "2028-02-29").ok, true);
+});
+
+test("schedule start, notBefore and deadline refuse a day that does not exist", () => {
+  for (const [k, v] of [["start", "2026-02-30"], ["deadline", "2026-04-31"]]) {
+    const r = schedule({ ...sampleSchedule(), [k]: v });
+    assert.equal(r.ok, false, k);
+    assert.match(r.errors[0], /not a date/);
+  }
+  const sc = sampleSchedule();
+  sc.activities[1].notBefore = "2026-06-31";
+  const r = schedule(sc);
+  assert.equal(r.ok, false);
+  assert.match(r.errors.join(" "), /notBefore/);
+  assert.equal(schedule({ ...sampleSchedule(), start: "2028-02-29" }).ok, true);
+});

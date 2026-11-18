@@ -1,0 +1,23 @@
+(a) transcription used in 3m equals the primary Table 5 CT(exp): True
+
+(b) is the paper's CFD at model length 1 m?  V against Fn sqrt(g L)
+   max |V_table - Fn sqrt(g*1m)| = 0.0002 m/s
+
+(c) reference area implied by F / (0.5 rho V^2 CT_CFX), rho = 1000: exact S = 0.1488, paper S = 0.135
+   Fn 0.250: S_eff 0.0770 m2  (x2 = 0.1539)
+   Fn 0.267: S_eff 0.0770 m2  (x2 = 0.1539)
+   Fn 0.289: S_eff 0.0770 m2  (x2 = 0.1539)
+   Fn 0.316: S_eff 0.0770 m2  (x2 = 0.1539)
+   Fn 0.354: S_eff 0.0769 m2  (x2 = 0.1539)
+   Fn 0.408: S_eff 0.0770 m2  (x2 = 0.1539)
+
+(d) Michell + ITTC 1957 at L = 1 m against the paper's CFX CT and the tank CT; implied k
+    Fn   CT exp   CT CFX      Cw      CF  k vs exp  k vs CFX  CFX/exp-1 %
+ 0.250    5.920    6.027   1.064   4.947     -0.02     +0.00         +1.8
+ 0.267    5.840    5.911   0.975   4.875     -0.00     +0.01         +1.2
+ 0.289    6.160    5.852   1.987   4.791     -0.13     -0.19         -5.0
+ 0.316    6.320    6.041   1.832   4.698     -0.04     -0.10         -4.4
+ 0.354    6.120    5.979   1.284   4.584     +0.05     +0.02         -2.3
+ 0.408    6.910    6.506   3.030   4.448     -0.13     -0.22         -5.8
+mean implied k: exp -0.04 (range -0.13..+0.05); CFX -0.08 (range -0.22..+0.02)
+CFX against tank CT: mean -2.4%, max |.| 5.8%

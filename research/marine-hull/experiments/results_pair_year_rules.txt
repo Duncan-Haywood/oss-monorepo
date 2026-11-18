@@ -1,0 +1,122 @@
+Milestone 6zzk: the rules of 6zzb to 6zzh learned on each of the ten pairs of learning years, 2005 to 2014 (50 W)
+pair {a,b}: scoring L learns from 2010 - a and 2010 - b, scoring E from 2009 + a and 2009 + b; every pool uses the same two years
+high-amplitude points: P-60, P-30, P+50, P+60, A-50, A+50, A+60, North-Sea, Gulf-of-Alaska (9)
+
+AT_90 (no correction): all168 139, real8 8, hi168 25, hireal8 1, pp240 126
+
+Per rule and pair: dominance counts
+  rule     |  all168 |   real8 |   hi168 | hireal8 |   pp240
+  LC_12    |     116 |       7 |     138 |       7 |     121
+  LC_13    |     140 |       8 |      33 |       1 |     122
+  LC_14    |     155 |       8 |     107 |       5 |     127
+  LC_15    |     121 |       7 |      92 |       4 |     118
+  LC_23    |     145 |       8 |      92 |       4 |     126
+  LC_24    |     154 |       8 |     149 |       7 |     137
+  LC_25    |     128 |       7 |     128 |       6 |     132
+  LC_34    |     153 |       8 |      69 |       3 |     126
+  LC_35    |     149 |       8 |      42 |       2 |     117
+  LC_45    |     147 |       8 |      73 |       3 |     128
+  LHF_12   |     140 |       8 |     132 |       7 |     139
+  LHF_13   |     154 |       8 |      47 |       2 |     131
+  LHF_14   |     159 |       8 |     104 |       5 |     149
+  LHF_15   |     137 |       8 |      54 |       3 |     135
+  LHF_23   |     152 |       8 |      89 |       4 |     137
+  LHF_24   |     163 |       8 |     107 |       5 |     150
+  LHF_25   |     149 |       8 |      96 |       4 |     137
+  LHF_34   |     149 |       8 |      68 |       4 |     137
+  LHF_35   |     151 |       8 |       9 |       0 |     123
+  LHF_45   |     158 |       8 |      60 |       3 |     133
+  LAP_12   |     143 |       8 |      86 |       3 |     137
+  LAP_13   |     154 |       8 |      33 |       1 |     134
+  LAP_14   |     156 |       8 |      80 |       3 |     148
+  LAP_15   |     143 |       8 |      38 |       2 |     131
+  LAP_23   |     152 |       8 |      65 |       3 |     139
+  LAP_24   |     162 |       8 |     105 |       5 |     150
+  LAP_25   |     149 |       8 |      82 |       3 |     135
+  LAP_34   |     150 |       8 |      40 |       1 |     140
+  LAP_35   |     153 |       8 |      11 |       1 |     128
+  LAP_45   |     157 |       8 |      52 |       2 |     135
+  LB_12    |     143 |       8 |      78 |       3 |     135
+  LB_13    |     156 |       8 |      40 |       1 |     138
+  LB_14    |     154 |       8 |      73 |       3 |     146
+  LB_15    |     142 |       8 |      42 |       2 |     134
+  LB_23    |     152 |       8 |      58 |       3 |     142
+  LB_24    |     159 |       8 |      96 |       4 |     147
+  LB_25    |     149 |       8 |      80 |       3 |     142
+  LB_34    |     150 |       8 |      29 |       0 |     138
+  LB_35    |     157 |       8 |      11 |       0 |     130
+  LB_45    |     158 |       8 |      53 |       2 |     141
+  HR_12    |     149 |       8 |      80 |       4 |     139
+  HR_13    |     153 |       8 |      72 |       4 |     140
+  HR_14    |     152 |       8 |      64 |       4 |     147
+  HR_15    |     145 |       8 |      41 |       2 |     138
+  HR_23    |     150 |       8 |      52 |       3 |     142
+  HR_24    |     155 |       8 |      79 |       3 |     146
+  HR_25    |     151 |       8 |      66 |       3 |     142
+  HR_34    |     149 |       8 |      19 |       1 |     140
+  HR_35    |     159 |       8 |      18 |       1 |     127
+  HR_45    |     156 |       8 |      49 |       2 |     141
+  HX_12    |     149 |       8 |      81 |       4 |     139
+  HX_13    |     154 |       8 |      72 |       4 |     141
+  HX_14    |     153 |       8 |      72 |       5 |     148
+  HX_15    |     145 |       8 |      45 |       2 |     138
+  HX_23    |     150 |       8 |      52 |       3 |     142
+  HX_24    |     155 |       8 |      83 |       4 |     146
+  HX_25    |     151 |       8 |      68 |       4 |     143
+  HX_34    |     149 |       8 |      19 |       1 |     140
+  HX_35    |     159 |       8 |      19 |       1 |     127
+  HX_45    |     156 |       8 |      49 |       2 |     141
+
+Per rule over the ten pairs: mean [min, max] and the nearest pair's rank (1 = best)
+  LC   |  140.8 [116,155] r10 |    7.7 [  7,  8] r8  |   92.3 [ 33,149] r2  |    4.2 [  1,  7] r1  |  125.4 [117,137] r8 
+  LHF  |  151.2 [137,163] r9  |    8.0 [  8,  8] r1  |   76.6 [  9,132] r1  |    3.7 [  0,  7] r1  |  137.1 [123,150] r3 
+  LAP  |  151.9 [143,162] r9  |    8.0 [  8,  8] r1  |   59.2 [ 11,105] r2  |    2.4 [  1,  5] r2  |  137.7 [128,150] r5 
+  LB   |  152.0 [142,159] r9  |    8.0 [  8,  8] r1  |   56.0 [ 11, 96] r3  |    2.1 [  0,  4] r2  |  139.3 [130,147] r8 
+  HR   |  151.9 [145,159] r8  |    8.0 [  8,  8] r1  |   54.0 [ 18, 80] r1  |    2.7 [  1,  4] r1  |  140.2 [127,147] r8 
+  HX   |  152.1 [145,159] r8  |    8.0 [  8,  8] r1  |   56.0 [ 19, 83] r2  |    3.0 [  1,  5] r2  |  140.5 [127,148] r8 
+
+One year (6zzj five-lag mean) against two years (ten-pair mean), 168 cells
+  LC  :  121.8 ->  140.8 (+19.0)
+  LHF :  138.8 ->  151.2 (+12.4)
+  LAP :  142.2 ->  151.9 (+9.7)
+  LB  :  143.4 ->  152.0 (+8.6)
+  HR  :  147.0 ->  151.9 (+4.9)
+  HX  :  146.6 ->  152.1 (+5.5)
+
+High-amplitude 168 cells: mean over the 4 pairs with lag 3 / the 6 without
+  LC  :   59.0 /  114.5
+  LHF :   53.2 /   92.2
+  LAP :   37.2 /   73.8
+  LB  :   34.5 /   70.3
+  HR  :   40.2 /   63.2
+  HX  :   40.5 /   66.3
+
+Spearman rho of each rule's per-pair 168-cell counts against LC's
+  LHF  rho +0.742  counts by pair 12, 13, 14, 15, 23, 24, 25, 34, 35, 45: [140, 154, 159, 137, 152, 163, 149, 149, 151, 158]
+  LAP  rho +0.754  counts by pair 12, 13, 14, 15, 23, 24, 25, 34, 35, 45: [143, 154, 156, 143, 152, 162, 149, 150, 153, 157]
+  LB   rho +0.673  counts by pair 12, 13, 14, 15, 23, 24, 25, 34, 35, 45: [143, 156, 154, 142, 152, 159, 149, 150, 157, 158]
+  HR   rho +0.498  counts by pair 12, 13, 14, 15, 23, 24, 25, 34, 35, 45: [149, 153, 152, 145, 150, 155, 151, 149, 159, 156]
+  HX   rho +0.498  counts by pair 12, 13, 14, 15, 23, 24, 25, 34, 35, 45: [149, 154, 153, 145, 150, 155, 151, 149, 159, 156]
+
+Real shape, all 30 points, km/B pooled over the 8 cells (half x pack): min / mean / max over pairs
+  AT_90: 1.0803 / 1.0803 / 1.0803
+  LC   : 1.0556 / 1.0710 / 1.0874
+  LHF  : 1.0525 / 1.0685 / 1.0825
+  LAP  : 1.0548 / 1.0686 / 1.0795
+  LB   : 1.0573 / 1.0701 / 1.0788
+  HR   : 1.0565 / 1.0697 / 1.0795
+  HX   : 1.0566 / 1.0698 / 1.0797
+
+Check: LC nearest pair 116, ten-pair mean 140.8, max 155 (6zzi: 116 / 140.8 / 155); nearest pair LHF 140 (140), LAP 143 (143), LB 143 (143), HR 149 (149), HX 149 (149); AT_90 139 (139)
+
+Predictions
+K1 every harmonic ten-pair mean >= 139: held (LHF 151.2, LAP 151.9, LB 152.0, HR 151.9, HX 152.1)
+K2 HR ten-pair mean > one-year 147.0: held (151.9)
+K3 HR worst pair >= 139: held (145)
+K4 HR ten-pair mean >= nearest-pair 149: held (151.9)
+K5 nearest pair rank >= 6 for HR: held (rank 8)
+K6 every shrinkage span < LC's: held (LC 39, LHF 26, LAP 19, LB 17, HR 14, HX 14)
+K7 HR or HX highest ten-pair mean: held (best 152.1)
+K8 high-amp LC mean > HR mean: held (LC 92.3, HR 54.0)
+K9 high-amp pairs with lag 3 below those without, every rule: held
+K10 HR per-point 240 ten-pair mean >= 126: held (140.2)

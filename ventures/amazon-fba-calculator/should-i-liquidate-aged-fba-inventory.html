@@ -167,7 +167,7 @@
   </footer>
   <script type="module">
     import { compareLiquidation, liquidationNote } from "./calc.mjs";
-    import { recordUsage, readOptOut, writeOptOut } from "./usage.mjs";
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from "./usage.mjs";
 
     const ids = [
       "salePrice", "referralRate", "length", "width", "height", "weightLb",
@@ -208,7 +208,7 @@
     ids.forEach((id) => {
       document.getElementById(id).addEventListener("input", update);
       document.getElementById(id).addEventListener("change", () => {
-        recordUsage(localStorage, document.getElementById("usageOptOut").checked, "liquidation_compared");
+        recordUsage(usageStorage(), document.getElementById("usageOptOut").checked, "liquidation_compared");
       });
     });
     update();
@@ -221,8 +221,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

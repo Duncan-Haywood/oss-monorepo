@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01XpHqyc3bJNBGNyVBo9dP9G",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-14T06:46:03Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Flagship 6 shift-roster-builder: a person's own rate at a site (flagships.yaml next: item)",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15761",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 8,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "A Bash heredoc that wrote the eval script was refused by the rm-safety check (no rm in it); rewrote it with the Write tool."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "harness Bash safety check",
+      "issue": "A cat > file <<'EOF' heredoc containing JS template literals was flagged as an unparseable rm command; Write tool works around it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No separate docs/reports agent doc: the README section and flagships.yaml next: carry everything the next run needs.",
+      "did": "README section + next: rewrite only",
+      "result": "next: points at the importer follow-up"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-shift-roster-her-own-rate-downtown.md",
+    "ventures/shift-roster-builder/README.md section 'A person's own rate at a site (2026-11-14)'"
+  ],
+  "goal": null,
+  "notes": "Own-rate cells feed siteRateTable, so search, exact check, covers, OT on regular rate, By site split and day view price them unchanged. eval/own-site-wages.mjs (40 made-up weeks): floor-only roster understated payroll 2.0%/3.8% at g=0.3/0.6; pricing saved 0.47%/0.64%, never dearer, never more open hours. Verified: own-site-wage.test.mjs + site-wage + sites (24/24 pass), headless-Chromium page run with an own-rate cell (no page errors), full venture suite and venture-preflight (see PR).",
+  "corrections": [],
+  "redteam": null
+}

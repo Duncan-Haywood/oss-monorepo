@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVLuxzt9wKJ3pbbFqK9",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products (owner's stored ventures brief)",
+  "input_sha256": "34b7cdb983e1b01e42ab0d638aa8989325a841df60da93b9c4a516a31dedf2a3",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T10:13:34Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Deepen (flagship 6) shift-roster-builder: the exact check on by default for mid-size weeks",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15085",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "Wrote the README/calc.mjs summary table before computing it from the bench output (21 better / 9 fewer open hours); recomputed per row before committing (22 / 10) and rewrote every place it appeared.",
+    "The first template run was made after the calc.mjs edit, so its 'auto' column was already the new default; regenerated with MODES=off,exact and labelled in the out file.",
+    "A bash heredoc creating the bench file was refused by the rm safety check (no rm in it); wrote the file with Write instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "The plain route draw sent this scheduled run (whose stored prompt is the owner's ventures brief) to research; only rerouting with --task picked ventures. The scheduled routine's text could be passed as --task by default."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/shift-roster-builder guide pages",
+      "why": "Regenerating 14 guide pages' tables with the exact check on would have doubled the run; pinned their tests to exact: false and added a note to each page instead.",
+      "did": "Note on each page; flagship next: lists the regeneration.",
+      "result": "Tests pass; pages honest about which search made their numbers."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-exact-check-by-default.md",
+    "ventures/shift-roster-builder/README.md (The exact check on by default, every size)"
+  ],
+  "goal": "Better default rosters for every visitor: the exact check on at every size.",
+  "notes": "Bench eval/auto-exact.mjs on 36 seeded weeks (6-60 people, 18-245 copies) + 4 templates: exact on never worse, better on 22, fewer open hours on 10, proven on 38 of 40; 61-150 copies 3.0-8.7 s faster each; <=60 copies -0.3 to +1.0 s. Default 'auto' now covers up to MAX_SLOTS, runs coverRepair like exact: true, and stays off under openShiftWeight > 0. Verification: node --test on the whole venture (384 tests) after the test fixes; run_venture_tests.py and venture-preflight output in the PR.",
+  "corrections": [],
+  "redteam": null
+}

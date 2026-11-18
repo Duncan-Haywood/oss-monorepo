@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKnzcumiRJRSXwpwDK2",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T00:17:55Z",
+  "ended": "2026-11-11T00:55:01Z",
+  "wall_minutes": 37.46,
+  "tokens_in": 7508908,
+  "tokens_out": 46822,
+  "cost_usd": 3.447,
+  "tool_calls": 65,
+  "task": "hanger-codesign milestone 2a: simulated Cusick drape test",
+  "projects": [
+    "hanger-codesign"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14644",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First cusick.py had the diagonal bending weight at B/6 instead of B/3 (caught by re-deriving before any run; the isotropy test now guards it).",
+    "A `cd ../..` inside a heredoc chain left the shell in the wrong directory for one figure call; reran."
+  ],
+  "integrity_issues": [
+    "Milestone 2 as written (compare with a sourced drape table) was not done: every host with a candidate table refused. Landed as 2a, the test itself plus its identifiability check, and labelled so.",
+    "Seven predictions written before the run; four refuted and reported as refuted. The EA sweep beyond 800 N/m is post hoc and labelled so.",
+    "Cusick 1965 pages and English & Bridson 2008 are cited from memory and marked as such; cite_check.py could not run (Crossref unreachable)."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Says data hosts often 403; this session the proxy allowed only GitHub, and WebFetch failed too (ENOTFOUND). A one-line probe list (curl -m 15 per host) up front would save the search-then-fail cycle; I lost ~5 min."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes exceeds the 120 s foreground limit for a research-only diff; CLAUDE.md could say to background it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/hanger-codesign/PROPOSAL.md",
+      "why": "Milestone 2 needs a sourced drape table that no reachable host held.",
+      "did": "Built the simulated test and tested whether DC can identify B on this tier (milestone 2a).",
+      "result": "Found the spring sheet locks: DC depends on EA and mesh as much as B, which changes milestone 4's plan; worth more than the table comparison would have been on a locking model."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-cusick-drape-test-locking.md",
+    "research/hanger-codesign/README.md (milestone 2a)",
+    "research/hanger-codesign/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Checks run here: tests 11 pass (pytest, python3.13), research/_homepage/build.py ok, research_live_links --write, check_md_links ok. 140-case run ~25 min on 4 cores + post hoc ~6 min. Security queue empty, IDEAS.md and website requests empty; router drew research, pick_track drew hanger-codesign.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e82f8782-d7d7-5c2b-a510-010a801585db",
+    "transcripts": 1,
+    "first": "2026-11-11T00:17:55Z",
+    "last": "2026-11-11T00:55:23Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 64,
+        "input": 135,
+        "output": 46822,
+        "thinking": 12820,
+        "cache_read": 7379510,
+        "cache_write_5m": 0,
+        "cache_write_1h": 129263,
+        "api_equivalent_usd": 3.447,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 64,
+      "input": 135,
+      "output": 46822,
+      "thinking": 12820,
+      "cache_read": 7379510,
+      "cache_write_5m": 0,
+      "cache_write_1h": 129263,
+      "api_equivalent_usd": 3.447,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 54,
+      "Write": 3,
+      "ToolSearch": 2,
+      "WebSearch": 2,
+      "WebFetch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.46,
+      "active_minutes": 18.54,
+      "model_minutes": 9.9,
+      "tool_minutes": 8.64,
+      "waiting_on_human_minutes": 18.92,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a researcher writing and validating a Cusick drape simulator, 140-case sweep and write-up: about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 464.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

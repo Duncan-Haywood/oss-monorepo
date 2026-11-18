@@ -13,6 +13,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 import { analyzePattern, scanSource, mergeScans, summarize, FIXES } from "./engine.mjs";
+import { pathToFileURL } from "node:url";
 
 const SCAN_EXTENSIONS = new Set([".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".py"]);
 const IGNORE_DIRS = new Set(["node_modules", ".git", "dist", "build", "out", "coverage", "vendor", ".next", ".venv", "venv", "target", "__pycache__"]);
@@ -67,7 +68,7 @@ export function toSarif(findings) {
     $schema: "https://json.schemastore.org/sarif-2.1.0.json",
     version: "2.1.0",
     runs: [{
-      tool: { driver: { name: "regex-redos-check", informationUri: "https://duncan-haywood.github.io/monorepo-projects/regex-redos-check/", rules: rules.map((id) => ({ id, shortDescription: { text: id }, help: { text: FIXES[id] || id } })) } },
+      tool: { driver: { name: "regex-redos-check", informationUri: "https://marisstella.app/regex-redos-check/", rules: rules.map((id) => ({ id, shortDescription: { text: id }, help: { text: FIXES[id] || id } })) } },
       results: findings.map((f) => ({
         ruleId: f.rule,
         level: SARIF_LEVEL[f.severity] || "note",
@@ -142,7 +143,7 @@ export async function run(argv, { readFile = (p) => fs.readFile(p, "utf8"), stat
   return { exitCode, output: lines.join("\n") };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const { exitCode, output } = await run(process.argv.slice(2));
   console.log(output);
   process.exitCode = exitCode;

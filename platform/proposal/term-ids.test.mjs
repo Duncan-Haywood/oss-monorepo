@@ -134,7 +134,8 @@ test('a page with the proposal panel carries its terms in the link and the save'
     const missing = [];
     if (spec) {
       if (!/encodeBid\(withProposalTerms\(BID_SPEC\)/.test(page)) missing.push('link');
-      if (!/saveBid\(localStorage, withProposalTerms\(BID_SPEC\)/.test(page)) missing.push('save');
+      // Any storage handle: a page may wrap localStorage so blocked site data cannot throw (PR #15774).
+      if (!/saveBid\([\w.]+(?:\(\))?, withProposalTerms\(BID_SPEC\)/.test(page)) missing.push('save');
       if (!/restoreBid\(withProposalTerms\(BID_SPEC\)/.test(page)) missing.push('restore');
       // The values handed to the encoder have to be the ones read off the panel,
       // or the spec names fields the page never collected and the link carries

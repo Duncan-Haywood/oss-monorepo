@@ -1,0 +1,68 @@
+[
+ {
+  "k": 5,
+  "tau2": 0.05,
+  "reps": 2000,
+  "meanI2": 0.27584614657223105,
+  "dlWald": 0.9085,
+  "remlWald": 0.908,
+  "remlHK": 0.933,
+  "widthRatioHKtoWald": 1.3118597646676362,
+  "predictionCoverage": 0.9343464288697562
+ },
+ {
+  "k": 5,
+  "tau2": 0.2,
+  "reps": 2000,
+  "meanI2": 0.5171138003507227,
+  "dlWald": 0.8725,
+  "remlWald": 0.8745,
+  "remlHK": 0.9315,
+  "widthRatioHKtoWald": 1.3839115346197501,
+  "predictionCoverage": 0.9051807213633609
+ },
+ {
+  "k": 10,
+  "tau2": 0.05,
+  "reps": 2000,
+  "meanI2": 0.2945910831097557,
+  "dlWald": 0.923,
+  "remlWald": 0.924,
+  "remlHK": 0.9345,
+  "widthRatioHKtoWald": 1.1175696433828635,
+  "predictionCoverage": 0.8511982445789371
+ },
+ {
+  "k": 10,
+  "tau2": 0.2,
+  "reps": 2000,
+  "meanI2": 0.601513658493838,
+  "dlWald": 0.911,
+  "remlWald": 0.9085,
+  "remlHK": 0.9385,
+  "widthRatioHKtoWald": 1.151190832826836,
+  "predictionCoverage": 0.8972534780544424
+ },
+ {
+  "k": 20,
+  "tau2": 0.05,
+  "reps": 2000,
+  "meanI2": 0.32936479628629506,
+  "dlWald": 0.927,
+  "remlWald": 0.9265,
+  "remlHK": 0.9355,
+  "widthRatioHKtoWald": 1.0588966712659604,
+  "predictionCoverage": 0.8508457021447454
+ },
+ {
+  "k": 20,
+  "tau2": 0.2,
+  "reps": 2000,
+  "meanI2": 0.666529921460375,
+  "dlWald": 0.936,
+  "remlWald": 0.9385,
+  "remlHK": 0.955,
+  "widthRatioHKtoWald": 1.0665314327575124,
+  "predictionCoverage": 0.9264118014187954
+ }
+]

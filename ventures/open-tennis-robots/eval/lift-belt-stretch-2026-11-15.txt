@@ -1,0 +1,29 @@
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py --belt  (2026-11-15; cad/README.md "Lift belt stretch")
+Belt stretch (each strand c_spec / centre; 4/pi^2 of the belt's mass on the strands, the rest on the pulley):
+  c_spec 0.5x (30000 N): strand 12729 N/m, belt mass alone 33 Hz; hub stuck 30 and 69 Hz (rigid belt 49 Hz); slack strand goes slack past 21 N net
+  c_spec 1x (60000 N): strand 25458 N/m, belt mass alone 47 Hz; hub stuck 38 and 78 Hz (rigid belt 49 Hz); slack strand goes slack past 21 N net
+  c_spec 2x (120000 N): strand 50917 N/m, belt mass alone 67 Hz; hub stuck 43 and 97 Hz (rigid belt 49 Hz); slack strand goes slack past 21 N net
+
+Starts, hub at its lowest, trip lo (2 packs x 3 rotors): largest coupling torque, starts that slipped the hub of 6, largest net belt pull; columns rigid, 0.5x, 1x, 2x
+  switched    nominal              loaded 0.43 N m s0   0 N | 0.44 N m s0  23 N | 0.47 N m s0  23 N | 0.43 N m s0  23 N
+  switched    nominal              empty  0.58 N m s0   0 N | 0.42 N m s0  20 N | 0.45 N m s0  23 N | 0.49 N m s0  24 N
+  switched    80 N m/rad 3 deg     loaded 0.61 N m s0   0 N | 0.42 N m s0  22 N | 0.42 N m s0  22 N | 0.40 N m s0  23 N
+  switched    80 N m/rad 3 deg     empty  0.73 N m s5   0 N | 0.73 N m s3  21 N | 0.73 N m s3  25 N | 0.73 N m s3  29 N
+  switched    80 N m/rad 5 deg     loaded 0.61 N m s0   0 N | 0.42 N m s0  22 N | 0.42 N m s0  22 N | 0.40 N m s0  23 N
+  switched    80 N m/rad 5 deg     empty  0.73 N m s6   0 N | 0.73 N m s5  22 N | 0.73 N m s5  27 N | 0.73 N m s5  29 N
+  100 ms ramp nominal              loaded 0.24 N m s0   0 N | 0.21 N m s0  13 N | 0.22 N m s0  15 N | 0.23 N m s0  16 N
+  100 ms ramp nominal              empty  0.16 N m s0   0 N | 0.13 N m s0   6 N | 0.13 N m s0   7 N | 0.14 N m s0   8 N
+  100 ms ramp 80 N m/rad 3 deg     loaded 0.26 N m s0   0 N | 0.22 N m s0  13 N | 0.22 N m s0  13 N | 0.20 N m s0  13 N
+  100 ms ramp 80 N m/rad 3 deg     empty  0.57 N m s0   0 N | 0.43 N m s0  10 N | 0.44 N m s0  13 N | 0.44 N m s0  18 N
+  100 ms ramp 80 N m/rad 5 deg     loaded 0.26 N m s0   0 N | 0.22 N m s0  13 N | 0.22 N m s0  13 N | 0.20 N m s0  13 N
+  100 ms ramp 80 N m/rad 5 deg     empty  0.72 N m s1   0 N | 0.57 N m s0  13 N | 0.58 N m s0  18 N | 0.59 N m s0  23 N
+
+Jams, rotor 1x, nominal coupling: peak N on a flight, ms to the cut, ms to give up, largest net belt pull, ms the slack strand spent slack
+  boot 29.2 V cold hub lo, trip hi  56 N cut  79 gave 2489 belt   0 N slack   0 |  58 N cut  79 gave 2489 belt  14 N slack   0 |  56 N cut  79 gave 2489 belt  15 N slack   0 |  58 N cut  79 gave 2489 belt  16 N slack   0
+  boot 29.2 V cold hub hi, trip lo  80 N cut  29 gave 2439 belt   0 N slack   0 |  80 N cut  29 gave 2439 belt  16 N slack   0 |  82 N cut  29 gave 2439 belt  18 N slack   0 |  81 N cut  29 gave 2439 belt  21 N slack   0
+  boot 24 V hot    hub lo, trip hi  50 N cut  99 gave 2509 belt   0 N slack   0 |  53 N cut  99 gave 2509 belt  14 N slack   0 |  53 N cut  99 gave 2509 belt  15 N slack   0 |  53 N cut  99 gave 2509 belt  18 N slack   0
+  boot 24 V hot    hub hi, trip lo  80 N cut  39 gave 2449 belt   0 N slack   0 |  74 N cut  39 gave 2449 belt  14 N slack   0 |  85 N cut  39 gave 2449 belt  16 N slack   0 |  84 N cut  39 gave 2449 belt  18 N slack   0
+  hood 29.2 V cold hub lo, trip hi  52 N cut  79 gave 2489 belt   0 N slack   0 |  60 N cut  89 gave 2499 belt  64 N slack 602 |  57 N cut  89 gave 2499 belt  61 N slack 574 |  55 N cut  79 gave 2489 belt  59 N slack 550
+  hood 29.2 V cold hub hi, trip lo  80 N cut  29 gave 2439 belt   0 N slack   0 |  83 N cut  39 gave 2449 belt  89 N slack 529 |  85 N cut  39 gave 2449 belt  89 N slack 495 |  88 N cut  29 gave 2439 belt  89 N slack 468
+  hood 24 V hot    hub lo, trip hi  55 N cut  99 gave 2509 belt   0 N slack   0 |  53 N cut 109 gave 2519 belt  59 N slack 471 |  57 N cut  99 gave 2509 belt  61 N slack 439 |  51 N cut  99 gave 2509 belt  56 N slack 426
+  hood 24 V hot    hub hi, trip lo  82 N cut  39 gave 2449 belt   0 N slack   0 |  80 N cut  49 gave 2459 belt  89 N slack 402 |  80 N cut  49 gave 2459 belt  87 N slack 365 |  81 N cut  39 gave 2449 belt  88 N slack 343

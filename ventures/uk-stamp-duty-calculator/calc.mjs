@@ -24,7 +24,7 @@ export const SURCHARGE_NON_RESIDENT = 0.02;
 export const ADDITIONAL_MIN_PRICE = 40000;
 export const BUYERS = { main: "Home to live in (only property)", ftb: "First-time buyer", additional: "Additional property (buy-to-let or second home)" };
 
-const money = (n) => (n < 0 ? "-" : "") + "GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("GBP " + Number(Math.round(Math.abs(n) * 100) / 100).toLocaleString("en-GB", { minimumFractionDigits: 0, maximumFractionDigits: 2 }).replace(/\.\d$/, (m) => m + "0"));
 const r2 = (n) => Math.round(n * 100) / 100;
 
 export function parse(input) {

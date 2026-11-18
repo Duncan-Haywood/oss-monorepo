@@ -1,9 +1,31 @@
 // Unified Carrier Registration (UCR) annual fee, 49 U.S.C. 14504a. Pure arithmetic over what the user types in.
-// The fee depends on how many commercial motor vehicles a carrier operates, in six brackets. Brokers, freight
-// forwarders and leasing companies pay the lowest bracket whatever their size. The default table below is the
-// schedule this tool was last checked against; the fee table is an input so a visitor can correct it from ucr.gov.
+// Motor carriers, motor private carriers and freight forwarders pay by how many commercial motor vehicles they
+// operate, in six brackets; brokers and leasing companies pay the lowest bracket whatever their size (49 CFR 367.50).
+// The default table is the 2027-and-later schedule from FMCSA's final rule, 91 FR 56063 (FR Doc 2026-17893,
+// published 2026-09-01, effective 2026-10-01). The fee table is an input so a visitor can correct it from ucr.gov.
 
-export const DEFAULT_FEES_TEXT = ["0-2: 46", "3-5: 138", "6-20: 276", "21-100: 963", "101-1000: 4592", "1001+: 44836"].join("\n");
+// Comma-separated, with spreadsheet-style double quotes so an exported
+// "$1,200" or "Smith, LLC" stays one field ("" inside quotes is a quote).
+const splitCsvLine = (line) => {
+  if (!line.includes('"')) return line.split(",").map((s) => s.trim());
+  const out = [];
+  let cur = "";
+  let quoted = false;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (quoted) {
+      if (ch === '"' && line[i + 1] === '"') { cur += '"'; i += 1; }
+      else if (ch === '"') quoted = false;
+      else cur += ch;
+    } else if (ch === '"' && cur.trim() === "") { quoted = true; cur = ""; }
+    else if (ch === ",") { out.push(cur.trim()); cur = ""; }
+    else cur += ch;
+  }
+  out.push(cur.trim());
+  return out;
+};
+
+export const DEFAULT_FEES_TEXT = ["0-2: 55", "3-5: 167", "6-20: 333", "21-100: 1163", "101-1000: 5548", "1001+: 54165"].join("\n");
 export const FEE_TABLE_LABEL = "2027 registration year schedule (verify against ucr.gov for the year you are filing)";
 export const TYPES = ["motor-carrier", "private-carrier", "broker", "freight-forwarder", "leasing"];
 
@@ -15,7 +37,7 @@ export function parseFees(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*:\s*\$?([\d,]+(?:\.\d+)?)$/.exec(line);
+    const m = /^(\d+)\s*(?:-\s*(\d+)|(\+))\s*:\s*\$?(\d{1,3}(?:,\d{3})+(?:\.\d+)?|\d+(?:\.\d+)?)$/.exec(line);
     if (!m) return errors.push(`Fee line ${i + 1}: use "min-max: fee" or "min+: fee".`);
     const min = Number(m[1]);
     const max = m[3] ? Infinity : Number(m[2]);
@@ -24,10 +46,16 @@ export function parseFees(text) {
   });
   brackets.sort((a, b) => a.min - b.min);
   for (let i = 1; i < brackets.length; i++) {
-    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${brackets[i - 1].min}-${brackets[i - 1].max} and ${brackets[i].min}+ overlap.`);
+    if (brackets[i].min <= brackets[i - 1].max) errors.push(`Fee brackets ${span(brackets[i - 1])} and ${brackets[i].min}+ overlap.`);
+  }
+  for (let i = 1; i < brackets.length; i++) {
+    const from = brackets[i - 1].max + 1;
+    if (brackets[i].min > from) errors.push(`Fee table has a gap: no bracket covers ${from}-${brackets[i].min - 1} vehicles.`);
   }
   return { brackets, errors };
 }
+
+const span = (b) => (b.max === Infinity ? `${b.min}+` : `${b.min}-${b.max}`);
 
 export function bracketFor(brackets, n) {
   return brackets.find((b) => n >= b.min && n <= b.max) ?? null;
@@ -40,8 +68,9 @@ export function parseEntities(text) {
   String(text ?? "").split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     if (!line || line.startsWith("#")) return;
-    const p = line.split(",").map((s) => s.trim());
-    const n = Number((p[1] ?? "").replace(/[ _]/g, ""));
+    const p = splitCsvLine(line);
+    const digits = (p[1] ?? "").replace(/[ _]/g, "");
+    const n = /^\d+$/.test(digits) ? Number(digits) : NaN; // no hex, exponents, signs or decimals
     const type = (p[2] || "motor-carrier").toLowerCase().replace(/\s+/g, "-");
     if (!p[0] || !(p[1] ?? "") || !Number.isInteger(n) || n < 0) return errors.push(`Line ${i + 1}: need "name, number of vehicles, type".`);
     if (!TYPES.includes(type)) return errors.push(`Line ${i + 1}: type must be one of ${TYPES.join(", ")}.`);
@@ -60,7 +89,7 @@ export function plan(input) {
 
   const lowest = fees.brackets[0];
   const rows = entities.map((e) => {
-    const lowestOnly = ["broker", "freight-forwarder", "leasing"].includes(e.type);
+    const lowestOnly = ["broker", "leasing"].includes(e.type);
     const effectiveN = lowestOnly ? lowest.min : e.n;
     const b = bracketFor(fees.brackets, effectiveN);
     if (!b) return { ...e, error: `No bracket covers ${effectiveN} vehicles.`, fee: 0 };
@@ -97,8 +126,16 @@ export function sampleInput() {
   };
 }
 
+// A name starting =, +, - or @ runs as a formula when the CSV opens in Excel or Sheets (CSV injection), so it
+// gets a leading apostrophe; plain numbers are left alone.
+export function csvCell(c) {
+  let s = String(c);
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
+  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 export function toCsv(r) {
   const head = "registrant,type,vehicles,bracket,fee,per_vehicle";
-  const lines = r.rows.map((x) => [x.name, x.type, x.n, `${x.bracket.min}-${x.bracket.max === Infinity ? "+" : x.bracket.max}`, x.fee.toFixed(2), x.perVehicle === null ? "" : x.perVehicle.toFixed(2)].map((c) => (/[",\n]/.test(String(c)) ? `"${String(c).replace(/"/g, '""')}"` : c)).join(","));
+  const lines = r.rows.map((x) => [x.name, x.type, x.n, span(x.bracket), x.fee.toFixed(2), x.perVehicle === null ? "" : x.perVehicle.toFixed(2)].map(csvCell).join(","));
   return [head, ...lines, `total,,,,${r.total.toFixed(2)},`].join("\n") + "\n";
 }

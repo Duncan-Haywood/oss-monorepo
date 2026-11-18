@@ -309,11 +309,17 @@ export function buildProposal(input = {}) {
   const clientName = text(input.clientName);
   if (!clientName) throw new Error('Add the customer name before printing a proposal');
 
-  const price = number(input.price, 'Price', { min: 0, max: 1e9 });
-  if (price <= 0) throw new Error('Price a job before printing a proposal');
+  // Calculators hand over prices like 32.855. The sheet prints cents, so the
+  // price is cents from here on: every figure below is derived from the same
+  // number the customer reads, and a price that prints as $0.00 is a zero price.
+  const priceCents = Math.round(number(input.price, 'Price', { min: 0, max: 1e9 }) * 100);
+  if (priceCents <= 0) throw new Error('Price a job before printing a proposal');
+  const price = priceCents / 100;
 
   const depositPercent = number(input.depositPercent ?? 0, 'Deposit', { min: 0, max: 100 });
   const validDays = number(input.validDays ?? 0, 'Valid days', { min: 0, max: 3650 });
+  // "Held until 1 January (0.5 days from issue)" contradicts itself on the page.
+  if (!Number.isInteger(validDays)) throw new Error('Valid days must be a whole number');
   const issuedOn = text(input.issuedOn) || new Date().toISOString().slice(0, 10);
   isoStamp(issuedOn); // a malformed or impossible date is refused even when the proposal has no expiry
 
@@ -321,7 +327,8 @@ export function buildProposal(input = {}) {
   // remainder. The customer adds the two lines up: if the deposit rounds up and
   // the balance rounds down independently, the printed figures miss the printed
   // total by a cent, and the contractor has to explain it on the phone.
-  const depositAmount = Math.round(price * depositPercent) / 100;
+  const depositCents = Math.round(priceCents * depositPercent / 100);
+  const depositAmount = depositCents / 100;
 
   return {
     reference: referenceFor(issuedOn, clientName),
@@ -349,7 +356,7 @@ export function buildProposal(input = {}) {
       price,
       depositPercent,
       depositAmount,
-      balanceAmount: price - depositAmount,
+      balanceAmount: (priceCents - depositCents) / 100,
       paymentTerms: text(input.paymentTerms),
     },
   };

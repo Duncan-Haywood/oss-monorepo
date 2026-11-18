@@ -26,6 +26,8 @@ export function sampleFloor() {
 export function validateFloor(f, plan) {
   const errors = [];
   if (f == null || typeof f !== "object" || Array.isArray(f)) return ["Floor settings are an object."];
+  if (plan == null || typeof plan !== "object" || !Array.isArray(plan.stock) || plan.stock.some((s) => s == null || typeof s !== "object")) return ["The plan needs a stock list (size and length of each board) to size the floor."];
+  if (f.openings != null && (!Array.isArray(f.openings) || f.openings.some((o) => o == null || typeof o !== "object"))) return ["Floor openings are a list of objects (x, y, width, depth)."];
   for (const k of ["width", "depth", "beam"]) if (f[k] != null && typeof f[k] !== "number") errors.push(`Floor ${k} must be a number of inches.`);
   if (!(f.width >= 24 && f.width <= 1200)) errors.push("Floor width must be between 2 ft and 100 ft.");
   if (!(f.depth >= 24 && f.depth <= 1200)) errors.push("Floor depth (the joist direction) must be between 2 ft and 100 ft.");
@@ -118,6 +120,7 @@ export function validateFloor(f, plan) {
  * trimmers' own load are not in it. `tailSpans[k]` is [front, back] tail length for opening k.
  */
 export function checkFloorHeaders(size, openings, tailSpans, loads) {
+  if (!loads || typeof loads !== "object") throw new TypeError("checkFloorHeaders needs a loads object");
   const d = DEPTH[size], b = 2 * THICK;
   const { liveLoad, deadLoad, Fb, Fv, E } = loads;
   const lim = loads.deflLimit ?? 360;
@@ -155,6 +158,7 @@ export function checkFloorHeaders(size, openings, tailSpans, loads) {
  * Walls above, stair stringer loads and the other header's reaction are not in it.
  */
 export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loads) {
+  if (!loads || typeof loads !== "object") throw new TypeError("checkTrimmer needs a loads object");
   const d = DEPTH[size], b = 2 * THICK, L = span;
   const { liveLoad, deadLoad, Fb, Fv, E } = loads;
   const lim = loads.deflLimit ?? 360;
@@ -190,6 +194,7 @@ export function checkTrimmer(size, span, a, reaction, reactionLive, spacing, loa
  * Doubled joists under walls, point loads on the tip (a wall or a balcony rail post) and bearing are not in it.
  */
 export function checkCantilever(size, backspan, a, spacing, loads) {
+  if (!loads || typeof loads !== "object") throw new TypeError("checkCantilever needs a loads object");
   const d = DEPTH[size], b = THICK, Lb = backspan;
   const { liveLoad, deadLoad, Fb, Fv, E } = loads;
   const lim = loads.cantDeflLimit ?? 180;
@@ -493,7 +498,7 @@ export function layoutFloor(f, plan) {
 
 /** Cut rows in the engine's shape, so `takeoff(plan, floorCuts(layout))` buys floor lumber with the walls'. */
 export function floorCuts(l) {
-  if (!l.ok) return [];
+  if (l == null || typeof l !== "object" || !l.ok) return [];
   const map = new Map();
   const add = (size, length, kind) => {
     const len = Math.round(length * 16) / 16;

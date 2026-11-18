@@ -224,3 +224,16 @@ test('presets are usable positive numbers with the labels the form shows', () =>
     assert.ok(preset.label.length > 0);
   }
 });
+
+test('spring-only travel flag fires at exactly 35% of price, not below', () => {
+  // wage 10, no burden, no overhead, 0% margin: price == cost. Shop labor $40
+  // exceeds travel, so only the 35% spring rule can raise the flag.
+  const base = { hourlyWage: 10, burdenRate: 0, overheadRate: 0, targetMargin: 0,
+    laborHours: 4, driveHours: 0, roundTripMiles: 35, costPerMile: 1 };
+  const at = calculateBid(springJob({ ...base, springCost: 25 })); // 35 / 100
+  assert.equal(at.travelShare, 35);
+  assert.equal(at.travelEatsJob, true);
+  const below = calculateBid(springJob({ ...base, springCost: 26 })); // 35 / 101
+  assert.ok(below.travelShare < 35);
+  assert.equal(below.travelEatsJob, false);
+});

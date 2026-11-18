@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from dataclasses import asdict, replace
 import sys
 from collections.abc import Sequence
 from pathlib import Path
@@ -19,6 +20,9 @@ from shootflow.cull import (
     write_sidecars,
 )
 from shootflow.ffmpeg_media import FfmpegMediaError
+from shootflow.camera_profiles import profile_for
+from shootflow.raw_develop import DevelopError, DevelopSettings, develop_file, read_dcp
+from shootflow.raw_preview import needs_profile_path
 from shootflow.assembly import (
     AssemblyPlan,
     AssemblyPlanError,
@@ -213,6 +217,8 @@ def main(
             _run_inspect_render_workspace_command(args, stdout=out)
         elif args.command == "cull":
             _run_cull_command(args, stdout=out)
+        elif args.command == "develop":
+            _run_develop_command(args, stdout=out)
         elif args.command == "create-demo-workspace":
             _run_create_demo_workspace_command(args, stdout=out)
         elif args.command == "create-card-dump-demo-workspace":
@@ -251,6 +257,7 @@ def main(
         LocalPipelineError,
         CullError,
         FfmpegMediaError,
+        DevelopError,
     ) as exc:
         print(f"shootflow: {exc}", file=err)
         return 1
@@ -266,6 +273,7 @@ def _run_local_pipeline_command(args: argparse.Namespace, *, stdout: TextIO, std
                 max_concurrency=args.max_concurrency,
                 max_iterations=args.max_iterations,
                 retry_retryable=args.retry_retryable,
+                grade_scope=args.grade_scope,
             )
         except (ValueError, OSError) as exc:  # one bad shoot must not stop the rest of the queue
             print(f"shootflow: {manifest}: {exc}", file=stderr)
@@ -285,6 +293,7 @@ def _run_write_launchd_plist_command(args: argparse.Namespace, *, stdout: TextIO
         max_concurrency=args.max_concurrency,
         log_path=args.log,
         source_root=Path(__file__).resolve().parent.parent,
+        grade_scope=args.grade_scope,
     )
     if args.output:
         output = Path(args.output).expanduser()
@@ -709,6 +718,86 @@ def _run_cull_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     stdout.write(json.dumps(out, sort_keys=True) + "\n")
 
 
+def _load_lens_db(path: str):
+    from shootflow import lens_profiles
+
+    try:
+        return lens_profiles.load_db(path)
+    except lens_profiles.LensProfileError as exc:
+        raise DevelopError(str(exc)) from None
+
+
+def _load_lens_memory(path: str) -> dict:
+    from shootflow import lens_profiles
+
+    try:
+        return lens_profiles.load_lens_memory(path)
+    except lens_profiles.LensProfileError as exc:
+        raise DevelopError(str(exc)) from None
+
+
+def _run_develop_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
+    wb = None
+    if args.wb:
+        parts = [float(v) for v in args.wb.split(",")]
+        if len(parts) != 3 or min(parts) <= 0:
+            raise DevelopError("--wb takes three positive camera multipliers, e.g. 2.0,1.0,1.5")
+        wb = (parts[0], parts[1], parts[2])
+    settings = DevelopSettings(
+        half=args.half,
+        exposure_ev=args.exposure,
+        white_balance=wb,
+        use_baseline_exposure=not args.no_baseline_exposure,
+        engine=args.engine,
+        colour=args.colour,
+        dcp=read_dcp(args.dcp) if args.dcp and not Path(args.dcp).is_dir() else None,
+        profile_tables=not args.no_profile_tables,
+        tone_curve=not args.no_tone_curve,
+        default_tone=args.default_tone_curve,
+        cfa=args.cfa,
+        opcodes=not args.no_opcodes,
+        preview_quality=args.preview_quality,
+        warp_kernel=args.warp_kernel,
+        demosaic=args.demosaic,
+        noise_from_frame=getattr(args, "noise_from_frame", True),
+        lens_db=_load_lens_db(args.lens_db) if args.lens_db else None,
+        lens_name=args.lens,
+        lens_focal=args.lens_focal,
+        lens_crop=args.lens_crop,
+        lens_fill=not args.no_lens_fill,
+        lens_tca=not args.no_lens_tca,
+        lens_in_file=not args.no_in_file_lens,
+        lens_vignetting=not args.no_lens_vignetting,
+        lens_aperture=args.lens_aperture,
+        lens_distance=args.lens_distance,
+        lens_memory=_load_lens_memory(args.lens_memory) if args.lens_memory else None,
+    )
+    if (args.lens or args.lens_focal or args.lens_crop or args.lens_aperture or args.lens_distance
+            or args.lens_memory) and not args.lens_db:
+        raise DevelopError(
+            "--lens, --lens-focal, --lens-crop, --lens-aperture, --lens-distance and --lens-memory need --lens-db "
+            "(a folder of lensfun XML files)"
+        )
+    memory_before = dict(settings.lens_memory) if settings.lens_memory is not None else None
+    sources = [Path(p) for p in args.files]
+    out_dir = Path(args.out)
+    results = []
+    for source in sources:
+        destination = out_dir / (source.stem + "." + args.format)
+        file_settings, chosen = settings, {}
+        if args.dcp and Path(args.dcp).is_dir() and needs_profile_path(source):
+            choice = profile_for(source, args.dcp)
+            file_settings = replace(settings, dcp=choice.profile)
+            chosen = {"camera_profile": str(choice.path), "camera_profile_rule": choice.rule}
+        report = develop_file(source, destination, file_settings, png_bits=16 if args.format == "png16" else 8)
+        results.append({"source": str(source), "master": str(destination), **asdict(report), **chosen})
+    if settings.lens_memory is not None and settings.lens_memory != memory_before:
+        from shootflow import lens_profiles
+
+        lens_profiles.save_lens_memory(args.lens_memory, settings.lens_memory)
+    stdout.write(json.dumps({"developed": results}, sort_keys=True) + "\n")
+
+
 def _run_create_demo_workspace_command(args: argparse.Namespace, *, stdout: TextIO) -> None:
     demo = create_persisted_cli_demo_workspace(
         args.workspace,
@@ -917,6 +1006,15 @@ def _build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="Retry production jobs left retryable by an earlier run (after you have reviewed them).",
     )
+    local_pipeline.add_argument(
+        "--grade-scope",
+        choices=("all", "selected"),
+        default=None,
+        help=(
+            "Full-resolution masters for 'all' assets (default) or only the 'selected' ones the storyline "
+            "picks; the rest are graded from their review proxy, with a .review-grade.json note."
+        ),
+    )
 
     launchd = subparsers.add_parser(
         "write-launchd-plist",
@@ -926,6 +1024,7 @@ def _build_parser() -> argparse.ArgumentParser:
     launchd.add_argument("--hour", type=int, default=1)
     launchd.add_argument("--minute", type=int, default=30)
     launchd.add_argument("--max-concurrency", type=int, default=2)
+    launchd.add_argument("--grade-scope", choices=("all", "selected"), default=None)
     launchd.add_argument(
         "--log",
         default="~/Library/Logs/shootflow-local-pipeline.log",
@@ -1152,6 +1251,168 @@ def _build_parser() -> argparse.ArgumentParser:
     cull.add_argument(
         "--picks",
         help="Text file of the photos you would keep (one name or path per line); the report scores the cull against it.",
+    )
+
+    develop = subparsers.add_parser(
+        "develop",
+        help="Develop DNG (or Canon CR2, Sony ARW, Nikon NEF, Olympus ORF or Panasonic RW2, with --dcp) raw files into 16-bit TIFF (or PNG) masters for the grade stage (stdlib only).",
+    )
+    develop.add_argument(
+        "files",
+        nargs="+",
+        help="DNG files, or Canon CR2, Sony ARW, Nikon NEF, Olympus ORF or Panasonic RW2 files with --dcp (convert CR3 and others with Adobe DNG Converter).",
+    )
+    develop.add_argument("--out", required=True, help="Folder for the masters; existing files are never overwritten.")
+    develop.add_argument("--format", choices=("tif", "png", "png16"), default="tif", help="tif (16-bit, default), png (8-bit) or png16.")
+    develop.add_argument("--half", action="store_true", help="Half size, no interpolation: 4x fewer pixels, much faster.")
+    develop.add_argument("--exposure", type=float, default=0.0, help="Exposure change in stops, added to BaselineExposure.")
+    develop.add_argument("--no-baseline-exposure", action="store_true", help="Ignore the file's BaselineExposure tag.")
+    develop.add_argument("--wb", help="Camera white-balance multipliers R,G,B instead of the as-shot neutral.")
+    develop.add_argument(
+        "--engine",
+        choices=("auto", "python", "numpy"),
+        default="auto",
+        help="auto (numpy when installed, else pure Python; same bytes either way), python or numpy. The numpy "
+        "engine runs in bands on SHOOTFLOW_THREADS threads (default: every CPU); the count never changes the output.",
+    )
+    develop.add_argument(
+        "--colour",
+        choices=("dng", "dcraw"),
+        default="dng",
+        help="dng (default): the DNG spec's model, matrices blended for the as-shot light, ForwardMatrix "
+        "when present; dcraw: one matrix nearest D65 and camera-space white balance, as dcraw and LibRaw.",
+    )
+    develop.add_argument(
+        "--dcp",
+        help="A .dcp camera profile (Adobe DNG Converter, dcamprof, RawTherapee) used in place of the DNG's "
+        "own profile: its matrices, hue/saturation map and look table. dng colour only. Required for a CR2, ARW, "
+        "NEF, ORF or RW2, which carries no colour matrix (DNG Converter installs one per camera under CameraRaw/CameraProfiles). "
+        "A folder of profiles picks one per CR2, ARW, NEF, ORF or RW2 by its camera: <camera>.dcp, else the profile tagged for "
+        "that camera, else its Adobe Standard.",
+    )
+    develop.add_argument(
+        "--cfa",
+        choices=("RGGB", "GRBG", "GBRG", "BGGR"),
+        help="A CR2's 2x2 colour filter phase, when the reader cannot tell it from the picture (it says so).",
+    )
+    develop.add_argument(
+        "--no-profile-tables",
+        action="store_true",
+        help="Skip the profile's hue/saturation map, look table and tone curve; matrices only.",
+    )
+    develop.add_argument(
+        "--no-tone-curve",
+        action="store_true",
+        help="Skip the profile's ProfileToneCurve and use the plain sRGB curve (the tables still apply).",
+    )
+    develop.add_argument(
+        "--default-tone-curve",
+        choices=("auto", "always", "never"),
+        default="auto",
+        help="For a profile with no ProfileToneCurve: 'always' applies the default curve (a fit to Adobe's ACR3 "
+        "default, what Adobe's converters use), 'auto' only when the profile's tone copyright names Adobe "
+        "(RawTherapee's rule), 'never' keeps the plain sRGB curve.",
+    )
+    develop.add_argument(
+        "--preview-quality",
+        action="store_true",
+        help=(
+            "The DNG specification's preview-quality processing: skip opcodes the file marks as needed only at "
+            "full quality (flag bit 1). By default a develop is full quality and runs them."
+        ),
+    )
+    develop.add_argument(
+        "--no-opcodes",
+        action="store_true",
+        help=(
+            "Skip the DNG's opcode lists (GainMap lens shading as phones write it, WarpRectilinear and WarpRectilinear2 "
+            "lens distortion, WarpFisheye, FixVignetteRadial, MapPolynomial); by default they run."
+        ),
+    )
+    develop.add_argument(
+        "--demosaic",
+        choices=("auto", "bilinear", "directional", "learned", "noise-aware"),
+        default="auto",
+        help=(
+            "How the sensor's colour mosaic becomes full colour: 'auto' (default) uses the directional demosaic "
+            "when numpy is installed and bilinear otherwise; 'directional' (numpy) builds green along the edges "
+            "(four directions on Fujifilm X-Trans, row and column on Bayer) and follows the smoother one, which cuts "
+            "the zippering and false colour bilinear leaves on edges; 'learned' (Bayer, numpy; in C when a compiler is present) is directional "
+            "with a per-pixel detail weight from a fitted model: a little sharper and truer on real photos, about 3x slower; "
+            "'noise-aware' (numpy; the DNG's NoiseProfile, else a noise model read from the frame) blends directional toward bilinear wherever the "
+            "edge-keeping adds less than the sensor noise, which helps high-ISO and smooth frames; "
+            "'bilinear' averages each 3x3 window (both engines, same bytes)."
+        ),
+    )
+    develop.add_argument(
+        "--noise-from-frame",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "With --demosaic noise-aware on a file that carries no NoiseProfile (ARW, NEF, CR2, RW2, RAF and other "
+            "raws, many DNGs): read the sensor noise from the frame itself (patch PCA on low-texture patches). On "
+            "by default since 2026-11-17: on held-out tests no Bayer or X-Trans tile lost over 0.1 dB of detail "
+            "against directional. --no-noise-from-frame falls back to the directional demosaic instead."
+        ),
+    )
+    develop.add_argument(
+        "--warp-kernel",
+        choices=("bilinear", "cubic"),
+        default="cubic",
+        help=(
+            "How lens warps (the DNG's WarpRectilinear/WarpRectilinear2/WarpFisheye, or --lens-db) sample the "
+            "image: 'cubic' (default), the Catmull-Rom spline the DNG specification recommends (sharper), or "
+            "'bilinear' (softer, a little faster). Same bytes on both engines. The numpy engine runs the warp on "
+            "SHOOTFLOW_THREADS threads (default: every CPU); the thread count never changes the output."
+        ),
+    )
+    develop.add_argument(
+        "--lens-db",
+        help=(
+            "Folder of lensfun database XML files (data/db in github.com/lensfun/lensfun, CC BY-SA 3.0). Files whose "
+            "opcode lists carry no lens warp (CR2s, most DNGs) get lensfun's distortion correction for the lens and "
+            "focal length in their EXIF."
+        ),
+    )
+    develop.add_argument("--lens", help="Lens name to look up instead of the EXIF LensModel (needs --lens-db).")
+    develop.add_argument("--lens-focal", type=float, help="Focal length in mm instead of the EXIF one (needs --lens-db).")
+    develop.add_argument(
+        "--lens-crop", type=float, help="Camera crop factor when the camera is not in the database (needs --lens-db)."
+    )
+    develop.add_argument(
+        "--no-lens-fill",
+        action="store_true",
+        help="Keep the corrected picture at the centre's scale instead of zooming so the frame has no empty edge.",
+    )
+    develop.add_argument(
+        "--no-lens-tca",
+        action="store_true",
+        help="Correct the lens's distortion only, not its lateral colour (red and blue fringes toward the corners).",
+    )
+    develop.add_argument(
+        "--no-in-file-lens",
+        action="store_true",
+        help="Ignore a Sony ARW's own lens tables (distortion and lateral colour, applied by default when no "
+        "--lens-db correction runs).",
+    )
+    develop.add_argument(
+        "--no-lens-vignetting",
+        action="store_true",
+        help="Leave the lens's vignetting (corners darker than the centre) as shot instead of lensfun's correction.",
+    )
+    develop.add_argument(
+        "--lens-aperture", type=float, help="f-number for the vignetting correction instead of the EXIF one (needs --lens-db)."
+    )
+    develop.add_argument(
+        "--lens-distance",
+        type=float,
+        help="Subject distance in metres for the vignetting correction (default: EXIF, else 1000) (needs --lens-db).",
+    )
+    develop.add_argument(
+        "--lens-memory",
+        help="JSON file of lenses remembered by the number the body reports (Pentax lens numbers, Canon lens types). "
+        "Frames with a remembered number get that lens; with --lens, the lens is remembered for the frame's number "
+        "(created if absent) (needs --lens-db).",
     )
 
     create_demo = subparsers.add_parser(
@@ -1744,6 +2005,7 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
                 }
                 for item in plan.items
             ],
+            "left_on_card": _left_on_card_json(plan),
             "notes": [
                 "preview only - no files were copied",
                 "source media will not be deleted",
@@ -1755,6 +2017,13 @@ def _preview_ingest_json(plan: CopyPlan) -> str:
         indent=2,
         sort_keys=True,
     ) + "\n"
+
+
+def _left_on_card_json(plan: CopyPlan) -> list[str]:
+    """Files on the card the copy does not take (not media, not card housekeeping):
+    a format nobody listed shows up here instead of being lost when the card is formatted."""
+
+    return [path.as_posix() for path in plan.left_on_card]
 
 
 def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
@@ -1775,6 +2044,7 @@ def _execute_ingest_json(plan: CopyPlan, report: CopyReport) -> str:
             "skipped": report.skipped,
             "item_count": len(plan.items),
             "total_bytes": total_bytes,
+            "left_on_card": _left_on_card_json(plan),
             "notes": [
                 "no source files were deleted",
                 "all copied files were verified by SHA-256 checksum",
@@ -2228,6 +2498,7 @@ def _card_dump_preview_json(report: CardDumpWorkflowReport) -> dict[str, object]
         "shoot_slug": report.preview_plan.shoot_slug,
         "item_count": len(report.preview_plan.items),
         "total_bytes": total_bytes,
+        "left_on_card": _left_on_card_json(report.preview_plan),
         "items": [
             {
                 "relative_path": item.relative_path.as_posix(),

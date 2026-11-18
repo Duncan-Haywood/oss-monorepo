@@ -1,0 +1,62 @@
+Milestone 6v: 6r's km/day plan with the on-board heave-velocity law U = s (Hs/T)^a
+3281 S2 hours (from 2015-06-01, MOSE Hs and T_avg); a = 0.534; free pair b 0.542, c -0.711
+
+vehicle-state index s_m = median u / (Hs_ob/T_avg)^a (m/s per (m/s)^a):
+  2015-06  1.248
+  2015-07  1.154
+  2015-08  0.851
+  2015-09  0.807
+  2015-10  0.745
+  best 1.248, worst 0.745; state ratio 1.676 (6r 1.639, Hs^0.218, May included)
+
+mission Hs/T_avg (m/s): 5th pct 0.184, median 0.316, 95th pct 0.475
+
+2024 buoy-months: km/day best / worst state | median WVHT, APD, WVHT/APD | share of hours below / above the mission 5-95% Hs/T range
+   1 41009   52.8  31.5 | 1.22 m  4.94 s 0.262 | 17.1%  2.8%
+   1 42036   55.3  33.0 | 1.31 m  4.60 s 0.294 | 14.7%  5.8%
+   1 42040   55.4  33.0 | 1.35 m  4.66 s 0.298 | 18.3%  7.1%
+   1 44009   53.4  31.8 | 1.25 m  4.73 s 0.267 | 22.7%  3.1%
+   1 44013   52.5  31.3 | 1.04 m  3.99 s 0.248 | 26.8% 11.1%
+   1 46011   56.4  33.6 | 2.27 m  8.61 s 0.291 | 11.0%  7.5%
+   1 46013   59.0  35.2 | 2.55 m  8.26 s 0.308 |  2.3%  9.0%
+   1 46026   56.3  33.6 | 2.27 m  7.94 s 0.280 |  7.3%  5.0%
+   1 46054   55.8  33.3 | 2.10 m  7.92 s 0.293 | 10.3%  4.2%
+  month 1: 9 buoys, fleet median 55.4 (best) / 33.0 (worst) km/day; site ratio 1.123 (6r 1.203) against state ratio 1.676
+   7 41009   37.6  22.4 | 0.71 m  5.09 s 0.140 | 92.2%  0.0%
+   7 41010   45.2  27.0 | 1.13 m  5.76 s 0.198 | 40.2%  0.0%
+   7 42036   33.2  19.8 | 0.41 m  4.05 s 0.104 | 95.2%  0.0%
+   7 42040   35.0  20.9 | 0.46 m  4.07 s 0.113 | 87.5%  0.0%
+   7 44009   45.7  27.3 | 0.97 m  4.80 s 0.206 | 40.2%  0.0%
+   7 44013   32.1  19.1 | 0.40 m  4.32 s 0.095 | 94.5%  0.0%
+   7 44025   44.5  26.6 | 0.98 m  5.11 s 0.197 | 42.9%  0.0%
+   7 46011   51.2  30.6 | 1.56 m  6.32 s 0.242 | 14.2%  0.0%
+   7 46013   53.3  31.8 | 1.63 m  6.16 s 0.265 | 21.9%  1.5%
+   7 46026   47.7  28.4 | 1.35 m  6.58 s 0.207 | 39.0%  0.0%
+   7 46054   55.3  33.0 | 1.54 m  5.25 s 0.284 |  3.5%  0.1%
+  month 7: 11 buoys, fleet median 45.2 (best) / 27.0 (worst) km/day; site ratio 1.725 (6r 1.335) against state ratio 1.676
+
+variance of log km/day over buoy x month x state: between states 0.659, months 0.152, buoys 0.119 (6r 0.825 / 0.058 / 0.106; one-way shares)
+
+transfer check on 486 S2 hours with the buoy <= 150 km: k_H = median Hs_ob/WVHT 1.090, k_T = median T_avg/APD 0.988
+  free-pair state index: 2015-06 1.714, 2015-07 1.582, 2015-08 1.173, 2015-09 1.110, 2015-10 1.046; state ratio 1.638
+  month 1: fleet median (best) ratio law 55.4, calibrated 58.3 (+5.4%), free pair 55.5 (+0.1%); free-pair site ratio 1.079
+  month 7: fleet median (best) ratio law 45.2, calibrated 47.7 (+5.4%), free pair 45.9 (+1.4%); free-pair site ratio 1.667
+  free pair variance shares: states 0.686, months 0.145, buoys 0.075
+
+P1 site ratio above 6r's in both months (1.123 vs 1.203, 1.725 vs 1.335): refuted
+P2 state ratio 1.676 in 1.4 to 1.9: held
+P3 between-state share 0.659 below 0.70: held
+P4 July 42036 95.2%, 42040 87.5%, 44013 94.5% of hours below the mission 5th pct, all > 30%: held
+P5 every buoy-month below 86 km/day at the best state: held
+P6 calibrated transfer moves fleet medians under 10%: held
+P7 free pair within 5% of the ratio law: held
+
+Post hoc (written after reading P1 to P7; exploratory): law residual by mission Hs/T bin, median u / (s_m (Hs/T)^a)
+  Hs/T 0.000 to 0.120:    15 hours, median ratio 1.083
+  Hs/T 0.120 to 0.150:    20 hours, median ratio 0.985
+  Hs/T 0.150 to 0.184:   128 hours, median ratio 0.905
+  Hs/T 0.184 to 0.250:   432 hours, median ratio 0.983
+  Hs/T 0.250 to 0.320:  1111 hours, median ratio 1.020
+  Hs/T 0.320 to 0.400:  1081 hours, median ratio 1.004
+  Hs/T 0.400 to 0.475:   323 hours, median ratio 0.968
+  Hs/T 0.475 to 9.000:   163 hours, median ratio 0.944

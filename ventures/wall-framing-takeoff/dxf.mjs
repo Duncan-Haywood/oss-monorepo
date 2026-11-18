@@ -473,7 +473,8 @@ export function pairDoubleLines(segs, o) {
  *   exteriorStud?: "2x4"|"2x6", interiorStud?: "2x4"|"2x6" }} [opt]
  * @returns {{ ok: boolean, errors: string[], notes: string[], plan?: any, stats?: any }}
  */
-export function planFromDxf(text, opt = {}) {
+export function planFromDxf(text, opt) {
+  if (opt === null || typeof opt !== "object" || Array.isArray(opt)) opt = {};
   const wallLayer = opt.wallLayer ?? /wall/i, doorLayer = opt.doorLayer ?? /door/i, windowLayer = opt.windowLayer ?? /window|glaz/i;
   const snap = opt.snap ?? 3, mergeGap = opt.mergeGap ?? 1;
   const notes = [];

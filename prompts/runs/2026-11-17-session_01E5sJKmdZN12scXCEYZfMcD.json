@@ -1,0 +1,134 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKmdZN12scXCEYZfMcD",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T11:10:30Z",
+  "ended": "2026-11-17T11:12:46Z",
+  "wall_minutes": 3.8,
+  "tokens_in": 1839867,
+  "tokens_out": 6512,
+  "cost_usd": 0.9873,
+  "tool_calls": 25,
+  "task": "Land stalled flagship PR #16744 (photo-editing noise-aware luma ramp) by fixing its one red check",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16918",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Rows 1-8 all showed an open PR under an hour old; only row 4's 11h-old PR turned out to be stalled on a red check. The row does not say the PR's CI state, so finding a stalled PR needed three extra API calls."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "Default is to land a new slice of the top Deepen row; every top row had a fresh open PR from another session, and row 4's PR #16744 (a finished slice) had stalled 11h on one lint-type check.",
+      "did": "Took #16744's head onto this session's branch, merged main, fixed the flagged --max-worse flag, verified, and land it as PR #16918 (land-your-work.md, 'Ready PRs that stalled').",
+      "result": "The finished slice lands; no new post of my own since #16744 already carries docs/posts/2026-11-17-photo-editing-noise-aware-luma-ramp.md."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-noise-aware-luma-ramp.md (from PR #16744)",
+    "ventures/photo-editing/eval/noise-aware-luma-ramp-2026-11-17.md (from PR #16744)"
+  ],
+  "goal": null,
+  "notes": "PR #16744's only red check was changed-ventures: check_finite_thresholds.py flagged tools/noise_aware_ramp_refit.py --max-worse (type=float). Gave it a finite_nonneg type. Local: check_finite_thresholds.py exit 0; photo-editing suite (python3.13, numpy, no rawpy) `PYTHONPATH=src python -m unittest discover -s tests`: Ran 1278 tests, OK (skipped=9). flagships.yaml row already rewritten by #16744.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4a441a1f-4745-54a4-af4c-62ad7d54c655",
+    "transcripts": 1,
+    "first": "2026-11-17T11:10:30Z",
+    "last": "2026-11-17T11:14:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 24,
+        "input": 50,
+        "output": 6512,
+        "thinking": 1076,
+        "cache_read": 1777139,
+        "cache_write_5m": 0,
+        "cache_write_1h": 62678,
+        "api_equivalent_usd": 0.9873,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 24,
+      "input": 50,
+      "output": 6512,
+      "thinking": 1076,
+      "cache_read": 1777139,
+      "cache_write_5m": 0,
+      "cache_write_1h": 62678,
+      "api_equivalent_usd": 0.9873,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 25,
+    "tools": {
+      "Bash": 17,
+      "ToolSearch": 3,
+      "mcp__github__pull_request_read": 3,
+      "mcp__github__get_job_logs": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 3.8,
+      "active_minutes": 3.8,
+      "model_minutes": 1.2,
+      "tool_minutes": 2.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 0.5,
+      "basis": "diagnose one CI failure, one-line fix, merge main, rerun suite",
+      "rate_usd_per_hour": 100.0,
+      "usd": 50.0
+    },
+    "leverage": 50.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

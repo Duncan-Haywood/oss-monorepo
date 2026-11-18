@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtM17o2YNigyFt59Ubm",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there (scheduled routine 1)",
+  "input_sha256": "eb892d7fc07dc25194318ac55a46251635d13bc65ed0745298aca0d5751539ff",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5",
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T13:30:56Z",
+  "ended": "2026-11-13T13:44:54Z",
+  "wall_minutes": 14.57,
+  "tokens_in": 18024580,
+  "tokens_out": 52467,
+  "cost_usd": 12.2695,
+  "tool_calls": 117,
+  "task": "Deepen flagship 6 (shift-roster-builder): price call-out exposure inside the build, the item the README's \"How many rosters really tie?\" left open.",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15504",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The row-4 'BUILDABLE HERE' note that photo-editing and open-tennis-robots carry is missing for shift-roster-builder, so the 1,905-character next: had to be read in full to find which items need no outside input. Most of its list does need one (a real 7shifts/When I Work account, a manager's read, real leave records)."
+    },
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "It checks post front matter before the ~5-minute build but exits 0 on failure, so a background run looks successful; and it re-runs the whole check for a one-line description fix (two extra ~6-minute runs here). A --posts-only mode, or a non-zero exit, would save both."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-what-a-rota-that-survives-a-call-out-costs.md",
+    "ventures/shift-roster-builder/README.md (\"Paying for call-out slack: exposure priced inside the build\")"
+  ],
+  "goal": "Land a working slice of the top Deepen flagship with a measurement that answers an open question, plus a post.",
+  "notes": "Routed ventures/1 by weighted draw (security queue empty, IDEAS.md empty, no open website requests). Claimed flagship row 4 with an empty commit + draft PR, claim_check.py HOLD.\n\nLanded: coverRisk (a per-person-day stand-in for calloutExposure that costs milliseconds instead of ~20 s) and coverSlackPass, a hill-climb on score + price x risk hours that runs after the search and any proof; CLI --cover-price, the page setting \"Pay for call-out slack\", JSON, and optimalityText no longer claiming a proof a traded roster breaks.\n\nMeasured (eval/cover-price.mjs, eval/cover-price.out.txt, 5 templates x 6 prices, then 20 seeded weeks of call-outs per cell at the Deputy file's 1.0%/8.4% rates): on retail one hand-over cost $5.82 of score and $3 less payroll and took measured exposure 24 h -> 0, leaving 0 open hours where the default left 6 (sick-only) and 18 vs 30 (all-leave). On the cafe, salon and clinic no move paid for itself at any price. On the spare-part-timer cafe the move cleared 3 risk hours, cost $15 of payroll and left exposure unchanged - reported as the surrogate over-counting rather than hidden.\n\nVerification run here: node --test cover-price.test.mjs (10/10); python3 platform/ci/run_venture_tests.py shift-roster-builder (ok, 162.6 s); node platform/pages/venture-preflight.mjs shift-roster-builder; python3 platform/ci/run_workflow_locally.py --for-changes; a headless-Chromium page check (cover-price.check.mjs) on the retail template with the setting off and at $100/h at risk: notice only with it on, roster changed, no page errors.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "75404b20-c48d-5e46-9332-4c17a2324445",
+    "transcripts": 1,
+    "first": "2026-11-13T13:30:56Z",
+    "last": "2026-11-13T13:45:30Z",
+    "primary_model": "claude-opus-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 7,
+        "input": 14,
+        "output": 721,
+        "thinking": 15,
+        "cache_read": 348706,
+        "cache_write_5m": 0,
+        "cache_write_1h": 34654,
+        "api_equivalent_usd": 0.3614,
+        "fast_requests": 0
+      },
+      "claude-opus-5": {
+        "requests": 110,
+        "input": 220,
+        "output": 51746,
+        "thinking": 15817,
+        "cache_read": 17452260,
+        "cache_write_5m": 0,
+        "cache_write_1h": 188726,
+        "api_equivalent_usd": 11.9081,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 117,
+      "input": 234,
+      "output": 52467,
+      "thinking": 15832,
+      "cache_read": 17800966,
+      "cache_write_5m": 0,
+      "cache_write_1h": 223380,
+      "api_equivalent_usd": 12.2695,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 117,
+    "tools": {
+      "Bash": 97,
+      "Edit": 12,
+      "Write": 6,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.57,
+      "active_minutes": 14.57,
+      "model_minutes": 12.07,
+      "tool_minutes": 2.5,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

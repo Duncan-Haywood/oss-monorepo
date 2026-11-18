@@ -8,6 +8,7 @@ const draft = () => ({
   number: "RE-2026-001",
   issue_date: "2026-10-15",
   due_date: "2026-11-14",
+  delivery_date: "2026-10-14",
   buyer_reference: "04011000-12345-03",
   order_reference: "PO-77",
   seller: {
@@ -128,4 +129,54 @@ test("examples/draft-invoice.json is complete: no errors, no warnings, clean in 
     assert.deepEqual(out.warnings, []);
     assert.deepEqual(checkInvoice(await parseInvoiceSource("x.xml", out.xml)), []);
   }
+});
+
+test("a half-cent VAT line (1.50 at 19%) generates a file the checker accepts", async () => {
+  const d = draft();
+  d.lines = [{ description: "x", quantity: 1, unit_price: 1.5, unit: "pieces", tax_percent: 19 }];
+  for (const format of ["ubl", "cii"]) {
+    const out = generateInvoice(d, { format });
+    assert.equal(out.totals.tax, 0.29);
+    assert.deepEqual(checkInvoice(await parseInvoiceSource("x.xml", out.xml)), []);
+  }
+});
+
+test("delivery date (BT-72) is written in both syntaxes and read back by the checker", async () => {
+  const d = draft();
+  d.delivery_date = "2026-10-14";
+  const ubl = generateInvoice(d, { format: "ubl" });
+  assert.match(ubl.xml, /<cac:Delivery><cbc:ActualDeliveryDate>2026-10-14<\/cbc:ActualDeliveryDate><\/cac:Delivery>/);
+  // UBL order: Delivery after AccountingCustomerParty, before PaymentMeans.
+  assert.ok(ubl.xml.indexOf("</cac:AccountingCustomerParty>") < ubl.xml.indexOf("<cac:Delivery>"));
+  assert.ok(ubl.xml.indexOf("<cac:Delivery>") < ubl.xml.indexOf("<cac:PaymentMeans>"));
+  const cii = generateInvoice(d, { format: "cii" });
+  assert.match(cii.xml, /<ram:ApplicableHeaderTradeDelivery>\s*<ram:ActualDeliverySupplyChainEvent><ram:OccurrenceDateTime>\s*<udt:DateTimeString format="102">20261014<\/udt:DateTimeString>/);
+  assert.doesNotMatch(cii.xml, /<ram:ApplicableHeaderTradeDelivery\/>/);
+  for (const out of [ubl, cii]) {
+    assert.equal(out.ok, true);
+    assert.deepEqual(out.warnings, []);
+    assert.deepEqual(checkInvoice(await parseInvoiceSource("x.xml", out.xml)), []);
+  }
+});
+
+test("no delivery date: CII keeps the schema-mandatory empty delivery element; XRechnung warns BR-DE-TMP-32", () => {
+  const d = draft();
+  delete d.delivery_date;
+  const x = generateInvoice(d, { format: "cii", profile: "xrechnung" });
+  assert.match(x.xml, /<ram:ApplicableHeaderTradeDelivery\/>/);
+  assert.ok(x.warnings.some((w) => w.path === "delivery_date" && /BR-DE-TMP-32/.test(w.message)));
+  // An invoicing period satisfies the rule instead.
+  d.period = { start: "2026-10-01", end: "2026-10-31" };
+  assert.ok(!generateInvoice(d, { profile: "xrechnung" }).warnings.some((w) => w.path === "delivery_date"));
+  // Other profiles do not warn.
+  delete d.period;
+  assert.ok(!generateInvoice(d, { profile: "en16931" }).warnings.some((w) => w.path === "delivery_date"));
+});
+
+test("a malformed delivery date is refused", () => {
+  const d = draft();
+  d.delivery_date = "2026-02-30";
+  const out = generateInvoice(d);
+  assert.equal(out.ok, false);
+  assert.ok(out.errors.some((e) => e.path === "delivery_date"));
 });

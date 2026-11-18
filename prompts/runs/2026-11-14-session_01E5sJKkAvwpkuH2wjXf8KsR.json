@@ -1,0 +1,124 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKkAvwpkuH2wjXf8KsR",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T03:08:57Z",
+  "ended": "2026-11-14T03:19:17Z",
+  "wall_minutes": 10.46,
+  "tokens_in": 2741694,
+  "tokens_out": 27567,
+  "cost_usd": 1.7365,
+  "tool_calls": 35,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15709",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Both open perf backlog items (P063, P064) are owner-gated workflow edits again; the 'skip to 2-4' advice worked, and the previous run's 'Not changed' list was the fastest way to a fresh target."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-333-distances-not-20301.md",
+    "docs/history/ci-perf-2026-11-14-gaussian-process-distinct-distances-and-blocked-cholesky.md"
+  ],
+  "goal": null,
+  "notes": "Metric: gaussian-process-regression venture suite wall time, `python3 platform/ci/run_venture_tests.py gaussian-process-regression` alone in this container (4 cores, node 22), before on a worktree of HEAD, after on the branch: 25.5 s -> 11.7 s. Single analyze() of the example (smooth-quasiperiodic): 9.3 s -> 4.8 s (Date.now around the call). Scratch bench (6 inputs, hashed): 29.9 s -> 15.7-16.1 s, hash a3c3a83d530b7519 unchanged. CLI output sha256 unchanged over four invocations. Two new tests each catch a mutant.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "383a155a-d18e-5ef3-b38d-40053aacfb19",
+    "transcripts": 1,
+    "first": "2026-11-14T03:08:57Z",
+    "last": "2026-11-14T03:19:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 33,
+        "input": 64,
+        "output": 27567,
+        "thinking": 6507,
+        "cache_read": 2660023,
+        "cache_write_5m": 0,
+        "cache_write_1h": 81607,
+        "api_equivalent_usd": 1.7365,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 33,
+      "input": 64,
+      "output": 27567,
+      "thinking": 6507,
+      "cache_read": 2660023,
+      "cache_write_5m": 0,
+      "cache_write_1h": 81607,
+      "api_equivalent_usd": 1.7365,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 35,
+    "tools": {
+      "Bash": 32,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.46,
+      "active_minutes": 10.46,
+      "model_minutes": 4.34,
+      "tool_minutes": 6.12,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "profile, two bit-identical optimisations with bench, tests and write-up for an experienced engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 230.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

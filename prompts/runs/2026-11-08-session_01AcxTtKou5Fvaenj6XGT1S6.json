@@ -1,0 +1,172 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01AcxTtKou5Fvaenj6XGT1S6",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-08T14:08:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14056",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "targets --probe lists platform/audio/narrate.py as (red) under the bare python3 (no numpy); the doc does not say a (red) mark can just be a missing dependency, so it reads like a real red baseline."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-narrator-tests-two-gaps.md"
+  ],
+  "goal": null,
+  "notes": "Step 0: 2 open defects, both control-plane (workflow edits need owner approval), left patched:false. Campaign on narrate.py: 8 seeded, 6 caught, 2 gap, both guarded; catch rate 0.75 -> 1.0. No real defects found; hunt was brief.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "platform/audio/narrate.py",
+        "test": "/usr/local/bin/python3 -m pytest -q -x -p no:cacheprovider test_narrate.py  (in platform/audio)",
+        "seed": 21464381,
+        "commit": "49ed1ca6",
+        "sites": 116,
+        "baseline_seconds": 1.1,
+        "mutants": [
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 200,
+            "col": 26,
+            "operator": "false-to-true",
+            "before": "_G2P = en.G2P(trf=False, british=british, fallback=espeak.EspeakFallback(british=british))",
+            "after": "_G2P = en.G2P(trf=True, british=british, fallback=espeak.EspeakFallback(british=british))",
+            "line_text": "        _G2P = en.G2P(trf=False, british=british, fallback=espeak.EspeakFallback(british=british))",
+            "caught": false,
+            "seconds": 1.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added in platform/audio/test_narrate.py"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 237,
+            "col": 28,
+            "operator": "div-to-times",
+            "before": "size = (self.models / MODEL_FILES[0]).stat().st_size if (self.models / MODEL_FILES[0]).exists() else 0",
+            "after": "size = (self.models * MODEL_FILES[0]).stat().st_size if (self.models / MODEL_FILES[0]).exists() else 0",
+            "line_text": "        size = (self.models / MODEL_FILES[0]).stat().st_size if (self.models / MODEL_FILES[0]).exists() else 0",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 251,
+            "col": 46,
+            "operator": "true-to-false",
+            "before": "f.parent.mkdir(parents=True, exist_ok=True)",
+            "after": "f.parent.mkdir(parents=True, exist_ok=False)",
+            "line_text": "        f.parent.mkdir(parents=True, exist_ok=True)",
+            "caught": false,
+            "seconds": 1.1,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "test added in platform/audio/test_narrate.py"
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 286,
+            "col": 21,
+            "operator": "gt-to-ge",
+            "before": "if procs > 1:",
+            "after": "if procs >= 1:",
+            "line_text": "            if procs > 1:",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 297,
+            "col": 66,
+            "operator": "minus-to-plus",
+            "before": "plan.append((u, item.after if i == len(units) - 1 else pause_after(u, self.speed)))",
+            "after": "plan.append((u, item.after if i == len(units) + 1 else pause_after(u, self.speed)))",
+            "line_text": "                    plan.append((u, item.after if i == len(units) - 1 else pause_after(u, self.speed)))",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 300,
+            "col": 37,
+            "operator": "const-plus-one",
+            "before": "voiced = self.voice_units([p[0] for p in plan if isinstance(p, tuple)])",
+            "after": "voiced = self.voice_units([p[1] for p in plan if isinstance(p, tuple)])",
+            "line_text": "        voiced = self.voice_units([p[0] for p in plan if isinstance(p, tuple)])",
+            "caught": true,
+            "seconds": 14.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 317,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "OUT_RATE = 32000  # Hz in the MP3; see the report for the sweep",
+            "after": "OUT_RATE = 32001  # Hz in the MP3; see the report for the sweep",
+            "line_text": "OUT_RATE = 32000  # Hz in the MP3; see the report for the sweep",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/audio/narrate.py",
+            "line": 328,
+            "col": 69,
+            "operator": "const-plus-one",
+            "before": "stats = json.loads(re.findall(r\"\\{[^{}]*\\}\", r.stderr.decode())[-1])",
+            "after": "stats = json.loads(re.findall(r\"\\{[^{}]*\\}\", r.stderr.decode())[-2])",
+            "line_text": "    stats = json.loads(re.findall(r\"\\{[^{}]*\\}\", r.stderr.decode())[-1])",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": []
+  }
+}

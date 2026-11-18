@@ -1,0 +1,26 @@
+Milestone 7g post hoc: diverged held-out episodes (of 384 per set) at lever 2 under mixer and torque-headroom probes.
+
+[above, unconstrained]
+  cap 20: base 15 (pos 0.203); airmode 14 (pos 0.206); ideal mixer, 1x torque 2 (pos 0.127); ideal mixer, 1.25x torque 0 (pos 0.111); ideal mixer, 1.5x torque 0 (pos 0.111); ideal mixer, 2x torque 0 (pos 0.114); airmode, 1.25x torque 9 (pos 0.171); airmode, 1.5x torque 9 (pos 0.170)
+  cap 45: base 45 (pos 0.554); airmode 43 (pos 0.497); ideal mixer, 1x torque 16 (pos 0.272); ideal mixer, 1.25x torque 1 (pos 0.118); ideal mixer, 1.5x torque 0 (pos 0.106); ideal mixer, 2x torque 0 (pos 0.121); airmode, 1.25x torque 33 (pos 0.445); airmode, 1.5x torque 36 (pos 0.479)
+
+[above, M=1.25]
+  cap 20: base 4 (pos 0.139); airmode 6 (pos 0.152); ideal mixer, 1x torque 3 (pos 0.131); ideal mixer, 1.25x torque 0 (pos 0.110); ideal mixer, 1.5x torque 0 (pos 0.109); ideal mixer, 2x torque 0 (pos 0.109); airmode, 1.25x torque 4 (pos 0.137); airmode, 1.5x torque 4 (pos 0.136)
+  cap 45: base 12 (pos 0.221); airmode 15 (pos 0.246); ideal mixer, 1x torque 3 (pos 0.127); ideal mixer, 1.25x torque 0 (pos 0.106); ideal mixer, 1.5x torque 0 (pos 0.105); ideal mixer, 2x torque 0 (pos 0.105); airmode, 1.25x torque 11 (pos 0.219); airmode, 1.5x torque 10 (pos 0.206)
+
+[above, M=1.43]
+  cap 20: base 4 (pos 0.141); airmode 7 (pos 0.159); ideal mixer, 1x torque 0 (pos 0.114); ideal mixer, 1.25x torque 0 (pos 0.111); ideal mixer, 1.5x torque 0 (pos 0.110); ideal mixer, 2x torque 0 (pos 0.110); airmode, 1.25x torque 4 (pos 0.139); airmode, 1.5x torque 3 (pos 0.132)
+  cap 45: base 13 (pos 0.216); airmode 13 (pos 0.217); ideal mixer, 1x torque 3 (pos 0.127); ideal mixer, 1.25x torque 0 (pos 0.107); ideal mixer, 1.5x torque 0 (pos 0.106); ideal mixer, 2x torque 0 (pos 0.107); airmode, 1.25x torque 11 (pos 0.212); airmode, 1.5x torque 9 (pos 0.194)
+
+[above, M=1.67]
+  cap 20: base 4 (pos 0.138); airmode 6 (pos 0.155); ideal mixer, 1x torque 1 (pos 0.121); ideal mixer, 1.25x torque 0 (pos 0.111); ideal mixer, 1.5x torque 0 (pos 0.110); ideal mixer, 2x torque 0 (pos 0.109); airmode, 1.25x torque 5 (pos 0.140); airmode, 1.5x torque 4 (pos 0.133)
+  cap 45: base 12 (pos 0.216); airmode 12 (pos 0.217); ideal mixer, 1x torque 2 (pos 0.122); ideal mixer, 1.25x torque 0 (pos 0.107); ideal mixer, 1.5x torque 0 (pos 0.106); ideal mixer, 2x torque 0 (pos 0.105); airmode, 1.25x torque 11 (pos 0.202); airmode, 1.5x torque 11 (pos 0.201)
+
+[below, unconstrained]
+  cap 20: base 42 (pos 0.434); airmode 35 (pos 0.386); ideal mixer, 1x torque 14 (pos 0.252); ideal mixer, 1.25x torque 5 (pos 0.148); ideal mixer, 1.5x torque 0 (pos 0.111); ideal mixer, 2x torque 0 (pos 0.111); airmode, 1.25x torque 29 (pos 0.336); airmode, 1.5x torque 26 (pos 0.304)
+  cap 45: base 52 (pos 0.613); airmode 48 (pos 0.571); ideal mixer, 1x torque 19 (pos 0.302); ideal mixer, 1.25x torque 6 (pos 0.158); ideal mixer, 1.5x torque 0 (pos 0.110); ideal mixer, 2x torque 0 (pos 0.109); airmode, 1.25x torque 41 (pos 0.477); airmode, 1.5x torque 38 (pos 0.443)
+
+[below, M=1.25]
+  cap 20: base 45 (pos 0.450); airmode 39 (pos 0.433); ideal mixer, 1x torque 15 (pos 0.256); ideal mixer, 1.25x torque 6 (pos 0.157); ideal mixer, 1.5x torque 0 (pos 0.112); ideal mixer, 2x torque 0 (pos 0.112); airmode, 1.25x torque 31 (pos 0.354); airmode, 1.5x torque 28 (pos 0.320)
+  cap 45: base 55 (pos 0.624); airmode 52 (pos 0.586); ideal mixer, 1x torque 18 (pos 0.286); ideal mixer, 1.25x torque 6 (pos 0.155); ideal mixer, 1.5x torque 0 (pos 0.111); ideal mixer, 2x torque 0 (pos 0.110); airmode, 1.25x torque 43 (pos 0.505); airmode, 1.5x torque 38 (pos 0.448)
+

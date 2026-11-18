@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqydY3bgBgkJ1K5rZkDD",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T06:38:55Z",
+  "ended": "2026-11-15T06:47:18Z",
+  "wall_minutes": 8.62,
+  "tokens_in": 4521526,
+  "tokens_out": 42762,
+  "cost_usd": 2.6822,
+  "tool_calls": 43,
+  "task": "Hearth & Horizon story from the bible's open proposal: frost heave under a summer-dug footing",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16124",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The suggested `git log --oneline -15 -- <paths>` returns only 4 commits on the shallow clone, so it can't show which project has gone longest without a piece; reading `published:` front matter across episodes/stories answered it instead."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "Plural/singular tag spelling ('foundations' vs 'foundation') is only caught by this script; the first commit was pushed before running it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio cap exceeded (474 MB > 400 MB), so text only, as the prompt directs; no podcast-episode option either.",
+      "did": "Landed text, pages and feeds without audio.",
+      "result": "Story is live on the Stories shelf as text only."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-the-water-that-walks-up-frost-heave.md",
+    "ventures/hearth-and-horizon/BIBLE.md (new Next up proposal: polyethylene pipe thermal contraction)"
+  ],
+  "goal": null,
+  "notes": "Creative track, project hearth-and-horizon, piece the-water-that-walks-up (about 5,400 words of story, text only). Security queue empty, IDEAS.md and website requests empty. Saints by Candlelight had an episode published today, so the headline H&H shelf took its open proposal. Numbers (Stefan frost depth, segregation-potential heave, pad pressure, adfreeze, tilt, weekdays) were computed in a scratch script before drafting. A reread fixed three slips (mason's working years, the cross readings' non-monotonic peak, the broken pad used as a step). Verification: node generate.mjs and node --test (17/17) in ventures/hearth-and-horizon; post front matter, links and similarity checks clean.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "011b31bd-38a3-5d5e-874a-6f1185a7d267",
+    "transcripts": 1,
+    "first": "2026-11-15T06:38:55Z",
+    "last": "2026-11-15T06:47:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 84,
+        "output": 42762,
+        "thinking": 17696,
+        "cache_read": 4403197,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118245,
+        "api_equivalent_usd": 2.6822,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 84,
+      "output": 42762,
+      "thinking": 17696,
+      "cache_read": 4403197,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118245,
+      "api_equivalent_usd": 2.6822,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 43,
+    "tools": {
+      "Bash": 38,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.62,
+      "active_minutes": 8.62,
+      "model_minutes": 8.2,
+      "tool_minutes": 0.41,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 8.0,
+      "basis": "a science-literate fiction writer drafting and fact-checking a 5,400-word story plus a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 800.0
+    },
+    "leverage": 298.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

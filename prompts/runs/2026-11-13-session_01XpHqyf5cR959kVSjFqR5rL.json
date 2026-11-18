@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqyf5cR959kVSjFqR5rL",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T02:39:02Z",
+  "ended": "2026-11-13T03:12:43Z",
+  "wall_minutes": 34.12,
+  "tokens_in": 9707880,
+  "tokens_out": 45846,
+  "cost_usd": 3.9582,
+  "tool_calls": 88,
+  "task": "Deepen flagship 7 (photo-editing): check lensfun vignetting against compiled liblensfun 0.3.4",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15345",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 6,
+  "outcome": "success",
+  "errors": [
+    "First full run used 227k cases (crop x aspect x focal-midpoint grid) and a per-pixel Python opcode loop; killed and cut to 97k cases with a vectorised gain and a one-in-ten sample for the pure-Python fit (~7 min).",
+    "First result showed a 100% 'port' gap: fisheye calibrations where c <= 0 (lensfun clamps to black) and near-singular c (gain >100) where float32 rounding decides; split out and reported separately.",
+    "First post description was 241 characters; venture-preflight's front-matter check caught it (limit 160)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-two-lensfuns-two-corners.md",
+    "ventures/photo-editing/eval/lensfun-vignetting-released-2026-11-13.md"
+  ],
+  "goal": "Run the vignetting port against compiled lensfun, as the distortion port was, and say how close it is.",
+  "notes": "tools/lensfun_vignetting_released_check.py on lensfunpy 1.18.0 (liblensfun 0.3.4): 97,382 cases on 474 lenses, 800 px frames. Port gap median 0.00012%, p99 0.0034%, max 0.32% (float32, 93x corner gain). Release vs master pixel unit: corner gain p99 0.12% at 6000 px, max 10% (46% at 800 px). Shipped FixVignetteRadial vs release p99 1.2% at 800 px. 133 near-singular cases, all refused by build_vignette. Tests: 6 new (tests/test_lensfun_vignetting_released.py), four seeded faults caught; run_venture_tests.py photo-editing ok (97 s).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9feae86d-c4aa-5c1a-8929-93d4441f9c48",
+    "transcripts": 1,
+    "first": "2026-11-13T02:39:02Z",
+    "last": "2026-11-13T03:13:10Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 81,
+        "input": 156,
+        "output": 45846,
+        "thinking": 9226,
+        "cache_read": 9566806,
+        "cache_write_5m": 0,
+        "cache_write_1h": 140918,
+        "api_equivalent_usd": 3.9582,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 81,
+      "input": 156,
+      "output": 45846,
+      "thinking": 9226,
+      "cache_read": 9566806,
+      "cache_write_5m": 0,
+      "cache_write_1h": 140918,
+      "api_equivalent_usd": 3.9582,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 88,
+    "tools": {
+      "Bash": 81,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 34.12,
+      "active_minutes": 34.12,
+      "model_minutes": 7.28,
+      "tool_minutes": 26.85,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reading lensfun 0.3.4 source, building a lensfunpy harness over its database and writing it up: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 252.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

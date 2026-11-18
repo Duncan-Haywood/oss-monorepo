@@ -1,0 +1,48 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKnTsDzFqbLiUh8qtzi",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T07:28:46Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14225",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Fixed only the README test count; other recommended fixes left in audit files, to keep the round's PR small.",
+      "did": "listed fixes in audits",
+      "result": "fine"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-quality-audit-round-27.md"
+  ],
+  "goal": null,
+  "notes": "seed 2026-11-09; subjects changepoint-detector (flagship), woocommerce-product-csv-check, hands-free-language-coach, queue-twin, mimic-anycontext-detect; sampled share meeting bar 0 of 4, flagship meets; fix PRs: README count fix in this PR. Spot-checked queue-twin M/D/1 rho=0.8 mean wait = 2.0 by hand.",
+  "corrections": [],
+  "redteam": null
+}

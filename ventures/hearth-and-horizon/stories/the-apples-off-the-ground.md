@@ -1,7 +1,7 @@
 ---
 title: The Apples Off the Ground
 shelf: hearth-and-horizon
-setting: Saint Kenelm's orchard (invented), near Ledbury, Herefordshire, Saturday 14 October 2048
+setting: Saint Kenelm's orchard (invented), near Ledbury, Herefordshire, Saturday 10 October 2048
 published: 2026-11-03
 summary: A parish pressing day turns 240 kg of windfalls into about 156 litres of juice for the harvest supper. The parish assistant will not call the cider safe or unsafe. It works out what heating 20 litres to 71 degrees costs (about 57 minutes on a 2 kW ring), shows that a thermometer reading 2 degrees high in ice water means the pot never got there, and leaves each person's glass to the person holding it.
 ---

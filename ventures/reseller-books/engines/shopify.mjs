@@ -42,24 +42,26 @@ const ORDER_ALIASES = {
 
 export function parseCsv(text) {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === ",") { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
@@ -76,7 +78,7 @@ export function parseDate(value) {
   if (m && MONTHS[m[1].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[1].toLowerCase()], d: +m[2] };
   m = s.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})/);
   if (m && MONTHS[m[2].toLowerCase()] !== undefined) return { y: +m[3], mo: MONTHS[m[2].toLowerCase()], d: +m[1] };
-  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})/);
+  m = s.match(/^(\d{1,2})[/.](\d{1,2})[/.](\d{4})(?!\d)/);
   if (m) return { y: +m[3], mo: +m[1] - 1, d: +m[2] }; // US month-first
   return null;
 }
@@ -136,7 +138,7 @@ export function normalizeTransactions(table) {
   const rows = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
     const r = table[i];
-    const line = i + 1;
+    const line = table[i].line ?? i + 1;
     const date = parseDate(get(r, "date"));
     if (!date) { skipped.push({ line, reason: `unreadable date “${get(r, "date")}”` }); continue; }
     const amount = parseMoney(get(r, "amount"));
@@ -174,7 +176,7 @@ export function normalizeOrders(table) {
   const byKey = new Map(), skipped = [];
   for (let i = h + 1; i < table.length; i++) {
     const r = table[i];
-    const line = i + 1;
+    const line = table[i].line ?? i + 1;
     const name = get(r, "name");
     if (!name) { skipped.push({ line, reason: "no order name" }); continue; }
     const money = (f) => parseMoney(get(r, f));
@@ -398,8 +400,8 @@ export function analyze(rows, orders = [], { costs = {}, returnsResellable = tru
   return out;
 }
 
-const $ = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
-const $2 = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toFixed(2);
+const $ = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
+const $2 = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toFixed(2));
 const P = (x, d = 1) => (x * 100).toFixed(d) + "%";
 
 function findings(s, a) {

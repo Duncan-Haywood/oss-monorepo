@@ -114,7 +114,7 @@ test("invitation text: UID, UTC times, escaping, folding and cancel method", () 
   const ics = buildIcs({ uid: "b1@slot", start: Date.UTC(2026, 9, 14, 13), end: Date.UTC(2026, 9, 14, 13, 30), summary: "Intro; with, Ann", description: "Line1\nLine2 " + "x".repeat(200), location: "https://meet.example/abc", organizer: { name: 'Host "H"', email: "h@x.test" }, attendee: { name: "Ann", email: "a@x.test" }, now: Date.UTC(2026, 9, 1) });
   assert.match(ics, /^BEGIN:VCALENDAR\r\n/);
   assert.match(ics, /DTSTART:20261014T130000Z\r\n/);
-  assert.match(ics, /SUMMARY:Intro\; with\\, Ann\r\n/);
+  assert.match(ics, /SUMMARY:Intro\\; with\\, Ann\r\n/);
   assert.match(ics, /METHOD:REQUEST/);
   assert.ok(ics.split("\r\n").every((l) => l.length <= 75));
   assert.match(ics, /ORGANIZER;CN=Host H:mailto:h@x\.test/);

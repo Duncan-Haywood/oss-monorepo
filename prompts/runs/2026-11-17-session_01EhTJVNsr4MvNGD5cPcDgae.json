@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVNsr4MvNGD5cPcDgae",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T18:12:07Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "photo-editing: crop-tolerant burst grouping in the cull (NEXT.md, 'From the cull showcase')",
+  "projects": [
+    "photo-editing"
+  ],
+  "pr": 17018,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "system PIL under /usr/lib/python3/dist-packages lacks _imaging for /usr/local/bin/python3",
+      "fix": "a scratch venv with pillow for tools/cull_showcase.py"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "photo-editing buildable: is 586 of 600 characters, so a new buildable item (cull zoom windows) could not be added; it went to NEXT.md instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "why": "The row's buildable item (card floor on raw.pixls.us multi-frame sets) needs raw.pixls.us, which allocate.py probed as REFUSED this session. Took a NEXT.md item of the same flagship that is user-facing for culling (the commercial core of tools like Aftershoot) and buildable from github.com.",
+      "did": "crop-tolerant grouping in shootflow cull, evaluated on 331 real photos split tune/held",
+      "result": "held-out burst-pair recall 0.40 to 0.72; distinct-photo false merges 21 to 23 of 13,695"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-photo-editing-crop-tolerant-burst-grouping.md",
+    "ventures/photo-editing/eval/cull-crop-grouping-2026-11-17.md"
+  ],
+  "goal": "Make the cull keep a burst the camera panned or zoomed a few percent through as one group, without merging distinct photos.",
+  "notes": "Eval: PYTHONPATH=src python3 tools/cull_crop_grouping_eval.py on drewnoakes/metadata-extractor-images jpg/ at 7b56b649 (331 decodable). Constants chosen on even-index photos only. python3 platform/ci/run_venture_tests.py photo-editing: ok, 1299 tests, 9 skipped, 143.9 s. Showcase rerun unchanged: building_c 4% corner zoom is 7 on the best window pair vs the rule's 6; zooms are the open item.",
+  "corrections": [],
+  "redteam": null
+}

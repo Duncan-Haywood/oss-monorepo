@@ -1,8 +1,8 @@
 # sensing-bafocal: does bundle adjustment that solves for the focal length survive a wrong assumed focal length or unmodelled lens distortion?
 
-Photo sets carry a focal length in EXIF that can be a few percent off, and real lenses bend straight lines. If the solver is told a wrong focal length, how much reconstruction error does that cost once bundle adjustment is running, and does adding the focal length (and one radial term) to the unknowns recover it? On the `sensing-ba` rig (12 views, 0.5 px noise, every camera pose wrong), **a focal length told 5% wrong costs a fixed-intrinsics adjustment 0.0018 object radii against 0.0014 for the true focal (1.2×), 20% wrong costs 0.0039 (2.7×), and a shared focal length solved for in the adjustment returns 0.0014 at every start with the focal recovered to 0.3%. With barrel distortion `k1 = −0.3` left unmodelled the error is 0.0034; solving for `k1` too gives 0.0015. The gain vanishes at 2 px of noise and above, and with 4 views nothing helps (0.0078 against 0.0068 for the true focal, focal off by 2.4%)** (numpy and scipy; 6 tests).
+Photo sets carry a focal length in EXIF that can be a few percent off, and real lenses bend straight lines. If the solver is told a wrong focal length, how much reconstruction error does that cost once bundle adjustment is running, and does adding the focal length (and one radial term) to the unknowns recover it? On the `sensing-ba` rig (12 views, 0.5 px noise, every camera pose wrong), **a focal length told 5% wrong costs a fixed-intrinsics adjustment 0.0018 object radii against 0.0014 for the true focal (1.2×), 20% wrong costs 0.0039 (2.7×), and a shared focal length solved for in the adjustment returns 0.0014 at every start with the focal recovered to 0.3%. With barrel distortion `k1 = −0.3` left unmodelled the error is 0.0034; solving for `k1` too gives 0.0015. The gain vanishes at 2 px of noise and above, and with 4 views nothing helps (0.0078 against 0.0068 for the true focal, focal off by 2.4%)** (numpy and scipy; 7 tests).
 
-This takes the "focal-length and distortion as unknowns" item from the "Next steps" of `sensing-ba` and `sensing-baoutlier`. It is a new question (self-calibration), not another seed or dataset.
+This takes the "focal-length and distortion as unknowns" item from the "Next steps" of `sensing-ba` and `sensing-baoutlier`. It is new to this repository (self-calibration), not another seed or dataset; it is not new to the field. Solving for an EXIF-seeded focal length and radial terms inside bundle adjustment is the default in Bundler (Snavely, Seitz and Szeliski 2006, "Photo tourism", SIGGRAPH) and COLMAP (Schönberger and Frahm 2016, "Structure-from-motion revisited", CVPR), and self-calibrating adjustment goes back to photogrammetry (Fraser 1997, "Digital camera self-calibration", *ISPRS J. Photogramm.* 52(4)). What this adds is a controlled measurement of how much each error costs on one rig. The quality audit ([`portfolio/quality/audits/2026-11-12-sensing-bafocal.json`](../../portfolio/quality/audits/2026-11-12-sensing-bafocal.json)) found the focal errors within 1.6× of the Cramér-Rao bound.
 
 **Live page:** https://marisstella.app/research/sensing-bafocal/
 
@@ -19,17 +19,17 @@ This takes the "focal-length and distortion as unknowns" item from the "Next ste
 ```bash
 pip install numpy scipy matplotlib pytest
 cd research/sensing-bafocal
-PYTHONPATH=src python -m pytest -q tests   # 6 tests
-python experiments/run.py                  # writes experiments/results.txt (about 2 min)
+PYTHONPATH=src python -m pytest -q tests   # 7 tests
+python experiments/run.py                  # writes experiments/results.txt (under a minute)
 python experiments/figure.py               # writes experiments/error_vs_focal_error.svg
 ```
 
 ## Results (from `experiments/results.txt`)
-- **Free poses absorb most of a wrong focal length.** Triangulation from wrong poses is 0.012 whatever the focal; the fixed-focal adjustment reaches 0.0015 at ±2%, 0.0018 at ±5%, 0.0025 to 0.0027 at ±10% and 0.0039 to 0.0049 at ±20%, against 0.0014 with the true focal. A wrong focal is largely traded against camera distance, which the adjustment can move.
+- **Free poses absorb most of a wrong focal length.** Triangulation from wrong poses is 0.012 to 0.014 whatever the focal; the fixed-focal adjustment reaches 0.0015 at ±2%, 0.0018 at ±5%, 0.0025 to 0.0027 at ±10% and 0.0039 to 0.0049 at ±20%, against 0.0014 with the true focal. A wrong focal is largely traded against camera distance, which the adjustment can move.
 - **Solving for the focal removes the rest.** `selfcal` is 0.0014 at every start from −20% to +20% and recovers the focal to 0.32%. Gain over `fixed`: 1.0× at ±2%, 1.2 to 1.3× at ±5%, 1.7 to 1.8× at ±10%, 2.7 to 3.4× at ±20%.
 - **The gain needs low noise.** With the focal 5% off, `fixed/selfcal` is 3.6× at 0.1 px, 1.2× at 0.5 px and about 1.0× from 1 px up; the focal estimate then degrades from 0.06% to 2.7% (4 px) but the error is set by pixel noise either way.
 - **Four views are too few.** At 4 views `fixed`, `selfcal` and `oracle` are 0.0078, 0.0078 and 0.0068 and the focal is 2.4% off; from 6 views the focal is within 0.4% and `selfcal` equals `oracle`. Same threshold as `sensing-ba` found for poses.
-- **Unmodelled barrel distortion costs more than a wrong focal.** With the focal correct, `k1` of −0.05, −0.1, −0.2, −0.3 gives `fixed` 0.0015, 0.0018, 0.0025, 0.0034 against 0.0014; solving for `k1` returns 0.0015 throughout and estimates `k1` to within 0.005. (The focal estimate is 0.9% off in this section, so adding `k1` and `f` free costs a little at `k1 = 0`: 0.0015 against 0.0014.)
+- **Unmodelled barrel distortion costs more than a wrong focal.** With the focal correct, `k1` of −0.05, −0.1, −0.2, −0.3 gives `fixed` 0.0015, 0.0018, 0.0025, 0.0034 against 0.0014; solving for `k1` returns 0.0015 throughout, and the 6-seed mean of the `k1` estimate is within 0.005 of the truth; single seeds scatter more (at `k1 = −0.2`: −0.156 to −0.259, sd 0.040, so the mean's standard error is about 0.016 and the 0.005 agreement is partly luck). (The focal estimate is 0.9% off in this section, so adding `k1` and `f` free costs a little at `k1 = 0`: 0.0015 against 0.0014.)
 
 ![Surface error against the told focal length error](experiments/error_vs_focal_error.svg)
 

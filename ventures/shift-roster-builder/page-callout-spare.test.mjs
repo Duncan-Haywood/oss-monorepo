@@ -9,7 +9,7 @@ const page = (name) => readFileSync(new URL(`./${name}`, import.meta.url), "utf8
 
 test("call-out page's table is what the engine returns for the sample cafe with a spare part-timer", () => {
   const b = study(WITH_SPARE());
-  assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 1, 18, 13, 24]);
+  assert.deepEqual([b.cases, b.patched, b.covered, Math.min(...b.moves), Math.max(...b.moves)], [32, 0, 20, 9, 21]);
   const html = page("how-to-cover-a-shift-when-someone-calls-out.html");
-  for (const t of ["32", "13 to 24", "18 of 32"]) assert.ok(html.includes(t), t);
+  for (const t of ["32", "9 to 21", "20 of 32"]) assert.ok(html.includes(t), t);
 });

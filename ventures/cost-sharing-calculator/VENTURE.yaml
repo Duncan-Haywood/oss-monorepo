@@ -1,0 +1,63 @@
+name: cost-sharing-calculator
+description: >-
+  Free browser tool, CLI and agent call for anyone splitting a shared cost
+  (neighbours on a private road, towns sharing a plant, a shared ride, a
+  joint purchase) and for students of cooperative game theory: the Shapley
+  value, the nucleolus and the core of the cost game, SCRB and ENSC, a
+  road mode that splits each stretch among those who use it, and a claims
+  mode that divides an estate by the Talmud rule. Checked against an
+  independent scipy solver. Nothing is uploaded.
+stage: prototype
+owner: duncan
+
+# Built 2026-11-17 on an explore run as a research-algorithm tool: no
+# venture README mentioned the Shapley value, the nucleolus or the core
+# (searched 1,387). Implemented from Shapley 1953, Schmeidler 1969,
+# Maschler, Peleg & Shapley 1979, Young, Okada & Hashimoto 1982,
+# Littlechild & Owen 1973, Aumann & Maschler 1985 and O'Neill 1982; no
+# third-party code was ported. scipy 1.18.1 was used only to produce
+# eval/reference.json. Example data: Mishnah Ketubot 10:4 (public domain)
+# plus two labelled made-up examples; data/SOURCE.md.
+#
+# First visitor: searches such as "how to split private road maintenance
+# costs", "shared driveway cost split", "Shapley value calculator",
+# "nucleolus calculator", "fair way to split shared costs", "Talmud
+# bankruptcy problem". Volume not measured with an external tool.
+#
+# Alternatives: cooperative game theory packages in R and Python (need
+# code), online Shapley value calculators (not surveyed for this file), and
+# road maintenance agreement templates (one fixed rule each). Differentiators here: no install,
+# the nucleolus and a core check on every split, a road mode with a closed
+# form at any size, missing groups filled by their cheapest split.
+#
+# Liability: arithmetic from supplied numbers, not legal, tax or financial
+# advice; the page says agreements, deeds, statutes and courts govern, and
+# that insolvency law usually divides pro rata. Data never leave the
+# browser (tests assert no network calls).
+
+hypotheses:
+  - claim: >-
+      Neighbours and small groups arguing over a shared cost will use a
+      no-install tool that shows each split's fairness check, and the road
+      mode will be the most used.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a Shapley value or nucleolus that differs from an established implementation on the same game, and the cause is a bug that cannot be fixed.
+
+links:
+  production: https://marisstella.app/cost-sharing-calculator/
+  analytics: null

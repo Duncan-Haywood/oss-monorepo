@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqydcqLDo3YguHcuiYCi",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T18:37:26Z",
+  "ended": "2026-11-12T18:48:59Z",
+  "wall_minutes": 11.79,
+  "tokens_in": 8069420,
+  "tokens_out": 37829,
+  "cost_usd": 3.5918,
+  "tool_calls": 63,
+  "task": "Deepen (flagship 5) einvoice-preflight: PL_010 IBS/CBS reform groups in the NF-e checker",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15221",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 7,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "new post's description was 190 characters; check_post_frontmatter.py caps it at 160",
+      "fixed": "shortened before merge"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/nfe-xsd-diff.mjs",
+      "issue": "Random mutation over the whole tree put only a few percent of mutants in a newly added layout part, so a schema upgrade could not be measured where it changed; added --under to aim the mutants."
+    },
+    {
+      "file": "ventures/einvoice-preflight/README.md",
+      "issue": "The README said fixtures/nfe-4.00-invoice.xml was validated 'with a signature block added' but did not say how; I spliced the ds:Signature from sped-nfe's nfe_layout4.xml (xmllint does not verify it)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-checking-brazils-ibs-cbs-totals.md",
+    "ventures/einvoice-preflight/README.md (The IBS/CBS reform layout)"
+  ],
+  "goal": null,
+  "notes": "Verification: xmllint on PL_009_V4 vs PL_010_V1.30 for all 35 corpus files (NFe element extracted): identical error counts except nfelib's reform sample (3 -> 0). eval/nfe-xsd-diff.mjs on PL_010_V1.30: 4 old seeds --per 650 -> 2563/2563 agree; reform fixture signed, --under IBSCBS,IBSCBSTot,vItem,vNFTot --per 1000 -> 969/969; nfelib reform sample --under (+IS,ISTot) --per 1500 -> 1455/1455. node --test nfe.test.mjs 21/21 (incl. corpus 17 clean, 153/153 seeded); 60/60 over nfe, brazil page, brazil, report, page and hub tests; run_venture_tests.py einvoice-preflight ok. build-nfe-schema.mjs downloaded from the pinned commit reproduces nfe-xsd-data.mjs byte for byte. No consistent real reform NF-e found: nfelib's sample doesn't add up (flagged by BR-050/051), and sped-nfe's examples/fixtures PL_010 files are XMLSpy 'string' templates.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "945fdfaa-ec66-5694-bffa-390c4683960c",
+    "transcripts": 1,
+    "first": "2026-11-12T18:37:26Z",
+    "last": "2026-11-12T18:49:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 119,
+        "output": 37829,
+        "thinking": 7168,
+        "cache_read": 7912778,
+        "cache_write_5m": 0,
+        "cache_write_1h": 156523,
+        "api_equivalent_usd": 3.5918,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 119,
+      "output": 37829,
+      "thinking": 7168,
+      "cache_read": 7912778,
+      "cache_write_5m": 0,
+      "cache_write_1h": 156523,
+      "api_equivalent_usd": 3.5918,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 60,
+      "ToolSearch": 1,
+      "Write": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.79,
+      "active_minutes": 11.79,
+      "model_minutes": 5.96,
+      "tool_minutes": 5.83,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an engineer reading the PL_010 XSDs and sped-nfe totaliser, writing three sum rules, a fixture and an xmllint differential",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 278.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

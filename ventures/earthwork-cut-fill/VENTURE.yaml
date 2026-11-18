@@ -1,0 +1,37 @@
+name: earthwork-cut-fill
+description: Free browser tool and CLI that turns survey shots into a Delaunay TIN and computes exact cut and fill volumes against a flat or sloped pad or a proposed-grade surface, inside any boundary, with topsoil strip, shrink and swell, the balancing pad elevation, and export or import in truckloads.
+stage: prototype
+owner: duncan
+
+hypotheses:
+  - claim: Small site-work contractors and builders who get a surveyor's point file but have no Civil 3D or Carlson seat estimate pad dirt by hand or by eye, and a free tool that reads the PNEZD file directly saves them that work on every bid.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: The balance elevation with shrink is the number that changes decisions, because it moves the pad to where nothing is hauled.
+    status: untested
+    checked: null
+    evidence: customer-contact
+  - claim: Searches such as "cut and fill calculator" and "earthwork volume from survey points" are a reachable free channel once the pages are in the catalogue's sitemap.
+    status: untested
+    checked: null
+    evidence: in-repo
+
+economics:
+  currency: USD
+  mrr: null
+  # Every calculation runs in the visitor's browser; one more visitor costs a static file.
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - No real point file from a surveyor or data collector parses after three attempts with real exports.
+  - Fewer than three contractors or estimators use it on a real site within 90 days of it being discoverable.
+
+links:
+  production: https://marisstella.app/earthwork-cut-fill/
+  analytics: null

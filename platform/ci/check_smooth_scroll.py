@@ -20,7 +20,7 @@ GUARD = 'behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "aut
 
 def scan(root):
     for p in sorted(Path(root).glob("ventures/*/**/*.html")):
-        if "node_modules" in p.parts:
+        if not {"node_modules", ".next"}.isdisjoint(p.parts):
             continue
         s = p.read_text(encoding="utf-8", errors="replace")
         if PAT.search(s):

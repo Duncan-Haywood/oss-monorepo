@@ -1,11 +1,11 @@
 // An in-memory stand-in for browser.mjs's driver: the paint-estimator fixture
 // as plain state, so the agent loop, steps and smoke check are tested without
 // a browser. `broken: true` makes Calculate do nothing (the defect sweep.mjs
-// exists for).
+// exists for). `nan: true` makes it print NaN, `blank: true` serves an empty page.
 
-export function fakeDriver({ broken = false, url = 'http://app.test/' } = {}) {
+export function fakeDriver({ broken = false, nan = false, blank = false, url = 'http://app.test/' } = {}) {
   const state = { url, width: '', height: '', coats: '1', result: '', log: [] };
-  const elements = () => [
+  const elements = () => blank ? [] : [
     { ref: 1, tag: 'input', type: 'number', name: 'Wall width (ft)', value: state.width },
     { ref: 2, tag: 'input', type: 'number', name: 'Wall height (ft)', value: state.height },
     { ref: 3, tag: 'select', name: 'Coats', value: state.coats, options: ['1', '2', '3'] },
@@ -13,7 +13,7 @@ export function fakeDriver({ broken = false, url = 'http://app.test/' } = {}) {
     { ref: 5, tag: 'a', name: 'Pricing', href: '/pricing' },
     { ref: 6, tag: 'a', name: 'Elsewhere', href: 'https://other.test/' },
   ];
-  const text = () => `Paint estimator ${state.result}`.trim();
+  const text = () => blank ? '' : `Paint estimator ${state.result}`.trim();
   const byName = name => elements().find(e => e.name === name);
   const fields = { 1: 'width', 2: 'height' };
   const d = {
@@ -28,7 +28,8 @@ export function fakeDriver({ broken = false, url = 'http://app.test/' } = {}) {
       state.log.push(`click ${ref}`);
       if (ref === 4) {
         if (broken) return;
-        const w = Number(state.width), h = Number(state.height);
+        const w = Number(state.width), h = nan ? NaN : Number(state.height);
+        if (nan) { state.result = `You need ${w * h} gallons of paint.`; return; }
         state.result = w > 0 && h > 0 ? `You need ${Math.ceil(w * h * Number(state.coats) / 35) / 10} gallons of paint.` : 'Enter a width and a height.';
       } else if (ref === 5) state.url = new URL('/pricing', state.url).href;
       else if (ref > 6) throw new Error(`locator [data-uitest-ref="${ref}"] not found\nCall log: ...`);

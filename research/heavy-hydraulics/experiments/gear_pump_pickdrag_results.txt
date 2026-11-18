@@ -1,0 +1,67 @@
+Milestone 7f: the drag read where the fuel optimum picks its pumps (kW_w, idle kW averaged over 7e's picks) and the shape read at each pick's own outlet pressure (k_wp), scored as 7e
+(motion: fuxi-robot/excavator-motion folder 75, CC BY-NC-SA 4.0; load-sensing pump: Kauranne 2022, Energies 15:4030, Fig. 13, CC BY; gear pumps and drive loss as gear_pump_stepup.py)
+
+Picks reused from 7e: 2304 (median 72.0 L/min, mean 72.3); outlet pressure at the picks p10 142, median 151, p90 171 bar
+
+Variants (idle kW at 85 L/min; pick-weighted idle kW; ratio; k_w at 150 bar; k_wp at the picks' pressures; diagonal E50):
+  variant        group      kW85    kW_w    kW_w/kW85  k_w      k_wp     E50
+  casappa        casappa     3.57    2.81      0.786  -0.0181  -0.0149  0.8277
+  danfoss        danfoss     3.64    3.15      0.867  -0.0180  -0.0192  0.8297
+  marzocchi      marzocchi   3.32    2.85      0.858  +0.0034  +0.0040  0.8193
+  bench          bench       2.85    2.35      0.825  +0.0000  +0.0003  0.8116
+  rexroth        rexroth     2.58    2.08      0.807  +0.0009  +0.0004  0.8040
+  azpu           azpu        2.45    2.01      0.819  +0.0003  +0.0002  0.8030
+  azpf           azpf        2.61    2.14      0.820  +0.0004  -0.0001  0.8075
+  azpf_spin      azpf        2.99    2.32      0.774  +0.0037  +0.0030  0.8075
+  azpf_gear      azpf        3.13    2.42      0.774  +0.0046  +0.0040  0.8094
+  azpf_gear98    azpf        3.41    2.64      0.774  +0.0065  +0.0060  0.8093
+  azpn           azpn        2.49    2.05      0.821  -0.0095  -0.0103  0.8050
+  azpn_spin      azpn        2.61    2.08      0.799  -0.0056  -0.0064  0.8031
+  azpn_gear      azpn        2.73    2.12      0.778  -0.0008  -0.0016  0.7988
+  azpn_gear98    azpn        2.98    2.21      0.741  +0.0091  +0.0082  0.7879
+
+(i) pooled fits on all 196 cells
+  one : coefficients +0.8090; in-sample RMS 0.0087
+  two : coefficients +0.7582, +0.0172; in-sample RMS 0.0055
+  w   : coefficients +0.7575, +0.0172, -0.4269; in-sample RMS 0.0044
+  dw  : coefficients +0.7605, +0.0204; in-sample RMS 0.0051
+  dww : coefficients +0.7598, +0.0204, -0.4269; in-sample RMS 0.0038
+  wp  : coefficients +0.7574, +0.0172, -0.4231; in-sample RMS 0.0045
+  dwp : coefficients +0.7597, +0.0204, -0.4231; in-sample RMS 0.0040
+
+(ii) pooled leave-one-maker-family-out (8 groups; the AZPF's and the AZPN's four readings held out together)
+  variant        diagonal      one      two        w       dw      dww       wp      dwp
+  casappa        0.8277    +0.0202  +0.0088  +0.0020  +0.0109  +0.0041  +0.0037  +0.0058
+  danfoss        0.8297    +0.0219  +0.0099  -0.0001  +0.0030  -0.0070  -0.0015  -0.0084
+  marzocchi      0.8193    +0.0110  +0.0047  +0.0070  +0.0009  +0.0032  +0.0074  +0.0036
+  bench          0.8116    +0.0027  +0.0047  +0.0055  +0.0033  +0.0040  +0.0057  +0.0043
+  rexroth        0.8040    -0.0054  +0.0016  +0.0028  +0.0010  +0.0022  +0.0027  +0.0021
+  azpu           0.8030    -0.0065  +0.0031  +0.0040  +0.0016  +0.0025  +0.0040  +0.0026
+  azpf           0.8075    -0.0015  +0.0045  +0.0066  +0.0036  +0.0056  +0.0064  +0.0054
+  azpf_spin      0.8075    -0.0015  -0.0027  +0.0010  -0.0003  +0.0035  +0.0006  +0.0031
+  azpf_gear      0.8094    +0.0004  -0.0035  +0.0007  -0.0007  +0.0035  +0.0003  +0.0032
+  azpf_gear98    0.8093    +0.0003  -0.0091  -0.0039  -0.0055  -0.0003  -0.0042  -0.0006
+  azpn           0.8050    -0.0074  +0.0016  -0.0007  +0.0006  -0.0016  -0.0008  -0.0018
+  azpn_spin      0.8031    -0.0093  -0.0021  -0.0032  -0.0019  -0.0031  -0.0034  -0.0033
+  azpn_gear      0.7988    -0.0137  -0.0085  -0.0082  -0.0071  -0.0068  -0.0085  -0.0071
+  azpn_gear98    0.7879    -0.0246  -0.0234  -0.0204  -0.0196  -0.0165  -0.0207  -0.0168
+  RMS over 14 diagonals: one 0.0120, two 0.0084, w 0.0069, dw 0.0067, dww 0.0059, wp 0.0071, dwp 0.0062  (check against 7e: two -0.0000, w -0.0000)
+  RMS over the 8 held diagonals only: one 0.0119, two 0.0056, w 0.0043, dw 0.0044, dww 0.0042, wp 0.0046, dwp 0.0047
+
+(iii) the 7a, 7b and 7c eight-family panels alone, leave-one-family-out (64 cells each)
+  held (7a)    diagonal RMS: one 0.0113, two 0.0022, w 0.0017, dw 0.0034, dww 0.0034, wp 0.0018, dwp 0.0037  (check against 7e: two +0.0000, w -0.0000)
+    diagonal errors two / dww: casappa +0.0037 / +0.0071, danfoss +0.0041 / -0.0055, marzocchi +0.0004 / +0.0006, bench +0.0006 / +0.0021, rexroth -0.0027 / -0.0003, azpu -0.0011 / -0.0001, azpf +0.0008 / +0.0023, azpn +0.0003 / -0.0013
+  spun (7b)    diagonal RMS: one 0.0115, two 0.0035, w 0.0026, dw 0.0037, dww 0.0036, wp 0.0028, dwp 0.0040
+    diagonal errors two / dww: casappa +0.0048 / +0.0076, danfoss +0.0052 / -0.0055, marzocchi +0.0014 / +0.0010, bench +0.0019 / +0.0024, rexroth -0.0012 / +0.0000, azpu +0.0006 / +0.0003, azpf_spin -0.0055 / -0.0003, azpn_spin -0.0028 / -0.0029
+  geared (7c)  diagonal RMS: one 0.0121, two 0.0051, w 0.0042, dw 0.0046, dww 0.0044, wp 0.0044, dwp 0.0049
+    diagonal errors two / dww: casappa +0.0059 / +0.0079, danfoss +0.0064 / -0.0058, marzocchi +0.0024 / +0.0019, bench +0.0030 / +0.0031, rexroth -0.0000 / +0.0009, azpu +0.0019 / +0.0012, azpf_gear -0.0054 / +0.0004, azpn_gear -0.0093 / -0.0067
+
+Predictions (LOG.md 7f):
+  DP1 pooled dw diagonal RMS below two-number: held (0.0067 against 0.0084, -20%)
+  DP2 pooled dww diagonal RMS at least 20% below two-number: held (0.0059 against 0.0084, -29%)
+  DP3 pooled dw kW_w slope positive: held (+0.0204)
+  DP4 geared AZPN (sourced) within +-0.005 under dww, pooled out of sample: refuted (-0.0068; two-number -0.0085, w -0.0082)
+  DP5 wp and w differ by at most 0.0005 in pooled diagonal RMS: held (0.0071 against 0.0069)
+  DP6 held panel dww diagonal RMS at most 0.0030: refuted (0.0034)
+
+Sources: as gear_pump_stepup.py.

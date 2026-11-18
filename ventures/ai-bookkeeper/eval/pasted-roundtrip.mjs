@@ -15,7 +15,8 @@ for (let seed = 1; seed <= seeds; seed++) {
   const r = readStatement(out.join("\n"));
   rows += lines.length;
   if (r.rows.length !== lines.length) { wrong += Math.abs(lines.length - r.rows.length); console.log(`seed ${seed}: ${lines.length} lines written, ${r.rows.length} read`); }
-  if (w && (x.cents !== w.cents || x.date !== w.date || x.desc.replace(/\s+/g, " ") !== w.desc.replace(/\s+/g, " "))) wrong++; });
+  r.rows.forEach((x, i) => { const w = lines[i];
+    if (w && (x.cents !== w.cents || x.date !== w.date || x.desc.replace(/\s+/g, " ") !== w.desc.replace(/\s+/g, " "))) wrong++; });
 }
 console.log(`${seeds} seeds, ${rows} rows, ${wrong} wrong (cents, date or description)`);
 process.exitCode = wrong ? 1 : 0;

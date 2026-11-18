@@ -1,0 +1,195 @@
+{
+  "replications": 20000,
+  "seed": 2026,
+  "cases": [
+    {
+      "chart": "xbar-r",
+      "points": 25,
+      "subgroup": 5,
+      "anySignal": {
+        "rule 1 only": {
+          "either": {
+            "p": 0.1542,
+            "se": 0.0026
+          },
+          "locationChart": {
+            "p": 0.0687,
+            "se": 0.0018
+          },
+          "dispersionChart": {
+            "p": 0.0933,
+            "se": 0.0021
+          }
+        },
+        "rules 1 and 2": {
+          "either": {
+            "p": 0.1668,
+            "se": 0.0026
+          },
+          "locationChart": {
+            "p": 0.0823,
+            "se": 0.0019
+          },
+          "dispersionChart": {
+            "p": 0.0933,
+            "se": 0.0021
+          }
+        },
+        "rules 1, 2, 5, 6 (Western Electric style)": {
+          "either": {
+            "p": 0.2177,
+            "se": 0.0029
+          },
+          "locationChart": {
+            "p": 0.1389,
+            "se": 0.0024
+          },
+          "dispersionChart": {
+            "p": 0.0933,
+            "se": 0.0021
+          }
+        },
+        "all eight Nelson rules": {
+          "either": {
+            "p": 0.286,
+            "se": 0.0032
+          },
+          "locationChart": {
+            "p": 0.214,
+            "se": 0.0029
+          },
+          "dispersionChart": {
+            "p": 0.0933,
+            "se": 0.0021
+          }
+        }
+      }
+    },
+    {
+      "chart": "imr",
+      "points": 25,
+      "subgroup": 1,
+      "anySignal": {
+        "rule 1 only": {
+          "either": {
+            "p": 0.1765,
+            "se": 0.0027
+          },
+          "locationChart": {
+            "p": 0.0602,
+            "se": 0.0017
+          },
+          "dispersionChart": {
+            "p": 0.1478,
+            "se": 0.0025
+          }
+        },
+        "rules 1 and 2": {
+          "either": {
+            "p": 0.1842,
+            "se": 0.0027
+          },
+          "locationChart": {
+            "p": 0.0703,
+            "se": 0.0018
+          },
+          "dispersionChart": {
+            "p": 0.1478,
+            "se": 0.0025
+          }
+        },
+        "rules 1, 2, 5, 6 (Western Electric style)": {
+          "either": {
+            "p": 0.2399,
+            "se": 0.003
+          },
+          "locationChart": {
+            "p": 0.1411,
+            "se": 0.0025
+          },
+          "dispersionChart": {
+            "p": 0.1478,
+            "se": 0.0025
+          }
+        },
+        "all eight Nelson rules": {
+          "either": {
+            "p": 0.2892,
+            "se": 0.0032
+          },
+          "locationChart": {
+            "p": 0.1989,
+            "se": 0.0028
+          },
+          "dispersionChart": {
+            "p": 0.1478,
+            "se": 0.0025
+          }
+        }
+      }
+    },
+    {
+      "chart": "imr",
+      "points": 100,
+      "subgroup": 1,
+      "anySignal": {
+        "rule 1 only": {
+          "either": {
+            "p": 0.625,
+            "se": 0.0034
+          },
+          "locationChart": {
+            "p": 0.2337,
+            "se": 0.003
+          },
+          "dispersionChart": {
+            "p": 0.5753,
+            "se": 0.0035
+          }
+        },
+        "rules 1 and 2": {
+          "either": {
+            "p": 0.6663,
+            "se": 0.0033
+          },
+          "locationChart": {
+            "p": 0.3301,
+            "se": 0.0033
+          },
+          "dispersionChart": {
+            "p": 0.5753,
+            "se": 0.0035
+          }
+        },
+        "rules 1, 2, 5, 6 (Western Electric style)": {
+          "either": {
+            "p": 0.7625,
+            "se": 0.003
+          },
+          "locationChart": {
+            "p": 0.5474,
+            "se": 0.0035
+          },
+          "dispersionChart": {
+            "p": 0.5753,
+            "se": 0.0035
+          }
+        },
+        "all eight Nelson rules": {
+          "either": {
+            "p": 0.8438,
+            "se": 0.0026
+          },
+          "locationChart": {
+            "p": 0.7089,
+            "se": 0.0032
+          },
+          "dispersionChart": {
+            "p": 0.5753,
+            "se": 0.0035
+          }
+        }
+      }
+    }
+  ]
+}

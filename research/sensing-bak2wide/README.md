@@ -16,7 +16,7 @@
 pip install numpy scipy pytest
 cd research/sensing-bak2wide
 PYTHONPATH=src python -m pytest -q tests   # 4 tests
-python experiments/run.py                  # writes experiments/results.txt (about 3 min)
+python experiments/run.py                  # writes experiments/results.txt (under a minute: 47 s in the 2026-11-13 audit)
 ```
 
 ## Results (from `experiments/results.txt`)
@@ -32,7 +32,8 @@ python experiments/run.py                  # writes experiments/results.txt (abo
 ## Limitations
 - **Synthetic, one object, no real images**, and the lens values are swept, not measured. The wide rig is a closer camera, so perspective distortion of the bumpy ellipsoid rises with the radius; field of view and range change together and this does not separate them.
 - **Distortion only on the rendering side is radial**; no decentring, no principal-point error and one focal shared by all views. A wrong principal point would trade with `k1` and `k2` and is the obvious next failure.
-- Correct matches, good starting poses, six seeds; the standard deviations are over only six.
+- Correct matches, good starting poses, six seeds; the standard deviations are over only six and are population sd (`np.std`, ddof=0), about 9% below the sample sd.
+- **Prior work and an analytic check are missing** (quality audit, [`2026-11-13-sensing-bak2wide.json`](../../portfolio/quality/audits/2026-11-13-sensing-bak2wide.json)): that `k2` is only identifiable when points reach the outer field is standard calibration practice (Brown 1971; Fraser 1997; Zhang 2000; Remondino & Fraser 2006). A one-line estimate predicts it here: the `k2` term moves an edge point about 0.35 px at distance 4, below the 0.5 px noise, and about 17 px at distance 2. The result reproduces; it is not new.
 
 ## Next steps
 A principal-point offset and per-camera focals on the wide rig; the same fit on an openly licensed multi-view set with a published calibration (not reachable from this container, whose egress allows few hosts); a rig that widens the angle of view at a fixed range, to separate it from perspective.

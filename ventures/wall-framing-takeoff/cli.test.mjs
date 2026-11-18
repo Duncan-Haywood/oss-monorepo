@@ -151,6 +151,19 @@ test("a DXF floor plan goes straight to a takeoff, or to plan JSON with --plan-o
   assert.equal(run(["house.dxf"], g(0, "EOF")).code, 2);
 });
 
+test("--stack takes a drawing as a floor, as the first file does, and a missing file stops it", () => {
+  const g = (c, v) => `${c}\n${v}\n`;
+  const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
+  const box = (w, d) => g(0, "SECTION") + g(2, "ENTITIES") + L("WALL", 0, 0, w, 0) + L("WALL", w, 0, w, d) + L("WALL", w, d, 0, d) + L("WALL", 0, d, 0, 0) + g(0, "ENDSEC");
+  const files = { "a.dxf": box(480, 336), "b.dxf": box(360, 240) };
+  const rd = (p) => { if (!(p in files)) throw new Error(`no file ${p}`); return files[p]; };
+  const r = main(["a.dxf", "--stack=b.dxf"], rd);
+  assert.equal(r.code, 0);
+  assert.match(r.out, /Stacked 2 floors into one order \(a: 4 walls, b: 4 walls\)/);
+  assert.match(r.out, /8 walls/);
+  assert.equal(main(["a.dxf", "--stack=missing.dxf"], rd).code, 2);
+});
+
 test("--wall-layer reads a drawing whose layers are not named like wall", () => {
   const g = (c, v) => `${c}\n${v}\n`;
   const L = (l, a, b, c, d) => g(0, "LINE") + g(8, l) + g(10, a) + g(20, b) + g(11, c) + g(21, d);
@@ -342,7 +355,7 @@ test("a mistyped --rim-lap, --panel-max or --sheathing-psf is refused, not ignor
     assert.match(r.out, /is not a /, bad);
   }
   assert.equal(run(["plan.json", "--panel-max=12ft", "--panel-order"], ex).code, 0);
-  assert.equal(run(["plan.json", "--sheathing", "--sheathing-psf=2.5", "--rim-lap=9.25in"], ex).code, 0);
+  assert.equal(run(["plan.json", "--sheathing", "--panel-max=12ft", "--sheathing-psf=2.5", "--rim-lap=9.25in"], ex).code, 0);
 });
 
 test("--panel-max under 6 in or over 100 ft is refused with a reason", () => {
@@ -428,6 +441,12 @@ test("--orders prints order-by dates and flags late items against a given day", 
   assert.match(run(["plan.json", "--orders", "--csv"], plan).out, /^order_by,item/);
   const bad = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, orders: undefined } });
   assert.equal(bad.code, 1);
+  // the schedule's own reason is shown, not only "has problems"
+  const none = run(["plan.json", "--orders"], samplePlan());
+  assert.equal(none.code, 1);
+  assert.match(none.out, /must be an object with `activities`/);
+  const neg = run(["plan.json", "--orders"], { ...plan, schedule: { ...plan.schedule, activities: [{ id: "a", name: "Slab", days: -1 }] } });
+  assert.match(neg.out, /a: days must be zero or more/);
 });
 
 test("--json: a refusal prints {ok:false, errors} on stdout, keeps the exit code and the text on stderr", async () => {
@@ -580,4 +599,16 @@ test("--whole-house equals the four flags it stands for", () => {
   assert.equal(a.code, b.code);
   assert.equal(a.out, b.out);
   assert.match(a.out, /SKIPPED 1 WALL/);
+});
+
+test("--fixed-plan prints the plan after --skip-refused, without the refused wall, and stops", () => {
+  const plan = samplePlan();
+  plan.walls = [
+    { id: "Good", length: 192, stud: "2x4", openings: [] },
+    { id: "Bad", length: 120, stud: "2x4", openings: [{ kind: "door", label: "D", offset: 0, width: 36, height: 82.5, header: "2x6" }] },
+  ];
+  const r = main(["plan.json", "--skip-refused", "--fixed-plan"], () => JSON.stringify(plan));
+  assert.equal(r.code, 0, r.out);
+  const out = JSON.parse(r.out);
+  assert.deepEqual(out.walls.map((w) => w.id), ["Good"]);
 });

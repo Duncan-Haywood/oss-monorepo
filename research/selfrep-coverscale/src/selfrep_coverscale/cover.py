@@ -92,7 +92,7 @@ def random_search(rng, w, cov, pen, budget, evals):
 
 
 def local_search(rng, w, cov, pen, budget, restarts=5):
-    """Hill climb on add/drop/swap moves from random feasible starts; returns the best value found."""
+    """Hill climb on add/swap moves from random feasible starts; returns the best value found."""
     n = len(cov)
 
     def val(s):

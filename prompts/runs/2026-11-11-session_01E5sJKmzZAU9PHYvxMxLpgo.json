@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmzZAU9PHYvxMxLpgo",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T12:21:37Z",
+  "ended": "2026-11-11T13:27:58Z",
+  "wall_minutes": 66.53,
+  "tokens_in": 5737227,
+  "tokens_out": 25146,
+  "cost_usd": 2.3304,
+  "tool_calls": 69,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14786",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "My first alternating-pair script used `git rm -q` on a file staged by `git checkout HEAD~1 --`, which refused; that 'after2' run had both test files and was discarded and rerun."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "docs/history/ci-perf-2026-11-10-site-tests-local-reading.md",
+      "issue": "Its item 1 (share identical full builds) implied a wall-time win; the removed build was off the critical path, so only CPU moved. The note should have said which file bounds wall time."
+    },
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "'Measure first' does not say that on CI job-minutes track wall time, not CPU; a CPU-only saving does not reduce the pool figure the track exists to move."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-one-build-fewer-and-no-faster.md",
+    "docs/history/pages-test-perf-2026-11-11-determinism-one-child.md"
+  ],
+  "goal": null,
+  "notes": "Metric: platform/pages site-builder suite (node --test \"*.test.mjs\" \"cloudflare/*.test.mjs\"), 4-core sandbox, warm PAGES_CARD_CACHE, bash time, 3 alternating before/after pairs. Before mean: wall 289.2 s, user 447.7 s, sys 139.9 s. After mean: wall 289.6 s, user 386.2 s, sys 122.3 s. CPU -79 s (-13%), wall unchanged (bounded by build.test.mjs). 1550 tests, 1535 pass, 15 skipped, 0 fail in every run. Change: determinism test moved into build.test.mjs, one child build vs the shared build (three identical full builds to two). Pool reading ci_profile --runs 600: Test the site builder 108.4 job-min over 26 runs, median 282 s. Cold warm-up run found a red faq-duplicate on concrete-maturity, already fixed on main by #14778.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "343ba826-877a-5176-9852-116b7edd8cad",
+    "transcripts": 1,
+    "first": "2026-11-11T12:21:37Z",
+    "last": "2026-11-11T13:28:09Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 127,
+        "output": 25146,
+        "thinking": 6809,
+        "cache_read": 5649972,
+        "cache_write_5m": 0,
+        "cache_write_1h": 87128,
+        "api_equivalent_usd": 2.3304,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 127,
+      "output": 25146,
+      "thinking": 6809,
+      "cache_read": 5649972,
+      "cache_write_5m": 0,
+      "cache_write_1h": 87128,
+      "api_equivalent_usd": 2.3304,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.985,
+    "tool_calls": 69,
+    "tools": {
+      "Bash": 64,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 66.53,
+      "active_minutes": 66.53,
+      "model_minutes": 6.42,
+      "tool_minutes": 60.11,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "an engineer reading the suite, moving one test and timing three before/after pairs of a 5-minute suite",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 128.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

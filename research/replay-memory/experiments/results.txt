@@ -1,7 +1,14 @@
-E1 exact partial-replay curve vs simulation, d=12 r=4, m stored examples replayed every 3rd step (6000 runs)
- m=1: 0.0462/0.0462 0.0520/0.0522 0.0331/0.0328 0.0277/0.0275 0.0210/0.0206 0.0110/0.0117 0.0084/0.0088 0.0060/0.0063   (exact/sim, steps 1..8)
- m=2: 0.0462/0.0457 0.0520/0.0522 0.0218/0.0222 0.0213/0.0216 0.0172/0.0175 0.0061/0.0071 0.0054/0.0060 0.0042/0.0045   (exact/sim, steps 1..8)
- m=3: 0.0462/0.0464 0.0520/0.0520 0.0108/0.0105 0.0148/0.0149 0.0134/0.0136 0.0025/0.0030 0.0032/0.0035 0.0028/0.0030   (exact/sim, steps 1..8)
+E1 exact partial-replay curve vs simulation, d=12 r=4, m stored examples replayed every 3rd step (20000 runs each)
+   fixed buffer (V kept): exact/sim; fresh subset (new V at each replay): exact/sim
+ m=1 fixed: 0.0462/0.0461 0.0520/0.0522 0.0331/0.0329 0.0277/0.0276 0.0210/0.0210 0.0119/0.0117 0.0088/0.0088 0.0063/0.0062   (steps 1..8)
+ m=1 fresh: 0.0462/0.0462 0.0520/0.0520 0.0331/0.0330 0.0277/0.0278 0.0210/0.0211 0.0110/0.0111 0.0084/0.0084 0.0060/0.0061
+      max |exact-sim| fixed 0.0002, fresh 0.0002; fresh law vs fixed sim 0.0007
+ m=2 fixed: 0.0462/0.0464 0.0520/0.0524 0.0218/0.0221 0.0213/0.0213 0.0172/0.0172 0.0070/0.0071 0.0060/0.0059 0.0046/0.0045   (steps 1..8)
+ m=2 fresh: 0.0462/0.0462 0.0520/0.0522 0.0218/0.0216 0.0213/0.0211 0.0172/0.0172 0.0061/0.0061 0.0054/0.0054 0.0042/0.0043
+      max |exact-sim| fixed 0.0004, fresh 0.0002; fresh law vs fixed sim 0.0010
+ m=3 fixed: 0.0462/0.0461 0.0520/0.0525 0.0108/0.0108 0.0148/0.0148 0.0134/0.0134 0.0031/0.0031 0.0035/0.0035 0.0030/0.0030   (steps 1..8)
+ m=3 fresh: 0.0462/0.0461 0.0520/0.0525 0.0108/0.0109 0.0148/0.0148 0.0134/0.0134 0.0025/0.0024 0.0032/0.0032 0.0028/0.0028
+      max |exact-sim| fixed 0.0005, fresh 0.0005; fresh law vs fixed sim 0.0006
 
 E2 one replay at its best step: fraction of the full-memory saving kept with m of r stored examples
  d= 12 r= 4 peak lag   1.75  m/r=0.25: 0.226 (t*=2)  m/r=0.50: 0.465 (t*=2)  m/r=0.75: 0.722 (t*=2)  m/r=1.00: 1.000 (t*=2)
@@ -12,46 +19,49 @@ E2 one replay at its best step: fraction of the full-memory saving kept with m o
 
 E3 Bernoulli replay at rate q: total forgetting as a fraction of no replay, by memory m/r
  d=32 r=8
-   q=0.05: m=2: 0.966  m=4: 0.932  m=6: 0.899  m=8: 0.866
-   q=0.10: m=2: 0.933  m=4: 0.871  m=6: 0.811  m=8: 0.754
-   q=0.25: m=2: 0.844  m=4: 0.716  m=6: 0.605  m=8: 0.503
-   q=0.50: m=2: 0.721  m=4: 0.528  m=6: 0.378  m=8: 0.250
+   q=0.05: m=2: 0.967  m=4: 0.934  m=6: 0.901  m=8: 0.866   (fresh subset: 0.966 0.932 0.899)
+   q=0.10: m=2: 0.939  m=4: 0.878  m=6: 0.816  m=8: 0.754   (fresh subset: 0.933 0.871 0.811)
+   q=0.25: m=2: 0.874  m=4: 0.750  m=6: 0.626  m=8: 0.503   (fresh subset: 0.844 0.716 0.605)
+   q=0.50: m=2: 0.806  m=4: 0.617  m=6: 0.432  m=8: 0.250   (fresh subset: 0.721 0.528 0.378)
  d=128 r=16
-   q=0.05: m=4: 0.943  m=8: 0.891  m=12: 0.843  m=16: 0.797
-   q=0.10: m=4: 0.891  m=8: 0.800  m=12: 0.721  m=16: 0.651
-   q=0.25: m=4: 0.761  m=8: 0.598  m=12: 0.477  m=16: 0.383
-   q=0.50: m=4: 0.600  m=8: 0.394  m=12: 0.264  m=16: 0.171
+   q=0.05: m=4: 0.949  m=8: 0.899  m=12: 0.848  m=16: 0.797   (fresh subset: 0.943 0.891 0.843)
+   q=0.10: m=4: 0.912  m=8: 0.824  m=12: 0.737  m=16: 0.651   (fresh subset: 0.891 0.800 0.721)
+   q=0.25: m=4: 0.842  m=8: 0.687  m=12: 0.534  m=16: 0.383   (fresh subset: 0.761 0.598 0.477)
+   q=0.50: m=4: 0.787  m=8: 0.579  m=12: 0.373  m=16: 0.171   (fresh subset: 0.600 0.394 0.264)
 
 E4 fixed budget of c examples per step: rate c/m with m per replay. Best m and total fraction of no replay
  d=32 r=8
-   c=0.25: best m= 8 total 0.914   m=1: 0.918  m=4: 0.916  m=8: 0.914
-   c=0.50: best m= 8 total 0.836   m=1: 0.845  m=4: 0.842  m=8: 0.836
-   c=1.00: best m= 8 total 0.704   m=1: 0.723  m=4: 0.716  m=8: 0.704
-   c=2.00: best m= 8 total 0.503   m=4: 0.528  m=8: 0.503
+   c=0.25: best m= 8 total 0.914   m=1: 0.937  m=4: 0.919  m=8: 0.914   (fresh subset: m=1: 0.918 m=4: 0.916)
+   c=0.50: best m= 8 total 0.836   m=1: 0.902  m=4: 0.853  m=8: 0.836   (fresh subset: m=1: 0.845 m=4: 0.842)
+   c=1.00: best m= 8 total 0.704   m=1: 0.869  m=4: 0.750  m=8: 0.704   (fresh subset: m=1: 0.723 m=4: 0.716)
+   c=2.00: best m= 8 total 0.503   m=4: 0.617  m=8: 0.503   (fresh subset: m=4: 0.528)
  d=128 r=16
-   c=0.25: best m=16 total 0.929   m=1: 0.930  m=8: 0.930  m=16: 0.929
-   c=0.50: best m=16 total 0.865   m=1: 0.868  m=8: 0.867  m=16: 0.865
-   c=1.00: best m=16 total 0.757   m=1: 0.761  m=8: 0.759  m=16: 0.757
-   c=2.00: best m=16 total 0.592   m=8: 0.598  m=16: 0.592
+   c=0.25: best m=16 total 0.929   m=1: 0.960  m=8: 0.933  m=16: 0.929   (fresh subset: m=1: 0.930 m=8: 0.930)
+   c=0.50: best m=16 total 0.865   m=1: 0.946  m=8: 0.878  m=16: 0.865   (fresh subset: m=1: 0.868 m=8: 0.867)
+   c=1.00: best m=16 total 0.757   m=1: 0.937  m=8: 0.794  m=16: 0.757   (fresh subset: m=1: 0.761 m=8: 0.759)
+   c=2.00: best m=16 total 0.592   m=8: 0.687  m=16: 0.592   (fresh subset: m=8: 0.598)
  d=12 r=4
-   c=0.25: best m= 4 total 0.854   m=1: 0.865  m=2: 0.862  m=4: 0.854
-   c=0.50: best m= 4 total 0.732   m=1: 0.754  m=2: 0.747  m=4: 0.732
-   c=1.00: best m= 4 total 0.536   m=1: 0.581  m=2: 0.568  m=4: 0.536
-   c=2.00: best m= 4 total 0.274   m=2: 0.334  m=4: 0.274
+   c=0.25: best m= 4 total 0.854   m=1: 0.883  m=2: 0.868  m=4: 0.854   (fresh subset: m=1: 0.865 m=2: 0.862)
+   c=0.50: best m= 4 total 0.732   m=1: 0.810  m=2: 0.767  m=4: 0.732   (fresh subset: m=1: 0.754 m=2: 0.747)
+   c=1.00: best m= 4 total 0.536   m=1: 0.727  m=2: 0.625  m=4: 0.536   (fresh subset: m=1: 0.581 m=2: 0.568)
+   c=2.00: best m= 4 total 0.274   m=2: 0.465  m=4: 0.274   (fresh subset: m=2: 0.334)
  d=64 r=4
-   c=0.25: best m= 4 total 0.629   m=1: 0.631  m=2: 0.631  m=4: 0.629
-   c=0.50: best m= 4 total 0.442   m=1: 0.446  m=2: 0.445  m=4: 0.442
-   c=1.00: best m= 4 total 0.253   m=1: 0.259  m=2: 0.258  m=4: 0.253
-   c=2.00: best m= 4 total 0.101   m=2: 0.107  m=4: 0.101
+   c=0.25: best m= 4 total 0.629   m=1: 0.810  m=2: 0.718  m=4: 0.629   (fresh subset: m=1: 0.631 m=2: 0.631)
+   c=0.50: best m= 4 total 0.442   m=1: 0.771  m=2: 0.622  m=4: 0.442   (fresh subset: m=1: 0.446 m=2: 0.445)
+   c=1.00: best m= 4 total 0.253   m=1: 0.749  m=2: 0.546  m=4: 0.253   (fresh subset: m=1: 0.259 m=2: 0.258)
+   c=2.00: best m= 4 total 0.101   m=2: 0.499  m=4: 0.101   (fresh subset: m=2: 0.107)
 
 E5 peak of the expected curve, periodic replay every 4 steps (d=128 r=8, peak lag 10.8)
  m=0: peak (step, loss) (11, 0.014564904707967775)
- m=2: peak (step, loss) (7, 0.011740920293969392)
+ m=2: peak (step, loss) (11, 0.01216641997142563)
  m=4: peak (step, loss) (7, 0.009989281455741301)
  m=6: peak (step, loss) (3, 0.008437713022130127)
  m=8: peak (step, loss) (3, 0.008437713022130127)
 
-E6 replay size vs budget at fixed rate: minimum m/r to reach half of the full-memory Bernoulli saving (q=0.25)
- d=32 r=8: m=4 of 8 (0.50) gives half; m=r/2 gives 0.571 of the saving
- d=128 r=16: m=6 of 16 (0.38) gives half; m=r/2 gives 0.652 of the saving
- d=32 r=4: m=2 of 4 (0.50) gives half; m=r/2 gives 0.653 of the saving
+E6 memory at a fixed rate: minimum m/r to reach half of the full-memory Bernoulli saving (q=0.25)
+ d=32 r=8 fixed buffer: m=4 of 8 (0.50) gives half; m=r/2 gives 0.503 of the saving
+ d=32 r=8 fresh subset: m=4 of 8 (0.50) gives half; m=r/2 gives 0.571 of the saving
+ d=128 r=16 fixed buffer: m=8 of 16 (0.50) gives half; m=r/2 gives 0.508 of the saving
+ d=128 r=16 fresh subset: m=6 of 16 (0.38) gives half; m=r/2 gives 0.652 of the saving
+ d=32 r=4 fixed buffer: m=2 of 4 (0.50) gives half; m=r/2 gives 0.508 of the saving
+ d=32 r=4 fresh subset: m=2 of 4 (0.50) gives half; m=r/2 gives 0.653 of the saving

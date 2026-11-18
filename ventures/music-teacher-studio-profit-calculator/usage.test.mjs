@@ -61,3 +61,12 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("chair_planned");
   assert.equal(readUsage().chair_planned, 1);
 });
+
+test("stored JSON that is not a plain object reads as empty", () => {
+  for (const raw of ["5", "\"text\"", "true", "[1,2]", "null"]) {
+    globalThis.localStorage.setItem("music-teacher-studio-profit-calculator-usage", raw);
+    assert.deepEqual(readUsage(), {}, `stored ${raw}`);
+    record("chair_planned");
+    assert.deepEqual(readUsage(), { chair_planned: 1 }, `record after stored ${raw}`);
+  }
+});

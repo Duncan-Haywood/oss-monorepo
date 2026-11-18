@@ -1,0 +1,38 @@
+cell-fidelity milestone 5k: the DFN@100 score split into U x utilisation x retention, on fresh conditions
+
+Probe (baseline design, 2 cycles): Ecker2015@1.5x ok, Mohtat2020@3x ok, Ai2020@0.375x ok
+
+Ecker2015@1.5x: n 64 (sound r_kt >= 0.3 13, starved r_kt <= 0.1 27); Spearman(U, r_kt) -0.82
+  sound: U~BOL +0.99, U~score +0.96, U~retention +0.79, median utilisation +0.94
+  starved: r_kt~utilisation +0.82, r_kt~score +0.79, median utilisation +0.88
+  log-score variance carried by U +0.21, utilisation +0.42, retention +0.37; U~score over the pool +0.26
+  DFN best 278.2 Wh/kg: r_kt +0.22, U percentile 0.53, utilisation 0.95, retention 0.80
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0091 at 18 DFN calls, L2 0.0000 at 29; top-U above the flag k=1/3/5 gap 0.0483/0.0360/0.0091
+  dropped (DFN did not reach 100 cycles): []; U and r_kt for the pool took 19.5 s
+Mohtat2020@3x: n 64 (sound r_kt >= 0.3 36, starved r_kt <= 0.1 13); Spearman(U, r_kt) -0.81
+  sound: U~BOL +1.00, U~score +0.86, U~retention +0.14, median utilisation +0.85
+  starved: r_kt~utilisation +0.60, r_kt~score +0.52, median utilisation +0.87
+  log-score variance carried by U +0.60, utilisation +0.14, retention +0.26; U~score over the pool +0.69
+  DFN best 168.1 Wh/kg: r_kt +0.12, U percentile 0.59, utilisation 0.88, retention 0.84
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0471 at 14 DFN calls, L2 0.0471 at 26; top-U above the flag k=1/3/5 gap 0.1213/0.0471/0.0471
+  dropped (DFN did not reach 100 cycles): []; U and r_kt for the pool took 19.8 s
+Ai2020@0.375x: n 62 (sound r_kt >= 0.3 42, starved r_kt <= 0.1 10); Spearman(U, r_kt) -0.36
+  sound: U~BOL +1.00, U~score -0.03, U~retention -0.94, median utilisation +0.96
+  starved: r_kt~utilisation +0.88, r_kt~score +0.99, median utilisation +0.81
+  log-score variance carried by U -0.20, utilisation +1.15, retention +0.05; U~score over the pool -0.19
+  DFN best 115.7 Wh/kg: r_kt +0.67, U percentile 0.27, utilisation 0.96, retention 0.47
+  zero-SPMe shortlists: (U, r_kt) front L1 gap 0.0268 at 11 DFN calls, L2 0.0268 at 19; top-U above the flag k=1/3/5 gap 0.1030/0.0846/0.0597
+  dropped (DFN did not reach 100 cycles): [9, 47]; U and r_kt for the pool took 23.4 s
+
+Pooled over conditions:
+  sound_u_bol: 3 conditions, median +1.00, range +0.99 to +1.00
+  sound_u_score: 3 conditions, median +0.86, range -0.03 to +0.96
+  sound_u_ret: 3 conditions, median +0.14, range -0.94 to +0.79
+  starved_rkt_util: 3 conditions, median +0.82, range +0.60 to +0.88
+  starved_rkt_score: 3 conditions, median +0.79, range +0.52 to +0.99
+  u_rkt: 3 conditions, median -0.81, range -0.82 to -0.36
+  best_rkt: 3 conditions, median +0.22, range +0.12 to +0.67
+  front1: exact 0 of 3, median gap 0.0268, max 0.0471, mean calls 14.3
+  front2: exact 1 of 3, median gap 0.0268, max 0.0471, mean calls 24.7
+
+Verdicts: H74 supported, H75 supported, H76 supported, H77 supported

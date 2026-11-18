@@ -1,0 +1,262 @@
+{
+ "date": "2026-11-13",
+ "subject": "ventures/bridal-hair-makeup-pricing-calculator",
+ "stratum": "venture",
+ "seed": "2026-11-13-k",
+ "drawn_by": "sample",
+ "round": 65,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a freelance mobile bridal hair and makeup artist who prices weddings and staffs a small team; they check first whether the quote carries the line items their contract actually has (per-stylist early-start fee, travel past a free radius, retainer, gratuity or service charge, on-site touch-up hours), whether the per-look minutes match a real wedding morning (about 45 min hair plus 45 min makeup per bridesmaid, longer for the bride), and whether the staffing answer is a real schedule each artist can work through, not pooled minutes",
+ "scores": {
+  "correctness": 2,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs recomputes by hand: defaults (1 bride $225 + 4 x $150 = 825, early start 75 since 6 < 7, travel 40, subtotal 940, minutes 100 + 4 x 70 = 380 vs 240 -> 1 extra artist, +150 = 1,090, trial credit 125, balance 965, per person 218) all match; a mixed party (bride 300, 3 full at 210, 2 hair at 110, 1 makeup at 100, 2 kids at 55, 62 mi at $0.75 + $15 parking, 2 artists, no credit) gives 1,360 / 1,496.50 / 525 min / +1 artist / balance 1,646.50 / TCV 1,771.50, all as hand-computed; a $500 minimum top-up on a $310 booking adds 190 and the credited balance is 375. The worked example on why-a-priced-booking-can-still-be-impossible.html (1,125 revenue, 520 min, 2 extra artists, $300/$250/$50) recomputes and, checked by hand, a 3-artist schedule exists (bride+2 = 240, 3 x 70 = 210, 70). Held at 2: the staffing count, which the README and four pages call 'exactly how many additional artists', is pooled minutes divided by the window (calc.mjs:167-169), a lower bound that ignores that each look is indivisible. node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/pack.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs: bride 105 min + 5 bridesmaids at 75 min, 10-min buffer, 3-hour window: the tool says 3 artists total; a brute-force schedule search finds 4 are needed (no artist can take the bride plus anyone, 105+10+75 = 190 > 180, and the others fit two per artist). An artist who staffs to the tool's figure finds one person undone on the morning, which is the failure the venture exists to prevent.",
+  "completeness": "Each README 'What it reports' item runs in node: total contract value decomposed, wedding-day balance separate from the trial, capacity check with extra-artist charge and payout, longest-look-over-window flag (calc.mjs:174-181), headcount and dollar-minimum flags. Share link round trip covered by share.test.mjs; usage opt-out and DNT/GPC in usage.mjs/usage.test.mjs. Input validation: '1,200' and 'abc' refused with the field name, fractional headcounts refused. Gaps: a blank field silently becomes 0 (blank bride price -> total $865, blank bridesmaid count -> $500 via the minimum, no warning), the two yes/no fields are 1/0 number boxes. No TODOs or dead links in the tree (four pages, all linked). The served page https://marisstella.app/bridal-hair-makeup-pricing-calculator/ could not be loaded: the session proxy refused CONNECT to marisstella.app (403) and WebFetch could not resolve it, so no URL defects are filed (llms.txt and sitemap.xml carry placeholder hosts the build rewrites, build_pages_site.py:372).",
+  "verification": "cd ventures/bridal-hair-makeup-pricing-calculator && node --test '*.test.mjs': 92 tests, 92 pass, 0 fail (224 ms, Node 22.23.4); the README's `node --test ventures/.../*.test.mjs` from the root also passes. Eight seeded mutations via platform/ci/quality_mutate.py: 5 caught (trial credit cap removed, early-start < -> <=, ceil -> round on extra artists, look-over-window > -> >=, travel halved), 3 survived: net after payouts computed from the wedding-day total instead of the contract value (calc.mjs:196; every net test runs with the trial credited, where the two are equal), the minimum top-up measured against service revenue only instead of the subtotal with fees (calc.mjs:154; the only top-up test zeroes travel and early start), and kids dropped from the longest-look check (calc.mjs:180). No test exercises a schedule where pooled minutes fit but the looks cannot be packed.",
+  "craft": "Read calc.mjs (226 lines, pure, one number() validator with integer/allowZero/max), index.html module script, share.mjs, page.test.mjs head. Output via textContent, no innerHTML. Defects: the capacity warning reads r.artistsBooked, which calculateQuote never returns, and silently falls back to the field (index.html, capacityWarning line); travel shown in the UI re-adds the raw travelSurcharge field instead of a returned value; Number('') is 0 so blanks pass validation; yes/no inputs are numeric 0/1 boxes rather than checkboxes. Otherwise small and readable, tests import the shipped module (no copied engine).",
+  "claims": "Disclaimer (no warranty, not tax advice), no-upload privacy and DNT/GPC opt-out present and match usage.mjs. 'Exactly how many additional artists the schedule needs' (README.md:18, index.html:96 and JSON-LD :12, vs-flat-day-rate.html:40, vs-honeybook.html:46/:59, VENTURE.yaml:2) is false whenever looks cannot be packed (pack.mjs case: says 3, needs 4). vs-honeybook.html checked against the vendor where reachable: honeybook.com and marisstella.app were refused by the session proxy; a web search returned HoneyBook's own template URLs honeybook.com/templates/t/bridal-hair-makeup-pricing-guide and /bridal-hair-makeup-proposal, backing 'publishes its own Bridal Hair & Makeup Proposal and Pricing Guide templates'; 'smart file' combining proposal, contract and invoice and 'no free plan' are backed by third-party pricing guides (schedulingkit, agiled, assembly), not fetched from the vendor. The page itself says honeybook.com was not reachable and states no price, which is honest. 'Well documented as one of the industry-standard tools among bridal hair and makeup artists specifically' (vs-honeybook.html:39) has no source beyond the vendor publishing templates.",
+  "fitness": "Walked the job: an artist quoting a bride + 6 bridesmaids at a 6am start, 50 miles out, with an assistant, sending a quote and taking a retainer. The tool gives the service total, early-start fee, travel and an extra-artist line, and makes the trial-credit discount visible, which is genuinely useful. It cannot produce the quote as artists write it: the early-start fee is flat per booking though vendors charge it per stylist ('$75 per stylist for start times between 5 am and 7 am' in one vendor list found by search), travel has no free radius and is not per artist, there is no retainer in 'balance due', no gratuity or service charge, no on-site touch-up hours, and no way to staff a separate hair stylist and makeup artist working in parallel, which is how most teams split a party. The staffing figure can be one artist short (correctness).",
+  "domain": "Compared against published practice found by search (WeddingWire, The Knot, Glamsquad, vendor price lists): bridesmaid hair ~30-45 min and makeup ~30-45 min, so 'double those estimates' about 75-90 min for both, the bride 2-3 h; 10-15 min between people; early start $75-$200 before ~7am, often per stylist; mileage $0.75-$2/mi past a 15-25 mile radius; Knot averages about $300 bride and $210 per bridesmaid. Right: priced tiers, bride separate with extra time, buffer per person, early-start threshold, minimum top-up, extra-artist charge vs payout, trial credit as a discount. Departures: default 60 min for a one-artist hair+makeup look and 90 min for the bride sit below every source (with 90/120 min the default party needs 2 extra artists, not 1); staffing is pooled minutes, not a schedule; one-artist-does-both is the only staffing model; per-stylist fees and the free-mileage radius are not modelled; default prices are below the Knot averages (they are inputs, so low)."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "default booking: revenue, subtotal, minutes, extra artists, totals, balance, per person",
+   "method": "by-hand arithmetic from the stated method, typed independently in check.mjs",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "825 / 940 / 380 / 1 / 1090 / 965 / 1090 / 218",
+   "observed": "825 / 940 / 380 / 1 / 1090 / 965 / 1090 / 218",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "mixed party, 2 artists, $0.75/mi + $15 parking, trial not credited",
+   "method": "by hand: 300+630+220+100+110; 62*0.75+15; 100+210+100+55+60 min vs 480",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "1360 / 1496.50 / 525 min / +1 / balance 1646.50 / TCV 1771.50",
+   "observed": "1360 / 1496.5 / 525 / 1 / 1646.5 / 1771.5",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "dollar-minimum top-up with trial credit",
+   "method": "by hand: 2 x 150 + 10 mi = 310; 500 - 310 = 190; 500 - 125",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "190 top-up, balance 375, TCV 500",
+   "observed": "190, 375, 500",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "artists needed when looks cannot be split: bride 105 + 5 bridesmaids at 75, buffer 10, window 180",
+   "method": "exhaustive schedule search (independent brute force in pack.mjs), each artist's looks + buffers between must fit the window",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/pack.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "4 artists total",
+   "observed": "3 artists total (2 additional)",
+   "result": "fail"
+  },
+  {
+   "dimension": "correctness",
+   "what": "why-a-priced-booking page worked example (bride + 6 bridesmaids, defaults)",
+   "method": "by hand plus a hand schedule for 3 artists",
+   "command": "grep -n '520 minutes\\|\\$1,125' ventures/bridal-hair-makeup-pricing-calculator/why-a-priced-booking-can-still-be-impossible.html",
+   "expected": "1125, 520 min, 2 extra, $300/$250/$50, feasible with 3",
+   "observed": "all match; 3-artist schedule 240/210/70 exists",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "test suite",
+   "method": "run it",
+   "command": "cd ventures/bridal-hair-makeup-pricing-calculator && node --test '*.test.mjs'",
+   "expected": "all pass",
+   "observed": "92 pass, 0 fail",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'exactly how many additional artists the schedule needs'",
+   "method": "brute-force schedule vs tool output",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/pack.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "the count a real schedule needs",
+   "observed": "one short in the packing case",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-honeybook.html: HoneyBook publishes Bridal Hair & Makeup Proposal and Pricing Guide templates",
+   "method": "web search returning the vendor's own URLs honeybook.com/templates/t/bridal-hair-makeup-pricing-guide and /bridal-hair-makeup-proposal (honeybook.com itself refused by the proxy)",
+   "command": "WebSearch 'HoneyBook \"Bridal Hair & Makeup Pricing Guide\" template'",
+   "expected": "vendor pages exist",
+   "observed": "both vendor template URLs listed",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-honeybook.html: 'smart file' combines proposal, contract, invoice; tools used through a paid account",
+   "method": "third-party HoneyBook pricing guides (schedulingkit.com, agiled.app, assembly.com) via search; vendor site unreachable",
+   "command": "curl -sSL -o /dev/null -w '%{http_code}' https://www.honeybook.com/pricing",
+   "expected": "vendor page confirming",
+   "observed": "proxy 403; third parties: Smart Files on all plans, no free plan, free trial exists",
+   "result": "partial"
+  },
+  {
+   "dimension": "claims",
+   "what": "vs-honeybook.html:39 'well documented as one of the industry-standard tools among bridal hair and makeup artists'",
+   "method": "look for any cited source on the page or in the tree",
+   "command": "grep -n 'industry-standard' ventures/bridal-hair-makeup-pricing-calculator/vs-honeybook.html",
+   "expected": "a cited survey or source",
+   "observed": "none; inferred from the vendor publishing templates",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "served page",
+   "method": "curl and WebFetch",
+   "command": "curl -sS -o served.html -w '%{http_code}' https://marisstella.app/bridal-hair-makeup-pricing-calculator/",
+   "expected": "200",
+   "observed": "proxy CONNECT 403 / ENOTFOUND; not checkable from this session",
+   "result": "partial"
+  },
+  {
+   "dimension": "craft",
+   "what": "blank and malformed inputs",
+   "method": "node calls",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "blank flagged; '1,200' refused",
+   "observed": "'1,200' and 'abc' refused with field name; blank bride price silently 0 (total 865), blank bridesmaid count silently 0 (total 500)",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "default per-look minutes vs published getting-ready guidance",
+   "method": "WeddingWire/Knot/Glamsquad via search: 30-45 min each for hair and makeup, double for both; bride 2-3 h",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "full service ~75-90 min, bride ~120+",
+   "observed": "defaults 60 and 90; at 90/120 the default party needs 2 extra artists, not 1",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "early-start fee and travel per stylist when extra artists are added",
+   "method": "vendor price lists via search: '$75 per stylist for start times between 5 am and 7 am'",
+   "command": "node /tmp/claude-0/-home-user-oss-monorepo/7a8bfab0-cf62-5b3b-91fe-5ee885a81cbd/scratchpad/bridal/check.mjs /home/user/oss-monorepo/ventures/bridal-hair-makeup-pricing-calculator/calc.mjs",
+   "expected": "fee scales with stylists",
+   "observed": "10 bridesmaids, 3 extra artists: early-start 75 once, travel 40 once",
+   "result": "fail"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "calc.mjs:191",
+   "change": "Math.min(trialFee, weddingDayServiceTotal) -> trialFee",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:148",
+   "change": "startHour < earlyStartThresholdHour -> <=",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:169",
+   "change": "Math.ceil(minutesShort / prepWindowMinutes) -> Math.round",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:181",
+   "change": "longestLookMinutes > prepWindowMinutes -> >=",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:151",
+   "change": "travel = miles * rate -> miles * rate / 2",
+   "caught": true,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:196",
+   "change": "netAfterAssistantPayout from totalContractValue -> from weddingDayServiceTotal",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:154",
+   "change": "minimum shortfall vs preMinimumSubtotal -> vs serviceRevenue",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  },
+  {
+   "where": "calc.mjs:180",
+   "change": "kids dropped from longestLookMinutes",
+   "caught": false,
+   "test_cmd": "node --test '*.test.mjs'"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "high",
+   "what": "Additional artists needed is pooled minutes / prep window, a lower bound that ignores indivisible looks; presented as 'exactly how many' it can be one artist short (bride 105 + 5 bridesmaids at 75, 10-min buffer, 180-min window: tool 3 artists, a real schedule needs 4). An artist staffing to it finds someone unfinished at the deadline.",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs:169",
+   "category": "logic-error",
+   "origin": "implementation"
+  },
+  {
+   "severity": "medium",
+   "what": "'Exactly how many additional artists' is claimed in the README, the page FAQ and JSON-LD, both comparison pages and VENTURE.yaml, though the method is a pooled-minutes bound.",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/README.md:18",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "medium",
+   "what": "Quote lacks line items artists' contracts carry: early-start fee and travel per stylist (flat once regardless of extra artists), free-mileage radius, retainer in the balance due, gratuity or service charge, on-site touch-up hours; no separate hair-stylist and makeup-artist staffing.",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs:148",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Default timings (60 min for a one-artist hair+makeup look, 90 for the bride) are below published getting-ready guidance (about 30-45 min per service, doubled for both; bride 2-3 h) and uncited; the defaults understate staffing (1 extra artist vs 2 at 90/120).",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs:59",
+   "category": "source-data",
+   "origin": "spec"
+  },
+  {
+   "severity": "medium",
+   "what": "Three seeded mutations survive 92 tests: net after payouts from the wedding-day total instead of contract value (only tested with the trial credited, where they are equal), the dollar minimum measured against service revenue alone (only tested with zero travel and early fee), kids dropped from the longest-look check.",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/calc.test.mjs:147",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "low",
+   "what": "vs-honeybook.html calls HoneyBook 'well documented as one of the industry-standard tools among bridal hair and makeup artists' with no source; only the vendor's own templates back the trade link.",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/vs-honeybook.html:39",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "A blank field passes validation as 0 (Number('') === 0): a cleared bride price silently drops $225 from the quote; capacity warning reads r.artistsBooked, which calculateQuote never returns.",
+   "where": "ventures/bridal-hair-makeup-pricing-calculator/calc.mjs:28",
+   "category": "input-handling",
+   "origin": "implementation"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15478"
+ ],
+ "verdict": "The pricing arithmetic is right: defaults, a mixed six-tier party with two artists, a minimum top-up and the why-page worked example all recompute by hand to the cent, and the trial-credit-as-discount point is real and shown well. It does not meet the bar. The feature the venture leads with, how many artists the schedule needs, is pooled minutes over the window, so when looks cannot be packed it is an artist short while every page calls it exact; its default timings sit below published getting-ready guidance, which understates staffing further; the quote lacks per-stylist early-start and travel, a retainer, gratuity and touch-up time that a working artist's contract carries; and three of eight seeded mutations survive 92 passing tests. The HoneyBook page is mostly careful (it says it could not reach the vendor and gives no price) but adds an unsourced 'industry-standard' line. Correctness, verification, claims, fitness and domain are 2; completeness and craft 3."
+}

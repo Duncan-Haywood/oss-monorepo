@@ -1,0 +1,26 @@
+Milestone 5: 60 milestone-4 designs re-scored in RotorPy 3.0.0 with canted rotors; 32 held-out episodes (seed 9999); J = -RMS - 0.3 P/100 W
+Spearman rho of J against the stylised simulator (H5: top ten by stylised J, refuted below 0.5); mean RMS deg; divergent episodes
+condition    rho all   rho top10  rho top10 (RMS)  mean RMS  mean |dRMS| vs stylised  divergent episodes
+stylised      1.000     1.000      1.000          15.18      0.00                  0
+torque        0.799     0.212      0.079          18.59      3.41                  54
+aero          0.906     0.200      0.285          16.47      1.29                  2
+aero_cop      0.880     0.297      0.382          16.66      1.47                  3
+aero_cop2     0.908     0.248      0.370          16.42      1.25                  1
+
+top ten by stylised J: geo/80/s4, geo/80/s6, geo/80/s7, indi/80/s9, indi/80/s6, geo/80/s9, indi/80/s3, geo/80/s3, indi/80/s1, geo/80/s1
+
+Per law and cant bound: mean RMS deg (stylised; torque; aero; aero_cop; aero_cop2)
+  pid  cant<=  0 (n=10):  18.48;  23.05;  19.48;  20.11;  19.38
+  pid  cant<= 80 (n=10):  12.92;  15.77;  14.72;  14.34;  14.47
+  indi cant<=  0 (n=10):  16.90;  18.87;  17.93;  18.23;  18.06
+  indi cant<= 80 (n=10):  12.75;  16.95;  14.81;  14.89;  14.53
+  geo  cant<=  0 (n=10):  17.44;  21.46;  18.38;  18.72;  18.40
+  geo  cant<= 80 (n=10):  12.59;  15.43;  13.49;  13.64;  13.70
+
+Cant minus no cant, paired by seed, same law (RMS deg; negative = cant better; count of seeds where cant is better)
+  pid : stylised -5.56 (10/10); torque -7.27 (10/10); aero -4.76 (10/10); aero_cop -5.77 (10/10); aero_cop2 -4.91 (10/10)
+  indi: stylised -4.15 (10/10); torque -1.92 (8/10); aero -3.12 (10/10); aero_cop -3.34 (10/10); aero_cop2 -3.53 (10/10)
+  geo : stylised -4.86 (10/10); torque -6.03 (10/10); aero -4.89 (10/10); aero_cop -5.08 (10/10); aero_cop2 -4.70 (10/10)
+
+H4 refutation test in each condition: INDI without cant minus PID with cant (RMS deg; count where INDI-no-cant is better)
+  stylised +3.97 (0/10); torque +3.10 (0/10); aero +3.21 (0/10); aero_cop +3.89 (0/10); aero_cop2 +3.59 (0/10)

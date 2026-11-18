@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01EhTJVLLEES3SRaHKamN4CX",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo ... merge when done",
+  "input_sha256": "aa804632cd9cb138d2cbb89a568dfc6dce0c9defa24de5124e301a3a567b9e3c",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-11T01:01:15Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quality fix mode: work the high-severity defect queue",
+  "projects": [
+    "ventures/business-vehicle-depreciation-calculator",
+    "ventures/freelancer-schedule-c-categorizer",
+    "ventures/cache-control-check",
+    "ventures/pwa-installability-check",
+    "ventures/world-clock-widget"
+  ],
+  "pr": 14648,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/quality/README.md",
+      "issue": "fix mode relies on fix_prs to clear the queue; PR #14327 fixed world-clock-widget's high defect without recording it, so the queue still listed it. queue cannot tell a fixed-but-unrecorded defect from an open one."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "portfolio/quality/audits/2026-11-08-pwa-installability-check.json",
+      "why": "auditor asked to promote missing 512 icon / start_url to errors; kept as notices (Chrome's installer tolerates both, a gate failing installable pages is a bug) and fixed the overclaim plus the pass message instead",
+      "did": "reworded claims, pass text names the missing items, test added",
+      "result": "overclaim removed; defect #0 partially addressed, left for re-audit to judge"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-quality-fixes-four-wrong-answers.md"
+  ],
+  "goal": null,
+  "notes": "mode=fix (seed 2026-11-11 draw; 43 high defects open). No new subjects audited, no scores changed. Fixed in PR #14648: vehicle heavy-SUV 179 cap (39,440 vs 36,936 per Pub 946), Uber Eats as 50% meals (incl. UBER *EATS HELP.UBER.COM found while testing), cache-control public+no-store false DANGER (RFC 9111 5.2.2.5), PWA Lighthouse-parity overclaim. world-clock-widget Reykjavik defect already fixed by PR #14327; recorded. High queue 43 -> 37. Every new test fails on the old code (checked by stashing each fix). Local checks: run_venture_tests.py on the 4 ventures: 4 suites, 0 failed; quality_audit.py validate: 218 files, 0 problems; post frontmatter/links/similarity clean.",
+  "corrections": [],
+  "redteam": null
+}

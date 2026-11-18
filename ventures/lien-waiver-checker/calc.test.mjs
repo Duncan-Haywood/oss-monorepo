@@ -110,3 +110,8 @@ test("the sample trips the headline rules and the outputs render", () => {
   assert.match(summaryText(r, SAMPLE_SETTINGS), /RESULT: Do not sign as written/);
   assert.equal(findingsCsv(r).split("\n").length, r.findings.length + 1);
 });
+
+test("extractDates skips a day the month does not have instead of reporting 2026-02-30", () => {
+  assert.deepEqual(extractDates("Through 2/30/2026 and 2026-04-31 and February 30, 2026"), []);
+  assert.deepEqual(extractDates("Through 2/29/2024").map((d) => d.iso), ["2024-02-29"]);
+});

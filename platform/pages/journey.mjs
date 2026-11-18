@@ -11,7 +11,7 @@
 //   node platform/pages/journey.mjs
 //
 //   # or against production:
-//   BASE_URL=https://duncan-haywood.github.io/oss-monorepo node platform/pages/journey.mjs
+//   BASE_URL=https://marisstella.app node platform/pages/journey.mjs
 //
 // **Check what is answering before you believe the result.** A server left
 // running by an earlier build keeps the port, the second `http.server` exits
@@ -43,8 +43,9 @@
 // resolution path gives them directly. Accept either, and say which it is when
 // neither resolves -- the previous destructure failed with an unhelpful
 // "cannot read properties of undefined" on the documented file-path form.
-const playwright = await import(process.env.PLAYWRIGHT || 'playwright');
-const chromium = playwright.chromium ?? playwright.default?.chromium;
+import { loadPlaywright } from './load-playwright.mjs';
+const playwright = await loadPlaywright();
+const chromium = playwright?.chromium;
 if (!chromium) {
   console.error('Could not load Playwright. Set PLAYWRIGHT to its entry point, ' +
     'e.g. PLAYWRIGHT=./node_modules/playwright/index.js');

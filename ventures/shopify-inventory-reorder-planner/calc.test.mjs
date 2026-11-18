@@ -137,3 +137,12 @@ test("rows and totals reconcile", () => {
   assert.equal(r.summary.skus, r.rows.length);
   assert.equal(Math.round(r.rows.reduce((t, x) => t + x.revenue, 0)), Math.round(r.summary.revenue));
 });
+
+// Red-team 2026-11-15: skipped rows were numbered by position after blank rows were dropped, so a blank line or a
+// note with a line break in it made "line 3" point at the wrong row of the file.
+test("a skipped row's line is its first line in the file, past blank lines and multi-line notes", () => {
+  const n = normalizeSales(parseCsv('sku,date,quantity,notes\n\nA,2026-09-01,1,"gift\nwrap"\nB,2026-09-02,two,\r\n\r\nC,not a date,1,'));
+  assert.deepEqual(n.skipped.map((s) => s.line), [5, 7]);
+  const s = normalizeStock(parseCsv("sku,on hand\n\nA,3\n\nB,lots"));
+  assert.deepEqual(s.skipped.map((x) => x.line), [5]);
+});

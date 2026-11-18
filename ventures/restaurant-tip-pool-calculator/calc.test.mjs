@@ -13,7 +13,7 @@ test("parsing money, hours and csv", () => {
   assert.equal(parseHours("6:30"), 6.5);
   assert.equal(parseHours("0"), null);
   assert.equal(parseHours("25"), null);
-  assert.deepEqual(parseCsv('﻿a,b\n"x, y",2'), [["a", "b"], ["x, y", "2"]]);
+  assert.deepEqual(parseCsv('\uFEFFa,b\n"x, y",2'), [["a", "b"], ["x, y", "2"]]);
   assert.equal(money(-12345), "-$123.45");
 });
 

@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmkVLJ9EuHw911KE1o",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T19:18:31Z",
+  "ended": "2026-11-14T19:28:22Z",
+  "wall_minutes": 10.2,
+  "tokens_in": 4826457,
+  "tokens_out": 29663,
+  "cost_usd": 2.5179,
+  "tool_calls": 44,
+  "task": "research/codesign-cant milestone 7j: diagnose the retrained designs' lever-0 divergence at a 45 deg tilt-command limit",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15955",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "offset.py first imported experiments/m7j_lever0/run.py as `run`, which clashed with m6_poshold/run.py already on sys.path; switched to importlib by path.",
+    "A first manual check of crash times multiplied steps by 0.005 instead of aero.DT = 0.002 and briefly suggested a 2 s spread; caught and corrected before any text quoted it. The resulting check showed 'first half-second' (from the median) overstated the range (0.16-0.79 s); every text was corrected to 'first 0.8 s' before merge."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/README.md",
+      "issue": "The Reproduce block stops at milestone 7e/7d; milestones 7f-7i scripts are not listed, so a reader cannot rerun them from the README. Added 7j only; 7f-7i still missing."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13 for 'pytest numpy cma matplotlib' but the project tests also need scipy (allocation.py), so 4 tests failed until a second pyenv call with scipy; the README's pyenv line lists scipy, research/CLAUDE.md's example does not."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing step 2 (work through open research PRs and branches first) was skipped beyond pick_track's claim check: it reported no open PR naming codesign-cant and a full sweep of 105 open PRs was out of scope for a 40-minute step.",
+      "did": "Relied on the CLAIM CHECK and opened a draft PR right after the predictions commit.",
+      "result": "No collision seen."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-the-drone-crashed-at-a-tilt-limit-it-was-never-tuned-at.md"
+  ],
+  "goal": null,
+  "notes": "Predictions J1-J10 committed (f3744b72e) before the held-out run. Held-out run 39 s on 4 cores; post-hoc posthoc.py and offset.py under a minute. Verification: pytest tests 45 passed 1 skipped (python3.13 with scipy); paper/check_numbers.py 35/35; research/_homepage/build.py ok; research_live_links --write, check_md_links ok; check_post_frontmatter, check_post_links, post_similarity clean; programme_check ok. No agent doc in docs/reports: the LOG.md entry is where the next codesign-cant run looks.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "abe55212-1a1d-52e3-a0b1-92c453f1da02",
+    "transcripts": 1,
+    "first": "2026-11-14T19:18:31Z",
+    "last": "2026-11-14T19:28:42Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 41,
+        "input": 77,
+        "output": 29663,
+        "thinking": 6500,
+        "cache_read": 4703422,
+        "cache_write_5m": 0,
+        "cache_write_1h": 122958,
+        "api_equivalent_usd": 2.5179,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 41,
+      "input": 77,
+      "output": 29663,
+      "thinking": 6500,
+      "cache_read": 4703422,
+      "cache_write_5m": 0,
+      "cache_write_1h": 122958,
+      "api_equivalent_usd": 2.5179,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 41,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.2,
+      "active_minutes": 10.2,
+      "model_minutes": 5.47,
+      "tool_minutes": 4.73,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a controls PhD student scripting seven probes, a sweep and the write-up for an existing simulator",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 238.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

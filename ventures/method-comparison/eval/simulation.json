@@ -1,0 +1,31 @@
+{
+ "settings": {
+  "datasets": 1000,
+  "n": 60,
+  "slope": 1.05,
+  "intercept": 2,
+  "sd": 4,
+  "cv": 0.04,
+  "seed": 20261117
+ },
+ "note": "Percentages of data sets whose 95% interval contains the true value; CUSUM reject rate at p < 0.05 (false alarms for constant/proportional, power for curved).",
+ "constant": {
+  "cusumRejectRate": 0,
+  "demingSlope": 95.5,
+  "demingIntercept": 94.8,
+  "passingBablokSlope": 95.4,
+  "passingBablokIntercept": 92.1,
+  "loaContainsNewDifferences": 94.4
+ },
+ "proportional": {
+  "cusumRejectRate": 0.1,
+  "demingSlope": 95.8,
+  "demingIntercept": 96.4,
+  "passingBablokSlope": 94.7,
+  "passingBablokIntercept": 97.8,
+  "weightedDemingSlope": 96.7
+ },
+ "curved": {
+  "cusumRejectRate": 87.8
+ }
+}

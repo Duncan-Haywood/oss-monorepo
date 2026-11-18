@@ -8,6 +8,7 @@ import http from "node:http";
 import fs from "node:fs";
 import { timingSafeEqual } from "node:crypto";
 import { readSpec, buildSchedule, applyRainouts, applyWithdrawals, applyLateTeams, parseResults, parsePointSystem, standings, playoffBracket, leaguePageHtml, scheduleIcs, sampleFields, WEEKDAYS } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const MAX_BODY = 64 * 1024;
 const TEXT_FIELDS = ["teams", "start", "skip", "blackouts", "courts", "times", "timeLimits", "courtLimits", "results", "rainouts", "withdrawals", "lateTeams", "scoring"];
@@ -15,7 +16,7 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "
 const same = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
 
 const CSS = `body{font:16px/1.5 system-ui,sans-serif;max-width:60rem;margin:0 auto;padding:1rem;color:#1a1a1a}textarea,input{width:100%;font:inherit;box-sizing:border-box}textarea{font-family:ui-monospace,monospace;min-height:6rem}button{font:inherit;padding:.5rem 1rem;margin:.5rem .5rem .5rem 0}.note{color:#555;font-size:.9rem}.err{color:#b00020}.ok{color:#176f2c}`;
-const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://duncan-haywood.github.io/monorepo-projects/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
+const page = (title, body) => `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>${esc(title)}</title><style>${CSS}</style></head><body><h1>${esc(title)}</h1>${body}<p class="note">Self-hosted with <a href="https://marisstella.app/league-schedule-generator/">League Schedule Generator</a> (MIT). Check dates and venues with your organiser.</p></body></html>`;
 
 export function emptyState() { return { fields: { ...sampleFields(), results: "" }, published: false, pending: [] }; }
 
@@ -54,14 +55,39 @@ export function buildLeague(f) {
   return { schedule: s, table, bracket, warnings };
 }
 
-function leaguePage(state, token) {
+/**
+ * The address calendars poll: PUBLIC_URL when set (https://league.example.org), else the request's
+ * own host over x-forwarded-proto (Fly and Render set it). A host that is not a plain name[:port]
+ * gives null, and the page then offers downloads only.
+ */
+export function publicBase(req, env = process.env) {
+  if (env.PUBLIC_URL && /^https?:\/\/[A-Za-z0-9.-]+(:\d+)?\/?$/.test(env.PUBLIC_URL)) return env.PUBLIC_URL.replace(/\/$/, "");
+  const host = String(req.headers.host || "");
+  if (!/^[A-Za-z0-9.-]+(:\d+)?$/.test(host)) return null;
+  const proto = String(req.headers["x-forwarded-proto"] || "").split(",")[0].trim() === "https" ? "https" : "http";
+  return `${proto}://${host}`;
+}
+
+/** Subscribe and download links for one team's feed (team = null: the whole league). */
+export function calendarLinks(base, token, team) {
+  const q = `t=${encodeURIComponent(token)}&team=${team === null ? "all" : team}`;
+  const dl = `<a href="/league/ics?${esc(q)}">download</a>`;
+  if (!base) return dl;
+  const feed = `${base}/league/ics?${q}`;
+  const webcal = feed.replace(/^https?:/, "webcal:");
+  const google = `https://calendar.google.com/calendar/render?cid=${encodeURIComponent(webcal)}`;
+  return `<a href="${esc(webcal)}">subscribe</a> · <a href="${esc(google)}" rel="noopener">Google Calendar</a> · ${dl} · <input readonly value="${esc(feed)}" aria-label="Calendar address" style="width:auto;min-width:16rem;font-size:.8rem" onfocus="this.select()">`;
+}
+
+function leaguePage(state, token, base = null) {
   const out = buildLeague(state.fields);
   if (out.error) return page("League", `<p>The organiser has not published a valid league yet.</p>`);
   const html = leaguePageHtml(out.schedule, { title: "League schedule", table: out.table, bracket: out.bracket });
-  const cal = out.schedule.teams.map((n, i) => `<li><a href="/league/ics?t=${esc(token)}&amp;team=${i}">${esc(n)}</a></li>`).join("");
+  const cal = `<li><strong>Whole league</strong>: ${calendarLinks(base, token, null)}</li>` + out.schedule.teams.map((n, i) => `<li>${esc(n)}: ${calendarLinks(base, token, i)}</li>`).join("");
+  const calNote = `<p class="note">Subscribe once and your calendar app re-reads this feed on its own schedule (each app decides how often), so a rained-out game moves without anyone re-sending anything. A downloaded file is a copy: after a change, download it again and re-import it. Every game keeps the same event id all season, so an app that matches events by id, as the iCalendar standard expects, updates the moved games instead of adding copies. Anyone with the calendar address can read the schedule, the same as this page.</p>`;
   const opts = out.schedule.teams.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join("");
   const form = `<h2>Report a score</h2><form method="post" action="/league/result?t=${esc(token)}"><label>Home <select name="home">${opts}</select></label> <input name="hs" type="number" min="0" max="999" required style="width:5rem" aria-label="Home score"> - <input name="as" type="number" min="0" max="999" required style="width:5rem" aria-label="Away score"> <label>Away <select name="away">${opts}</select></label> <button>Send to organiser</button></form><p class="note">The organiser checks every score before it reaches the table.</p>`;
-  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `<h2>Add your team to your calendar</h2><ul>${cal}</ul>${form}<footer>`);
+  return html.replace("<head>", '<head><meta name="robots" content="noindex">').replace("<footer>", `<h2>Add your team to your calendar</h2><ul>${cal}</ul>${calNote}${form}<footer>`);
 }
 
 function adminPage(state, key, note = "") {
@@ -111,12 +137,13 @@ export function handler(state, save, env = process.env) {
     }
     const t = url.searchParams.get("t");
     if (isLeague) {
-      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t) : page("League", "<p>No schedule has been published yet.</p>"));
+      if (req.method === "GET" && url.pathname === "/league") return send(200, state.published ? leaguePage(state, t, publicBase(req, env)) : page("League", "<p>No schedule has been published yet.</p>"));
       if (req.method === "GET" && url.pathname === "/league/ics") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
-        const i = Number(url.searchParams.get("team"));
-        if (out.error || !Number.isInteger(i) || i < 0 || i >= out.schedule.teams.length) return send(404, "no such team\n", "text/plain");
-        return send(200, scheduleIcs(out.schedule, i, null, null, Number(url.searchParams.get("alarm")) || null), "text/calendar; charset=utf-8", { "content-disposition": 'attachment; filename="schedule.ics"' });
+        const raw = url.searchParams.get("team"), all = raw === "all", i = Number(raw);
+        if (out.error || (!all && (raw === null || raw === "" || !Number.isInteger(i) || i < 0 || i >= out.schedule.teams.length))) return send(404, "no such team\n", "text/plain");
+        // A feed calendars poll: same event ids every time (fixture ids), so a moved game updates in place.
+        return send(200, scheduleIcs(out.schedule, all ? null : i, null, null, Number(url.searchParams.get("alarm")) || null), "text/calendar; charset=utf-8", { "content-disposition": `inline; filename="${all ? "league" : "team-" + i}.ics"`, "cache-control": "no-cache" });
       }
       if (req.method === "POST" && url.pathname === "/league/result") {
         const out = state.published ? buildLeague(state.fields) : { error: "unpublished" };
@@ -177,7 +204,7 @@ export function handler(state, save, env = process.env) {
   };
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const statePath = process.env.STATE || "state.json";
   let state = emptyState();
   try { state = { ...state, ...JSON.parse(fs.readFileSync(statePath, "utf8")) }; } catch (e) { if (e.code !== "ENOENT") throw e; }

@@ -1,0 +1,21 @@
+755 wheel fits at 1000 rpm and up, seed 7, 12 builds; reading / true drop
+
+first-order 8k                    n    mean     sd >0.5% off
+  shipped (3 levels, 5 golden)  374  0.9993  0.32%        50
+  t0 4 levels                   374  0.9991  0.12%         0
+  t0 5 levels                   374  0.9993  0.10%         0
+  t0 6 levels                   374  0.9993  0.10%         0
+  tau 15 golden                 374  0.9993  0.31%        48
+  both                          374  0.9994  0.07%         0
+  polish                        374  0.9993  0.15%         5
+  polish, 4 levels              374  0.9992  0.11%         0
+
+ESC 50 ms told                    n    mean     sd >0.5% off
+  shipped (3 levels, 5 golden)  381  0.9999  0.27%        27
+  t0 4 levels                   381  0.9999  0.13%         4
+  t0 5 levels                   381  0.9999  0.11%         4
+  t0 6 levels                   381  0.9999  0.11%         2
+  tau 15 golden                 381  0.9999  0.27%        25
+  both                          381  0.9998  0.07%         0
+  polish                        381  0.9998  0.15%         2
+  polish, 4 levels              381  0.9999  0.11%         3

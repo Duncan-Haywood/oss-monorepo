@@ -15,7 +15,7 @@ export const EXAMPLE_SHARED = {
   weeklyComp: "2400",
 };
 
-export const money = (n) => (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 });
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 0 }));
 
 const num = (t) => {
   const s = String(t ?? "").replace(/[$%\s,]/g, "");

@@ -1,0 +1,14 @@
+# Copies in oss-monorepo that a test keeps identical on purpose.
+# Use: dupehound --families --guarded ventures/dupehound/guards/oss-monorepo.txt ventures platform
+#
+# platform/proposal/sync.test.mjs fails when any ventures/*/ copy differs by a
+# byte from the canonical file in platform/proposal/ (terms.mjs is vendored as
+# proposal-terms.mjs, and its suite's import line is rewritten to match).
+platform/proposal/proposal.mjs
+platform/proposal/proposal.test.mjs
+platform/proposal/terms.mjs
+platform/proposal/terms.test.mjs
+ventures/*/proposal.mjs
+ventures/*/proposal.test.mjs
+ventures/*/proposal-terms.mjs
+ventures/*/proposal-terms.test.mjs

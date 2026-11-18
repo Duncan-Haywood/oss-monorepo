@@ -1,0 +1,172 @@
+kind | teams weeks | hand: in-target off repeats violations | page: in-target off repeats violations ms
+one team, last pair |  6 26 | 1/6 16 34 0 | 6/6 0 32 0 114
+one team, last pair |  6 30 | 0/6 36 49 0 | 6/6 0 36 0 106
+one team, last pair |  6 32 | 0/6 34 46 0 | 6/6 0 41 0 115
+one team, last pair |  6 34 | 2/6 21 53 0 | 6/6 0 38 0 121
+one team, last pair |  8 26 | 3/8 14 24 0 | 8/8 0 11 0 188
+one team, last pair |  8 30 | 0/8 28 25 0 | 8/8 0 24 0 205
+one team, last pair |  8 32 | 3/8 15 38 0 | 8/8 0 16 0 204
+one team, last pair |  8 34 | 0/8 34 29 0 | 8/8 0 28 0 218
+one team, last pair | 10 26 | 3/10 15 17 0 | 10/10 0 18 0 269
+one team, last pair | 10 30 | 6/10 13 35 0 | 10/10 0 14 0 323
+one team, last pair | 10 32 | 1/10 26 16 0 | 10/10 0 19 0 344
+one team, last pair | 10 34 | 5/10 12 21 0 | 10/10 0 9 0 368
+one team, last pair | 12 26 | 6/12 14 12 0 | 12/12 0 7 0 410
+one team, last pair | 12 30 | 8/12 18 25 0 | 12/12 0 41 0 578
+one team, last pair | 12 32 | 4/12 25 16 0 | 12/12 0 8 0 673
+one team, last pair | 12 34 | 5/12 14 10 0 | 12/12 0 7 0 564
+one team, last pair | 14 26 | 6/14 15 9 0 | 14/14 0 3 0 617
+one team, last pair | 14 30 | 6/14 20 9 0 | 14/14 0 10 0 942
+one team, last pair | 14 32 | 8/14 14 6 0 | 14/14 0 6 0 1037
+one team, last pair | 14 34 | 9/14 12 32 0 | 14/14 0 14 0 997
+one team, last pair | 16 26 | 11/16 12 9 0 | 16/16 0 5 0 807
+one team, last pair | 16 30 | 7/16 21 11 0 | 16/16 0 5 0 1106
+one team, last pair | 16 32 | 9/16 17 35 0 | 16/16 0 42 0 1186
+one team, last pair | 16 34 | 8/16 20 13 0 | 16/16 0 7 0 1307
+one team, last pair | 18 26 | 14/18 7 40 0 | 18/18 0 15 0 1225
+one team, last pair | 18 30 | 13/18 9 5 0 | 18/18 0 2 0 1172
+one team, last pair | 18 32 | 13/18 12 5 0 | 18/18 0 1 0 1620
+one team, last pair | 18 34 | 8/18 24 12 0 | 18/18 0 7 0 1405
+one team, last pair | 20 26 | 14/20 10 0 0 | 20/20 0 0 0 139
+one team, last pair | 20 30 | 15/20 10 25 0 | 20/20 0 24 0 1429
+one team, last pair | 20 32 | 11/20 11 16 0 | 20/20 0 7 0 1690
+one team, last pair | 20 34 | 13/20 13 1 0 | 20/20 0 0 0 511
+one team, last pair | 24 26 | 19/24 6 6 0 | 24/24 0 4 0 3950
+one team, last pair | 24 30 | 20/24 5 1 0 | 24/24 0 0 0 170
+one team, last pair | 24 32 | 19/24 8 2 0 | 24/24 0 0 0 394
+one team, last pair | 24 34 | 17/24 12 13 0 | 24/24 0 17 0 5713
+two teams, last pair |  6 26 | 3/6 5 35 0 | 6/6 0 46 0 84
+two teams, last pair |  6 30 | 2/6 8 43 0 | 6/6 0 38 0 95
+two teams, last pair |  6 32 | 1/6 26 44 0 | 4/6 4 44 0 867
+two teams, last pair |  6 34 | 1/6 20 46 0 | 6/6 0 69 0 113
+two teams, last pair |  8 26 | 0/8 28 33 0 | 8/8 0 19 0 235
+two teams, last pair |  8 30 | 2/8 34 35 0 | 8/8 0 38 0 232
+two teams, last pair |  8 32 | 0/8 34 43 0 | 8/8 0 31 0 265
+two teams, last pair |  8 34 | 0/8 40 41 0 | 8/8 0 29 0 270
+two teams, last pair | 10 26 | 2/10 16 25 0 | 10/10 0 16 0 304
+two teams, last pair | 10 30 | 5/10 14 35 0 | 10/10 0 9 0 427
+two teams, last pair | 10 32 | 0/10 48 26 0 | 10/10 0 25 0 903
+two teams, last pair | 10 34 | 1/10 21 40 0 | 10/10 0 16 0 386
+two teams, last pair | 12 26 | 3/12 23 17 0 | 12/12 0 16 0 435
+two teams, last pair | 12 30 | 2/12 37 19 0 | 12/12 0 35 0 609
+two teams, last pair | 12 32 | 2/12 33 23 0 | 12/12 0 15 0 552
+two teams, last pair | 12 34 | 3/12 30 18 0 | 12/12 0 10 0 605
+two teams, last pair | 14 26 | 2/14 28 16 0 | 14/14 0 2 0 751
+two teams, last pair | 14 30 | 0/14 43 16 0 | 14/14 0 22 0 767
+two teams, last pair | 14 32 | 3/14 28 11 0 | 14/14 0 3 0 729
+two teams, last pair | 14 34 | 7/14 15 29 0 | 14/14 0 5 0 781
+two teams, last pair | 16 26 | 5/16 25 15 0 | 16/16 0 6 0 843
+two teams, last pair | 16 30 | 5/16 24 13 0 | 16/16 0 4 0 1101
+two teams, last pair | 16 32 | 8/16 18 34 0 | 16/16 0 27 0 1061
+two teams, last pair | 16 34 | 6/16 27 17 0 | 16/16 0 20 0 1173
+two teams, last pair | 18 26 | 10/18 18 41 0 | 18/18 0 8 0 1184
+two teams, last pair | 18 30 | 9/18 19 7 0 | 18/18 0 4 0 1382
+two teams, last pair | 18 32 | 8/18 24 8 0 | 18/18 0 6 0 1373
+two teams, last pair | 18 34 | 7/18 30 18 0 | 18/18 0 4 0 1487
+two teams, last pair | 20 26 | 12/20 14 1 0 | 20/20 0 0 0 584
+two teams, last pair | 20 30 | 14/20 14 26 0 | 20/20 0 47 0 1578
+two teams, last pair | 20 32 | 10/20 18 17 0 | 20/20 0 9 0 1697
+two teams, last pair | 20 34 | 12/20 18 3 0 | 20/20 0 1 0 1768
+two teams, last pair | 24 26 | 13/24 15 8 0 | 24/24 0 3 0 2164
+two teams, last pair | 24 30 | 13/24 16 4 0 | 24/24 0 0 0 140
+two teams, last pair | 24 32 | 15/24 15 3 0 | 24/24 0 1 0 2762
+two teams, last pair | 24 34 | 15/24 18 14 0 | 24/24 0 11 0 5658
+one team, both ends |  6 26 | 4/6 3 57 0 | 6/6 0 50 0 130
+one team, both ends |  6 30 | 2/6 20 69 0 | 6/6 0 58 0 115
+one team, both ends |  6 32 | 2/6 15 74 0 | 5/6 1 62 0 1408
+one team, both ends |  6 34 | 2/6 11 80 0 | 6/6 0 66 0 113
+one team, both ends |  8 26 | 2/8 22 43 0 | 8/8 0 20 0 185
+one team, both ends |  8 30 | 1/8 28 44 0 | 8/8 0 24 0 240
+one team, both ends |  8 32 | 6/8 6 57 0 | 8/8 0 32 0 238
+one team, both ends |  8 34 | 0/8 38 46 0 | 8/8 0 27 0 270
+one team, both ends | 10 26 | 0/10 26 24 0 | 10/10 0 16 0 326
+one team, both ends | 10 30 | 4/10 18 40 0 | 10/10 0 16 0 386
+one team, both ends | 10 32 | 1/10 36 28 0 | 10/10 0 17 0 378
+one team, both ends | 10 34 | 2/10 20 32 0 | 10/10 0 13 0 431
+one team, both ends | 12 26 | 3/12 24 17 0 | 12/12 0 18 0 516
+one team, both ends | 12 30 | 7/12 22 32 0 | 12/12 0 7 0 532
+one team, both ends | 12 32 | 2/12 38 22 0 | 12/12 0 25 0 564
+one team, both ends | 12 34 | 1/12 30 18 0 | 12/12 0 10 0 664
+one team, both ends | 14 26 | 1/14 30 12 0 | 14/14 0 8 0 661
+one team, both ends | 14 30 | 2/14 32 14 0 | 14/14 0 14 0 704
+one team, both ends | 14 32 | 2/14 32 10 0 | 14/14 0 5 0 782
+one team, both ends | 14 34 | 3/14 27 37 0 | 14/14 0 5 0 846
+one team, both ends | 16 26 | 8/16 24 14 0 | 16/16 0 9 0 837
+one team, both ends | 16 30 | 1/16 43 20 0 | 16/16 0 14 0 1112
+one team, both ends | 16 32 | 5/16 32 37 0 | 16/16 0 57 0 1171
+one team, both ends | 16 34 | 4/16 36 18 0 | 16/16 0 12 0 1290
+one team, both ends | 18 26 | 8/18 18 43 0 | 18/18 0 42 0 2272
+one team, both ends | 18 30 | 8/18 21 7 0 | 18/18 0 3 0 1504
+one team, both ends | 18 32 | 11/18 17 6 0 | 18/18 0 0 0 1265
+one team, both ends | 18 34 | 6/18 38 15 0 | 18/18 0 11 0 3012
+one team, both ends | 20 26 | 11/20 13 5 0 | 20/20 0 1 0 1642
+one team, both ends | 20 30 | 12/20 20 28 0 | 20/20 0 38 0 1617
+one team, both ends | 20 32 | 7/20 26 21 0 | 20/20 0 9 0 1732
+one team, both ends | 20 34 | 10/20 27 3 0 | 20/20 0 1 0 1834
+one team, both ends | 24 26 | 14/24 12 8 0 | 24/24 0 6 0 1997
+one team, both ends | 24 30 | 17/24 14 1 0 | 24/24 0 0 0 106
+one team, both ends | 24 32 | 15/24 17 4 0 | 24/24 0 0 0 1160
+one team, both ends | 24 34 | 12/24 17 15 0 | 24/24 0 23 0 5820
+three teams, a random pair each |  6 26 | 0/6 23 52 3 | 4/6 5 42 0 655
+three teams, a random pair each |  6 30 | no deal: a week where these limits cannot all hold (the page names it)
+three teams, a random pair each |  6 32 | 0/6 45 64 0 | 6/6 0 56 0 117
+three teams, a random pair each |  6 34 | no deal: a week where these limits cannot all hold (the page names it)
+three teams, a random pair each |  8 26 | 1/8 28 54 0 | 8/8 0 22 0 197
+three teams, a random pair each |  8 30 | 0/8 39 44 0 | 8/8 0 26 0 226
+three teams, a random pair each |  8 32 | 0/8 44 53 0 | 8/8 0 39 0 231
+three teams, a random pair each |  8 34 | 3/8 34 62 0 | 8/8 0 39 0 239
+three teams, a random pair each | 10 26 | 1/10 25 29 0 | 10/10 0 16 0 306
+three teams, a random pair each | 10 30 | 1/10 23 42 0 | 10/10 0 20 0 359
+three teams, a random pair each | 10 32 | 0/10 38 31 0 | 10/10 0 19 0 437
+three teams, a random pair each | 10 34 | 1/10 35 44 0 | 10/10 0 28 0 396
+three teams, a random pair each | 12 26 | 0/12 37 18 0 | 12/12 0 14 0 452
+three teams, a random pair each | 12 30 | 2/12 44 31 0 | 12/12 0 12 0 617
+three teams, a random pair each | 12 32 | 0/12 42 23 0 | 12/12 0 32 0 584
+three teams, a random pair each | 12 34 | 3/12 26 20 0 | 12/12 0 22 0 645
+three teams, a random pair each | 14 26 | 4/14 19 16 0 | 14/14 0 8 0 763
+three teams, a random pair each | 14 30 | 3/14 33 20 0 | 14/14 0 16 0 710
+three teams, a random pair each | 14 32 | 2/14 49 19 0 | 14/14 0 8 0 721
+three teams, a random pair each | 14 34 | 2/14 30 33 0 | 14/14 0 15 0 785
+three teams, a random pair each | 16 26 | 2/16 34 16 0 | 16/16 0 9 0 839
+three teams, a random pair each | 16 30 | 4/16 31 19 0 | 16/16 0 7 0 1044
+three teams, a random pair each | 16 32 | 6/16 21 36 0 | 16/16 0 26 0 1106
+three teams, a random pair each | 16 34 | 1/16 33 19 0 | 16/16 0 12 0 1115
+three teams, a random pair each | 18 26 | 6/18 25 44 0 | 18/18 0 9 0 1160
+three teams, a random pair each | 18 30 | 5/18 27 12 0 | 18/18 0 6 0 1339
+three teams, a random pair each | 18 32 | 4/18 34 5 0 | 18/18 0 16 0 1611
+three teams, a random pair each | 18 34 | 5/18 30 14 0 | 18/18 0 14 0 1455
+three teams, a random pair each | 20 26 | 8/20 24 5 0 | 20/20 0 1 0 1457
+three teams, a random pair each | 20 30 | 11/20 19 26 0 | 20/20 0 37 0 1621
+three teams, a random pair each | 20 32 | 7/20 26 21 0 | 20/20 0 6 0 1763
+three teams, a random pair each | 20 34 | 7/20 33 8 0 | 20/20 0 0 0 1540
+three teams, a random pair each | 24 26 | 9/24 26 8 0 | 24/24 0 6 0 3967
+three teams, a random pair each | 24 30 | 11/24 26 6 0 | 24/24 0 0 0 179
+three teams, a random pair each | 24 32 | 9/24 28 5 0 | 24/24 0 5 0 2756
+three teams, a random pair each | 24 34 | 12/24 24 14 0 | 24/24 0 6 0 2724
+
+one team, last pair: every team in target, hand 0 of 36, page 36 of 36; off-target counts hand 593, page 0; repeats hand 700, page 518; violations hand 0, page 0
+two teams, last pair: every team in target, hand 0 of 36, page 35 of 36; off-target counts hand 844, page 4; repeats hand 824, page 639; violations hand 0, page 0
+one team, both ends: every team in target, hand 0 of 36, page 35 of 36; off-target counts hand 853, page 1; repeats hand 1001, page 719; violations hand 0, page 0
+three teams, a random pair each (2 with no deal, left out): every team in target, hand 0 of 34, page 33 of 34; off-target counts hand 1055, page 5; repeats hand 913, page 594; violations hand 3, page 0
+page: 969 ms per season on average on this machine
+
+SAT checks of the page's misses (python3 eval/bowling-lane-avoid-sat.py <teams> <weeks> '<avoid>';
+CaDiCaL 1.5.3 via python-sat, the season's exact circle-method weeks, bans hard, every count in target):
+6 teams x 26 weeks, two teams avoid the last pair: UNSAT
+6 teams x 32 weeks, two teams avoid the last pair: UNSAT
+6 teams x 34 weeks, two teams avoid the last pair: UNSAT
+6 teams x 32 weeks, one team avoids both ends: UNSAT
+6 teams x 26 weeks, avoid [[0,[0]],[1,[0]],[2,[2]]] (the random kind's draw): UNSAT (checked 2026-11-18, second run)
+Every season the page still misses is proved out of reach for any deal of those weeks: on 3 pairs
+the limits put the target out of reach, and the page's 1-5 off is as close as a deal gets.
+The 20 x 30 misses of the first run (one team off the last pair, two off the last pair, one off
+both ends, all SAT) are closed by the stored shape answers (bowling-avoid-shapes.mjs; README
+"Lane limits on the hard season lengths"). First run, for comparison: page 133 of 142, 24 counts off.
+
+Re-run 2026-11-18 (later) with the shape answers on other slots (eval/bowling-avoid-slots.txt):
+page 139 of 142 (was 137), 10 counts off (was 18). "Out of reach for any deal of those weeks" above
+held for the page's dealing only: 6 x 26 and 6 x 34 with two teams off the last pair are SAT with
+the teams on other circle-method slots, and the page now deals them there. Left: 6 x 32 two teams
+off the last pair (14 of 15 slot pairs UNSAT, slots 0 and 4 open at 300 s), 6 x 32 one team off
+both ends (UNSAT on all 6 slots: out of reach for every dealing), 6 x 26 random limits (UNSAT on
+its dealing; 3 limited teams, other slots not tried).

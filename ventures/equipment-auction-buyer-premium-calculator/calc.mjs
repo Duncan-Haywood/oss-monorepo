@@ -172,7 +172,7 @@ export function analyzeAuction(rawInputs = {}) {
     findings.push({
       severity: 'info',
       title: 'The buyer’s premium cap applied',
-      detail: `At ${terms.buyerPremiumPercent}% this lot's premium would be $${stack.uncappedPremium.toLocaleString()}, but the $${terms.buyerPremiumCap.toLocaleString()} per-lot cap you entered brings it down to $${stack.buyerPremium.toLocaleString()}. Confirm the cap actually applies per lot (not per sale or per day) in this auction's printed terms.`,
+      detail: `At ${terms.buyerPremiumPercent}% this lot's premium would be $${stack.uncappedPremium.toLocaleString('en-US')}, but the $${terms.buyerPremiumCap.toLocaleString('en-US')} per-lot cap you entered brings it down to $${stack.buyerPremium.toLocaleString('en-US')}. Confirm the cap actually applies per lot (not per sale or per day) in this auction's printed terms.`,
     });
   }
 
@@ -220,7 +220,7 @@ export function analyzeAuction(rawInputs = {}) {
       findings.push({
         severity: 'high',
         title: 'This budget does not cover the fixed costs',
-        detail: `The doc fee${terms.taxExempt ? '' : ' and tax on the buyer’s premium'} alone would exceed your $${maxBudget.toLocaleString()} budget before you bid a dollar on the hammer price. Raise the budget or re-check the fixed fees.`,
+        detail: `The doc fee${terms.taxExempt ? '' : ' and tax on the buyer’s premium'} alone would exceed your $${maxBudget.toLocaleString('en-US')} budget before you bid a dollar on the hammer price. Raise the budget or re-check the fixed fees.`,
       });
     }
   }

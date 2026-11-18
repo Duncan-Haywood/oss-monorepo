@@ -149,6 +149,54 @@ class AuditPage(unittest.TestCase):
     def test_http_error(self):
         self.assertEqual(probe.audit_page(self.URL, 404, {}, ""), ([f"{self.URL}: HTTP 404"], []))
 
+    def test_canonical_variants_of_the_page_block(self):
+        # Quality audit 2026-11-07-platform-seo.json, defect 0: norm() forgave all of these.
+        for other in ("http://marisstella.app/x/", "https://www.marisstella.app/x/",
+                      "https://marisstella.app/x/?utm_source=a", "https://marisstella.app:8443/x/"):
+            html = self.page().replace(f'href="{self.URL}"', f'href="{other}"')
+            blockers, _ = probe.audit_page(self.URL, 200, {}, html)
+            self.assertEqual(blockers, [f"{self.URL}: canonical names {other}"], other)
+
+    def test_canonical_harmless_differences(self):
+        for same in ("https://MarisStella.app/x/", "https://marisstella.app:443/x/",
+                     "https://marisstella.app/x/#top"):
+            html = self.page().replace(f'href="{self.URL}"', f'href="{same}"')
+            self.assertEqual(probe.audit_page(self.URL, 200, {}, html), ([], []), same)
+        html = self.page().replace(f'href="{self.URL}"', 'href="https://marisstella.app/x"')
+        blockers, warnings = probe.audit_page(self.URL, 200, {}, html)
+        self.assertEqual(blockers, [])
+        self.assertEqual(len(warnings), 1)
+        self.assertIn("trailing slash", warnings[0])
+
+    def test_unquoted_robots_noindex_blocks(self):
+        # Same audit, defect 2: attr() only read quoted values.
+        for meta in ("<meta name=robots content=noindex>", "<meta name=googlebot content=noindex,follow />"):
+            blockers, _ = probe.audit_page(self.URL, 200, {}, self.page(meta))
+            self.assertEqual(blockers, [f"{self.URL}: meta robots noindex"], meta)
+
+
+class NoAnswer(unittest.TestCase):
+    """Same audit, defect 1: a DNS or connection failure raised URLError (exit 1, 'defect')."""
+
+    def test_http_returns_no_answer(self):
+        import urllib.error
+        with mock.patch.object(probe.urllib.request, "urlopen",
+                               side_effect=urllib.error.URLError("Name or service not known")):
+            status, headers, body = probe.http("https://marisstella.app/robots.txt")
+        self.assertEqual((status, headers), (probe.NO_ANSWER, {}))
+        self.assertIn(b"Name or service not known", body)
+        with mock.patch.object(probe.urllib.request, "urlopen", side_effect=TimeoutError("timed out")):
+            self.assertEqual(probe.http("https://marisstella.app/")[0], probe.NO_ANSWER)
+
+    def test_audit_offline_is_unmeasured(self):
+        import argparse
+        import urllib.error
+        args = argparse.Namespace(site=SITE, seed="s", sitemaps=1, pages=1, dry_run=True)
+        with mock.patch.object(probe.urllib.request, "urlopen",
+                               side_effect=urllib.error.URLError("offline")), \
+                mock.patch.object(probe, "load_queries", return_value=QUERIES):
+            self.assertEqual(probe.cmd_audit(args), probe.EXIT_UNMEASURED)
+
 
 class Gsc(unittest.TestCase):
     def test_rows_to_observations(self):

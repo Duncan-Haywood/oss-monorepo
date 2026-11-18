@@ -33,7 +33,7 @@ export const fmtQty = (n) => (+n.toFixed(8)).toString();
 export function parseCsv(text) {
   const rows = [];
   let row = [], cell = "", q = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
+  const s = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (q) {
@@ -134,7 +134,7 @@ export function parseTransactions(text) {
   const heads = rows[0].map(norm);
   const col = {};
   for (const [key, names] of Object.entries(ALIASES)) {
-    const i = heads.findIndex((h) => names.includes(h));
+    const i = (names.map((n) => heads.indexOf(n)).find((i) => i >= 0) ?? -1);
     if (i >= 0) col[key] = i;
   }
   for (const need of ["date", "type", "asset", "quantity", "value"]) {
@@ -331,7 +331,7 @@ export function overview(transactions, opts = {}) {
 
 const csvCell = (v) => {
   let s = String(v);
-  if (/^[=+\-@\t\r]/.test(s)) s = `'${s}`;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = `'${s}`;
   return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 

@@ -1,0 +1,110 @@
+# Milestone 2: as-built studs under a straight sheet edge (buildbot-sheathing)
+tool 0.9 mm, stud read 0.5 mm per read, edge line 0.5 mm, 1/8 in gap; 20000 sheets a cell, seed 3
+
+## A. Geometry
+joint half-window 3.137 mm; largest wall bow with a window on both sides of the joint: 12.548 mm (gap centred on the stud's range) = 0.531 in over 8 ft; 6.274 mm (centred on the plate line) = 0.265 in over 8 ft
+Stud-grade bow limit 0.75 in over 8 ft = 17.734 mm on the 92 5/8 in stud; twist limit 0.375 in = 5.92 deg end to end
+  studs whose bow closes a joint, low (0.11, 0.08 in), halfnormal: 0.0001 (minimax), 0.0540 (plate line)
+  studs whose bow closes a joint, low (0.11, 0.08 in), exponential: 0.0071 (minimax), 0.0887 (plate line)
+  studs whose bow closes a joint, high (0.21, 0.16 in), halfnormal: 0.0395 (minimax), 0.3098 (plate line)
+  studs whose bow closes a joint, high (0.21, 0.16 in), exponential: 0.0536 (minimax), 0.2626 (plate line)
+twist_deg  band_lo_mm(10D)  band_hi_mm(10D)  width_mm(10D)  width_mm(6D)
+      0.0          -17.381           17.381         34.762        34.762
+      0.5          -17.480           17.160         34.641        34.873
+      1.0          -17.576           16.939         34.515        34.980
+      2.0          -17.762           16.486         34.248        35.178
+      3.0          -17.945           16.032         33.978        35.368
+      4.0          -18.120           15.571         33.692        35.555
+      6.0          -18.467           14.642         33.109        35.890
+
+## B. H6: every stud at the Stud-grade bow limit (0.75 in), perfect sensing and tool
+single  feasible 0.2508  clean 0.2508
+ends    feasible 0.2529  clean 0.2529
+three   feasible 0.0000  clean 0.0000
+dense   feasible 0.0000  clean 0.0000
+
+## C. Clean sheets by sensing policy and published warp (truncated at the grade limits)
+warp                   shape        policy  clean   nails_missed  feasible
+none                   halfnormal   single  0.9399         0.066  1.0000
+none                   halfnormal   ends    0.9557         0.046  1.0000
+none                   halfnormal   three   0.9586         0.043  1.0000
+none                   halfnormal   dense   0.9703         0.030  1.0000
+low (0.11, 0.08 in)    halfnormal   single  0.5453         1.736  0.9355
+low (0.11, 0.08 in)    halfnormal   ends    0.5462         2.184  0.9794
+low (0.11, 0.08 in)    halfnormal   three   0.8032         0.259  0.9997
+low (0.11, 0.08 in)    halfnormal   dense   0.8327         0.213  0.9996
+low (0.11, 0.08 in)    exponential  single  0.5831         1.717  0.9057
+low (0.11, 0.08 in)    exponential  ends    0.5861         2.231  0.9514
+low (0.11, 0.08 in)    exponential  three   0.7673         0.404  0.9845
+low (0.11, 0.08 in)    exponential  dense   0.7942         0.348  0.9847
+high (0.21, 0.16 in)   halfnormal   single  0.3902         3.922  0.6825
+high (0.21, 0.16 in)   halfnormal   ends    0.3513         5.308  0.8005
+high (0.21, 0.16 in)   halfnormal   three   0.4736         1.309  0.9096
+high (0.21, 0.16 in)   halfnormal   dense   0.5002         1.200  0.9107
+high (0.21, 0.16 in)   exponential  single  0.4462         3.316  0.7369
+high (0.21, 0.16 in)   exponential  ends    0.4028         4.582  0.8172
+high (0.21, 0.16 in)   exponential  three   0.5246         1.283  0.8870
+high (0.21, 0.16 in)   exponential  dense   0.5514         1.180  0.8885
+
+## D. Ablation at the low published warp (half-normal)
+single  bow+twist                      clean 0.5453  missed 1.736  feasible 0.9355
+single  bow only                       clean 0.5599  missed 1.651  feasible 0.9467
+single  twist only                     clean 0.9268  missed 0.083  feasible 1.0000
+single  neither                        clean 0.9399  missed 0.066  feasible 1.0000
+single  bow+twist, 6D penetration      clean 0.5681  missed 1.599  feasible 0.9423
+single  bow+twist, perfect reads       clean 0.5546  missed 1.619  feasible 0.9389
+single  bow+twist, perfect reads+edge  clean 0.5631  missed 1.594  feasible 0.9389
+three   bow+twist                      clean 0.8032  missed 0.259  feasible 0.9997
+three   bow only                       clean 0.8177  missed 0.244  feasible 0.9998
+three   twist only                     clean 0.9486  missed 0.054  feasible 1.0000
+three   neither                        clean 0.9586  missed 0.043  feasible 1.0000
+three   bow+twist, 6D penetration      clean 0.8220  missed 0.233  feasible 0.9997
+three   bow+twist, perfect reads       clean 0.8469  missed 0.193  feasible 0.9996
+three   bow+twist, perfect reads+edge  clean 0.8685  missed 0.161  feasible 0.9996
+dense   bow+twist                      clean 0.8327  missed 0.213  feasible 0.9996
+dense   bow only                       clean 0.8457  missed 0.196  feasible 0.9999
+dense   twist only                     clean 0.9644  missed 0.037  feasible 1.0000
+dense   neither                        clean 0.9703  missed 0.030  feasible 1.0000
+dense   bow+twist, 6D penetration      clean 0.8459  missed 0.195  feasible 0.9998
+dense   bow+twist, perfect reads       clean 0.8469  missed 0.193  feasible 0.9996
+dense   bow+twist, perfect reads+edge  clean 0.8685  missed 0.161  feasible 0.9996
+
+## E. Stud read scatter (1 sigma per read) allowed for 95% clean sheets
+straight studs  single   0.435 mm
+straight studs  ends     0.554 mm
+straight studs  three    0.601 mm
+straight studs  dense    1.194 mm
+low warp        single   0.000 mm  (95% not reached even with perfect reads)
+low warp        ends     0.000 mm  (95% not reached even with perfect reads)
+low warp        three    0.000 mm  (95% not reached even with perfect reads)
+low warp        dense    0.000 mm  (95% not reached even with perfect reads)
+
+## F. Culling bowed studs (8 ft bow cut, low published warp, half-normal)
+cut 0.7500 in  culled 0.000  clean: single 0.5453  three 0.8032  dense 0.8327
+cut 0.5000 in  culled 0.000  clean: single 0.5425  three 0.8053  dense 0.8344
+cut 0.3750 in  culled 0.006  clean: single 0.5422  three 0.8106  dense 0.8438
+cut 0.2500 in  culled 0.070  clean: single 0.5678  three 0.8535  dense 0.8828
+cut 0.1875 in  culled 0.173  clean: single 0.6170  three 0.8911  dense 0.9159
+cut 0.1250 in  culled 0.364  clean: single 0.7376  three 0.9197  dense 0.9395
+cut 0.0625 in  culled 0.649  clean: single 0.8788  three 0.9411  dense 0.9582
+
+## G. Plate layout error at each stud end (lean), low published warp
+layout 0.0 mm  single 0.5453  ends 0.5462  three 0.8032  dense 0.8327
+layout 0.8 mm  single 0.5128  ends 0.5405  three 0.7806  dense 0.8072
+layout 1.6 mm  single 0.4530  ends 0.5150  three 0.7228  dense 0.7486
+layout 3.2 mm  single 0.3250  ends 0.4001  three 0.5452  dense 0.5677
+
+## H. Joint framing: one 2x (1.5 in face), a 3x (2.5 in), two 2x fastened (3.0 in); SDPWS 4.3.7.1
+2x (1.5 in): largest wall bow with a joint window 12.548 mm
+  low (0.11, 0.08 in)    single 0.5453  ends 0.5462  three 0.8032  dense 0.8327
+  high (0.21, 0.16 in)   single 0.3902  ends 0.3513  three 0.4736  dense 0.5002
+3x (2.5 in): largest wall bow with a joint window 37.948 mm
+  low (0.11, 0.08 in)    single 0.9909  ends 0.9983  three 1.0000  dense 1.0000
+  high (0.21, 0.16 in)   single 0.8486  ends 0.9207  three 1.0000  dense 1.0000
+2 x 2x (3.0 in): largest wall bow with a joint window 50.648 mm
+  low (0.11, 0.08 in)    single 0.9996  ends 1.0000  three 1.0000  dense 1.0000
+  high (0.21, 0.16 in)   single 0.9489  ends 0.9850  three 1.0000  dense 1.0000
+  3x (2.5 in) low (0.11, 0.08 in) exponential: single 0.9675  ends 0.9845  three 1.0000  dense 1.0000
+  3x (2.5 in) high (0.21, 0.16 in) exponential: single 0.8589  ends 0.9085  three 1.0000  dense 1.0000
+  2 x 2x (3.0 in) low (0.11, 0.08 in) exponential: single 0.9908  ends 0.9971  three 1.0000  dense 1.0000
+  2 x 2x (3.0 in) high (0.21, 0.16 in) exponential: single 0.9397  ends 0.9748  three 1.0000  dense 1.0000

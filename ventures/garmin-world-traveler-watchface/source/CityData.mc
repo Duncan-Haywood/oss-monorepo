@@ -35,7 +35,9 @@ module CityData {
     // :ring selects which of the two concentric label rings a city draws
     // on (0 = outer/primary, 1 = inner/secondary) so that a same-offset
     // pair -- which would otherwise sit at the exact same angle whenever
-    // neither is mid-DST -- doesn't overlap.
+    // neither is mid-DST -- doesn't overlap. DST can still put two same-ring
+    // cities on one angle (e.g. NYC/CCS in the northern summer); the README's
+    // "Known gaps" lists every pair, computed by test/citydata.test.mjs.
     //
     // index -> { :name, :abbr (3 letters, drawn on the ring), :offset
     // (seconds, standard time), :dst (symbol), :ring (0 or 1) }

@@ -43,6 +43,21 @@ Its energy model charged the table engine a table read and an add per weight. Th
 - ROM logic from random constants is not a memory macro; the break-even column is the honest way to read the storage trade.
 - One multiplier and one accumulator per engine; a parallel or double-buffered table engine was not built.
 - No clock frequency estimate, so cycles are not seconds.
+- Missing baseline (quality audit round 50,
+  [`2026-11-12-accel-lutrtl.json`](../../portfolio/quality/audits/2026-11-12-accel-lutrtl.json)):
+  a MAC engine that decodes the same shared codebook (EIE-style weight
+  sharing) stores the same index bits as the table engine. The storage halving
+  above comes from weight sharing, not from the product table, so the
+  break-even column compares the table engine with the wrong MAC. The auditor
+  built that engine with this flow: about 1,786 GE of datapath at N=8, against
+  4,614 for the table engine, with MAC cycle counts. It is not yet in `run.py`.
+- "A table engine needs all N accumulators live" holds for this
+  input-stationary design, not for every table engine. Nearest prior work, not
+  yet compared: UCNN (Hegde et al., ISCA 2018), LUT-GEMM (Park et al., 2022)
+  and T-MAC (Wei et al., 2024).
+- The three RTL tests skip when `iverilog`/`yosys` are missing, and no CI job
+  installs them, so CI does not simulate the RTL. Run them locally with both
+  tools installed (`apt-get install iverilog yosys`).
 
 ## Next steps
 Toggle-count energy from the simulation; an iCE40 or SKY130 flow for real LUT and clock numbers; a double-buffered table; the same comparison on `accel-kws` features once data is reachable.

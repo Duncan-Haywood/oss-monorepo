@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23225c4f'/%3E%3Cpath%20d='M16%206%20A10%2010%200%200%201%2026%2016%20L16%2016Z'%20fill='%23f2a93b'/%3E%3Ccircle%20cx='16'%20cy='16'%20r='10'%20stroke='%23fff'%20stroke-width='2.5'%20fill='none'/%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Fair Cost Sharing Calculator — Shapley value, nucleolus and core, free online</title>
+  <meta name="description" content="Free fair cost sharing calculator. Split the cost of a shared road, utility, ride, plant or purchase by the Shapley value or the nucleolus, see which groups a split overcharges (the core), and divide an estate that cannot pay every claim by the Talmud rule. Price each group of members, or give each household's distance along a shared road. Runs in your browser.">
+  <meta property="og:title" content="Who should pay what? Shapley value, nucleolus and the core for a shared cost, in your browser">
+  <meta property="og:description" content="Split a shared road, plant or ride by the Shapley value or the nucleolus, see which subgroups a split overcharges, and divide an estate by the Talmud rule. Checked against an independent solver on 40 games and the Mishnah's three estates.">
+  <link rel="canonical" href="./index.html">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "SoftwareApplication", "name": "Fair cost sharing calculator: Shapley value, nucleolus and core", "applicationCategory": "EducationalApplication", "operatingSystem": "Any modern browser", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "USD"}, "description": "Splits a shared cost among the people who share it by the Shapley value (Shapley 1953), the nucleolus (Schmeidler 1969), SCRB and ENSC (Young, Okada & Hashimoto 1982), proportional and equal rules, and checks each split against the core: whether any subgroup would pay less on its own. A road mode splits each stretch of a shared road among those who use it (Littlechild & Owen 1973); a claims mode divides an estate by the Talmud rule (Aumann & Maschler 1985) and random arrival (O'Neill 1982). Runs in your browser.", "featureList": "Shapley value calculator, nucleolus calculator, core of a cooperative game, least core, cost allocation, private road maintenance cost split, shared driveway cost split, airport game, SCRB separable costs remaining benefits, bankruptcy problem, Talmud rule, constrained equal awards, proportional division, CSV upload, CSV download", "citation": ["https://doi.org/10.1515/9781400881970-018", "https://doi.org/10.1137/0117107", "https://doi.org/10.1287/moor.4.4.303", "https://doi.org/10.1029/WR018i003p00463", "https://doi.org/10.1287/mnsc.20.3.370", "https://doi.org/10.1016/0022-0531(85)90102-4", "https://doi.org/10.1016/0165-4896(82)90029-4"]}</script>
+  <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What is the Shapley value, in plain words?", "acceptedAnswer": {"@type": "Answer", "text": "Imagine the members join the shared project one at a time. Each one adds some cost: what the group costs with them minus what it cost without them. That extra depends on who was already there, so the Shapley value averages it over every order in which the group could have formed. It is the only rule that divides the whole cost, treats members with the same effect the same, charges nothing to a member who adds nothing, and adds up across separate projects."}}, {"@type": "Question", "name": "What is the core, and why does it matter?", "acceptedAnswer": {"@type": "Answer", "text": "A split is in the core when no subgroup would pay less by leaving and doing the project on its own. A split outside the core gives that subgroup a reason to walk away, which is how shared projects fall apart. The tool checks every subgroup and names the one each split overcharges most."}}, {"@type": "Question", "name": "What is the nucleolus?", "acceptedAnswer": {"@type": "Answer", "text": "Of all splits, the nucleolus is the one that makes the worst-treated subgroup as well off as possible, then the next worst, and so on. When the core is not empty the nucleolus is always inside it, so it is the split to reach for when keeping every subgroup on board is the priority. When the core is empty, it keeps the largest overcharge as small as it can be."}}, {"@type": "Question", "name": "How should neighbours split the cost of a shared private road?", "acceptedAnswer": {"@type": "Answer", "text": "A common rule splits each stretch of road equally among the households that drive on it: everyone shares the first stretch, and only those further out share the stretches beyond. That is the Shapley value of the road (Littlechild and Owen 1973). Splitting in proportion to distance looks similar but can charge the nearest households more than a road of their own would cost; the tool says when it does. Your road maintenance agreement, deed or local law may set a different rule, and it governs."}}, {"@type": "Question", "name": "What if I do not know the cost of every group?", "acceptedAnswer": {"@type": "Answer", "text": "Price each member alone and the whole group, then any groups you can. A group you leave out is priced as the cheapest way to split it into groups you did price, since it could always do that. The tool says how many it filled in. It also flags a priced group that costs more than splitting up would, since that group would rather split."}}, {"@type": "Question", "name": "How does the Talmud divide an estate that cannot pay every claim?", "acceptedAnswer": {"@type": "Answer", "text": "The Mishnah (Ketubot 10:4) has a man die owing his three wives 100, 200 and 300. With 100 in the estate each gets 33 1/3; with 200 they get 50, 75 and 75; with 300 they get 50, 100 and 150. Aumann and Maschler (1985) showed each of these is the nucleolus of the claims game: split equally, but no one gets more than half their claim until all have half, and past half the claims, split the losses the same way. The tool reproduces all three."}}, {"@type": "Question", "name": "Is my data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Every split is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors."}}]}</script>
+  <style>
+    :root { font: 16px system-ui, sans-serif; color: #172b26; background: #f1f5f3; }
+    body { max-width: 1000px; margin: auto; padding: 28px; }
+    a { color: #1e6b59; }
+    h1 { font-size: clamp(1.8rem, 4.8vw, 2.8rem); line-height: 1.08; margin: 0 0 14px; color: #133d34; }
+    h2 { font-size: 1.15rem; margin: 0 0 10px; color: #133d34; }
+    h3 { font-size: 1rem; margin: 18px 0 4px; }
+    p, li { line-height: 1.55; }
+    .note, footer { font-size: .86rem; color: #4b5d58; }
+    .card { background: #fff; border: 1px solid #d3e0db; border-radius: 14px; padding: 22px; box-shadow: 0 8px 24px #133d3410; margin: 18px 0; }
+    label { display: block; font-weight: 600; margin: 12px 0 4px; }
+    select, input { width: 100%; box-sizing: border-box; padding: 9px 10px; border: 1px solid #6f857f; border-radius: 7px; font: 15px system-ui, sans-serif; background: #fff; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 0 14px; }
+    @media (max-width: 720px) { body { padding: 16px; } .card { padding: 16px; } }
+    button { border: 0; border-radius: 8px; padding: 11px 15px; background: #1e6b59; color: #fff; font-weight: 700; cursor: pointer; margin: 14px 8px 0 0; }
+    button.secondary { background: #e2eeea; color: #133d34; }
+    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+    th, td { text-align: left; padding: 7px 8px; border-bottom: 1px solid #e6eeeb; vertical-align: top; }
+    th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4b5d58; }
+    td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+    footer { margin-top: 28px; border-top: 1px solid #d3e0db; padding-top: 16px; }
+    .scroll { overflow-x: auto; max-width: 100%; }
+    main, section, .card { min-width: 0; }
+    code { overflow-wrap: anywhere; font-size: .9em; }
+    textarea { width: 100%; box-sizing: border-box; min-height: 160px; padding: 9px 10px; border: 1px solid #6f857f; border-radius: 7px; font: 13px ui-monospace, monospace; }
+    svg { width: 100%; height: auto; background: #fff; display: block; }
+    .summary { font-size: 1.02rem; }
+    .warn { background: #fdf0d5; color: #5f480c; border-radius: 8px; padding: 8px 12px; margin: 8px 0; font-size: .92rem; }
+    .ok { color: #1e6b59; font-weight: 600; }
+    .bad { color: #a8322a; font-weight: 600; }
+    .key { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -1px; margin-right: 4px; }
+    pre { background: #f3f7f5; border: 1px solid #dbe6e2; border-radius: 8px; padding: 10px 12px; overflow-x: auto; font-size: .8rem; line-height: 1.45; }
+  </style>
+</head>
+<body>
+  <header>
+    <p class="note">FAIR COST SHARING · SHAPLEY VALUE · NUCLEOLUS · CORE · SHARED ROAD SPLIT · TALMUD RULE · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
+    <h1>Who should pay what for something you share?</h1>
+    <p>A private road, a well, a water plant, a shared ride, a joint purchase: together it costs less than each going alone, and the question is how to split the saving. This tool splits it by the <strong>Shapley value</strong> (Shapley 1953) and the <strong>nucleolus</strong> (Schmeidler 1969), shows the usual rules of thumb next to them, and checks every split against the <strong>core</strong>: would any subgroup pay less by walking away? It also divides an <strong>estate that cannot pay every claim</strong>, by the Talmud's rule.</p>
+    <p class="note">Nothing you enter leaves this browser tab. Arithmetic on the numbers you give, not legal, tax, or financial advice.</p>
+  </header>
+<main>
+
+  <section class="card">
+    <h2>What you are splitting</h2>
+    <div class="grid">
+      <div><label for="mode">Kind of problem</label><select id="mode"><option value="coalitions">Price each group (any shared cost)</option><option value="road">A shared road, pipe or line (distance per member)</option><option value="claims">Claims on an estate that cannot pay them all</option></select></div>
+      <div id="game-box"><label for="game">The numbers are</label><select id="game"><option value="cost">Costs (lower is better)</option><option value="value">Gains: profit or savings (higher is better)</option></select></div>
+      <div id="total-box" hidden><label for="total">Cost of the full length</label><input id="total" type="number" min="0" step="any" placeholder="blank: distances are costs"></div>
+      <div id="estate-box" hidden><label for="estate">Estate: what there is to divide</label><input id="estate" type="number" min="0" step="any"></div>
+      <div><label for="unit">Currency sign in the text (optional)</label><input id="unit" type="text" maxlength="4" placeholder="$"></div>
+    </div>
+    <label for="csv" id="csv-label">One group per line: the members joined with +, a comma, then the group's cost</label>
+    <textarea id="csv" spellcheck="false"></textarea>
+    <label for="file">Or open a CSV file from this device</label>
+    <input id="file" type="file" accept=".csv,.tsv,.txt,text/csv">
+    <div>
+      <button type="button" class="secondary" id="ex-claims">Example: the Mishnah's three wives (real)</button>
+      <button type="button" class="secondary" id="ex-road">Example: five households on a private road (made up)</button>
+      <button type="button" class="secondary" id="ex-coalitions">Example: three towns and a water plant (made up)</button>
+    </div>
+    <p class="note" id="help-text"></p>
+    <button type="button" id="analyze">Split it</button>
+    <span class="note" id="status"></span>
+  </section>
+
+  <section class="card" id="results" hidden>
+    <h2>Result</h2>
+    <p class="summary" id="summary"></p>
+    <div id="notes"></div>
+    <h3>Each rule's split</h3>
+    <div class="scroll"><table id="table"></table></div>
+    <h3>The same splits, side by side</h3>
+    <p class="note" id="legend"></p>
+    <div id="chart"></div>
+    <h3>Does any subgroup do better on its own?</h3>
+    <div class="scroll"><table id="core"></table></div>
+    <div id="segments-box" hidden>
+      <h3>Stretch by stretch</h3>
+      <div class="scroll"><table id="segments"></table></div>
+    </div>
+    <button type="button" class="secondary" id="download">Download the splits (CSV)</button>
+  </section>
+
+  <section class="card">
+    <h2>Example: the Mishnah's estate problem, solved 1,800 years before game theory</h2>
+    <p>Mishnah Ketubot 10:4 has a man die owing his three wives 100, 200 and 300 zuz under their marriage contracts. If the estate is 100, each gets 33⅓; if 200, they get 50, 75 and 75; if 300, they get 50, 100 and 150. For centuries the middle case looked arbitrary. Aumann and Maschler (1985) showed that all three are the <em>nucleolus</em> of the claims game: no one gets more than half their claim until everyone has half, and beyond that the losses are shared the same way. Load the example and change the estate to 100 or 300: the tool's Talmud column reproduces all three, and its nucleolus, found by linear programming with no knowledge of the rule, agrees. Proportional division (33⅓, 66⅔, 100 at 200) and random arrival (33⅓, 83⅓, 83⅓) are shown beside it.</p>
+    <p class="note">Insolvency law in most places divides an estate among creditors of the same class in proportion to their claims, after secured and priority creditors. The Talmud rule is a different, older answer, shown for comparison.</p>
+  </section>
+  <section class="card">
+    <h2>Questions</h2>
+    <h3>What is the Shapley value, in plain words?</h3>
+    <p>Imagine the members join the shared project one at a time. Each one adds some cost: what the group costs with them minus what it cost without them. That extra depends on who was already there, so the Shapley value averages it over every order in which the group could have formed. It is the only rule that divides the whole cost, treats members with the same effect the same, charges nothing to a member who adds nothing, and adds up across separate projects.</p>
+    <h3>What is the core, and why does it matter?</h3>
+    <p>A split is in the core when no subgroup would pay less by leaving and doing the project on its own. A split outside the core gives that subgroup a reason to walk away, which is how shared projects fall apart. The tool checks every subgroup and names the one each split overcharges most.</p>
+    <h3>What is the nucleolus?</h3>
+    <p>Of all splits, the nucleolus is the one that makes the worst-treated subgroup as well off as possible, then the next worst, and so on. When the core is not empty the nucleolus is always inside it, so it is the split to reach for when keeping every subgroup on board is the priority. When the core is empty, it keeps the largest overcharge as small as it can be.</p>
+    <h3>How should neighbours split the cost of a shared private road?</h3>
+    <p>A common rule splits each stretch of road equally among the households that drive on it: everyone shares the first stretch, and only those further out share the stretches beyond. That is the Shapley value of the road (Littlechild and Owen 1973). Splitting in proportion to distance looks similar but can charge the nearest households more than a road of their own would cost; the tool says when it does. Your road maintenance agreement, deed or local law may set a different rule, and it governs.</p>
+    <h3>What if I do not know the cost of every group?</h3>
+    <p>Price each member alone and the whole group, then any groups you can. A group you leave out is priced as the cheapest way to split it into groups you did price, since it could always do that. The tool says how many it filled in. It also flags a priced group that costs more than splitting up would, since that group would rather split.</p>
+    <h3>How does the Talmud divide an estate that cannot pay every claim?</h3>
+    <p>The Mishnah (Ketubot 10:4) has a man die owing his three wives 100, 200 and 300. With 100 in the estate each gets 33 1/3; with 200 they get 50, 75 and 75; with 300 they get 50, 100 and 150. Aumann and Maschler (1985) showed each of these is the nucleolus of the claims game: split equally, but no one gets more than half their claim until all have half, and past half the claims, split the losses the same way. The tool reproduces all three.</p>
+    <h3>Is my data uploaded anywhere?</h3>
+    <p>No. Every split is computed by JavaScript in this browser tab. There are no accounts, cookies or analytics vendors.</p>
+  </section>
+  <section class="card">
+    <h2>Method and citation</h2>
+    <p><strong>Shapley value.</strong> Member <code>i</code> pays <code>Σ<sub>S∌i</sub> |S|!(n−|S|−1)!/n! · (c(S∪i) − c(S))</code>, computed exactly over every subgroup (up to 14 members). On a road, where a group costs what its furthest member needs, this is Littlechild and Owen's closed form: each stretch split equally among those who reach it, at any size.</p>
+    <p><strong>Nucleolus and core.</strong> The excess of a subgroup is what it pays minus what it would cost alone. The tool solves Maschler, Peleg and Shapley's (1979) sequence of linear programmes: find the split whose largest excess is smallest (the <em>least core</em>; the core is empty when that excess is above zero), fix the subgroups that must sit at it, and repeat until the split is unique. Each programme is solved through its dual by a two-phase simplex written for this tool (up to 10 members). Shares are kept at or below each member's stand-alone cost.</p>
+    <p><strong>SCRB and ENSC</strong> (Young, Okada &amp; Hashimoto 1982). A member's separable cost is <code>c(N) − c(N without i)</code>; the rest is non-separable. ENSC splits that rest equally; SCRB splits it in proportion to each member's stand-alone cost minus their separable cost.</p>
+    <p><strong>Claims.</strong> The claims game gives a subgroup what is left after paying everyone outside it in full. Talmud rule and its equality with the nucleolus: Aumann &amp; Maschler (1985). Random arrival, the Shapley value of the same game: O'Neill (1982).</p>
+    <p><strong>Checked</strong> against an independent Python implementation (Shapley by every ordering of the members; nucleolus by scipy's HiGHS solver, finding fixed subgroups a different way) on 40 random games of 3 to 7 members, to within 10<sup>−11</sup>; against the Mishnah's three divisions, the glove game's known Shapley value and nucleolus, and a textbook linear programme. Implemented from the papers; no third-party code was ported.</p>
+<pre>@incollection{shapley1953value, author={Shapley, Lloyd S.}, title={A Value for n-Person Games}, booktitle={Contributions to the Theory of Games II}, series={Annals of Mathematics Studies 28}, pages={307--317}, year={1953}, doi={10.1515/9781400881970-018}}
+@article{schmeidler1969nucleolus, author={Schmeidler, David}, title={The Nucleolus of a Characteristic Function Game}, journal={SIAM Journal on Applied Mathematics}, volume={17}, number={6}, pages={1163--1170}, year={1969}, doi={10.1137/0117107}}
+@article{maschler1979geometric, author={Maschler, Michael and Peleg, Bezalel and Shapley, Lloyd S.}, title={Geometric Properties of the Kernel, Nucleolus, and Related Solution Concepts}, journal={Mathematics of Operations Research}, volume={4}, number={4}, pages={303--338}, year={1979}, doi={10.1287/moor.4.4.303}}
+@article{young1982cost, author={Young, H. Peyton and Okada, Norio and Hashimoto, Tsuyoshi}, title={Cost allocation in water resources development}, journal={Water Resources Research}, volume={18}, number={3}, pages={463--475}, year={1982}, doi={10.1029/WR018i003p00463}}
+@article{littlechild1973simple, author={Littlechild, S. C. and Owen, G.}, title={A Simple Expression for the Shapley Value in a Special Case}, journal={Management Science}, volume={20}, number={3}, pages={370--372}, year={1973}, doi={10.1287/mnsc.20.3.370}}
+@article{aumann1985game, author={Aumann, Robert J. and Maschler, Michael}, title={Game theoretic analysis of a bankruptcy problem from the Talmud}, journal={Journal of Economic Theory}, volume={36}, number={2}, pages={195--213}, year={1985}, doi={10.1016/0022-0531(85)90102-4}}
+@article{oneill1982problem, author={O'Neill, Barry}, title={A problem of rights arbitration from the Talmud}, journal={Mathematical Social Sciences}, volume={2}, number={4}, pages={345--371}, year={1982}, doi={10.1016/0165-4896(82)90029-4}}</pre>
+    <p class="note">Limits: the coalition table takes up to 14 members, the nucleolus and full core check up to 10 (the road's core check uses its structure at any size), claims up to 14. A split says what is fair by one definition; it does not say what a contract, deed or court requires.</p>
+  </section>
+</main>
+  <footer>
+    <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, or financial advice, and it does not replace a lawyer, accountant or mediator. Results are arithmetic on the numbers you enter; a road agreement, deed, contract, statute or court may require a different split. You are responsible for reviewing and verifying its output before relying on it. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
+    <p><strong>Independent.</strong> Not affiliated with the authors of the cited papers, their institutions, or any software vendor.</p>
+    <p><strong>Best-effort hosting, no SLA.</strong> These tools are free, experimental, and may be slow, broken, moved, or taken offline without notice. We do not promise uptime, backups of anything you enter, or that a URL will keep working. Do not use this as a system of record — nothing you enter is saved anywhere.</p>
+    <p>Everything runs in your browser. Your data is never uploaded; there are no accounts, cookies, or analytics vendors. Anonymous feature events (<code>analysis_run</code>, <code>example_loaded</code>, <code>report_downloaded</code>) are counted only in local storage on your device, never with any of your data, and are switched off by Do Not Track.</p>
+    <p><button type="button" class="secondary" id="optout">Turn usage counting off</button></p>
+    <p>Free command line and agent access: <code>node cli.mjs road.csv --mode road --total 18000</code> from the <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/cost-sharing-calculator" rel="noopener">source</a>.</p>
+    <p>More research algorithms on your own data: the <a href="../ranked-ballot-counter/">ranked ballot counter</a> counts a ranked-choice election, <a href="../hdbscan-clustering/">HDBSCAN clustering</a> finds the groups in a table, and the <a href="../stable-matching/">stable matching tool</a> pairs two sides that rank each other.</p>
+    <p class="support">Free and open source. If this helped, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
+  </footer>
+  <script type="module">
+    import { analyze, toCsv, fmt } from "./engine.mjs";
+    import { EXAMPLES } from "./example-data.mjs";
+    import { record, setUsageOptOut, usageOptedOut } from "./usage.mjs";
+    const $ = (sel) => document.querySelector(sel);
+    const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const PALETTE = ["#1e6b59", "#d9822b", "#3d5a99", "#b23a48", "#7a6c2e", "#5a8f3d", "#8e4f9e", "#2a8a9e", "#a35c1e", "#56606b", "#c06c8a", "#3e7d6f", "#6a5acd", "#9c7a2b"];
+    const HELP = {
+      coalitions: ["One group per line: the members joined with +, a comma, then the group's cost", "Price every member alone and the whole group; groups you leave out are priced as the cheapest way to split them. Up to 14 members."],
+      road: ["One member per line: a name, a comma, then how far along the shared road (or pipe, runway) they need it", "Distances in any unit. With a total cost, the full length costs that much and shorter reaches cost in proportion."],
+      claims: ["One claimant per line: a name, a comma, then the amount claimed", "Give the estate above. When it covers every claim there is nothing to decide. Up to 14 claimants."],
+    };
+    let last = null;
+    function refreshMode() {
+      const m = $("#mode").value;
+      $("#game-box").hidden = m !== "coalitions";
+      $("#total-box").hidden = m !== "road";
+      $("#estate-box").hidden = m !== "claims";
+      $("#csv-label").textContent = HELP[m][0];
+      $("#help-text").textContent = HELP[m][1];
+    }
+    function inputs() {
+      const m = $("#mode").value;
+      const o = { mode: m, csv: $("#csv").value, unit: $("#unit").value.trim() };
+      if (m === "coalitions") o.game = $("#game").value;
+      if (m === "road" && $("#total").value.trim() !== "") o.total = Number($("#total").value);
+      if (m === "claims") o.estate = $("#estate").value.trim() === "" ? NaN : Number($("#estate").value);
+      return o;
+    }
+    function chart(r) {
+      const shown = r.methods.filter((m) => m.x);
+      const W = 900;
+      const row = 34;
+      const left = 230;
+      const H = shown.length * row + 20;
+      const total = r.mode === "claims" ? r.estate : r.total;
+      const sx = (v) => left + (Math.max(0, v) / (Math.abs(total) || 1)) * (W - left - 20);
+      let out = "";
+      shown.forEach((m, k) => {
+        const y = 10 + k * row;
+        let acc = 0;
+        out += `<text x="${left - 8}" y="${y + 18}" font-size="12" text-anchor="end" fill="#4b5d58">${esc(m.name.length > 34 ? m.name.slice(0, 33) + "…" : m.name)}</text>`;
+        m.x.forEach((v, i) => {
+          const a = sx(acc);
+          acc += Math.abs(v);
+          out += `<rect x="${a.toFixed(1)}" y="${y + 4}" width="${Math.max(0, sx(acc) - a).toFixed(1)}" height="${row - 10}" fill="${PALETTE[i % PALETTE.length]}"><title>${esc(r.players[i])}: ${esc(fmt(v))}</title></rect>`;
+        });
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Each rule's split as a bar divided among the members">${out}</svg>`;
+    }
+    function show(r) {
+      last = r;
+      const u = esc(r.unit || "");
+      $("#results").hidden = false;
+      $("#summary").textContent = r.summary;
+      $("#notes").innerHTML = r.warnings.map((n) => `<p class="warn">${esc(n)}</p>`).join("");
+      const shown = r.methods.filter((m) => m.x);
+      const own = r.mode === "claims" ? "Claim" : r.game === "value" ? "Alone (gets)" : "Alone (costs)";
+      const sa = r.mode === "claims" ? r.claims : r.standalone;
+      $("#table").innerHTML = `<tr><th>Member</th><th class="n">${own}</th>${shown.map((m) => `<th class="n">${esc(m.name)}</th>`).join("")}</tr>` +
+        r.players.map((p, i) => `<tr><td><span class="key" style="background:${PALETTE[i % PALETTE.length]}"></span>${esc(p)}</td><td class="n">${u}${fmt(sa[i])}</td>${shown.map((m) => `<td class="n">${u}${fmt(m.x[i])}</td>`).join("")}</tr>`).join("");
+      $("#legend").innerHTML = r.players.map((p, i) => `<span class="key" style="background:${PALETTE[i % PALETTE.length]}"></span>${esc(p)}`).join(" &nbsp; ");
+      $("#chart").innerHTML = chart(r);
+      const verb = r.game === "value" || r.mode === "claims" ? "would get" : "would save";
+      $("#core").innerHTML = `<tr><th>Rule</th><th>In the core?</th><th>Worst-treated subgroup</th></tr>` + r.methods.map((m) => {
+        if (!m.x) return `<tr><td>${esc(m.name)}</td><td colspan="2">${esc(m.note)}</td></tr>`;
+        if (m.inCore === undefined) return `<tr><td>${esc(m.name)}</td><td colspan="2">not checked</td></tr>`;
+        const w = m.worst[0];
+        return `<tr><td>${esc(m.name)}<br><span class="note">${esc(m.note)}</span></td><td>${m.inCore ? '<span class="ok">Yes</span>' : '<span class="bad">No</span>'}</td><td>${m.inCore ? "No subgroup does better alone." : `${esc(w.group)} ${verb} ${u}${fmt(w.overpay)} on their own${m.blocking > 1 ? ` (${m.blocking} subgroups do better alone)` : ""}.`}</td></tr>`;
+      }).join("");
+      $("#segments-box").hidden = !r.segments;
+      if (r.segments) $("#segments").innerHTML = `<tr><th>Stretch</th><th class="n">Cost</th><th class="n">Shared by</th><th class="n">Each</th></tr>` + r.segments.map((s) => `<tr><td>${fmt(s.from, 0)} to ${fmt(s.to, 0)}</td><td class="n">${u}${fmt(s.cost)}</td><td class="n">${s.users}</td><td class="n">${u}${fmt(s.each)}</td></tr>`).join("");
+    }
+    function run() {
+      const t0 = performance.now();
+      const r = analyze(inputs());
+      if (r.error) {
+        $("#status").textContent = r.error;
+        $("#results").hidden = true;
+        return;
+      }
+      $("#status").textContent = `Done in ${Math.round(performance.now() - t0)} ms.`;
+      show(r);
+      record("analysis_run");
+    }
+    function loadExample(key, quiet = false) {
+      const ex = EXAMPLES[key];
+      $("#mode").value = ex.mode;
+      refreshMode();
+      $("#csv").value = ex.csv;
+      $("#unit").value = ex.unit || "";
+      if (ex.game) $("#game").value = ex.game;
+      $("#total").value = ex.total ?? "";
+      $("#estate").value = ex.estate ?? "";
+      $("#status").textContent = ex.label;
+      if (quiet) {
+        const r = analyze(inputs());
+        if (!r.error) show(r);
+        return;
+      }
+      record("example_loaded");
+      run();
+    }
+    $("#mode").addEventListener("change", refreshMode);
+    $("#analyze").addEventListener("click", run);
+    $("#ex-claims").addEventListener("click", () => loadExample("claims"));
+    $("#ex-road").addEventListener("click", () => loadExample("road"));
+    $("#ex-coalitions").addEventListener("click", () => loadExample("coalitions"));
+    $("#file").addEventListener("change", async (e) => {
+      const f = e.target.files?.[0];
+      if (f) { $("#csv").value = await f.text(); run(); }
+    });
+    $("#download").addEventListener("click", () => {
+      if (!last) return;
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([toCsv(last)], { type: "text/csv" }));
+      a.download = "cost-sharing.csv";
+      a.click();
+      record("report_downloaded");
+    });
+    const syncOpt = () => { $("#optout").textContent = usageOptedOut() ? "Turn usage counting back on" : "Turn usage counting off"; };
+    $("#optout").addEventListener("click", () => { setUsageOptOut(!usageOptedOut()); syncOpt(); });
+    syncOpt();
+    refreshMode();
+    loadExample("road", true);
+  </script>
+</body>
+</html>

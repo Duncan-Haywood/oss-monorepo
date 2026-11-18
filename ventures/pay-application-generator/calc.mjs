@@ -6,7 +6,7 @@ export const FORMAT_NOTE = "Summary lines follow the usual progress-billing layo
 
 export function parseCsv(text) {
   const rows = [];
-  const src = String(text).replace(/^﻿/, "").replace(/\r\n?/g, "\n");
+  const src = String(text).replace(/^\uFEFF/, "").replace(/\r\n?/g, "\n");
   const delim = src.split("\n", 1)[0].includes("\t") ? "\t" : ",";
   let row = [], field = "", q = false;
   for (let i = 0; i < src.length; i++) {

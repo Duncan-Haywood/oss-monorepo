@@ -28,12 +28,14 @@
   {
    "severity": "medium",
    "what": "The MVA-h predictor (hold_printer=True in cell_demands), reported in findings 3 to 5, is untested: a seeded mutation (load only instead of load+unload) passes all 8 tests.",
-   "where": "research/robofab-cell-mva/src/robofab_cell_mva/mva.py:48"
+   "where": "research/robofab-cell-mva/src/robofab_cell_mva/mva.py:48",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16607"
   },
   {
    "severity": "medium",
    "what": "Hold-mode simulator (the real-cell semantics behind the headline comparison with the bound) has no quantitative test or analytic benchmark; only an inequality hold<=pf and seed determinism.",
-   "where": "research/robofab-cell-mva/tests/test_mva.py:70"
+   "where": "research/robofab-cell-mva/tests/test_mva.py:70",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16607"
   },
   {
    "severity": "medium",
@@ -43,7 +45,8 @@
   {
    "severity": "low",
    "what": "No input validation: q>=1 or empty/zero-weight types divide by zero or yield nan silently.",
-   "where": "research/robofab-cell-mva/src/robofab_cell_mva/mva.py:42"
+   "where": "research/robofab-cell-mva/src/robofab_cell_mva/mva.py:42",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16607"
   },
   {
    "severity": "low",
@@ -51,6 +54,6 @@
    "where": "research/robofab-cell-mva/README.md:20"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16607"],
  "verdict": "A small, honest, correct piece of research code: the exact multi-server MVA reproduces an independent exact-rational normalising-constant solution at every point I recomputed (1.23, 4.77, 8.62, 12.13, 2.66, 8.86 parts/h, plus the bound) and the full experiment regenerates byte-identically in 3 s, so correctness, completeness and claims are at a senior level. It does not meet the bar because verification is 2: five of six seeded mutations were caught, but the MVA-h predictor reported in the findings is unguarded and the hold-mode simulator has no quantitative check. Fitness and domain are 2: parameters are invented, the baseline is the weakest available bound, the central MVA behaviour is textbook, and the related blocking / simultaneous-possession literature is not cited, so a queueing specialist would call it a good teaching note rather than a publishable result."
 }

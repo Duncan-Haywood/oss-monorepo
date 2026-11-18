@@ -1,0 +1,56 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01E5sJKk6ej4EevmsQ6vPPTX",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T10:20:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "wall-framing-takeoff"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14494",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/flagships.yaml",
+      "issue": "flagship 1 next: lists only items needing real inputs, so a run with none has to invent hardening work"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/runs",
+      "why": "no docs/reports agent doc",
+      "did": "ROADMAP entry only",
+      "result": "nothing further for next run"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-10-framing-takeoff-schedule-exit-code.md",
+    "ventures/wall-framing-takeoff/ROADMAP.md"
+  ],
+  "goal": null,
+  "notes": "Flagship 1 has no work left that needs no real inputs; ran every report flag on one invented plan and compared exit codes. Fixed --schedule exiting 0 on a refused schedule. Small slice. CLI suites 63 pass locally. flagships.yaml next: unchanged (still needs real inputs). No agent doc in docs/reports/: nothing the next run needs.",
+  "corrections": [],
+  "redteam": null
+}

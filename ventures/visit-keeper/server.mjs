@@ -12,6 +12,7 @@ import { timingSafeEqual } from "node:crypto";
 import { newState, record, prune, summarize, toCsv, visitorHash, dayKey, siteOf } from "./stats.mjs";
 import { dashboard, loginHelp } from "./render.mjs";
 import { TRACKER } from "./tracker.mjs";
+import { pathToFileURL } from "node:url";
 
 const env = process.env;
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && timingSafeEqual(x, y); };
@@ -101,7 +102,7 @@ export function handler(cfg) {
 
 const readState = (path) => { try { return JSON.parse(fs.readFileSync(path, "utf8")); } catch (e) { if (e.code === "ENOENT") return newState(); throw e; } };
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   if (!env.ADMIN_KEY || env.ADMIN_KEY.length < 12) { console.error("missing env: ADMIN_KEY (at least 12 characters)"); process.exit(1); }
   let sites, publicSites = [];
   try { sites = parseSites(env.SITES); if (env.PUBLIC_SITES) publicSites = parseSites(env.PUBLIC_SITES); } catch (e) { console.error(e.message); process.exit(1); }

@@ -39,8 +39,12 @@ nothing.
 | `brave` | Brave Search API, top 20 per query | `BRAVE_API_KEY` | no key; `api.search.brave.com` is reachable from a cloud session |
 | `audit` | fetches the live site: robots.txt, sitemaps, a sample of pages (status, noindex, canonical, title, description, h1, JSON-LD), llms.txt, verification tags | nothing | works; 0 blockers on 2026-11-03 |
 
-A missing key exits 2 and records nothing. That reading is **unmeasured**,
-never zero.
+A missing key, or no answer at all (DNS, refused connection, timeout, the
+session proxy's refusal), exits 2 and records nothing. That reading is
+**unmeasured**, never zero; exit 1 always means the audit found a defect. The
+canonical check is strict: a canonical naming the `http://`, `www.` or `?query`
+variant of a page is a blocker (search engines key those as different URLs);
+only a trailing-slash difference is a warning.
 
 ## What a session does (about 10 minutes)
 

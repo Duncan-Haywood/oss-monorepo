@@ -1,0 +1,25 @@
+# Regression discontinuity with robust bias-corrected inference
+
+> Free regression discontinuity tool. Upload a CSV with a running variable, a cutoff and an outcome (and optionally a 0/1 take-up column for a fuzzy design) and get the local polynomial estimate of the jump at the cutoff with conventional, bias-corrected and robust standard errors and confidence intervals (Calonico, Cattaneo and Titiunik 2014), an MSE-optimal bandwidth, a bandwidth sweep, placebo cutoffs, covariate balance tests, a McCrary density test and an RD plot. Matches rdrobust 2.1.1 within 1e-8 at fixed bandwidths. Runs in the browser; nothing is uploaded.
+
+Free and open source (MIT). Results are statistical estimates from the data you supply, not legal, tax, financial, medical, policy or professional advice.
+
+## Pages
+
+- [The tool](https://marisstella.app/regression-discontinuity/)
+
+## Use it from code
+
+- `node cli.mjs data.csv --running score --outcome y --cutoff 80 [--treatment took_up] [--covariates a,b] [--p 1] [--kernel triangular] [--h H] [--b B] [--vce nn] [--csv|--json]`
+- `node cli.mjs --example` for 1,000 simulated close elections (true jump 0.04)
+- `node platform/agents/tools.mjs call regression-discontinuity analyze --input '{"csv":"...","running":"score","outcome":"y","cutoff":80}'`
+
+## What it answers
+
+- Did crossing a threshold (a test score, an income line, an age, a vote margin) change the outcome, and by how much, for units near the threshold?
+- When crossing the threshold only raises the chance of treatment, what is the effect for units whose take-up it switches (fuzzy RD)?
+- Is the design believable: does the answer survive other bandwidths, do placebo cutoffs and pre-treatment covariates show no jump, and do units bunch on one side?
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/regression-discontinuity): MIT licensed.

@@ -1,0 +1,141 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKkdWcBmb5Y9szPi6bz",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T19:10:44Z",
+  "ended": "2026-11-12T19:21:36Z",
+  "wall_minutes": 74.54,
+  "tokens_in": 8617370,
+  "tokens_out": 53856,
+  "cost_usd": 4.1921,
+  "tool_calls": 65,
+  "task": "research/codesign-cant milestone 5: re-score the 60 milestone-4 designs in RotorPy with a canted-rotor wrench (H5)",
+  "projects": [
+    "research/codesign-cant"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15227",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "A python run with the cwd inside the unpacked RotorPy wheel was refused by the auto-mode classifier (untrusted code dir); reran from the repo with the package pip-installed, which worked."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/codesign-cant/PROPOSAL.md",
+      "issue": "H5's pre-registered top-ten Spearman test cannot be passed by the stylised simulator against itself (top ten tied within 0.064 J; self rho 0.26); future fidelity tests should pre-register a noise ceiling."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13, which lacks cma; fine for this re-score-only run, but a run that needs cma would have to install it separately (the doc implies the returned interpreter has the requested set)."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/codesign-cant/PROPOSAL.md",
+      "why": "H5 named 'top designs'; I re-scored all 60 milestone-4 designs and added a post-hoc noise-ceiling check after seeing the top-ten test fail",
+      "did": "reported H5 as refuted by its letter, labelled the ceiling check post hoc, and proposed a replacement test for pre-registration",
+      "result": "the post-hoc check showed the top-ten test is noise-bound (self rho 0.26 vs RotorPy 0.20-0.30)"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-rotor-cant-survives-a-second-simulator.md",
+    "research/codesign-cant/LOG.md (milestone 5 entry)"
+  ],
+  "goal": null,
+  "notes": "Predictions committed (commit 2) before the 60-minute RotorPy run. F5 held; F2/F4/F6 held under RotorPy aerodynamics and failed under the injected stylised torque; F1 (H5) and F3 refuted. Local checks: pytest 38 passed (codesign-cant), research/_homepage/build.py ok, research_live_links ok, check_md_links ok, cite_check ok (RotorPy arXiv id confirmed earlier). No agent doc in docs/reports: everything the next run needs is in the project LOG and README next steps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "57fd2e24-5017-5aaf-b7d2-8ad891a8b708",
+    "transcripts": 1,
+    "first": "2026-11-12T19:10:44Z",
+    "last": "2026-11-12T20:25:16Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 60,
+        "input": 117,
+        "output": 53856,
+        "thinking": 17150,
+        "cache_read": 8438912,
+        "cache_write_5m": 0,
+        "cache_write_1h": 178341,
+        "api_equivalent_usd": 4.1921,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 60,
+      "input": 117,
+      "output": 53856,
+      "thinking": 17150,
+      "cache_read": 8438912,
+      "cache_write_5m": 0,
+      "cache_write_1h": 178341,
+      "api_equivalent_usd": 4.1921,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 65,
+    "tools": {
+      "Bash": 58,
+      "Read": 2,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 74.54,
+      "active_minutes": 74.54,
+      "model_minutes": 10.13,
+      "tool_minutes": 64.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "a robotics PhD student subclassing RotorPy for canted rotors, porting three controllers, running and analysing a 60-design re-score: about two days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 381.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

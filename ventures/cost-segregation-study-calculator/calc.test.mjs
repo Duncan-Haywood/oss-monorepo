@@ -94,3 +94,12 @@ test("garbage and empty input give finite numbers, never NaN", () => {
 test("every property type reclassifies less than the whole building", () => {
   for (const t of Object.values(PROPERTY_TYPES)) assert.ok(t.five + t.fifteen < 0.6);
 });
+
+test("a property type that is an Object key (constructor, toString) falls back to multifamily, not null figures", () => {
+  const want = costSegEstimate({ ...base, propertyType: "multifamily" });
+  for (const name of ["constructor", "toString", "__proto__", "hasOwnProperty"]) {
+    const r = costSegEstimate({ ...base, propertyType: name });
+    assert.equal(r.year1Extra, want.year1Extra, name);
+    assert.ok(Number.isFinite(r.year1Extra), name);
+  }
+});

@@ -149,7 +149,11 @@ export function priceFor(policy, model) {
   if (policy.prices[model]) return policy.prices[model];
   let best = null;
   for (const name of Object.keys(policy.prices)) {
-    if (model.startsWith(name) && (!best || name.length > best.length)) best = name;
+    // Only a dated snapshot ("-20250929", "-2024-08-06") or "-latest" inherits a
+    // price: "gpt-5-pro" or "gpt-5-mini" is a different model at a different
+    // price, so it falls through to the fallback (or is refused).
+    const rest = model.slice(name.length);
+    if (model.startsWith(name) && /^(-\d|-latest$)/.test(rest) && (!best || name.length > best.length)) best = name;
   }
   return best ? policy.prices[best] : policy.fallbackPrice;
 }
@@ -164,8 +168,10 @@ export function costUsd(price, usage = {}) {
 /**
  * A deliberately high input-token estimate: UTF-8 bytes / 3 of the JSON the
  * request sends. Real tokenisers average nearer 4 bytes per token for English,
- * so the hold errs toward refusing a call that would just fit, never toward
- * letting one through that would not.
+ * so for text the hold errs toward refusing a call that would just fit. It
+ * counts only the JSON bytes: an image or a document sent by URL or file id
+ * is a few dozen bytes here and thousands of tokens upstream, so such a call
+ * can cost more than its hold (quality audit round 62).
  */
 export function estimateInputTokens(input) {
   if (input == null) return 0;

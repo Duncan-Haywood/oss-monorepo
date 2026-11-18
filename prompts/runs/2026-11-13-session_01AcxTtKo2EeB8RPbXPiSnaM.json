@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtKo2EeB8RPbXPiSnaM",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T14:25:30Z",
+  "ended": "2026-11-13T14:42:54Z",
+  "wall_minutes": 17.7,
+  "tokens_in": 8016374,
+  "tokens_out": 53277,
+  "cost_usd": 3.9708,
+  "tool_calls": 60,
+  "task": "research track 21 draw: advance grid-linopf, milestone 4a (LPAC-C one-shot baseline)",
+  "projects": [
+    "grid-linopf",
+    "infra-dcopf"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15509",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first draft of the run's report counted SCS iteration-limit stops as agreement with Clarabel, and the write-up first said SCS agreed on 6 of 9 infeasible cases (it is 8)",
+      "fix": "report classifies max_iters as inconclusive; counts rechecked against results_lpac.json before commit"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py pytest numpy scipy pypower clarabel installed into /usr/bin/python3.13 but infra-dcopf's package __init__ imports pandapower, so the first test run failed on import; the project's pyproject deps (pyproject.toml) are the list to pass, worth saying for projects with an __init__ that imports heavy deps"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "both open programmes in the draw had CLAIM CHECK hits (25 min and 4 h old); it lists the commits but not which milestones remain unclaimed, so picking milestone 4 needed reading PROPOSAL.md and LOG.md by hand"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-lpac-one-shot-dispatch-fails-every-pglib-case.md",
+    "research/infra-dcopf/LOG.md (plan + outcome)",
+    "research/grid-linopf/LOG.md"
+  ],
+  "goal": "PhD-level programme step with a pre-registered baseline for the TPWRS paper",
+  "notes": "Verification: infra-dcopf tests 51 passed (/usr/bin/python3.13, 43 s); research/_homepage/build.py ok; research_live_links --write no change; check_md_links ok; cite_check all DOIs/arXiv ok; post frontmatter/links/similarity ok. run_lpac.py run twice on all 36 cases: identical results on every case. Result: LPAC-C one-shot fully clean 0/34, no solution on 9 (SCS agrees 8, inconclusive 1); L+R 8/34; LPAC-started J-m-a 17 vs 15 from DC on the 25 solvable cases (sign P=0.73).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3c813c35-5cbe-563c-b26d-f424331e1b78",
+    "transcripts": 1,
+    "first": "2026-11-13T14:25:30Z",
+    "last": "2026-11-13T14:43:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 111,
+        "output": 53277,
+        "thinking": 16541,
+        "cache_read": 7849393,
+        "cache_write_5m": 0,
+        "cache_write_1h": 166870,
+        "api_equivalent_usd": 3.9708,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 111,
+      "output": 53277,
+      "thinking": 16541,
+      "cache_read": 7849393,
+      "cache_write_5m": 0,
+      "cache_write_1h": 166870,
+      "api_equivalent_usd": 3.9708,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.979,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 53,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 17.7,
+      "active_minutes": 17.7,
+      "model_minutes": 9.52,
+      "tool_minutes": 8.18,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "implementing and validating an LPAC-C formulation, two-solver audit, 36-case experiment and write-up for a power-systems researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 402.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

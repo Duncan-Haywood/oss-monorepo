@@ -1,0 +1,37 @@
+# README "Half the table: flipping every host" (2026-11-16). minPlusStep's symmetric step (sym), used by floorTable.
+# All runs on one shared 4-CPU cloud machine. Off = FLOOR_SYM=0 in the environment (the step as before), on = the default.
+#
+# 1. The page's floor-priced step, old and new side by side (two processes, separate caches built by the same code):
+#    node eval/floor-priced.mjs <teams> <seed> --page --cache <dir>   (FLOOR_SYM=0 for off)
+#    teams-seed  off s -> on s   seasons (identical in both)
+#    22-1     5.6 ->     6   ['652/50', '664/48'] gap 694/52 .. 704/46
+#    24-1    10.9 ->  11.4   ['614/62', '640/60'] gap 570/64 .. 862/58
+#    24-2    15.7 ->  15.9   ['620/62', '822/60'] gap 570/64 .. 862/54
+#    26-1    27.9 ->  26.5   ['1014/58', '1068/56'] gap 1104/60 .. 1238/50
+#    26-2    20.1 ->  18.7   ['738/68', '776/66'] gap 716/70 .. 1060/60
+#    28-1      58 ->  52.1   ['1252/72', '1250/70'] gap 978/74 .. 1466/64
+#    28-2    53.6 ->  48.6   ['1260/72', '1248/70'] gap 978/74 .. 1400/62
+#    28-3    63.9 ->  56.6   ['1220/68', '1318/66'] gap 1300/70 .. 1418/62
+#    24 and 22 teams (12 and 11 matches) were measured before the 13-match gate (SYM_MIN_MATCHES) was added; with the
+#    gate their steps take the old path, so their times are the old code's.
+#
+# 2. One step, per size (node scratch bench: 29 steps from a zero table over random rounds, best of two, uncontended):
+#    teams  plain ms  sym ms
+#    16  0.017-0.020  0.025-0.044     22  0.030-0.032  0.034-0.037     24  0.055-0.056  0.050-0.055
+#    26  0.107-0.115  0.098-0.110     28  0.226-0.236  0.190-0.196     30  0.449-0.471  0.381-0.497 (noisy)
+#    Which host bit is fixed (30 teams, 11 steps, plain 6.37 ms in all): the cheapest bit by measured time 2.71 ms, the
+#    last bit 3.53 ms; scoring every bit by its plan's table sizes picked well but cost more than it saved, so the
+#    step fixes the first bit the elimination meets (0.44 -> 0.35 ms a step against 0.39 for the last bit).
+#    Exactness: 242 chained steps (4 to 32 teams, odd and even) equal the plain step; orient.test.mjs re-checks 240
+#    random rounds on small, int16-edge and wide int32 symmetric tables against the JS loop, and floorTable's floor
+#    and trials with the symmetry on and off.
+#
+# 3. 29 and 30 teams with the size guards lifted locally (floorPricedSingleRounds to 30, FLOOR_PRICED_MAX_MATCHES 15;
+#    not committed), before the symmetric step, three processes at once:
+#    30-1  gap 1110/84 .. 2542/68  added 1152/82 and 2542/64 (beats 2542/68)  138 s (solo: 128 s; profile: trial 116 s,
+#          WebAssembly step 66 s, its copy-in/out 17 s, the JS loop around it 18 s)
+#    30-2  gap 1110/84 .. 2576/60  added 1164/82                              196 s
+#    29-1  gap 3641/47 .. 4049/38  added nothing                              110 s
+#    30-1 with the symmetric step, last bit fixed, off against on side by side: 129.2 -> 103.8 s, same seasons.
+#    So 30 teams cost about twice the 28-team step even with it, and add seasons only just under the top of a
+#    1110/84 .. 2542/68 gap; 29 and 30 stay off the page (maxTeams 28).

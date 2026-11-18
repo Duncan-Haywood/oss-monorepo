@@ -1,0 +1,144 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKkczcK6rr3bxuPo9wJ",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T23:18:40Z",
+  "ended": "2026-11-13T23:29:43Z",
+  "wall_minutes": 11.3,
+  "tokens_in": 5552976,
+  "tokens_out": 35281,
+  "cost_usd": 2.8194,
+  "tool_calls": 51,
+  "task": "Programme catholic-demography (pick_track draw): milestone 5b eleventh GSS-only step, parents' religion vs the m5h model-check residual",
+  "projects": [
+    "research/catholic-demography"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15651",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "c24fd0ccd",
+    "98b033f31"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "census.gov, pewresearch.org, journal hosts, crossref and wikipedia all refused by the egress proxy (403 CONNECT); the planned ACS outside check and H5 could not run, so the step was chosen to need only the GSS"
+  ],
+  "integrity_issues": [
+    "A 2-draw smoke run of m5l ran before the pre-registration commit; only its last three lines (m5h replication rows, no prediction depends on them) were seen and the output deleted unread. Disclosed in LOG.md. One sensitivity column (second generation only) was added after the full run and is labelled post hoc in the script, LOG, README and post."
+  ],
+  "doc_friction": [
+    {
+      "file": "research/catholic-demography/data/download_gssr.sh",
+      "issue": "gssr .rda files carry no value labels via pyreadr; the codebook is in kjhealy/gssrdoc data/gss_doc.rda, which pyreadr cannot read (nested lists) but the `rdata` pip package can. Worth a line in the project README."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "Outbound host probing: in this session only GitHub and package registries were reachable; a one-line list of hosts known reachable/blocked would save the probing round."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "No unit test added for m5l: its new logic is table arithmetic inside run.py reusing tested accounting.raised_share and m5h functions; existing 14 tests pass.",
+      "did": "Checked the decomposition identity and m5h replication rows (fertility -0.367, immigration +1.068 match m5h t25) in the output instead.",
+      "result": "m5h numbers reproduced exactly on the same seed."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-catholic-mixed-marriages-mothers-fathers.md",
+    "research/catholic-demography/LOG.md (2026-11-13 m5l entry)"
+  ],
+  "goal": "Advance an open PhD-level programme with a pre-registered result on GSS data",
+  "notes": "m5l: of children with one Catholic parent (cohorts 1925-64), 72% [67,77] raised Catholic when mother was the Catholic vs 42% [36,48] when father; net transmission +0.56 [-0.01,+1.01] = 18% of the m5h residual; most of the rest is immigrant mothers (2nd-gen mothers 50% Catholic vs model 25%, post hoc). Transmission channel 1990-99->2010-18 -0.07 [-0.44,+0.28]; H4 stands. P2,P5 supported; P1,P3,P4 refuted. Checks: build.py ok, research_live_links ok, check_md_links ok, pytest 14 passed, post frontmatter/links/similarity ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "584678f8-bb96-553b-9685-85f9cad08a96",
+    "transcripts": 1,
+    "first": "2026-11-13T23:18:40Z",
+    "last": "2026-11-13T23:29:58Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 101,
+        "output": 35281,
+        "thinking": 12809,
+        "cache_read": 5424307,
+        "cache_write_5m": 0,
+        "cache_write_1h": 128568,
+        "api_equivalent_usd": 2.8194,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 101,
+      "output": 35281,
+      "thinking": 12809,
+      "cache_read": 5424307,
+      "cache_write_5m": 0,
+      "cache_write_1h": 128568,
+      "api_equivalent_usd": 2.8194,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.3,
+      "active_minutes": 11.3,
+      "model_minutes": 5.93,
+      "tool_minutes": 5.37,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "survey-methods analyst: codebook lookup, pre-registered script, 500-draw bootstrap, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 425.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

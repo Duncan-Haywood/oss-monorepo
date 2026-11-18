@@ -10,13 +10,16 @@ const num = (v, fallback = 0) => {
   const n = typeof v === "string" ? Number(v.replace(/[$,%\s]/g, "")) : Number(v);
   return Number.isFinite(n) ? n : fallback;
 };
+// A blank or non-numeric field is NaN, not 0, so the range checks below reject it
+// instead of pricing coffee at $0 a pound (quality audit 2026-11-12).
+const required = (v) => (String(v ?? "").trim() === "" ? NaN : num(v, NaN));
 export const LB_PER_KG = 2.2046226218;
 export const OZ_PER_LB = 16;
 
 export function roastedCostPerLb({ greenPerLb, shrinkPct = 15, laborPerRoastedLb = 0, energyPerRoastedLb = 0 }) {
-  const shrink = num(shrinkPct) / 100;
+  const shrink = required(shrinkPct) / 100;
   if (!(shrink >= 0 && shrink < 0.5)) throw new Error("Roast loss must be between 0% and 50%.");
-  const green = num(greenPerLb);
+  const green = required(greenPerLb);
   if (!(green >= 0)) throw new Error("Green coffee price must be zero or more.");
   const greenCost = green / (1 - shrink);
   return {

@@ -9,6 +9,11 @@ class T(unittest.TestCase):
         cls.x = x
         cls.params = model.train_float(x, y)
 
+    def test_metric_divides_by_rows(self):
+        # headline rows of results.txt, recomputed by hand (quality audit 2026-11-13): 2403 x 102 / 1, 6962 x 77 / 2
+        self.assertEqual(flow.metric(2403, 102, 1), 245106)
+        self.assertEqual(flow.metric(6962, 77, 2), 268037)
+
     def test_rtl_matches_numpy_when_array_is_reused(self):
         q = model.quantise(self.params, self.x, 4)
         xi = q["xq"](self.x[:8])

@@ -127,48 +127,80 @@ const eligible = (ctx, p, t, s) => ctx.avail[p][t] && ctx.okPos[p][ctx.nameOf[s]
 
 // Lower is better. Weights are ordered so that filling the field beats fair
 // time, which beats back-to-back benching, which beats variety and balance.
+// The annealer calls this about 125,000 times per lineup, so it works in
+// typed scratch arrays kept on the context instead of allocating fresh ones on
+// every call. The terms are added in the same order as the plain version, so
+// the totals are bit-identical (docs/history/ci-perf-2026-11-18-lineup-cost-scratch.md).
+function costScratch(ctx) {
+  const N = ctx.players.length;
+  const T = ctx.periods;
+  const K = ctx.names.length;
+  let sc = ctx._scratch;
+  if (!sc || sc.N !== N || sc.T !== T || sc.K !== K) {
+    sc = ctx._scratch = {
+      N, T, K,
+      played: new Int32Array(N),
+      onField: new Uint8Array(T * N),
+      count: new Int32Array(N * K),
+      strength: new Float64Array(T),
+      last: new Int32Array(N),
+    };
+  }
+  return sc;
+}
+
 export function lineupCost(ctx, grid) {
-  const { players, periods, names } = ctx;
+  const { players, periods, nameOf, isKeeper, keeperMax } = ctx;
   const N = players.length;
   const S = ctx.slotNames.length;
+  const K = ctx.names.length;
+  const { played, onField, count, strength, last } = costScratch(ctx);
+  played.fill(0);
+  onField.fill(0);
+  count.fill(0);
+  strength.fill(0);
+  last.fill(-1);
   let cost = 0;
-  const played = new Array(N).fill(0);
-  const onField = Array.from({ length: periods }, () => new Array(N).fill(false));
-  const count = Array.from({ length: N }, () => new Array(names.length).fill(0));
-  const strength = new Array(periods).fill(0);
-  const last = new Array(N).fill(-1);
   for (let t = 0; t < periods; t++) {
+    const row = grid[t];
+    const base = t * N;
     for (let s = 0; s < S; s++) {
-      const p = grid[t][s];
+      const p = row[s];
       if (p < 0) { cost += 1e6; continue; }
+      const ns = nameOf[s];
       played[p]++;
-      onField[t][p] = true;
-      count[p][ctx.nameOf[s]]++;
+      onField[base + p] = 1;
+      count[p * K + ns]++;
       strength[t] += players[p].skill;
-      if (last[p] === ctx.nameOf[s] && onField[t - 1]?.[p]) cost += 15;
+      if (t > 0 && last[p] === ns && onField[base - N + p]) cost += 15;
     }
-    for (let p = 0; p < N; p++) last[p] = -1;
-    for (let s = 0; s < S; s++) if (grid[t][s] >= 0) last[grid[t][s]] = ctx.nameOf[s];
+    // last[p] is read only when p was on the field the period before, which
+    // rewrote it, so stale entries from earlier periods never count.
+    for (let s = 0; s < S; s++) if (row[s] >= 0) last[row[s]] = nameOf[s];
   }
   for (let p = 0; p < N; p++) {
+    const av = ctx.avail[p];
     let avail = 0;
     let run = 0;
     for (let t = 0; t < periods; t++) {
-      if (!ctx.avail[p][t]) { run = 0; continue; }
+      if (!av[t]) { run = 0; continue; }
       avail++;
-      if (!onField[t][p]) { if (run > 0) cost += 400; run++; } else run = 0;
+      if (!onField[t * N + p]) { if (run > 0) cost += 400; run++; } else run = 0;
     }
     const eff = avail - played[p] + 0.5 * players[p].sat;
     cost += 100 * eff * eff;
-    for (let n = 0; n < names.length; n++) {
-      const c = count[p][n];
+    const cb = p * K;
+    for (let n = 0; n < K; n++) {
+      const c = count[cb + n];
       cost += 10 * c * c;
-      if (ctx.isKeeper[n] && c > ctx.keeperMax) cost += 3000 * (c - ctx.keeperMax);
+      if (isKeeper[n] && c > keeperMax) cost += 3000 * (c - keeperMax);
     }
   }
   if (ctx.balance > 0) {
-    const mean = strength.reduce((a, b) => a + b, 0) / periods;
-    for (const v of strength) cost += 8 * ctx.balance * (v - mean) ** 2;
+    let sum = 0;
+    for (let t = 0; t < periods; t++) sum += strength[t];
+    const mean = sum / periods;
+    for (let t = 0; t < periods; t++) cost += 8 * ctx.balance * (strength[t] - mean) ** 2;
   }
   return cost;
 }

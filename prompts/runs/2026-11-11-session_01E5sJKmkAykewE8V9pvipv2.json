@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKmkAykewE8V9pvipv2",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T06:22:53Z",
+  "ended": "2026-11-11T06:35:20Z",
+  "wall_minutes": 12.66,
+  "tokens_in": 4723347,
+  "tokens_out": 36660,
+  "cost_usd": 2.6239,
+  "tool_calls": 46,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14716",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "lean/build.sh failed on first run: zstd/unzstd missing from the image (tar: 'unzstd: Cannot exec'); apt-get update && apt-get install -y zstd fixed it",
+    "My first draft of results.md quoted model totals (5,107 models, 15,437 frames, 1,000 existence models) before summing results.json; corrected to 8,534 / 17,440 / 1,830 before commit"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/theism-formal-evidence/lean/build.sh",
+      "issue": "Header says 'needs zstd' but the image lacks it and the script's failure is a cryptic tar/curl(23) error; a `command -v unzstd` check with the apt hint would save a round trip"
+    },
+    {
+      "file": "research/_shared/pick_track.py",
+      "issue": "No CLAIM CHECK block printed for theism-formal-evidence (none needed, but the prompt says it prints one); unclear whether silence means 'no recent commits' or 'check skipped'"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-11-anderson-godel-varying-domains-necessary-existence.md",
+    "research/theism-formal-evidence/experiments/e12_varying_domains/results.md",
+    "research/theism-formal-evidence/LOG.md (E12 entry)"
+  ],
+  "goal": null,
+  "notes": "Programme theism-formal-evidence, M2 step E12: Anderson's emendation with varying domains and actualist quantifiers. Prediction H17 committed (first commit on the branch) before the search. Search: 17,440 frames, all agree with the formula. Lean 4.15.0: new TheismFormal/Varying.lean builds, no sorry, no warnings (lean_build.txt). test_theism.py: 22 tests pass. build.py ok; research_live_links, check_md_links, programme_check, post frontmatter/links/similarity ok. cite_check: Crossref and arXiv refused by proxy (403); B&F arXiv id seen in a web search; Anderson 1990 title confirmed via relbib catalogue, issue/pages unconfirmed and marked so.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "aa596da8-827d-5ed1-bae6-acd01bf1f9ec",
+    "transcripts": 1,
+    "first": "2026-11-11T06:22:53Z",
+    "last": "2026-11-11T06:35:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 42,
+        "input": 82,
+        "output": 36660,
+        "thinking": 11146,
+        "cache_read": 4602017,
+        "cache_write_5m": 0,
+        "cache_write_1h": 121248,
+        "api_equivalent_usd": 2.6239,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 42,
+      "input": 82,
+      "output": 36660,
+      "thinking": 11146,
+      "cache_read": 4602017,
+      "cache_write_5m": 0,
+      "cache_write_1h": 121248,
+      "api_equivalent_usd": 2.6239,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.974,
+    "tool_calls": 46,
+    "tools": {
+      "Bash": 39,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebSearch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.66,
+      "active_minutes": 12.66,
+      "model_minutes": 6.72,
+      "tool_minutes": 5.93,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a logician formalising varying-domain semantics, writing the exhaustive search and the Lean proofs: about a working day plus write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 381.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

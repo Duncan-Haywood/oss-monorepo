@@ -18,7 +18,7 @@ key; the work happens in your browser and nothing you paste is uploaded.
 To run the tests (Node 20 or newer):
 
 ```
-node --test ventures/camt053-to-ofx-converter/
+node --test 'ventures/camt053-to-ofx-converter/*.test.mjs'
 ```
 
 ## Files
@@ -39,3 +39,12 @@ This tool is free and as-is. It is not legal, financial, tax or professional
 advice and does not replace a qualified professional. You are responsible for
 checking its output before relying on it. To the maximum extent permitted by
 law, the authors accept no liability for any loss or damage arising from its use.
+
+## Known gaps
+
+From [quality audit round 50](../../portfolio/quality/audits/2026-11-12-camt053-to-ofx-converter.json),
+still open:
+
+- A camt file without the optional `Acct/Ccy` is treated as EUR, even when
+  every amount carries another currency. The OFX then gets `CURDEF` EUR and
+  no warning is raised.

@@ -24,8 +24,8 @@ export const EXAMPLE_PRODUCTS = [
   { name: "Trail mix", price: "2.25", cost: "1.20", weekly: "6", perCoil: "8", perishable: "no", minCoils: "0", maxCoils: "4", now: "4" },
 ];
 
-export const money = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-export const money2 = (x) => (x < 0 ? "-$" : "$") + Math.abs(x).toFixed(2);
+export const money = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 }));
+export const money2 = (x) => ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toFixed(2));
 export const one = (x) => (Math.round(x * 10) / 10).toString();
 
 export function num(v) {
@@ -90,7 +90,7 @@ export function normalize(rows, shared) {
     if (price <= cost) warnings.push(`${name}: price is not above cost, so every sale loses money and it will only get coils if you set a minimum.`);
     const minCoils = Math.max(0, Math.floor(num(r.minCoils) ?? 0));
     const maxRaw = num(r.maxCoils);
-    const maxCoils = Math.min(s.coils || 0, Math.max(minCoils, maxRaw === null ? 8 : Math.floor(maxRaw)));
+    const maxCoils = Math.min(s.coils || 0, Math.max(minCoils, maxRaw === null ? (s.coils || 0) : Math.floor(maxRaw)));
     products.push({ name, price, cost, weekly, perCoil, perishable: yes(r.perishable), minCoils, maxCoils, now: Math.max(0, Math.floor(num(r.now) ?? 0)) });
   });
   if (products.length < 1 && warnings.length === 0) warnings.push("Enter at least one product with a price, cost and weekly sales.");

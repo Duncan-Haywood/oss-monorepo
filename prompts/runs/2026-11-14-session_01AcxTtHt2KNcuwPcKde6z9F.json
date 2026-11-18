@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtHt2KNcuwPcKde6z9F",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T23:06:19Z",
+  "ended": "2026-11-14T23:18:13Z",
+  "wall_minutes": 12.2,
+  "tokens_in": 11931400,
+  "tokens_out": 58662,
+  "cost_usd": 5.1513,
+  "tool_calls": 78,
+  "task": "Deepen (flagship 5) einvoice-preflight: HR creator writes the out-of-scope labels (HR:POVNAK, HR:PP, HR:PPMV, HR:N) and document-level allowances/charges",
+  "projects": [
+    "einvoice-preflight"
+  ],
+  "pr": 16010,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 16,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "First fetch of the authority's samples used guessed raw.githubusercontent file names (404); a sparse clone of the mirror listed the real names (eRacun_ prefix)."
+    },
+    {
+      "what": "First SEF build picked the 1.0.0 HR XSLT from the jar (find | head -1); rebuilt from 1.0.4, the version the plain rules are compiled from."
+    },
+    {
+      "what": "platform/ci/inherited_keys.py flagged two HR_OUT_OF_SCOPE[label] lookups; fixed with an Object.hasOwn helper."
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/hr-official-samples-2026-11-14.md",
+      "issue": "Names the samples without their eRacun_ prefix (e.g. POVRATNA_NAKNADA_stavka), so raw URLs built from it 404; the real names are eRacun_PDV_NEOP_POVRATNA_NAKNADA_stavka.xml etc."
+    },
+    {
+      "file": "ventures/einvoice-preflight/eval/hr-cius-differential.mjs",
+      "issue": "Header gives the jar path external/schematron/1.0.4/ but the jar holds 1.0.0 to 1.0.4; a find for the file name picks the wrong one silently."
+    },
+    {
+      "file": "ventures/einvoice-preflight (node_modules)",
+      "issue": "node_modules is not gitignored in the venture; an npm i --no-save for the plain route leaves an untracked tree one 'git add -A' away from a commit. I added it to .git/info/exclude locally."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-14-a-bottle-deposit-on-a-croatian-e-invoice.md",
+    "ventures/einvoice-preflight/eval/hr-out-of-scope-creator-2026-11-14.md",
+    "ventures/einvoice-preflight/README.md (new section)"
+  ],
+  "goal": "Deepen a flagship with a hard slice: Croatian out-of-scope amounts and document-level charges, checked against the authority's samples and XSLT",
+  "notes": "Five Porezna uprava samples rebuilt with the creator: amounts due 130.00/130.00/128.00/14500.00/135.00 match; plain route and authority's 1.0.4 XSLT (Saxon-JS) raise no HR rule; no EN 16931 fatal. 34/34 seeded edits agree between engines. Non-HR: XRechnung/Peppol/EN16931 UBL+CII with a discount and shipping charge, no fatal, read-back totals match. Playwright at 390 px: three examples generate with no findings, no horizontal scroll. run_venture_tests.py einvoice-preflight: ok (16 skipped need build-schematron). run_workflow_locally --for-changes: see PR. Found: authority's HR-BR-29 compares a sequence with = 0 (existential), so tax on one of two O rows passes it; HR-BR-28/54 still catch it.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "666d1767-6885-532a-8835-6c7c708019b5",
+    "transcripts": 1,
+    "first": "2026-11-14T23:06:19Z",
+    "last": "2026-11-14T23:18:31Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 74,
+        "input": 143,
+        "output": 58662,
+        "thinking": 11586,
+        "cache_read": 11727256,
+        "cache_write_5m": 0,
+        "cache_write_1h": 204001,
+        "api_equivalent_usd": 5.1513,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 74,
+      "input": 143,
+      "output": 58662,
+      "thinking": 11586,
+      "cache_read": 11727256,
+      "cache_write_5m": 0,
+      "cache_write_1h": 204001,
+      "api_equivalent_usd": 5.1513,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 78,
+    "tools": {
+      "Bash": 71,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.2,
+      "active_minutes": 12.2,
+      "model_minutes": 9.45,
+      "tool_minutes": 2.75,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "an e-invoicing developer reading the HR samples and XSLT, implementing BG-20/21 in two syntaxes plus the HR extension, tests and differential: about 1.5 days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 194.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -6,7 +6,7 @@ Pure Python, no dependencies. Companion to `compressed-sync`, which covered unbi
 
 ```bash
 cd research/error-feedback-sync
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 9 tests, ~4 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 10 tests, ~4 s
 PYTHONPATH=src python3 experiments/run.py                 # output in experiments/results.txt
 ```
 Quadratics, Gaussian noise, independent Bernoulli sparsifiers; top-k is simulation only; MIT.

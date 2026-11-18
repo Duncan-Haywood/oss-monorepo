@@ -72,7 +72,9 @@ test("the grid is monotone in qualified share and in sale price", () => {
 
 test("example defaults produce a positive net credit below the headline credit", () => {
   const r = credit(DEFAULTS);
-  assert.ok(r.received > 0 && r.received < r.headline + 1e9);
+  assert.ok(r.received > 0 && r.received < r.granted);
+  // The headline credit is qualified spend at the base rate alone (no uplift, cap, discount or wait).
+  assert.equal(r.headline, 2480000 * 0.25);
   assert.ok(r.leak > 0 && r.leak < 1);
 });
 
@@ -81,4 +83,24 @@ test("formatters tolerate bad input", () => {
   assert.equal(num("$1,200"), 1200);
   assert.equal(money(NaN), "n/a");
   assert.equal(pct(0.125), "12.5%");
+});
+
+test("the example works out by hand to the dollar", () => {
+  // 4,000,000 x 62% = 2,480,000 qualified; 20% of it earns the 10% uplift.
+  // gross 2,480,000 x 25% + 496,000 x 10% = 669,600; cash at 90 cents = 602,640;
+  // fees 3% + 15,000 = 35,088; bridge 70% x 669,600 x 12% x 9/12 = 42,184.80.
+  const r = credit(DEFAULTS);
+  assert.equal(r.gross, 669600);
+  assert.ok(Math.abs(r.bridgeCost - 42184.8) < 1e-6);
+  assert.ok(Math.abs(r.received - (602640 - 35088 - 42184.8)) < 1e-6);
+});
+
+test("a credit under a dollar that fees swamp still gets the loss warning", () => {
+  const a = analyze({ ...flat, budget: 4, fixedCost: 1000 });
+  assert.ok(a.r.granted > 0 && a.r.granted < 1);
+  assert.ok(a.warnings.some((x) => /cost more than the credit/.test(x)));
+});
+
+test("the grid rows are the qualified shares the page labels", () => {
+  assert.deepEqual(analyze(DEFAULTS).grid.map((g) => g.share), [30, 45, 60, 75, 90]);
 });

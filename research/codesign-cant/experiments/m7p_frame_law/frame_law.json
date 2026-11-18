@@ -1,0 +1,93 @@
+{
+ "family_strict": {
+  "k_g_per_mm": 0.25517241379310346,
+  "ci95": [
+   0.16666666666666666,
+   0.2714285714285714
+  ],
+  "k_kg_per_m_of_L": 0.5103448275862069,
+  "families": {
+   "foxeer-aura-v2-pro": {
+    "k_g_per_mm": 0.16666666666666666,
+    "frames": [
+     "Aura V2 Pro DC 5 235 mm 119 g",
+     "Aura V2 Pro DC 6 265 mm 124 g"
+    ]
+   },
+   "geprc-mark4": {
+    "k_g_per_mm": 0.2714285714285714,
+    "frames": [
+     "Mark4 5 225 mm 102 g",
+     "Mark4 6 260 mm 111 g",
+     "Mark4 7 295 mm 121 g"
+    ]
+   }
+  }
+ },
+ "family_wide": {
+  "k_g_per_mm": 1.0726098832878077,
+  "ci95": [
+   0.2591348366313858,
+   1.6601085861412743
+  ],
+  "k_kg_per_m_of_L": 2.1452197665756154,
+  "families": {
+   "iflight-aos-v5": {
+    "k_g_per_mm": 1.7187481821883546,
+    "frames": [
+     "AOS 3.5 V5 162 mm 68 g",
+     "AOS 5 V5 228 mm 150 g",
+     "AOS 7 V5 313 mm 325 g"
+    ]
+   },
+   "foxeer-aura-v2-pro": {
+    "k_g_per_mm": 0.16666666666666666,
+    "frames": [
+     "Aura V2 Pro DC 5 235 mm 119 g",
+     "Aura V2 Pro DC 6 265 mm 124 g"
+    ]
+   },
+   "geprc-mark4": {
+    "k_g_per_mm": 0.5208042207329245,
+    "frames": [
+     "Mark4 5 225 mm 102 g",
+     "Mark4 6 260 mm 111 g",
+     "Mark4 7 295 mm 121 g",
+     "Mark4 8 338 mm 162.4 g"
+    ]
+   },
+   "geprc-pulsar": {
+    "k_g_per_mm": 0.2698151950718693,
+    "frames": [
+     "Pulsar LR9 385 mm 563.4 g",
+     "Pulsar LR10 435 mm 576.3 g",
+     "Pulsar LR11 473 mm 587.2 g"
+    ]
+   }
+  }
+ },
+ "cross_brand": {
+  "n": 30,
+  "a_g": -130.9265842046575,
+  "b_g_per_mm": 1.1363183432882946,
+  "a_ci95": [
+   -214.92844143419413,
+   -50.20329409826953
+  ],
+  "b_ci95": [
+   0.8061214466387524,
+   1.4808191299143414
+  ],
+  "resid_sd_g": 47.20338415251884,
+  "model_units": {
+   "frame0_kg": -0.1309265842046575,
+   "frame_k_kg_per_m": 2.2726366865765892
+  },
+  "loglog_exponent": 1.9552493380329496,
+  "loglog_coef": 0.0028992821896548213
+ },
+ "inherited": {
+  "frame0_kg": 0.05,
+  "frame_k_kg_per_m": 0.8
+ }
+}

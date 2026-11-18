@@ -1,0 +1,61 @@
+{
+ "NCA_Kim2011@0.875x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8683041440001489,
+   "error": null,
+   "r_min": -0.07951446746953127,
+   "current_A": 1.192794547224927
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.0443465060000108,
+   "error": null,
+   "r_min": 0.010938363563646364,
+   "current_A": 1.192794547224927
+  }
+ },
+ "Chen2020@1.75x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.5867629940000825,
+   "error": null,
+   "r_min": 0.103294879900219,
+   "current_A": 8.75
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.7229311820001385,
+   "error": null,
+   "r_min": 0.14364027170799118,
+   "current_A": 8.75
+  }
+ },
+ "Ai2020@0.875x": {
+  "V0": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 0.8895299470000282,
+   "error": null,
+   "r_min": 8.851926499600417e-13,
+   "current_A": 3.471798928919181
+  },
+  "DFN": {
+   "ok": true,
+   "cycles": 2,
+   "seconds": 1.0691717320000862,
+   "error": null,
+   "r_min": 0.08878249999114661,
+   "current_A": 3.471798928919181
+  }
+ },
+ "kept": [
+  "NCA_Kim2011@0.875x",
+  "Chen2020@1.75x",
+  "Ai2020@0.875x"
+ ]
+}

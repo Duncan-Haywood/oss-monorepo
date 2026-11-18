@@ -1,0 +1,11 @@
+# A made-up range test with sections already assigned: placeholder names, not real singers.
+name,section,low,high
+Singer A,T,C3,A4
+Singer B,T,D3,G4
+Singer C,T,Eb3,F4
+Singer D,Bar,C3,G4
+Singer E,Bar,B2,E4
+Singer F,Bar,A2,F4
+Singer G,B,Bb2,D4
+Singer H,B,A2,E4
+Singer I,B,F2,C4

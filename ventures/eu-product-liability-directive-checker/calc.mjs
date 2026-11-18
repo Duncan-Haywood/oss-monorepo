@@ -54,7 +54,8 @@ const DAY = 86400000;
 function parseDate(s) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s || "")) return null;
   const d = new Date(`${s}T00:00:00Z`);
-  return Number.isNaN(d.getTime()) ? null : d;
+  // Date rolls 2026-02-30 into March: refuse a day that does not round-trip.
+  return Number.isNaN(d.getTime()) || d.toISOString().slice(0, 10) !== s ? null : d;
 }
 export function fmt(iso) {
   const d = parseDate(iso);

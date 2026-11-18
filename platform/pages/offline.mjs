@@ -28,6 +28,7 @@
 // never mixes files from two builds.
 
 import { renderCard, renderMarkIcon } from './sharecard.mjs';
+import { formatCount } from './count.mjs';
 
 export const THEME_COLOR = '#1f4e8c';
 const BACKGROUND_COLOR = '#eef2f7';
@@ -51,9 +52,22 @@ const BACKGROUND_COLOR = '#eef2f7';
  * so it still reads as an icon where no mask is applied. `opaque` is a
  * full-bleed square with no alpha, which is what Apple's touch icon needs
  * (iOS paints a transparent corner black and rounds the corners itself).
+ *
+ * The drawing depends on nothing but these three options, so each variant is
+ * drawn once per process and every call gets its own copy of the bytes (a
+ * caller may write into its buffer). The store packagers call this once per
+ * venture: android.mjs's `plan()` drew the same 512 px icon 1,284 times, 21 of
+ * its test's 23 s (docs/history/ci-perf-2026-11-14-icon-memo-unwired-pool.md).
  */
+const ICON_CACHE = new Map();
 export function renderIcon({ size = 192, maskable = false, opaque = false } = {}) {
-  return renderMarkIcon({ size, maskable, opaque });
+  const key = `${size}|${Boolean(maskable)}|${Boolean(opaque)}`;
+  let png = ICON_CACHE.get(key);
+  if (!png) {
+    png = renderMarkIcon({ size, maskable, opaque });
+    ICON_CACHE.set(key, png);
+  }
+  return Buffer.from(png);
 }
 
 export const ICONS = [
@@ -99,7 +113,7 @@ export function renderManifest(baseUrl, toolCount, hasExternalCallException = fa
       // What a home screen prints under the icon: twelve characters at most.
       short_name: 'Maris Stella',
       description:
-        `${toolCount} free tools for marketplace sellers, trade contractors and small teams, plus open research. ` +
+        `${formatCount(toolCount)} free tools for marketplace sellers, trade contractors and small teams, plus open research. ` +
         (hasExternalCallException
           ? 'Everything runs in your browser, offline included, except one lookup tool that checks a public API — see the About page for which one.'
           : 'Everything runs in your browser, offline included — nothing you type is uploaded.'),

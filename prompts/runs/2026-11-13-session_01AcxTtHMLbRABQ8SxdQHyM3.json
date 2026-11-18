@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHMLbRABQ8SxdQHyM3",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T12:06:40Z",
+  "ended": "2026-11-13T12:16:56Z",
+  "wall_minutes": 10.52,
+  "tokens_in": 3921608,
+  "tokens_out": 29983,
+  "cost_usd": 2.0812,
+  "tool_calls": 47,
+  "task": "verifiable-training-mechanisms milestone 80: the dispute arbiter (programme drawn by pick_track.py)",
+  "projects": [
+    "research/verifiable-training-mechanisms"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15489",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    "Started the experiment with a shell '&' in a foreground call instead of run_in_background; it survived, but that was luck."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verifiable-training-mechanisms/README.md",
+      "issue": "Status line still says 'milestones 2 to 6 and the H6 test done' and the test count says 33 while the suite has 58; both stale by dozens of milestones."
+    },
+    {
+      "file": "platform/ci/check_md_links.py",
+      "issue": "Reports the same file count before and after adding a docs/posts file, so it is unclear whether posts are covered; check_post_links.py had to be run separately."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-a-dispute-costs-one-segment-not-a-rerun.md",
+    "research/verifiable-training-mechanisms/LOG.md (milestone 80 plan and outcome)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty; IDEAS.md and website requests empty; routed research (weighted draw); pick_track drew verifiable-training-mechanisms, claim check clear. Plan and predictions committed before the run. Five predictions held (honest float32 max 7.75e-6 vs fp16 q99 0.0946; 0/1500 false convictions; floor 3e-5 reorder, 3e-6 f64; tail cheat fully convicted; two-stage 0.081 T at r=15 catching 79.3% of uniform 2e-2). H100 rates checked on nvidia.com spec page (FP16 tensor 1,979 with sparsity, FP32 67, FP64 34). Local checks: project tests 57 passed 1 skipped; research build ok; research_live_links ok; check_md_links ok; post frontmatter/links/similarity ok; run_workflow_locally --for-changes run (results in PR).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5db75e40-aa15-5f2a-9fe6-9b8222f3da61",
+    "transcripts": 1,
+    "first": "2026-11-13T12:06:40Z",
+    "last": "2026-11-13T12:17:11Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 43,
+        "input": 81,
+        "output": 29983,
+        "thinking": 8821,
+        "cache_read": 3832181,
+        "cache_write_5m": 0,
+        "cache_write_1h": 89346,
+        "api_equivalent_usd": 2.0812,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 43,
+      "input": 81,
+      "output": 29983,
+      "thinking": 8821,
+      "cache_read": 3832181,
+      "cache_write_5m": 0,
+      "cache_write_1h": 89346,
+      "api_equivalent_usd": 2.0812,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.977,
+    "tool_calls": 47,
+    "tools": {
+      "Bash": 40,
+      "Write": 3,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "WebFetch": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 10.52,
+      "active_minutes": 10.52,
+      "model_minutes": 5.84,
+      "tool_minutes": 4.68,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, run and analyse one experiment with tests, log entry and post, as a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 480.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

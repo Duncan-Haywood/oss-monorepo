@@ -21,8 +21,8 @@ const num = (v) => {
   return Number.isFinite(n) ? n : NaN;
 };
 const opt = (v, d) => (String(v ?? "").trim() === "" ? d : num(v));
-export const dollars = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const whole = (n) => (n < 0 ? "-" : "") + "$" + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const whole = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)("$" + Math.abs(Math.round(n)).toLocaleString("en-US"));
 const round2 = (n) => Math.round(n * 100) / 100;
 const SEASONS = [["peak", "Peak"], ["shoulder", "Shoulder"], ["off", "Off"]];
 
@@ -100,12 +100,16 @@ export function compute(raw) {
   const b = run(p);
   const c = p.cardPct / 100, m = p.concMargin / 100;
   const perOpenDay = b.openDays > 0 ? b.rounds / b.openDays : 0;
+  // With no rounds planned there is no attendance to scale, so the break-even and per-round figures use one round per open day
+  // in every season as the shape (otherwise every round reads as worth $0 and break-even as unreachable).
+  const shape = b.rounds > 0 ? b : run({ ...p, seasons: p.seasons.map((s) => ({ ...s, rounds: 1 })) });
+  const shapePerDay = shape.openDays > 0 ? shape.rounds / shape.openDays : 0;
   // Cash after the loan is linear in volScale: volume part (rounds and concessions) plus a part that does not move with attendance.
-  const volumeContribution = b.roundsRev * (1 - c) + b.conc * (m - c);
+  const volumeContribution = shape.roundsRev * (1 - c) + shape.conc * (m - c);
   const fixedPart = b.partyRev * (1 - c) - b.partyCost - b.labor - p.fixedYear - b.reserve - b.debt;
   const beScale = volumeContribution > 0 ? Math.max(0, -fixedPart / volumeContribution) : null;
-  const breakEvenRoundsPerDay = beScale === null ? null : perOpenDay * beScale;
-  const breakEvenRoundsYear = beScale === null ? null : b.rounds * beScale;
+  const breakEvenRoundsPerDay = beScale === null ? null : shapePerDay * beScale;
+  const breakEvenRoundsYear = beScale === null ? null : shape.rounds * beScale;
   const dscr = b.debt > 0 ? b.noi / b.debt : null;
   const yieldOnCost = b.noi / b.investment;
   const cashOnCash = b.equity > 0 ? b.cashFlow / b.equity : null;
@@ -116,8 +120,8 @@ export function compute(raw) {
   const bePriceScale = priceScaleFor(0);
   const targetCash = b.equity > 0 ? b.equity / p.targetYears : 0;
   const targetPriceScale = b.equity > 0 ? priceScaleFor(targetCash) : null;
-  const avgPrice = b.rounds > 0 ? b.roundsRev / b.rounds : 0;
-  const revPerRound = b.rounds > 0 ? (b.roundsRev + b.conc) / b.rounds : 0;
+  const avgPrice = shape.rounds > 0 ? shape.roundsRev / shape.rounds : 0;
+  const revPerRound = shape.rounds > 0 ? (shape.roundsRev + shape.conc) / shape.rounds : 0;
 
   const cell = (x) => ({ noi: round2(x.noi), dscr: x.debt > 0 ? x.noi / x.debt : null, cashFlow: round2(x.cashFlow), payback: x.equity > 0 && x.cashFlow > 0 ? x.equity / x.cashFlow : null });
   const sweep = [0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2].map((scale) => {
@@ -132,7 +136,6 @@ export function compute(raw) {
     return { rain, openDays: x.openDays, rounds: x.rounds, ...cell(x) };
   });
 
-  const roundShare = b.revenue > 0 ? b.roundsRev / b.revenue : 0;
   const peak = b.seasons.find((s) => s.key === "peak");
   const peakShare = peak && b.roundsRev > 0 ? peak.revenue / b.roundsRev : null;
   const findings = [];
@@ -146,7 +149,7 @@ export function compute(raw) {
   if (p.parties > 0) findings.push({ severity: "info", title: `${p.parties} parties at ${whole(p.partyPrice)} bring in ${whole(b.partyRev)} and leave about ${whole(b.partyRev - b.partyCost)} after party costs. They are entered as parties you expect to hold, so weather does not reduce them here.` });
   findings.push({ severity: "info", title: `Each round brings in about ${dollars(revPerRound)} from the round itself and concessions (${dollars(avgPrice)} average price plus ${dollars(p.concSpend)} spend), before staff, fixed costs and the loan.` });
   if (b.reserve > 0) findings.push({ severity: "info", title: `The ${p.maintPct}% upkeep reserve sets aside ${whole(b.reserve)} a year for turf, paint, lighting and obstacle repairs, and for replacing worn pieces.` });
-  if (b.labor > 0) findings.push({ severity: "info", title: `Staff cost ${whole(b.labor)} a year (${p.laborHours} hours on each of about ${Math.round(b.openDays)} open days at ${dollars(p.wage)}), ${(roundShare > 0 ? b.labor / b.revenue * 100 : 0).toFixed(0)}% of sales. Days lost to weather are counted as unstaffed.` });
+  if (b.labor > 0) findings.push({ severity: "info", title: `Staff cost ${whole(b.labor)} a year (${p.laborHours} hours on each of about ${Math.round(b.openDays)} open days at ${dollars(p.wage)}), ${(b.revenue > 0 ? b.labor / b.revenue * 100 : 0).toFixed(0)}% of sales. Days lost to weather are counted as unstaffed.` });
   if (b.cashFlow >= 0 && !findings.some((f) => f.severity !== "info")) findings.push({ severity: "info", title: `At these figures the course covers its costs and its loan, with about ${whole(b.cashFlow)} a year left over.` });
 
   return {

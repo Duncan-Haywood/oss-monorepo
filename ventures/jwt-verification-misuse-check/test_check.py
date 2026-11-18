@@ -152,6 +152,19 @@ class GoJava(unittest.TestCase):
         text = 'import "github.com/golang-jwt/jwt/v5"\nt, _ := jwt.Parse(s, kf, jwt.WithValidMethods([]string{"HS256"}))\n'
         self.assertEqual(check.scan_text(text, "a.go"), [])
 
+    def test_go_http_method_does_not_count_as_a_method_check(self):
+        text = ('import "github.com/golang-jwt/jwt/v5"\n'
+                'if r.Method != http.MethodGet { return }\n'
+                't, _ := jwt.Parse(tok, kf)\n')
+        self.assertEqual(lines_of(check.scan_text(text, "a.go"), check.ALGORITHMS_NOT_PINNED), [3])
+
+    def test_go_keyfunc_type_assertion_is_a_method_check(self):
+        text = ('import "github.com/golang-jwt/jwt/v5"\n'
+                't, _ := jwt.Parse(tok, func(t *jwt.Token) (any, error) {\n'
+                '  if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok { return nil, errBad }\n'
+                '  return key, nil })\n')
+        self.assertEqual(lines_of(check.scan_text(text, "a.go"), check.ALGORITHMS_NOT_PINNED), [])
+
     def test_java(self):
         f = check.scan_text(JAVA, "Auth.java")
         self.assertEqual(lines_of(f, check.DECODE_WITHOUT_VERIFY), [4])
@@ -175,6 +188,13 @@ class Misc(unittest.TestCase):
         f = check.scan_text(JS, "app.js")
         for x in f:
             self.assertNotIn("a-long-literal-key", x["detail"])
+
+    def test_backslash_run_in_key_does_not_backtrack(self):
+        # ReDoS: the old string-literal pattern split a backslash run 2^n ways.
+        import time
+        t0 = time.perf_counter()
+        check.scan_text('jwt.verify(token, "' + "\\" * 40 + '"x)\n', "a.js")
+        self.assertLess(time.perf_counter() - t0, 1.0)
 
     def test_empty_and_plain_text(self):
         self.assertEqual(check.scan_text("", "a.js"), [])

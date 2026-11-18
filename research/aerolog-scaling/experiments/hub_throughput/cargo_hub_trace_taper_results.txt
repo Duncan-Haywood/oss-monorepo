@@ -1,0 +1,10 @@
+
+Window 20-90%: 43.1 min, charger limit 11.14 flights/h, mean load 54%
+  Poisson            : 9
+  2019-10-09 uniform : 9
+  2019-10-12 uniform : 9
+
+Window 30-100%: 72.0 min, charger limit 6.67 flights/h, mean load 90%
+  Poisson            : 20
+  2019-10-09 uniform : 28
+  2019-10-12 uniform : 28

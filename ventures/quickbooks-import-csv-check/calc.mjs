@@ -57,8 +57,8 @@ const num = (v) => /^-?\d+(\.\d+)?$/.test(v);
 
 export function decodeBuffer(buf) {
   const u8 = buf instanceof Uint8Array ? buf : new Uint8Array(buf);
-  if (u8[0] === 0xff && u8[1] === 0xfe) return "﻿" + new TextDecoder("utf-16le").decode(u8.subarray(2));
-  if (u8[0] === 0xfe && u8[1] === 0xff) return "﻿" + new TextDecoder("utf-16be").decode(u8.subarray(2));
+  if (u8[0] === 0xff && u8[1] === 0xfe) return "\uFEFF" + new TextDecoder("utf-16le").decode(u8.subarray(2));
+  if (u8[0] === 0xfe && u8[1] === 0xff) return "\uFEFF" + new TextDecoder("utf-16be").decode(u8.subarray(2));
   return new TextDecoder("utf-8", { ignoreBOM: true }).decode(u8);
 }
 
@@ -110,18 +110,24 @@ export function cleanMoney(v) {
   return s;
 }
 
+// A real calendar day: 30 February and 31 April are not, nor 29 February in a common year.
+const realDay = (y, m, d) => {
+  if (!(m >= 1 && m <= 12 && d >= 1)) return false;
+  const t = new Date(Date.UTC(y, m - 1, d));
+  return t.getUTCMonth() === m - 1 && t.getUTCDate() === d;
+};
+
 // null when the date reads one way only; otherwise the ambiguity ("dm" | "md") or "bad".
 export function dateShape(v) {
   const s = v.trim();
   let m = /^(\d{4})-(\d{1,2})-(\d{1,2})$/.exec(s);
-  if (m) return +m[2] >= 1 && +m[2] <= 12 && +m[3] >= 1 && +m[3] <= 31 ? "iso" : "bad";
+  if (m) return realDay(+m[1], +m[2], +m[3]) ? "iso" : "bad";
   m = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{2}|\d{4})$/.exec(s);
   if (!m) return "bad";
-  const a = +m[1], b = +m[2];
-  if (a > 12 && b <= 12) return "dmy";
-  if (b > 12 && a <= 12) return "mdy";
-  if (a > 12 && b > 12) return "bad";
-  return "either";
+  const a = +m[1], b = +m[2], y = m[3].length === 2 ? 2000 + +m[3] : +m[3];
+  const md = realDay(y, a, b), dm = realDay(y, b, a);
+  if (md && dm) return "either";
+  return md ? "mdy" : dm ? "dmy" : "bad";
 }
 
 export function taxIdProblem(v) {

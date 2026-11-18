@@ -1,0 +1,515 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtLTzXqEGdpixYVUsj4",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T15:07:12Z",
+  "ended": "2026-11-12T15:10:51Z",
+  "wall_minutes": 7.33,
+  "tokens_in": 2990353,
+  "tokens_out": 17836,
+  "cost_usd": 1.6237,
+  "tool_calls": 36,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15166",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 5 control-plane entries, each already with a waiting PR (#12928, #14877, #14612, #14698); redteam.py open could print the open PR next to each entry so a run doesn't have to search for it."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b prefers a platform/ci lint for the class (lossy replace(/[^0-9.]/g) money parsers), but every platform/ci lint needs a hand-wired workflow step (control plane), and several such wiring PRs are already stalled waiting on the owner. Only 2 venture money parsers had the pattern.",
+      "did": "Fixed both and guarded each in its own venture suite, which ventures-tests.yml already runs on every PR that touches it.",
+      "result": "Both guards run in CI with no control-plane change."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-a-dollar-sign-before-the-minus-flipped-a-futures-loss.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen: 0 earlier campaigns, 0.3 s suite, tax money. Two 12-mutant campaigns. Guards: 7 new tests in section-1256 calc.test.mjs, 1 in wash-sale-checker calc.test.mjs. Checks run: run_venture_tests.py for both slugs ok; check_post_frontmatter and check_post_links on the post ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+        "test": "node --test ventures/section-1256-futures-tax-calculator/**/*.test.mjs  (in .)",
+        "seed": 868394301,
+        "commit": "c96d31426",
+        "sites": 69,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 13,
+            "col": 71,
+            "operator": "const-plus-one",
+            "before": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "after": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(3).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "line_text": "export const money = (x) => (x < 0 ? \"-$\" : \"$\") + Math.abs(x).toFixed(2).replace(/\\B(?=(\\d{3})+(?!\\d))/g, \",\");",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 14,
+            "col": 38,
+            "operator": "div-to-times",
+            "before": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "after": "const r2 = (x) => Math.round(x * 100) * 100;",
+            "line_text": "const r2 = (x) => Math.round(x * 100) / 100;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 45,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "const v = [num(f[1]), num(f[2]), num(f[3])];",
+            "after": "const v = [num(f[1]), num(f[2]), num(f[4])];",
+            "line_text": "    const v = [num(f[1]), num(f[2]), num(f[3])];",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 49,
+            "col": 25,
+            "operator": "const-plus-one",
+            "before": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "after": "rows.push({ label: f[1] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "line_text": "    rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 49,
+            "col": 104,
+            "operator": "plus-to-minus",
+            "before": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "after": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior - current) });",
+            "line_text": "    rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 51,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (!rows.length) return { error: errors[0] || \"No readable rows.\" };",
+            "after": "if (!rows.length) return { error: errors[1] || \"No readable rows.\" };",
+            "line_text": "  if (!rows.length) return { error: errors[0] || \"No readable rows.\" };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test asserted the error text when every row is unreadable; added 'when no row is readable the first row's reason is the error'."
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 51,
+            "col": 46,
+            "operator": "or-to-and",
+            "before": "if (!rows.length) return { error: errors[0] || \"No readable rows.\" };",
+            "after": "if (!rows.length) return { error: errors[0] && \"No readable rows.\" };",
+            "line_text": "  if (!rows.length) return { error: errors[0] || \"No readable rows.\" };",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test asserted the error text when every row is unreadable; added 'when no row is readable the first row's reason is the error'."
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 56,
+            "col": 60,
+            "operator": "plus-to-minus",
+            "before": "const o = ordinary + (niit ? NIIT_RATE : 0), l = longTerm + (niit ? NIIT_RATE : 0);",
+            "after": "const o = ordinary + (niit ? NIIT_RATE : 0), l = longTerm - (niit ? NIIT_RATE : 0);",
+            "line_text": "  const o = ordinary + (niit ? NIIT_RATE : 0), l = longTerm + (niit ? NIIT_RATE : 0);",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 58,
+            "col": 88,
+            "operator": "times-to-div",
+            "before": "return { blended, as1256: r2(net * blended), asShortTerm: r2(net * o), saving: r2(net * (o - blended)) };",
+            "after": "return { blended, as1256: r2(net * blended), asShortTerm: r2(net * o), saving: r2(net / (o - blended)) };",
+            "line_text": "  return { blended, as1256: r2(net * blended), asShortTerm: r2(net * o), saving: r2(net * (o - blended)) };",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 64,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "const pct = (x, d) => (Number.isFinite(x) ? x : d) / 100;",
+            "after": "const pct = (x, d) => (Number.isFinite(x) ? x : d) / 101;",
+            "line_text": "  const pct = (x, d) => (Number.isFinite(x) ? x : d) / 100;",
+            "caught": true,
+            "seconds": 0.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 67,
+            "col": 20,
+            "operator": "times-to-div",
+            "before": "const lt = r2(net * LONG_TERM_SHARE), st = r2(net - lt);",
+            "after": "const lt = r2(net / LONG_TERM_SHARE), st = r2(net - lt);",
+            "line_text": "  const lt = r2(net * LONG_TERM_SHARE), st = r2(net - lt);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 73,
+            "col": 12,
+            "operator": "const-plus-one",
+            "before": "if (net < 0) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);",
+            "after": "if (net < 1) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);",
+            "line_text": "  if (net < 0) notes.push(`Net 1256 loss of ${money(-net)}. It first offsets your other capital gains, then up to $3,000 ($1,500 if married filing separately) of other income this year. Checking box D on Form 6781 (amount on Part I line 6) elects to carry the rest back three years against earlier net 1256 gains, earliest year first and no more than each year's net 1256 gain; it is claimed with Form 1045 or an amended return, and estates and trusts cannot elect it. Ask a preparer whether it pays for you.`);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+        "test": "node --test ventures/section-1256-futures-tax-calculator/**/*.test.mjs  (in .)",
+        "seed": 382333152,
+        "commit": "c96d31426",
+        "sites": 69,
+        "baseline_seconds": 0.2,
+        "mutants": [
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 27,
+            "col": 16,
+            "operator": "eq-flip",
+            "before": "else if (ch === delim && !q) { out.push(cur); cur = \"\"; }",
+            "after": "else if (ch !== delim && !q) { out.push(cur); cur = \"\"; }",
+            "line_text": "    else if (ch === delim && !q) { out.push(cur); cur = \"\"; }",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 41,
+            "col": 36,
+            "operator": "eq-flip",
+            "before": "if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "after": "if (first.slice(1).every((x) => x !== \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "line_text": "  if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 41,
+            "col": 67,
+            "operator": "or-to-and",
+            "before": "if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "after": "if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) && /[a-z]{3,}/i.test(x))) start = 1;",
+            "line_text": "  if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 41,
+            "col": 101,
+            "operator": "const-plus-one",
+            "before": "if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "after": "if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 2;",
+            "line_text": "  if (first.slice(1).every((x) => x === \"\" || Number.isNaN(num(x)) || /[a-z]{3,}/i.test(x))) start = 1;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 46,
+            "col": 17,
+            "operator": "lt-to-le",
+            "before": "if (f.length < 2 || v.some(Number.isNaN)) { errors.push(`Row ${i + 1} could not be read: ${lines[i].slice(0, 60)}`); continue; }",
+            "after": "if (f.length <= 2 || v.some(Number.isNaN)) { errors.push(`Row ${i + 1} could not be read: ${lines[i].slice(0, 60)}`); continue; }",
+            "line_text": "    if (f.length < 2 || v.some(Number.isNaN)) { errors.push(`Row ${i + 1} could not be read: ${lines[i].slice(0, 60)}`); continue; }",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test fed a two-field row (account, box 8); added 'a row with only an account and box 8 is read'."
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 49,
+            "col": 28,
+            "operator": "or-to-and",
+            "before": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "after": "rows.push({ label: f[0] && `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "line_text": "    rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 49,
+            "col": 96,
+            "operator": "minus-to-plus",
+            "before": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "after": "rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized + prior + current) });",
+            "line_text": "    rows.push({ label: f[0] || `Row ${i + 1}`, realized, prior, current, aggregate: r2(realized - prior + current) });",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 51,
+            "col": 43,
+            "operator": "const-plus-one",
+            "before": "if (!rows.length) return { error: errors[0] || \"No readable rows.\" };",
+            "after": "if (!rows.length) return { error: errors[1] || \"No readable rows.\" };",
+            "line_text": "  if (!rows.length) return { error: errors[0] || \"No readable rows.\" };",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test asserted the error text when every row is unreadable; added 'when no row is readable the first row's reason is the error'."
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 56,
+            "col": 60,
+            "operator": "plus-to-minus",
+            "before": "const o = ordinary + (niit ? NIIT_RATE : 0), l = longTerm + (niit ? NIIT_RATE : 0);",
+            "after": "const o = ordinary + (niit ? NIIT_RATE : 0), l = longTerm - (niit ? NIIT_RATE : 0);",
+            "line_text": "  const o = ordinary + (niit ? NIIT_RATE : 0), l = longTerm + (niit ? NIIT_RATE : 0);",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 57,
+            "col": 38,
+            "operator": "plus-to-minus",
+            "before": "const blended = LONG_TERM_SHARE * l + SHORT_TERM_SHARE * o;",
+            "after": "const blended = LONG_TERM_SHARE * l - SHORT_TERM_SHARE * o;",
+            "line_text": "  const blended = LONG_TERM_SHARE * l + SHORT_TERM_SHARE * o;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 57,
+            "col": 57,
+            "operator": "times-to-div",
+            "before": "const blended = LONG_TERM_SHARE * l + SHORT_TERM_SHARE * o;",
+            "after": "const blended = LONG_TERM_SHARE * l + SHORT_TERM_SHARE / o;",
+            "line_text": "  const blended = LONG_TERM_SHARE * l + SHORT_TERM_SHARE * o;",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+            "line": 66,
+            "col": 58,
+            "operator": "const-plus-one",
+            "before": "const net = r2(p.rows.reduce((s, r) => s + r.aggregate, 0));",
+            "after": "const net = r2(p.rows.reduce((s, r) => s + r.aggregate, 1));",
+            "line_text": "  const net = r2(p.rows.reduce((s, r) => s + r.aggregate, 0));",
+            "caught": true,
+            "seconds": 0.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+        "issue": "num() checked the sign on the first character only and then deleted every non-digit: '$-1200' and 'USD -500' read as positive (a loss became a taxable gain), '1.5E+04' as 1.5, '1e3' as 13, '12-34' as 1234, '5 6' as 56.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15166"
+      },
+      {
+        "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+        "issue": "Rates outside 0-100 (the page's input min/max are not enforced by parseFloat) gave negative tax figures.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15166"
+      },
+      {
+        "file": "ventures/section-1256-futures-tax-calculator/calc.mjs",
+        "issue": "A long-term rate above the ordinary rate printed 'saves about -$30.00'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15166"
+      },
+      {
+        "file": "ventures/wash-sale-checker/calc.mjs",
+        "issue": "Same lossy num(): quantity '1e3' read as 13 shares, '12-34' as 1234 (sign harmless there because every call is Math.abs).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15166"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4747e8dc-0d62-5f30-84d8-7f39bc44a144",
+    "transcripts": 1,
+    "first": "2026-11-12T15:07:12Z",
+    "last": "2026-11-12T15:14:32Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 36,
+        "input": 72,
+        "output": 17836,
+        "thinking": 4941,
+        "cache_read": 2904556,
+        "cache_write_5m": 0,
+        "cache_write_1h": 85725,
+        "api_equivalent_usd": 1.6237,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 36,
+      "input": 72,
+      "output": 17836,
+      "thinking": 4941,
+      "cache_read": 2904556,
+      "cache_write_5m": 0,
+      "cache_write_1h": 85725,
+      "api_equivalent_usd": 1.6237,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.971,
+    "tool_calls": 36,
+    "tools": {
+      "Bash": 33,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.33,
+      "active_minutes": 7.33,
+      "model_minutes": 4.17,
+      "tool_minutes": 3.16,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "reading two parsers, writing 8 tests, fixing both, a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 184.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

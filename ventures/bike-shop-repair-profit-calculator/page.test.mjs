@@ -14,7 +14,7 @@ test("index page carries the disclaimer, privacy line, and sponsor link", () => 
 
 test("inputs have labels and the page never sends numbers anywhere", () => {
   const html = page("index.html");
-  for (const id of ["flatQty","flatPrice","flatMin","flatMat","tuneQty","tunePrice","tuneMin","tuneMat","ovhQty","ovhPrice","ovhMin","ovhMat","techRate","burdenPct","benchHrsPerWeek","busyMonths","toolCost","toolYears","rentPerMonth","otherFixed","passHolders","passPrice","passFlatVisits","targetMarginPct"]) assert.match(html, new RegExp(`<label for="${id}">`));
+  for (const id of ["techPaid","flatQty","flatPrice","flatMin","flatMat","tuneQty","tunePrice","tuneMin","tuneMat","ovhQty","ovhPrice","ovhMin","ovhMat","techRate","burdenPct","benchHrsPerWeek","busyMonths","toolCost","toolYears","rentPerMonth","otherFixed","passHolders","passPrice","passFlatVisits","targetMarginPct"]) assert.match(html, new RegExp(`<label for="${id}">`));
   assert.doesNotMatch(html, /fetch\(|XMLHttpRequest|sendBeacon/);
 });
 

@@ -56,28 +56,51 @@ export const CANDIDATES = [
 
 // ---------------------------------------------------------------- CSV parsing
 
+/**
+ * Calls `onRow(fields)` for each non-blank row of RFC 4180-style CSV: quoted fields, doubled quotes,
+ * commas and newlines inside quotes; a quote anywhere toggles quoting, as in a char-by-char reader.
+ * Fields are sliced from the text, not built a character at a time, and rows are handed over as they
+ * are read, so a million-row inventory is never held as one table (perf track, 2026-11-18).
+ */
+function eachCsvRow(text, onRow) {
+  const s = String(text ?? "");
+  const n = s.length;
+  let i = s.charCodeAt(0) === 0xfeff ? 1 : 0;
+  let row = [];
+  let field = "";
+  let from = i; // start of the unquoted run not yet added to `field`
+  while (i < n) {
+    const c = s.charCodeAt(i);
+    if (c === 34) { // "
+      field += s.slice(from, i);
+      // Inside quotes: copy up to each closing quote, keeping one quote for each doubled pair.
+      let j = i + 1;
+      for (;;) {
+        const q = s.indexOf('"', j);
+        if (q < 0) { field += s.slice(j); j = n; break; }
+        field += s.slice(j, q);
+        if (s.charCodeAt(q + 1) === 34) { field += '"'; j = q + 2; } else { j = q + 1; break; }
+      }
+      i = j; from = j;
+    } else if (c === 44) { // ,
+      row.push(field + s.slice(from, i)); field = "";
+      i += 1; from = i;
+    } else if (c === 10 || c === 13) { // \n or \r (CRLF counts once)
+      row.push(field + s.slice(from, i)); field = "";
+      if (c === 13 && s.charCodeAt(i + 1) === 10) i += 1;
+      if (row.length > 1 || row[0] !== "") onRow(row);
+      row = [];
+      i += 1; from = i;
+    } else i += 1;
+  }
+  row.push(field + s.slice(from, n));
+  if (row.length > 1 || row[0] !== "") onRow(row);
+}
+
 /** RFC 4180-style parser: quoted fields, doubled quotes, commas and newlines inside quotes. */
 export function parseCsv(text) {
   const rows = [];
-  let row = [];
-  let field = "";
-  let quoted = false;
-  const s = String(text ?? "").replace(/^﻿/, "");
-  for (let i = 0; i < s.length; i += 1) {
-    const c = s[i];
-    if (quoted) {
-      if (c === '"') { if (s[i + 1] === '"') { field += '"'; i += 1; } else quoted = false; } else field += c;
-    } else if (c === '"') quoted = true;
-    else if (c === ",") { row.push(field); field = ""; }
-    else if (c === "\n" || c === "\r") {
-      if (c === "\r" && s[i + 1] === "\n") i += 1;
-      row.push(field); field = "";
-      if (row.length > 1 || row[0] !== "") rows.push(row);
-      row = [];
-    } else field += c;
-  }
-  row.push(field);
-  if (row.length > 1 || row[0] !== "") rows.push(row);
+  eachCsvRow(text, (row) => { rows.push(row); });
   return rows;
 }
 
@@ -90,27 +113,33 @@ const DEFAULT_COLUMNS = ["bucket", "key", "size", "lastmodifieddate", "storagecl
  * Non-current versions (IsLatest false) and delete markers are counted and left out.
  */
 export function parseInventory(text) {
-  const table = parseCsv(text);
   const out = { rows: [], skipped: 0, ignoredNonCurrent: 0, ignoredDeleteMarkers: 0, undated: 0, headerFound: false };
-  if (!table.length) return out;
-  let cols = DEFAULT_COLUMNS;
-  let start = 0;
-  const first = table[0].map(norm);
-  if (first.includes("size") && (first.includes("bucket") || first.includes("key"))) { cols = first; start = 1; out.headerFound = true; }
-  const at = (name) => cols.indexOf(name);
-  const iSize = at("size"); const iDate = at("lastmodifieddate"); const iClass = at("storageclass");
-  const iTier = at("intelligenttieringaccesstier"); const iLatest = at("islatest"); const iDel = at("isdeletemarker");
-  if (iSize < 0) return out;
-  for (const r of table.slice(start)) {
-    const get = (i) => (i >= 0 && i < r.length ? r[i].trim() : "");
-    if (iLatest >= 0 && /^false$/i.test(get(iLatest))) { out.ignoredNonCurrent += 1; continue; }
-    if (iDel >= 0 && /^true$/i.test(get(iDel))) { out.ignoredDeleteMarkers += 1; continue; }
-    const size = Number(get(iSize));
-    if (get(iSize) === "" || !Number.isFinite(size) || size < 0) { out.skipped += 1; continue; }
-    const t = iDate >= 0 ? Date.parse(get(iDate)) : NaN;
+  let first = true;
+  let iSize = -1; let iDate = -1; let iClass = -1; let iTier = -1; let iLatest = -1; let iDel = -1;
+  eachCsvRow(text, (r) => {
+    if (first) {
+      first = false;
+      let cols = DEFAULT_COLUMNS;
+      const head = r.map(norm);
+      if (head.includes("size") && (head.includes("bucket") || head.includes("key"))) { cols = head; out.headerFound = true; }
+      const at = (name) => cols.indexOf(name);
+      iSize = at("size"); iDate = at("lastmodifieddate"); iClass = at("storageclass");
+      iTier = at("intelligenttieringaccesstier"); iLatest = at("islatest"); iDel = at("isdeletemarker");
+      if (out.headerFound) return;
+    }
+    if (iSize < 0) return;
+    const len = r.length;
+    if (iLatest >= 0 && iLatest < len && /^false$/i.test(r[iLatest].trim())) { out.ignoredNonCurrent += 1; return; }
+    if (iDel >= 0 && iDel < len && /^true$/i.test(r[iDel].trim())) { out.ignoredDeleteMarkers += 1; return; }
+    const sizeText = iSize < len ? r[iSize].trim() : "";
+    const size = Number(sizeText);
+    if (sizeText === "" || !Number.isFinite(size) || size < 0) { out.skipped += 1; return; }
+    const t = iDate >= 0 && iDate < len ? Date.parse(r[iDate].trim()) : NaN;
     if (!Number.isFinite(t)) out.undated += 1;
-    out.rows.push({ size, lastModified: Number.isFinite(t) ? t : null, storageClass: (get(iClass) || "STANDARD").toUpperCase(), tier: get(iTier).toUpperCase() });
-  }
+    const cls = iClass >= 0 && iClass < len ? r[iClass].trim() : "";
+    const tier = iTier >= 0 && iTier < len ? r[iTier].trim() : "";
+    out.rows.push({ size, lastModified: Number.isFinite(t) ? t : null, storageClass: (cls || "STANDARD").toUpperCase(), tier: tier.toUpperCase() });
+  });
   return out;
 }
 

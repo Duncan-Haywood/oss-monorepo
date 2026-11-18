@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseCsv, detectDelimiter, normalizeOrders, analyze, breakEvenShare, codesCsv, sampleCsv, money, pct } from "./calc.mjs";
+import { decodeBuffer, detectDecimalComma, parseCsv, detectDelimiter, normalizeOrders, analyze, breakEvenShare, codesCsv, sampleCsv, money, pct } from "./calc.mjs";
 
 const load = (csv) => {
   const n = normalizeOrders(parseCsv(csv, detectDelimiter(csv)));
@@ -105,4 +105,58 @@ test("formatters", () => {
   assert.equal(money(1234.5), "1,234.50");
   assert.equal(pct(0.1234), "12.3%");
   assert.equal(pct(null), "–");
+});
+
+// Red team 2026-11-16: eight seeded faults in calc.mjs all passed this suite.
+test("a UTF-16 export (Excel's 'Unicode text') is decoded, either byte order", () => {
+  const text = "Name,Total\n#1,10";
+  const le = new Uint8Array([0xff, 0xfe, ...[...text].flatMap((c) => [c.charCodeAt(0), 0])]);
+  const be = new Uint8Array([0xfe, 0xff, ...[...text].flatMap((c) => [0, c.charCodeAt(0)])]);
+  assert.equal(decodeBuffer(le.buffer).replace(/^\uFEFF/, ""), text);
+  assert.equal(decodeBuffer(be.buffer).replace(/^\uFEFF/, ""), text);
+  assert.equal(decodeBuffer(new TextEncoder().encode(text).buffer), text);
+});
+
+test("the header is looked for in the first ten rows only", () => {
+  const pre = (k) => Array.from({ length: k }, (_, i) => `note ${i}`);
+  const body = ["Name,Subtotal,Total,Discount Amount", "#1,90,96,10"];
+  assert.equal(normalizeOrders(parseCsv([...pre(9), ...body].join("\n"))).orders.length, 1);
+  assert.match(normalizeOrders(parseCsv([...pre(10), ...body].join("\n"))).error, /No header row/);
+});
+
+test("with no Subtotal column, list price is Total less shipping and tax, plus the discount", () => {
+  // Real defect (red team 2026-11-16): gross was Total + discount, so shipping and
+  // tax counted as list-price sales and the discount rate read low.
+  const n = load("Name,Total,Shipping,Taxes,Discount Code,Discount Amount\n#1,96.00,6.00,0,X,10.00\n#2,118.00,6.00,12.00,,0");
+  assert.deepEqual(n.orders.map((o) => o.gross), [100, 100]);
+  assert.equal(n.orders[0].total, 96);
+  // No shipping or tax columns: Total is all there is.
+  assert.equal(load("Name,Total,Discount Amount\n#1,90,10").orders[0].gross, 100);
+});
+
+test("contribution per order: paid - cost - (fee% of paid + fixed fee) - refunds", () => {
+  const csv = [H, "#1,a@x.com,paid,80,80,X,20,2026-08-01 10:00:00 -0500,1,100,0,", "#2,b@x.com,paid,100,100,,0,2026-08-02 10:00:00 -0500,1,100,30,"].join("\n");
+  const r = analyze(load(csv).orders, { cogsPct: 0.4, feePct: 0.03, fixedFee: 0.3 });
+  // #1: 80 - 40 - (2.40 + 0.30) = 37.30; #2: 100 - 40 - (3 + 0.30) - 30 = 26.70
+  assert.ok(Math.abs(r.summary.contribution - 64) < 1e-9);
+  assert.equal(r.summary.losing, 0);
+});
+
+test("break-even findings: none without a cost, and only codes needing 60% or more with one", () => {
+  const { orders } = load(sampleCsv());
+  const none = analyze(orders, {});
+  assert.ok(!none.findings.some((f) => /to be new sales|more than the margin/.test(f.title)), none.findings.map((f) => f.title).join("\n"));
+  const r = analyze(orders, { cogsPct: 0.35 });
+  const flagged = r.findings.filter((f) => /to be new sales/.test(f.title)).map((f) => f.title.split(" ")[0]);
+  const expected = r.byCode.filter((c) => c.key !== "(no code)" && c.orders >= 5 && c.breakEven !== null && c.breakEven !== Infinity && c.breakEven >= 0.6).map((c) => c.key);
+  assert.ok(r.byCode.some((c) => c.breakEven !== null && c.breakEven < 0.6 && c.orders >= 5), "the sample needs a mild code");
+  assert.deepEqual(flagged.sort(), expected.sort());
+});
+
+test("decimal comma is read from amounts, not from text or dates", () => {
+  // Text cells with digits (product names, emails) never vote.
+  assert.equal(detectDecimalComma([["Lineitem name", "Total"], ["Bottle 1,5 l", "10.00"], ["Bottle 2,5 l", "x"]], ","), false);
+  // A European amount with two thousands groups is an amount, not a date.
+  assert.equal(detectDecimalComma([["Total"], ["1.234.567,89"]], ","), true);
+  assert.equal(detectDecimalComma([["Created at"], ["01.08.2026"], ["12.50"]], ";"), false);
 });

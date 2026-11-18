@@ -1,0 +1,132 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqydvAMuG5ePDKkz2rXe",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T08:38:09Z",
+  "ended": "2026-11-17T08:50:09Z",
+  "wall_minutes": 12.21,
+  "tokens_in": 5735229,
+  "tokens_out": 39053,
+  "cost_usd": 3.0009,
+  "tool_calls": 49,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16877",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "A first draft test assumed a shared-walk series would be refused by the guard alone; at n 120 its line rho was 0.87, under the 0.9 guard, so the assertion was changed to 'no calibrated small p'."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "A foreground `sleep 240` was blocked by a hook; the right pattern (an until-loop, run_in_background) is in the tool error, not in cloud-session.md's 'Long commands' note."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "why": "The flagship default asks to land a working slice; the pre-registered control-series test failed its real placebo bar, so per the venture's own pre-registration practice the CLI/engine/page wiring was removed and the run lands a pre-registered negative result, the module option, eval scripts and a diagnosis instead.",
+      "did": "Shipped the result, not the feature.",
+      "result": "The next round is named in flagships.yaml (in-time placebo check)."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-changepoint-control-series-placebo.md",
+    "ventures/changepoint-detector/README.md (A control series)"
+  ],
+  "goal": null,
+  "notes": "Routed ventures/1; allocator row 2 changepoint-detector. Pre-registered a control series for --known-date (eval/known-date-prereg-control-2026-11-17.md, committed before the confirmatory run). Confirmatory sim (seed 67000, 400 pairs): size 3.3-7.8% vs 5.5-22.6% for the series alone; power 55.8/52.3/10.5% vs 10.8/19.8/4.3%. Real: seat-belt drivers-rear step -0.277 p 0.001, slope change p 0.95; placebo R3 3 of 3 fired (fails); R4 1 of 2. Diagnosis: 1974 fuel crisis, near-white ratio exposes a curved pre-trend. Tests: node --test known-date-control.test.mjs known-date.test.mjs known-date-cli.test.mjs known-date-page.test.mjs: 23 pass.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c17a055f-7796-504b-8ebb-2e72384c3bde",
+    "transcripts": 1,
+    "first": "2026-11-17T08:38:09Z",
+    "last": "2026-11-17T08:50:21Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 91,
+        "output": 39053,
+        "thinking": 10595,
+        "cache_read": 5597649,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137489,
+        "api_equivalent_usd": 3.0009,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 91,
+      "output": 39053,
+      "thinking": 10595,
+      "cache_read": 5597649,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137489,
+      "api_equivalent_usd": 3.0009,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 49,
+    "tools": {
+      "Bash": 47,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.21,
+      "active_minutes": 12.21,
+      "model_minutes": 6.39,
+      "tool_minutes": 5.82,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a statistician designing, pre-registering and running a two-arm simulation study plus real placebo checks",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 333.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

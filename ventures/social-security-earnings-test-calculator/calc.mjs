@@ -19,7 +19,7 @@ export const SAMPLE = {
   freeMonths: 0,
 };
 
-export const dollars = (n) => (n < 0 ? "-$" : "$") + Math.abs(Math.round(n)).toLocaleString("en-US");
+export const dollars = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(Math.round(n)).toLocaleString("en-US"));
 
 const num = (v) => {
   if (v === "" || v === null || v === undefined) return NaN;

@@ -1,0 +1,415 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKn6gX6mQEfMS2HSN9d",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T04:18:30Z",
+  "ended": "2026-11-17T04:19:28Z",
+  "wall_minutes": 19.14,
+  "tokens_in": 8207204,
+  "tokens_out": 44501,
+  "cost_usd": 3.6045,
+  "tool_calls": 72,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16815",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "rerun was run once while the UK suite was red (a new test had the wrong expected Class 4 figure); its caught_after_fix values were discarded and rerun was run again on green suites. This is the open 2026-11-10 defect (PR #14612) biting in practice.",
+    "First post draft said the property-route cliff was at 501 of expenses; it is at 1,000 -> 1,001. Corrected before commit, and the test now checks that point.",
+    "git reset --hard origin/main was refused by the auto-mode classifier; git merge --ff-only did the same job.",
+    "A compound command with git stash was refused by a removal safety check; checked the pre-fix tree with git show into the scratchpad instead."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was 10 entries, all control plane, each already with a PR waiting on owner approval; the step says fix them first, but nothing on this branch could. A note that 'already has an open control-plane PR' counts as handled would save the PR search."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "rerun graded a red suite without warning (known, PR #14612 waiting); cost one wasted rerun here."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Fixed the class of pence bug across 55 files in 30 ventures outside the two targets (step 4 asks for that), which widened the diff well past the target.",
+      "did": "Mechanical one-pattern sweep plus check_money_pence.py; ran all 31 touched ventures' suites.",
+      "result": "All green after updating one test that pinned 'GBP 0.5'."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Committed the record in the first commit rather than only as the last one, since git add -A picked it up.",
+      "did": "Final commit updates it with outcome and pr.",
+      "result": "Record lands in the same PR."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-self-assessment-pence.md"
+  ],
+  "goal": null,
+  "notes": "Guard added: platform/ci/check_money_pence.py (+ test), auto-run by unwired_checks.py on PRs; on the pre-fix tree it flags every copy (checked on the pre-fix index.html), on the fixed tree it passes. Greenhouse line-99 mutant (bench window <=) was only reachable with 4+ crops because the order search rescues 2-crop cases; found with a 4,000-case fuzz of a mutated scratch copy. Local workflow run: prompts-ci failed only on this record's unfilled outcome; front-matter failure fixed; test_check_row_spread failed once on a vanished temp dir under ventures/ (parallel race) and passed alone.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+        "test": "node --test ventures/uk-self-assessment-tax-calculator/**/*.test.mjs  (in .)",
+        "seed": 350627563,
+        "commit": "bf37118ef",
+        "sites": 256,
+        "baseline_seconds": 0.3,
+        "mutants": [
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 169,
+            "col": 22,
+            "operator": "const-plus-one",
+            "before": "refund: L.total < 0 ? r2(-L.total) : 0,",
+            "after": "refund: L.total < 1 ? r2(-L.total) : 0,",
+            "line_text": "    refund: L.total < 0 ? r2(-L.total) : 0,",
+            "caught": false,
+            "seconds": 0.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "refund field only ever read on a positive bill; test 'a refund is reported as a refund'"
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 178,
+            "col": 85,
+            "operator": "times-to-div",
+            "before": "const effective = L.totalIncome > 0 ? r2(((L.taxAndNic + L.slDue) / L.totalIncome) * 100) : 0;",
+            "after": "const effective = L.totalIncome > 0 ? r2(((L.taxAndNic + L.slDue) / L.totalIncome) / 100) : 0;",
+            "line_text": "  const effective = L.totalIncome > 0 ? r2(((L.taxAndNic + L.slDue) / L.totalIncome) * 100) : 0;",
+            "caught": false,
+            "seconds": 0.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "effective rate was never asserted; test 'effective rate is a percentage of total income'"
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 184,
+            "col": 183,
+            "operator": "const-plus-one",
+            "before": "? `Estimated 2025/26 bill: ${money(L.total)} to pay with your return, on total income of ${money(L.totalIncome)}. That is income tax ${money(L.incomeTax)}${L.class4Nic ? `, Class 4 National Insurance ${money(L.class4Nic)}` : \"\"}${L.slBalance ? `, student loan ${money(L.slBalance)}` : \"\"}, less ${money(p.paye)} already paid through PAYE.`",
+            "after": "? `Estimated 2025/26 bill: ${money(L.total)} to pay with your return, on total income of ${money(L.totalIncome)}. That is income tax ${money(L.incomeTax)}${L.class4Nic ? `, Class 5 National Insurance ${money(L.class4Nic)}` : \"\"}${L.slBalance ? `, student loan ${money(L.slBalance)}` : \"\"}, less ${money(p.paye)} already paid through PAYE.`",
+            "line_text": "    ? `Estimated 2025/26 bill: ${money(L.total)} to pay with your return, on total income of ${money(L.totalIncome)}. That is income tax ${money(L.incomeTax)}${L.class4Nic ? `, Class 4 National Insurance ${money(L.class4Nic)}` : \"\"}${L.slBalance ? `, student loan ${money(L.slBalance)}` : \"\"}, less ${money(p.paye)} already paid through PAYE.`",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "headline text was never asserted (Class 4 -> Class 5); test 'the headline names Class 4 National Insurance when there is any'"
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 188,
+            "col": 21,
+            "operator": "const-plus-one",
+            "before": "else if (L.total > 0) findings.push({ severity: \"info\", title: `No payments on account are triggered: either the tax and Class 4 NIC left to pay is under ${money(POA_MIN_BILL)}, or at least 80% of your liability was already collected at source. You pay ${money(L.total)} by 31 January 2027.` });",
+            "after": "else if (L.total > 1) findings.push({ severity: \"info\", title: `No payments on account are triggered: either the tax and Class 4 NIC left to pay is under ${money(POA_MIN_BILL)}, or at least 80% of your liability was already collected at source. You pay ${money(L.total)} by 31 January 2027.` });",
+            "line_text": "  else if (L.total > 0) findings.push({ severity: \"info\", title: `No payments on account are triggered: either the tax and Class 4 NIC left to pay is under ${money(POA_MIN_BILL)}, or at least 80% of your liability was already collected at source. You pay ${money(L.total)} by 31 January 2027.` });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the no-POA finding was never asserted at a sub-1 pound balance; test 'the headline names the bill...'"
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 194,
+            "col": 13,
+            "operator": "gt-to-ge",
+            "before": "if (p.rent > 0 && L.propUsedAllowance && p.mortgageInterest > 0) findings.push({ severity: \"medium\", title: \"You entered mortgage interest but the property allowance gives you a better result than your expenses, and the allowance cannot be combined with a finance cost credit. Enter your actual expenses to see the other route.\" });",
+            "after": "if (p.rent >= 0 && L.propUsedAllowance && p.mortgageInterest > 0) findings.push({ severity: \"medium\", title: \"You entered mortgage interest but the property allowance gives you a better result than your expenses, and the allowance cannot be combined with a finance cost credit. Enter your actual expenses to see the other route.\" });",
+            "line_text": "  if (p.rent > 0 && L.propUsedAllowance && p.mortgageInterest > 0) findings.push({ severity: \"medium\", title: \"You entered mortgage interest but the property allowance gives you a better result than your expenses, and the allowance cannot be combined with a finance cost credit. Enter your actual expenses to see the other route.\" });",
+            "caught": false,
+            "seconds": 0.3,
+            "triage": "equivalent",
+            "caught_after_fix": false,
+            "note": "L.propUsedAllowance is now set as p.rent > 0 && useAllowance (route()), so p.rent >= 0 adds nothing; before the fix the same held (rent > 0 && ...)."
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 194,
+            "col": 17,
+            "operator": "and-to-or",
+            "before": "if (p.rent > 0 && L.propUsedAllowance && p.mortgageInterest > 0) findings.push({ severity: \"medium\", title: \"You entered mortgage interest but the property allowance gives you a better result than your expenses, and the allowance cannot be combined with a finance cost credit. Enter your actual expenses to see the other route.\" });",
+            "after": "if (p.rent > 0 || L.propUsedAllowance && p.mortgageInterest > 0) findings.push({ severity: \"medium\", title: \"You entered mortgage interest but the property allowance gives you a better result than your expenses, and the allowance cannot be combined with a finance cost credit. Enter your actual expenses to see the other route.\" });",
+            "line_text": "  if (p.rent > 0 && L.propUsedAllowance && p.mortgageInterest > 0) findings.push({ severity: \"medium\", title: \"You entered mortgage interest but the property allowance gives you a better result than your expenses, and the allowance cannot be combined with a finance cost credit. Enter your actual expenses to see the other route.\" });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the allowance-over-credit warning was never asserted; test 'the allowance-over-credit warning appears only when...'"
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 201,
+            "col": 45,
+            "operator": "gt-to-ge",
+            "before": "if (p.tradingIncome > 0 && L.tradingProfit > CLASS4.lower) findings.push({ severity: \"info\", title: `Class 4 National Insurance: ${money(L.class4Nic)}, 6% on profit between ${money(CLASS4.lower)} and ${money(CLASS4.upper)} and 2% above. Class 2 is no longer compulsory; profits over the Small Profits Threshold get your National Insurance record credited automatically.` });",
+            "after": "if (p.tradingIncome > 0 && L.tradingProfit >= CLASS4.lower) findings.push({ severity: \"info\", title: `Class 4 National Insurance: ${money(L.class4Nic)}, 6% on profit between ${money(CLASS4.lower)} and ${money(CLASS4.upper)} and 2% above. Class 2 is no longer compulsory; profits over the Small Profits Threshold get your National Insurance record credited automatically.` });",
+            "line_text": "  if (p.tradingIncome > 0 && L.tradingProfit > CLASS4.lower) findings.push({ severity: \"info\", title: `Class 4 National Insurance: ${money(L.class4Nic)}, 6% on profit between ${money(CLASS4.lower)} and ${money(CLASS4.upper)} and 2% above. Class 2 is no longer compulsory; profits over the Small Profits Threshold get your National Insurance record credited automatically.` });",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "Class 4 note boundary at 12,570 profit; test 'the Class 4 note appears only once profit passes the lower limit'"
+          },
+          {
+            "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+            "line": 204,
+            "col": 196,
+            "operator": "const-plus-one",
+            "before": "for (const [label, kind, amt] of [[\"a further GBP 1,000 (net, GBP 1,250 gross) personal pension contribution\", \"pensionNet\", 1000], [\"a further GBP 1,000 Gift Aid donation (net)\", \"giftAidNet\", 1000]]) {",
+            "after": "for (const [label, kind, amt] of [[\"a further GBP 1,000 (net, GBP 1,250 gross) personal pension contribution\", \"pensionNet\", 1000], [\"a further GBP 1,000 Gift Aid donation (net)\", \"giftAidNet\", 1001]]) {",
+            "line_text": "  for (const [label, kind, amt] of [[\"a further GBP 1,000 (net, GBP 1,250 gross) personal pension contribution\", \"pensionNet\", 1000], [\"a further GBP 1,000 Gift Aid donation (net)\", \"giftAidNet\", 1000]]) {",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the Gift Aid what-if outlay was never asserted; test 'both what-ifs are priced on a 1,000 net outlay'"
+          }
+        ]
+      },
+      {
+        "target": "ventures/greenhouse-bench-planner/calc.mjs",
+        "test": "node --test ventures/greenhouse-bench-planner/**/*.test.mjs  (in .)",
+        "seed": 826048482,
+        "commit": "bf37118ef",
+        "sites": 415,
+        "baseline_seconds": 0.9,
+        "mutants": [
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 77,
+            "col": 27,
+            "operator": "times-to-div",
+            "before": "const margin = c.units * unitMargin;",
+            "after": "const margin = c.units / unitMargin;",
+            "line_text": "    const margin = c.units * unitMargin;",
+            "caught": false,
+            "seconds": 0.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "full margin was never asserted; test 'full margin is units times (price - cost)'"
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 98,
+            "col": 30,
+            "operator": "plus-to-minus",
+            "before": "for (let w = ws; w < ws + c.germ; w++) freeG = Math.min(freeG, o.germSqft - get(germUsed, w));",
+            "after": "for (let w = ws; w < ws - c.germ; w++) freeG = Math.min(freeG, o.germSqft - get(germUsed, w));",
+            "line_text": "      for (let w = ws; w < ws + c.germ; w++) freeG = Math.min(freeG, o.germSqft - get(germUsed, w));",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 99,
+            "col": 32,
+            "operator": "lt-to-le",
+            "before": "for (let w = benchFrom; w < benchTo; w++) freeB = Math.min(freeB, o.benchSqft - get(benchUsed, w));",
+            "after": "for (let w = benchFrom; w <= benchTo; w++) freeB = Math.min(freeB, o.benchSqft - get(benchUsed, w));",
+            "line_text": "      for (let w = benchFrom; w < benchTo; w++) freeB = Math.min(freeB, o.benchSqft - get(benchUsed, w));",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "bench window boundary; the order search rescues 2-crop cases, so the guard is a 4-crop case found by fuzzing a mutated copy (130 vs 120 sold); test 'a crop sold in a week leaves that week's bench free...'"
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 102,
+            "col": 31,
+            "operator": "times-to-div",
+            "before": "const penalty = cd.early * benchSq * o.holdCost + (cd.late ? sold * j.unitMargin * (o.latePenaltyPct / 100) * cd.late : 0);",
+            "after": "const penalty = cd.early / benchSq * o.holdCost + (cd.late ? sold * j.unitMargin * (o.latePenaltyPct / 100) * cd.late : 0);",
+            "line_text": "      const penalty = cd.early * benchSq * o.holdCost + (cd.late ? sold * j.unitMargin * (o.latePenaltyPct / 100) * cd.late : 0);",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 251,
+            "col": 40,
+            "operator": "const-plus-one",
+            "before": "Marigold 6-pack, 2027-04-24, 600, 1, 5, 6, 95, 3.25, 0.70, 2",
+            "after": "Marigold 6-pack, 2027-04-24, 600, 1, 5, 7, 95, 3.25, 0.70, 2",
+            "line_text": "Marigold 6-pack, 2027-04-24, 600, 1, 5, 6, 95, 3.25, 0.70, 2",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 252,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "Basil 4in, 2027-05-22, 250, 1, 5, 2.4, 90, 3.00, 0.80, 1",
+            "after": "Basil 4in, 2027-05-22, 251, 1, 5, 2.4, 90, 3.00, 0.80, 1",
+            "line_text": "Basil 4in, 2027-05-22, 250, 1, 5, 2.4, 90, 3.00, 0.80, 1",
+            "caught": false,
+            "seconds": 0.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the example's per-crop plan was pinned only in total; test 'the worked example's plan, row by row'"
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 253,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "Zinnia 6-pack, 2027-05-15, 400, 1, 4, 6, 95, 3.25, 0.65, 2",
+            "after": "Zinnia 6-pack, 2027-05-15, 400, 1, 5, 6, 95, 3.25, 0.65, 2",
+            "line_text": "Zinnia 6-pack, 2027-05-15, 400, 1, 4, 6, 95, 3.25, 0.65, 2",
+            "caught": true,
+            "seconds": 0.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/greenhouse-bench-planner/calc.mjs",
+            "line": 253,
+            "col": 38,
+            "operator": "const-plus-one",
+            "before": "Zinnia 6-pack, 2027-05-15, 400, 1, 4, 6, 95, 3.25, 0.65, 2",
+            "after": "Zinnia 6-pack, 2027-05-15, 400, 1, 4, 7, 95, 3.25, 0.65, 2",
+            "line_text": "Zinnia 6-pack, 2027-05-15, 400, 1, 4, 6, 95, 3.25, 0.65, 2",
+            "caught": false,
+            "seconds": 0.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "same; Zinnia density 6 -> 7 changes its bench square feet; same row-by-row test"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+        "issue": "Student loan counted all unearned income; GOV.UK (as fetched by the 2026-11-17 census audit) counts it only when it is over 2,000. 30,000 pay + 1,500 interest on Plan 2 showed 272.70 instead of 137.70.",
+        "patched": true
+      },
+      {
+        "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+        "issue": "Plan 5 was charged for 2025/26 (40,000 pay -> 1,350) although Plan 5 repayments start in April 2026.",
+        "patched": true
+      },
+      {
+        "file": "ventures/uk-self-assessment-tax-calculator/calc.mjs",
+        "issue": "The property allowance was chosen whenever it beat expenses, forfeiting a larger mortgage-interest credit: 30,000 pay, 10,000 rent, 500 expenses, 6,000 interest -> 5,286 tax instead of 4,186, with a 1,100 cliff at 501 of expenses. Now both routes are priced and the lower bill wins.",
+        "patched": true
+      },
+      {
+        "file": "ventures/*/calc.mjs, ventures/*/index.html (55 files, 30 ventures)",
+        "issue": "Money formatters with minimumFractionDigits 0 / maximumFractionDigits 2 printed one pence digit: 'GBP 2,191.8', 'Balance \u00a35,955.3', 'GBP 0.5'. Padded in every copy; check_money_pence.py guards the class.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "93bc00c9-8031-5bc6-b312-ac2c6234e0ac",
+    "transcripts": 1,
+    "first": "2026-11-17T04:18:30Z",
+    "last": "2026-11-17T04:37:39Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 71,
+        "input": 135,
+        "output": 44501,
+        "thinking": 11685,
+        "cache_read": 8069572,
+        "cache_write_5m": 0,
+        "cache_write_1h": 137497,
+        "api_equivalent_usd": 3.6045,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 71,
+      "input": 135,
+      "output": 44501,
+      "thinking": 11685,
+      "cache_read": 8069572,
+      "cache_write_5m": 0,
+      "cache_write_1h": 137497,
+      "api_equivalent_usd": 3.6045,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 72,
+    "tools": {
+      "Bash": 66,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.14,
+      "active_minutes": 19.14,
+      "model_minutes": 8.64,
+      "tool_minutes": 10.51,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "tax-rule research and fixes ~2h, 16 mutant triage and tests ~2h, 55-file sweep + lint ~1.5h, post ~0.5h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 166.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVNDkrZjQJKXLhrbiCG",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "scheduled: continue work on the repo (revenue products; merge when done)",
+  "input_sha256": "6af4d1aca99e022e3a3c4b82de5fb57eea44ae74f7d701cf0e8279c139ae3ee5",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T23:58:38Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "Voice Saints by Candlelight episodes 20-24 (backlog of text-only episodes)",
+  "projects": [
+    "saints-by-candlelight"
+  ],
+  "pr": 16369,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "issue": "The 400 MB audio cap still blocks audio although the 2026-11-13 report shows the Pages limit no longer applies; the owner-approved prompt text in that report has not been merged, so 107 Saints episodes stayed silent."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Audio size section says text only over 400 MB (du read 474 MB); its Pages reason is gone since audio is served from jsDelivr (docs/reports/2026-11-13-audio-cap-is-stale.md), and every creative shelf already had several text-only pieces today, so another text-only story added less than audio for a podcast with 107 silent episodes.",
+      "did": "Voiced Saints by Candlelight episodes 20-24 with Kokoro bm_george, 58.3 MB in total, inside that report's proposed 60 MB a run.",
+      "result": "Five episodes, 194 minutes of audio, all -16.4 LUFS with no silence over 4 s; pages and feed regenerated; 18/18 venture tests pass."
+    },
+    {
+      "file": "CLAUDE.md",
+      "why": "The scheduled prompt asks for revenue software; the router drew the creative track (weight 0.1). Followed the router, as prompt.md asks."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-a-bedtime-podcast-that-could-not-be-heard.md"
+  ],
+  "goal": "A bedtime podcast whose episodes 20+ had no audio gets its next five episodes voiced",
+  "notes": "Project: saints-by-candlelight. Pieces voiced: mary-of-egypt-and-the-three-loaves (36.3 min, 10.9 MB), gall-and-the-bear-who-brought-the-firewood (40.2, 12.0), melangell-and-the-hare-in-the-fold-of-her-robe (33.6, 10.1), ruth-and-the-barley-harvest-at-bethlehem (50.2, 15.1), kentigern-and-the-four-signs-of-glasgow (34.2, 10.2). Kokoro v1.0 from the GitHub release route (huggingface not tried). 7-11 min each on 4 cores. Added 10 respellings to render_audio.py SAY (Melangell, Brochwel, Powys, Oen, Hiltibod, Culross, Thenew, Rhydderch, Languoreth, Glasgu); not checked by a Welsh speaker. Verification: node --test in ventures/saints-by-candlelight 18/18; run_workflow_locally.py --for-changes 12/12 workflows passed (uses: steps and deploy/review jobs not run). Listening (episode_played/finished) is local-only, unmeasured.",
+  "corrections": [],
+  "redteam": null
+}

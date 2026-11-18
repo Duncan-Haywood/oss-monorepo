@@ -11,6 +11,7 @@
 
 import { readFile, writeFile } from "node:fs/promises";
 import { parseTransactions, overview, toDispositionsCsv, fmtQty, round2, SAMPLE_CSV, INCLUSION_RATE } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const USAGE = `Canadian crypto capital gains from a CSV: average-cost ACB and the superficial loss rule.
 
@@ -118,7 +119,7 @@ async function readStdin() {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     const { code, text } = await run(process.argv.slice(2));
     (code === 0 ? process.stdout : process.stderr).write(text.endsWith("\n") ? text : text + "\n");

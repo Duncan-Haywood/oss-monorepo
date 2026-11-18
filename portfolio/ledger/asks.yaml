@@ -404,3 +404,37 @@ decisions:
     portfolio/ledger/asks.yaml`). No money, no new account beyond a Google and
     Microsoft login the owner already controls, and fully reversible (remove
     the token, delete the property).
+
+- id: cloudflare-mail-and-ruleset
+  asks: []
+  prs: [14427]
+  gates: deployment
+  exposure: credential
+  opened: "2026-11-10"
+  action: >-
+    Two owner-only settings the 2026-11-10 CI/Cloudflare audit found not
+    applied (portfolio/quality/audits/2026-11-10-*.json). (1) GitHub ->
+    Settings -> Rules -> Rulesets -> `main`: import or match
+    `.github/rulesets/main.json`. Live (API, 2026-11-10) the ruleset requires
+    no status checks and no code-owner review, so the CODEOWNERS gate the
+    repository describes is not enforced and red PRs merge (3 workflows red
+    on main that day). (2) Give the Cloudflare deploy token the Email Routing
+    permissions listed in `platform/pages/cloudflare/email-routing.mjs`'s
+    header, run Actions -> "Cloudflare email routing" with apply ticked, then
+    in Cloudflare DNS add `_dmarc.marisstella.app TXT "v=DMARC1; p=reject"`
+    (the SPF record Email Routing adds stays as it is). Today
+    marisstella.app has no MX, no SPF and no DMARC (DNS-over-HTTPS,
+    2026-11-10), so support@, hello@ and accounts@ bounce and anyone can send
+    mail as the domain. Remove this row once both are done.
+  unlocks:
+    - >-
+      Owner review on control-plane PRs and green-CI-before-merge as a gate,
+      not a convention.
+    - >-
+      The agent inbox and the accounts@ sign-up address that
+      portfolio/distribution/accounts.json tells sessions to use.
+  blocked_by: []
+  note: >-
+    No money, no new account; reversible in the same settings pages. The
+    EMAIL_FORWARD_TO secret in cloudflare-email.yml is unused by the script
+    (PR 12773 removes it) and does not need to be set.

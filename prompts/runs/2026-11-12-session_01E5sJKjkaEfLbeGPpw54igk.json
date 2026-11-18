@@ -1,0 +1,468 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKjkaEfLbeGPpw54igk",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:18:16Z",
+  "ended": "2026-11-12T00:19:08Z",
+  "wall_minutes": 19.79,
+  "tokens_in": 4518880,
+  "tokens_out": 30283,
+  "cost_usd": 2.3004,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14943",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes ran past a 500 s foreground timeout with no output; moved to background."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0's open list was all control-plane items that already have open owner-gated PRs; redteam.py open could say which have a PR so runs don't re-check each by hand."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets` with no flags printed 21 files and did not include the new gitignore-explainer files although suite_for guards them; unclear whether it samples."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py --for-changes needs a commit on the branch (it diffs HEAD vs origin/main), so running it on staged changes before committing reports 'no shared commit' and the fetch hint, which misled me into fetching first."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-paste-git-status-and-get-the-wrong-path.md"
+  ],
+  "goal": null,
+  "notes": "Target chosen because it landed the day before (#14926) and advertises pasted git output. Guard added: gitignore.diff.test.mjs 'pasted git status and ls-files output is read the way git means it' builds a repository with odd names and checks parsing against git -z; it failed on the old engine on its first run (and itself surfaced defect #4). Venture suite 46/46 locally.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/gitignore-explainer/gitignore.mjs",
+        "test": "node --test ventures/gitignore-explainer/**/*.test.mjs  (in .)",
+        "seed": 742462722,
+        "commit": "878751cb",
+        "sites": 397,
+        "baseline_seconds": 4.2,
+        "mutants": [
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 26,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "print: (c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) < 127,",
+            "after": "print: (c) => c.charCodeAt(0) >= 33 && c.charCodeAt(0) < 127,",
+            "line_text": "  print: (c) => c.charCodeAt(0) >= 32 && c.charCodeAt(0) < 127,",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "[[:print:]] must include space (git check-ignore --no-index agrees); new test 'POSIX classes match what git's wildmatch matches'."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 52,
+            "col": 22,
+            "operator": "eq-flip",
+            "before": "if (p[pi + 1] === \"*\") {",
+            "after": "if (p[pi + 1] !== \"*\") {",
+            "line_text": "        if (p[pi + 1] === \"*\") {",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 69,
+            "col": 26,
+            "operator": "and-to-or",
+            "before": "if (!matchSlash && t.indexOf(\"/\", ti) !== -1) return NOMATCH;",
+            "after": "if (!matchSlash || t.indexOf(\"/\", ti) !== -1) return NOMATCH;",
+            "line_text": "          if (!matchSlash && t.indexOf(\"/\", ti) !== -1) return NOMATCH;",
+            "caught": true,
+            "seconds": 3.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 98,
+            "col": 22,
+            "operator": "false-to-true",
+            "before": "let matched = false;",
+            "after": "let matched = true;",
+            "line_text": "        let matched = false;",
+            "caught": true,
+            "seconds": 4.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 185,
+            "col": 52,
+            "operator": "eq-flip",
+            "before": "if (pattern.length && pattern[pattern.length - 1] === \"/\") { dirOnly = true; pattern = pattern.slice(0, -1); }",
+            "after": "if (pattern.length && pattern[pattern.length - 1] !== \"/\") { dirOnly = true; pattern = pattern.slice(0, -1); }",
+            "line_text": "  if (pattern.length && pattern[pattern.length - 1] === \"/\") { dirOnly = true; pattern = pattern.slice(0, -1); }",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 185,
+            "col": 107,
+            "operator": "const-plus-one",
+            "before": "if (pattern.length && pattern[pattern.length - 1] === \"/\") { dirOnly = true; pattern = pattern.slice(0, -1); }",
+            "after": "if (pattern.length && pattern[pattern.length - 1] === \"/\") { dirOnly = true; pattern = pattern.slice(0, -2); }",
+            "line_text": "  if (pattern.length && pattern[pattern.length - 1] === \"/\") { dirOnly = true; pattern = pattern.slice(0, -1); }",
+            "caught": true,
+            "seconds": 3.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 215,
+            "col": 109,
+            "operator": "eq-flip",
+            "before": "return files.filter((f) => f.path !== \".gitignore\" || f.lines.some((l) => l.trim() !== \"\") || files.length === 1);",
+            "after": "return files.filter((f) => f.path !== \".gitignore\" || f.lines.some((l) => l.trim() !== \"\") || files.length !== 1);",
+            "line_text": "  return files.filter((f) => f.path !== \".gitignore\" || f.lines.some((l) => l.trim() !== \"\") || files.length === 1);",
+            "caught": false,
+            "seconds": 3.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "files.length !== 1 drops a lone empty root .gitignore and keeps a blank lead-in before the first header; new splitSources test."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 281,
+            "col": 54,
+            "operator": "neq-flip",
+            "before": "if (prefix > name.length || name.slice(0, prefix) !== rule.pattern.slice(0, prefix)) return false;",
+            "after": "if (prefix > name.length || name.slice(0, prefix) === rule.pattern.slice(0, prefix)) return false;",
+            "line_text": "    if (prefix > name.length || name.slice(0, prefix) !== rule.pattern.slice(0, prefix)) return false;",
+            "caught": true,
+            "seconds": 3.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 379,
+            "col": 58,
+            "operator": "or-to-and",
+            "before": "if (!path || path === \".\" || path.startsWith(\".git/\") || path === \".git\") continue;",
+            "after": "if (!path || path === \".\" || path.startsWith(\".git/\") && path === \".git\") continue;",
+            "line_text": "    if (!path || path === \".\" || path.startsWith(\".git/\") || path === \".git\") continue;",
+            "caught": true,
+            "seconds": 4.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 435,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let i = 0; i < p.length; i++) {",
+            "after": "for (let i = 1; i < p.length; i++) {",
+            "line_text": "  for (let i = 0; i < p.length; i++) {",
+            "caught": true,
+            "seconds": 4.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      },
+      {
+        "target": "ventures/gitignore-explainer/gitignore.mjs",
+        "test": "node --test ventures/gitignore-explainer/**/*.test.mjs  (in .)",
+        "seed": 987103450,
+        "commit": "878751cb",
+        "sites": 397,
+        "baseline_seconds": 4.1,
+        "mutants": [
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 24,
+            "col": 53,
+            "operator": "const-plus-one",
+            "before": "graph: (c) => c.charCodeAt(0) > 32 && c.charCodeAt(0) < 127,",
+            "after": "graph: (c) => c.charCodeAt(0) > 32 && c.charCodeAt(1) < 127,",
+            "line_text": "  graph: (c) => c.charCodeAt(0) > 32 && c.charCodeAt(0) < 127,",
+            "caught": false,
+            "seconds": 3.9,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "charCodeAt(1) is NaN on a one-character string, so [[:graph:]] never matched; same new POSIX-class test."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 58,
+            "col": 35,
+            "operator": "or-to-and",
+            "before": "(after === undefined || after === \"/\" || (after === \"\\\\\" && p[pi + 2] === \"/\"))) {",
+            "after": "(after === undefined && after === \"/\" || (after === \"\\\\\" && p[pi + 2] === \"/\"))) {",
+            "line_text": "              (after === undefined || after === \"/\" || (after === \"\\\\\" && p[pi + 2] === \"/\"))) {",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 116,
+            "col": 40,
+            "operator": "plus-to-minus",
+            "before": "} else if (pc === \"[\" && p[pi + 1] === \":\") {",
+            "after": "} else if (pc === \"[\" && p[pi - 1] === \":\") {",
+            "line_text": "          } else if (pc === \"[\" && p[pi + 1] === \":\") {",
+            "caught": true,
+            "seconds": 3.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 178,
+            "col": 29,
+            "operator": "eq-flip",
+            "before": "if (line === \"\" || line[0] === \"#\") return null;",
+            "after": "if (line === \"\" || line[0] !== \"#\") return null;",
+            "line_text": "  if (line === \"\" || line[0] === \"#\") return null;",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 283,
+            "col": 48,
+            "operator": "const-plus-one",
+            "before": "const cut = rule.legacy ? prefix : prefix - 1;",
+            "after": "const cut = rule.legacy ? prefix : prefix - 2;",
+            "line_text": "    const cut = rule.legacy ? prefix : prefix - 1;",
+            "caught": true,
+            "seconds": 4.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 413,
+            "col": 71,
+            "operator": "and-to-or",
+            "before": "if (/\\\\$/.test(rule.text) || (/\\\\[A-Za-z0-9_.-]/.test(rule.text) && !/\\\\[\\[\\]*?!# \\\\]/.test(rule.text))) {",
+            "after": "if (/\\\\$/.test(rule.text) || (/\\\\[A-Za-z0-9_.-]/.test(rule.text) || !/\\\\[\\[\\]*?!# \\\\]/.test(rule.text))) {",
+            "line_text": "      if (/\\\\$/.test(rule.text) || (/\\\\[A-Za-z0-9_.-]/.test(rule.text) && !/\\\\[\\[\\]*?!# \\\\]/.test(rule.text))) {",
+            "caught": true,
+            "seconds": 4.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 505,
+            "col": 27,
+            "operator": "and-to-or",
+            "before": "else if (r.base !== base && (!base || r.base.startsWith(base + \"/\"))) {",
+            "after": "else if (r.base !== base || (!base || r.base.startsWith(base + \"/\"))) {",
+            "line_text": "  else if (r.base !== base && (!base || r.base.startsWith(base + \"/\"))) {",
+            "caught": false,
+            "seconds": 5.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "With || the branch fires when the negation's base equals the file's (a .git/info/exclude negation blocked by a root folder rule) and writes a dead `!//build/keep.txt` line. Tracing it showed no fix was offered at all for that case; added the case (copy the negation as is) and a test that pins the patch."
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 527,
+            "col": 29,
+            "operator": "neq-flip",
+            "before": "if (!file || file.kind !== \"dir\") continue;",
+            "after": "if (!file || file.kind === \"dir\") continue;",
+            "line_text": "      if (!file || file.kind !== \"dir\") continue;",
+            "caught": true,
+            "seconds": 4.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 550,
+            "col": 63,
+            "operator": "and-to-or",
+            "before": "const intended = (e) => within(e.path) && before.get(e.path) && !after.get(e.path);",
+            "after": "const intended = (e) => within(e.path) && before.get(e.path) || !after.get(e.path);",
+            "line_text": "  const intended = (e) => within(e.path) && before.get(e.path) && !after.get(e.path);",
+            "caught": true,
+            "seconds": 4.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/gitignore-explainer/gitignore.mjs",
+            "line": 678,
+            "col": 51,
+            "operator": "eq-flip",
+            "before": "} else if (s.decides === 0 && effect.get(r.id) === 0) {",
+            "after": "} else if (s.decides === 0 && effect.get(r.id) !== 0) {",
+            "line_text": "    } else if (s.decides === 0 && effect.get(r.id) === 0) {",
+            "caught": true,
+            "seconds": 4.3,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/gitignore-explainer/gitignore.mjs",
+        "issue": "parsePaths trimmed leading whitespace before matching the `git status --porcelain` status column, so ` M src/a.js` and ` D old.js` became the paths `M src/a.js` and `D old.js` and anchored rules missed them (the page tells users to paste that output).",
+        "patched": true
+      },
+      {
+        "file": "ventures/gitignore-explainer/gitignore.mjs",
+        "issue": "git's C-quoted paths (core.quotePath, on by default in status and ls-files --others) were unquoted without decoding and then had backslashes turned into slashes: `\"caf\\303\\251.txt\"` became the made-up folder path `caf/303/251.txt`.",
+        "patched": true
+      },
+      {
+        "file": "ventures/gitignore-explainer/gitignore.mjs",
+        "issue": "Rename and copy lines `R  x.js -> \"y z.js\"` were read as one path `x.js -> \"y z.js` instead of the new name.",
+        "patched": true
+      },
+      {
+        "file": "ventures/gitignore-explainer/gitignore.mjs",
+        "issue": "Every line starting with `#` in the path box was dropped as a comment, so `#draft.md` and Emacs `#file#` autosaves printed bare by `git ls-files --others` were never checked.",
+        "patched": true
+      },
+      {
+        "file": "ventures/gitignore-explainer/cli/check.mjs",
+        "issue": "The CLI read exact names with `git ls-files -z`, then joined them with newlines and sent them through the paste parser: `back\\slash.log` became a folder path, `# hash.log` a comment, `MM x` a status line, and a trailing space was trimmed.",
+        "patched": true
+      },
+      {
+        "file": "ventures/gitignore-explainer/gitignore.mjs",
+        "issue": "A negation in .git/info/exclude blocked by a root .gitignore folder rule got the negation-blocked finding but no suggested fix (candidate() returned null when bases matched); found while triaging the line-505 mutant.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e002bd1e-9119-56a3-9186-2a469ec0f630",
+    "transcripts": 1,
+    "first": "2026-11-12T00:18:16Z",
+    "last": "2026-11-12T00:38:04Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 30283,
+        "thinking": 10052,
+        "cache_read": 4417432,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101356,
+        "api_equivalent_usd": 2.3004,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 30283,
+      "thinking": 10052,
+      "cache_read": 4417432,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101356,
+      "api_equivalent_usd": 2.3004,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 49,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.79,
+      "active_minutes": 19.79,
+      "model_minutes": 6.91,
+      "tool_minutes": 12.88,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "senior engineer: reproduce six parser defects against real git, write tests and fixes, plus a git-backed differential test",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 260.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

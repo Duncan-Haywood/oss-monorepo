@@ -260,7 +260,11 @@ export function daylightMinutes(city, referenceDate) {
   const sunrise = solarEvent("sunrise", city, referenceDate);
   const sunset = solarEvent("sunset", city, referenceDate);
   if (!sunrise || !sunset) return null;
-  return Math.round((sunset.getTime() - sunrise.getTime()) / 60000);
+  const diff = Math.round((sunset.getTime() - sunrise.getTime()) / 60000);
+  // Near the polar circles the sun can set shortly after local midnight and
+  // rise a few hours later on the same local date: the short night then sits
+  // between sunset and sunrise, and the day's daylight is 24 h minus that night.
+  return diff >= 0 ? diff : 1440 + diff;
 }
 
 // ---------------------------------------------------------------------------
@@ -296,6 +300,7 @@ export function isDaylight(city, date) {
   const sunrise = solarEvent("sunrise", city, date);
   const sunset = solarEvent("sunset", city, date);
   if (!sunrise || !sunset) return null;
+  if (sunset < sunrise) return !(date >= sunset && date < sunrise);
   return date >= sunrise && date < sunset;
 }
 

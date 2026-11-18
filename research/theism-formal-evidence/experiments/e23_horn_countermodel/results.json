@@ -1,0 +1,368 @@
+{
+ "checked": 16596,
+ "all_ok": 16596,
+ "bad": [],
+ "by_size": {
+  "1": {
+   "relation_world_pairs": 1,
+   "back_condition_fails": 0
+  },
+  "2": {
+   "relation_world_pairs": 18,
+   "back_condition_fails": 0
+  },
+  "3": {
+   "relation_world_pairs": 1029,
+   "back_condition_fails": 60
+  },
+  "4": {
+   "relation_world_pairs": 202500,
+   "back_condition_fails": 14688
+  }
+ },
+ "block_algebras": 3864,
+ "e21_misses": 24,
+ "e21_misses_failing_model": 24,
+ "e21_misses_block": 0,
+ "e21_miss_detail": [
+  {
+   "n": 3,
+   "R": [
+    1,
+    3,
+    2
+   ],
+   "w": 2,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    1,
+    3,
+    6
+   ],
+   "w": 2,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    1,
+    4,
+    5
+   ],
+   "w": 1,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    1,
+    6,
+    5
+   ],
+   "w": 1,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    2,
+    3,
+    1
+   ],
+   "w": 2,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    2,
+    3,
+    5
+   ],
+   "w": 2,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    2,
+    4,
+    6
+   ],
+   "w": 0,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    2,
+    6,
+    4
+   ],
+   "w": 0,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    3,
+    1,
+    2
+   ],
+   "w": 2,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    3,
+    1,
+    6
+   ],
+   "w": 2,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    3,
+    2,
+    1
+   ],
+   "w": 2,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    3,
+    2,
+    5
+   ],
+   "w": 2,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    3,
+    4,
+    6
+   ],
+   "w": 0,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    3,
+    6,
+    4
+   ],
+   "w": 0,
+   "v0": [
+    1
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    4,
+    1,
+    5
+   ],
+   "w": 1,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    4,
+    2,
+    6
+   ],
+   "w": 0,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    4,
+    3,
+    5
+   ],
+   "w": 1,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    4,
+    6,
+    2
+   ],
+   "w": 0,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    5,
+    1,
+    4
+   ],
+   "w": 1,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    5,
+    2,
+    6
+   ],
+   "w": 0,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    5,
+    3,
+    4
+   ],
+   "w": 1,
+   "v0": [
+    0
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    5,
+    4,
+    1
+   ],
+   "w": 1,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    5,
+    6,
+    1
+   ],
+   "w": 1,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  },
+  {
+   "n": 3,
+   "R": [
+    5,
+    6,
+    2
+   ],
+   "w": 0,
+   "v0": [
+    2
+   ],
+   "model_ok": true,
+   "any_block": false
+  }
+ ],
+ "e21_failing_pairs_I": 36,
+ "sum_matches": true,
+ "seconds": 107.0
+}

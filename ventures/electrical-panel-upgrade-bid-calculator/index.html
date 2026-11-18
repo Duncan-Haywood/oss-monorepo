@@ -13,7 +13,7 @@
     :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1f2430; background: #e8edf4; }
     body { max-width: 1060px; margin: 0 auto; padding: 32px 18px; }
     header { max-width: 740px; margin-bottom: 26px; }
-    h1 { font-size: clamp(2rem, 6vw, 3.4rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
+    h1 { font-size: clamp(2rem, 6vw, 3rem); line-height: .98; margin: 0 0 12px; letter-spacing: -.05em; }
     p { line-height: 1.5; }
     .eyebrow { font-size: .8rem; font-weight: 700; letter-spacing: .08em; color: #ac4f09; margin: 0 0 6px; }
     .layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, .75fr); gap: 18px; align-items: start; }
@@ -109,6 +109,14 @@
       @page { margin: 16mm; }
     }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.fields > label:has(> #jobPresets) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
   <header>
@@ -329,6 +337,7 @@
     <p><strong>Nothing leaves your browser.</strong> Every number stays on this device. A share link encodes only the inputs you choose into the address bar and is never sent to us. Usage counts are anonymous tallies of which features were used, stored locally, and never include your amps, wages, costs, or prices.</p>
     <p>Related: <a href="how-much-to-charge-to-upgrade-an-electrical-panel.html">How much to charge to upgrade an electrical panel</a> &middot; <a href="./vs-servicetitan.html">This calculator vs. ServiceTitan</a> &middot; <a href="./vs-a-flat-panel-upgrade-price.html">This calculator vs. a flat panel-upgrade price</a>.</p>
     <p>Quoting a standby generator next to the panel? The <a href="../standby-generator-install-price-calculator/">standby generator install price calculator</a> prices it from the equipment, the gas and electrical runs and the deposit that carries them &mdash; nothing uploaded.</p>
+    <p>Customer told they need a bigger service first? The <a href="../service-load-check/">service load check</a> runs the NEC 220.83 calculation and the 220.87 measured-demand check from their Green Button meter data, to see whether the existing service already has room &mdash; nothing uploaded.</p>
     <p>Pricing a Level 2 EV charger install that may force this upgrade? The <a href="../ev-charger-bid-calculator/">EV charger installation bid calculator</a> works out the circuit, the run, the trench, and the panel work &mdash; nothing uploaded.</p>
     <p class="support">Free and open source. If it wins you a job, the <a href="LICENSE" rel="noopener">code is under an MIT licence</a> &mdash; <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional and never changes what the tool does.</p>
   </footer>
@@ -345,7 +354,7 @@
       PANEL_STYLE_PRESETS,
       LOCATION_PRESETS,
     } from './calc.mjs';
-    import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+    import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
     import { encodeInputs, decodeInputs } from './share.mjs';
     import { withTerms, splitTerms, decodeTerms, readTerms, applyTerms,
       overlongTermsNote } from './proposal-terms.mjs';
@@ -383,7 +392,7 @@
     });
 
     function count(event) {
-      recordUsage(localStorage, el('usageOptOut').checked, event);
+      recordUsage(usageStorage(), el('usageOptOut').checked, event);
     }
 
     function applyPanelCost(force) {
@@ -652,8 +661,15 @@
       + 'browser tool that performs arithmetic only; the tool’s authors are not a party to it and give no '
       + 'warranty. It is not an electrical, building-code, utility-service, or inspection determination.';
 
+    // Reading the `localStorage` global throws SecurityError when the
+    // visitor blocks site data. The business block is a convenience: with no
+    // store it is simply not remembered, and the proposal still prints.
+    function companyStorage() {
+      try { return localStorage; } catch { return null; }
+    }
+
     function restoreCompany() {
-      const saved = loadCompany(localStorage, COMPANY_KEY);
+      const saved = loadCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) {
         if (saved[field]) el(field).value = saved[field];
       }
@@ -715,7 +731,7 @@
     function showProposal() {
       const result = calculateBid(readInput());
       const proposal = buildProposal(readProposalInput(result));
-      saveCompany(localStorage, COMPANY_KEY, Object.fromEntries(
+      saveCompany(companyStorage(), COMPANY_KEY, Object.fromEntries(
         COMPANY_FIELDS.map(field => [field, el(field).value]),
       ));
       el('proposalDoc').innerHTML =
@@ -776,7 +792,7 @@
     document.addEventListener('change', refreshProposal);
     el('printProposal').addEventListener('click', printProposal);
     el('forgetCompany').addEventListener('click', () => {
-      forgetCompany(localStorage, COMPANY_KEY);
+      forgetCompany(companyStorage(), COMPANY_KEY);
       for (const field of COMPANY_FIELDS) el(field).value = '';
       el('proposalDoc').hidden = true;
       el('proposalStatus').textContent = 'Business details removed from this device';
@@ -799,8 +815,8 @@
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
   </script>

@@ -1,0 +1,119 @@
+{
+  "date": "2026-11-08",
+  "session": "https://claude.ai/code/session_01E5sJKnkkz6hMRxmxafiiX6",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [
+    "claude-sonnet-5-5"
+  ],
+  "started": "2026-11-08T20:18:33Z",
+  "ended": "2026-11-08T20:20:27Z",
+  "wall_minutes": 2.0,
+  "tokens_in": 1361790,
+  "tokens_out": 7883,
+  "cost_usd": 0.5665,
+  "tool_calls": 19,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14121",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pytest missing from bare python3; pyenv.py printed /usr/local/bin/python3 and pytest was found only on a second attempt via PY. Minor."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-08-why-a-pilot-cannot-buy-a-guarantee.md",
+    "research/verified-dse/LOG.md milestone 100"
+  ],
+  "goal": null,
+  "notes": "Free-choice draw; advanced verified-dse with an exact count explaining the 0.45 plateau. Prediction 1 narrowly missed (+0.0062 at m=12). Tests 3 passed, homepage build ok. Skipped a CI wait.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d33fe4d8-f699-5bd4-8891-9beb20a0775c",
+    "transcripts": 1,
+    "first": "2026-11-08T20:18:33Z",
+    "last": "2026-11-08T20:20:33Z",
+    "primary_model": "claude-sonnet-5-5",
+    "models": {
+      "claude-sonnet-5-5": {
+        "requests": 19,
+        "input": 38,
+        "output": 7883,
+        "thinking": 922,
+        "cache_read": 1305115,
+        "cache_write_5m": 0,
+        "cache_write_1h": 56637,
+        "api_equivalent_usd": 0.5665,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 19,
+      "input": 38,
+      "output": 7883,
+      "thinking": 922,
+      "cache_read": 1305115,
+      "cache_write_5m": 0,
+      "cache_write_1h": 56637,
+      "api_equivalent_usd": 0.5665,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.958,
+    "tool_calls": 19,
+    "tools": {
+      "Bash": 16,
+      "Read": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 2.0,
+      "active_minutes": 2.0,
+      "model_minutes": 1.2,
+      "tool_minutes": 0.8,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": null,
+    "leverage": null,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

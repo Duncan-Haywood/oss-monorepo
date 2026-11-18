@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtLuWCdA8N7r8ULdSvR",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T20:07:03Z",
+  "ended": "2026-11-11T20:22:40Z",
+  "wall_minutes": 15.88,
+  "tokens_in": 4963648,
+  "tokens_out": 30836,
+  "cost_usd": 2.5354,
+  "tool_calls": 44,
+  "task": "Advance research programme sensing-selfcal (track 15 draw): milestone 3a, cluster-robust and jackknife sigma for the self-calibration accept gate",
+  "projects": [
+    "research/sensing-selfcal"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14871",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "analyse.py run piped into head -300 was killed by SIGPIPE before drawing the figure",
+      "fix": "reran to /dev/null"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/pyenv.py",
+      "issue": "with -r requirements.txt it printed 'pip install scipy cv2 ...' (cv2 is an import name, not a package); it still ended up with a working interpreter because python3.13 already had opencv, but the message is misleading"
+    },
+    {
+      "file": "research/sensing-selfcal/README.md",
+      "issue": "Next steps bundled the natural-feature data milestone with the gate statistics; I split milestone 3 into 3a (done here, no new data) and 3b (SIFT)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/sensing-selfcal/PROPOSAL.md",
+      "why": "proposal milestone 3 is natural features on a new data set; the more informative next question was whether milestone 2's overconfidence was real and fixable on the existing data",
+      "did": "split milestone 3 into 3a (robust sigma, H8-H10, pre-registered) and 3b (SIFT), ran 3a",
+      "result": "three clear pre-registered outcomes: H8 held, H9 narrowly refuted (conservative), H10 and H4 refuted"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-an-honest-error-bar-is-not-a-good-gate.md",
+    "research/sensing-selfcal/LOG.md (milestone 3 plan and result)"
+  ],
+  "goal": null,
+  "notes": "Verification: pytest research/sensing-selfcal/tests 10 passed; research/_homepage/build.py ok; research_live_links --write, check_md_links ok; check_post_frontmatter, check_post_links ok; post_similarity 0 pairs >= 0.25. Experiment: 560 subset solves + 3,480 leave-one-view-out solves (3,473 converged), 9 min on 4 cores. No agent doc in docs/reports: everything the next run needs is in the project's LOG.md and README Next steps.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "08f2a330-cf97-5f2b-98af-7c991fe376e7",
+    "transcripts": 1,
+    "first": "2026-11-11T20:07:03Z",
+    "last": "2026-11-11T20:22:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 44,
+        "input": 92,
+        "output": 30836,
+        "thinking": 7050,
+        "cache_read": 4844891,
+        "cache_write_5m": 0,
+        "cache_write_1h": 118665,
+        "api_equivalent_usd": 2.5354,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 44,
+      "input": 92,
+      "output": 30836,
+      "thinking": 7050,
+      "cache_read": 4844891,
+      "cache_write_5m": 0,
+      "cache_write_1h": 118665,
+      "api_equivalent_usd": 2.5354,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.976,
+    "tool_calls": 44,
+    "tools": {
+      "Bash": 39,
+      "Read": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.88,
+      "active_minutes": 7.72,
+      "model_minutes": 5.87,
+      "tool_minutes": 1.85,
+      "waiting_on_human_minutes": 8.15,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "a statistician-engineer implementing sandwich and jackknife covariance for BA, running and writing up a pre-registered study",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 473.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

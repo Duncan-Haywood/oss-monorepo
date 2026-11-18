@@ -1,0 +1,155 @@
+{
+  "note": "Fresh held-out pieces for the rhombus height rule (scan.mjs headShape, RHOMBUS_MIN_H), listed on 2026-11-14 before the rule was frozen and before any of their pages was downloaded. Chosen as every GregoBase 1908 piece in corpus/gregobase-1908/ not used by an earlier set, with at least one rhombus (upper-case GABC letter), whose four leaves (two before the printed page, the page, one after) had never been read for an earlier set. Left out for that reason: 3423 and 3454 (p. [123], leaves 706-709 read for Lingua pravorum), 3456 (p. [82], leaves 667-668 read). Left out as already-scanned pages, as in quilisma-fresh-pages.json: 3411, 3420, 3432, 3440. 3409 has no rhombus. Bracketed page [p] is printed on leaf p+585 of this archive.org scan; the piece is found by local alignment.",
+  "pieces": [
+    {
+      "name": "GregoBase 3406 (Laetabitur justus)",
+      "gabc": "corpus/gregobase-1908/3406.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 594",
+          "leaf": 594
+        },
+        {
+          "page": "leaf 595",
+          "leaf": 595
+        },
+        {
+          "page": "[11]",
+          "leaf": 596
+        },
+        {
+          "page": "leaf 597",
+          "leaf": 597
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3439 (Qui sequitur me)",
+      "gabc": "corpus/gregobase-1908/3439.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 595",
+          "leaf": 595
+        },
+        {
+          "page": "leaf 596",
+          "leaf": 596
+        },
+        {
+          "page": "[12]",
+          "leaf": 597
+        },
+        {
+          "page": "leaf 598",
+          "leaf": 598
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3442 (Deus virtutum)",
+      "gabc": "corpus/gregobase-1908/3442.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 686",
+          "leaf": 686
+        },
+        {
+          "page": "leaf 687",
+          "leaf": 687
+        },
+        {
+          "page": "[103]",
+          "leaf": 688
+        },
+        {
+          "page": "leaf 689",
+          "leaf": 689
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3446 (Benedicta)",
+      "gabc": "corpus/gregobase-1908/3446.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 773",
+          "leaf": 773
+        },
+        {
+          "page": "leaf 774",
+          "leaf": 774
+        },
+        {
+          "page": "[190]",
+          "leaf": 775
+        },
+        {
+          "page": "leaf 776",
+          "leaf": 776
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3449 (Quod dico vobis)",
+      "gabc": "corpus/gregobase-1908/3449.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 611",
+          "leaf": 611
+        },
+        {
+          "page": "leaf 612",
+          "leaf": 612
+        },
+        {
+          "page": "[28]",
+          "leaf": 613
+        },
+        {
+          "page": "leaf 614",
+          "leaf": 614
+        }
+      ]
+    },
+    {
+      "name": "GregoBase 3457 (Post partum (All))",
+      "gabc": "corpus/gregobase-1908/3457.gabc",
+      "book": "Graduale Romanum, Vatican 1908",
+      "archive": "gradualesacrosan0000cath",
+      "local": true,
+      "pages": [
+        {
+          "page": "leaf 672",
+          "leaf": 672
+        },
+        {
+          "page": "leaf 673",
+          "leaf": 673
+        },
+        {
+          "page": "[89]",
+          "leaf": 674
+        },
+        {
+          "page": "leaf 675",
+          "leaf": 675
+        }
+      ]
+    }
+  ]
+}

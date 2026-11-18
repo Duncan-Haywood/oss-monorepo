@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtK8UVwvZ11Mm4gNGN8",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T03:07:21Z",
+  "ended": "2026-11-12T03:15:53Z",
+  "wall_minutes": 8.94,
+  "tokens_in": 3285842,
+  "tokens_out": 41727,
+  "cost_usd": 2.3656,
+  "tool_calls": 34,
+  "task": "Creative track: new Hearth & Horizon story from the BIBLE's Next up list",
+  "projects": [
+    "hearth-and-horizon"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14984",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 0,
+  "outcome": "success",
+  "errors": [
+    "run_workflow_locally.py --for-changes failed on the first try because the shallow clone had no merge base with origin/main; fixed by git fetch --depth=40 origin main, as its message said"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "'Next up' said 323 finished proposals on 2026-11-11 while DONE.md held 334 Done entries; the hand-kept count drifts every run (corrected to 335 here); bible_done.mjs could write it"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-ninety-nine-years.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (science fiction shelf), piece: ninety-nine-years, text only (audio dirs at 423 MB, over the 400 MB cap). Picked from Next up: all three projects had pieces on 2026-11-11, so I took the headline sci-fi shelf and chose the lease proposal over The Stave Mill because the shelf already has many 'fitted on X, fails on Y' stories (the Colbert Oaks landed the day before). Numbers checked in code: 9.6x price rise = 2.31%/yr, 40% of face value received, 1.02^99 = 7.1, wheat 6.08x so 63% kept, weekdays plus Easter 2130 (26 Mar; 24 Mar is Good Friday, Annunciation moved to 3 Apr). The adversarial re-read swapped the paschal-candle words to the current English Missal text and fixed the loaves-per-tonne figure in the note. hearth-and-horizon node --test passed 15 of 15. No agent doc in docs/reports: nothing new for the next run beyond the BIBLE/DONE updates.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "a47eece4-bdae-5315-9abc-7953e8e58762",
+    "transcripts": 1,
+    "first": "2026-11-12T03:07:21Z",
+    "last": "2026-11-12T03:16:18Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 31,
+        "input": 59,
+        "output": 41727,
+        "thinking": 19610,
+        "cache_read": 3173779,
+        "cache_write_5m": 0,
+        "cache_write_1h": 112004,
+        "api_equivalent_usd": 2.3656,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 31,
+      "input": 59,
+      "output": 41727,
+      "thinking": 19610,
+      "cache_read": 3173779,
+      "cache_write_5m": 0,
+      "cache_write_1h": 112004,
+      "api_equivalent_usd": 2.3656,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.966,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 29,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.94,
+      "active_minutes": 8.94,
+      "model_minutes": 8.45,
+      "tool_minutes": 0.49,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a professional writer drafting and fact-checking a 5,600-word researched short story plus a short post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 422.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

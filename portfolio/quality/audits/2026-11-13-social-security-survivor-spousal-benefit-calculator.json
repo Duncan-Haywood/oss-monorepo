@@ -1,0 +1,247 @@
+{
+  "date": "2026-11-13",
+  "subject": "ventures/social-security-survivor-spousal-benefit-calculator",
+  "stratum": "venture",
+  "seed": "2026-11-13-i",
+  "drawn_by": "sample",
+  "round": 63,
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a Social Security claiming specialist / retirement planner who works from SSA POMS and 20 CFR 404 on survivor and spousal benefits. What they check first: the widow(er)'s limit (RIB-LIM) when the worker claimed early, the survivor age reduction (71.5% at 60), a worker who died before claiming, the spousal excess and how it is reduced when claimed early (25/36 then 5/12 of 1% a month), deemed filing, and that dual entitlement pays the larger benefit, not the sum",
+  "scores": {
+    "correctness": 1,
+    "completeness": 2,
+    "verification": 1,
+    "craft": 3,
+    "claims": 1,
+    "fitness": 1,
+    "domain": 1
+  },
+  "evidence": {
+    "correctness": "I ran node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator, which imports the shipped calc.mjs (byte-identical to the served https://marisstella.app/social-security-survivor-spousal-benefit-calculator/calc.mjs, checked with diff). Right: own-benefit factors (72.5% at 62 for a 1957 birth year, 20 CFR 404.410: 5/9 of 1% for 36 months then 5/12), survivor age factor (79.6429% at 62 with survivor FRA 67, linear from 71.5%), delayed credits passed to the survivor (deceased b.1955 claimed at 70: base $4,181.33 = 3200 x 1.30667), and the sample's best total ($988,800 = 120 x $2,288 + 240 x $2,976, hand sum). Wrong, in the cases the tool exists for: (1) RIB-LIM is applied as a base and then reduced again for the survivor's age. Deceased PIA $3,000 claimed at 62 (FRA 67): survivor at 60 should get min(3000 x 0.715, max(2100, 2475)) = $2,145; the tool says $1,769.63 (17.5% low). Deceased claimed at 66: survivor at 63 should be $2,511.43, tool $2,344; at 60 $2,145, tool $2,002. Only the at-FRA figure is right. (2) A worker who died at 63 without claiming is treated as having claimed at 63 (as the input label instructs) so the survivor at FRA is shown $2,475 (82.5%) instead of $3,000 (100%; RIB-LIM applies only when the worker was entitled to a reduced RIB). (3) The spousal top-up applies the spousal reduction to 50% of the worker's PIA and subtracts the unreduced own PIA, instead of reducing the excess (50% worker PIA minus own PIA). Worker PIA $3,000, own PIA $1,000, FRA 67: at 62 the excess should be $500 x 0.65 = $325 (total $1,025), the tool says $0 (total $700); at 64 $375 (total $1,175), tool $125 ($925). The formula is right only when own PIA is 0 or the claim is at FRA. Score 1: the arithmetic runs but the two headline rules a user would act on are wrong for typical inputs.",
+    "completeness": "Claimed features checked by running compute(): survivor benefit table 60-70 (works, numbers wrong before FRA when the worker claimed early), own benefit by age (works), every survivor-first/own-first combination compared (works: 21 x 17 grid in 6-month steps, max(s,o) per month), spousal top-up (present, wrong formula when early), 82.5% limit (present, misapplied), delayed credits inherited (works), text summary download and print (code present, page.test.mjs checks event names), opt-out usage counting (usage.mjs, wired). Gaps: a worker who died before 62 cannot be entered at all (deceasedClaimAge min 62, C5), which is the common case for younger widows claiming at 60; disabled-widow benefits at 50 not mentioned; the widow form and the living-spouse spousal check are mixed into one form keyed off the same 'own PIA' and birth year. No TODOs or stubs.",
+    "verification": "cd /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator && node --test '*.test.mjs': 22 tests, 22 pass, 0.16 s; the README's repo-root command also passes 22/22. I seeded 4 mutations with platform/ci/quality_mutate.py; 1 caught (82.5% constant -> 80%), 3 survived: paying the sum of survivor and own benefits instead of the larger one (calc.mjs:78), subtracting the reduced own benefit in the spousal excess (calc.mjs:131), and the 1938-1942 FRA step (calc.mjs:13). Worse, calc.test.mjs:34 asserts the misapplied RIB-LIM as the expected base, and the spousal test (calc.test.mjs:49) only checks a claim at FRA, where the wrong formula and the right one agree. Tests check what the author believed, not SSA rules.",
+    "craft": "Read calc.mjs (156 lines), index.html (166), usage.mjs, all three test files. Small, dependency-free, pure functions; parse() rejects rather than clamps and names the field; output is escaped before innerHTML. Defects: HTML inputs say min=0 while parse() enforces 62-70 etc. (only the first error is shown); compute() rounds decimal ages to months silently; the table literal `m <= 840 ? ... : null` is always true (dead branch). Acceptable code for its size; the problems are in the rules, not the code.",
+    "claims": "Disclaimer present on the page (index.html:111 'No warranty ... not a statement from the Social Security Administration'), README and llms.txt; usage counting with opt-out (index.html:115, usage.mjs). The served page loads (HTTP 200) and the served llms.txt carries marisstella.app URLs, so the source github.io URL is source-only. Failing claims: the FAQ (index.html:12 JSON-LD and :101) says the survivor 'gets the larger of the reduced benefit and 82.5%' when the worker claimed early, which misstates RIB-LIM as a floor; 'Covers: ... the 82.5% widow limit' (index.html:92) is implemented wrong; README:7 'After using this, you know whether to take the survivor benefit now and switch to your own at 70' rests on survivor-before-FRA figures that are low whenever the worker claimed early; the input label (index.html:63) tells a widow whose spouse died before claiming to enter the death age, which produces a wrong 82.5% cap. The spousal FAQ figure (32.5% at 62) is true only with no own record.",
+    "fitness": "The job: a recent widow, 60-67, whose spouse claimed at 62 (the most common claiming age), deciding whether to take the survivor benefit now and switch to her own at 70. Walking it with deceased PIA $3,000 claimed at 62 and own PIA $2,000 (b.1962): the tool shows the survivor benefit at 60 as $1,770 instead of $2,145, which understates every survivor-first strategy by about $375 a month during the survivor-only years, the exact comparison the tool sells. A widow whose spouse died at 55 cannot enter the case at all; one whose spouse died at 64 without claiming is told her FRA survivor benefit is 82.5% of PIA rather than 100%. A planner would not hand this to a client.",
+    "domain": "Against POMS RS 00615.320 / SSA Act s202(e)(2)(D) (RIB-LIM is a limit on the age-reduced widow(er)'s benefit, applying only when the worker was entitled to a reduced RIB), 20 CFR 404.410 (reduction rates), and POMS/SSA spousal dual-entitlement practice (the excess = 50% of worker PIA minus own PIA, then reduced by 25/36 of 1% for 36 months and 5/12 beyond). Right: survivor age reduction curve, own reduction and DRCs (8%/yr, capped at 70), no DRCs on spousal, survivor not subject to deemed filing (the strategy grid lets survivor and own start independently), dual entitlement pays the larger. Departures: RIB-LIM double reduction, the never-claimed death case, the spousal excess formula, no death-before-62 case. The survivor FRA is a free input (60-67) rather than SSA's table, which the VENTURE.yaml defends but accepts values like 60 that are never a survivor FRA. The POMS section title, fetched with curl from secure.ssa.gov/poms.nsf/lnx/0300615320 (HTTP 200; body is script-rendered so only the title was read), is 'RS 00615.320 - Reduced WIB - Deceased NH Entitled to Reduced RIB or Reduced DIB Prior to Death - RIB LIM', which confirms the limit applies only when the worker was entitled to a reduced benefit before death; the cap-not-floor reading is from the Act s202(e)(2)(D) as I know it, not from the fetched body."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "Own benefit factor, b.1957 (FRA 66y6m), claim at 62",
+      "method": "20 CFR 404.410: 5/9 of 1% for first 36 months, 5/12 beyond; 54 months -> 20% + 7.5% = 27.5% reduction, by hand",
+      "command": "node -e 'import(\"/home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator/calc.mjs\").then(m=>console.log(m.ownFactor(744,m.retirementFra(1957))))'",
+      "expected": "0.725",
+      "observed": "0.725",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Survivor age factor at 62 with survivor FRA 67",
+      "method": "20 CFR 404.410 / SSA survivor reduction: 28.5% spread over the 84 months from 60 to 67; 0.715 + 0.285 x 24/84, by hand",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "0.796429",
+      "observed": "0.796429",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Inherited delayed credits: deceased PIA $3,200 b.1955 (FRA 66y2m) claimed at 70",
+      "method": "SSA DRC 2/3 of 1% a month for 1943+ births; 46 months -> 30.667%; survivor gets the worker's DRC-increased amount, by hand",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "4181.33",
+      "observed": "4181.33",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Sample best total to 90: survivor at 60, own at 70",
+      "method": "hand sum: 120 x (3200 x 0.715 = 2288) + 240 x (2400 x 1.24 = 2976)",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "988,800",
+      "observed": "988,800",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "RIB-LIM: deceased PIA $3,000 claimed at 62 (FRA 67); survivor claims at 60",
+      "method": "Social Security Act s202(e)(2)(D) and POMS RS 00615.320 (widow(er)'s limit, RIB-LIM): when the worker was entitled to a reduced retirement benefit, the widow(er)'s benefit, after its own age reduction, is limited to the larger of the worker's reduced benefit and 82.5% of PIA; it is a cap, not a base that is reduced again. Survivor age reduction per 20 CFR 404.410 (28.5% spread over the months from 60 to survivor FRA). Hand computation: min(3000 x 0.715 = 2145, max(2100, 2475)) = 2145",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "2145.00",
+      "observed": "1769.63",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "RIB-LIM: deceased PIA $3,000 claimed at 66 (FRA 67); survivor claims at 63",
+      "method": "Social Security Act s202(e)(2)(D) and POMS RS 00615.320 (widow(er)'s limit, RIB-LIM): when the worker was entitled to a reduced retirement benefit, the widow(er)'s benefit, after its own age reduction, is limited to the larger of the worker's reduced benefit and 82.5% of PIA; it is a cap, not a base that is reduced again. Survivor age reduction per 20 CFR 404.410 (28.5% spread over the months from 60 to survivor FRA). Hand computation: min(3000 x (0.715 + 0.285 x 36/84) = 2511.43, 2800) = 2511.43",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "2511.43",
+      "observed": "2344.00",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Worker died at 63 never having claimed; survivor at FRA 67",
+      "method": "POMS RS 00615.320: RIB-LIM applies only if the worker was entitled to a reduced RIB; otherwise the widow(er) at FRA gets 100% of PIA. Hand",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "3000.00",
+      "observed": "2475.00",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Spousal excess claimed at 62, FRA 67, worker PIA $3,000, own PIA $1,000",
+      "method": "SSA spousal dual entitlement (POMS RS 00615 spouse reduction; 20 CFR 404.410 25/36 of 1% x 36 + 5/12 x 24 = 35%): excess (1500 - 1000) x 0.65 = 325; own 1000 x 0.70 = 700; total 1025. Hand",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "excess 325, total 1025",
+      "observed": "excess 0, total 700",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Spousal excess claimed at 64, same couple",
+      "method": "same rule: excess 500 x 0.75 = 375; own 1000 x 0.80 = 800; total 1175. Hand",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "excess 375, total 1175",
+      "observed": "excess 125, total 925",
+      "result": "fail"
+    },
+    {
+      "dimension": "completeness",
+      "what": "Worker died at 55 (before 62), survivor wants a figure",
+      "method": "enter deceasedClaimAge 55 as the label instructs",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/096f4309-df66-5732-9d71-6aa6a7962eea/scratchpad/ssa/audit.mjs /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator",
+      "expected": "a survivor benefit table",
+      "observed": "error 'Enter the age ... (62 to 70)'",
+      "result": "fail"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run it",
+      "command": "cd /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "22 tests, 22 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "FAQ: survivor 'gets the larger of the reduced benefit and 82.5%' when the worker claimed early",
+      "method": "SSA Act s202(e)(2)(D): a limit on the age-reduced widow(er) benefit, not a floor",
+      "command": "grep -n 'larger of the reduced' /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator/index.html",
+      "expected": "stated as a cap (lesser of the widow's age-reduced amount and the larger of worker's reduced RIB or 82.5% PIA)",
+      "observed": "stated as a floor at index.html:12 and :101",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "Disclaimer and usage counting on page",
+      "method": "read page and served page",
+      "command": "grep -n 'No warranty' /home/user/oss-monorepo/ventures/social-security-survivor-spousal-benefit-calculator/index.html; curl -sS https://marisstella.app/social-security-survivor-spousal-benefit-calculator/",
+      "expected": "disclaimer and opt-out usage counting present",
+      "observed": "index.html:111 disclaimer, :115 opt-out; served page HTTP 200 with 1 'No warranty'",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served llms.txt URLs",
+      "method": "load served file",
+      "command": "curl -sS https://marisstella.app/social-security-survivor-spousal-benefit-calculator/llms.txt",
+      "expected": "marisstella.app URLs",
+      "observed": "HTTP 200, tool link https://marisstella.app/social-security-survivor-spousal-benefit-calculator/",
+      "result": "pass"
+    },
+    {
+      "dimension": "claims",
+      "what": "Served calc.mjs matches source",
+      "method": "diff",
+      "command": "curl -sS https://marisstella.app/social-security-survivor-spousal-benefit-calculator/calc.mjs | diff - calc.mjs",
+      "expected": "identical",
+      "observed": "identical",
+      "result": "pass"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "calc.mjs:78",
+      "change": "total += Math.max(s, o); -> total += s + o;",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:7",
+      "change": "export const SURVIVOR_FLOOR = 0.825; -> export const SURVIVOR_FLOOR = 0.8;",
+      "caught": true,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:131",
+      "change": "p.spousePia * spousalFactor(claim, oFra) - p.ownPia -> p.spousePia * spousalFactor(claim, oFra) - ownAmt(Math.max(claim, 744))",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+    },
+    {
+      "where": "calc.mjs:13",
+      "change": "(birthYear - 1937) * 2 -> (birthYear - 1937) * 3",
+      "caught": false,
+      "test_cmd": "node --test calc.test.mjs page.test.mjs usage.test.mjs"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "RIB-LIM is applied as the survivor base and then reduced again for the survivor's age (base = max(reduced RIB, 82.5% PIA), times survivorFactor). The rule is a cap on the age-reduced widow(er) benefit. Deceased PIA $3,000 claimed at 62: survivor at 60 shown $1,769.63, correct $2,145 (17.5% low); every survivor-first strategy total is understated when the worker claimed early.",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/calc.mjs:41",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "Spousal excess reduces 50% of the worker's PIA and subtracts the unreduced own PIA, instead of reducing (50% worker PIA - own PIA). Worker $3,000 / own $1,000 at 62: top-up shown $0 (total $700), correct $325 (total $1,025); at 64 $125 vs $375.",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/calc.mjs:131",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "high",
+      "what": "A worker who died before claiming is entered as 'claimed at death age' per the input label, so the 82.5% RIB-LIM is applied: death at 63 gives $2,475 at survivor FRA instead of $3,000 (100% PIA).",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/index.html:63",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "A worker who died before 62 cannot be entered (deceasedClaimAge min 62), the common case for younger widow(er)s; no way to say 'never claimed'.",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/calc.mjs:59",
+      "category": "scope-gap",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "FAQ and JSON-LD state RIB-LIM as a floor ('gets the larger of the reduced benefit and 82.5%'), which misinforms readers and search snippets.",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/index.html:101",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Tests encode the wrong rules: calc.test.mjs:34 asserts the misapplied RIB-LIM base, the spousal test only checks a claim at FRA where the wrong formula agrees, and summing survivor and own benefits instead of taking the larger survives (3 of 4 seeded mutations survived).",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/calc.test.mjs:34",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "HTML inputs declare min=0 while parse() enforces 62-70, 60-67 etc.; the survivor FRA input accepts 60, which is never a survivor FRA.",
+      "where": "ventures/social-security-survivor-spousal-benefit-calculator/calc.mjs:60",
+      "category": "input-handling",
+      "origin": "implementation"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15464"
+  ],
+  "verdict": "Small, clean and honest about what it leaves out, with the disclaimer and opt-out usage counting in place, and the own-benefit, survivor age-reduction, DRC and dual-entitlement-max arithmetic is right. But the two rules a claiming specialist checks first are wrong for ordinary inputs: the widow(er)'s limit is reduced twice (survivor at 60 after a worker claimed at 62 shows $1,770 against $2,145), a worker who died before claiming is capped at 82.5% instead of 100%, and the spousal top-up when claimed early is understated or zeroed ($0 vs $325 at 62). The tests (22, all green) assert the wrong RIB-LIM rule and 3 of 4 seeded bugs survived. The FAQ states RIB-LIM backwards. Scores: correctness 1, claims 1, verification 1. Does not meet the bar and is not finished."
+}

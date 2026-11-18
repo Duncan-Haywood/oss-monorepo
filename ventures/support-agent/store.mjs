@@ -91,7 +91,7 @@ export function recalibrate(state) {
   return r;
 }
 
-const cell = (v) => { const s = String(v ?? ""); const t = /^[=+\-@\t\r]/.test(s) ? `'${s}` : s; return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
+const cell = (v) => { const s = String(v ?? ""); const t = /^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s) ? `'${s}` : s; return /[",\n]/.test(t) ? `"${t.replace(/"/g, '""')}"` : t; };
 export function logCsv(state) {
   return ["at,question,action,article,confidence,reasons,helpful", ...state.log.map((r) => [new Date(r.at).toISOString(), r.q, r.action, r.article, r.confidence, r.reasons.join(" "), r.helpful ?? ""].map(cell).join(","))].join("\n") + "\n";
 }

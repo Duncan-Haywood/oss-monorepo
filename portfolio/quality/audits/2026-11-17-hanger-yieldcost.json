@@ -1,0 +1,236 @@
+{
+ "date": "2026-11-17",
+ "subject": "research/hanger-yieldcost",
+ "stratum": "research",
+ "seed": "2026-11-17-791a",
+ "drawn_by": "census",
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior robotics researcher in multi-arm task scheduling / shared-workspace coordination (dual-arm bin picking), who first checks that the headline gain reproduces and survives multiple comparisons and fresh seeds, that the gating quantity is tested rather than only its limits, and that the cost model (what a clash actually costs the other arm) matches the rule being gated",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 1,
+  "craft": 2,
+  "claims": 2,
+  "fitness": 2,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "The numbers reproduce exactly and hold up out of sample. Re-ran the shipped engine for the headline row and two see 0.15 cells at 1000 loads (python3 %s/rerun.py, 59 s): pinch 0.30 tau 0/3/6/10/20 = +0.703 (0.251 to 1.180), +0.879, +1.139, +1.353 (0.927 to 1.796), +1.134; see 0.15 tau -inf -11.263, tau 20 -0.155: identical to experiments/results.txt to the printed digits. Intervals recomputed two independent ways not using the subject's paired_stats: normal-theory mean +/- 1.96 sd/sqrt(n) (tau 10: 0.908 to 1.799) and my own 10,000-resample bootstrap with a different seed (0.903 to 1.801), both agreeing with the published 0.93 to 1.80. By hand with a Bonferroni correction over the 45 gated cells (z = 3.26): tau 3, 6, 10, 20 survive (z = 3.6, 4.7, 5.9, 6.0), tau 0 does not (z = 2.87). Fresh seeds (seed=7, loads 700021..700999, never used in the paper; holdout.py): pinch 0.30 tau 0 +0.93 (0.47 to 1.39), tau 10 +1.76 (1.33 to 2.18) replicate; sweep 0.45 tau 6 -0.18 (-0.88 to 0.53) flips sign, confirming the README's caution that sweep's +0.50 is noise. The tau = -inf column equals hanger-lookahead's window=inf rows exactly (cross-project consistency). Capped at 3: the simulator's own cost model is not independently recomputed beyond the limits.",
+  "completeness": "Claimed and checked: 5 tests (ran: 'Ran 5 tests in 1.061s OK'); 54-cell sweep in results.txt (8 cells re-run, all identical; per-cell timing implies about 6 min for the full run vs 'about 10 minutes'); figure regenerated in a scratch copy with research/_shared and is byte-identical to experiments/yieldcost.svg; tau=-inf equals hanger-lookahead and tau=inf equals hanger-avoid (both tests pass). No stubs or TODOs. Listed next steps (measured pick times, learned threshold, real clearance) are labelled as future work, not claimed.",
+  "verification": "python3 -m unittest discover -s tests: 5 passed in 1.1 s. The tests pin only the two limits (tau = -inf, tau = inf), monotonicity of redirects for one policy on 20 loads, pick count and determinism. Five mutants via platform/ci/quality_mutate.py: 4 survived, including inverting the sign of the gating quantity (start + t0 - free[o] -> free[o] - start - t0), dropping the arm's own pick time from it (start - free[o]), shifting the threshold by 5 s, and scaling done/h by 3000/3600 (a 17% error in every reported number). Only halving the wait (yieldcost.py:58) was caught, by the lookahead-equivalence test. The quantity the paper is about is untested at any finite tau.",
+  "craft": "Read yieldcost.py (76 lines), tests/test_yield.py, experiments/run.py, figure.py. Short, stdlib-only, seeded and deterministic. Defects: sequence_yield is the third copy of the two-arm loop (hanger-avoid shared_sequence_avoid, hanger-lookahead sequence_look) with one line changed, so a fix to the shared loop must be made three times; imports go through sys.path insertion into sibling projects (yieldcost.py:16-17, run.py:5-6) rather than declared dependencies; the module docstring (yieldcost.py:6-7) says 'tau=0 is hanger-lookahead's rule' while the code, test and README use tau = -inf (and tau 0 gives -1.27, not -11.26, at see 0.15); the function default tau=0.0 (yieldcost.py:22) thus silently is not the documented predecessor; unused imports suppressed with noqa F401.",
+  "claims": "Backed: the headline numbers (-11.3 ungated, -0.2 at 20 s, +0.7 to +1.35 for pinch 0.30, interval 0.93 to 1.80) trace to results.txt and re-run identically; research/README.md:1011 and project.json quote the same; served page https://marisstella.app/research/hanger-yieldcost/ returns 200 with 'Stylised', placeholders, the AI-assistance and no-affiliation notice; the README itself flags the tuned threshold and 54-interval multiplicity. Not backed: README:23 'Redirects per load ... fall from 4 to 15 (ungated)': results.txt ungated range is 0.17 to 15.08 (see/pinch 0.45 are 0.17/0.19); README:37 'A higher threshold monotonically cuts the redirects and the loss': redirects yes, loss no in 5 of 9 rows (e.g. see 0.15 -0.30 at 6 s then -0.36 at 10 s; sweep 0.30 +0.23 then 0.00; pinch 0.30 peaks at 10 s); README:7 'except hairline cases noted below': no other cell has a lower bound above zero and none are noted below; 'every threshold from 0 to 20 s' is literal but tau 0 does not survive a Bonferroni correction. README:3 and :5 duplicate the Live page line. Docstring contradiction above.",
+  "fitness": "A researcher can build on it: stdlib only, seeded, re-runs bit-identically in about a minute per eight cells, and the pinch 0.30 gain replicates on fresh seeds. Limits for building on it: every input is a placeholder from earlier hanger projects (pick times, clearance, pile), clearance is a point-distance disc not a swept arm volume, one predictor. Nearest prior work: priority/yield-based coordination of robots sharing a workspace (Erdmann and Lozano-Perez 1987 prioritized planning; dual-arm and multi-robot interference scheduling in pick-and-place cells, e.g. Spensieri et al. on coordinating robot stations, and robotic bin-picking throughput studies); the README cites none of it, only its own sibling projects. Novelty is modest and mostly internal: much of the 'gating removes most of the loss' result is that tau = 0 stops the predecessor redirecting when no overlap is physically possible (see 0.15: -11.26 -> -1.27 at tau 0), i.e. correcting an over-eager rule rather than discovering a cost trade-off. The pinch 0.30 gain is sound within the model.",
+  "domain": "A coordination researcher would accept the statistics (paired design, bootstrap, multiplicity acknowledged, out-of-sample holds) but question the cost model. The gate is the predicted overlap start + t0 - free[o], framed as 'a wait longer than the garment is worth', yet under the baseline the other arm does not wait on a clash: its current-pick rule redirects it (yieldcost.py:46-49), so overlap seconds are a proxy for a redirect cost, not a wait, and tau is never compared with any garment value. The threshold is swept on the same loads it is evaluated on (README admits this; my fresh-seed rerun mitigates it for pinch). Standard practice would also model arm swept volumes and reach, not a 2D distance between pick points, and cite the coordination literature. Domain sign-off: method acceptable as a stylised exploratory step, not as a scheduling result."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "Headline pinch 0.30 row and see 0.15 extremes reproduce",
+   "method": "re-run of the shipped engine at 1000 loads, same seeds",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/hy/rerun.py",
+   "expected": "+0.70/+0.88/+1.14/+1.35/+1.13; -11.26; -0.16 (results.txt)",
+   "observed": "+0.703/+0.879/+1.139/+1.353/+1.134; -11.263; -0.155",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "95% intervals recomputed without the subject's paired_stats",
+   "method": "normal-theory mean +/- 1.96 sd/sqrt(n) and an independent 10,000-resample percentile bootstrap (different RNG seed)",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/hy/rerun.py",
+   "expected": "pinch 0.30 tau 10: 0.93 to 1.80",
+   "observed": "t-interval 0.908 to 1.799; bootstrap 0.903 to 1.801",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Does the pinch gain survive correction for 45 gated cells?",
+   "method": "Bonferroni by hand: z = mean/(sd/sqrt(1000)) vs z_crit = 3.26 (alpha 0.05/45 two-sided), sd from results.txt",
+   "command": "python3 -c 'NormalDist().inv_cdf(1-0.05/2/45) ...' (see run record)",
+   "expected": "all five thresholds significant ('every threshold from 0 to 20 s')",
+   "observed": "tau 3/6/10/20 survive (z 3.6/4.7/5.9/6.0); tau 0 does not (z 2.87)",
+   "result": "partial"
+  },
+  {
+   "dimension": "correctness",
+   "what": "Out-of-sample replication on fresh loads",
+   "method": "per_load(seed=7): load seeds 700021+i, disjoint from the paper's 0..999",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/hy/holdout.py",
+   "expected": "pinch 0.30 gain positive; sweep 0.45 tau 6 indistinguishable from 0",
+   "observed": "pinch 0.30 tau 0 +0.93 (0.47 to 1.39), tau 10 +1.76 (1.33 to 2.18); sweep 0.45 tau 6 -0.18 (-0.88 to 0.53); sweep 0.30 tau 6 +0.29 (-0.52 to 1.15)",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tau = -inf column equals hanger-lookahead window=inf",
+   "method": "cross-project comparison of committed results",
+   "command": "head -20 research/hanger-lookahead/experiments/results.txt",
+   "expected": "identical rows",
+   "observed": "identical (e.g. see 0.15 -11.26 (-12.38 to -10.07), redirects 14.01)",
+   "result": "pass"
+  },
+  {
+   "dimension": "verification",
+   "what": "Test suite",
+   "method": "run",
+   "command": "cd research/hanger-yieldcost && python3 -m unittest discover -s tests",
+   "expected": "5 tests pass",
+   "observed": "Ran 5 tests in 1.061s OK",
+   "result": "pass"
+  },
+  {
+   "dimension": "completeness",
+   "what": "Figure regenerates from results.txt",
+   "method": "run figure.py in a scratch copy with research/_shared, diff against committed SVG",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/hy/fc/r/hanger-yieldcost/experiments/figure.py; diff -q ...",
+   "expected": "identical SVG",
+   "observed": "SVG identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "'Redirects per load ... fall from 4 to 15 (ungated) to 0.01 to 1.9 at 20 s' (README:23)",
+   "method": "parse results.txt",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/hy/claims.py",
+   "expected": "ungated range 4 to 15",
+   "observed": "ungated 0.17 to 15.08; tau 20 0.01 to 1.93",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "'A higher threshold monotonically cuts the redirects and the loss' (README:37)",
+   "method": "parse results.txt per (policy, sep) row",
+   "command": "python3 /tmp/claude-0/-home-user-oss-monorepo/2d2e6a91-ab4e-5afb-9d66-7868d2f21338/scratchpad/hy/claims.py",
+   "expected": "diff non-decreasing in tau in every row",
+   "observed": "redirects monotone in 9/9; loss monotone in only 4/9 (see 0.15, see 0.30, sweep 0.30, sweep 0.45, pinch 0.30 reverse)",
+   "result": "fail"
+  },
+  {
+   "dimension": "claims",
+   "what": "Served page live with stylised caveat and AI notice",
+   "method": "HTTP fetch",
+   "command": "curl -s https://marisstella.app/research/hanger-yieldcost/",
+   "expected": "200, caveat",
+   "observed": "200; 'Stylised: clearance, station times and the pile are earlier placeholders'; AI-assistance notice",
+   "result": "pass"
+  },
+  {
+   "dimension": "craft",
+   "what": "Docstring describes the predecessor rule",
+   "method": "read yieldcost.py:6-7 against test and results",
+   "command": "grep -n 'tau=0' research/hanger-yieldcost/src/hanger_yieldcost/yieldcost.py",
+   "expected": "tau = -inf is hanger-lookahead's rule",
+   "observed": "docstring says tau=0; tau 0 gives -1.27 vs lookahead's -11.26 at see 0.15",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "Does the gate measure what a clash costs?",
+   "method": "read the clash handling against the baseline: other arm's current-pick rule redirects rather than waits",
+   "command": "sed -n 35,60p research/hanger-yieldcost/src/hanger_yieldcost/yieldcost.py",
+   "expected": "cost of a clash = other arm's wait, compared with garment value",
+   "observed": "overlap seconds used as a proxy; under the baseline the other arm usually redirects; no garment-value term",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/hanger_yieldcost/yieldcost.py:50",
+   "change": "start + t0 - free[o] >= tau -> free[o] - start - t0 >= tau",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/hanger_yieldcost/yieldcost.py:50",
+   "change": "start + t0 - free[o] >= tau -> start - free[o] >= tau",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/hanger_yieldcost/yieldcost.py:50",
+   "change": "start + t0 - free[o] >= tau -> start + t0 - free[o] >= tau - 5.0",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/hanger_yieldcost/yieldcost.py:74",
+   "change": "/ r[\"makespan\"] * 3600.0 -> / r[\"makespan\"] * 3000.0",
+   "caught": false,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  },
+  {
+   "where": "src/hanger_yieldcost/yieldcost.py:58",
+   "change": "wait = active[o][1] - start -> wait = 0.5 * (active[o][1] - start)",
+   "caught": true,
+   "test_cmd": "python3 -m unittest discover -s tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "The gating quantity is untested at any finite tau: inverting its sign, dropping the arm's own pick time from it, or shifting the threshold by 5 s all leave the 5 tests green, as does a 17% scale on every done/h; only the tau=-inf/+inf limits are pinned",
+   "where": "research/hanger-yieldcost/tests/test_yield.py:32",
+   "category": "untested-core",
+   "origin": "tests",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"
+  },
+  {
+   "severity": "medium",
+   "what": "README says a higher threshold 'monotonically cuts ... the loss'; results.txt shows the paired difference reverses with tau in 5 of 9 rows (e.g. see 0.15: -0.30 at 6 s, -0.36 at 10 s; sweep 0.30: +0.23 at 10 s, 0.00 at 20 s; pinch 0.30 peaks at 10 s)",
+   "where": "research/hanger-yieldcost/README.md:37",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"
+  },
+  {
+   "severity": "low",
+   "what": "'Redirects per load ... fall from 4 to 15 (ungated)': results.txt ungated range is 0.17 to 15.08",
+   "where": "research/hanger-yieldcost/README.md:23",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"
+  },
+  {
+   "severity": "low",
+   "what": "'except hairline cases noted below' refers to cases that do not exist: no cell outside pinch 0.30 has a lower bound above zero; and tau 0's interval does not survive a Bonferroni correction over 45 cells (z 2.87 < 3.26) though the headline says 'every threshold from 0 to 20 s'",
+   "where": "research/hanger-yieldcost/README.md:7",
+   "category": "overclaim",
+   "origin": "claims",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"
+  },
+  {
+   "severity": "low",
+   "what": "Module docstring says 'tau=0 is hanger-lookahead's rule'; it is tau=-inf (test and README), and tau=0 gives very different results; the function default tau=0.0 is therefore not the documented predecessor",
+   "where": "research/hanger-yieldcost/src/hanger_yieldcost/yieldcost.py:6",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"
+  },
+  {
+   "severity": "medium",
+   "what": "Cost model mismatch: the gate is framed as 'a wait longer than the garment is worth' but uses raw predicted overlap seconds, under the baseline the other arm redirects rather than waits, and no garment value enters; tau is swept on the evaluation loads; no prior work on shared-workspace robot coordination is cited",
+   "where": "research/hanger-yieldcost/README.md:15",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "low",
+   "what": "sequence_yield is the third copy of the two-arm loop (hanger-avoid, hanger-lookahead) with one line changed; sibling packages imported by sys.path insertion",
+   "where": "research/hanger-yieldcost/src/hanger_yieldcost/yieldcost.py:22",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "The 'Live page' line is duplicated",
+   "where": "research/hanger-yieldcost/README.md:5",
+   "category": "stale-docs",
+   "origin": "maintenance",
+   "fixed_by": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"
+  }
+ ],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/16937"],
+ "verdict": "A small, honest, reproducible simulation step whose headline holds: the pinch 0.30 m gain re-runs identically, its intervals match two independent recomputations, four of five thresholds survive a Bonferroni correction, and it replicates on fresh seeds (+1.76, 1.33 to 2.18 at tau 10), while the sweep 'gains' the README treats cautiously vanish out of sample. It misses the bar on verification (4 of 5 seeded bugs survive, including inverting the sign of the gate the paper is about) and on claims (the 'monotonically cuts the loss' sentence is false in 5 of 9 rows, the ungated redirect range is misquoted, a docstring names the wrong predecessor setting). Method-wise, the gate is a proxy for a cost the baseline does not incur as a wait, and the work cites none of the multi-robot coordination literature; much of the 'removes most of the loss' result is tau = 0 stopping redirects when no clash is physically possible."
+}

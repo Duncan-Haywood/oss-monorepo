@@ -24,6 +24,37 @@ class BallisticsTest(unittest.TestCase):
         self.assertLess(top.first_bounce.pos[0], flat.first_bounce.pos[0])
         self.assertGreater(back.first_bounce.pos[0], flat.first_bounce.pos[0])
 
+    def test_drag_and_magnus_match_hand_values(self):
+        # Hand computation, independent of the code: a = 0.5 rho A C / m * v^2 with rho 1.21 kg/m^3,
+        # r 33.5 mm, m 57.7 g, C_D 0.55 and C_L = 1 / (2 + v / (r w)) (the spin-ratio fit in ballistics.py).
+        # v = 20 m/s along +x, 2000 rpm topspin: r w = 7.0162 m/s, C_L = 0.20616, k = 0.036968 /m,
+        # drag 8.1328 m/s^2 back along x, lift 3.0485 m/s^2 down, so a_z = -9.81 - 3.0485.
+        self.assertAlmostEqual(bl.DEFAULT_BALL.lift_coeff(20.0, 2000 * bl.RPM), 0.20616, places=4)
+        ax, ay, az = bl.acceleration((20.0, 0.0, 0.0), bl.spin_vector((20.0, 0.0, 0.0), 2000 * bl.RPM),
+                                     bl.DEFAULT_BALL)
+        self.assertAlmostEqual(ax, -8.1328, places=3)
+        self.assertAlmostEqual(ay, 0.0, places=9)
+        self.assertAlmostEqual(az, -12.8585, places=3)
+
+    def test_simulate_stepper_is_bit_identical_to_rk4(self):
+        # simulate() integrates with _stepper, a hoisted scalar copy of _rk4/acceleration (perf note
+        # 2026-11-15). It must give the same floats, not just close ones: catcher and fixture tests pin
+        # exact counts. Covers no spin, no air, zero velocity and spin parallel to velocity (no Magnus).
+        import random
+        rng = random.Random(3)
+        balls = [bl.DEFAULT_BALL, bl.with_overrides(bl.DEFAULT_BALL, air_density=0.0)]
+        for i in range(2000):
+            ball = balls[i % 2]
+            vel = (0.0, 0.0, 0.0) if i % 50 == 0 else tuple(rng.uniform(-60, 60) for _ in range(3))
+            spin = tuple(rng.uniform(-400, 400) for _ in range(3))
+            if i % 7 == 0:
+                spin = (0.0, 0.0, 0.0)
+            elif i % 11 == 0:
+                spin = tuple(0.3 * x for x in vel)
+            pos = tuple(rng.uniform(-12, 12) for _ in range(3))
+            dt = (0.002, 0.004)[i % 2]
+            self.assertEqual(repr(bl._stepper(spin, dt, ball)(pos, vel)), repr(bl._rk4(pos, vel, spin, dt, ball)))
+
     def test_sidespin_curves_left(self):
         v = bl.launch_velocity(20.0, math.radians(15), 0.0)
         f = bl.simulate((-12.4, 0.0, 1.0), v, bl.spin_vector(v, 0.0, 1500 * bl.RPM), max_bounces=0)

@@ -1,0 +1,287 @@
+29 teams on 5 courts x 9 slots, 3 games a night, by large-neighbourhood search (eval/odd-lns.py), 2026-11-16.
+4-core container, python-sat 1.9.dev22, CaDiCaL 1.9 in a child process killed at the step limit.
+Four seeds ran at once (--free 2 --step 120); the night order is the tool's (rounds 3t..3t+2, the last night 2 rounds).
+
+  python3 eval/odd-lns.py 29 --courts 5 --times 9 --seed S --free 2 --step 120
+
+Seed 6 reached 10 of 10 wait-free nights at 1,185.8 s (17 steps) and was stored. Seeds 3 and 5 were
+at 9 of 10 and seed 4 at 8 of 10 when they were stopped (seed 6 had finished). Logs (stderr):
+
+--- seed 3
+[   37.0s] start 1 of 10 nights good
+[   45.1s] step 1: freed [4, 7], better: 2 of 10 good
+[  180.3s] step 3: freed [5, 3], better: 3 of 10 good
+[  198.2s] step 4: freed [6, 2], better: 4 of 10 good
+[  207.8s] step 5: freed [8, 4], better: 5 of 10 good
+[  341.8s] step 7: freed [4, 9], better: 6 of 10 good
+[  595.9s] step 10: freed [1, 5], better: 7 of 10 good
+[  617.4s] step 11: freed [5, 0], better: 8 of 10 good
+[  990.7s] step 15: freed [0, 2], better: 9 of 10 good
+--- seed 4
+[   32.5s] start 1 of 10 nights good
+[   47.0s] step 1: freed [2, 4], better: 2 of 10 good
+[   64.6s] step 2: freed [3, 1], better: 3 of 10 good
+[   96.3s] step 3: freed [0, 6], better: 4 of 10 good
+[  128.8s] step 4: freed [8, 5], better: 5 of 10 good
+[  145.5s] step 5: freed [1, 8], better: 6 of 10 good
+[  554.5s] step 9: freed [6, 8], better: 7 of 10 good
+[ 1049.3s] step 14: freed [8, 7], better: 8 of 10 good
+--- seed 5
+[   34.6s] start 1 of 10 nights good
+[   51.0s] step 1: freed [5, 7], better: 2 of 10 good
+[   87.1s] step 2: freed [1, 0], better: 3 of 10 good
+[  126.6s] step 3: freed [5, 6], better: 4 of 10 good
+[  149.6s] step 4: freed [6, 3], better: 5 of 10 good
+[  166.2s] step 5: freed [1, 8], better: 6 of 10 good
+[  418.7s] step 8: freed [4, 2], better: 7 of 10 good
+[  433.0s] step 9: freed [8, 9], better: 8 of 10 good
+[ 1045.9s] step 15: freed [3, 4], better: 9 of 10 good
+--- seed 6
+[   28.7s] start 1 of 10 nights good
+[   43.8s] step 1: freed [1, 2], better: 2 of 10 good
+[   53.5s] step 2: freed [6, 3], better: 3 of 10 good
+[  110.4s] step 3: freed [0, 9], better: 4 of 10 good
+[  123.2s] step 4: freed [1, 6], better: 5 of 10 good
+[  280.4s] step 6: freed [4, 6], better: 6 of 10 good
+[  643.7s] step 10: freed [7, 9], better: 7 of 10 good
+[ 1017.5s] step 14: freed [8, 4], better: 8 of 10 good
+[ 1062.9s] step 15: freed [5, 9], better: 9 of 10 good
+[ 1185.8s] step 17: freed [4, 9], better: 10 of 10 good
+
+Stored: node eval/write-odd-designs.mjs --append out/29-5x9.json  (32 designs; the other 31 unchanged)
+Through the tool (node eval/odd-cyclic-check.mjs 29:5:9, seeds 1 to 3, waits summed):
+  before: 29 teams on 5 x 9: waits 334 -> 334 (seeds 1-3), 3556 ms a build   (eval/odd-triple.txt)
+  now:    29 teams on 5 x 9: waits 334 -> 0 (seeds 1-3), 1087 ms a build
+
+Earlier runs on the way (not stored):
+  - A first version froze 3 nights with Glucose 4 and the betweenness clauses (q[a] and q[c] imply q[b]):
+    3 seeds sat at 1 of 10 nights for 10 minutes, every improving repair out of its 90 s.
+  - With CaDiCaL and the window encoding (one start row per team), 3 nights freed a step (two seeds)
+    reached 6 of 10 at 2,000 s; 2 nights freed reached 7 of 10 at 1,460 s and 6 of 10 in 260 s (seed 4).
+  - That version held the short last night (2 rounds) to 3-game windows, which it can never meet, so it
+    stalled at 9 of 10 with only the short night bad (112 steps). Fixed: windows are g and g - 1 rows
+    for a night of g rounds. The runs above are after the fix.
+  - Small checks (3 nights freed): 15 on 3 x 9 in 13 s and 21 on 4 x 9 in 18 s (no short night, so the
+    bug above did not touch them), 17 on 3 x 9 (a short night) in 27 s after the fix. All three are
+    stored already from other scripts; not re-stored.
+
+35 teams on 6 courts x 9 slots, same script, 2026-11-16 (later; two seeds alongside two 41-team runs, then alone):
+  python3 eval/odd-lns.py 35 --courts 6 --times 9 --seed S --step 150
+Seed 1 reached 12 of 12 at 4,724.1 s (39 steps) and was stored; seed 2 was at 10 of 12 (3,860 s) when stopped.
+--- seed 1
+[  205.3s] start 1 of 12 nights good
+[  386.8s] step 2: freed [0, 9], better: 2 of 12 good
+[  475.7s] step 3: freed [8, 11], better: 3 of 12 good
+[  731.3s] step 5: freed [5, 3], better: 4 of 12 good
+[  764.0s] step 6: freed [3, 10], better: 5 of 12 good
+[ 1079.1s] step 9: freed [7, 3], better: 6 of 12 good
+[ 1159.3s] step 10: freed [6, 0], better: 7 of 12 good
+[ 1215.4s] step 11: freed [2, 3], better: 8 of 12 good
+[ 1393.9s] step 13: freed [1, 6], better: 9 of 12 good
+[ 2358.6s] step 20: freed [1, 10], sideways: 9 of 12 good
+[ 2412.8s] step 21: freed [2, 4], better: 10 of 12 good
+[ 3353.9s] step 28: freed [1, 4], sideways: 10 of 12 good
+[ 3408.0s] step 29: freed [1, 11], better: 11 of 12 good
+[ 4409.2s] step 36: freed [4, 5], sideways: 11 of 12 good
+[ 4724.1s] step 39: freed [5, 11], better: 12 of 12 good
+--- seed 2
+[  220.6s] start 1 of 12 nights good
+[  476.3s] step 2: freed [5, 7], better: 2 of 12 good
+[  661.2s] step 4: freed [2, 0], better: 3 of 12 good
+[  760.1s] step 5: freed [5, 3], better: 4 of 12 good
+[ 1280.5s] step 9: freed [5, 4], better: 5 of 12 good
+[ 1647.4s] step 12: freed [0, 4], better: 6 of 12 good
+[ 1813.9s] step 14: freed [9, 11], better: 7 of 12 good
+[ 2201.1s] step 17: freed [6, 8], better: 8 of 12 good
+[ 2861.7s] step 22: freed [8, 10], better: 9 of 12 good
+[ 2920.3s] step 23: freed [0, 1], better: 10 of 12 good
+[ 3860.3s] step 30: freed [8, 7], sideways: 10 of 12 good
+Through the tool (node eval/odd-cyclic-check.mjs 35:6:9, seeds 1 to 3):
+  before: 35 teams on 6 x 9: waits 505 -> 505 (seeds 1-3), 3784 ms a build
+  now:    35 teams on 6 x 9: waits 505 -> 0 (seeds 1-3), 1458 ms a build
+41 teams on 7 x 9 (seeds 1, 2, --step 150): 1 of 14 nights good at 262 s, no step landed before they were stopped (to free cores).
+
+41 teams on 7 courts x 9 slots, 2026-11-16 (a later session; 4 runs at once on the 4-core container).
+  python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --limit 14000 --save STATE
+The earlier 41-team attempt (two seeds sharing cores) sat at 1 of 14 nights for its whole run with no
+step accepted. Two changes to the script came first:
+  - A repair keeps the layouts the solver found for the nights it marked good. Before, each freed night
+    was solved again by night_rows under a 20 s limit, and a step was thrown away when that second solve
+    timed out; at 41 teams (60 matches a night) it often did.
+  - --save STATE writes the round robin and its good nights' layouts after every accepted step, and
+    --resume STATE starts from that file, re-checking each stored layout match by match (night_ok).
+    A night with no stored layout gets a longer first check (--resume-check, 180 s). The first resumes
+    in this session had neither (the state file then held rounds only) and re-checked nights under
+    20 s: 11 good nights came back as 9 or 10. With the 180 s check, 12 came back as 12.
+Fresh seeds (circle-method starters), good nights over time:
+  seed 1: 1 at 250 s, 4 at 2,948 s, 7 at 4,198 s, 10 at 10,581 s; 10 of 14 at the 14,000 s limit
+  seed 2: 1 at 261 s, 4 at 1,211 s, 6 at 4,604 s; stopped at 9,791 s (6 of 14), its core given to a resume
+  seed 3: 1 at 261 s, 6 at 4,649 s, 9 at 9,233 s; 9 of 14 at the limit
+  seed 4: 1 at 250 s, 5 at 3,113 s, 8 at 6,402 s, 10 at 9,853 s, 11 at 12,859 s; 11 of 14 at the limit
+Resumed runs (new seeds on a saved state):
+  seed 5 from seed 4 at 10 (re-check 20 s: start 9): 11 at 2,445 s, 12 at 6,209 s; 12 of 14 at its limit
+  seed 6, 7 from seed 5 at 11 (start 10): 11 and 10 of 14 after ~5,000 s; stopped
+  seed 8 from seed 4's final state at 11 (start 10): 11 at 696 s, 12 at 6,064 s, 13 at 6,081 s;
+       13 of 14 at its 8,000 s limit (the step running when the limit came took the rest)
+  seed 9, 10 from seed 5 at 12 (re-check 180 s: start 12 of 12): no gain in ~5,600 s; stopped
+  seed 11, 12, 13 from seed 8 at 13 (start 13 of 14 in ~293 s; the 20 s checks of its 13 nights, then
+       the 180 s check of the bad one): no gain in 4,800 s each (26 to 32 steps, every one sideways);
+       the bad night ended as night 4, 2 and 5. Stored for the next run: eval/lns-states/41-7x9.json
+       (seed 13's state, 13 of 14 nights with their layouts; lns-state.test.mjs re-checks it in Node).
+Not stored as a design: the season is not wait-free yet, so the tool still schedules 41 on 7 x 9 by
+annealing. Next: resume from the stored state for longer, or free three nights for the last step.
+  python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --limit 14000 \
+      --resume eval/lns-states/41-7x9.json --save /tmp/41.json
+
+41 teams on 7 x 9, finished, 2026-11-16 (evening; four runs on 4 cores, all resumed from the stored 13-of-14 state):
+First, is the bad night (night 5) only slow, or impossible? eval/lns-bad-night.py solves it alone (the same
+one-night model as night_rows) with a long limit:
+  python3 eval/lns-bad-night.py eval/lns-states/41-7x9.json --seconds 7000
+  {"night": 5, "matches": 60, "clauses": 13908, "verdict": "UNSAT", "seconds": 677.4}
+So no layout of night 5's 60 pairs is wait-free: only a re-deal can fix it, and the earlier resumes'
+sideways steps were the right move, just not enough of them. (Night 5 also has no triangle among its
+pairs where most good nights have 1 to 7, but night 11 has none either and lays out, so that is not
+the reason.)
+Runs (--resume eval/lns-states/41-7x9.json --limit 9000):
+  seed 21, 22: --free 3 --step 300: one sideways step in 2,700 s between them; stopped when 23 finished
+  seed 23:     --free 2 --step 300: sideways at 2,192 s (freed [5, 6]); then freed [5, 13] at 2,736.9 s:
+               14 of 14 good (9 steps)
+  seed 24:     --free 2 --step 150: stopped after a few minutes to give its core to lns-bad-night.py
+  seed 31:     --free 2 --also 13 --step 300 (new option: always free the short last night with the
+               bad one; started after the UNSAT verdict): nothing accepted before 23 finished
+Seed 23 drew night 13 (the short last night: 2 rounds, 40 matches in 63 slots) at random; --also 13 was
+not what found it. The last step re-dealt 5 rounds' pairs (night 5's 3 and night 13's 2) and laid both
+nights out, so the short night's slack took the pairs night 5 could not place.
+The season was re-checked whole by odd-night-sat.check before it printed.
+Stored: node eval/write-odd-designs.mjs --append eval/odd-designs/41-7x9.json  (34 designs)
+Through the tool (node eval/odd-cyclic-check.mjs 41:7:9, seeds 1 to 3, waits summed):
+  before: 41 teams on 7 x 9: waits 752 -> 752 (seeds 1-3), 3361 ms a build
+  now:    41 teams on 7 x 9: waits 752 -> 0 (seeds 1-3), 2026 ms a build
+eval/lns-states/41-7x9.json now holds the finished state (14 of 14 with layouts); lns-state.test.mjs checks it.
+
+47 teams on 8 courts x 9 slots, resumed from the 5-of-16 state, 2026-11-17 (second session). 4-core container,
+python-sat 1.9.dev22, CaDiCaL 1.9. Every run: --resume-check 60 --resume eval/lns-states/47-8x9.json --save /tmp/lns47/sS.json.
+Each later run resumed from the best state committed at that time (the lineage: 5 -> 6 -> 7 -> 8 -> 9 -> 10 -> 11).
+Logs from seed 75 on also count failed repairs by cause (timeout: the solver hit --step; unsat: proved impossible;
+unconfirmed: the night check could not confirm a layout). Seeds 72, 74, 82, 84, 94 were stopped early to change their settings.
+
+--- seed 71: --step 300, from 5 (ran 12,757 s+; container restart ended it)
+[  661.0s] start 5 of 16 nights good
+[ 2823.0s] step 8: freed [9, 13], sideways: 5 of 16 good
+[ 2914.5s] step 9: freed [13, 6], better: 6 of 16 good
+[ 4756.1s] step 16: freed [3, 11], sideways: 6 of 16 good
+[ 6495.9s] step 22: freed [3, 7], better: 7 of 16 good
+[ 8337.5s] step 29: freed [5, 4], sideways: 7 of 16 good
+[ 8613.6s] step 30: freed [3, 10], better: 8 of 16 good
+[ 9201.4s] step 32: freed [13, 12], better: 9 of 16 good
+[11043.1s] step 39: freed [2, 5], sideways: 9 of 16 good
+[12202.2s] step 43: freed [11, 5], better: 10 of 16 good
+[12757.3s] step 45: freed [1, 4], better: 11 of 16 good
+--- seed 73: --step 300 --also 15, from 5 (stopped at 4,305 s, core given to a resume from 6)
+[  661.0s] start 5 of 16 nights good
+[ 2483.3s] step 7: freed [10, 15], sideways: 5 of 16 good
+[ 4305.5s] step 14: freed [6, 15], sideways: 5 of 16 good
+--- seed 92: --step 900, from 5 (stopped at ~6,500 s, core given to a resume from 8)
+[  661.0s] start 5 of 16 nights good
+[ 6102.5s] step 7: freed [1, 3], sideways: 5 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+--- seed 75: --step 300 --also 15, from 6 (stopped at ~3,500 s)
+[  600.9s] start 6 of 16 nights good
+[ 2423.1s] step 7: freed [11, 15], sideways: 6 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 3323.7s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+--- seed 76: --step 300, from 7 (stopped at ~3,300 s)
+[  540.8s] start 7 of 16 nights good
+[ 2382.4s] step 7: freed [12, 1], sideways: 7 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 3283.0s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+--- seed 77: --step 300, from 8 (stopped at ~3,300 s)
+[  480.7s] start 8 of 16 nights good
+[ 2622.5s] step 8: freed [11, 12], sideways: 8 of 16 good; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 3223.0s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+--- seed 78: --step 300, from 9 (container restart)
+[  420.6s] start 9 of 16 nights good
+[  753.5s] step 2: freed [12, 11], better: 10 of 16 good; failed repairs so far {'timeout': 1, 'unsat': 0, 'unconfirmed': 0}
+[ 2595.0s] step 9: freed [4, 3], sideways: 10 of 16 good; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 2895.3s] step 10: no step accepted yet; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 4436.6s] step 16: freed [3, 5], sideways: 10 of 16 good; failed repairs so far {'timeout': 13, 'unsat': 0, 'unconfirmed': 0}
+--- seed 79: --step 300 --also 15, from 10 (container restart)
+[  360.5s] start 10 of 16 nights good
+[ 2182.9s] step 7: freed [2, 15], sideways: 10 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 3083.5s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+
+After the container restart (07:09 UTC), all from the 11-of-16 state, --step 300:
+--- seed 101: default settings (stopped at ~1,300 s for 121)
+[  300.5s] start 11 of 16 nights good
+--- seed 103: --also 15
+[  300.5s] start 11 of 16 nights good
+[  371.8s] step 1: freed [12, 15], better: 12 of 16 good; failed repairs so far {'timeout': 0, 'unsat': 0, 'unconfirmed': 0}
+[ 1348.0s] step 5: freed [4, 15], better: 13 of 16 good; failed repairs so far {'timeout': 3, 'unsat': 0, 'unconfirmed': 0}
+[ 2849.0s] step 10: no step accepted yet; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3169.5s] step 12: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 103, "free": 2, "steps": 18, "seconds": 4970.6, "sat": null, "good": 13}
+--- seed 112: --sideways-after 2
+[  300.4s] start 11 of 16 nights good
+[  841.0s] step 2: freed [12, 2], better: 12 of 16 good; failed repairs so far {'timeout': 1, 'unsat': 0, 'unconfirmed': 0}
+[ 1982.4s] step 6: freed [4, 13], sideways: 12 of 16 good; failed repairs so far {'timeout': 4, 'unsat': 0, 'unconfirmed': 0}
+[ 2623.1s] step 9: freed [3, 12], sideways: 12 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2923.3s] step 10: no step accepted yet; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 3263.8s] step 12: freed [13, 11], sideways: 12 of 16 good; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3907.4s] step 15: freed [11, 3], sideways: 12 of 16 good; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 112, "free": 2, "steps": 17, "seconds": 4507.8, "sat": null, "good": 12}
+--- seed 114: --also 15 --sideways-after 2 (stopped at ~1,300 s for 122; seeds 102 and 104, the first pair with these numbers' slots, were stopped at ~60 s to start 112 and 114)
+[  300.4s] start 11 of 16 nights good
+[  921.8s] step 3: freed [2, 15], sideways: 11 of 16 good; failed repairs so far {'timeout': 2, 'unsat': 0, 'unconfirmed': 0}
+--- seed 121: --also 15, from 13
+[  180.3s] start 13 of 16 nights good
+[ 2002.8s] step 7: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2903.4s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+[ 3825.9s] step 14: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 121, "free": 2, "steps": 15, "seconds": 4126.1, "sat": null, "good": 13}
+--- seed 122: --also 15 --sideways-after 2, from 13
+[  180.3s] start 13 of 16 nights good
+[  801.6s] step 3: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 2, 'unsat': 0, 'unconfirmed': 0}
+[ 1422.3s] step 6: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 4, 'unsat': 0, 'unconfirmed': 0}
+[ 2043.6s] step 9: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2343.8s] step 10: no step accepted yet; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 2664.4s] step 12: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3285.9s] step 15: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+[ 3907.6s] step 18: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 122, "free": 2, "steps": 19, "seconds": 4207.8, "sat": null, "good": 13}
+
+Failed repairs over the instrumented runs (the last count each log printed, so a lower bound): at least 98, every one a timeout; 0 unsat, 0 unconfirmed.
+Best: 13 of 16 (seed 103), stored as eval/lns-states/47-8x9.json.
+
+47 teams on 8 x 9, resumed from the 13-of-16 state, 2026-11-17 (third session). 4-core container, python-sat 1.9.dev22.
+Every run: --step 300 --limit 6000 --resume-check 60 --resume eval/lns-states/47-8x9.json. Three LNS runs and one one-night check, side by side.
+--- seed 131: --also 15
+[  180.3s] start 13 of 16 nights good
+[ 2003.2s] step 7: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2904.0s] step 10: no step accepted yet; failed repairs so far {'timeout': 9, 'unsat': 0, 'unconfirmed': 0}
+[ 3826.2s] step 14: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+[ 5627.8s] step 20: no step accepted yet; failed repairs so far {'timeout': 18, 'unsat': 0, 'unconfirmed': 0}
+[ 5648.3s] step 21: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 18, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 131, "free": 2, "steps": 23, "seconds": 6248.9, "sat": null, "good": 13}
+--- seed 132: --also 15 --sideways-after 2
+[  180.4s] start 13 of 16 nights good
+[  802.5s] step 3: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 2, 'unsat': 0, 'unconfirmed': 0}
+[ 1426.3s] step 6: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 4, 'unsat': 0, 'unconfirmed': 0}
+[ 2047.8s] step 9: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 6, 'unsat': 0, 'unconfirmed': 0}
+[ 2348.1s] step 10: no step accepted yet; failed repairs so far {'timeout': 7, 'unsat': 0, 'unconfirmed': 0}
+[ 2670.2s] step 12: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 8, 'unsat': 0, 'unconfirmed': 0}
+[ 3291.5s] step 15: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+[ 3913.1s] step 18: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 12, 'unsat': 0, 'unconfirmed': 0}
+[ 4513.7s] step 20: no step accepted yet; failed repairs so far {'timeout': 14, 'unsat': 0, 'unconfirmed': 0}
+[ 4535.3s] step 21: freed [2, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 14, 'unsat': 0, 'unconfirmed': 0}
+[ 5157.2s] step 24: freed [11, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 16, 'unsat': 0, 'unconfirmed': 0}
+[ 5778.9s] step 27: freed [3, 15], sideways: 13 of 16 good; failed repairs so far {'timeout': 18, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 132, "free": 2, "steps": 28, "seconds": 6079.1, "sat": null, "good": 13}
+--- seed 133: --free 3 (three nights freed a step; first try at 47)
+[  180.4s] start 13 of 16 nights good
+[ 3185.8s] step 10: no step accepted yet; failed repairs so far {'timeout': 10, 'unsat': 0, 'unconfirmed': 0}
+[ 4405.0s] step 14: freed [3, 5, 11], sideways: 13 of 16 good; failed repairs so far {'timeout': 13, 'unsat': 0, 'unconfirmed': 0}
+[ 6208.0s] step 20: no step accepted yet; failed repairs so far {'timeout': 19, 'unsat': 0, 'unconfirmed': 0}
+{"n": 47, "courts": 8, "times": 9, "method": "lns", "seed": 133, "free": 3, "steps": 20, "seconds": 6208.0, "sat": null, "good": 13}
+--- eval/lns-bad-night.py on the stored state, --seconds 3600 (stopped after the first unlaid night)
+{"night": 2, "matches": 69, "vars": 7485, "clauses": 17103, "verdict": "UNKNOWN", "seconds": 3600.1}
+
+No run climbed: 13 of 16 in all three, 71 steps, 0 better, 55 failed repairs (all timeouts; 0 unsat, 0 unconfirmed).
+Night 2's 69 matches alone (7,485 vars, 17,103 clauses) came back UNKNOWN in 3,600 s: neither laid out nor proved impossible.
+Five runs from 13 (seeds 121, 122 last session; 131, 132, 133 here) found 0 climbs in 26,870 core-seconds. The stored state is unchanged.

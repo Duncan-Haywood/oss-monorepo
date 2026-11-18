@@ -35,11 +35,14 @@
  * link from the hub. Rendering reuses the devlog's escaping Markdown renderer,
  * so a post cannot inject markup and repository paths become GitHub links.
  */
-import { promises as fs, existsSync, readFileSync, readdirSync } from 'node:fs';
+import { promises as fs, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { esc, renderMarkdown } from '../devlog/markdown.mjs';
+import { formatCount } from './count.mjs';
 import { SITE_NAME, TITLE_BUDGET, siteTitle, sponsorsNote, withSiteHeader } from './site-nav.mjs';
+import { loadResearchRegistry } from './research-registry.mjs';
+import { decodeEntities } from './entities.mjs';
 import { loadEpisodes, renderPlayer, renderPodcastBody, renderPodcastHero, writePodcastAssets, PODCAST_PATH, SHOW_DESCRIPTION, SHOW_TITLE } from './podcast.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -50,7 +53,9 @@ export const POSTS_DIR = 'docs/posts';
 export const AGENT_POSTS_DIR = 'docs/agent-posts';
 export const AGENTS_PATH = `${WRITING_PATH}agents/`;
 // Directories inside `writing/` that are not posts: a post with one of these slugs would overwrite them.
-const RESERVED_SLUGS = new Set(['agents', 'podcast', 'page']);
+const RESERVED_SLUGS = new Set(['agents', 'podcast', 'page', 'topic']);
+/** Each topic's own page, under the blog: `writing/topic/<id>/`. */
+export const TOPIC_PATH = `${WRITING_PATH}topic/`;
 
 /** Posts per index page. A page of 50 cards is about 50 kB of HTML; one page of every post was 2.3 MB. */
 export const PAGE_SIZE = 50;
@@ -58,54 +63,240 @@ export const PAGE_SIZE = 50;
 /**
  * The blog's topics, in the order the filters list them. Every post has
  * exactly one: its `topic:` front matter, else the first rule its tags match.
+ * `seo` is the search-result title of the topic's page (`renderTopicPage`), written for
+ * the query a reader would type; `label` is the chip and the page's `h1`.
  */
 export const TOPICS = Object.freeze([
-  { id: 'start', label: 'Start here', blurb: 'Who each project is for, what you get from it, and your first ten minutes with it.' },
-  { id: 'quality', label: 'Quality audits', blurb: 'Is the work finished, correct and at a senior professional level? Seeded random samples graded on a fixed rubric, with the evidence (portfolio/quality/).' },
-  { id: 'agents', label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
-  { id: 'research', label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
-  { id: 'tools', label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
-  { id: 'infrastructure', label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
+  { id: 'start', seo: "Start here: what each free tool and research project is for", label: 'Start here', blurb: 'Who each project is for, what you get from it, and your first ten minutes with it.' },
+  { id: 'quality', seo: "Quality audits of AI-built software, graded on a fixed rubric", label: 'Quality audits', blurb: 'Is the work finished, correct and at a senior professional level? Seeded random samples graded on a fixed rubric, with the evidence (portfolio/quality/).' },
+  { id: 'agents', seo: "Building software with unattended AI coding agents", label: 'Building with AI agents', blurb: 'How the agent fleet builds, steers and measures itself: process, cost, mistakes and what changed.' },
+  { id: 'research', seo: "Open research findings, with the numbers and caveats", label: 'Research findings', blurb: 'What the open research tracks found, with the numbers and caveats.' },
+  { id: 'tools', seo: "Free browser tools and projects: what each does, who it is for", label: 'Tools and projects', blurb: 'What a tool or project does, who it is for and why it exists.' },
+  { id: 'stories', seo: "Stories: science fiction, bedtime tales and saints' lives", label: 'Stories', blurb: 'Fiction from the story shelves: Hearth & Horizon science fiction, For Other Minds, Little Lamps and Saints by Candlelight.' },
+  { id: 'site', seo: "Site design, accessibility, SEO and llms.txt: what changed", label: 'Site design and SEO', blurb: 'How the pages look, read and get found: design passes, accessibility, SEO, answer-engine optimisation and llms.txt.' },
+  { id: 'testing', seo: "Red-team and mutation testing: do the tests catch real faults?", label: 'Testing and red team', blurb: 'Do the tests catch real faults? Red-team campaigns that seed bugs, mutation testing, and the checks that came out of them.' },
+  { id: 'infrastructure', seo: "Static hosting, CI and build performance notes", label: 'Hosting and infrastructure', blurb: 'Hosting, CI, performance and the plumbing under the site.' },
 ]);
 const TOPIC_IDS = new Set(TOPICS.map((t) => t.id));
 const TOOL_TAGS = ['projects', 'tools', 'mcp', 'distribution', 'voice-interfaces', 'byok', 'local-llm', 'privacy', 'podcasting', 'desktop-apps'];
 const INFRA_TAGS = ['github-pages', 'hosting', 'kubernetes', 'github-actions', 'static-site', 'static-sites'];
 const AGENT_TAGS = ['ai-agents', 'process', 'prompting', 'prompt-engineering', 'engineering-management'];
+// Fiction: a fiction tag or a story shelf's name. The shelves are ventures, so until
+// 2026-11-15 their stories were filed under "Tools and projects" (about 400) or, for the
+// agent-facing shelf, "Building with AI agents". A post about how a shelf is run (its
+// to-do list, its audio cap, its story queue) carries a process or hosting tag and stays
+// where it was. `ai-agents` is not one of those: For Other Minds stories are about agents.
+const FICTION_TAGS = ['fiction', 'science-fiction', 'short-story', 'bedtime-story', 'hearth-and-horizon', 'for-other-minds', 'little-lamps', 'saints-by-candlelight'];
+// Site craft and test campaigns: about how the pages and test suites are made, even when a
+// post names the tool it worked on, so they are checked before the venture rule. Until
+// 2026-11-15 they filed under "Tools and projects" (about 300 of its 2,846 posts).
+const SITE_TAGS = ['polish', 'seo', 'aeo', 'llms-txt'];
+const TESTING_TAGS = ['redteam', 'red-team', 'mutation-testing', 'fault-injection'];
+// Weaker signals, used only for a post that names no project: a design or accessibility
+// change to one tool is about that tool, a generic one is about the site; likewise testing,
+// CI. Not `performance`: a post making one tool faster carries it too.
+const SITE_LOOSE_TAGS = ['accessibility', 'design', 'css', 'site', 'web-design', 'structured-data'];
+const TESTING_LOOSE_TAGS = ['testing', 'test-coverage', 'property-testing'];
+const PLUMBING_LOOSE_TAGS = ['ci', 'build', 'caching'];
+const BACKSTAGE_TAGS = ['process', 'prompting', 'prompt-engineering', 'engineering-management', ...INFRA_TAGS];
 
 /**
  * A post's topic from its tags, first rule wins: onboarding posts (`start-here`)
  * are the newcomer's way in, so they group together whatever else they name; quality audits
  * (`quality-audit`, portfolio/quality/) grade work from every track, so they group apart; opinion pieces are about
- * steering the fleet; then research; then a named tool or channel; then
- * hosting and CI plumbing; then anything about agents; everything else is a tool or project.
+ * steering the fleet; then fiction (`FICTION_TAGS`, unless it is about running a shelf); then research (the `research` tag, or a tag naming a project in
+ * `research/`); then red-team and mutation-testing campaigns; then polish, SEO and AEO work; then a named venture, tool or channel; then
+ * hosting and CI plumbing; then anything about agents; then, for a post that matched none of those,
+ * generic testing, site design, or CI and performance; everything else is a tool or project.
  * A post the rules file wrongly says so with `topic:` in its front matter.
+ *
+ * `projects` holds the slugs of `research/` and `ventures/` (`projectSlugs()`). Research posts
+ * name their project (`marine-hull`, `cell-fidelity`) more often than they add `research`: until
+ * 2026-11-13, 110 of them fell through to "Tools and projects".
  */
-export function topicOf(tags = [], explicit = '') {
+export function topicOf(tags = [], explicit = '', projects = NO_PROJECTS) {
   if (explicit) return explicit;
   const has = (list) => tags.some((t) => list.includes(t));
   if (tags.includes('start-here')) return 'start';
   if (tags.includes('quality-audit')) return 'quality';
   if (tags.includes('opinion')) return 'agents';
-  if (tags.includes('research')) return 'research';
-  if (has(TOOL_TAGS)) return 'tools';
+  if (has(FICTION_TAGS) && !has(BACKSTAGE_TAGS)) return 'stories';
+  if (tags.includes('research') || tags.some((t) => projects.research.has(t))) return 'research';
+  if (has(TESTING_TAGS)) return 'testing';
+  if (has(SITE_TAGS)) return 'site';
+  if (has(TOOL_TAGS) || tags.some((t) => projects.ventures.has(t))) return 'tools';
   if (has(INFRA_TAGS)) return 'infrastructure';
   if (has(AGENT_TAGS)) return 'agents';
+  if (has(TESTING_LOOSE_TAGS)) return 'testing';
+  if (has(SITE_LOOSE_TAGS)) return 'site';
+  if (has(PLUMBING_LOOSE_TAGS)) return 'infrastructure';
   return 'tools';
+}
+const NO_PROJECTS = Object.freeze({ research: new Set(), ventures: new Set() });
+
+/**
+ * The project a post names first among its tags, or undefined: a venture for a "Tools and
+ * projects" post, a `research/` programme for a "Research findings" post (since 2026-11-16).
+ */
+export function projectOf(tags = [], topic = '', projects = NO_PROJECTS) {
+  const pool = PROJECT_TOPICS[topic];
+  if (!pool) return undefined;
+  return tags.find((t) => projects[pool].has(t) && !PROJECT_RESERVED.has(t));
+}
+/** The topics whose posts group by project, and the `projectSlugs()` set each one reads. */
+export const PROJECT_TOPICS = Object.freeze({ tools: 'ventures', research: 'research' });
+// Folder names under a project's topic page that are not projects.
+const PROJECT_RESERVED = new Set(['page']);
+/** A project needs this many posts for its own page; below it, its posts stay on the topic's date list only. */
+export const PROJECT_MIN_POSTS = 3;
+
+/**
+ * A venture's display name: the first `# ` heading of its README, cut at the first ": " or
+ * " — " ("# Wall Framing Takeoff: stud layout, ..." is "Wall Framing Takeoff"). The slug when
+ * there is no README heading.
+ */
+export function projectName(slug, root = DEFAULT_ROOT) {
+  const readme = path.join(root, 'ventures', slug, 'README.md');
+  const heading = existsSync(readme) ? /^#\s+(.+)$/m.exec(readFileSync(readme, 'utf8'))?.[1] : '';
+  const name = String(heading || '').split(/: | — | – | - /)[0].replace(/[*_`]/g, '').trim();
+  return name || slug;
+}
+
+/**
+ * The projects under "Tools and projects" with at least PROJECT_MIN_POSTS posts, most posts
+ * first: `{ slug, name, count }`. Until 2026-11-16 the topic page was one 52-page date list
+ * of 2,595 posts, 84% of them about 14 ventures.
+ */
+export function projectGroups(posts, { root = DEFAULT_ROOT, topic = 'tools', names = (slug) => projectName(slug, root), questions = () => '', ledes = topic === 'research' ? () => '' : (slug) => ventureLede(slug, root) } = {}) {
+  const counts = new Map();
+  for (const p of posts) if (p.project) counts.set(p.project, (counts.get(p.project) || 0) + 1);
+  return [...counts]
+    .filter(([, n]) => n >= PROJECT_MIN_POSTS)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .map(([slug, count]) => {
+      const question = topic === 'research' ? questions(slug) : '';
+      const lede = ledes(slug);
+      return { slug, name: topic === 'research' ? slug : names(slug), count, topic, ...(question ? { question } : {}), ...(lede ? { lede } : {}) };
+    });
+}
+
+/**
+ * Each research programme's card title (`research/_homepage/projects.json` or its own
+ * `project.json`, via the registry the research site builds from): the question it asks.
+ * A programme in the registry has a page at `research/<slug>/`.
+ */
+export function researchQuestions(root = DEFAULT_ROOT) {
+  const data = loadResearchRegistry(root);
+  const out = new Map();
+  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) if (p.slug && p.title) out.set(p.slug, String(p.title).replace(/<[^>]+>/g, '').trim());
+  return out;
+}
+
+// Opening sentences that say what kind of page this is rather than what was found
+// (2026-11-16: 4 of the 24 programmes with a findings page open this way).
+const LEDE_BOILERPLATE = [/^an open research programme( rather than a finished project)?\.$/i, /^an open research programme with milestones [^;]*logged;/i];
+// "et al. 2022", "e.g. x", "vs. y": a full stop there does not end the sentence.
+const NOT_A_STOP = /(?:\bet al|\be\.g|\bi\.e|\bvs|\bcf|\bFig|\bNo|\bSec|\bEq|\bapprox|\b[A-Z])\.$/;
+
+/**
+ * A plain-text lede from a research registry card's `summary` (HTML): whole sentences, skipping
+ * a boilerplate opener, up to `max` characters (the first sentence alone when it is longer, whole up to `stretch` × `max`
+ * (1.5; 1 for a meta description, which search results cut near 160), clipped at a word with an ellipsis past that). The summaries run 180 to 30,000 characters; the page dek and
+ * meta description want the first finding, not the whole log.
+ */
+export function researchLede(summaryHtml, max = 320, { stretch = 1.5 } = {}) {
+  const text = decodeEntities(String(summaryHtml || '').replace(/<sup>([^<]*)<\/sup>/gi, '^$1').replace(/<sub>([^<]*)<\/sub>/gi, '_$1').replace(/<[^>]+>/g, '')).replace(/[ \t\r\n]+/g, ' ').trim(); // keeps a decoded &nbsp;
+  if (!text) return '';
+  const sentences = [];
+  let start = 0;
+  for (const m of text.matchAll(/[.!?](?=\s+[A-Z0-9(“"])/g)) {
+    const end = m.index + 1;
+    if (NOT_A_STOP.test(text.slice(Math.max(start, end - 8), end))) continue;
+    sentences.push(text.slice(start, end).trim());
+    start = end;
+  }
+  if (start < text.length) sentences.push(text.slice(start).trim());
+  while (sentences.length > 1 && LEDE_BOILERPLATE.some((re) => re.test(sentences[0]))) sentences.shift();
+  let out = '';
+  for (const s of sentences) {
+    const next = out ? `${out} ${s}` : s;
+    if (next.length > max) break;
+    out = next;
+  }
+  if (out) return out;
+  // A first sentence up to half again the budget reads better whole than clipped.
+  if (sentences[0].length <= max * stretch) return sentences[0];
+  const cut = sentences[0].slice(0, max - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(' '), 1)).replace(/[\s,;:(–—-]+$/, '')}…`;
+}
+
+/**
+ * A venture's lede: the `> ` summary of its `llms.txt` (the line an assistant reads first, which
+ * `goals.md` asks each product to keep true), as whole sentences up to `max` characters
+ * (`researchLede`). Markdown links keep their text; code spans lose their backticks. Empty when
+ * the venture has no `llms.txt` or no summary. Until 2026-11-16 all 17 tool project pages had
+ * one generic dek ("Every blog post about X: what was built, ...").
+ */
+export function ventureLede(slug, root = DEFAULT_ROOT, max = 320) {
+  const file = path.join(root, 'ventures', slug, 'llms.txt');
+  if (!existsSync(file)) return '';
+  const lines = readFileSync(file, 'utf8').split(/\r?\n/);
+  const at = lines.findIndex((l) => /^>\s?\S/.test(l));
+  if (at < 0) return '';
+  const quote = [];
+  for (let i = at; i < lines.length && /^>/.test(lines[i]); i++) quote.push(lines[i].replace(/^>\s?/, ''));
+  const text = quote.join(' ').replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/`([^`]*)`/g, '$1').replace(/[*_]{2}([^*_]+)[*_]{2}/g, '$1');
+  return researchLede(esc(text), max);
+}
+
+/** Each research programme's lede (`researchLede` of its registry card summary), by slug. */
+export function researchLedes(root = DEFAULT_ROOT, max = 320) {
+  const data = loadResearchRegistry(root);
+  const out = new Map();
+  for (const t of data?.themes ?? []) for (const p of t.projects ?? []) {
+    const lede = p.slug && researchLede(p.summary, max);
+    if (lede) out.set(p.slug, lede);
+  }
+  return out;
+}
+
+/** Project folder names under `research/` and `ventures/` (a folder with a README.md or index.html). */
+export function projectSlugs(root = DEFAULT_ROOT) {
+  const list = (dir, marks) => {
+    const abs = path.join(root, dir);
+    if (!existsSync(abs)) return new Set();
+    return new Set(readdirSync(abs).filter((d) => !d.startsWith('_') && !d.startsWith('.') && marks.some((m) => existsSync(path.join(abs, d, m)))));
+  };
+  return { research: list('research', ['README.md']), ventures: list('ventures', ['index.html', 'README.md']) };
 }
 export const topicLabel = (id) => TOPICS.find((t) => t.id === id)?.label ?? id;
 const REPO_BLOB = 'https://github.com/Duncan-Haywood/oss-monorepo/blob/main/';
-// The live site's default address (build.mjs's DEFAULT_BASE_URL; not imported,
-// to keep this module free of an import cycle). A post may link a live tool by
-// it; under a custom domain those links follow the base URL the site is built with.
+// The site's old project Pages address (build.mjs's GITHUB_PAGES_BASE_URL; not
+// imported, to keep this module free of an import cycle). Older posts link live
+// tools by it; those links follow the base URL the site is built with.
 const DEFAULT_SITE_ORIGIN = 'https://duncan-haywood.github.io/oss-monorepo/';
 const FILE_RE = /^(\d{4}-\d{2}-\d{2})-([a-z0-9][a-z0-9-]*)\.md$/;
 // Posts link live tools by their full Pages URL so the Markdown reads right on
 // GitHub. On the site those links become root-relative, so a build under a
 // custom domain does not point readers (or canonical signals) at the old origin.
-const PUBLISHED_ORIGIN = 'https://duncan-haywood.github.io/oss-monorepo/';
-export const relinkSite = (html, toRoot) => html.split(`href="${PUBLISHED_ORIGIN}`).join(`href="${toRoot}`);
+// Both the old Pages address and the live origin (build.mjs's DEFAULT_BASE_URL):
+// posts written since the move to Cloudflare link https://marisstella.app/.
+const PUBLISHED_ORIGINS = ['https://duncan-haywood.github.io/oss-monorepo/', 'https://marisstella.app/'];
+export const relinkSite = (html, toRoot) =>
+  PUBLISHED_ORIGINS.reduce((h, origin) => h.split(`href="${origin}`).join(`href="${toRoot}`), html);
 
 /** Parse the `---` front-matter block. Returns { meta, body }. Only the subset posts use. */
+// YAML's quoted scalars: "..." takes backslash escapes (\" and \\ are the ones posts use) and
+// '...' doubles a quote. Until 2026-11-12 the quotes were stripped and the escapes kept, so 24
+// post titles showed \"United States\" with the backslashes on the page, in <title> and in feeds.
+const YAML_ESCAPES = { '"': '"', '\\': '\\', '/': '/', n: '\n', t: '\t', r: '\r', 0: '\0' };
+export function unquoteYamlScalar(value) {
+  const dq = /^"(.*)"$/.exec(value);
+  if (dq) return dq[1].replace(/\\(.)/g, (m, c) => YAML_ESCAPES[c] ?? m);
+  const sq = /^'(.*)'$/.exec(value);
+  return sq ? sq[1].replace(/''/g, "'") : value;
+}
+
 export function parseFrontMatter(src) {
   const text = String(src).replace(/\r\n?/g, '\n');
   const m = /^---\n([\s\S]*?)\n---\n?/.exec(text);
@@ -122,7 +313,7 @@ export function parseFrontMatter(src) {
         .map((s) => s.trim().replace(/^["']|["']$/g, ''))
         .filter(Boolean);
     } else {
-      value = value.replace(/^"(.*)"$/, '$1').replace(/^'(.*)'$/, '$1');
+      value = unquoteYamlScalar(value);
     }
     meta[kv[1]] = value;
   }
@@ -145,10 +336,11 @@ export function loadPosts(root = DEFAULT_ROOT, dirName = POSTS_DIR, { skipBad = 
   const dir = path.join(root, POSTS_DIR);
   if (!existsSync(dir)) return [];
   const posts = [];
+  const projects = projectSlugs(root);
   for (const name of readdirSync(dir).sort()) {
     if (!name.endsWith('.md')) continue;
     try {
-      posts.push(loadPost(root, POSTS_DIR, name));
+      posts.push(loadPost(root, POSTS_DIR, name, projects));
     } catch (err) {
       if (!skipBad) throw err;
       // A GitHub Actions annotation, so the skip shows on the run summary.
@@ -183,7 +375,7 @@ export function autoSeoTitle(title) {
 }
 
 /** One post, validated. Throws on a malformed one. */
-function loadPost(root, POSTS_DIR, name) {
+function loadPost(root, POSTS_DIR, name, projects = NO_PROJECTS) {
   const dir = path.join(root, POSTS_DIR);
   const fm = FILE_RE.exec(name);
   if (!fm) throw new Error(`${POSTS_DIR}/${name}: name must be <YYYY-MM-DD>-<slug>.md`);
@@ -212,9 +404,13 @@ function loadPost(root, POSTS_DIR, name) {
     date,
     title: meta.title,
     seoTitle: meta.seo_title ? String(meta.seo_title) : (String(meta.title).length > TITLE_BUDGET ? autoSeoTitle(String(meta.title)) : undefined),
-    description: meta.description,
+    // Plain for <meta>, feeds, JSON-LD and the finder; `descriptionHtml` keeps `code` for the dek and cards.
+    description: plainDescription(meta.description),
+    descriptionHtml: descriptionHtml(meta.description),
     tags,
-    topic: topicOf(tags, meta.topic),
+    topic: topicOf(tags, meta.topic, projects),
+    // The venture a "Tools and projects" post is about: its first tag naming a folder in ventures/.
+    project: projectOf(tags, topicOf(tags, meta.topic, projects), projects),
     source: `${POSTS_DIR}/${name}`,
     body,
     words,
@@ -222,8 +418,18 @@ function loadPost(root, POSTS_DIR, name) {
   };
 }
 
-const longDate = (iso) =>
-  new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+// Memoised per date string: `toLocaleDateString` builds an Intl formatter on
+// every call, and the blog index and every post's related list format the same
+// few hundred dates thousands of times (about 2 s of a warm build, 2026-11-12).
+const LONG_DATES = new Map();
+const longDate = (iso) => {
+  let s = LONG_DATES.get(iso);
+  if (s === undefined) {
+    s = new Date(`${iso}T00:00:00Z`).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    LONG_DATES.set(iso, s);
+  }
+  return s;
+};
 
 const STYLE = `
   :root { --bg:#f7f8fa; --panel:#fff; --ink:#1b2129; --muted:#5a6676; --line:#dde3ea; --accent:#2a5bd7; --code:#eef1f5; }
@@ -236,7 +442,7 @@ const STYLE = `
   h1 { font-size:2rem; line-height:1.2; margin:.2em 0 .3em; letter-spacing:-.01em; }
   .dek { font-size:1.1rem; color:var(--muted); margin:0 0 .8em; }
   .meta { font-size:.85rem; color:var(--muted); margin:0 0 2em; }
-  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:0 8px; margin:0 4px 4px 0; color:var(--muted); }
+  .tag { display:inline-block; font-size:.75rem; border:1px solid var(--line); border-radius:999px; padding:2px 8px; margin:0 4px 4px 0; color:var(--muted); }
   article h2 { font-size:1.35rem; margin:2em 0 .4em; } article h3 { font-size:1.15rem; margin:1.8em 0 .4em; }
   article h4 { font-size:1rem; margin:1.4em 0 .3em; }
   article p, article li { overflow-wrap:break-word; }
@@ -259,14 +465,29 @@ const STYLE = `
   .posts h2 { font-size:1.2rem; margin:0 0 .3em; line-height:1.3; } .posts h2 a { color:inherit; text-decoration:none; }
   .posts h2 a::after { content:""; position:absolute; inset:0; border-radius:14px; }
   .posts h2 a:hover, .posts h2 a:focus-visible { color:var(--accent); }
-  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 10px; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); }
+  .pager { margin:1.4rem 0; color:var(--muted); font-size:.95rem; } .pager .nums { display:flex; flex-wrap:wrap; gap:4px 6px; } .pager .nums > * { min-width:24px; min-height:24px; display:inline-flex; align-items:center; justify-content:center; } .pager [aria-current] { font-weight:700; color:var(--text, inherit); } .pager .gap { color:var(--muted); } .pager > p { margin:.25rem 0; } .pager details.all { flex-basis:100%; margin-top:.25rem; } .pager details.all summary { cursor:pointer; padding:4px 0; width:max-content; } .pager details.all .nums { margin:.5rem 0 0; } .pager details.all .here { font-weight:700; color:var(--text, inherit); }
   .posts p { margin:.3em 0; color:var(--muted); font-size:.95rem; }
-  .posts .meta { display:flex; flex-wrap:wrap; gap:6px; margin:.7em 0 0; }
-  .posts .date, .posts .mins { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px;
-    border:1px solid var(--line); background:var(--bg); color:var(--muted); }
+  .posts .meta { display:flex; flex-wrap:wrap; align-items:center; gap:4px 10px; margin:.7em 0 0; font-size:.85rem; }
+  .posts .when { white-space:nowrap; }
   .pf-hero .crumbs { margin:0 0 18px; } .pf-hero .meta { margin:0; } .pf-hero .tag { color:var(--muted); border-color:var(--line); }
   .pf-hero h1 { font-size:clamp(1.9rem,4.4vw,2.6rem); }
   .more { margin-top:3em; padding-top:1.4em; border-top:1px solid var(--line); font-size:.95rem; }
+  .more h2 { font-size:1.15rem; margin:0 0 .7em; }
+  .related { list-style:none; padding:0; margin:0; display:grid; gap:10px; }
+  .related li { position:relative; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 16px; line-height:1.4; transition:border-color .18s, box-shadow .18s; }
+  .related li:hover { border-color:var(--accent); box-shadow:0 6px 18px rgba(20,30,60,.08); }
+  .related a { color:var(--ink); font-weight:600; text-decoration:none; }
+  .related a::after { content:""; position:absolute; inset:0; border-radius:12px; }
+  .related a:hover, .related a:focus-visible { color:var(--accent); }
+  .related a:focus-visible { outline:none; } .related li:focus-within { outline:2px solid var(--accent); outline-offset:2px; }
+  .related .when { display:block; margin-top:4px; font-size:.8rem; color:var(--muted); }
+  .pager.steps { display:grid; grid-template-columns:repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap:10px; margin:1.6em 0 0; font-size:.9rem; }
+  .pager.steps a { display:block; padding:12px 16px; border:1px solid var(--line); border-radius:12px; color:var(--ink); text-decoration:none; line-height:1.4; }
+  .pager.steps a:hover, .pager.steps a:focus-visible { border-color:var(--accent); color:var(--accent); }
+  @media (min-width:600px) { .pager.steps a.next { text-align:right; } }
+  .pager.steps .dir { display:block; font-size:.75rem; font-weight:600; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+  .more .all { margin:1.4em 0 0; font-size:.9rem; }
+  @media (prefers-reduced-motion: reduce) { .related li { transition:none; } }
   .episode { margin:0 0 2em; padding:12px 14px; background:var(--panel); border:1px solid var(--line); border-radius:12px; }
   .episode figcaption { font-size:.85rem; color:var(--muted); margin:0 0 8px; }
   audio { width:100%; display:block; margin:.4em 0; }
@@ -274,20 +495,63 @@ const STYLE = `
   footer { margin-top:3em; font-size:.8rem; color:var(--muted); }
   [hidden] { display:none !important; }
   .finder { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin:0 0 18px; }
-  .finder input[type=search] { width:100%; font:inherit; font-size:1rem; padding:9px 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); }
-  .finder .row { display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center; margin:10px 0 0; font-size:.85rem; color:var(--muted); }
-  .finder select { font:inherit; padding:4px 6px; border:1px solid var(--line); border-radius:8px; background:var(--bg); color:var(--ink); max-width:100%; }
+  .finder input[type=search] { width:100%; font:inherit; font-size:1rem; height:42px; padding:0 12px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); }
+  /* One control row: Tag and Sort share the search box's height, radius and border, labels above their menus; Clear sits on the count line. */
+  .finder .row { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:8px 10px; margin:12px 0 0; font-size:.75rem; font-weight:600; letter-spacing:.03em; color:var(--muted); }
+  @media (min-width:640px) { .finder .row { grid-template-columns:minmax(0,16rem) minmax(0,12rem); } }
+  .finder .row label { display:flex; flex-direction:column; gap:4px; min-width:0; }
+  .finder select { font:inherit; font-size:.875rem; font-weight:400; letter-spacing:normal; height:42px; padding:0 8px; border:1px solid var(--line); border-radius:10px; background:var(--bg); color:var(--ink); width:100%; min-width:0; }
+  .finder input[type=search], .finder select { box-sizing:border-box; }
+  .finder input[type=search]:focus-visible, .finder select:focus-visible, .finder button:focus-visible { outline:2px solid var(--accent); outline-offset:1px; }
   .chips { display:flex; flex-wrap:wrap; gap:6px; margin:10px 0 0; }
   .chips button { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
-  .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:#fff; }
-  .chips button span { opacity:.75; margin-left:4px; }
-  .finder #clear { font:inherit; font-size:.8rem; padding:3px 11px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; }
+  .chips button[aria-pressed=true] { background:var(--accent); border-color:var(--accent); color:var(--bg); }
+  .chips button span { margin-left:4px; font-variant-numeric:tabular-nums; }
+  /* On a phone the topics are one swipeable row, not six wrapped rows above the first post: it bleeds to the panel's edges, and a fade marks whichever end has more chips (data-fade, set by the script). */
+  @media (max-width:639px) {
+    .chips { flex-wrap:nowrap; overflow-x:auto; overscroll-behavior-x:contain; margin:8px -16px 0; padding:4px 16px; scroll-padding-inline:16px; scrollbar-width:thin; }
+    /* Every chip, not only the blog finder's buttons: the podcast index's topic links share this row, and without flex:none they shrank to wrapped 105 px pills. */
+    .chips > * { flex:none; white-space:nowrap; min-height:32px; }
+    .chips > a { display:inline-flex; align-items:center; margin:0; }
+    .chips[data-fade=end] { -webkit-mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,#000 calc(100% - 40px),transparent); }
+    .chips[data-fade=start] { -webkit-mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to left,#000 calc(100% - 40px),transparent); }
+    .chips[data-fade=both] { -webkit-mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); mask-image:linear-gradient(to right,transparent,#000 40px,#000 calc(100% - 40px),transparent); }
+  }
+  @media (max-width:639px) and (pointer:coarse) { .chips { scrollbar-width:none; } .chips::-webkit-scrollbar { display:none; } }
+  .finder .foot { display:flex; align-items:center; justify-content:space-between; gap:10px; margin:10px 0 0; }
+  .finder #clear { font:inherit; font-size:.8rem; min-height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--line); background:var(--bg); color:var(--muted); cursor:pointer; flex:none; }
   .posts h3 { font-size:1.12rem; margin:0 0 .3em; line-height:1.3; } .posts h3 a { color:inherit; text-decoration:none; } .posts h3 a:hover { color:var(--accent); }
   section[id^="topic-"] { scroll-margin-top:16px; }
-  #count { margin:10px 0 0; font-size:.85rem; color:var(--muted); }
+  #count { margin:0; font-size:.85rem; color:var(--muted); }
   .topic { display:inline-block; font-size:.78rem; font-weight:600; padding:2px 9px; border-radius:999px; border:1px solid var(--accent); color:var(--accent); }
   .meta a.tag, .meta a.topic { text-decoration:none; }
+  /* A post's byline: the topic pill with date and reading time (kept whole), then a row of tags with Source at its right end, so no separator dot is ever left at the start of a wrapped line. */
+  .post-meta { display:flex; flex-wrap:wrap; align-items:center; gap:8px .65em; line-height:1.5; }
+  .post-meta .when, .post-meta .src { white-space:nowrap; }
+  .post-meta .tail { flex-basis:100%; display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; }
+  .post-meta .tags { display:flex; flex-wrap:wrap; gap:6px; }
+  .post-meta .tag { margin:0; }
+  .post-meta .src { margin-left:auto; }
   .pager { display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; margin:2em 0 0; font-size:.92rem; }
+  /* Every topic's page, as links (the finder's chips are script-only buttons). Wraps: it sits below the list, not above it. */
+  .topic-nav { margin:2.2em 0 0; padding-top:1.2em; border-top:1px solid var(--line); }
+  .topic-nav h2 { font-size:1rem; margin:0 0 .6em; }
+  .topic-nav ul { list-style:none; display:flex; flex-wrap:wrap; gap:8px; margin:0; padding:0; }
+  .topic-nav a, .topic-nav [aria-current] { display:inline-flex; align-items:center; min-height:32px; padding:0 12px; border-radius:999px; border:1px solid var(--line); background:var(--panel); color:var(--ink); font-size:.85rem; text-decoration:none; }
+  .topic-nav a:hover, .topic-nav a:focus-visible { border-color:var(--accent); color:var(--accent); }
+  .topic-nav [aria-current] { background:var(--accent); border-color:var(--accent); color:var(--bg); font-weight:600; }
+  .topic-nav .n { margin-left:6px; font-weight:400; font-variant-numeric:tabular-nums; } .topic-nav a .n { color:var(--muted); }
+  /* "By project" above a topic's list: a divider below it instead of above. */
+  .topic-nav.lead { margin:0 0 1.6em; padding:0 0 1.2em; border-top:0; border-bottom:1px solid var(--line); }
+  .topic-nav.lead .meta { margin:.8em 0 0; }
+  /* On a phone the 17 projects wrapped to nine rows (545 px) above the first post: one sideways row
+     instead, bleeding into the gutter, faded at the right edge. The end padding lets the last chip
+     clear the fade once scrolled, so no script is needed to flip it. */
+  @media (max-width:639px) {
+    .topic-nav.lead ul { flex-wrap:nowrap; overflow-x:auto; margin:0 -16px; padding:4px 40px 4px 16px; scrollbar-width:thin;
+      -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 32px), transparent); }
+    .topic-nav.lead li { flex:none; }
+  }
   .vh { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 `;
 
@@ -304,6 +568,23 @@ export { TITLE_BUDGET };
 export function postPageTitle(headline) {
   const full = `${headline} · ${SITE_NAME}`;
   return full.length <= TITLE_BUDGET ? full : headline;
+}
+
+// A description may quote code (`curl | bash`). Before 2026-11-14 it went through esc() only, so the
+// dek, the blog cards and every search snippet showed the backticks; six posts did. Code spans only:
+// a description is one plain sentence, so emphasis and links are not read.
+const DESC_CODE = /(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)/g;
+const trimTicks = (c) => (c.length > 2 && c.startsWith(' ') && c.endsWith(' ') && c.trim() ? c.slice(1, -1) : c);
+export const plainDescription = (d) => String(d ?? '').replace(DESC_CODE, (_, _t, c) => trimTicks(c));
+export function descriptionHtml(d) {
+  const src = String(d ?? '');
+  let out = '';
+  let last = 0;
+  for (const m of src.matchAll(DESC_CODE)) {
+    out += esc(src.slice(last, m.index)) + `<code>${esc(trimTicks(m[2]))}</code>`;
+    last = m.index + m[0].length;
+  }
+  return out + esc(src.slice(last));
 }
 
 function shell({ title, description, canonical, toRoot, crumbs, hero = '', body, jsonLd, breadcrumb, feedHref, socialCard, podcastFeedHref, current = 'writing', robots = '' }) {
@@ -406,7 +687,13 @@ const FINDER_SCRIPT = `(() => {
     a.href = r[0] + '/'; a.textContent = r[1]; h.appendChild(a);
     const d = document.createElement('p'); d.textContent = r[2];
     const m = document.createElement('p'); m.className = 'meta';
-    m.textContent = r[6] + ' · ' + r[3] + ' · ' + r[4] + ' min read';
+    // The same markup as a server-rendered card (renderIndex), so a search result looks like the list it came from.
+    const tp = document.createElement('span'); tp.className = 'topic'; tp.textContent = r[6];
+    const w = document.createElement('span'); w.className = 'when';
+    const t = document.createElement('time'); t.dateTime = r[3];
+    t.textContent = new Date(r[3] + 'T00:00:00Z').toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC' });
+    w.appendChild(t); w.appendChild(document.createTextNode(' · ' + r[4] + ' min read'));
+    m.appendChild(tp); m.appendChild(document.createTextNode(' ')); m.appendChild(w);
     li.appendChild(h); li.appendChild(d); li.appendChild(m);
     return li;
   }
@@ -435,7 +722,8 @@ const FINDER_SCRIPT = `(() => {
     items.slice().sort(order[sort.value]).forEach((li) => list.appendChild(li));
     chips.forEach((c) => c.setAttribute('aria-pressed', String(c.dataset.topicChip === topic)));
     const of = allUrl && !filtering ? total : allUrl && !allItems ? total : items.length;
-    count.textContent = !filtering ? of + ' posts' : (allUrl && !allItems ? 'Searching ' + of + ' posts...' : shown + ' of ' + of + ' posts');
+    const num = (n) => Number(n).toLocaleString('en-US');
+    count.textContent = !filtering ? num(of) + ' posts' : (allUrl && !allItems ? 'Searching ' + num(of) + ' posts...' : num(shown) + ' of ' + num(of) + ' posts');
     none.hidden = shown > 0 || Boolean(allUrl && filtering && !allItems);
     const p = new URLSearchParams();
     if (q.value.trim()) p.set('q', q.value.trim());
@@ -449,9 +737,27 @@ const FINDER_SCRIPT = `(() => {
   tag.addEventListener('change', apply);
   sort.addEventListener('change', apply);
   chips.forEach((c) => c.addEventListener('click', () => { topic = c.dataset.topicChip; apply(); }));
+  // The phone layout scrolls the chip row sideways: fade the end that has more, and bring a topic
+  // chosen from the URL into view without moving the page.
+  const row = chips.length ? chips[0].parentElement : null;
+  function fade() {
+    const more = row.scrollWidth - row.clientWidth;
+    const atStart = row.scrollLeft <= 1, atEnd = row.scrollLeft >= more - 1;
+    if (more <= 1) row.removeAttribute('data-fade');
+    else row.dataset.fade = atStart ? 'end' : atEnd ? 'start' : 'both';
+  }
+  if (row) {
+    row.addEventListener('scroll', fade, { passive: true });
+    addEventListener('resize', fade);
+  }
   document.getElementById('clear').addEventListener('click', () => { q.value = ''; tag.value = ''; topic = ''; sort.value = 'new'; apply(); q.focus(); });
   document.getElementById('finder').hidden = false;
   apply();
+  if (row) {
+    const on = chips.find((c) => c.dataset.topicChip === topic);
+    if (topic && on && row.scrollWidth > row.clientWidth) row.scrollLeft = on.offsetLeft - row.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
+    fade();
+  }
 })();`;
 
 /** Search box, topic chips, tag and sort menus. Hidden until the script runs, so a reader without JavaScript sees the plain list. */
@@ -462,8 +768,8 @@ function renderFinder(posts) {
     topicCounts.set(p.topic, (topicCounts.get(p.topic) || 0) + 1);
     for (const t of p.tags) tagCounts.set(t, (tagCounts.get(t) || 0) + 1);
   }
-  const chips = [`<button type="button" data-topic-chip="" aria-pressed="true">All<span>${posts.length}</span></button>`]
-    .concat(TOPICS.filter((t) => topicCounts.get(t.id)).map((t) => `<button type="button" data-topic-chip="${esc(t.id)}" aria-pressed="false" title="${esc(t.blurb)}">${esc(t.label)}<span>${topicCounts.get(t.id)}</span></button>`))
+  const chips = [`<button type="button" data-topic-chip="" aria-pressed="true">All<span>${formatCount(posts.length)}</span></button>`]
+    .concat(TOPICS.filter((t) => topicCounts.get(t.id)).map((t) => `<button type="button" data-topic-chip="${esc(t.id)}" aria-pressed="false" title="${esc(t.blurb)}">${esc(t.label)}<span>${formatCount(topicCounts.get(t.id))}</span></button>`))
     .join('');
   const tags = [...tagCounts].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
   return `<form id="finder" class="finder" role="search" hidden onsubmit="return false">
@@ -473,9 +779,8 @@ function renderFinder(posts) {
 <div class="row">
 <label>Tag <select id="tag"><option value="">Any tag</option>${tags.map(([t, n]) => `<option value="${esc(t)}">${esc(t)} (${n})</option>`).join('')}</select></label>
 <label>Sort <select id="sort"><option value="new">Newest first</option><option value="old">Oldest first</option><option value="short">Shortest read</option><option value="long">Longest read</option></select></label>
-<button type="button" id="clear">Clear</button>
 </div>
-<p id="count" aria-live="polite">${posts.length} posts</p>
+<div class="foot"><p id="count" aria-live="polite">${formatCount(posts.length)} posts</p><button type="button" id="clear">Clear filters</button></div>
 </form>`;
 }
 
@@ -501,14 +806,242 @@ export function renderPostRows(posts) {
 
 const pageCount = (posts) => Math.max(1, Math.ceil(posts.length / PAGE_SIZE));
 
-/** The newer/older links and every page number, so any post is at most two clicks from the index. */
-function renderPager(n, count, prefix) {
+/** Pages a windowed pager shows: the first, the last and `PAGER_SPAN` either side of the current one; a run of one hidden page shows that page instead of a gap. */
+export const PAGER_SPAN = 2;
+export function pagerWindow(n, count, span = PAGER_SPAN) {
+  const keep = new Set([1, count]);
+  for (let i = n - span; i <= n + span; i++) if (i >= 1 && i <= count) keep.add(i);
+  const pages = [...keep].sort((a, b) => a - b);
+  const out = [];
+  for (const i of pages) {
+    const last = out.length ? out[out.length - 1] : 0;
+    if (last && i - last === 2) out.push(last + 1);
+    else if (last && i - last > 2) out.push(null);
+    out.push(i);
+  }
+  return out;
+}
+
+/**
+ * The newer/older links, a short windowed row of page numbers, and (when the window hides some)
+ * every page number in a closed `<details>`, so any post stays at most two clicks from the index
+ * without a 98-link wall of numbers.
+ */
+export function renderPager(n, count, prefix) {
   if (count <= 1) return '';
   const href = (i) => (i === 1 ? `${prefix}` || './' : `${prefix}page/${i}/`);
-  const numbers = Array.from({ length: count }, (_, k) => k + 1)
-    .map((i) => (i === n ? `<span aria-current="page">${i}</span>` : `<a href="${href(i)}">${i}</a>`))
-    .join(' ');
-  return `<nav class="pager" id="pager" aria-label="Pages of posts"><p>Page ${n} of ${count}: ${n > 1 ? `<a rel="prev" href="${href(n - 1)}">newer</a>` : 'newer'} · ${n < count ? `<a rel="next" href="${href(n + 1)}">older</a>` : 'older'}</p><p class="nums">${numbers}</p></nav>`;
+  const num = (i) => (i === n ? `<span aria-current="page">${i}</span>` : `<a href="${href(i)}">${i}</a>`);
+  const win = pagerWindow(n, count);
+  const windowed = win.map((i) => (i === null ? '<span class="gap" aria-hidden="true">…</span>' : num(i))).join(' ');
+  const all = win.includes(null)
+    ? `<details class="all"><summary>All ${count} pages</summary><p class="nums">${Array.from({ length: count }, (_, k) => (k + 1 === n ? `<span class="here">${k + 1}</span>` : `<a href="${href(k + 1)}">${k + 1}</a>`)).join(' ')}</p></details>`
+    : '';
+  return `<nav class="pager" id="pager" aria-label="Pages of posts"><p>Page ${n} of ${count}: ${n > 1 ? `<a rel="prev" href="${href(n - 1)}">newer</a>` : 'newer'} · ${n < count ? `<a rel="next" href="${href(n + 1)}">older</a>` : 'older'}</p><p class="nums">${windowed}</p>${all}</nav>`;
+}
+
+/** The post cards an index lists; `up` climbs from the page to the blog's folder. A topic's own page leaves out the topic pill every card would repeat. */
+function renderCards(posts, up = '', { topicPill = true } = {}) {
+  return posts
+    .map(
+      (p) => `<li data-slug="${esc(p.slug)}" data-topic="${esc(p.topic)}" data-tags="${esc(p.tags.join(' '))}" data-date="${p.date}" data-mins="${p.minutes}" data-text="${esc(cardText(p))}">
+  <h2><a href="${up}${esc(p.slug)}/">${esc(p.title)}</a></h2>
+  <p>${p.descriptionHtml ?? esc(p.description)}</p>
+  <p class="meta">${topicPill ? `<span class="topic">${esc(topicLabel(p.topic))}</span> ` : ''}<span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${p.minutes} min read</span></p>
+</li>`,
+    )
+    .join('\n');
+}
+
+/**
+ * Links to every topic's page, with its post count: a list a crawler and a reader without
+ * JavaScript can follow, since the finder's chips are buttons in a form hidden until its
+ * script runs. `toTopics` climbs from the page to `writing/topic/`.
+ */
+export function renderTopicNav(posts, { toTopics = 'topic/', current = '', heading = 'Browse by topic' } = {}) {
+  const counts = new Map();
+  for (const p of posts) counts.set(p.topic, (counts.get(p.topic) || 0) + 1);
+  const links = TOPICS.filter((t) => counts.get(t.id)).map((t) =>
+    t.id === current
+      ? `<li><span aria-current="page">${esc(t.label)} <span class="n">${formatCount(counts.get(t.id))}</span></span></li>`
+      : `<li><a href="${toTopics}${esc(t.id)}/">${esc(t.label)} <span class="n">${formatCount(counts.get(t.id))}</span></a></li>`,
+  );
+  if (!links.length) return '';
+  return `<nav class="topic-nav" aria-labelledby="topic-nav-h"><h2 id="topic-nav-h">${esc(heading)}</h2><ul>${links.join('')}</ul></nav>`;
+}
+
+/**
+ * One topic's page: `writing/topic/<id>/`, the topic's newest PAGE_SIZE posts, and
+ * `writing/topic/<id>/page/<n>/` (noindex, like the blog's own numbered pages) for the rest.
+ * It gives each topic a URL with its own title and description for search results; the
+ * blog's `?topic=` filter is a query string its script reads, which a crawler never sees.
+ */
+export function renderTopicPage(allPosts, topicId, { baseUrl = '', socialCard = '', page = 1, projects = [] } = {}) {
+  const topic = TOPICS.find((t) => t.id === topicId);
+  if (!topic) throw new Error(`renderTopicPage: no topic "${topicId}"`);
+  const mine = allPosts.filter((p) => p.topic === topicId);
+  const count = pageCount(mine);
+  const sub = page > 1;
+  const here = `${TOPIC_PATH}${topicId}/`;
+  const canonical = baseUrl ? `${baseUrl}${here}${sub ? `page/${page}/` : ''}` : '';
+  const toBlog = sub ? '../../../../' : '../../';
+  const toRoot = `${toBlog}../`;
+  const posts = mine.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const n = formatCount(mine.length);
+  const title = sub ? `${topic.label}, page ${page} · ${SITE_NAME}` : postPageTitle(topic.seo);
+  const first = (page - 1) * PAGE_SIZE + 1;
+  return shell({
+    title,
+    // The count only when it fits a search snippet (160 characters).
+    description: [`${topic.blurb} ${n} ${mine.length === 1 ? 'post' : 'posts'}, newest first.`, topic.blurb].find((d) => d.length <= 160) ?? topic.blurb,
+    canonical,
+    socialCard,
+    toRoot,
+    robots: sub ? 'noindex' : '',
+    crumbs: `<a href="${toBlog}">Blog</a> › ${sub ? `<a href="../../">${esc(topic.label)}</a> › Page ${page}` : esc(topic.label)}`,
+    feedHref: `${toBlog}feed.xml`,
+    breadcrumb: baseUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { name: SITE_NAME, item: baseUrl },
+            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            { name: topic.label, item: `${baseUrl}${here}` },
+          ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+        }
+      : undefined,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: topic.seo,
+      description: topic.blurb,
+      url: canonical || undefined,
+      isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${WRITING_PATH}` : undefined },
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: mine.length,
+        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${WRITING_PATH}${p.slug}/` : undefined })),
+      },
+    },
+    hero: `<p class="eyebrow">Blog topic</p>
+<h1>${esc(topic.label)}${sub ? `, page ${page}` : ''}</h1>
+<p class="dek">${esc(topic.blurb)}</p>
+<p class="meta">${sub ? `Posts ${first} to ${first + posts.length - 1} of ${n}, newest first.` : `${n} ${mine.length === 1 ? 'post' : 'posts'}, newest first.`} <a href="${toBlog}?topic=${esc(topicId)}">Search within this topic</a> · <a href="${toBlog}">every post</a></p>`,
+    body: `${sub ? '' : renderProjectNav(projects, mine.length, { heading: topicId === 'research' ? 'By programme' : 'By project' })}<ul class="posts" id="posts">
+${renderCards(posts, toBlog, { topicPill: false })}
+</ul>
+${renderPager(page, count, sub ? '../../' : '')}
+${renderTopicNav(allPosts, { toTopics: `${toBlog}topic/`, current: topicId, heading: 'Other topics' })}`,
+  });
+}
+
+/** `text` within TITLE_BUDGET: whole, else up to its first "?" when that fits, else cut at a word with "…". */
+export function clipTitle(text) {
+  if (text.length <= TITLE_BUDGET) return text;
+  const q = text.indexOf('?');
+  if (q > 0 && q < TITLE_BUDGET) return text.slice(0, q + 1);
+  const cut = text.slice(0, TITLE_BUDGET - 1);
+  return `${cut.slice(0, cut.lastIndexOf(' ') > 0 ? cut.lastIndexOf(' ') : cut.length).replace(/[,:;]$/, '')}…`;
+}
+
+/**
+ * The "By project" links at the top of a topic's first page: each project with its own page
+ * (`projectGroups`), with its post count. `toProjects` climbs from the page to the topic's folder.
+ */
+export function renderProjectNav(projects, total, { toProjects = '', current = '', heading = 'By project' } = {}) {
+  if (!projects.length) return '';
+  const grouped = projects.reduce((n, g) => n + g.count, 0);
+  const links = projects.map((g) =>
+    g.slug === current
+      ? `<li><span aria-current="page">${esc(g.name)} <span class="n">${formatCount(g.count)}</span></span></li>`
+      : `<li><a href="${toProjects}${esc(g.slug)}/"${g.question ? ` title="${esc(g.question)}"` : ''}>${esc(g.name)} <span class="n">${formatCount(g.count)}</span></a></li>`,
+  );
+  const kind = projects[0].topic === 'research' ? 'programmes' : 'projects';
+  const note = current ? '' : `<p class="meta">${formatCount(grouped)} of ${formatCount(total)} posts are about these ${projects.length} ${kind}; all ${formatCount(total)} are listed below, newest first.</p>`;
+  return `<nav class="topic-nav project-nav${current ? '' : ' lead'}" aria-labelledby="project-nav-h"><h2 id="project-nav-h">${esc(heading)}</h2><ul>${links.join('')}</ul>${note}</nav>\n`;
+}
+
+/**
+ * One project's posts: `writing/topic/tools/<slug>/` (newest PAGE_SIZE) and `…/page/<n>/`
+ * (noindex). A build log a reader of one tool can follow, and a page a search for
+ * "<tool> blog" or "how <tool> was built" can land on. `toolHref` (from the site root) links
+ * the tool itself when the site serves it.
+ */
+export function renderProjectPage(allPosts, project, { baseUrl = '', socialCard = '', page = 1, projects = [], toolHref = '' } = {}) {
+  const topicId = project.topic || 'tools';
+  const research = topicId === 'research';
+  const topic = TOPICS.find((t) => t.id === topicId);
+  const mine = allPosts.filter((p) => p.topic === topicId && p.project === project.slug);
+  const count = pageCount(mine);
+  const sub = page > 1;
+  const topicHere = `${TOPIC_PATH}${topicId}/`;
+  const here = `${topicHere}${project.slug}/`;
+  const canonical = baseUrl ? `${baseUrl}${here}${sub ? `page/${page}/` : ''}` : '';
+  const toBlog = sub ? '../../../../../' : '../../../';
+  const toTopic = sub ? '../../../' : '../';
+  const toRoot = `${toBlog}../`;
+  const posts = mine.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const n = formatCount(mine.length);
+  // A research programme's page leads with the question it asks (its registry card title):
+  // the words a search for the finding uses, where the slug is only a folder name.
+  const question = research ? project.question || '' : '';
+  const seo = research ? `${project.name} findings${question ? `: ${question}` : ', post by post'}` : `${project.name}: how it was built, post by post`;
+  // Some questions run to 235 characters: the title tag keeps the first sentence, or clips at a word, to TITLE_BUDGET.
+  const title = sub ? `${project.name} posts, page ${page} · ${SITE_NAME}` : postPageTitle(clipTitle(seo));
+  const first = (page - 1) * PAGE_SIZE + 1;
+  const blurb = research
+    ? `Every blog post from the ${project.name} research programme: each finding, with its numbers, caveats and negative results.`
+    : `Every blog post about ${project.name}: what was built, what was measured and what changed.`;
+  // A programme's dek says what it asks or found (its registry summary's opening sentences);
+  // the generic line is the fallback. The meta row below still says what the list is.
+  // A tool's dek is its llms.txt summary (`ventureLede`), since 2026-11-16.
+  const lede = !sub ? project.lede || '' : '';
+  const openLabel = research ? `Read the ${project.name} programme` : `Open ${project.name}`;
+  return shell({
+    title,
+    description: lede ? researchLede(lede, 160, { stretch: 1 }) : [`${blurb} ${n} posts, newest first.`, blurb].find((d) => d.length <= 160) ?? blurb,
+    canonical,
+    socialCard,
+    toRoot,
+    robots: sub ? 'noindex' : '',
+    crumbs: `<a href="${toBlog}">Blog</a> › <a href="${toTopic}">${esc(topic.label)}</a> › ${sub ? `<a href="../../">${esc(project.name)}</a> › Page ${page}` : esc(project.name)}`,
+    feedHref: `${toBlog}feed.xml`,
+    breadcrumb: baseUrl
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'BreadcrumbList',
+          itemListElement: [
+            { name: SITE_NAME, item: baseUrl },
+            { name: BLOG.name, item: `${baseUrl}${WRITING_PATH}` },
+            { name: topic.label, item: `${baseUrl}${topicHere}` },
+            { name: project.name, item: `${baseUrl}${here}` },
+          ].map((crumb, i) => ({ '@type': 'ListItem', position: i + 1, ...crumb })),
+        }
+      : undefined,
+    jsonLd: {
+      '@context': 'https://schema.org',
+      '@type': 'CollectionPage',
+      name: seo,
+      description: lede || blurb,
+      url: canonical || undefined,
+      isPartOf: { '@type': 'Blog', name: BLOG.feedTitle, url: baseUrl ? `${baseUrl}${WRITING_PATH}` : undefined },
+      ...(toolHref && baseUrl ? { about: { '@type': research ? 'ResearchProject' : 'SoftwareApplication', name: question || project.name, url: `${baseUrl}${toolHref}` } } : {}),
+      mainEntity: {
+        '@type': 'ItemList',
+        numberOfItems: mine.length,
+        itemListElement: posts.map((p, i) => ({ '@type': 'ListItem', position: first + i, name: p.title, url: baseUrl ? `${baseUrl}${WRITING_PATH}${p.slug}/` : undefined })),
+      },
+    },
+    hero: `<p class="eyebrow">${research ? `Research programme · ${esc(project.name)}` : 'Project log'}</p>
+<h1>${esc(question || project.name)}${sub ? `, page ${page}` : ''}</h1>
+<p class="dek">${esc(lede || blurb)}</p>
+<p class="meta">${sub ? `Posts ${first} to ${first + posts.length - 1} of ${n}, newest first.` : `${n} posts, newest first.`}${toolHref ? ` <a href="${toRoot}${esc(toolHref)}">${esc(openLabel)}</a> ·` : ''} <a href="${toTopic}">all ${esc(topic.label.toLowerCase())}</a></p>`,
+    body: `<ul class="posts" id="posts">
+${renderCards(posts, toBlog, { topicPill: false })}
+</ul>
+${renderPager(page, count, sub ? '../../' : '')}
+${renderProjectNav(projects, 0, { toProjects: `${toTopic}`, current: project.slug, heading: research ? 'Other programmes' : 'Other projects' })}`,
+  });
 }
 
 /**
@@ -523,18 +1056,10 @@ export function renderIndex(allPosts, { baseUrl = '', socialCard = '', episodes 
   const toRoot = '../'.repeat(section.depth + (sub ? 2 : 0));
   const up = sub ? '../../' : '';
   const posts = allPosts.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const items = posts
-    .map(
-      (p) => `<li data-slug="${esc(p.slug)}" data-topic="${esc(p.topic)}" data-tags="${esc(p.tags.join(' '))}" data-date="${p.date}" data-mins="${p.minutes}" data-text="${esc(cardText(p))}">
-  <h2><a href="${up}${esc(p.slug)}/">${esc(p.title)}</a></h2>
-  <p>${esc(p.description)}</p>
-  <p class="meta"><span class="topic">${esc(topicLabel(p.topic))}</span> <time class="date" datetime="${p.date}">${longDate(p.date)}</time> <span class="mins">${p.minutes} min read</span></p>
-</li>`,
-    )
-    .join('\n');
+  const items = renderCards(posts, up);
   const isAgents = section.id === 'agents';
   const dek = sub
-    ? `<p class="dek">Older posts, ${(page - 1) * PAGE_SIZE + 1} to ${(page - 1) * PAGE_SIZE + posts.length} of ${allPosts.length}. <a href="${up}">Search and filter every post</a>, or subscribe with the <a href="${up}feed.xml">Atom feed</a>.</p>`
+    ? `<p class="dek">Older posts, ${(page - 1) * PAGE_SIZE + 1} to ${(page - 1) * PAGE_SIZE + posts.length} of ${formatCount(allPosts.length)}. <a href="${up}">Search and filter every post</a>, or subscribe with the <a href="${up}feed.xml">Atom feed</a>.</p>`
     : isAgents
     ? `<p class="dek">Written by AI agents, for AI agents. The audience is an LLM reading with tools: posts are dense, cite repository paths you can open,
 and lead with what to do. People are welcome to read along. For a model, the plain-text entry points are
@@ -571,6 +1096,7 @@ ${items}
 </ul>
 ${pager}
 <p id="none" hidden>No post matches. <button type="button" onclick="document.getElementById('clear').click()">Clear the filters</button></p>
+${isAgents ? '' : renderTopicNav(allPosts)}
 <script>${FINDER_SCRIPT}</script>`,
   });
 }
@@ -580,12 +1106,25 @@ export function linkSiblings(html, posts) {
   // One pass over the page's hrefs, not one scan of the page per post. The
   // replacement never contains REPO_BLOB, so the old chain of replaces and this
   // lookup agree; the first post with a given source wins, as before.
+  const to = siblingTargets(posts);
+  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
+}
+
+// The source -> page map for one posts array, built once and reused for every
+// post page (as `relatedIndex` is). Rebuilding it per page was 3,700 posts x
+// 3,700 pages x two `esc` calls, about 8 s of a warm build (2026-11-12). The
+// length check rebuilds it if a caller grows the array between pages.
+const SIBLING_TARGETS = new WeakMap();
+function siblingTargets(posts) {
+  const cached = SIBLING_TARGETS.get(posts);
+  if (cached && cached.n === posts.length) return cached.to;
   const to = new Map();
   for (const p of posts) {
     const from = esc(REPO_BLOB + p.source);
     if (!to.has(from)) to.set(from, `href="../${esc(p.slug)}/"`);
   }
-  return html.replace(/href="([^"]*)"/g, (m, v) => to.get(v) ?? m);
+  SIBLING_TARGETS.set(posts, { n: posts.length, to });
+  return to;
 }
 
 export function renderPost(post, posts, opts = {}) {
@@ -594,14 +1133,140 @@ export function renderPost(post, posts, opts = {}) {
   return baseUrl && baseUrl !== DEFAULT_SITE_ORIGIN ? html.split(DEFAULT_SITE_ORIGIN).join(baseUrl) : html;
 }
 
-/** Up to `n` other posts, same topic first (newest first), then the newest of the rest. */
-export function relatedPosts(post, posts, n = 5) {
-  const others = posts.filter((p) => p.slug !== post.slug);
-  const same = others.filter((p) => p.topic === post.topic);
-  return same.concat(others.filter((p) => p.topic !== post.topic)).slice(0, n);
+// Title words too common to say two posts are about the same thing.
+const RELATED_STOPWORDS = new Set(
+  ('about after again against also although among another because been before being between both cannot could does doing ' +
+    'down during each every first from have having here into itself just last made make more most much must never none ' +
+    'only other over same should since some still such than that their them then there these they this those three ' +
+    'through under until very were what when where which while whose will with without would your')
+    .split(' '),
+);
+const titleWords = (title = '') =>
+  new Set(String(title).toLowerCase().match(/[a-z0-9][a-z0-9'-]{3,}/g)?.filter((w) => !RELATED_STOPWORDS.has(w)) ?? []);
+
+// The scoring index for one posts array, built once and reused for every post page.
+const RELATED_INDEX = new WeakMap();
+function relatedIndex(posts) {
+  let index = RELATED_INDEX.get(posts);
+  if (index) return index;
+  const byTag = new Map();
+  const byWord = new Map();
+  const words = new Map();
+  posts.forEach((p, i) => {
+    for (const t of new Set(p.tags ?? [])) (byTag.get(t) ?? byTag.set(t, []).get(t)).push(i);
+    const w = titleWords(p.title);
+    words.set(p, w);
+    for (const x of w) (byWord.get(x) ?? byWord.set(x, []).get(x)).push(i);
+  });
+  // A tag or word shared by more than a fifth of the posts says little; leaving it out
+  // of the candidate lists also keeps the build linear-ish (3,700 posts, 2026-11-12).
+  const cap = Math.max(2, Math.floor(posts.length / 5));
+  const idf = (list) => (list && list.length > 1 && list.length <= cap ? Math.log(posts.length / list.length) : 0);
+  // Each post's date as a day number, by index: the nearest-in-date sorts
+  // below compare thousands of pairs per post page, and parsing the date in
+  // every comparison was about 2 s of a warm build (2026-11-12).
+  const days = posts.map((p) => dayNumber(p.date));
+  index = { byTag, byWord, words, idf, days };
+  RELATED_INDEX.set(posts, index);
+  return index;
 }
 
-function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG } = {}) {
+const dayNumber = (iso) => (iso ? Date.parse(`${iso}T00:00:00Z`) / 86400000 : 0);
+
+/**
+ * Up to `n` other posts ranked by how related they are to `post` (the list
+ * before `relatedPosts` balances it).
+ *
+ * Until 2026-11-12 this was "same topic, newest first", so every post in a topic
+ * linked to the same five posts (the newest ones, alphabetical within a day):
+ * 36 of 3,717 posts received every related link and 3,681 received none. Now
+ * the score is the shared tags plus half the shared title words, each weighted
+ * by how rare it is (log N / df), ties going to the post nearest in date. When
+ * fewer than `n` posts share anything, the rest are the same topic's posts
+ * nearest in date, then the other topics' in the same order. A post never
+ * lists itself.
+ */
+export function rankRelated(post, posts, n = 5) {
+  const { byTag, byWord, words, idf, days } = relatedIndex(posts);
+  const score = new Map();
+  const add = (list, weight) => {
+    if (!weight) return;
+    for (const i of list) score.set(i, (score.get(i) ?? 0) + weight);
+  };
+  for (const t of new Set(post.tags ?? [])) add(byTag.get(t) ?? [], idf(byTag.get(t)));
+  for (const w of words.get(post) ?? titleWords(post.title)) add(byWord.get(w) ?? [], idf(byWord.get(w)) / 2);
+  // Entries are { p: post, i: its index in `posts`, s: score }.
+  const day = dayNumber(post.date);
+  const gap = (x) => Math.abs((days[x.i] ?? dayNumber(x.p.date)) - day);
+  const nearest = (a, b) => gap(a) - gap(b) || a.i - b.i;
+  const ranked = [...score]
+    .map(([i, s]) => ({ p: posts[i], i, s }))
+    .filter((x) => x.s > 0 && x.p.slug !== post.slug)
+    .sort((a, b) => b.s - a.s || nearest(a, b))
+    .slice(0, n)
+    .map((x) => x.p);
+  if (ranked.length >= n) return ranked;
+  const taken = new Set(ranked.map((p) => p.slug).concat(post.slug));
+  const rest = posts.map((p, i) => ({ p, i })).filter((x) => !taken.has(x.p.slug));
+  const fill = (xs) => xs.sort(nearest).map((x) => x.p);
+  return ranked
+    .concat(fill(rest.filter((x) => x.p.topic === post.topic)), fill(rest.filter((x) => x.p.topic !== post.topic)))
+    .slice(0, n);
+}
+
+// The balanced lists for one posts array and list length, built once.
+const RELATED_TABLES = new WeakMap();
+// How far down an orphan's own ranking to look for a post that can link back.
+const ORPHAN_REACH = 20;
+
+/**
+ * Up to `n` other posts a reader of `post` would most likely want next: the
+ * `rankRelated` list, balanced so every post is linked from at least one other.
+ *
+ * Ranking alone left 204 of 3,936 posts with no inbound related link (2026-11-12):
+ * a post whose best matches each had five closer matches of their own. For each
+ * such orphan, in posts order, this walks the orphan's own ranking (its best
+ * matches first) and gives the first post that can spare a slot a link back,
+ * in that post's last (weakest) slot. A post spares a slot when it does not
+ * already list the orphan, has not given a slot yet, and the post in its last
+ * slot is linked from somewhere else too, so no fix makes a new orphan. The
+ * score is symmetric, so the link back is as strong as the orphan's own link.
+ */
+export function relatedPosts(post, posts, n = 5) {
+  // Rebuilt if a caller grows the array between pages, as `siblingTargets` is.
+  let cached = RELATED_TABLES.get(posts);
+  if (!cached || cached.length !== posts.length) RELATED_TABLES.set(posts, (cached = { length: posts.length, byN: new Map() }));
+  let table = cached.byN.get(n);
+  if (!table) cached.byN.set(n, (table = balancedRelated(posts, n)));
+  // A post not in the array (a preview) gets the plain ranking.
+  return table.get(post.slug) ?? rankRelated(post, posts, n);
+}
+
+function balancedRelated(posts, n) {
+  const lists = new Map(posts.map((p) => [p.slug, rankRelated(p, posts, n)]));
+  if (n < 1 || posts.length < 3) return lists;
+  const inbound = new Map(posts.map((p) => [p.slug, 0]));
+  for (const list of lists.values()) for (const r of list) inbound.set(r.slug, inbound.get(r.slug) + 1);
+  const gave = new Set();
+  const bySlug = new Map(posts.map((p) => [p.slug, p]));
+  for (const orphan of posts) {
+    if (inbound.get(orphan.slug) > 0) continue;
+    for (const c of rankRelated(orphan, posts, ORPHAN_REACH)) {
+      const list = lists.get(c.slug);
+      if (gave.has(c.slug) || list.length < n || list.some((r) => r.slug === orphan.slug)) continue;
+      const dropped = list[n - 1];
+      if (inbound.get(dropped.slug) < 2) continue;
+      lists.set(c.slug, list.slice(0, n - 1).concat(bySlug.get(orphan.slug)));
+      inbound.set(dropped.slug, inbound.get(dropped.slug) - 1);
+      inbound.set(orphan.slug, 1);
+      gave.add(c.slug);
+      break;
+    }
+  }
+  return lists;
+}
+
+function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = null, section = BLOG, projects = [] } = {}) {
   const canonical = baseUrl ? `${baseUrl}${section.path}${post.slug}/` : '';
   const isAgents = section.id === 'agents';
   const toRoot = '../'.repeat(section.depth + 1);
@@ -610,7 +1275,12 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
   const older = at >= 0 && at < posts.length - 1 ? posts[at + 1] : null;
   const related = relatedPosts(post, posts);
   const tags = post.tags.map((t) => `<a class="tag" href="../?tag=${encodeURIComponent(t)}">${esc(t)}</a>`).join('');
-  const topic = `<a class="topic" href="../?topic=${esc(post.topic)}">${esc(topicLabel(post.topic))}</a>`;
+  // A post on the people's blog links its topic's own page; the agent blog has no topic pages.
+  const topicHref = isAgents ? `../?topic=${esc(post.topic)}` : `../topic/${esc(post.topic)}/`;
+  const topic = `<a class="topic" href="${topicHref}">${esc(topicLabel(post.topic))}</a>`;
+  // The post's project page, when its project has one (`projectGroups`).
+  const project = !isAgents && post.project ? projects.find((g) => g.slug === post.project && (g.topic || 'tools') === post.topic) : undefined;
+  const projectLink = project ? ` · <a href="../${TOPIC_PATH.slice(WRITING_PATH.length)}${esc(post.topic)}/${esc(project.slug)}/">More on ${esc(project.name)}</a>` : '';
   const markdown = isAgents ? ` · <a href="../${esc(post.slug)}.txt" type="text/plain">Markdown (plain text)</a>` : '';
   return shell({
     title: postPageTitle(post.seoTitle || post.title),
@@ -649,17 +1319,16 @@ function renderPostPage(post, posts, { baseUrl = '', socialCard = '', episode = 
         : {}),
     },
     hero: `<h1>${esc(post.title)}</h1>
-<p class="dek">${esc(post.description)}</p>
-<p class="meta">${topic} <time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes} min read ·
-<a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}${tags ? `<br>${tags}` : ''}</p>`,
+<p class="dek">${post.descriptionHtml ?? esc(post.description)}</p>
+<p class="meta post-meta">${topic} <span class="when"><time datetime="${post.date}">${longDate(post.date)}</time> · ${post.minutes}&nbsp;min&nbsp;read</span> <span class="tail">${tags ? `<span class="tags">${tags}</span> ` : ''}<span class="src"><a href="${REPO_BLOB}${esc(post.source)}">Source</a>${markdown}</span></span></p>`,
     body: `<article>
 ${episode ? `${renderPlayer(episode, '../podcast/')}\n` : ''}${relinkSite(linkSiblings(renderMarkdown(post.body, { fromPath: post.source, dropTitle: true }), posts), toRoot)}
 </article>
-${newer || older ? `<nav class="pager" aria-label="Older and newer posts">${older ? `<a href="../${esc(older.slug)}/" rel="prev">← ${esc(older.title)}</a>` : '<span></span>'}${newer ? `<a href="../${esc(newer.slug)}/" rel="next">${esc(newer.title)} →</a>` : ''}</nav>` : ''}
-<section class="more" aria-label="More writing">
-<p><strong>More in ${esc(topicLabel(post.topic))}</strong></p>
-${related.length ? `<ul>${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a></li>`).join('')}</ul>` : ''}
-<p><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="../?topic=${esc(post.topic)}">All in this topic</a> · <a href="${toRoot}">All tools and research</a></p>
+<section class="more" aria-labelledby="related-h">
+${related.length ? `<h2 id="related-h">Related posts</h2>
+<ul class="related">${related.map((p) => `<li><a href="../${esc(p.slug)}/">${esc(p.title)}</a><span class="when"><time datetime="${p.date}">${longDate(p.date)}</time> · ${esc(topicLabel(p.topic))}</span></li>`).join('')}</ul>` : ''}
+${newer || older ? `<nav class="pager steps" aria-label="Older and newer posts">${older ? `<a href="../${esc(older.slug)}/" rel="prev"><span class="dir">← Older</span>${esc(older.title)}</a>` : '<span></span>'}${newer ? `<a href="../${esc(newer.slug)}/" rel="next" class="next"><span class="dir">Newer →</span>${esc(newer.title)}</a>` : ''}</nav>` : ''}
+<p class="all"><a href="../">All ${isAgents ? 'agent-to-agent posts' : 'writing'}</a> · <a href="${topicHref}">More in ${esc(topicLabel(post.topic))}</a>${projectLink} · <a href="${toRoot}">All tools and research</a></p>
 </section>`,
   });
 }
@@ -743,7 +1412,10 @@ export function renderPodcastIndex(episodes, { baseUrl = '', socialCard = '' } =
 }
 
 /** Write one blog's pages, feed and search index into `<outDir>/<section.path>`. */
-async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0 }) {
+/** The ids of the topics at least one post has, in TOPICS order. */
+export const topicIds = (posts) => TOPICS.map((t) => t.id).filter((id) => posts.some((p) => p.topic === id));
+
+async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebase, episodes = [], byPost = new Map(), agentPosts = 0, projects = [], published = new Set() }) {
   const dir = path.join(outDir, section.path);
   await fs.mkdir(dir, { recursive: true });
   await fs.writeFile(path.join(dir, 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts })));
@@ -756,11 +1428,44 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
       await fs.writeFile(path.join(dir, 'page', String(n), 'index.html'), rebase(renderIndex(posts, { baseUrl, socialCard, episodes, section, agentPosts, page: n })));
     }
   }
+  if (section.id === BLOG.id) {
+    for (const id of topicIds(posts)) {
+      const tdir = path.join(outDir, TOPIC_PATH, id);
+      await fs.mkdir(tdir, { recursive: true });
+      const groups = projects.filter((g) => (g.topic || 'tools') === id);
+      await fs.writeFile(path.join(tdir, 'index.html'), rebase(renderTopicPage(posts, id, { baseUrl, socialCard, projects: groups })));
+      const pages = pageCount(posts.filter((p) => p.topic === id));
+      for (let n = 2; n <= pages; n++) {
+        await fs.mkdir(path.join(tdir, 'page', String(n)), { recursive: true });
+        await fs.writeFile(path.join(tdir, 'page', String(n), 'index.html'), rebase(renderTopicPage(posts, id, { baseUrl, socialCard, page: n })));
+      }
+    }
+    for (const g of projects) {
+      const gtopic = g.topic || 'tools';
+      const pdir = path.join(outDir, TOPIC_PATH, gtopic, g.slug);
+      // A tool is served at `<slug>/`, a research programme at `research/<slug>/` (a registry entry has a page).
+      const href = gtopic === 'research' ? (g.question ? `research/${g.slug}/` : '') : published.has(g.slug) ? `${g.slug}/` : '';
+      const opts = { baseUrl, socialCard, projects: projects.filter((x) => (x.topic || 'tools') === gtopic), toolHref: href };
+      await fs.mkdir(pdir, { recursive: true });
+      await fs.writeFile(path.join(pdir, 'index.html'), rebase(renderProjectPage(posts, g, opts)));
+      for (let n = 2; n <= pageCount(Array(g.count)); n++) {
+        await fs.mkdir(path.join(pdir, 'page', String(n)), { recursive: true });
+        await fs.writeFile(path.join(pdir, 'page', String(n), 'index.html'), rebase(renderProjectPage(posts, g, { ...opts, page: n })));
+      }
+    }
+  }
   await fs.writeFile(path.join(dir, 'feed.xml'), rebase(renderFeed(posts, { baseUrl, section })));
   await fs.writeFile(path.join(dir, 'search.json'), rebase(renderSearchIndex(posts)));
+  // Sync on purpose, as in build.mjs's rewritePagesSync. Awaiting an
+  // fs.promises mkdir and write per post, one post at a time, sent ~9,500
+  // round trips through libuv's thread pool for files that take microseconds
+  // to write: the main thread sat idle for about 45% of this loop over 4,741
+  // posts (2026-11-15, docs/history/pages-build-perf-2026-11-15-writing-sync-writes.md).
+  // Nothing else in this process is in flight here (the research builder is a
+  // child process with no pipe to drain), so blocking holds nothing up.
   for (const post of posts) {
-    await fs.mkdir(path.join(dir, post.slug), { recursive: true });
-    await fs.writeFile(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section })));
+    mkdirSync(path.join(dir, post.slug), { recursive: true });
+    writeFileSync(path.join(dir, post.slug, 'index.html'), rebase(renderPost(post, posts, { baseUrl, socialCard, episode: byPost.get(post.slug), section, projects })));
   }
 }
 
@@ -775,7 +1480,8 @@ async function writeSection(outDir, posts, section, { baseUrl, socialCard, rebas
 // the address the site is actually built for, the way rewriteOrigin in
 // build.mjs treats venture pages. A relative link cannot do this: in a post,
 // relative paths are repository paths and render as GitHub links.
-export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '' } = {}) {
+// `published` holds the slugs the site serves at `<slug>/`, so a project page links its tool.
+export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, socialCard = '', originAlias = '', published = new Set() } = {}) {
   const posts = loadPosts(root);
   const agentPosts = loadPosts(root, AGENT_POSTS_DIR);
   const topicByPost = new Map(posts.map((p) => [p.slug, p.topic]));
@@ -783,12 +1489,18 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   const byPost = new Map(episodes.map((ep) => [ep.post, ep]));
   const aliases = [].concat(originAlias || []).filter((a) => a && baseUrl && a !== baseUrl);
   const rebase = (html) => aliases.reduce((h, a) => h.split(a).join(baseUrl), html);
-  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length });
+  const questions = researchQuestions(root);
+  const ledes = researchLedes(root);
+  const projects = [
+    ...projectGroups(posts.filter((p) => p.topic === 'tools'), { root }),
+    ...projectGroups(posts.filter((p) => p.topic === 'research'), { root, topic: 'research', questions: (slug) => questions.get(slug) || '', ledes: (slug) => ledes.get(slug) || '' }),
+  ];
+  await writeSection(outDir, posts, BLOG, { baseUrl, socialCard, rebase, episodes, byPost, agentPosts: agentPosts.length, projects, published });
   if (agentPosts.length) {
     await writeSection(outDir, agentPosts, AGENT_BLOG, { baseUrl, socialCard, rebase });
     const dir = path.join(outDir, AGENTS_PATH);
     for (const p of agentPosts) {
-      await fs.writeFile(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
+      writeFileSync(path.join(dir, `${p.slug}.txt`), rebase(`# ${p.title}\n\n> ${p.description}\n\n${p.date} · ${topicLabel(p.topic)} · source: ${REPO_BLOB}${p.source}\n\n${absoluteLinks(p).replace(/^\s*# .*\n+/, '').trim()}\n`));
     }
     await fs.writeFile(path.join(dir, 'llms.txt'), rebase(renderAgentLlmsTxt(agentPosts, { baseUrl })));
     await fs.writeFile(path.join(dir, 'llms-full.txt'), rebase(renderAgentLlmsFull(agentPosts, { baseUrl })));
@@ -800,15 +1512,23 @@ export async function buildWriting(outDir, baseUrl = '', { root = DEFAULT_ROOT, 
   await fs.writeFile(path.join(outDir, PODCAST_PATH, 'index.html'), rebase(renderPodcastIndex(episodes, { baseUrl, socialCard })));
   return [
     ...posts.map((p) => p.slug),
+    // Each topic's first page; its numbered pages are noindex, like the blog's.
+    ...topicIds(posts).map((id) => `topic/${id}`),
+    // Each project's first page under "Tools and projects" or "Research findings".
+    ...projects.map((g) => `topic/${g.topic || 'tools'}/${g.slug}`),
     'podcast',
     ...(agentPosts.length ? ['agents', ...agentPosts.map((p) => `agents/${p.slug}`)] : []),
   ];
 }
 
-const invokedDirectly = process.argv[1] && import.meta.url.endsWith(path.basename(process.argv[1]));
+// By resolved path: a basename suffix match ran a full blog build when any script whose
+// name `writing.mjs` ends with (`g.mjs`, `ing.mjs`) imported this module.
+const invokedDirectly = Boolean(process.argv[1]) && fileURLToPath(import.meta.url) === path.resolve(process.argv[1]);
 if (invokedDirectly) {
   const arg = (name) => process.argv.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
   const out = arg('out') ?? path.join(HERE, 'dist');
-  const pages = await buildWriting(out, arg('base-url') ?? '');
+  // Over a full build's dist, link the tools it already holds.
+  const published = new Set(existsSync(out) ? readdirSync(out) : []);
+  const pages = await buildWriting(out, arg('base-url') ?? '', { published });
   console.log(`writing: wrote ${path.join(out, WRITING_PATH)} (${pages.length} pages)`);
 }

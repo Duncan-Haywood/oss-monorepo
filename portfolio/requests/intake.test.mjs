@@ -24,9 +24,9 @@ const INTAKE = path.join(HERE, 'intake.mjs');
 const TODAY = '2026-11-02';
 
 /** A message exactly as the custom-development form composes it (build.mjs, the submit handler). */
-function formMessage(kind, job, { request, tool, done } = {}) {
+function formMessage(kind, job, { request, tool, direction, done } = {}) {
   const k = REQUEST_KINDS.find((x) => x.id === kind);
-  const head = `[custom-development: ${k.id}]${k.request ? ` ${request}` : ''}${k.tool ? ` tool: ${tool}` : ''}`;
+  const head = `[custom-development: ${k.id}]${k.request ? ` ${request}` : ''}${k.tool ? ` tool: ${tool}` : ''}${k.direction && direction ? ` direction: ${direction}` : ''}`;
   return { type: k.type, tool: k.tool ? tool : '', message: `${head}\n\n${job}${done ? `\n\nHow I would know it worked:\n${done}` : ''}` };
 }
 
@@ -35,7 +35,7 @@ function formMessage(kind, job, { request, tool, done } = {}) {
 test('the page builds the header intake parses', () => {
   const html = renderCustomDevelopmentPage({ baseUrl: 'https://example.test/', requests: [], feedbackUrl: 'https://edge.example' });
   // If the page's header changes shape, intake must change with it.
-  assert.ok(html.includes("var head='[custom-development: '+k.id+']'+(k.request?' '+f.req.value:'')+(k.tool?' tool: '+f.tool.value:'');"),
+  assert.ok(html.includes("var head='[custom-development: '+k.id+']'+(k.request?' '+f.req.value:'')+(k.tool?' tool: '+f.tool.value:'')+(k.direction&&f.dir&&f.dir.value?' direction: '+f.dir.value:'');"),
     'the form header in build.mjs changed; update FORM_HEAD in intake.mjs and formMessage here');
   for (const k of REQUEST_KINDS) {
     assert.ok(FEEDBACK_TYPES.includes(k.type), `${k.id} posts a type the edge accepts`);
@@ -54,6 +54,9 @@ test('parseFormMessage splits the header from the visitor\'s words', () => {
     { kind: 'feature', request: undefined, tool: 'roof-bid', body: 'Metric units.' });
   assert.deepEqual(parseFormMessage(formMessage('preview', 'Export drops phone numbers.', { request: 'R-0003' }).message),
     { kind: 'preview', request: 'R-0003', tool: undefined, body: 'Export drops phone numbers.' });
+  // A research request that names a direction (the form's optional select) still parses.
+  assert.deepEqual(parseFormMessage(formMessage('research', 'Do free parcel maps cover rural counties?', { direction: 'aerolog-scaling' }).message),
+    { kind: 'research', request: undefined, tool: undefined, direction: 'aerolog-scaling', body: 'Do free parcel maps cover rural counties?' });
   const plain = parseFormMessage('Just an idea from the feedback page.');
   assert.equal(plain.kind, undefined);
   assert.equal(plain.body, 'Just an idea from the feedback page.');

@@ -1,0 +1,14 @@
+# PYTHONPATH=src python3 tests/lift_jam_sweep.py --sense   (2026-11-15; cad/README.md "Lift current sense inside the diode loop")
+# The real firmware on the simulated feeder; every motor, belt and ball figure is an assumption (cad params).
+sense corner         pwm      trip A slide A  starts tripped  max over ms | jams: slowest cut  peak N  latest give-up  winding J
+high  29.2 V cold   0.82   1.51-1.77    2.52            0/3          179 |          49      91            2459         13
+high  24 V hot      1.00   1.51-1.77    2.52            0/3          184 |          59      86            2469         12
+low   29.2 V cold   0.82   1.57-2.20    2.52            0/3          142 |          79      91            2489         13
+low   24 V hot      1.00   1.29-1.80    2.52            0/3          197 |          69      85            2479         12
+
+Duty held to 24 V / battery: 1.00 at 24 V, 0.82 at 29.2 V; the trip in motor amps on a full pack is 1.77 A at most (the same as at the cut: high-side sense), a hot stall there 2.33x it (at 24 V 2.33x)
+duty   corner         pwm  speed  starts tripped  max over ms | jams: slowest cut  peak N  latest give-up  winding J
+held   29.2 V cold   0.82    91%            0/3          179 |          49      91            2459         13
+held   24 V hot      1.00    86%            0/3          184 |          59      86            2469         12
+fixed  29.2 V cold   1.00   114%            0/3          199 |          49      99            2459         16
+fixed  24 V hot      1.00    86%            0/3          184 |          59      86            2469         12

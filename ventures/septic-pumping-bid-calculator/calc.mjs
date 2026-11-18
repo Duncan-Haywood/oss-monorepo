@@ -85,12 +85,19 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
   return result;
 }
 
+// A checkbox arrives as a boolean from the page and as a word from a shared
+// link, a CLI or an agent calling the engine. Boolean('no') is true, so a
+// word this does not know is an error rather than a silent "yes".
+const FLAG_TRUE = ['true', '1', 'yes', 'y', 'on'];
+const FLAG_FALSE = ['false', '0', 'no', 'n', 'off', ''];
+
 function flag(value) {
-  if (value === true || value === 'true' || value === '1' || value === 1) return true;
-  if (value === false || value === 'false' || value === '0' || value === 0 || value === '' || value == null) {
-    return false;
-  }
-  return Boolean(value);
+  if (value === true || value === 1) return true;
+  if (value === false || value === 0 || value == null) return false;
+  const word = String(value).trim().toLowerCase();
+  if (FLAG_TRUE.includes(word)) return true;
+  if (FLAG_FALSE.includes(word)) return false;
+  throw new Error(`Expected yes or no, got "${value}"`);
 }
 
 /**
@@ -202,7 +209,7 @@ export function calculateBid(input) {
   const price = totalCost / (1 - targetMargin / 100);
   const profit = price - totalCost;
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   const proposedPrice = hasProposed ? number(input.proposedPrice, 'Price you are considering') : null;
 
   const costShare = (amount) => (totalCost === 0 ? 0 : amount / totalCost * 100);

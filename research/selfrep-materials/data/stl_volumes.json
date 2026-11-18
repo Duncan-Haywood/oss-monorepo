@@ -1,0 +1,151 @@
+{
+ "source": "github.com/prusajr/PrusaMendel, branch master, folder metric-prusa (linked from the RepRap wiki page 'Prusa Mendel (iteration 2)', oldid=181926); files are GPL and not copied here",
+ "retrieved": "2026-11-14",
+ "method": "closed-mesh volume by signed tetrahedra (experiments/stl_volumes.py); cross-checked with numpy-stl get_mass_properties on 2026-11-14, identical to 3 decimals for all 18 files",
+ "parts": {
+  "bar-clamp": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/bar-clamp.stl",
+   "sha256": "d3e355390eb6c8084e383f11f23d82db3183fe76fa0f8a92e48c17aba4cf6367",
+   "triangles": 344,
+   "volume_cm3": 2.424,
+   "watertight": true,
+   "non_manifold_edges": 10
+  },
+  "bearing-guide": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/bearing-guide.stl",
+   "sha256": "4e60db36bca508514c05ec1a2e29471aeb86ae51eb3f107d411446df6203fc35",
+   "triangles": 960,
+   "volume_cm3": 1.544,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "belt-clamp": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/belt-clamp.stl",
+   "sha256": "6abcd22b9d6655a1ea4201daf66c86597b918189c424aff1675616fceaecd887",
+   "triangles": 212,
+   "volume_cm3": 1.618,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "belt-clamp-nut-holder": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/belt-clamp-nut-holder.stl",
+   "sha256": "f0b94d442b7ed523da0e9749c599ddd798126d0479c6c433787a184f57549b7d",
+   "triangles": 260,
+   "volume_cm3": 0.835,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "coupling": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/coupling.stl",
+   "sha256": "938ea2b7258789a5b59efb706302aabef33f40ba6b48d336ae27e6b4e431035d",
+   "triangles": 728,
+   "volume_cm3": 9.305,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "endstop-holder": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/endstop-holder.stl",
+   "sha256": "324ea91bef685d9be0fa89b6c89f6756f6609a069841614bfa4e71525711f1c1",
+   "triangles": 336,
+   "volume_cm3": 3.013,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "frame-vertex": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/frame-vertex.stl",
+   "sha256": "814153d3aec63a7cf5da5dc97c11bb203bf35a69f297b544b47a70724a14cae6",
+   "triangles": 640,
+   "volume_cm3": 24.303,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "frame-vertex-foot": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/frame-vertex-foot.stl",
+   "sha256": "fcea0f1b347a879610e93eb47d7d74290156b86bc38471192dd4144ff32ef4b3",
+   "triangles": 760,
+   "volume_cm3": 27.656,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "rod-clamp": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/rod-clamp.stl",
+   "sha256": "0b19a17cb36be45d2fa1bddd008c4a790688b80f3615357dbd7dd11710e7529c",
+   "triangles": 104,
+   "volume_cm3": 2.077,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "x-carriage": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/x-carriage.stl",
+   "sha256": "a71b36acc783896a39987c06dca0532245998d9643a74d0a5615a390268a0e07",
+   "triangles": 1768,
+   "volume_cm3": 22.955,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "x-end-idler": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/x-end-idler.stl",
+   "sha256": "fb147db23648732a837004a2eb159b8c47e52c561d7df5c21ab9e6ee76c60f4b",
+   "triangles": 2020,
+   "volume_cm3": 45.751,
+   "watertight": true,
+   "non_manifold_edges": 6
+  },
+  "x-end-motor": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/x-end-motor.stl",
+   "sha256": "edb5ca38b5e156a769e4e5495933acf97143cae2c5a0a1ad6ad86274beba67c1",
+   "triangles": 2536,
+   "volume_cm3": 50.886,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "ybrac-t": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/ybrac-t.stl",
+   "sha256": "8973646e61d85949b81c8c6c5d875339ba85ab3e145044f9f29c34bec3ce17b6",
+   "triangles": 1072,
+   "volume_cm3": 18.909,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "y-bushing": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/y-bushing.stl",
+   "sha256": "6a23d85b1989d29bd19239dc8f0ded2fbf1e450759d68b9c0bd2cb6b53044adb",
+   "triangles": 292,
+   "volume_cm3": 2.058,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "z-motor-mount": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/z-motor-mount.stl",
+   "sha256": "379dd1d7760f84ebe9994f498fc6e0ebeff0a90c4741ab96f4c7f70b80b794c4",
+   "triangles": 1208,
+   "volume_cm3": 21.98,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "wade": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/wade.stl",
+   "sha256": "07f75c31fa2e112fcb3402641c37c40fa2659f4cfe1b322f3cf25d7dad17ebc8",
+   "triangles": 3668,
+   "volume_cm3": 51.561,
+   "watertight": true,
+   "non_manifold_edges": 3
+  },
+  "wade-big": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/wade-big.stl",
+   "sha256": "67046790eb490c73028b3620253433a843d9c34325fb8e3d4ec535c7bacf1085",
+   "triangles": 3184,
+   "volume_cm3": 11.389,
+   "watertight": true,
+   "non_manifold_edges": 0
+  },
+  "wade-small": {
+   "url": "https://raw.githubusercontent.com/prusajr/PrusaMendel/master/metric-prusa/wade-small.stl",
+   "sha256": "86b8d8d275a9c1c12c06ec6fd582f8151338efee5f9a04bdde362ecc81d7a9f4",
+   "triangles": 910,
+   "volume_cm3": 3.269,
+   "watertight": true,
+   "non_manifold_edges": 2
+  }
+ }
+}

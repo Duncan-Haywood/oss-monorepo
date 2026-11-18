@@ -56,6 +56,6 @@
    "where": "platform/seo/STATUS.md:1"
   }
  ],
- "fix_prs": [],
+ "fix_prs": ["https://github.com/Duncan-Haywood/oss-monorepo/pull/14676"],
  "verdict": "platform/seo is a sound, honest, small measurement skeleton: its bookkeeping reproduces (STATUS.md regenerates identically and matches my count of the history file and queries.json), its 23 tests pass and catch all five single-line bugs I seeded, and the docs say plainly that nothing has ranked yet and what is unmeasured. It falls short of the bar on correctness and claims. The audit, the one tool that tests the live site, has a canonical comparison that cannot see an http/www/query-string canonical and a robots-meta parser that misses unquoted attributes, and when the site cannot be reached it crashes with exit 1 rather than the documented 'unmeasured' exit 2; none of that is tested because cmd_audit has no test. I could not re-check the recorded live-site figures because marisstella.app was blocked by the proxy in this session (HTTP 403 on CONNECT), so those are unconfirmed rather than wrong. The loop has also produced only one day of readings (8 of 23 queries, all misses) and no Search Console data, so it cannot yet say whether any SEO change helped. Scores are before any fix; the fixes are small (compare scheme and host exactly in the canonical check, catch URLError and return EXIT_UNMEASURED, accept unquoted attributes, test cmd_audit with a stubbed http)."
 }

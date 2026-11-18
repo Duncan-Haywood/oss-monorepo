@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-10",
+  "session": "https://claude.ai/code/session_01AcxTtGTQSe2WHYfU2eWtyy",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-10T11:15:19Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14504",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "partial",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/perf/prompt-0.md",
+      "issue": "Every perf lever left is owner-gated or already worked; the prompt gives no fallback beyond a venture slice."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "No blog post: reading-only run with no finding of interest.",
+      "did": "history note only",
+      "result": "n/a"
+    }
+  ],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-10-site-tests-local-reading.md"
+  ],
+  "goal": null,
+  "notes": "Metric: site-builder test step. Before: 7m10s wall cold local (4 cores, node --test, 1500 tests); CI pool step 20.8 job-min of 121.3 (ci_profile --runs 200). After: no code change, same. No lever found.",
+  "corrections": [],
+  "redteam": null
+}

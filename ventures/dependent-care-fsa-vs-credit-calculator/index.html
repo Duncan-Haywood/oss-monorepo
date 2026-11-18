@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -44,11 +44,21 @@
     .best td { background: #e3f1e6; font-weight: 600; }
     td.hot { background: #e3f1e6; font-weight: 700; }
   </style>
+  <!-- select-track:start -->
+  <style>
+    /* A grid whose longest drop-down choice is wider than its column gets columns wide enough for
+       it, so the choice reads in full instead of being cut under the arrow. Written by
+       platform/pages/select-track.mjs (docs/reports/polish-2026-11-14-select-track.md); re-run it
+       after changing the options. */
+    @media (min-width: 500px) { div.grid:has(#status) { grid-template-columns: repeat(auto-fit, minmax(min(100%, 244px), 1fr)); } }
+  </style>
+  <!-- select-track:end -->
 </head>
 <body>
   <header>
     <p class="note">DEPENDENT CARE FSA VS CREDIT · RUNS IN YOUR BROWSER · NOTHING UPLOADED</p>
     <h1>Dependent care FSA or child care credit: which saves you more?</h1>
+    <p class="answer-source" data-answer-lead>For tax years after 2025 a household can exclude up to <strong>$7,500</strong> ($3,750 if married filing separately) of employer dependent care FSA benefits, up from $5,000. The child and dependent care credit counts at most <strong>$3,000</strong> of expenses for one qualifying person or <strong>$6,000</strong> for two or more, and every FSA dollar reduces the expenses the credit can use. Source: 26 U.S.C. section 129(a)(2)(A) as amended by Pub. L. 119-21, and IRS Tax Topic 602. As of 2026-11-08; this calculator tries every FSA election and shows the split that saves the most.</p>
     <p>Enter your childcare spending, income and tax rates. You get the <strong>tax the FSA saves</strong>, the <strong>credit you would claim instead</strong>, and the <strong>best split</strong> between them, since every FSA dollar reduces the dollars the credit can use.</p>
     <p class="note">Nothing you type leaves this browser tab. Illustrative estimates, not advice. Not legal, tax, or financial advice.</p>
   </header>
@@ -128,7 +138,7 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     const KEYS = ["status", "children", "expenses", "agi", "fedRate", "stateRate", "ficaRate", "earned", "taxBefore"];
     let last = null;
 
@@ -141,7 +151,7 @@
       last = a;
       const tiles = [[usd(a.best.total), "Saved with the best split"], [usd(a.best.fsa), "FSA election in the best split"], [usd(a.creditOnly.total), "Credit only"], [usd(a.fsaMaxed.total), "Maximum FSA (plus leftover credit)"]];
       $("#big").innerHTML = tiles.map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#size-table tbody").innerHTML = a.scenarios.map((s) => `<tr class="${s.label === "Best split" ? "best" : ""}"><td>${esc(s.label)}</td><td class="n">${usd(s.fsa)}</td><td class="n">${usd(s.fsaSaved)}</td><td class="n">${Math.round(s.rate * 100)}%</td><td class="n">${usd(s.credit)}</td><td class="n">${usd(s.total)}</td></tr>`).join("");
       report.hidden = false;
       status.textContent = "Done. Scroll down for the result.";

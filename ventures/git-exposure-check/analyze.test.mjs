@@ -26,6 +26,13 @@ test('looksLikeGitHead accepts a detached-HEAD 40-hex-char SHA', () => {
   assert.equal(looksLikeGitHead('da39a3ee5e6b4b0d3255bfef95601890afd80709\n'), true);
 });
 
+test('looksLikeGitHead accepts a detached HEAD from a SHA-256 repository (64 hex)', () => {
+  // git init --object-format=sha256 writes 64-hex object ids, HEAD included.
+  assert.equal(looksLikeGitHead('a'.repeat(64) + '\n'), true);
+  assert.equal(looksLikeGitHead('a'.repeat(41)), false);
+  assert.equal(looksLikeGitHead('a'.repeat(65)), false);
+});
+
 test('looksLikeGitHead rejects an HTML error page even when it returns 200', () => {
   assert.equal(looksLikeGitHead('<html><body>404 Not Found</body></html>'), false);
 });
@@ -133,4 +140,25 @@ test('a missing probe object does not throw', () => {
   // this reads as "nothing to report" rather than "the network failed" --
   // matching buildReport's own `p.ok !== false` default (see probeSummary).
   assert.equal(report.findings.length, 0);
+});
+
+test('a redirect on both probes is flagged and fails the gate, not reported as protected', () => {
+  const r = buildReport('http://example.com/', {
+    head: probeResult({ status: 301, url: 'http://example.com/.git/HEAD', bodySample: '' }),
+    config: probeResult({ status: 301, url: 'http://example.com/.git/config', bodySample: '' }),
+  });
+  assert.equal(r.findings.length, 1);
+  assert.equal(r.findings[0].id, 'redirect-not-followed');
+  assert.equal(r.findings[0].severity, 'warning');
+  assert.equal(r.dangerCount, 0);
+  assert.equal(r.ok, false);
+});
+
+test('a 404 alongside a 200 HTML page is still protected (no redirect warning)', () => {
+  const r = buildReport('https://example.com/', {
+    head: probeResult(),
+    config: probeResult({ status: 200, url: 'https://example.com/.git/config', bodySample: '<html>hi</html>' }),
+  });
+  assert.equal(r.findings.length, 0);
+  assert.equal(r.ok, true);
 });

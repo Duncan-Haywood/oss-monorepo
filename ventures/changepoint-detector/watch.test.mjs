@@ -1,0 +1,387 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { createServer } from 'node:http';
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { advance, emptyState, detectChanges, main, webhookBody, WATCH_DEFAULTS } from './watch.mjs';
+
+const lcg = (seed) => { let s = seed >>> 0; return () => { s = (Math.imul(s, 1664525) + 1013904223) >>> 0; return (s + 0.5) / 4294967296; }; };
+const gauss = (u) => () => Math.sqrt(-2 * Math.log(u())) * Math.cos(2 * Math.PI * u());
+function stepSeries(n, at, size, seed = 3) { const g = gauss(lcg(seed)); return Array.from({ length: n }, (_, i) => (i >= at ? size : 0) + g()); }
+const csvOf = (values, start = new Date(Date.UTC(2026, 0, 1))) => 'date,orders\n' + values.map((v, i) => `${new Date(start.getTime() + i * 864e5).toISOString().slice(0, 10)},${v.toFixed(3)}`).join('\n') + '\n';
+
+for (const detector of ['pelt', 'bocpd-window']) {
+  test(`${detector}: a step is reported once, after --confirm points, and not again as it is re-dated`, () => {
+    const values = stepSeries(260, 200, 3);
+    const labels = values.map((_, i) => String(i + 1));
+    let state = emptyState(), reports = [];
+    for (let n = 150; n <= values.length; n++) {
+      const r = advance(state, detectChanges(values.slice(0, n), labels.slice(0, n), { detector }), n, labels.slice(0, n));
+      for (const a of r.alerts) reports.push({ at: n, index: a.index, pointsAfter: a.pointsAfter });
+      state = r.state;
+    }
+    assert.equal(reports.length, 1, JSON.stringify(reports));
+    // dated from 5 points of data, the first report can be a few points off (pelt: 198 for 201); within --tolerance
+    assert.ok(Math.abs(reports[0].index - 200) <= WATCH_DEFAULTS.tolerance);
+    // persist 2 (the default since round 7): sent at the 5th point if the previous check already saw it (while it
+    // was pending), else one check later
+    assert.ok(reports[0].pointsAfter >= WATCH_DEFAULTS.confirm && reports[0].pointsAfter <= WATCH_DEFAULTS.confirm + WATCH_DEFAULTS.persist - 1, String(reports[0].pointsAfter));
+  });
+}
+
+test('the old default (bocpd) misses this clear step: its probability is split between neighbours (why the window exists)', () => {
+  const values = stepSeries(260, 200, 3);
+  const labels = values.map((_, i) => String(i + 1));
+  assert.deepEqual(detectChanges(values, labels, { detector: 'bocpd' }), []);
+  const d = detectChanges(values, labels);
+  assert.equal(d.length, 1);
+  assert.ok(Math.abs(d[0].index - 200) <= 2 && d[0].shift > 2.5);
+  const w = detectChanges(values, labels, { detector: 'bocpd-window' });
+  assert.equal(w.length, 1);
+  assert.ok(w[0].probability >= 0.5 && w[0].shift > 2.5);
+});
+
+test('a change with fewer than --confirm points after it is pending, not alerted', () => {
+  const r = advance({ ...emptyState(), n: 100 }, [{ index: 98, label: '99' }], 101, Array.from({ length: 101 }, (_, i) => String(i + 1)));
+  assert.equal(r.alerts.length, 0);
+  assert.equal(r.pending.length, 1);
+  assert.equal(r.pending[0].pointsAfter, 3);
+});
+
+test('the first check records the history as the baseline; --alert-history reports it', () => {
+  const labels = Array.from({ length: 100 }, (_, i) => String(i + 1));
+  const ch = [{ index: 40, label: '41' }];
+  const base = advance(emptyState(), ch, 100, labels);
+  assert.equal(base.alerts.length, 0);
+  assert.equal(base.baseline.length, 1);
+  assert.equal(base.state.alerted[0].baseline, true);
+  assert.equal(advance(emptyState(), ch, 100, labels, { alertHistory: true }).alerts.length, 1);
+});
+
+test('a rolling file that drops its oldest rows keeps the alerted change by its label', () => {
+  const labels = Array.from({ length: 100 }, (_, i) => `d${i}`);
+  const st = advance({ ...emptyState(), n: 99 }, [{ index: 60, label: 'd60' }], 100, labels, { persist: 1 }).state;
+  // 30 rows dropped from the front: the same change is now at index 30
+  const later = advance(st, [{ index: 31, label: 'd61' }], 70, labels.slice(30), { persist: 1 });
+  assert.equal(later.alerts.length, 0);
+  assert.match(later.notes[0], /shorter/);
+});
+
+test('webhook body carries text (Slack, Teams, Mattermost) and content under 2000 characters (Discord)', () => {
+  const b = webhookBody('x'.repeat(3000));
+  assert.equal(b.text.length, 3000);
+  assert.ok(b.content.length <= 1990);
+});
+
+test('CLI: baseline, then a new step posts to the webhook once and writes the state', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-'));
+  const csv = join(dir, 'daily.csv'), state = join(dir, 'state.json');
+  const g = gauss(lcg(11));
+  const quiet = Array.from({ length: 120 }, () => 50 + g());
+  const posts = [];
+  const server = createServer((req, res) => { let b = ''; req.on('data', (c) => (b += c)); req.on('end', () => { posts.push(JSON.parse(b)); res.end('ok'); }); });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  const env = { HOOK: `http://127.0.0.1:${server.address().port}/hook` };
+  const run = async (args) => { let o = ''; const code = await main(args, { out: (s) => (o += s), env }); return { code, o }; };
+  try {
+    writeFileSync(csv, csvOf(quiet));
+    let r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
+    assert.equal(r.code, 0);
+    assert.ok(existsSync(state));
+    const stepped = [...quiet, ...Array.from({ length: 4 }, () => 55 + g())];
+    writeFileSync(csv, csvOf(stepped));
+    r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
+    assert.equal(r.code, 0, r.o);
+    assert.match(r.o, /Watching: a possible change from 2026-05-01/);
+    assert.equal(posts.length, 0);
+    const more = [...stepped, ...Array.from({ length: 3 }, () => 55 + g())];
+    writeFileSync(csv, csvOf(more));
+    r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
+    assert.equal(r.code, 1, r.o);
+    assert.equal(posts.length, 1);
+    assert.match(posts[0].text, /orders changed from 2026-05-01: level up from 49\.9 to 54\.9 \(4\.29 noise sd\), Bayesian probability 99%; 7 points since\./);
+    r = await run([csv, '--state', state, '--webhook-env', 'HOOK', '--fail-on-alert']);
+    assert.equal(r.code, 0);
+    assert.equal(posts.length, 1);
+    assert.equal(JSON.parse(readFileSync(state, 'utf8')).alerted.length, 1);
+  } finally { server.close(); }
+});
+
+test('CLI: a failing webhook leaves the state unsaved so the next run retries', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-'));
+  const csv = join(dir, 'd.csv'), state = join(dir, 's.json');
+  writeFileSync(csv, csvOf(stepSeries(140, 120, 4)));
+  const fetchImpl = async () => ({ ok: false, status: 500 });
+  await assert.rejects(main([csv, '--state', state, '--alert-history', '--webhook-env', 'H'], { out: () => {}, env: { H: 'http://x' }, fetchImpl }), /answered 500/);
+  assert.ok(!existsSync(state));
+});
+
+test('CLI: refuses to run without --state or --dry-run', async () => {
+  await assert.rejects(main(['x.csv'], { out: () => {} }), /--state/);
+});
+
+test('deploy/make-watch-repo.sh makes a folder that runs on its own', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const dest = join(mkdtempSync(join(tmpdir(), 'watch-repo-')), 'w');
+  execFileSync('sh', [new URL('./deploy/make-watch-repo.sh', import.meta.url).pathname, dest]);
+  for (const f of ['watch.mjs', 'engine.mjs', 'LICENSE', 'README.md', '.github/workflows/watch-metric.yml']) assert.ok(existsSync(join(dest, f)), f);
+  writeFileSync(join(dest, 'data/metric.csv'), csvOf(stepSeries(80, 60, 4)));
+  const out = execFileSync('node', ['watch.mjs', 'data/metric.csv', '--state', 'watch-state.json'], { cwd: dest, encoding: 'utf8' });
+  assert.match(out, /First check: 1 change already in the history/);
+  assert.match(readFileSync(join(dest, '.github/workflows/watch-metric.yml'), 'utf8'), /--state watch-state\.json/);
+  assert.match(readFileSync(join(dest, 'README.md'), 'utf8'), /github\.com\/sponsors/);
+});
+
+test('the defaults are the ones the pre-registered replay chose (eval/watch-replay*.out.txt)', () => {
+  const r1 = readFileSync(new URL('./eval/watch-replay.out.txt', import.meta.url), 'utf8');
+  const r2 = readFileSync(new URL('./eval/watch-replay-round2.out.txt', import.meta.url), 'utf8');
+  assert.match(r1, /Chosen: bocpd with --confirm 5 /);
+  assert.match(r1, /  bocpd \*\s+5\s+193\s+63 \(33%\)\s+30\.3\s+38\/52/);
+  assert.match(r1, /  pelt-mean\s+5\s+626\s+134 \(21%\)\s+98\.2\s+52\/52/);
+  assert.match(r2, /Not adopted: bocpd stays the default\./);
+  assert.match(r2, /  bocpd-window\s+5\s+307\s+85 \(28%\)\s+48\.2\s+46\/52/);
+  const r3 = readFileSync(new URL('./eval/watch-replay-round3.out.txt', import.meta.url), 'utf8');
+  assert.match(r3, /Adopted: bocpd-ar1-win becomes the default\./);
+  assert.equal(WATCH_DEFAULTS.detector, 'bocpd-ar1-window');
+  assert.equal(WATCH_DEFAULTS.confirm, 5);
+});
+
+// Sticky noise: AR(1) 0.8 with marginal sd 1 (innovation sd 0.6), as in eval/watch-replay.mjs --round3.
+function ar1Series(n, seed, at = -1, size = 0) { const g = gauss(lcg(seed)); let e = 0; return Array.from({ length: n }, (_, i) => (at >= 0 && i >= at ? size : 0) + (e = 0.8 * e + 0.6 * g())); }
+
+test('bocpd-ar1: quiet on sticky noise with no change, where plain bocpd finds several', () => {
+  for (const seed of [1, 2, 4, 5]) {
+    const values = ar1Series(300, seed);
+    const labels = values.map((_, i) => String(i + 1));
+    assert.ok(detectChanges(values, labels, { detector: 'bocpd' }).length >= 4, `seed ${seed}: bocpd`);
+    assert.deepEqual(detectChanges(values, labels), [], `seed ${seed}: default`);
+    assert.deepEqual(detectChanges(values, labels, { detector: 'bocpd-ar1' }), [], `seed ${seed}`);
+  }
+});
+
+test('bocpd-ar1: a 6-sd step in sticky noise is reported once, with no false alerts before it', () => {
+  const values = ar1Series(260, 101, 200, 6);
+  const labels = values.map((_, i) => String(i + 1));
+  let state = emptyState(), reports = [];
+  for (let n = 100; n <= values.length; n++) {
+    const r = advance(state, detectChanges(values.slice(0, n), labels.slice(0, n), { detector: 'bocpd-ar1' }), n, labels.slice(0, n));
+    for (const a of r.alerts) reports.push(a.index);
+    state = r.state;
+  }
+  assert.deepEqual(reports, [200]);
+});
+
+test('--detector bocpd-ar1 runs from the CLI and refuses the count and volatility models', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-ar1-'));
+  const f = join(dir, 'm.csv');
+  writeFileSync(f, csvOf(ar1Series(260, 101, 200, 6)));
+  let text = '';
+  assert.equal(await main([f, '--dry-run', '--alert-history', '--detector', 'bocpd-ar1'], { out: (s) => { text += s; } }), 0);
+  assert.match(text, /New change:\n {2}orders changed from 2026-07-20: level up/);
+  await assert.rejects(main([f, '--dry-run', '--detector', 'bocpd-ar1', '--model', 'poisson']), /level model/);
+  await assert.rejects(main([f, '--dry-run', '--detector', 'nope']), /bocpd-ar1/);
+  // with a count model and no --detector, the default falls back to plain bocpd instead of refusing
+  writeFileSync(f, csvOf(Array.from({ length: 120 }, (_, i) => (i >= 80 ? 30 : 10) + (i % 3))));
+  text = '';
+  assert.equal(await main([f, '--dry-run', '--alert-history', '--model', 'poisson'], { out: (s) => { text += s; } }), 0);
+  assert.match(text, /rate up/);
+});
+
+test('a fixed rho (ar1Rho) replaces the estimate in the AR(1) pass, clipped to [0, 0.95]', async () => {
+  const { analyze } = await import('./engine.mjs');
+  const values = stepSeries(200, 120, 3);
+  assert.equal(analyze({ values, ar1: true, ar1Rho: 0.3 }).ar1.rho, 0.3);
+  assert.equal(analyze({ values, ar1: true, ar1Rho: 2 }).ar1.rho, 0.95);
+  // with an AR(1) detector, the plain engine run is skipped: only the AR(1) lists come back
+  const labels = values.map((_, i) => String(i + 1));
+  const d = detectChanges(values, labels);
+  assert.equal(d.length, 1);
+  assert.ok(Math.abs(d[0].index - 120) <= 2);
+});
+
+test('round 4: rho capped at 0.8 (the default) reports documented changes the uncapped AR(1) pass reads as persistence', async () => {
+  const { parseSeries } = await import('./engine.mjs');
+  const load = (f) => parseSeries(readFileSync(new URL(`./data/${f}`, import.meta.url), 'utf8'), null, null);
+  // S&P 500 monthly closes: the October 2008 crash; Canada's fertility: the 1946 post-war rise. Both estimate rho at the 0.95 clip.
+  for (const [f, label] of [['sp500-monthly.csv', 'Oct 1 2008'], ['canada-fertility.csv', '1946']]) {
+    const { values, labels } = load(f);
+    assert.ok(detectChanges(values, labels).some((c) => c.label === label), `${f}: capped`);
+    assert.ok(!detectChanges(values, labels, { rhoCap: 0.95 }).some((c) => c.label === label), `${f}: uncapped`);
+  }
+  assert.equal(WATCH_DEFAULTS.rhoCap, 0.8);
+});
+
+test('replayWatch: a clear step is alerted once, 5 to 7 points late; checking every 7 points and bisecting gives the same date', async () => {
+  const { replayWatch, replayText } = await import('./watch.mjs');
+  const values = stepSeries(260, 200, 3);
+  const every = replayWatch(values, null, { from: 150 });
+  assert.equal(every.step, 1);
+  assert.equal(every.alerts.length, 1, JSON.stringify(every.alerts));
+  assert.ok(Math.abs(every.alerts[0].index - 200) <= WATCH_DEFAULTS.tolerance);
+  assert.ok(every.alerts[0].pointsAfter >= WATCH_DEFAULTS.confirm && every.alerts[0].pointsAfter <= WATCH_DEFAULTS.confirm + 2);
+  const coarse = replayWatch(values, null, { from: 150, step: 7 });
+  assert.equal(coarse.step, 7);
+  assert.ok(coarse.checks < every.checks);
+  assert.deepEqual(coarse.alerts.map((a) => [a.index, a.reportedAt]), every.alerts.map((a) => [a.index, a.reportedAt]));
+  assert.match(replayText(every, { column: 'orders' }), /orders changed from 201|orders changed from 20\d/);
+});
+
+test('replayWatch: changes before the first check are the baseline, quiet noise sends nothing, the budget raises the step', async () => {
+  const { replayWatch } = await import('./watch.mjs');
+  const values = stepSeries(300, 40, 4, 5);
+  const r = replayWatch(values, null, { from: 100 });
+  assert.equal(r.baseline.length, 1);
+  assert.equal(r.alerts.length, 0);
+  // Seed 22 is quiet both ways. (Seed 21 is not: a 5-point run at 1.7 sd sends one false alert at point 320,
+  // checked every point or every 12 and bisected alike.)
+  const g = gauss(lcg(22));
+  const quiet = Array.from({ length: 400 }, () => 10 + g());
+  const q = replayWatch(quiet, null, { budget: 2e6 });
+  assert.ok(q.step > 1, `step ${q.step}`);
+  assert.equal(q.alerts.length, 0);
+  assert.throws(() => replayWatch([1, 2, 3]), /at least 10/);
+});
+
+// Round 5 flicker guards (eval/watch-flicker.mjs): advance options, off by default.
+import { advance as adv5, emptyState as empty5, replayWatch as replay5, statusText as status5 } from './watch-core.mjs';
+test('holdHistory: a change dated inside the quiet baseline is held, not alerted; a later one still alerts', () => {
+  const labels = Array.from({ length: 60 }, (_, i) => `d${i}`);
+  let r = adv5(null, [], 20, labels.slice(0, 20), { holdHistory: true, persist: 1 });
+  assert.equal(r.baseline.length, 0);
+  assert.deepEqual(r.state.quietUntil, { index: 15, label: 'd15' });
+  // ausair's case: at the next check the engine finds old changes at rows 9 and 15.
+  r = adv5(r.state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), { holdHistory: true, persist: 1 });
+  assert.equal(r.alerts.length, 0);
+  assert.equal(r.held.length, 2);
+  assert.match(status5(r), /Held, not alerted: a change from d9/);
+  // It is the default since round 5; switched off, the same check alerts on both (what the replay found before).
+  const dflt = adv5(adv5(null, [], 20, labels.slice(0, 20)).state, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21));
+  assert.equal(dflt.held.length, 1);
+  const off = { holdHistory: false, persist: 1 };
+  const r0 = adv5(adv5(null, [], 20, labels.slice(0, 20), off).state, [{ index: 9, label: 'd9' }, { index: 15, label: 'd15' }], 21, labels.slice(0, 21), off);
+  assert.equal(r0.alerts.length, 2);
+  // A change after the quiet history alerts as usual.
+  const r2 = adv5(r.state, [{ index: 30, label: 'd30' }], 36, labels.slice(0, 36), { holdHistory: true, persist: 1 });
+  assert.equal(r2.alerts.length, 1);
+  // A rolling file that drops the quiet row's label holds nothing.
+  const rolled = labels.slice(25, 45);
+  const r3 = adv5({ ...r.state, alerted: [] }, [{ index: 2, label: 'd27' }], 20, rolled, { holdHistory: true, persist: 1 });
+  assert.equal(r3.alerts.length, 1);
+});
+
+test('persist 2: a detection seen at one check only is never sent; one seen at two is sent one check later', () => {
+  const labels = Array.from({ length: 60 }, (_, i) => `d${i}`);
+  const o = { persist: 2, holdHistory: false };
+  let st = adv5(null, [], 20, labels.slice(0, 20), o).state;
+  let r = adv5(st, [{ index: 9, label: 'd9' }], 21, labels.slice(0, 21), o);
+  assert.equal(r.alerts.length, 0);
+  assert.equal(r.pending[0].unconfirmed, true);
+  assert.match(status5(r), /reported if the next check finds it too/);
+  const gone = adv5(r.state, [], 22, labels.slice(0, 22), o);
+  assert.equal(gone.alerts.length, 0);
+  const again = adv5(gone.state, [{ index: 30, label: 'd30' }], 40, labels.slice(0, 40), o);
+  assert.equal(again.alerts.length, 0);
+  const sent = adv5(again.state, [{ index: 31, label: 'd31' }], 41, labels.slice(0, 41), o);
+  assert.equal(sent.alerts.length, 1);
+  assert.equal(sent.alerts[0].index, 31);
+});
+
+test('replayWatch passes the guards through; persist on a coarse replay dates the alert as an every-point one', () => {
+  const r = { s: 7 };
+  const g = () => { r.s = (Math.imul(r.s, 1664525) + 1013904223) >>> 0; const u = (r.s + 0.5) / 4294967296; r.s = (Math.imul(r.s, 1664525) + 1013904223) >>> 0; const w = (r.s + 0.5) / 4294967296; return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * w); };
+  const v = Array.from({ length: 260 }, (_, i) => (i >= 200 ? 3 : 0) + g());
+  const fine = replay5(v, null, { persist: 2, step: 1 });
+  const coarse = replay5(v, null, { persist: 2, step: 7 });
+  const plain = replay5(v, null, { step: 1 });
+  assert.equal(fine.alerts.length, 1);
+  assert.ok(Math.abs(fine.alerts[0].index - 200) <= 5);
+  assert.deepEqual(coarse.alerts.map((a) => [a.index, a.reportedAt]), fine.alerts.map((a) => [a.index, a.reportedAt]));
+  assert.ok(fine.alerts[0].reportedAt >= plain.alerts[0].reportedAt);
+  assert.deepEqual(fine.held, []);
+  // replayWatch honours holdHistory false (it must not fall back to the default).
+  assert.equal(replay5(v, null, { holdHistory: false }).settings.holdHistory, false);
+});
+
+test('ausair: the old-history alerts the replay found are held by default', () => {
+  const csv = readFileSync(new URL('./data/ausair.csv', import.meta.url), 'utf8').trim().split('\n').slice(1).map((r) => r.split(','));
+  const v = csv.map((r) => Number(r[r.length - 1])), l = csv.map((r) => r[0]);
+  const old = replay5(v, l, { holdHistory: false, persist: 1 }), now = replay5(v, l);
+  assert.ok(old.alerts.length > now.alerts.length, `${old.alerts.length} vs ${now.alerts.length}`);
+  assert.ok(now.held.length >= 1);
+  assert.ok(now.held.every((h) => h.index <= now.from - 5));
+});
+
+test('--columns: names, all, a model per column, and the mistakes it refuses', async () => {
+  const { columnSpecs } = await import('./watch.mjs');
+  const csv = 'date,orders,revenue,signups\n2026-01-01,3,10.5,1\n2026-01-02,4,11,2\n';
+  assert.deepEqual(columnSpecs(csv, 'orders:poisson, revenue'), [{ column: 'orders', model: 'poisson' }, { column: 'revenue', model: null }]);
+  assert.deepEqual(columnSpecs(csv, 'all').map((s) => s.column), ['orders', 'revenue', 'signups']);
+  assert.deepEqual(columnSpecs(csv, '1,3'), [{ column: 1, model: null }, { column: 3, model: null }]);
+  assert.throws(() => columnSpecs(csv, 'orders:counts'), /after the colon is the model/);
+  assert.throws(() => columnSpecs(csv, 'orders,ORDERS'), /listed twice/);
+  await assert.rejects(main(['x.csv', '--columns', '--dry-run'], { out: () => {} }), /comma list/);
+});
+
+test('CLI --columns: each column keeps its own record; a step in one column is one webhook message naming it', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-cols-'));
+  const csv = join(dir, 'kpi.csv'), state = join(dir, 'state.json');
+  const ga = gauss(lcg(21)), gb = gauss(lcg(22));
+  const rows = (n, stepAt) => Array.from({ length: n }, (_, i) => [50 + ga() + (stepAt != null && i >= stepAt ? 5 : 0), 200 + 3 * gb()]);
+  const write = (r) => writeFileSync(csv, 'date,orders,visits\n' + r.map(([a, b], i) => `${new Date(Date.UTC(2026, 0, 1) + i * 864e5).toISOString().slice(0, 10)},${a.toFixed(3)},${b.toFixed(3)}`).join('\n') + '\n');
+  const posts = [];
+  const fetchImpl = async (url, init) => { posts.push(JSON.parse(init.body)); return { ok: true, status: 200 }; };
+  const run = async (args) => { let o = ''; const code = await main(args, { out: (s) => (o += s), env: { HOOK: 'http://hook' }, fetchImpl }); return { code, o }; };
+  const all = rows(130, 120);
+  write(all.slice(0, 120));
+  let r = await run([csv, '--state', state, '--columns', 'all', '--webhook-env', 'HOOK']);
+  assert.equal(r.code, 0, r.o);
+  assert.match(r.o, /No new confirmed change in 2 columns\./);
+  assert.match(r.o, /== orders ==/);
+  assert.match(r.o, /== visits ==/);
+  const st = JSON.parse(readFileSync(state, 'utf8'));
+  assert.deepEqual(Object.keys(st.columns), ['orders', 'visits']);
+  assert.equal(st.columns.orders.n, 120);
+  for (let n = 121; n <= 130 && !posts.length; n++) { write(all.slice(0, n)); r = await run([csv, '--state', state, '--columns', 'all', '--webhook-env', 'HOOK', '--fail-on-alert']); }
+  assert.equal(posts.length, 1, r.o);
+  assert.equal(r.code, 1);
+  assert.match(r.o, /New changes in 1 of 2 columns: orders\./);
+  assert.match(posts[0].text, /^orders changed from 2026-05-01: level up/);
+  assert.doesNotMatch(posts[0].text, /visits/);
+  // the same change is not sent again
+  r = await run([csv, '--state', state, '--columns', 'all', '--webhook-env', 'HOOK', '--fail-on-alert']);
+  assert.equal(r.code, 0);
+  assert.equal(posts.length, 1);
+  // a one-column record is not silently reused as a several-column one
+  const one = join(dir, 'one.json');
+  await main([csv, '--state', one], { out: () => {} });
+  await assert.rejects(main([csv, '--state', one, '--columns', 'all'], { out: () => {} }), /one-column watch/);
+  await assert.rejects(main([csv, '--state', one, '--columns', 'all', '--column', 'orders'], { out: () => {} }), /not both/);
+});
+
+test('CLI --columns with --detector auto: each column is picked against the whole budget (the split failed, eval/watch-columns.mjs)', async () => {
+  const dir = mkdtempSync(join(tmpdir(), 'watch-cols-'));
+  const csv = join(dir, 'kpi.csv'), state = join(dir, 'state.json');
+  const g = gauss(lcg(5));
+  writeFileSync(csv, 'date,a,b,c,d\n' + Array.from({ length: 60 }, (_, i) => `${i + 1},${g()},${g()},${g()},${g()}`).join('\n') + '\n');
+  let o = '';
+  await main([csv, '--state', state, '--columns', 'all', '--detector', 'auto', '--budget', '2'], { out: (s) => (o += s) });
+  const st = JSON.parse(readFileSync(state, 'utf8'));
+  for (const k of ['a', 'b', 'c', 'd']) assert.equal(st.columns[k].choice.budget, 2, k);
+  assert.match(o, /How eager: \w+ \([\w-]+\), picked from 60 points[\s\S]*budget about/);
+  let s = '';
+  await main([csv, '--suggest', '--columns', 'a,b', '--alerts-per', '2/month'], { out: (x) => (s += x) });
+  assert.match(s, /per column, 2 columns/);
+  assert.match(s, /== a ==[\s\S]*== b ==/);
+});
+
+test('deploy/make-watch-repo.sh: the standalone folder runs --columns too', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const dest = join(mkdtempSync(join(tmpdir(), 'watch-repo-')), 'w');
+  execFileSync('sh', [new URL('./deploy/make-watch-repo.sh', import.meta.url).pathname, dest]);
+  const a = stepSeries(80, 60, 4), b = stepSeries(80, 200, 0, 9);
+  writeFileSync(join(dest, 'data/metric.csv'), 'date,a,b\n' + a.map((v, i) => `${i + 1},${v.toFixed(3)},${b[i].toFixed(3)}`).join('\n') + '\n');
+  const out = execFileSync('node', ['watch.mjs', 'data/metric.csv', '--state', 'watch-state.json', '--columns', 'all'], { cwd: dest, encoding: 'utf8' });
+  assert.match(out, /== a ==\nFirst check: 1 change already in the history/);
+  assert.match(readFileSync(join(dest, 'README.md'), 'utf8'), /--columns all/);
+});

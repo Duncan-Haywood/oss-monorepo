@@ -74,6 +74,7 @@
   .examples { margin: 0.25rem 0 0; padding-left: 1.1rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
   .snippet { background: rgba(127,127,127,0.12); padding: 0.6rem; border-radius: 6px; white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; }
   footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid #ccc; font-size: 0.85rem; color: #555; }
+  @media (prefers-color-scheme: dark) { footer, .status-info { color: #b3b3b3; } .link-button { color: #6cb6ff; } }
   footer p { margin: 0.6rem 0; }
   .summary-ok { color: #1a7f37; }
   .summary-bad { color: #b42318; }
@@ -106,7 +107,7 @@
 
 <script type="module">
   import { detectApiUsage, parseManifest, buildReport, suggestedSnippet } from './scan.mjs';
-  import { recordUsage, readOptOut, writeOptOut } from './usage.mjs';
+  import { recordUsage, readOptOut, writeOptOut, usageStorage } from './usage.mjs';
 
   const fileInput = document.getElementById('fileInput');
   const fileCountEl = document.getElementById('fileCount');
@@ -131,7 +132,7 @@
     renderReport(report, fileRecords.length);
 
     const optedOut = document.getElementById('usageOptOut')?.checked ?? false;
-    recordUsage(localStorage, optedOut, event);
+    recordUsage(usageStorage(), optedOut, event);
   }
 
   runBtn.addEventListener('click', async () => {
@@ -303,8 +304,8 @@ struct SettingsStore {
     {
       const usageControl = document.getElementById('usageOptOut');
       if (usageControl) {
-        usageControl.checked = readOptOut(localStorage);
-        usageControl.addEventListener('change', () => writeOptOut(localStorage, usageControl.checked));
+        usageControl.checked = readOptOut(usageStorage());
+        usageControl.addEventListener('change', () => writeOptOut(usageStorage(), usageControl.checked));
       }
     }
 </script>

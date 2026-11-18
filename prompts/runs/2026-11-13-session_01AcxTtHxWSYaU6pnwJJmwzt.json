@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtHxWSYaU6pnwJJmwzt",
+  "track": "quality",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T06:07:12Z",
+  "ended": "2026-11-13T06:17:59Z",
+  "wall_minutes": 11.0,
+  "tokens_in": 9411870,
+  "tokens_out": 111283,
+  "cost_usd": 6.2786,
+  "tool_calls": 124,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15397",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First subagent brief went out with unfilled SUBJECT_PATH/STRATUM placeholders; corrected by SendMessage before it wrote anything."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a post+venture diff pulls in the pages 'Test the site builder' job, which runs past 100 s and detaches; for a quality round CI is the practical check."
+    },
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "issue": "Step 1 says to open the PR as soon as you have drawn, but a PR needs a diff; claiming the seed meant committing a placeholder post first."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/quality/prompt-0.md",
+      "why": "Step 4 says large defects go to ROADMAP/Known gaps; the UK savings \u00a3100k-taper undercount (a wrong number users act on) was ~15 lines with clear hand-computed tests, so I fixed it in this round instead of deferring.",
+      "did": "Fixed engine + breakdown row + tests; scores left as audited.",
+      "result": "25 tests pass; the 3 surviving mutants now fail."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-quality-audit-round-61.md"
+  ],
+  "goal": null,
+  "notes": "Seed 2026-11-13-g, round 61, mode sample. Subjects: ventures/amusement-route-location-calculator, ventures/uk-savings-interest-tax-calculator, research/garment-twonodeprop, research/eda-rankpayoff. 0 of 4 meet the bar (sampled overall 31 of 258, Wilson 9%-17%). Mutants caught 6 of 16 pre-fix; fixes in PR #15397 make 9 of the 10 survivors fail (re-run with quality_mutate.py). Spot-checks by me: reran amusement engine (310.08/103.36/66.90/81.72 matches auditor script); hand-computed UK \u00a3100k+\u00a310k = \u00a35,800 vs tool \u00a33,800; confirmed eda cap3 vs spearman 0.221 in results.txt. Local: node --test both ventures pass (25/25 each), garment-twonodeprop pytest 7 pass, eda-rankpayoff unittest OK, quality_audit validate 0 problems, post front-matter/links/similarity checks clean. Fix PRs: #15397 (all four audits).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f7515bb0-e016-533b-984e-ed93d3ca1870",
+    "transcripts": 5,
+    "first": "2026-11-13T06:07:12Z",
+    "last": "2026-11-13T06:18:12Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 120,
+        "input": 244,
+        "output": 111283,
+        "thinking": 27400,
+        "cache_read": 9023578,
+        "cache_write_5m": 285716,
+        "cache_write_1h": 102332,
+        "api_equivalent_usd": 6.2786,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 120,
+      "input": 244,
+      "output": 111283,
+      "thinking": 27400,
+      "cache_read": 9023578,
+      "cache_write_5m": 285716,
+      "cache_write_1h": 102332,
+      "api_equivalent_usd": 6.2786,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.959,
+    "tool_calls": 124,
+    "tools": {
+      "Bash": 107,
+      "Agent": 4,
+      "SubagentHandback": 4,
+      "Read": 3,
+      "ToolSearch": 2,
+      "Write": 2,
+      "SendMessage": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.0,
+      "active_minutes": 8.32,
+      "model_minutes": 5.21,
+      "tool_minutes": 3.11,
+      "waiting_on_human_minutes": 2.68,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 16.91
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "four independent audits with recomputation (~2 h each) plus four fixes and a post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 159.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

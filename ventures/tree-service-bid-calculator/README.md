@@ -79,18 +79,36 @@ Every wage and fee is editable. Time your own crews.
 
 ## Privacy
 
-Nothing is uploaded. Every figure stays in the browser. The only thing stored
-is an anonymous local tally of which features were used and the current date,
-in `localStorage` under `tree-service-bid-usage` — never the address, trees,
-wages, costs, or prices. It is opt-out from the footer, and it is skipped
-automatically when the browser sends Do Not Track or Global Privacy Control.
+Nothing is uploaded. Every figure stays in the browser. Three things are kept
+in this browser's `localStorage`, and none of them leaves it:
+
+- the bid you are working on, so a reload does not lose it ("Start a fresh
+  bid" clears it), under `tree-service-bid`;
+- your business details for the printed proposal, under
+  `tree-service-bid-company` ("Forget my business details" clears them);
+- an anonymous tally of which features were used and the current date, under
+  `tree-service-bid-usage`, which never holds the address, trees, wages, costs
+  or prices. The tally is opt-out from the footer, and it is skipped
+  automatically when the browser sends Do Not Track or Global Privacy Control.
 See [`usage.mjs`](usage.mjs) and [`portfolio/usage/`](../../portfolio/usage/README.md).
 
 Events counted: `bid_calculated`, `tree_added`, `tree_removed`,
-`proposed_price_compared`, `summary_copied`.
+`proposed_price_compared`, `summary_copied`, `link_copied`,
+`proposal_printed`, `company_forgotten`.
 
 ## Limitations
 
+- **The default hours run high against published price ranges** (quality audit
+  2026-11-10,
+  [`portfolio/quality/audits/2026-11-10-tree-service-bid-calculator.json`](../../portfolio/quality/audits/2026-11-10-tree-service-bid-calculator.json)).
+  At the page's defaults a 24-inch, 60 ft backyard oak near the house with the
+  stump ground and the wood hauled comes to about $6,500, several times the
+  consumer cost guides' range for a tree that size. The hour factors in
+  `calc.mjs` are fixed constants with no input on the page, so a crew whose
+  real hours are lower cannot correct them yet. Making them editable is on the
+  list.
+- Stump grinding is billed at the whole-crew rate plus chipper and truck. Most
+  shops price it per diameter inch on a one-person grinder rate.
 - Single currency and no tax or permit handling; the owner enters their own numbers.
 - One stop at a time. Recurring pruning contracts and storm-work day rates are
   not modelled yet.

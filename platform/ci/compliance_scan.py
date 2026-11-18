@@ -66,7 +66,7 @@ COOKIE_PERSISTENT = re.compile(r"max-age|expires", re.I)
 
 COMPETITOR_FIGURE = re.compile(
     r"(?:over|more than)\s+[\d,.]+\s*(?:k|m|million|thousand)?\+?\s+"
-    r"(?:users|customers|businesses|companies|pros|teams|sellers|members)",
+    r"(?:(?:field\s+service\s+)?professionals|users|customers|businesses|companies|pros|teams|sellers|members)",
     re.I,
 )
 AS_OF = re.compile(r"\bas of\b", re.I)

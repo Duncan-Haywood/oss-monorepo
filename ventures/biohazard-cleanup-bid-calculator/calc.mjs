@@ -154,7 +154,7 @@ export function calculateJobBid(input = {}) {
   );
   const naiveUndercount = round2(Math.max(0, directCost - naiveDirectCost));
 
-  const hasProposed = input.proposedPrice !== null && input.proposedPrice !== undefined && input.proposedPrice !== '';
+  const hasProposed = String(input.proposedPrice ?? '').trim() !== '';
   let proposed = null;
   if (hasProposed) {
     const proposedPrice = number(input.proposedPrice, 'Price you are considering', { allowZero: false });

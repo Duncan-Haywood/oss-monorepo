@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-09",
+  "subject": "ventures/wise-statement-to-journal",
+  "stratum": "venture",
+  "seed": "2026-11-09",
+  "auditor": "agent session (Claude), see run record",
+  "status": "audited",
+  "professional": "a bookkeeper or CPA who keeps multi-currency books for freelancers and small exporters in Xero or QuickBooks, and checks FX gain/loss, journal balance and import format first",
+  "scores": {
+    "correctness": 3,
+    "completeness": 3,
+    "verification": 3,
+    "craft": 2,
+    "claims": 3,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "Ran node --test calc.test.mjs page.test.mjs usage.test.mjs: 36 pass, 0 fail. Recomputed the sample statement independently with a separate float script (average cost, rates 1.10/1.12/1.11/1.125): card row 22.20 value, 22.13 cost, +0.07 FX (matches workings 2220/2213/7); EUR->USD conversion of 2,500 with 11.50 fee: principal 2,488.50 x Wise rate 1.125 = 2,799.56 (matches the row description and clearing debit 279956), fee 11.50 x 1.125 = 12.94, cost out 3,297.87 x 2500/2980 = 2,766.67, FX +45.83 (matches 4583); 4 Oct send: value 337.50, cost 332.00, FX +5.50 (tool 5.51 after per-line rounding); closing position 180.00 EUR at cost 199.20 (matches 19920). Total realised hand 51.40 vs tool 51.41 (cent rounding). Also checked IIF/Xero sign convention and that every journal balances. Edge case: an overdraw (opening 100 EUR, send 150) gives costOut 1,500 USD on a 1,000 USD basis, FX -1,335, negative cost basis; it is flagged by a warning but the number is not meaningful.",
+    "completeness": "Claims checked and working end to end on the sample: parse newest-first CSV; running-balance proof with break reporting; fees inside/on top detection (tested); typed closing balance check; opening cost; month-split journals; Xero CSV, QBO CSV, IIF, plain CSV, workings CSV, findings CSV; account mapping; conversion clearing account. Not built and honestly stated as not built: unrealised revaluation journal, FIFO, stored rates, multi-balance runs. No stubs or TODOs found in calc.mjs. index.html not loaded in a browser here (no browser run), only static checks by page.test.mjs.",
+    "verification": "36 tests pass. Mutation 1: changed fxGain from '- costOut' to '+ costOut' in buildJournals: 4 of 20 calc tests failed (caught), reverted with git checkout. Mutation 2: zeroed the journal 'fx' bump (dropped the realised FX line): 20/20 still passed, because the per-journal balance plug re-adds the missing amount as a 'Rounding' fx line (same account and amount, only the memo and a warning differ); no test asserts that a normal run has zero 'was off by' warnings or that the memo is not 'Rounding'. Reverted, git status clean. Test numbers are the author's own sample, but the sample values were reproduced by hand above.",
+    "craft": "Read calc.mjs (418 lines), calc.test.mjs, page.test.mjs. Logic is pure, integer cents, no network. Defects: very dense one-line statements (parseStatement delimiter detection line 146, bump/row loop) hard to review; dead code (`|| !rows.length` at 225 after an early return; `asRows` alias 199; unused `journals` argument of docNo); the journal balance plug (305) can silently mask a logic error as 'Rounding'; overdrawn rows produce negative cost basis; mixed-currency rows are dropped after a warning; parseAmount('1,234') is read as 1234 only via the thousands regex but '12,5' as 12.50 (ambiguous locale heuristics, documented only partly). No linter or types.",
+    "claims": "Checked: 'nothing is uploaded' backed by page.test.mjs regex test for fetch/XHR/WebSocket and local-only imports (passes); disclaimer, no-warranty, financial-data note and independence from Wise asserted by page.test.mjs and present in index.html; limits ('Not checked', unrealised not journalled, tax treatment, layouts from memory, no real statement) stated in README, VENTURE.yaml and the page. No fake reviews. The README claim 'proved row by row' is backed by the running-balance code and tests. Minor unbacked or stale: llms.txt links to the retired GitHub Pages address, and canonical, sitemap and robots use relative URLs that crawlers will not honour.",
+    "fitness": "Walked a freelancer's job: paste statement, type rates, get balanced journal and workings. Works on the synthetic statement. But no real Wise statement was ever used (column names and fee convention are from memory), the Xero CSV puts account names like 'Wise Incoming Payments' in *AccountCode where Xero expects codes or exact names that exist (the user must map them), rates must be typed by hand for every day, one currency per run, and the first real file may be rejected. Usable as a lead magnet; a bookkeeper would hit friction in the first hour.",
+    "domain": "Compared with ordinary multi-currency bookkeeping practice (ASC 830 / IAS 21 style: translate each transaction at the spot rate on the day, recognise realised FX on settlement, carry the foreign balance at cost). Average-cost tracking, fee at spot, conversion proceeds at the rate actually obtained, and a clearing account that nets across balances are sound and what a bookkeeper would do. Departures: no period-end revaluation journal (shown only), user-typed rates with silent fallback to the nearest earlier day, no FIFO or specific-lot option, FX recognised on bank-line fees, and importer layouts unverified. Tax treatment explicitly out of scope."
+  },
+  "defects": [
+    {
+      "severity": "medium",
+      "what": "Balance plug in journal builder can mask a lost FX line (or any imbalance) as a 'Rounding' line; seeded mutation that dropped the FX line passed all 36 tests",
+      "where": "ventures/wise-statement-to-journal/calc.mjs:305"
+    },
+    {
+      "severity": "medium",
+      "what": "Spending more than the balance holds gives a negative cost basis and a large meaningless FX figure (-1,335 USD in a 150 EUR vs 100 EUR case); only a warning is raised",
+      "where": "ventures/wise-statement-to-journal/calc.mjs:271-273"
+    },
+    {
+      "severity": "medium",
+      "what": "Xero export writes account names into the *AccountCode column; unless the user maps codes it will not import, and the layout is unverified against a real import",
+      "where": "ventures/wise-statement-to-journal/calc.mjs:335-340"
+    },
+    {
+      "severity": "medium",
+      "what": "No real Wise statement or live import was ever used; column names, fee convention and importer layouts are from memory (disclosed)",
+      "where": "ventures/wise-statement-to-journal/README.md"
+    },
+    {
+      "severity": "low",
+      "what": "llms.txt links to the retired GitHub Pages URL; canonical, sitemap.xml and robots.txt use relative URLs",
+      "where": "ventures/wise-statement-to-journal/llms.txt:6; sitemap.xml; robots.txt"
+    },
+    {
+      "severity": "low",
+      "what": "Dead code: redundant !rows.length check, unused asRows alias, unused docNo parameter; dense one-liners",
+      "where": "ventures/wise-statement-to-journal/calc.mjs:225,199,333"
+    }
+  ],
+  "fix_prs": [],
+  "verdict": "A small, honest, pure-logic tool that does what it says on its own sample: 36 tests pass, three independent recomputations (card FX +0.07, conversion principal 2,799.56 and FX +45.83, closing cost 199.20) match to the cent, and a seeded sign mutation in the FX gain was caught by four tests. The limits are stated clearly and the privacy claim is test-backed. It meets the bar on correctness, claims and verification, but weaker on craft, fitness and domain: a journal-balance plug lets a dropped FX line pass unnoticed, overdrawn balances produce nonsense costs, the Xero layout uses names for codes, and nothing has been run against a real Wise export or a live import. Scores are before any fix."
+}

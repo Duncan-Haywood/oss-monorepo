@@ -14,6 +14,7 @@ import {
   formatEventTime,
   formatOffsetDelta,
   formatUtcOffset,
+  isDaylight,
   parseCityIds,
   reachability,
   serializeCityIds,
@@ -316,4 +317,12 @@ test("a share link naming only unknown cities yields an empty selection", () => 
   // The page falls back to the defaults rather than rendering an empty table —
   // asserted in page.test.mjs; here we only pin that parsing says "nothing".
   assert.deepEqual(parseCityIds("atlantis,el-dorado"), []);
+});
+
+test("Reykjavik midsummer: sunset-before-sunrise on one local date still gives sane daylight (quality audit 2026-11-09)", () => {
+  const city = CITIES.find((c) => c.id === "reykjavik");
+  const d = new Date(Date.UTC(2026, 5, 20, 12, 0));
+  const mins = daylightMinutes(city, d);
+  assert.ok(mins > 1200 && mins <= 1440, `daylight ${mins}`);
+  assert.equal(isDaylight(city, d), true);
 });

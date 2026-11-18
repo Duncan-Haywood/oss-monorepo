@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2032%2032'%3E%3Crect%20width='32'%20height='32'%20rx='7'%20fill='%23314f86'/%3E%3Ctext%20x='16'%20y='23'%20font-size='20'%20font-family='system-ui,sans-serif'%20font-weight='700'%20text-anchor='middle'%20fill='%23fff'%3EJ%3C/text%3E%3C/svg%3E">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>How the Job Shop Scheduler Works | Tabu Search, Bounds, Benchmark</title>
+  <meta name="description" content="How the free job shop scheduler finds a short makespan: the disjunctive graph, Giffler-Thompson dispatch rules, tabu search on critical blocks, a one-machine lower bound, an exact search on small shops, and its results on 162 JSPLIB benchmark instances.">
+  <meta property="og:title" content="How the Job Shop Scheduler works">
+  <meta property="og:description" content="Dispatch rules, tabu search, a proved lower bound, and how it did on the standard job shop benchmarks.">
+  <meta property="og:type" content="article">
+  <link rel="canonical" href="./how-it-works.html">
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How the Job Shop Scheduler works","about":"Job shop scheduling to minimise makespan","isPartOf":{"@type":"SoftwareApplication","name":"Job Shop Scheduler"}}</script>
+  <style>
+    :root { color-scheme: light; font-family: system-ui, sans-serif; color: #161b26; background: #eef1f7; --accent: #314f86; --accent2: #233b67; --ink2: #4b5468; --line: #c9d0de; }
+    body { max-width: 820px; margin: 0 auto; padding: 32px 16px; }
+    h1 { font-size: clamp(1.8rem, 5vw, 2.6rem); line-height: 1.08; letter-spacing: -.03em; margin: 0 0 14px; }
+    h2 { font-size: 1.25rem; margin: 30px 0 8px; }
+    p, li { line-height: 1.55; }
+    a { color: var(--accent2); }
+    .scroll { overflow-x: auto; }
+    table { border-collapse: collapse; width: 100%; font-size: .88rem; font-variant-numeric: tabular-nums; margin: 10px 0; }
+    th, td { border-bottom: 1px solid var(--line); padding: 5px 8px; text-align: right; }
+    th:first-child, td:first-child { text-align: left; }
+    code { font-size: .9em; }
+    footer { margin-top: 30px; font-size: .84rem; color: var(--ink2); }
+  </style>
+</head>
+<body>
+  <p><a href="./">&larr; Back to the job shop scheduler</a></p>
+  <h1>How the job shop scheduler works</h1>
+  <p>A job shop has machines and jobs. Each job is a list of operations in a fixed order (saw, then mill, then drill), each on one machine for a set time. A machine runs one operation at a time and finishes it once started. Choosing the order each machine takes its work in fixes the whole schedule: every operation starts as soon as both its machine and the job's previous step are free. The <em>makespan</em> is when the last job finishes. Finding the order with the shortest makespan is the classic job shop problem, and it is NP-hard: a 10-job, 10-machine instance published in 1963 (Fisher and Thompson's ft10) was only proved optimal in 1989 (Carlier and Pinson, <em>Management Science</em> 35(2)).</p>
+
+  <h2>1. The schedule as a graph</h2>
+  <p>Each operation is a node. Arrows join each job's steps in order; choosing machine orders adds arrows between operations on the same machine. The makespan is the longest path through the graph, and a set of orders is valid when the graph has no cycle. This is the disjunctive graph of Roy and Sussmann (1964) and Balas (1969, <em>Operations Research</em> 17(6)). For every operation the page computes its <em>head</em> (earliest start) and its <em>tail</em> (the longest path after it ends). An operation whose head, time and tail add up to the makespan is <em>critical</em>: delaying it delays everything.</p>
+
+  <h2>2. A first schedule from dispatch rules</h2>
+  <p>Giffler and Thompson's algorithm (1960, <em>Operations Research</em> 8(4)) builds an <em>active</em> schedule one operation at a time: find the operation that could finish first, collect the operations on its machine that could start before then, and pick one by a rule. The page tries five rules (most work remaining, shortest operation, most operations remaining, longest operation, first come) and keeps the best. Some optimal schedule is always active, so this is also the branching rule of the exact search below.</p>
+
+  <h2>3. Tabu search on critical blocks</h2>
+  <p>Only reordering critical operations can shorten the makespan. Along one critical path, consecutive operations on the same machine form <em>blocks</em>. Nowicki and Smutnicki (1996, <em>Management Science</em> 42(6)) used the fact that swaps inside a block cannot shorten the makespan straight away unless they touch its first or last operation, so their N5 neighbourhood only swaps the first two or the last two operations of each block. Swapping two adjacent critical operations never creates a cycle (van Laarhoven, Aarts and Lenstra, 1992). Each candidate swap is scored by Taillard's quick estimate (1994, <em>ORSA Journal on Computing</em> 6(2)) from the heads and tails, without rebuilding the schedule. The page takes the best swap that is not <em>tabu</em> (recently reversed) unless it beats the best schedule so far, and after a long run without improvement it restarts from the best schedule with a few random swaps. Our code is a plain version of these ideas, not a reproduction of the published TSAB algorithm, which adds a back-jump list and is stronger.</p>
+
+  <h2>4. The lower bound, and when the page says "proved"</h2>
+  <ul>
+    <li><strong>Longest job.</strong> No schedule ends before the longest job's total time.</li>
+    <li><strong>Busiest machine.</strong> Nor before the busiest machine's total load.</li>
+    <li><strong>One machine at a time.</strong> Give each operation on a machine its head (the job's work before it) and tail (the job's work after it). Even if operations could be interrupted, the machine cannot finish its work with tails sooner than Jackson's preemptive schedule, which always runs the waiting operation with the longest tail (Carlier, 1982, <em>European Journal of Operational Research</em> 11(1)). The bound is the worst machine.</li>
+  </ul>
+  <p>If the best schedule's makespan equals the bound, it is optimal and the page says so. On shops of up to 64 operations, the page then runs a depth-first branch and bound over Giffler-Thompson choices, cutting any branch whose one-machine bound (recomputed for the operations left) cannot beat the best schedule. It first runs this search capped at 2,000 nodes, before any tabu search: in a run on 300 random shops of up to 7 jobs and 6 machines, nine in ten of the shops the dispatch rules left unproved were settled within that cap. Only the rest get a short tabu run (at most 300 ms) for a better starting schedule, then the uncapped search until the time limit. If it finishes, the answer is proved by exhaustive search. Otherwise the page shows the best schedule and the bound, and never calls that answer optimal.</p>
+
+  <h2>5. How it did on the standard benchmarks</h2>
+  <p><a href="https://github.com/tamy0612/JSPLIB">JSPLIB</a> collects the 162 job shop instances researchers test on: Fisher and Thompson's ft06, ft10 and ft20 (in Muth and Thompson, 1963), Lawrence's la01 to la40 (1984), Adams, Balas and Zawack's abz5 to abz9 (1988), Applegate and Cook's orb01 to orb10 (1991), Storer, Wu and Vaccari's swv01 to swv20 (1992), Yamada and Nakano's yn1 to yn4 (1992) and Taillard's ta01 to ta80 (1993), from 6 jobs on 6 machines to 100 jobs on 20. Its <code>instances.json</code> records each optimum, or bounds where none was known when it was compiled. <code>bench/jsplib.mjs</code> runs the engine on every instance with the page's default limit of 4 seconds on one thread, checks every schedule with code separate from the solver, and writes <code>bench/jsplib.md</code>.</p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>JSPLIB, 4 s per instance</th><th>Instances</th></tr></thead>
+      <tbody>
+        <tr><td>Same makespan as JSPLIB's recorded optimum</td><td id="bAgree">66 of 103</td></tr>
+        <tr><td>Proved optimal by this engine within the limit</td><td id="bProved">54 of 162</td></tr>
+        <tr><td>Longer than JSPLIB's optimum or best upper bound</td><td id="bWorse">85</td></tr>
+        <tr><td>Shorter than JSPLIB's best upper bound</td><td id="bBetter">1</td></tr>
+        <tr><td>Mean gap to JSPLIB's optimum or upper bound (152 instances that have one)</td><td id="bGap">1.01%</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p id="benchText">By family: all three Fisher and Thompson instances at their optima, including ft10 (930) and ft20 (1165); Lawrence's la01 to la40 at the optimum on 30 of 40, with a mean gap of 0.19% and the worst 1.7%; Applegate and Cook's orb at 7 of 10. The harder families are further off: abz 2 of 5 (mean gap 1.4%), swv 5 of 20 (2.4%, worst 5.5%), yn 0 of 4 (1.4%) and Taillard's ta01 to ta70 at 1.2% on average, worst 4.4%. Most of the proofs come from the schedule meeting the lower bound, which is common on instances with many more jobs than machines. On Taillard's ten largest (ta71 to ta80, 100 jobs on 20 machines), for which JSPLIB records no value, the engine met its own lower bound, and so proved its schedule optimal, on 9 of 10. On ta29 its 1627 is below JSPLIB's recorded upper bound of 1635; that bound is out of date, and better schedules for ta29 have been published since, so this is not a new record. Published state-of-the-art methods get much closer to the best known values, usually with far longer runs; a plain tabu search at 4 seconds on one browser thread does not, and the table shows where. On every unproved row the page says "best found" and gives the bound.</p>
+
+  <h2>6. What it does not model</h2>
+  <p>This is the classic problem: each operation on one named machine, fixed times, no setup or changeover times, no transport between machines, every job available at time zero, and the goal is the makespan rather than due dates. Real shops have alternative machines, shifts, breakdowns and rush orders. Use the answer as a sequence to start from and a measure of what the routings allow, and check it on the floor.</p>
+
+  <footer>
+    <p><strong>No warranty. This is a planning estimate, not engineering or operations advice.</strong> It schedules the routings and times you type. Provided free and as-is; you are responsible for verifying the output before relying on it. Not affiliated with or endorsed by the authors cited or by the JSPLIB maintainers.</p>
+    <p>Free and open source under the <a href="LICENSE">MIT licence</a>. <a href="https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/job-shop-scheduler">Source and benchmark output</a>. <a href="https://github.com/sponsors/Duncan-Haywood">Sponsor the work</a>. <a href="../">More free tools</a>.</p>
+  </footer>
+</body>
+</html>

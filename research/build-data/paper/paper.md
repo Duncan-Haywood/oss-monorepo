@@ -1,4 +1,4 @@
-# Open permit feeds predict permit duration only where the city's own history is available: a three-city benchmark with a forward-in-time split
+# Open permit feeds predict permit duration only where the city's own history is available: a four-city benchmark with a forward-in-time split
 
 Draft 0 (session 13, 2026-11-01; section 4.1 and the to-do list updated 2026-11-03). AI-assisted work; no affiliation with any city,
 agency or journal. Not legal, engineering or financial advice. Every number below
@@ -28,6 +28,15 @@ match the city's full-history baseline in Chicago and San Francisco a2i, and a
 per-type table built from a few hundred local rows is usually as good. The practical
 reading is that a national model does not replace per-city history, and a new city
 should collect its own few thousand permits first.
+
+A fourth city, Seattle (194,184 rows, public domain), was added afterwards with the same
+code (4.8). Findings (2) to (5) above describe the three original cities. In Seattle the
+boosted model also beats the baseline at all three quantiles in both targets (19 of 21
+cells overall), and the three-key table is narrower than the baseline (a2i -7.4 days,
+i2c -18.3, intervals exclude zero). Transfer to Seattle is mixed: a2i is worse at q0.9
+(+27% in 2023 and 2024), but i2c transfer beats Seattle's own baseline at q0.1 and q0.5 in
+both years (-6.7 to -10.7%) and at q0.9 only in 2024 (-5.1%; +11.2% in 2023). Transfer
+intervals under-cover (0.61 to 0.72 against 0.80 nominal).
 
 ## 1 Introduction and related work
 
@@ -224,6 +233,281 @@ model on the same harmonised features beats the baseline in Austin, so the cost 
 moving between cities, not the thin feature set. i2c transfer has a single source
 city.
 
+### 4.4a The harmonised class barely overlaps between cities (diagnostic, no new model run)
+
+The one categorical feature a transfer model shares across cities is the keyword-harmonised
+class. Its test-year shares, stored in every `../results/transfer_*.json`, show the cities
+fall into almost disjoint classes (`../src/class_overlap.py`, `../results/class_overlap_2024.md`):
+SF is 97 to 98% "alteration", Austin is electrical, plumbing and mechanical plus 21 to 22%
+"other", Chicago is 69% "other" and Seattle 91% "other" with the rest "demolition". The
+overlap coefficient between a held-out city and its row-weighted source mix (source shares
+taken from the same test year, a proxy for the training years) is 0.00 to 0.34, and 0.00 to
+0.19 once the catch-all "other" is dropped (0.00 or 0.01 in five of seven city/target cells;
+i2c Austin and SF share no class at all). So in H4 the class feature cannot carry permit-type
+knowledge from one city to another; the transfer model is in effect a model of log cost,
+description length and calendar, and its "class" for a new city says which source city's
+catch-all the permit resembles. This narrows what 4.4 and 4.8 can claim: they test whether
+those four generic fields transfer, not whether permit types do. A class map retuned on each
+feed's real vocabulary is the test that would separate the two (to do 6); `src/transfer.py`
+also stores the source training shares; for Seattle 2022 they give an overlap of 0.27 (a2i) and
+0.20 (i2c), and 0.006 and 0.00 without "other" (session 69), close to the test-year proxy.
+
+Why the catch-all is so large (session 69, `../src/other_vocab.py`, `../results/other_vocab.md`):
+each feed has only 4 to 9 raw permit types, and in two cities the field does not name the kind
+of work. Chicago's permit types are review tracks ("express permit program" 40.5% of rows since
+2015, "easy permit process" 22.9%), and Seattle's is "building" for 90.1% of rows. The work-class
+field rescues only Austin, whose "building permit" rows carry new, repair, remodel or demolition
+(the same keyword map would class 25.4% of Austin's rows from it); Chicago's work class repeats the
+review track and Seattle's is residential or non-residential. So a map retuned on structured fields
+cannot give Chicago or Seattle a work type: that needs the description text, which the loader
+keeps only as a length.
+
+### 4.4b Do the description rules agree with a reader? (session 71, hand labels)
+
+The cascade in to do 6 needs a work type from the description, so its keyword rules were scored
+against hand labels (`../src/desc_eval.py`, `../results/desc_rules_eval.json`). Samples hold
+applications whose permit type and work class both fall to "other" in Chicago and Seattle, the
+rows the description must rescue. One labeller (the agent running the session) labelled from the
+text alone, by a written protocol, without the rules' output. On a 2023 development sample
+(200 rows per city) the pre-registered rules (session 70) agreed with the labels on 56.0% of
+Chicago rows and 77.0% of Seattle rows. The errors had clear patterns: "erect" sent solar arrays
+and fences to new construction, electrical service and panel work had no rule, and Seattle's
+"construct west two-family dwelling" lacks the word "new". Revised rules written against those
+errors were then scored on a 2022 held-out sample (150 rows per city, labelled before either rule
+set ran on it): 85.3% (95% Wilson interval 78.8 to 90.1) in Chicago and 95.3% (90.7 to 97.7) in
+Seattle, against 60.0% and 78.0% for the original rules (exact McNemar p 4e-10 and 2e-7; 2 and
+1 rows where only the original was right, 40 and 27 where only the revision was). A single
+labeller and a non-uniform draw within each year limit these numbers; they show the original
+rules were too noisy to test whether a work type transfers, and the revised rules are usable.
+
+With a work type, H4 for Seattle (2024 test, 3 seeds, `../results/transfer_seattle_*_2024_4city_cascade*.json`)
+changes where the class matters. The class overlap between Seattle and its sources' training years,
+without "other", rises from 0.006 to 0.50. For application-to-issue the q0.9 transfer penalty is
++27.4% with the permit-type class, +41.7% with the noisy original rules, and +15.9% (CI still
+above zero) with the revised rules, whose interval covers 0.755 against 0.644. Issue-to-completion
+q0.1 and q0.5 stay about 10 to 11% better than the baseline in every configuration, and q0.9 stays
+within noise of it. So part of the upper-tail transfer gap was a class problem, and a noisy class
+did more harm than none. One test year and one held-out city so far; the three configurations are
+compared with the baseline only; the paired comparison follows.
+
+A paired week-block bootstrap of the revised-rule class against the permit-type class on the same
+test rows (`../results/paired_transfer_seattle_*_2024_4city_cascade2_vs_type.json`, session 74;
+predictions written in session 73) puts an interval on the difference itself. For application-to-issue
+the work type lowers the transfer model's q0.9 loss by 3.9 days (95% interval 2.8 to 4.9; 11.5% of
+the baseline's loss) and helps a little at q0.5 (0.5 days). For issue-to-completion it helps at q0.1
+and q0.5 (0.7 and 0.8 days) but costs 2.2 days at q0.9 (interval 0.9 to 3.5; 4.7%), which the unpaired
+comparison could not detect. The own-city model gains in all six target-quantile cells (0.4 to 2.1
+days), so the class carries signal inside Seattle; across cities it helps everywhere except the upper
+tail of build time.
+
+The 2023 repeat and a per-class breakdown (session 75, feeds re-pulled 2026-11-11; `by_class` in the
+paired files, `../src/tail_check.py`, `../results/tail_check_seattle_i2c_{2023,2024}.json`) qualify
+that. The application-to-issue gain repeats: in 2023 the work type lowers the transfer q0.9 loss by
+5.6 days (95% interval 4.6 to 6.5; 13.7% of the baseline's loss). The issue-to-completion q0.9 cost
+does not: in 2023 the difference is -1.6 days (interval -3.4 to +0.1), and on the re-pulled feeds the
+2024 cost is 3.0 days (1.6 to 4.4). So the cost appears in one of two test years. Where it appears, it is not
+new construction (0.4 of the 3.0 days) but demolition: Seattle's 398 demolition test rows carry 1.7
+days (56%), at a mean of +18 days per row. Demolition is also the one class whose completion tail is
+longer in the source cities than in Seattle (q0.9 ratio 1.20 in 2024, 1.10 in 2023); in new
+construction and alteration Seattle's tail is longer (ratios 0.57 to 0.77) and its median completion
+time is about twice the sources' in every large class. A post-hoc reading, not a pre-registered
+test: naming the class imports the sources' tail, and that only hurts where the sources' tail is the
+longer one. Seattle's recent cohorts are right-truncated (a 2024 permit still open at the pull has no
+completion date), which shortens its observed tails, so the ratios understate Seattle's longer tails.
+
+Session 76 tested that reading directly (`../results/paired_transfer_seattle_*_2024_4city_cascade2_nodemo_vs_cascade2.json`,
+four predictions written before the run, all held). Folding demolition into alteration, with the
+training rows unchanged, lowers the 2024 issue-to-completion transfer q0.9 loss by 2.0 days (95%
+interval 1.2 to 2.7), and the rows the unfolded class calls demolition carry 1.7 of those 2.0 days.
+Against the permit-type class the folded configuration's q0.9 cost falls from 3.0 to about 1.0 day
+(a difference of two paired estimates, with no interval of its own), while it keeps the lower-quantile
+gains and, for application-to-issue, the whole 3.9-day q0.9 gain (fold minus unfolded -0.07 days,
+interval spanning zero). That fold was chosen after seeing the per-class split of the same test year.
+A rule fixed before the test year exists does not reproduce it (session 77,
+`../results/*_cascade2_tailfold*.json`, `../results/truncation_check_seattle_i2c_*.json`; five predictions
+written before the runs). Comparing the sources' q0.9 with the held-out city's own history (years up to
+Y-2) instead of its test year, every Seattle class has the shorter tail on the source side, demolition
+included (665 against 952 days), so the rule folds nothing. The test year looks different because it is
+right-censored: a 2024 build-time row exists only if the permit was completed before the pull. Censoring
+Seattle's history to the same window gives demolition a q0.9 of 580 days against the test year's 552
+(2023: 629 against 612), and every large class within 8%. So the demolition cost of 4.4b is a property of
+scoring on censored labels. Folding demolition still helps in 2023 (-1.3 days, interval -2.1 to -0.4),
+which is what a censored-history rule would choose. On application-to-issue, where censoring matters
+little, the history rule folds six classes when Chicago is held out and lowers the transfer q0.9 loss by
+1.5 days (13% of the baseline's loss; interval 1.3 to 1.6), and folds four when Austin is held out and
+raises it by 3.0 days (8%; interval 1.7 to 4.3). Most of Austin's cost sits in classes the rule left alone
+(mechanical and plumbing), so merging classes changes the shared model in ways a per-class tail ratio
+does not predict.
+
+Session 78 scored build time on labels the pull can see in full (`../src/censored_eval.py`,
+`../results/censored_eval_*.json`; five predictions written before the runs). Test years 2020, 2021
+and 2022 are 4 to 6 years old at the 2026 pull. Each was scored on all its rows, as a reference, and
+on the rows a pull two years after the test year would have seen, the same 681-to-1,046-day windows
+as the real 2024 test year. The rows were scored both complete-case (CC), as before, and with inverse
+probability of censoring weights (IPCW; Robins and Rotnitzky 1992; Graf et al. 1999), using the same
+fitted models. On complete labels, folding demolition costs 1.7, 2.5 and 2.4 days at transfer q0.9
+(intervals 0.2 to 3.2, 1.4 to 3.6, 1.6 to 3.3). CC on the truncated rows reports -0.9, -0.8 and
++0.9, a reversed sign in two of three years, which is the pattern the 2024 test year showed. IPCW
+brings the estimates only 10 to 40% closer to the reference. Its weights match the observed selection
+(seen share against G(y) within 0.1 in every bin), but 5 to 8% of each cohort takes longer than the
+longest window, and the cohort's q0.9 (810 to 945 days) lies in that region. No reweighting can
+recover it: the IPCW q0.9 is 16 to 34% short. So the 2024 fold gain (-2.0 days CC, -1.5 IPCW) is a
+censoring artefact, and session 76's fold is withdrawn. The same truncation hides most of the local
+model's tail gain: own-city boosted minus own baseline at q0.9 is -6.6 to -13.0 days on complete labels
+against -0.7 to -4.1 CC. The median results stand. Transfer beats Seattle's own baseline at q0.5 in
+every year, by more on complete labels (-5.3 to -8.3 days) than CC shows. From here, build-time q0.9 is
+scored only on test years whose shortest window exceeds the cohort's tail.
+
+Session 79 applied that rule to the permit-type against work-type comparison of 4.4b
+(`../results/censored_eval_validate_*_cascade2-type-cascade2_nodemo.json`; five predictions written
+before the runs). On all rows of Seattle's 2020, 2021 and 2022 cohorts the work-type class lowers the
+transfer q0.9 loss by 3.2, 6.3 and 6.3 days (intervals 1.2 to 5.2, 4.1 to 8.2, 4.1 to 8.8). The 2024
+cost reported above (2.2 days in session 74, 3.0 on the re-pulled feeds) is therefore a censoring
+artefact like the fold gain: complete-case scoring of a two-year window is below the reference in all
+three years and reports a cost in 2020 (-2.3 days, interval -3.7 to -0.9). At the median the class is
+a wash in Seattle (-0.4 to +0.8 days). With other cities held out (test year 2021 only) the sign of the
+tail effect changes. San Francisco gains 15.7 days at q0.9 (interval 14.2 to 17.4); Austin loses 15.3
+(14.6 to 16.0), although the class helps Austin at the median (2.6 days) and helps Austin's own-city
+model at every quantile. Folding demolition, which costs Seattle 1.7 to 2.5 days, changes nothing in San
+Francisco (0.0) and helps Austin (-2.0 days, interval -2.9 to -1.3). Censoring distorts the comparison
+in proportion to how much of a cohort outlasts the window: in Seattle (5 to 8% beyond the longest window)
+complete-case scoring shrinks or reverses the effect, in San Francisco (3.5%) and Austin (1.6%) it keeps
+the sign and inflates the size (SF +33.9 against +15.7 days). In Austin the IPCW assumption that build
+time does not depend on the issue day within the year also fails (800-to-900-day rows seen 41% of the
+time against a predicted 55%). For a practitioner the result is a check, not a rule: whether a class
+feature helps a borrowed model's build-time tail must be measured per target city, on cohorts old
+enough to be seen in full.
+
+Sessions 80 to 82 asked where that per-city difference comes from and whether a rule read from the
+source cities alone can remove it (`../src/class_shift.py`, `../src/censored_eval.py` with
+`--classes`; `../results/minsup_summary.json`, `../results/minsupna_summary.json`; five predictions
+written before the runs in each session, plus one post-hoc check marked as such). The work-type class
+fills San Francisco's alteration class, 98% of its permits, with 271,672 source rows, and fills
+Austin's electrical, mechanical and plumbing classes, 76% of its permits and 77 to 86% of its cost,
+with only 42 to 480 Seattle rows whose q0.9 build times are 1.6 to 2.7 times Austin's own. Three fold
+rules were then tried on test years 2021 and 2022, each fixed on source data only, each scored on all
+rows of cohorts old enough to be seen in full. Folding a class with fewer than k = 1,000 source
+training rows into "other" (k chosen on 2020 from 100, 1,000 and 10,000) wins back 9.3 and 4.6 days of
+Austin's q0.9 cost and costs 8.5 and 4.4 days at the median. Folding the same classes to a missing
+category instead reverses that trade: the median cost goes (+1.0 and -1.8 days) and the tail gain goes
+with it (-1.2 and +1.1). The reason is that a missing category is not an unseen one. The sources' 721
+and 752 thin-class rows still carry the missing label in training, so they train the branch LightGBM
+routes both missing and never-seen categories down. Dropping those source rows recovers the tail
+(-13.0 and -5.4 days, 11.8 and 6.5 better than the missing fold, both intervals below zero) and
+returns the median cost (+4.6 and +5.6). Elsewhere all three rules are neutral: San Francisco keeps
+its whole 15.7-to-22.7-day gain (changes of at most 0.4 days) and Seattle does not move. Across all
+four treatments of Austin's thin classes, including leaving them out of the class vocabulary
+altogether, the plain permit-type class beats every fold rule in Austin at both quantiles in both
+years, so the cost is not confined to the thin classes: naming work types also changes which source
+rows sit beside the target city's remaining permits. A rule read from source counts alone has now
+failed three ways, and the class configuration has to be chosen per target city.
+
+Sessions 83 and 84 made that choice from the target city's own history (`../src/select_class.py`,
+`../src/select_deploy.py`; `../results/select_class_summary.json`, `../results/select_deploy_summary.json`;
+five predictions written before the runs in each session). The transfer model for test year Y never reads
+the target city, so the target's earlier years are clean selection sets. Three candidates were compared
+(work-type class, plain permit type, and the drop fold), and two rules: pick the lowest selection loss, or
+keep the work-type default unless a candidate beats it with a 95% week-block interval below zero. Over 12
+cells (Austin, San Francisco and Seattle held out; test years 2021 and 2022; q0.5 and q0.9), choosing from
+the target's year Y-1 scored on complete labels lands within 0.65 days of the best candidate in every cell
+(mean regret 0.07 days; gated 0.05), against 1.7, 2.8 and 6.6 days for any fixed class. Year Y-2 on
+complete labels does as well (0.03). But those labels do not exist when a model ships. On 1 January of the
+test year only 28 to 61% of the target's Y-1 permits have completed, with a q0.9 build time of 182 to 240
+days against 428 to 945 on all rows. Scored on what is visible then, the selector's mean regret rises to
+1.1 to 1.6 days. The best deployable variant (Y-2, inverse-probability-of-censoring weights, the gate)
+reaches 0.58 days and is within a day of the best in 11 of 12 cells. Its one miss is Seattle's tail
+(6.3 days). There the work-type class wins at q0.9 on permits that take years, while on the permits
+already completed the plain permit type looks better (&minus;1.4 days, interval &minus;2.8 to &minus;0.1,
+against +4.8 on complete labels). The censoring bias of 4.4b (session 79) thus reaches the selection set
+too. A significance gate does not catch it, and IPCW cannot repair a tail that lies past the longest window.
+Session 85 (`../results/select_deploy_es_summary.json`; five predictions written before the run) moved the
+selection set to the target's year Y-3, 93 to 99% complete on 1 January, and also early-stopped the borrowed
+model on only the source permits completed by then. On Y-3 the gate keeps the work-type class in Seattle's
+tail (&minus;1.0 days, interval &minus;2.5 to +0.4), and the selector's mean regret is 0.31 days (1.75 at
+worst, Austin's median in both years, where even the hindsight choice is wrong), within 0.14 days of the
+hindsight choice under the same model. The early-stopping cut is the larger cost: the best candidate's
+test loss rises by 1.29 days on average over the 12 cells, up to 6.9 days in Austin's 0.9 quantile, because
+a validation set without long builds stops the tail model too early.
+Sessions 86 to 88 (`../src/rounds.py`; `../results/rounds_summary.json`, `../results/rounds_score_i2c.json`,
+`../results/rounds_score_ipcw_i2c_summary.json`, `../results/ipcw_reach_i2c.json`; predictions written before
+each run) took that explanation apart. A borrowed model built only from what was known on 1 January (source
+training rows completed by then, round counts fixed from older years) recovers Austin's tail but costs
+Seattle 2021 10.9 days at q0.9. Early-stopping it on the sources' year Y-3 instead still stops the q0.9 model
+after 8 to 17 rounds in 5 of 6 city-years, yet over 18 model-cells the round count does not track the tail
+loss (Spearman 0.02). What does is the training cut: dropping only the 0.45 to 0.56% of source permits still
+open on 1 January, with complete-label early stopping, costs San Francisco and Seattle 1.0 to 5.1 days at
+q0.9, while Austin, whose borrowed tail is too long, gains 2.3 and 5.7. Inverse-probability-of-censoring
+weights on the completed rows (G per source city-year from its issue days) halve the deployable model's
+q0.9 cost in San Francisco and Seattle (+2.53 days against +4.74, better in 4 of 4) but give back only 18
+to 33% of the cut alone, because 55 to 65% of the dropped permits outlast the longest window any permit of
+their city-year has: G is zero there, and no reweighting of finished permits can stand for them.
+Session 89 (`../src/cens_reach.py`; `../results/rounds_score_cens_i2c_summary.json`, `../results/cens_reach_i2c.json`;
+five predictions written before the run, six more for a post hoc variant) kept the open permits as lower bounds
+instead, with Portnoy's (2003) redistribution: each open permit's quantile level tau_i comes from a Kaplan-Meier
+fit (Kaplan and Meier 1958) over its source city and class, and for a quantile tau above tau_i its mass is split
+between its window and +infinity. In linear quantile regression only the sign of a residual enters, so the
++infinity label is harmless. In gradient-boosted trees it is not, because LightGBM resets each quantile leaf to
+the weighted percentile of its residuals, so a leaf where open permits hold more than 1 - tau of the weight lands
+on their far-right label. The q0.9 cost in San Francisco and Seattle rose to +36.4 days with complete-label early
+stopping and +84.9 in the deployable model (IPCW: +2.53). Putting the upper pseudo-row at the stratum's longest
+completed build instead roughly halves that (+21.8, +14.5), but the feeds record completed builds of 12 to 60
+years, and q0.9 predictions still reach 25,600 days. Censored rows can enter a boosted quantile model only
+through a loss that never sets a leaf from their position: a censored-pinball objective without leaf renewal.
+Session 90 (`../src/cpin.py`; `../results/rounds_score_cpin_i2c_summary.json`; seven predictions written before
+the run) wrote that objective, keeping leaf renewal but taking it from the censored loss itself. An open permit
+with window c is charged tau * max(c - q, 0), only while the prediction is below its window; each LightGBM tree is
+grown on that loss's gradient and its leaves are then set to the loss's minimiser over their rows, a weighted
+percentile in which an open row sits at its window with weight tau. With no open rows this is LightGBM's own
+quantile update (on San Francisco 2021, 73.27 days at q0.9 against 73.17). With the open permits in training and
+in the censored early-stopping year, the deployable model's q0.9 cost in San Francisco and Seattle falls to +1.63
+days against the complete-label model (IPCW +2.53, unweighted +4.74; lower than IPCW in 4 of 4 city-years) and its
+q0.5 cost to -0.15. With complete-label early stopping the same loss recovers 47 to 89% of what dropping the open
+permits costs, within a day of the complete-label model in 3 of 4 city-years. Its q0.9 predictions still exceed
+ten years in 3 of 24 runs, on at most three test permits. Held out Austin, whose builds are shorter than its
+sources', loses part of the gain it had from dropping the long builds (q0.9 -2.6 and -7.7 days against IPCW's -7.5
+and -10.2): the censored loss lengthens the borrowed tail, which helps only where the new city's tail is as long.
+Session 91 (`../results/rounds_score_nc_i2c_summary.json`, `../results/sf_never_completed_status.json`; five
+predictions written before the run) put back the permits the feeds never mark complete, which a deployment on D
+also sees as open: 39% of San Francisco's issued permits, 23% of Seattle's and 8% of Austin's, flat by issue year
+back to 2010; in San Francisco 246,263 of them still read "issued" and 229,398 "expired". These are records nobody
+closed out, not decade-long builds, and read as lower bounds they cost the deployable q0.9 model +181 days against
+the complete-label model in San Francisco and Seattle. Dropping any source permit open more than five years on D,
+a rule fixed before the run, gives -0.41 days, the first deployable variant to match the complete-label model.
+Session 92 (`../results/rounds_score_sweep_i2c_summary.json`; five predictions written before the run, S1 to S5)
+swept that threshold over 2, 3, 5 and 8 years and chose it from a score a deployment has: the censored q0.9 loss on
+all the sources' Y-3 permits as seen on D, the same rows for every threshold. Change in q0.9 loss against the
+complete-label model, days, mean of 3 seeds:
+
+| held out, test year | 2 years | 3 years | 5 years | 8 years | censored Y-3 score picks |
+|---|---|---|---|---|---|
+| San Francisco 2021 | +3.54 | +0.90 | +2.46 | +19.09 | 8 years |
+| San Francisco 2022 | +1.19 | +0.05 | +3.10 | +21.73 | 8 years |
+| Seattle 2021 | +5.53 | +1.50 | -3.95 | -0.98 | 8 years |
+| Seattle 2022 | +1.68 | +0.73 | -3.22 | -0.78 | 8 years |
+| Austin 2021 (not tested) | -4.29 | -2.34 | +14.84 | +55.77 | 8 years |
+| Austin 2022 (not tested) | -8.42 | -5.64 | +10.43 | +59.83 | 8 years |
+
+The best threshold differs by city (S1 held) and the oldest records hurt (S2 held: 8 years is 10.2 days worse than
+5 on average in San Francisco and Seattle); over all six city-years 3 years is the most robust fixed choice (mean
+-0.80, worst +1.50; post hoc). The selector failed (S3, S4 refuted): its score falls with the threshold at every
+step in all six city-years, so it picks 8 years everywhere, with a mean regret of 11.3 days in San Francisco and
+Seattle and 60 to 68 in Austin. A censored score charges an open row nothing once the prediction passes its window,
+so wherever "open" includes permits nobody recorded as finished it rewards whichever model predicts longest. Choosing
+how to treat unrecorded permits needs a score they cannot game: a backtest on an older decision date, or a model of
+which open permits are still running.
+
+Agreement beyond chance (Cohen's kappa, `python3 ../src/desc_eval.py kappa`) is 0.79 in Chicago and
+0.90 in Seattle on the held-out year for the revised rules, against 0.47 and 0.58 for the original.
+
+Rule error does not move that overlap (`../src/desc_confusion.py`, `../results/desc_confusion.md`).
+Correcting Seattle's test mix with the held-out P(label | prediction) leaves it at 0.501, because
+the overlap is source-limited: Seattle's alteration, new-construction and demolition shares all
+exceed the sources', so each term takes the source share. Shifting the source mix by Chicago's
+held-out error (Chicago is at most 21% of the a2i pool) gives 0.508 (bootstrap 0.500 to 0.518). What
+caps the overlap is the trades: electrical, plumbing and mechanical are 45% of the sources' training
+rows and 0.3% of Seattle's test rows. Per class, the revised rules' weakest large class is Chicago
+alteration (recall 0.74, 95% Wilson 0.57 to 0.85); Seattle new-construction recall is 0.93 (0.81 to 0.98).
+
 ### 4.5 Pooled model plus a small local sample (H5 holds; secondary refuted)
 
 Five draws of the local rows, source rows capped at 100,000 per city, a2i only.
@@ -257,14 +541,60 @@ To ship the boosted gain to `ventures/` without a model file, each cell of permi
 
 Nested refits of the same quantile model on feature subsets (`../src/prior_ladder.py`, `../results/prior_ladder_2024.json`; `../LOG.md`, session 52) give the share of the full model's mean pinball gain kept. Pre-registered: type + cost + work class keeps at least half in at least 3 of 5 sets, type alone under a quarter in at least 3. Both held, in 5 of 5: type alone keeps -0.28 to 0.16, type + cost 0.11 to 0.87, adding work class 0.59 to 0.87, adding description length 0.89 to 0.99. The 4.7a table omitted work class. Limits: models on continuous cost, not tables; one feature order; test year 2024; 2 seeds; the secondary prediction (description length the biggest step in Austin a2i) failed, work class was.
 
+### 4.7c Table flattening, continued: a refit, a three-key table and its interval (H7 refuted, H9 post hoc, H10 refuted)
+
+Three further attempts to turn the boosted gain into something readable (`../LOG.md`, sessions 51, 53 and 54; `../results/prior_refit_eval_2024.json`, `../results/prior_table3_2024.json`, `../results/prior_table3_cov_2024.json`; all test year 2024, 2 seeds). Shares below are the fraction of the full model's mean pinball gain over the per-type baseline (mean over q0.1, q0.5, q0.9) that a prior keeps.
+
+- **Key-only refit (H7, pre-registered, refuted).** A quantile model whose only inputs are permit type and cost bucket keeps 0.16 (Chicago a2i), 0.63 (SF a2i) and 0.42 (SF i2c) of the gain; Austin's host was unreachable that session. Prediction: at least 50% in 2 of 3 sets. It held in one. It beats the empirical type x bucket lookup in all three sets, by under 1.5%, which is not evidence of smoothing beyond noise.
+- **Type x work class x cost-bucket table (H9, *post hoc*).** The hypothesis was not written into the log before the run; the 50% threshold is session 52's, applied afterwards. Shares (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c): 0.80 / 0.59 / 0.35 / 0.67 / 0.87. The threshold is met in 4 of 5 sets. San Francisco's feed has no work class, so its three-key table equals the two-key one. Chicago's 0.80 is the median only (the full model has no gain over the baseline at q0.1 and q0.9 there). Austin's table has about 195 cells, so it is a lookup, not a short chart.
+- **Does the table's 80% interval hold (H10, pre-registered, refuted)?** Split-conformal (CQR) on the 2023 calibration year, coverage on 2024 (Chicago a2i / SF a2i / SF i2c / Austin a2i / Austin i2c): table 0.832 / 0.834 / 0.842 / 0.839 / 0.842; per-type baseline 0.885 / 0.826 / 0.857 / 0.823 / 0.845; full model 0.862 / 0.891 / 0.833 / 0.813 / 0.811. The 77 to 83% band holds in none of five sets for the table: all over-cover, by 3.2 to 4.2 points. Mean widths in days (table / full model): 118 / 67 Chicago a2i, 41 / 62 SF a2i, 400 / 404 SF i2c, 161 / 170 Austin a2i, 290 / 290 Austin i2c, so the table is within 1.25x the full model's width in four sets and 1.76x in Chicago. For Chicago the per-type baseline's interval (55 days wide) is the better one to ship.
+
+A dequantised variant (jitter on tied scores, from 4.2a) did not repair this: it gave 0.825, 0.834, 0.837, 0.765 and 0.836 for the table, and for the *full* model it collapsed to 0.558 (Chicago a2i) and 0.343 (SF a2i) against 0.862 and 0.891 plain. A post hoc diagnosis from the saved results (`../src/dequant_diag.py`, `../results/dequant_diag.txt`, session 55) found the collapse in exactly the four of fifteen model cells where the conformal correction came out negative (-0.09 to -0.33 days). The mechanism proposed is that a negative correction raises the lower end and lowers the upper end of a same-day row's interval, which sits at [0, 0], so the interval becomes empty and covers nothing. This is consistent with the table but confirmed by the rerun in 4.7d. A guarded interval that never lets the upper end fall below the lower (`conformal.cqr_interval_nonempty`, unit tested) exists and is wired into the coverage run (session 56), and its rerun is reported in 4.7d (pre-registered check: coverage within 3 points of 80% in at least 4 of 5 sets and no cell more than 1 point below its raw interval; refuted in part).
+
+Reading: a type x work class x cost table is a usable median prior in four of five sets and its interval is conservative rather than tight. The shipped prior stays the empirical per-type table (4.7), and no boosted table is published. Limits: one test year, 2 seeds, one bucket scheme, no intervals on the shares, no bootstrap on coverage (binomial error under 0.5 points at these n), and the table was built on train-only rows for H10 but train plus calibration rows for H9.
+
+### 4.7d Coverage after the nonempty fix (session 58, 2026-11-09)
+
+Re-running the conformal coverage experiment of 4.7c on fresh pulls with `cqr_interval_nonempty` removes the collapse: the full model's dequantised coverage goes from 0.558 to 0.861 (Chicago a2i) and from 0.343 to 0.890 (SF a2i), and the table's Austin a2i coverage from 0.765 to 0.825. The prediction that at least 4 of 5 sets fall within 77 to 83% was refuted (table 2 of 5, full model 3 of 5; the rest over-cover), as was the bound of 1 point below raw coverage (worst cell 1.4 points). Numbers are in `results/prior_table3_cov_2024.json` and `LOG.md`, session 58.
+
+### 4.7e Which interval to ship (session 59, post hoc rule)
+
+The rule was written after the numbers in 4.7c and 4.7d were seen, so it is a decision, not a test (`../src/ship_decision.py`, `../results/ship_decision_2024.json`, unit tested). Among the per-type baseline, the three-key table and the full LightGBM model, each with the dequantised nonempty interval, ship the narrowest whose 2024 coverage is at least 0.77; widths within 1% tie and go to the more readable model. Result (coverage / mean width in days):
+
+| set | shipped | coverage | width | table | full model |
+|---|---|---|---|---|---|
+| Chicago a2i | per-type baseline | 0.885 | 55.3 | 117.9 | 66.9 |
+| SF a2i | per-type baseline | 0.826 | 32.6 | 42.2 | 61.6 |
+| SF i2c | per-type baseline | 0.844 | 373.5 | 398.8 | 403.5 |
+| Austin a2i | per-type baseline | 0.823 | 156.1 | 160.6 | 169.8 |
+| Austin i2c | table (ties full model) | 0.836 | 289.6 | 289.6 | 289.5 |
+
+The per-type baseline interval is the narrowest in four of five sets, so the empirical table of 4.7 is already the right thing to publish for the interval, and neither the boosted model nor the flattened table improves on it there. Only Austin i2c shows no gap between the three. The boosted model's gain (4.1) is in the pinball loss at the quantiles, not in a tighter calibrated interval. This is one test year and two seeds with no bootstrap on width; the baseline's interval is wider than 80% in practice (coverage 0.82 to 0.89), so it is safe but not tight.
+
+### 4.7f Width intervals for the ship decision (session 60)
+
+A week-block bootstrap (2000 draws, `../src/width_boot.py`, `../results/width_boot_2024.json`) of the paired width difference, table minus per-type baseline, with the dequantised nonempty interval: Chicago a2i +62.6 days [55.3, 70.6], SF a2i +9.6 [9.0, 10.2], SF i2c +25.2 [23.1, 27.6], Austin a2i +4.6 [0.2, 9.3], Austin i2c -34.5 [-36.9, -32.1]. All five intervals exclude zero and agree in sign with the ship choice of 4.7e; Austin a2i is a near-tie. The bootstrap resamples test weeks only; the calibration quantile is held fixed, and there is one test year.
+
+### 4.8 A fourth city, Seattle (sessions 61 to 65, 2026-11-09 and 2026-11-10)
+
+Seattle's "Building Permits" feed (`76t5-zqzr`, 194,184 rows pulled 2026-11-10) states "Public Domain" in its metadata (`../datasheets/seattle.md`), so it was added after the licence check that section 5 listed as open. Like Chicago it is survivorship-biased (permits that were never issued are largely absent). Everything below is the same code as for the other cities, 2024 test year unless stated; the class map was not retuned. Sessions 61 and 64 wrote no prediction before the run, so those parts are descriptive; sessions 62, 63 and 65 are in `../LOG.md` with the prediction first.
+
+- **H1 holds in Seattle** (`../results/boosted_seattle_*_2024.json`): the boosted model beats the per-type baseline at q0.1, q0.5 and q0.9 in both targets, every 95% week-block interval below zero (a2i q0.5 46.5 to 35.8 days; i2c q0.5 88.3 to 72.5; smallest gain i2c q0.9, 47.1 to 46.0). That makes 19 of 21 city/target/quantile cells, with Chicago a2i q0.1 and q0.9 the only losses in the original three cities.
+- **Coverage and the ship rule** (`../results/prior_table3_cov_2024_seattle.json`, nonempty dequantised CQR, nominal 80%): baseline 0.887 (a2i) and 0.851 (i2c), table 0.833 and 0.820, full model 0.845 and 0.821. The 77 to 83% band holds in three of six cells; the other three over-cover. Seattle is the first city where the ship rule of 4.7e picks the full model rather than the per-type baseline: it is narrowest in both targets (232.3 and 606.8 days, 7 to 9% under the baseline). The week-block bootstrap of 4.7f (`../results/width_boot_2024_seattle.json`) gives the three-key table minus baseline as -7.4 days [-13.3, -1.1] (a2i) and -18.3 [-23.4, -12.9] (i2c), so unlike the other cities the table is narrower than the baseline in both targets. The full-model width was not bootstrapped.
+- **H4 (transfer) is refuted for Seattle i2c in 2024** (`../results/transfer_seattle_{a2i,i2c}_2024_4city.json`; sources Chicago, SF and Austin for a2i, SF and Austin for i2c, since Chicago has no i2c). Relative change of mean pinball loss against Seattle's own per-type baseline: a2i 0.0% (q0.1), +0.7% (q0.5, interval spans 0), +27.4% (q0.9, worse); i2c -8.6%, -10.7%, -5.1%, all intervals below zero. This is the first held-out cell where a model trained on other cities beat the held-out city's own baseline at all three quantiles. The transfer intervals still under-cover (80% coverage 0.644 a2i, 0.720 i2c, against baselines at 0.890 and 0.882).
+- **Second test year, 2023** (session 65, prediction written first; `../results/transfer_seattle_{a2i,i2c}_2023_4city.json`): the a2i row reproduces 2024 (q0.1 -0.1%, q0.5 +0.5% with the interval spanning 0, q0.9 +27.1%, coverage 0.613). The i2c gain holds at q0.1 (-6.7%) and q0.5 (-7.3%) but q0.9 flips to +11.2% (worse; 2024: -5.1%), coverage 0.681. So "transfer beats the city's own baseline at every quantile" was a 2024 result; the part that held in both years is the lower and middle quantiles. The q0.9 flip is unexplained (an untested guess is that Seattle's 2023 upper tail differs from the SF and Austin tails). An own-city model on the same harmonised features beats the baseline at all three quantiles in both years (2023 i2c -8.9, -12.5, -3.4%), so what costs the transfer model its edge is the move between cities rather than the feature set.
+- **Third test year, 2022** (session 69, prediction written in session 68 before the run; `../results/transfer_seattle_{a2i,i2c}_2022_4city.json`; train to 2020, early stopping on 2021): all three predicted parts held. a2i: -0.1% (q0.1), +0.1% (q0.5, interval spans 0), +35.8% (q0.9, worse), coverage 0.547 against the baseline's 0.821. i2c: -11.4%, -4.2%, +14.1% (q0.9 worse), coverage 0.672 against 0.814. Over 2022 to 2024 the stable pattern is: i2c better at q0.1 and q0.5 in all three years, a2i worse at q0.9 in all three (+27 to +36%), every transfer interval under-covering (0.547 to 0.720). The i2c upper quantile is worse in two of three years, so the 2024 all-quantile gain is the outlier. The own-city model again beats the baseline at every quantile (2022 i2c -12.8, -14.4, -8.2%).
+
+Limits: three test years for transfer and one for the rest, 3 seeds (2 for coverage), i2c has two source cities, Seattle's baseline is trained on a smaller history than the other cities', `baselines.py` (XGBoost) and CatBoost were not run for Seattle, and the ship rule is post hoc. H4 as worded in the abstract (13 of 15 cells worse) describes the three original cities and is not changed by Seattle.
+
 ## 5 Limitations
 
-One test year (2024) for H3, H4, H5 (H1 and the neural comparison also run for 2022 and 2023); three seeds (two for conformal); one fixed
+One test year (2024) for H3, H4, H5 in the original three cities (H1 and the neural comparison also run for 2022 and 2023; Seattle transfer for 2022 to 2024); three seeds (two for conformal); one fixed
 configuration per library (defaults, untuned); the neural net (4.6) is one untuned architecture; the
-harmonised class map is a keyword rule not validated against hand labels; Chicago
+structured class map is a keyword rule not validated against hand labels (the description rules are, 4.4b: 85% and 95% held-out agreement with one labeller), and its classes barely overlap between cities (4.4a), so the transfer results test the generic fields only; Chicago
 is survivorship-biased and has no i2c; "completed" is a status date; the spread over
-draws in 4.5 is not reported; i2c is not rerun for H5b; no fourth city (NYC DOB NOW
-licence unchecked). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
+draws in 4.5 is not reported; i2c is not rerun for H5b; a fourth city (Seattle, 4.8) with partial coverage of the experiments (NYC DOB NOW
+licence unchecked). Issue-to-completion test years are right-censored at the pull (a permit not yet completed has no row), which shortens recent build-time tails (Seattle new construction q0.9 957 days in history, 654 in 2024; 4.4b) and shapes every i2c score: on a two-year window, complete-case scoring reversed the sign of a q0.9 class comparison in two of three mature years and IPCW could not repair it (4.4b, session 78). Drift years 2022 and 2023 exist only for conformal coverage; 4.2a uses 2024 only and does not run Austin or i2c for H2d and H2e.
 
 ## 6 What a practitioner can take
 
@@ -273,12 +603,32 @@ permits; a few hundred rows already come close to the full-history version. Do n
 rely on a model trained elsewhere, and do not trust the nominal coverage of a
 conformal interval where a large share of lags are exactly zero: check the same-day share first;
 tighter quantile levels (4.2a) can halve the width, but pick them with drift in mind.
+If you do borrow a build-time model from other cities, choose how it encodes the work type from
+the target city's own earlier permits, scored with the borrowed model: two years back, reweighted for the
+permits not yet completed, and keeping the default unless another encoding wins clearly (4.4b; mean
+regret 0.6 days over 12 cells). Three years back is better: it keeps the 0.9-quantile choice from chasing
+permits that have not finished yet (mean regret 0.3 days, session 85). Do not early-stop the borrowed model
+on the sources' latest year as it stands on the decision date: without its long builds the tail model stops
+too early (1.3 days of mean loss, session 85). Keep the source permits still open on the decision date in a
+censored pinball loss (4.4b, session 90), but drop those open for more than about three years: many are permits the
+city never closed out, and they lengthen the borrowed tail (session 91). Do not pick that cut-off with a censored
+score on the same feeds: it always favours keeping more of them (session 92). Do not pick it from the target
+city's own history either: a score on its permits issued six years earlier picked the best rule in the four
+city-years it was found on (session 99), but picked the 3-year cut in all four out-of-sample San Francisco and
+Seattle city-years (2019, 2020), where the 5-year cut was better in both cities (mean regret 2.15 days; session 100).
+Those picks are stable under a bootstrap over the target's permits (at least 96% of resamples on the same side in
+all eight city-years), so the score is biased, not noisy (session 101). For San Francisco- and Seattle-like targets
+use a fixed cut of about five years: over their eight city-years it is the best fixed rule (mean q0.9 78.16 days,
+0.63 above the per-cell oracle). Austin as the target wants the 3-year cut by about 16 days (session 100), and no
+signal found so far tells a deployment which kind of target it has.
 
 ## 7 To do before submission
 
 1. Tune the neural net and libraries; per-library tuning (Austin a2i CatBoost gap).
 2. A year-ahead (Y-2 versus Y-1) calibration check for the quantile pair (4.2b did not solve Chicago); (H2g now run for every city and target that has one; see 4.2c).
 3. Spread over draws and i2c for 4.5; first-n-rows ordering instead of random draws.
-4. A fourth city after a licence check (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
-5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do.
-6. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.
+4. A fourth city after a licence check: Seattle added in 4.8 (public domain; H1, coverage, width and H4 transfer for 2022 to 2024); NYC DOB NOW is still unchecked. (H1 now runs over test years 2022 to 2024, see 4.1a); the per-permit paired bootstrap on neural minus boosted now covers 2022, 2023 and 2024 (4.6a).
+5. Empirical permit-duration prior published for all three cities (4.7); a median-of-predictions table of the boosted model failed to keep its gain (4.7a); a model-based version for `ventures/` is still to do: three flattening routes (4.7a, 4.7c) keep the gain only partly, the guarded-interval rerun (4.7d) repaired the collapse, and 4.7e picks the shipped interval (per-type baseline in four of five sets).
+6. Build a work-type class from the description text for Chicago and Seattle (4.4a: their structured fields do not name the work; overlap without "other" is 0.00 to 0.19) and from `work_class` for Austin, validate it on a hand-labelled sample, and rerun H4. Code in place (session 70: `src/classmap.py` cascade, the loader's `desc_class`, `transfer.py --classes cascade`, with a prediction in `../LOG.md`). Validated in session 71 (4.4b): the session 70 rules agree with hand labels on 60% (Chicago) and 78% (Seattle) of held-out rows, the revised rules (`desc_class_v2`, `--classes cascade2`) on 85% and 95%.
+7. Score issue-to-completion with a censoring-aware evaluation: done for the demolition fold in session 78 (4.4b; IPCW cannot reach q0.9 on a two-year window, so tails are scored on mature cohorts). Session 79 reran cascade2 against type on mature cohorts and held out SF and Austin (2021): the tail effect is city-specific (4.4b). Sessions 80 to 84 ran SF and Austin in 2020 to 2022, split Austin's cost by class, and chose the class per target city from its own earlier years, on deployment-time labels too (4.4b). Still to do: a three-year-old selection year with the sources' early stopping also truncated, an issue-month-conditional G for Austin, and a censored-quantile model that trains on incomplete permits (session 89: Portnoy-style pseudo-rows fail in boosted trees through leaf renewal; next, a custom censored-pinball objective). Done in session 90; sessions 91 and 92 found the never-closed records and a staleness cut-off that a censored score cannot choose. Session 99: a deployable selector for that cut-off, the target's own Y-6 permits completed by D, picks the best rule in 4 of 4 city-years. Still to do: a paired bootstrap of that pick, more cells (Austin, 2019 and 2020), or a cure-fraction model of which open permits are real.
+8. Re-run `research/_shared/cite_check.py` at submission and re-check novelty.

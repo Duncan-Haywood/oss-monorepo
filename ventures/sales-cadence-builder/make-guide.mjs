@@ -2,6 +2,7 @@
 // node make-guide.mjs   (page.test.mjs fails if the committed page drifts from this output)
 import { writeFileSync } from "node:fs";
 import { buildPlan, CADENCES, CHANNEL_LABELS, SAMPLE_PROSPECTS, SAMPLE_SENDER } from "./calc.mjs";
+import { pathToFileURL } from "node:url";
 
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 const PURPOSE = {
@@ -52,6 +53,7 @@ export function guide() {
   </style>
 </head>
 <body>
+<main>
   <p class="note"><a href="./index.html">Sales Cadence Builder</a> · guide</p>
   <h1>B2B sales cadence template: 8 touches over 15 business days</h1>
   <p>A sales cadence is the order of touches you make with one prospect before you stop. This one mixes four channels, because people answer different ones: <strong>email</strong>, <strong>phone</strong> (with a voicemail when they do not pick up), a <strong>LinkedIn</strong> connection note and a <strong>mailed letter</strong>. Every touch is on a business day, every call is inside the prospect's own business hours, and the last email says you will stop, and you do.</p>
@@ -90,6 +92,7 @@ ${esc(intro.body)}</pre>
 ${faq.map(([q, a]) => `    <h3>${q}</h3>\n    <p>${a}</p>`).join("\n")}
   </section>
 
+</main>
   <footer>
     <p><strong>No warranty.</strong> A template and a worked example, not legal or sales-compliance advice. You are responsible for every message and call you make and for the rules where you and your prospects are. The example people and companies are invented.</p>
     <p>Free and open source under an <a href="LICENSE" rel="noopener">MIT licence</a> — <a href="https://github.com/sponsors/Duncan-Haywood" rel="noopener">support</a> is entirely optional.</p>
@@ -98,4 +101,4 @@ ${faq.map(([q, a]) => `    <h3>${q}</h3>\n    <p>${a}</p>`).join("\n")}
 </html>
 `;
 }
-if (import.meta.url === `file://${process.argv[1]}`) writeFileSync(new URL("./sales-cadence-template.html", import.meta.url), guide());
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) writeFileSync(new URL("./sales-cadence-template.html", import.meta.url), guide());

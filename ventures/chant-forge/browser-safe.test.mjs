@@ -33,3 +33,22 @@ test('index.html imports only files that exist and has the disclaimer', () => {
 test('index.html links the music distribution fee calculator sibling', () => {
   assert.match(readFileSync(new URL('./index.html', import.meta.url), 'utf8'), /href="\.\.\/music-distribution-fee-calculator\/"/);
 });
+
+test('the cue sheet and timed lyrics the page offers run without Buffer', async () => {
+  const saved = globalThis.Buffer;
+  delete globalThis.Buffer;
+  try {
+    const { parseGabc, fitStretch } = await import('./gabc.mjs');
+    const { cueSheet } = await import('./cues.mjs');
+    const { lrc } = await import('./lrc.mjs');
+    const { sectionPlan } = await import('./sections.mjs');
+    const ev = fitStretch(parseGabc(readFileSync(new URL('./corpus/pange-lingua-full.gabc', import.meta.url), 'utf8')).events, 8);
+    const plan = sectionPlan({ events: ev, intro: 2, outro: 2 });
+    const sheet = cueSheet([{ type: 'bar', kind: 'full', pulses: 16 }, ...ev], { plan });
+    assert.match(sheet, /^bar {2}beat/);
+    assert.match(sheet, /\n-- Verse 1, bar 3, /);
+    assert.match(lrc(ev, {}, 'Pange lingua'), /^\[ti:Pange lingua\]\n\[00:00\.00\]/);
+  } finally {
+    globalThis.Buffer = saved;
+  }
+});

@@ -1,7 +1,7 @@
 // The recovery state machine. Holds a `state` object ({cases, seen}) that the
 // server persists as JSON. Effects (Stripe, email, alerts) are injected so the
 // whole thing is testable without a network.
-import { planRecovery, replan, classifyDecline, formatMoney, mergePolicy } from "./dunning.mjs";
+import { planRecovery, replan, classifyDecline, formatMoney, formatMoneyMap, mergePolicy } from "./dunning.mjs";
 import { renderEmail } from "./templates.mjs";
 import { findExpiring } from "./expiry.mjs";
 import { assignArm, experiment } from "./holdout.mjs";
@@ -214,6 +214,7 @@ export function summary(state) {
   const atRisk = {};
   for (const c of open) atRisk[c.currency] = (atRisk[c.currency] || 0) + c.amountMinor;
   const ex = experiment(state.cases);
-  return { open: open.length, atRiskMinor: atRisk, ...state.stats, ...(ex ? { experiment: ex } : {}) };
+  // atRisk is the formatted total the /admin cards show; atRiskMinor stays for scripts.
+  return { open: open.length, atRisk: formatMoneyMap(atRisk), atRiskMinor: atRisk, ...state.stats, ...(ex ? { experiment: ex } : {}) };
 }
 export { classifyDecline };

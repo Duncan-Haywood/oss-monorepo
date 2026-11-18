@@ -1,0 +1,139 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqycBfxmHGN84UV6GUL7",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T21:38:08Z",
+  "ended": "2026-11-15T21:48:26Z",
+  "wall_minutes": 19.65,
+  "tokens_in": 2691727,
+  "tokens_out": 36454,
+  "cost_usd": 2.016,
+  "tool_calls": 34,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16352",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "PRODUCTION.md",
+      "issue": "The doctrine rules say 'if unsure, leave a detail out' but give no way to check a Church Father's reading; the draft's Chrysostom paraphrase was wrong until the homily was fetched from newadvent.org, which worked through the proxy and is worth naming as the route for patristic checks."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "Text only, no audio: the audio folders were at 474 MB, over the 400 MB line.",
+      "did": "Landed the script and the pages without an MP3.",
+      "result": "Pages built, tests passed, CI green."
+    },
+    {
+      "file": ".github/prompts/verify-and-merge.md",
+      "why": "The local run_workflow_locally --for-changes was still running the site-builder test after about 12 minutes, by which time every CI check on the PR was green.",
+      "did": "Stopped the local run and relied on CI (20 check runs, all success or skipped).",
+      "result": "ok"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-15-saints-by-candlelight-125-timothy-cloak-troas.md"
+  ],
+  "goal": null,
+  "notes": "Project: saints-by-candlelight, piece: episode 125 timothy-and-the-cloak-left-at-troas (2 Timothy 4; a sequel to 124), text only. creative_due drew this shelf. The adversarial reread fixed six claims, the biggest being Chrysostom's reading of the cloak in homily 10, checked against the text. check-script: 7214 words, ok; node --test 18/18. Local run_workflow_locally: sibling-links, page-integrity, pages, ventures-tests and portfolio-validate (100/100) passed, and the site-builder test was stopped once CI went green. No agent doc this run: nothing beyond the episode, DONE.md and the post needs handing on.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9b7b82b7-b16d-5084-87c0-c93babb3d2a2",
+    "transcripts": 1,
+    "first": "2026-11-15T21:38:08Z",
+    "last": "2026-11-15T21:57:47Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 59,
+        "output": 36454,
+        "thinking": 12581,
+        "cache_read": 2595727,
+        "cache_write_5m": 0,
+        "cache_write_1h": 95941,
+        "api_equivalent_usd": 2.016,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 59,
+      "output": 36454,
+      "thinking": 12581,
+      "cache_read": 2595727,
+      "cache_write_5m": 0,
+      "cache_write_1h": 95941,
+      "api_equivalent_usd": 2.016,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.964,
+    "tool_calls": 34,
+    "tools": {
+      "Bash": 25,
+      "ToolSearch": 3,
+      "Write": 2,
+      "mcp__github__list_pull_requests": 1,
+      "WebFetch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__pull_request_read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.65,
+      "active_minutes": 19.65,
+      "model_minutes": 6.35,
+      "tool_minutes": 13.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "a 7,200-word researched script at roughly 1,200 checked words an hour, plus the post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 297.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

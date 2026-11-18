@@ -37,7 +37,7 @@ const TYPEFORM_ANSWER =
   "appears on this page. Quick Pick does one narrower thing, and does not " +
   "let you write a single question: it shows two options at a time and " +
   "infers your preference ordering from which you pick — Glicko-2, the " +
-  "same rating system chess.com ranks players with, for discrete items, and " +
+  "chess-style rating system designed by Mark Glickman, for discrete items, and " +
   "a Davidson tie-extended Bradley-Terry model for continuous trade-offs " +
   "like income versus free time — choosing each next pair adaptively " +
   "from what it is least sure of, with a real confidence interval on every " +
@@ -127,8 +127,8 @@ export default function VsTypeformPage() {
         </p>
         <p>
           <strong>Quick Pick</strong> does not let you write a single question. It shows two options at
-          a time and infers your preference ordering from which you pick &mdash; Glicko-2, the rating
-          system chess.com ranks players with, for discrete items like activities or professions, and a
+          a time and infers your preference ordering from which you pick &mdash; Glicko-2, the
+          chess-style rating system designed by Mark Glickman, for discrete items like activities or professions, and a
           Davidson tie-extended Bradley-Terry model for continuous trade-offs like income versus free
           time. Question selection adapts to what the model is least sure about, and every result comes
           with a real confidence interval instead of a false certainty. You can start answering with no

@@ -222,3 +222,31 @@ test('per-site seasonal and per-push quotes divide the route, not hide it', () =
   assert.ok(Math.abs(result.pricePerSiteSeasonal * 8 - result.seasonalPrice) < 1e-9);
   assert.ok(Math.abs(result.pricePerSitePerPush * 8 - result.pricePerPush) < 1e-9);
 });
+
+test('each stop carries its own price; a mixed route does not give both stops the average (quality audit 2026-11-13)', () => {
+  const base = route();
+  const two = { name: 'Two-car', minutesPerPush: 12, sidewalkMinutes: 8, saltBags: 1.5 };
+  const lot = { name: 'Lot', minutesPerPush: 45, sidewalkMinutes: 15, saltBags: 6 };
+  const alone = (site) => calculateSeason({ ...base, sites: [site] });
+  const mixed = calculateSeason({ ...base, sites: [two, lot] });
+  const [a, b] = mixed.sites;
+  // Priced alone, each stop's seasonal is the one-stop route's seasonal.
+  assert.ok(Math.abs(a.ownSeasonal - alone(two).seasonalPrice) < 1e-6);
+  assert.ok(Math.abs(b.ownSeasonal - alone(lot).seasonalPrice) < 1e-6);
+  assert.ok(Math.abs(a.ownPerPush - alone(two).pricePerPush) < 1e-6);
+  // The stops add up to the route.
+  assert.ok(Math.abs(a.ownSeasonal + b.ownSeasonal - mixed.seasonalPrice) < 1e-6);
+  assert.ok(Math.abs(a.ownPerPush + b.ownPerPush - mixed.pricePerPush) < 1e-6);
+  // By hand, two-car alone: 26 min at 22*1.3+45 = $73.60/h, 1.5 bags at $8 -> $43.8933 direct,
+  // x1.15 overhead /0.8 margin = $63.0967 per push.
+  assert.ok(Math.abs(a.ownPerPush - (26 / 60 * 73.6 + 12) * 1.15 / 0.8) < 1e-9);
+  // The average is not either stop's price on a mixed route.
+  assert.ok(b.ownSeasonal > mixed.pricePerSiteSeasonal * 1.2);
+  assert.ok(a.ownSeasonal < mixed.pricePerSiteSeasonal * 0.8);
+});
+
+test('per ice-event price is the ice cost grossed up for margin', () => {
+  const r = calculateSeason(route());
+  assert.ok(Math.abs(r.pricePerIce - r.costPerIceEvent / 0.8) < 1e-9);
+  assert.ok(r.pricePerIce > r.costPerIceEvent);
+});

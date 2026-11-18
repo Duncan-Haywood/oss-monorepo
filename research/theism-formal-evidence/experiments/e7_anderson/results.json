@@ -1,0 +1,75 @@
+[
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 2,
+  "d": 1,
+  "example_pos_sizes": [
+   1
+  ],
+  "models": 1,
+  "w": 1
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 4,
+  "d": 2,
+  "example_pos_sizes": [
+   2,
+   2
+  ],
+  "models": 2,
+  "w": 1
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 16,
+  "d": 3,
+  "example_pos_sizes": [
+   4,
+   4,
+   4
+  ],
+  "models": 3,
+  "w": 1
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 4,
+  "d": 1,
+  "example_pos_sizes": [],
+  "models": 0,
+  "w": 2
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 256,
+  "d": 2,
+  "example_pos_sizes": [],
+  "models": 0,
+  "w": 2
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 16,
+  "d": 1,
+  "example_pos_sizes": [],
+  "models": 0,
+  "w": 3
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 256,
+  "d": 1,
+  "example_pos_sizes": [],
+  "models": 0,
+  "w": 4
+ },
+ {
+  "all_positive_instantiated": true,
+  "candidate_P": 65536,
+  "d": 1,
+  "example_pos_sizes": [],
+  "models": 0,
+  "w": 5
+ }
+]

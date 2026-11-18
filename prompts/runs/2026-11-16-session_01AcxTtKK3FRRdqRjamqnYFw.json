@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKK3FRRdqRjamqnYFw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T15:07:23Z",
+  "ended": "2026-11-16T16:04:14Z",
+  "wall_minutes": 56.85,
+  "tokens_in": 18851030,
+  "tokens_out": 85338,
+  "cost_usd": 7.307,
+  "tool_calls": 120,
+  "task": "research/society-lanes milestone 5b: robots in the ORCA and power-law crowds, H5 preview over five families",
+  "projects": [
+    "research/society-lanes"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16615",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Built a full milestone 5a (1,360 runs, post, record) in parallel with sibling PR #16614, which merged mid-run; my merge then conflicted. The pick_track claim check at start showed no open society-lanes PR, so the sibling had not pushed yet.",
+      "fix": "Dropped my 5a content (kept in branch history via merge -s ours), rebuilt on #16614's code, and ran milestone 5b instead; my 5a results are disclosed in the 5b LOG entry as an independent replication seen before the 5b predictions."
+    },
+    {
+      "what": "First m5a figure script shadowed its output-path variable and wrote a file named 'social force'",
+      "fix": "caught before commit; that script was later dropped with the 5a content"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "'Landing work' step 3 claim check missed a sibling that started the same milestone within minutes and pushed after my check; about 45 minutes of duplicate work. Re-running the CLAIM CHECK right before the long job, not only before merging, would have caught it (the prompt only asks for that on steps longer than an hour)."
+    },
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py returned /usr/bin/python3.13, which already had jupedsim, numba and pytest; plain python3 has none of them."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'A conflict is not a reason to close': I did not resolve the conflict to land my 5a, because #16614 already covered the same step with three families, and two parallel robot implementations in sftwin.py would leave the programme worse.",
+      "did": "kept this PR open, replaced its content with milestone 5b built on #16614's code, and disclosed the 5a replication results in the LOG",
+      "result": "one robot code path; 5b ships the step #16614 named as next"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-robot-passing-policy-close-passes-agree-across-crowd-models.md",
+    "research/society-lanes/LOG.md (milestone 5b entry)"
+  ],
+  "goal": null,
+  "notes": "Predictions B1-B8 committed before the 1,360-run job. Held: B1, B4, B5, B6 (close-pass ranking identical across sf, cfsm, orca: tau 1.00 in 9 of 9). Refuted: B2, B3 (ORCA lanes barely notice contraflow robots), B7 (delay ranking: 1 of 9 tau >= 0.8), B8 (power-law goal robots cost 1.71 s). orca.simulate and plaw.simulate with robots=0 byte-identical to before. Local checks: pytest research/society-lanes/tests 49 passed; research/_homepage/build.py ok; research_live_links, check_md_links, programme_check ok; post front matter, links, similarity ok. Earlier in the session the 5a version passed the full run_workflow_locally --for-changes (10/10 workflows) and green PR CI. No docs/reports doc: the LOG entry and README next steps carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "4af51cbd-ce7e-5a24-9e9e-74747e378677",
+    "transcripts": 1,
+    "first": "2026-11-16T15:07:23Z",
+    "last": "2026-11-16T16:04:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 110,
+        "input": 206,
+        "output": 85338,
+        "thinking": 18498,
+        "cache_read": 18616302,
+        "cache_write_5m": 0,
+        "cache_write_1h": 234522,
+        "api_equivalent_usd": 7.307,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 110,
+      "input": 206,
+      "output": 85338,
+      "thinking": 18498,
+      "cache_read": 18616302,
+      "cache_write_5m": 0,
+      "cache_write_1h": 234522,
+      "api_equivalent_usd": 7.307,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.988,
+    "tool_calls": 120,
+    "tools": {
+      "Bash": 98,
+      "Write": 6,
+      "WebFetch": 3,
+      "Read": 3,
+      "mcp__github__pull_request_read": 3,
+      "ToolSearch": 2,
+      "mcp__github__update_pull_request": 2,
+      "WebSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__merge_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 56.85,
+      "active_minutes": 56.85,
+      "model_minutes": 17.62,
+      "tool_minutes": 39.23,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 30.0,
+      "basis": "a PhD student building and abandoning one robot study after a parallel duplicate, then adding robots to two own-code simulators and a 1,360-run sweep with write-up: about four working days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 3000.0
+    },
+    "leverage": 410.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

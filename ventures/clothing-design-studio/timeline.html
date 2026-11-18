@@ -60,7 +60,13 @@
     <div>
       <section><h2>Result</h2><output id="result" aria-live="polite"></output></section>
     </div>
-  </div>
+  </div>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>5. Make it and check it</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="tna.html">Time and action calendar</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="colour.html">Colour approval: lab dip delta E</a> · <a href="testing.html">Safety tests to ask for</a></div>
+    <div>Before: <a href="financing.html">Financing a run: the real yearly rate</a> · Next: <a href="tna.html">Time and action calendar</a></div>
+  </nav>
+  <!-- /journey -->
 </main>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not financial, legal or professional advice, and it does not replace a qualified professional. Durations are your estimates; the dates are a forecast, not a promise. <strong>You are responsible for reviewing and verifying its output before relying on it.</strong> To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -91,7 +97,7 @@
       $("#csv").onclick = () => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([timelineCsv(last.rows)], { type: "text/csv" })); a.download = "production-schedule.csv"; a.click(); recordUsage("timeline_csv"); };
     }
     document.querySelectorAll("section input, section select").forEach(el => el.addEventListener("input", () => { render(); recordUsage("timeline_check"); }));
-    const t = new Date(Date.now() + 240 * 86400000); $("#target").value = t.toISOString().slice(0, 10);
+    const t = new Date(Date.now() + 240 * 86400000); $("#target").value = new Date(t.getTime() - t.getTimezoneOffset() * 6e4).toISOString().slice(0, 10);
     render(); recordUsage("timeline_open");
   </script>
 </body>

@@ -60,6 +60,16 @@ test('gemini: generateContent with the key in a header, not the URL', async () =
   assert.equal(f.calls[0].body.systemInstruction.parts[0].text, 'S');
 });
 
+test('gemini: thinking tokens count as output and thought parts are not the answer', async () => {
+  // Quality audit 2026-11-07-llm.json: 900 thinking tokens were reported as output 3.
+  const f = fakeFetch({ candidates: [{ content: { parts: [{ text: 'plan...', thought: true }, { text: 'answer' }] } }],
+    usageMetadata: { promptTokenCount: 10, toolUsePromptTokenCount: 4, candidatesTokenCount: 3, thoughtsTokenCount: 900, totalTokenCount: 917 } });
+  const r = await complete({ provider: 'gemini', apiKey: 'k', model: 'g1' }, { prompt: 'P', fetch: f });
+  assert.equal(r.text, 'answer');
+  assert.deepEqual([r.usage.input, r.usage.output], [14, 903]);
+  assert.equal(r.usage.input + r.usage.output, 917, 'matches totalTokenCount');
+});
+
 test('gemini: a reply without usageMetadata reports zero tokens', async () => {
   const f = fakeFetch({ candidates: [{ content: { parts: [{ text: 'a' }] } }] });
   const r = await complete({ provider: 'gemini', apiKey: 'k', model: 'g1' }, { prompt: 'P', fetch: f });
@@ -250,4 +260,19 @@ test('redteam guards: explicit default port is kept; 172.16-19 are private', () 
   for (const ip of ['172.16.0.1', '172.17.0.1', '172.19.5.5', '172.20.0.1', '172.31.255.1']) {
     assert.equal(isLocal({ provider: 'openai-compatible', model: 'm', baseUrl: `http://${ip}/v1` }), true, ip);
   }
+});
+
+// Red-team run 2026-11-11: PR #14676 changed this file and none of its 16 venture
+// copies, which turned 10 venture suites red on main. Venture suites only run when
+// their own venture changes, but this file's tests run on every platform/llm change,
+// so the sync check lives here too.
+test('every ventures/*/byok.mjs is a byte-identical copy of this file', async () => {
+  const { readFileSync, readdirSync, existsSync } = await import('node:fs');
+  const root = new URL('../../ventures/', import.meta.url);
+  const here = readFileSync(new URL('./byok.mjs', import.meta.url), 'utf8');
+  const stale = readdirSync(root, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(new URL(`${d.name}/byok.mjs`, root)))
+    .map((d) => d.name)
+    .filter((name) => readFileSync(new URL(`${name}/byok.mjs`, root), 'utf8') !== here);
+  assert.deepEqual(stale, [], `copy platform/llm/byok.mjs over ventures/<slug>/byok.mjs for: ${stale.join(', ')}`);
 });

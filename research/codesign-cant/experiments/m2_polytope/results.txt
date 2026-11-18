@@ -1,0 +1,51 @@
+JOINT co-design, actuator hover, TWR 2, 1920 evaluations, held-out 64 wide-plant episodes, 5 seeds; kappa = c D, c = 0.081 (UIUC median)
+score J = -RMS - lam * P_hover / 100 W; sat = share of held-out steps with roll/pitch or yaw scaled down by the mixer
+mixer      lam   cant  rms deg (mean; per seed)                  roll   yaw    J       P_hover W  mass kg  chosen cant deg     sat rp  sat yaw  feasible
+box         0.0    0    15.44 (15.38, 15.48, 15.65, 15.38, 15.29)   6.08  25.38   -15.44       655    1.74   0, 0, 0, 0, 0       0.000   0.000    5/5
+box         0.0   80    10.63 (10.67, 10.57, 10.68, 10.57, 10.65)   6.57  16.02   -10.63      1380    3.24   35, 35, 37, 35, 35  0.000   0.000    5/5
+box         0.1    0    15.43 (15.31, 15.49, 15.69, 15.36, 15.32)   6.26  25.28   -15.58       152    0.81   0, 0, 0, 0, 0       0.000   0.000    5/5
+box         0.1   80    10.82 (10.84, 10.82, 10.78, 10.82, 10.86)   6.72  16.28   -11.15       325    1.27   35, 34, 35, 33, 35  0.000   0.000    5/5
+box         0.3    0    15.48 (15.36, 15.51, 15.76, 15.43, 15.37)   6.37  25.33   -15.88       133    0.77   0, 0, 0, 0, 0       0.000   0.000    5/5
+box         0.3   80    11.08 (11.04, 11.04, 11.07, 11.16, 11.07)   6.85  16.69   -11.73       219    1.01   30, 36, 34, 30, 36  0.000   0.000    5/5
+box         1.0    0    15.67 (15.59, 15.74, 16.01, 15.53, 15.47)   6.57  25.58   -16.70       103    0.71   0, 0, 0, 0, 0       0.000   0.000    5/5
+box         1.0   80    11.55 (11.47, 11.75, 11.58, 11.47, 11.51)   7.10  17.46   -12.94       138    0.82   29, 29, 31, 30, 30  0.000   0.000    5/5
+prio        0.0    0    18.34 (18.10, 18.33, 18.36, 18.78, 18.11)   6.79  30.35   -18.34       646    1.89   0, 0, 0, 0, 0       0.972   1.000    5/5
+prio        0.0   80    12.26 (12.28, 12.27, 12.28, 12.25, 12.22)   8.07  18.04   -12.26      1479    3.39   34, 36, 35, 35, 36  0.007   0.392    5/5
+prio        0.1    0    18.50 (18.26, 18.21, 18.39, 19.28, 18.34)   7.33  30.39   -18.67       176    0.90   0, 0, 0, 0, 0       0.967   0.997    5/5
+prio        0.1   80    14.24 (12.72, 12.56, 12.67, 20.56, 12.71)   8.28  21.69   -14.61       370    1.38   33, 35, 35, 2, 36   0.183   0.826    5/5
+prio        0.3    0    18.66 (18.32, 18.39, 19.24, 18.98, 18.40)   7.89  30.46   -19.05       129    0.79   0, 0, 0, 0, 0       0.982   1.000    5/5
+prio        0.3   80    15.78 (13.03, 18.51, 21.43, 12.91, 13.02)   9.53  23.76   -16.40       208    1.01   35, 0, 13, 31, 34   0.205   0.588    5/5
+prio        1.0    0    19.02 (18.53, 18.65, 19.29, 19.86, 18.76)   8.68  30.71   -19.92        90    0.72   0, 0, 0, 0, 0       0.963   0.998    5/5
+prio        1.0   80    18.17 (14.42, 18.65, 19.17, 19.86, 18.73)   8.68  29.06   -19.08        92    0.72   32, 0, 1, 9, 2      0.787   0.886    5/5
+prio_free   0.0    0    16.78 (16.84, 16.73, 16.84, 17.03, 16.44)   7.13  27.33   -16.78      1559    3.35   0, 0, 0, 0, 0       0.206   0.458    5/5
+prio_free   0.0   80    12.00 (11.90, 11.95, 11.97, 12.31, 11.88)   7.64  17.89   -12.00      1370    3.23   36, 35, 34, 39, 36  0.210   0.566    5/5
+prio_free   0.3    0    17.06 (16.93, 17.20, 17.23, 17.02, 16.92)   7.84  27.47   -17.49       144    0.79   0, 0, 0, 0, 0       0.025   0.472    5/5
+prio_free   0.3   80    12.63 (12.59, 12.62, 12.62, 12.83, 12.50)   8.01  18.84   -13.36       242    1.07   31, 35, 35, 34, 33  0.217   0.664    5/5
+
+Paired by seed: cant <= 80 minus no cant, same mixer and lam (negative = cant better)
+  box       lam 0.0: RMS -4.81 deg (sd 0.14, better in 5 of 5); composite -4.81 (sd 0.14, better in 5 of 5)
+  box       lam 0.1: RMS -4.61 deg (sd 0.19, better in 5 of 5); composite -4.44 (sd 0.19, better in 5 of 5)
+  box       lam 0.3: RMS -4.41 deg (sd 0.17, better in 5 of 5); composite -4.15 (sd 0.17, better in 5 of 5)
+  box       lam 1.0: RMS -4.12 deg (sd 0.19, better in 5 of 5); composite -3.76 (sd 0.16, better in 5 of 5)
+  prio      lam 0.0: RMS -6.08 deg (sd 0.28, better in 5 of 5); composite -6.08 (sd 0.28, better in 5 of 5)
+  prio      lam 0.1: RMS -4.25 deg (sd 3.09, better in 4 of 5); composite -4.06 (sd 3.01, better in 4 of 5)
+  prio      lam 0.3: RMS -2.88 deg (sd 3.77, better in 3 of 5); composite -2.65 (sd 3.46, better in 4 of 5)
+  prio      lam 1.0: RMS -0.85 deg (sd 1.82, better in 4 of 5); composite -0.84 (sd 1.87, better in 4 of 5)
+  prio_free lam 0.0: RMS -4.77 deg (sd 0.15, better in 5 of 5); composite -4.77 (sd 0.15, better in 5 of 5)
+  prio_free lam 0.3: RMS -4.43 deg (sd 0.18, better in 5 of 5); composite -4.13 (sd 0.18, better in 5 of 5)
+
+Paired by seed: prio minus box, same cant bound and lam (positive = the shared polytope costs accuracy)
+  lam 0.0 cant<=  0: +2.90 deg (sd 0.29, worse in 5 of 5)
+  lam 0.0 cant<= 80: +1.63 deg (sd 0.06, worse in 5 of 5)
+  lam 0.1 cant<=  0: +3.06 deg (sd 0.50, worse in 5 of 5)
+  lam 0.1 cant<= 80: +3.42 deg (sd 3.53, worse in 5 of 5)
+  lam 0.3 cant<=  0: +3.18 deg (sd 0.31, worse in 5 of 5)
+  lam 0.3 cant<= 80: +4.70 deg (sd 3.98, worse in 5 of 5)
+  lam 1.0 cant<=  0: +3.35 deg (sd 0.58, worse in 5 of 5)
+  lam 1.0 cant<= 80: +6.61 deg (sd 2.12, worse in 5 of 5)
+
+Paired by seed: prio_free minus prio (negative = airmode helps)
+  lam 0.0 cant<=  0: -1.56 deg (sd 0.19, better in 5 of 5)
+  lam 0.0 cant<= 80: -0.26 deg (sd 0.18, better in 4 of 5)
+  lam 0.3 cant<=  0: -1.61 deg (sd 0.36, better in 5 of 5)
+  lam 0.3 cant<= 80: -3.15 deg (sd 3.98, better in 5 of 5)

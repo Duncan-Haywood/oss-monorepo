@@ -26,7 +26,9 @@ Figure: `experiments/mean_vs_p.svg` (mean rollouts against the true failure rate
 
 *Two LPs.* "Average": minimise (E_p0[N] + E_p1[N]) / 2 subject to P_p0(accept) <= 0.05 and P_p1(reject) <= 0.05, which is the problem of `free-sprtopt`, here solved directly over randomised tests. "Minimax": minimise t subject to E_p[N] <= t on a grid of p. The grid starts at 9 points on [p1, p0]; the policy is evaluated exactly on a 161-point grid and the worst p found is added to the grid until the two maxima agree to 0.001 (cutting planes, 1 to 8 rounds).
 
-*Validation.* The average LP equals the dual lower bound of `free-sprtopt` to two decimals in every case compared (98.78, 89.52, 87.64, 86.77 and 86.57 for 1% vs 5% at caps of 1x, 1.25x, 1.5x, 2x and 3x; 85.69 and 66.15 for 20% vs 10% at 1x and 3x), which is the exact optimum by a different route (a Lagrangian over a pattern search there, an LP here). The tests check it against that bracket, against brute-force enumeration of all deterministic rules at cap 2, and that the returned policy, evaluated by an independent forward recursion, holds both errors and reproduces the reported worst case.
+*Validation.* The average LP equals the dual lower bound of `free-sprtopt` to two decimals in every case compared (98.78, 89.52, 87.64, 86.77 and 86.57 for 1% vs 5% at caps of 1x, 1.25x, 1.5x, 2x and 3x; 85.69 and 66.15 for 20% vs 10% at 1x and 3x), which is the exact optimum by a different route (a Lagrangian over a pattern search there, an LP here). The tests check it against that bracket, against brute-force enumeration of all deterministic rules at cap 2, and that the returned policy, evaluated by a forward recursion, holds both errors (the reported worst case is computed by that same recursion; an independent dual recomputation is in the [first quality audit](../../portfolio/quality/audits/2026-11-17-free-sprtminimax.json)).
+
+*Prior work.* Minimising the worst-case expected sample size over p in [p1, p0] is the Kiefer-Weiss problem (Kiefer and Weiss 1957; Weiss 1962; Freeman and Weiss 1964 for the binomial case; Lorden 1976, whose 2-SPRT is asymptotically optimal for it; Huffman 1983; Novikov 2009 for exact finite-horizon solutions). What is computed here is its truncated (capped) binomial form, solved exactly by LP; the numbers for these rate pairs are new, the problem is not. The first quality audit's tuned baselines at 5% vs 1%, cap 362, gave a worst case of 135.2 for an SPRT and 129.0 for a 2-SPRT against 123.8 for this LP and 131.0 for the average-optimal test, so the LP's gain over the best simple two-boundary rule is about 4%; those baselines are the auditor's scripts, not yet code here.
 
 ## Reproduce
 
@@ -51,7 +53,7 @@ Needs numpy and scipy (`PY=$(python3 platform/ci/pyenv.py pytest numpy scipy)` f
 
 ## Next steps
 
-- Find a deterministic or two-line-boundary test close to the minimax value, to see how much of the 5 to 10% a practitioner can keep.
+- Add Lorden's 2-SPRT (a two-boundary test known to be near-optimal for this problem) as a coded baseline; find a deterministic or two-line-boundary test close to the minimax value, to see how much of the 5 to 10% a practitioner can keep.
 - Minimise a prior-weighted mean (a Bayesian design with a prior over the true failure rate) and compare with the two designs here.
 
 ## Outside dependencies

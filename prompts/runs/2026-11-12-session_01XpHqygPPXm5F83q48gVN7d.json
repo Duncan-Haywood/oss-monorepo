@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01XpHqygPPXm5F83q48gVN7d",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T01:38:53Z",
+  "ended": "2026-11-12T01:47:01Z",
+  "wall_minutes": 20.06,
+  "tokens_in": 7583002,
+  "tokens_out": 36955,
+  "cost_usd": 3.2244,
+  "tool_calls": 70,
+  "task": "perf: league-schedule-generator carry-over search, item 1 of the last perf run's not-changed list",
+  "projects": [
+    "league-schedule-generator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14961",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "golden-hash script first failed with ERR_MODULE_NOT_FOUND: a copy of carryover.mjs outside its directory cannot import ./calc.mjs; copied it beside calc.mjs instead"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompt.md",
+      "issue": "step 0's security-alerts fetch prints a fatal error when the branch is absent; documented as expected, cost nothing but reads like a failure"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-the-search-that-recounted-what-it-knew.md",
+    "docs/history/ci-perf-2026-11-12-carryover-cached-costs.md"
+  ],
+  "goal": null,
+  "notes": "Metric: wall time of the league-schedule-generator's two slowest test files, `node --test <file>` one at a time in this container (4 cores). capped-breaks.test.mjs 63.5 s -> 42.9 s (50.8 s from the search change alone, rest from sharing six 12-team tries between tests 5 and 8); best-of-k.test.mjs 55.6 s -> 47.0 s. Profile workload (six 12-team double tries, node --cpu-prof): 11.9 s -> 9.2 s. eval/search-hash.mjs (142 seeded searches): 42.2 s -> 33.3 s, hash f61d94fa... identical before and after, so results are bit-identical. Whole suite via run_venture_tests.py: green, 85.4 s. Changes: cached per-team costs in assignVenuesDouble and assignVenuesOnce; legTwoScorer counts leg one once for the leg-two-only anneals. A round-major coeOf rewrite benchmarked 6-20% slower and was dropped.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d8a72af6-084a-59de-936c-ed068523d7d3",
+    "transcripts": 1,
+    "first": "2026-11-12T01:38:53Z",
+    "last": "2026-11-12T01:58:57Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 69,
+        "input": 136,
+        "output": 36955,
+        "thinking": 12032,
+        "cache_read": 7458745,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124121,
+        "api_equivalent_usd": 3.2244,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 69,
+      "input": 136,
+      "output": 36955,
+      "thinking": 12032,
+      "cache_read": 7458745,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124121,
+      "api_equivalent_usd": 3.2244,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 62,
+      "Monitor": 2,
+      "ToolSearch": 2,
+      "Write": 2,
+      "Edit": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 20.06,
+      "active_minutes": 20.06,
+      "model_minutes": 6.39,
+      "tool_minutes": 13.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "profile, three exact-preserving cache changes, hash harness, test memo, write-ups",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 155.1,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

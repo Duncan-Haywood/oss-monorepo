@@ -16,6 +16,7 @@ import { readFileSync } from "node:fs";
 import { samplePlan, takeoff } from "./engine.mjs";
 import { planFromDxf } from "./dxf.mjs";
 import { gangOpenings } from "./ganged.mjs";
+import { pathToFileURL } from "node:url";
 
 const FRAMING = new Set(["2x4", "2x4 PT", "2x6", "2x6 PT"]);
 
@@ -38,10 +39,10 @@ export function compare(plan, { gang = false } = {}) {
   }
   if (!r.ok) return { ok: false, errors: r.errors };
   const counted = r.orders.filter((o) => FRAMING.has(o.size)).reduce((s, o) => s + o.bought, 0) / 12;
-  const stud = (plan.studLength ?? 92.625) / 12;
   let perFoot = 0, onCentre = 0;
   for (const w of original.walls) {
     const lf = w.length / 12;
+    const stud = (w.studLength ?? plan.studLength ?? 92.625) / 12; // a real model has walls of different heights
     const plates = 3 * lf;
     perFoot += lf * stud + plates;
     const ends = (w.corner ? 2 : 0) + (w.tees ? w.tees.length * 2 : 0);
@@ -60,8 +61,11 @@ export function breakEvenWaste(c) {
   return { perFoot: c.counted / (c.perFoot / 1.1) - 1, onCentre: c.counted / (c.onCentre / 1.1) - 1 };
 }
 
-const cases = [["example house (invented)", samplePlan()]];
-for (const n of [1, 2]) {
+// `node allowance-bench.mjs FLOOR.json ...` runs plan files instead (made with `node cli.mjs FLOOR.dxf --whole-house --fixed-plan`), for a house that cannot be committed.
+const files = process.argv.slice(2).filter((a) => a.endsWith(".json"));
+/** @type {[string, any][]} */
+const cases = files.length ? files.map((f) => [f.split("/").pop() ?? f, JSON.parse(readFileSync(f, "utf8"))]) : [["example house (invented)", samplePlan()]];
+if (!files.length) for (const n of [1, 2]) {
   const r = planFromDxf(readFileSync(new URL(`./fixtures/open-house-plans-${n}.dxf`, import.meta.url), "utf8"));
   if (r.ok) cases.push([`Open House Plans ${n} (CC0, generated)`, { ...samplePlan(), ...r.plan }]);
 }
@@ -71,13 +75,18 @@ export function spacingSweep(plan, spacings = [12, 16, 19.2, 24]) {
   return spacings.map((sp) => ({ spacing: sp, ...compare({ ...plan, studSpacing: sp }, { gang: true }) }));
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   const pct = (x) => `${x >= 0 ? "+" : ""}${(x * 100).toFixed(1)}%`;
   console.log("plan | wall ft | counted order ft | per-foot rule | on-centre rule");
   for (const [name, plan] of cases) {
     const c = compare(plan, { gang: true });
     if (!c.ok) { console.log(`${name} | does not lay out: ${c.errors[0]}`); continue; }
     console.log(`${name}${c.ganged ? " (close openings ganged)" : ""}${c.longHeaders ? " (24 ft headers added)" : ""} | ${c.wallFeet.toFixed(0)} | ${c.counted.toFixed(0)} | ${c.perFoot.toFixed(0)} (${pct(c.perFootOff)}) | ${c.onCentre.toFixed(0)} (${pct(c.onCentreOff)})`);
+  }
+  if (files.length > 1) {
+    const cs = cases.map(([, p]) => compare(p, { gang: true })).filter((c) => c.ok);
+    const t = cs.reduce((a, c) => ({ wf: a.wf + c.wallFeet, k: a.k + c.counted, p: a.p + c.perFoot, o: a.o + c.onCentre }), { wf: 0, k: 0, p: 0, o: 0 });
+    console.log(`all ${cs.length} files, each ordered apart | ${t.wf.toFixed(0)} | ${t.k.toFixed(0)} | ${t.p.toFixed(0)} (${pct((t.p - t.k) / t.k)}) | ${t.o.toFixed(0)} (${pct((t.o - t.k) / t.k)})`);
   }
   console.log("\nplan | spacing | counted ft | per-foot rule | on-centre rule");
   for (const [name, plan] of cases) for (const c of spacingSweep(plan)) {

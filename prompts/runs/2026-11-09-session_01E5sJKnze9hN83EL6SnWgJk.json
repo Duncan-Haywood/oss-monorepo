@@ -1,0 +1,55 @@
+{
+  "date": "2026-11-09",
+  "session": "https://claude.ai/code/session_01E5sJKnze9hN83EL6SnWgJk",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-sonnet-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-09T19:43:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [
+    "codesign-aero-cant-poshold"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14342",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "pyenv.py printed /usr/bin/python3.13 lacking cma; had to pip install into /usr/local/bin/python3.13, and the install took minutes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Extended an existing codesign project in place rather than a new programme step; no codesign programme exists.",
+      "did": "added restart experiment to poshold",
+      "result": "landed one PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-09-restarting-the-optimiser-confirms-cant-buys-yaw-not-position.md"
+  ],
+  "goal": null,
+  "notes": "No agent doc in docs/reports; results are 8 seeds, no significance test. Merged without CI wait check output beyond local build.py ok.",
+  "corrections": [],
+  "redteam": null
+}

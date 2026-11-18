@@ -1,0 +1,44 @@
+Fit hours: 416 (< 2015-08-01, <= 300 km, speed >= 0.1 m/s)
+  F1 month intercepts + b log Hs:              b = 0.218
+  F2 month intercepts + b2 log Hs + c log DPD: b2 = 0.224, c = -0.025 (1-day block bootstrap 95% -0.271 to 0.170)
+  descriptive: F2 on all hours <= 300 km b2 = 0.192, c = -0.046; any distance b2 = 0.279, c = -0.147
+
+Forecast test (6q's held-out hours, <= 300 km): MAE m/s
+  h   n    M1     M2     M2c   | M2c/M2
+   6  761  0.034  0.035  0.035 | 0.994
+  24  761  0.048  0.047  0.047 | 0.991
+  72  761  0.054  0.052  0.052 | 0.994
+  24 h M2c/M2 block bootstrap (37 days, 2,000 resamples) 95% 0.979 to 1.001
+
+Site plan at the 2024 buoys (km/day at the best state: 6r Hs-only | 6s with period; median DPD s)
+  state index s_m: 05 0.380, 06 0.567, 07 0.603, 08 0.426, 09 0.422, 10 0.368; state ratio 1.639 (6r 1.639)
+   1 41009   52.0 |  52.3  (+0.7%); DPD 7.7
+   1 42036   52.3 |  52.9  (+1.2%); DPD 5.9
+   1 42040   52.4 |  53.1  (+1.2%); DPD 5.9
+   1 44009   51.9 |  52.3  (+0.7%); DPD 6.7
+   1 44013   50.5 |  51.0  (+1.1%); DPD 5.6
+   1 46011   59.9 |  59.6  (-0.4%); DPD 12.9
+   1 46013   60.7 |  60.5  (-0.3%); DPD 12.9
+   1 46026   59.2 |  59.0  (-0.4%); DPD 12.9
+   1 46054   58.6 |  58.3  (-0.5%); DPD 12.9
+  month 1: fleet median best 53.1 (6r 52.4), worst 32.4; site ratio 1.186 (6r 1.203)
+   7 41009   45.5 |  45.5  (+0.1%); DPD 8.3
+   7 41010   50.5 |  50.6  (+0.3%); DPD 8.3
+   7 42036   41.4 |  41.7  (+0.6%); DPD 6.2
+   7 42040   42.1 |  42.4  (+0.8%); DPD 5.6
+   7 44009   48.8 |  49.1  (+0.7%); DPD 7.1
+   7 44013   41.1 |  41.1  (+0.2%); DPD 7.7
+   7 44025   48.7 |  49.0  (+0.6%); DPD 7.1
+   7 46011   54.4 |  54.4  (-0.1%); DPD 10.0
+   7 46013   54.8 |  54.9  (+0.2%); DPD 9.1
+   7 46026   53.2 |  53.1  (-0.1%); DPD 9.1
+   7 46054   54.3 |  54.4  (+0.2%); DPD 9.1
+  month 7: fleet median best 49.1 (6r 48.8), worst 30.0; site ratio 1.335 (6r 1.335)
+  Pacific lead, month 1: 6r 1.136 -> 6s 1.119
+  Pacific lead, month 7: 6r 1.111 -> 6s 1.104
+
+P1 c = -0.025, 95% -0.271 to 0.170: refuted (c < 0, interval excludes 0)
+P2 b2 = 0.224 against b = 0.218: held (b2 > b)
+P3 M2c/M2 at 24 h = 0.991: held (>= 0.97)
+P4 Pacific lead smaller than 6r in both months: held
+P5 site ratio < state ratio in both months: held

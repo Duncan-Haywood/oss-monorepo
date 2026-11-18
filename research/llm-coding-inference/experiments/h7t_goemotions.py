@@ -15,6 +15,8 @@ sys.path.insert(0, str(HERE)); sys.path.insert(0, str(HERE.parent))
 import rare_audit as R  # noqa: E402
 import h7l_fixed_lambda as L  # noqa: E402
 from llmci import audit_design as A  # noqa: E402
+A.RARE_FALLBACK = None  # pinned: replays as committed (LOG.md 7aw)
+A.NEG_FLOOR = None  # pinned (LOG.md 7az): replays as committed
 
 SEED, N, CORPUS = 20261105, 1000, 6000
 RULES = (("pooled", 2.0, 0), ("cells g10", 0.0, 10), ("negcell k3", "k", 3), ("negcell k5", "k", 5))
@@ -59,9 +61,9 @@ def main():
             labels = {i: human[i] for i in pilot}
             if tau == "k":
                 k = sum(1 for i in pilot if f[i] == 0 and human[i] == 1)
-                plan = A.plan_audit(f, labels, N, tau=(0.0 if k >= guard else 2.0), guard=0)
+                plan = A.plan_audit_pre7ar(f, labels, N, tau=(0.0 if k >= guard else 2.0), guard=0, width_margin=None)
             else:
-                plan = A.plan_audit(f, labels, N, tau=tau, guard=guard)
+                plan = A.plan_audit_pre7ar(f, labels, N, tau=tau, guard=guard, width_margin=None)
             nc += plan["design"] == "cells"
             for cell, t in zip(plan["cells"], plan["to_label"]):
                 for i in sb[d].sample([i for i in cell if i not in labels], t): labels[i] = human[i]

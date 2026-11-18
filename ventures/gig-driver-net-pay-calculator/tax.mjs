@@ -20,7 +20,7 @@ export const DEFAULTS_2026 = {
 const SE_FACTOR = 0.9235;
 const SS_RATE = 0.124;
 const MEDICARE_RATE = 0.029;
-const SE_MINIMUM = 400; // below this net profit, no self-employment tax is owed
+const SE_MINIMUM = 400; // Schedule SE: no self-employment tax when 92.35% of net profit is under $400
 
 function number(value, name, { min = 0, allowZero = true } = {}) {
   const result = Number(value);
@@ -34,7 +34,7 @@ function number(value, name, { min = 0, allowZero = true } = {}) {
 
 /** Self-employment tax on a net profit, given W-2 wages already counted against the Social Security base. */
 export function selfEmploymentTax(netProfit, { otherWages = 0, socialSecurityWageBase = DEFAULTS_2026.socialSecurityWageBase } = {}) {
-  if (netProfit < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };
+  if (netProfit * SE_FACTOR < SE_MINIMUM) return { base: 0, socialSecurity: 0, medicare: 0, total: 0, halfDeduction: 0 };
   const base = netProfit * SE_FACTOR;
   const room = Math.max(0, socialSecurityWageBase - otherWages);
   const socialSecurity = Math.min(base, room) * SS_RATE;
@@ -74,7 +74,13 @@ function method(label, deduction, input, grossIncome, otherDeductible) {
  * @param {number} input.otherWages          W-2 wages that already count against the Social Security wage base.
  * @param {number} input.socialSecurityWageBase
  */
-export function compareDeductions(raw) {
+// Boxes with a default: the page sends '' when the driver clears one, which
+// means "use the default", the same as leaving the key out.
+const OPTIONAL = ['parkingTolls', 'otherDeductible', 'standardRate', 'incomeTaxRatePercent', 'otherWages', 'socialSecurityWageBase'];
+
+export function compareDeductions(given) {
+  const raw = { ...given };
+  for (const key of OPTIONAL) if (typeof raw[key] === 'string' && raw[key].trim() === '') delete raw[key];
   const input = {
     grossIncome: number(raw.grossIncome, 'Gross income'),
     businessMiles: number(raw.businessMiles, 'Business miles'),

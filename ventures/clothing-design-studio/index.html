@@ -27,19 +27,19 @@
       font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--paper); }
     body { max-width: 1280px; margin: auto; padding: 22px 16px 40px; background: var(--paper); }
     .eyebrow { color: var(--accent); font-weight: 800; letter-spacing: .12em; font-size: .75rem; text-transform: uppercase; margin: 0; }
-    h1 { font: 700 clamp(1.9rem, 4.6vw, 3.2rem)/1.05 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0 10px; max-width: 900px; }
+    h1 { font: 700 clamp(1.9rem, 4.6vw, 3rem)/1.05 Georgia, "Times New Roman", serif; letter-spacing: -.02em; margin: 8px 0 10px; max-width: 900px; }
     .lede { max-width: 760px; line-height: 1.55; margin: 0 0 16px; }
     a { color: var(--accent); }
     .workspace { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; align-items: start; }
-    @media (max-width: 900px) { .workspace { grid-template-columns: 1fr; } }
+    @media (max-width: 900px) { .workspace { grid-template-columns: minmax(0, 1fr); } }
     section, .panel { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; margin-bottom: 14px; }
     h2 { font-size: 1.05rem; margin: 0 0 10px; }
     h3 { font-size: .95rem; margin: 12px 0 6px; }
     label { display: block; font-size: .85rem; font-weight: 600; margin: 8px 0 3px; }
     input, select, textarea, button { font: inherit; }
-    input[type=text], input[type=number], input[type=password], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+    input:not([type]), input[type=text], input[type=number], input[type=password], input[type=email], input[type=url], select, textarea { width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); }
+    .row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+    .row3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
     .btn { cursor: pointer; padding: 7px 13px; border-radius: 999px; border: 1px solid var(--accent2); background: var(--card); color: var(--accent2); font-weight: 650; }
     .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
     .btn[disabled] { opacity: .4; cursor: not-allowed; }
@@ -82,16 +82,41 @@
     details > summary { cursor: pointer; font-weight: 700; }
     pre { white-space: pre-wrap; background: #faf6ef; padding: 8px; border-radius: 8px; font-size: .85rem; max-height: 260px; overflow: auto; }
     .muted { color: var(--muted); font-size: .88rem; }
+    /* Tool output tables scroll inside their box on a phone, not the page (launch calendar: 372 px in a 324 px panel). */
+    .workspace output, #ix-cal-out, #sep-out { display: block; max-width: 100%; overflow-x: auto; }
+    .pf-jump { --jump-fg: var(--accent2); --jump-line: var(--line); --jump-bg: var(--card); --jump-hover: var(--accent); --jump-margin: 0 0 16px; }
+    .stages a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .stages { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 4px 20px; }
+    .stages h3 { font-size: .9rem; margin: 10px 0 4px; color: var(--accent); }
+    .stages ul { margin: 0; padding-left: 18px; line-height: 1.6; font-size: .92rem; }
     footer { margin-top: 24px; font-size: .88rem; line-height: 1.5; color: var(--muted); }
     .sr { position: absolute; left: -9999px; }
   </style>
+  <!-- select-span:start -->
+  <style>
+    /* A field whose longest choice is wider than its column takes the whole row, so the choice
+       reads in full instead of being cut under the arrow. Written by platform/pages/select-span.mjs
+       (docs/reports/polish-2026-11-14-select-span.md); re-run it after changing the options. */
+    div.row > div:has(> #fabric),
+    div.row > div:has(> #sel-method),
+    div.row > div:has(> #garment),
+    div.row > div:has(> #sel-area) { grid-column: 1 / -1; }
+  </style>
+  <!-- select-span:end -->
 </head>
 <body>
 <main>
   <header>
     <p class="eyebrow">Free clothing design studio</p>
     <h1>Say what you want on the shirt. See it, change it, know what it costs.</h1>
-    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them. <a href="for-independent-clothing-designers.html">Who it is for and what it does</a> · <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a> · <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="camera.html">Try it on from a photo</a> · <a href="quotes.html">Compare factory quotes</a> · <a href="labels.html">Label checker</a> · <a href="prices.html">Price by market</a> · <a href="preorder.html">Pre-order planner</a> · <a href="reorder.html">Reorder planner</a> · <a href="orderlines.html">Colour and size order matrix</a> · <a href="returns.html">Returns calculator</a> · <a href="spec.html">Measurement spec and sample check</a> · <a href="inspection.html">Final inspection sample size</a> · <a href="freight.html">Freight: sea vs air per garment</a> · <a href="channels.html">Where to sell</a> · <a href="cashflow.html">Launch cash flow</a> · <a href="tna.html">Time and action calendar</a> · <a href="duty.html">Import duty by destination</a> · <a href="wholesale.html">Wholesale to shops</a> · <a href="linesheet.html">Line sheet for shops</a> · <a href="barcodes.html">Barcodes (GTIN)</a> · <a href="partners.html">Partner-brand commission</a> · <a href="bom.html">Bill of materials and order</a> · <a href="shrink.html">Fabric shrinkage allowance</a> · <a href="timeline.html">Production timeline</a> · <a href="tiers.html">Fabric price tiers</a>  · <a href="startup.html">Start-up budget</a></p>
+    <p class="lede">For independent designers starting a clothing line: design a tee, long-sleeve, sweatshirt or hoodie by talking, typing or dragging, compare three versions side by side, cost every piece from your manufacturer's prices, and download the tech pack and quote request to send them.</p>
+    <nav class="pf-jump" aria-label="On this page and next">
+      <a class="pf-jump-main" href="#h-design">Start designing</a>
+      <a href="launch.html">Launch path: what to decide, in order</a>
+      <a href="how-much-does-it-cost-to-make-a-t-shirt.html">What does a t-shirt cost to make?</a>
+      <a href="for-independent-clothing-designers.html">Who it is for</a>
+      <a href="#tools">Every tool</a>
+    </nav>
   </header>
 
   <div class="workspace">
@@ -169,6 +194,7 @@
         <details>
           <summary>Public-domain paintings to start from</summary>
           <p class="muted">Many old paintings of saints and angels are in the public domain, and these collections publish images released for reuse. Check the terms on each image: the studio does not check rights.</p>
+          <p><a href="artwork.html">Search two museum collections here and check each painting prints sharp at your size</a></p>
           <ul id="pd-sources" class="muted"></ul>
         </details>
         <div id="selected-panel" hidden>
@@ -216,6 +242,37 @@
           <div><label for="ht-ink">Single ink colour</label><input id="ht-ink" type="color" value="#000000"></div>
         </div>
         <div class="bar"><button class="btn small" type="button" id="sep-halftone" disabled>Download one-ink halftone film</button></div>
+        <p class="muted">Paintings are shaded, and flat inks flatten the shading. An index separation prints the same inks as a scatter of square dots, one per finest dot the mesh holds, so the eye mixes them with the bare garment into the in-between tones. Same screens, finer films.</p>
+        <div class="row3">
+          <div><label for="ix-gain">Dot gain on press (% of a dot's area, 0 = none)</label><input id="ix-gain" type="number" min="0" max="100" step="1" value="0"></div>
+          <div><label for="ix-inks">Inks for the dots</label><select id="ix-inks"><option value="0">The flat separation's inks</option><option value="0.5">Chosen for the dots, seen from 0.5 m</option><option value="1" selected>Chosen for the dots, seen from 1 m</option><option value="3">Chosen for the dots, seen from 3 m</option><option value="s1">From the printer's stock, seen from 1 m</option><option value="s3">From the printer's stock, seen from 3 m</option></select></div>
+          <div><label for="ix-singles">Single dots</label><select id="ix-singles"><option value="3" selected>None, refined (closest; a few seconds longer)</option><option value="0">None, quick cleanup</option><option value="-1">Keep them (only if your mesh holds single dots)</option></select></div>
+        </div>
+        <p class="muted">A dot one cell wide is the first thing a screen loses: it may not wash out of the stencil or may not print. "None" makes every dot on every film touch at least one more of its own ink: each single dot is either given up to a neighbour or grown into a pair, whichever keeps the print closer to the painting, and "refined" then moves dots around under the same rule. On nine paintings that was closer to the painting from 1 m than plain dots in 33 of 36 runs, and it does not fall apart on a press that drops single dots.</p>
+        <p class="muted">Dots can only mix colours between their inks and the garment, and the flat separation's inks are averages, so they sit inside the painting's colours. "Chosen for the dots" tries inks moved outwards to reach the painting's darks, lights and strong colours, weighed against how grainy far-apart inks look from that distance, and keeps whichever set (the flat inks included) comes out closest to the painting. It takes a few seconds longer.</p>
+        <details id="ix-stock-box">
+          <summary>The printer's stock inks</summary>
+          <p class="muted">Every ink "Chosen for the dots" picks is a custom mix, and shops charge to match each one. "From the printer's stock" picks as many inks as you have screens from the shelf below, the set whose dots come closest to the painting, so nothing needs mixing. Paste the printer's own list, one ink per line: a name and a colour (#RRGGBB or three numbers 0-255). The list filled in here is a made-up starter shelf of common colour names with approximate colours, not any ink maker's swatches.</p>
+          <textarea id="ix-stock" rows="8" style="width:100%;font-family:monospace" aria-label="Stock inks, one per line: name and colour"></textarea>
+          <p id="ix-stock-msg" class="muted" aria-live="polite"></p>
+        </details>
+        <details id="ix-calib">
+          <summary>Measure dot gain from a proof</summary>
+          <p class="muted">Ink spreads on press, so dots print larger than their film and the print comes out darker. Download the calibration strip (per ink: a solid square, a 50% checkerboard of single dots, a bare square), ask the printer to run it on your garment, photograph it flat in even light, and pick the three colours from that one photo (the middle of the checkerboard). The gain it shows goes into the box above and the next index separation spaces its dots to allow for it.</p>
+          <div class="bar"><button class="btn small" type="button" id="ix-calib-films" disabled>Download calibration strip</button></div>
+          <div class="row3">
+            <div><label for="ix-cal-garment">Bare garment in the photo</label><input id="ix-cal-garment" type="color" value="#f2f2f2"></div>
+            <div><label for="ix-cal-solid">Solid ink square</label><input id="ix-cal-solid" type="color" value="#202020"></div>
+            <div><label for="ix-cal-patch">Checkerboard (middle)</label><input id="ix-cal-patch" type="color" value="#a1a1a1"></div>
+          </div>
+          <div class="bar"><button class="btn small" type="button" id="ix-cal-read">Read the gain</button></div>
+          <p id="ix-cal-out" aria-live="polite"></p>
+        </details>
+        <div class="bar">
+          <button class="btn small" type="button" id="sep-index" disabled>Index separation (dots, for paintings)</button>
+          <button class="btn small" type="button" id="sep-index-films" disabled>Download index films</button>
+          <button class="btn small" type="button" id="sep-index-brief" disabled>Download index brief</button>
+        </div>
         <div id="sep-out" aria-live="polite"></div>
       </section>
 
@@ -380,6 +437,95 @@
     </div>
   </div>
 
+  <!-- tools -->
+  <section id="tools" aria-labelledby="tools-h">
+    <h2 id="tools-h">Every tool, in launch order (50)</h2>
+    <p class="muted">Each runs in your browser, free. The <a href="launch.html">launch path</a> says why each stage comes where it does.</p>
+    <div class="stages">
+    <div class="stage">
+      <h3>1. Design the thing</h3>
+      <ul>
+        <li><a href="sunglasses.html">Sunglasses designer</a></li>
+        <li><a href="wardrobe.html">Capsule wardrobe planner</a></li>
+        <li><a href="fit.html">Size finder and size run</a></li>
+        <li><a href="camera.html">Try it on from a photo</a></li>
+        <li><a href="artwork.html">Public-domain paintings, checked for print</a></li>
+        <li><a href="pattern.html">Pattern pieces, graded, SVG and DXF</a></li>
+        <li><a href="drape.html">Virtual drape: sew the pattern onto a body</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>2. Know what one piece costs</h3>
+      <ul>
+        <li><a href="how-much-does-it-cost-to-make-a-t-shirt.html">Worked example: what a t-shirt costs</a></li>
+        <li><a href="bom.html">Bill of materials and order</a></li>
+        <li><a href="quotes.html">Compare factory quotes</a></li>
+        <li><a href="tiers.html">Fabric price tiers</a></li>
+        <li><a href="shrink.html">Fabric shrinkage allowance</a></li>
+        <li><a href="gsm.html">Fabric gsm, kilos and metres</a></li>
+        <li><a href="freight.html">Freight per garment</a></li>
+        <li><a href="duty.html">Import duty by destination</a></li>
+        <li><a href="import-duty-on-clothing.html">Worked example: duty on a hoodie</a></li>
+        <li><a href="parcel.html">Duty on a single parcel</a></li>
+        <li><a href="fx.html">Factory currency risk</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>3. Set the price</h3>
+      <ul>
+        <li><a href="prices.html">Price by market</a></li>
+        <li><a href="pricepoint.html">Best price from a price test</a></li>
+        <li><a href="returns.html">Returns: what an order really earns</a></li>
+        <li><a href="discount.html">Discount: orders a sale needs</a></li>
+        <li><a href="bundle.html">Set pricing: is a bundle discount worth it?</a></li>
+        <li><a href="repeat.html">Repeat customers: what can you pay to win one?</a></li>
+        <li><a href="wholesale.html">Wholesale price</a></li>
+        <li><a href="sunglasses-profit-margin.html">Worked example: sunglasses margin</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>4. Commit to a first run</h3>
+      <ul>
+        <li><a href="orderlines.html">Colour and size order matrix</a></li>
+        <li><a href="preorder.html">Pre-order planner</a></li>
+        <li><a href="clothing-minimum-order-quantity.html">Worked example: reaching a 300-piece MOQ</a></li>
+        <li><a href="pod.html">Factory run or print-on-demand</a></li>
+        <li><a href="startup.html">Start-up budget</a></li>
+        <li><a href="cashflow.html">Launch cash flow</a></li>
+        <li><a href="financing.html">Financing a run: the real yearly rate</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>5. Make it and check it</h3>
+      <ul>
+        <li><a href="timeline.html">Production timeline</a></li>
+        <li><a href="tna.html">Time and action calendar</a></li>
+        <li><a href="spec.html">Measurement spec and sample check</a></li>
+        <li><a href="colour.html">Colour approval: lab dip delta E</a></li>
+        <li><a href="testing.html">Safety tests to ask for</a></li>
+        <li><a href="inspection.html">Final inspection sample size</a></li>
+        <li><a href="labels.html">Label checker</a></li>
+        <li><a href="barcodes.html">Barcodes (GTIN)</a></li>
+      </ul>
+    </div>
+    <div class="stage">
+      <h3>6. Sell it and keep selling</h3>
+      <ul>
+        <li><a href="channels.html">Where to sell</a></li>
+        <li><a href="salestax.html">US sales tax</a></li>
+        <li><a href="eutax.html">EU VAT and one-stop shop</a></li>
+        <li><a href="eprfr.html">French textile eco-contribution</a></li>
+        <li><a href="greenclaims.html">Green claims checker for your copy</a></li>
+        <li><a href="linesheet.html">Wholesale line sheet</a></li>
+        <li><a href="partners.html">Partner-brand commission</a></li>
+        <li><a href="reorder.html">Reorder planner</a></li>
+        <li><a href="adspend.html">Ad spend: what a customer may cost</a></li>
+      </ul>
+    </div>
+    </div>
+  </section>
+  <!-- /tools -->
+
   <section id="faq" aria-labelledby="faq-h">
     <h2 id="faq-h">Questions</h2>
     <h3>Do I need to pay or sign up?</h3>
@@ -392,7 +538,13 @@
     <p>Often, if the painting is in the public domain and the photograph you use is released for reuse. Several museums publish open-access images; the studio lists some. Check each image&#x27;s terms yourself: the studio does not check rights.</p>
     <h3>Is my design uploaded?</h3>
     <p>No. Designs and uploaded images stay in your browser. A share link carries the design inside the link, without uploaded images. If you add an AI key, your command text and a short description of the design go to the provider you chose; with a local model, nothing leaves your computer.</p>
-  </section>
+  </section>  <!-- journey -->
+  <nav class="journey" aria-label="Launch path" style="margin-top:24px;padding:12px 14px;border:1px solid #ddd2c4;border-radius:12px;background:#fffdf9;font-size:.9rem;line-height:1.55">
+    <strong>1. Design the thing</strong> on the <a href="launch.html">launch path for a clothing line</a>.
+    <div>Also at this stage: <a href="sunglasses.html">Sunglasses designer</a> · <a href="wardrobe.html">Capsule wardrobe planner</a> · <a href="fit.html">Size finder and size run</a> · <a href="camera.html">Try it on from a photo</a></div>
+    <div>Next: <a href="sunglasses.html">Sunglasses designer</a></div>
+  </nav>
+  <!-- /journey -->
 </main>
   <footer>
     <p><strong>No warranty.</strong> This tool is provided free and as-is, without warranty of any kind, express or implied. It is not legal, tax, financial, manufacturing or intellectual-property advice, and it does not replace a qualified professional. <strong>You are responsible for reviewing and verifying its output before relying on it</strong>, including the rights to any artwork you use, and for meeting any obligation it helps you prepare for. To the maximum extent permitted by law, the authors accept no liability for any loss or damage arising from its use.</p>
@@ -403,8 +555,10 @@
   <script type="module">
     import { GARMENTS, FABRICS, METHODS, COLOURS, PX_PER_CM, compatibilityNotes } from "./catalogue.mjs";
     import { MOTIFS, PUBLIC_DOMAIN_SOURCES } from "./motifs.mjs";
+    import { printResolution, resolutionSummary, takeHandoff } from "./artwork.mjs";
     import { newDesign, History, variants, applyOp, encodeDesign, decodeDesign, sanitizeDesign, OpError } from "./design.mjs";
-    import { EXAMPLES } from "./commands.mjs";
+    import { EXAMPLES, parseClause } from "./commands.mjs";
+    import { answerQuestion } from "./answers.mjs";
     import { interpret } from "./ai.mjs";
     import { renderDesign, placementBox, esc } from "./render.mjs";
     import { renderTurntable } from "./turntable.mjs";
@@ -422,6 +576,9 @@
     import { inkTradeoff } from "./inktradeoff.mjs";
     import { singleInkFilm, contrastInk, halftoneSvg, halftoneBrief } from "./halftone.mjs";
     import { separate, films, previewRgba, separationBrief } from "./separation.mjs";
+    import { chooseIndexInks } from "./inkfit.mjs";
+    import { chooseStockInks, parseStockList, stockBrief, STARTER_STOCK } from "./stockinks.mjs";
+    import { indexSeparate, compareFlatIndex, indexFilms, indexPreviewRgba, indexBrief, calibrationFilms, gainFromPatch, cleanLoneDots } from "./indexsep.mjs";
     import { recordUsage, setUsageOptOut, usageOptedOut } from "./usage.mjs";
 
     const $ = s => document.querySelector(s);
@@ -488,14 +645,15 @@
 
     async function runCommand(text, via = "typed") {
       if (!text.trim()) return;
-      const out = await interpret(text, d(), aiConfig());
+      const out = await interpret(text, d(), aiConfig(), { timeline: [...history.past, history.present] });
       recordUsage(via === "voice" ? "voice_command" : "command");
       const engine = out.source === "model" ? `model (${out.local ? "on your computer" : $("#ai-provider").value})` : "built-in";
       $("#engine-label").textContent = `Last command: ${engine}${out.error ? ` (model failed: ${out.error}; used built-in)` : ""}`;
       for (const step of out.result.steps) {
         let err = null;
         for (const u of step.ui) {
-          if (u.ui === "undo") { history.undo(); render(); }
+          if (u.ui === "undo") { for (let i = 0; i < (u.count ?? 1); i++) history.undo(); render(); }
+          else if (u.ui === "restore") { const t = [...history.past, history.present][u.index]; if (t && t !== history.present) { history.replace(t); render(); } }
           else if (u.ui === "redo") { history.redo(); render(); }
           else if (u.ui === "variants") showVariants();
           else if (u.ui === "pick") pickVariant(u.index - 1);
@@ -505,6 +663,11 @@
         if (step.ops.length) err = commit(step.ops, "command_op");
         log(`${err ? `<span class="miss">Could not: ${esc(err)}</span>` : esc(step.did)} <span class="words">“${esc(step.words)}”</span> <span class="engine">${engine}</span>`);
       }
+      for (const q of out.result.questions || []) {
+        recordUsage("question_answered");
+        log(`<span class="engine">You asked:</span> <span class="words">“${esc(q.words)}”</span> ${esc(answerQuestion(q, d(), { parse: parseClause, sheet }).text)}`);
+      }
+      for (const no of out.result.declined || []) log(`<span class="miss">Left alone (you said no):</span> <span class="words">“${esc(no.words)}”</span>`);
       for (const miss of out.result.unmatched) log(`<span class="miss">Not understood:</span> <span class="words">“${esc(miss)}”</span> <span class="engine">Try one of the examples, or add a model below.</span>`);
     }
 
@@ -625,10 +788,21 @@
       e.target.value = "";
       if (!file) return;
       const src = await downscale(file, 1400);
+      const original = await pixelSize(file);
       const img = new Image();
-      img.onload = () => commit({ op: "add", kind: "image", src, aspect: img.naturalHeight / img.naturalWidth || 1, label: file.name.slice(0, 40), method: "dtg" }, "upload_image");
+      img.onload = () => commit({ op: "add", kind: "image", src, aspect: img.naturalHeight / img.naturalWidth || 1, label: file.name.slice(0, 40), method: "dtg", srcPx: original }, "upload_image");
       img.src = src;
     });
+    // the stored copy is downscaled for the preview; keep the file's own size for the print check
+    function pixelSize(file) {
+      if (file.type === "image/svg+xml") return Promise.resolve(null);
+      return new Promise(resolve => {
+        const img = new Image();
+        img.onload = () => { resolve({ w: img.naturalWidth, h: img.naturalHeight }); URL.revokeObjectURL(img.src); };
+        img.onerror = () => resolve(null);
+        img.src = URL.createObjectURL(file);
+      });
+    }
     function downscale(file, max) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
@@ -787,7 +961,9 @@
     const slugify = s => String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "design";
 
     // ---- colour separation ----
-    let lastSep = null, lastPixels = null;
+    let lastSep = null, lastPixels = null, lastIndex = null, lastIndexCmp = [], lastInkPick = null, lastStockPick = null;
+    $("#ix-stock").value = STARTER_STOCK.map(s => `${s.name}, ${s.hex}`).join("\n");
+    $("#ix-inks").addEventListener("change", e => { if (e.target.value.startsWith("s")) $("#ix-stock-box").open = true; });
     function sepExtras() {
       const p = $("#sep-crop").value.split(/[ ,]+/).filter(Boolean).map(Number);
       if (p.length && (p.length !== 4 || p.some(v => !(v >= 0 && v <= 90)))) throw new Error("Trim edges needs four percentages from 0 to 90, e.g. 0,0,10,0.");
@@ -807,7 +983,8 @@
         <p><strong>${sp.screens} screens</strong> (${sp.inks.length} inks${sp.underbase ? " + white underbase" : ""}) at ${sp.widthCm} x ${sp.heightCm} cm. Raised outline covers ${sp.raised.coveragePct}%.</p>
         <ol>${sp.inks.map(i => `<li><span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888;vertical-align:-2px"></span> ${i.hex}: ${i.coveragePct}% of the artwork${i.thinSharePct >= 10 ? `, ${i.thinSharePct}% too fine` : ""}</li>`).join("")}</ol>
         <ul class="muted">${sp.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`;
-      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff", "#sep-halftone"]) $(id).disabled = false;
+      for (const id of ["#sep-brief", "#sep-films", "#sep-apply", "#sep-tradeoff", "#sep-halftone", "#sep-index"]) $(id).disabled = false;
+      lastIndex = null; $("#sep-index-films").disabled = true; $("#sep-index-brief").disabled = true;
     }
     $("#sep-file").addEventListener("change", e => {
       const file = e.target.files[0];
@@ -815,7 +992,7 @@
       if (!file) return;
       const img = new Image();
       img.onload = () => {
-        const k = Math.min(1, 640 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas");
+        const k = Math.min(1, 1200 / Math.max(img.naturalWidth, img.naturalHeight)), c = document.createElement("canvas"); // 1200: the index separation's finest grid
         c.width = Math.max(1, Math.round(img.naturalWidth * k)); c.height = Math.max(1, Math.round(img.naturalHeight * k));
         const x = c.getContext("2d"); x.drawImage(img, 0, 0, c.width, c.height);
         lastPixels = x.getImageData(0, 0, c.width, c.height);
@@ -846,6 +1023,57 @@
         recordUsage("separation_halftone");
       } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); }
     });
+    $("#sep-index").addEventListener("click", () => {
+      if (!lastSep || !lastPixels) return;
+      try {
+        const ixo = { crop: sepExtras().crop, dotGainPct: Number($("#ix-gain").value) || 0 }, inkSel = $("#ix-inks").value;
+        const fromStock = inkSel.startsWith("s"), forM = Number(fromStock ? inkSel.slice(1) : inkSel) || 0;
+        lastStockPick = null;
+        if (fromStock) {
+          const parsed = parseStockList($("#ix-stock").value);
+          $("#ix-stock-msg").textContent = `${parsed.inks.length} inks read.` + parsed.errors.map(e => ` Line ${e.line} skipped: ${e.reason}.`).join("");
+          lastStockPick = chooseStockInks(lastPixels, lastSep, parsed.inks, { ...ixo, metres: forM });
+          recordUsage("separation_index_stock");
+        }
+        lastInkPick = !fromStock && forM ? chooseIndexInks(lastPixels, lastSep, { ...ixo, metres: forM }) : null;
+        lastIndex = lastStockPick ? lastStockPick.idx : lastInkPick ? lastInkPick.idx : indexSeparate(lastPixels, lastSep, ixo);
+        const singles = Number($("#ix-singles").value);
+        if (singles >= 0) lastIndex = cleanLoneDots(lastIndex, { metres: forM || 1, passes: singles });
+        lastIndexCmp = compareFlatIndex(lastSep, lastIndex, [0.5, 1, 3]);
+      } catch (e) { $("#sep-out").insertAdjacentHTML("beforeend", `<p class="miss">${esc(e.message)}</p>`); return; }
+      const ix = lastIndex, c = document.createElement("canvas");
+      c.width = ix.width; c.height = ix.height;
+      c.getContext("2d").putImageData(new ImageData(indexPreviewRgba(ix), ix.width, ix.height), 0, 0);
+      $("#sep-out").insertAdjacentHTML("beforeend", `<h3>Index separation</h3><img id="sep-index-preview" alt="Index separation preview: square dots of each ink on the garment colour" src="${c.toDataURL()}" style="max-width:100%;border:1px solid #888">
+        <p><strong>${ix.screens} screens</strong>, square dots of ${ix.dotMm} mm (${ix.width} x ${ix.height}), ${ix.garmentPct}% bare garment between them${ix.dotGainPct ? `, spaced for ${ix.dotGainPct}% dot gain (distances below are for a press with that gain)` : ""}. <span id="sep-index-singles">${ix.loneCleanup ? `No single dots: ${ix.loneCleanup.before} cleaned up${ix.loneCleanup.passes ? `, then ${ix.loneCleanup.changed} cells moved in ${ix.loneCleanup.passes} refining passes` : ""}.` : `${ix.inks.map(i => i.loneDotPct).join("%, ")}% of each ink's dots are single dots; a mesh that cannot hold them will lose them.`}</span></p>
+        <table id="sep-index-table"><caption>Distance from the painting (mean delta E after a rough eye blur; lower is closer)</caption><tr><th>Seen from</th><th>Flat inks</th><th>Index dots</th></tr>${lastIndexCmp.map(r => `<tr><td>${r.metres} m</td><td>${r.flat}</td><td${r.index < r.flat ? ' style="font-weight:bold"' : ""}>${r.index}</td></tr>`).join("")}</table>
+        ${lastInkPick ? `<p id="sep-index-inks">${lastInkPick.refit ? `<strong>Inks chosen for the dots</strong> (closest seen from ${lastInkPick.metres} m): ${ix.inks.map(i => `<span style="display:inline-block;width:1em;height:1em;background:${i.flatHex};border:1px solid #888"></span> ${i.flatHex} &rarr; <span style="display:inline-block;width:1em;height:1em;background:${i.hex};border:1px solid #888"></span> ${i.hex}`).join("; ")}. Ask the printer to match these, not the flat ones.` : `The flat separation's inks stayed closest seen from ${lastInkPick.metres} m, so they are kept.`} <span class="muted">Tried: ${lastInkPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p>` : ""}
+        ${lastStockPick ? `<p id="sep-index-stock"><strong>Inks from the printer's stock</strong> (closest seen from ${lastStockPick.metres} m, no mixing): ${lastStockPick.inks.map((h, p) => `screen ${p + 1}: <span style="display:inline-block;width:1em;height:1em;background:${h};border:1px solid #888"></span> ${esc(lastStockPick.names[p])}`).join("; ")}. <span class="muted">Tried: ${lastStockPick.candidates.map(c => `${esc(c.label)} ${c.deltaE}`).join(", ")}.</span></p><pre class="muted">${esc(stockBrief(lastStockPick, lastSep))}</pre>` : ""}
+        <ul class="muted">${ix.notes.map(n => `<li>${esc(n)}</li>`).join("")}</ul>`);
+      $("#sep-index-films").disabled = false; $("#sep-index-brief").disabled = false; $("#ix-calib-films").disabled = false;
+      recordUsage("separation_index");
+    });
+    $("#sep-index-films").addEventListener("click", () => {
+      if (!lastIndex) return;
+      const pages = indexFilms(lastIndex).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2>${f.svg}</section>`).join("");
+      download("index-films.html", `<!doctype html><meta charset="utf-8"><title>Index films</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
+      recordUsage("separation_index_films");
+    });
+    $("#ix-calib-films").addEventListener("click", () => {
+      if (!lastIndex) return;
+      const pages = calibrationFilms(lastIndex).map(f => `<section style="page-break-after:always"><h2>${esc(f.name)} (${esc(f.ink)})</h2><p>Solid | 50% checkerboard | bare</p>${f.svg}</section>`).join("");
+      download("calibration-strip.html", `<!doctype html><meta charset="utf-8"><title>Dot gain calibration strip</title><body style="font-family:sans-serif">${pages}</body>`, "text/html");
+      recordUsage("separation_index_calibration");
+    });
+    $("#ix-cal-read").addEventListener("click", () => {
+      try {
+        const r = gainFromPatch({ garment: $("#ix-cal-garment").value, solid: $("#ix-cal-solid").value, patch: $("#ix-cal-patch").value });
+        $("#ix-gain").value = r.dotGainPct;
+        $("#ix-cal-out").innerHTML = `<strong>${r.dotGainPct}% dot gain</strong> (the checkerboard prints ${r.coveragePct}% inked, against 50% on the film). Entered above; run the index separation again.${r.warnings.map(w => `<br><span class="miss">${esc(w)}</span>`).join("")}`;
+        recordUsage("separation_index_gain_read");
+      } catch (e) { $("#ix-cal-out").innerHTML = `<span class="miss">${esc(e.message)}</span>`; }
+    });
+    $("#sep-index-brief").addEventListener("click", () => { if (lastIndex) { download("index-separation-brief.txt", indexBrief(lastIndex, lastIndexCmp), "text/plain"); recordUsage("separation_index_brief"); } });
     $("#sep-apply").addEventListener("click", () => {
       if (!lastSep) return;
       const err = commit({ op: "inkColours", value: lastSep.screens }, "separation_apply");
@@ -999,6 +1227,12 @@
         $("#sel-ink").disabled = p.kind === "image";
         if (p.ink) $("#sel-ink").value = p.ink;
         $("#method-note").textContent = METHODS[p.method].note;
+        if (p.kind === "image" && p.srcPx) {
+          try {
+            const r = printResolution({ widthPx: p.srcPx.w, heightPx: p.srcPx.h, printWidthCm: p.w, method: p.method });
+            $("#method-note").textContent += " " + resolutionSummary(r, `The original (${p.srcPx.w} x ${p.srcPx.h} px)`);
+          } catch { /* unknown method or size: leave the method note alone */ }
+        }
       }
       const notes = [...new Set(design.placements.flatMap(q => compatibilityNotes(design.fabric, q.method, { colour: design.colour, gsm: design.gsm })))];
       $("#compat").innerHTML = notes.map(esc).join("<br>");
@@ -1131,6 +1365,16 @@
       const a = document.createElement("a"); a.href = url; a.download = "launch-calendar.csv"; a.click(); URL.revokeObjectURL(url);
       recordUsage("marketing_csv");
     });
+
+    // a painting chosen on artwork.html arrives once through local storage
+    try {
+      const h = takeHandoff(localStorage);
+      if (h) {
+        const img = new Image();
+        img.onload = () => { commit({ op: "add", kind: "image", src: h.src, aspect: img.naturalHeight / img.naturalWidth || 1, label: h.label, method: "dtg", srcPx: h.widthPx && h.heightPx ? { w: h.widthPx, h: h.heightPx } : undefined }, "artwork_handoff"); if (h.credit) log(`Added ${esc(h.label)}. Credit: ${esc(h.credit)}`); };
+        img.src = h.src;
+      }
+    } catch { /* storage blocked: nothing to pick up */ }
 
     render();
     recordUsage("open");

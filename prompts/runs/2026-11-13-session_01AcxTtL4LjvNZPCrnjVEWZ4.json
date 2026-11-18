@@ -1,0 +1,146 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01AcxTtL4LjvNZPCrnjVEWZ4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T05:06:54Z",
+  "ended": "2026-11-13T05:32:58Z",
+  "wall_minutes": 26.43,
+  "tokens_in": 20072722,
+  "tokens_out": 84462,
+  "cost_usd": 7.7026,
+  "tool_calls": 155,
+  "task": "chant-forge flagship: read the corpus against pre-1929 page scans; full hymns",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15383",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [
+    "First crop of the 1913 Salve Regina overlapped its halves, duplicating notes; redone without overlap before reading.",
+    "Post front matter over limits (description 222, seo_title 78); caught by venture-preflight, fixed.",
+    "Duplicate work: PR 15377 (machine reader scan.mjs, same flagship item) merged while this PR was open; the claim check had passed at 05:11 because 15377's title was opened earlier but its row showed no PR in allocate.py. Resolved by merging main: kept 15377's te-deum.gabc (1908 Roman tone), restored this run's read file unchanged as te-deum-simple.gabc, renamed eval/scan-check/ to eval/scan-read-by-eye/ to avoid sitting beside eval/scan-check.mjs, and reframed the post as the independent second reading."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/chant-forge/corpus/README.md",
+      "issue": "Labelled the Salve Regina 'simple tone' (it is the solemn mode-1 tone) and gave no tone for the Te Deum (it is the tonus simplex); a scan reading was needed to find out."
+    },
+    {
+      "file": "prompts/ventures/prompt-1.md",
+      "issue": "Says venture-preflight takes over 5 min; it stops in seconds on a front-matter error, so running platform/ci/check_post_frontmatter.py before it saves a cycle."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "Row 9 chant-forge showed 'open PRs naming it: 0' and claim_check.py said HOLD, yet PR 15377 on the same item merged ~20 minutes later; the claim check may miss a PR whose title does not start with the slug or was opened in the same minute."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/chant-forge/ROADMAP.md",
+      "why": "The next: item said 'read the 11 off-final endings against the book'; reading 11 long melismatic pieces by eye did not fit beside the five full readings.",
+      "did": "Read one (3407) against the book and labelled the other ten as explained from file structure only, not read.",
+      "result": "Recorded as open in ROADMAP and flagships next:."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-chant-forge-corpus-read-against-the-1908-scans.md",
+    "ventures/chant-forge/eval/scan-read-by-eye/README.md"
+  ],
+  "goal": null,
+  "notes": "Probed hosts: gregobase.selapa.net, archive.org (metadata, page images, fulltext/inside.php) all answer from the cloud proxy. Read 1,492 notes of the five corpus pieces against archive.org scans (1908 Graduale leaves 874-877, 912, 914; 1913 Liber Usualis leaves 70-71, 603-606): 0 differences. Starred-page leaf map: N* = leaf 791+N; unstarred N = leaf N+23. Added corpus/scan-read-by-eye.json with file hashes, scan-read-by-eye.test.mjs (5 tests), build-hymns.mjs and the full Pange lingua / Veni Creator files. Verification: run_venture_tests.py chant-forge ok (63.8s); node --test scan-read-by-eye.test.mjs 5/5; venture-preflight and site-builder tests re-run after the front-matter fix (see PR). Merge with main after PR 15377 (same item, machine reader): readings now framed as an independent second reading, covering the notes the machine skips; the two agree on Dies irae, Veni Creator, Pange lingua and the Salve Regina.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f22f9262-20d3-5825-bb2a-8ccc32495bdd",
+    "transcripts": 1,
+    "first": "2026-11-13T05:06:54Z",
+    "last": "2026-11-13T05:33:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 122,
+        "input": 265,
+        "output": 84462,
+        "thinking": 42913,
+        "cache_read": 19816326,
+        "cache_write_5m": 0,
+        "cache_write_1h": 256131,
+        "api_equivalent_usd": 7.7026,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 122,
+      "input": 265,
+      "output": 84462,
+      "thinking": 42913,
+      "cache_read": 19816326,
+      "cache_write_5m": 0,
+      "cache_write_1h": 256131,
+      "api_equivalent_usd": 7.7026,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 155,
+    "tools": {
+      "Bash": 92,
+      "Read": 59,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 26.43,
+      "active_minutes": 26.39,
+      "model_minutes": 20.86,
+      "tool_minutes": 5.53,
+      "waiting_on_human_minutes": 0.04,
+      "human_prompts": 26,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a chant scholar reading 1,492 notes against five scans and setting 13 hymn verses, ~10 h",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 129.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -6,7 +6,7 @@ Free and open source (MIT). Results are estimates from the numbers typed in, not
 
 ## Pages
 
-- [The tool](https://duncan-haywood.github.io/oss-monorepo/mosquito-control-program-pricing-calculator/)
+- [The tool](https://marisstella.app/mosquito-control-program-pricing-calculator/)
 
 ## Source
 

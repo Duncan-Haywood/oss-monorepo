@@ -1,0 +1,255 @@
+{
+  "date": "2026-11-12",
+  "subject": "ventures/eu-price-reduction-claim-checker",
+  "stratum": "venture",
+  "seed": "2026-11-12-g",
+  "drawn_by": "sample",
+  "round": 48,
+  "auditor": "agent session (Claude), quality-audit round 48",
+  "status": "audited",
+  "professional": "an EU consumer-protection lawyer / retail compliance officer applying Article 6a of the Price Indication Directive 98/6/EC (inserted by Omnibus Directive 2019/2161), Commission guidance 2021/C 526/02 and CJEU C-330/23 Aldi Sued; they check first that the prior price is the lowest price applied in the 30 days before the reduction (day counting at month and leap-year edges), that any percentage is computed on that prior price, that the Member State options (progressive reductions, new goods, perishables) are applied only under their conditions, and that the scope (goods, consumers) and penalty statements are right",
+  "scores": {
+    "correctness": 2,
+    "completeness": 3,
+    "verification": 2,
+    "craft": 3,
+    "claims": 2,
+    "fitness": 2,
+    "domain": 2
+  },
+  "evidence": {
+    "correctness": "eur-lex.europa.eu and curia.europa.eu returned empty bodies / 202 / 301 through the proxy, so the rule was taken from the auditor's knowledge of Art. 6a(1)-(5) PID, guidance 2021/C 526/02 and C-330/23 (26 Sept 2024) and stated as such. Auditor's own prior-price function (lowest price in force on each of days r-1..r-30, written independently) in /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs, run with node against calc.mjs: sample history (89/69/89/59, reduction 2026-10-10) prior 69, 14.49% (tool 69, 14.49); February boundary (reduction 2026-03-01, window 2026-01-30..02-28): a 50 price on 01-30 counts, on 01-29 does not (tool agrees both ways); leap year 2028 (reduction 03-01, 31 Jan in window) prior 45 (tool 45); pre-sale hike 50 -> 80 then sale 40 with 'was 80, 50% off' -> prior 50, misleading (tool agrees); Black Friday walk in chromium (129 until 11-03, 99, sale 79 on 11-27) window 10-28..11-26, prior 99, 20.2% (tool agrees). The core 30-day computation is exact. Wrong outputs a user would act on: (1) progressive mode ignores the Art. 6a(5)/guidance condition that the reduction be uninterrupted and progressively increased: 100 -> 80 (09-25) -> back to 100 (10-01) -> 60 (10-10) with first reduction 09-25 and 'was 100' returns verdict ok, prior 100, no warning; the standard 30-day prior is 80, so 'was 100' is not supported; a 'first reduction date' with no reduction on record is also accepted silently. (2) Advertised percentages are allowed 0.5 points above the true discount (calc.mjs:136): '14.99% off' on a true 14.49% (69 -> 59) is reported 'within what the history supports'; under C-330/23 the percentage must be computed on the prior price, and rounding up is an overstatement. Reading plus running caps at 2 with these two wrong verdicts.",
+    "completeness": "Claimed features (README.md:3, index.html:52, 87-89) checked by running calc.mjs and the page in headless chromium: prior price with window dates (works); true percentage off (works); crossed-out price check (works); advertised percentage check (works, with the tolerance above); progressive mode (works as coded, conditions missing); short-history warning for new goods (works); 'raising a price before a sale does not help' message (works); download summary and print (buttons wired, summary text renders); example loads and gives 'Not supported by your price history'. No TODOs, stubs or dead links in the folder; served page https://marisstella.app/eu-price-reduction-claim-checker/ returns 200; layout fits at 390 px (scrollWidth 390), no console errors. README test command works on Node 22.23.",
+    "verification": "`cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'`: 25 pass, 0 fail (0.11 s). Six mutations in calc.mjs, each reverted with git checkout, `git diff --stat` clean on the folder at the end: percentage tolerance 0.5 -> 5 (line 136) survived; covered `<=` -> `<` (line 102) survived; isReduction `<` -> `<=` (line 109) caught; crossed-out tolerance 0.005 -> 15 (line 126) survived; window 30 -> 29 days (line 100) caught (2 fail); dipped filter inverted (line 147) survived. 4 of 6 survived. The window edge and no-reduction boundary are well tested; the claim tolerances, the coverage boundary and the progressive conditions are not.",
+    "craft": "Read calc.mjs (178 lines), calc.test.mjs, page.test.mjs, index.html, usage.mjs. Pure functions, explicit input errors instead of clamping, UTC date handling that avoids DST drift, escaped HTML output, tests import the shipped module. Minor: lowestBetween walks day by day calling priceOn over every row (fine at this size); magic tolerances 0.5 and 0.005 are uncommented; the history price on the reduction date is never compared with the typed reduced price (history says 59 on 10-10, salePrice 49 -> verdict ok, no note). A senior JS reviewer would accept it.",
+    "claims": "Backed: 'nothing uploaded' (page.test.mjs asserts no fetch/XHR/beacon, local imports only); 'applied since 28 May 2022' (correct date of application of the Omnibus Directive); percentage must use the prior price (consistent with C-330/23); Member State options for new goods, perishables, progressive reductions (Art. 6a(3)-(5)); disclaimer, no-warranty, 'written from memory' and verify line present (index.html:53, 111; README.md:9; summary text). Not backed: 'the Directive requires penalties that can reach at least 4 percent of annual turnover for widespread infringements' (calc.mjs:150, index.html:12 and :105): to the auditor's knowledge Omnibus Art. 2 replaced PID Art. 8 with penalty criteria only; the 4% maximum-fine floor for CPC coordinated actions was inserted in UCPD Art. 13, CRD Art. 24 and UCTD Art. 8b, not in the PID (a misleading reduction can also breach the UCPD, but the sentence attributes it to this Directive). 'Applies to a reduction announced to consumers for goods or services' (calc.mjs:150): the PID covers products (goods); guidance 2021/C 526/02 says Art. 6a does not apply to services. llms.txt links github.io in source but the served file links marisstella.app (source-only, not a defect).",
+    "fitness": "Walked the first-visitor job (shop owner checking a Black Friday banner) in chromium at phone width: typed a price log, sale and claims, got the correct prior price, a clear 'Not supported' verdict, the honest percentage and a downloadable summary in under a minute. For one SKU in the standard case it does the job. A compliance officer hits gaps in the first hour: one product at a time with no CSV import (the paid connector is unbuilt), progressive reductions accepted without their conditions, no option for a national period longer than 30 days (Art. 6a(2) says 'not shorter than 30 days') or for perishables, and a rounded-up percentage passes.",
+    "domain": "Compared against Art. 6a PID, guidance 2021/C 526/02 and C-330/23 (from the auditor's knowledge; sources not reachable). Right: 30-day lowest price applied before the reduction, counted as the 30 calendar days before the reduction day; percentage and crossed-out price judged against that prior price (Aldi Sued); a pre-sale price rise does not move the prior price; progressive prior taken as the 30-day prior before the first reduction, which matches the guidance reading. Departures: progressive option applied without requiring an uninterrupted, increasing reduction; percentage tolerance of half a point above the true figure; scope stated as goods or services; the 4% fine attributed to the PID; a crossed-out price below the prior price called 'not a problem under this rule' although Art. 6a(1) requires the prior price itself to be indicated (the finding contradicts itself); no national-period or perishables parameter."
+  },
+  "checks": [
+    {
+      "dimension": "correctness",
+      "what": "prior price and true discount for the shipped sample (89/69/89, sale 59 on 2026-10-10)",
+      "method": "Art. 6a(2) PID: lowest price applied in the 30 days before the reduction; auditor's independent day-by-day function",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "prior 69, 14.49%",
+      "observed": "prior 69, 14.49%, verdict misleading",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "30-day window across February (reduction 2026-03-01) both sides of the boundary",
+      "method": "calendar count: 30 days before 2026-03-01 are 2026-01-30..2026-02-28",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "50 on 01-30 counts (prior 50); 50 on 01-29 does not (prior 100)",
+      "observed": "prior 50; prior 100",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "leap-year window (reduction 2028-03-01, 31 Jan 2028 price 45)",
+      "method": "calendar count with 29-day February 2028",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "prior 45",
+      "observed": "prior 45",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "Black Friday walk: 129 until 11-03, 99 from 11-03, sale 79 on 11-27, claims 'was 129, 39% off'",
+      "method": "Art. 6a(2) by hand; C-330/23 (percentage on prior price): (99-79)/99 = 20.2%",
+      "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/walk.cjs ventures/eu-price-reduction-claim-checker",
+      "expected": "window 10-28..11-26, prior 99, 20.2%, not supported",
+      "observed": "window 2026-10-28 to 2026-11-26, prior 99.00, 20.2 percent, 'Not supported by your price history'",
+      "result": "pass"
+    },
+    {
+      "dimension": "correctness",
+      "what": "progressive mode with an interrupted reduction (100 -> 80 -> back to 100 -> 60), 'was 100'",
+      "method": "Art. 6a(5) PID and guidance 2021/C 526/02: progressive rule only for an uninterrupted, progressively increased reduction; otherwise the standard 30-day prior (80)",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "warning or standard prior 80; 'was 100' not supported",
+      "observed": "prior 100, verdict ok, no finding about the interruption",
+      "result": "fail"
+    },
+    {
+      "dimension": "correctness",
+      "what": "advertised percentage rounded up: '14.99% off' on a true 14.49% (69 -> 59)",
+      "method": "C-330/23 Aldi Sued: percentage reduction must be determined on the prior price",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "flagged as more than the history supports",
+      "observed": "verdict ok, 'within what the history supports' (14.5, 14.9, 14.99 all ok; 15 flagged)",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "penalty sentence: 'the Directive requires penalties that can reach at least 4 percent of annual turnover'",
+      "method": "Omnibus 2019/2161 Art. 2 (new PID Art. 8: penalty criteria) vs Arts. 1, 3, 4 (4% in UCPD Art. 13, UCTD Art. 8b, CRD Art. 24); from auditor's knowledge, eur-lex unreachable",
+      "command": "grep -n '4 percent' ventures/eu-price-reduction-claim-checker/calc.mjs ventures/eu-price-reduction-claim-checker/index.html",
+      "expected": "penalty statement attributed to the right instrument",
+      "observed": "attributed to the Price Indication Directive at calc.mjs:150, index.html:12, index.html:105",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "scope: 'for goods or services'",
+      "method": "PID scope (products offered to consumers); guidance 2021/C 526/02 on Art. 6a: goods only",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "goods",
+      "observed": "'Applies to a reduction announced to consumers for goods or services.'",
+      "result": "fail"
+    },
+    {
+      "dimension": "claims",
+      "what": "no-upload, disclaimer and verify line",
+      "method": "read page.test.mjs and index.html footer; ran tests",
+      "command": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'",
+      "expected": "no network calls, disclaimer present",
+      "observed": "page tests pass; footer no-warranty and not-advice text present; summary ends with Verify against line",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "page walk at 390 px: example, custom entry, summary",
+      "method": "headless chromium via playwright",
+      "command": "NODE_PATH=$(npm root -g) node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/walk.cjs ventures/eu-price-reduction-claim-checker",
+      "expected": "verdict renders, no overflow, no errors",
+      "observed": "example 'Not supported by your price history'; scrollWidth 390; errors []",
+      "result": "pass"
+    },
+    {
+      "dimension": "completeness",
+      "what": "served page and llms.txt",
+      "method": "curl of https://marisstella.app/eu-price-reduction-claim-checker/",
+      "command": "curl -sS -o /dev/null -w '%{http_code}' https://marisstella.app/eu-price-reduction-claim-checker/",
+      "expected": "200, llms.txt on marisstella.app",
+      "observed": "200; served llms.txt links https://marisstella.app/eu-price-reduction-claim-checker/",
+      "result": "pass"
+    },
+    {
+      "dimension": "verification",
+      "what": "test suite",
+      "method": "run",
+      "command": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'",
+      "expected": "all pass",
+      "observed": "25 pass, 0 fail",
+      "result": "pass"
+    },
+    {
+      "dimension": "craft",
+      "what": "history price on reduction day vs typed reduced price",
+      "method": "history 59 on 2026-10-10, salePrice 49",
+      "command": "node /tmp/claude-0/-home-user-oss-monorepo/c7666914-7b3e-532d-a2b8-8bb4f48b758c/scratchpad/eupr/probe.mjs /home/user/oss-monorepo/ventures/eu-price-reduction-claim-checker",
+      "expected": "inconsistency noted",
+      "observed": "verdict ok, nothing noted",
+      "result": "partial"
+    }
+  ],
+  "mutations": [
+    {
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:136",
+      "change": "trueDiscount + 0.5 -> trueDiscount + 5",
+      "caught": false,
+      "test_cmd": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:102",
+      "change": "p.rows[0].t <= winFrom -> <",
+      "caught": false,
+      "test_cmd": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:109",
+      "change": "salePrice < prior -> <=",
+      "caught": true,
+      "test_cmd": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:126",
+      "change": "prior + 0.005 -> prior + 15",
+      "caught": false,
+      "test_cmd": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:100",
+      "change": "WINDOW_DAYS * DAY -> (WINDOW_DAYS - 1) * DAY",
+      "caught": true,
+      "test_cmd": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'"
+    },
+    {
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:147",
+      "change": "r.price > prior + 0.005 -> r.price < prior",
+      "caught": false,
+      "test_cmd": "cd ventures/eu-price-reduction-claim-checker && node --test '*.test.mjs'"
+    }
+  ],
+  "defects": [
+    {
+      "severity": "high",
+      "what": "Progressive mode applies the Art. 6a(5) prior (price before the first reduction) without checking that the reduction was uninterrupted and progressively increased; an interrupted reduction (100 -> 80 -> 100 -> 60) returns verdict ok for 'was 100' where the 30-day prior is 80. A first-reduction date with no reduction on record is also accepted.",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:99",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Advertised percentage accepted up to 0.5 points above the true discount: '14.99% off' on a true 14.49% is called within what the history supports; C-330/23 requires the percentage to be computed on the prior price, so rounding up overstates it.",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:136",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "Penalty sentence attributes a 4%-of-turnover fine floor to the Price Indication Directive; Omnibus put that floor in UCPD/CRD/UCTD (CPC coordinated actions), while the PID got penalty criteria only (auditor's knowledge, source unreachable).",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:150",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Same 4% penalty claim on the page and in FAQPage structured data.",
+      "where": "ventures/eu-price-reduction-claim-checker/index.html:105",
+      "category": "overclaim",
+      "origin": "claims"
+    },
+    {
+      "severity": "medium",
+      "what": "Scope stated as 'goods or services'; the PID and Art. 6a cover goods (products), not services (guidance 2021/C 526/02).",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:150",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "medium",
+      "what": "4 of 6 seeded mutations survive: no test pins the percentage tolerance, the crossed-out-price tolerance, the coverage boundary (history starting exactly 30 days before) or the pre-sale-rise message.",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.test.mjs:33",
+      "category": "untested-core",
+      "origin": "tests"
+    },
+    {
+      "severity": "low",
+      "what": "Crossed-out price below the prior price is called 'not a problem under this rule, but it is not the figure the rule requires', which contradicts itself; Art. 6a(1) requires the prior price to be indicated.",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:130",
+      "category": "domain-rule",
+      "origin": "spec"
+    },
+    {
+      "severity": "low",
+      "what": "The price the history gives for the reduction date is never compared with the typed reduced price (history 59, typed 49 -> ok, no note).",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:108",
+      "category": "input-handling",
+      "origin": "implementation"
+    },
+    {
+      "severity": "low",
+      "what": "No parameter for a national reference period longer than 30 days (Art. 6a(2) 'not shorter than 30 days') or for perishables; the window is fixed at 30.",
+      "where": "ventures/eu-price-reduction-claim-checker/calc.mjs:11",
+      "category": "scope-gap",
+      "origin": "spec"
+    }
+  ],
+  "fix_prs": [
+    "https://github.com/Duncan-Haywood/oss-monorepo/pull/15117"
+  ],
+  "verdict": "A small, honest single-SKU checker whose core is right: the 30-day lowest prior price matched the auditor's independent computation on six histories including February, leap-year and Black Friday cases, and percentages are judged against the prior price as C-330/23 requires. It does not meet the bar: the progressive-reduction option returns 'ok' for an interrupted reduction where the standard rule gives a lower prior, a half-point rounding tolerance passes overstated percentages, the page attributes a 4% turnover fine to the wrong directive and says the rule covers services, and 4 of 6 seeded mutations survive. Finished for what it claims (completeness 3); correctness, claims and verification are each 2."
+}

@@ -36,3 +36,7 @@ test("deadline gives a chance of finishing on time; rejects bad ranges and missi
   assert.equal(scheduleRisk(chain(), { runs: 3 }).ok, false);
   assert.ok(riskText(scheduleRisk(chain(), { runs: 50 })).join("\n").includes("P80"));
 });
+
+test("scheduleRisk refuses null or non-object options instead of throwing", () => {
+  for (const bad of [null, 5, "x"]) assert.equal(scheduleRisk({}, bad).ok, false);
+});

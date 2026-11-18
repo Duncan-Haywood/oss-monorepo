@@ -36,10 +36,10 @@ const nz = (x) => (Number.isFinite(x) && x > 0 ? x : 0);
 
 export function money(x) {
   const n = Math.round(x);
-  return (n < 0 ? "-$" : "$") + Math.abs(n).toLocaleString("en-US");
+  return ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(n).toLocaleString("en-US"));
 }
 export function money2(x) {
-  return (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 // Employee half of FICA on W-2 wages.
@@ -53,6 +53,7 @@ export function employeeFica(wages, o) {
 export function selfEmploymentTax(net, o) {
   const ss = 2 * nz(o.ssRate) / 100, med = 2 * nz(o.medicareRate) / 100, cap = nz(o.wageBase);
   const base = nz(net) * 0.9235;
+  if (base < 400) return 0; // Schedule SE: net earnings under $400 owe none
   return Math.min(base, cap) * ss + base * med;
 }
 

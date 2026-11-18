@@ -1,0 +1,142 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01AcxTtJuPCTrRJUFbQHh3Ds",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T09:06:12Z",
+  "ended": "2026-11-14T09:15:16Z",
+  "wall_minutes": 9.45,
+  "tokens_in": 6125668,
+  "tokens_out": 34591,
+  "cost_usd": 2.8322,
+  "tool_calls": 59,
+  "task": "chant-forge flagship (row 9 from allocate.py): loudness range (EBU Tech 3342) in master-cli",
+  "projects": [
+    "chant-forge"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15797",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "First ffmpeg cross-check used `volume='-12-6*floor(t/5)'` as if dB; ffmpeg volume expressions are linear factors, so two noise signals were wrong (gaps 7.8 and 11 LU). Fixed with pow(10, dB/20); not a meter bug.",
+    "First negative control (case 4 with a -10 LU gate) passed, so it tested nothing; case 4's gated mean (-26.7) lets -35 through either gate. Switched the control to case 3, which fails under -10 as it should.",
+    "Unit test at fs=1000 returned null LRA: the K-weighting shelf (1.68 kHz) is above that Nyquist. Moved to 8 kHz."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/pages/venture-preflight.mjs",
+      "issue": "Preflight failed on main_health's doc_index.py because main carried a report without front matter (from PR #15792); the message said clearly it was not mine, which helped. Fixed forward in this PR."
+    },
+    {
+      "file": "ventures/chant-forge/eval/ebu-tech3341-2026-11-14.md",
+      "issue": "Said the EBU download answered 403; Tech 3342's PDF on tech.ebu.ch answered 200 this session, so 'probe first' applies per URL, not per host."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "Included a one-file front-matter fix to docs/reports/2026-11-14-quality-fix-selfrep-furnace.md (another run's report) in a venture PR, because main's doc_index check was red and would also turn this PR's CI red.",
+      "did": "ran doc_index.py backfill --write, set kind: note",
+      "result": "doc_index.py check passes"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-chant-forge-loudness-range-ebu-tech3342.md",
+    "ventures/chant-forge/eval/ebu-tech3342-2026-11-14.md"
+  ],
+  "goal": null,
+  "notes": "Verification: `node --test '*.test.mjs'` in ventures/chant-forge 197/197 pass; eval/ebu-tech3342.mjs exit 0 (24/24 + control fails); eval/ffmpeg-lra-check.mjs exit 0 (11/12 within 0.2 LU, 12th inside the +/-1 rank bracket); check_post_frontmatter, check_post_links (0 broken), post_similarity (0 pairs >= 0.25) clean; flagships validate.py OK. Tech 3342 PDF fetched from tech.ebu.ch (sha256 a12cb59f...89d8). No agent doc in docs/reports: the eval md carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "186958f6-c369-546d-b40c-8fa4bc18ced3",
+    "transcripts": 1,
+    "first": "2026-11-14T09:06:12Z",
+    "last": "2026-11-14T09:15:38Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 55,
+        "input": 103,
+        "output": 34591,
+        "thinking": 5474,
+        "cache_read": 6008280,
+        "cache_write_5m": 0,
+        "cache_write_1h": 117285,
+        "api_equivalent_usd": 2.8322,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 55,
+      "input": 103,
+      "output": 34591,
+      "thinking": 5474,
+      "cache_read": 6008280,
+      "cache_write_5m": 0,
+      "cache_write_1h": 117285,
+      "api_equivalent_usd": 2.8322,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 59,
+    "tools": {
+      "Bash": 55,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.45,
+      "active_minutes": 9.45,
+      "model_minutes": 6.17,
+      "tool_minutes": 3.28,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "audio engineer reading Tech 3342, implementing LRA, building test signals and an ffmpeg cross-check, diagnosing the rank gap, docs and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 211.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

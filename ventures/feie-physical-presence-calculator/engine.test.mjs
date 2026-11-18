@@ -87,3 +87,29 @@ test("sample gives the documented numbers", () => {
   assert.match(summarize(r).text, /347 full foreign days/);
   assert.equal(money(95000), "$95,000.00");
 });
+
+// Quality audit 2026-11-17 (portfolio/quality/audits/2026-11-17-feie-physical-presence-calculator.json).
+test("a tax year with no built-in limit asks for one instead of borrowing 2025's", () => {
+  assert.throws(() => analyze({ trips: "2027-01-01 to 2027-12-31", asOf: "2028-01-01", taxYear: 2027 }), /exclusion limit/);
+  assert.equal(analyze({ trips: "2022-01-01 to 2022-12-31", asOf: "2023-01-01", taxYear: 2022, income: 200000 }).excluded, 112000); // Rev. Proc. 2021-45
+});
+
+test("the limit is prorated by qualifying days over the days in the year", () => {
+  const r = analyze({ trips: "2025-07-01 to 2026-06-30", asOf: "2026-07-01", taxYear: 2025, income: 200000, limit: 130000 });
+  assert.equal(r.excluded.toFixed(2), "78000.00"); // 130,000 x 219/365
+  const leap = analyze({ trips: "2024-07-01 to 2025-06-30", asOf: "2025-07-01", taxYear: 2024, income: 200000 });
+  assert.equal(leap.qDaysInYear, 219); // window 2024-05-27 to 2025-05-26 holds 330 foreign days
+  assert.equal(leap.daysInYear, 366);
+  assert.equal(leap.excluded.toFixed(2), "75692.62"); // 126,500 x 219/366
+});
+
+test("no earliest date when no window reaches 330 days", () => {
+  const r = analyze({ trips: "2024-01-01 to 2024-01-01\n2024-02-08 to 2025-01-01", asOf: "2025-02-01", taxYear: 2024 });
+  assert.equal(r.best.days, 329);
+  assert.equal(r.earliest, null);
+});
+
+test("days of a qualifying period outside the stays carry the tax-home caveat", () => {
+  const r = analyze({ trips: "2025-07-01 to 2026-06-30", asOf: "2026-07-01", taxYear: 2025, income: 200000, limit: 130000 });
+  assert.match(summarize(r).text, /tax home/);
+});

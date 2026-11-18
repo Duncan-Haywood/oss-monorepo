@@ -61,3 +61,31 @@ test("corrupt stored JSON is treated as empty rather than thrown", () => {
   record("plan_run");
   assert.equal(readUsage().plan_run, 1);
 });
+
+// Red team 2026-11-15: three mutants of this file escaped the suite above.
+test("stored JSON that is not a plain object reads as {} and record() recovers", () => {
+  const key = "stump-grinding-price-calculator-usage";
+  for (const stored of ["null", "5", "true", '"text"', "[]", "[1,2]"]) {
+    globalThis.localStorage.setItem(key, stored);
+    assert.deepEqual(readUsage(), {}, `readUsage with ${stored}`);
+    assert.doesNotThrow(() => record("plan_run"), `record with ${stored}`);
+    assert.deepEqual(readUsage(), { plan_run: 1 }, `count after ${stored}`);
+  }
+});
+
+test("a store whose reads throw is never read as an opt-out", () => {
+  globalThis.localStorage = {
+    getItem: () => { throw new Error("SecurityError"); },
+    setItem: () => {},
+    removeItem: () => {},
+  };
+  assert.equal(usageOptedOut(), false);
+});
+
+test("an opt-out survives a page reload (the in-memory flag is gone)", () => {
+  setUsageOptOut(true);
+  globalThis.__usageOptOut = false;
+  assert.equal(usageOptedOut(), true);
+  record("plan_run");
+  assert.deepEqual(readUsage(), {});
+});

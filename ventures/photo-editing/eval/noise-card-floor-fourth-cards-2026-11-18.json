@@ -1,0 +1,500 @@
+{
+ "FUJIFILM_X-M5__DSCF0621_-_lossless.RAF": {
+  "card": "FUJIFILM/X-M5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "FUJIFILM_X-M5__DSCF0622_-_compressed.RAF": {
+  "card": "FUJIFILM/X-M5",
+  "keep": true,
+  "r": 0.4106,
+  "scene": 1
+ },
+ "FUJIFILM_X-M5__DSCF0623_-_crop_1,25.RAF": {
+  "card": "FUJIFILM/X-M5",
+  "keep": true,
+  "r": 0.5032,
+  "scene": 2
+ },
+ "Kodak_DC120__P000439.kdc": {
+  "card": "Kodak/DC120",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Kodak_DC120__RAW_KODAK_DC120.KDC": {
+  "card": "Kodak/DC120",
+  "keep": true,
+  "r": -1.0,
+  "scene": 1
+ },
+ "Kodak_DC120__RAW_KODAK_DC120_WITH_JPEG.KDC": {
+  "card": "Kodak/DC120",
+  "keep": true,
+  "r": -1.0,
+  "scene": 2
+ },
+ "Kodak_Kodak_C330__RAW_KODAK_C330_FORMAT420_YRGB.RAW": {
+  "card": "Kodak/Kodak C330",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Kodak_Kodak_C330__RAW_KODAK_C330_FORMAT422_YRGB.RAW": {
+  "card": "Kodak/Kodak C330",
+  "keep": true,
+  "r": -1.0,
+  "scene": 1
+ },
+ "Kodak_Kodak_C330__RAW_KODAK_C330_FORMAT_NONE_YRGB.RAW": {
+  "card": "Kodak/Kodak C330",
+  "keep": true,
+  "r": -1.0,
+  "scene": 2
+ },
+ "Kodak_Kodak_C603__Kodak_C643__KODAK_C603_C643_FORMAT_422_CCDI0001.RAW": {
+  "card": "Kodak/Kodak C603  Kodak C643",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Kodak_Kodak_C603__Kodak_C643__KODAK_C603_C643_FORMAT_422_CFAI0001.RAW": {
+  "card": "Kodak/Kodak C603  Kodak C643",
+  "keep": false,
+  "r": 1.0,
+  "scene": 0
+ },
+ "Kodak_Kodak_C603__Kodak_C643__KODAK_C603_C643_FORMAT_NONE_CCDI0001.RAW": {
+  "card": "Kodak/Kodak C603  Kodak C643",
+  "keep": false,
+  "r": 0.9038,
+  "scene": 0
+ },
+ "Kodak_Kodak_C603__Kodak_C643__KODAK_C603_C643_FORMAT_NONE_CFAI0001.RAW": {
+  "card": "Kodak/Kodak C603  Kodak C643",
+  "keep": false,
+  "r": 0.9036,
+  "scene": 0
+ },
+ "Leaf_Credo_40__0001_20_32.IIQ": {
+  "card": "Leaf/Credo 40",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Leaf_Credo_40__0002_20_32.IIQ": {
+  "card": "Leaf/Credo 40",
+  "keep": false,
+  "r": 0.9832,
+  "scene": 0
+ },
+ "Leaf_Credo_40__0008_20_23.IIQ": {
+  "card": "Leaf/Credo 40",
+  "keep": true,
+  "r": -0.1982,
+  "scene": 1
+ },
+ "Leaf_Credo_40__CF003914.IIQ": {
+  "card": "Leaf/Credo 40",
+  "keep": true,
+  "r": -0.078,
+  "scene": 2
+ },
+ "Leica_D-LUX_5__L1010451.RWL": {
+  "card": "Leica/D-LUX 5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Leica_D-LUX_5__L1010452.RWL": {
+  "card": "Leica/D-LUX 5",
+  "keep": true,
+  "r": 0.3903,
+  "scene": 1
+ },
+ "Leica_D-LUX_5__L1010453.RWL": {
+  "card": "Leica/D-LUX 5",
+  "keep": true,
+  "r": 0.5461,
+  "scene": 2
+ },
+ "Leica_D-LUX_5__L1010454.RWL": {
+  "card": "Leica/D-LUX 5",
+  "keep": true,
+  "r": 0.5564,
+  "scene": 3
+ },
+ "Leica_D-LUX__Typ_109___pic_1-1.RWL": {
+  "card": "Leica/D-LUX (Typ 109)",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Leica_D-LUX__Typ_109___pic_16-9.RWL": {
+  "card": "Leica/D-LUX (Typ 109)",
+  "keep": true,
+  "r": 0.2688,
+  "scene": 1
+ },
+ "Leica_D-LUX__Typ_109___pic_3-2.RWL": {
+  "card": "Leica/D-LUX (Typ 109)",
+  "keep": true,
+  "r": 0.3776,
+  "scene": 2
+ },
+ "Leica_D-LUX__Typ_109___pic_4-3.RWL": {
+  "card": "Leica/D-LUX (Typ 109)",
+  "keep": true,
+  "r": 0.0121,
+  "scene": 3
+ },
+ "Leica_V-LUX__Typ_114___Leica_-_V-LUX_(typ114)_-_16:9.RWL": {
+  "card": "Leica/V-LUX (Typ 114)",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Leica_V-LUX__Typ_114___Leica_-_V-LUX_(typ114)_-_1:1.RWL": {
+  "card": "Leica/V-LUX (Typ 114)",
+  "keep": false,
+  "r": 0.9988,
+  "scene": 0
+ },
+ "Leica_V-LUX__Typ_114___Leica_-_V-LUX_(typ114)_-_3:2.RWL": {
+  "card": "Leica/V-LUX (Typ 114)",
+  "keep": false,
+  "r": 0.9933,
+  "scene": 0
+ },
+ "Leica_V-LUX__Typ_114___Leica_-_V-LUX_(typ114)_-_4:3.RWL": {
+  "card": "Leica/V-LUX (Typ 114)",
+  "keep": false,
+  "r": 0.9814,
+  "scene": 0
+ },
+ "NIKON_CORPORATION_NIKON_Z50_2__DSC_0060_DX_Lossless.NEF": {
+  "card": "NIKON CORPORATION/NIKON Z50_2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "NIKON_CORPORATION_NIKON_Z50_2__DSC_0063_1x1_Lossless.NEF": {
+  "card": "NIKON CORPORATION/NIKON Z50_2",
+  "keep": false,
+  "r": 0.9739,
+  "scene": 0
+ },
+ "NIKON_CORPORATION_NIKON_Z_fc__Nikon_Z_fc_12bit.NEF": {
+  "card": "NIKON CORPORATION/NIKON Z fc",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "NIKON_CORPORATION_NIKON_Z_fc__Nikon_Z_fc_12bit_uncompressed.NEF": {
+  "card": "NIKON CORPORATION/NIKON Z fc",
+  "keep": true,
+  "r": 0.7806,
+  "scene": 1
+ },
+ "NIKON_CORPORATION_NIKON_Z_fc__Nikon_Z_fc_14bit.NEF": {
+  "card": "NIKON CORPORATION/NIKON Z fc",
+  "keep": false,
+  "r": 0.9999,
+  "scene": 0
+ },
+ "NIKON_CORPORATION_NIKON_Z_fc__Nikon_Z_fc_14bit_uncompressed.NEF": {
+  "card": "NIKON CORPORATION/NIKON Z fc",
+  "keep": false,
+  "r": 0.9883,
+  "scene": 1
+ },
+ "OM_Digital_Solutions_OM-3__P5048182.ORF": {
+  "card": "OM Digital Solutions/OM-3",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-3__P5048183.ORI": {
+  "card": "OM Digital Solutions/OM-3",
+  "keep": false,
+  "r": 0.9947,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-3__P5048184.ORI": {
+  "card": "OM Digital Solutions/OM-3",
+  "keep": false,
+  "r": 0.9912,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-3__P5048185.ORI": {
+  "card": "OM Digital Solutions/OM-3",
+  "keep": false,
+  "r": 0.9812,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-5MarkII__OM_System_OM-5_2_hires_a.ORF": {
+  "card": "OM Digital Solutions/OM-5MarkII",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-5MarkII__OM_System_OM-5_2_hires_a.ORI": {
+  "card": "OM Digital Solutions/OM-5MarkII",
+  "keep": false,
+  "r": 0.9128,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-5MarkII__OM_System_OM-5_2_hires_b.ORI": {
+  "card": "OM Digital Solutions/OM-5MarkII",
+  "keep": false,
+  "r": 0.9125,
+  "scene": 0
+ },
+ "OM_Digital_Solutions_OM-5MarkII__OM_System_OM-5_2_regular.ORF": {
+  "card": "OM Digital Solutions/OM-5MarkII",
+  "keep": false,
+  "r": 0.9127,
+  "scene": 0
+ },
+ "OM_System_OM-1_Mark_II__20mp-12bit.orf": {
+  "card": "OM System/OM-1 Mark II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "OM_System_OM-1_Mark_II__50mp-12bit-handheld.ori": {
+  "card": "OM System/OM-1 Mark II",
+  "keep": false,
+  "r": 0.9925,
+  "scene": 0
+ },
+ "OM_System_OM-1_Mark_II__50mp-14bit-handheld.ori": {
+  "card": "OM System/OM-1 Mark II",
+  "keep": false,
+  "r": 0.9141,
+  "scene": 0
+ },
+ "OM_System_OM-1_Mark_II__80mp-12bit-tripod.ori": {
+  "card": "OM System/OM-1 Mark II",
+  "keep": false,
+  "r": 0.92,
+  "scene": 0
+ },
+ "OM_System_OM-1__OM_Systems_OM1_RAW_Image_20mpx_P1010025.ORF": {
+  "card": "OM System/OM-1",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "OM_System_OM-1__OM_Systems_OM1_RAW_image_HiRes_50mpx_P1010026.ORI": {
+  "card": "OM System/OM-1",
+  "keep": false,
+  "r": 0.8097,
+  "scene": 0
+ },
+ "OM_System_OM-1__OM_Systems_OM1_RAW_image_HiRes_80mpx_P1010027.ORI": {
+  "card": "OM System/OM-1",
+  "keep": true,
+  "r": 0.7065,
+  "scene": 1
+ },
+ "OM_System_OM-5__C1291096.ORF": {
+  "card": "OM System/OM-5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "OM_System_OM-5__C1291097.ORF": {
+  "card": "OM System/OM-5",
+  "keep": true,
+  "r": 0.016,
+  "scene": 1
+ },
+ "OM_System_OM-5__C1291097.ORI": {
+  "card": "OM System/OM-5",
+  "keep": false,
+  "r": 0.9933,
+  "scene": 0
+ },
+ "OM_System_OM-5__C1291098.ORI": {
+  "card": "OM System/OM-5",
+  "keep": false,
+  "r": 0.9809,
+  "scene": 0
+ },
+ "Pentax_K-3_II__20170430-121325.dng": {
+  "card": "Pentax/K-3 II",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Pentax_K-3_II__IMGP0668.DNG": {
+  "card": "Pentax/K-3 II",
+  "keep": true,
+  "r": 0.227,
+  "scene": 1
+ },
+ "Pentax_K-3_II__IMGP0679.PEF": {
+  "card": "Pentax/K-3 II",
+  "keep": false,
+  "r": 0.965,
+  "scene": 1
+ },
+ "Pentax_K-3_Mark_III__IMGP9854.PEF": {
+  "card": "Pentax/K-3 Mark III",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Pentax_K-3_Mark_III___IMG0114.DNG": {
+  "card": "Pentax/K-3 Mark III",
+  "keep": true,
+  "r": 0.0653,
+  "scene": 1
+ },
+ "Pentax_K-3_Mark_III___IMG0115.PEF": {
+  "card": "Pentax/K-3 Mark III",
+  "keep": true,
+  "r": 0.3339,
+  "scene": 2
+ },
+ "Phase_One_P65___CF027311.IIQ": {
+  "card": "Phase One/P65+",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Phase_One_P65___CF027312.IIQ": {
+  "card": "Phase One/P65+",
+  "keep": true,
+  "r": 0.2742,
+  "scene": 1
+ },
+ "Phase_One_P65___CF027313.IIQ": {
+  "card": "Phase One/P65+",
+  "keep": false,
+  "r": 0.9959,
+  "scene": 1
+ },
+ "SONY_ILCE-1M2__A1_07628_lossless_compressed_medium_full_frame.ARW": {
+  "card": "SONY/ILCE-1M2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "SONY_ILCE-1M2__A1_07629_lossless_compressed_small_full_frame.ARW": {
+  "card": "SONY/ILCE-1M2",
+  "keep": true,
+  "r": 0.0782,
+  "scene": 1
+ },
+ "SONY_ILCE-1M2__A1_07632_lossless_compressed_medium_apsc.ARW": {
+  "card": "SONY/ILCE-1M2",
+  "keep": true,
+  "r": 0.6591,
+  "scene": 2
+ },
+ "SONY_ILCE-1M2__A1_07633_lossless_compressed_small_apsc.ARW": {
+  "card": "SONY/ILCE-1M2",
+  "keep": false,
+  "r": 0.8378,
+  "scene": 2
+ },
+ "SONY_ILCE-7M5__apsc_compressed_lossless.ARW": {
+  "card": "SONY/ILCE-7M5",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "SONY_ILME-FX2__Image_2_-_Compressed_-_Architecture.ARW": {
+  "card": "SONY/ILME-FX2",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "SONY_ILME-FX2__Image_3_-_Lossless_Compression_(L)_-_Shade.ARW": {
+  "card": "SONY/ILME-FX2",
+  "keep": true,
+  "r": -0.0734,
+  "scene": 1
+ },
+ "SONY_ILME-FX2__Image_4_-_Lossless_Compression_(M)_-_Shade.ARW": {
+  "card": "SONY/ILME-FX2",
+  "keep": true,
+  "r": 0.3601,
+  "scene": 2
+ },
+ "SONY_ILME-FX2__Image_5_-_Lossless_Compression_(S)_-_Shade.ARW": {
+  "card": "SONY/ILME-FX2",
+  "keep": true,
+  "r": 0.6943,
+  "scene": 3
+ },
+ "Samsung_NX1100__Sam20_50mm.srw": {
+  "card": "Samsung/NX1100",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Samsung_NX1100__Sam20mm.srw": {
+  "card": "Samsung/NX1100",
+  "keep": true,
+  "r": -0.0124,
+  "scene": 1
+ },
+ "Samsung_NX1100__Sam50_200mm.srw": {
+  "card": "Samsung/NX1100",
+  "keep": true,
+  "r": -0.0586,
+  "scene": 2
+ },
+ "Samsung_NX500__SAM_2922.SRW": {
+  "card": "Samsung/NX500",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Samsung_NX500__SAM_2927.SRW": {
+  "card": "Samsung/NX500",
+  "keep": false,
+  "r": 0.9719,
+  "scene": 0
+ },
+ "Samsung_NX500__SAM_2929.SRW": {
+  "card": "Samsung/NX500",
+  "keep": false,
+  "r": 0.9876,
+  "scene": 0
+ },
+ "Samsung_NX500__SAM_2935.SRW": {
+  "card": "Samsung/NX500",
+  "keep": false,
+  "r": 0.9695,
+  "scene": 0
+ },
+ "Sigma_fp__A002_647_20240229_000001_4k_12bit.DNG": {
+  "card": "Sigma/fp",
+  "keep": true,
+  "r": -1.0,
+  "scene": 0
+ },
+ "Sigma_fp__A002_648_20240229_000001_4k_10bit.DNG": {
+  "card": "Sigma/fp",
+  "keep": false,
+  "r": 0.9984,
+  "scene": 0
+ },
+ "Sigma_fp__A002_650_20240229_000001_4k_8bit.DNG": {
+  "card": "Sigma/fp",
+  "keep": false,
+  "r": 0.9967,
+  "scene": 0
+ },
+ "Sigma_fp__A002_651_20240229_000001_2k_12bit.DNG": {
+  "card": "Sigma/fp",
+  "keep": true,
+  "r": 0.2284,
+  "scene": 1
+ }
+}

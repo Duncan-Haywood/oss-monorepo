@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKk7nScUgANuEB71NUe",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T00:18:00Z",
+  "ended": "2026-11-12T00:26:12Z",
+  "wall_minutes": 12.28,
+  "tokens_in": 7055859,
+  "tokens_out": 29154,
+  "cost_usd": 2.9879,
+  "tool_calls": 60,
+  "task": "Flagship 6 (shift-roster-builder) first next: item: closure score as backtest/half-life-auto default with the window, on the page; hindsight-free closure reference check",
+  "projects": [
+    "shift-roster-builder"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14942",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "eval/hindsight-closure.mjs first draft keyed results as row['file'], overwriting row.file (the file id); caught on reading before the summary was used, killed and rerun"
+    },
+    {
+      "what": "post front matter: description 214 chars (limit 160) and seo_title 74 (limit 70); venture-preflight build caught both, fixed"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill-hook note says to bracket the first letter; it also refuses when the bare name appears elsewhere in the same command line (e.g. a later path), which cost one retry"
+    },
+    {
+      "file": "docs/posts (writing.mjs)",
+      "issue": "description <=160 and seo_title <=70 limits are only discovered from the 5-minute preflight; a one-line note in the post-writing guidance would save a preflight cycle"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-12-shift-roster-closure-score-default.md",
+    "ventures/shift-roster-builder/README.md (The closure score is the default ...)"
+  ],
+  "goal": null,
+  "notes": "Pre-registered eval/hindsight-closure.mjs on the three SHA-checked bakery files: past-only reference, auto B vs A 6/12/0 mean -12.5% (whole-file -16.3%, reproducing window-auto.out.txt); rule PASS, 77% of the relative gain survives. Headless Chromium on shifts-from-sales.html: box on -> auto picks last 4 weeks, off -> equal weights; backtest notes switch; no console errors; 390px screenshot checked. Venture suite: node --test *.test.mjs 349/349 pass. venture-preflight shift-roster-builder: clean (exit 0) after the front-matter fix.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1d858c6e-f17d-5ad6-a579-ac996ec19447",
+    "transcripts": 1,
+    "first": "2026-11-12T00:18:00Z",
+    "last": "2026-11-12T00:30:17Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 59,
+        "input": 120,
+        "output": 29154,
+        "thinking": 3505,
+        "cache_read": 6928405,
+        "cache_write_5m": 0,
+        "cache_write_1h": 127334,
+        "api_equivalent_usd": 2.9879,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 59,
+      "input": 120,
+      "output": 29154,
+      "thinking": 3505,
+      "cache_read": 6928405,
+      "cache_write_5m": 0,
+      "cache_write_1h": 127334,
+      "api_equivalent_usd": 2.9879,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 60,
+    "tools": {
+      "Bash": 53,
+      "ToolSearch": 2,
+      "mcp__github__list_pull_requests": 1,
+      "Read": 1,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.28,
+      "active_minutes": 9.26,
+      "model_minutes": 6.06,
+      "tool_minutes": 3.2,
+      "waiting_on_human_minutes": 3.02,
+      "human_prompts": 4,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "default flip across CLI/page/tests, one pre-registered eval on three files, README/post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 200.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

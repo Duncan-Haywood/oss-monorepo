@@ -1,0 +1,23 @@
+fpp2 calls: 164 weekdays x 169 five-minute slots
+Reference (across days, weekday x slot profile times a day level), mean (y - E)^2 / E by decile of E:
+  E   72.8  z 1.60
+  E   91.9  z 1.43
+  E  116.6  z 1.31
+  E  150.9  z 1.72
+  E  194.8  z 1.28
+  E  223.4  z 1.14
+  E  239.4  z 1.10
+  E  254.0  z 1.30
+  E  271.2  z 1.23
+  E  305.8  z 1.33
+  top / bottom 0.83; z = 1.614 + -0.00141 E, slope 95% day-block bootstrap [-0.00269, -0.00034]
+  reference law: nb1
+clumpingLaw per day (169 raw counts each): nb2 0, nb1 0, either 164 of 164
+  median level span 2.16, gap under NB1 -0.15, under NB2 -0.17 (standard errors, upper half minus lower)
+  median phi 1.00 (range 1.00 to 1.86); median size r 292.4 (161 days read Poisson)
+L1: says nb1 on 0 (need >= 99), nb2 on 0 (need <= 16): FAIL
+week of 2003-03-03: nb: 8 changes, fits either, 0.2 s; nb1: 8 changes, fits either, 0.1 s
+week of 2003-03-10: nb: 10 changes, fits either, 0.1 s; nb1: 10 changes, fits either, 0.1 s
+week of 2003-03-17: nb: 7 changes, fits either, 0.1 s; nb1: 7 changes, fits either, 0.1 s
+week of 2003-03-24: nb: 9 changes, fits either, 0.1 s; nb1: 9 changes, fits either, 0.1 s
+week of 2003-04-14: nb: 13 changes, fits either, 0.1 s; nb1: 13 changes, fits either, 0.1 s

@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKnQYoBkDSrvKNitb6U",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T01:18:13Z",
+  "ended": "2026-11-13T02:02:44Z",
+  "wall_minutes": 44.88,
+  "tokens_in": 7895137,
+  "tokens_out": 40121,
+  "cost_usd": 3.4997,
+  "tool_calls": 70,
+  "task": "research programme verified-dse, milestone 118 (blind test of the clipped switch on three new design families)",
+  "projects": [
+    "research/verified-dse"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15324",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [
+    "706839fe",
+    "2d7f071b"
+  ],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/verified-dse/paper/build.sh",
+      "issue": "regenerates main.tex with pandoc, but pdflatex is absent in the cloud image, so paper/main.pdf stays stale after every PAPER.md edit unless a run spends ~10 min installing texlive; nothing flags the stale PDF."
+    },
+    {
+      "file": "platform/ci/check_post_frontmatter.py",
+      "issue": "reports only the first front-matter problem per run (seo_title, then description on the next call), so fixing a post took three passes."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/research/prompt-0.md",
+      "why": "Landing work step 2 (land open research PRs first): the only open research PR, #15317 (codesign-cant), was opened 13 minutes before this run by an active session, so I left it alone instead of taking it over.",
+      "did": "advanced the drawn programme verified-dse",
+      "result": "no conflict; the claim check said HOLD for this PR"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-verified-dse-shifters-break-the-rule.md",
+    "research/verified-dse/LOG.md (milestone 118 entry)",
+    "research/verified-dse/PAPER.md (Section 3 paragraph, abstract, Section 6)"
+  ],
+  "goal": "advance a PhD-level research programme with a pre-registered blind test",
+  "notes": "Drew verified-dse via pick_track.py (CLAIM CHECK clear). Pre-registered six designs from three new families (funnel shifter, FIR, CORDIC), the guard SWCG and eight predictions in 706839fe before the flow ran; 1,440 Yosys 0.70 + OpenROAD 26Q3 runs in about 40 min on 4 cores (204 ABC failures, the same 17 sequences as milestone 108). Result mostly negative: blind SWC 8.34% against random 2.48%; 3 of 8 predictions held. Checks run here: tests/test_new_families.py, test_pilot_clip.py, test_switch_pooled.py (14 passed); research/_homepage/build.py ok; check_md_links ok; research_live_links --write; check_post_frontmatter and check_post_links ok; cite_check (no ids).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "96d05bd1-d200-5ef2-9027-e1c431b63bdf",
+    "transcripts": 1,
+    "first": "2026-11-13T01:18:13Z",
+    "last": "2026-11-13T02:03:05Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 119,
+        "output": 40121,
+        "thinking": 7324,
+        "cache_read": 7751711,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143307,
+        "api_equivalent_usd": 3.4997,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 119,
+      "output": 40121,
+      "thinking": 7324,
+      "cache_read": 7751711,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143307,
+      "api_equivalent_usd": 3.4997,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 70,
+    "tools": {
+      "Bash": 63,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 44.88,
+      "active_minutes": 44.88,
+      "model_minutes": 7.88,
+      "tool_minutes": 37.0,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "designing three verified RTL families, pre-registering a guard, running and analysing a 1,440-point EDA flow and writing up: about a day and a half for an EDA PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 285.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

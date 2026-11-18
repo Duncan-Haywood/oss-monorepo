@@ -1,0 +1,118 @@
+Milestone 4b: orthotropic triangle-FEM Cusick DC against Petrak et al. (2021) Table 3.
+
+Inputs (FAST, Table 2): warp/weft B [uN m], ratio, warp/weft EA [N/m], ratio; lattice hinge weights [uN m]
+F1: B   4.5   1.9 (2.37)  EA   8915   2515 ( 3.55)  w   1.90   4.83
+F2: B   2.1   1.1 (1.91)  EA   6129    545 (11.25)  w   1.10   2.23
+F3: B   7.7   6.3 (1.22)  EA    824    838 ( 0.98)  w   6.30   7.88
+F4: B   7.6   3.9 (1.95)  EA   7005   2001 ( 3.50)  w   3.90   8.06
+F5: B   5.7   5.3 (1.08)  EA   2001   1662 ( 1.20)  w   5.30   5.75
+F6: B   9.1   9.3 (0.98)  EA   1509   1923 ( 0.78)  w   9.30   9.08
+F7: B  11.9   9.8 (1.21)  EA   3065   2884 ( 1.06)  w   9.80  12.16
+F8: B  32.1  10.3 (3.12)  EA   6129    925 ( 6.62)  w  10.30  34.83
+F9: B  94.3  23.4 (4.03)  EA   6538   3502 ( 1.87)  w  23.40 103.16
+Lattice B(phi)/B2 at B1/B2 = 4, phi = 0, 22.5, 30, 45, 60, 67.5, 90 deg: 4.000 4.311 4.375 4.000 2.875 2.189 1.000
+
+End states: fabric, mode, seed: DC, folds, energy J, stages, all converged, lam_min
+F1 2.5mm bend    seed 0: DC 0.4503 folds 10 E -1.14146047e-03 stages 6 allconv True lam 1.9271613404168522e-08
+F1 2.5mm both    seed 0: DC 0.4379 folds  9 E -1.15992040e-03 stages 6 allconv True lam 2.2180270236357553e-08
+F1 2.5mm stretch seed 0: DC 0.3893 folds 10 E -1.23272689e-03 stages 6 allconv True lam 2.3715634465121205e-08
+F1 2.5mm both    seed 1: DC 0.4379 folds  9 E -1.15992040e-03 stages 6 allconv True lam 2.218027022004894e-08
+F1 2.5mm both    seed 2: DC 0.4226 folds  8 E -1.16625871e-03 stages 6 allconv True lam 2.3197453266098727e-08
+F1 3.75mm iso     seed 0: DC 0.3620 folds  9 E -1.27055266e-03 stages 6 allconv True lam 4.5630780053501264e-08
+F2 2.5mm bend    seed 0: DC 0.3969 folds 11 E -7.55928031e-04 stages 5 allconv True lam 3.504927777394067e-08
+F2 2.5mm both    seed 0: DC 0.3815 folds 10 E -7.72002777e-04 stages 5 allconv True lam 2.819614256167662e-08
+F2 2.5mm stretch seed 0: DC 0.3284 folds  9 E -8.16004212e-04 stages 5 allconv True lam 3.0037207197016366e-08
+F2 2.5mm both    seed 1: DC 0.3564 folds  8 E -7.76393155e-04 stages 5 allconv True lam 3.0205592991682254e-08
+F2 2.5mm both    seed 2: DC 0.3709 folds  9 E -7.74268606e-04 stages 5 allconv True lam 2.969034169372069e-08
+F2 3.75mm iso     seed 0: DC 0.3275 folds  9 E -8.18132204e-04 stages 5 allconv True lam 7.662684670112157e-08
+F3 2.5mm bend    seed 0: DC 0.3942 folds  9 E -2.63021389e-03 stages 4 allconv True lam 6.673827761865613e-08
+F3 2.5mm both    seed 0: DC 0.4047 folds 10 E -2.60718374e-03 stages 4 allconv True lam 5.966376286328901e-08
+F3 2.5mm stretch seed 0: DC 0.3619 folds  7 E -2.64784093e-03 stages 4 allconv True lam 2.0642521182052455e-08
+F3 2.5mm both    seed 1: DC 0.3947 folds  9 E -2.62037691e-03 stages 4 allconv True lam 5.190808654480146e-08
+F3 2.5mm both    seed 2: DC 0.4064 folds 10 E -2.60555691e-03 stages 4 allconv True lam 4.153572736362595e-08
+F4 2.5mm bend    seed 0: DC 0.5382 folds  8 E -1.21686146e-03 stages 6 allconv True lam 2.1090273729073193e-08
+F4 2.5mm both    seed 0: DC 0.5346 folds  8 E -1.22666985e-03 stages 6 allconv True lam -1.6790618798691538e-08
+F4 2.5mm stretch seed 0: DC 0.5263 folds 11 E -1.25806562e-03 stages 6 allconv True lam 1.7637582808264208e-08
+F4 2.5mm both    seed 1: DC 0.5571 folds 10 E -1.20040413e-03 stages 6 allconv True lam -2.3344857084748464e-08
+F4 2.5mm both    seed 2: DC 0.5500 folds  9 E -1.20888776e-03 stages 6 allconv True lam 2.6165944622118416e-08
+F5 2.5mm bend    seed 0: DC 0.4717 folds  9 E -1.49591770e-03 stages 5 allconv True lam 3.51953756677157e-08
+F5 2.5mm both    seed 0: DC 0.4698 folds  9 E -1.49782824e-03 stages 5 allconv True lam 4.061254698087624e-08
+F5 2.5mm stretch seed 0: DC 0.4516 folds  8 E -1.51212207e-03 stages 5 allconv True lam 4.715073750405025e-08
+F5 2.5mm both    seed 1: DC 0.4610 folds  8 E -1.40329862e-03 stages 5 allconv True lam 3.926009710316519e-08
+F5 2.5mm both    seed 2: DC 0.4698 folds  9 E -1.49782824e-03 stages 5 allconv True lam 4.061254698027182e-08
+F6 2.5mm bend    seed 0: DC 0.6130 folds  8 E -1.08327242e-03 stages 5 allconv True lam 1.0101239157401303e-08
+F6 2.5mm both    seed 0: DC 0.6023 folds  7 E -1.08853822e-03 stages 5 allconv True lam 3.1373317992088436e-09
+F6 2.5mm stretch seed 0: DC 0.6154 folds  8 E -1.07959250e-03 stages 5 allconv True lam 8.19286714128875e-09
+F6 2.5mm both    seed 1: DC 0.6261 folds  9 E -1.06648140e-03 stages 5 allconv True lam 2.4278383579820258e-08
+F6 2.5mm both    seed 2: DC 0.6261 folds  9 E -1.06648140e-03 stages 5 allconv True lam 2.427838358127972e-08
+F7 2.5mm bend    seed 0: DC 0.6830 folds 10 E -1.07690645e-03 stages 6 allconv True lam 2.4630491240300756e-08
+F7 2.5mm both    seed 0: DC 0.6576 folds  8 E -1.12307679e-03 stages 6 allconv True lam 1.6551547885753288e-08
+F7 2.5mm stretch seed 0: DC 0.6567 folds  9 E -1.12845688e-03 stages 6 allconv True lam 1.1153028272850804e-08
+F7 2.5mm both    seed 1: DC 0.6687 folds  9 E -1.10461134e-03 stages 6 allconv True lam 1.7715721254876735e-08
+F7 2.5mm both    seed 2: DC 0.6682 folds  9 E -1.10513374e-03 stages 6 allconv True lam 1.1083046784305458e-08
+F8 2.5mm bend    seed 0: DC 0.6997 folds  6 E -1.37563494e-03 stages 5 allconv True lam 3.061850346335941e-08
+F8 2.5mm both    seed 0: DC 0.6764 folds  6 E -1.39611483e-03 stages 5 allconv True lam 1.3031779397683219e-08
+F8 2.5mm stretch seed 0: DC 0.6724 folds  8 E -1.54346814e-03 stages 5 allconv True lam 2.5221564572230027e-08
+F8 2.5mm both    seed 1: DC 0.6693 folds  6 E -1.40862223e-03 stages 5 allconv True lam -5.5802569364126016e-08
+F8 2.5mm both    seed 2: DC 0.6693 folds  6 E -1.40862223e-03 stages 5 allconv True lam -5.580256936642718e-08
+F9 2.5mm bend    seed 0: DC 0.7031 folds  4 E -1.64754561e-03 stages 6 allconv True lam 3.0973051654323597e-08
+F9 2.5mm both    seed 0: DC 0.8098 folds  6 E -1.49481658e-03 stages 6 allconv True lam 2.9769939476579443e-08
+F9 2.5mm stretch seed 0: DC 0.7877 folds  8 E -1.70104177e-03 stages 6 allconv True lam 9.471881678379741e-09
+F9 2.5mm both    seed 1: DC 0.7590 folds  5 E -1.56881778e-03 stages 6 allconv True lam 3.23369513527857e-08
+F9 2.5mm both    seed 2: DC 0.7039 folds  4 E -1.64655569e-03 stages 6 allconv True lam 3.423513424820108e-08
+
+Per fabric (both, 2.5 mm): measured, lowest-energy DC [seed interval], 4a iso lowest, change, error
+F1: Kd 0.222  ortho 0.4226 [0.4226, 0.4379] folds 8  iso 0.3679  change +0.0547  err +0.2006
+F2: Kd 0.227  ortho 0.3564 [0.3564, 0.3815] folds 8  iso 0.3327  change +0.0236  err +0.1294
+F3: Kd 0.285  ortho 0.3947 [0.3947, 0.4064] folds 9  iso 0.3737  change +0.0210  err +0.1097
+F4: Kd 0.319  ortho 0.5346 [0.5346, 0.5571] folds 8  iso 0.4939  change +0.0406  err +0.2156
+F5: Kd 0.348  ortho 0.4698 [0.4610, 0.4698] folds 9  iso 0.4648  change +0.0050  err +0.1218
+F6: Kd 0.403  ortho 0.6023 [0.6023, 0.6261] folds 7  iso 0.6026  change -0.0003  err +0.1993
+F7: Kd 0.442  ortho 0.6576 [0.6576, 0.6687] folds 8  iso 0.6455  change +0.0121  err +0.2156
+F8: Kd 0.548  ortho 0.6693 [0.6693, 0.6764] folds 6  iso 0.6670  change +0.0023  err +0.1213
+F9: Kd 0.647  ortho 0.7039 [0.7039, 0.8098] folds 4  iso 0.7773  change -0.0734  err +0.0569
+
+Scores against measured Kd (n = 9):
+orthotropic, lowest of 3 (registered) : r +0.919  rho +0.933  bias +0.1522  RMSE 0.1614  max|e| 0.2156
+4a isotropic, lowest of 3            : r +0.965  rho +0.967  bias +0.1427  RMSE 0.1479  max|e| 0.2035
+
+Seed 0, 2.5 mm: iso (4a), bend, stretch, both; changes from iso; additivity residual
+F1: iso 0.3921 bend 0.4503 (+0.0583) stretch 0.3893 (-0.0027) both 0.4379 (+0.0459)  resid -0.0097
+F2: iso 0.3327 bend 0.3969 (+0.0641) stretch 0.3284 (-0.0043) both 0.3815 (+0.0488)  resid -0.0110
+F3: iso 0.3921 bend 0.3942 (+0.0021) stretch 0.3619 (-0.0302) both 0.4047 (+0.0125)  resid +0.0407
+F4: iso 0.5058 bend 0.5382 (+0.0324) stretch 0.5263 (+0.0205) both 0.5346 (+0.0288)  resid -0.0241
+F5: iso 0.4766 bend 0.4717 (-0.0049) stretch 0.4516 (-0.0250) both 0.4698 (-0.0068)  resid +0.0231
+F6: iso 0.6145 bend 0.6130 (-0.0015) stretch 0.6154 (+0.0008) both 0.6023 (-0.0123)  resid -0.0116
+F7: iso 0.6455 bend 0.6830 (+0.0375) stretch 0.6567 (+0.0112) both 0.6576 (+0.0121)  resid -0.0366
+F8: iso 0.6776 bend 0.6997 (+0.0220) stretch 0.6724 (-0.0053) both 0.6764 (-0.0013)  resid -0.0180
+F9: iso 0.7893 bend 0.7031 (-0.0862) stretch 0.7877 (-0.0015) both 0.8098 (+0.0205)  resid +0.1082
+seed 0 bend   : r +0.900  rho +0.917  bias +0.1677  RMSE 0.1778  max|e| 0.2410
+seed 0 stretch: r +0.945  rho +0.933  bias +0.1499  RMSE 0.1579  max|e| 0.2147
+seed 0 both   : r +0.958  rho +0.933  bias +0.1704  RMSE 0.1749  max|e| 0.2159
+seed 0 iso (4a): r +0.966  rho +0.967  bias +0.1539  RMSE 0.1585  max|e| 0.2115
+Spearman(|ln B1/B2|, iso - bend) = -0.083
+
+Post hoc: lattice B(phi) averaged over 0-90 deg (arithmetic, harmonic) / geometric mean of B1, B2
+F1: B1/B2 2.37  mean 1.317  harmonic 1.194  bend change +0.0583
+F2: B1/B2 1.91  mean 1.217  harmonic 1.149  bend change +0.0641
+F3: B1/B2 1.22  mean 1.055  harmonic 1.049  bend change +0.0021
+F4: B1/B2 1.95  mean 1.226  harmonic 1.153  bend change +0.0324
+F5: B1/B2 1.08  mean 1.019  harmonic 1.018  bend change -0.0049
+F6: B1/B2 0.98  mean 0.995  harmonic 0.995  bend change -0.0015
+F7: B1/B2 1.21  mean 1.053  harmonic 1.047  bend change +0.0375
+F8: B1/B2 3.12  mean 1.466  harmonic 1.246  bend change +0.0220
+F9: B1/B2 4.03  mean 1.630  harmonic 1.292  bend change -0.0862
+Spearman(mean B(phi)/gmean, bend - iso) = +0.083
+iso check F1 3.75 mm: DC 0.361964 vs 4a 0.358856; E -1.2705526628e-03 vs -1.2730210847e-03
+iso check F2 3.75 mm: DC 0.327539 vs 4a 0.336689; E -8.1813220373e-04 vs -8.2118359314e-04
+
+Predictions:
+  O1 every stage converges: held
+  O2 iso path reproduces 4a (DC 1e-4, E 1e-9 rel): REFUTED
+  O3 (acceptance) orthotropic RMSE <= 0.08: REFUTED
+  O4 orthotropic bias >= +0.10: held
+  O9 orthotropic Pearson r >= 0.95: REFUTED
+  O5 bending orthotropy lowers DC on >= 7 of 9 (3 of 9): REFUTED
+  O6 Spearman(|ln B1/B2|, drop) >= 0.6 (-0.083): REFUTED
+  O7 stretch orthotropy moves DC < 0.01 on >= 7 of 9 (5 of 9): REFUTED
+  O8 additive within 0.01 on >= 7 of 9 (1 of 9): REFUTED

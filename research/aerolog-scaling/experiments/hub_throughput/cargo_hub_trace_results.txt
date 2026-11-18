@@ -1,0 +1,18 @@
+
+2019-10-09: 250671 trips, peak 15-min hour-rate / daily-mean rate = 1.76
+
+2019-10-12: 387295 trips, peak 15-min hour-rate / daily-mean rate = 1.68
+
+Load 70% of charger limit (8.0 flights/h mean). Fewest spares with p95 wait <= 300 s
+  Poisson: 12
+  2019-10-09 uniform: 16
+  2019-10-09 start  : 16
+  2019-10-12 uniform: 16
+  2019-10-12 start  : 16
+
+Load 85% of charger limit (9.7 flights/h mean). Fewest spares with p95 wait <= 300 s
+  Poisson: 16
+  2019-10-09 uniform: 32
+  2019-10-09 start  : 32
+  2019-10-12 uniform: 40
+  2019-10-12 start  : 40

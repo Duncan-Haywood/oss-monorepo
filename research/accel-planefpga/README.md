@@ -1,6 +1,6 @@
 # accel-planefpga: how many MAC lanes fit on a small open-toolchain FPGA, and which dataflow is fastest? (stylised, synthesis-only)
 
-Track 8 (task-specific AI accelerators) in `PROJECTS.md`, the "multi-lane engine and the UP5K's DSP blocks" step left open by `accel-fpga`. The question: put `accel-plane`'s P-lane output-stationary (OS) and reduction-tree (RT, and RTp with a registered tree) matrix-vector engines, for the keyword-spotting layer shape 64x70 with 4-bit weights, through Yosys and nextpnr-ice40 on an iCE40 UP5K. How many lanes fit, what clock do they reach, what is the latency of one product, and do the UP5K's eight hard multiplier blocks change the answer? **Headline: output-stationary at 16 lanes is the fastest design that fits (10.2 us per product, 2,942 of 5,280 logic cells, 27 MHz); reduction trees clock 1.5 to 2x slower; and asking Yosys for DSP blocks cuts logic by 13 to 41% but fails to place at more than 8 lanes, because it does not fall back to logic when the 8 blocks run out.** Produced with AI assistance (Claude). Nothing was run on a board.
+Track 8 (task-specific AI accelerators) in `PROJECTS.md`, the "multi-lane engine and the UP5K's DSP blocks" step left open by `accel-fpga`. The question: put `accel-plane`'s P-lane output-stationary (OS) and reduction-tree (RT, and RTp with a registered tree) matrix-vector engines, for the keyword-spotting layer shape 64x70 with 4-bit weights, through Yosys and nextpnr-ice40 on an iCE40 UP5K. How many lanes fit, what clock do they reach, what is the latency of one product, and do the UP5K's eight hard multiplier blocks change the answer? **Headline: output-stationary at 16 lanes is the fastest design that fits (10.2 us per product, 2,942 of 5,280 logic cells, 27 MHz); reduction trees clock 1.5 to 2x slower; and asking Yosys for DSP blocks cuts logic by 13 to 42% but fails to place at more than 8 lanes, because it does not fall back to logic when the 8 blocks run out.** Produced with AI assistance (Claude). Nothing was run on a board.
 
 **Live page:** https://marisstella.app/research/accel-planefpga/
 
@@ -41,7 +41,7 @@ Full table in `experiments/results.txt` (36 points); logic cells (LC) after plac
 - **OS wins on latency among designs that fit.** 10.2 us at P = 16 (2,942 LC) against 12.0 us for RTp at P = 32 (3,708 LC) and 13.0 us for RT at P = 32. OS keeps 24-bit partial sums in the lanes so its critical path stays one multiply-add (27 to 31 MHz); RT adds a log2(P)-deep adder tree (Fmax falls from 33 MHz at P = 1 to 15 MHz at P = 32), and registering the tree (RTp) recovers 1 to 19 MHz at the cost of a cycle.
 - **Cost per lane is about 180 LC for OS and 110 for RT** (no DSP; slopes between P = 8 and 16). OS pays for P accumulators; RT has one.
 - **OS at 32 lanes does not fit** (nextpnr could not expand the region; it needs more than the 5,280 LC). So 16 lanes (4 tiles of 70 inputs) is the largest OS engine that fits here.
-- **DSP mapping saves 13 to 41% of logic and raises Fmax by 2 to 8 MHz, but only up to 8 lanes.** Yosys infers one SB_MAC16 per multiplier; at P >= 16 it asks for more than 8 and nextpnr fails with "no BELs remaining" for all of OS, RT and RTp, rather than leaving the extra multipliers in logic. A hybrid (8 multipliers in DSP, the rest in LUTs) would need hand-instantiated cells or Yosys flags I did not try, so the 16-lane OS point has no DSP counterpart here, and it is open whether it would beat 10.2 us.
+- **DSP mapping saves 13 to 42% of logic and raises Fmax by 2 to 8 MHz, but only up to 8 lanes.** Yosys infers one SB_MAC16 per multiplier; at P >= 16 it asks for more than 8 and nextpnr fails with "no BELs remaining" for all of OS, RT and RTp, rather than leaving the extra multipliers in logic. A hybrid (8 multipliers in DSP, the rest in LUTs) would need hand-instantiated cells or Yosys flags I did not try, so the 16-lane OS point has no DSP counterpart here, and it is open whether it would beat 10.2 us.
 - **The wrapper's XOR reduce is included, not subtracted.** It costs about 128 LUTs for OS at P = 16 and 64 at P = 8 (analytic, `wrapper_luts`), 4 to 5% of the OS totals, and 8 LUTs for RT at any P. It slightly overstates OS area relative to RT; the ranking above does not depend on it. Whether it also limits Fmax I did not check.
 - **Timing is never the constraint for keyword spotting.** At 4 products per second, even the slowest point (144 us) is busy 0.06% of the time, as in `accel-fpga`; the fastest designs matter only if the layer shape or frame rate grows.
 
@@ -59,3 +59,11 @@ Optional: buy an iCE40 UP5K board (prices not checked here) and measure power of
 
 ## Outside dependencies
 `accel-plane`'s RTL and cycle model; Yosys, nextpnr-ice40 (YoWASP wheel) and IceStorm's device database; the figure helper is stdlib only.
+
+## Known gaps
+
+From the quality audit of 2026-11-13 ([`portfolio/quality/audits/2026-11-13-accel-planefpga.json`](../../portfolio/quality/audits/2026-11-13-accel-planefpga.json)):
+- Both tool-flow tests skip without a native `yosys`, and no CI job installs one, so only the three arithmetic tests run; 4 of 5 seeded bugs survived.
+- Raw Yosys/nextpnr reports and tool versions are not committed, so the logic-cell and Fmax table cannot be checked against tool output.
+- "DSP mapping fails above 8 lanes" reflects Yosys mapping one multiplier per SB_MAC16. Packing two 8x8 products (or two 4-bit weights) into one block is not tried.
+- Nearest prior work is not compared: Lattice sensAI on the same UP5K, FINN, hls4ml.

@@ -1,5 +1,12 @@
 import { buildReport } from './calc.mjs';
 
+// Reading the `localStorage` global throws SecurityError when the visitor
+// blocks site data, so a default parameter must not read it bare: the throw
+// lands outside every try in the function and stops the page's script.
+export function browserStorage() {
+  try { return globalThis.localStorage ?? null; } catch { return null; }
+}
+
 export const USAGE_KEY = 'shopify-a11y-evidence-usage';
 
 export const IMPACT_WEIGHT = {
@@ -105,7 +112,7 @@ function impactWeight(impact) {
  * selector/HTML heuristic, not a theme-file guarantee and not a
  * compliance determination.
  */
-export function groupByThemeArea(input, date = new Date().toISOString().slice(0, 10)) {
+export function groupByThemeArea(input, date) {
   const report = buildReport(input, date);
   const violations = Array.isArray(input?.violations) ? input.violations : [];
   const buckets = new Map();
@@ -186,7 +193,7 @@ export function themeAreasAsText(grouped) {
   return lines.join('\n');
 }
 
-export function recordThemeAreaUsage(storage = globalThis.localStorage, optOut = false, event = 'theme_areas_generated') {
+export function recordThemeAreaUsage(storage = browserStorage(), optOut = false, event = 'theme_areas_generated') {
   if (optOut || !storage) return;
   let current = {};
   try {

@@ -1,0 +1,133 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01XpHqyfFE7wEVK9cZaAdArq",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "follow the instructions in ./prompt.md",
+  "input_sha256": "a95acf6830a32a2c29069de8f58ac9e91b9d15222370af23d20d85212df760f1",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-15T20:38:12Z",
+  "ended": "2026-11-15T20:50:16Z",
+  "wall_minutes": 12.24,
+  "tokens_in": 10867679,
+  "tokens_out": 71331,
+  "cost_usd": 5.1524,
+  "tool_calls": 74,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16334",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First Python edit referenced AEAT codes 1278-1280 taken from a library copy of the error list; the official file (fetched minutes later) no longer lists them. Caught by checking every referenced code against the official file; fixed before commit.",
+    "Wrote '16 November 2026' in page copy (UTC date was 2026-11-15); caught with date -u and corrected before commit.",
+    "build-verifactu-errors.mjs used a file:// string entry guard; venture-preflight (check_cli_entry.py) caught it; switched to pathToFileURL before merge.",
+    "Committed the AEAT list as .properties; the site build (check.mjs SERVED_EXTENSIONS) refuses unknown extensions; renamed to .properties.txt, bytes unchanged."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/einvoice-preflight/eval/verifactu-records-2026-11-15.md",
+      "issue": "Said prewww2.aeat.es refuses the proxy; this session the errores.properties URL on it answered 200, so 'blocked host' notes go stale within hours and are worth re-probing."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says `git checkout -b` the session branch; the branch already existed locally in this container, so checkout -b failed (harmless, HEAD was already on it)."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-verifactu-aeat-error-codes-explained.md",
+    "ventures/einvoice-preflight/eval/verifactu-aeat-codes-2026-11-15.md"
+  ],
+  "goal": null,
+  "notes": "Flagship row 3 (einvoice-preflight), item 'AEAT error codes' from next:. AEAT's errores.properties (247 codes, sha256 06519ceb...) kept intact; VF-029..042 added; verifactu-response.mjs reads AEAT replies and SOAP faults; 113/203 record codes mapped. Verification: run_venture_tests.py einvoice-preflight: 2558 tests pass; post front matter/links/similarity clean; venture-preflight first run failed only on check_cli_entry (229/231 checks); fixed, rerun. No agent doc in docs/reports: the eval file and flagship next: carry what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b3e61bbe-5366-563b-801c-e44d6ebdbdb9",
+    "transcripts": 1,
+    "first": "2026-11-15T20:38:12Z",
+    "last": "2026-11-15T20:50:27Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 70,
+        "input": 136,
+        "output": 71331,
+        "thinking": 15488,
+        "cache_read": 10668605,
+        "cache_write_5m": 0,
+        "cache_write_1h": 198938,
+        "api_equivalent_usd": 5.1524,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 70,
+      "input": 136,
+      "output": 71331,
+      "thinking": 15488,
+      "cache_read": 10668605,
+      "cache_write_5m": 0,
+      "cache_write_1h": 198938,
+      "api_equivalent_usd": 5.1524,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 74,
+    "tools": {
+      "Bash": 71,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "mcp__github__update_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.24,
+      "active_minutes": 12.24,
+      "model_minutes": 10.57,
+      "tool_minutes": 1.67,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 14.0,
+      "basis": "senior developer: read AEAT code list, write 14 rules + reply parser + tests + docs",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1400.0
+    },
+    "leverage": 271.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

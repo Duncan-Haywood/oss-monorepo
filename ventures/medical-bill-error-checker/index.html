@@ -11,7 +11,6 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"Medical Bill Error Checker","applicationCategory":"HealthApplication","operatingSystem":"Any modern browser","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Reads an itemized medical bill CSV and flags possible duplicate charges, codes billed more than once a day, unbundled panel components, two visit levels on one date and lines that do not add up, then drafts a billing-review request. Runs entirely in your browser; the bill is never uploaded.","featureList":"Duplicate charge check, unbundling check, same-day visit level check, line arithmetic check, billing review letter, CSV download"}</script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How do I check a hospital or doctor bill for errors?","acceptedAnswer":{"@type":"Answer","text":"Ask the provider for the itemized bill, meaning a statement listing each line with its CPT or HCPCS code, quantity and charge, then paste or drop it here. The tool looks for identical repeated lines, codes normally billed once a day that appear twice, tests billed separately when a panel already includes them, two levels of the same visit on one date, and lines whose charge, insurance payment and adjustment do not add up to what you owe."}},{"@type":"Question","name":"Does this prove my bill is wrong?","acceptedAnswer":{"@type":"Answer","text":"No. Every result is a question to put to the billing office, not a finding of error. Repeated lines and same-day codes are sometimes legitimate, for example a repeated test or a modifier that documents a separate service. The amount shown is the most that is in question, not a refund you are owed."}},{"@type":"Question","name":"What is unbundling on a medical bill?","acceptedAnswer":{"@type":"Answer","text":"Unbundling is billing the parts of a test or service separately when a single code already includes them, such as a glucose and a BUN alongside a comprehensive metabolic panel. This tool checks a short list of well-known panels and reports any component billed the same day. A distinct-service modifier such as 59 can make separate billing legitimate, so those lines are shown for information without a dollar amount."}},{"@type":"Question","name":"What is an itemized bill and how do I get one?","acceptedAnswer":{"@type":"Answer","text":"An itemized bill lists every charge with its date, procedure or revenue code, description, quantity and amount. A summary statement with one total does not. Call the billing office or patient portal and ask for a fully itemized statement with codes; hospitals generally provide it on request."}},{"@type":"Question","name":"What do I send the billing office?","acceptedAnswer":{"@type":"Answer","text":"The tool drafts a plain request for a billing review that lists each flagged line, asks for an itemized statement with codes and modifiers, and asks that the account be held rather than sent to collections while it is reviewed. Edit it, and compare the corrected bill with your insurer's explanation of benefits before paying."}},{"@type":"Question","name":"Which columns and file formats does it read?","acceptedAnswer":{"@type":"Answer","text":"Comma, semicolon, tab or pipe separated text with a header row. It looks for a charge column (Charge, Amount, Billed Amount), a code column (CPT, HCPCS, Procedure Code) and a description, and uses date of service, quantity, insurance paid, adjustment and patient responsibility when present. Hospital and clinic portals differ, and no real export was available when this was written, so column names are matched by alias and unverified; a file that is not read says why."}},{"@type":"Question","name":"Is my bill uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. The file is read in this browser tab and never leaves your device. There are no accounts, cookies or analytics vendors. Bills contain health information, which is why nothing is sent to a server."}}]}</script>
   <style>
-  <style>
     :root { font: 16px system-ui, sans-serif; color: #1b1f2a; background: #f2f4f7; }
     body { max-width: 1000px; margin: auto; padding: 28px; }
     a { color: #1f5f86; }
@@ -33,7 +32,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -141,12 +140,12 @@
     const $ = (sel) => document.querySelector(sel);
     const status = $("#form-status"), report = $("#report");
     const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-    const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+    const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
     let last = null;
 
     function letter() {
       if (!last) return;
-      $("#letter").value = requestLetter(last, { patient: $("#patient").value.trim(), provider: $("#provider").value.trim(), account: $("#account").value.trim(), date: new Date().toISOString().slice(0, 10) });
+      $("#letter").value = requestLetter(last, { patient: $("#patient").value.trim(), provider: $("#provider").value.trim(), account: $("#account").value.trim(), date: new Date(Date.now() - new Date().getTimezoneOffset() * 6e4).toISOString().slice(0, 10) });
     }
 
     function run(text) {
@@ -158,7 +157,7 @@
       const asks = a.findings.filter((f) => f.severity !== "info").length;
       $("#big").innerHTML = [[String(asks), "item(s) worth asking about"], [usd(s.questioned), "most that is in question"], [usd(s.total), "total billed"], [s.patientOwed === null ? "–" : usd(s.patientOwed), "patient responsibility on the bill"]].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
       $("#report-stats").textContent = `${s.lines} line item(s) read, ${s.coded} with a code. Checked: ${a.rulesChecked.join(", ")}. ${s.arithChecked} line(s) had the columns needed for the arithmetic check. Amounts in question are the most that could be affected, not a refund owed.`;
-      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p><p class="note">Lines: ${f.lines.join(", ")}</p></div>`).join("") : `<p class="note">None of the checks fired. That does not mean the bill is right: the checks cover a short list of common patterns only.</p>`;
+      $("#report-findings").innerHTML = a.findings.length ? a.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p><p class="note">Lines: ${f.lines.join(", ")}</p></div>`).join("") : `<p class="note">None of the checks fired. That does not mean the bill is right: the checks cover a short list of common patterns only.</p>`;
       const notes = [];
       if (n.skipped.length) notes.push(`${n.skipped.length} row(s) were skipped: ` + n.skipped.slice(0, 5).map((x) => `line ${x.line} (${x.reason})`).join("; ") + (n.skipped.length > 5 ? "; …" : "") + ".");
       notes.push("Columns read: " + Object.entries(n.columns).map(([k, v]) => `${k} = “${v}”`).join(", ") + ".");

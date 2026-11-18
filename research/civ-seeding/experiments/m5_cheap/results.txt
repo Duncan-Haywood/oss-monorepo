@@ -1,0 +1,177 @@
+# Milestone 5: cheap and survey-based seeding rules against greedy
+villages 43, seeds 1140 (each village's leader count); greedy S = 32; scoring S = 200 (seed 5); randomised rules = 200 independent seed sets, one run each; bootstrap B = 1000
+model I: {'qN': 0.05, 'qP': 0.3}
+model T: {'qN': 0.075, 'qP': 0.1, 'theta': 0.5, 'delta': -0.25}
+model R: {'qN': 0.1, 'qP': 0.1, 'gamma': 0.1, 'delta': -0.25}
+model T60: {'qN': 0.075, 'qP': 0.1, 'theta': 0.6}
+model Ipub: {'qN': 0.1, 'qP': 0.5}
+greedy searches done in 185 s
+
+## seed-set shape (pooled over villages): mean seed degree, tie density among seeds, overlap with greedy-T
+  leaders            degree  12.9  tie density 0.083  overlap greedy-T 0.17
+  degree             degree  23.1  tie density 0.236  overlap greedy-T 0.39
+  eigenvector        degree  22.0  tie density 0.303  overlap greedy-T 0.29
+  diffusion          degree  22.6  tie density 0.284  overlap greedy-T 0.32
+  ball               degree  18.9  tie density 0.224  overlap greedy-T 0.23
+  patches            degree  20.6  tie density 0.175  overlap greedy-T 0.38
+  spread-degree      degree  13.3  tie density 0.000  overlap greedy-T 0.24
+  single-discount    degree  22.8  tie density 0.182  overlap greedy-T 0.42
+  degree-discount    degree  20.5  tie density 0.092  overlap greedy-T 0.41
+  greedy-I           degree  12.0  tie density 0.040  overlap greedy-T 0.42
+  greedy-T           degree  15.0  tie density 0.066  overlap greedy-T 1.00
+  greedy-R           degree  14.6  tie density 0.063  overlap greedy-T 0.50
+  random             degree   9.7  tie density 0.043  (mean over draws)
+  friend             degree  15.1  tie density 0.096  (mean over draws)
+  survey-degree-0.1  degree  18.6  tie density 0.165  (mean over draws)
+  survey-spread-0.1  degree  18.0  tie density 0.143  (mean over draws)
+  survey-degree-0.25 degree  21.2  tie density 0.200  (mean over draws)
+  survey-spread-0.25 degree  19.2  tie density 0.140  (mean over draws)
+  survey-degree-0.5  degree  22.7  tie density 0.225  (mean over draws)
+  survey-spread-0.5  degree  17.6  tie density 0.091  (mean over draws)
+  villages where spread degree had to seat adjacent seeds: 0 of 43
+
+## adopters (mean per village; share of households) and regret against the best rule
+### model I: best rule greedy-I
+  greedy-I             44.67 (0.2105)  regret  0.000  [0.000, 0.004]
+  greedy-R             44.53 (0.2098)  regret  0.003  [0.001, 0.007]
+  greedy-T             44.45 (0.2094)  regret  0.005  [0.002, 0.010]
+  degree-discount      44.03 (0.2075)  regret  0.014  [0.010, 0.020]
+  single-discount      43.69 (0.2059)  regret  0.022  [0.019, 0.027]
+  spread-degree        43.63 (0.2056)  regret  0.023  [0.020, 0.029]
+  survey-spread-0.5    43.42 (0.2046)  regret  0.028  [0.000, 0.059]
+  patches              43.40 (0.2045)  regret  0.028  [0.025, 0.034]
+  degree               43.23 (0.2037)  regret  0.032  [0.028, 0.039]
+  survey-spread-0.25   43.02 (0.2027)  regret  0.037  [0.009, 0.069]
+  survey-degree-0.5    42.95 (0.2024)  regret  0.039  [0.008, 0.072]
+  survey-degree-0.25   42.86 (0.2019)  regret  0.041  [0.011, 0.074]
+  friend               42.81 (0.2017)  regret  0.042  [0.012, 0.075]
+  survey-spread-0.1    42.52 (0.2003)  regret  0.048  [0.019, 0.081]
+  survey-degree-0.1    42.49 (0.2002)  regret  0.049  [0.020, 0.082]
+  diffusion            42.32 (0.1994)  regret  0.053  [0.046, 0.063]
+  leaders              41.90 (0.1974)  regret  0.062  [0.053, 0.077]
+  eigenvector          41.68 (0.1964)  regret  0.067  [0.057, 0.082]
+  random               41.60 (0.1960)  regret  0.069  [0.037, 0.105]
+  ball                 41.52 (0.1956)  regret  0.071  [0.058, 0.090]
+### model T: best rule greedy-T
+  greedy-T             43.91 (0.2069)  regret  0.000  [0.000, 0.026]
+  degree-discount      43.56 (0.2052)  regret  0.008  [0.004, 0.031]
+  greedy-R             43.50 (0.2049)  regret  0.010  [0.007, 0.034]
+  single-discount      42.87 (0.2020)  regret  0.024  [0.019, 0.047]
+  greedy-I             42.79 (0.2016)  regret  0.026  [0.022, 0.050]
+  spread-degree        42.44 (0.2000)  regret  0.034  [0.029, 0.058]
+  survey-degree-0.5    42.34 (0.1995)  regret  0.036  [0.000, 0.089]
+  patches              42.34 (0.1995)  regret  0.036  [0.031, 0.060]
+  survey-spread-0.5    42.31 (0.1993)  regret  0.037  [0.004, 0.086]
+  degree               42.11 (0.1984)  regret  0.041  [0.035, 0.063]
+  survey-degree-0.25   41.95 (0.1977)  regret  0.045  [0.011, 0.097]
+  survey-spread-0.25   41.94 (0.1976)  regret  0.045  [0.012, 0.095]
+  friend               41.18 (0.1940)  regret  0.062  [0.030, 0.110]
+  survey-spread-0.1    41.05 (0.1934)  regret  0.065  [0.032, 0.114]
+  survey-degree-0.1    40.95 (0.1930)  regret  0.067  [0.034, 0.116]
+  diffusion            40.46 (0.1906)  regret  0.079  [0.068, 0.102]
+  eigenvector          39.52 (0.1862)  regret  0.100  [0.086, 0.127]
+  leaders              39.34 (0.1853)  regret  0.104  [0.092, 0.129]
+  ball                 39.31 (0.1852)  regret  0.105  [0.089, 0.134]
+  random               38.61 (0.1819)  regret  0.121  [0.089, 0.166]
+### model R: best rule degree-discount
+  degree-discount      45.51 (0.2144)  regret  0.000  [0.000, 0.005]
+  greedy-R             45.50 (0.2144)  regret  0.000  [0.000, 0.005]
+  greedy-T             45.42 (0.2140)  regret  0.002  [0.000, 0.008]
+  single-discount      45.20 (0.2130)  regret  0.007  [0.006, 0.011]
+  greedy-I             45.08 (0.2124)  regret  0.009  [0.007, 0.017]
+  patches              44.79 (0.2110)  regret  0.016  [0.013, 0.022]
+  degree               44.75 (0.2108)  regret  0.017  [0.014, 0.024]
+  spread-degree        44.74 (0.2108)  regret  0.017  [0.014, 0.025]
+  survey-spread-0.5    44.04 (0.2075)  regret  0.032  [0.000, 0.068]
+  survey-degree-0.5    43.90 (0.2068)  regret  0.035  [0.004, 0.071]
+  survey-spread-0.25   43.73 (0.2061)  regret  0.039  [0.008, 0.075]
+  survey-degree-0.25   43.70 (0.2059)  regret  0.040  [0.009, 0.075]
+  diffusion            43.69 (0.2059)  regret  0.040  [0.034, 0.051]
+  friend               43.33 (0.2042)  regret  0.048  [0.018, 0.083]
+  survey-spread-0.1    43.12 (0.2032)  regret  0.052  [0.023, 0.088]
+  survey-degree-0.1    43.09 (0.2030)  regret  0.053  [0.023, 0.088]
+  eigenvector          42.98 (0.2025)  regret  0.056  [0.046, 0.072]
+  leaders              42.69 (0.2012)  regret  0.062  [0.052, 0.080]
+  ball                 42.58 (0.2006)  regret  0.064  [0.051, 0.087]
+  random               41.56 (0.1958)  regret  0.087  [0.058, 0.123]
+### model T60: best rule greedy-R
+  greedy-R             46.53 (0.2192)  regret  0.000  [0.000, 0.003]
+  greedy-T             46.52 (0.2192)  regret  0.000  [0.000, 0.003]
+  degree-discount      46.18 (0.2176)  regret  0.008  [0.004, 0.013]
+  greedy-I             46.07 (0.2171)  regret  0.010  [0.007, 0.015]
+  single-discount      45.63 (0.2150)  regret  0.019  [0.017, 0.024]
+  spread-degree        45.32 (0.2136)  regret  0.026  [0.023, 0.031]
+  patches              45.15 (0.2127)  regret  0.030  [0.027, 0.035]
+  degree               44.96 (0.2118)  regret  0.034  [0.030, 0.040]
+  survey-spread-0.5    44.31 (0.2088)  regret  0.048  [0.009, 0.084]
+  survey-degree-0.5    44.09 (0.2078)  regret  0.052  [0.011, 0.089]
+  survey-spread-0.25   43.91 (0.2069)  regret  0.056  [0.018, 0.093]
+  survey-degree-0.25   43.86 (0.2066)  regret  0.057  [0.018, 0.093]
+  diffusion            43.47 (0.2048)  regret  0.066  [0.057, 0.078]
+  friend               43.47 (0.2048)  regret  0.066  [0.027, 0.103]
+  survey-spread-0.1    43.15 (0.2033)  regret  0.073  [0.035, 0.109]
+  survey-degree-0.1    43.07 (0.2029)  regret  0.074  [0.036, 0.111]
+  leaders              42.54 (0.2004)  regret  0.086  [0.076, 0.101]
+  eigenvector          42.52 (0.2004)  regret  0.086  [0.073, 0.105]
+  ball                 42.29 (0.1993)  regret  0.091  [0.077, 0.112]
+  random               41.35 (0.1948)  regret  0.111  [0.075, 0.147]
+### model Ipub: best rule greedy-I
+  greedy-I             49.89 (0.2351)  regret  0.000  [0.000, 0.003]
+  greedy-R             49.65 (0.2339)  regret  0.005  [0.003, 0.008]
+  greedy-T             49.54 (0.2334)  regret  0.007  [0.005, 0.011]
+  degree-discount      49.19 (0.2318)  regret  0.014  [0.011, 0.018]
+  single-discount      49.02 (0.2310)  regret  0.017  [0.015, 0.021]
+  spread-degree        48.93 (0.2306)  regret  0.019  [0.017, 0.024]
+  patches              48.85 (0.2302)  regret  0.021  [0.019, 0.024]
+  degree               48.81 (0.2300)  regret  0.022  [0.019, 0.025]
+  survey-spread-0.5    48.61 (0.2291)  regret  0.025  [0.000, 0.054]
+  friend               48.51 (0.2286)  regret  0.028  [0.002, 0.057]
+  survey-spread-0.25   48.45 (0.2283)  regret  0.029  [0.004, 0.058]
+  survey-degree-0.5    48.44 (0.2283)  regret  0.029  [0.003, 0.059]
+  diffusion            48.42 (0.2281)  regret  0.029  [0.026, 0.035]
+  survey-degree-0.25   48.39 (0.2280)  regret  0.030  [0.005, 0.059]
+  survey-spread-0.1    48.28 (0.2275)  regret  0.032  [0.007, 0.061]
+  survey-degree-0.1    48.27 (0.2274)  regret  0.032  [0.007, 0.061]
+  leaders              48.15 (0.2269)  regret  0.035  [0.029, 0.045]
+  random               48.15 (0.2269)  regret  0.035  [0.008, 0.066]
+  eigenvector          48.11 (0.2267)  regret  0.036  [0.030, 0.044]
+  ball                 47.92 (0.2258)  regret  0.039  [0.032, 0.051]
+
+## worst-case regret over the fitted models I, T, R (sensitivity T60, Ipub after the bar)
+  greedy-T           worst 0.005  [0.003, 0.026]  I 0.005  T 0.000  R 0.002  |  T60 0.000  Ipub 0.007
+  greedy-R           worst 0.010  [0.007, 0.034]  I 0.003  T 0.010  R 0.000  |  T60 0.000  Ipub 0.005
+  degree-discount    worst 0.014  [0.010, 0.032]  I 0.014  T 0.008  R 0.000  |  T60 0.008  Ipub 0.014
+  single-discount    worst 0.024  [0.021, 0.047]  I 0.022  T 0.024  R 0.007  |  T60 0.019  Ipub 0.017
+  greedy-I           worst 0.026  [0.022, 0.050]  I 0.000  T 0.026  R 0.009  |  T60 0.010  Ipub 0.000
+  spread-degree      worst 0.034  [0.029, 0.058]  I 0.023  T 0.034  R 0.017  |  T60 0.026  Ipub 0.019
+  patches            worst 0.036  [0.031, 0.060]  I 0.028  T 0.036  R 0.016  |  T60 0.030  Ipub 0.021
+  survey-spread-0.5  worst 0.037  [0.011, 0.086]  I 0.028  T 0.037  R 0.032  |  T60 0.048  Ipub 0.025
+  survey-degree-0.5  worst 0.039  [0.012, 0.090]  I 0.039  T 0.036  R 0.035  |  T60 0.052  Ipub 0.029
+  degree             worst 0.041  [0.035, 0.063]  I 0.032  T 0.041  R 0.017  |  T60 0.034  Ipub 0.022
+  survey-degree-0.25 worst 0.045  [0.017, 0.097]  I 0.041  T 0.045  R 0.040  |  T60 0.057  Ipub 0.030
+  survey-spread-0.25 worst 0.045  [0.018, 0.095]  I 0.037  T 0.045  R 0.039  |  T60 0.056  Ipub 0.029
+  friend             worst 0.062  [0.033, 0.110]  I 0.042  T 0.062  R 0.048  |  T60 0.066  Ipub 0.028
+  survey-spread-0.1  worst 0.065  [0.036, 0.114]  I 0.048  T 0.065  R 0.052  |  T60 0.073  Ipub 0.032
+  survey-degree-0.1  worst 0.067  [0.038, 0.116]  I 0.049  T 0.067  R 0.053  |  T60 0.074  Ipub 0.032
+  diffusion          worst 0.079  [0.068, 0.102]  I 0.053  T 0.079  R 0.040  |  T60 0.066  Ipub 0.029
+  eigenvector        worst 0.100  [0.086, 0.127]  I 0.067  T 0.100  R 0.056  |  T60 0.086  Ipub 0.036
+  leaders            worst 0.104  [0.092, 0.129]  I 0.062  T 0.104  R 0.062  |  T60 0.086  Ipub 0.035
+  ball               worst 0.105  [0.089, 0.134]  I 0.071  T 0.105  R 0.064  |  T60 0.091  Ipub 0.039
+  random             worst 0.121  [0.089, 0.166]  I 0.069  T 0.121  R 0.087  |  T60 0.111  Ipub 0.035
+
+## paired against top degree: share of bootstrap draws where the rule's worst-case regret is lower
+  spread-degree      0.975
+  single-discount    1.000
+  degree-discount    1.000
+  friend             0.197
+  survey-degree-0.1  0.152
+  survey-spread-0.1  0.165
+  survey-degree-0.25 0.340
+  survey-spread-0.25 0.360
+  survey-degree-0.5  0.398
+  survey-spread-0.5  0.477
+
+H6 (a census rule without a model within 2% everywhere): held; spread-degree 0.034, single-discount 0.024, degree-discount 0.014
+H7a (f = 0.25 survey rule within 5% everywhere): held; survey-degree-0.25 0.045, survey-spread-0.25 0.045
+H7b (friend nomination beats random under I, T, R): held; I friend 42.81 vs random 41.60, T friend 41.18 vs random 38.61, R friend 43.33 vs random 41.56
+runtime 200 s

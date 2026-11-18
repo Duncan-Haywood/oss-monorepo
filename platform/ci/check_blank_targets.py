@@ -15,7 +15,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ANCHOR = re.compile(r"<a\b[^>]*?\btarget\s*=\s*[\"']?_blank[^>]*>", re.I)
-SAFE = re.compile(r"\brel\s*=\s*[\"']?[^\"'>]*\b(noopener|noreferrer)\b", re.I)
+# A real `rel` attribute: preceded by whitespace, so `data-rel=` and a `rel=`
+# inside another attribute's value (href="?rel=noopener") do not count.
+SAFE = re.compile(r"""\srel\s*=\s*(?:"[^"]*\b(?:noopener|noreferrer)\b[^"]*"|'[^']*\b(?:noopener|noreferrer)\b[^']*'|(?:[^\s"'>]*\b)?(?:noopener|noreferrer)\b)""", re.I)
+
+
+def _strip_values(tag: str) -> str:
+    """Blank out quoted attribute values other than rel's, so text inside them can't fake a rel."""
+    return re.sub(r"""(\s(?!rel\s*=)[\w:-]+\s*=\s*)(?:"[^"]*"|'[^']*')""", r'\1""', tag, flags=re.I)
 
 
 def unsafe(page: Path):
@@ -25,7 +32,7 @@ def unsafe(page: Path):
     except (OSError, UnicodeDecodeError):
         return
     for m in ANCHOR.finditer(text):
-        if not SAFE.search(m.group(0)):
+        if not SAFE.search(_strip_values(m.group(0))):
             yield m.group(0)
 
 
@@ -35,13 +42,16 @@ def main(argv=None):
     args = ap.parse_args(argv)
     bad, pages = [], 0
     for page in sorted(Path(args.root).rglob("*.html")):
-        if "node_modules" in page.parts:
+        if not {"node_modules", ".next"}.isdisjoint(page.parts):
             continue
         pages += 1
         bad += [(page, t) for t in unsafe(page)]
     for page, t in bad:
         print(f"{page}: {t[:120]}")
     print(f"{pages} pages, {len(bad)} _blank links without rel=noopener")
+    if not pages:
+        print(f"no pages under {args.root}: wrong --root? A scan of nothing is not a pass.")
+        return 2
     return 1 if bad else 0
 
 

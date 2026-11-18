@@ -1,0 +1,1955 @@
+{
+ "boot": 2000,
+ "seed": 20261110,
+ "confusion": {
+  "dev/chicago/v1": {
+   "n": 200,
+   "matrix": {
+    "alteration": {
+     "alteration": 45,
+     "new_construction": 1,
+     "electrical": 3,
+     "plumbing": 0,
+     "mechanical": 1,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 3
+    },
+    "new_construction": {
+     "alteration": 0,
+     "new_construction": 1,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "electrical": {
+     "alteration": 16,
+     "new_construction": 15,
+     "electrical": 28,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 22
+    },
+    "plumbing": {
+     "alteration": 2,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 3,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 2,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 1,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 1
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 6,
+     "new_construction": 0,
+     "electrical": 1,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 2,
+     "other": 0
+    },
+    "other": {
+     "alteration": 2,
+     "new_construction": 1,
+     "electrical": 4,
+     "plumbing": 4,
+     "mechanical": 3,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 31
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 54,
+     "n_pred": 73,
+     "precision": 0.6164383561643836,
+     "precision_ci95": [
+      0.5017408338413933,
+      0.7194939038574504
+     ],
+     "recall": 0.8333333333333334,
+     "recall_ci95": [
+      0.7126348566142432,
+      0.9097560840063988
+     ]
+    },
+    "new_construction": {
+     "n_label": 1,
+     "n_pred": 18,
+     "precision": 0.05555555555555555,
+     "precision_ci95": [
+      0.009875190868776959,
+      0.2575730099608091
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.2065493117918027,
+      1.0
+     ]
+    },
+    "electrical": {
+     "n_label": 81,
+     "n_pred": 36,
+     "precision": 0.7777777777777778,
+     "precision_ci95": [
+      0.6191529691785765,
+      0.8828366808387128
+     ],
+     "recall": 0.345679012345679,
+     "recall_ci95": [
+      0.2512264946536037,
+      0.4541062479742878
+     ]
+    },
+    "plumbing": {
+     "n_label": 5,
+     "n_pred": 7,
+     "precision": 0.42857142857142855,
+     "precision_ci95": [
+      0.15821985399244537,
+      0.7495416372469643
+     ],
+     "recall": 0.6,
+     "recall_ci95": [
+      0.23072427940911855,
+      0.8823792268590028
+     ]
+    },
+    "mechanical": {
+     "n_label": 4,
+     "n_pred": 5,
+     "precision": 0.2,
+     "precision_ci95": [
+      0.03622410822563066,
+      0.6244653729700049
+     ],
+     "recall": 0.25,
+     "recall_ci95": [
+      0.04558726029536886,
+      0.6993581599030918
+     ]
+    },
+    "demolition": {
+     "n_label": 1,
+     "n_pred": 2,
+     "precision": 0.5,
+     "precision_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.2065493117918027,
+      1.0
+     ]
+    },
+    "fire": {
+     "n_label": 9,
+     "n_pred": 2,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.3423802239546494,
+      1.0
+     ],
+     "recall": 0.2222222222222222,
+     "recall_ci95": [
+      0.06322510654056959,
+      0.5474110333077882
+     ]
+    },
+    "other": {
+     "n_label": 45,
+     "n_pred": 57,
+     "precision": 0.543859649122807,
+     "precision_ci95": [
+      0.4159068588247255,
+      0.6662739450536823
+     ],
+     "recall": 0.6888888888888889,
+     "recall_ci95": [
+      0.5433519430484021,
+      0.804713008109521
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "electrical",
+     "pred": "other",
+     "n": 22
+    },
+    {
+     "label": "electrical",
+     "pred": "alteration",
+     "n": 16
+    },
+    {
+     "label": "electrical",
+     "pred": "new_construction",
+     "n": 15
+    },
+    {
+     "label": "fire",
+     "pred": "alteration",
+     "n": 6
+    },
+    {
+     "label": "other",
+     "pred": "electrical",
+     "n": 4
+    }
+   ]
+  },
+  "dev/chicago/v2": {
+   "n": 200,
+   "matrix": {
+    "alteration": {
+     "alteration": 48,
+     "new_construction": 0,
+     "electrical": 3,
+     "plumbing": 0,
+     "mechanical": 1,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 1
+    },
+    "new_construction": {
+     "alteration": 0,
+     "new_construction": 1,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "electrical": {
+     "alteration": 2,
+     "new_construction": 1,
+     "electrical": 77,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 1
+    },
+    "plumbing": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 4,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 1,
+     "mechanical": 3,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 8,
+     "other": 1
+    },
+    "other": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 1,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 43
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 54,
+     "n_pred": 52,
+     "precision": 0.9230769230769231,
+     "precision_ci95": [
+      0.8182643750912105,
+      0.9696806550257896
+     ],
+     "recall": 0.8888888888888888,
+     "recall_ci95": [
+      0.7780529887240111,
+      0.9480697753334044
+     ]
+    },
+    "new_construction": {
+     "n_label": 1,
+     "n_pred": 2,
+     "precision": 0.5,
+     "precision_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.2065493117918027,
+      1.0
+     ]
+    },
+    "electrical": {
+     "n_label": 81,
+     "n_pred": 81,
+     "precision": 0.9506172839506173,
+     "precision_ci95": [
+      0.8797976969460369,
+      0.9806306945805195
+     ],
+     "recall": 0.9506172839506173,
+     "recall_ci95": [
+      0.8797976969460369,
+      0.9806306945805195
+     ]
+    },
+    "plumbing": {
+     "n_label": 5,
+     "n_pred": 5,
+     "precision": 0.8,
+     "precision_ci95": [
+      0.375534627029995,
+      0.9637758917743693
+     ],
+     "recall": 0.8,
+     "recall_ci95": [
+      0.375534627029995,
+      0.9637758917743693
+     ]
+    },
+    "mechanical": {
+     "n_label": 4,
+     "n_pred": 4,
+     "precision": 0.75,
+     "precision_ci95": [
+      0.3006418400969081,
+      0.954412739704631
+     ],
+     "recall": 0.75,
+     "recall_ci95": [
+      0.3006418400969081,
+      0.954412739704631
+     ]
+    },
+    "demolition": {
+     "n_label": 1,
+     "n_pred": 2,
+     "precision": 0.5,
+     "precision_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.2065493117918027,
+      1.0
+     ]
+    },
+    "fire": {
+     "n_label": 9,
+     "n_pred": 8,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.6755924316585924,
+      1.0
+     ],
+     "recall": 0.8888888888888888,
+     "recall_ci95": [
+      0.565000291629209,
+      0.9801091125830901
+     ]
+    },
+    "other": {
+     "n_label": 45,
+     "n_pred": 46,
+     "precision": 0.9347826086956522,
+     "precision_ci95": [
+      0.824972588030455,
+      0.9775721387454057
+     ],
+     "recall": 0.9555555555555556,
+     "recall_ci95": [
+      0.8517248911534567,
+      0.987725873403887
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "alteration",
+     "pred": "electrical",
+     "n": 3
+    },
+    {
+     "label": "electrical",
+     "pred": "alteration",
+     "n": 2
+    },
+    {
+     "label": "alteration",
+     "pred": "demolition",
+     "n": 1
+    },
+    {
+     "label": "alteration",
+     "pred": "mechanical",
+     "n": 1
+    },
+    {
+     "label": "alteration",
+     "pred": "other",
+     "n": 1
+    }
+   ]
+  },
+  "dev/seattle/v1": {
+   "n": 200,
+   "matrix": {
+    "alteration": {
+     "alteration": 122,
+     "new_construction": 4,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 11
+    },
+    "new_construction": {
+     "alteration": 1,
+     "new_construction": 24,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 2,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 25
+    },
+    "electrical": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "plumbing": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 2,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "other": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 6
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 138,
+     "n_pred": 125,
+     "precision": 0.976,
+     "precision_ci95": [
+      0.9318110012180654,
+      0.991804743537176
+     ],
+     "recall": 0.8840579710144928,
+     "recall_ci95": [
+      0.819952268464892,
+      0.9273609701045807
+     ]
+    },
+    "new_construction": {
+     "n_label": 52,
+     "n_pred": 28,
+     "precision": 0.8571428571428571,
+     "precision_ci95": [
+      0.6851019767727087,
+      0.9430099471990978
+     ],
+     "recall": 0.46153846153846156,
+     "recall_ci95": [
+      0.33340474589543556,
+      0.5949638877302917
+     ]
+    },
+    "electrical": {
+     "n_label": 1,
+     "n_pred": 0,
+     "precision": null,
+     "precision_ci95": [
+      null,
+      null
+     ],
+     "recall": 0.0,
+     "recall_ci95": [
+      0.0,
+      0.7934506882081973
+     ]
+    },
+    "plumbing": {
+     "n_label": 1,
+     "n_pred": 0,
+     "precision": null,
+     "precision_ci95": [
+      null,
+      null
+     ],
+     "recall": 0.0,
+     "recall_ci95": [
+      0.0,
+      0.7934506882081973
+     ]
+    },
+    "mechanical": {
+     "n_label": 0,
+     "n_pred": 2,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.6576197760453506
+     ],
+     "recall": null,
+     "recall_ci95": [
+      null,
+      null
+     ]
+    },
+    "demolition": {
+     "n_label": 2,
+     "n_pred": 3,
+     "precision": 0.6666666666666666,
+     "precision_ci95": [
+      0.2076595988078242,
+      0.9385080559790691
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.3423802239546494,
+      1.0
+     ]
+    },
+    "other": {
+     "n_label": 6,
+     "n_pred": 42,
+     "precision": 0.14285714285714285,
+     "precision_ci95": [
+      0.06715966976757391,
+      0.2784108960016483
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.6096657083436265,
+      1.0
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "new_construction",
+     "pred": "other",
+     "n": 25
+    },
+    {
+     "label": "alteration",
+     "pred": "other",
+     "n": 11
+    },
+    {
+     "label": "alteration",
+     "pred": "new_construction",
+     "n": 4
+    },
+    {
+     "label": "new_construction",
+     "pred": "mechanical",
+     "n": 2
+    },
+    {
+     "label": "alteration",
+     "pred": "demolition",
+     "n": 1
+    }
+   ]
+  },
+  "dev/seattle/v2": {
+   "n": 200,
+   "matrix": {
+    "alteration": {
+     "alteration": 134,
+     "new_construction": 2,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 2
+    },
+    "new_construction": {
+     "alteration": 0,
+     "new_construction": 51,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 1,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "electrical": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "plumbing": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 1,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 2,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "other": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 6
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 138,
+     "n_pred": 135,
+     "precision": 0.9925925925925926,
+     "precision_ci95": [
+      0.9592359165668014,
+      0.9986912117681854
+     ],
+     "recall": 0.9710144927536232,
+     "recall_ci95": [
+      0.9278446517450148,
+      0.9886715842364139
+     ]
+    },
+    "new_construction": {
+     "n_label": 52,
+     "n_pred": 53,
+     "precision": 0.9622641509433962,
+     "precision_ci95": [
+      0.8724571270129704,
+      0.9895897128179425
+     ],
+     "recall": 0.9807692307692307,
+     "recall_ci95": [
+      0.898794887711724,
+      0.996597191966685
+     ]
+    },
+    "electrical": {
+     "n_label": 1,
+     "n_pred": 1,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.7934506882081973
+     ],
+     "recall": 0.0,
+     "recall_ci95": [
+      0.0,
+      0.7934506882081973
+     ]
+    },
+    "plumbing": {
+     "n_label": 1,
+     "n_pred": 0,
+     "precision": null,
+     "precision_ci95": [
+      null,
+      null
+     ],
+     "recall": 0.0,
+     "recall_ci95": [
+      0.0,
+      0.7934506882081973
+     ]
+    },
+    "mechanical": {
+     "n_label": 0,
+     "n_pred": 1,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.7934506882081973
+     ],
+     "recall": null,
+     "recall_ci95": [
+      null,
+      null
+     ]
+    },
+    "demolition": {
+     "n_label": 2,
+     "n_pred": 2,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.3423802239546494,
+      1.0
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.3423802239546494,
+      1.0
+     ]
+    },
+    "other": {
+     "n_label": 6,
+     "n_pred": 8,
+     "precision": 0.75,
+     "precision_ci95": [
+      0.40927542792725174,
+      0.9285207879020445
+     ],
+     "recall": 1.0,
+     "recall_ci95": [
+      0.6096657083436265,
+      1.0
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "alteration",
+     "pred": "new_construction",
+     "n": 2
+    },
+    {
+     "label": "alteration",
+     "pred": "other",
+     "n": 2
+    },
+    {
+     "label": "electrical",
+     "pred": "alteration",
+     "n": 1
+    },
+    {
+     "label": "new_construction",
+     "pred": "mechanical",
+     "n": 1
+    },
+    {
+     "label": "plumbing",
+     "pred": "electrical",
+     "n": 1
+    }
+   ]
+  },
+  "held_out/chicago/v1": {
+   "n": 150,
+   "matrix": {
+    "alteration": {
+     "alteration": 23,
+     "new_construction": 1,
+     "electrical": 3,
+     "plumbing": 4,
+     "mechanical": 1,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 1
+    },
+    "new_construction": {
+     "alteration": 1,
+     "new_construction": 1,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "electrical": {
+     "alteration": 8,
+     "new_construction": 7,
+     "electrical": 33,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 18
+    },
+    "plumbing": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 1,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 1,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 1
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 2,
+     "new_construction": 1,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 4,
+     "other": 1
+    },
+    "other": {
+     "alteration": 2,
+     "new_construction": 0,
+     "electrical": 2,
+     "plumbing": 3,
+     "mechanical": 1,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 27
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 34,
+     "n_pred": 38,
+     "precision": 0.6052631578947368,
+     "precision_ci95": [
+      0.4471786787542184,
+      0.7440192434476809
+     ],
+     "recall": 0.6764705882352942,
+     "recall_ci95": [
+      0.5084289446060363,
+      0.8086835651849452
+     ]
+    },
+    "new_construction": {
+     "n_label": 2,
+     "n_pred": 10,
+     "precision": 0.1,
+     "precision_ci95": [
+      0.017876212896073995,
+      0.4041500295247722
+     ],
+     "recall": 0.5,
+     "recall_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ]
+    },
+    "electrical": {
+     "n_label": 66,
+     "n_pred": 38,
+     "precision": 0.868421052631579,
+     "precision_ci95": [
+      0.7267314042437727,
+      0.9424613234628749
+     ],
+     "recall": 0.5,
+     "recall_ci95": [
+      0.38273687937641954,
+      0.6172631206235805
+     ]
+    },
+    "plumbing": {
+     "n_label": 2,
+     "n_pred": 8,
+     "precision": 0.125,
+     "precision_ci95": [
+      0.022417491199971912,
+      0.47088818505608376
+     ],
+     "recall": 0.5,
+     "recall_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ]
+    },
+    "mechanical": {
+     "n_label": 3,
+     "n_pred": 3,
+     "precision": 0.3333333333333333,
+     "precision_ci95": [
+      0.06149194402093078,
+      0.7923404011921757
+     ],
+     "recall": 0.3333333333333333,
+     "recall_ci95": [
+      0.06149194402093078,
+      0.7923404011921757
+     ]
+    },
+    "demolition": {
+     "n_label": 0,
+     "n_pred": 1,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.7934506882081973
+     ],
+     "recall": null,
+     "recall_ci95": [
+      null,
+      null
+     ]
+    },
+    "fire": {
+     "n_label": 8,
+     "n_pred": 4,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.5101091596030786,
+      0.9999999999999999
+     ],
+     "recall": 0.5,
+     "recall_ci95": [
+      0.21521606069626764,
+      0.7847839393037324
+     ]
+    },
+    "other": {
+     "n_label": 35,
+     "n_pred": 48,
+     "precision": 0.5625,
+     "precision_ci95": [
+      0.42275017314264846,
+      0.6929873105137916
+     ],
+     "recall": 0.7714285714285715,
+     "recall_ci95": [
+      0.6098268297026581,
+      0.8793412022723046
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "electrical",
+     "pred": "other",
+     "n": 18
+    },
+    {
+     "label": "electrical",
+     "pred": "alteration",
+     "n": 8
+    },
+    {
+     "label": "electrical",
+     "pred": "new_construction",
+     "n": 7
+    },
+    {
+     "label": "alteration",
+     "pred": "plumbing",
+     "n": 4
+    },
+    {
+     "label": "alteration",
+     "pred": "electrical",
+     "n": 3
+    }
+   ]
+  },
+  "held_out/chicago/v2": {
+   "n": 150,
+   "matrix": {
+    "alteration": {
+     "alteration": 25,
+     "new_construction": 0,
+     "electrical": 3,
+     "plumbing": 4,
+     "mechanical": 1,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "new_construction": {
+     "alteration": 1,
+     "new_construction": 1,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "electrical": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 60,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 5
+    },
+    "plumbing": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 1,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 1,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 1
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 7,
+     "other": 1
+    },
+    "other": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 1,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 34
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 34,
+     "n_pred": 29,
+     "precision": 0.8620689655172413,
+     "precision_ci95": [
+      0.6944100612340133,
+      0.9450256007414052
+     ],
+     "recall": 0.7352941176470589,
+     "recall_ci95": [
+      0.5688285857931482,
+      0.8539880939281604
+     ]
+    },
+    "new_construction": {
+     "n_label": 2,
+     "n_pred": 1,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.2065493117918027,
+      1.0
+     ],
+     "recall": 0.5,
+     "recall_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ]
+    },
+    "electrical": {
+     "n_label": 66,
+     "n_pred": 65,
+     "precision": 0.9230769230769231,
+     "precision_ci95": [
+      0.8322406663848037,
+      0.9666964987156199
+     ],
+     "recall": 0.9090909090909091,
+     "recall_ci95": [
+      0.8155127002319876,
+      0.9576670251769491
+     ]
+    },
+    "plumbing": {
+     "n_label": 2,
+     "n_pred": 5,
+     "precision": 0.2,
+     "precision_ci95": [
+      0.03622410822563066,
+      0.6244653729700049
+     ],
+     "recall": 0.5,
+     "recall_ci95": [
+      0.09453120463920084,
+      0.9054687953607992
+     ]
+    },
+    "mechanical": {
+     "n_label": 3,
+     "n_pred": 1,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.7934506882081973
+     ],
+     "recall": 0.0,
+     "recall_ci95": [
+      0.0,
+      0.5614970356393196
+     ]
+    },
+    "demolition": {
+     "n_label": 0,
+     "n_pred": 1,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.7934506882081973
+     ],
+     "recall": null,
+     "recall_ci95": [
+      null,
+      null
+     ]
+    },
+    "fire": {
+     "n_label": 8,
+     "n_pred": 7,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.6456695613241317,
+      1.0
+     ],
+     "recall": 0.875,
+     "recall_ci95": [
+      0.5291118149439162,
+      0.9775825088000281
+     ]
+    },
+    "other": {
+     "n_label": 35,
+     "n_pred": 41,
+     "precision": 0.8292682926829268,
+     "precision_ci95": [
+      0.6873738747186828,
+      0.9147474806875768
+     ],
+     "recall": 0.9714285714285714,
+     "recall_ci95": [
+      0.8546691262822592,
+      0.9949385082005704
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "electrical",
+     "pred": "other",
+     "n": 5
+    },
+    {
+     "label": "alteration",
+     "pred": "plumbing",
+     "n": 4
+    },
+    {
+     "label": "alteration",
+     "pred": "electrical",
+     "n": 3
+    },
+    {
+     "label": "alteration",
+     "pred": "demolition",
+     "n": 1
+    },
+    {
+     "label": "alteration",
+     "pred": "mechanical",
+     "n": 1
+    }
+   ]
+  },
+  "held_out/seattle/v1": {
+   "n": 150,
+   "matrix": {
+    "alteration": {
+     "alteration": 95,
+     "new_construction": 1,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 4
+    },
+    "new_construction": {
+     "alteration": 1,
+     "new_construction": 16,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 24
+    },
+    "electrical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "plumbing": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "other": {
+     "alteration": 1,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 6
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 101,
+     "n_pred": 97,
+     "precision": 0.979381443298969,
+     "precision_ci95": [
+      0.9279124169205726,
+      0.9943273149487724
+     ],
+     "recall": 0.9405940594059405,
+     "recall_ci95": [
+      0.876408943400999,
+      0.9724918726470484
+     ]
+    },
+    "new_construction": {
+     "n_label": 42,
+     "n_pred": 17,
+     "precision": 0.9411764705882353,
+     "precision_ci95": [
+      0.7301796914154303,
+      0.9895395991310502
+     ],
+     "recall": 0.38095238095238093,
+     "recall_ci95": [
+      0.24999725676014697,
+      0.5318595984962604
+     ]
+    },
+    "demolition": {
+     "n_label": 0,
+     "n_pred": 2,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.6576197760453506
+     ],
+     "recall": null,
+     "recall_ci95": [
+      null,
+      null
+     ]
+    },
+    "other": {
+     "n_label": 7,
+     "n_pred": 34,
+     "precision": 0.17647058823529413,
+     "precision_ci95": [
+      0.08348968996676082,
+      0.3351373754164399
+     ],
+     "recall": 0.8571428571428571,
+     "recall_ci95": [
+      0.486872167860775,
+      0.9743203759421759
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "new_construction",
+     "pred": "other",
+     "n": 24
+    },
+    {
+     "label": "alteration",
+     "pred": "other",
+     "n": 4
+    },
+    {
+     "label": "alteration",
+     "pred": "demolition",
+     "n": 1
+    },
+    {
+     "label": "alteration",
+     "pred": "new_construction",
+     "n": 1
+    },
+    {
+     "label": "new_construction",
+     "pred": "alteration",
+     "n": 1
+    }
+   ]
+  },
+  "held_out/seattle/v2": {
+   "n": 150,
+   "matrix": {
+    "alteration": {
+     "alteration": 99,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 2
+    },
+    "new_construction": {
+     "alteration": 0,
+     "new_construction": 39,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 1,
+     "sign": 0,
+     "fire": 0,
+     "other": 2
+    },
+    "electrical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "plumbing": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "mechanical": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "demolition": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "sign": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "fire": {
+     "alteration": 0,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 0
+    },
+    "other": {
+     "alteration": 2,
+     "new_construction": 0,
+     "electrical": 0,
+     "plumbing": 0,
+     "mechanical": 0,
+     "demolition": 0,
+     "sign": 0,
+     "fire": 0,
+     "other": 5
+    }
+   },
+   "per_class": {
+    "alteration": {
+     "n_label": 101,
+     "n_pred": 101,
+     "precision": 0.9801980198019802,
+     "precision_ci95": [
+      0.9306538297903477,
+      0.9945526775878613
+     ],
+     "recall": 0.9801980198019802,
+     "recall_ci95": [
+      0.9306538297903477,
+      0.9945526775878613
+     ]
+    },
+    "new_construction": {
+     "n_label": 42,
+     "n_pred": 39,
+     "precision": 1.0,
+     "precision_ci95": [
+      0.9103331450047065,
+      1.0
+     ],
+     "recall": 0.9285714285714286,
+     "recall_ci95": [
+      0.8099057307586495,
+      0.9754095903182838
+     ]
+    },
+    "demolition": {
+     "n_label": 0,
+     "n_pred": 1,
+     "precision": 0.0,
+     "precision_ci95": [
+      0.0,
+      0.7934506882081973
+     ],
+     "recall": null,
+     "recall_ci95": [
+      null,
+      null
+     ]
+    },
+    "other": {
+     "n_label": 7,
+     "n_pred": 9,
+     "precision": 0.5555555555555556,
+     "precision_ci95": [
+      0.26665129180087416,
+      0.8112214802294544
+     ],
+     "recall": 0.7142857142857143,
+     "recall_ci95": [
+      0.3589344495310541,
+      0.9177810767507166
+     ]
+    }
+   },
+   "top_errors": [
+    {
+     "label": "alteration",
+     "pred": "other",
+     "n": 2
+    },
+    {
+     "label": "new_construction",
+     "pred": "other",
+     "n": 2
+    },
+    {
+     "label": "other",
+     "pred": "alteration",
+     "n": 2
+    },
+    {
+     "label": "new_construction",
+     "pred": "demolition",
+     "n": 1
+    }
+   ]
+  }
+ },
+ "overlap": {
+  "a2i": {
+   "target": "a2i",
+   "n_test": 5541,
+   "structured_share": 0.09312398484028153,
+   "description_share": 0.9068760151597185,
+   "shares_uncorrected": {
+    "new_construction": 0.21151416711784876,
+    "alteration": 0.63183540877098,
+    "electrical": 0.0012633098718642843,
+    "plumbing": 0.00036094567767550983,
+    "mechanical": 0.0009023641941887746,
+    "demolition": 0.09781627865006316,
+    "sign": 0.00036094567767550983,
+    "fire": 0.00018047283883775492,
+    "other": 0.05576610720086627
+   },
+   "shares_corrected": {
+    "demolition": 0.09312398484028155,
+    "new_construction": 0.2285989291944896,
+    "alteration": 0.6317162847849486,
+    "other": 0.043492762920038626,
+    "electrical": 0.0012633098718642845,
+    "plumbing": 0.0003609456776755099,
+    "mechanical": 0.0009023641941887747,
+    "sign": 0.0003609456776755099,
+    "fire": 0.00018047283883775494
+   },
+   "shares_source_train": {
+    "new_construction": 0.0825639991242089,
+    "alteration": 0.40339317331181784,
+    "electrical": 0.20160090475426992,
+    "plumbing": 0.12716777384295705,
+    "mechanical": 0.11808501232289305,
+    "demolition": 0.011979817399033428,
+    "sign": 0.01688754778245802,
+    "fire": 0.0013750117293450852,
+    "other": 0.036946759733016706
+   },
+   "overlap_no_other_uncorrected": 0.501005028095302,
+   "overlap_no_other_corrected": 0.501005028095302,
+   "overlap_no_other_corrected_ci95": [
+    0.501005028095302,
+    0.501005028095302
+   ],
+   "overlap_uncorrected": 0.5379517878283187,
+   "overlap_corrected": 0.5379517878283187,
+   "source_bound": {
+    "chicago_fraction_upper": 0.20990072479348348,
+    "shares_source_shifted": {
+     "new_construction": 0.08396333728949879,
+     "alteration": 0.41038986413826717,
+     "electrical": 0.20300024291955976,
+     "plumbing": 0.12296975934708736,
+     "mechanical": 0.1208836886534728,
+     "demolition": 0.010580479233743537,
+     "sign": 0.016887547782458018,
+     "fire": 0.0027743498946349748,
+     "other": 0.02855073074127736
+    },
+    "overlap_no_other": 0.5080017189217513,
+    "overlap_no_other_ci95": [
+     0.4996056899300122,
+     0.5177970860787806
+    ]
+   }
+  },
+  "i2c": {
+   "target": "i2c",
+   "n_test": 4313,
+   "structured_share": 0.0883375840482263,
+   "description_share": 0.9116624159517737,
+   "shares_uncorrected": {
+    "new_construction": 0.20403431486204499,
+    "alteration": 0.6464178066311153,
+    "electrical": 0.001623000231857176,
+    "plumbing": 0.00023185717597959656,
+    "mechanical": 0.0018548574078367725,
+    "demolition": 0.09227915603987943,
+    "sign": 0.0,
+    "fire": 0.00023185717597959656,
+    "other": 0.053327150475307214
+   },
+   "shares_corrected": {
+    "demolition": 0.0883375840482263,
+    "new_construction": 0.2198263647370997,
+    "alteration": 0.6454679319079601,
+    "other": 0.04242654731506075,
+    "electrical": 0.001623000231857176,
+    "plumbing": 0.00023185717597959656,
+    "mechanical": 0.0018548574078367725,
+    "sign": 0.0,
+    "fire": 0.00023185717597959656
+   },
+   "shares_source_train": {
+    "new_construction": 0.10352047845586813,
+    "alteration": 0.33333543599023824,
+    "electrical": 0.2174813905587489,
+    "plumbing": 0.16796678890524427,
+    "mechanical": 0.1632929536627603,
+    "demolition": 0.007243776723068583,
+    "sign": 0.00424006949157385,
+    "fire": 1.113171302592242e-06,
+    "other": 0.0029179930411951304
+   },
+   "overlap_no_other_uncorrected": 0.4478105191561511,
+   "overlap_no_other_corrected": 0.4478105191561511,
+   "overlap_no_other_corrected_ci95": [
+    0.4478105191561511,
+    0.4478105191561511
+   ],
+   "overlap_uncorrected": 0.4507285121973462,
+   "overlap_corrected": 0.4507285121973462
+  }
+ },
+ "predictions": {
+  "Q1": {
+   "seattle_new_recall": 0.9285714285714286,
+   "alteration_precision": [
+    0.8620689655172413,
+    0.9801980198019802
+   ],
+   "held": true
+  },
+  "Q2": {
+   "uncorrected": 0.501005028095302,
+   "corrected": 0.501005028095302,
+   "ci95": [
+    0.501005028095302,
+    0.501005028095302
+   ],
+   "held": true
+  }
+ }
+}

@@ -32,7 +32,7 @@ python3 experiments/figure.py
 
 - Renaming wires and shuffling statements never changed any score, for any structure or script.
 - Reordering added operands changed only `csel4`, the structure whose blocks are written as `a[i] + b[i] + 5'dc` chains. The spread (max/min) is up to 1.43x within one structure and script, as large as the 1.17x to 1.75x that `chip-abc-sweep` attributed to the choice of script.
-- The best variant under `dch_map` (1024) beats the text `chip-abc-sweep` called the best adder (1232) by 17%, with no change in function. So that earlier best is one draw from a distribution the text order controls, not a floor.
+- The best variant under `dch_map` (1024) beats the text `chip-abc-sweep` called the best adder (1232) by 17%, with no change in function. The gain is all depth (8 vs 11 levels); the 1024 netlist has more cells (128 vs 112, +14% area), so it is a different point on the area-depth trade-off, not a smaller circuit. So that earlier best is one draw from a distribution the text order controls, not a floor.
 - `plus`, `ripple`, `cselrip4` and both multipliers were unchanged by every rewrite.
 
 ## Limitations
@@ -48,3 +48,12 @@ Find the Yosys pass that is order-sensitive (run the flow pass by pass on a `cse
 
 ## Outside dependencies
 Yosys and Icarus Verilog (apt). No LLM API, OpenROAD or PDK. Generators and flow wrapper copied from `chip-abc-sweep` (MIT); the rest is original.
+
+## Known gaps (quality census 2026-11-17)
+
+From the first audit, [`portfolio/quality/audits/2026-11-17-chip-abc-order.json`](../../portfolio/quality/audits/2026-11-17-chip-abc-order.json):
+
+- The prover had no negative test, so dropping `-verify` from `sat` let a non-equivalent adder "prove" equivalent with every test green. Fixed here: `test_non_equivalent_is_rejected`. `flow.score` also returned 0 cells and depth 0 when the Yosys output did not parse; it now raises.
+- The texts are called "cosmetically" different, but reordering operands in a left-associative chain changes the expression tree (`(a+b)+c` vs `(c+a)+b`), which decides what can be shared. The structural-bias literature (Chatterjee, Mishchenko, Brayton et al., ICCAD 2005, on structural choices in technology mapping) is not cited.
+- The Limitations say `shuffle` is a no-op on `csel4`; all 12 `csel4` shuffle variants change the text.
+- The mechanism guess (`alumacc`/`macc`) and the Next steps predate the follow-up projects that found `opt_merge` sharing; they are not updated or linked.

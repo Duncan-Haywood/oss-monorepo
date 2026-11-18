@@ -53,8 +53,8 @@ test("replay learns a payee from the line before it", async () => {
 test("replay learns a raw bank descriptor despite changing dates and card digits", async () => {
   const { replay, parseDated } = await import("./eval/queeriouslabs-online.mjs");
   const csv = "Date,Description,Statement Description,Category,Debit,Credit,Balance\n" +
-    "1/02/2021,Zorblax,DEBIT CARD #XXXX 01/01 ZORBLAX HOSTING 415-555-0100 CA,Web Infrastructure,-75,,1\n" +
-    "2/02/2021,Zorblax,DEBIT CARD #XXXX 02/01 ZORBLAX HOSTING 415-555-0100 CA,Web Infrastructure,-75,,1\n";
+    "1/02/2021,Zorblax,DEBIT CARD #XXXX 01/01 ZORBLAX NETWORKS 415-555-0100 CA,Web Infrastructure,-75,,1\n" +
+    "2/02/2021,Zorblax,DEBIT CARD #XXXX 02/01 ZORBLAX NETWORKS 415-555-0100 CA,Web Infrastructure,-75,,1\n";
   const rows = parseDated(csv);
   assert.equal(rows[0].date, "2021-01-02");
   const o = replay(rows);

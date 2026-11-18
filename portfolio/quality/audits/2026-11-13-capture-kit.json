@@ -1,0 +1,248 @@
+{
+ "date": "2026-11-13",
+ "subject": "research/capture-kit",
+ "stratum": "research",
+ "seed": "2026-11-13-n",
+ "drawn_by": "sample",
+ "round": 68,
+ "auditor": "agent session (Claude), see run record",
+ "status": "audited",
+ "professional": "a senior travel/documentary cinematographer or camera assistant who packs multi-camera kits for flights, paired with an operations-research reviewer for the optimisation claim. They would check first that the FAA lithium-battery rule is applied right, that the 'shots' the kit counts are physically mountable (payload) and that the battery-hours model matches how the kit is used, and whether 'greedy fails because lenses need bodies' is a finding or a weak baseline.",
+ "scores": {
+  "correctness": 3,
+  "completeness": 3,
+  "verification": 2,
+  "craft": 3,
+  "claims": 2,
+  "fitness": 1,
+  "domain": 2
+ },
+ "evidence": {
+  "correctness": "Ran `cd research/capture-kit && PYTHONPATH=src python3.13 experiments/run.py` in a private copy (0.93 s): results.txt IDENTICAL to the committed file. Independent script /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/capture/indep.py (no import of the subject; catalogue retyped, own enumeration with itertools) reproduces every row of tables A and B (8 budgets x exact, with and without the 4 h floor) and the 5 kg kit. Kit counts check by combinatorics: camera+lens combos 8x8 + 8 = 72, mount subsets 16, pack multisets of size <= 2 from 4 types C(6,2) = 15, so 72x16x15 = 17,280; legal C(5,2) = 10, so 11,520 (matches). By hand, the 5 kg kit: 120+450+550+1100+200+150+1200+500+700 = 4,970 g; bands {14,24,35,50,85,135} x 3 viewpoints = 18; hours (5+12+60+99)/(4.5+6) = 16.76 (matches). By hand, 'exact reaches 15 at 4 kg' with the floor: the lightest 18-shot kit is 3,770 g at 1.62 h and needs >= 250 g of pack to reach 4 h, so 4,020 g > 4,000 (indep.py: lightest 18 with >= 4 h is 4,270 g). Every number is right given the model; the model itself has an inconsistency that drives one finding (see domain). 3.",
+  "completeness": "Everything the README lists runs: 10 tests (`python3.13 -m pytest -q tests`: 10 passed in 0.76 s; README says 10), run.py reproduces results.txt byte for byte, figure.py parses results.txt into kit.svg (present). Legality filter, exact search, greedy and floor all exist. No stubs or TODOs. 'Next steps: replace assumed figures with sourced datasheet values' was done in a separate project (research/capture-realkit) that this README does not link. Live page https://marisstella.app/research/capture-kit/ could not be loaded (egress proxy refused marisstella.app), so the served page was not checked. 3.",
+  "verification": "10 tests pass. Six mutants seeded with platform/ci/quality_mutate.py: caught 2 (carry-on limit 100 -> 160 Wh; lens counted without a body). Survived 4: hours counts only one active camera ([:max(1,len(mounts))] -> [:1]); active cameras chosen lowest-draw first (reverse=False); exact tie-break prefers the heaviest kit; greedy hours weight 0.1 -> 1.0. The hours model, which decides the floor results, is tested only for one camera (tests/test_kit.py:21), and no test pins any results.txt number. 2.",
+  "craft": "Read model.py (186 lines), run.py, figure.py, tests/test_kit.py. Compact, standard library, readable dataclasses; figure.py parses results.txt rather than retyping numbers. Defects: run.py builds a section-A `detail` list then resets it (dead code, run.py:19-26); greedy optimises (variety + 0.1 x hours)/gram with no floor while exact is lexicographic with a floor, so the comparison is between different objectives; figure x axis spaces 0.5 to 7 kg budgets evenly (categorical) without saying so. Minor for a research script. 3.",
+  "claims": "Checked: kit counts (pass), table values (pass, rounded correctly), 5 kg kit contents (pass), 'greedy never picks the mirrorless body' (pass), '160 Wh pack never chosen' (pass, tested), 'all device figures assumed' (honestly stated). Fails/partials: README:40 'the floor ... changes which kit wins at 2 and 4 kg' omits 3 kg (no floor 15/2.26 h, floor 12/16.47 h; indep.py confirms the winner changes at 2, 3 and 4 kg); headline README:3 'greedy stalls at 12 shots from 3 kg up' (it is already 12 at 2 kg, true but understated) and frames complementarity as defeating greedy, whereas a bundle-aware greedy (body+lens offered as one item, the textbook remedy) matches exact variety at every budget (scratchpad/capture/bundle.py: 12/15/18/18/18 at 2/3/4/5/7 kg); the limitation 'cameras are swapped between mounts' is stated for variety but the hours model assumes they all run at once, and this is not disclosed. 2.",
+  "fitness": "Could a researcher build on it? The code is small and reusable, and capture-realkit already does (sourced devices). But the result is a known property: lens-needs-body is a precedence-constrained knapsack, and greedy failing on complementary items (variety = |bands| x |viewpoints| is supermodular, so the Nemhauser-Wolsey-Fisher 1978 greedy guarantee for submodular coverage does not apply) is textbook (Kellerer, Pferschy and Pisinger 2004, Knapsack Problems, precedence-constrained KP; Samphaiboon and Yamada 2000). None is cited; the greedy baseline is the naive one; catalogue is 15 assumed items. Not new, sound only within its assumed toy model, far from the research/CLAUDE.md PhD bar. 1.",
+  "domain": "The battery rule matches FAA PackSafe: lithium-ion <= 100 Wh in carry-on without approval, 101-160 Wh with airline approval (the model correctly scopes to 'without approval' and checks internal batteries too). Departures a camera assistant would flag in the first hour: (1) internal inconsistency: variety assumes cameras move between mounts, hours divides carried Wh by the draw of one camera per mount running simultaneously (model.py:111); with one camera running at a time (consistent with the swap assumption) the 4 h floor never changes the winner (indep.py: floor-4h exact is 12/15/18 at 2/3/4 kg, identical to no-floor), so the README's 'the floor is not a detail' finding is an artefact of the inconsistency; (2) mount payload not modelled: a 150 g mini tripod, a selfie pole and a telescoping mast are each counted as holding a 1.55 kg body plus 70-200, which is what makes 18 shots reachable; with illustrative payload limits (pole 0.7, mini 0.8, mast 2.0 kg, my assumption) the 5 kg optimum is 14 shots; (3) Wh pooled across camera internals and USB packs at 100% efficiency; at a typical 80% power-bank delivery hours fall ~18% (16.76 -> 13.73 at 5 kg), variety unchanged. 2."
+ },
+ "checks": [
+  {
+   "dimension": "correctness",
+   "what": "rerun experiments vs committed results.txt",
+   "method": "byte diff in a private copy",
+   "command": "cd scratchpad/capture/kitcopy && PYTHONPATH=src /usr/bin/python3.13 experiments/run.py && diff experiments/results.txt /home/user/oss-monorepo/research/capture-kit/experiments/results.txt",
+   "expected": "identical",
+   "observed": "IDENTICAL, 0.93 s",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "kit counts 17,280 enumerated / 11,520 legal",
+   "method": "combinatorics by hand: (8x8 + 8) camera+lens combos x 2^4 mounts x C(6,2) pack multisets; legal uses C(5,2)",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/capture/indep.py",
+   "expected": "17280 / 11520",
+   "observed": "17280 / 11520",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "tables A and B, exact search, 8 budgets with and without the 4 h floor",
+   "method": "independent brute force, catalogue retyped, no import of capture_kit",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/capture/indep.py",
+   "expected": "e.g. 2000: 12/2.43/1950 no floor, 10/4.95/1920 floor; 4000: 18/2.21/3970, 15/11.05/3770",
+   "observed": "all 16 rows identical",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "5 kg full-coverage kit weight, variety, hours",
+   "method": "hand arithmetic from the catalogue: grams sum, 6 bands x 3 viewpoints, (5+12+60+99) Wh / (4.5+6) W",
+   "command": "by hand",
+   "expected": "4970 g, 18, 16.76 h",
+   "observed": "4970 g, 18, 16.76 h",
+   "result": "pass"
+  },
+  {
+   "dimension": "correctness",
+   "what": "no 18-shot kit with >= 4 h fits 4 kg",
+   "method": "hand bound: lightest 18-shot kit 3,770 g (action, body, 24-70, 70-200, pole, mini, mast) at 17 Wh / 10.5 W = 1.62 h; any pack adds >= 250 g",
+   "command": "by hand; confirmed by indep.py 'lightest 18 with >=4h'",
+   "expected": "infeasible at 4,000 g; lightest 4,270 g",
+   "observed": "lightest 18 = 3770 g at 1.62 h; with >= 4 h = 4270 g",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "README:40 'the floor changes which kit wins at 2 and 4 kg'",
+   "method": "compare no-floor and floor winners per budget",
+   "command": "/usr/bin/python3.13 -I .../scratchpad/capture/indep.py",
+   "expected": "changes at 2 and 4 kg only",
+   "observed": "changes at 2, 3 and 4 kg (3 kg: 15/2.26 h -> 12/16.47 h)",
+   "result": "fail"
+  },
+  {
+   "dimension": "fitness",
+   "what": "headline: greedy stalls at 12 because lenses need a body",
+   "method": "textbook precedence-constrained knapsack remedy: offer body+lens as composite items, same gain rule, subject's own evaluators",
+   "command": "/usr/bin/python3.13 -I /tmp/claude-0/-home-user-oss-monorepo/a53ebfc1-ad6b-52f6-b7a1-524d39f72cb1/scratchpad/capture/bundle.py",
+   "expected": "bundle greedy still below exact if complementarity is the obstacle",
+   "observed": "12/15/18/18/18 at 2/3/4/5/7 kg, equal to exact (no floor) variety at every budget",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "hours model consistent with the swap-between-mounts variety assumption",
+   "method": "recompute with one camera running at a time (Wh / max draw)",
+   "command": "/usr/bin/python3.13 -I .../scratchpad/capture/indep.py (sensitivity)",
+   "expected": "floor still changes winners if the finding is robust",
+   "observed": "floor-4h exact 12/15/18 at 2/3/4 kg = no-floor; the floor never binds",
+   "result": "fail"
+  },
+  {
+   "dimension": "domain",
+   "what": "mount payload",
+   "method": "illustrative payload limits (pole 0.7, mini 0.8, travel 4.0, mast 2.0 kg; auditor's assumption)",
+   "command": "/usr/bin/python3.13 -I .../scratchpad/capture/indep.py (payload-aware)",
+   "expected": "18 shots reachable at 5 kg",
+   "observed": "14 at 5 kg, 16 at 7 kg",
+   "result": "partial"
+  },
+  {
+   "dimension": "domain",
+   "what": "100 Wh carry-on rule",
+   "method": "FAA PackSafe lithium batteries: <= 100 Wh without approval, 101-160 Wh with airline approval",
+   "command": "read model.py:13,86-88",
+   "expected": "per-battery limit incl. internal, 160 Wh excluded when no approval",
+   "observed": "matches; 160 Wh pack never chosen",
+   "result": "pass"
+  },
+  {
+   "dimension": "domain",
+   "what": "power-bank conversion efficiency",
+   "method": "rerun with 80% delivered pack energy",
+   "command": "indep.py (eff0.8)",
+   "expected": "hours unchanged if efficiency is negligible",
+   "observed": "5 kg: 16.76 -> 13.73 h; variety unchanged",
+   "result": "partial"
+  },
+  {
+   "dimension": "completeness",
+   "what": "tests run",
+   "method": "pytest",
+   "command": "cd research/capture-kit && /usr/bin/python3.13 -m pytest -q tests",
+   "expected": "10 tests pass",
+   "observed": "10 passed in 0.76s",
+   "result": "pass"
+  },
+  {
+   "dimension": "claims",
+   "what": "live page matches README",
+   "method": "load served page",
+   "command": "curl -s https://marisstella.app/research/capture-kit/",
+   "expected": "200",
+   "observed": "000, egress proxy refused marisstella.app",
+   "result": "partial"
+  }
+ ],
+ "mutations": [
+  {
+   "where": "src/capture_kit/model.py:111",
+   "change": "[:max(1, len(k.mounts))] -> [:1]",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_kit/model.py:111",
+   "change": "for c in k.cameras), reverse=True) -> for c in k.cameras), reverse=False)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_kit/model.py:13",
+   "change": "CARRY_ON_WH_LIMIT = 100.0 -> CARRY_ON_WH_LIMIT = 160.0",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_kit/model.py:151",
+   "change": "s = (score(k), -grams(k)) -> s = (score(k), grams(k))",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_kit/model.py:174",
+   "change": "gain = (dv + 0.1 * dh) -> gain = (dv + 1.0 * dh)",
+   "caught": false,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  },
+  {
+   "where": "src/capture_kit/model.py:95",
+   "change": "if c.lens_mount: -> if True:",
+   "caught": true,
+   "test_cmd": "/usr/bin/python3.13 -m pytest -q tests"
+  }
+ ],
+ "defects": [
+  {
+   "severity": "medium",
+   "what": "hours divides carried Wh by the draw of one camera per mount running simultaneously, while variety (and README:46) assumes cameras are swapped between mounts; under the consistent one-at-a-time reading the 4 h floor never changes the winner at 2/3/4 kg, so the finding 'the floor is not a detail' is an artefact of the inconsistency, which is not disclosed",
+   "where": "research/capture-kit/src/capture_kit/model.py:111",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "headline 'greedy stalls at 12 because a lens is worth nothing until its body is in the bag' rests on a naive single-item greedy; offering body+lens as composite items (the textbook precedence-constrained knapsack remedy) matches exact variety at every budget; no prior work (precedence-constrained knapsack, submodular-greedy guarantees) cited",
+   "where": "research/capture-kit/README.md:3",
+   "category": "research-design",
+   "origin": "design"
+  },
+  {
+   "severity": "medium",
+   "what": "hours model tested only with one camera; 4 of 6 seeded mutants survive (active-camera count, draw order, heaviest tie-break, greedy weight); no test pins a results.txt number",
+   "where": "research/capture-kit/tests/test_kit.py:21",
+   "category": "untested-core",
+   "origin": "tests"
+  },
+  {
+   "severity": "medium",
+   "what": "mount payload not modelled: a 150 g mini tripod, selfie pole and telescoping mast each count as carrying a 1.55 kg body + 70-200, which is what makes all 18 shots reachable; not listed in Limitations",
+   "where": "research/capture-kit/src/capture_kit/model.py:103",
+   "category": "scope-gap",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "'the floor changes which kit wins at 2 and 4 kg' omits 3 kg (15 shots/2.26 h without floor vs 12/16.47 h with)",
+   "where": "research/capture-kit/README.md:40",
+   "category": "overclaim",
+   "origin": "claims"
+  },
+  {
+   "severity": "low",
+   "what": "pack Wh pooled at 100% delivery; a typical ~80% power-bank efficiency cuts hours ~18% (16.76 -> 13.73 h at 5 kg); not in Limitations",
+   "where": "research/capture-kit/src/capture_kit/model.py:110",
+   "category": "domain-rule",
+   "origin": "spec"
+  },
+  {
+   "severity": "low",
+   "what": "section-A `detail` list is built and then discarded by `detail = []` before section B",
+   "where": "research/capture-kit/experiments/run.py:26",
+   "category": "code-craft",
+   "origin": "implementation"
+  },
+  {
+   "severity": "low",
+   "what": "Next steps lists sourcing datasheet figures, already done in research/capture-realkit, which this README does not link",
+   "where": "research/capture-kit/README.md:50",
+   "category": "stale-docs",
+   "origin": "maintenance"
+  }
+ ],
+ "fix_prs": [
+  "https://github.com/Duncan-Haywood/oss-monorepo/pull/15545"
+ ],
+ "verdict": "A small, clean, reproducible kit-packing study: run.py reproduces results.txt byte for byte in under a second, 10 tests pass, and an independent brute force reproduces all 16 table rows, the 17,280/11,520 kit counts and the 5 kg kit (4,970 g, 18 shots, 16.76 h). The numbers are right for the model; the conclusions drawn from it are weaker than stated. The hours model assumes every mounted camera runs at once while the variety model assumes cameras are swapped, and with a consistent one-at-a-time reading the 4 h floor never changes the winner. The headline greedy failure disappears when body+lens is offered as one item, the textbook remedy for precedence-constrained knapsack, and no prior work is cited. Mount payload is unmodelled, and 4 of 6 seeded mutants survive. Does not meet the bar (verification 2, claims 2, fitness 1)."
+}

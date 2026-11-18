@@ -43,7 +43,7 @@ export const KINDS = [
 export function parseNumber(v, decimalComma = false) {
   let s = String(v ?? "").trim();
   if (s === "" || /^[-–—\s]+$/.test(s)) return 0;
-  const neg = /^\(.*\)$/.test(s) || /^[-−]/.test(s) || /^\$?\s*[-−]/.test(s) || /CR\s*$/i.test(s);
+  const neg = /^\(.*\)$/.test(s) || /^[^0-9]*[-−–—]/.test(s) || /CR\s*$/i.test(s);
   s = s.replace(/[^0-9.,]/g, "");
   s = decimalComma ? s.replace(/\./g, "").replace(",", ".") : s.replace(/,/g, "");
   const n = Number(s);
@@ -67,30 +67,32 @@ export function detectDelimiter(text) {
 
 export function parseCsv(text, delim = ",") {
   const rows = [];
-  let row = [], field = "", quoted = false;
-  const src = String(text ?? "").replace(/^﻿/, "");
+  // Each row carries a non-enumerable `line`: the file line it starts on,
+  // so a reader can name it after blank lines or quoted line breaks.
+  let row = [], field = "", quoted = false, line = 1, start = 1;
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   for (let i = 0; i < src.length; i++) {
     const c = src[i];
     if (quoted) {
       if (c === '"') { if (src[i + 1] === '"') { field += '"'; i++; } else quoted = false; }
-      else field += c;
+      else { field += c; if (c === "\n" || (c === "\r" && src[i + 1] !== "\n")) line++; }
     } else if (c === '"') quoted = true;
     else if (c === delim) { row.push(field); field = ""; }
     else if (c === "\n" || c === "\r") {
       if (c === "\r" && src[i + 1] === "\n") i++;
       row.push(field); field = "";
-      if (row.some((f) => f.trim() !== "")) rows.push(row);
-      row = [];
+      if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
+      row = []; start = ++line;
     } else field += c;
   }
   row.push(field);
-  if (row.some((f) => f.trim() !== "")) rows.push(row);
+  if (row.some((f) => f.trim() !== "")) rows.push(Object.defineProperty(row, "line", { value: start }));
   return rows;
 }
 
 const r2 = (n) => Math.round(n * 100) / 100;
-export const money = (n) => (n < 0 ? "-" : "") + Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const usd = (n) => (n < 0 ? "-$" : "$") + money(Math.abs(n));
+export const money = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-" : "") + t)(Math.abs(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
+const usd = (n) => ((t) => (n < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(money(Math.abs(n)));
 const median = (xs) => { const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 export function findColumns(header, aliases) {
@@ -128,7 +130,7 @@ export function guessDateOrder(samples, fallback = "mdy") {
   let firstOver12 = false, secondOver12 = false, dots = false;
   for (const s of samples) {
     if (/^\d{1,2}\.\d{1,2}\.\d{2,4}/.test(String(s).trim())) dots = true;
-    const a = String(s).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})/);
+    const a = String(s).trim().match(/^(\d{1,2})[-/.](\d{1,2})[-/.](\d{2,4})(?!\d)/);
     if (!a) continue;
     if (+a[1] > 12) firstOver12 = true;
     if (+a[2] > 12) secondOver12 = true;
@@ -176,7 +178,7 @@ export function normalizeStatement(table, { decimalComma = false, dateOrder = "a
 
   const parsed = [], skipped = [];
   for (let i = h + 1; i < table.length; i++) {
-    const line = table[i], lineNo = i + 1;
+    const line = table[i], lineNo = table[i].line ?? i + 1;
     const day = parseDate(get(line, "date"), order);
     if (day === null) { skipped.push({ line: lineNo, reason: "date not readable" }); continue; }
     const desc = get(line, "desc");
@@ -343,7 +345,7 @@ export function savings(a, cancelled) {
 
 const csvCell = (v) => {
   let s = String(v ?? "");
-  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+  if (/^[=+\-@\t\r]/.test(s) && !/^-?\d+(\.\d+)?$/.test(s)) s = "'" + s;
   return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 };
 export function reportCsv(a) {
@@ -355,6 +357,19 @@ export function reportCsv(a) {
 
 const icsText = (v) => String(v ?? "").replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
 const icsDate = (day) => isoDay(day).replace(/-/g, "");
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
 
 // Calendar file of the next expected charge for each active subscription that
 // bills monthly or less often (weekly and two-weekly ones would bury the
@@ -373,7 +388,7 @@ export function renewalsIcs(a, { leadDays = 3, stamp = null } = {}) {
       "BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${icsText(`${s.merchant} renews in ${lead} day(s)`)}`, `TRIGGER:-P${lead}D`, "END:VALARM", "END:VEVENT");
   }
   out.push("END:VCALENDAR");
-  return out.join("\r\n") + "\r\n";
+  return foldIcs(out.join("\r\n")) + "\r\n";
 }
 
 export function summaryText(a, cancelled = []) {
@@ -409,4 +424,24 @@ export function sampleCsv() {
   add("2026-09-17", "DROPBOX*ANNUAL 8005555 CA", "-119.88");
   add("2026-08-15", "HULU 877-8244858 CA", "-17.99");
   return L.sort((x, y) => (x.startsWith("Date") ? -1 : y.startsWith("Date") ? 1 : x.localeCompare(y))).join("\n") + "\n";
+}
+
+// Decimal comma or decimal point, read from the amounts themselves: a last
+// separator followed by one or two digits ("12,50", "1.234,56" or "12.50",
+// "1,234.56") is a vote, as is a "1.234,"/"1,234." grouping pattern. With no
+// telling value (whole numbers, "1,234") a semicolon-delimited file is taken
+// as decimal comma, as before. `table` is the parsed rows, header included.
+export function detectDecimalComma(table, delim = ",") {
+  let comma = 0, dot = 0;
+  for (const row of table) {
+    for (const cell of row) {
+      const s = String(cell ?? "").trim();
+      if (!/\d/.test(s) || /[a-z]{3,}/i.test(s.replace(/usd|eur|gbp|cad|aud/gi, ""))) continue;
+      if (/^\d{1,4}[/.-]\d{1,2}[/.-]\d{2,4}/.test(s) || /\d:\d\d/.test(s)) continue;
+      const v = s.replace(/[^0-9.,]/g, "");
+      if (/,\d{1,2}$/.test(v) || /\.\d{3},/.test(v)) comma += 1;
+      else if (/\.\d{1,2}$/.test(v) || /,\d{3}\./.test(v)) dot += 1;
+    }
+  }
+  return comma === dot ? delim === ";" : comma > dot;
 }

@@ -1,0 +1,149 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01E5sJKiqrhxgmmmFW8ighEy",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T11:19:04Z",
+  "ended": "2026-11-17T11:26:00Z",
+  "wall_minutes": 14.34,
+  "tokens_in": 5097980,
+  "tokens_out": 21003,
+  "cost_usd": 2.2473,
+  "tool_calls": 51,
+  "task": "Deepen (flagship 12) ids-model-check: abstract-class audit rule; after PR #16919 landed the same rule first, reduced to the required-requirement case it does not cover",
+  "projects": [
+    "ids-model-check"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16920",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "partial",
+  "errors": [
+    {
+      "what": "post description 201 chars (cap 160) failed check_post_frontmatter, hub content tests and the pages build in the local workflow run",
+      "fix": "shortened it; check_post_frontmatter.py and the four hub test files pass"
+    },
+    {
+      "what": "race: PR #16919 (another session) landed the class-abstract applicability/partOf warning while this PR was in CI; merge conflict in audit.mjs and llms.txt",
+      "fix": "kept #16919's implementation, post and eval doc; dropped this PR's duplicate post and eval doc; kept only abstractRequirement (required entity requirement under an applicability with no entity facet), which #16919's doc wrongly said entity-contradiction already covered"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "the top 8 flagship rows all had an open PR under 2 h old; it took reading a PR's file list to find an item no open PR touched (ids-model-check's abstract-class rule was not in PR #16913)"
+    },
+    {
+      "file": "docs/posts (check_post_frontmatter.py)",
+      "issue": "the 160-char description cap is only discovered by running the checks; a one-line note in the post template or ventures guide would save a CI round trip"
+    },
+    {
+      "file": ".github/prompts/duplicate-work.md / allocate.py",
+      "issue": "allocate.py showed PR #16913 open on ids-model-check but #16919 (same BUILDABLE item) was opened after my check; a claim marker on a buildable item (branch name or file) would have avoided a 15-minute duplicate"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md (new blog post per PR)",
+      "why": "#16919 already published a post on the same rule; a second post on the same finding would be noise",
+      "did": "no new post; extended #16919's eval doc instead",
+      "result": "PR carries code, test and eval-doc correction only"
+    }
+  ],
+  "writeups": [
+    "ventures/ids-model-check/eval/abstract-classes-2026-11-17.md (extended)"
+  ],
+  "goal": "flagship depth: catch a real fault in public IDS files from the file alone",
+  "notes": "Built class-abstract rule; PR #16919 merged the same rule (applicability + partOf warnings) first. Resolved by keeping theirs and adding abstractRequirement: error for a required entity requirement naming only abstract classes when the applicability has no entity facet (entity-contradiction cannot see it), warning when abstract in only some audited schemas. Verified: audit-corpus.mjs, run-testcases.mjs (334/334, strict 333/334), abstract-classes.mjs outputs identical before/after (0 real hits for the new case: a guard); editor-roundtrip 203,433 specs 0 errors 0 warnings; node --test *.test.mjs 141 pass 1 skipped. Earlier full run_workflow_locally --for-changes on the first version: 12/12 workflows passed; CI green on the first head.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5c2e0575-b4f0-5b05-a580-d69bf4564e56",
+    "transcripts": 1,
+    "first": "2026-11-17T11:19:04Z",
+    "last": "2026-11-17T11:33:25Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 49,
+        "input": 92,
+        "output": 21003,
+        "thinking": 4124,
+        "cache_read": 4994388,
+        "cache_write_5m": 0,
+        "cache_write_1h": 103500,
+        "api_equivalent_usd": 2.2473,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 49,
+      "input": 92,
+      "output": 21003,
+      "thinking": 4124,
+      "cache_read": 4994388,
+      "cache_write_5m": 0,
+      "cache_write_1h": 103500,
+      "api_equivalent_usd": 2.2473,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.98,
+    "tool_calls": 51,
+    "tools": {
+      "Bash": 48,
+      "ToolSearch": 1,
+      "mcp__github__pull_request_read": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 14.34,
+      "active_minutes": 14.34,
+      "model_minutes": 4.22,
+      "tool_minutes": 10.13,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "rule + tests + corpus/suite/editor measurement + write-ups, senior BIM tools engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 222.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

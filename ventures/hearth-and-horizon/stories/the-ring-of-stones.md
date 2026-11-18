@@ -1,7 +1,7 @@
 ---
 title: The Ring of Stones
 shelf: hearth-and-horizon
-setting: Cill Eoin (invented), a parish in west Clare, Ireland, Tuesday 23 June 2047, the Vigil of Saint John the Baptist
+setting: Cill Eoin (invented), a parish in west Clare, Ireland, Sunday 23 June 2047, the Vigil of Saint John the Baptist
 published: 2026-11-01
 summary: Maureen Hanlon has lit the parish's Saint John's Eve fire inside a ring of stones six metres out since 1991. This year the pile is storm-felled, dried ash-dieback timber, 1,200 kg against 300. The parish assistant works from the weighed loads (about 18 GJ, roughly 3 MW of radiant heat at peak) to the distance where the heat is the 1.6 kW per square metre a person can stand for a long time, 12 metres, not 6. The same arithmetic says the hay barn is safe from heat and not from embers, so the rest of the answer is a wet-down, a watcher and a wind limit.
 ---
@@ -106,7 +106,7 @@ The stones were moved by half past eight. There was no good way to do it except 
 
 Dara had already gone for the hose. Tom Sexton, who was eighty-one and had come out to the gate in his slippers to see what the fuss was, said he would not have his hay wet, and then said, after a pause, that he would rather have it wet than burnt, and went to find the second hose himself.
 
-"One person at the barn with a hose and a bucket from the lighting until the fire is down to coals," said the assistant. "Not Dara; he is needed at the rope. And one rule, if Father Aidan agrees, since it will have to be the parish's rule and not mine. If the wind at the lighting is above eight metres a second, which on your tablet reads as Beaufort five, the fire is not lit tonight. It is lit tomorrow, or on the Sunday, and the saint will keep."
+"One person at the barn with a hose and a bucket from the lighting until the fire is down to coals," said the assistant. "Not Dara; he is needed at the rope. And one rule, if Father Aidan agrees, since it will have to be the parish's rule and not mine. If the wind at the lighting is above eight metres a second, which on your tablet reads as Beaufort five, the fire is not lit tonight. It is lit tomorrow, or on the Sunday after, and the saint will keep."
 
 Father Aidan looked at the flag on the church tower. It was hanging limp. He licked his finger and held it up like a boy and then laughed at himself.
 

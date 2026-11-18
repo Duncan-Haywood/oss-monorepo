@@ -32,7 +32,7 @@
     td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
     .pill.info { background: #e3e9ef; color: #1f4a5d; }
@@ -222,7 +222,7 @@
         [pct(b.coverage, 0), "Of your usage it covers"],
         [b.paybackMonths == null ? "n/a" : b.paybackMonths === 0 ? "None due" : b.paybackMonths.toFixed(1) + " mo", "Upfront payback"],
       ].map(([v, l]) => `<div><strong>${esc(v)}</strong>${esc(l)}</div>`).join("");
-      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h4><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h4><p>${esc(x.detail)}</p></div>`).join("");
+      $("#report-findings").innerHTML = a.findings.map((x) => `<div class="finding"><h3><span class="pill ${x.severity}">${x.severity}</span>${esc(x.title)}</h3><p>${esc(x.detail)}</p></div>`).join("");
       $("#methods tbody").innerHTML = a.ranked.map((r) => `<tr><td>${esc(r.label)}${r === b ? " (best)" : ""}</td><td class="n">${money(r.commitPerHour)}</td><td class="n">${pct(r.coverage, 0)}</td><td class="n">${pct(r.utilization, 0)}</td><td class="n">${money(r.savingsPerMonth)}</td><td class="n">${pct(r.savingsPct)}</td><td class="n">${r.paybackMonths == null ? "n/a" : r.paybackMonths === 0 ? "none" : r.paybackMonths.toFixed(1) + " mo"}</td><td class="n">${signedPct(r.downside30.savingsPct)}</td></tr>`).join("");
       $("#chart").innerHTML = chart(b, values);
       $("#chart-note").textContent = `Savings peak at ${money(b.x)}/hour of on-demand-equivalent usage covered (commitment ${money(b.commitPerHour)}/hour). Committing beyond that pays for idle hours; committing less leaves discount unused.`;

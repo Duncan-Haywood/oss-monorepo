@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-14",
+  "session": "https://claude.ai/code/session_01E5sJKmyWAVZG95Zm2n2VSw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-14T18:18:33Z",
+  "ended": "2026-11-14T18:33:34Z",
+  "wall_minutes": 15.33,
+  "tokens_in": 5001461,
+  "tokens_out": 47889,
+  "cost_usd": 2.9323,
+  "tool_calls": 45,
+  "task": "Advance research programme aerolog-scaling (track 22): milestone 11r, an exact-timing (Rao-Blackwell) conflict estimator",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15938",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [
+    "First driver run failed: multiprocessing could not pickle run_layout because exact_timing.py loaded the driver under a synthetic module name via importlib; fixed by running exact_timing_run.py as __main__ (cost one ~1 min rerun)."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/aerolog-scaling/README.md",
+      "issue": "The '## Next' heading is followed by a long list of completed milestone paragraphs (6i to 11r), so 'Next steps' is hard to find; pick_track.py points to README 'Next steps', which does not exist under that name."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "none blocking; pick_track's CLAIM CHECK and programme pointer got to the right next step within two commands."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/exact_timing.py",
+      "why": "A brute-force interval check and one smoke run on layout 3 ran before the predictions were committed (to confirm the estimator worked at all).",
+      "did": "Disclosed both, with their numbers, in the pre-registration docstring; predictions unchanged after the smoke run.",
+      "result": "Smoke-run efficiency on layout 3 (~3.7x for the total) was not representative: the 24-layout median was 1.54, so the prediction it might have biased (P3) failed anyway."
+    },
+    {
+      "file": "research/aerolog-scaling/experiments/hub_airspace/exact_timing_check.py",
+      "why": "Post-hoc diagnostic not in the pre-registration, to test whether the three E1 outliers were bias.",
+      "did": "Labelled post-hoc in its docstring, LOG and README; fresh seeds.",
+      "result": "Both worst layouts agree (z = -0.01, -0.92): noise."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-14-drone-layers-counting-conflicts-without-launch-times.md",
+    "research/aerolog-scaling/LOG.md (11r entry)"
+  ],
+  "goal": null,
+  "notes": "Results: exact estimator unbiased (pooled 1.0005), ~1.5x efficiency per CPU s (predicted 3x; refuted); 11d closed form 7.2% low (3-12%) but pair weights r>=0.998, cf split within 0.35% of exact optimum on all 24 layouts. 3/7 predictions held, 1 split, 3 failed. Local checks: pytest tests/test_exact_timing.py + test_reference_rescore.py 7 passed; research/_homepage/build.py ok; check_md_links ok; research_live_links ok; cite_check ok; paper/check_numbers.py ok. No agent doc in docs/reports/: the LOG entry carries what the next run needs.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "978233dd-a9ba-538c-bb05-1db3270316f8",
+    "transcripts": 1,
+    "first": "2026-11-14T18:18:33Z",
+    "last": "2026-11-14T18:33:53Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 45,
+        "input": 89,
+        "output": 47889,
+        "thinking": 16193,
+        "cache_read": 4876517,
+        "cache_write_5m": 0,
+        "cache_write_1h": 124855,
+        "api_equivalent_usd": 2.9323,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 45,
+      "input": 89,
+      "output": 47889,
+      "thinking": 16193,
+      "cache_read": 4876517,
+      "cache_write_5m": 0,
+      "cache_write_1h": 124855,
+      "api_equivalent_usd": 2.9323,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.975,
+    "tool_calls": 45,
+    "tools": {
+      "Bash": 40,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 15.33,
+      "active_minutes": 15.33,
+      "model_minutes": 8.74,
+      "tool_minutes": 6.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 12.0,
+      "basis": "derive and test exact offset-interval geometry, write and run 24-layout experiment, post-hoc check, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1200.0
+    },
+    "leverage": 409.2,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -1,0 +1,204 @@
+# tests/min_fit_rpm_sweep.py --hold 3000 --extend 0,8 (--told for the first three: the board told the plant's ESC lag, as after its survey; the last block untold). Slow drill + calibration drill, wheel lags 0.2/0.4/0.8 s, builds 0.70/0.35, 0.95/0.35, 0.95/0.65. 3000/0 = the board before this change (no watch past the verdict), 3000/8 = now (LOOP_AFTER_REVS 8). 2026-11-16, firmware/esp32/README.md "Slow wheels watched past the verdict"
+
+## full_0
+Part 1. Record drop / true drop per wheel, slow drill (shots after a fast shot and after a slow one).
+hold: host.HOLD_RPM (0 = the next shot's speeds sent straight after the release, as before)
+plant           hold    rpm band  drop from | wheels   mean     sd    min    max  >2% off
+first-order   3000/0   500-750          any |     48  1.033  0.240  0.631  1.840       23
+first-order   3000/0   500-750     loop fit |     30  1.099  0.269  0.767  1.840       16
+first-order   3000/0   500-750     fallback |     18  0.923  0.119  0.631  1.001        7
+first-order   3000/0   750-1000         any |     48  0.998  0.004  0.989  1.011        0
+first-order   3000/0   750-1000    loop fit |     48  0.998  0.004  0.989  1.011        0
+first-order   3000/0  1000-1500         any |     48  1.000  0.004  0.992  1.007        0
+first-order   3000/0  1000-1500    loop fit |     48  1.000  0.004  0.992  1.007        0
+first-order   3000/0  1500-2500         any |     16  1.001  0.004  0.995  1.009        0
+first-order   3000/0  1500-2500    loop fit |     16  1.001  0.004  0.995  1.009        0
+first-order   3000/0  2500-9000         any |    320  0.999  0.003  0.991  1.007        0
+first-order   3000/0  2500-9000    loop fit |    320  0.999  0.003  0.991  1.007        0
+first-order   3000/8   500-750          any |     48  0.999  0.003  0.993  1.006        0
+first-order   3000/8   500-750     loop fit |     48  0.999  0.003  0.993  1.006        0
+first-order   3000/8   750-1000         any |     48  0.998  0.003  0.993  1.005        0
+first-order   3000/8   750-1000    loop fit |     48  0.998  0.003  0.993  1.005        0
+first-order   3000/8  1000-1500         any |     48  0.998  0.003  0.993  1.006        0
+first-order   3000/8  1000-1500    loop fit |     48  0.998  0.003  0.993  1.006        0
+first-order   3000/8  1500-2500         any |     16  0.998  0.003  0.993  1.006        0
+first-order   3000/8  1500-2500    loop fit |     16  0.998  0.003  0.993  1.006        0
+first-order   3000/8  2500-9000         any |    320  0.999  0.003  0.992  1.008        0
+first-order   3000/8  2500-9000    loop fit |    320  0.999  0.003  0.992  1.008        0
+
+Part 2. fit_from_drops on calibration + slow drill logs, by floor: efficiency error, mean / worst %
+plant           hold  floor      rule | builds speed mean  worst | spin mean  worst
+first-order   3000/0      0  any drop |      8       0.30   0.55 |      8.53  18.39
+first-order   3000/0    500  any drop |      8       0.30   0.55 |      8.53  18.39
+first-order   3000/0    600  any drop |      8       0.12   0.20 |      1.48   6.27
+first-order   3000/0    700  any drop |      8       0.12   0.20 |      1.42   6.27
+first-order   3000/0    750  any drop |      8       0.11   0.20 |      0.35   1.00
+first-order   3000/0    800  any drop |      8       0.11   0.20 |      0.40   1.21
+first-order   3000/0   1000  any drop |      8       0.10   0.20 |      0.43   1.51
+first-order   3000/0    600 loop only |      8       0.12   0.20 |      1.48   6.27
+first-order   3000/0    700 loop only |      8       0.12   0.20 |      1.42   6.27
+first-order   3000/0    750 loop only |      8       0.11   0.20 |      0.35   1.00
+first-order   3000/8      0  any drop |      8       0.12   0.29 |      0.32   0.95
+first-order   3000/8    500  any drop |      8       0.12   0.29 |      0.32   0.95
+first-order   3000/8    600  any drop |      8       0.12   0.28 |      0.25   0.58
+first-order   3000/8    700  any drop |      8       0.12   0.28 |      0.22   0.58
+first-order   3000/8    750  any drop |      8       0.11   0.27 |      0.10   0.28
+first-order   3000/8    800  any drop |      8       0.11   0.28 |      0.14   0.51
+first-order   3000/8   1000  any drop |      8       0.11   0.29 |      0.28   1.24
+first-order   3000/8    600 loop only |      8       0.12   0.28 |      0.25   0.58
+first-order   3000/8    700 loop only |      8       0.12   0.28 |      0.22   0.58
+first-order   3000/8    750 loop only |      8       0.11   0.27 |      0.10   0.28
+aborted: first-order lag 0.8 build 0.95/0.35 hold 3000/0: shot 2 release: not done in 2.0 s
+aborted: first-order lag 0.8 build 0.95/0.35 hold 3000/8: shot 2 release: not done in 2.0 s
+
+## full_1
+Part 1. Record drop / true drop per wheel, slow drill (shots after a fast shot and after a slow one).
+hold: host.HOLD_RPM (0 = the next shot's speeds sent straight after the release, as before)
+plant           hold    rpm band  drop from | wheels   mean     sd    min    max  >2% off
+tach 5 us     3000/0   500-750          any |     54  0.974  0.143  0.661  1.432       25
+tach 5 us     3000/0   500-750     loop fit |     24  1.043  0.158  0.674  1.432        7
+tach 5 us     3000/0   500-750     fallback |     30  0.919  0.101  0.661  1.011       18
+tach 5 us     3000/0   750-1000         any |     54  0.999  0.005  0.988  1.015        0
+tach 5 us     3000/0   750-1000    loop fit |     54  0.999  0.005  0.988  1.015        0
+tach 5 us     3000/0  1000-1500         any |     54  0.999  0.004  0.989  1.009        0
+tach 5 us     3000/0  1000-1500    loop fit |     54  0.999  0.004  0.989  1.009        0
+tach 5 us     3000/0  1500-2500         any |     18  1.000  0.004  0.992  1.009        0
+tach 5 us     3000/0  1500-2500    loop fit |     18  1.000  0.004  0.992  1.009        0
+tach 5 us     3000/0  2500-9000         any |    360  1.000  0.012  0.952  1.049       33
+tach 5 us     3000/0  2500-9000    loop fit |    360  1.000  0.012  0.952  1.049       33
+tach 5 us     3000/8   500-750          any |     54  0.999  0.003  0.992  1.007        0
+tach 5 us     3000/8   500-750     loop fit |     54  0.999  0.003  0.992  1.007        0
+tach 5 us     3000/8   750-1000         any |     54  0.998  0.003  0.993  1.006        0
+tach 5 us     3000/8   750-1000    loop fit |     54  0.998  0.003  0.993  1.006        0
+tach 5 us     3000/8  1000-1500         any |     54  0.998  0.003  0.991  1.005        0
+tach 5 us     3000/8  1000-1500    loop fit |     54  0.998  0.003  0.991  1.005        0
+tach 5 us     3000/8  1500-2500         any |     18  0.999  0.003  0.994  1.006        0
+tach 5 us     3000/8  1500-2500    loop fit |     18  0.999  0.003  0.994  1.006        0
+tach 5 us     3000/8  2500-9000         any |    360  0.999  0.012  0.953  1.044       34
+tach 5 us     3000/8  2500-9000    loop fit |    360  0.999  0.012  0.953  1.044       34
+
+Part 2. fit_from_drops on calibration + slow drill logs, by floor: efficiency error, mean / worst %
+plant           hold  floor      rule | builds speed mean  worst | spin mean  worst
+tach 5 us     3000/0      0  any drop |      9       0.40   0.98 |     10.72  31.49
+tach 5 us     3000/0    500  any drop |      9       0.40   0.98 |     10.72  31.49
+tach 5 us     3000/0    600  any drop |      9       0.10   0.20 |      1.74   9.45
+tach 5 us     3000/0    700  any drop |      9       0.10   0.20 |      1.68   9.45
+tach 5 us     3000/0    750  any drop |      9       0.08   0.13 |      0.60   1.67
+tach 5 us     3000/0    800  any drop |      9       0.08   0.13 |      0.65   1.60
+tach 5 us     3000/0   1000  any drop |      9       0.07   0.12 |      0.86   2.81
+tach 5 us     3000/0    600 loop only |      9       0.10   0.20 |      1.68   9.45
+tach 5 us     3000/0    700 loop only |      9       0.10   0.20 |      1.68   9.45
+tach 5 us     3000/0    750 loop only |      9       0.08   0.13 |      0.60   1.67
+tach 5 us     3000/8      0  any drop |      9       0.11   0.25 |      0.42   1.01
+tach 5 us     3000/8    500  any drop |      9       0.11   0.25 |      0.42   1.01
+tach 5 us     3000/8    600  any drop |      9       0.10   0.23 |      0.51   1.35
+tach 5 us     3000/8    700  any drop |      9       0.10   0.23 |      0.51   1.35
+tach 5 us     3000/8    750  any drop |      9       0.10   0.24 |      0.61   1.31
+tach 5 us     3000/8    800  any drop |      9       0.10   0.24 |      0.40   0.95
+tach 5 us     3000/8   1000  any drop |      9       0.10   0.25 |      0.59   1.57
+tach 5 us     3000/8    600 loop only |      9       0.10   0.23 |      0.51   1.35
+tach 5 us     3000/8    700 loop only |      9       0.10   0.23 |      0.51   1.35
+tach 5 us     3000/8    750 loop only |      9       0.10   0.24 |      0.61   1.31
+
+## full_2
+Part 1. Record drop / true drop per wheel, slow drill (shots after a fast shot and after a slow one).
+hold: host.HOLD_RPM (0 = the next shot's speeds sent straight after the release, as before)
+plant           hold    rpm band  drop from | wheels   mean     sd    min    max  >2% off
+ESC 30 ms     3000/0   500-750          any |     54  0.961  0.112  0.671  1.460       25
+ESC 30 ms     3000/0   500-750     loop fit |     23  1.012  0.124  0.671  1.460        5
+ESC 30 ms     3000/0   500-750     fallback |     31  0.924  0.086  0.748  1.010       20
+ESC 30 ms     3000/0   750-1000         any |     54  0.998  0.005  0.989  1.008        0
+ESC 30 ms     3000/0   750-1000    loop fit |     54  0.998  0.005  0.989  1.008        0
+ESC 30 ms     3000/0  1000-1500         any |     54  1.002  0.004  0.994  1.011        0
+ESC 30 ms     3000/0  1000-1500    loop fit |     54  1.002  0.004  0.994  1.011        0
+ESC 30 ms     3000/0  1500-2500         any |     18  1.002  0.003  0.997  1.009        0
+ESC 30 ms     3000/0  1500-2500    loop fit |     18  1.002  0.003  0.997  1.009        0
+ESC 30 ms     3000/0  2500-9000         any |    360  1.000  0.003  0.994  1.009        0
+ESC 30 ms     3000/0  2500-9000    loop fit |    360  1.000  0.003  0.994  1.009        0
+ESC 30 ms     3000/8   500-750          any |     54  1.000  0.003  0.994  1.009        0
+ESC 30 ms     3000/8   500-750     loop fit |     54  1.000  0.003  0.994  1.009        0
+ESC 30 ms     3000/8   750-1000         any |     54  1.000  0.004  0.992  1.010        0
+ESC 30 ms     3000/8   750-1000    loop fit |     54  1.000  0.004  0.992  1.010        0
+ESC 30 ms     3000/8  1000-1500         any |     54  1.000  0.003  0.993  1.010        0
+ESC 30 ms     3000/8  1000-1500    loop fit |     54  1.000  0.003  0.993  1.010        0
+ESC 30 ms     3000/8  1500-2500         any |     18  1.001  0.004  0.995  1.008        0
+ESC 30 ms     3000/8  1500-2500    loop fit |     18  1.001  0.004  0.995  1.008        0
+ESC 30 ms     3000/8  2500-9000         any |    360  1.000  0.003  0.992  1.009        0
+ESC 30 ms     3000/8  2500-9000    loop fit |    360  1.000  0.003  0.992  1.009        0
+
+Part 2. fit_from_drops on calibration + slow drill logs, by floor: efficiency error, mean / worst %
+plant           hold  floor      rule | builds speed mean  worst | spin mean  worst
+ESC 30 ms     3000/0      0  any drop |      9       0.53   1.13 |     12.42  38.03
+ESC 30 ms     3000/0    500  any drop |      9       0.53   1.13 |     12.42  38.03
+ESC 30 ms     3000/0    600  any drop |      9       0.04   0.10 |      1.21   8.14
+ESC 30 ms     3000/0    700  any drop |      9       0.04   0.10 |      1.21   8.14
+ESC 30 ms     3000/0    750  any drop |      9       0.04   0.10 |      0.34   0.91
+ESC 30 ms     3000/0    800  any drop |      9       0.04   0.11 |      0.40   0.86
+ESC 30 ms     3000/0   1000  any drop |      9       0.04   0.12 |      0.42   1.74
+ESC 30 ms     3000/0    600 loop only |      9       0.04   0.10 |      1.20   8.14
+ESC 30 ms     3000/0    700 loop only |      9       0.04   0.10 |      1.21   8.14
+ESC 30 ms     3000/0    750 loop only |      9       0.04   0.10 |      0.34   0.91
+ESC 30 ms     3000/8      0  any drop |      9       0.04   0.07 |      0.30   0.73
+ESC 30 ms     3000/8    500  any drop |      9       0.04   0.07 |      0.30   0.73
+ESC 30 ms     3000/8    600  any drop |      9       0.03   0.07 |      0.36   0.75
+ESC 30 ms     3000/8    700  any drop |      9       0.03   0.07 |      0.38   0.75
+ESC 30 ms     3000/8    750  any drop |      9       0.03   0.07 |      0.39   0.89
+ESC 30 ms     3000/8    800  any drop |      9       0.03   0.07 |      0.28   0.75
+ESC 30 ms     3000/8   1000  any drop |      9       0.03   0.09 |      0.22   0.67
+ESC 30 ms     3000/8    600 loop only |      9       0.03   0.07 |      0.36   0.75
+ESC 30 ms     3000/8    700 loop only |      9       0.03   0.07 |      0.38   0.75
+ESC 30 ms     3000/8    750 loop only |      9       0.03   0.07 |      0.39   0.89
+
+## full_2_untold
+Part 1. Record drop / true drop per wheel, slow drill (shots after a fast shot and after a slow one).
+hold: host.HOLD_RPM (0 = the next shot's speeds sent straight after the release, as before)
+plant           hold    rpm band  drop from | wheels   mean     sd    min    max  >2% off
+ESC 30 ms     3000/0   500-750          any |     54  0.949  0.101  0.648  1.280       32
+ESC 30 ms     3000/0   500-750     loop fit |     23  0.984  0.110  0.648  1.280       12
+ESC 30 ms     3000/0   500-750     fallback |     31  0.924  0.086  0.748  1.010       20
+ESC 30 ms     3000/0   750-1000         any |     54  0.986  0.012  0.963  1.008       16
+ESC 30 ms     3000/0   750-1000    loop fit |     54  0.986  0.012  0.963  1.008       16
+ESC 30 ms     3000/0  1000-1500         any |     54  0.963  0.024  0.900  0.997       40
+ESC 30 ms     3000/0  1000-1500    loop fit |     54  0.963  0.024  0.900  0.997       40
+ESC 30 ms     3000/0  1500-2500         any |     18  0.960  0.023  0.892  0.990       15
+ESC 30 ms     3000/0  1500-2500    loop fit |     18  0.960  0.023  0.892  0.990       15
+ESC 30 ms     3000/0  2500-9000         any |    360  0.979  0.016  0.920  1.006      138
+ESC 30 ms     3000/0  2500-9000    loop fit |    360  0.979  0.016  0.920  1.006      138
+ESC 30 ms     3000/8   500-750          any |     54  0.976  0.015  0.927  0.996       24
+ESC 30 ms     3000/8   500-750     loop fit |     54  0.976  0.015  0.927  0.996       24
+ESC 30 ms     3000/8   750-1000         any |     54  0.965  0.023  0.909  0.995       34
+ESC 30 ms     3000/8   750-1000    loop fit |     54  0.965  0.023  0.909  0.995       34
+ESC 30 ms     3000/8  1000-1500         any |     54  0.962  0.022  0.904  0.993       42
+ESC 30 ms     3000/8  1000-1500    loop fit |     54  0.962  0.022  0.904  0.993       42
+ESC 30 ms     3000/8  1500-2500         any |     18  0.953  0.030  0.886  0.986       16
+ESC 30 ms     3000/8  1500-2500    loop fit |     18  0.953  0.030  0.886  0.986       16
+ESC 30 ms     3000/8  2500-9000         any |    360  0.980  0.014  0.926  1.003      139
+ESC 30 ms     3000/8  2500-9000    loop fit |    360  0.980  0.014  0.926  1.003      139
+
+Part 2. fit_from_drops on calibration + slow drill logs, by floor: efficiency error, mean / worst %
+plant           hold  floor      rule | builds speed mean  worst | spin mean  worst
+ESC 30 ms     3000/0      0  any drop |      9       2.10   4.01 |      8.94  33.35
+ESC 30 ms     3000/0    500  any drop |      9       2.10   4.01 |      8.94  33.35
+ESC 30 ms     3000/0    600  any drop |      9       2.55   4.46 |      6.78  30.02
+ESC 30 ms     3000/0    700  any drop |      9       2.54   4.46 |      6.59  30.02
+ESC 30 ms     3000/0    750  any drop |      9       2.50   4.45 |      3.18   6.22
+ESC 30 ms     3000/0    800  any drop |      9       2.51   4.45 |      2.03   5.29
+ESC 30 ms     3000/0   1000  any drop |      9       2.59   4.62 |      2.22   8.63
+ESC 30 ms     3000/0    600 loop only |      9       2.54   4.46 |      6.59  30.02
+ESC 30 ms     3000/0    700 loop only |      9       2.54   4.46 |      6.59  30.02
+ESC 30 ms     3000/0    750 loop only |      9       2.50   4.45 |      3.18   6.22
+ESC 30 ms     3000/8      0  any drop |      9       2.65   4.54 |      2.07   3.22
+ESC 30 ms     3000/8    500  any drop |      9       2.65   4.54 |      2.07   3.22
+ESC 30 ms     3000/8    600  any drop |      9       2.58   4.40 |      0.92   1.75
+ESC 30 ms     3000/8    700  any drop |      9       2.58   4.40 |      0.92   1.75
+ESC 30 ms     3000/8    750  any drop |      9       2.56   4.36 |      1.26   5.34
+ESC 30 ms     3000/8    800  any drop |      9       2.56   4.36 |      1.59   6.35
+ESC 30 ms     3000/8   1000  any drop |      9       2.59   4.38 |      2.77   8.67
+ESC 30 ms     3000/8    600 loop only |      9       2.58   4.40 |      0.92   1.75
+ESC 30 ms     3000/8    700 loop only |      9       2.58   4.40 |      0.92   1.75
+ESC 30 ms     3000/8    750 loop only |      9       2.56   4.36 |      1.26   5.34
+
+## drill time (scratch drilltime.py: slow drill, first-order plant, build 0.95/0.35)
+lag 0.2 extend 0: 30 shots, first-to-last release 124.1 s
+lag 0.2 extend 8: 30 shots, first-to-last release 126.4 s, 18 wheels watched on
+lag 0.8: aborted at shot 2 (release not done in 2.0 s) with and without the watch, and on origin/main too

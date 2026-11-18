@@ -1,0 +1,34 @@
+# water-leaks step 14: leak-free L-Town 2018-19 simulated from L-TOWN_Real.inp (EPANET 2.2 via WNTR's toolkit)
+# each year from the file's initial state; rounded to the published resolution {'Pressures': 2, 'Flows': 2, 'Levels': 2}
+# scored period from 2018-01-15T00; harness of step 1 (30-day window, ungated); chance 1000 draws, seed 0
+
+## fidelity: real minus simulated (hourly means); low-leak hours = 2018 hours with total leak flow < 1 m3/h: 336
+  total leak flow over 2018-19: median 43.8 m3/h, max 141.3
+  pressures, low-leak hours: median |real - sim| per sensor from 0.0000 to 0.0008 m (median over sensors 0.0000); sensors under 0.1 m: 33 of 33
+  p227: low-leak median |d| 0.015, all-hours median 21.935, mean signed +26.6947; p235: low-leak median |d| 0.013, all-hours median 22.680, mean signed +23.3916; PUMP_1: low-leak median |d| 0.000, all-hours median 0.168, mean signed +10.9729
+  T1: low-leak median |d| 0.001, all-hours median 0.216, mean signed -0.0598
+  per sensor: fidelity.tsv
+
+## detectors at their frozen 2018 settings (step 8's alarm_lists)
+  real data, against the steps' recorded 2019 alarms:
+  D1-F       alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  LILA-auto  alarms  26 (2019: 15); 2019 alarms equal the step's alarms.tsv: yes
+  M1         alarms  25 (2019: 16); 2019 alarms equal the step's alarms.tsv: yes
+  M2         alarms  15 (2019: 8); 2019 alarms equal the step's alarms.tsv: yes
+  M3         alarms  29 (2019: 18); 2019 alarms equal the step's alarms.tsv: yes
+  M4         alarms  25 (2019: 14); 2019 alarms equal the step's alarms.tsv: yes
+
+## null alarms (leak-free simulation) over the scored period (716 days), and what the harness credits them with
+  detector   | real alarms /90d | null alarms /90d | null 2019 credit (of 19)  chance median (95%)  P(chance>=) | real 2019 TP | real alarms within 48 h of a null alarm
+  D1-F       |   26 ( 3.3)     |    0 ( 0.0)     |    0                         - (no alarms)       -        |   13         | 0 of 26 (of 2019 TPs: 0 of 13)
+  LILA-auto  |   26 ( 3.3)     |    1 ( 0.1)     |    0                         0 (0 to 1)  1.000            |   14         | 0 of 26 (of 2019 TPs: 0 of 14)
+  M1         |   25 ( 3.1)     |   28 ( 3.5)     |    9                        12 (9 to 14)  0.996           |   10         | 6 of 25 (of 2019 TPs: 3 of 10)
+  M2         |   15 ( 1.9)     |    4 ( 0.5)     |    1                         2 (0 to 4)  0.944            |    7         | 1 of 15 (of 2019 TPs: 0 of 7)
+  M3         |   29 ( 3.6)     |   31 ( 3.9)     |   14                        13 (10 to 15)  0.241          |   13         | 8 of 29 (of 2019 TPs: 4 of 13)
+  M4         |   25 ( 3.1)     |   18 ( 2.3)     |    8                         8 (5 to 11)  0.596           |   10         | 4 of 25 (of 2019 TPs: 1 of 10)
+
+## pre-registered predictions (LOG.md, step 14 plan)
+  (a) median |real - sim| < 0.1 m on low-leak 2018 hours at >= 30 of 33 sensors: 33: HELD
+  (b) D1-F and LILA-auto each raise >= 1 null alarm: [0, 1]: FAILED
+  (c) every detector's null count below its real count: D1-F 0/26, LILA-auto 1/26, M1 28/25, M2 4/15, M3 31/29, M4 18/25: FAILED
+  (d) some detector's null alarms credited with >= 3 of 19 new 2019 leaks: max 14: HELD

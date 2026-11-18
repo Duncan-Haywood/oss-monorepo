@@ -1,0 +1,58 @@
+cell-fidelity milestone 5e: the two-part rule (re-solve stops at V1; verify failures, then ascending r_min, until 3 sound)
+
+Probe (baseline design, 2 cycles): Ramadass2004 fails, Marquis2019 ok, Chen2020 ok, Prada2013 fails, ORegan2022 fails
+Chosen (first 2 that run): ['Marquis2019', 'Chen2020']
+
+Pre-registered cells (fresh Sobol seed 4 designs):
+Marquis2019: 64 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 64, stop 0, fail 0; V1 rescued 0 of 0 stops; screen failures 0
+  mis-scored 0 (0%); verified 3; calls 4 (6% of the pool); recall n/a; missed []
+  pick design 32: DFN@100 196.8 vs pool best 199.5 Wh/kg, gap 0.0134
+  extra, after the verdicts: best verified DFN gap 0.0000 at 4 calls; iterate-until-verified gap 0.0000 at 6 calls (pick 40)
+  wall time: rule 267 s (all SPMe + verified DFN) vs all-DFN 590 s (45%)
+Chen2020: 64 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 61, stop 0, fail 3; V1 rescued 0 of 0 stops; screen failures 3
+  mis-scored 9 (14%); verified 15; calls 15 (23% of the pool); recall 1.00; missed []
+  pick design 11: DFN@100 164.6 vs pool best 164.6 Wh/kg, gap 0.0000
+  extra, after the verdicts: best verified DFN gap 0.0000 at 15 calls; iterate-until-verified gap 0.0000 at 15 calls (pick 11)
+  wall time: rule 371 s (all SPMe + verified DFN) vs all-DFN 427 s (87%)
+
+Verdicts: H42 supported, H43 untestable, H44 mixed, H45 supported
+
+Post hoc replay on the five committed cells (the rule was built on them; no verdicts):
+OKane2022: 128 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 121, stop 0, fail 7; V1 rescued 0 of 0 stops; screen failures 7
+  mis-scored 15 (12%); verified 22; calls 22 (17% of the pool); recall 1.00; missed []
+  pick design 12: DFN@100 162.3 vs pool best 162.3 Wh/kg, gap 0.0000
+  extra, after the verdicts: best verified DFN gap 0.0000 at 22 calls; iterate-until-verified gap 0.0000 at 22 calls (pick 12)
+  wall time: rule 1268 s (all SPMe + verified DFN) vs all-DFN 3499 s (36%)
+Ecker2015: 64 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 64, stop 0, fail 0; V1 rescued 0 of 0 stops; screen failures 0
+  mis-scored 1 (2%); verified 4; calls 5 (8% of the pool); recall 1.00; missed []
+  pick design 14: DFN@100 336.7 vs pool best 336.7 Wh/kg, gap 0.0000
+  extra, after the verdicts: best verified DFN gap 0.0000 at 5 calls; iterate-until-verified gap 0.0000 at 7 calls (pick 14)
+  wall time: rule 340 s (all SPMe + verified DFN) vs all-DFN 1029 s (33%)
+Ai2020: 64 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 64, stop 0, fail 0; V1 rescued 0 of 0 stops; screen failures 0
+  mis-scored 57 (89%); verified 61; calls 61 (95% of the pool); recall 1.00; missed []
+  pick design 45: DFN@100 113.0 vs pool best 113.0 Wh/kg, gap 0.0000
+  extra, after the verdicts: best verified DFN gap 0.0000 at 61 calls; iterate-until-verified gap 0.0000 at 61 calls (pick 45)
+  wall time: rule 1452 s (all SPMe + verified DFN) vs all-DFN 1321 s (110%)
+Mohtat2020: 64 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 58, stop 6, fail 0; V1 rescued 6 of 6 stops; screen failures 0
+  mis-scored 0 (0%); verified 3; calls 3 (5% of the pool); recall n/a; missed []
+  pick design 11: DFN@100 240.6 vs pool best 240.6 Wh/kg, gap 0.0000
+  extra, after the verdicts: best verified DFN gap 0.0000 at 3 calls; iterate-until-verified gap 0.0000 at 3 calls (pick 11)
+  wall time: rule 255 s (all SPMe + verified DFN) vs all-DFN 524 s (49%)
+    rescued stop 1: SPMe@100 188.7 vs DFN@100 188.7, gap +0.000, r_min 0.773
+    rescued stop 10: SPMe@100 142.7 vs DFN@100 143.0, gap +0.002, r_min 0.885
+    rescued stop 17: SPMe@100 190.7 vs DFN@100 190.6, gap -0.000, r_min 0.803
+    rescued stop 19: SPMe@100 186.0 vs DFN@100 186.5, gap +0.003, r_min 0.647
+    rescued stop 41: SPMe@100 167.8 vs DFN@100 168.0, gap +0.001, r_min 0.787
+    rescued stop 55: SPMe@100 185.5 vs DFN@100 185.7, gap +0.001, r_min 0.730
+NCA_Kim2011: 64 designs (0 dropped, DFN did not finish: [])
+  SPMe V0: ok 15, stop 0, fail 49; V1 rescued 0 of 0 stops; screen failures 49
+  mis-scored 52 (81%); verified 55; calls 56 (88% of the pool); recall 1.00; missed []
+  pick design 6: DFN@100 74.0 vs pool best 74.1 Wh/kg, gap 0.0023
+  extra, after the verdicts: best verified DFN gap 0.0023 at 56 calls; iterate-until-verified gap 0.0000 at 58 calls (pick 34)
+  wall time: rule 1214 s (all SPMe + verified DFN) vs all-DFN 1153 s (105%)

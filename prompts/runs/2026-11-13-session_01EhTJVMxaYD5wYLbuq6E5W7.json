@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01EhTJVMxaYD5wYLbuq6E5W7",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled routine: ventures brief (continue work on the repo...)",
+  "input_sha256": "fbed6cf547e65742f7356c3d8f1e24d75e4d28078ab92d8d28d3b653475df5ca",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-13T22:11:59Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "quick-pick-survey flagship 8 item (d4): a fast-block panel curve that personal drift cannot lift",
+  "projects": [
+    "ventures/quick-pick-survey"
+  ],
+  "pr": 15628,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/quick-pick-survey/AGENTS.md",
+      "issue": "`npm run verify` includes a Next build and DB-backed tests; the venture's CI file is the real gate, while run_venture_tests.py skips this venture (no *.test.mjs), so the local equivalent took some reading."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-13-quick-pick-survey-a-curve-drift-cannot-lift.md",
+    "ventures/quick-pick-survey/docs/INFORMATION-GAIN-SELECTOR.md#a-later-pass-curve-that-drift-cannot-lift-2026-11-13-last-shipped"
+  ],
+  "goal": "Ship a working slice of the top free Deepen flagship row (allocate.py row 6, quick-pick-survey).",
+  "notes": "fastBlockStarts gained laterQ (FAST_BLOCK_LATER_Q = 0.5): passes 2-3 read the median of people not yet flagged instead of the 0.75 quantile. Sweep: scripts/answer-time-sweep.ts --later-q 0.5,0.6, 168 cells at person drift 0/0.3/0.6, raw rows docs/fast-blocks-later-q-2026-11-13.jsonl. Honest flags at drift 0.6: 7.5% -> 4.8% (nobody careless/camp), 8.3% -> 5.2% (careless cells); drift 0.3: 3.6% -> 2.7%; drift 0 unchanged; ceiling share level (98/85/66% -> 98/86/64%). Verification: npm run typecheck clean; eslint on changed files clean; vitest fast config 50 files / 489 tests pass; new unit test fails with FAST_BLOCK_LATER_Q=0.75 and passes with 0.5; ranking.integration.test.ts 9/9 pass against scripts/test-db.sh Postgres; sweep's autoBlockStarts-vs-library agreement assertion passes. flagships.yaml next rewritten; validate.py passes.",
+  "corrections": [],
+  "redteam": null
+}

@@ -6,10 +6,11 @@ Pure Python, no dependencies. Real sensor reads `clip(x, −R, R)`; twin reads `
 
 ```bash
 cd research/range-twin
-PYTHONPATH=src python3 -m unittest discover -s tests -v   # 8 tests, <1 s
+PYTHONPATH=src python3 -m unittest discover -s tests -v   # 12 tests, ~2 s
 PYTHONPATH=src python3 experiments/run.py                 # <2 s; output in experiments/results.txt
+python3 experiments/figure.py                             # redraws experiments/steps_vs_x0.svg from results.txt
 ```
 
-**Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>, radar/lidar sensing), the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Anti-windup is classical (Åström & Rundqvist 1989). Companion to `beam-twin`, `dropout-twin`, `saturation-twin` and `backlash-twin` in this repository.
+**Builds on.** The digital-twin simulation-fidelity and sim-to-real direction of ARPG (<https://arpg.colorado.edu/>, radar/lidar sensing), the Autonomous Systems IRT (<https://www.colorado.edu/irt/autonomous-systems/>) and RECUV (<https://www.colorado.edu/recuv/>); no specific paper from those groups is reproduced and nothing here is affiliated with or endorsed by them. Anti-windup is classical (Åström & Rundqwist 1989; full reference in `paper/whitepaper.md`). Companion to `beam-twin`, `dropout-twin`, `saturation-twin` and `backlash-twin` in this repository.
 
 Stylised: scalar loop, symmetric hard clip, noiseless, three gain settings, a simulated "real" system, no field data. MIT.

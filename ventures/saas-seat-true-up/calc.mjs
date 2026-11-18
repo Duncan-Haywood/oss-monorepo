@@ -64,6 +64,12 @@ export function formatMoney(value, currency = '$') {
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
+// The same wall-clock time `n` calendar days away; the Date constructor
+// normalises an out-of-range day, and keeps local midnight across DST.
+function addLocalDays(date, n) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() + n, date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
+}
+
 function parseDateInput(value) {
   if (value === undefined || value === null || value === '') return null;
   const date = value instanceof Date ? value : new Date(`${value}T00:00:00`);
@@ -86,8 +92,15 @@ export function evaluateNoticeDeadline({ renewalDate, noticeDays = 0, today } = 
   if (!Number.isFinite(days) || days < 0) {
     throw new Error('Notice period must be a non-negative number of days');
   }
-  const now = parseDateInput(today) || (today instanceof Date ? today : new Date());
-  const deadline = new Date(renewal.getTime() - days * MS_PER_DAY);
+  // Today's local midnight, so the count is whole calendar days: a raw `new
+  // Date()` late in the evening rounded 2.98 days up to 3.
+  const clock = new Date();
+  const now = parseDateInput(today) || (today instanceof Date ? today : new Date(clock.getFullYear(), clock.getMonth(), clock.getDate()));
+  // Step calendar days, not 24-hour blocks: renewal is a local midnight, and
+  // subtracting days * MS_PER_DAY across a daylight-saving change lands at
+  // 23:00 the day before (renewal 1 Apr 2026, 30 days' notice, in New York
+  // showed 1 March instead of 2 March).
+  const deadline = addLocalDays(renewal, -days);
   const daysUntilDeadline = Math.round((deadline.getTime() - now.getTime()) / MS_PER_DAY);
   const daysUntilRenewal = Math.round((renewal.getTime() - now.getTime()) / MS_PER_DAY);
   return {
@@ -109,7 +122,7 @@ export function noticeMessage(result, notice) {
   if (!notice) return null;
   if (result.droppableSeats <= 0) return null; // nothing this window's deadline could have saved
   if (notice.deadlinePassed) {
-    const nextDeadline = new Date(notice.deadline.getTime() + 365 * MS_PER_DAY);
+    const nextDeadline = addLocalDays(notice.deadline, 365);
     return `The notice deadline (${formatDate(notice.deadline)}) passed ${Math.abs(notice.daysUntilDeadline)} day${Math.abs(notice.daysUntilDeadline) === 1 ? '' : 's'} ago. This renewal auto-renews at the full ${result.purchased} seats regardless of usage -- the ${result.droppableSeats}-seat saving above is not avoidable this cycle. Assuming an annual term, the next window to act closes around ${formatDate(nextDeadline)}; confirm the real date on your agreement.`;
   }
   if (notice.deadlineSoon) {

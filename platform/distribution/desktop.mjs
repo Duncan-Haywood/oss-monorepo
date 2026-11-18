@@ -27,7 +27,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { readMeta, toolUrl, BASE_URL } from './bluesky.mjs';
+import { readMeta, toolUrl, BASE_URL, PUBLISHER } from './bluesky.mjs';
 import { tagUrl } from './attribution.mjs';
 import { buildExtension, extensionName } from './webext.mjs';
 import { packageId, shortDescription } from './android.mjs';
@@ -332,7 +332,7 @@ export async function buildDesktop({ target, root = REPO_ROOT, slugs, baseUrl = 
     license = ext.files.LICENSE;
     tools = [{ slug: target, name, description }];
   }
-  const identifier = packageId(suite ? `suite-${target}` : target, baseUrl);
+  const identifier = packageId(suite ? `suite-${target}` : target);
   const crate = crateName(suite ? `${target}-tools` : target);
   files.LICENSE = license;
   Object.assign(files, iconFiles());
@@ -359,7 +359,7 @@ export async function buildDesktop({ target, root = REPO_ROOT, slugs, baseUrl = 
       category: 'Productivity',
       shortDescription: shortDescription(description),
       longDescription: `${description}\n\nFree and open source (MIT). Runs offline with no account, no ads and no tracking; nothing you type leaves this computer. An aid, not legal, tax, financial or professional advice.`,
-      publisher: new URL(baseUrl).hostname.split('.')[0],
+      publisher: PUBLISHER,
       homepage: tagUrl(homepage, 'desktop'),
       license: 'MIT',
       licenseFile: '../LICENSE',
@@ -397,7 +397,7 @@ export function wingetSegment(s) {
 
 /** The three files of a winget-pkgs submission (version, installer, defaultLocale). */
 export function wingetManifests({ name, description, homepage, version = VERSION, installerUrl = INSTALLER_URL_PLACEHOLDER, sha256 = SHA256_PLACEHOLDER }) {
-  const owner = new URL(BASE_URL).hostname.split('.')[0];
+  const owner = PUBLISHER;
   const pkgId = `${wingetSegment(owner)}.${wingetSegment(name)}`;
   const y = (v) => JSON.stringify(v); // JSON strings are valid YAML scalars
   const head = (type) => `# yaml-language-server: $schema=https://aka.ms/winget-manifest.${type}.${WINGET_SCHEMA}.schema.json\nPackageIdentifier: ${pkgId}\nPackageVersion: ${version}\n`;

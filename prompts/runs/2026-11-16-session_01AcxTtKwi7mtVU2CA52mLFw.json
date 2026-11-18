@@ -1,0 +1,128 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKwi7mtVU2CA52mLFw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T16:07:26Z",
+  "ended": "2026-11-16T16:11:18Z",
+  "wall_minutes": 29.5,
+  "tokens_in": 6062419,
+  "tokens_out": 36284,
+  "cost_usd": 2.968,
+  "tool_calls": 54,
+  "task": "research programme llm-coding-inference, milestone 7az (drawn by pick_track.py)",
+  "projects": [
+    "research/llm-coding-inference"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16630",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 1,
+  "outcome": "success",
+  "errors": [
+    "First version of the new test used a synthetic coder whose pilots never fired the trigger; caught by an added 0 < floored < cells assertion and fixed by changing the synthetic corpus parameters before commit."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/llm-coding-inference/experiments",
+      "issue": "Pinning a new library default means editing every earlier experiment (39 files) after the A.RARE_FALLBACK = None line; a single `pin_pre(<milestone>)` helper in llmci would make each new default a one-line change."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-16-two-weak-signals-one-good-trigger.md",
+    "research/llm-coding-inference/LOG.md (7az entry)"
+  ],
+  "goal": "Advance a PhD-level research programme by one pre-registered milestone and ship its library consequence.",
+  "notes": "Pre-registered 7az: joint trigger (pilot misses < 5 and J_hat < 0.40/0.50/0.60) for the coder-negative plus-two floor, 130 cells (114 old, 16 fresh), 1,000 draws each, one run. p5j40 and p5j50 qualified; p5j40 (94.6% of gain kept) is now plan_audit's NEG_FLOOR default; 39 earlier experiments pinned. Verification: test_llmci.py 42 passed on /usr/bin/python3.13; research/_homepage/build.py ok; research_live_links and check_md_links ok; post front matter, links and similarity ok; run_workflow_locally --for-changes 9/9 passed (agent-cross-review and portfolio-pages deploy jobs not runnable locally). The three other open research PRs were sibling claims under 3h old and left alone.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "3f72a6d0-0f1b-5388-9ac9-bd46de36a80e",
+    "transcripts": 1,
+    "first": "2026-11-16T16:07:26Z",
+    "last": "2026-11-16T16:36:56Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 51,
+        "input": 97,
+        "output": 36284,
+        "thinking": 9167,
+        "cache_read": 5930338,
+        "cache_write_5m": 0,
+        "cache_write_1h": 131984,
+        "api_equivalent_usd": 2.968,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 51,
+      "input": 97,
+      "output": 36284,
+      "thinking": 9167,
+      "cache_read": 5930338,
+      "cache_write_5m": 0,
+      "cache_write_1h": 131984,
+      "api_equivalent_usd": 2.968,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 54,
+    "tools": {
+      "Bash": 50,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 29.5,
+      "active_minutes": 29.5,
+      "model_minutes": 7.2,
+      "tool_minutes": 22.3,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "design, implement and run a pre-registered simulation study, library change, tests and write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 336.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

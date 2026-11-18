@@ -39,9 +39,23 @@ const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "
 export const monthLabel = (y, m) => `${MONTHS[m]} ${y}`;
 const num = (v) => (v === "" || v === null || v === undefined ? NaN : Number(v));
 
+// A blank optional field means zero, not an error.
+const optional = (v) => (v === "" || v === null || v === undefined ? 0 : Number(v));
+
 // months: array of 12 monthly taxable turnover figures, oldest first, ending at endYear/endMonth (0-11).
+// "6,000 6,500" and a pasted spreadsheet column are thousands-grouped amounts; "6000,6500" is a
+// comma list. A comma part that only makes sense as a thousands group ("1,000,2,000" -> "000")
+// is rejected rather than read as a month of zero.
+const GROUPED = /^\d{1,3}(,\d{3})+(\.\d+)?$/;
 export function parseMonths(text) {
-  return String(text ?? "").split(/[\s,;]+/).filter(Boolean).map(Number);
+  const out = [];
+  for (const raw of String(text ?? "").split(/[\s;]+/)) {
+    const tok = raw.replace(/^,+|,+$/g, "");
+    if (!tok) continue;
+    if (GROUPED.test(tok)) { out.push(Number(tok.replace(/,/g, ""))); continue; }
+    for (const part of tok.split(",")) out.push(/^0\d/.test(part) || part === "" ? NaN : Number(part));
+  }
+  return out;
 }
 
 function addMonths(y, m, n) {
@@ -58,7 +72,7 @@ export function check(input) {
   const months = Array.isArray(input.months) ? input.months.map(num) : parseMonths(input.months);
   const endYear = num(input.endYear);
   const endMonth = num(input.endMonth);
-  const next30 = num(input.next30 ?? 0);
+  const next30 = optional(input.next30);
   if (months.length < 1 || months.length > 36) errors.push("Enter between 1 and 36 months of taxable turnover, oldest first.");
   if (months.some((x) => !Number.isFinite(x) || x < 0)) errors.push("Every monthly figure must be a number of zero or more.");
   if (!Number.isInteger(endYear) || endYear < 2020 || endYear > 2040) errors.push("Final month's year must be between 2020 and 2040.");
@@ -120,7 +134,7 @@ export function frsCompare(input) {
   const errors = [];
   const turnover = num(input.turnover);
   const costs = num(input.costs);
-  const goodsCost = num(input.goodsCost ?? 0);
+  const goodsCost = optional(input.goodsCost);
   const sector = FRS_SECTORS.find((s) => s.id === input.sector);
   const firstYear = input.firstYear === "yes" || input.firstYear === true;
   if (!Number.isFinite(turnover) || turnover < 0) errors.push("Yearly turnover must be zero or more.");

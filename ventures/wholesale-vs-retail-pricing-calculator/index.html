@@ -35,7 +35,7 @@
     th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: #4c5a68; }
     .finding { border-bottom: 1px solid #ece7f2; padding: 12px 0; }
     .finding:last-child { border-bottom: 0; }
-    .finding h4 { margin: 0 0 4px; font-size: .98rem; }
+    .finding h3 { margin: 0 0 4px; font-size: .98rem; }
     .pill { display: inline-block; font-size: .68rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; padding: 2px 8px; border-radius: 999px; margin-right: 8px; }
     .pill.high { background: #fde8e8; color: #9a3412; }
     .pill.medium { background: #fdf0d5; color: #7c5e10; }
@@ -132,7 +132,7 @@
       const v = read(), c = channels(v);
       if (c.error) { $("#status").textContent = c.error; $("#report").hidden = true; return false; }
       $("#rows").innerHTML = [c.direct, c.wholesale, c.consignment].map((x) => `<tr><th scope="row">${esc(x.name)}${x.name === c.best ? " ★" : ""}</th><td class="n">${money(x.revenue)}</td><td class="n">${money(x.cost)}</td><td class="n">${money(x.profit)}</td><td class="n">${pct(x.margin)}</td></tr>`).join("");
-      $("#findings").innerHTML = c.findings.map((f) => `<div class="finding"><h4><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h4><p>${esc(f.detail)}</p></div>`).join("");
+      $("#findings").innerHTML = c.findings.map((f) => `<div class="finding"><h3><span class="pill ${f.severity}">${f.severity}</span>${esc(f.title)}</h3><p>${esc(f.detail)}</p></div>`).join("");
       $("#order").textContent = `${c.orderQty} units at ${money(c.wsPrice)} = ${money(c.orderRevenue)} in revenue and ${money(c.orderProfit)} profit. You spend about ${money(c.cashOut)} on materials and shipping before being paid. That profit equals ${c.directEquivalent ?? "–"} direct sales.`;
       $("#target").textContent = c.priceForTarget === null ? "–" : `For a ${c.o.targetMarginPct}% margin on wholesale you need ${money(c.priceForTarget)} per unit, which is ${c.minWholesalePct}% of your current retail price, or a retail price of ${money(c.retailForTarget)} at your current wholesale share.`;
       $("#ladder").innerHTML = discountLadder(v).map((l) => `<tr><th scope="row">${l.pct}%</th><td class="n">${money(l.price)}</td><td class="n">${money(l.profit)}</td><td class="n">${pct(l.margin)}</td><td class="n">${money(l.orderProfit)}</td></tr>`).join("");

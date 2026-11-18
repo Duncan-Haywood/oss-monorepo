@@ -76,6 +76,7 @@ test("negative or missing inputs are treated as zero, never negative", () => {
   const r = qsbsExclusionOutcome({ era: "new", yearsHeld: -1, gain: -500, basis: -200 });
   assert.equal(r.yearsHeld, 0);
   assert.equal(r.gain, 0);
+  assert.equal(r.gain, 0);
   assert.equal(r.basis, 0);
   assert.equal(r.excludedGain, 0);
 });
@@ -120,4 +121,13 @@ test("non-numeric gain counts as zero, not one dollar", () => {
 test("money keeps the minus sign on small negatives and drops it on rounded-to-zero", () => {
   assert.equal(money(-1), "-$1");
   assert.equal(money(-0.2), "$0");
+});
+
+// Red-team 2026-11-12: raising the gain and yearsHeld defaults from 0 to 1 went unnoticed.
+test("an API call with no gain or holding period reports zero, not a default of 1", () => {
+  const r = qsbsExclusionOutcome({});
+  assert.equal(r.yearsHeld, 0);
+  assert.equal(r.gain, 0);
+  assert.equal(r.taxableGain, 0);
+  assert.equal(r.excludedGain, 0);
 });

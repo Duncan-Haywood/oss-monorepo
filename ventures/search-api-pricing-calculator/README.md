@@ -20,9 +20,13 @@ records and searches). Exit 1 when `--budget` (monthly USD) is exceeded; 2 on ba
 
 ## What it is not
 
-Arithmetic on two typed volumes at approximate public list prices dated in the source
-(`PRICES_AS_OF`) and editable; overage rates are rough. Typesense Cloud and Elastic Cloud are
-modelled as a flat fee with a record allowance, and self-hosting includes an editable allowance for
+Arithmetic on two typed volumes at approximate public list prices "as best known in 2025"
+(`PRICES_AS_OF`; one line for all providers, not a dated, sourced figure per provider) and
+editable; overage rates are rough. Typesense Cloud and Elastic Cloud are
+modelled as a flat fee with a record allowance and unlimited query throughput, although their real
+price steps with RAM, CPU and node count: a smallest cluster will not serve a high query rate,
+so at large search volumes their rows understate the cost (quality audit
+`portfolio/quality/audits/2026-11-13-search-api-pricing-calculator.json`). Self-hosting includes an editable allowance for
 your own time. It ignores record size, indexing operations, replicas, regions, vector/AI search and
 contracts, so it compares the records and searches lines and does not forecast an invoice. Not a
 quote, a guarantee or advice. Not affiliated with any provider named.

@@ -1,10 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { triage, findDate, parseReplies, stripQuoted, parseCsv, toCsv, runInbox, checkDraft, draftReply, addBusinessDays, csv, SAMPLE_REPLIES, SAMPLE_PROSPECTS, SAMPLE_OFFER, CATEGORIES } from "./engine.mjs";
-import { score } from "./eval/run.mjs";
-import { train, guess } from "./learn.mjs";
+import { score, baselineModel } from "./eval/run.mjs";
+import { train, guess, TRAINING_FILE, trainingLabel } from "./learn.mjs";
 import { MODEL } from "./model.mjs";
+import { crossValidate } from "./eval/guess-cv.mjs";
 
 const T = "2026-10-21"; // a Wednesday
 const load = (f) => readFileSync(new URL(`./eval/${f}`, import.meta.url), "utf8").split("\n").filter(Boolean).map((l) => JSON.parse(l));
@@ -61,13 +62,14 @@ test("the tuned eval sets score perfectly (a regression floor, not an accuracy c
 });
 
 test("the fresh set is reported, not tuned: numbers recorded in README stay as measured", () => {
-  const s = score(load("fresh-2026-10-21.jsonl"));
+  const s = score(load("fresh-2026-10-21.jsonl"), { model: baselineModel() });
   // README "How well it reads replies" quotes these. If a rule change moves them, re-measure on a NEW fresh set and
   // update the README; do not tune on this file.
   assert.equal(s.n, 40);
   // Scored 15/22/11 on 2026-10-21; the 2026-10-24 "cease ..." patterns moved it to 16/23/10 (see eval/README.md); the 2026-10-25 opt-out patterns to 17/24/9.
   // 2026-11-07: the "quick call" and "who do I talk to" patterns moved it to 18 (see eval/README.md).
-  assert.equal(s.right, 18);
+  // 2026-11-10: the real-mail vetoes (eval/enron.mjs) stopped "Funny you should email, we were just complaining" reading as a referral: 19.
+  assert.equal(s.right, 19);
   assert.equal(s.acted, 24);
   assert.equal(s.guessRight, 9);
 });
@@ -90,27 +92,30 @@ test("opt-outs in French, German, Spanish and Italian and \"cease and desist\" s
 });
 
 test("second fresh set (2026-10-24, written by another session, scored once): numbers stay as measured", () => {
-  const s = score(load("fresh-2026-10-24.jsonl"));
+  const s = score(load("fresh-2026-10-24.jsonl"), { model: baselineModel() });
   assert.equal(s.n, 41);
   // 27 when scored once; 28 after 2026-11-02, when "I left X" counted as a wrong-person reply (one item, no regression).
   // Row 9 (a full mailbox, first labelled bounce) was relabelled out_of_office on 2026-11-05 when full mailboxes became soft bounces; the count stays 28.
   // 29 after 2026-11-09 ("this isn't for us" style declines, one item, no regression).
-  assert.equal(s.right, 29);
+  // 30 after 2026-11-11 ("stop following up" is an opt-out, one item, no regression).
+  assert.equal(s.right, 30);
   assert.equal(s.acted, 33);
-  assert.equal(s.actedRight, 26);
+  assert.equal(s.actedRight, 27);
   assert.equal(s.unsubMissed, 2);
   assert.equal(s.guessRight, 3);
 });
 
 test("word model: rebuilt from the training files exactly, and it guesses", () => {
-  const rows = ["replies.jsonl", "heldout.jsonl"].flatMap(load);
-  assert.deepEqual(train(rows), MODEL);
+  const files = readdirSync(new URL("./eval/", import.meta.url)).filter((f) => TRAINING_FILE.test(f)).sort();
+  assert.ok(files.length >= 25 && files.includes("replies.jsonl") && files.includes("fresh-2026-10-21.jsonl"));
+  assert.deepEqual(train(files.flatMap(load).map(trainingLabel).filter(Boolean)), MODEL);
   assert.equal(guess({ subject: "Re: hi", body: "please remove me" }).category, "unsubscribe");
   assert.equal(guess({ subject: "", body: "x" }, null), null);
 });
 
 test("the inbox agent: suppresses, pauses, drafts, and queues for approval", () => {
   const r = runInbox({ replies: SAMPLE_REPLIES, prospects: SAMPLE_PROSPECTS, offer: SAMPLE_OFFER, today: T });
+  assert.equal(r.summary.paused, 2); // the away notice and the "try me in Q1" both count as paused
   const by = Object.fromEntries(r.items.map((i) => [i.from, i]));
   assert.equal(by["omar@peakdental.example"].triage.category, "unsubscribe");
   assert.equal(by["omar@peakdental.example"].draft, null);
@@ -174,9 +179,11 @@ test("fourth set (2026-10-25): scored once at 25/42 with 9 of 18 unsubscribes mi
   // 34 before 2026-11-02, when "I left Orchid in August" started counting as a wrong-person reply (one item).
   // 35 before 2026-11-03, when "X left the company" was added as a wrong-person phrasing (one item).
   // 37 after 2026-11-04, when "isn't something we'd ever need" became a decline (one item).
-  assert.equal(s.right, 37);
-  assert.equal(s.acted, 37);
-  assert.equal(s.actedRight, 37);
+  // 38 after 2026-11-11 ("stop following up" is an opt-out, one item).
+  // 39 after 2026-11-10 ("doesn't fit a business our size" is an objection, one item).
+  assert.equal(s.right, 39);
+  assert.equal(s.acted, 39);
+  assert.equal(s.actedRight, 39);
   assert.equal(s.unsubMissed, 0);
 });
 
@@ -299,7 +306,9 @@ test("seventh set (2026-11-03c): 24 opt-outs scored once at 10 missed before the
   const s = score(rows);
   assert.equal(s.n, 30);
   assert.equal(s.unsubMissed, 0);
-  assert.equal(s.right, 26);
+  // 27 since 2026-11-12: "remove Dana from this thread, she left the company" was labelled "wrong_person", not a category, so it
+  // could never score right; relabelled left_company, which the rules already said.
+  assert.equal(s.right, 27);
 });
 
 test("eighth set (2026-11-04): quoted footers and signatures stripped as in production; 14/20 before the change (6 misses, 2 of them my label errors), 20/20 after; a tuned set", () => {
@@ -314,7 +323,7 @@ test("ninth set (2026-11-04b): 30 mixed replies, scored once before the change a
   assert.equal(s.n, 30);
   assert.equal(s.unsubMissed, 0);
   assert.equal(s.overreach, 0);
-  assert.equal(s.right, 28);
+  assert.equal(s.right, 29);
 });
 
 test("an unsubscribe link line inside an auto-reply is not an opt-out, but a first-person ask in one still is", () => {
@@ -456,4 +465,125 @@ test("fresh set 2026-11-08c (sixteenth, a false-interested probe): scored once a
   const T = "2026-11-08";
   for (const [body, want] of [["Happy to chat in theory, but our board froze all new tooling for good. Please close the file.", "not_interested"], ["I'd be open to a demo after our fiscal year ends on 30 June. Please come back then.", "not_now"], ["Yes, let's talk. Does Wednesday at 3pm work? Not interested in the other plan, just the starter one.", "interested"]])
     assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-08d (seventeenth, a false-bounce and false-away probe): scored once at 9/20, 16/20 after one narrow veto; a tuned set", () => {
+  const s = score(load("fresh-2026-11-08d.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 16);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["Your message wasn't delivered to my colleague, can you resend it to me instead? Also, what does it cost?", "question"], ["I'm travelling for work until the 20th, so ping me after that and we can talk.", "not_now"], ["Our team is on leave for the whole quarter and we've no appetite for new tools. Please close the file.", "not_interested"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+  // machines still win: a daemon sender or a header signal is never a person, whatever it says
+  assert.equal(triage({ from: "mailer-daemon@x.example", subject: "Undeliverable", body: "Delivery has failed. Can we help? 550 5.1.1 user unknown" }, T).category, "bounce");
+  assert.equal(triage({ subject: "Automatic reply", body: "I am out of the office until 12 December with limited access to email." }, T).category, "out_of_office");
+});
+
+test("fresh set 2026-11-08e (nineteenth, a false-not-now and wrong-person probe): scored once at 9/20, 15/20 after three narrow changes (16/20 with the 2026-11-11 vetoes); a tuned set", () => {
+  const s = score(load("fresh-2026-11-08e.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 16);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-08";
+  for (const [body, want] of [["We're in the middle of a CRM migration. Does your tool work with HubSpot imports?", "question"], ["Timing isn't right for us because the price is double what we pay for our current tool. Can you do better?", "objection"], ["Not now, not later, not ever. We have no use for this. Please close the file.", "not_interested"], ["Wrong person, but also wrong product. We'd never buy this. Don't follow up.", "not_interested"], ["Swamped until the end of the quarter. Ping me in February and I'll look then.", "not_now"]])
+    assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("fresh set 2026-11-11 (eighteenth, a false not-now and wrong-person probe): scored once at 9/20 (6 live leads read as a departed contact), 18/20 after narrow vetoes; a tuned set", () => {
+  const s = score(load("fresh-2026-11-11.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 18);
+  assert.equal(s.overreach, 0);
+  const T = "2026-11-11";
+  for (const [body, want] of [
+    ["I'm not the right person for budget but I'm the one who'd use it. Happy to see a demo, I'll loop in finance. Friday?", "interested"],
+    ["Wrong time, not wrong person. Reach out in January.", "not_now"],
+    ["Please stop following up.", "unsubscribe"],
+    ["Call me later today, around 3pm. I'm free after lunch.", "interested"],
+    ["I'm not the right contact for this. Try our CFO, Priya Rao (priya@acmefreight.example).", "left_company"],
+    ["Sam no longer works here. For anything else please email info@acmefreight.example.", "left_company"],
+    ["Check back in March when our contract renews.", "not_now"],
+  ]) assert.equal(triage({ subject: "Re: hi", body }, T).category, want, body);
+});
+
+test("twenty-first set (2026-11-13 file): question, objection and interest probe, 17/20 before patches, 19/20 after; the Dan handover stays a wrong-person read", () => {
+  const s = score(load("fresh-2026-11-13.jsonl"));
+  assert.equal(s.n, 20);
+  assert.equal(s.right, 19);
+  assert.equal(s.overreach, 0);
+});
+
+test("word model, leave-one-set-out (eval/guess-cv.mjs): the wider model beats the first one on unseen sets", () => {
+  const { totals } = crossValidate();
+  // 2026-11-11: 28/57 right, overreach 2, no unsubscribe drafted; the 120-reply model 19/57, overreach 7, 1 unsubscribe drafted.
+  assert.deepEqual([totals.cvFresh.right, totals.cvFresh.handoffs, totals.cvFresh.overreach, totals.cvFresh.unsubAsOutbound], [28, 57, 2, 0]);
+  assert.deepEqual([totals.shippedFresh.right, totals.shippedFresh.overreach, totals.shippedFresh.unsubAsOutbound], [19, 7, 1]);
+});
+
+test("dates a reply can't mean are no date, not a rolled-over or malformed one (red team 2026-11-11)", () => {
+  // Date.UTC rolls a day the month lacks into the next month, and an ISO string was returned as typed.
+  assert.equal(findDate("returning 2026-13-45", T), null);
+  assert.equal(findDate("call me 2026-02-30", T), null);
+  assert.equal(findDate("back 2026/02/31", T), null);
+  assert.equal(findDate("back 31.02.2026", T), null);
+  assert.equal(findDate("back 2/30/2026", T), null);
+  assert.equal(findDate("back 2026/02/28", T).date, "2026-02-28");
+  // "the 31st" in a 30-day month is the next month that has a 31st; "the 0th" and "the 99th" are not dates.
+  assert.equal(findDate("call me on the 31st", "2026-11-10").date, "2026-12-31");
+  assert.equal(findDate("call me on the 31st", "2026-02-10").date, "2026-03-31");
+  assert.equal(findDate("the 0th", "2026-11-10"), null);
+  assert.equal(findDate("the 99th", "2026-11-10"), null);
+  assert.equal(findDate("call me on the 15th", T).date, "2026-11-15");
+  // "In a month" from 31 January is the end of February, not 3 March; months cross the year.
+  assert.equal(findDate("in 1 month", "2026-01-31").date, "2026-02-28");
+  assert.equal(findDate("in 13 months", "2026-12-15").date, "2028-01-15");
+});
+
+test("a huge 'in N days' in one reply gives no date instead of throwing and stopping the whole inbox run (red team 2026-11-11)", () => {
+  assert.equal(findDate("back in 99999999 days", T), null);
+  assert.equal(findDate("in 9999999 months", T), null);
+  const r = runInbox({ replies: "From: a@co.example\nSubject: Re: hi\nOut of office. Back in 99999999 days.\n---\nFrom: b@co.example\nSubject: Re: hi\nSounds good, send times.", today: T });
+  assert.equal(r.items.length, 2);
+});
+
+test("date edges the mutation run found unguarded: day/month order, day-month text, end of quarter (red team 2026-11-11)", () => {
+  assert.equal(findDate("back 25/3", T).date, "2027-03-25"); // a first number over 12 is the day
+  assert.equal(findDate("back 5 March", T).text, "5 March");
+  assert.equal(findDate("by the end of the quarter", T).date, "2027-01-01");
+  assert.equal(findDate("by the end of the quarter", "2026-02-10").date, "2026-04-01");
+});
+
+// The veto windows below were tuned on real mail (eval/README.md); these pin their width so a change is a decision, not a slip.
+test("veto windows keep their tuned width: 80 characters for a person's own delivery failure, 40 for 'would just ... leave me alone'", () => {
+  const bounce = (gap) => triage({ from: "a@b.example", subject: "Re: hi", body: `We tried ${"x".repeat(gap - 2)} undeliverable` }, T).category;
+  assert.notEqual(bounce(80), "bounce"); // inside the window: someone describing a failure
+  assert.equal(bounce(81), "bounce");
+  const stop = (gap) => triage({ from: "a@b.example", subject: "Re: hi", body: `if jeff would just ${"x".repeat(gap - 2)} leave me alone` }, T).category;
+  assert.notEqual(stop(40), "unsubscribe"); // someone else being left alone
+  assert.equal(stop(41), "unsubscribe");
+});
+
+test("property: findDate never throws and every date it returns is a real YYYY-MM-DD calendar day (red team 2026-11-11)", () => {
+  const real = (s) => /^\d{4}-\d\d-\d\d$/.test(s) && new Date(`${s}T00:00:00Z`).toISOString().slice(0, 10) === s;
+  const nums = [0, 1, 12, 13, 28, 29, 30, 31, 32, 99, 123, 99999999];
+  const shapes = (a, b) => [`2026-${String(a).padStart(2, "0")}-${String(b).padStart(2, "0")}`, `2026/${a}/${b}`, `${a}.${b}.2026`, `${a}/${b}`, `${a}/${b}/2027`, `the ${a}th`, `the ${a}st`,
+    `in ${a} days`, `in ${a} weeks`, `in ${a} months`, `back on February ${a}`, `${a} April`, `${a}. März`];
+  const todays = ["2026-01-31", "2026-02-28", "2026-11-30", "2028-02-29", "2026-12-31"];
+  let checked = 0;
+  for (const today of todays) for (const a of nums) for (const b of nums) for (const s of shapes(a, b)) {
+    const r = findDate(s, today);
+    if (r) { assert.ok(real(r.date), `${JSON.stringify(s)} on ${today} gave ${r.date}`); checked++; }
+  }
+  assert.ok(checked > 1000); // the grid reaches real dates, not only nulls
+});
+
+test("a bounce for an address not yet in the prospects table adds it with no first name (not the mail system's 'Mail')", () => {
+  // Found 2026-11-14 on Postfix's own DSN in a real round trip (self-host/real-servers).
+  const replies = "From: Mail Delivery System <MAILER-DAEMON@mail.example.test>\nSubject: Undelivered Mail Returned to Sender\nX-Signal: dsn-permanent\nX-Failed-Recipient: nobody@example.test\n\nYour message could not be delivered.";
+  const r = runInbox({ replies, prospects: "", suppression: "", offer: SAMPLE_OFFER, today: "2026-11-14" });
+  const p = r.prospects.find((x) => x.email === "nobody@example.test");
+  assert.equal(p.status, "bounced");
+  assert.equal(p.first_name, "");
+  assert.ok(!r.prospects.some((x) => /mailer-daemon/i.test(x.email)));
 });

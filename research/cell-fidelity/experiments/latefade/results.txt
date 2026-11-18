@@ -1,0 +1,27 @@
+cell-fidelity milestone 5n: sqrt(cycle) fade extrapolation from ten DFN cycles, on fresh conditions
+
+Probe (baseline design, 2 cycles): Ai2020@0.275x ok, Ai2020@0.35x ok, NCA_Kim2011@1.25x ok
+
+Ai2020@0.275x: n 51; Spearman with DFN@100: raw cycle 10 +0.10, sqrt-extrapolated +0.57, log-extrapolated +0.64, raw cycle 20 +0.39
+  union screen (top 4 raw + top 4 sqrt): gap 0.0016, wall / all-DFN@100 0.315, 8 resumed [1, 3, 9, 29, 39, 54, 55, 57], best 24
+  5m ladder 0.0000 (0.294); fixed DFN@10 top 3 0.0919 (0.224); union with log 0.0016 (0.315); sqrt top 3 alone 0.0016
+  dropped: [11, 12, 19, 21, 23, 31, 32, 35, 37, 45, 47, 49, 60]; median segment seconds [5.2, 3.9, 9.5, 11.7]
+Ai2020@0.35x: n 59; Spearman with DFN@100: raw cycle 10 +0.48, sqrt-extrapolated +0.63, log-extrapolated +0.76, raw cycle 20 +0.69
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.286, 8 resumed [1, 3, 9, 19, 32, 37, 54, 60], best 32
+  5m ladder 0.0039 (0.265); fixed DFN@10 top 3 0.0390 (0.208); union with log 0.0000 (0.286); sqrt top 3 alone 0.0000
+  dropped: [11, 12, 21, 45, 49]; median segment seconds [4.9, 3.7, 9.4, 11.8]
+NCA_Kim2011@1.25x: n 64; Spearman with DFN@100: raw cycle 10 +0.97, sqrt-extrapolated -0.68, log-extrapolated +0.54, raw cycle 20 +0.98
+  union screen (top 4 raw + top 4 sqrt): gap 0.0000, wall / all-DFN@100 0.239, 8 resumed [6, 15, 23, 34, 47, 51, 56, 62], best 23
+  5m ladder 0.0000 (0.207); fixed DFN@10 top 3 0.0000 (0.174); union with log 0.0000 (0.234); sqrt top 3 alone 0.5190
+  dropped: []; median segment seconds [3.0, 2.0, 5.9, 9.7]
+
+Pooled over conditions (median, max, exact):
+  gap: 0.0000, 0.0016, 2 of 3
+  t_ratio: 0.2858, 0.3150, 0 of 3
+  ladder_gap: 0.0000, 0.0039, 2 of 3
+  ladder_t_ratio: 0.2654, 0.2942, 0 of 3
+  fixed10_gap: 0.0390, 0.0919, 1 of 3
+  union_log_gap: 0.0000, 0.0016, 2 of 3
+  ext_only3_gap: 0.0016, 0.5190, 1 of 3
+
+Verdicts: H87 supported, H88 supported, H89 mixed, H90 mixed, H91 supported

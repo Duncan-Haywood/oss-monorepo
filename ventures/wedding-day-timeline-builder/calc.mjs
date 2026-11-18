@@ -216,6 +216,8 @@ export function scheduleBeauty(p) {
 
 const GOLDEN_LEN = 15;
 const GOLDEN_IDEAL_BEFORE_SUNSET = 30;
+// a slot further than this from the ideal start is still placed, but the page says so
+const GOLDEN_WARN_OFF = 10;
 
 function ev(start, dur, title, who, extra = {}) {
   return { start, end: start + dur, title, who, couple: false, kind: "event", note: "", ...extra };
@@ -335,7 +337,11 @@ export function buildDay(p) {
       if (!best || Math.abs(s - ideal) < Math.abs(best - ideal)) best = s;
     }
     if (best !== null) {
-      golden = { start: best, end: best + GOLDEN_LEN, sunset: sun.sunset, offsetFromIdeal: best - ideal };
+      golden = { start: best, end: best + GOLDEN_LEN, sunset: sun.sunset, offsetFromIdeal: best - ideal, beforeSunset: sun.sunset - best };
+      if (Math.abs(best - ideal) > GOLDEN_WARN_OFF) {
+        const atIdeal = busy.find((e) => ideal < e.end && ideal + GOLDEN_LEN > e.start);
+        warnings.push(`Sunset portraits start at ${fmtTime(best)}, ${fmtDur(sun.sunset - best)} before sunset instead of about ${GOLDEN_IDEAL_BEFORE_SUNSET} minutes${atIdeal ? `, because "${atIdeal.title}" occupies the two of you at ${fmtTime(ideal)}` : ""}. ${best < ideal ? "The sun will be higher and the light less warm." : "The light will be fading fast."} A later ceremony or a longer cocktail hour moves the slot closer; the ceremony time advisor below scores the options.`);
+      }
       events.push(ev(best, GOLDEN_LEN, "Sunset portraits, just the two of you", ["couple", "photo"], { couple: false, kind: "golden", note: `Sunset is ${fmtTime(sun.sunset)}. Guests carry on with whatever is scheduled; no other event moves.` }));
     } else if (sun.sunset < ceremonyEnd) {
       warnings.push(`Sunset (${fmtTime(sun.sunset)}) is before the ceremony ends, so there is no daylight left for sunset portraits.`);
@@ -420,13 +426,26 @@ export function timelineText(plan, p, view = "all") {
   return out.join("\n") + "\n";
 }
 
-const icsEscape = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const icsEscape = (t) => String(t).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 const icsStamp = (iso, mins) => {
   const base = parseDate(iso).getTime() + Math.round(mins) * 60000;
   const d = new Date(base);
   const z = (n) => String(n).padStart(2, "0");
   return `${d.getUTCFullYear()}${z(d.getUTCMonth() + 1)}${z(d.getUTCDate())}T${z(d.getUTCHours())}${z(d.getUTCMinutes())}00`;
 };
+
+// RFC 5545 3.1: fold content lines longer than 75 octets (a continuation starts with a space), never inside a UTF-8 character.
+const foldIcs = (text) => text.split("\r\n").map((line) => {
+  const parts = [];
+  let cur = "", len = 0, limit = 75;
+  for (const ch of line) {
+    const cp = ch.codePointAt(0), n = cp < 0x80 ? 1 : cp < 0x800 ? 2 : cp < 0x10000 ? 3 : 4;
+    if (len + n > limit) { parts.push(cur); cur = ""; len = 0; limit = 74; }
+    cur += ch; len += n;
+  }
+  parts.push(cur);
+  return parts.join("\r\n ");
+}).join("\r\n");
 
 // Floating local times: the calendar app shows them at the same clock time wherever it is opened.
 export function timelineIcs(plan, p, view = "all", stamp = "20260101T000000Z") {
@@ -437,7 +456,7 @@ export function timelineIcs(plan, p, view = "all", stamp = "20260101T000000Z") {
     lines.push("END:VEVENT");
   });
   lines.push("END:VCALENDAR");
-  return lines.join("\r\n") + "\r\n";
+  return foldIcs(lines.join("\r\n")) + "\r\n";
 }
 
 export function serializeState(state) {

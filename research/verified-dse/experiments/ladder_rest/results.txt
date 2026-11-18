@@ -1,0 +1,53 @@
+# Milestone 140: the 15 unrun designs of milestone 138's blind set (flow run, descriptive addition)
+
+theta = 3; milestone 138 analysed 25 designs; new complete designs (ORDER prefix past them): 15 of 15
+
+design | shifter | clock | routed/r2 | random % | SWC % | SWC - random
+rng12l | 256-bit left | relaxed | 12.71 | 12.21 | 0.00 | -12.21
+clamp6l | 256-bit left | relaxed | 10.78 | 9.12 | 0.00 | -9.12
+clamp6r | 128-bit right | relaxed | 4.93 | 7.53 | 0.00 | -7.53
+clamp2l | 256-bit left | tight | 10.37 | 7.10 | 0.00 | -7.10
+clamp3l | 256-bit left | relaxed | 10.37 | 7.01 | 0.00 | -7.01
+rng12r | 128-bit right | relaxed | 5.79 | 6.89 | 0.00 | -6.89
+clamp4r | 128-bit right | tight | 4.90 | 2.94 | 0.00 | -2.94
+rng6r | 128-bit right | relaxed | 5.41 | 3.54 | 0.81 | -2.73
+div8l | 256-bit left | tight | 9.34 | 9.05 | 6.92 | -2.12
+clamp4l | 256-bit left | tight | 10.74 | 7.23 | 5.51 | -1.72
+div10l | 256-bit left | relaxed | 8.56 | 14.90 | 13.44 | -1.46
+gtc12r | 128-bit right | relaxed | 3.84 | 1.41 | 0.00 | -1.41
+dot4l | 256-bit left | tight | 8.08 | 1.02 | 0.03 | -0.99
+dot4r | 128-bit right | tight | 3.93 | 1.24 | 1.36 | +0.12
+dot8r | 128-bit right | tight | 4.44 | 2.53 | 5.43 | +2.90
+
+new cells: mean regret SWC 2.23%, random 6.25%; ladder branch 15 of 15; SWC <= 0.5% on 9; SWC loses by > 1 point on 1
+design level: SWC better on 13, worse on 2, tied on 0; two-sided sign p = 0.0074
+design-bootstrap 95% interval of mean (SWC - random): -5.98 to -2.06 points
+
+## Milestone 138's set, 25 + 15 = 40 designs
+
+mean regret SWC 2.37%, random 6.37%; design level: SWC better on 34, worse on 6, tied on 0; two-sided sign p = 0.000008
+
+## Pooled blind designs (milestones 136 and 137: 33; milestone 138 and this: 40; 73 in all)
+
+design level: SWC better on 55, worse on 15, tied on 3; two-sided sign p = 0.000002
+design-level mean (SWC - random) -2.79 points, sd 5.21; normal 95% interval -3.98 to -1.59
+
+## Ratio bands (table routed/r2; milestone 139's bands)
+
+set | band | cells | SWC % | random % | SWC better | SWC worse
+new | (3, 4] | 2 | 0.68 | 1.32 | 1 | 1
+new | (4, 6] | 5 | 1.25 | 4.69 | 4 | 1
+new | > 6 | 8 | 3.24 | 8.46 | 8 | 0
+milestone 138 + new | (3, 4] | 9 | 3.31 | 3.63 | 5 | 4
+milestone 138 + new | (4, 6] | 12 | 0.52 | 5.01 | 11 | 1
+milestone 138 + new | > 6 | 19 | 3.10 | 8.52 | 18 | 1
+
+## Predictions
+
+(1) every new cell on the ladder branch: True (15 of 15; lowest routed/r2 3.84)
+(2) SWC below random on mean regret: True (2.23% against 6.25%)
+(3) PRIMARY: SWC better on more new designs: True (13 better, 2 worse); (3b) sign p < 0.05: True (p = 0.0074)
+(4) milestone 138's full set, sign p < 0.05, SWC better on more: True (34 to 6, p = 0.000008)
+(5) pooled normal 95% interval below zero: True (-3.98 to -1.59)
+(6) lower SWC - random above ratio 4 than in (3, 4]: True (> 4: -4.53 points on 13 cells; (3, 4]: -0.64 on 2)
+(7) SWC fails on at most a quarter of the new cells: True (1 of 15)

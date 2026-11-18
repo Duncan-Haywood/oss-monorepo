@@ -251,6 +251,9 @@ function parseCronField(field, min, max) {
  * Returns `null` for an expression this cannot read, which the caller reports
  * rather than silently scoring as zero.
  */
+/** Runs a month of an hourly schedule, over an average month of a plain year. */
+export const HOURLY_RUNS_PER_MONTH = (24 * 365) / 12;
+
 export function cronRunsPerMonth(expression) {
   const fields = String(expression ?? '').trim().split(/\s+/);
   if (fields.length !== 5) return null;
@@ -667,7 +670,10 @@ function findFindings(workflows, rows, a, rates) {
 
     for (const entry of workflow.schedules) {
       const fires = cronRunsPerMonth(entry.cron);
-      if (fires != null && fires > 720) {
+      // An hourly cron fires 24 * 365 / 12 = 730 times in an average month
+      // (cronRunsPerMonth averages a plain year); only more than that is
+      // "more often than hourly". The old bar of 720 flagged every hourly one.
+      if (fires != null && fires > HOURLY_RUNS_PER_MONTH + 1e-9) {
         add({
           id: 'cron-very-frequent',
           severity: 'high',

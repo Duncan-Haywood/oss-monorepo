@@ -1,0 +1,130 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnpvkVoLwk7E39jacq",
+  "track": "perf",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T04:09:07Z",
+  "ended": "2026-11-18T04:31:31Z",
+  "wall_minutes": 31.81,
+  "tokens_in": 5921549,
+  "tokens_out": 31778,
+  "cost_usd": 2.6364,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17177",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "Spent most of the run building a precheck gate in open-house-plans that PR #17165 (another perf session) landed on main while this run worked from an older checkout; found it only at the duplicate check before committing, then rebased and kept only the row-memo improvement."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The duplicate-PR search happens 'before opening a PR'; by then the work is done. Two perf runs picked the same venture from venture_suite_times.json within hours. Fetching origin/main and checking `git log origin/main -- <venture>` right after picking a target would have caught it at minute five."
+    },
+    {
+      "file": "platform/ci/run_venture_tests.py",
+      "issue": "--times lists 'perf write-ups' and 'latest' per venture from docs/history, but a perf PR merged in the last hours is invisible to a local checkout that predates it; the table showed open-house-plans last touched 2026-11-17."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/history/ci-perf-2026-11-18-open-house-plans-row-memo.md",
+    "docs/posts/2026-11-18-the-cache-was-fast-the-asking-was-not.md"
+  ],
+  "goal": null,
+  "notes": "Metric: open-house-plans search time. Search sweep (engine.test.mjs test 1 grid, searchDesigns keep 1, wall via performance.now): main 8.30/8.35/7.79 s -> 7.17/7.56/7.06/7.24 s. node --test engine.test.mjs, wall by date, before/after interleaved via git stash: before 15.14,14.67,14.40,15.61,13.48,14.69 s (median 14.7) -> after 11.42,11.72,12.45,11.67,10.70,11.48 s (median 11.5). Profile before: fitRowMemo 0.97 s self of 8.85 s. Same answers: sweep design hash 42e77528ae4c9f62 and why-count table md5 d4e7577b identical; verify/sensitivity.mjs cmp-identical; catalogue --check current; venture suite 43 pass. Local run_workflow_locally --for-changes: pages.yml 6/6 run steps ok; ventures-tests and validate see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "74857cc7-31ba-5c75-8d67-33024b53bfa0",
+    "transcripts": 1,
+    "first": "2026-11-18T04:09:07Z",
+    "last": "2026-11-18T04:40:55Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 62,
+        "input": 118,
+        "output": 31778,
+        "thinking": 6210,
+        "cache_read": 5816811,
+        "cache_write_5m": 0,
+        "cache_write_1h": 104620,
+        "api_equivalent_usd": 2.6364,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 62,
+      "input": 118,
+      "output": 31778,
+      "thinking": 6210,
+      "cache_read": 5816811,
+      "cache_write_5m": 0,
+      "cache_write_1h": 104620,
+      "api_equivalent_usd": 2.6364,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.982,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 61,
+      "Write": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 31.81,
+      "active_minutes": 31.81,
+      "model_minutes": 6.22,
+      "tool_minutes": 25.59,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "profile, memo rewrite with equivalence test, interleaved timing, write-up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 113.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

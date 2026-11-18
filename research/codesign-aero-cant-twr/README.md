@@ -4,6 +4,8 @@ Follow-up to `codesign-aero-cant-propdata` (track 14, `codesign`), taking its ne
 
 **Live page:** https://marisstella.app/research/codesign-aero-cant-twr/
 
+**Correction (2026-11-12).** The torque limits this project inherited understate yaw authority by 2× to 2.8× and overstate roll authority above TWR 2 (checked against a full four-rotor allocation in [`codesign-cant`](../codesign-cant/), milestone 1). Rerun with corrected limits, its motor-headroom result does not survive (with altitude held the optimiser picks TWR 2.0–2.3).
+
 ![Held-out error of the four arms at three measured c values, per seed](experiments/twr.png)
 
 **Headline (all numbers from `experiments/results.txt`).** Held-out RMS attitude error, degrees, mean of 5 seeds:
@@ -32,6 +34,7 @@ PY=$(python3 ../../platform/ci/pyenv.py pytest numpy cma matplotlib)
 ```
 
 ## Limitations
+- **Known defect, not yet re-run (quality fix 2026-11-15, [parent audit](../../portfolio/quality/audits/2026-11-15-codesign-aero.json)).** `size()` here is a copy of `codesign-aero`'s and, like it, never checks that the 60-step mass closure converged. On a 40x40 grid of (L, D) at the default cant and model settings, 36 of the 1,071 points it calls feasible have no fixed point (no battery mass gives 15 min of hover) and are scored at an arbitrary mass. The airframes this project reports were not checked one by one against that set, and its cant or coupling terms may move it. The parent now requires a closed mass (`closed` in `codesign-aero/src/codesign_aero/aero.py`); until this copy does the same and is re-run, treat rankings that touch the small-prop edge as unverified.
 - **The TWR ceiling binds.** Without cant the optimiser chooses TWR 3.99–4.00 in every seed, so the no-cant arm is limited by the range I set (1.5–4.0, assumed), not by cost; it could do better with more headroom. The gain from headroom is therefore a lower bound, and the cant advantage with free TWR may be overstated. Raising the ceiling (and checking the motor-cost fit beyond the range it was fitted on) is the first next step.
 - A single yaw-only motor upgrade, which would add yaw authority without roll and pitch authority, is not modelled; TWR raises all axes together.
 - Motor cost and mass, plant ranges and the gust model are inherited assumed fits; attitude steps only; no position hold; static propeller coefficients only; no hardware.

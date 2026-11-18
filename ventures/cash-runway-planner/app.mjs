@@ -16,7 +16,9 @@ import { encodeInputs, decodeInputs } from './share.mjs';
   const usagePreference = 'cash-runway-planner-usage-preference';
   // A few ventures import this file under `node --test`, with no DOM or a
   // stub one. Remembering a preference must not be what breaks that.
-  if (typeof document === 'undefined' || typeof localStorage === 'undefined') return;
+  if (typeof document === 'undefined') return;
+  // Even `typeof localStorage` throws when the visitor blocks site data.
+  try { if (typeof localStorage === 'undefined') return; } catch { return; }
   if (typeof document.getElementById !== 'function') return;
   const usageControl = document.getElementById('usage');
   if (!usageControl || typeof usageControl.addEventListener !== 'function') return;
@@ -429,7 +431,9 @@ if (typeof document !== 'undefined') {
   });
   document.querySelector('#reset').addEventListener('click', () => {
     try { localStorage.removeItem('cash-runway-draft'); } catch { /* site data blocked; the reset still clears the form */ }
-    form.reset();
+    // From the prototype: the form holds <button id="reset">, which makes
+    // `form.reset` that button, so `form.reset()` threw on every click.
+    HTMLFormElement.prototype.reset.call(form);
     output.textContent = 'Enter your numbers to see the forecast.';
   });
   // A share link has to reproduce the sender's forecast exactly, including

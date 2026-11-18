@@ -95,6 +95,22 @@ class ClassifyRunTests(unittest.TestCase):
         self.assertEqual(result["status"], "suspicious")
         self.assertIn("stale file", result["reasons"][0])
 
+    def test_a_nan_or_non_number_threshold_fails_closed(self):
+        # json.loads accepts NaN and Infinity, and `record --max-age-hours nan`
+        # used to write them; NaN compares False both ways, so a 4-day-old
+        # artifact read as verified. A string threshold crashed with TypeError.
+        for field, bad in (("max_age_hours", float("nan")), ("max_age_hours", float("inf")),
+                           ("max_age_hours", "26"), ("max_age_hours", True),
+                           ("min_size_bytes", float("nan")), ("min_size_bytes", "1000")):
+            record = run(
+                finished_at="2026-08-24T03:00:00Z",
+                artifact={"exists": True, "size_bytes": 5_000_000, "modified_at": "2026-08-20T03:00:00Z"},
+                expected={field: bad},
+            )
+            result = classify_run(record)
+            self.assertNotEqual(result["status"], "verified", f"{field}={bad!r}")
+            self.assertTrue(any(f"expected.{field}" in r for r in result["reasons"]), result["reasons"])
+
     def test_artifact_reused_from_yesterday_is_suspicious_even_within_max_age_hours(self):
         # Regression: a nightly job's max_age_hours is set wide enough (26h)
         # to tolerate normal cadence jitter around a 24h schedule. That same

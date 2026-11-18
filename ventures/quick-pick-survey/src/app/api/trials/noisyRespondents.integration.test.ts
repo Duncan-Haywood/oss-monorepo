@@ -72,9 +72,11 @@ function pearson(xs: number[], ys: number[]) {
 
 const ONLY = process.env.NOISY_CONDITIONS?.split(",");
 const CHECKPOINTS = (process.env.NOISY_CHECKPOINTS ?? "").split(",").filter(Boolean).map(Number);
-const ALL_CONDITIONS = [
+const ALL_CONDITIONS: { name: string; lapse: number; lapseFrom?: number; bias: number; off: boolean }[] = [
   { name: "clean", lapse: 0, bias: 0, off: false },
   { name: "lapse20", lapse: 0.2, bias: 0, off: false },
+  // Fatigue (2026-11-09): no lapses for the first 2000 answers, then 50% lapses.
+  { name: "lapselate", lapse: 0.5, lapseFrom: 2000, bias: 0, off: false },
   { name: "bias50", lapse: 0, bias: 0.5, off: false },
   { name: "bias80", lapse: 0, bias: 0.8, off: false },
   // Controls: the same biased people with the fallback switched off.
@@ -132,7 +134,7 @@ describe("noisy and biased respondents through the route", () => {
         for (let i = 0; i < ANSWERS; i++) {
           const q = await (await nextQuestion(jsonRequest("http://localhost/api/trials/next", { participantId: p.id }))).json();
           const truth = order.get(q.itemA.id)! < order.get(q.itemB.id)! ? "A" : "B";
-          const result = rand() < c.bias ? "A" : rand() < c.lapse ? (rand() < 0.5 ? "A" : "B") : truth;
+          const result = rand() < c.bias ? "A" : rand() < (i >= (c.lapseFrom ?? 0) ? c.lapse : 0) ? (rand() < 0.5 ? "A" : "B") : truth;
           if (result === "A") topPicks++;
           await answer(jsonRequest("http://localhost/api/trials/answer", { trialId: q.trialId, result }));
           if (CHECKPOINTS.includes(i + 1)) {

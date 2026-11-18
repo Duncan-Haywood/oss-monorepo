@@ -1,0 +1,55 @@
+name: pick-path-optimizer
+description: >-
+  Free browser tool for small warehouses, 3PLs and online sellers who pick from shelves: paste SKU locations and a day of
+  orders, get carts of orders and a pick list per cart in walking order on the provably shortest route through parallel
+  aisles (Ratliff-Rosenthal dynamic programme, checked against Held-Karp), and the walking, hours and wages saved against one
+  order per trip on an S-shape route. Compares six picking options, draws each cart's route, exports every pick list as CSV.
+  Nothing leaves the browser.
+stage: prototype
+owner: duncan
+
+# Started 2026-11-12 in an explore-track session. slug_dupe.py: no duplicate. duplicate_check.py: top match
+# u-pick-farm-profit-planner 0.09 (unrelated). The nearest venture, warehouse-slotting-optimizer, decides where SKUs live and
+# says "Not modelled: batch or zone picking"; this one takes the layout as given and plans how orders are walked. The two link
+# to each other.
+#
+# Why this niche: walking is the largest share of picking labour in a shelf-picked warehouse, and the two levers that cut it
+# without moving stock are batching orders onto carts and routing the cart well. Routing and batching modules come with
+# warehouse management systems priced for distribution centres; a small 3PL or seller with a rented unit prints a pick list
+# sorted by location and walks it one order at a time.
+#
+# First visitor: people searching "pick path optimization", "order batching warehouse", "S-shape vs largest gap routing",
+# "how to batch pick orders small warehouse"; r/warehouse, r/logistics, r/ecommerce, 3PL and Amazon FBM seller groups. Volume
+# not measured.
+#
+# Liability boundary: walking distance on a typed layout; not safety or operations advice (the page says so). Nothing stored
+# or sent.
+#
+# Path to revenue (payment rails stay off): lead magnet and donations; natural front end for a paid wave planner that reads a
+# Shopify, ShipStation or WMS export on a schedule and prints pick lists (needs accounts, an owner decision).
+
+hypotheses:
+  - claim: >-
+      Small warehouse operators will paste a real day of orders into a free tool to see what batching and routing would save,
+      and some will use the pick lists it prints.
+    status: untested
+    checked: null
+    evidence: customer-contact
+
+economics:
+  currency: USD
+  mrr: null
+  monthly_cost: 0
+  customers: null
+
+budget:
+  monthly_cap: 1
+  protected: true
+
+kill_criteria:
+  - Fewer than three distinct GitHub users (issues, stars, or a paste-in report) engage with the tool within 90 days of it being reachable from the published site.
+  - A user reports a route longer than one they walked by hand on the same layout, or a pick list that drops or repeats a line.
+
+links:
+  production: https://marisstella.app/pick-path-optimizer/
+  analytics: null

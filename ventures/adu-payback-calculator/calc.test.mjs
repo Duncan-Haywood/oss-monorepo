@@ -147,3 +147,11 @@ test("CSV has the year rows and quotes commas", () => {
   assert.equal(lines.filter((l) => /^\d+,/.test(l)).length, 10);
   assert.match(csv, /Equity IRR/);
 });
+
+test("a financed share with a zero loan term is an error, not a free loan", () => {
+  const c = parseItems(sampleCosts()).rows, x = parseItems(sampleOpex()).rows;
+  const r = analyze(c, x, { rentMonthly: 2600, valueUplift: 230000, loanYears: 0 });
+  assert.ok(r.error && /Loan term/.test(r.error));
+  const cash = analyze(c, x, { rentMonthly: 2600, valueUplift: 230000, loanYears: 0, loanPct: 0 });
+  assert.ok(!cash.error);
+});

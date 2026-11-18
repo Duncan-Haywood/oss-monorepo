@@ -1,0 +1,397 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01E5sJKnZZXf9CbXWTZcrvYb",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T21:09:46Z",
+  "ended": "2026-11-12T21:10:42Z",
+  "wall_minutes": 8.68,
+  "tokens_in": 2311306,
+  "tokens_out": 15870,
+  "cost_usd": 1.3237,
+  "tool_calls": 30,
+  "task": "redteam: webhook-relay relay.mjs and distribution hub content.mjs",
+  "projects": [
+    "ventures/webhook-relay",
+    "platform/distribution"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15260",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 0 says fix each open defect first, but all 7 open entries are control-plane workflow/prompts edits that already have owner-gated PRs (#14612, #14698, #14808, #14877, #14911, #15201, #15248, #12928). The open list could show the PR already pending so runs don't re-search each one."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "redteam.py targets did not list ventures/shift-roster-builder or einvoice-preflight files that changed in the last 3 days, so the 'aim at a file that just changed' advice needed a random draw instead."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: the 7 open defects are all control-plane changes already opened as their own PRs awaiting owner approval; re-doing them would only duplicate those PRs.",
+      "did": "Verified each has an open PR and left them; spent the run on two campaigns and a hunt.",
+      "result": "No duplicate PRs; 9 gaps and 1 real defect fixed."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b asks for a new automated guard; the escapes were ordinary missing tests with no shared cause beyond thin coverage, and both suites already run in PR CI (ventures-tests, distribution-versions-ci).",
+      "did": "Added the tests to suites CI already runs instead of a new lint.",
+      "result": "Guards run on every PR touching those paths."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-redteam-an-empty-id-swallows-webhooks.md"
+  ],
+  "goal": null,
+  "notes": "Campaign 1 (random draw) ventures/webhook-relay/relay.mjs: 6/8 caught, 8/8 after. Campaign 2 (--under platform) platform/distribution/hub/content.mjs: 1/8 caught, 8/8 after. Combined 7/16 = 43.8% before, 100% after (rerun). Real defect: empty Stripe-shaped id collapsed dedupe keys in webhook-relay; patched with a failing test first. Suites run here: node --test in ventures/webhook-relay (59 pass) and platform/distribution/hub/content.test.mjs (21 pass).",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/webhook-relay/relay.mjs",
+        "test": "node --test ventures/webhook-relay/**/*.test.mjs  (in .)",
+        "seed": 685170588,
+        "commit": "8293438c",
+        "sites": 140,
+        "baseline_seconds": 0.4,
+        "mutants": [
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 7,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "delays: [10, 60, 300, 1800, 7200, 21600, 43200, 86400],",
+            "after": "delays: [11, 60, 300, 1800, 7200, 21600, 43200, 86400],",
+            "line_text": "  delays: [10, 60, 300, 1800, 7200, 21600, 43200, 86400],",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 21,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "if (status === 408 || status === 425 || status === 429 || status >= 500 || status === 0) return \"retry\";",
+            "after": "if (status === 408 || status === 426 || status === 429 || status >= 500 || status === 0) return \"retry\";",
+            "line_text": "  if (status === 408 || status === 425 || status === 429 || status >= 500 || status === 0) return \"retry\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 21,
+            "col": 57,
+            "operator": "or-to-and",
+            "before": "if (status === 408 || status === 425 || status === 429 || status >= 500 || status === 0) return \"retry\";",
+            "after": "if (status === 408 || status === 425 || status === 429 && status >= 500 || status === 0) return \"retry\";",
+            "line_text": "  if (status === 408 || status === 425 || status === 429 || status >= 500 || status === 0) return \"retry\";",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 37,
+            "col": 84,
+            "operator": "or-to-and",
+            "before": "const id = h(\"webhook-id\") || h(\"x-github-delivery\") || h(\"x-shopify-webhook-id\") || h(\"x-gitlab-event-uuid\") || h(\"x-wc-webhook-delivery-id\") || h(\"linear-delivery\") || h(\"idempotency-key\") || h(\"x-idempotency-key\");",
+            "after": "const id = h(\"webhook-id\") || h(\"x-github-delivery\") || h(\"x-shopify-webhook-id\") && h(\"x-gitlab-event-uuid\") || h(\"x-wc-webhook-delivery-id\") || h(\"linear-delivery\") || h(\"idempotency-key\") || h(\"x-idempotency-key\");",
+            "line_text": "  const id = h(\"webhook-id\") || h(\"x-github-delivery\") || h(\"x-shopify-webhook-id\") || h(\"x-gitlab-event-uuid\") || h(\"x-wc-webhook-delivery-id\") || h(\"linear-delivery\") || h(\"idempotency-key\") || h(\"x-idempotency-key\");",
+            "caught": false,
+            "seconds": 0.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test used any event-id header but webhook-id; now each header is tested on its own"
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 53,
+            "col": 16,
+            "operator": "const-plus-one",
+            "before": "let created = 0;",
+            "after": "let created = 1;",
+            "line_text": "  let created = 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 137,
+            "col": 35,
+            "operator": "const-plus-one",
+            "before": "const out = { total: 0, pending: 0, delivered: 0, dead: 0, byRoute: {} };",
+            "after": "const out = { total: 0, pending: 1, delivered: 0, dead: 0, byRoute: {} };",
+            "line_text": "  const out = { total: 0, pending: 0, delivered: 0, dead: 0, byRoute: {} };",
+            "caught": true,
+            "seconds": 0.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 164,
+            "col": 10,
+            "operator": "const-plus-one",
+            "before": "let t = 0;",
+            "after": "let t = 1;",
+            "line_text": "  let t = 0;",
+            "caught": true,
+            "seconds": 0.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/webhook-relay/relay.mjs",
+            "line": 170,
+            "col": 10,
+            "operator": "lt-to-le",
+            "before": "if (sec < 3600) return `${Math.round(sec / 60)}m`;",
+            "after": "if (sec <= 3600) return `${Math.round(sec / 60)}m`;",
+            "line_text": "  if (sec < 3600) return `${Math.round(sec / 60)}m`;",
+            "caught": false,
+            "seconds": 0.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "the 3600 s boundary was untested; humanDuration(3600) must read 1h"
+          }
+        ]
+      },
+      {
+        "target": "platform/distribution/hub/content.mjs",
+        "test": "node --test platform/distribution/hub/content.test.mjs  (in .)",
+        "seed": 980485776,
+        "commit": "8293438c",
+        "sites": 127,
+        "baseline_seconds": 9.1,
+        "mutants": [
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 44,
+            "col": 10,
+            "operator": "le-to-lt",
+            "before": "if (max <= 1) return '';",
+            "after": "if (max < 1) return '';",
+            "line_text": "  if (max <= 1) return '';",
+            "caught": false,
+            "seconds": 9.0,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "clipWords(s,1) returned a lone ellipsis under the mutant; test pins ''"
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 80,
+            "col": 18,
+            "operator": "const-plus-one",
+            "before": "const h = /^#{1,6}\\s+(.*)$/.exec(line);",
+            "after": "const h = /^#{2,6}\\s+(.*)$/.exec(line);",
+            "line_text": "    const h = /^#{1,6}\\s+(.*)$/.exec(line);",
+            "caught": false,
+            "seconds": 8.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had a level-1 heading"
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 143,
+            "col": 15,
+            "operator": "eq-flip",
+            "before": "if (b.kind === 'p') firstPara = false;",
+            "after": "if (b.kind !== 'p') firstPara = false;",
+            "line_text": "    if (b.kind === 'p') firstPara = false;",
+            "caught": false,
+            "seconds": 9.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "lead bonus leaked to later paragraphs; test checks a digit-free second paragraph stays out of points"
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 149,
+            "col": 41,
+            "operator": "and-to-or",
+            "before": "const lead = usable.find((x) => x.lead && !HOUSEKEEPING.test(x.s))?.s || usable[0]?.s || description;",
+            "after": "const lead = usable.find((x) => x.lead || !HOUSEKEEPING.test(x.s))?.s || usable[0]?.s || description;",
+            "line_text": "  const lead = usable.find((x) => x.lead && !HOUSEKEEPING.test(x.s))?.s || usable[0]?.s || description;",
+            "caught": false,
+            "seconds": 8.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test had a housekeeping opening sentence"
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 150,
+            "col": 47,
+            "operator": "neq-flip",
+            "before": "const ranked = [...usable].filter((x) => x.s !== lead && !isDup(x.s, descKey)).sort((a, b) => b.score - a.score || a.i - b.i);",
+            "after": "const ranked = [...usable].filter((x) => x.s === lead && !isDup(x.s, descKey)).sort((a, b) => b.score - a.score || a.i - b.i);",
+            "line_text": "  const ranked = [...usable].filter((x) => x.s !== lead && !isDup(x.s, descKey)).sort((a, b) => b.score - a.score || a.i - b.i);",
+            "caught": true,
+            "seconds": 5.8,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 161,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": ".slice(0, limits);",
+            "after": ".slice(1, limits);",
+            "line_text": "    .slice(0, limits);",
+            "caught": false,
+            "seconds": 9.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "limits cap untested; extract(BODY,{limits:1}) must return one"
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 174,
+            "col": 31,
+            "operator": "const-plus-one",
+            "before": "for (const p of points.slice(0, maxPosts - 2)) body.push(clipWords(p, max - NUM));",
+            "after": "for (const p of points.slice(1, maxPosts - 2)) body.push(clipWords(p, max - NUM));",
+            "line_text": "  for (const p of points.slice(0, maxPosts - 2)) body.push(clipWords(p, max - NUM));",
+            "caught": false,
+            "seconds": 9.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test checked the first finding reaches the thread"
+          },
+          {
+            "file": "platform/distribution/hub/content.mjs",
+            "line": 195,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "while (glen(build(pts, lims)) > room && pts.length > 1) pts = pts.slice(0, -1);",
+            "after": "while (glen(build(pts, lims)) > room && pts.length > 2) pts = pts.slice(0, -1);",
+            "line_text": "  while (glen(build(pts, lims)) > room && pts.length > 1) pts = pts.slice(0, -1);",
+            "caught": false,
+            "seconds": 9.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "no test where exactly one finding fits a long post"
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/webhook-relay/relay.mjs",
+        "issue": "idempotencyKey keyed a Stripe-shaped body with id \"\" as '<route>:', so every later event on that route with an empty id was absorbed as a duplicate and never delivered. Fixed: an empty or blank id is no key. Test: 'an empty Stripe-shaped id is no key ...' in relay.test.mjs (red before the fix).",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15260"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "b891f159-ec26-52e6-9524-b7ab63c38c48",
+    "transcripts": 1,
+    "first": "2026-11-12T21:09:46Z",
+    "last": "2026-11-12T21:18:26Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 30,
+        "input": 58,
+        "output": 15870,
+        "thinking": 4491,
+        "cache_read": 2241531,
+        "cache_write_5m": 0,
+        "cache_write_1h": 69717,
+        "api_equivalent_usd": 1.3237,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 30,
+      "input": 58,
+      "output": 15870,
+      "thinking": 4491,
+      "cache_read": 2241531,
+      "cache_write_5m": 0,
+      "cache_write_1h": 69717,
+      "api_equivalent_usd": 1.3237,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 30,
+    "tools": {
+      "Bash": 28,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 8.68,
+      "active_minutes": 8.68,
+      "model_minutes": 3.62,
+      "tool_minutes": 5.06,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 3.0,
+      "basis": "two mutation campaigns, nine targeted tests, one bug fix and a post, by a mid-level engineer",
+      "rate_usd_per_hour": 100.0,
+      "usd": 300.0
+    },
+    "leverage": 226.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

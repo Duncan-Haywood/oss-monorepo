@@ -1,0 +1,67 @@
+== french, 20 EUR/labor hour, min staff 1 (87 weeks)
+  whole-file reference: plain 169.9, auto A 144.7, auto B 145.1  B vs A +0.4 (-2.0 to +2.8)  B used: all 5, last4 21, hl2 61
+  past-only reference : plain 168.6, auto A 143.4, auto B 144.1  B vs A +0.7 (-1.7 to +3.1)  B used: all 5, last4 22, hl2 60
+== french, 20 EUR/labor hour, min staff 2 (87 weeks)
+  whole-file reference: plain 156.8, auto A 135.2, auto B 135.7  B vs A +0.5 (-1.9 to +2.9)  B used: all 5, last4 23, hl2 59
+  past-only reference : plain 154.2, auto A 132.6, auto B 133.2  B vs A +0.7 (-2.0 to +3.3)  B used: all 5, last4 30, hl2 52
+== french, 40 EUR/labor hour, min staff 1 (87 weeks)
+  whole-file reference: plain 83.7, auto A 71.9, auto B 72.1  B vs A +0.3 (-1.0 to +1.6)  B used: all 5, last4 26, hl2 56
+  past-only reference : plain 82.4, auto A 70.5, auto B 70.7  B vs A +0.2 (-1.2 to +1.5)  B used: all 5, last4 33, hl2 49
+== french, 40 EUR/labor hour, min staff 2 (87 weeks)
+  whole-file reference: plain 72.7, auto A 63.6, auto B 63.9  B vs A +0.3 (-1.0 to +1.6)  B used: all 5, last4 32, hl2 50
+  past-only reference : plain 70.1, auto A 60.9, auto B 61.1  B vs A +0.2 (-1.6 to +1.9)  B used: all 5, last4 32, hl2 50
+== french, 80 EUR/labor hour, min staff 1 (87 weeks)
+  whole-file reference: plain 39.0, auto A 34.5, auto B 34.7  B vs A +0.2 (-0.7 to +1.1)  B used: all 7, last4 34, hl2 46
+  past-only reference : plain 37.7, auto A 33.2, auto B 33.5  B vs A +0.3 (-0.8 to +1.3)  B used: all 8, last4 37, hl2 42
+== french, 80 EUR/labor hour, min staff 2 (87 weeks)
+  whole-file reference: plain 32.7, auto A 29.5, auto B 29.6  B vs A +0.1 (-0.9 to +1.1)  B used: all 5, last4 37, hl2 45
+  past-only reference : plain 30.1, auto A 26.9, auto B 27.0  B vs A +0.1 (-1.3 to +1.6)  B used: all 9, last4 37, hl2 41
+== korean, 15000 won/labor hour, min staff 1 (38 weeks)
+  whole-file reference: plain 54.2, auto A 54.7, auto B 54.7  B vs A +0.0 (+0.0 to +0.0)  B used: all 24, hl2 5, hl4 1, hl8 8
+  past-only reference : plain 54.2, auto A 54.8, auto B 54.8  B vs A +0.0 (+0.0 to +0.0)  B used: all 24, hl2 5, hl4 1, hl8 8
+== korean, 15000 won/labor hour, min staff 2 (38 weeks)
+  whole-file reference: plain 46.4, auto A 46.6, auto B 46.6  B vs A +0.0 (+0.0 to +0.0)  B used: all 4, hl2 4, hl4 10, hl8 20
+  past-only reference : plain 46.6, auto A 46.7, auto B 46.7  B vs A +0.0 (+0.0 to +0.0)  B used: all 4, hl2 4, hl4 10, hl8 20
+== korean, 30000 won/labor hour, min staff 1 (38 weeks)
+  whole-file reference: plain 26.7, auto A 26.5, auto B 26.5  B vs A +0.0 (+0.0 to +0.0)  B used: all 11, hl8 27
+  past-only reference : plain 26.7, auto A 26.6, auto B 26.6  B vs A +0.0 (+0.0 to +0.0)  B used: all 11, hl8 27
+== korean, 30000 won/labor hour, min staff 2 (38 weeks)
+  whole-file reference: plain 16.9, auto A 16.9, auto B 16.9  B vs A +0.0 (+0.0 to +0.0)  B used: all 38
+  past-only reference : plain 17.1, auto A 17.1, auto B 17.1  B vs A +0.0 (+0.0 to +0.0)  B used: all 38
+== korean, 60000 won/labor hour, min staff 1 (38 weeks)
+  whole-file reference: plain 11.1, auto A 11.1, auto B 11.1  B vs A +0.0 (+0.0 to +0.0)  B used: all 38
+  past-only reference : plain 11.1, auto A 11.1, auto B 11.1  B vs A +0.0 (+0.0 to +0.0)  B used: all 38
+== korean, 60000 won/labor hour, min staff 2 (38 weeks)
+  whole-file reference: plain 7.0, auto A 7.0, auto B 5.9  B vs A -1.1 (-2.2 to +0.1)  B used: all 30, last4 8
+  past-only reference : plain 7.2, auto A 7.2, auto B 5.9  B vs A -1.3 (-2.5 to -0.1)  B used: all 29, last4 9
+== breadbasket, 5 tickets/labor hour, min staff 1 (20 weeks)
+  whole-file reference: plain 44.0, auto A 43.3, auto B 37.5  B vs A -5.8 (-8.8 to -2.9)  B used: all 4, last4 16
+  past-only reference : plain 38.1, auto A 37.5, auto B 36.0  B vs A -1.4 (-3.0 to +0.1)  B used: all 4, hl2 8, hl4 5, last4 3
+== breadbasket, 5 tickets/labor hour, min staff 2 (20 weeks)
+  whole-file reference: plain 35.9, auto A 36.1, auto B 19.4  B vs A -16.7 (-22.5 to -10.9)  B used: all 4, last4 16
+  past-only reference : plain 24.2, auto A 24.4, auto B 16.7  B vs A -7.8 (-13.1 to -2.4)  B used: all 4, hl2 10, last4 6
+== breadbasket, 10 tickets/labor hour, min staff 1 (20 weeks)
+  whole-file reference: plain 22.1, auto A 22.4, auto B 14.4  B vs A -8.0 (-11.0 to -5.0)  B used: all 4, last4 16
+  past-only reference : plain 16.3, auto A 16.6, auto B 13.5  B vs A -3.0 (-5.5 to -0.6)  B used: all 4, hl4 5, hl2 6, last4 5
+== breadbasket, 10 tickets/labor hour, min staff 2 (20 weeks)
+  whole-file reference: plain 26.1, auto A 26.1, auto B 9.4  B vs A -16.6 (-22.5 to -10.8)  B used: all 4, last4 16
+  past-only reference : plain 14.4, auto A 14.4, auto B 6.7  B vs A -7.8 (-13.1 to -2.4)  B used: all 14, last4 6
+== breadbasket, 20 tickets/labor hour, min staff 1 (20 weeks)
+  whole-file reference: plain 13.7, auto A 13.7, auto B 5.8  B vs A -7.8 (-10.8 to -4.9)  B used: all 4, last4 16
+  past-only reference : plain 7.8, auto A 7.8, auto B 4.0  B vs A -3.8 (-6.3 to -1.2)  B used: all 14, last4 6
+== breadbasket, 20 tickets/labor hour, min staff 2 (20 weeks)
+  whole-file reference: plain 25.9, auto A 25.9, auto B 9.3  B vs A -16.7 (-22.6 to -10.8)  B used: all 4, last4 16
+  past-only reference : plain 14.3, auto A 14.3, auto B 6.5  B vs A -7.8 (-13.1 to -2.4)  B used: all 14, last4 6
+
+== Summary, 18 settings: auto B vs auto A, clearly better / tie / clearly worse, mean change
+  whole-file reference: 6 / 12 / 0   mean -16.3%
+    french: mean 0.4%
+    korean: mean -2.6%
+    breadbasket: mean -46.8%
+  past-only reference : 6 / 12 / 0   mean -12.5%
+    french: mean 0.5%
+    korean: mean -3.1%
+    breadbasket: mean -35.0%
+
+Rule 1 (window stays): clearly worse under past-only in 0 of 18, mean -12.5% -> PASS, the window stays
+Rule 2 (share of the gain that survives): 77%

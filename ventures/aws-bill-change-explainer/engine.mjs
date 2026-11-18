@@ -12,7 +12,7 @@ const DAY_MS = 86400000;
 // ---------- CSV ----------
 
 export function parseCsv(text) {
-  const src = String(text ?? "").replace(/^﻿/, "");
+  const src = String(text ?? "").replace(/^\uFEFF/, "");
   const rows = [];
   let row = [];
   let cell = "";

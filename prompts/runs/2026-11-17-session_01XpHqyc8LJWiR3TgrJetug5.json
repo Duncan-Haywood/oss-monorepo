@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyc8LJWiR3TgrJetug5",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T05:39:14Z",
+  "ended": "2026-11-17T05:46:14Z",
+  "wall_minutes": 7.13,
+  "tokens_in": 4079709,
+  "tokens_out": 24695,
+  "cost_usd": 2.1793,
+  "tool_calls": 40,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16831",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "platform/ci/wait_for.py",
+      "issue": "its status line showed the job's argv truncated ('draws 10' for 'draws 1000'), which briefly looked like the wrong run was going"
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-default-floor-holds-on-naijasenti.md",
+    "research/llm-coding-inference/LOG.md (7ba)"
+  ],
+  "goal": null,
+  "notes": "Security queue empty, IDEAS and website requests empty; routed research/0; pick_track drew llm-coding-inference. Milestone 7ba: pre-registered fresh check of NEG_FLOOR on NaijaSenti (nb, Qwen 1.5B, 3B), 27 cells x 1,000 draws, about 4 min on 4 cores. P1, P2, P4 held, P3 refuted; default unchanged. Checks: test_llmci.py 42 passed; build.py ok; research_live_links 0 updated; check_md_links ok; post front matter, links and similarity ok. No agent doc in docs/reports: LOG.md next steps carry the handoff.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "c1a6182b-5171-534e-9897-f31ff1182c93",
+    "transcripts": 1,
+    "first": "2026-11-17T05:39:14Z",
+    "last": "2026-11-17T05:46:22Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 38,
+        "input": 75,
+        "output": 24695,
+        "thinking": 4869,
+        "cache_read": 3968197,
+        "cache_write_5m": 0,
+        "cache_write_1h": 111437,
+        "api_equivalent_usd": 2.1793,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 38,
+      "input": 75,
+      "output": 24695,
+      "thinking": 4869,
+      "cache_read": 3968197,
+      "cache_write_5m": 0,
+      "cache_write_1h": 111437,
+      "api_equivalent_usd": 2.1793,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 40,
+    "tools": {
+      "Bash": 35,
+      "Write": 2,
+      "Edit": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 7.13,
+      "active_minutes": 7.13,
+      "model_minutes": 3.98,
+      "tool_minutes": 3.14,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "design, run and write up one pre-registered simulation milestone plus paper and post edits",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 275.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

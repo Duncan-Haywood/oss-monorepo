@@ -8,6 +8,7 @@ and are left alone.
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 
@@ -144,11 +145,11 @@ def _classify(country: str, body: str) -> str:
     if country == "SE":
         return "checksum" if body.isdigit() and len(body) in (10, 12) else "bad-format"
     if country == "DK":
-        return "checksum" if body.isdigit() and len(body) == 8 else "bad-format"
+        return "checksum" if body.isdigit() and len(body) == 8 and body[0] != "0" else "bad-format"
     if country == "FI":
         return "checksum" if body.isdigit() and len(body) == 8 else "bad-format"
     if country == "PT":
-        return "checksum" if body.isdigit() and len(body) == 9 else "bad-format"
+        return "checksum" if body.isdigit() and len(body) == 9 and body[0] != "0" else "bad-format"
     if country == "LU":
         return "checksum" if body.isdigit() and len(body) == 8 else "bad-format"
     if country == "IE":
@@ -160,7 +161,13 @@ def _classify(country: str, body: str) -> str:
         return "unknown"
     if country in _EXTRA and _EXTRA[country][0](body):
         return "checksum"
-    if body.isalnum() and len(body) in lengths:
+    if country == "XI" and body.isascii() and body.isdigit() and len(body) in (9, 12):
+        return "checksum"
+    if country == "CY":
+        shape_ok = len(body) == 9 and body[:8].isascii() and body[:8].isdigit() and body[8].isalpha()
+    else:
+        shape_ok = body.isascii() and body.isdigit()
+    if shape_ok and len(body) in lengths:
         return "format"
     return "bad-format"
 
@@ -196,6 +203,8 @@ def _checksum_ok(country: str, body: str) -> bool:
         return _ie(body)
     if country in {"GB", "UK"}:
         return _gb(body)
+    if country == "XI":
+        return _gb(body)
     if country in _EXTRA:
         return _EXTRA[country][1](body)
     return False
@@ -215,6 +224,8 @@ def _mod11_retry(body: str, retry: list[int]) -> bool:
 
 
 def _ro(body: str) -> bool:
+    if body[0] == "0":
+        return False
     padded = body.rjust(10, "0")
     check = (_w(padded[:9], [7, 5, 3, 2, 1, 7, 5, 3, 2]) * 10) % 11
     return (0 if check == 10 else check) == int(padded[9])
@@ -240,7 +251,57 @@ def _el(body: str) -> bool:
     return (total % 11) % 10 == int(body[8])
 
 
+def _bg_ten(b: str) -> bool:
+    last = int(b[9])
+    if _w(b[:9], [2, 4, 8, 5, 10, 9, 7, 3, 6]) % 11 % 10 == last:
+        return True
+    if _w(b[:9], [21, 19, 17, 13, 11, 9, 7, 3, 1]) % 10 == last:
+        return True
+    other = (11 - _w(b[:9], [4, 3, 2, 7, 6, 5, 4, 3, 2]) % 11) % 11
+    return other < 10 and other == last
+
+
+def _cz_birth(b: str) -> bool:
+    month, day = int(b[2:4]), int(b[4:6])
+    if not any(base <= month <= base + 11 for base in (1, 21, 51, 71)) or not 1 <= day <= 31:
+        return False
+    return int(b[:9]) % 11 % 10 == int(b[9])
+
+
+def _real_date(y: int, m: int, d: int) -> bool:
+    import datetime
+    try:
+        datetime.date(y, m, d)
+        return True
+    except ValueError:
+        return False
+
+
+def _cz_birth9(b: str) -> bool:
+    year = 1900 + int(b[:2])
+    if year >= 1980:
+        year -= 100
+    return year <= 1953 and _real_date(year, int(b[2:4]) % 50 % 20, int(b[4:6]))
+
+
+def _lv(b: str) -> bool:
+    if b[0] > "3":
+        return _w(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 == 3
+    if not b.startswith("32") and not _real_date(1800 + int(b[6]) * 100 + int(b[4:6]), int(b[2:4]), int(b[:2])):
+        return False
+    return (1 + _w(b[:10], [10, 5, 8, 4, 2, 1, 6, 3, 7, 9])) % 11 % 10 == int(b[10])
+
+
 def _cz(body: str) -> bool:
+    if len(body) == 10:
+        return _cz_birth(body)
+    if len(body) == 9:
+        if body[0] != "6":
+            return _cz_birth9(body)
+        check = _w(body[1:8], [8, 7, 6, 5, 4, 3, 2]) % 11
+        return (8 - (10 - check) % 11) % 10 == int(body[8])
+    if body[0] == "9":
+        return False
     check = 11 - _w(body[:7], [8, 7, 6, 5, 4, 3, 2]) % 11
     check = {10: 0, 11: 1}.get(check, check)
     return check == int(body[7])
@@ -250,22 +311,35 @@ def _digits(n: int, first: str = "0123456789"):
     return lambda b: len(b) == n and b.isascii() and b.isdigit() and b[0] in first
 
 
-# country: (applies, ok). Variants not listed (10-digit BG, 12-digit LT,
-# 9/10-digit CZ, LV natural persons) stay shape-only. Same checks as vat.mjs.
+# country: (applies, ok). Variants not listed (12-digit LT,
+# 9-digit CZ, LV natural persons) stay shape-only. Same checks as vat.mjs.
 _EXTRA = {
     "EE": (_digits(9), lambda b: b[0] == "1" and _w(b, [3, 7, 1, 3, 7, 1, 3, 7, 1]) % 10 == 0),
     "HU": (_digits(8), lambda b: _w(b, [9, 7, 3, 1, 9, 7, 3, 1]) % 10 == 0),
     "SI": (_digits(8), _si),
     "SK": (_digits(10), lambda b: b[0] != "0" and b[2] in "234789" and int(b) % 11 == 0),
     "HR": (_digits(11), _hr),
-    "LV": (_digits(11, "456789"), lambda b: _w(b, [9, 1, 4, 8, 3, 10, 2, 5, 7, 6, 1]) % 11 == 3),
+    "LV": (_digits(11), _lv),
     "LT": (_digits(9), lambda b: b[7] == "1" and _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 1])),
-    "BG": (_digits(9), lambda b: _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 10])),
-    "RO": (lambda b: b.isascii() and b.isdigit() and 2 <= len(b) <= 10 and b[0] != "0", _ro),
+    "BG": (
+        lambda b: len(b) in (9, 10) and b.isascii() and b.isdigit(),
+        lambda b: _mod11_retry(b, [3, 4, 5, 6, 7, 8, 9, 10]) if len(b) == 9 else _bg_ten(b),
+    ),
+    "RO": (lambda b: b.isascii() and b.isdigit() and 2 <= len(b) <= 10, _ro),
     "EL": (_digits(9), _el),
     "GR": (_digits(9), _el),
-    "CZ": (_digits(8, "012345678"), _cz),
+    "CZ": (lambda b: len(b) in (8, 9, 10) and b.isascii() and b.isdigit(), _cz),
+    "CY": (lambda b: len(b) == 9 and b[:8].isascii() and b[:8].isdigit() and "A" <= b[8] <= "Z", lambda b: _cy(b)),
+    "MT": (_digits(8, "123456789"), lambda b: _w(b, [3, 4, 6, 7, 8, 9, 10, 1]) % 37 == 0),
 }
+
+
+def _cy(b: str) -> bool:
+    if b.startswith("12"):
+        return False
+    odd = [1, 0, 5, 7, 9, 13, 15, 17, 19, 21]
+    total = sum(odd[int(c)] if i % 2 == 0 else int(c) for i, c in enumerate(b[:8]))
+    return chr(65 + total % 26) == b[8]
 
 
 def _de(digits: str) -> bool:
@@ -278,28 +352,44 @@ def _de(digits: str) -> bool:
     return (11 - product) % 10 == int(digits[8])
 
 
+_FR_ALPHABET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZ"
+
+
 def _fr(body: str) -> bool:
+    """French TVA: digit or letter key, SIREN Luhn (not for Monaco 000...). Rule from python-stdnum 2.2 fr.tva."""
+    if len(body) != 11:
+        return False
     siren = body[2:]
     if not siren.isdigit():
         return False
     key = body[:2]
-    if not key.isdigit():
-        # Letter keys exist; this tool only checksums the numeric-key form.
-        return True
-    expected = (12 + 3 * (int(siren) % 97)) % 97
-    return int(key) == expected
+    if not all(c in _FR_ALPHABET for c in key):
+        return False
+    if siren[:3] != "000" and not _luhn(siren):
+        return False
+    if key.isdigit():
+        return int(key) == (12 + 3 * (int(siren) % 97)) % 97
+    if key[0].isdigit():
+        check = _FR_ALPHABET.index(key[0]) * 24 + _FR_ALPHABET.index(key[1]) - 10
+    else:
+        check = _FR_ALPHABET.index(key[0]) * 34 + _FR_ALPHABET.index(key[1]) - 100
+    return (int(siren) + 1 + check // 11) % 11 == check % 11
 
 
 def _be(body: str) -> bool:
     digits = body[1:] if body.startswith("0") and len(body) == 11 else body
     if len(digits) == 9:
         digits = "0" + digits
-    if len(digits) != 10 or not digits.isdigit():
+    if len(digits) != 10 or not digits.isdigit() or digits[0] not in "01":
         return False
     return (int(digits[:8]) % 97 + int(digits[8:])) % 97 == 0
 
 
 def _nl(body: str) -> bool:
+    # A suffix of 00 or a body of nine zeros is never issued (python-stdnum
+    # nl.btw refuses both; Peppol's R056 pattern lets them through).
+    if body[10:] == "00" or body[:9] == "000000000":
+        return False
     # Elfproef (11-proof): weights 9..2 on the first eight digits, then the
     # ninth (check) digit at weight -1, not +1. range(9, 0, -1) gave every
     # digit including the last a positive weight, which fails real valid
@@ -307,7 +397,16 @@ def _nl(body: str) -> bool:
     # typo'd ones the same way.
     total = sum(int(digit) * weight for digit, weight in zip(body[:8], range(9, 1, -1)))
     total -= int(body[8])
-    return total % 11 == 0
+    # Since 2020 a sole trader's btw-id carries no BSN and is checked with
+    # ISO 7064 mod 97-10 over "NL" + the number (N=23, L=21, B=11), as an
+    # IBAN is (python-stdnum nl.btw accepts either check; NL002455799B11).
+    return total % 11 == 0 or _nl_mod97(body)
+
+
+def _nl_mod97(body: str) -> bool:
+    if len(body) != 12 or not body[:9].isdigit() or body[9] != "B" or not body[10:].isdigit():
+        return False
+    return int("2321" + body[:9] + "11" + body[10:]) % 97 == 1
 
 
 def _at(body: str) -> bool:
@@ -321,6 +420,9 @@ def _at(body: str) -> bool:
 
 
 def _it(digits: str) -> bool:
+    office = digits[7:10]
+    if int(digits[:7]) == 0 or not ("001" <= office <= "100" or office in ("120", "121", "888", "999")):
+        return False
     total = 0
     for index, char in enumerate(digits[:10]):
         value = int(char)
@@ -345,6 +447,12 @@ def _es(body: str) -> bool:
     letters = "TRWAGMYFPDXBNJZSQVHLCKE"
     if body[0].isdigit() and body[8].isalpha():
         return body[8] == letters[int(body[:8]) % 23]
+    # NIE (foreign residents): X, Y, Z stand for 0, 1, 2 ahead of the DNI letter test.
+    if re.fullmatch(r"[XYZ]\d{7}[A-Z]", body):
+        return body[8] == letters[int(str("XYZ".index(body[0])) + body[1:8]) % 23]
+    # K, L and M NIFs use the DNI letter on their seven digits.
+    if re.fullmatch(r"[KLM]\d{7}[A-Z]", body):
+        return body[8] == letters[int(body[1:8]) % 23]
     if not body[0].isalpha() or not body[1:8].isdigit():
         return False
     total = 0
@@ -459,9 +567,8 @@ def _gb(digits: str) -> bool:
     check = int(digits[7:9])
     if len(digits) not in (9, 12):
         return False
-    if len(digits) == 12 and digits[9:] != "000":
-        return False
-    return (total + check) % 97 == 0 or (total + 55 + check) % 97 == 0
+    rem = (total + check) % 97
+    return rem == 0 or (int(digits[:3]) >= 100 and rem in (42, 55))
 
 
 def _finding(rule: str, message: str, fix: str, path: str) -> dict[str, str]:

@@ -158,3 +158,16 @@ test("repair fixes only comma decimals and bare ampersands, and never touches a 
   const off = sampleFile().replace("3437.91", "3400,00");
   assert.ok(validate(repair(off).text).findings.some((f) => f.title.startsWith("Balances do not add up")), "totals are never guessed");
 });
+
+import { validate as validateOrder } from "./calc.mjs";
+test("statements out of date order are compared in date order, no false break", async () => {
+  const mk = (id, from, to, o, c) => `<Stmt><Id>${id}</Id><FrToDt><FrDtTm>${from}T00:00:00</FrDtTm><ToDtTm>${to}T23:59:59</ToDtTm></FrToDt><Acct><Id><IBAN>NL91ABNA0417164300</IBAN></Id></Acct><Bal><Tp><CdOrPrtry><Cd>OPBD</Cd></CdOrPrtry></Tp><Amt Ccy="EUR">${o}</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>${from}</Dt></Dt></Bal><Bal><Tp><CdOrPrtry><Cd>CLBD</Cd></CdOrPrtry></Tp><Amt Ccy="EUR">${c}</Amt><CdtDbtInd>CRDT</CdtDbtInd><Dt><Dt>${to}</Dt></Dt></Bal></Stmt>`;
+  const doc = (b) => `<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.02"><BkToCstmrStmt>${b}</BkToCstmrStmt></Document>`;
+  const feb = mk("F", "2024-02-01", "2024-02-29", "100.00", "100.00"), jan = mk("J", "2024-01-01", "2024-01-31", "100.00", "100.00");
+  const r = validateOrder(doc(feb + jan));
+  assert.equal(r.findings.filter((x) => x.title === "Statement does not continue").length, 0);
+  const bad = validateOrder(doc(mk("F", "2024-02-01", "2024-02-29", "150.00", "150.00") + jan));
+  assert.equal(bad.findings.filter((x) => x.title === "Statement does not continue").length, 1);
+  const ov = validateOrder(doc(jan + mk("X", "2024-01-15", "2024-02-15", "100.00", "100.00")));
+  assert.equal(ov.findings.filter((x) => x.title === "Statement periods overlap").length, 1);
+});

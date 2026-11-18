@@ -1,0 +1,138 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01AcxTtKQRwE3T4UBtBZfPqy",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T17:07:00Z",
+  "ended": "2026-11-17T17:30:40Z",
+  "wall_minutes": 23.85,
+  "tokens_in": 4576138,
+  "tokens_out": 64826,
+  "cost_usd": 3.2738,
+  "tool_calls": 41,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17011",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First numerical model (scipy solve_ivp with a discontinuous drive torque) ran past the 600 s tool timeout; replaced with a fixed-step RK4 loop that runs each case in about a second."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "issue": "The Next up proposal 'The weight in the belfry' had wrong physics: it said a pendulum's horizontal force has components at the swing rate and twice it (it has odd harmonics; twice is vertical), and it cast Den Hartog tuning as the fix, when for one known forcing frequency the textbook optimum is the weaker design. Only a simulation caught the second; proposals should say their mechanism is unchecked."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "`pip install numpy scipy` installed to an interpreter other than `python3`; the pyenv.py route the file names worked (printed /usr/bin/python3.13), so follow it first rather than pip."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/hearth-and-horizon/BIBLE.md",
+      "why": "The proposal said the failed first try is a damper tuned exactly to the tower and the fix is Den Hartog's rule; modelling showed the opposite for a bell held at a fixed swing.",
+      "did": "Wrote the story with Den Hartog's settings as the failed try and a heavier damper tuned to the bell's third harmonic as the fix, and recorded the correction in the DONE entry, the post and an agent doc.",
+      "result": "Story numbers all trace to one simulation; tests pass."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-hearth-and-horizon-the-weight-in-the-belfry.md",
+    "docs/reports/hearth-and-horizon-weight-in-the-belfry.md"
+  ],
+  "goal": null,
+  "notes": "Project: Hearth & Horizon (headline science fiction shelf). Piece: the-weight-in-the-belfry (text only; audio dirs at 577 MB, over the 400 MB cap). Also added a new Hearth & Horizon Next up proposal (Four times the wait, Stokes settling) because the shelf's list was empty. Local checks: node generate.mjs then node --test in ventures/hearth-and-horizon, 19 of 19 pass; post description 151 characters.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "05c6dee6-08b3-5fd2-a314-8650f1db0a6d",
+    "transcripts": 1,
+    "first": "2026-11-17T17:07:00Z",
+    "last": "2026-11-17T17:30:51Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 40,
+        "input": 80,
+        "output": 64826,
+        "thinking": 33309,
+        "cache_read": 4439931,
+        "cache_write_5m": 0,
+        "cache_write_1h": 136127,
+        "api_equivalent_usd": 3.2738,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 40,
+      "input": 80,
+      "output": 64826,
+      "thinking": 33309,
+      "cache_read": 4439931,
+      "cache_write_5m": 0,
+      "cache_write_1h": 136127,
+      "api_equivalent_usd": 3.2738,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.97,
+    "tool_calls": 41,
+    "tools": {
+      "Bash": 37,
+      "TaskStop": 1,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 23.85,
+      "active_minutes": 23.85,
+      "model_minutes": 12.45,
+      "tool_minutes": 11.4,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 10.0,
+      "basis": "a science-fiction writer with an engineering background drafting a 5,500-word story and modelling bell harmonics and a two-degree-of-freedom damper",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1000.0
+    },
+    "leverage": 305.5,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

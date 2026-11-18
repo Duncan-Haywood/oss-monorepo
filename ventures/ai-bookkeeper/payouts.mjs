@@ -340,50 +340,104 @@ function readPaypalBalance(table) {
 // A batch is one payout: its Settled/Refunded/Chargeback/Fee rows net to the
 // MerchantPayout row of that batch. Gross is taken as net plus the four cost
 // columns, so a sale in another currency than the payout still balances. Rows
-// that move no money (Received, Authorised, SentForSettle ...) are skipped; a
-// type not listed is "other income", never guessed. Written from Adyen's
-// published column list and a hand-made fixture; no real export has been tried.
+// that move no money (Received, Authorised, SentForSettle ...) are skipped.
+// Journal types are Adyen's own table (docs.adyen.com, "Settlement details
+// report", "Journal types", read 2026-11-11). A type not in it is "other
+// income" and named under problems, never guessed.
+//
+// Balancetransfer (Adyen: "a balance transfer to or from subsequent payout
+// batches ... for batches that could not be paid out") is not income: a batch
+// that is not paid out carries its balance to the next one. Each batch must tie:
+// carried in + activity - carried out = MerchantPayout (0 when none). Batches
+// chained by a matching carry are merged, so the payout that finally reaches the
+// bank is split into every sale behind it; a balance carried in from a batch not
+// in the export goes to the processor-balance role (reserve) and is named.
+// Checked on Adyen's published sample report (batch 134, 63 rows; adyen.test.mjs).
 const ADYEN_KIND = {
-  settled: "sales", settledbulk: "sales", refunded: "refunds", refundedbulk: "refunds", refundedreversed: "refunds", refundreversed: "refunds",
+  settled: "sales", settledbulk: "sales", settledinstallment: "sales", settledreversedsalesdaypayout: "sales", capturefailedsalesdaypayout: "sales", settledreversed: "sales", capturefailed: "sales",
+  refunded: "refunds", refundedbulk: "refunds", refundedinstallment: "refunds", refundedreversed: "refunds", refundreversed: "refunds",
+  refundfailedsalesdaypayout: "refunds", refundnotclearedsalesdaypayout: "refunds", refundfailed: "refunds", refundnotcleared: "refunds", refundnotprocessed: "refunds",
   chargeback: "disputes", chargebackreversed: "disputes", secondchargeback: "disputes", chargebackbulk: "disputes", chargebackreversedbulk: "disputes",
-  fee: "fees", misccosts: "fees", invoicededuction: "fees", paymentcost: "fees", depositcorrection: "other",
-  merchantpayout: "payout",
+  fee: "fees", misccosts: "fees", invoicededuction: "fees", paymentcost: "fees",
+  depositcorrection: "reserve", reserveadjustment: "reserve", merchantpayin: "reserve", merchantpayinreversed: "reserve", bankinstructionreturned: "reserve",
+  merchantpayout: "payout", balancetransfer: "carry",
 };
+// Money that moves through the batch but is not the merchant's sale, cost or
+// balance: booked to other income only after it is named under problems.
+const ADYEN_BY_HAND = new Set(["paidout", "paidoutreversed", "epapaid", "matchedstatement", "manualcorrected", "xastransfer", "suspendinstallment"]);
 function readAdyen(table, head) {
   const ix = (re) => head.findIndex((h) => re.test(h));
   const c = {
     type: head.indexOf("type"), id: head.indexOf("psp_reference"), batch: head.indexOf("batch_number"), date: ix(/^creation_date$/), desc: ix(/^merchant_reference$/),
+    modref: ix(/^modification_reference$/), modmref: ix(/^modification_merchant_reference$/),
     ncred: ix(/^net_credit/), ndeb: ix(/^net_debit/), costs: [/^commission/, /^markup/, /^scheme_fees/, /^interchange/].map(ix).filter((i) => i !== -1),
   };
   for (const need of ["type", "date", "ncred", "ndeb"]) if (c[need] === -1) throw new Error(`The Adyen report has no "${need}" column.`);
-  const problems = [], rows = [], own = new Map();
+  const problems = [], rows = [], own = new Map(), carries = [], odd = new Map();
   table.slice(1).forEach((r, n) => {
     const at = (i) => (i === -1 ? "" : String(r[i] ?? "").trim());
     const category = at(c.type).toLowerCase().replace(/[^a-z]/g, "");
-    const kind = ADYEN_KIND[category] ?? (/^(received|authori[sz]ed|authorisedpending|sentforsettle|sentforrefund|sentforauth|cancel|capture|error|expired|refused|retry|pending)/.test(category) ? "skip" : "other");
+    const kind = ADYEN_KIND[category] ?? (/^(received|authori[sz]ed|authorisedpending|sentforsettle|sentforrefund|sentforauth|sentforpayout|cancel|captured?$|error|expired|refused|retry|pending)/.test(category) ? "skip" : "other");
     if (kind === "skip") return;
     const amt = (i) => (at(i) === "" ? 0 : parseCents(at(i)));
     const net = amt(c.ncred) - amt(c.ndeb), fee = c.costs.reduce((a, i) => a + amt(i), 0);
     if ([net, fee].some((v) => v === null || Number.isNaN(v))) { problems.push(`Row ${n + 2}: cannot read the amounts.`); return; }
     const batch = at(c.batch);
     if (kind === "payout") { if (batch) own.set(batch, [...(own.get(batch) ?? []), { net: -net, date: parseDate(at(c.date)) }]); return; }
-    rows.push({ row: n + 2, id: at(c.id) || `row${n + 2}`, payout: batch, payoutDate: null, created: parseDate(at(c.date)), category, kind, gross: net + fee, fee, net, desc: at(c.desc) });
+    if (kind === "other") odd.set(at(c.type), (odd.get(at(c.type)) ?? 0) + net);
+    const x = { row: n + 2, id: at(c.id) || `row${n + 2}`, payout: batch, payoutDate: null, created: parseDate(at(c.date)), category, kind, gross: net + fee, fee, net, desc: at(c.desc) };
+    if (kind === "carry") {
+      const other = (`${at(c.modmref)} ${at(c.modref)}`.match(/batch\s*(\d+)/i) ?? [])[1] ?? "";
+      carries.push({ ...x, other, dir: net >= 0 ? "in" : "out", kind: "reserve", desc: at(c.modmref) || at(c.modref) || "Balance carried between batches" });
+      return;
+    }
+    rows.push(x);
   });
-  const by = new Map(), pending = [];
-  for (const x of rows) {
-    if (!x.payout) { pending.push(x); continue; }
-    if (!by.has(x.payout)) by.set(x.payout, []);
-    by.get(x.payout).push(x);
+  for (const [t, v] of odd) problems.push(`"${t}" rows (${fmt(v)}) are ${ADYEN_BY_HAND.has(t.toLowerCase().replace(/[^a-z]/g, "")) ? "money Adyen moved that is not a sale, cost or payout" : "a journal type this reader does not know"}; booked to other income, so recategorise them by hand.`);
+  // Per batch: activity, carries in and out, payout.
+  const ids = new Set([...rows, ...carries].map((x) => x.payout).filter(Boolean));
+  for (const b of own.keys()) ids.add(b);
+  const sumNet = (xs) => xs.reduce((a, x) => a + x.net, 0);
+  const batch = new Map([...ids].map((b) => [b, { rows: rows.filter((x) => x.payout === b), ins: carries.filter((x) => x.payout === b && x.dir === "in"), outs: carries.filter((x) => x.payout === b && x.dir === "out"), pay: own.get(b) }]));
+  const pending = rows.filter((x) => !x.payout);
+  const tied = new Set();
+  for (const [b, B] of batch) {
+    const payNet = B.pay ? sumNet(B.pay) : 0, total = sumNet(B.rows) + sumNet(B.ins) + sumNet(B.outs);
+    const open = !B.pay && !B.outs.length; // still collecting: nothing paid or carried on yet
+    if (open || total === payNet) tied.add(b);
+    else if (!B.ins.length && !B.outs.length) problems.push(`Batch ${b}: the MerchantPayout row is ${fmt(payNet)} but the batch's other rows net ${fmt(total)}. Rows are missing from the export, or the payout was in another currency; not split.`);
+    else problems.push(`Batch ${b}: carried in ${fmt(sumNet(B.ins))} + activity ${fmt(sumNet(B.rows))} - carried out ${fmt(-sumNet(B.outs))} = ${fmt(total)}, but the payout is ${fmt(payNet)}. Rows are missing from the export, or the payout was in another currency; not split.`);
   }
-  const payouts = [];
-  for (const [id, rs] of by) {
-    const sum = rs.reduce((a, x) => a + x.net, 0), o = own.get(id);
-    if (o && o.reduce((a, x) => a + x.net, 0) !== sum) problems.push(`Batch ${id}: the MerchantPayout row is ${fmt(o.reduce((a, x) => a + x.net, 0))} but the batch's other rows net ${fmt(sum)}. Rows are missing from the export, or the payout was in another currency; not split.`);
-    else if (!o) problems.push(`Batch ${id}: no MerchantPayout row, so no bank line to match yet; listed as pending.`);
-    if (!o || o.reduce((a, x) => a + x.net, 0) !== sum) { pending.push(...rs); continue; }
-    const date = o.map((x) => x.date).filter(Boolean).sort().at(-1) ?? null;
+  // Link a carry-out of batch b to the carry-in of the batch it names, when both are here and agree.
+  const next = new Map(), linked = new Set();
+  for (const [b, B] of batch) for (const o of B.outs) {
+    const to = batch.get(o.other), i = to?.ins.find((x) => x.other === b && x.net === -o.net && !linked.has(x));
+    if (i) { next.set(b, o.other); linked.add(i).add(o); }
+  }
+  const payouts = [], seen = new Set();
+  const heads = [...batch.keys()].filter((b) => ![...next.values()].includes(b));
+  for (const h of heads) {
+    const chain = [];
+    for (let b = h; b && !seen.has(b); b = next.get(b)) { seen.add(b); chain.push(b); }
+    const last = chain.at(-1), L = batch.get(last), ok = chain.every((b) => tied.has(b));
+    const acts = chain.flatMap((b) => batch.get(b).rows);
+    const openIns = chain.flatMap((b) => batch.get(b).ins).filter((x) => !linked.has(x));
+    const openOuts = chain.flatMap((b) => batch.get(b).outs).filter((x) => !linked.has(x));
+    const label = chain.length > 1 ? `Batches ${chain.join(", ")}` : `Batch ${last}`;
+    if (!ok) { pending.push(...acts); continue; }
+    if (!L.pay && !openOuts.length) { problems.push(`${label}: no MerchantPayout row, so no bank line to match yet; listed as pending.`); pending.push(...acts); continue; }
+    if (!L.pay) {
+      const where = `its balance (${fmt(-sumNet(openOuts))}) is carried to batch ${openOuts.map((x) => x.other || "?").join(", ")}, which is not in this export`;
+      problems.push(`${label}: no MerchantPayout, so nothing reached the bank; ${where}. The batch ties (activity ${fmt(sumNet(acts))}). Export the batch that pays it out with this one to split that payout; listed as pending.`);
+      pending.push(...acts);
+      continue;
+    }
+    if (openOuts.length) problems.push(`${label}: part of the balance (${fmt(-sumNet(openOuts))}) is carried to batch ${openOuts.map((x) => x.other || "?").join(", ")}, which is not in this export; it is booked to the processor balance.`);
+    if (openIns.length) problems.push(`${label}: ${fmt(sumNet(openIns))} was carried in from batch ${openIns.map((x) => x.other || "?").join(", ")}, which is not in this export; that part of the payout is booked to the processor balance (reserve), not sales. Export that batch too to split it.`);
+    const date = L.pay.map((x) => x.date).filter(Boolean).sort().at(-1) ?? null;
+    const rs = [...acts, ...openIns, ...openOuts];
     const sm = (f) => rs.reduce((a, x) => a + f(x), 0);
-    payouts.push({ id, date, net: sum, gross: sm((x) => x.gross), fees: sm((x) => x.fee), rows: rs.map((x) => ({ ...x, payoutDate: date })) });
+    payouts.push({ id: last, date, net: sumNet(L.pay), gross: sm((x) => x.gross), fees: sm((x) => x.fee), rows: rs.map((x) => ({ ...x, payoutDate: date })) });
   }
   payouts.sort((a, b) => String(a.date).localeCompare(String(b.date)));
   return { rows, payouts, pending, problems };

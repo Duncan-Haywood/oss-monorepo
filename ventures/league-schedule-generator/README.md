@@ -33,6 +33,7 @@ third party: zero dependencies, one JSON file on a disk you own.
 - **Run:** `ADMIN_KEY=a LEAGUE_TOKEN=b STATE=./state.json node server.mjs`, or `docker compose up -d`
   (`docker-compose.yml`), Fly (`fly.toml`), or Render (`render.yaml`, deploy from your fork; it generates both
   secrets). Nothing runs on the author's accounts.
+- **Calendar feeds:** the player page links a subscribe-able feed for the whole league and each team (`webcal://`, Google Calendar, or the plain address). Optional `PUBLIC_URL=https://league.example.org` fixes the address in those links; without it the request's host is used (README "Calendar files that follow a rainout").
 - **Score reports:** the player page has a "Report a score" form. A report only waits in `/admin` ("Scores waiting for you"); **Approve** appends it to Results as `Hawks 3 - 2 Owls`, **Decline** drops it, and the table never changes until you approve. At most 100 wait at once.
 - Tests: `node --test server.test.mjs deploy.test.mjs`.
 
@@ -51,6 +52,7 @@ Open `index.html`. No build step, no dependencies. `node --test` runs the suite.
 - Named make-up date: end a rainout line with `-> 2026-10-16` (or `→`) to put the match on a day you already agreed, even outside the league weekday; it is refused with the reason if either team is blacked out or already playing, or no court and slot is free (`applyRainouts`).
 - Dates (2026-11-05): `YYYY-MM-DD`, `M/D/YYYY`, `25/12/2026` (day first only when the first number is over 12; `5/6/2026` stays month first), `25.12.2026`, `25 Dec 2026` and `Dec 25, 2026` are read (`parseDate`; unit-tested).
 - Shorter season (`Rounds to play`): a 12-team league that only has time for 8 games a team plays the first 8 rounds of the circle method, so every team meets 8 different opponents, home and away stay within one game of even (two in a double round robin), the page says not every pair meets, and the validator checks it (`spec.rounds` in `buildSchedule`; the test suite validates every length for 3 to 14 teams). Standings then compare teams that did not play identical opponents; the points table is the organiser's call.
+- Doubleheaders (`Games per team per night`, 2 to 4): consecutive rounds share a night and the round robin is rearranged so each team plays its games back to back where the courts allow (README "Doubleheader nights").
 - Per-team time limits (`Team: 17:00`): a youth team that can only play early is only given those slots, rainout moves respect them, and the validator flags any breach; an unsatisfiable limit is reported, never hidden.
 - Per-team court limits (`Team: Field 2`): a team that can only use one pitch (a youth side on the small field) is only given those courts, rainout moves respect them, and the validator flags any breach (`parseCourtLimits`, `courtLimits` in `calc.mjs`).
 - Fill partial nights (`splitRounds`, the "Fill every slot" box on `multi-division-league-schedule.html`, `"split": "1"` in a CLI spec): when a division's round does not fit the court slots left tonight, part of it is played now and the rest comes first on that division's next night, so each team still plays once a night and rounds stay in order (rounds read "Round 3 (part 1)"). Measured on the example league with 3 courts x 2 times: 17 nights -> 13 and slot use 72% -> 94%, same 0 link clashes, `validateDivisions` clean; a round larger than all the slots, refused before, now spreads over nights. Tests in `divisions.test.mjs`.
@@ -187,6 +189,3580 @@ MIT licence, see `LICENSE`.
 
 **Third-place match.** Tick "Third-place match" next to the play-off size (single elimination, four or more teams) and the losing semi-finalists play `3P` on the final's day (`playoffBracket(seeds, { thirdPlace: true })`). The share link now also carries the double-elimination and third-place ticks; the double-elimination tick was being dropped on open.
 
+## Lane limits: shapes stored on other slots, and the last misses (2026-11-18, latest)
+
+The stored lane-limit answers (next section) put the limited teams on the circle method's first
+slots, 0, 1 and so on. Six of the grid's 112 seasons were still missed: two shapes had no answer on
+those slots (UNSAT) and four timed out at 300 s. **Which slots the limited teams take changes the
+season**: in a season shorter than a full cycle, which teams meet in the first W weeks, and who
+meets the fixed slot, depends on the slots. Balance still does not see names, so any slots will do.
+
+- A shape key may now name its slots: `0:0;5:0` is two teams off one pair, on slots 0 and 5.
+  `matchShape` returns the slots too and `avoidShapeSlots` deals the limited teams those slots
+  (the other teams fill the rest in order). Keys on 0, 1, ... read as before; 171 old answers
+  unchanged.
+- `eval/bowling-avoid-slots.py` tries a shape on other slots (first team kept on slot 0, then
+  tuples with the fixed slot, then the rest), 4 at a time, and stops at the first SAT.
+  `eval/bowling-avoid-shapes.py` takes `SYMBREAK=1`: the pairs no limit names are interchangeable,
+  so week 1's matches go on them in increasing order (keeps at least one answer).
+- `eval/bowling-avoid-lns.py` repairs the search's near miss a few weeks at a time (Glucose,
+  interruptible; the other weeks kept), for shapes whose whole-season model is slow.
+
+**Results** (`eval/bowling-avoid-slots.txt`):
+
+| season, limit | before | now |
+|---|---|---|
+| 20 x 9, two teams off one pair | UNSAT on slots 0, 1 (and 0-2, 0-3, 0-4); page 17 of 20 | SAT on slots 0 and 5 in 2.5 s; page 20 of 20 |
+| 18 x 8, two teams each off the same two pairs | UNSAT on slots 0, 1 | SAT on slots 12 and 17 in 0.4 s; page 18 of 18 |
+| 22 x 23, two teams off one pair | SAT timed out at 300 s; page 20 of 22 | the search alone on slots 0 and 1 is in target (the page's own dealing missed by 2); page 22 of 22 |
+| 24 x 13, one team off one pair | SAT timed out at 300 s; page 22 of 24 | SAT with the symmetry break in 365 s; page 24 of 24 |
+| 24 x 13, one team off both ends | timed out at 300 s; page 22 of 24 | symmetry break, 574 s; page 24 of 24 |
+| 24 x 13, two teams off one pair | timed out at 300 s; page 22 of 24 | timed out at 1,800 s even with the break on slots 0, 1; SAT on slots 0 and 23 (the fixed slot) in 110 s; page 24 of 24 |
+| 20 x 40, one team off one pair | timed out at 300 s; page 18 of 20 | symmetry break, 88 s; page 20 of 20 |
+| 6 x 26 and 6 x 34, two teams off the last pair (142-season grid) | UNSAT on the page's dealing, called out of reach | SAT on slots 0 and 5, and 0 and 3, at once |
+
+The symmetry break, not the slots, closed four of the five timeouts. The near-miss repair
+(`eval/bowling-avoid-lns.py`) did not close either near miss it was given (2 counts off after 25
+min on 20 x 40), so it stays a tool, not part of the page. Still out of reach on every dealing
+tried: 6 x 32 with two teams off the last pair (14 of 15 slot pairs UNSAT; slots 0 and 4 unanswered at 300 s)
+and, proved, with one team off both ends: UNSAT on all six slots, so no dealing of the circle method has an even rotation there.
+
+On the 112-season grid the page now has every team in target in **112 of 112** (was 106; 0 counts off, was 14; `eval/bowling-avoid-shapes.txt`). On the 142-season limit grid (`eval/bowling-lane-avoid.txt`) it has **139 of 142** (was 137; 10 counts off, was 18). Tests: `bowling.test.mjs` (a shape on slots 0 and 5 matches and deals; 20 x 9, 18 x 8 and 22 x 23 seasons with those limits keep them, every team in target, no pair meeting twice in a cycle). 180 stored answers (171 before), 38 KB.
+
+## Lane limits on the hard season lengths: stored answers per limit shape (2026-11-18)
+
+The lane-limit search (next section) missed 9 of 142 measured seasons; a SAT solver showed 3 of
+them, all 20 teams over 30 weeks, have a deal the search did not find. Restarting the walk from
+the stored unlimited answer got 2 of the 3 in 0.7-37 s and never the third in 80 restarts, and a
+weighted (breakout) walk did no better, so the fix is not more search. A stored answer keyed on
+the limits looked like too many keys, but it is not: **balance does not see names.** The round
+robin may deal any team any slot of the circle method (the organiser typed names, not slots), and
+every lane pair plays the same role. So one SAT answer for "slots 0 and 1 avoid pair 0" serves any
+two teams avoiding any one pair. A limit's *shape* is which teams avoid which pairs up to renaming
+both; one team off one pair, two teams off one pair, one team off both ends and so on are a handful
+of shapes.
+
+- `bowling-avoid-shapes.mjs` (generated by `eval/bowling-avoid-shapes.py`, CaDiCaL via
+  python-sat, merged by `eval/bowling-avoid-shapes-merge.mjs`): 171 answers, keyed
+  `"teams,weeks|shape"` with the shape written on slots and pairs (`0:0;1:0` is two teams off one
+  pair), over the 28 season lengths that already needed a stored answer with no limits. 36 KB.
+- `matchShape` finds the renaming (limited teams onto slots, real pairs onto the shape's pairs;
+  up to 4 limited teams and 5 named pairs, tried exhaustively). `bowlingSchedule` then deals the
+  limited teams the shape's slots (`avoidShapeSlots`; the other teams keep their order), so the
+  fixtures are still the plain circle method, every team meeting every other as often as before,
+  just with the teams in other slots. With no limits, or no matching shape, nothing changes.
+- `assignLanes` uses the answer only if the rounds are exactly that dealing, every match is on a
+  pair its teams may use and every count is inside `laneTargets()` (`shapePlan`); else the search
+  runs as before. "Try another lane deal" relabels the pairs no limit names, from the seed. The
+  polish then cuts back-to-back repeats, as for the unlimited table.
+
+**Measured.** On the 28 hard lengths x 4 kinds of limit (`node eval/bowling-avoid-shapes-grid.mjs`,
+`eval/bowling-avoid-shapes.txt`; limited teams spread over the league, not on the shape slots):
+
+| | seasons with every team in target | counts off target | ms per season |
+|---|---|---|---|
+| search alone | 60 of 112 | 100 | 1,940 |
+| page with shape answers | 106 of 112 | 14 | 1,062 |
+
+Of the grid's 49 search misses, 43 got a SAT answer (0.4-199 s each), 1 is UNSAT (20 teams x 9
+weeks, two teams off one pair: that dealing has no deal) and 5 timed out at 300 s (20 x 40, 22 x 23
+and 24 x 13 with one or two teams off one pair, one team off both ends): those 6 are the page's
+misses left. A further 119 shapes on 12-18 teams were solved ahead of need (1 UNSAT: 18 x 8, two
+teams each off the same two pairs). On the 142-season grid of the next section the page now has
+every team in target in **137** (was 133), 18 counts off (was 24), and every season it still misses
+is proved out of reach on its dealing (2026-11-18 later: 6 x 26 and 6 x 34 have answers on other slots, section above; `eval/bowling-lane-avoid.txt`; the 6 x 26 random-limit season, unchecked
+before, is UNSAT too). The cost: back-to-back repeats rose from 2,338 to 2,436 over the grid, since
+the polish starts from a stored answer it may not unbalance; balance comes first on this page. 20 x 30 with a limit takes 1.0-1.5 s, down from 3.5 s, since it skips the
+search. Tests: `bowling.test.mjs` (shape matching, dealing, 20 x 30 under three limits and two
+seeds all 20 of 20 in target, every pair of teams still meets once or twice). Browser check: 16
+checks (`eval/browser-bowling.txt`; new: 20 teams x 30 weeks, one team off both ends, 20 of 20).
+
+Not done (2026-11-18, latest, above, took the first two): an UNSAT shape is UNSAT for that
+dealing only, so try other slots; the 5 timeouts need a longer solve. Shapes with more than 4
+limited teams fall back to the search.
+
+## Bowling lane limits: a team that must never bowl on a pair (2026-11-18)
+
+Some leagues have a team that cannot use one pair (the end pair by the wall where a bowler with a
+walker has no room, the pair by the bar). The bowling page now takes **lane limits**, one team per
+line (`Pin Pals: 7-8`, `Spare Me: last`, `Gutter Gang: ends`, a single lane number for its pair;
+`parseLaneAvoid` in `bowling.mjs`), and treats them as a hard constraint in every stage of the lane
+search, not a fix-up after it:
+
+- **Greedy and week re-solves:** a banned (match, pair) cell costs `FORBID` (2^26), above every
+  balance price, so the Hungarian step never takes one when the week has any legal deal. The step
+  is exact per week, so a banned cell in the greedy plan proves that week has no legal deal at all;
+  `bowlingSchedule` then refuses the season and names the week ("Week 3: the lane limits leave no
+  way ...") instead of building one that breaks a limit.
+- **Walk:** moves that would put a team on a banned pair are skipped.
+- **Stored SAT answers** are used only if they keep the limits (they never were built for them, so
+  in practice the search runs).
+- **Targets** (`laneTargets`): with no limits, floor..ceil(W/P) as before (byte-identical seasons;
+  all 20 old bowling tests pass unchanged). With limits, the avoided pairs still host a match every
+  week, so the other teams must bowl there more often. The fair share is the matrix scaling
+  (Sinkhorn) of the allowed cells to row sums W_t and pair sums sum(W)/P; the target is
+  floor..ceil of it, 0 on a banned cell. A rounding that keeps every row and pair total always
+  exists; the weekly one-match-per-pair rule can still rule it out (below). `offBound`,
+  `laneReport` (`inTarget`, `avoided`, `target` per row; spread and bound over the pairs a team may
+  use) and the page's highlighted cells all use it; the avoided cell shows a dash.
+
+**Measured** (`node eval/bowling-lane-avoid.mjs`, `eval/bowling-lane-avoid.txt`; 9 league sizes
+6-24 x 4 lengths 26-34 x 4 kinds of limit: one team off the last pair, two teams off the last pair,
+one team off both ends, three random teams off one random pair each). The baseline is the fix an
+organiser makes by hand: the page's unconstrained season, then each week a limited team lands on
+its pair, swap its match with the nearest match that may take that pair.
+
+| | seasons with every team in target | counts off target | back-to-back repeats | limits broken |
+|---|---|---|---|---|
+| hand fix | 0 of 142 | 3,345 | 3,438 | 3 weeks (no legal swap found) |
+| page | 133 of 142 | 24 | 2,338 | 0 |
+
+Two random-limit seasons (6 teams x 30 and 34 weeks) have a week with no legal deal; the page
+refuses them and they are left out. 0.81 s per season on average (3.5 s at 20 x 30).
+
+**The 9 misses** (`eval/bowling-lane-avoid-sat.py`, CaDiCaL on the exact weeks, bans hard, every
+count in target): 6x26, 6x32 and 6x34 with two teams off the last pair, and 6x32 with one team off
+both ends, are UNSAT: on 3 pairs those limits put the target out of reach for any deal, so the
+page's 1-5 off is the season's limit. 20x30 with one team off the last pair, two off the last pair
+and one off both ends are SAT: the search's fault, on the one length (P divides W) that already
+needed a stored SAT answer without limits. Two misses (20x30 and 6x26, random limits) were not
+SAT-checked. Next: closing 20x30 under limits (a SAT call at build time is too slow for the page;
+a stored answer keyed on the limits is too many keys; a longer walk on exact seasons is the
+cheapest thing to try).
+
+Position rounds put 1st v 2nd on the first pair; their teams are known only on the night, so the
+page tells the organiser to check a limited team's pair on those weeks. Browser check:
+`node eval/browser-bowling.mjs` (15 checks, 5 new: 8 of 8 in share, Pin Pals never on Lanes 7-8,
+a dash in the avoided cell, an unknown team reported).
+
+## Bowling lanes: every measured season at the bound (2026-11-18)
+
+The six seasons the lane search left short (below, 2026-11-17) are closed: **36 of 36** measured
+seasons now have every team at the bound (worst spread 1, down from 2), at 0.64 s per season.
+Two additions to `assignLanes` in `bowling.mjs`: a stored answer is used first when the season has
+one, and the walk runs only when the polish ends with a count out of bounds:
+
+- **A focused walk** (`walkLanes`, the WalkSAT idea): each step picks a random team-pair cell
+  outside floor..ceil, and among the swaps that move one of that team's matches off (or onto)
+  that pair takes the one leaving the fewest out-of-bounds counts, or any of them with
+  probability 0.2. Deterministic per seed, a step budget instead of a clock. It closed 10x30,
+  18x26 and 24x34 (33 of 36 with the walk alone).
+- **Stored SAT assignments** (`bowling-lane-table.mjs`): the other three (12x30, 16x32, 20x30)
+  are seasons where P divides W, so every team needs every pair exactly W/P times. The week
+  re-solves, a tabu swap search and the walk all stalled 4 to 12 counts short there (tried this
+  session, up to 4 s and 200,000 steps each). `eval/bowling-lane-grid.mjs` runs the page's search on
+  every even league of 4 to 28 teams and 2 to 40 round-robin weeks; `eval/bowling-lane-table.py`
+  asks CaDiCaL about each miss and `eval/bowling-lane-table-merge.mjs` writes the solved ones as
+  one base-36 digit per match. `tablePlan` uses an entry only if it is a permutation every week
+  and puts every team at the bound for the rounds it is given, so a stale table costs speed,
+  never balance; the seed relabels the pairs (balance kept) for "Try another lane deal", and
+  the polish then cuts back-to-back repeats. Position weeks do not count, so the key is the
+  number of round-robin weeks.
+
+Repeats rose from 340 to 392 over the 36 seasons: balance comes first in the price, and the
+repaired seasons have 9 to 39 repeats against 6 to 21 before.
+
+**The wider grid** (`eval/bowling-lane-table.txt`): of 507 seasons (4 to 28 teams, 2 to 40
+weeks) the search with the walk misses 90. CaDiCaL solved 28 (all now stored and at the bound:
+every exact season of 12 to 20 teams up to 40 weeks, and the near-whole-cycle ones such as 18x17,
+20x29, 22x23), proved 35 impossible, and gave no answer to 27 within 420 s or before the batch's
+30-minute cap (16x40 and most seasons of 22 to 28 teams). Those 27 are where a longer SAT run, or a
+solver on a bigger machine, should go next; the table merges new answers with
+`eval/bowling-lane-table-merge.mjs`. The table is 6.4 kB.
+
+**Proved impossible.** CaDiCaL returns UNSAT for every season exactly P weeks long that it was
+asked about (6 to 24 teams), for 4 teams at all 21 lengths from 2 to 40 weeks where the search misses, and for 6x9, 8x3 and
+12x5. A P-week season at the bound needs each team on every pair exactly once, so each pair's P
+matches form a perfect matching with one edge from each round: a 1-factorization orthogonal to the
+circle method's P rounds. A SAT check (`eval/bowling-lane-blocks.py`; `eval/bowling-lane-table.txt`, "Blocks") found none
+for the first P rounds or for three random choices of P rounds at every even size from 6 to 20 teams
+(32 of 32 UNSAT), which is also why splitting a season into perfect P-week blocks, tried first
+this session, cannot work with these rounds. On those lengths the page's result is as close as the search gets.
+
+## Bowling: seasons where an even lane split is proved impossible (2026-11-18)
+
+The bowling page said "(best possible 0)" next to any team off the floor/ceil bound, which reads
+as a missed deal. For some seasons no deal exists. `eval/bowling-bound-sweep.mjs` ran a lane
+search on every even league of 4 to 32 teams for 1 to 60 round-robin weeks (900 seasons) and
+`eval/bowling-bound-proof.py` gave each season it missed (145; the search was the page's
+polish plus a min-conflicts repair tried this session, not shipped here) to CaDiCaL with the CNF of
+`eval/bowling-lane-sat.py` over the exact weeks `bowlingSchedule()` plays. An UNSAT answer is a
+proof about the season, not the search: no lane deal of those weeks puts every team at the bound.
+Every such season is missed by every search, so the misses of any one search cover all of them;
+the gap is seasons the solver did not settle in its time (UNKNOWN, listed in
+`eval/bowling-bound-proof.txt`).
+
+Proved out of reach (`bowling-proofs.mjs`, `OUT_OF_REACH`; full list in
+`eval/bowling-bound-proof.txt`):
+
+- **A season exactly as long as the lane pairs:** P round-robin weeks on P pairs (4 teams x 2
+  weeks, 6 x 3, 8 x 4, ... 30 x 15): every league from 4 to 30 teams. Each team would need every
+  pair exactly once, and the circle method's first P rounds allow it at none of those sizes. 32 x 16 was not
+  settled in 150 s.
+- **4 teams (2 pairs):** whenever the round-robin weeks are 2, 3 or 4 more than a multiple of 6,
+  through 58 weeks (51 and 57 not settled). 4 x 2 by hand: week 1's two matches split the teams
+  across the pairs, so in week 2 every team must change pair, but each week-2 match joins one team
+  from each pair.
+- **Other short seasons:** 6 x 9, 8 x 3, 12 x 5.
+
+44 seasons in all; 17 misses were SAT (a deal at the bound exists: the search's fault) and 84 were
+not settled, almost all at 20 to 32 teams, where the SAT checks of 2026-11-17 took 30 s and more.
+
+The engine sets `boundProvedOutOfReach` on an even league's season (and `laneReport` carries it)
+when its team count and round-robin weeks are listed; position rounds do not count, and an odd
+league is never flagged (its proof would cover the Vacancy's row). The page then says the even
+split is out of reach this season instead of "best possible". The search is improved in the section above (PR 17107), which
+brings every measured season at the bound; the seasons listed here stay out of reach for any search.
+
+## Bowling leagues: lane pairs rotated evenly (2026-11-17)
+
+`bowling-league-schedule.html` (engine `bowling.mjs`, tests `bowling.test.mjs`) builds a whole
+bowling season: the circle-method round robin repeated until the weeks run out, real dates on one
+weekday with no-bowl dates stepped over, weeks held for position rounds (1st v 2nd, 3rd v 4th on
+the pairs in order; they do not advance the round robin), a Vacancy for an odd league (it bowls
+on its pair like any team, so 9 teams use 5 pairs), and lane-pair labels from the league's first
+lane (`firstLane: 13` gives "Lanes 13-14", ...). Exports: CSV (formula-safe), text, print.
+`validateBowling` re-checks each week (each team once, each pair once), that every pair of teams
+meets `floor` or `floor + 1` times for the round-robin weeks played, and the dates.
+
+**The lane problem.** A team that bowls W weeks on P pairs can at best have every pair
+floor(W/P) or ceil(W/P) times ("at the bound"). Each week's matches go on pairs by an assignment
+problem (Hungarian method, `hungarian`, tested against every permutation up to 6x6). The page then
+runs an iterated local search: with every other week fixed, one week's best assignment is exact
+(each team's count on one pair rises by one and its repeats depend only on the weeks either side,
+so the price is a sum over (match, pair) cells); sweeps re-solve every week until none improves,
+a kick re-deals one to three random weeks, a worse result is undone, and the season with the
+fewest out-of-bounds counts, then fewest back-to-back repeats, is kept. Deterministic per seed;
+"Try another lane deal" changes the seed.
+
+**Measured** (`node eval/bowling-lanes.mjs`, `eval/bowling-lanes.txt`; 36 seasons, 6 to 24 teams x
+26, 30, 32, 34 weeks; "all at bound" = every team at the bound):
+
+| assignment | seasons with all teams at the bound | worst spread | back-to-back repeats (total) |
+|---|---|---|---|
+| naive (match k on pair k, a copy of the circle method) | 0 of 36 | 34 | 2,124 |
+| hand rotation (every match one pair along each week) | 1 of 36 | 13 | 6,490 |
+| greedy (week by week, Hungarian on counts so far) | 4 of 36 | 3 | 417 |
+| page (greedy + iterated local search) | 30 of 36 | 2 | 340 |
+
+About 0.55 s per season on this container. **The 6 misses are the search's fault, not the
+problem's:** `eval/bowling-lane-sat.py` (CaDiCaL via python-sat; exactly-one per match and per
+pair each week, cardinality bounds per team and pair, week 1 fixed for symmetry) finds an
+assignment with every team at the bound for all six (`eval/bowling-lane-sat.txt`: 10x30, 12x30,
+16x32, 18x26, 20x30, 24x34, each SAT). Balance does not depend on which week a round falls in, so
+the answer holds for any round order.
+
+Tried and dropped (numbers from this session's runs, same 36 seasons unless named): a simulated
+annealing swap search (two matches of one week trade pairs) on squared deviation stalled at spread
+2 on most sizes from 10 teams up; guided local search (raising penalty weights on out-of-bounds
+cells) did worse than random kicks (10x30: 7 of 10 teams at the bound against 8); starting from a
+balanced first cycle with pair labels shifted by one each cycle (which keeps full cycles within
+one of even when the first cycle is a balanced tournament design) gave the same 30 of 36 and took
+1.7 times as long, and the search did not find a balanced first cycle at 20 or 32 teams anyway;
+closed forms f(round, diagonal) = (k + h r) mod P gave no balanced cycle for any h at 6 to 32, 40, 48 or 64 teams.
+
+Browser check: `node eval/browser-bowling.mjs` (`eval/browser-bowling.txt`, 10 checks at 390 px:
+sample 8 of 8 at the bound, odd league with the Vacancy and a skip date, reshuffle, an error
+hiding the old schedule, no horizontal scroll, no console errors).
+
+Open (the 6 misses closed 2026-11-18, above; lane limits landed 2026-11-18, above): a
+"switch lanes each frame" note per pair for printed sheets; feeding real standings into the
+position rounds.
+
+## Calendar files that follow a rainout (2026-11-17)
+
+A team's `.ics` file used to give each game an id built from its date and its place in the
+round (`2-0-20261013-1@...`). A calendar import adds or updates events by that id and never
+deletes one missing from the new file, so when a rained-out game moved and the organiser
+re-sent the file, the player's calendar kept the old date as well as the new one. Every
+match now carries a **fixture id** (`fixture` on each match, `assignFixtureIds` in
+`calc.mjs`): the pair, lower team index first, and which meeting of that pair it is in the
+season as built (`0-3-1` is the second meeting of teams 0 and 3). Rainouts, pins and late
+entries copy the match and keep the id, and each move adds one to `moves`, written as the
+event's `SEQUENCE`. When a team withdraws, its removed fixtures go out as `STATUS:CANCELLED`
+events under the same ids, titled "Cancelled: ...", so a re-import marks them rather than
+leaving them in place. Officials' files add `-official` to the id so a referee who also plays
+does not have one event overwrite the other. The multi-division page (`divisionsIcs`) uses
+the division, the round and the pair.
+
+Measured with `node eval/ics-stable-uids.mjs` (`eval/ics-stable-uids.txt`): 9 league sizes
+(4 to 16 teams), single and double, 4 seeds, two random nights rained out and then the last
+team withdrawing mid-season. A player imports the first file, then the updated one; we count
+the events left over that are a **ghost** (no game then) or a **duplicate** (the same game
+twice). Old ids against fixture ids:
+
+| | team files | matches moved | old ids: ghost + duplicate | fixture ids |
+|---|---|---|---|---|
+| single division, two nights rained out | 584 | 640 | 1,139 + 0 | 0 + 0 |
+| then a team withdraws | 584 | | 512 + 2,222 | 0 + 0 |
+| multi-division example, one night rained out (4 runs) | 80 | 26 | 52 + 70 | 0 + 0 |
+
+The duplicates come from the old id's position-in-round part: removing or moving one game
+renumbered the others on that night. No file repeats an id.
+
+**Subscribe on the self-hosted league page.** `server.mjs`'s player page now offers, for the
+whole league (`/league/ics?t=...&team=all`, new) and each team, a `webcal://` subscribe link,
+a Google Calendar add-by-URL link, the plain address to paste into any app, and the download.
+A subscribed calendar re-reads the feed on its own schedule (each app decides how often), so
+a rainout reaches players without anyone re-sending a file. The address is taken from
+`PUBLIC_URL` when set, else the request's host (`x-forwarded-proto` for https behind Fly or
+Render); a host that is not a plain name is refused and the page falls back to downloads.
+The feed is served `inline` with `cache-control: no-cache`.
+
+**Not checked:** no real calendar app was used here. The counts above model an import that
+matches events by UID as RFC 5545 describes; how Google, Apple and Outlook each treat a
+re-imported file or a cancelled event, and how often they poll a subscription, is untested.
+Ids are stable while the season's base setup (teams, dates, courts, seed) is unchanged;
+editing those rebuilds the season and its ids.
+
+## Import into TeamSnap or SportsEngine (2026-11-17)
+
+Many leagues already pay for TeamSnap or SportsEngine for registration, payments and team
+messaging, and those platforms' own schedulers are where this tool's fairness work (fewest
+home/away breaks, even courts and slots, blackouts) does not reach. Typing a 10-team season
+into either platform by hand is 45 games. Now the schedule card has **Import into TeamSnap
+or SportsEngine**: two downloads that are each platform's own import file, so the season
+built here goes up in one upload.
+
+- **TeamSnap** (`teamSnapCsv`): the organisation schedule import, columns `Date, Start Time,
+  End Time, Arrival Time, Short Label, Event Type, Division, Home Team, Away Team, Location,
+  Location Details` in that order, dates MM/DD/YYYY and times h:mm AM/PM. You type the
+  TeamSnap division name and, optionally, the location name (then each court goes in
+  Location Details) and an arrival time in minutes. Arrival Time is left out when blank,
+  which TeamSnap allows. The file is refused-in-advance where TeamSnap would refuse it: no
+  division, a game with no start time. A game ending after midnight is flagged, because
+  TeamSnap's template has no end date, and names with `% @ # *` are flagged because TeamSnap
+  says those symbols trip imports.
+- **SportsEngine HQ** (`sportsEngineCsv`, `parseTeamIds`): the 28-column Schedule Upload
+  file (`Start_Date` ... `Division_Override`), 24-hour times, `TBD` for a game with no time
+  slot, the end date rolled past midnight, `Event_Type` Game, `Team1_Is_Home` 1 for the home
+  side. HQ matches games by its own team IDs, so you paste `Hawks = 2270996_271208` lines
+  (HQ lists them on the template's Team/Division ID tab); a team without one is named in the
+  error.
+
+The column lists are copied from the templates the platforms publish, read 2026-11-17
+(`eval/platform-templates-2026-11-17.md` has the URLs, header rows and SHA-256 of each file),
+and `platform-import.test.mjs` pins them. **Not done:** no file has been uploaded to a real
+TeamSnap or SportsEngine account (both need a paid organisation account), so what each
+platform does with, say, a repeated Short Label is untested; the multi-division page has no
+platform export yet.
+
+## A shorter season with an even strength of schedule (2026-11-17)
+
+"Rounds to play" cuts a round robin short: 20 teams with a ten-week season play the first
+10 of 19 rounds. Those were the circle method's first rounds, and the circle method fixes
+one team (the last listed) and rotates the rest, so that team met **teams 1 to 10**. With
+the teams listed best first, as the pool-play and seeding boxes already ask, the bottom
+seed got the ten strongest opponents (mean opponent seed 5.5 where an even share is 10.0),
+and the gap grows with the league: 30 teams over 12 rounds were 8.5 seed places off.
+
+Tick **"Shorter season: even out strength of schedule"** (`balanceSeeds: true` in a spec,
+carried by the share link) and `balanceSeedStrength` in `calc.mjs` gives teams their
+places in the shorter season so every team's opponents average close to the mean seed of
+every other team. It searches relabellings by seeded annealing on pair swaps (sum of
+fourth powers of each team's gap, keeping the least worst gap), with a fixed work budget
+so a share link rebuilds the same season. A relabelling moves teams, not patterns: every
+home/away sequence, break count and carry-over count is unchanged and no pair meets
+twice. Blackout fit, which also relabels, now only takes swaps that keep the balance
+(`fitPlanToBlackouts(..., { keep })`). `seedStrength(plan, n)` reports each team's
+opponent mean, its even share and the gap.
+
+How it was checked (`eval/seed-balance.mjs`, output `eval/seed-balance.txt`): worst
+team's gap in seed places, plain first-k rounds to balanced, with the exact optimum over
+all n! relabellings where that is small enough to enumerate:
+
+| teams x rounds | plain | balanced | exact optimum | breaks (both) | time |
+|---|---|---|---|---|---|
+| 8 x 5 | 1.03 | 0.34 | 0.34 | 4 | 16 ms |
+| 9 x 5 | 1.38 | 0.50 | 0.50 | 0 | 12 ms |
+| 10 x 6 | 1.50 | 0.11 | 0.11 | 4 | 19 ms |
+| 12 x 8 | 1.50 | 0.25 | - | 6 | 17 ms |
+| 20 x 10 | 4.50 | 0.56 | - | 8 | 48 ms |
+| 30 x 12 | 8.50 | 0.36 | - | 10 | 62 ms |
+| 64 x 20 | 21.50 | 0.54 | - | 18 | 232 ms |
+
+On all five sizes small enough to try every relabelling (6 x 3, 8 x 4, 8 x 5, 9 x 5 and
+10 x 6) the search finds the exact optimum. Tests: `seed-balance.test.mjs`. Not done:
+picking a different set of rounds as well as the relabelling. Tried while building this
+(annealing over which k of the n - 1 rounds to play): it did not lower the worst gap
+reliably and raised home/away breaks sharply (12 teams x 8: 6 to 34), so it was dropped.
+The seeds are only the list order: a league with no idea who is strong should leave the
+box off, and it changes nothing for a full round robin, where everyone meets everyone.
+
+## Doubleheader nights: every team's games back to back (2026-11-15)
+
+Many rec leagues play two games a night (adult softball doubleheaders, volleyball and cornhole nights, darts with
+two matches each). Set **Games per team per night** to 2, 3 or 4 (`gamesPerNight` in a spec; it rides in the share
+link). Consecutive rounds of the round robin share a night, inside a leg, so every team meets two different
+opponents and a double round robin never mixes its halves. The validator allows that many games a night and refuses
+a team booked twice at one time; breaks and carry-over are still counted round by round (`expandNights`), and rest
+between nights ignores the second game of a night (`restReport`). Rainouts, late teams and blackouts work as before
+(a moved match only goes to a night where neither team plays).
+
+**What people use today:** a spreadsheet grid filled by hand, or a league platform (TeamSnap, LeagueApps) whose
+generators treat a doubleheader as two separate rounds, so a team can finish at 18:00 and play again at 21:00. The
+common complaint is the wait, not the opponent.
+
+**The wait is in the timetable, not the slots.** Put a night's matches on a graph (teams are nodes, each match an
+edge labelled by its round). Each connected component can sit on its own run of consecutive time slots, so its
+teams play back to back; the night is wait-free when the components pack into the time rows with at most one match
+per court per row (`nights.mjs` `nightLayout`). With two games a night the components are cycles that alternate the
+two rounds, and the circle method's consecutive rounds join all eight teams of an 8-team league in one 8-cycle: on 2
+courts and 4 times it cannot be laid out wait-free at all. `waitFreeNights` searches the round robin itself (partial
+round swaps and round swaps between nights, from the circle method and then from a carry-over timetable) for a
+plan whose nights all pack, then sets home and away with `assignVenues`; the slot search starts from that layout
+(`seasonLayout`, which also evens out who plays early) and adds a penalty per empty slot between a team's games.
+`waitFreePossible` is the counting bound that comes first: a team's games fill g rows in a row and a row holds two
+teams per court, so for example 10 teams cannot all play two in a row on 4 courts and 3 times (every window covers
+the middle row, which holds 8). When the bound fails, the page says how many courts back-to-back nights need.
+
+Measured (`node eval/doubleheader.mjs`, `eval/doubleheader.txt`; 60 settings of 6 to 24 teams, 2 or 3 games, 3 to
+5 times, the fewest courts that fit, seeds 1 to 3): all 180 seasons valid. Every two-game setting the bound allows
+is now wait-free on every seed (18 of 18; 12 teams on 3 courts x 4 times went 30 to 0, the last one left by the
+first version, which stopped at 10). Total waits 3,391 to 3,025 with the search on; what is left is in the
+settings no layout can make wait-free. The cost: the time-row spread (most minus least games a team plays in one
+time slot) rises, for example 20 teams from 6 to 15 a season, because a wait-free night fixes blocks of teams to
+early or late pairs of slots; `seasonLayout` rotates the blocks night by night but does not close it.
+`waitFree: false` turns the search off; it is also off with carry-over spreading or a shorter season (they choose
+the timetable themselves).
+
+### Three games a night (2026-11-15, later)
+
+The first version said "7 of 7 three-game settings that pass the bound keep their waits". Four of those seven
+were never possible, and the bound was wrong about them, which also made the page's "you need N courts" hint
+too low for odd leagues:
+
+- **An odd league has two kinds of team on a night.** With g games a night, g teams sit out one round each
+  and play g - 1 games, so their windows are shorter. `waitFreePossible(teams, g, courts, times, short)`
+  now places both kinds. 9 teams, 3 games, 3 courts x 4 times books all 12 slots, and six 3-game windows
+  plus three 2-game windows cannot share 4 rows of 6 teams; the old bound counted only the six.
+- **Every row holds an even number of teams** (two per match). 7 teams, 3 games, 2 courts x 5 times passes
+  every count and fails on parity. Checked by exhaustion: all 32,970 possible nights of 7 teams on that
+  grid, laid out by the exact search below with no node cap: none is wait-free (`eval/three-game-nights.txt`,
+  part 2).
+
+With the corrected bound the hint asks for one more court for every odd league of 7 to 13 teams at 4 or 5 times,
+and for 7 and 11 teams at 6 times (9 teams at 4 times: 4 courts, not 3; `eval/three-game-nights.txt` lists both
+counts per setting).
+
+Three changes to the search and the layout:
+
+- **A team skipping the middle game was called back to back.** The component layout puts a whole round in one
+  row; in an odd league a team that sits out round 2 of 3 plays rounds 1 and 3, and the layout could put those
+  two rows apart and still report the night as wait-free. It now checks those teams (`rowsWaitFree`).
+- **Match-by-match layout** (`nightRowsExact`): when whole rounds of components do not pack, a depth-first
+  search gives each match its own row (a team's games in distinct adjacent rows, at most one match per court
+  per row), the match with the fewest open rows first, pruned by the rows every team's window must cover.
+  It runs inside `nightLayout` (3,000 nodes) and so in the season's slot layout even with the search off:
+  that alone made two-game nights of 9 teams on 2 courts x 4 times, 10 on 3 x 4, 14 on 4 x 4 and 18 on 5 x 4
+  wait-free from the plain circle order (`eval/doubleheader.txt`, waits off column). It is not free in settings
+  that cannot be wait-free: 11 teams, 3 games on 4 x 4 went 28 to 30 waits, because a layout the old check passed
+  wrongly now goes to the leftover slots.
+- **Two sessions a night** (`sessionBlocks`, `sessionNights`): with 6 time slots and 3 games, a night can hold
+  an early and a late session. When the courts are tight every night must split into groups that only play
+  each other: 12 teams on 3 courts x 6 times book all 18 slots, so each night is two groups of six. The hill
+  climb could not find that, and for a reason worth knowing: its moves trade opponents along two-round
+  cycles, which never leave the swap class of the starting round robin. From the circle method, simulated
+  annealing over groups and rounds stopped at exactly 14 crossing matches on every seed and temperature;
+  from a carry-over timetable it reached zero. A hand construction confirms the target exists (a prism on
+  each half, then the two 3 x 3 crossings as complete bipartite blocks, then a 6-cycle on each half for the
+  last two rounds). So each start (circle, then carry-over) gets both searches.
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`; 39 settings of 6 to 24 teams, 3 games,
+4 to 6 times, on the least courts the corrected bound allows, seeds 1 to 3; every season valid): at 4 and 5 times
+every setting is wait-free on every seed, with or without the search, once the courts are enough. At 6 times:
+10 teams on 3 courts 36 to 0, 16 teams on 4 courts 125 to 0, 12 teams on 3 courts 64 to 22 (4 of 6 seeds
+wait-free), 14 teams on 4 courts 54 to 33; 18, 20 and 24 teams keep their waits (the annealing gets to 2
+crossing matches with 6 million moves, not 0), and odd leagues at 6 times are not searched by groups (a team
+sitting out the middle round of a group breaks its order). The group search costs up to about 3 s a build at
+24 teams, and nothing at 4 or 5 times.
+
+### Designed round robins for two sessions a night (2026-11-15, latest)
+
+The search above stops at 2 crossing matches for 18 to 24 teams at 6 times, and 12 teams were wait-free on
+only 4 of 6 seeds. Those nights need closed groups, and a closed-group round robin can be written down instead
+of searched for (`designedRounds`, `designedNights` in `nights.mjs`). `waitFreeNights` tries it first whenever a
+night has two or more sessions; it is used only if every night packs wait-free, and otherwise the search runs as
+before. Two designs:
+
+- **Teams a multiple of 12.** Split the league into halves A and B of m = n / 2. The first rounds play the circle
+  method inside both halves at once, three at a time: a night is two groups of m, one per session. The m cross
+  rounds pair team a of A with team a + k (mod m) of B, and the shifts k, k + m/3 and k + 2m/3 make one night:
+  m/3 groups of six, three teams of A each playing the same three of B (a K3,3). The two rounds left over from
+  the halves are a short two-game last night.
+- **Teams a power of two.** Round r pairs team t with team t XOR r. A night of rounds a, b and a XOR b is
+  groups of four that play everyone in their group (K4s, the parallel classes of an affine plane on 16 teams);
+  any other three rounds give groups of eight. The rounds are grouped to hold as many K4 nights as possible.
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`, seeds 1 to 3, every season valid):
+24 teams on 6 courts x 6 times 254 waits to 0, 12 teams on 3 courts x 6 times 22 to 0 (6 of 6 seeds), and
+the 16-team build 1.2 s to 0.4 s (same 0 waits, no annealing). Part 4 adds 28 to 48 teams at 6 times: the
+designed sizes (32, 36, 48) reach 0; 28 teams has no design and keeps its waits. Settings with no waits 28 to
+30 of 39; total waits 743 to 467.
+
+**8 teams on 2 courts x 6 times cannot be wait-free** (part 3), though the counting bound allows it. Every
+slot is booked, so the four teams in the first time slot fill slots 1 to 3 and the other four fill 4 to 6: a
+wait-free night is two groups of four playing everyone in their group. The season has two three-game nights,
+and no two of the 35 ways to split 8 teams into two fours share no pair (any four of one split puts two teams
+together in the other). So one night always has a wait; the 30 waits in part 1 are that night.
+
+Not done: groups for odd leagues; designs for 14, 18, 20 and 28 teams (20 teams on 5 x 6 is also fully booked,
+so each night must be two closed groups of ten; the halves design needs K10,10 in three such nights plus a
+matching, and annealing from it stops at 2 crossing matches); three sessions a night (9 times) by design; the
+full-booking argument above as part of the courts hint.
+
+### Closed sessions for every league size: a SAT solver writes the designs (2026-11-15, latest)
+
+The halves and XOR designs above cover multiples of 12 and powers of two; for 14, 18, 20 and 28 teams the
+annealing stopped at 2 crossing matches and the note said those sizes needed designs. They do not need a
+construction: a SAT solver finds them in seconds (`eval/session-design-sat.py`, python-sat with CaDiCaL,
+eval only). The encoding: x[r, i, j] for "i and j meet in round r" (every pair once, every team once a
+round), y[t, v, k] for "team v plays in session k on night t" (each block at most 2 x courts teams), and
+for every round of night t, a match joins two teams of the same block. Round 0 is fixed and team 0 sits
+in block 0 every night, which costs no generality.
+
+Results (`eval/session-design-sat.txt`; timeout 300 s a size, 4-core container):
+
+- **Two sessions (6 time slots, the least courts, ceil(n / 4)):** every even league of 10 to 48 teams is
+  satisfiable, in 0.1 s (14 teams) to 32 s (46 and 48). 8 teams on 2 courts is UNSAT, the solver
+  re-deriving the hand argument of part 3 below.
+- **Three sessions (9 time slots, ceil(n / 6) courts):** 15 of 19 sizes found (16 to 48 teams, 8 to 197
+  s); 14, 38, 40 and 46 ran out of time. 12 teams on 2 courts x 9 is UNSAT: every night would be three
+  K4s, and no round robin of 12 holds three such nights edge-disjoint (a full booking forces each
+  session's four teams to fill its three rows, so the blocks are not a modelling choice).
+
+The 32 designs are stored, one character per team per round, in `session-designs.mjs` (33 KB, generated by
+`eval/write-session-designs.mjs`, which re-checks each). `designCandidates(n, g)` lists the algebraic
+design first and then the stored ones; `designedNights` relabels each by the seed and keeps the first
+whose nights all pack. A test re-checks every stored design in JS (each pair once, each round perfect,
+each night's components packing into its blocks).
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`, seeds 1 to 3, every season valid):
+
+- Part 1 at 6 slots: 14 teams on 4 courts 33 waits to 0, 18 on 5 courts 101 to 0, 20 on 5 courts 194 to 0.
+  Builds there take 0.26 to 0.34 s instead of 2.1 to 2.5 s (no annealing). Settings with no waits 30 to
+  33 of 39; total waits 467 to 143. What is left at 6 slots is odd leagues
+  (7, 9, 11, 13 teams; groups for them are still open), 6 teams on 2 courts and the 8-team night proved
+  impossible.
+- Part 4 now runs every even size 22 to 48 at 6 slots: all 13 reach 0 waits on every seed (28 teams 360 to
+  0; 22, 26, 30, 34, 38, 40, 42, 44 and 46 are new), in 0.4 to 2.3 s a build.
+- Part 5 (new) runs 12 to 48 teams at 9 slots on ceil(n / 6) courts: 16 of 19 sizes at 0 waits on every
+  seed. 12 teams keep 78 (proved, above), 40 and 46 keep theirs (no design yet); 14 and 38 need none.
+
+Two bugs found on the way, both fixed with a test:
+
+- **A team booked twice at one time** (44 teams, 3 games on 11 courts x 6 times, seed 2, search off).
+  The slot annealing priced a clash at 1,000, and one swap touching four teams can save more than that in
+  idle slots at 200 each, so it traded a double booking for fewer waits. A clash now costs 10^7, above
+  any one swap's gap change. A scan of 504 seasons (2 and 3 games, 6 to 44 teams, 4 to 9 slots, the least
+  courts, seeds 1 to 3, search off) found this one season on `main` and none after. Leftover matches the
+  night layout cannot place now also go to a row holding neither of their teams.
+- **Waits the plan said were not there** (26 teams on 5 courts x 9 times, 0 waits planned, 69 in the
+  season). The season's layout orders the exact search by each team's time-row usage so far; on six of
+  nine nights that order spent the 3,000-node budget where the plain order finds a layout at once. It now
+  tries the plain order when the usage order fails. 26, 32, 38 and 44 teams at 9 slots went to 0 waits
+  with the search off.
+
+Open (updated below): three-session designs for 14, 38, 40 and 46 (longer solver runs, or a
+symmetry such as a cyclic group acting on the teams). 40 and 46 closed 2026-11-16 with a cyclic group
+(section "Three sessions at 40 and 46 teams" below); 14 and 38 reach 0 waits without a design.
+
+### Big odd leagues at 9 slots: 33 to 63 teams, one pattern laid out once (2026-11-16)
+
+`MAX_TEAMS` is 64, but before this run no odd league above 31 teams had a stored design, so every odd
+league of 33 to 63 teams at 9 time slots kept its waits on the least courts: 33 teams on 6 courts 377
+waits over seeds 1 to 3, 63 teams on 11 courts 2,643 (`node eval/odd-cyclic-check.mjs`, before).
+
+For an odd league n = 3k (33, 39, 45, 51, 57, 63) the rounds split into k nights with no short
+night, and `eval/odd-cyclic.py`'s patterned starter (the circle method as a 1-rotational round robin)
+covers Z_n with the k translates of one pattern, {0, 1, 2}. So one SAT layout of one night, about
+1.5 n matches, is the whole season. On the least courts at 9 slots these nights leave 6 slots spare
+(48 of 54 at 33 teams, 93 of 99 at 63), and the first pattern laid out every time:
+
+| Teams | Courts x 9 | Matches a night / slots | Layout solve (s) / whole script (s) | Waits before (3 seeds) | Waits now | Build (ms), before to now |
+|---|---|---|---|---|---|---|
+| 33 | 6 | 48 / 54 | 0.4 / 5 | 377 | 0 | 5,350 to 769 |
+| 39 | 7 | 57 / 63 | 0.2 / 14 | 583 | 0 | 5,283 to 849 |
+| 45 | 8 | 66 / 72 | 3.8 / 36 | 966 | 0 | 3,790 to 823 |
+| 51 | 9 | 75 / 81 | 4.1 / 55 | 1,354 | 0 | 3,601 to 1,213 |
+| 57 | 10 | 84 / 90 | 1.2 / 111 | 1,896 | 0 | 4,981 to 1,372 |
+| 63 | 11 | 93 / 99 | 7.0 / 197 | 2,643 | 0 | 7,035 to 1,884 |
+
+The builds also got 3 to 7 times faster: with a stored design the tool lays each night out from the
+stored rows instead of annealing.
+
+**Where it does not reach (measured this run).**
+
+- **n = 3k + 2 (35, 41, 47, 53, 59 teams), the same class as 29.** On the least courts these nights
+  have 3 spare slots (51 of 54 at 35 teams, 60 of 63 at 41), like 29 on 5 x 9 (42 of 45). 35 on 6 x 9
+  and 41 on 7 x 9 were stopped after 8 to 12 minutes with no pattern laid out (the runs shared 4 cores with three others). The proof in the 29-team
+  section rules out the group method for all of them. 29, 35 and 41 were later closed by the SAT
+  neighbourhood search (`eval/odd-lns.py`, sections below); 47 and up are open.
+- **6 time slots.** The odd leagues above 29 teams on the least courts at 6 slots are fully booked or
+  3 slots short of it (31 on 8 x 6: 45 of 48; 33 on 8 x 6: 48 of 48). No pattern laid out at 31 on 8 x 6
+  (145 patterns on each of two starters, 560 s) or 39 on 10 x 6 (307 s).
+- **37 teams on 6 x 9 is fully booked** (54 matches in 54 slots; n = 3k + 1, k = 12), so it went to
+  `eval/odd-orbit.py`, the turned-night construction of the next section: SAT in 2,783 s (111,006
+  variables; 31 teams took 626 s), waits over seeds 1 to 3 701 to 0, 1,246 ms a build. 43 on 7 x 9
+  (k = 14) ran the same script alongside and was stopped after 39 minutes with no answer; a later run
+  given the time answered SAT in 9,849 s, so it is wait-free now (1,073 waits to 0; section "43 teams
+  on 7 x 9" below, `eval/odd-orbit.txt`).
+- **49 teams on 9 courts x 9** is already wait-free without a design (spare courts), so its design was
+  not stored. On the least courts, 8, it is fully booked (n = 3k + 1, k = 16), the turned-night case.
+
+(The whole script's time is mostly checking and decoding the season; up to four runs shared the 4 cores.)
+
+### Fully booked odd nights: one night turned by three k-cycles, 19, 25 and 31 teams (2026-11-15)
+
+19 teams on 3 courts x 9 slots and 25 on 4 x 9 use every slot of a three-round night (27 matches
+in 27 slots, 36 in 36). The three earlier methods all failed there: the whole-season model ran past
+30 minutes, no cyclic pattern laid out (below), and `eval/odd-pack.py`, which searches for any
+renamings of one wait-free night that pack edge-disjoint into the round robin, ran 25 minutes with
+no answer. `eval/odd-orbit.py` fixes the renamings in advance with a group.
+
+**The construction.** Let n = 3k + 1 with k even (7, 13, 19, 25, 31, 37, ...) and let g turn three
+rings of k teams (0..k-1, k..2k-1, 2k..3k-1) one step each, fixing team 3k and the bye. Under g a
+pair of half-turn opposites in one ring ({0, k/2}, ...) has an orbit of k/2. Those 3k/2 pairs and
+{3k, bye} cover every team once, so together they are one round: the last night, one game per
+team. Every other pair has an orbit of exactly k, and there are 3(n + 1)/2 such orbits, exactly the
+pairs of one three-round night with its bye pairs. So a wait-free night H that takes **one pair
+from every full orbit** gives the season: nights H, gH, ..., g^(k-1)H use every pair once, each is
+H with its teams renamed (the same rows), and the short orbits are the last round. The SAT model
+is one night (`odd-night-sat.py`'s match rows and window shapes plus "exactly one pair per orbit").
+
+| Teams | Courts x 9 | k | Solve (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|
+| 19 | 3 | 6 | 23 | 171 | 0 |
+| 25 | 4 | 8 | 141 | 281 | 0 |
+| 31 | 5 | 10 | 626 | 499 | 0 |
+
+It also finds the stored 13 on 3 x 6 (fully booked) in 0.0 s and 19 on 5 x 6 in 0.2 s (the
+whole-season model: 3.4 s and 66 s), and it is UNSAT for 13 on 2 x 9, which the whole-season model
+solved, so a "no" rules out this group only. Sizes 3k + 2 (29 teams) are not covered: with odd k the
+short orbits are a triangle, not two rounds. Measurements: `eval/odd-orbit.txt`;
+`node eval/odd-cyclic-check.mjs 19:3:9 25:4:9 31:5:9` reruns the tool's before and after.
+`doubleheader.test.mjs` builds all three wait-free (and with waits when the search is off), and the
+stored-designs test re-checks the solver's rows for all 24 designs. (`odd-night-sat.build` gained a
+`fix_round0` flag, on by default, so a caller with its own structure can drop the round-0 fix.)
+
+29 on 5 x 9 (3k + 2; no group of order k can work, proved in the next section) was solved by a
+neighbourhood search instead (two sections down). 37 on 6 x 9
+was solved by the same script on 2026-11-16 (2,783 s, section above) and 43 on 7 x 9 on 2026-11-17
+(9,849 s); 49 on 8 x 9 is the next fully booked size.
+
+### 29 teams on 5 x 9: why one turned night cannot work, and what was tried (2026-11-16)
+
+29 teams on 5 courts x 9 slots is the open size from the section above (42 matches a night in 45
+slots). The tool leaves 334 waits over seeds 1 to 3 (`node eval/odd-cyclic-check.mjs 29:5:9`,
+3.6 s a build). This run did not find a wait-free season. It found why the method that solved 19,
+25 and 31 cannot, measured three other routes, and left a script for the next run.
+
+**No group of order k can turn one night into the season (proof).** Write n = 3k + 2 (k = 9 at 29
+teams), so N = n + 1 = 3(k + 1) counting the bye. For `eval/odd-orbit.py`'s idea the k full nights
+must be one orbit of a group G of order k acting on the teams, and every element must fix the bye
+(a rename that moves the bye puts a sitting-out team on a court). Take a prime p dividing k (p is
+odd, since k is) and h in G of order p. The points h fixes number N mod p, which is 3 mod p, or 0
+when p = 3; it includes the bye, so h fixes at least 3 points. A pair of h-fixed points lies on
+some night X with hX = X, and in one regular orbit of nights no full night is fixed by h, so every
+such pair is on the short two-round night. Three h-fixed points give a triangle there, and two
+matchings cannot hold a triangle. So the "triangle, not two rounds" note above is not a quirk of
+the three k-cycles: no group of order k works, for any 3k + 2 with k odd (17, 23, 29, 35, ...).
+
+**What was tried, all on this 4-core container (`eval/odd-triple.txt`):**
+
+- **1-rotational round robins** (`eval/odd-cyclic.py --random-only`, new flag: skip the patterned
+  starter). Three more random starters (seeds 101 to 103), 126 night patterns each, 447 to 461 s a
+  starter: none lays out. With the three tried before, 756 patterns, none.
+- **One night exists.** `odd-night-sat.py 29 --courts 5 --times 9 --shape --nights 1` is SAT in
+  575 s (151,246 variables). Its layout is three near-closed sessions: 8 teams in rows 0 to 2,
+  7 in rows 3 to 5, 8 in rows 6 to 8, and six teams (the three sitting out among them) bridging
+  the sessions. A 1-rotational night spreads every team's opponents round Z_29, which is likely why
+  none of its patterns fit this shape.
+- **A rename of order 3 with fixed nights** (`eval/odd-triple.py`, new). g turns eight 3-cycles and
+  fixes six points (five teams and the bye). The five rounds g fixes hold the six fixed points'
+  15 pairs as the one 1-factorization of K6 and are the short night plus one fixed night; the other
+  24 rounds fall into eight orbits {R, gR, g^2 R}, laid out either as orbit nights (three nights,
+  one layout) or as "turned" nights {R, gR, g^2 R}. The model lays out 6 to 10 distinct nights
+  instead of 10. At 29 the fixed night alone lays out in 3 s, but the whole model (2, 5 or 8 turned
+  nights; CaDiCaL 1.5 and 1.9) gave no answer in 50 minutes each. It is UNSAT for 11 teams (two
+  3-cycles give only three g-fixed matchings, five are needed) and for 17 on 3 x 9 with one turned
+  night (its fixed night has no layout, 0.9 s), so it is not a route to those sizes either; 17 and
+  23 are solved already by other scripts.
+
+Solved since by a different route, the next section (`eval/odd-lns.py`, no group). An order-2 rename
+was not needed: worked through, an involution fixing two points forces one round (every swapped pair
+plus the two fixed points) and leaves six of the ten nights to lay out, about what odd-triple.py had.
+
+### 29 and 35 teams, solved: two nights re-dealt at a time (2026-11-16, latest)
+
+The open size above now has a wait-free season, stored like the others: over seeds 1 to 3 the tool
+goes from 334 waits to **0**, and a build from 3.6 s to 1.1 s (`node eval/odd-cyclic-check.mjs
+29:5:9`). The next size of the same class followed: 35 teams on 6 x 9, 505 waits to **0**, 3.8 s to
+1.5 s a build. Both came from `eval/odd-lns.py` (new), which uses no group at all.
+
+**The search.** The state is a whole round robin (29 rounds of K_30, the bye as team 29) in the
+tool's night order: nine nights of three rounds and a last night of two. A night is good when its
+own matches have a wait-free layout, a small SAT question (one night's 42 matches, not the 435 pairs
+the one-night model chose from, which is why that model took 575 s). A step frees two nights, at least
+one bad, and asks the solver to deal the 90 pairs they hold into the same six rounds again, each pair
+once and each team once a round, with a layout for both nights, a good-night indicator per night
+that switches its back-to-back clauses on, and "at least one more good night than before". The
+other eight nights keep their pairs, so every state is a round robin. When six steps in a row find no
+improvement inside their 120 s, it takes a sideways step (as many good nights, pairs re-dealt with
+random phases) so the bad night sees new pairs. Each team's rows are encoded as one start row and a
+window of g rows, or g - 1 for a team that sits out tonight, which the solver handles far better
+than the betweenness clauses (row a and row c imply every row between).
+
+| Run (4 at once, 4 cores) | Good nights over time | Result |
+|---|---|---|
+| seed 6 | 1 at 29 s, 5 at 123 s, 8 at 1,018 s, 10 at 1,186 s | stored |
+| seeds 3, 5 | 9 of 10 at 991 s and 1,046 s | stopped when seed 6 finished |
+| seed 4 | 8 of 10 at 1,049 s | stopped |
+| 35 teams, seed 1 | 1 of 12 at 205 s, 5 at 764 s, 10 at 2,413 s, 12 at 4,724 s | stored |
+| 35 teams, seed 2 | 10 of 12 at 2,920 s | stopped |
+| 41 teams, seeds 1, 2 | 1 of 14 at 262 s, no step landed | stopped to free cores |
+
+What did not work on the way (`eval/odd-lns.txt`): Glucose 4 with the betweenness clauses sat at
+1 of 10 nights for 10 minutes; three nights freed a step climbed more slowly than two (6 of 10 at
+2,000 s). A first version also held the two-round last night to three-game windows, which it can
+never meet, and stalled at 9 of 10 for 112 steps; windows now follow the night's round count.
+
+`doubleheader.test.mjs` builds 29 on 5 x 9 wait-free (and with waits when the search is off), and
+the stored-designs test re-checks the solver's rows for all 33 designs (35 on 6 x 9 is built the same way). `eval/write-odd-designs.mjs`
+gained `--append` (keep the stored designs, add new ones), since the earlier solver output is not
+kept in the tree; a plain run with no files rewrites the file unchanged.
+
+Open: the same class at 47 on 8 x 9 (41 on 7 x 9 closed, next sections) (3 spare slots
+a night, no group of order k), and the fully booked 49 on 8 x 9 (43 on 7 x 9 closed 2026-11-17 by
+`eval/odd-orbit.py`, the section after next).
+
+### 49 teams on 8 x 9: a turn-fixed night does not lay out, and two hours of four solvers (2026-11-17, latest)
+
+The open fully booked size, 49 teams on 8 courts x 9 slots, was estimated at about 11 hours for
+`eval/odd-orbit.py` on one core. This run tried to cut that and did not. Both results are negative,
+and both are written down so the next run skips them (`eval/odd-orbit-sym.txt`).
+
+- **A second symmetry: no layout on a fully booked night.** `eval/odd-orbit-sym.py` adds to the
+  orbit model that the night's set of pairs is also fixed by turning the three cycles (A to B to C to
+  A, same position). That commutes with g and moves every full orbit, so the solver picks one pair
+  per class of three orbits. The pairs alone always exist (`eval/odd-orbit-sym-pairs.py`, SAT at 13
+  and 19). With the layout, every fully booked size tried was UNSAT: 13 on 3 x 6 in 0.5 s, 19 on
+  3 x 9 in 82 s, and 25 on 4 x 9 gave no answer in 11 minutes against 141 s without the symmetry.
+  With a court to spare it is SAT (13 and 19 on 4 x 9; 7 on 3 x 6). Fixing only some kinds of orbit
+  (`--only`) was UNSAT at 13 or no faster at 19 (39 s against 34 s). 49 on 8 x 9 is fully booked, so
+  this is not a route there. Two other symmetries fail on paper: swapping A and B pointwise maps an
+  orbit onto itself with no fixed pair, and any turn whose cube is a power of g other than the
+  identity puts two pairs of one orbit in the night.
+- **The plain model with four solvers at once, two hours each: no answer.** CaDiCaL 1.9, CaDiCaL
+  1.5.3, MapleChrono, and CaDiCaL 1.9 with totalizer instead of sequential-counter cardinalities,
+  one per core, all stopped at 6,600 to 7,000 s. That fits the ~4x-a-size trend (43 on 7 x 9 took
+  9,849 s alone).
+
+What is left for 49: one run of `eval/odd-orbit.py 49 --courts 8 --times 9 --solver cd19` of about 11 hours
+on its own core (a session's background limit is 2 hours, so it needs a resumable or split search),
+or a model that fixes the window shapes and team positions first. The tool still builds 49 on 8 x 9
+with waits.
+
+### 47 teams on 8 x 9: five more runs from 13 of 16, no climb (2026-11-17, later)
+
+The next step the section below asked for, run as written plus one new setting: three resumes of
+`eval/odd-lns.py` from the stored 13-of-16 state, side by side on four cores, 6,000 s each, and
+`eval/lns-bad-night.py` on the fourth (full logs at the end of `eval/odd-lns.txt`).
+
+| Seed | Settings | Steps | Sideways | Better | Failed repairs |
+|---|---|---|---|---|---|
+| 131 | `--also 15` | 23 | 4 | 0 | 18, all timeouts |
+| 132 | `--also 15 --sideways-after 2` | 28 | 11 | 0 | 18, all timeouts |
+| 133 | `--free 3` (new at 47) | 20 | 1 | 0 | 19, all timeouts |
+
+- **The search has stalled at 13.** With seeds 121 and 122 from the last session, five runs from 13
+  have found no climb in 26,870 core-seconds. The bad nights stay 2, 3 and 11. The sideways steps
+  re-deal their pairs without making any of them lay out.
+- **Night 2 alone is not proved impossible.** Its 69 matches (7,485 variables, 17,103 clauses)
+  came back UNKNOWN after 3,600 s with the one-night model. At 41 teams the last bad night was UNSAT
+  in 677 s, and that verdict pointed straight at a re-deal. Here a layout may exist, but the search's
+  300 s repairs never reach it. A longer budget (seed 92, 900 s) already did worse.
+- **Freeing three nights did not help.** `--free 3` made one sideways step in 6,208 s, the slowest
+  of the three. That matches 41 teams, where freeing three nights a step also stalled.
+
+The stored state is unchanged (13 of 16). Throwing more seeds at the same moves is unlikely to pay
+off. The next attempt should change the method: an orbit model like the one that closed 43 on 7 x 9
+(`eval/odd-orbit.py`, with the 4x-a-size cost) for the n = 6m + 5 family, or a one-night model with
+symmetry breaking so that night 2 returns SAT or UNSAT within an hour.
+
+### 47 teams on 8 x 9: 5 to 13 of 16 nights, and why the repairs fail (2026-11-17, later)
+
+The state saved by the last run (5 of 16, "47 teams on 8 x 9: 5 of 16 nights" below) is now **13 of 16** wait-free nights,
+stored in `eval/lns-states/47-8x9.json` and checked by `lns-state.test.mjs`. The tool still anneals
+47 on 8 x 9, with waits, until the last three nights lay out. Same script, `eval/odd-lns.py`, four
+cores, about 4.5 hours, one container restart; full logs in `eval/odd-lns.txt`.
+
+- **A relay, not one long run.** Each time a run found a better state it was committed, and the
+  slowest run was restarted from it: seed 71 took the state from 5 to 11 (12,757 s, steps at
+  2,915, 6,496, 8,614, 9,201, 12,202 and 12,757 s), seed 78 found a 10 of its own from 9, and after
+  the restart seed 103 took 11 to 12 on its first step (372 s) and to 13 at 1,348 s. Seed 112
+  reached 12 separately.
+- **Every failed repair ran out of time; none was proved impossible.** The script now counts failed
+  repairs by cause (`timeout`, `unsat`, `unconfirmed`, printed with each step). Over the instrumented
+  runs: at least 98 failed repairs, every one a timeout, 0 UNSAT, 0 unconfirmed. That differs from 41 teams, whose last bad
+  night was UNSAT on its own pairs (`eval/lns-bad-night.py`), and says the step budget, not the
+  pairs, is what stops a step here.
+- **But a longer budget did worse.** Seed 92 with 900 s repairs made one sideways step in about
+  6,500 s and never climbed; the 300 s runs climbed in the same time. Most climbs came within one to
+  four repairs of a sideways step (as many good nights, pairs re-dealt), which the search tries only
+  after 6 failures in a row. `--sideways-after N` (default 6) makes that number an option; seed 112
+  with 2 reached 12 from 11 at 841 s, seed 103 with 6 at 372 s, so there is no verdict yet. The
+  last two runs, from 13 with `--also 15` (one with `--sideways-after 2`), took 8 sideways steps
+  between them in about 4,000 s each and no climb.
+- **Freeing the short night helps here.** At 41 teams `--also` (always free the short last night
+  with a bad one) was untested. At 47, both of seed 103's climbs, 11 to 12 and 12 to 13, freed night
+  15 with a bad night, so its 2 rounds (46 matches in 72 slots) took the pairs that did not fit.
+
+Next: `python3 eval/odd-lns.py 47 --courts 8 --times 9 --seed S --step 300 --also 15 --resume-check 60
+--resume eval/lns-states/47-8x9.json --save /tmp/47.json` on four cores (two of them with
+`--sideways-after 2`), then, once the season is whole, `node eval/write-odd-designs.mjs --append`.
+
+### 43 teams on 7 x 9: one fully booked night, turned fourteen times (2026-11-17)
+
+**43 teams on 7 courts x 9 slots now plays three back-to-back games a night for every team, every
+night.** Through the tool, seeds 1 to 3 (`node eval/odd-cyclic-check.mjs 43:7:9`): **1,073 waits to
+0**, 2.5 s a build. It is the fifth size of the fully booked n = 6m + 1 family after 19, 25, 31 and
+37: three rounds of 22 pairs is 63 real matches a night in exactly 63 slots, so every court is busy in
+every slot and every team plays rows r, r + 1, r + 2.
+
+- **Nothing new in the method, only the time.** `eval/odd-orbit.py` (three 14-cycles, team 42 and the
+  bye fixed; one night that takes one pair from each of the 66 full orbits, turned 14 times, plus the
+  half-turn pairs as the last round) was stopped after 39 minutes on 2026-11-16. Run alone on a core
+  with CaDiCaL 1.9 (`--solver cd19`), it answered SAT in **9,849 s** (166,511 variables, 377,525
+  clauses). The solve times so far grow about 4x a size: 23 s, 141 s, 626 s, 2,783 s, 9,849 s.
+- **Stored and checked.** The season was re-checked whole by `odd-night-sat.check` before it printed,
+  appended with `node eval/write-odd-designs.mjs --append eval/odd-designs/43-7x9.json` (35 designs),
+  and `doubleheader.test.mjs`'s stored-designs test re-checks its rows like the others.
+
+At 9 slots on the least courts every odd league from 11 to 45 teams is now wait-free except 47 (8 x 9,
+n = 3k + 2, the neighbourhood search: best state 13 of 16 nights since 2026-11-17 later,
+`eval/lns-states/47-8x9.json`, section above) and 49 (8 x 9, fully booked; at the 4x trend the orbit model needs about 11 hours on a core).
+
+### 47 teams on 8 x 9: 5 of 16 nights, saved for the next run (2026-11-17)
+
+47 teams on 8 x 9 (69 matches a night in 72 slots, 15 nights of three rounds and a short night of two)
+is the next size of the 29, 35, 41 class. `eval/odd-lns.py` ran on it for the first time this session
+(container restarted once; `--save` kept the states). Best state: **5 of 16 nights**, stored as
+`eval/lns-states/47-8x9.json`; `lns-state.test.mjs` now checks every file in `eval/lns-states/`
+(round robin, and each stored night wait-free on its own courts x slots), not only the 41-team one.
+
+| Run | Good nights over time | End |
+|---|---|---|
+| seeds 1, 3 (fresh, 300 s steps) | 1 at 300 s, 2 at ~500 s | restarted with the container |
+| seed 2 (fresh) | 1 at 300 s; 3, 4, 5 at 5,169, 6,024, 6,123 s | 5 of 16 at 9,166 s |
+| seed 11 (resumed from seed 1 at 2) | 3 at 3,650 s | 3 of 16 at 9,067 s |
+| seed 13 (resumed from seed 3 at 2) | 4 at 4,476 s, 5 at 5,370 s | 5 of 16 at 9,012 s |
+| seeds 31, 41, 51, 61 (resumed at 5; 51, 61 with `--also 15`) | 5 at 661 s (60 s re-checks); no step accepted | lost to a second container restart (31: ~1.3 h in) |
+
+The climb is slower than 41 teams' (1 to 7 good nights in about 4,200 to 5,500 s there, 1 to 5 in
+5,000 to 6,000 s here), and a resume spends up to 180 s re-checking every unlaid night before its
+first step (`--resume-check 60` cut that for the later resumes). Next:
+`python3 eval/odd-lns.py 47 --courts 8 --times 9 --seed S --step 300 --limit 14000 --resume-check 60
+--resume eval/lns-states/47-8x9.json --save /tmp/47.json`, four seeds on four cores, and the short last
+night (night 15) freed with the bad one once few bad nights are left (`--also 15`), the move that
+closed 41.
+
+### 41 teams on 7 x 9: the last night, and a season with no waits (2026-11-16)
+
+The 13-of-14 state below is finished: **41 teams on 7 courts x 9 slots now plays three back-to-back
+games a night for every team, every night.** Through the tool, seeds 1 to 3: 752 waits to 0, and a
+build takes 2.0 s instead of 3.4 s, because it lays each night out from the stored rows instead of
+annealing.
+
+- **The bad night was impossible, not slow.** `eval/lns-bad-night.py` takes a saved state and solves
+  each night with no stored layout alone, with the same one-night model the search uses, under one
+  long limit. Night 5's 60 pairs came back UNSAT in 677 s: no layout of them is wait-free, so no
+  amount of extra solve time on that night would have helped. Only a re-deal could fix it.
+- **What fixed it.** A resumed run (`--free 2 --step 300`, seed 23) freed night 5 together with the
+  short last night (2 rounds, 40 matches in 63 slots, 23 spare) on its ninth step. The step re-dealt
+  those five rounds' pairs and laid both nights out: the short night took the pairs night 5 could not
+  place. The pick was random. A new `--also 13` option, which always frees the short night with the
+  bad one, was started after the UNSAT verdict and had not landed a step when seed 23 finished, so
+  it is untested. Two runs freeing three nights a step made one sideways step in 45 minutes.
+- **Stored and checked.** The season was re-checked whole before it printed, written to
+  `odd-designs.mjs` by `eval/write-odd-designs.mjs` (which checks it again, match by match), and
+  `eval/lns-states/41-7x9.json` now holds the finished state, which `lns-state.test.mjs` checks in Node.
+
+The n = 3k + 2 class on the least courts is now wait-free at 29, 35 and 41 teams. 47 on 8 x 9 is next;
+it has 3 spare slots a night like the others and 16 nights. Full log: `eval/odd-lns.txt`.
+
+### 41 teams on 7 x 9: 13 of 14 nights, and a search that survives the session (2026-11-16)
+
+41 teams on 7 courts x 9 slots (60 matches a night in 63 slots) is the next size of the 29 and 35
+class. An earlier run of `eval/odd-lns.py` sat at 1 of 14 good nights with no step accepted. This run
+did not finish the season: the best state has **13 of 14 nights** wait-free, and three resumed runs
+of 80 minutes each could not lay out the last one. The tool still anneals 41 on 7 x 9, with waits.
+What landed is the search's ability to get that far and to carry on later:
+
+- **A repair keeps its own layouts.** The solver lays out every night it marks good while it re-deals
+  the pairs; the script used to throw that away and lay each night out again under a 20 s limit,
+  rejecting the step when the second solve timed out. At 41 teams it often did. Now the repair's
+  layouts go straight into the cache (the final season is still re-checked whole before it prints).
+  With this change four fresh seeds climbed from 1 to 9, 10 and 11 of 14 in their 3.9 hours, where
+  the old code had not landed one step.
+- **`--save` and `--resume`.** The state (the round robin and the layouts of its good nights) is
+  written after every accepted step; `--resume` starts from it and re-checks each stored layout
+  match by match (`night_ok`) instead of solving it again. The first resumes had only the rounds and
+  re-checked under 20 s, so 11 good nights came back as 9 or 10; nights with no stored layout now get
+  180 s (`--resume-check`), and 12 came back as 12. Resuming a new seed on the best state is how the
+  run went from 11 to 13 (seed 4, then seed 8).
+
+| Run | Good nights over time | End |
+|---|---|---|
+| seeds 1, 3, 4 (fresh) | 1 at ~250 s; 7, 6, 7 at ~4,200 to 5,500 s | 10, 9, 11 of 14 at 14,000 s |
+| seed 8 (resumed from seed 4 at 11) | 11 at 696 s, 13 at 6,081 s | 13 of 14 at its limit |
+| seeds 11 to 13 (resumed from seed 8 at 13) | no gain in 4,800 s each | 13 of 14; the bad night moved (4, 2, 5) |
+
+The state is in the tree, `eval/lns-states/41-7x9.json`, and `lns-state.test.mjs` checks it in
+Node: a whole round robin, and each of the 13 stored nights wait-free on 7 x 9 (one row per match,
+at most 7 a row, each team's games back to back). The next run resumes from it:
+`python3 eval/odd-lns.py 41 --courts 7 --times 9 --seed S --step 150 --resume
+eval/lns-states/41-7x9.json --save /tmp/41.json`. Full log: `eval/odd-lns.txt`.
+
+### Three sessions at 40 and 46 teams: one night turned by a group, solved in 0.1 s (2026-11-16)
+
+40 teams on 7 courts x 9 slots and 46 on 8 x 9 were the two even sizes left with waits at three
+sessions a night (Part 5 of `eval/three-game-nights.txt`: 794 and 1,201 waits over seeds 1 to 3,
+and 18.5 s and 11.8 s a build spent searching). The whole-season SAT model
+(`eval/session-design-sat.py`) ran out of its 300 s on both. `eval/session-orbit.py` (new) asks
+for one night instead, the idea `eval/odd-orbit.py` used for fully booked odd leagues.
+
+**The construction.** Write n = 3k + 1 with k odd (40 = 3 x 13 + 1, 46 = 3 x 15 + 1). Let g add 3
+(mod 3k) to every team but the last, which it fixes. Then g has order k, and because 3k is odd no
+power of g except the identity fixes a pair, so every pair's orbit has exactly k pairs: there are
+n(n - 1) / 2k = 3n / 2 orbits, exactly the number of matches in a night of three rounds. A night H
+that is three perfect matchings, takes one pair from every orbit, and splits into three closed
+blocks of at most 2 x courts teams gives the season: H, gH, ..., g^(k-1) H are k nights of three
+rounds (all 3k = n - 1 rounds), every pair meets once, and each night is H with its teams renamed,
+so its blocks have the same sizes. Unlike the odd case nothing is left over for a short night.
+The SAT model is one night: 3 x n(n - 1)/2 pair-and-round variables plus block membership.
+
+| Teams | Courts x 9 | k | Model (vars / clauses) | Solve | Blocks | Waits before (3 seeds) | Waits now | Build before / now |
+|---|---|---|---|---|---|---|---|---|
+| 40 | 7 | 13 | 10,472 / 37,022 | 0.1 s | 14 + 14 + 12 | 794 | 0 | 18.5 s / 1.5 s |
+| 46 | 8 | 15 | 13,883 / 49,154 | 0.1 s | 16 + 16 + 14 | 1,201 | 0 | 11.8 s / 2.1 s |
+
+(Solve times repeated three times each, same answer; 4-core container, CaDiCaL 1.5 via
+python-sat 1.9.dev22.) The two designs are stored in `session-designs.mjs` like the others
+(`node eval/write-session-designs.mjs --append out/40-3x9.json out/46-3x9.json`; `--append` is
+new, because the earlier solver output is not kept in the tree and a full rewrite would drop the
+32 stored designs). `doubleheader.test.mjs` re-checks both codes and builds both leagues wait-free.
+With them every even size of 14 to 48 teams has 0 waits at 9 slots on the least courts; only 12
+teams on 2 courts keeps its 78 (proved impossible above).
+
+The same script also solves 22, 28 and 34 teams (k = 7, 9, 11; already stored from the whole-season
+model) and 52, 58 and 64 teams (k = 17, 19, 21; 0.3 s each, blocks 18 + 18 + 16, 20 + 20 + 18,
+22 + 22 + 20). Those three are not stored: the eval and the stored designs stop at 48 teams, and
+the one-character code covers 64 teams at most. n = 3k + 1 with k even (14, 26, 38) is not
+covered: there the half-turn pairs in each ring have orbits of k / 2.
+
+### Odd leagues one night at a time: 21 and 23 teams on 4 x 9, 27 on 5 x 9 and 7 x 6 (2026-11-15, latest)
+
+The whole-season model above timed out on every odd size from 19 teams up at 9 slots. Those runs
+ask for the round robin and all of its nights at once. `eval/odd-cyclic.py` fixes the round robin
+instead, so it only has to solve one night.
+
+**Why one night is enough.** In a 1-rotational round robin of n odd teams (a *starter*: the nonzero
+residues mod n in pairs, using each difference +-d once; round r is the starter plus r, and team r
+sits out), adding 1 to every team maps round r to round r + 1. So the night made of rounds
+{s, s + a, s + b} is the night {0, a, b} with its teams relabelled. If one night's layout exists,
+every translate of it has the same layout. The script:
+
+1. asks a small SAT model (about 3n matches, each given a time row; at most `courts` a row; no team
+   twice in a row; each team's rows consecutive) for the layout of each pattern {0, a, b};
+2. covers Z_n with disjoint translates of the patterns that pass, leaving n mod 3 rounds for the
+   short last night (depth-first search);
+3. orders the rounds night by night, re-checks the season with `odd-night-sat.py`'s own `check`,
+   and prints the same JSON, so `eval/write-odd-designs.mjs` stores it unchanged.
+
+It tries the patterned starter (the circle method's {-k, k}) first, then random starters
+(`--starters`, `--seed`).
+
+| Teams | Courts x 9 | Courts at 6 slots | Starter | Solve (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|---|
+| 21 | 4 | 5 | patterned, pattern {0,1,2} | 0.2 | 102 | 0 |
+| 23 | 4 | 6 | 5th tried (random, seed 1) | 26 (221 in all) | 184 | 0 |
+| 27 | 5 | none stored | patterned, {0,1,2} | 0.3 | 231 | 0 |
+
+At 6 slots it also found **27 teams on 7 courts** (39 matches a night in 42 slots; the whole-season
+model passed 40 minutes): the 10th starter tried has one pattern, {0, 4, 14}, whose nine translates
+cover all 27 rounds (56 s on that starter, 849 s in all). Waits over three seeds 201 to 0.
+
+It also found the stored 15 and 17 on 3 x 9 again in 0.1 s and 22 s, where the whole-season model
+took 51 s and 245 s.
+
+**Where it fails: fully booked nights.** At 13 teams on 3 x 6, 17 on 4 x 6, 13 on 2 x 9, 19 on 3 x 9
+and 25 on 4 x 9 every slot of the night is used. No pattern of any starter tried laid out (42
+starters x 51 patterns at 19 teams), while the whole-season model solves the 6-slot ones in seconds.
+One 19-team night on 3 x 9 does exist (`odd-night-sat.py ... --nights 1`, SAT in 33 s), so 19 on
+3 x 9 is still open. Only the translation structure has been ruled out, for the starters tried.
+Measurements: `eval/odd-cyclic.txt`. `node eval/odd-cyclic-check.mjs 23:4:9` reruns the tool's
+before and after.
+
+`doubleheader.test.mjs` builds 21 and 23 teams on 4 x 9, 27 on 5 x 9 (with waits when the search is
+off) and 27 on 7 x 6 wait-free. The stored-designs test re-checks the solver's rows for all 21 designs.
+
+Open: 19 on 3 x 9 and 25 on 4 x 9 (solved since, above: `eval/odd-orbit.py`), and 29 on 5 x 9
+(see `eval/odd-cyclic.txt`).
+
+### Odd leagues at 9 time slots: fewer courts, and three more proofs (2026-11-15, later)
+
+The odd designs above were all solved at 6 time slots. A league with 9 slots (three sessions a
+night) could use them, but only on the 6-slot court count, and on the courts the count bound asks
+for at 9 slots the tool left long waits: 11 teams on 2 courts 31 waits over seeds 1 to 3, 13 on 2
+courts 95, 17 on 3 courts 60, 19 on 3 courts 171, 25 on 4 courts 281
+(`eval/three-game-nights.txt`, part 7 "before").
+
+`eval/odd-night-sat.py ... --times 9 --shape` (the same model; `window_shapes` already took any
+slot count) found seasons for:
+
+| Teams | Courts x 9 | Courts at 6 slots | Solver (s) | Waits before (3 seeds) | Waits now |
+|---|---|---|---|---|---|
+| 9 | 2 | 3 | 1.3 | 0 | 0 |
+| 11 | 2 | 3 | 6.0 | 31 | 0 |
+| 13 | 2 | 3 | 100 | 95 | 0 |
+| 15 | 3 | 4 | 51 | 0 | 0 |
+| 17 | 3 | 4 | 245 | 60 | 0 |
+
+(Four runs shared a 4-core container, so the solver times are rough.) 9 and 15 teams were already
+wait-free at 9 slots without a design (spare slots), so their designs are a guarantee, not a gain.
+
+**Three settings proved to keep a wait** (UNSAT without the shape constraints, so the proof does not
+lean on `window_shapes`): 5 teams on 1 court x 9 (0.0 s), 7 on 1 court x 9 (0.0 s) and 7 on 2 courts
+x 9 (12 s). They join `PROVED_NO_WAIT_FREE`, so 7 teams on 2 courts x 9 now get "need at least 3
+courts ... checked for every possible 7-team season on 2 courts" instead of a bound they can't reach.
+
+**Stored per slot count.** `eval/write-odd-designs.mjs` used to keep one design per team count (the
+fewest courts); a 9-slot design on fewer courts would have replaced a 6-slot one and left 6-slot
+leagues without any. It now keeps the fewest courts per (teams, slots), and a 9-slot design only
+when it saves a court over the 6-slot one (`designedNights` already takes any design with
+`times <=` the league's). `doubleheader.test.mjs` checks both: 11 and 13 teams on 2 x 9 build
+wait-free (and keep waits with the search off), and 11 on 3 x 9 still uses the 6-slot design.
+
+Open: 19 teams on 3 x 9 (fully booked; the `--shape` run passed 30 minutes), 21 on 4 x 9 (passed
+20), 23 and 25 on 4 x 9, 27 and 29 on 5 x 9 (29 passed 25), and 27 on 7 x 6 (passed 40 this time,
+25 before). At 9 slots a full night allows far more window shapes than at 6, so the implied
+constraints prune less; a symmetry break on the first night, or solving night by night with the
+pairs left, are the next things to try (`eval/odd-night-sat.txt`).
+
+### Odd leagues, three games a night: solved with the layout, and two proofs (2026-11-15, later)
+
+An odd league could not use any of the above. Each round one team sits out, so on a night of three
+rounds three teams play two games and the rest play three; a closed block cannot hold a two-game
+team whose bye falls in its middle round, and `sessionBlocks` returns null for odd n. At 6 time
+slots on the least courts the search left 7 teams 7 waits, 9 teams 31, 11 teams 16 to 22 and 13
+teams 52 (`eval/three-game-nights.txt`, part 1).
+
+**The solver lays the night out itself.** `eval/odd-night-sat.py` asks for a round robin of n + 1
+teams (team n is the bye) and, for every night, a time row for each match: at most `courts`
+matches a row, no team twice in a row, and each team's rows consecutive (q[a] and q[c] imply q[b]).
+That is the question `nightRowsExact` answers for one night, asked of the whole season at once.
+
+**The shape of a full night is forced, and saying so is what makes it solvable.** When every slot
+is booked (9 teams on 2 courts, 13 on 3, 17 on 4, 21 on 5, 25 on 6, all at 6 slots), every row
+holds exactly 2 x courts teams, and the row counts leave one way to start the windows: the
+three-game teams split evenly into rows 1-3 and rows 4-6, and the three two-game teams take rows
+1-2, 3-4 and 5-6 (derived by hand for 9 teams in `eval/nine-on-two.py`, and enumerated for every
+size by `window_shapes`). With a few slots spare (15 on 4, 19 on 5, 23 on 6) six shapes fit.
+`--shape` adds these as implied constraints: each team takes one window, the night follows one
+allowed shape (a selector), and the two-game windows go to that night's bye teams. Without them
+the solver ran past 30 minutes on 9 and 13 teams and past 20 on 15 and 19; with them 13 teams
+takes 3 to 4 s, 15 teams 1 s, 19 teams 66 s, 25 teams 78 s.
+
+**Two settings are proved to keep a wait**, though the one-night count allows both:
+
+- **7 teams on 2 courts x 6 times:** UNSAT in 0.1 s (2.4 s without the shapes).
+- **9 teams on 2 courts x 6 times:** the forced shape makes each night two groups of four (the
+  three-game teams of one session and a two-game team) that play K4 minus one edge, joined through
+  the middle two-game team. `eval/nine-on-two.py` enumerates all 45,360 such nights, fixes the first
+  by relabelling, and finds 56 possible second nights and no third: no season exists
+  (`eval/nine-on-two.txt`, 1.3 s). The SAT model with `--shape` agrees (UNSAT, 11 s).
+
+Both join `PROVED_NO_WAIT_FREE` (with 8 teams on 2 x 6 and 12 on 2 x 9 from earlier), so the
+waits notice now says "need at least 3 courts ... checked for every possible 7-team season on 2
+courts" where it used to say "more courts or fewer time slots close them".
+
+**In the tool.** The designs are stored in `odd-designs.mjs` (generated by
+`eval/write-odd-designs.mjs`, which re-checks each; JSON in `eval/odd-designs/`), one per size on
+the fewest courts found: 5 to 25 and 29 teams (12 designs, 7 KB with their rows; per-size solver
+times in `eval/odd-night-sat.txt`).
+`oddDesigns(n)` decodes them, and `waitFreeNights` tries `designedNights` first for an odd league
+with a stored design, as it does for even ones. Two details:
+
+- **The tool's own layout search could not always find the solver's layout.** A fully booked
+  21-team night packed under one relabelling of the teams and ran out of its 3,000 nodes under
+  another; a 25-team night needed up to 100,000. So each design carries the solver's rows too
+  (`layout`, one character per match), `designedNights` registers them for its relabelling, and
+  `nightLayout` uses a stored layout only when its own search finds nothing, after checking it
+  (rows in range, at most `courts` a row, every team back to back; `knownLayout`). It also tries up
+  to `ODD_RELABELS` = 8 relabellings of the seed before giving up on a design.
+- The test re-checks every stored design in JS (each pair once, every team once a round and once
+  out, every night's stored rows back to back on its courts) and builds 11 to 25 teams wait-free.
+
+Measured (`node eval/three-game-nights.mjs`, `eval/three-game-nights.txt`, part 6, seeds 1 to 3,
+every season valid), waits with the search off and on, the least courts at 6 slots:
+
+| Teams | Courts | Waits before | Waits now | Build (ms) |
+|---|---|---|---|---|
+| 11 | 3 | 22 | 0 | 144 |
+| 13 | 3 | 52 | 0 | 185 |
+| 15 | 4 | 53 | 0 | 344 |
+| 17 | 4 | 86 | 0 | 311 |
+| 19 | 5 | 89 | 0 | 383 |
+| 21 | 5 | 148 | 0 | 428 |
+| 23 | 6 | 125 | 0 | 581 |
+| 25 | 6 | 217 | 0 | 610 |
+| 27 | 7 | 201 | 201 | 3,352 (no design yet) |
+| 29 | 7 | 293 | 0 | 981 |
+
+7 and 9 teams need 3 courts (proved) and are wait-free there, as before. Part 1's 39 settings: total
+waits 143 to 75, settings with no waits 33 to 35 of 39; what is left there is the proved-impossible
+6, 7, 8 and 9 teams on 2 courts. 5 teams on 1 court x 6 is UNSAT too (0.0 s) and joins the list.
+
+Open: 27 teams on 7 courts (the `--shape` run passed 25 minutes; 23 and 29 took 5 and 6); odd leagues at 9 time slots (three sessions);
+the forced shape as a construction rather than a solver run (a full night is two near-complete
+groups joined through one team, which may have a closed form for every n = 4c + 1).
+
+## Even carry-over (2026-11-11)
+
+Who you play right after whom. Team B *carries over* team A to team C when B plays A and then C in
+its next game; if A is the strongest side, C keeps meeting opponents just out of a hard game.
+Russell's carry-over value (1980) sums the squares of those counts: lower is fairer. The circle
+method this tool has always used is close to the worst case (8 teams: 148, with five of one team's
+seven opponents arriving straight from the same side; the least possible is 48).
+
+- `carryover.mjs`: `carryOver(schedule)` and `carryOverFromOpponents(opponents, { cyclic })` give the
+  matrix, value, worst count, repeated pairs and the floor any schedule with that many games could
+  reach. `lowCarryOverRounds(n, { seed, effort, breakWeight })` searches for a low-carry-over round
+  robin by seeded annealing from the circle method over round swaps, partial team swaps (needed: the
+  circle method is a perfect 1-factorization when n - 1 is prime, so partial round swaps alone
+  cannot leave it) and partial round swaps; `breakWeight` adds a second pass that trades carry-over
+  for fewer home/away breaks. Home/away is then set by a greedy "phase" pass plus annealing with
+  restarts, which finds the minimum n - 2 breaks on the circle timetable for 6 to 20 teams (tested).
+- The page: tick "Spread who you meet next" (share link keeps it; `readSpec({ carryOver: true })`,
+  `buildSchedule` uses `breakWeight: 10` and mirrors for a double round robin). Every schedule's
+  report now shows its carry-over value, floor and worst count, and suggests the option when one
+  pair repeats three times or more. About 1.4 s for 12 teams in Chromium; validator passes.
+- Checked: hand-worked 4-team matrix; all 720 ordered 1-factorizations of 6 teams enumerated
+  (least value 60 cyclic / 42 not, which the search reaches); 8 teams reaches Russell's bound 56
+  (cyclic) and 48 (not); validity, seeding and at least half the circle value for 7 to 20 teams.
+- Real fixture lists (`eval/carryover-real.mjs`, output in `eval/carryover-real.txt`; data
+  `eval/data/openfootball-fixtures.json`, 20 top-flight seasons 2021-22 to 2024-25 from
+  openfootball, CC0). Mirrored double round robin, ordered by matchday:
+
+  | Schedule | Teams | Carry-over | Breaks |
+  |---|---|---|---|
+  | Bundesliga (4 seasons) | 18 | 3,474 to 4,342 | 48 |
+  | Ligue 1 2023-24, 2024-25 | 18 | 1,840, 1,948 | 74, 96 |
+  | circle method | 18 | 14,610 | 48 |
+  | this tool, breakWeight 10 | 18 | 1,926 | 74 |
+  | this tool, carry-over only | 18 | 1,730 | 104 |
+  | EPL, La Liga, Serie A, Ligue 1 (14 seasons) | 20 | 2,278 to 2,564 | 70 to 146 |
+  | circle method | 20 | 21,044 | 54 |
+  | this tool, breakWeight 10 | 20 | 2,136 | 114 |
+  | this tool, carry-over only | 20 | 1,884 | 134 |
+
+  The professional schedules already avoid the circle pattern; the tool lands among them on both
+  counts, without their derby, policing and broadcast constraints. Not yet: a real rec league's
+  strength data (does carry-over move results at that level?), and the
+  search's gap to the floor (12 teams: 136 non-cyclic since the refill search below, against a
+  floor of 120; whether that is the optimum is unknown).
+
+## A double round robin searched as a whole (2026-11-11)
+
+Mirroring the first half of a home-and-away season repeats every carry-over step, so every count
+doubles. `lowCarryOverDoubleRounds(n, { seed, effort, breakWeight })` in `carryover.mjs` searches the
+second half as a round robin of its own, and `buildSchedule` uses it whenever "Spread who you meet
+next" and a double round robin are both ticked.
+
+- Leg one is the single search's result (rounds and home/away). Leg two starts as leg one played
+  backwards with leg one's last round moved to the end: backwards turns every step i -> j into
+  j -> i, so counts spread instead of doubling, and each team's home/away pattern is leg one's
+  reversed and flipped. With `breakWeight` only leg two moves and its venues follow from leg one,
+  so the breaks in the cost are exact; with 0 both legs move on carry-over alone.
+- Kept: each pair meets once per leg (phased, as the date placement plays leg by leg), the return
+  game at the other ground (every team n - 1 home, n - 1 away), no team meets the same side twice
+  running across the halfway point and no team sits out twice running (penalty 1000 each, 0 in
+  every test). `assignVenuesDouble` then improves home/away with one choice per pair.
+- `carryOverFromOpponents` now counts the diagonal in its floor only when a schedule has a
+  back-to-back repeat (`repeats`): a double round robin can, a single one cannot. None of the 20
+  real seasons does, so their floors are unchanged.
+- Measured (`eval/carryover-real.txt`, last columns, seed 1):
+
+  | Teams | Mirrored, w=10 | Whole season, w=10 | Whole season, carry-over only | Floor |
+  |---|---|---|---|---|
+  | 18 | 1,926 / 74 breaks | 1,498 / 88 | 1,334 / 142 | 1,170 |
+  | 20 | 2,136 / 114 | 1,678 / 124 | 1,596 / 184 | 1,460 |
+
+  The 20-team result is below all 14 professional 20-team seasons (2,278 to 2,564) and inside
+  their break range (70 to 146); the 18-team one is below the Bundesliga (3,474+) and Ligue 1
+  (1,840, 1,948), with more breaks than the Bundesliga's minimum 48. 8 teams, carry-over only,
+  reaches the 200 floor (test). About 2 to 2.5 s for 18 to 20 teams in Node.
+- Open: breaks still rise 10 to 19% over mirroring; a search that moves leg one too under exact
+  breaks, or a break-minimal leg-two order (the "French" and "English" schemes) as extra starts.
+- Measured later the same day (`eval/double-frontier.mjs`, output `eval/double-frontier.txt`;
+  break weights 10, 20, 40 and 80 at seeds 1 to 3, each run set against the professional seasons
+  of its size):
+  - **The seed matters more than the weight.** At 20 teams and w=10, seeds 1 to 3 give 1,678 / 124,
+    1,820 / 112 and 1,784 / 108. Raising the weight does not reliably cut breaks: w=80 gives 116,
+    108 and 88. The break side of the search is noisy, so one run is a sample, not the curve.
+  - **18 teams, w=20 to 80 is a better default than 10.** Every one of those nine runs has 68 to 84
+    breaks at 1,574 to 1,634, and six of them dominate both Ligue 1 18-team seasons (1,840 / 74
+    and 1,948 / 96: fewer or equal breaks *and* lower carry-over). At w=10 the breaks are 84 to 88.
+  - **20 teams:** the runs dominate 2 to 5 of the 14 professional seasons each (always EPL 2021-22,
+    2023-24 and 2024-25; sometimes Serie A 2024-25 and La Liga 2023-24). None gets under 88 breaks.
+  - **Moving leg one too adds almost nothing** (tried on a scratch copy, not landed: after the leg-two
+    pass, one or two more passes over both legs under the exact break cost with re-chosen hosts):
+    18 teams 1,498 / 88 went to 1,494 / 86 and then 1,492 / 84, 12 and 20 teams did not change,
+    and it cost 1 to 2 s more. Next is best-of-k (seeds or weights, kept by carry-over plus weight
+    times breaks), which the spread above says is worth more. It would cost k times the time, so
+    it needs the Web Worker first (2.3 s on the main thread for 20 teams in Chromium today).
+
+## Best of four searches, off the page thread (2026-11-11)
+
+One carry-over search is a sample, not the curve (the seed spread above). `bestCarryOverRounds(n,
+{ double, seed, tries, weights, pick, effort })` in `carryover.mjs` runs `tries` searches, each with
+its own seed and a break weight cycling 10, 20, 40, 80, and keeps the one with the least carry-over
++ `pick` x breaks. Try 0 is exactly today's single search, so it never does worse on that score.
+It also returns every try and the frontier (tries no other beats on both counts).
+
+- **Page.** Ticking "Spread who you meet next" now runs four searches in a Web Worker
+  (`carryover-worker.mjs`, with a main-thread fallback), shows "search i of 4 done" as each ends, and
+  caches the result by teams, double, seed and trade, so a rebuild with the same settings is instant.
+  A new choice says what to keep: a balance (`pick` 10, the default), the most even carry-over (0)
+  or the fewest back-to-back home or away games (40); it is in share links (`carryOverPick`). The
+  read-out lists all four tries as carry-over/breaks. Clicked in Chromium: 20-team double round robin
+  in 11.9 s with the worst wait for a frame 17 ms (one search blocked the page for about 2.3 s before);
+  8 teams in about 5 s.
+- **CLI and tests.** `buildSchedule` takes `carryOverTries` (runs it in place) or `carryOverPlan`
+  (rounds the worker found; ignored if its team count or double flag differ) and puts a summary in
+  `schedule.carryOverSearch`. `best-of-k.test.mjs` (10 tests).
+- **Measured** (`node eval/best-of-k.mjs`, output `eval/best-of-k.txt`; seeds 1 to 3, pick 10, each
+  run set against the professional seasons of its size):
+
+  | Teams | Setting | Carry-over | Breaks | Seasons dominated | Time (Node) |
+  |---|---|---|---|---|---|
+  | 18 | 1 search (before) | 1,522 | 86.7 | 1.0 of 6 | 2.1 s |
+  | 18 | 4 x effort 0.25 (same work) | 1,528 | 84.7 | 1.0 | 3.3 s |
+  | 18 | 4 x effort 1 (the page) | 1,573 | 73.3 | 1.7 | 9.1 s |
+  | 18 | 8 x effort 0.5 | 1,562 | 73.3 | 1.7 | 9.5 s |
+  | 20 | 1 search (before) | 1,761 | 114.7 | 3.0 of 14 | 2.7 s |
+  | 20 | 4 x effort 0.25 | 1,757 | 121.3 | 1.7 | 4.3 s |
+  | 20 | 4 x effort 1 | 1,761 | 114.7 | 3.0 | 11.6 s |
+  | 20 | 8 x effort 0.5 | 1,784 | 114.0 | 2.7 | 15.1 s |
+
+  Read plainly: **short searches do not substitute for one long one** (4 x 0.25 is no better at 18
+  teams and worse at 20), so the page spends four times the work, which the worker makes affordable.
+  At 18 teams that buys 13 fewer breaks (-15%) for 3% more carry-over. **At 20 teams and pick 10 it
+  buys nothing:** try 0 wins every time, because the other weights trade 260 to 460 carry-over for
+  14 to 20 breaks, which pick 10 prices as a loss.
+- **The trade is the useful part at 20 teams** (`node eval/best-of-k.mjs --picks`, output
+  `eval/best-of-k-picks.txt`; same four searches re-ranked): "fewest back-to-back" keeps 104 breaks
+  on seeds 1 and 2 (against 124 and 112) at 1,940 and 2,028 carry-over, still below every one of the
+  14 professional 20-team seasons' 2,278, and dominates 4 of them instead of 2 or 3. At 18 teams
+  "balanced" and "fewest" agree on two seeds of three (70 to 72 breaks); "most even" is the old
+  single search. Search figures, three seeds, made-up team names; no organiser has used it yet.
+- Open: the frontier is thin (four points). Superseded the same day by eight tries on a worker
+  pool (next section).
+
+## Eight searches on a pool of workers (2026-11-11)
+
+The four tries above ran one after another in one worker. They do not depend on each other, so the
+page now runs **eight** on a pool of Web Workers, one per core (`navigator.hardwareConcurrency`, at
+most eight).
+
+- **Code** (`carryover.mjs`). `carryOverTry(n, i, { double, seed })` runs try i alone (its seed and
+  break weight are the ones `bestCarryOverRounds` gives it); `splitCarryOverTries(k, workers)` deals
+  the try numbers round robin (8 tries on 3 threads: 0,3,6 / 1,4,7 / 2,5); `combineCarryOverTries(results,
+  pick)` sorts by try number, refuses a missing one and keeps the lowest score with ties to the lower
+  number, exactly as the serial loop. `bestCarryOverRounds` is now that loop over `carryOverTry`.
+  `carryover-worker.mjs` takes `{ n, double, seed, indices }` and posts each whole try back; the old
+  whole-search message still works for cached pages.
+- **Same season on any device.** The number of tries is fixed at eight, not taken from the core
+  count, so a share link builds the same fixtures on a one-core phone and an eight-core laptop; the
+  cores only change the wait. Tested (`best-of-k.test.mjs`): pools of 1, 3 and 8 workers reporting in
+  reverse order return the serial result for single and double seasons at picks 0, 10 and 40, and a
+  JSON round trip (the worker message) changes nothing.
+- **Measured** (`node eval/best-of-k.mjs`, `eval/best-of-k.txt`, new row "8 x effort 1"; seeds 1 to
+  3, pick 10; one thread):
+
+  | Teams | Tries | Carry-over | Breaks | Score | Seasons dominated | One-thread time |
+  |---|---|---|---|---|---|---|
+  | 18 | 4 | 1,573 | 73.3 | 2,307 | 1.7 of 6 | 9.1 s |
+  | 18 | 8 | 1,560 | 68.7 | 2,247 | 1.7 | 16.8 s |
+  | 20 | 4 | 1,761 | 114.7 | 2,907 | 3.0 of 14 | 10.9 s |
+  | 20 | 8 | 1,720 | 116.0 | 2,880 | 3.0 | 25.2 s |
+
+  Eight tries lower the score at both sizes. At 18 teams both carry-over and breaks fall; at 20
+  teams one seed of three changes (1,820/112 to 1,698/116), the other two keep try 0. Modest, and on
+  one core it doubles the wait; on four cores each thread runs two tries.
+- **In Chromium** (`node eval/browser-carryover-pool.mjs`, a four-core container, 20-team double
+  round robin, the page told it has 1, 2, 4 and 8 cores; `eval/browser-carryover-pool.txt`): eight
+  tries in 20.2 s on one thread, 10.0 s on two, 6.1 s on four (8 cores: 6.3 s, the container has four),
+  against 11.9 s for the old four tries on one thread; worst wait for a frame 17 ms at every size; the
+  same kept season (1,678/124 on seed 1) at every core count. Machines with fewer than two cores wait
+  longer than before (20 s, not 12) for the extra four tries.
+
+## Carry-over under a cap on breaks (2026-11-11)
+
+Every search above prices a break and trades it for carry-over, and none got a 20-team season under
+88 breaks. The reason is leg one: at 20 teams the single search's leg has 46 to 52 breaks against a
+minimum of 18 (18 teams: 28 to 34 against 16), so the season can not get far below twice that. The
+weights never reach the low-break end of the trade, where the Bundesliga sits (48 breaks, 3,474 to
+4,342 carry-over).
+
+- **Code** (`carryover.mjs`). `lowCarryOverCappedRounds(n, { seed, maxBreaks })` starts from the
+  circle method with its minimum-break home/away (n - 2 for an even league) and anneals carry-over
+  alone, refusing any move that takes the season over `maxBreaks` or a team's home and away games
+  more than one apart. Each timetable move either keeps every team's ground in each round (only
+  allowed if every match still has one team at home) or carries each match's ground with it (the
+  pattern changes, so breaks and balance are rechecked), and a fourth move flips one match.
+  `lowCarryOverDoubleRounds(n, { maxBreaks, legBreaks })` runs it for leg one and then moves leg two
+  on carry-over alone under the season cap. Leg two starts from whichever of three orders is best
+  inside the cap: leg one backwards (what the weighted search uses; nearly every team breaks at the
+  halfway point and where leg one's last round rejoins, about 2n more), the mirror (fewest breaks,
+  every carry-over count doubled) or the mirror with its first and last rounds swapped.
+- **Page and CLI.** "Spread who you meet next" now runs ten tries: the eight weighted ones,
+  unchanged, plus two capped ones (`cappedTryBreaks`: 3(n - 2) and 3(n - 2) + 12 over a
+  home-and-away season, n - 2 and n + 2 a leg). A fourth choice, "the fewest back-to-back home or
+  away games possible, then the most even carry-over" (`fewest`, pick 1000, in share links), keeps
+  the capped minimum. The old "fewest" choice is now labelled "fewer" (same value, same links).
+  Odd leagues: until 2026-11-11 later their two extra tries were weighted ones at 160 and 320; now
+  they run the capped search too (next section). `buildSchedule` takes
+  `carryOverCapped` beside `carryOverTries`. Tests: `capped-breaks.test.mjs` (9; the odd-league one
+  rewritten 2026-11-11 later).
+- **Measured** (`node eval/capped-breaks.mjs`, `eval/capped-breaks.txt`; seeds 1 to 3, recounted from
+  the rounds):
+
+  | Teams | Season cap | Carry-over | Breaks | Real seasons dominated |
+  |---|---|---|---|---|
+  | 18 | 48 (the minimum) | 2,154 to 2,674 | 48 | all 4 Bundesliga (3,474 to 4,342 at 48) |
+  | 18 | 60 | 1,696 to 1,858 | 60 | 1 or 2 Ligue 1 (1,840 / 74, 1,948 / 96) |
+  | 18 | 72 | 1,564 to 1,704 | 72 | both Ligue 1 |
+  | 20 | 54 (the minimum) | 4,734 to 5,080 | 54 | none (circle method 21,044 at 54; none of the 14 has under 70) |
+  | 20 | 90 | 2,870 to 3,180 | 82 to 88 | none |
+
+  Read plainly: **at 18 teams the Bundesliga's minimum-break fixture list could have had 38 to 50%
+  less carry-over at the same 48 breaks**, and the capped curve fills the gap between the minimum and
+  the weighted tries. **At 20 teams the capped search is weak**: leg one stays near 1,100 to 1,400
+  carry-over at 18 to 22 breaks, against about 500 for the unconstrained search, so above about 60
+  breaks the weighted tries are better. A "squeeze" from the weighted result down to a cap was tried
+  on a scratch copy and not landed: it never left the starting timetable (every move that cut breaks
+  cost more carry-over than the price of a break).
+- **What the page keeps** (same file, second table): the two capped tries change the "balanced" and
+  "most even" picks in none of six runs and "fewer" in one (18 teams, seed 2: 1,550 / 72 to 1,786 /
+  60). "Fewest" keeps the capped minimum every time: 18 teams 2,330 / 2,596 / 2,502 at 48 breaks
+  (all four Bundesliga seasons dominated; the eight weighted tries' fewest was 58 to 72 breaks), 20
+  teams 4,552 to 5,968 at 54 (weighted fewest 82 to 86). Ten tries take 16 to 17 s on one thread at
+  18 teams and 23 s at 20 (eight took 16.8 and 25.2 s on the earlier, less loaded run); a 12-team
+  season in Chromium ran all ten with no page errors and the same kept season on 1 and 4 cores.
+- Open: a 20-team leg one at low breaks (a start other than the circle method, or a search over
+  home/away patterns first), and odd leagues under a cap (done for odd
+  leagues: next section).
+
+## Odd leagues: zero-break home/away, and capped tries (2026-11-11, later)
+
+An odd league gives every team one bye a leg, and a bye ends a run of home or away games, so an odd
+round robin can have **no breaks at all**: the circle method with the right home/away does. The venue
+search (`assignVenues`, which sets home/away on every carry-over timetable) never found it: it flipped
+one match at a time from a greedy start, and left 3 breaks at 7 teams, 46 at 19 and 54 at 21. With a
+start that far off, the capped search began an odd league at dozens of breaks and could not move,
+which is why odd leagues' capped tries were weighted stand-ins.
+
+- **Colouring start** (`carryover.mjs`, `byeStretches`, `colourStart`). Split each team's games at its
+  bye into stretches; make one node per stretch and one edge per match. A two-colouring of that graph
+  is a home/away with no breaks (a stretch of colour c is at home in round r when c XOR r is odd, so
+  it alternates, and every match has one team of each colour). Breadth-first search finds it when it
+  exists; on the circle method it does at every odd size tested (5 to 21), and it is balanced (each
+  team (n - 1)/2 home games). Where the graph has an odd cycle, the clashing matches take a seeded coin.
+- **Run moves.** Beside single-match flips, the annealing now flips a whole alternating stretch of
+  one team (or the part before or after a round), which moves a team's phase in one step instead of
+  through a wall of temporary breaks, and it keeps the best home/away it saw rather than where it
+  ended. Restarts alternate the greedy start and the colouring start (odd leagues), and the result is
+  never worse than the old search on the same seed (it runs as a fallback when the new one has any
+  breaks; tested).
+- **Measured** (`node eval/odd-capped.mjs`, `eval/odd-capped.txt`, first table; breaks + 50 per game of
+  imbalance on fixed timetables, seed 1, old -> new):
+
+  | Teams | Circle method | Low carry-over timetable | Same, break weight 10 |
+  |---|---|---|---|
+  | 7 | 3 -> 0 | 7 -> 4 | 2 -> 2 |
+  | 11 | 10 -> 0 | 24 -> 16 | 17 -> 17 |
+  | 15 | 19 -> 0 | 49 -> 43 | 49 -> 46 |
+  | 19 | 46 -> 0 | 85 -> 84 | 81 -> 81 |
+  | 21 | 54 -> 0 | 109 -> 109 | 107 -> 96 |
+  | 18, 20 (even) | 16, 18 (the minimum, unchanged) | 46 -> 44, 62 -> 58 | 32 -> 30, 52 -> 48 |
+
+  Every carry-over schedule on the page goes through this pass, so even leagues gain 2 to 4 breaks on
+  some timetables too. The page's plain (circle-method) schedules never used it and are unchanged.
+  Rerun on the real-fixture comparison (`eval/carryover-real.txt`, seed 1; the tables in the two
+  sections above keep the figures measured then): 18 teams mirrored 1,926 / 74 -> 1,926 / 70 breaks,
+  whole season 1,498 / 88 -> 1,486 / 84, carry-over only 104 -> 98 breaks a season; 20 teams mirrored
+  2,136 / 114 -> 2,136 / 108, carry-over only 134 -> 126, and whole season 1,678 / 124 -> 1,750 / 118
+  (leg two is searched against leg one's home/away, so a different leg one moves its carry-over too;
+  still below all 14 professional 20-team seasons' 2,278). The carry-over guide page quotes the new
+  figures (its test reads them from the code).
+- **Capped tries for odd leagues.** `cappedTryBreaks` now gives an odd league a base of n - 3 breaks a
+  leg (at 0 the capped search can not leave the circle method's high carry-over), and `carryOverTry`
+  runs the capped search for odd leagues. At small sizes a heavy break weight sometimes lands on
+  fewer breaks still (9 teams: 2 or 3 against 5 or 6), so an odd league's capped try also runs the old
+  stand-in (160, then 320) and keeps whichever has fewer breaks, then less carry-over.
+- **Measured, one leg** (same file, second table, seeds 1 to 3, carry-over/breaks):
+
+  | Teams | Old stand-ins (160 and 320) | Capped, n - 3 | Capped, n + 1 |
+  |---|---|---|---|
+  | 9 | 93/2, 93/3, 105/11 | 115/6, 81/6, 81/5 | 75/9, 77/10, 79/10 |
+  | 11 | 175 to 193 / 16 to 21 | 229 to 297 / 8 | 183 to 193 / 12 |
+  | 15 | 307 to 315 / 35 to 40 | 303, 625, 319 / 12 | 289 to 309 / 16 |
+  | 19 | 701 to 1,365 / 63 to 73 | 1,355 to 1,537 / 16 | 1,147 to 1,205 / 20 |
+  | 21 | 659 to 703 / 86 to 103 | 763 to 835 / 18 | 703 to 743 / 22 |
+
+  Read plainly: at 15 teams the capped tries match the old carry-over at a third of the breaks; at 21
+  teams they cost 5 to 15% more carry-over for a fifth of the breaks; at 19 teams (twenty with the bye,
+  the size where even leagues are weak too) they reach 16 to 20 breaks, which nothing reached before,
+  at about 1.6 times the carry-over. The weighted tries still cover the low carry-over end, so the
+  page's "balanced" and "most even" choices are as before and "fewer"/"fewest" now have a low-break
+  try to keep.
+- **Measured, home-and-away season** (same file, third table; caps 3(n - 3) and 3(n + 1)):
+
+  | Teams | Old stand-ins (160 and 320) | Capped, 3(n - 3) | Capped, 3(n + 1) |
+  |---|---|---|---|
+  | 9 | 343 to 395 / 10 to 20 | 289 to 325 / 17 to 18 | 279 to 281 / 27 to 29 |
+  | 11 | 537 to 679 / 39 to 46 | 713 to 1,117 / 23 to 24 | 525 to 543 / 35 to 36 |
+  | 15 | 1,077 to 1,153 / 55 to 72 | 1,147, 1,951, 1,155 / 36 | 983 to 1,027 / 47 to 48 |
+  | 19 | 2,213 to 3,957 / 137 to 157 | 4,355 to 4,769 / 47 to 49 | 3,779 to 4,187 / 60 |
+  | 21 | 2,147 to 2,299 / 147 to 170 | 2,675 to 2,997 / 54 | 2,541 to 2,659 / 66 |
+
+  At 11 and 15 teams the second capped try beats both stand-ins on both counts on most seeds
+  (3 of 6 each, last column of the file); at 19 and 21 teams the capped tries cut a season's breaks
+  by two thirds (150 or so to 47 to 66) for 20 to 90% more carry-over, a point on the trade the page
+  had no try near before. At 9 teams the stand-in still wins on breaks for two seeds of three
+  (10 against 18) and is what the try keeps (sixth column).
+- **Tried, not landed: the 20-team leg one with the pattern fixed first.** Fix the minimum-break
+  home/away pattern (18 breaks), then anneal the timetable freely with a rising penalty per match
+  whose two teams the pattern puts at the same ground (plus moves that trade two teams' whole
+  patterns, or two rounds with their pattern columns). Seeds 1 to 3 settled at 1,420, 1,408 and
+  1,408 against the capped search's 1,424, 1,414 and 1,408 at the same 18 breaks: two different
+  searches agree, which suggests 1,400 or so is close to what the minimum-break pattern allows, not a
+  search failure. With a looser cap (22 to 30) and a move that shifts one team's ground between two
+  rounds it was no better than the capped search (858 to 1,174 against 874 to 1,298) and often never
+  got back to a feasible timetable. A simple relaxation (each carry-over step only needs its two
+  opponents at the other ground) gives no bound above the generic floor (360), so the question stays
+  open; a tighter bound would need the per-team order of opponents.
+
+## Perfect carry-over at 4, 8, 16 and 32 teams: the field start (2026-11-11, later)
+
+Every search above starts from the circle method and anneals. At 16 teams it stopped at 316 against a
+floor of 224, at 32 teams at 1,538 against 960. Those sizes have an exact answer: when the league
+(a bye team included) has a power-of-two size N, Russell (1980) showed a round robin exists with every
+carry-over count 0 or 1.
+
+- **Construction** (`carryover.mjs`, `fieldOpp`, `fieldGenerators`, `fieldApplies`). Label the teams with
+  the elements of the finite field GF(N) (bit strings; addition is XOR) and let team x meet x + g^r in
+  round r, where g generates the field's multiplicative group. Each round is a perfect matching (x + g^r
+  + g^r = x), each pair {x, y} meets in the one round with g^r = x + y, and team t's two consecutive
+  opponents differ by g^r (1 + g), which fixes r; so every ordered pair is one team's carry-over step
+  exactly once. Removing one team as the bye keeps every count at 0 or 1 too (7, 15, 31 teams).
+  Reduction polynomials for N = 4 to 128 are built in.
+- **Which one.** Every generator and starting round gives the same, least carry-over; they differ in
+  breaks. `lowCarryOverRounds` tries them all (16 teams: 8 generators x 15 starts) and keeps the one the
+  greedy venue pass gives the fewest breaks, then `assignVenues` sets home/away. Because the
+  carry-over pass already sits at the floor it stops at once. With a break weight the second pass still
+  runs, but the result is now scored exactly against the untraded field timetable and the better one
+  kept: the greedy stand-in had traded 16 teams' 224 / 24 breaks for 256 / 24.
+- **A mirrored field leg is already perfect.** Mirroring a leg normally doubles every count, but the
+  field leg's counts are all 1 over the n(n - 2) non-cyclic steps, and the halfway step (last opponent
+  of leg one, then first of leg two) is exactly each team's missing cyclic step: every cell becomes 2
+  except n that stay 1, which is
+  the floor (16 teams: 912). So at power-of-two sizes the whole-season search can only match the mirror
+  on carry-over; `carryover.test.mjs` asks for "strictly below mirrored" only when the mirror is above
+  the floor.
+- `field: false` restores the old circle start (for comparisons). Other sizes are unchanged.
+- **Measured** (`node eval/field-start.mjs`, `eval/field-start.txt`; seed 1, effort 1; carry-over / breaks):
+
+  | Teams | Season | Setting | Circle start | Field start | Floor |
+  |---|---|---|---|---|---|
+  | 15 | single | carry-over only | 259 / 43 | 195 / 41 | 195 |
+  | 15 | single | break weight 10 | 323 / 46 | 195 / 41 | 195 |
+  | 15 | home and away | carry-over only | 895 / 141 | 843 / 99 | 795 |
+  | 15 | home and away | break weight 10 | 977 / 74 | 945 / 67 | 795 |
+  | 16 | single | carry-over only | 316 / 32 | 224 / 24 | 224 |
+  | 16 | single | break weight 10 | 350 / 22 | 224 / 24 | 224 |
+  | 16 | home and away | carry-over only | 1,048 / 110 | 912 / 64 | 912 |
+  | 16 | home and away | break weight 10 | 1,166 / 64 | 912 / 64 | 912 |
+  | 31 | single | carry-over only | 1,459 / 232 | 899 / 245 | 899 |
+  | 31 | home and away | break weight 10 | 4,823 / 475 | 4,321 / 443 | 3,627 |
+  | 32 | single | carry-over only | 1,538 / 140 | 960 / 106 | 960 |
+
+  Read plainly: at 16 teams the single round robin and the whole home-and-away season now reach the
+  least carry-over there is (the season with 64 breaks, the same as the old weighted search's
+  64 at 1,166), and at 15, 16 and 32 teams breaks fall too. At 8 teams the search already reached the
+  floor; the season with a break weight goes 224 / 20 to 216 / 16. At 7 teams nothing changes except 2
+  more breaks on the carry-over-only season (147 / 20 to 147 / 22). At 31 teams the carry-over-only
+  single leg has 13 more breaks (232 to 245) for 38% less carry-over. Full table in the file.
+- **What the page keeps** (16-team home-and-away season, the page's 8 weighted + 2 capped tries, seed
+  1, "balanced"; scratch run, one thread, 19.5 s): 996 carry-over / 48 breaks, against 1,220 / 54 before.
+  The tries' frontier went from 1,166/64, 1,220/54, 1,656/42 to 912/64, 976/52, 996/48, 1,656/42:
+  every old point but the capped minimum is beaten on both counts.
+- Tests: `field.test.mjs` (every generator and three starts at 4 to 32 teams are valid round robins
+  with every count 0 or 1, cyclic and not, with and without a bye; the search reaches the floor at 15,
+  16, 31 and 32; the break-weighted result never scores worse than the field timetable; the 16-team
+  season reaches 912). The carry-over guide quotes the 16-team figures (its test reads them from code).
+- Open: other sizes have no such construction in this code. Known constructions exist for some other
+  sizes in the literature (not read here); 12 teams (156 against 120) and 20 teams remain search-only.
+
+## Starter timetables for 6 to 40 teams, and 20 teams at the floor (2026-11-11)
+
+The field start covers only power-of-two sizes. Most other even sizes (a bye team included) now get a
+second start, a **starter** timetable, and the search keeps whichever start does better.
+
+- **Construction** (`carryover.mjs`, `starterOpp`, `STARTERS`, `starterApplies`). Number the teams
+  0 .. p - 1 with p = N - 1 (odd) plus a fixed team p. A starter pairs up 1 .. p - 1 so that the
+  differences +-(y - x) of the pairs cover every nonzero residue mod p once. In round r, with
+  s = step x (r + start) mod p, each pair {x, y} plays as {x + s, y + s} and s plays team p. Each pair
+  meets once (the round whose shift carries the starter pair with that difference onto it), so every
+  starter gives a valid round robin; `starterOpp` refuses a non-starter or a step sharing a factor
+  with p. The circle method is the starter {i, -i} (tested), and one of the worst for carry-over.
+- **The table** (`eval/starter-search.mjs`, `eval/starter-search.txt`): a seeded random sample of
+  starters (backtracking with shuffled partners), every step coprime to p and every start, 20 s per
+  size, scored on non-cyclic carry-over with all N teams ("even") and with team p as the bye ("odd").
+  Built in for N = 6, 10, 12, 14, 18, 20, 22, 24, 26, 28, 30, 34, 36, 38, 40. At run time
+  `bestStarterOpp` tries every start and keeps the least carry-over, then the fewest greedy breaks.
+- **20 teams, and 19, reach the floor.** The sampled 20-team starter (step 9) has every carry-over count
+  0 or 1, cyclic too (380 = 20 x 19, Russell's bound): non-cyclic 360 with all 20 playing, 323 with a
+  bye. The search from the circle method had stopped at 448 and 381. I have not checked this against
+  published constructions; the tests check the counts directly.
+- **Both starts run, the better kept** (`start: "starter" | "circle"` on the result). Annealed, the
+  starter start loses to the circle start at 11, 13 and 30 teams, so `lowCarryOverRounds` and
+  `lowCarryOverDoubleRounds` run the full search from both and keep the lower score
+  (carry-over + breakWeight x breaks; ties keep the circle start). So no size scores worse than
+  before, and a search at these sizes takes about twice as long (20-team season, weight 10: 2.7 s to
+  4.5 s in Node; 6-team searches are unchanged in result).
+- **The plain mirror is now a candidate for the whole season.** When leg one has every count 0 or 1
+  (field sizes, 20 teams), mirroring it is already at the season floor, and the second-leg search
+  could only add breaks: 20 teams, weight 10, gave 1,478 / 122 against the mirror's 1,460 / 116.
+  `lowCarryOverDoubleRounds` (not the capped one) now also scores the mirror and keeps it when it is
+  strictly better (`mirrored: true`). That gives 16 teams 912 / 56 (was 912 / 64) too.
+- **Measured** (`node eval/field-start.mjs <sizes>`, `eval/starter-start.txt`; seed 1, effort 1;
+  carry-over / breaks, before -> now):
+
+  | Teams | Single, carry-over only | Single, weight 10 | Season, carry-over only | Season, weight 10 | Floors |
+  |---|---|---|---|---|---|
+  | 10 | 98/12 -> 94/14 | same | 358/38 -> 330/38 (floor) | same | 80, 330 |
+  | 12 | 156/18 -> 152/18 | 182/16 -> 152/18 | same | 640/42 -> 598/46 | 120, 492 |
+  | 14 | 216/26 -> 212/32 | 260/22 -> 252/18 | 746/86 -> 732/84 | 862/56 -> 854/52 | 168, 686 |
+  | 18 | 412/44 -> 318/52 | 458/30 -> 456/30 | 1,334/142 -> 1,214/148 | 1,486/84 -> 1,556/76 | 288, 1,170 |
+  | 19 | 381/84 -> 323/75 (floor) | 449/81 -> 323/75 | 1,389/231 -> 1,311/159 (floor) | 1,597/172 -> 1,525/119 | 323, 1,311 |
+  | 20 | 448/58 -> 360/52 (floor) | 510/48 -> 360/52 | 1,596/182 -> 1,460/126 (floor) | 1,750/118 -> 1,460/116 | 360, 1,460 |
+  | 22 | 654/66 -> 516/68 | 714/58 -> 516/68 | 2,086/218 -> 1,862/154 | 2,370/146 -> 1,920/150 | 440, 1,782 |
+  | 24 | 796/78 -> 654/76 | 878/74 -> 654/76 | 2,538/270 -> 2,482/248 | 2,774/180 -> 2,488/172 | 528, 2,136 |
+  | 26 | 954/98 -> 762/98 | 1,072/84 -> 762/98 | 3,040/322 -> 2,780/310 | 3,312/196 -> 3,098/208 | 624, 2,522 |
+
+  11, 13 and 30 teams keep the circle start's carry-over-only results; with a break weight they still
+  move (30 teams: 1,154/122 -> 1,110/126, season 4,076/278 -> 3,726/278). Full table in the file,
+  odd sizes included.
+- **Real fixtures** (`eval/carryover-real.mjs`, the guide's table): 20 teams, the tool's season is now
+  1,460 / 116 (was 1,750 / 118), the least a 20-team home-and-away season can have, against 2,278 to
+  2,564 for the 14 professional 20-team seasons; 18 teams 1,556 / 76 (was 1,486 / 84: lower score at
+  weight 10, 2,316 against 2,326, but more carry-over).
+- Tests: `starter.test.mjs` (every built-in starter at three starts is a round robin; circle method =
+  starter {i, -i}; bad starters and steps refused; 20 and 19 teams at the floor; never worse than the
+  circle start alone at 11, 12, 13, 18 and 22 teams, both weights, and on 12- and 20-team seasons);
+  `carryover.test.mjs` reads the guide's new figures from the code.
+- Open: the sample was thin past 30 teams; replaced from 22 teams up by the two climbs below.
+  12 teams is still 152 against 120.
+
+## Climbed starters: 22 teams at the floor, 24 to 40 teams 4 to 13% lower (2026-11-11, later)
+
+The starter table above came from random sampling, which past 22 teams saw only a few hundred
+starters per size. `eval/starter-anneal.mjs` climbs instead, and the table in `carryover.mjs`
+(`STARTERS`) now holds its results wherever they are lower.
+
+- **Two reductions.** The step is a relabelling: starter S with step k is, round for round, the
+  timetable of starter k^-1 S with step 1 with every team t renamed k^-1 t, so the climb runs at step
+  1 only (new entries have step 1). And the cyclic carry-over matrix does not depend on the start; a
+  start only picks which round-to-round transition the season drops, so each starter is scored once
+  and every start is an O(N) correction.
+- **The move.** Remove 3 to 10 random pairs and re-pair the freed residues with the freed differences
+  by randomised backtracking (a large-neighbourhood move that keeps it a starter), accepted by
+  simulated annealing on the least non-cyclic carry-over over every start. Single climbs stall fast
+  (most moves are big steps up), so it restarts every second from a fresh random starter, the first
+  two from the table's entries, and keeps the best. 60 s per size and parity, one process per core.
+- **Measured** (`eval/starter-anneal.txt`; non-cyclic carry-over at the best start, old table ->
+  climbed, floor):
+
+  | Teams | All N play | Floor | With a bye (N - 1 teams) | Floor |
+  |---|---|---|---|---|
+  | 22 | 516 -> **440** (every count 0 or 1) | 440 | 475 -> **399** (every count 0 or 1) | 399 |
+  | 24 | 654 -> 612 | 528 | 609 -> 565 | 483 |
+  | 26 | 762 -> 716 | 624 | 757 -> 667 | 575 |
+  | 28 | 878 -> 828 | 728 | 875 -> 823 | 675 |
+  | 30 | 1,110 -> 1,002 | 840 | 1,053 -> 943 | 783 |
+  | 34 | 1,460 -> 1,274 | 1,088 | 1,455 -> 1,271 | 1,023 |
+  | 36 | 1,620 -> 1,488 | 1,224 | 1,551 -> 1,483 | 1,155 |
+  | 38 | 1,928 -> 1,718 | 1,368 | 1,855 -> 1,645 | 1,295 |
+  | 40 | 2,112 -> 1,890 | 1,520 | 2,035 -> 1,885 | 1,443 |
+
+  10 to 20 teams did not move in 60 s each (sampling had already seen tens of thousands of starters
+  there; 20 was already at the floor). 12 teams stays 156 against 120, so the starter family itself
+  may not reach lower there.
+- **22 teams, and 21, now reach the floor**, cyclic too (462 = 22 x 21, Russell's bound), joining 4, 8,
+  16, 20 and 32. As with 20 I have not compared this with published constructions; the test checks
+  the counts directly (`starter.test.mjs`).
+- The annealing search in `lowCarryOverRounds` runs from this start (and the circle start, keeping the
+  better), so the gains carry into what the page builds. **Through the search** (`node
+  eval/field-start.mjs 21 22 23 24 26 30`, seed 1, effort 1, `eval/starter-anneal-search.txt`;
+  carry-over / breaks, sampled starter -> climbed starter):
+
+  | Teams | Single, carry-over only | Season, carry-over only | Season, weight 10 |
+  |---|---|---|---|
+  | 22 | 516/68 -> 440/66 (floor) | 1,862/154 -> 1,782/148 (floor) | 1,920/150 -> 1,782/144 (floor) |
+  | 24 | 654/76 -> 612/84 | 2,482/248 -> 2,312/194 | 2,488/172 -> 2,488/178 |
+  | 26 | 762/98 -> 716/102 | 2,780/310 -> 2,618/230 | 3,098/208 -> 2,618/230 |
+  | 30 | 1,042/132 (circle) -> 1,002/140 | 3,684/424, unchanged (circle) | 3,726/278 -> 3,838/300 |
+
+  With carry-over only, every size moved down or held. With a break weight, two got worse: 24-team
+  season +6 breaks at the same carry-over, and 30 teams (single 1,110/126 -> 1,154/122, score 2,370 to
+  2,374; season score 6,506 -> 6,838). The climbed starters were chosen on carry-over alone, and
+  `bestStarterOpp` picks the start by carry-over first, so a lower-carry-over start can leave the
+  break pass a worse pattern. Open: pick the start (or keep a second starter) by carry-over + weight x
+  breaks when a weight is set.
+- Open: 24 to 40 teams are still 16 to 28% above the floor; longer runs keep finding small gains, so the
+  table is a measurement of 60 s, not a limit. The previous section's 10,000-sample scratch run
+  reported 24 teams 570, below the climb's 612 with all 24 playing (570 is close to the climb's 565
+  with a bye, so it may have been that entry; that run was not kept), so at 24 the climb may not yet
+  beat long sampling. A faster exact score (O(p) per starter from the
+  difference counts) would let the climb try far more moves.
+
+## An O(p) starter score, and climbed starters at 24 to 40 teams (2026-11-11, latest)
+
+The climb above scores every move with the full carry-over count. `eval/starter-climb.mjs` (written
+in parallel, PR #14821) scores a starter in one pass over p numbers instead, so a 40 s run makes 2 to
+10 million moves past 22 teams. Its entries replace the annealed ones wherever they are lower.
+
+- **The count collapses to one sequence.** At step 1 (any step is a relabelling, as above), with
+  f(u) the partner of u and f(0) the fixed team, team t meets r + f(t - r) in round r, so over a
+  cyclic timetable the count between two ordinary teams depends only on their difference d:
+  D(d) = #{u not 0, 1 : f(u - 1) + 1 - f(u) = d (mod p)} + [d = 1] (the fixed team; with it as the
+  bye, that term is the jump over the bye round, [f(-1) + 2 - f(1) = d]). The cyclic carry-over is
+  p x sum D(d)^2 + 2p (all N play) or p x sum D(d)^2 (bye), and the floor is D(d) = 1 for every d.
+  The script checks it against `carryOverFromOpponents` on every result; `starter.test.mjs` checks it
+  on every built-in starter at its stored step.
+- **Search.** Random starters, then moves that free 2 to 5 pairs and try every re-pairing of their
+  residues that uses each freed difference once (backtracking, up to 2,000), keeping the best when
+  no worse; restart after 400 + 40p moves without a gain. Up to 40 of the best cyclic candidates are
+  then scored exactly, non-cyclic, at every start. 40 s per size and parity (`eval/starter-climb.txt`).
+- **Against the annealed table** (non-cyclic carry-over at the best start; `starter.test.mjs` pins
+  the kept values):
+
+  | Teams | 24 | 26 (bye) | 30 | 29 (bye) | 34 (bye) | 36 | 35 (bye) | 38 | 37 (bye) | 40 | 39 (bye) |
+  |---|---|---|---|---|---|---|---|---|---|---|---|
+  | Annealed | 612 | 667 | 1,002 | 943 | 1,271 | 1,488 | 1,483 | 1,718 | 1,645 | 1,890 | 1,885 |
+  | Climbed (kept) | **570** | **665** | **948** | **891** | **1,269** | **1,422** | **1,419** | **1,648** | **1,575** | **1,816** | **1,813** |
+  | Floor | 528 | 575 | 840 | 783 | 1,023 | 1,224 | 1,155 | 1,368 | 1,295 | 1,520 | 1,443 |
+
+  The other entries tie (22 and 21 at the floor in both; 23, 26, 27, 28, 34 with all playing), and the
+  annealed entry is kept there. Below 22, 40 s and millions of moves left 6, 10, 12, 14 and 18 teams
+  where sampling had them.
+- **Through the search** (`node eval/field-start.mjs 21 22 23 24 25 26 28 30`, seed 1, effort 1,
+  `eval/starter-climb-start.txt`; carry-over / breaks, annealed table -> merged table):
+
+  | Teams | Single, carry-over only | Single, weight 10 | Season, carry-over only | Season, weight 10 |
+  |---|---|---|---|---|
+  | 24 | 612/84 -> 570/66 | 612/84 -> 570/66 | 2,312/194 -> 2,222/218 | 2,488/178 -> 2,224/154 |
+  | 30 | 1,002/140 -> 948/136 | 1,154/122 (circle) -> 948/136 | 3,684/424 (circle) -> 3,614/288 | 3,838/300 -> 3,624/288 |
+
+  21, 22, 23 and 26 are unchanged. This also clears both break-weight regressions noted above: the
+  24-team season at weight 10 scores 3,764 (was 4,268 annealed, 4,208 sampled), and 30 teams 2,308 single
+  (was 2,374) and 6,504 season (was 6,838 annealed, 6,506 sampled). 25 and 28 teams, first measured
+  here: 665/164 and 828/114 single; seasons 2,631/351 and 3,146/270.
+- Open: 24 to 40 teams are still 8 to 21% above the floor. At 24 the best cyclic sum D^2 found is 24
+  against 22; whether a 24-team starter can reach the floor is not known to me.
+
+## Refilled rounds: 12 teams from 152 to 136 (2026-11-11, latest)
+
+At 12 teams every earlier method stopped at 152 to 156 against a floor of 120: sampled starters,
+the annealed and O(p) climbs (starters are a small family, every round a shift of the first), and
+the annealing search from both starts. `eval/round-refill.mjs` searches all round robins instead.
+
+- **The move.** Take 2 to 5 rounds out (half the time next to each other, half anywhere). Their games
+  form a w-regular graph. Refill the w slots with every split of that graph into w perfect matchings,
+  in any order, by depth-first search, and keep the split with the least total carry-over (ties at
+  random, so the search walks plateaus). The DFS places one game at a time and adds the carry-over
+  cells it creates at once (team a meeting b in round r makes prev(a) -> b and b -> next(a)). A cell
+  that already holds c costs 2c above the floor, so any branch past the incumbent is cut. With a
+  small probability a move takes a random refill within a few units of slack instead (a kick). After
+  1,500 moves with no change it restarts from the start timetable with its rounds shuffled. Each
+  result is re-scored with `carryOverFromOpponents` and checked to be a round robin.
+- **Measured** (12 teams, all playing, non-cyclic; 420 s per seed from the circle method, 4 seeds):
+  136, 136, 136 and 152. At 136 every count is 0, 1 or 2, and 8 cells hold 2. These four runs used
+  the first restart rule (after 4,000 moves with no change, the best so far with two rounds
+  swapped). The shuffled restart above came later and was used for the other sizes below. The search does not show whether 136 is the
+  least possible.
+- **Stored timetables** (`TIMETABLES`, `storedTimetable` in `carryover.mjs`). The best result is
+  stored whole as opp[r][t]. It is a third start (`start: "timetable"`), beside the circle method
+  and the starter, and the search keeps the best of the three on its own score. It does not
+  replace the starter. At first it did, and the 12-team season at seed 2, weight 10 got worse:
+  596 / 46 from the new leg, against 618 / 40 from the starter. A leg with less carry-over can
+  leave the season's break pass a worse pattern. At 12 teams and 9 teams a search now runs from three
+  starts instead of two, so it takes about half as long again.
+  Through the search (`node eval/field-start.mjs 12`, seed 1, effort 1; carry-over / breaks):
+
+  | 12 teams | Before | Now | Floor |
+  |---|---|---|---|
+  | Single, carry-over only | 152 / 18 | **136 / 20** | 120 |
+  | Single, break weight 10 | 152 / 18 (score 332) | 180 / 14 (score 320) | 120 |
+  | Season, carry-over only | 538 / 62 | **530** / 68 | 492 |
+  | Season, break weight 10 | 598 / 46 (score 1,058) | 618 / 42 (score 1,038) | 492 |
+
+  Each setting's own score went down. With a break weight, the search now trades some of the new
+  carry-over for 4 fewer breaks.
+- Tests (`starter.test.mjs`): every stored timetable is a round robin. Its value is pinned and is
+  below the starter it replaces at every start. `lowCarryOverRounds` from it returns no more than
+  the stored value.
+- **Other sizes** (300 s, one or two seeds each, `eval/round-refill.txt`). 9 teams (10 with a bye): 69,
+  against 71 for the starter, floor 63. The 10-team run tied the starter at 94 with all ten playing, but
+  the same timetable with one team as the bye scores 69. It is stored as `TIMETABLES[10].odd`,
+  relabelled so the bye is team 9, and the 9-team search now returns 69 / 12. 11 teams (searched with a
+  bye) tied the circle search at 115. 14 teams stopped at 220 from the circle start, worse than the
+  starter's 212. Past 12 teams the refill DFS has many more splits per move, so it needs a longer
+  run or a starter start.
+- Open: 12 teams at 132 (was 136; "12 teams at 132" below) against a proved 124 (a timetable below 132, or 124 to 130 ruled out); the refill
+  from the climbed starters at 14 to 18 teams; refilling the second leg of a season.
+
+## SAT bounds: 10 teams cannot go below 90 (2026-11-12)
+
+The searches above can only find timetables; they cannot say a value is impossible.
+`eval/carryover-sat.py` asks a SAT solver (CaDiCaL 1.9.5 through python-sat, MIT; the eval needs it,
+the tool does not) whether any single round robin of n teams, all playing, has non-cyclic carry-over
+at or under V. SAT returns a timetable; UNSAT is a proof that none exists.
+
+- **Encoding.** x[r,i,j]: i meets j in round r (each pair once, each team once a round; teams labelled
+  so team 0 meets team r + 1 in round r, which any round robin allows). p[t,r,a,b] is forced true when
+  t meets a in round r and b in round r + 1, and each carry-over cell counts its p's with a
+  totalizer. The cells always sum to n(n - 2), so value = n(n - 2) + 2E with E = sum of C(c, 2) over the
+  cells; E is held to (V - n(n - 2)) / 2 by a second totalizer. Cells are capped at 4, which never binds
+  when C(5, 2) = 10 > E (the script says when it does). A found timetable is re-scored from its
+  opponents alone.
+- **Checked against what was already known.** 6 teams: UNSAT at 40, SAT at 42, the same least value
+  as the enumeration of all 720 ordered 1-factorizations above. 8 teams: SAT at the floor, 48.
+- **10 teams** (all playing, CaDiCaL, one core each, this container):
+
+  | Asked: value <= | Answer | Time |
+  |---|---|---|
+  | 80 (the floor) | UNSAT | 0.9 s |
+  | 82 | UNSAT | 10.8 s |
+  | 84 | UNSAT | 78 s |
+  | 86 | UNSAT | 387 s |
+  | 88 | UNSAT | 1,302 s |
+  | 90 | no answer, stopped | 69 min |
+  | 92 | no answer, stopped | 98 min |
+
+  So no 10-team round robin has non-cyclic carry-over below 90 (values are even), against 94, the best
+  the refill search found with all ten playing. The least is 90, 92 or 94. Each step of 2 cost the
+  solver 3 to 7 times the last.
+- **12 teams.** A run at 120 (the floor) and one at 134 (below the stored 136) were both stopped after
+  about 65 and 70 minutes with no answer. A descending probe (240 s per value): SAT at 170 in 24 s
+  (a timetable at 166), no answer at 160. So at 12 teams this
+  encoding does not yet reach the heuristic's 136, let alone prove anything: the open question above
+  stays open. Next: symmetry breaking for round reversal (it transposes the matrix and keeps the
+  value) and for the remaining relabellings, an incremental solve that tightens V on one solver, or a
+  cube-and-conquer split over the second team's round order, before longer runs.
+- **On the page.** `carryOverFromOpponents` now returns `proven` (`PROVEN_LEAST` in `carryover.mjs`)
+  for single non-cyclic round robins of 6, 8 and 10 teams, and the schedule's report says when the
+  floor is not reachable: at 10 teams, "80 is the floor for this many games, but no 10-team round robin
+  can go below 90; a SAT solver proved it". Tests (`carryover.test.mjs`): the 6-team value matches
+  the enumeration, and no search result goes below a proved least.
+- Not claimed: the cyclic value (Russell's definition) was not run; none of this has been checked
+  against the published optimisation literature on carry-over, which this run did not read.
+
+## The least carry-over at 10 teams is 94: an exact search (2026-11-14)
+
+The SAT section above left 10 teams open: no round robin at 88 or under, the refill search's best at
+94, and CaDiCaL silent after 69 minutes at 90 and 98 at 92. `eval/carryover-bnb.c` (plain C, no
+dependencies) settles it by depth-first search over the timetable itself.
+
+- **Search.** Rounds are filled in order and, inside a round, the lowest unplaced team takes a
+  partner. Team t meeting u in round r adds one to two carry-over cells (t's last opponent -> u and
+  u's last opponent -> t), and a cell already holding c costs c more of E (value = n(n - 2) + 2E, as
+  in the SAT encoding), so a branch is cut the moment E passes the bound. A round where some unplaced
+  team has no unused unplaced partner is cut too.
+- **Symmetry.** Relabelling teams keeps the value, so round 0 is fixed to (0 1)(2 3)...; in round 1
+  team 0 meets team 2 (the relabellings that keep round 0 and team 0 reach any other choice) and
+  team 1 meets team 3 or 4 (the same argument with team 2 fixed). Round reversal is not used.
+- **Checked against what was already known** (`eval/carryover-bnb.txt`): 6 teams, none at 40 and a
+  42 found (the enumeration's least); 8 teams, the floor 48 found; 10 teams, none at 80, 82, 84, 86
+  and 88, the same answers CaDiCaL gave, in 0.2 to 34 s against its 0.9 to 1,302 s.
+- **10 teams** (one core each, this container):
+
+  | Asked: value <= | Answer | Nodes | Time |
+  |---|---|---|---|
+  | 88 | none | 246 M | 34 s |
+  | 90 | none | 540 M | 73 s |
+  | 92 | none | 1,069 M | 145 s |
+  | 94 | found (largest cell 2) | 15 M | 2 s |
+
+  So **94 is the least non-cyclic carry-over of any 10-team round robin**, and the refill search had
+  already found it. `PROVEN_LEAST[10]` is now `{ least: 94, exact: true }`.
+- **On the page: a carry-over-only season.** Checking the page showed it did not reach 94. Every one of
+  its tries weighs breaks against carry-over (break weights 10 to 80, or a cap on breaks), and at 10
+  teams the ten tries' best was 106 (the squeezed and regrounded seasons after them reached 102, but the
+  choices only look at the ten); with "the most even carry-over" chosen it kept 106 / 10
+  (`eval/browser-proved-least.mjs`, before). The plain search with no break weight
+  (`lowCarryOverRounds`) reaches 94 at seeds 1 to 3. So the page now adds one more season after the
+  squeezes, polishes and floor-priced seasons, searched on carry-over alone (`carryOverPure`, at the
+  base seed; nothing is added when an earlier season already has that carry-over or less), and "the
+  most even carry-over" chooses among every season instead of the first ten. The other three choices
+  look at the same ten tries as before and keep the same season; the new one joins the list a person
+  can pick from. At 10 teams "the most even carry-over" now keeps 94 / 14 instead of 106 / 10, and the
+  report says "80 is the floor for this many games, but no 10-team round robin can go below 94, and
+  this schedule reaches it; an exhaustive search proved it". The same holds wherever the stored
+  timetables and starters beat the weighted tries (`bestCarryOverRounds`, 8 weighted + 2 capped tries,
+  seed 1, carry-over / breaks kept by "the most even carry-over"): 9 teams 89 / 5 to **69 / 12**, 10
+  teams 106 / 10 to **94 / 14**, 12 teams 168 / 14 to **136 / 20**; with a break weight of 10 the kept
+  season is the same with and without it at all three. It costs one more search after the others: at
+  20 teams 0.9 s for a single round robin (360 / 52) and 1.6 s for a home-and-away season (1,460 / 126),
+  measured in Node on a busy container. `bestCarryOverRounds` takes `pure: true`
+  for the same on the command line (off by default, so earlier results are unchanged).
+- Tests (`carryover.test.mjs`): the timetable the search found is a round robin and scores 94; the
+  plain search at seed 1 reaches it; with `pure` "the most even carry-over" keeps 94 and the other
+  choices keep what they kept. `eval/browser-proved-least.mjs` builds the 10-team league in Chromium
+  and reads the line.
+- **12 teams.** The same search does not finish: asked only whether the floor (120) is reachable,
+  four parts (`./carryover-bnb 12 0 P 4`) on four shared cores were stopped after 23 minutes with no answer (`eval/carryover-bnb.txt`).
+  Each step of 2 cost about 2x at 10 teams, so the 12-team tree is the problem, not the bound. Next:
+  a lower bound on the carry-over the remaining rounds must add (each team's remaining opponents
+  are known), which would cut far higher in the tree.
+- Not claimed: this is the non-cyclic value used throughout this README; Russell's cyclic value
+  (last round to first) was not searched, and nothing here was compared with published tables,
+  which were not reachable from this session.
+
+## 12 teams cannot reach 122: a matching bound and a symmetry cut (2026-11-14, later)
+
+The exact search above did not finish at 12 teams even when asked only about the floor. Two changes
+to `eval/carryover-bnb.c` make it finish there, and they keep every answer it gave at 6, 8 and 10.
+
+- **A bound that is exact for the rest of a round.** Inside one round every team is met once, so each
+  carry-over column (the team being met) gains exactly one entry, and the costs of a round's pairs add
+  without interacting. The least E the teams still unpaired in a round can add is therefore a min-cost
+  perfect matching. `can_pair` answers "is there one within the remaining budget" by depth-first search
+  with failures remembered per round start, and a branch is cut when there is not, at every node and
+  when each round starts. Alone it cuts nodes 2.6x but saves only a fifth of the time.
+- **Round 1 once per cycle type.** Rounds 0 and 1 together are disjoint alternating cycles of length 4
+  or more, and the relabellings that keep round 0 take any round 1 to any other with the same cycle
+  lengths. So round 1 is placed once per partition of the n / 2 pairs into cycles (at 12 teams four
+  ways: 12, 8 + 4, 6 + 6, 4 + 4 + 4), where the first version fixed only two teams' round-1 opponents.
+- **Measured at 10 teams** (`eval/carryover-bnb.txt`; asked value <= 88, every run "none"): first
+  version 246 M nodes, 33.5 s; bound alone 94 M, 26.8 s; symmetry alone 28 M, 3.9 s; both 10.5 M,
+  3.0 s. The proof that 94 is the least now takes 13 s at 92 instead of 145 s.
+- **12 teams** (four parts on four cores): none at 120 (about 3 min each, 1.8 billion nodes in all),
+  none at 122 (about 25 min each, 15.2 billion nodes). So **no 12-team round robin has non-cyclic
+  carry-over below 124**, and the best known timetable was 136 (README "Refilled rounds"; 132 since "12 teams at 132" below). 124 itself
+  was not asked: each step of 2 cost about 9x, about 4 hours on four cores.
+- **On the page.** `PROVEN_LEAST[12]` is `{ least: 124, exact: false }`, so a 12-team single round
+  robin's report now says "120 is the floor for this many games, but no 12-team round robin can go
+  below 124; an exhaustive search proved it", and does not claim a schedule reaches it. Tests
+  (`carryover.test.mjs`): the circle method and the plain search at 12 teams stay at or above 124, and
+  14 teams have nothing proved.
+- Not claimed: the gap from 124 to 136 is open (124 to 132 since the next section). Round reversal is still unused (about 2x), and so is
+  any bound across rounds; nothing here was compared with published carry-over tables.
+
+## Freeing up to 8 rounds at once: 136 at 12 teams and 212 at 14 hold (2026-11-14, latest)
+
+The refill search (above) re-deals 2 to 5 rounds per move. `eval/carryover-lns.c` frees more: each
+move keeps the first k rounds of the current timetable, or of its reversal (reversing the rounds
+transposes the carry-over matrix and keeps the value), and the exact search of `carryover-bnb.c`,
+with its per-round matching bound, completes the last w = 4 to 8 rounds from the games left. So a
+move tries every way to deal those games into w rounds in any order, within a node cap (2 to 8 M per
+move), asks first for strictly less carry-over, then may take a different completion at the same
+value, and after 200 idle moves swaps two rounds. Every result is rescored from its opponents alone
+and checked to be a round robin. Raw output: `eval/carryover-lns.txt`.
+
+- **Checked where the answer is known.** 10 teams from the circle method (value 374): 94, the proved
+  least, after 19 moves and 4 s.
+- **12 teams** (four runs of 1,500 s on four shared cores): from the stored 136, two runs (2,523 moves,
+  423 at the same value) found nothing lower. From the circle method (768), one run reached **136 on
+  its own, by a different timetable** (not checked for relabelling equivalence), after 1,120 s; the other
+  stopped at 150. So two unrelated searches, the refill and this one, both stop at 136.
+- **14 teams** (four runs of 1,200 s): from the stored starter at 212, three runs (4,662 moves freeing
+  4 to 8 of the 13 rounds) found no completion below 212; from the circle method (1,378) one run
+  reached 224, against the refill's 220. The floor is 168.
+- **What it changes.** Nothing on the page: no stored timetable improved, so `TIMETABLES` and
+  `PROVEN_LEAST` are unchanged. (Later the same day the refill search in C, next section, found 210 at 14 teams.) It is evidence, not proof, that 136 is hard to beat: re-dealing up to
+  8 of the 11 rounds from either end found nothing lower, so the next step at 12 teams is the proof
+  side, 124 to 134 by the exact search (round reversal, a cross-round bound), rather than more local
+  search.
+- Not claimed: moves that hit the node cap were not counted, so "nothing lower" is "nothing found",
+  not a proof that the stored timetables are optimal within 8 rounds.
+## The refill search in C: 14 teams at 210, and 12 teams' 136 again (2026-11-14, latest)
+
+`eval/round-refill.mjs` found 136 at 12 teams in 3 of 4 seven-minute runs, and stopped at the
+starter's 212 at 14 and 318 at 18; the 8-round exact re-deal (`eval/carryover-lns.c`, section above) also
+held at 136 and 212. `eval/refill-search.c` (plain C, no dependencies) is the same
+move with three changes, to ask whether those numbers are walls or just where a slow search stopped.
+
+- **The move** is unchanged: take 2 to `WMAX` rounds out, refill them with the least-carry-over split
+  of their games into perfect matchings, in any order, by a depth-first search that cuts a branch as
+  soon as its carry-over passes the budget (a node cap of 20,000 per move).
+- **Acceptance**: the budget is the current value plus a slack drawn from an exponential with mean 1
+  (rounded down to even), so a slightly worse refill is taken only when nothing in the budget is better.
+- **Kicks and restarts**: after 2,000 moves with no new best for the climb, back to the climb's best and
+  2 to 5 random refills within a wide budget (a kick); after 30 kicks with no new best, a fresh climb
+  from the circle method with its rounds shuffled. `CLIMBS=1` prints each climb's best.
+- **Speed**: about 1,300 moves a second at `WMAX` 5 and 47,000 at `WMAX` 3 (12 teams, one core), against
+  the Node script measured no rate; `WMAX` 3 turned out the better setting at 12 and 14 teams.
+
+Measured on four shared cores (`eval/refill-search.txt`, every best re-scored from scratch and checked
+to be a round robin; the page's `carryOverFromOpponents` agrees):
+
+| Teams | Runs | Climbs | Best | How often | Before | Proved floor |
+|---|---|---|---|---|---|---|
+| 12 | 4 (2 x 900 s at `WMAX` 5, 2 x 600 s at `WMAX` 3) | 631 | 136 | every run; 5 of the 598 climbs at `WMAX` 3 | 136 | 124 (README above) |
+| 14 | 8 (240 to 900 s) | 865 at `WMAX` 3 | **210** | 2 of 8 runs (one climb each) | 212 (starter) | 168 (counting floor) |
+| 18 | 2 x 900 s | 173 | 356 | both runs | 318 (starter) | 288 |
+
+- **12 teams**: no climb out of 631 went below 136, and the lowest five all landed on it. That does
+  not prove 136 is the least (the exact search above proves only 124), but four independent runs and a
+  different program hitting the same wall make a 12-team timetable below 136 look unlikely to come from
+  more of this search. (Later the same day `eval/window-refill.c`, the section after next, found 132.) The useful next step there is the proof side: 124 to 134 ruled out.
+- **14 teams: 210**, two below the starter, found by two separate runs (seeds 44 and 51). Every count is
+  1, 2 or 3 (129 cells at 1, 18 at 2, one at 3). It is stored as `TIMETABLES[14].even` in
+  `carryover.mjs`, so the page's search starts from it beside the circle method and the starter and
+  keeps whichever ends best (`eval/stored-14.mjs`, seeds 1 to 3, effort 1):
+
+  | 14 teams | Before | Now |
+  |---|---|---|
+  | Single round robin, carry-over only | 212 / 32 breaks | **210 / 26** (fewer breaks too) |
+  | Single, break weight 10 | 252 / 18, 240 / 18, 238 / 20 | the same (the starter is kept) |
+  | Home and away, either setting | 732 / 84 ... 842 / 54 | the same |
+
+  Nothing got worse at any seed or setting. The page's own weighted tries (`carryOverTry(14, i, { seed: 1,
+  weighted: 8 })`) moved too, and each of the seven that changed scores lower on its own weight (carry-over
+  + weight x breaks): single round robin try 1 (weight 20) 250 / 18 to 244 / 18, try 3 (weight 80) 238 / 20 to
+  250 / 18, try 5 (weight 20) 244 / 20 to 250 / 18; home and away try 2 (weight 40) 1,290 / 42 to 1,030 / 46,
+  try 3 (weight 80) 1,014 / 46 to 1,078 / 42, try 5 (weight 20) 880 / 52 to 942 / 46, try 7 (weight 80)
+  1,118 / 44 to 908 / 46. The two MaxSAT-checked 14-team seasons in `orient.test.mjs` are now rebuilt
+  without the stored start, so the proofs still apply to the timetables they were run on. As 12 teams showed (README "Refilled rounds"), a leg with
+  less carry-over does not always make a better season, which is why it is a third start, not a
+  replacement. At 13 teams the same timetable with one team as the bye scores 179, worse than the 169
+  the search already finds, so it is stored for 14 only.
+- **18 teams**: from the circle method the search stops at 356, well above the starter's 318. Past 14
+  teams a climb from scratch is too slow; the next try is the refill started from the climbed starters
+  (`start` takes a timetable file) with restarts that re-shuffle the starter rather than the circle.
+- Tests (`starter.test.mjs`): the stored 14-team timetable is a round robin, scores 210, is below the
+  starter at every start, and the search from it returns 210 or less.
+- Not claimed: 210 is a heuristic result, not a proved least at 14 teams; nothing here was compared with
+  published carry-over tables.
+## 12 teams at 132: a window refill that walks plateaus (2026-11-14, latest)
+
+The two sections above stopped at 136 at 12 teams and called it a likely wall. It is not:
+`eval/window-refill.c` (plain C, no dependencies; written in parallel with `eval/refill-search.c` and
+landed after it) finds **132**, so the least at 12 teams is now 124 to 132. It is a close cousin of
+`refill-search.c`; the differences are in what a move accepts and where a stalled search restarts:
+
+- it takes the *first* refill its randomised DFS finds under the target, not the least one, with the
+  target one below the incumbent and then equal to it, so most moves are uniform-ish random steps
+  across a plateau of equal value rather than a best-refill climb;
+- the removed rounds are anywhere half the time (not only adjacent), and a stall restarts from the
+  best timetable with two rounds swapped or all reversed, never from a fresh circle method.
+
+Which of these matters was not tested.
+
+- **Move.** Take w rounds out (w from 2 to 6; contiguous half the time). Their games form a w-regular
+  graph; refill the w rounds with a split of it into perfect matchings by depth-first search, rounds in
+  order, the lowest unplaced team first, partners in random order. A game placed in round r adds the
+  carry-over cells from round r - 1 and, when r + 1 is not refilled, into round r + 1; a cell already
+  holding c costs c, so a branch is cut as soon as the total passes the target. The target is first one
+  below the incumbent (an improvement), then equal to it (a plateau step), or, 2% of the time, 1 or 2
+  above (a kick). Each search stops after a node limit; after a stall the search restarts from the best
+  with two rounds swapped or all reversed. Every new best is re-scored from its opponents and checked to
+  be a round robin.
+- **Checked:** at 10 teams it reaches the proved least, 94, from the circle method in under 0.1 s.
+- **12 teams** (`eval/window-refill.txt`; one process per core): four 120 s runs stopped at 136 to 140.
+  Of four 900 s runs, three found 132 (after 107, 369 and 575 s) and one stopped at 140; the two with
+  small windows (w 2 to 4, 50,000 nodes) both found it. A further 600 s from the 132 found nothing lower.
+  At 132 six cells hold 2 and the rest 0 or 1. `TIMETABLES[12].even` is now this timetable.
+- **The page keeps every setting at or below what it gave.** With the 132 alone, the carry-over-only
+  home-and-away season at seed 1 got worse (530 / 68 to 538 / 62): as with the 136 before it, a leg with
+  less carry-over can seed a worse season. So the 136 stays as a fourth start (`TIMETABLES[12].evenAlt`,
+  "second timetable" in `constructionStarts`) and the best of all starts is kept, as before. Through the
+  search (`node eval/field-start.mjs 12`, seed 1, effort 1; carry-over / breaks):
+
+  | 12 teams | Before | Now |
+  |---|---|---|
+  | Single, carry-over only | 136 / 20 | **132 / 18** |
+  | Single, break weight 10 | 170 / 14 | 170 / 14 |
+  | Season, carry-over only | 530 / 68 | 530 / 68 |
+  | Season, break weight 10 | 602 / 40 (score 1,002) | **576 / 40** (score 976) |
+
+  A 12-team search now runs from five starts (circle, starter, two timetables, and the weighted starter
+  when a break weight is set); `field-start.mjs 12` took 12 s for all four settings.
+- **Past 12 teams it did not help.** From the built-in starters at their best start, 600 s each: 14 teams
+  212, 18 teams 318, 24 teams 570, all unchanged (floors 168, 288, 528). From the circle method it got no
+  nearer than 220, 396 and 770 in about 3 minutes. The DFS has far more splits per window at these
+  sizes; a cheaper bound inside the refill, or windows chosen by where the cells at 2 sit, is the next
+  thing to try there.
+- Tests (`starter.test.mjs`): both stored 12-team timetables are round robins, their values are pinned
+  (132 and 136), each is below the starter, and the search from them returns no more than the value.
+- Not claimed: whether 124 to 130 is reachable; nothing here was compared with published carry-over
+  tables.
+
+## Starters picked with their breaks (2026-11-11, latest)
+
+The open item above was "pick the start by carry-over + weight x breaks when a weight is set". Two
+findings, one negative.
+
+- **The start does not matter.** Start t's round r is start 0's round r + t, and renaming every
+  ordinary team u to u - t (the fixed team stays) turns one into the other, so the carry-over, and
+  every home/away a full search can find, is the same at every start. `starter.test.mjs` checks it
+  (every start of the 12-, 18- and 26-team entries, both parities), and `eval/starter-breaks.mjs`
+  checks it on every entry. Picking the start on the weighted score changed no result at 12, 20 or 24
+  teams. The loop over starts in `bestStarterOpp` only settles the greedy venue pass's ties, and the
+  "every start is an O(N) correction" line above is moot. What can change is **which starter**.
+- **A second table, `STARTERS_WEIGHTED`** (`carryover.mjs`). `eval/starter-breaks.mjs` reruns the O(p)
+  climb of `eval/starter-climb.mjs` keeping a wide pool (250 starters whose cyclic sum D^2 is within
+  6 + p/4 of the best) and rescores each on exact non-cyclic carry-over + 10 x the breaks of the full
+  venue search (`assignVenues`). Raw starters (`eval/starter-breaks.txt`, carry-over / breaks,
+  carry-over-first entry -> weighted pick): 26 teams 716 / 104 -> **716 / 74** (same carry-over, 30
+  fewer breaks), 28 teams 828 / 114 -> 978 / 76, 30 teams 948 / 138 -> 1,164 / 86, 40 teams
+  1,816 / 230 -> 2,112 / 144, 18 teams 318 / 52 -> 348 / 38.
+- **Through the search.** With a break weight, `lowCarryOverRounds` and `lowCarryOverDoubleRounds`
+  now run one more search from the weighted entry (`start: "weighted starter"`), beside the circle,
+  starter and stored-timetable starts (`constructionStarts`), and keep it only when its score is
+  strictly lower (so no size can score worse; `weightedStarter: false` turns it
+  off). Measured at weight 10, seed 1, effort 1 (`node eval/starter-breaks-search.mjs 10 <sizes>`,
+  `eval/starter-breaks-search.txt`; carry-over / breaks, before -> now; 12 teams rerun after merging
+  the refilled-rounds start of PR #14847):
+
+  | Teams | Single | Season (home and away) |
+  |---|---|---|
+  | 12 | 180 / 14 -> 170 / 14 (-10; before = the refilled timetable start) | 618 / 42 -> 602 / 40 (-36) |
+  | 14 | same | 854 / 52 -> 870 / 50 (-4) |
+  | 18 | 456 / 30 -> 348 / 40 (-8) | 1,556 / 76 -> 1,316 / 98 (-20) |
+  | 25 | same | 2,813 / 272 -> 2,889 / 262 (-24) |
+  | 26 | 716 / 102 -> **716 / 74** (-280) | 2,618 / 230 -> **2,714 / 164** (-564) |
+  | 28 | 828 / 114 -> 978 / 76 (-230) | 3,148 / 246 -> 3,564 / 178 (-264) |
+  | 30 | 948 / 136 -> 1,164 / 92 (-224) | 3,624 / 288 -> 3,950 / 194 (-614) |
+  | 33 | same | 5,069 / 526 -> 5,151 / 507 (-108) |
+  | 34 | 1,274 / 166 -> 1,460 / 142 (-54) | same |
+
+  The 26-team season loses 66 of its 230 breaks for 4% more carry-over. No change at 9, 13, 17, 19,
+  21, 22, 23, 27 or 29 teams, so the table keeps only the entries that gained: even 12, 14, 18, 26,
+  28, 30 and 34, the bye entries for 25 and 33, and even 36, 38 and 40 (raw gains of 80 to 564 in
+  score, not yet run through the search). Odd leagues rarely gain: their circle start already has a
+  zero-break home/away.
+- **Cost.** The extra run is only made at sizes with an entry and a break weight: a 26-team season at
+  weight 10 took 6.3 s and now 9.6 s in Node. The page's eight weighted tries pay that; carry-over
+  only, the capped tries and every size without an entry are unchanged.
+- **Real fixtures** (`eval/carryover-real.txt`, rerun; the guide's table): the tool's 18-team season is
+  now 1,316 / 98 (was 1,556 / 76), and mirrored 1,426 / 90 (was 1,902 / 72); both Ligue 1 seasons
+  (1,840 / 74, 1,948 / 96) still sit between them on the trade. 20 teams unchanged (1,460 / 116).
+- Tests (`starter.test.mjs`, 4 new): every weighted entry is a round robin for a size STARTERS has;
+  start invariance; the 26-team entry has 716 carry-over and at most 80 breaks against 96 or more;
+  the weighted run is kept only when strictly better (12 and 18 teams, single and season), and is not
+  used without a weight.
+- Open: run 36 to 40 through the search; a climb that scores breaks inside the move (the pool
+  rescore takes 30 to 160 s a size, so only 250 starters are tried); odd sizes, where the weighted
+  pick should be compared with the circle's zero-break orientation rather than the starter's.
+
+## Home and away that moves with the starter (2026-11-11, latest)
+
+The venue search (`assignVenues`) is general: it takes any timetable and anneals home/away. On the
+built-in starter timetables it does badly with a bye. The 24-team starter played by 23 teams gave it
+127 breaks. A home/away read straight off the starter gives 44, at the same carry-over. Starter
+timetables now get that home/away as a candidate of its own.
+
+- **The shift orientation** (`carryover.mjs`, `shiftOrientation`, `shiftVenues`). At step 1, round
+  r plays each starter pair {x, y} as {x + r, y + r} (any step is a renaming of the teams, as
+  above). Give each pair a host and keep it in every round; the fixed team alternates. With H(u) = 1
+  when position u hosts, team t is at position t - r in round r, so its home/away run is H read
+  backwards. Each team hosts once per pair, so every team is balanced. Each team's rounds pass
+  every neighbouring pair of positions but one. With E the number of u in 2 .. p - 1 where
+  H(u) = H(u - 1), the breaks are exactly
+
+  breaks = (p - 1)(E + 1) with all N playing, (p - 1) E with a bye
+
+  The circle method has E = 0, the familiar N - 2 breaks, and none with a bye. The least E over the
+  2^((p-1)/2 - 1) orientations is found exactly by a Gray-code walk with an O(1) update, at most
+  40 ms at 40 teams. Tests: the formula against a direct count and the balance check on every
+  built-in starter, and the walk against brute force at 12 teams.
+- **In the search.** With a break weight, `lowCarryOverRounds` now also scores every built-in starter
+  as it is, with these venues and no annealing, and keeps one only when its carry-over +
+  weight x breaks is strictly lower than every searched start's (`start: "... , shift venues"`;
+  `shift: false` turns it off). Carry-over only, nothing changes.
+- **A third table, `STARTERS_SHIFT`** (`eval/starter-orient.mjs`, `eval/starter-orient.txt`). This is
+  the O(p) climb of `eval/starter-climb.mjs` with breaks priced inside the move:
+  p x sum D^2 (+ 2p) + 10 (p - 1)(E + [even]), with E from a few sweeps of single-pair flips (an upper
+  bound). The 60 best are then scored exactly. It is kept where it beats every built-in entry on
+  carry-over + 10 x shift breaks (30 s per size and parity): with a bye at 12, 14, 18, 22, 26, 28,
+  30, 34, 36, 38 and 40 (11 to 39 real teams), and all playing at 22, 30, 34, 36, 38 and 40.
+- **Measured through the search** (`node eval/shift-search.mjs 10 <sizes>`, seed 1, effort 1,
+  `eval/shift-search.txt`; carry-over / breaks, `shift: false` -> default):
+
+  | Teams | Before | Now | Score |
+  |---|---|---|---|
+  | 11 | 141 / 17 | 153 / 10 | 311 -> 253 |
+  | 13 | 199 / 25 | 253 / 12 | 449 -> 373 |
+  | 17 | 313 / 67 | 343 / 32 | 983 -> 663 |
+  | 19 | 323 / 75 | **323 / 36** | 1,073 -> 683 |
+  | 21 | 399 / 104 | 475 / 40 | 1,439 -> 875 |
+  | 23 | 565 / 127 | **565 / 44** | 1,835 -> 1,005 |
+  | 25 | 665 / 164 | 713 / 48 | 2,305 -> 1,193 |
+  | 26 | 716 / 74 | 716 / 72 | 1,456 -> 1,436 |
+  | 27 | 823 / 174 | 923 / 52 | 2,563 -> 1,443 |
+  | 29 | 891 / 206 | 1,105 / 56 | 2,951 -> 1,665 |
+  | 30 | 1,164 / 92 | 1,110 / 84 | 2,084 -> 1,950 (both lower) |
+  | 33 | 1,269 / 280 | 1,579 / 64 | 4,069 -> 2,219 |
+  | 34 | 1,460 / 142 | 1,460 / 96 | 2,880 -> 2,420 |
+  | 35 | 1,419 / 310 | 1,617 / 68 | 4,519 -> 2,297 |
+  | 36 | 1,620 / 170 | 1,752 / 102 | 3,320 -> 2,772 |
+  | 37 | 1,575 / 351 | 1,925 / 72 | 5,085 -> 2,645 |
+  | 38 | 1,928 / 154 | **1,928 / 108** | 3,468 -> 3,008 |
+  | 39 | 1,813 / 404 | 2,477 / 76 | 5,853 -> 3,237 |
+
+  No change at 9, 10, 12, 14, 18, 20, 22, 24, 28 or 40. Run time is unchanged within noise (each
+  candidate is one exact score; the Gray walk is at most 40 ms). Odd leagues of 17 to 39 teams had
+  been left with 4 to 10 breaks per team by the venue search. They now have under 2 per team: every
+  odd pick from 17 teams up has E = 2. At 19, 23
+  and 38 teams the carry-over is the same and only the breaks drop. Elsewhere the weight-10 score
+  trades some carry-over for far fewer breaks. The page's "fair" pick (weight 0) is unchanged.
+- **Why the venue search misses it.** It works one match or one run at a time from a greedy or
+  colouring start. The shift orientation changes every team's pattern at once, and a single flip
+  away from a bad start rarely improves enough to be accepted. This is a guess from the moves, not
+  measured.
+- **Negative: refilling from the climbed starters** (`eval/round-refill.mjs <N> 360 <seed> starter 6
+  [bye]`, `eval/round-refill.txt`). 14 teams stayed at the starter's 212 and 18 teams at 318; 17
+  teams stayed at 313. 13 teams went from 187 to 179, still above the circle search's 169. The
+  starters are local minima for 2- to 5-round refills. The run also found a bug in the climbs'
+  `repair`: it saved the freed residues' partners before shuffling them, so a rejected move restored
+  the wrong partners. `eval/starter-climb.mjs` almost never rejects a move, so its tables are
+  unaffected; it is fixed in both scripts.
+- Open: seeding `assignVenues` with the shift orientation after the search's moves; longer
+  climbs, and a better break bound inside the move than single-pair flips.
+
+## Shift venues for a home-and-away season (2026-11-11, latest)
+
+The shift candidates above reached only the single round robin. `lowCarryOverDoubleRounds` builds
+each leg one from a searched start (circle, starter, weighted starter), so a home-and-away season
+never saw them: 25 teams stayed at 2,889 carry-over with 262 breaks.
+
+- **The change** (`carryover.mjs`). With a break weight, every shift candidate (`shiftStarts`: each
+  built-in starter as it is, with its least-break shift venues) is now also a leg one. Leg two is
+  then handled as for any leg one: it starts as leg one played backwards and is annealed with the
+  breaks counted exactly from leg one's hosts, and the plain mirror (leg one again, grounds swapped)
+  is scored too. A candidate is kept only when its carry-over + 1000 x repeats + weight x breaks is
+  strictly lower than every searched start's (`start: "... , shift venues"`; `shift: false` turns it
+  off; a `leg1` option takes the given leg one). Carry-over only (weight 0): nothing changes.
+- **Measured through the search** (`node eval/shift-double.mjs 10 <sizes>`, seed 1, effort 1, weight
+  10, `eval/shift-double.txt`; each season checked as valid: every ordered pair once, the two
+  meetings in different legs, every team n - 1 home games; carry-over / breaks recounted from the
+  rounds):
+
+  | Teams | Before | Now | Score |
+  |---|---|---|---|
+  | 11 | 487 / 31 | 497 / 23 | 797 -> 727 |
+  | 13 | 719 / 43 | 733 / 35 | 1,149 -> 1,083 |
+  | 17 | 1,333 / 87 | **1,285 / 65** | 2,203 -> 1,935 |
+  | 19 | 1,525 / 119 | **1,311 / 87** | 2,715 -> 2,181 |
+  | 21 | 1,891 / 171 | 1,937 / 97 | 3,601 -> 2,907 |
+  | 23 | 2,381 / 211 | **2,189 / 109** | 4,491 -> 3,279 |
+  | 25 | 2,889 / 262 | **2,685 / 117** | 5,509 -> 3,855 |
+  | 26 | 2,714 / 164 | 2,714 / 164 | unchanged |
+  | 27 | 3,315 / 304 | 3,359 / 148 | 6,355 -> 4,839 |
+  | 29 | 3,885 / 370 | 3,951 / 165 | 7,585 -> 5,601 |
+
+  Odd seasons of 17 to 29 teams go from 5 to 13 breaks per team to 4 to 6, and at 17, 19, 23 and 25
+  teams (bold) the carry-over drops as well: the searched leg ones were worse on both counts. At 19
+  and 21 teams the plain mirror of the shift leg one won. 26 teams (even, all playing) keeps its
+  weighted starter. Each row's time (9 to 23 s) is both searches together; the extra candidates
+  are up to three leg-two searches, so a home-and-away search with a break weight takes longer at
+  sizes with built-in starters.
+- Not claimed: one seed, one weight, ten sizes; the page's best-of-k tries at weights 10 to 80 run
+  this inside each try, but their picks were not re-measured.
+
+## Shift venues carried through the search (2026-11-12)
+
+Three follow-ups to the shift venues above, measured at weight 10 on seeds 1 and 2. One clear gain,
+one small one and one negative.
+
+- **15 and 31 teams: shift starters at the field sizes** (`eval/field-shift.mjs`,
+  `eval/field-shift.txt`). When the league, a bye included, is a power of two, the search starts from
+  the field timetable and never saw a shift candidate. With a bye that left 15 teams at 41 breaks
+  and 31 teams at 245 (7.9 per team). `eval/starter-orient.mjs 30 10 16` and `... 32` climbed
+  starters for both, and the odd ones are now in `STARTERS_SHIFT`. With a break weight the field
+  search keeps one only when it scores strictly lower. 15 teams: 195 / 41 to **195 / 28** (same
+  carry-over; seed 2 was 239 / 35). 31 teams: 899 / 245 to **1,189 / 60** (score 3,349 to 1,789). 7,
+  8, 16 and 32 teams: the climbed starters do not beat the field search, so nothing changes.
+  Carry-over only (weight 0): nothing changes.
+- **Capped shift candidates** (`shiftCapped`, on by default). Each shift candidate is also run
+  through `lowCarryOverCappedRounds` from that start (new `start: { opp, venues }` option): it
+  anneals carry-over with the home/away carried along and the candidate's own breaks as the cap.
+  11 teams: 253 to 237 and 239 (153 / 10 to 137 / 10 and 139 / 10). 13 teams: 373 to 335 (253 / 12
+  to 215 / 12). 39 teams, seed 2: 3,237 to 3,219. Nothing changes at any other size from 9 to 40
+  (`eval/shift-carry.mjs`, `eval/shift-carry.txt`). Each candidate adds about 0.3 s. From 17 teams
+  up the climbed shift starters look like local minima for these moves: with 2 to 16 breaks of
+  slack and four times the effort, only 39 teams moved.
+- **Negative: carrying the starter's hosts through the search's moves** (`carryHosts`, off by
+  default). Every carry-over move keeps the set of pairs, so the starter's shift home/away gives
+  each pair a host (`pairHostsOf`). That gives a valid, equally balanced home/away for whatever
+  timetable the search ends on (`venuesFromHosts`; `starterShiftVenues` builds the shift venues at
+  any step and start). As one more start for the venue search (`carryHosts: "seed"`,
+  `assignVenues(..., { hosts })`), it changed 1 row of 60: 22 teams, seed 2, 66 to 64 breaks. At 19,
+  23 and 26 teams it only tied the shift candidate it already had. Also pricing moves with the
+  carried hosts' breaks (`carryHosts: true`) made 14 teams worse (432 to 462). The search's moves
+  break the shift pattern faster than the venue search can use it, so the shipped default
+  leaves both off.
+- Open: the home-and-away season (`lowCarryOverDoubleRounds`) does not yet score the 16 and 32
+  shift starters or the capped candidates. Sizes 17 to 40 need moves that keep the shift pattern,
+  not a cap on single moves.
+
+## Shift candidates in a home-and-away season, part two (2026-11-12, later)
+
+The open item above, measured on seeds 1 and 2 at weight 10 for every size from 9 to 40
+(`node eval/shift-double-capped.mjs`, `eval/shift-double-capped.txt`). Each season was checked as
+valid (every ordered pair once, the two meetings in different legs, every team n - 1 home games).
+Every figure was recounted from the rounds.
+
+- **Capped shift leg ones** (`withShiftLegOnes`, `shiftCapped`). Each built-in starter with shift
+  venues was already a leg one. Now the capped version is one too: that start annealed on
+  carry-over with its home/away carried and its breaks as the cap (`lowCarryOverCappedRounds` with
+  `start`, as the single search does). Leg two is searched against it as usual. The gains are at 11
+  and 13 teams, on both seeds, and carry-over and breaks both drop:
+
+  | Teams | Seed | Before | Now | Score |
+  |---|---|---|---|---|
+  | 11 | 1 | 497 / 23 | **481 / 22** | 727 -> 701 |
+  | 11 | 2 | 509 / 21 | **505 / 19** | 719 -> 695 |
+  | 13 | 1 | 733 / 35 | **721 / 32** | 1,083 -> 1,041 |
+  | 13 | 2 | 739 / 32 | **721 / 29** | 1,059 -> 1,011 |
+
+  Nothing changed at any other size from 9 to 40, and the extra leg-two searches added 30 to 40% to
+  the run time there. So the default (`shiftCapped: "small"`) uses capped leg ones only up to 16
+  slots (11 to 16 teams). From 17 teams up the time is the same as before. `true` runs them at every
+  size and `false` turns them off.
+- **Negative: the 16 and 32 shift starters at 15 and 31 teams** (`fieldShift`, off by default).
+  A field-size league now tries each shift starter, plain and capped, as a leg one. On both seeds
+  nothing changed (15 teams 795 / 67, 31 teams 4,341 / 161 and 4,337 / 167), and the run time
+  doubled. Two reasons. The field search's leg one already comes from the single search, which takes
+  the 31-team shift starter when it wins (README "Shift venues carried through the search"). And a
+  field leg one played twice is perfectly balanced, so its plain mirror is hard to beat.
+- Carry-over only (weight 0): nothing changes. The capped leg ones are not used with a season
+  cap (`maxBreaks`) either.
+- Open: moves that keep the shift pattern for 17 to 40 teams; re-measuring the page's best-of-k
+  picks with every shift candidate in.
+
+## The page's four choices, re-measured on its own ten tries (2026-11-12, latest)
+
+The best-of-k tables above were measured on 2026-11-11 with four weighted tries and three choices.
+Since then the page runs 8 weighted + 2 capped tries and offers four choices (`CARRY_OVER_PICK`:
+most even 0, balanced 10, fewer back-to-back 40, fewest 1000), and the starters, field start,
+capped breaks, odd-league colouring and shift venues all landed underneath. `node eval/best-of-k.mjs
+--page` now runs exactly that search (`carryOverTry` for tries 0 to 9, `combineCarryOverTries` per
+choice, as the page does), recounts carry-over and breaks from the kept rounds (it throws if the
+search's own figures differ; they never did) and sets 18- and 20-team results against the 20 real
+top-flight seasons (`eval/best-of-k-page.txt`; home-and-away seasons, seeds 1 to 5, odd leagues
+seeds 1 to 3).
+
+| Teams | Most even | Balanced | Fewer back-to-back | Fewest | Real seasons |
+|---|---|---|---|---|---|
+| 18 | 1,355 / 92.8 | 1,467 / 78.0 | 1,803 / 58.8 | 2,493 / 48 | 1,840-4,342 / 48-96 (6) |
+| 20 | 1,460 / 117.2 | 1,460 / 116.4 | 2,102 / 85.6 | 5,039 / 54 | 2,278-2,564 / 70-146 (14) |
+| 11 | 484 / 21.3 | 491 / 20.7 | 578 / 17.0 | 578 / 17.0 | - |
+| 13 | 698 / 31.7 | 704 / 29.7 | 734 / 27.7 | 1,216 / 24.7 | - |
+| 15 | 795 / 67 | 949 / 48.7 | 1,156 / 36 | 1,156 / 36 | - |
+| 17 | 1,237 / 73.7 | 1,252 / 69.3 | 1,286 / 66.7 | 2,837 / 42.7 | - |
+| 19 | 1,311 / 87 | 1,311 / 87 | 1,392 / 83.0 | 5,090 / 48 | - |
+
+(carry-over / breaks a season, means over the seeds.) Read plainly:
+
+- **Everything underneath moved the low end a long way.** On 2026-11-11 the four tries kept 1,498 to
+  1,538 carry-over at 18 teams and 1,678 to 1,820 at 20 on "most even"; now 1,298 to 1,426 and 1,460
+  on every seed (the 20-team floor from the field start). Every 20-team "most even" season is below
+  all 14 real 20-team seasons' carry-over (2,278 and up) and every 18-team one below all six real
+  18-team seasons' (1,840 and up).
+- **Eight + two tries beat the old four on the same code.** Rerunning `--picks` (four weighted tries)
+  on today's code at seeds 1 to 3: 18 teams "fewer back-to-back" 1,638/68, 1,918/60, 1,890/60 against
+  the page's 1,662/58, 1,800/60, 1,784/60; "balanced" at pick 10 scores 2,296, 2,250, 2,296 against
+  2,242, 2,250, 2,210. At 20 teams the gain is one seed (1,952/96 to 1,934/86).
+- **"Fewest" is the only choice with as few breaks as the real seasons' best, and it costs a lot.**
+  At 18 teams it keeps 48 breaks (the Bundesliga's own figure) at 2,398 to 2,638 carry-over and
+  dominates 4 of the 6 real seasons. At 20 teams its 54 breaks are below every real season's (70 and
+  up) but its carry-over (4,542 to 5,920) is twice theirs: it dominates none. At 17 and 19 teams it
+  costs 2.2 and 3.7 times the carry-over of "fewer back-to-back".
+- **At the field sizes most tries are the same season.** At 19 teams seven of the eight weighted tries
+  return 1,311 / 87 whatever the break weight (seed 1; at 20 teams three of eight return 1,460), so
+  "best of ten" there is really four results. The page's read-out now says so: "Best of 10 searches
+  for an even carry-over, 4 different results (... 1311/87 ×7, 1517/84, 5741/48, 3731/59 ...)"
+  (`carryOverCandidatesText`, `carryOverDistinct` in `carryover.mjs`; two tests in
+  `best-of-k.test.mjs`). Nothing about which season is kept changed.
+- **The capped tries are rarely kept at 11 and 13 teams** (0 of 12 choices at 11, 1 of 12 at 13):
+  the weighted tries (capped shift leg ones included, up to 16 slots) already reach 13 to 29 breaks there. At
+  11 teams "fewest" is "fewer back-to-back". At 15, 17, 19 and 20 they are the only low-break points.
+- Time on one thread: 18 teams 33 s, 20 teams 21 s, 11 to 17 teams 28 to 34 s, 15 teams 8 s (the
+  page spreads the ten over up to eight workers).
+- Open: the gap between "fewer back-to-back" and "fewest" at 17 to 20 teams (19 teams: 83 to 48
+  breaks with nothing between but a 3,731 / 59 try): the duplicate weighted tries could run capped
+  ones at caps in between, but changing what a try does changes the season a share link builds, so
+  it needs a versioned share link; the same measurement on single round robins.
+
+## Pick any season on the frontier (2026-11-12, latest)
+
+The page's four choices keep one season each, but the ten tries hold more than four useful ones.
+At 19 teams the read-out above lists 1,311 / 87, 1,517 / 84, 3,731 / 59 and 5,741 / 48: nothing
+between 84 and 59 back-to-back home or away games, and an organiser who wanted about 70 had no
+way to get it. Two changes:
+
+- **The list under the report.** After a carry-over search the page now shows every season on the
+  frontier, meaning every season where no other try has both less carry-over and fewer
+  back-to-back games, as buttons ("1367 carry-over, 83 back-to-back"). A click keeps that season. The
+  read-out then says "Picked from 12 searches" and a "Back to the choice above" button returns to
+  the choice. The pick goes into the share link as `carryOverKeep`, e.g. `11@20d3`: try 11 of a
+  20-team home-and-away search at seed 3. It is applied only when the teams, single or double and
+  seed all match (`carryOverKeepText`, `carryOverKeepIndex`). Change any of them, or the choice,
+  and the pick drops. The tries are cached by teams, single or double and seed, so changing the
+  choice or picking a season needs no new search.
+- **Two gap tries.** `CARRY_OVER_GAP = 2` more capped tries run after the 8 + 2, with caps further
+  along the same sequence (`cappedTryBreaks` j = 2, 3: an even league's minimum plus 8 and 12 a
+  leg, plus 24 and 36 a season). These are the caps between the two capped tries and the weighted
+  ones. The four choices still pick among tries 0 to 9 only (`combineCarryOverTries(..., { among:
+  10 })`). So **every share link made before today builds the same season it always did**, with
+  no version number in the link. The gap tries only add to the list.
+
+What the gap tries add (`node eval/frontier-gap.mjs`, `eval/frontier-gap.txt`; seeds 1 to 3 at 17
+to 20 teams home and away, seeds 1 and 2 elsewhere):
+
+| | Runs where a gap try joins the frontier | Widest break gap, before -> after (examples) |
+|---|---|---|
+| 17-20 teams, home and away | 9 of 12 | 19 teams: 25 -> 13, 19 -> 12; 18 teams: 18 -> 10; 20 teams: 20 -> 16 |
+| 15-20 teams, single round robin | 10 of 10 | 17 teams: 14 -> 6 (both seeds); 19 teams: 16 -> 8 |
+| 11-15 teams, home and away | 5 of 6 | small: the tries already reach 2 to 6 apart |
+
+- At 19 teams (seed 1) the new frontier is 1,311 / 87, 1,517 / 84, **3,203 / 72**, 3,731 / 59 and
+  5,741 / 48. At 17 single it gains 703 / 22 and 653 / 26 between 807 / 18 and 343 / 32.
+- An odd league's capped try also runs a heavy-weight search and keeps whichever has fewer breaks
+  (`carryOverTry`). Sometimes that lands at the far end instead of the gap (11 teams: 1,495 / 9),
+  which is still a new choice but widens the "widest gap" figure (11 teams seed 2: 2 -> 10).
+- Cost: 2 more tries. On a 4-core device the longest queue is 3 tries either way (10 or 12 over 4
+  threads), so the wait is unchanged. On one core it is about a fifth longer (20 teams home and
+  away: about 2 to 3 s a try here).
+- Tried and dropped first: a "squeeze" that starts the capped search from the best weighted try's
+  leg one and walks the cap down, paying carry-over per break over it. From a starter timetable it
+  never got below the start's breaks (18, 19 and 20 teams single, caps 4 to 26 below). Moves that
+  keep the timetable cannot cut breaks, and the venue-flip moves break the home/away balance. Heavier
+  break weights (80 to 640) left the weighted tries on the same starter season (19 teams: 1,459 to
+  1,517 at 79 to 83 breaks).
+- Tests: `frontier-pick.test.mjs` (the four choices unchanged with the gap tries present; a kept
+  try wins; a pick for another size, seed or kind is refused; the schedule's own recount is the
+  kept try's; the share link keeps a valid pick and drops a malformed one).
+  `eval/browser-frontier-pick.mjs` drives the real page in Chromium (12 teams home and away): the
+  list shows, a click keeps that season, the share link reopens on it, and "Back" and changing the
+  choice restore the first season (8 checks, all pass).
+- Open: the frontier still has gaps above 20 breaks at 17 (home and away) and 20 teams where
+  neither the weighted nor the capped search reaches. The capped search from the circle method is
+  poor between about 66 and 90 breaks (20 teams: 2,892 / 78 against 2,396 / 72 from a weighted
+  try).
+
+## Squeezing a season under a cap (2026-11-13)
+
+The ten tries plus the two gap tries leave holes in the frontier of a home-and-away season. At 20
+teams (seed 1) the list jumped from 1,916 carry-over / 92 back-to-back to 2,396 / 72, and from
+1,460 / 116 to 1,916 / 92: an organiser who wanted about 80 or about 104 had nothing near it. The
+searches that made those seasons can't fill the holes. The capped search starts from the circle method
+and is poor between about 66 and 90. The weighted searches move only leg two, against leg one's
+fixed grounds. Moves that keep the grounds can't cut breaks, and flipping grounds one match at a
+time breaks the home/away balance.
+
+**`squeezeDoubleRounds(n, start, { maxBreaks })`** searches the timetable and the grounds together.
+Each pair keeps one host, at home in leg one and away in leg two. So any timetable move inside a leg
+(round swap, partial round swap, team swap) carries every match's ground with it and never changes
+a team's home count. Three moves change grounds:
+
+- flip one pair;
+- flip two pairs of one team, one it hosts and one it visits (that team's count stays the same);
+- flip a whole alternating run: every pair one team meets over a stretch of a leg where it
+  alternates home and away. The run stays alternating, so only its two ends can gain or lose a break.
+
+The cost is carry-over plus 200 per break over the cap. A move is refused if it leaves any team's
+leg-one home and away games more than one apart. The search keeps the best season found within the
+cap, so started from a season already under the cap, it never returns more carry-over than that
+season had.
+
+**Where it starts matters.** Started from the lowest-carry-over season (20 teams, 1,460 / 116), it
+only got down to 112 breaks at any cap from 66 to 90. That season is perfectly balanced and a deep
+local minimum. Started from the season *below* a gap and given a cap above it, it trades breaks back
+for carry-over: from 2,396 / 72 it found 2,048 at 82 and 1,982 at 84 (effort 1, about 0.4 s each). At
+its own cap of 72 it found 2,186, which dominates the season it started from.
+
+**`carryOverSqueeze(n, results)`** picks the next target from the results so far
+(`squeezeTargets`). It aims at the widest gap between neighbouring frontier seasons (at least 8
+breaks apart), with a cap halfway across, starting from the season below the gap. When no gap is
+left, it polishes frontier seasons at their own break counts. Each squeeze sees the ones before it,
+so the second one aims at the widest gap the first one left. The targets depend only on the tries,
+and each squeeze has its own seed, so the same settings always give the same seasons.
+
+**On the page.** A home-and-away season runs `CARRY_OVER_SQUEEZE = 4` squeezes on one more worker
+after the 12 tries (about 1.5 s more at 20 teams; on the page thread if workers are unavailable).
+The squeezed seasons join the list under the report as tries 12 to 15. Like the gap tries, they are
+never picked by the four choices (`combineCarryOverTries(..., { among: 10 })`), so every older share
+link builds the same season. A squeezed season picked from the list goes into the share link like
+any other (`carryOverKeep` `13@18d1`), and the link rebuilds it. The CLI and tests reach the same
+code through `bestCarryOverRounds(n, { double: true, squeeze: 4 })`, or the `buildSchedule` spec field
+`carryOverSqueeze: 4`. Since the next section, a single round robin squeezes too.
+
+What it adds (`node eval/squeeze-gap.mjs --sizes N --seeds 1,2,3`, `eval/squeeze-gap.txt`, 17 to
+20 teams home and away). In each column the first figure is carry-over, the second back-to-back home or away games:
+
+| Teams, seed | Frontier of the 12 tries | Squeezed seasons added |
+|---|---|---|
+| 20, s1 | 1,460/116, 1,916/92, 2,396/72, 3,802/66, 4,884/54 | 1,862/104, 2,048/82, 3,412/66 (beats 3,802/66), 3,646/60 |
+| 20, s3 | ... 2,782/80, 3,456/78, 4,462/62, 5,920/54 | 1,808/110, 3,000/74, 3,210/70, 4,204/58 |
+| 18, s1 | 1,316/98, 1,426/88, ... 1,662/58, 2,496/48 | 1,406/92, 1,550/74, 1,644/62, 2,070/52 |
+| 17, s2 | 1,249/71 ... 2,323/65, 2,381/43 | 1,815/65 (beats 2,323/65), 1,897/61, 1,967/54, 2,281/48 |
+| 19, s2 | 1,311/87, 1,367/83, 1,469/81, 4,021/60, 4,651/48 | 3,283/65, 4,259/54 |
+
+- In all 12 runs, 2 to 4 squeezed seasons join the frontier (42 in all), and 10 seasons the tries
+  had found are now beaten on both counts.
+- Take the least carry-over available within each break budget, from the fewest breaks on the
+  frontier to the most. Squeezes cut it by 5.2% on average over the 12 runs, and by up to 33% at
+  one budget (20 teams s3, 70 breaks: 4,462 to 3,210).
+- The widest gap between neighbours fell in 10 of 12 runs (20 teams s1: 24 to 12; 17 teams s2: 22
+  to 7). In the other two, 19 s3 and 20 s2, it rose (12 to 14 and 16 to 18), but only because a
+  squeeze beat a season the gap used to end at.
+- **Not solved:** the 19-team jump. Every seed still goes from about 1,311 to 1,517 carry-over at
+  79 to 87 breaks to 3,100 or more at 78 and under. The squeezes work down from below the gap
+  (19 s1: 3,203/72 to 3,143/78) but cannot reach the 1,500s there. The tries above the gap are
+  shift-starter seasons whose low carry-over comes with their break pattern, and no squeeze starts
+  from one under a cap below its breaks.
+- Tests: `squeeze.test.mjs`, 7 tests. At 8, 9 and 12 teams a squeezed season is a valid
+  home-and-away season: every pair meets once a leg, the return game is at the other ground, and
+  leg one is balanced within one. Its reported breaks and carry-over match the schedule's own
+  recount, it stays within the cap, it has no more carry-over than its start, and it is seeded. The
+  other tests cover the target order, each squeeze reading only the results before it, and the four
+  choices unchanged with squeezes present. `eval/browser-frontier-pick.mjs` now picks a squeezed
+  season when one is listed. At 18 teams it picked 1,406/92 (try 15), and its share link reopened
+  on it. All 9 checks pass (`eval/browser-frontier-pick-18.txt`).
+
+## Squeezing a single round robin (2026-11-13 later)
+
+The same gaps exist when everyone meets once. At 19 teams every seed's tries jump from 323
+carry-over at 36 back-to-back home or away games to 959 to 1,079 at 24 to 28; at 20 teams from 360
+at 52 to about 550 at 36 to 42. A single round robin ran no squeezes, so the list stopped there.
+
+**`squeezeSingleRounds(n, start, { maxBreaks })`** is the squeeze on one leg. The two searches share
+their code (`squeezeLegs`): every match keeps its ground while the timetable moves, and the ground
+moves are the same three (flip one match, flip two of one team's matches where it hosts one and
+visits the other, flip a whole alternating run), refused when a team's home and away games end up
+more than one apart. There are no repeats across a halfway point to price. `carryOverSqueeze`
+now tells the two kinds apart by the number of rounds and aims at gaps of 4 breaks or more on one
+leg (8 on two: one leg has about a third of a season's breaks). `bestCarryOverRounds(n, { squeeze })`,
+the `buildSchedule` spec field `carryOverSqueeze` and the page all run it for either kind; the page
+adds tries 12 to 15 to a single round robin's list as well, about a second more on one thread, and
+the four choices and every older share link are unchanged.
+
+What it adds (`node eval/squeeze-single.mjs --sizes 10,...,20 --seeds 1,2,3`,
+`eval/squeeze-single.txt`, 24 runs at 10, 12, 14, 16, 17, 18, 19 and 20 teams). Carry-over / breaks:
+
+| Teams, seed | Frontier of the 12 tries | Squeezed seasons added |
+|---|---|---|
+| 19, s1 | 323/36, 1,079/24, 1,141/20, 1,421/16 | 897/32, 955/30, 1,019/26, 1,295/18 |
+| 19, s2 | 323/36, 959/28, 1,079/24, 1,197/20, 1,359/16 | 903/32, 1,105/22, 1,235/18 |
+| 17, s2 | 343/32, 651/26, 727/22, 809/18, 975/14 | 539/29, 651/24 (beats 651/26), 731/19, 761/16 |
+| 18, s2 | 348/38, 436/32 ... 674/16 | 434/30 (beats 436/32 and 440/30), 452/26 (beats 452/28), 490/22, 644/18 |
+| 20, s1 | 360/52, 546/36 ... 1,424/18 | 1,250/20 only |
+
+- 42 squeezed seasons join the frontier over the 24 runs (0 to 4 a run) and 9 of the tries' seasons
+  are now beaten on both counts. The least carry-over within each break budget falls 1.5% on
+  average: 3.9% at the odd sizes (17 and 19), 0.7% at the even ones. The largest cut is 21.9%
+  (17 teams s2, 16 breaks: 975 to 761). Four squeezes take 0.6 to 1.2 s.
+- **Where it does nothing.** The gap under the lowest-carry-over season at 20 teams (360/52 to
+  546/36 on seed 1) is not narrowed on any seed: squeezed from 546/36 with a cap of 44 it stays at
+  546/36, and walked down from 360/52 two breaks at a time it never gets under 50 (scratch run, not
+  kept). 360 is a starter whose every carry-over count is 0 or 1; its low value is tied to its break
+  pattern, as at the top of the 19-team home-and-away jump. At 14 teams 2 of 3 seeds gain nothing
+  (the tries' frontier is already 2 breaks apart).
+- **Tried and not shipped: a three-cycle ground move.** In an odd league's single round robin every
+  team plays an even number of games, so balance means exactly half at home, and every ground move
+  above that touches a team once is refused. Reversing a directed three-cycle of hosts (x hosts y,
+  y hosts z, z hosts x) keeps every count. On the same 24 runs it gave a 1.4% mean cut against 1.5%
+  without (odd sizes 3.3% against 3.9%), and on the 19-team home-and-away jump it found nothing the
+  plain moves did not (from 1,311/87 under caps of 75 to 83: 1,479/83 against 1,385/83). It stays
+  behind `cycles: true`, off. The odd sizes gain anyway because a timetable move changes which
+  matches sit next to each other, which moves breaks without moving a ground.
+- Tests: `squeeze.test.mjs`, 13 tests. At 8, 9, 12 and 13 teams a squeezed single round robin is
+  valid (every pair once, nobody twice in a round, each team's home and away games within one), its
+  breaks and carry-over match the schedule's own recount, it stays within the cap, it never has more
+  carry-over than its start, and it is seeded. The three-cycle move keeps a 9-team league at exactly
+  4 home games each; a home-and-away start is refused; `carryOverSqueeze` numbers single squeezes
+  after the tries with no target twice; and `bestCarryOverRounds` squeezes a single round robin
+  without moving its choice. `eval/browser-frontier-pick.mjs --single` runs the page check on a
+  single round robin (`eval/browser-frontier-pick-single.txt`).
+
+## The gaps are in the timetables: a MaxSAT proof, and regrounded seasons (2026-11-13, latest)
+
+The open question from the last two sections: under the lowest-carry-over seasons (20 teams single
+360 / 52, then nothing until 546 / 36; 19 teams home and away 1,311 / 87, then 3,071 at 78) is the
+venue search leaving breaks behind, or does the timetable itself need them? Carry-over depends only
+on who meets whom in which round, not on who is at home, so if those timetables allowed far fewer
+breaks, a better home/away alone would fill the gap at the same carry-over.
+
+**The proof** (`eval/orient-maxsat.py`, python-sat, eval only). For one fixed timetable it finds the
+fewest breaks under the tool's own rules: one host per match (per pair in a season, at home in leg
+one and away in leg two), each team's home and away games within one (leg one of a season), a break
+being two consecutive rounds at the same ground with a bye resetting the run, as `teamBreaks` counts.
+Each "no break" is a soft clause, so RC2's optimum is the least number of breaks, proved.
+`eval/orient-maxsat-check.mjs` re-checks every oriented season in JS (same pairs every round, same
+carry-over, balance, recount equal to the proof): all pass.
+
+- **The gaps are structural.** 20 teams' 360 timetable needs at least **50** breaks (the page gives it
+  52); the 19-team home-and-away 1,311 timetable needs **85** (page: 87) and 1,517 needs 84 (page: 84).
+  No home/away can bring either near the gap. The next try has to change the timetable.
+- **The venue search is nearly optimal.** Over the 12 tries at 12, 14, 16, 17, 18, 19, 20, 22 and 24
+  teams (seed 1, single, 108 timetables), 106 were proved in 240 s each; **89 of 106 already had the
+  fewest breaks** their timetable allows. The other 17 were 2 to 5 over: the capped and gap tries (12
+  teams 170 / 20 needs 16; 14 teams 314 / 20 needs 16; 19 teams 2,749 / 17 needs 12), the 18- and
+  20-team starters (348 / 40 needs 38; 360 / 54 needs 50) and the 24-team starter (570 / 66 needs 64).
+  `eval/orient-maxsat.txt`.
+- **Round rotations do not help** (the `next:` item's suggested move). Every rotation and reversal of
+  the 20-team starter keeps its 360 carry-over; the four orders proved within 120 s each (rotations 0
+  and 3, reversal 0) all need 50; the other four timed out and the run was stopped there (8 of 38
+  orders).
+
+**Regrounded seasons** (`polishSeasonVenues`, `carryOverPolish`, `CARRY_OVER_POLISH = 4`). Since a
+season's timetable fixes its carry-over, the page now runs each listed season's own timetable through
+the venue search once more (single: `assignVenues` seeded with its own hosts; home and away:
+`assignVenuesDouble` from its own pair hosts), after the squeezes, on the same worker. A regrounded
+season with strictly fewer breaks that passes the season's own checks (balance; a pair's two games at
+opposite grounds) and that nothing else beats on both counts joins the list as tries 16 and up
+(`polishedFrom` names its source). Like the gap tries and squeezes it is never picked by the four
+choices, so every older share link builds the same season; a regrounded season picked from the list
+goes into the share link like any other and the link rebuilds it. The CLI and tests reach it through
+`bestCarryOverRounds(n, { polish: 4 })` or the `buildSchedule` spec field `carryOverPolish: 4`.
+
+What it adds (`node eval/polish-frontier.mjs <teams> <seed> [d]`, `eval/polish-frontier.txt`; 21 single
+round robins at 12 to 20 teams and 10 home-and-away seasons at 12 to 20, seeds 1 to 3 and 1 to 2):
+
+| Teams, seed | Regrounded | Effect on the frontier |
+|---|---|---|
+| 14 single, s1 | 314 / 20 -> 314 / 16 | beats 334 / 16 |
+| 20 single, s3 | 360 / 54 -> 52, 550 / 46 -> 44, 1,050 / 30 -> 26, 1,312 / 22 -> 20 | four seasons beaten; least carry-over within 26 breaks 1,078 -> 1,050 |
+| 20 home and away, s1 | 1,460 / 124 -> 1,460 / 112 | within 112 to 115 breaks: 1,880 -> 1,460 (22%) |
+| 20 home and away, s2 | 1,460 / 120 -> 1,460 / 114 | within 114 to 115 breaks: 1,880 -> 1,460 |
+
+- 7 seasons join the frontier in 4 of 31 runs; 27 runs gain nothing, which the proof predicts: the
+  venue search already had the fewest breaks for most frontier timetables. Mean cut in the least
+  carry-over at a break budget: 0.2% over all 31 runs, up to 34.5% at one budget (20 single s3).
+- It is cheap: 0.4 to 3.4 s for a single round robin, 1.2 to 4.8 s for a home-and-away season at 12 to
+  20 teams, on the worker after the squeezes (`polishS` in the file).
+- Not reached (until the next section's exact solver): 18 teams' 348 / 40 (the proof says 38) on seeds 1 and 3, and 20 teams' 360 / 52 (needs
+  50). The venue search's annealing finds them only on some seeds; an exact orientation in the page
+  would need a solver in the browser.
+- Tests: `polish.test.mjs`, 5 tests: 14 teams' 314 / 20 regrounds to 314 / 16 on the same pairs every
+  round; a season already at its least returns null; validity on 8 and 9 teams single and home and
+  away and 12 home and away (same pairs, same carry-over, balance, opposite grounds, recount); the
+  polished seasons are numbered after the results, on the frontier, seeded and never repeated; and
+  `bestCarryOverRounds` keeps its choice while `buildSchedule` rebuilds a kept polished season.
+  `eval/browser-frontier-pick.mjs --teams=14 --single --polished` picks 314 / 16 on the page and its
+  share link reopens on it; all checks pass (`eval/browser-frontier-pick-polished.txt`).
+
+## The fewest breaks of a timetable, exactly, in the page (2026-11-13, latest)
+
+The last section proved, offline with a MaxSAT solver, that the frontier gaps sit in the timetables
+and that the page's venue search sometimes leaves 2 to 5 breaks its timetable does not need (18
+teams' 348 / 40 needs 38; 20 teams' 360 / 52 needs 50). It closed with "an exact orientation in the
+page would need a solver in the browser". `orient.mjs` is that solver, in about 200 lines and no
+dependencies.
+
+**How.** In a single round robin each match belongs to one round, and a team's break between rounds
+r and r + 1 depends only on who hosts in those two rounds. So the hosts of one round are a state
+(2^k of them for k matches: 1,024 at 20 teams), and the least breaks up to round r + 1 is a
+minimum over the states of round r. Each state's teams-at-home is a bitmask, so one transition is
+one xor and one popcount: 19 x 1,024 x 1,024 at 20 teams, about 30 ms. That gives the `floor`, the
+least breaks with every match free. The tool also wants each team's home and away games within one;
+a seeded depth-first walk back over the programme's table finds a balanced host choice at the floor,
+then at the floor + 1, + 2 and so on (each step's remaining slack keeps it to host choices within
+the target, and a team that can no longer end within one prunes the branch). A level walked to the
+end with nothing found proves that many breaks impossible, so the first balanced hit is the least,
+`proved`. A step budget (5 M by default, 2 M in the page) bounds the walk; out of budget it returns
+the floor and `least: null`. Up to 12 matches a round (24 or 25 teams); bigger returns null.
+
+**Checked against the MaxSAT proofs** (`node eval/orient-dp.mjs`, `eval/orient-dp.txt`, the same 108
+tries at 12 to 24 teams as `eval/orient-maxsat.txt`):
+
+- **105 of 106** MaxSAT-proved tries get the same least, proved. The other one (22 teams, try 3,
+  floor 38, MaxSAT 42) runs out of budget after 16 s.
+- **Two tries MaxSAT did not prove in 240 s are proved here:** 22 teams' 440 timetable (tries 0 and
+  4) needs **58** breaks; the page gave it 66. Each took 3 s.
+- Time: 0 to 40 ms at 12 to 20 teams when the floor is balanced (most tries), 0.1 to 3 s when the
+  walk has to climb above it (20 teams' try 5: floor 34, least 36), 0.6 to 3.4 s at 24 teams.
+- `orient.test.mjs` checks the programme against every host choice counted by brute force at 5 and 6
+  teams (6 tries each; floor and balanced least equal), the circle method's textbook n - 2, 20 teams'
+  360 at 50, an unbalanced floor (14 teams try 4: 18, least 20) and the out-of-budget path.
+
+**In the page.** `polishSeasonVenues` now regrounds a single round robin with `leastBreaks` first and
+falls back to the annealing only when the timetable is too big or the walk runs out of budget; a
+season regrounded at a proved least carries `leastProved: true`. Re-run of `eval/polish-frontier.mjs`
+on 24 single round robins at 12 to 22 teams, seeds 1 to 3 (`eval/polish-frontier-exact.txt`, against
+`eval/polish-frontier.txt` from the annealing):
+
+| | annealing (12-20, 21 runs) | exact (12-20, same 21 runs) |
+|---|---|---|
+| seasons joining the frontier | 5, in 2 runs | 15, in 9 runs |
+| mean cut in the least carry-over at a break budget | 0.18% | 0.76% |
+| polish time per run | 0.4 to 3.4 s | 0.02 to 3 s |
+
+- **18 teams' 348 / 38 and 20 teams' 360 / 50 now reach the page on every seed** (20 teams: 360 / 52
+  -> 360 / 50, the least carry-over within 50 to 51 breaks falls from 546 to 360, 34%).
+- 17 teams: two seasons join on every seed (653 / 26 -> 653 / 24, 623 / 28 -> 623 / 26).
+- 19 teams seed 1: the gap try 2,749 / 17 regrounds to 2,749 / 12, the least MaxSAT proved.
+- **22 teams** (no earlier measurement): 440 / 66 -> 440 / 58 on every seed, and 692 / 52 -> 692 / 42
+  (seed 2): 2 to 3 seasons join per run, mean cut 3.6 to 6.8%, up to 38%. The cost is time: 6.8 to
+  11.7 s of polish on the worker, after the squeezes (the list grows while the page is usable).
+
+**Not solved.** A home-and-away season keeps one host per pair, which ties rounds a leg apart, so the
+programme does not model it; `relaxedBreakFloor` runs it over both legs with every match free and gives
+a valid but loose floor (19 teams' 1,311 timetable: 74, where MaxSAT proves 85), so home-and-away
+regrounding stays with the annealing. The next step the floor makes cheap is a timetable search that
+scores its moves on the proved break floor (30 ms per timetable at 20 teams).
+
+## Fewest breaks of a home-and-away season, proved: branch and bound on pairs (2026-11-13, latest)
+
+The exact programme above handles a single round robin only. In a home-and-away season each pair
+keeps one host (at home in its first game, away in the return), and that ties rounds far apart, so
+the programme could only give a loose floor with the rule dropped (`relaxedBreakFloor`; 19 teams'
+1,311 timetable: 74, MaxSAT 85). Home-and-away regrounding stayed with the annealing.
+`orient.mjs` `pairLeastBreaks(opp, n, { upperHint, maxNodes })` now solves it exactly where its tree
+stays small, in the browser, with no dependencies.
+
+**How.** The pair rule (h1 + h2 = 1, h = 1 when the pair's lower team hosts) and leg one's balance
+rule are priced back into the same programme (Lagrangian relaxation: a price per pair and per team
+on the host bits, each round's prices added to its states, Float64 min-plus steps, a Polyak
+subgradient on the argmin's violations). Pricing alone does nothing: flipping every host keeps every
+break and negates every violation, so the priced floor is even in the prices and peaks at zero
+(measured: no rise at all). Fixing one pair's hosts first (any season can be flipped to it, same
+breaks, same balance) breaks that symmetry, and the floor rises (19 teams' 1,311: 74 -> 78). That is
+still 7 under the truth, so the search branches on the pair the argmin breaks with the largest
+price, depth first, each node warm-started from its parent's prices and pruned once its floor
+reaches the best season found. Each argmin, its first games kept and its return games flipped,
+gives a season that keeps the pair rule; the balanced ones are the incumbents. The budget counts
+nodes, not time, so a share link rebuilds the same season on any machine.
+
+**Checked against MaxSAT** (`node eval/pair-exact.mjs`, `eval/pair-exact.txt`; the page's 12 tries
+at 8, 10, 12, 14, 16, 18 and 20 teams, seed 1, home and away; proofs in
+`eval/orient-maxsat-double.txt`, `eval/orient-maxsat.py --double`, 120 s each), with the try's own
+breaks as the starting bound and 400 nodes:
+
+| | tries |
+|---|---|
+| timetables | 84 |
+| proved by MaxSAT in 120 s | 80 |
+| proved here | 79 |
+| proved by both, same least | 75 (0 disagree) |
+| proved here, MaxSAT out of time | 4 |
+| fewer breaks than the page's season | 8 |
+
+- **20 teams' 1,460 timetable needs exactly 108 breaks** (tries 0, 4 and 5; the page had 116, 118
+  and 124, the annealing's regrounding 112 to 114; MaxSAT times out). Here the relaxed floor is
+  already 108, so it is proved in 0.3 to 0.5 s with no branching.
+- 18 teams' 1,426 timetable: 88 -> 84, proved in 1 s (MaxSAT out of time). 12 teams 608 / 48 -> 46,
+  14 teams 1,014 / 46 -> 44 and 1,118 / 44 -> 42, each the MaxSAT least.
+- Not proved in 400 nodes: four capped or gap tries at 10 to 14 teams (already at the MaxSAT least)
+  and 18 teams' 1,316 / 98, taken to 92 where MaxSAT proves 90.
+- Time (one process beside three others on 4 cores): 0 to 0.6 s for most tries up to 14 teams, 1 to
+  6 s at 18 and 20, up to 65 s for one hard 20-team try (384 nodes).
+
+**In the page.** `polishSeasonVenues` runs it on a home-and-away season after the annealing, bounded
+by the annealing's breaks, with `PAIR_EXACT_NODES = 40` nodes; a season regrounded at a proved least
+carries `leastProved: true`, as single round robins do. Re-run of `eval/polish-frontier.mjs` on the
+same 10 home-and-away runs at 12, 16, 18, 19 and 20 teams, seeds 1 and 2
+(`eval/polish-frontier-pair.txt`, against `eval/polish-frontier.txt`):
+
+| | annealing alone | annealing, then the pair search |
+|---|---|---|
+| seasons joining the frontier | 2, in 2 runs | 6, in 5 runs |
+| 20 teams' 1,460 season | 112 (s1), 114 (s2) breaks | 108 on both, proved |
+| polish time per run | 1.2 to 4.8 s | 4.7 to 76 s (3 runs at once on 4 cores) |
+
+- New on the frontier: 18 teams s1 1,426 / 84 (was 88), 19 teams s1 4,003 / 52 and 6,297 / 46 (the
+  least carry-over within 46 to 48 breaks down 30%), 19 teams s2 3,491 / 64; mean cut in the least
+  carry-over at a break budget 1.42% and 0.71% -> 2.84% at 20 teams (s1, s2), 0 -> 0.33 to 0.76% at 18 and 19.
+- Nothing at 12 and 16 teams: their frontier seasons are already at their least (the proofs above).
+- The cost is time on the worker, after the squeezes: 26 to 76 s at 18 to 20 teams in this
+  contended run. The list grows while the page is usable, as with the floor-priced searches.
+- Tests: `orient.test.mjs`, 5 new: `pairLeastBreaks` equals every pair-host choice counted by brute
+  force on 18 timetables at 4, 5 and 6 teams (proved, valid, recounted); 14 teams' 46 -> 44 and
+  44 -> 42 (the MaxSAT least), seeded; a season at its least is proved with no grounds returned; out
+  of nodes is not proved and never worse; `polishSeasonVenues` regrounds 14 teams' 1,014 / 46 to 44,
+  `leastProved`.
+
+## Pricing the break floor: timetables searched on their proved least breaks (2026-11-13, latest)
+
+The last two sections showed that the frontier's widest gaps are in the timetables (20 teams, one
+leg: 360 carry-over at 50 breaks, then nothing until about 546 at 36 to 44) and gave the page an
+exact solver for the fewest breaks of one timetable. The squeezes could not cross that gap: they move
+the timetable with every match's ground carried along, so a timetable that would be good with
+*other* grounds looks bad to them, and walked down from 360 / 52 they never got under 50.
+
+**`floorPricedSingleRounds(n, start, { maxBreaks })`** searches the timetable alone and prices every
+move on carry-over + 60 per break of the timetable's **proved break floor** above the cap (the fewest
+breaks any host choice allows, `orient.mjs`), then picks the grounds exactly at the end with
+`leastBreaks` (balanced, proved). Two things make that affordable:
+
+- **An incremental floor.** `floorTable(opp, n)` keeps the programme's forward table; a move that
+  changes rounds from `lo` on reruns only rounds `lo` to the end, about half the programme on a
+  random move (tested equal to the full programme after every swap, `floor-priced.test.mjs`).
+- **Refusing before pricing.** The annealing draws its acceptance line first; the floor's penalty is
+  never negative, so a move whose carry-over alone is over the line is refused with no floor to
+  compute. At 20 teams 3,000 moves need 60 to 800 floors.
+
+The floor ignores the balance rule (home and away games within one), so the least balanced choice can
+be a break or two above it; the six best timetables within the cap are kept and the one with the least
+carry-over whose balanced least is within the cap wins.
+
+**In the page** (`carryOverFloorPriced`, `CARRY_OVER_FLOOR_PRICED = 2`, single round robins of 6 to 21
+teams; 22 since "A faster break floor" below): after the regrounded seasons, the widest gap of 4 or more breaks on the list's frontier is
+searched from the season above it at caps of its breaks - 2, - 4 (3 searches at most); a result
+nothing beats joins the list (`floorPricedFrom` names its source), never the four choices, so every
+older share link builds the same season; one picked from the list rebuilds from its link
+(`bestCarryOverRounds(n, { floorPriced })`, spec field `carryOverFloorPriced`). It runs on the same
+worker as the squeezes, after them.
+
+What it adds (`node eval/floor-priced.mjs <teams> <seed> --page`, `eval/floor-priced.txt`; the page's
+whole list of 12 tries, 4 squeezes and 4 regrounded seasons, then the floor-priced searches):
+
+| Teams, seed | Gap on the list | Floor-priced seasons | Least carry-over within the new budget |
+|---|---|---|---|
+| 20, s1 | 360 / 50 .. 546 / 36 | 440 / 48, 516 / 46 | 48 breaks: 546 -> 440 (19%) |
+| 20, s2 | 360 / 50 .. 552 / 42 | 414 / 48, 434 / 46 | 48: 552 -> 414 (25%); 46: 552 -> 434 |
+| 20, s3 | 360 / 50 .. 550 / 44 | 412 / 48, 460 / 46 | 48: 550 -> 412 (25%) |
+| 18, s1-s3 | 348 / 38 .. 426-434 / 30-32 | 392 / 36, 418 / 34; 370 / 36, 428 / 34; 408 / 36 | 36: 430 -> 392, 434 -> 370, 426 -> 408 |
+| 17, s1-s3 | 343 / 32 .. 539-623 / 26-27 | 379 / 31; 385 / 29; 369 / 30 | up to 41% at one budget |
+
+- Over 18 runs (14, 16, 17, 18, 19 and 20 teams, seeds 1 to 3) **15 seasons join the frontier in 10
+  runs**; the least carry-over at a break budget falls 1.1% on average over the whole frontier and
+  3.6 to 17% inside the gap at 17, 18 and 20 teams. Nothing at 14 teams (the gaps are 2 breaks),
+  nothing at 19 (the gap under 323 / 36 is 4 to 6 breaks wide and every search found 36 or more).
+- Time on the worker: 0 to 26 s, 4 to 21 s at 17 to 20 teams; 19 teams seed 3 spends 26 s and adds
+  nothing (three searches that end above their cap). The list grows while the page is usable.
+- **The wider sweep** (`node eval/floor-priced.mjs <teams> <seed>`, every cap across the gap from the
+  season above it and from the season under it, 3,000 moves each, 21 runs including 22 teams) finds
+  the same picture: the season above the gap, 2 to 4 breaks down, is where it pays (20 teams: 408 to
+  426 at 48 breaks on every seed); starting under the gap helps at 16 and 17 teams (16 s2: 266 / 22
+  and 300 / 20 against 316 / 18), rarely at 20. **22 teams** gain too (s2: 512 / 56 and 586 / 56
+  inside a 440 / 58 .. 690 / 48 gap; 6 to 7% inside the gap on s2 and s3, 1.5% on s1), but one search
+  takes 22 to 86 s (2,048 states a round), so the page stops at 21; the function takes up to 25.
+- **Not reached.** The middle of the 20-team gap (40 to 44 breaks) stays at about 516 to 550: the
+  best found there are 524 / 40, 530 / 40 and 530 / 44 from the sweep, 1 to 4% under the list. The
+  floor prices breaks exactly but the timetable moves are still small; a bigger neighbourhood (round
+  re-solves, or a starter family built for breaks) is the next step.
+- Tests: `floor-priced.test.mjs`, 10: the incremental floor equals the programme after every move at
+  5, 6, 9, 10, 13 and 14 teams; too-big timetables refused; at 8, 9, 12 and 13 teams a floor-priced
+  season is valid (every pair once, nobody twice a round, balanced), its breaks and carry-over match a
+  recount, and its grounds are the proved least for its timetable; seeded; `carryOverFloorPriced`
+  lists only frontier seasons numbered after the results and nothing for home and away;
+  `bestCarryOverRounds` keeps its choice and `buildSchedule` rebuilds a kept floor-priced season;
+  20 teams seed 1 from 360 to a cap of 48 gives 410 / 48, proved.
+
+## Re-dealing three rounds at once (2026-11-13, latest)
+
+The section before closed with the one thing the floor-priced search could not do: the middle of the
+20-team gap (40 to 44 breaks) stayed at about 516 to 550, because its moves are small — swap two
+rounds, swap two teams over the rounds where that is legal, flip one alternating cycle. A timetable
+that would be good two moves away is never seen. `threeRoundDeals` is the bigger move: **take three
+rounds and re-deal their matches among themselves, every legal way.**
+
+**How, and why the list is complete.** The matches of three rounds give every team exactly three
+opponents, so they form a cubic graph on the teams. Splitting them back into three rounds is a
+proper 3-edge-colouring of that graph: pick a perfect matching for the first round, and what is left
+is a union of cycles, each of even length, whose alternate edges go one to the second round and one
+to the third. So the list is: every perfect matching of the cubic graph (a short backtracking walk),
+times 2^(number of cycles) ways to orient them. The rounds as they stand are always in it. At 20
+teams a random triple gives about 117 deals and takes 0.7 ms to list; a cap (20,000) bounds the rare
+dense one. Every pair still meets exactly once, because no match moves between teams — only between
+rounds.
+
+**Pricing them cheaply.** A deal move draws the annealer's acceptance line first, scores every deal
+on carry-over alone (the floor's penalty is never negative, so anything above the line is out), and
+computes the proved break floor for only the three cheapest that survive — the floor is the
+expensive part. The incremental floor table reruns from the first of the three rounds, as for a
+swap. `deals` (0.15, `CARRY_OVER_DEALS`) is the share of moves that re-deal; the rest are the old
+three.
+
+**What it finds** (`node eval/floor-priced.mjs 20 <seed> --deals 0` then `--deals 0.15`, same cached
+lists, 3,000 moves a search, `eval/floor-priced.txt`, 20 teams, seeds 1 to 3):
+
+| Seed | Least carry-over at 48 breaks, swaps only | with re-deals | Frontier seasons joined | Mean cut inside the gap |
+|---|---|---|---|---|
+| 1 | 410 | **384** (-6.3%) | 3 -> **5** | 5.97% -> **8.58%** |
+| 2 | 408 | **374** (-8.3%) | 3 -> 3 | 10.14% -> **10.78%** |
+| 3 | 426 | **384** (-9.9%) | 2 -> 2 | 11.15% -> **13.70%** |
+
+Seed 1 is where the middle of the gap finally moves: 456 / 46 (nothing was under 534), 516 / 44
+(was 530), 524 / 42 (was 558). A search costs 1.2 to 1.5x the time (169 s to 256 s for seed 1's
+twelve searches).
+
+**In the page, both searches run and the better is kept.** Re-deals are not better everywhere: run
+alone they lost seasons at 17 and 18 teams on some seeds (a different random walk, not a worse
+neighbourhood). So `carryOverFloorPriced` now searches each cap **twice** — swaps alone, and swaps
+with re-deals — and keeps the one with the least carry-over within the cap (the fewest breaks when
+neither gets under it). Measured against the same page run of the section before
+(`--page`, 17, 18 and 20 teams, seeds 1 to 3):
+
+| Teams, seed | Page's floor-priced seasons before | now |
+|---|---|---|
+| 17, s1 | 379 / 31 | **347 / 29** (gap cut 6.5% -> 22.2%) |
+| 18, s1 | 392 / 36, 418 / 34 | **366 / 36**, 418 / 34 (2.9% -> 4.4%) |
+| 20, s1 | 440 / 48, 516 / 46 | **382 / 48**, 528 / 46 (3.6% -> 4.8%) |
+| 20, s3 | 412 / 48, 460 / 46 | **374 / 48**, 460 / 46 (13.8% -> 16.1%) |
+| 17 s2, s3; 18 s2, s3; 20 s2 | unchanged | unchanged |
+
+No seed's frontier gets worse: the cut inside the gap rises in 4 of 9 and holds in the other 5. (At
+20 teams seed 1 the second season is 528 / 46 rather than 516 / 46: the first cap now returns a much
+better season, which changes which later results are not already beaten.) The step costs 13 to 42 s
+on the worker, against 4 to 21 s, and still runs after the squeezes with the page usable throughout.
+Share links keep their season inline, so a link made before this change still builds what its maker
+saw; a link that stores only the frontier index of a floor-priced season (the server-side rebuild
+path) and was made between the two changes of 2026-11-13 can rebuild a different season of the same
+list.
+
+A search that finds nothing better than the season it started from now returns **that** season,
+regrounded: the start's own timetable competes with the ones the search kept, so a result can never
+carry more breaks than its start (`floor-priced.test.mjs`; at 13 teams a re-dealt search used to
+come back with 13 breaks against the start's 12).
+
+- Tests: `floor-priced.test.mjs`, now 14: `threeRoundDeals` lists each deal once, every team keeps
+  its three opponents one per round, the rounds as they stand are among them, the cap holds, and
+  every pair still meets once; a re-dealt floor-priced season at 12 teams is valid, balanced,
+  seeded, and its breaks and carry-over match a recount.
+
+## Pricing the balanced least: floor-priced searches that land inside their cap (2026-11-13, latest)
+
+The floor-priced search (two sections up) prices a timetable on its **break floor**, the fewest breaks
+any host choice allows. The floor ignores the tool's balance rule (each team's home and away games
+within one), and the grounds the page finally picks must keep it, so a timetable at the floor can need
+1 to 3 more breaks once it is balanced. That is why several searches ended over the cap they were
+given: 17 teams at a cap of 28 came back at 29, 30 and 31 breaks on seeds 1 to 3 (floors 27-28); at 20
+teams the step sometimes kept a cap-46 search that came back at 48.
+
+**The fix: price the balanced least once the floor is in reach.** When a move's floor is within the
+cap, the search now walks the floor programme's own table for the least *balanced* host choice within
+the cap (`floorTable(...).balanced(cap)`, the same seeded depth-first walk `leastBreaks` uses, moved
+into `balancedWalk` so both share it). The forward table is already there from the floor, so no
+programme is rerun: the walk is the only extra cost. A timetable with a balanced choice inside the cap
+is priced at it (no penalty); one without, or whose walk runs out of its 50,000 steps, is priced as the
+cap + 2. The best timetables are only remembered while they are balanced inside the cap, so the
+six the search keeps for the end are ones that can actually be used. `floorPricedSingleRounds(n, start,
+{ balanced })` (default on; `balanced: false` is the old floor-only pricing) and `carryOverFloorPriced`
+pass it through; the result reports `walks`.
+
+**What it changes on the page** (`node eval/floor-priced.mjs <teams> <seed> --page` with and without
+`--floor-only`, same cached lists, 16 to 20 teams, seeds 1 to 3, `eval/balanced-priced.txt`):
+
+| Teams, seed | floor alone | balanced least priced | cut inside the gap |
+|---|---|---|---|
+| 17, s1 | 347 / 29 (cap 28) | 367 / 30, **391 / 27** | 22.2% -> **32.3%** |
+| 17, s2 | 385 / 29 (cap 28) | 369 / 30, **381 / 28** | 17.1% -> **24.3%** |
+| 17, s3 | 369 / 30 (cap 28) | **371 / 28** | 13.6% -> **27.0%** |
+| 18, s1 | 366 / 36, 418 / 34 | 366 / 36, **408 / 34** | 4.4% -> 5.0% |
+| 18, s2 | 370 / 36, 428 / 34 | **366 / 36**, 428 / 34 | 4.0% -> 4.3% |
+| 18, s3 | 408 / 36 | **404 / 36** | 1.4% -> 1.7% |
+| 20, s1 | 382 / 48, 528 / 46 | 382 / 48, **444 / 46** | 4.8% -> **7.0%** |
+| 20, s2 | 414 / 48, 434 / 46 | **384 / 48**, 460 / 46 | 11.6% -> 11.8% |
+| 20, s3 | 374 / 48, 460 / 46 | 374 / 48, **458 / 46** | 16.1% -> 16.2% |
+| 16 s1-s3, 19 s1-s3 | | unchanged (nothing joins in either mode but 16 s3's 348 / 22) | |
+
+- **No run's cut inside the gap got worse; 9 of 15 rose, 6 held.** Mean cut inside the gap 6.3% ->
+  **8.6%**; mean cut in the least carry-over at a break budget over the whole frontier 1.8% -> 2.5%.
+  Seasons joining the frontier: 15 -> 17.
+- **Every season the step adds is now within its cap for balance's sake.** Floor-only pricing returned
+  4 seasons over their cap; with the balanced least priced the only one left is 16 teams seed 3's 348 /
+  22 at a cap of 20, whose *floor* is 22 in both modes (the search found no timetable with a floor
+  under the cap at all, a different limit).
+- **The cost is worker time:** 20 s a run on average before, 32 s now (304 s -> 479 s over the 15
+  runs). The worst is 19 teams, 4 to 5 s before and 35 to 46 s now, adding nothing either way: odd
+  leagues near the cap often have no balanced choice inside it, and each such walk spends its budget
+  before giving up (corrected below: a profile shows the cost was the break floor's programme, not the walks; "A faster break floor"). A smaller budget (10,000 steps) did not help 19 teams (37 s) and lost seasons at
+  17 (32.3% -> 26.4% inside the gap), so 50,000 stays. The step still runs after the squeezes with
+  the page usable throughout.
+- Tests (`floor-priced.test.mjs`, now 16): `floorTable.balanced` returns `leastBreaks`' proved balanced
+  least at and above it, null and proved one break under it and under the floor, and reads a trial's
+  table rather than the committed one (30 timetables at 8, 9, 12, 13 and 14 teams); at 17 teams from
+  343 / 32 with a cap of 28 the floor-only search returns 371 / 32 and the balanced-priced one 391 /
+  28, recounted.
+
+**Two things that did not work, for the home-and-away floor** (the `next:` item "an exact or tighter
+floor for home and away"):
+
+- **A Lagrangian floor cannot beat the relaxed one, by symmetry.** Pricing each pair's tie (host in
+  leg one = away in leg two) with a multiplier and running the programme over both legs looked like
+  the cheap way to tighten the 74 MaxSAT beats with 85 (19 teams, 1,311 timetable). It returned 74
+  after 225 steps, on both the 1,311 and 1,517 timetables, with and without the leg-one balance
+  priced too. The reason is exact, not a tuning matter: flipping every host of a season keeps every
+  break, and the average of any host choice and its flip meets every pair's tie (a_e + b_e = 1 on
+  average), so the Lagrangian dual, which is the linear relaxation over the programme's paths, always
+  has a solution at the relaxed floor. A tighter floor has to break that symmetry, for example by
+  branching, not by pricing.
+- **Exact block descent finds nothing to improve.** Trying every host choice of the pairs of one or
+  two rounds at a time (one leg-one round, one leg-two round, adjacent rounds, the seam, and each
+  leg-one round joined with each leg-two round: up to 18 pairs, 262,144 choices) leaves the page's 87
+  and 84 at 87 and 84 (`eval/double-blocks.mjs`, `eval/double-blocks.txt`, 26 to 43 s each). The page's
+  grounds are already optimal over every such block, so the 2 breaks MaxSAT saves on the 1,311
+  timetable need a change spread over more than two rounds' pairs.
+
+## Blackout fit on the multi-division page (2026-11-13, latest)
+
+The multi-division page used to build the season first and then move every match that fell on a team's
+unavailable date (`applyDivisionBlackouts`). It now fits first, as the single-league page does.
+
+The reason it is cheap here: **which night a match position lands on does not depend on who plays in it.**
+The night loop (`takeNight`, pulled out of `buildDivisions` unchanged) hands each night's open court slots
+to the divisions with the most rounds left, and it reads only how many matches each round has. So
+`divisionMatchNights(spec)` runs that loop once, without the court assignment, and every
+(home, away, night) position it lists stays put under any renaming of a division's teams. Skip dates,
+court closures, shared slots and split rounds are already in those nights, because they come from the
+same loop.
+
+`fitDivisionsToBlackouts` then searches each division's renamings separately (a seeded hill climb on
+pair swaps with sideways moves, each swap moving a team that has a blackout, 3,000 evaluations a
+division) for the fewest positions where a team is out that night. That count is exact and costs one
+pass over the division's matches, so the search is milliseconds. `buildDivisionsWithBlackouts` builds
+the season with the renamings from four fit seeds and with none, runs the existing mover on each, and
+keeps the season that leaves the fewest matches unplaced, then moves the fewest, then ends earliest,
+then has the fewest home/away breaks. The unfitted season is one of the candidates, so the result is
+never worse on that order. `buildDivisions(spec)` takes `spec.perms` (one renaming per division) for
+this; the court assignment, travel, linked teams and venue fairness all run as before on the renamed
+round robin. The page and `node divisions.mjs spec.json` use it whenever the blackout box has dates
+and print a "Blackout fit:" line saying what changed; `"blackoutFit": "no"` in the spec (or
+`blackoutFit: false` in code) turns it off.
+
+**Measured** (`node eval/division-blackout-fit.mjs 8 1`, `eval/division-blackout-fit.txt`): 96 random
+leagues of 2 to 4 divisions of 4 to 12 teams (30% double), Tuesday and Thursday, two time slots, courts
+for about half of the league's matches a night (never fewer than the biggest round needs) plus 0 or 1, so
+divisions take turns. Every team gives 1 or 2 dates it cannot play, from the first 24 nights
+("spread") or from three nights only ("clustered"). Each league is built with the fit off and on:
+
+- matches moved off a blackout date 1,323 -> 929 (30% fewer); 0 -> 0 left unplaced;
+- the mean season ends 11.63 -> 11.43 weeks after the start;
+- home/away breaks 4,010 -> 3,255 (19% fewer), because fewer make-ups break up the home/away pattern;
+- 0 invalid schedules (`validateDivisions` on both), and no league worse on (unplaced, moved).
+
+On a second set of 96 leagues (seed 2, not looked at while building it): moved 1,298 -> 861 (34%
+fewer), season 11.39 -> 11.09 weeks, breaks 3,684 -> 2,820. With one fit seed instead of four the
+moves are the same (929 -> 930); the extra seeds buy a little of the end date and breaks
+(3,423 -> 3,255). The cost is the extra builds: about 30-100 ms a league against 3-9 ms.
+
+The gain is smallest in "clustered" leagues with 2 dates a team (76 -> 65, 173 -> 139): when a third of
+a division is out on the same night there is little to rearrange. Synthetic leagues only; no real
+club's sign-up export has been tried. Tests: `division-blackout-fit.test.mjs` (the nights match the
+build's, with skip dates, closures and split rounds; a renamed league validates; never more moves than
+without the fit; the same seed gives the same season; an odd division puts a blackout on a bye; no
+blackouts means the same season as before).
+
+## Blackout fit: teams placed in the round robin around their blackout dates (2026-11-13)
+
+Until now a team's blackout dates were handled after the timetable was fixed: each play night took the
+remaining round with the fewest blocked matches, and every blocked match went to a makeup round after the
+season. But **which team takes which position of the circle method is free**. Renaming the teams leaves a
+valid round robin, and each team's home/away sequence moves with its new label. So the order can be chosen
+so that a team's blackout night falls on its bye (odd leagues) or on a night it meets another team that is out too.
+
+`fitPlanToBlackouts` (calc.mjs) searches those relabellings with a seeded hill climb on pair swaps,
+moving at least one team that has a blackout each time. It scores each candidate by running the real
+placement (`placeRounds`, the old loop pulled out unchanged) and ranks seasons by, in order: fewest
+displaced matches, earliest last date, fewest home/away breaks. It starts from the plan as given, so it is
+never worse on the first key, and it stops early once it reaches the season the league would have with no
+blackouts at all. The budget is counted in work, not time, so a share link rebuilds the same season. That
+is up to 4,000 evaluations, fewer for big double round robins: about 0.2-0.5 s at 16 to 30 teams, against
+about 0.07 s before. It runs by default whenever any team has a blackout. `blackoutFit: false` in the spec
+turns it off, and the page shows a "Blackout fit:" notice saying what changed. A carry-over plan is
+relabelled the same way, and carry-over counts move with the labels too.
+
+**Measured** (`node eval/blackout-fit.mjs 8 1`, `eval/blackout-fit.txt`): 640 random leagues of 5 to 16
+teams, single and double, played on one weekday. Every team gives 1 or 2 dates it cannot play, drawn either
+from every play night ("spread") or from three nights only ("clustered", a school holiday). Each league is
+built with the fit off and on, same seed:
+
+- makeup matches 5,431 -> 3,911 (28% fewer); the mean season 18.04 -> 17.22 weeks;
+- home/away breaks 20,156 -> 14,732 (27% fewer), because breaks are the search's third key and
+  the old placement's round reordering had been adding them;
+- 0 invalid schedules (`validateSchedule` on both builds).
+
+The gain is largest in odd leagues, where a blackout can sit on a bye: 13 teams, single, 1 date each:
+48 -> 27 makeups. In clustered double leagues it is large too: 7 teams, 2 dates: 30 -> 3, 5 of 8 leagues
+with no makeup at all. Even leagues gain less, because every team plays every night, so a blackout always
+displaces its match unless the opponent is out too: 16 teams, single, 1 date: 107 -> 93.
+
+Not everything improved. Breaks rose in a few cells where the search traded them for fewer makeups (for
+example 10 teams, single, 2 dates: 156 -> 188), because a makeup ranks above a break. A seasoned
+organiser may weigh those differently. Synthetic leagues only; no real league's blackout list has been
+tried. Tests: `blackout-fit.test.mjs` (relabelling keeps a round robin and moves each team's sequence with
+its label; never worse than the plan as given; the same seed gives the same season; no blackouts means no
+change). The multi-division page gets the same fit in the next section.
+
+## Stopping a refused trial early: measured, not kept (2026-11-17, latest)
+
+The flagship row asked for a cheaper 30-team floor-priced step: the step is 31 of the page's 62 s. One way to
+spend fewer steps is to stop a trial once it is sure to be refused. The search only needs to know whether a
+timetable's break floor is at most `maxBreaks + floor((line - carry-over) / over)`, so a trial could stop as
+soon as a lower bound on its floor passes that. Tried, measured, and left out of `main`, because it bought
+nothing the machine's noise does not hide (`eval/trial-cutoff.txt`; the code is `eval/trial-cutoff.patch.txt`).
+
+- **Two rounds alone never force a break in an even league.** The cheapest bound counts the odd cycles the
+  teams of two consecutive rounds form (each such cycle forces one break; checked by brute force on 400 random
+  pairs). On every pair of rounds of a 30-team starter it is 0. Breaks come from three rounds or more:
+  disjoint 3-round windows give 56 of that starter's 84, 5-round windows all 84.
+- **Refused moves miss by a break or two.** Of the trials that ran to the end, 1,044 were refused by one
+  break and 1,432 more by 2 to 5. A bound has to be within a break or two of exact to stop a trial early.
+  The pair bound plus the table so far stopped 7,211 of 11,307 trials, but near their end: 5.9% fewer steps,
+  and the floor-priced step took 55.5, 56.3 and 54.1 s against 60.4, 56.0 and 55.3 s without it.
+- **Exact windows cost more than they save.** Caching the exact least of every window of 4 or 6 unchanged
+  committed rounds gives a much tighter bound, but a commit every ten trials changes about three rounds, so
+  the windows are recomputed so often that the run takes 40,654 to 66,540 extra steps to save 21,000 to
+  29,000 (67.4 and 68.6 s).
+- **The step itself is near its limit.** A profile puts 28 of 54 s in the int16 step, which keeps one cycle
+  open at a time (tables of 2^(k+1) at most) and moves about 3.8 billion entries a second. A shuffle-free
+  inner loop gave the same tables at the same speed.
+
+So the next saving at 30 teams is fewer trials, not cheaper ones, and has to be judged on the seasons it
+finds. Same seasons, same code on the page; nothing changed for users.
+
+## A trial's steps kept in the module: 30 teams join the page (2026-11-17)
+
+The flagship row asked for 30 teams in the page's floor-priced step, and named the next thing to cut:
+the step's copy-in and copy-out, which had grown about as large as the step itself. Counted first
+(guards lifted locally, 30 teams, seed 1): one page run makes **11,360 trials of 19 steps each on
+average, and commits only 1,118 of them** (245 more are walked for their balanced least). Nine trials
+in ten are scored and thrown away, yet every one of their 216,167 steps sent its table out of the
+module into JS, sliced a copy, and sent it back in for the next step.
+
+**The change.** `floorTable`'s trial now hands its whole run of rounds to `chainLeast` (`orient.mjs`),
+which plans every step first and then runs them in the module back to back: between steps,
+`chain_i32` (`wasm/minplus.c`) moves the last step's output straight into the next step's input
+layout, and `chain_min` takes the least against the backward table there too. Only that one number
+comes back. The trial's tables and home masks are rebuilt in JS (the old path) only if the trial is
+committed or walked. Anything the module cannot take (a table too big, no WebAssembly, values that
+could leave int16) falls back to the old path before any state changes.
+
+The move between layouts went through three versions (`eval/chain-step.txt`):
+
+| Version | 30 teams, off -> on | 28 teams, off -> on | the move's own time |
+|---|---|---|---|
+| scatter and gather: two lookups per entry | 91.1 -> 78.2 s | 42.3 -> 35.5 s | 20.3 s |
+| sequential writes, one composite bit permutation read | 94.6 -> 76.3 s | 44.9 -> 36.5 s | 16.3 s |
+| the same in blocks of 64 (committed) | **93.8 -> 62.0 s** | **45.7 -> 30.2 s** | 3.5 s |
+
+The composite permutation works because both layouts are permutations of the same round's host bits:
+input bit `xPos[j]` is output bit `ys[j]`. For the symmetric step, the folded bit's place reads its
+complement, which in output terms is one xor with every kept bit. In blocks of 64, the low six bits'
+part of that place and of the unary costs is a 64-entry table, and the high bits add one constant per
+block. **About 34% off the page's floor-priced step at 28 and 30 teams, with the same seasons on every pair.**
+26 teams gained 7% with the first version (21.9 -> 20.4 s), since fewer of its steps take the symmetric step.
+
+**30 teams join the page; 29 does not** (two processes at once, so slower than solo):
+
+| Teams, seed | Floor-priced step | Gap | Added |
+|---|---|---|---|
+| 30, 1 | 62.0 s (solo) | 1110/84 .. 2542/68 | 1152/82, 2542/64 |
+| 30, 2 | 105.1 s | 1110/84 .. 2576/60 | 1164/82 |
+| 30, 3 | 74.3 s | 1110/84 .. 2718/58 | 1162/82, 2066/80 |
+| 29, 1 | 80.7 s | 3641/47 .. 4049/38 | nothing |
+| 29, 2 | 75.9 s | 1105/56 .. 3597/45 | 3597/44 |
+| 29, 3 | 74.2 s | 3659/50 .. 4063/44 | nothing |
+
+30 teams add seasons on 3 of 3 seeds, including one in the middle of the gap (2066/80 on seed 3) and
+one that beats a listed season outright (2542/64 against 2542/68), at about what 28 teams cost when
+they joined (47-64 s). So `carryOverFloorPriced` runs at up to 30 teams (`maxTeams` 30,
+`FLOOR_PRICED_MAX_MATCHES` 15). 29 teams added one season, one break better, on 1 of 3 seeds for
+75-80 s, so they are skipped (`skip: [29]`).
+
+- Tests: `orient.test.mjs` compares `floorTable` with and without the chain (`chain: false`) over
+  trials at 9 to 30 teams, a third of them committed and every seventh walked: same least, same walk.
+  `floor-priced.test.mjs` checks the new size gate (30 in; 29 and 31 out; `maxTeams: 28` still works).
+  `FLOOR_CHAIN=0` in the environment turns the chain off, for comparison.
+- Not claimed: times are from one shared cloud machine, not a phone or laptop browser. The step itself
+  (31 s of 62 at 30 teams) is now most of the time. Halving it again needs a different elimination,
+  not less copying.
+
+## Half the table: flipping every host (2026-11-16)
+
+The flagship row asked for 29 and 30 teams in the page's floor-priced step, profiling 30 first. With the
+size guards lifted locally (not committed), 30 teams took **128 s solo** (138 to 196 s three at once)
+against 47 to 64 s for 28, and added one or two seasons a seed, all just under the top of a very wide
+gap: seed 1's list jumps from 1110/84 to 2542/68, and the step added 1152/82 and 2542/64; seed 2 added
+1164/82. 29 teams (seed 1) added nothing in 110 s. The profile: 116 of 128 s in the floor trials, the
+WebAssembly step 66 s, its copy in and out 17 s, the JS around it 18 s.
+
+**The symmetry.** Flipping every host in every round leaves every team's breaks as they were (two home
+games in a row become two away games). So every whole-break table the floor programme builds, which starts
+at zero, has f[x] = f[~x], and so does the next one. `minPlusStep(fr, A, B, { sym: true })` uses it: one of
+B's host bits is fixed at 0, the two teams of that match become unary costs on fr's bits ("this team breaks
+when A's host bit i equals f"), the step runs on one fewer bit, and the other half of the output is read
+from the first (g[y] = g[~y]). The unary costs are added in the module's copy-in (`in_i32u`) and the fold
+in its copy-out (`out_i32s`), so no extra pass runs in JS (a first JS version was slower than the plain
+step). The bit fixed is the first one the elimination meets, so every table after the first step is
+halved: 0.44 to 0.35 ms a step at 30 teams (the last bit: 0.39; the best bit by measured time would save
+more, but scoring the bits costs more than it saves). `floorTable` passes `sym` on every step; the priced
+(Float64) tables and `leastBreaks`' other callers are unchanged. Below 13 matches the extra planning
+costs what it saves, so the step only takes the flag from 13 matches (26 teams) up (`SYM_MIN_MATCHES`).
+
+**The page's floor-priced step, off against on** (`eval/symmetric-step.txt`; `FLOOR_SYM=0` turns it off;
+two processes side by side on one shared 4-CPU machine, same seasons in every pair):
+
+| Teams, seed | off | on | seasons added (the same) |
+|---|---|---|---|
+| 28, 1 | 58.0 s | 52.1 s | 1252/72, 1250/70 |
+| 28, 2 | 53.6 s | 48.6 s | 1260/72, 1248/70 |
+| 28, 3 | 63.9 s | 56.6 s | 1220/68, 1318/66 |
+| 26, 1 | 27.9 s | 26.5 s | 1014/58, 1068/56 |
+| 26, 2 | 20.1 s | 18.7 s | 738/68, 776/66 |
+| 30, 1 (guards lifted, last bit fixed) | 129.2 s | 103.8 s | 1152/82, 2542/64 |
+
+**28 teams 175.5 s to 157.3 s over three seeds (10%), 26 teams 48.0 to 45.2 s (6%), 30 teams 20%**, with
+identical seasons. That is not enough for 30 teams: at about 100 s they still cost twice the 28-team step,
+for seasons near the top of the gap, so 29 and 30 stay off the page (`maxTeams` 28). At 28 teams the step
+is a smaller share of the run (a bare step goes 0.23 to 0.19 ms), so the rest of the time is the moves,
+the closing walks and the JS around each step.
+
+- Tests: `orient.test.mjs`: on 240 random rounds of 2 to 16 matches (byes included), symmetric tables
+  small, at the int16 edge and wide int32 give the JS loop's table with `sym` and a symmetric output;
+  `floorTable` gives the same floor and trials with the symmetry on and off at 9, 14, 20 and 24 teams.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; per-step times
+  in `eval/symmetric-step.txt` are noisy to about 10%. Next for 30 teams: the copy-in and copy-out are now
+  about as large as the step (keep tables in the module between steps instead of copying each one out).
+
+## Starting under the gap: 27 and 28 teams join the page (2026-11-15)
+
+The section below left 28 teams (14 matches a round) off the page: 94 s of floor-priced search that
+added nothing. Profiled first (`node --cpu-prof`, 28 teams, seed 1; `eval/under-start.txt`): of 78 s in
+the step, 64 s were the floor trials and 10.5 s the closing `leastBreaks` walks. Every search
+came back empty for two reasons, and fixing both lets the page's floor-priced step take up to
+**28 teams** (`maxTeams` 26 -> 28, `FLOOR_PRICED_MAX_MATCHES` 13 -> 14).
+
+- **The walk's heavy tail.** `balancedWalk` (the depth-first search for the least balanced host
+  choice) tried a round's equally cheap host choices in a seeded random order. On the 28-team
+  starter timetable (978 / 74, balanced least 74) it needed 0.9 to 6.8 million steps depending on the
+  seed, and the closing check gets 2 million, so the search returned null even for the season it
+  started from. Now the walk first tries the choices in order of how even they leave the teams'
+  home and away counts (least sum of squares first, the shuffle still breaking ties), on a tenth of
+  the budget (`GUIDE_SHARE`), then the old seeded order on the rest, from the first level the guided
+  pass did not finish (a finished level is proved whatever the order). Most seasons then take one
+  step a round (27 steps at 28 teams). The guide alone was worse on a few seasons (a 24-team one
+  went from 9 of 20 seeds found to 0 of 20), hence the fallback. Over the page's lists at 22, 24, 26
+  and 28 teams, 20 walk seeds each (`eval/walk-guide.mjs`, `eval/walk-guide.txt`): **33 of 960 walks
+  out of budget, against 40 in the old order; 146 million steps against 191 million** (28 teams: 1
+  against 9, 8.4 against 36.0 million).
+- **The start above the gap is rigid.** At 28 teams the season above the widest gap is a starter
+  timetable, and no move of the search gets its floor under the first cap. From the season *under*
+  the gap the same search lands inside it (28 teams, seed 1: 1,252 / 70 and 1,346 / 66 where nothing
+  was between 978 / 74 and 1,466 / 64). So `carryOverFloorPriced` now switches to the season under
+  the gap once the search from above lands nothing within a cap, for that cap and every lower one
+  (`underStart`, on by default; one search with re-deals there). Where the search from above
+  already lands, nothing changes.
+
+**The page's floor-priced step, old code against new** (`eval/under-start.txt`, same cached lists,
+old and new side by side on one shared 4-CPU machine; the old code with its size guards lifted
+locally to run 27 and 28 teams):
+
+| Teams, seed | gap | old: seasons added (cut inside the gap) | new | old time | new time |
+|---|---|---|---|---|---|
+| 28, 1 | 978/74 .. 1466/64 | none | 1252/72, 1250/70 (5.9%) | 80.2 s | 48.1 s |
+| 28, 2 | 978/74 .. 1400/62 | none | 1260/72, 1248/70 (3.6%) | 80.9 s | 46.9 s |
+| 28, 3 | 1300/70 .. 1418/62 | 1220/68, 1194/70 (3.5%) | 1220/68, 1318/66 (5.3%) | 43.7 s | 54.8 s |
+| 27, 1 | 923/52 .. 1311/48 | none | none | 9.0 s | 19.2 s |
+| 26, 1 | 1104/60 .. 1238/50 | 1014/58 (3.6%) | 1014/58, 1068/56 (6.4%) | 33.0 s | 22.5 s |
+| 26, 2 / 26, 3 | | 738/68, 776/66 / 1104/56, 1140/54 | the same | 17.6 / 22.6 s | 16.1 / 22.0 s |
+| 25, 1 | 1163/41 .. 1171/37 | 1119/39 (2.2%) | the same | 11.2 s | 11.4 s |
+| 25, 2 | 713/48 .. 1083/37 | 715/47 (3.1%; over its 46 cap) | 991/44, 983/42 (5.0%) | 28.5 s | 31.5 s |
+| 25, 3 | 713/48 .. 1127/42 | none | none | 19.4 s | 24.4 s |
+| 24, 1 | 570/64 .. 862/58 | 614/62, 640/60 (18.2%) | the same | 9.3 s | 9.5 s |
+| 24, 2 | 570/64 .. 862/54 | 620/62, 610/62 (5.9%) | 620/62, 822/60 (6.5%) | 10.1 s | 12.4 s |
+| 22, 1 / 20, 1 | | 440/58 / 382/48, 444/46 | the same | 14.0 / 2.2 s | 14.8 / 2.1 s |
+
+**No run's cut inside the gap went down; five went up** (28 teams on all three seeds, 26/1, 25/2,
+24/2), and the fourteen runs took **335.7 s against 381.7 s**. 28 teams take 47-55 s on the worker
+and add two seasons on every seed, at the top of what 24 to 26 teams already cost (10-50 s), so
+they join the page. 27 teams (28's timetable with a bye, 13 matches) add nothing on seed 1 in either
+version but cost 19 s, so they are not special-cased.
+
+- An earlier cut of the guide (half the budget guided) cost 22 teams' 440 / 58 on seed 1: the old
+  order needs 1.02 million steps there and the half left it 1 million. At a tenth it is back.
+- Tests: `orient.test.mjs`: on 48 shuffled timetables of 7 to 16 teams the guided walk gives the old
+  order's least whenever both prove it, its hosts are balanced with exactly that many breaks, and it
+  takes fewer steps on at least half; on budgets the guided pass cannot finish in, the fallback stays
+  within the budget and a proof is still the least. `floor-priced.test.mjs`: 22 to 28 teams pass the
+  size gate, 29 do not, `maxTeams: 26` keeps the old gate, and `floorPricedSingleRounds` refuses 29.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; no real
+  28-team league has been tried; the lists here were built once by the new code, so they are not the
+  lists of the sections below (24/1 is the same; 26/1's list differs).
+
+## Every starter, not a sample: 26 teams 716 to 670, 28 teams 828 to 778, 30 teams 948 to 894 (2026-11-15)
+
+The built-in starters (`STARTERS`) came from sampling: `eval/starter-search.mjs` drew random starters
+for 20 s per size (3,242 draws at 18 teams) and `eval/starter-climb.mjs` climbed from them. Nobody had
+asked what the *best* starter is. `eval/starter-exhaust.c` (plain C, no dependencies) answers it for
+every size up to 30 teams by enumerating all of them.
+
+- **Why one step is enough.** A start only renames the teams, and starter S at step s is the starter
+  s^-1 S at step 1 with the teams renamed (multiplying by a unit keeps a starter a starter). So the
+  least over every starter at step 1 is the least over every starter, step and start. A new test in
+  `starter.test.mjs` checks this by brute force at 6 to 14 teams: every starter, every step coprime to
+  N - 1 and every start, against the C program's step-1 least.
+- **Exact pruning.** Pairs are added in residue order; once both residues z - 1 and z have partners,
+  the N - 2 transitions through them are known and counted. Cells only grow, so a partial starter's E
+  bounds every completion and a branch stops once it reaches the best found. With `NOPRUNE=1` it visits
+  every starter: 1, 3, 9, 25, 133, 631, 3,857, 25,905 and 188,181 of them for 6 to 22 teams.
+- **Results** (`eval/starter-exhaust.txt`, every best re-scored from scratch and checked to be a round
+  robin; the page's `carryOverFromOpponents` agrees):
+
+  | Teams | Least over every starter | Stored starter before | Floor | Time |
+  |---|---|---|---|---|
+  | 18 | 318 | 318 | 288 | 0.0 s |
+  | 20, 22 | 360, 440 (the floor) | 360, 440 | 360, 440 | 0.4 s, 4 s |
+  | 24 | 570 | 570 (climbed) | 528 | 4 s |
+  | 26 | **670** | 716 | 624 | 26 s |
+  | 28 | **778** | 828 | 728 | 265 s (capped at the old 828) |
+  | 27 (28's timetable, one bye) | **773** | 823 | 675 | |
+  | 30 | **894** | 948 | 840 | 24 min (capped at the old 948) |
+  | 29 (30's timetable, one bye) | **889** | 891 | 783 | |
+
+  So 18 and 24 teams are settled *for starters*: the 318 and 570 the searches kept hitting are the least
+  any starter reaches, and going lower needs a timetable that is not a starter. 26 and 28 teams were not
+  settled, nor was 30: sampling had missed starters 6% lower.
+- **On the page.** All three are stored as a further start (`TIMETABLES[26].even`, `TIMETABLES[28]`
+  and `TIMETABLES[30]`, even and odd), so the search still runs from the old starter too and keeps the best of all starts, as
+  for 12 and 14 teams. Through `lowCarryOverRounds` / `lowCarryOverDoubleRounds`, seeds 1 to 3, effort 1
+  (carry-over / breaks; the full table is in `eval/starter-exhaust.txt`):
+
+  | Setting | 26 teams before | after | 28 teams before | after | 27 teams before | after |
+  |---|---|---|---|---|---|---|
+  | Single, carry-over only | 716 | **670** | 828 | **778** | 823 | **771-773** |
+  | Season, carry-over only | 2,618 (all seeds) | 2,610-2,618 | 3,146-3,148 | **3,038-3,044** | 3,015-3,079 | 2,953-3,015 |
+  | Either, break weight 10 | unchanged | unchanged | unchanged | unchanged | unchanged | unchanged |
+
+  30 teams (seeds 1 to 3): single, carry-over only 948 to **894**; season, carry-over only 3,614 to
+  **3,502**; break weight 10 unchanged. 29 teams (seed 1): single 891 to **879**, the rest unchanged.
+
+  Nothing got worse at any seed or setting. The page's carry-over-only season (`carryOverPure`) and its
+  "most even carry-over" pick get these numbers; the break-weighted settings keep the weighted
+  starter's seasons. The cost is one more start: a 26 or 28 team search takes about 30-40% longer
+  (seed 1, all four settings: 26 teams 19 s to 26 s; 28 teams 20 s to 26 s; 30 teams 23 s to 30 s).
+- **Hot windows tried and not kept as a result.** `eval/window-refill.c` gained `HOT=p`: with
+  probability p a window is built around a transition that feeds a cell at 2. Four 600 s runs from the
+  18 and 24 team starters (HOT 0.5 and 0.9, small and default windows) found nothing below 318 or 570.
+  Knowing now that both are the least starters, the gap at 18 (318 against the floor 288) and 24 (570
+  against 528) is a non-starter problem; the option stays in the program, off by default.
+- Not claimed: these are the least over starter timetables, not over all round robins (12 teams show
+  the difference: the best starter is 156 and a non-starter timetable reaches 132). Nothing here was
+  compared with published tables, which use the cyclic definition.
+
+## Whole-break tables in int16: 26 teams join the page (2026-11-15)
+
+The section below put `minPlusStep`'s inner loop in WebAssembly and left the kernel at 62% of a
+24-team run. A 26-team league (13 matches a round) was still off the page: with the guards lifted it
+took 71 s on seed 1, with the int32 kernel at 73% of the profile. The whole-break kernel now runs on
+int16 with explicit SIMD, and the page's floor-priced step takes up to **26 teams** (`maxTeams` 25 -> 26).
+
+- **Why int16 is exact.** The floor programme's whole-break tables start at zero and a step adds at
+  most 2 to an entry, so a 26-team season's entries stay under 60. `in_i32` scans the input: when every
+  entry is under 30,000 (16 steps at most, so no overflow) the module copies it to int16 buffers and
+  runs the int16 step, eight lanes per SIMD instruction instead of four; otherwise it keeps the int32
+  loop. No caller of `orient.mjs` passes a wide table, but the test does, with negatives, to keep that
+  path checked. Priced (Float64) tables are unchanged.
+- **Explicit SIMD, not the autovectoriser.** The first int16 version, a plain C loop, was slower than
+  int32 (0.166 against 0.126 ms at 12 matches): clang widened every lane back to 32 bits. The step
+  now uses `wasm_simd128.h`. Eight entries z0 .. z0 + 7 (z0 a multiple of 8) share every bit of z from
+  bit 3 up, so each edge's break bit is either a fixed lane pattern (it reads bit 0, 1 or 2) or one
+  splatted value per group; the old table's pairs split into evens and odds with one shuffle each.
+  Blocks under 8 entries (the last steps) take a scalar loop.
+- **Thirteen matches for the floor-priced search only.** `ORIENT_MAX_MATCHES` stays 12, so
+  `leastBreaks`' other callers (regrounding, the home-and-away branch and bound) do the same work as
+  before. `floorTable(opp, n, { maxMatches })` and `leastBreaks(..., { maxMatches })` take
+  `FLOOR_PRICED_MAX_MATCHES` = 13 from `floorPricedSingleRounds`, which now accepts up to 26 teams.
+
+**The step** (`eval/minplus-bench.mjs --against` the old module, same tables): 10 matches 0.034 -> 0.019
+ms, 12 matches 0.126 -> 0.049 ms (2.6x).
+
+**The page's floor-priced step, old code against new** (`eval/int16-step.txt`, same cached lists, old
+and new side by side on one shared 4-CPU machine):
+
+| Teams, seed | old | new | seasons added (the same in both) |
+|---|---|---|---|
+| 24, 1 | 19.6 s | 10.2 s | 614/62, 640/60 (18.2% inside the gap) |
+| 24, 2 | 22.0 s | 11.5 s | 620/62, 610/62 (5.9%) |
+| 24, 3 | 40.0 s | 22.9 s | 610/62 (5.6%) |
+| 25, 1 / 2 / 3 | 16.8 / 49.8 / 33.4 s | 11.2 / 30.3 / 22.8 s | none / 715/47 (3.1%) / none |
+| 22, 1 | 5.0 s | 3.8 s | 670/50, 662/48 |
+| 20, 1 | 2.3 s | 2.5 s | 382/48, 444/46 |
+| 26, 1 | 70.7 s (guard lifted) | 33.9 s | 1014/58 (3.6%): beats 1030/66, 1088/62 and 1104/60 on the list |
+| 26, 2 | refused | 19.2 s | 738/68, 776/66 (11.4%) |
+| 26, 3 | refused | 24.0 s | 1104/56, 1140/54 (4.9%) |
+
+**188.9 s -> 115.2 s over the eight runs both can do (1.64x)**, with identical runs, results and
+frontiers. 26 teams take 19-34 s and add one or two seasons on every seed, inside the 10-50 s that 24
+and 25 teams already cost, so they join the page. 28 teams (14 matches) took 94 s on seed 1 and added
+nothing, so they stay off.
+
+- Tests: `orient.test.mjs`: the WebAssembly step equals the JS loop on 240 random rounds of 2 to 16
+  matches for int16-sized whole tables, wide int32 tables (negatives included) and tables at the
+  int16 edge (29,997-29,999), plus priced tables. `floor-priced.test.mjs`: 22 to 26 teams pass the size
+  gate, 27 do not, `maxTeams: 25` keeps the old gate; at 26 teams the default limit still returns
+  null and `FLOOR_PRICED_MAX_MATCHES` gives a floor table that agrees with `leastBreaks`.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser; no real
+  26-team league has been tried. Browsers without WebAssembly SIMD (Safari before 16.4) run the JS
+  loop, which is slower at 26 teams than the old module was at 25.
+
+## minPlusStep in WebAssembly: 23 to 25 teams join the page (2026-11-14)
+
+The section below left 24 and 25 teams off the page at 54 to 184 s of worker time, with `minPlusStep`
+and the trial loop it is inlined into 94% of a 24-team profile. The step's inner loop now runs in
+WebAssembly, and the page's floor-priced step runs at up to **25 teams** (`maxTeams` 22 -> 25).
+
+- **The kernel** (`wasm/minplus.c`, about 40 lines of C, no libc; `sh wasm/build.sh` builds it with
+  clang 18 for wasm32 with SIMD128 into a 3 KB module, kept as base64 in `wasm/minplus-wasm.mjs`,
+  which `orient.mjs` imports, so the page and its workers need no extra fetch). `minPlusStep` still
+  plans the elimination in JS (order, edge bits, sizes), then hands every step to the module. The
+  table's input and output permutations run there too, from the same two 6-bit lookups `perm` builds.
+- **A flat loop.** For the new table's entry z, the old table's pair sits at 2 (z mod 2^(lx + ly0)),
+  where lx is the x bits left and ly0 the y bits met before the step. So the new table is blocks that
+  each read the same contiguous run of the old one, and the break count reads z's own bits. A
+  first version looped over the y part, then the x part. Its inner loop ran 1 or 2 entries in the
+  late steps.
+- **Bit-identical.** Priced tables (Float64Array) round in the JS order, `(T + both) - d`, not
+  `T + (both - d)`. Whole-break tables are Int32 and exact either way. When WebAssembly or SIMD is
+  missing (`WebAssembly.validate` fails), a table would not fit the module's buffers (2^18 entries),
+  or `MINPLUS_JS=1` is set in Node, the JS loop runs as before. Checked in headless Chromium: the
+  module loads on the page thread and in a module worker, and gives the JS loop's table.
+- **homeMasks, one xor an entry.** With the step about 5x faster, building every round's home masks
+  bit by bit (2^k x k) was as slow as the step itself. Each host choice x now comes from x without
+  its lowest set bit, by one xor. It gives the same masks (2,000 random rounds of 1 to 14 matches,
+  checked against the old loop).
+
+**The step**: 12 matches 0.80 -> 0.15 ms, 10 matches 0.18 -> 0.04 ms (`eval/minplus-bench.mjs`, same
+tables). Built without SIMD the module takes 0.21 ms at 12 matches, so leaving JS gives most of it
+and SIMD about a third more.
+
+**The page's floor-priced step, old code against new** (`eval/wasm-step.txt`, same cached lists, two
+processes at a time on one shared 4-CPU machine):
+
+| Teams, seed | old | new | seasons added (the same in both) |
+|---|---|---|---|
+| 24, 1 | 89.7 s | 21.3 s | 614/62, 640/60 (18.2% inside the gap) |
+| 24, 2 | 110.5 s | 25.6 s | 620/62, 610/62 (5.9%) |
+| 24, 3 | 178.0 s | 41.9 s | 610/62 (5.6%) |
+| 25, 1 | 60.3 s | 16.1 s | none |
+| 25, 2 | 211.3 s | 50.4 s | 715/47 (3.1%) |
+| 25, 3 | 132.0 s | 34.0 s | none |
+| 23, 1 / 2 / 3 | 22.5 / 23.3 / 56.9 s | 4.9 / 5.0 / 11.3 s | none |
+| 22, 1 | 15.0 s | 5.2 s | 670/50, 662/48 |
+| 20, 1 | 4.0 s | 2.4 s | 382/48, 444/46 |
+
+**903 s -> 218 s in all (4.1x)**, with the same runs, results and frontier in all eleven. 22 teams were
+admitted at 35-64 s of worker time; 24 and 25 now take 16-50 s, so `carryOverFloorPriced` defaults to
+`maxTeams` 25. 23 teams still add nothing on three seeds but cost only 5-11 s, so they are not
+special-cased. A 24-team profile after the change: the kernel 62%, the balanced walk 11%, the JS
+around the step (planning, lookups) 6%.
+
+- Tests: `orient.test.mjs` (now 16): the WebAssembly step equals the JS loop (a second copy of
+  `orient.mjs` loaded with `MINPLUS_JS=1`) on 240 random rounds of 2 to 16 matches, Int32 and
+  Float64 tables, byes and repeated pairs included. The double-loop test now runs against the
+  WebAssembly step. `floor-priced.test.mjs`: 22 to 25 teams pass the size gate, 26 do not, and
+  `maxTeams: 22` keeps the old gate. `page.test.mjs`: `orient.mjs` imports only `calc.mjs` and the
+  generated module, which holds nothing but the base64 string. Full suite: 517 tests.
+- Not claimed: times are from one shared cloud machine, not a phone or a laptop browser. No real
+  24-team league has been tried. The kernel's last 1.35x is SIMD, which needs Safari 16.4 or later.
+  Older browsers get the JS loop, at the old speed.
+
+## A backward table: the floor-priced step 2.1x faster again, same seasons (2026-11-13)
+
+The section below left two costs at 24 teams: the programme's step (87 s of a 152 s run) and the
+balanced walk's predecessor scan (37 s). Both are smaller now, and every search still follows the
+same path to the same season.
+
+**The walk remembers its predecessors.** Walking back from round r with hosts y, the walk scanned
+all 4,096 host choices of round r - 1 for the ones within its slack. Counted on 24 teams seed 1:
+**3.48 million scans over only 16,828 distinct (round, hosts) states**, about 207 scans of each,
+because the walk comes back to the same state at every slack level and from every branch that
+reaches it. `balancedWalk` now scans a state once, keeps the choices within its largest slack (as
+`x | extra << 16`, in x order, at most 4 million entries a walk) and filters that list by the
+current slack. The filtered list is the fresh scan's list in the same order, so the seeded shuffle
+draws the same numbers. After this the walk's share of the profile is about 2 s.
+
+**A move is priced on its own span** (`floorTable(opp, n).trial(lo, hi)`). The table used to rerun
+the programme from the first changed round to the last round of the season. It now also keeps a
+backward table (`bwd[r][x]`: least breaks in rounds r..R-1 with round r's hosts x), runs forward
+only over the changed rounds lo..hi, and takes one more step to meet `bwd[hi + 1]`. A commit leaves
+forward tables after its span and backward tables before it stale; the next trial that needs them
+recomputes them from rounds the move did not touch. A balanced walk still needs the whole forward
+table, so `balanced()` runs the trial's table on to the end (and a commit keeps that). The gain is
+smaller than hoped: the search's moves span **15.2 of 23 rounds on average** (5,845 trials,
+88,730 round steps on 24 teams seed 1). A partial team swap or a three-round re-deal touches rounds
+far apart, and everything between them has to be rerun.
+
+**The step itself, about 1.15x**: the edge test in `minPlusStep`'s inner loop is branch-free, and
+the bit permutations at either end use two 64-entry lookups instead of a loop over bits. A 12-match
+step went from 0.68-0.77 ms to 0.59-0.70 ms (`eval/minplus-bench.mjs`, which also checks the two
+versions return identical tables). Splitting the loop so the edge costs were constants over the x
+bits measured slower at 12 matches (0.81 against 0.72 ms), so it was dropped.
+
+**The page's floor-priced step, old code against new** (`eval/backward-table.txt`, same cached
+lists, run side by side on one 4-CPU machine; `--max-teams 25` so 24 and 25 run):
+
+| Teams, seed | old | new | seasons added (same in both) |
+|---|---|---|---|
+| 20, 1 | 8.7 s | 3.6 s | 382/48, 444/46 |
+| 22, 1 | 31.8 s | 13.9 s | 670/50, 662/48 |
+| 24, 1 | 129.9 s | 80.3 s | 614/62, 640/60 |
+| 24, 2 | 147.1 s | 102.0 s | 620/62, 610/62 |
+| 24, 3 | 283.2 s | 172.7 s | 610/62 |
+| 25, 1 | 123.9 s | 54.0 s | none |
+| 25, 2 | 377.2 s | 183.8 s | 715/47 |
+| 25, 3 | 230.8 s | 114.6 s | none |
+
+**1,533 s to 725 s in all**, with the same results, frontier and floor counts in all eight runs. 22
+teams, which the page runs, now take about 14 s on seed 1. 24 and 25 teams still take 54 to 184 s
+in a worker, so they stay off the page (`maxTeams` stays 22). The cost left at 24 teams is the
+step over wide spans: in a CPU profile of 24 teams seed 1 taken with the walk cache and the
+backward table in (before the step tweak), `minPlusStep` and the trial loop it is inlined into
+were 94% of the time and the walk 2%.
+
+- Tests: `orient.test.mjs` (now 10): walks that keep their lists give the same least, proof, step
+  count and hosts as walks that scan afresh (`nearCache: 0`) and as walks whose cache fills
+  part-way, on 48 shuffled circle timetables of 7 to 16 teams. `floor-priced.test.mjs` (now 18):
+  `trial(lo, hi)` equals the whole programme's floor over 640 moves (two-round swaps and
+  three-round rotations, kept or undone, with balanced walks between them on 6 to 14 teams). Two
+  seeded faults, a backward table left current after a commit and a forward table marked current
+  for the whole season, each fail it. The rest of the suite passes unchanged
+  (`run_venture_tests.py league-schedule-generator`).
+
+## A faster break floor: 3.8x less worker time, and 22 teams in the page (2026-11-13)
+
+The section above put the 19-team cost (35 to 46 s for nothing) on the balanced walks running out of
+budget. **A profile says otherwise**: on 19 teams seed 3 the walks took under 1 s of 143 s; the rest
+was the break floor's own programme, `f[r + 1](y) = min over x of f[r](x) + cost(x, y)`, a double
+loop over 2^k x 2^k host choices (k matches a round: 262,144 popcounts a round at 19 teams, 16.7
+million at 24 and 25). Balanced pricing had made it worse by keeping the search above its cap, where
+nearly every move passes the carry-over line and needs a floor (1,412 to 2,878 floors a search
+against 166 to 1,083 on the floor alone).
+
+**`minPlusStep` (orient.mjs) does that step without the double loop.** The cost of a pair of host
+choices is a sum over teams, and each team plays one match a round, so each host bit of round r
+touches at most two host bits of round r + 1: the bits form paths and cycles. Eliminating round r's
+bits one at a time along those paths keeps a table over the bits not yet eliminated plus round r +
+1's bits met so far, never much more than 2^(k + 1) entries, so a step costs about k x 2^(k + 2)
+additions. It returns exactly the double loop's table (`orient.test.mjs`: 300 random rounds with
+byes, sitting-out teams, repeated pairs and any table to come). `leastBreaks`, `relaxedBreakFloor`
+and `floorTable` all use it; nothing else changes, so every search follows the same path and returns
+the same season.
+
+| One round's step | double loop | minPlusStep |
+|---|---|---|
+| 9 matches (18-19 teams) | 2.6 ms | 0.12 ms |
+| 10 matches (20-21 teams) | 11.5 ms | 0.20-0.26 ms |
+| 12 matches (24-25 teams) | 203 ms | 0.85-1.3 ms |
+
+A whole floor (`leastBreaks`, no walk) at 24 teams: 1,263 ms to 39 ms; 25 teams 1,524 to 56 ms.
+
+**The page's floor-priced step, same lists, old code against new** (`eval/faster-floor.txt`, 16 to 20
+teams, seeds 1 to 3, one run at a time on the same machine): **the same seasons and the same frontier
+in all 15 runs, 485 s -> 127 s** in all. 19 teams, which add nothing, 38 / 48 / 134 s -> 8 / 8 / 18 s;
+20 teams 32-36 s -> 11-12 s; 17 teams 13-29 s -> 8-15 s.
+
+**22 teams join the page** (`carryOverFloorPriced(n, results, { maxTeams })`, default 22, was a fixed
+21; `node eval/floor-priced.mjs <teams> <seed> --page --max-teams 25`):
+
+| Teams | Seeds 1-3: seasons added | cut inside the gap | worker time |
+|---|---|---|---|
+| 22 | 670 / 50 + 662 / 48; 488 / 56 + 592 / 54; 470 / 56 + 604 / 54 | 4.0%, 8.7%, 9.8% | 35-64 s |
+| 23 | none (the 565 / 44 .. 1,667 / 40 gap is not entered) | 0 | 28-77 s |
+| 24 | 614 / 62 + 640 / 60; 620 / 62; 610 / 62 | 18.2%, 5.9%, 5.6% | 152-334 s |
+| 25 | 715 / 47 on seed 2 only | 0-3.1% | 136-426 s |
+
+22 teams gain on every seed for about what 19 teams used to cost for nothing, so the page now runs
+the step there; at 23 it adds nothing, and 24 and 25 gain but take 2 to 7 minutes, so they stay
+off (the function itself still takes up to 25). Every 22-team season added is listed after the
+regrounded ones, never one of the four choices, so share links made before this change build the
+same season. What is left at 24 teams is still the step (87 s of a 152 s run) and the walk's
+predecessor scan (37 s, 4,096 states a round).
+
+- Tests: `orient.test.mjs` (now 9): `minPlusStep` equals the double loop on 300 random cases; a
+  24-team floor in seconds. `floor-priced.test.mjs` (now 17): 22 teams pass the page's size gate,
+  23 do not. The other 21 orient and floor-priced tests pass unchanged.
+
+## Team sheets and a duty rota for a one-division league (2026-11-13, latest)
+
+Most leagues are one division, and until now the snack stand / scoreboard rota and the printable team
+sheets (one page per team) lived only on the multi-division page. The one-division page
+(`index.html`) now has them:
+
+- **Box 7, "Team duties"**: `Snack stand: 2`, one duty per line. After a build, a line under the
+  downloads says how many slots were filled, the spread per team and how many nights had no team free.
+- **"Download team sheets to print (.html)"**, with a title and a contact line: one page per team
+  with its games in date order (time, court, home or away, opponent, the official when officials are
+  listed, and "Your duty" on the nights it has one), **its bye weeks** (new; a one-division league
+  with an odd number of teams has one every round), then the duty rota night by night with unfilled
+  slots marked "find a volunteer". **"Download team duty rota (text)"** for the group chat.
+- Both refuse to download when `validateDivisionDuties` finds a fault or a duty line is bad
+  (e.g. `Snack stand: 99`), and say why.
+
+How: `singleAsDivisions(schedule)` in `divisions.mjs` turns the one-division schedule (rounds with a
+bye) into the multi-division shape (nights; rounds on the same date share a night; the bye kept as
+`night.byes`), so the page reuses `assignDivisionDuties`, `validateDivisionDuties` and
+`divisionsTeamSheetsHtml` rather than a second copy. Duties, title and contact go in the share link.
+
+**The print check found three faults in the team sheets, all fixed** (`eval/print-check.mjs`, new
+document "single-team-sheets": 9 long team names, so a bye every round, 3 officials and 2 duties,
+rendered to PDF on Letter and A4): "Court 1", "Snack stand" and "Jordan Price" broke over two lines;
+an empty Venue column was printed (a one-league schedule has no venues); and with those fixed the
+table ran 12 px past A4's printable width. Now date, time, court, official and duty cells never wrap,
+the Venue column appears only when some venue differs from its court (this also applies to the
+multi-division sheets), and print uses 15 px type with 0.35 rem padding. After: 91 checks, 0 failures
+(`eval/print-check.txt`).
+
+Checked: `divisions.test.mjs` (one new test over 5, 6 (double) and 7 teams with officials: every
+match on both teams' sheets, one bye row per bye, no duty for a team on its bye, rota re-checked,
+no empty division labels, hostile names escaped, input unchanged), `page.test.mjs` (one new source
+test), the share-link round trip in `calc.test.mjs`, and a Chromium click,
+`node eval/browser-click-team-sheets.mjs` (`eval/browser-click-team-sheets.txt`: five teams, two
+officials, two duties; 6 sheets, 5 bye rows, 20 game rows, rota text, bad line refused, no page
+errors). Usage events: `team_sheets_downloaded`, `duties_downloaded`. Made-up leagues only; not
+printed on a real printer, and no real league's rota compared.
+
+## Print check: every printed output rendered to PDF (2026-11-13)
+
+Organisers print this tool's output for the clubhouse wall and the scorer's table, and six outputs
+said "printed layout not checked on paper". `node eval/print-check.mjs [--out dir]` renders each of
+them to PDF in headless Chromium, on Letter and A4 at the browser's default margins: the one-league
+score sheets (10 teams; 20 teams on five courts with six officials), the downloadable league page,
+the branded print pack, the multi-division score sheets and team sheets, and both pages' own
+"Print" after building a league through the real form. It checks, on the laid-out page and on the
+PDF's text (`pdftotext`; without it the page checks are skipped and said so):
+
+- nothing is wider than the printable width;
+- short labels (12 characters or fewer: a time, "Court 2", "Round 4", a date) stay on one line;
+- no column is printed with a header and nothing under it (score boxes excepted);
+- no blank page, and no heading left as the last line of a page with its table on the next;
+- score sheets print one sheet per page; the pages' forms and buttons are not printed.
+
+**What it found** (first run, 12 failures; all fixed):
+
+- "Court 1" broke over two lines in every output and both pages ("Round 4" too in the main page's
+  team view): the time, court, round and official cells now never wrap (`.s{white-space:nowrap}` in
+  the generated files, a print rule on `#rounds-table` and `#byteam`).
+- One-league score sheets always printed an empty Official column, taking width from the team names;
+  it now appears only when someone is assigned.
+- The league page left "Round 6 Tue 10 Nov 2026" at the foot of page 2 with its games on page 3:
+  rounds are now kept whole and headings stay with what follows.
+- 20 teams with officials ran 3 px past A4's printable width: print padding is 0.35 rem.
+- Also: the scorekeeper and notes lines are two lines rather than one that wrapped mid-rule, a
+  venue's table on the multi-division sheets is not split, and the last sheet has no page break after it.
+
+After: 82 checks, 0 failures (`node eval/print-check.mjs`). Pinned by `print.test.mjs` (3 tests).
+Not checked: a real printer and paper, printers' own margins, and the browser's dark-mode print.
+
 ## Several divisions on shared courts (`divisions.mjs`)
 
 A club with U10, U12 and adult divisions has one set of courts, not one per division. `divisions.mjs`
@@ -295,3 +3871,7 @@ still to play. Points only, ties counted against the team tested, so "clinched" 
 - **Same-division teams apart in round one (2026-11-06).** `divisionsPlayoffs(result, { separate: true })`, CLI `--playoffs 2 --separate`, swaps the lower seed of any first-round pair from one division with the closest-seeded team in another pair, when neither pair then clashes, and prints a line per swap. Seed numbers stay with their bracket slot. A field one division dominates is left as seeded. Checked on 2,000 random made-up fields (2 to 6 divisions, top 1 to 3 each): same-division first-round games 601 -> 0, 423 fields fixed, all teams kept (`divisions.test.mjs`, 90 tests). Made-up standings only; no page checkbox yet.
 
 **Team duties: snack stand, scoreboard, field set-up (2026-11-07).** `"duties"` in a CLI spec (`node divisions.mjs spec.json --duties [--csv]`), one per line as `Snack stand: 2` (teams per playing night, 1 to 10). Each night's slots go to teams that play that night, one duty per team per night, fewest duties so far first, then fewest of that duty, then longest since the last one. Slots with no free team are listed, not invented. `parseDivisionDuties`, `assignDivisionDuties`, `validateDivisionDuties` (independent re-check) in `divisions.mjs`; one test on the example league (every slot accounted for, spread of totals at most 2, deterministic, formula cells defused). Library and CLI only: not on the page yet, and no real league's duty rota was compared. Next: the page box and a per-team duty list in the print pack.
+
+**Duty rota on the multi-division page (2026-11-10).** The snack stand / scoreboard / field set-up rota (CLI `--duties`, 2026-11-07) now has a box and a "Download team duty rota (text)" button on `multi-division-league-schedule.html`. It runs `assignDivisionDuties` and refuses to download if `validateDivisionDuties` finds a fault; bad lines are reported, not guessed. Checked: `page.test.mjs` (53 pass, one new source assertion), `divisions.test.mjs` (92 pass) and a Chromium click in `eval/browser-click.mjs` (download has the duties, 46 lines on the example league). Made-up league only; no real league's rota compared. Next: a per-team duty list in the print pack.
+
+**Team sheets with duties, to print (2026-11-10, later).** `divisionsTeamSheetsHtml(schedule, { title, contact, duties })` in `divisions.mjs` writes one printable page per team: its fixtures in date order (date, time, court, venue, home or away, opponent, official when assigned) with a "Your duty" column filled on the nights `assignDivisionDuties` gave it one, a games-and-duties count, the organiser's contact line, and a final duty-rota page night by night with unfilled slots marked "no team free, find a volunteer". A team with two games in a night carries its duty on the first row only. Teams that share a name in two divisions get a sheet each. Page: "Download team sheets to print" on `multi-division-league-schedule.html`, with a title and contact box; duties are optional (no duty column or rota page without them) and the download is refused when `validateDivisionDuties` finds a fault. CLI: `node divisions.mjs spec.json --team-sheets > sheets.html` (spec fields `duties`, `title`, `contact`). This is the multi-division counterpart of the single-league print pack and, unlike that one, free and unbranded (no logo or accent). Checked: `divisions.test.mjs` (93 pass; new test: every match on both teams' sheets, duty cells equal the rota rows and sit on the team's own night, rota page, unfilled marked, title and hostile team names escaped), `page.test.mjs` (54 pass), and the Chromium click in `eval/browser-click.mjs` (downloads `team-sheets.html` with the duty column and rota on the example league). Made-up league only; not printed on paper, no real league's rota compared.

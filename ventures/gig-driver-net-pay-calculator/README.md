@@ -147,9 +147,17 @@ You do not need the author's site. Fork the repository and run your own:
 - **One session is costed at a time.** Multi-app stacking (driving for two platforms at
   once) is not modeled separately — combine gross pay across apps and use the
   same miles and hours.
-- No standard mileage rate is built in, and none is asserted as current —
-  see "How it works" above for the substitute.
+- The session calculator has no standard mileage rate built in — see "How
+  it works" above for the substitute. The tax page (`tax.html`) fills in the
+  2026 rate (72.5 cents) as an editable box.
 - Single currency.
+- Known gaps from the 2026-11-10 quality audit
+  (`portfolio/quality/audits/2026-11-10-gig-driver-net-pay-calculator.json`):
+  the session cost has no depreciation term, so "kept per hour, after the
+  car" is optimistic for an owned car (at the defaults $24.89/h, about $19.13/h
+  if the miles are priced at the 72.5-cent standard rate); and the tax page
+  leaves out the section 199A qualified business income deduction, so its
+  income tax and quarterly figure run high (about 9% at its defaults).
 - Starting figures are an illustrative example, not a benchmark or a claim
   about what any platform pays.
 

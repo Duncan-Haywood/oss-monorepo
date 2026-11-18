@@ -1,0 +1,20 @@
+# Texas Electricity Plan Checker: compare Electricity Facts Labels on your own usage
+
+> Free tool for Texas households choosing a retail electricity plan: paste each plan's Electricity Facts Label (EFL) text and a year of usage (a Smart Meter Texas interval or daily CSV, or monthly kWh) and get each plan's bill for every month, ranked: base charge, tiered energy charges, TDU delivery charges, bill credits with their kWh bands, minimum-usage fees and free-nights or free-weekends windows. Each plan's terms are checked against the label's own average prices at 500, 1,000 and 2,000 kWh, so a misread label shows as a mismatch. Also reads a bill credit from a plan list's three prices alone. Nothing uploaded.
+
+Free and open source (MIT). Results are estimates before taxes and charges the label leaves out; not financial or legal advice. Not affiliated with any retail electric provider, Power to Choose, Smart Meter Texas or the PUCT.
+
+## Pages
+
+- [The tool](https://marisstella.app/texas-electricity-plan-checker/): usage and EFL text in; ranking, your cents per kWh, credit months, label check, price-by-use chart and month-by-month bills out; CSV download.
+- [How it works](https://marisstella.app/texas-electricity-plan-checker/how-it-works.html): who it is for, the bill model, the label check, the three-price reading, and a test on 200 simulated Texas homes (NREL ResStock, 2018 weather) with invented plans.
+
+## How to use the engine
+
+- `engine.mjs` exports `monthBill(plan, kwh | {kwh, windows})`, `labelCheck(plan)` (status match | mismatch | no-label | needs-share, with rows), `shapeFromLabel({500, 1000, 2000})` (fixed $/month, cents/kWh and the dip at 1,000 kWh in dollars), `compare(plans, months)`, `curve(plan)`, `cliffs(plan)`, `parseUsage(text)` (Smart Meter Texas CSV, month lines or bare numbers), `parseEFL(text)` (plan, found, notes), `windowKwh(plan, month)`, `EXAMPLE`.
+- Plan shape: `{name, base, energy: [{upTo, cents}], tduFixed, tduCents, credits: [{amount, min, max}], fees: [{amount, below}], tou: [{days, start, end, cents}], touShare, label: {500, 1000, 2000}, termMonths, etf}`.
+- `cli.mjs`: `node cli.mjs --usage usage.csv --efl label.txt --efl other.txt [--json]`, `node cli.mjs --shape 21.0 8.1 14.1`.
+
+## Source
+
+- [Source code and README](https://github.com/duncan-haywood/oss-monorepo/tree/main/ventures/texas-electricity-plan-checker): MIT licensed.

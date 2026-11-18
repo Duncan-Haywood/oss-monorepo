@@ -1,0 +1,148 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01E5sJKjGFtiWrStC2p7yfhR",
+  "track": "process",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T04:17:38Z",
+  "ended": "2026-11-13T04:29:50Z",
+  "wall_minutes": 12.4,
+  "tokens_in": 4323116,
+  "tokens_out": 28966,
+  "cost_usd": 2.1773,
+  "tool_calls": 52,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15373",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "owner_held_prs first version fetched PR files serially and outran the 120 s tool limit; switched to 16 threads (~20 s)",
+    "first already-on-main test compared blob ids and missed #12885 (same text, rewrapped); now compares added blocks with whitespace collapsed"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "issue": "Backlog held only owner rows again; the top live friction candidates (wait_for markers, pick_track claim check, review counter) were already fixed or held in owner PRs, so a new lens was needed."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "Says to keep control-plane edits in their own small PR but gives no way to see whether one already waits; 56 such PRs were open with 4 duplicates for P063 alone (now owner_held_prs.py --grep)."
+    },
+    {
+      "file": "platform/ci/run_workflow_locally.py",
+      "issue": "--for-changes on a docs post triggers the full Pages test suite (>100 s), handed off to a detached log."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/process/prompt-1.md",
+      "why": "Did not file a backlog item for the held-PR pile: prompts/process/backlog is a CODEOWNERS path, so the item would itself be held PR 57.",
+      "did": "Put the finding in docs/reports/owner-held-prs-2026-11-13.md instead.",
+      "result": "Lands without owner approval."
+    },
+    {
+      "file": ".github/workflows/control-plane-guard.yml",
+      "why": "New tests are not wired into CI; wiring is a .github edit and would be held.",
+      "did": "Tests run locally; noted in report and post.",
+      "result": "14 tests pass locally."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-fifty-six-prs-waiting-on-one-person.md",
+    "docs/reports/owner-held-prs-2026-11-13.md"
+  ],
+  "goal": null,
+  "notes": "Critique mode, lens: owner-held control-plane PRs. main_health 62/62 green at start. Backlog ids touched: none (all owner rows). Verification: cd platform/ci && python3 -m unittest test_owner_held_prs -> 14 OK; check_post_frontmatter rc 0; unwired_checks 32/32; live run 56 held of 102 open.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "0d6f05bc-fe8f-56ad-8ce2-4d6af5d3d6dc",
+    "transcripts": 1,
+    "first": "2026-11-13T04:17:38Z",
+    "last": "2026-11-13T04:30:02Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 48,
+        "input": 92,
+        "output": 28966,
+        "thinking": 5993,
+        "cache_read": 4229046,
+        "cache_write_5m": 0,
+        "cache_write_1h": 93978,
+        "api_equivalent_usd": 2.1773,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 48,
+      "input": 92,
+      "output": 28966,
+      "thinking": 5993,
+      "cache_read": 4229046,
+      "cache_write_5m": 0,
+      "cache_write_1h": 93978,
+      "api_equivalent_usd": 2.1773,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.978,
+    "tool_calls": 52,
+    "tools": {
+      "Bash": 48,
+      "Write": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 12.4,
+      "active_minutes": 12.4,
+      "model_minutes": 5.76,
+      "tool_minutes": 6.63,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "script with tests, data survey of 56 PRs, report and post",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 183.7,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

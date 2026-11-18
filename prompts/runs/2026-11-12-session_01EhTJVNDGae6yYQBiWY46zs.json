@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01EhTJVNDGae6yYQBiWY46zs",
+  "track": "creative",
+  "prompt_version": 0,
+  "input": "continue work on the repo aiming to develop, deploy, market, sell and support revenue generating software products in production (scheduled routine prompt)",
+  "input_sha256": "4207abd77e9a8607d5ea627a8aa7754abc9fab62bb68e0f6eb3a480afbda5e64",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-12T21:13:22Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": null,
+  "projects": [],
+  "pr": 15257,
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/routing.json",
+      "issue": "The router drew the creative (fiction) track, but this schedule's stored prompt asks for revenue-generating software; the two disagree on what the run is for."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/creative/prompt-0.md",
+      "why": "The scheduled prompt explicitly asks for revenue software work, so the run took the allocator's venture pick (einvoice-preflight, flagship 5) instead of a story.",
+      "did": "Built SAT postal-code -> municipality/locality/colonia checks (CCE129/CCE130, new Carta Porte MX-080).",
+      "result": "Shipped with tests; 56 PAC-stamped public CFDIs drew no disagreement."
+    }
+  ],
+  "writeups": [],
+  "goal": null,
+  "notes": "einvoice-preflight: mx-address-data.mjs (c_CodigoPostal 32,808 rows with a municipality, c_Colonia 145,366 codes; 481 KB, ~210 KB gzip; round-trip exact) and mx-address.mjs; cce20.mjs replaces the CCE129/CCE130 'skipped' notes with findings; cartaporte31.mjs adds MX-080 for Mexican Domicilio on locations and figures. Tests: cce20/cartaporte31/cfdi/mexico page 69 pass; venture suite via run_venture_tests.py passes. Measured: eval/mx-address-public-files.mjs over 1,595 public files (189 distinct CFDIs, 408 Mexican addresses): 56 real-PAC files, 155 addresses, 0 disagreements (19 municipio, 13 localidad, 19 colonia codes compared); disagreements only in test/unstamped files (Odoo template Municipio 032 at 20928, MIC at an AGU code, colonia 0048 at 53040, DIF/state names). Post: docs/posts/2026-11-12-a-mexican-postal-code-knows-its-municipality.md.",
+  "corrections": [],
+  "redteam": null
+}

@@ -45,6 +45,16 @@ class M(unittest.TestCase):
         self.assertLess(pbad2, pbad)
         self.assertGreater(mt2, mt)                        # the pessimistic design costs time
 
+    def test_calibration_miss_probabilities_are_pinned(self):
+        # Enumerated independently with math.comb, Laplace (k+1)/(n+2) and a
+        # brute-force threshold search (quality audit 2026-11-10); these are the
+        # README's headline miss probabilities.
+        self.assertAlmostEqual(demo_design_stats(0.7, 10, 1e-2)[1], 0.3828, delta=5e-4)
+        self.assertAlmostEqual(demo_design_stats(0.7, 20, 1e-2)[1], 0.4164, delta=5e-4)
+        self.assertAlmostEqual(demo_design_stats(0.7, 50, 1e-2, z=1.645)[1], 0.0402, delta=5e-4)
+        # an estimate of exactly 1/2 cannot design a threshold, so the cap is used
+        self.assertEqual(phat_design(5, 10, 1e-2, hcap=200), 200)
+
 
 if __name__ == "__main__":
     unittest.main()

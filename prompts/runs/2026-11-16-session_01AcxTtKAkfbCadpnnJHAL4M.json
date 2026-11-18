@@ -1,0 +1,469 @@
+{
+  "date": "2026-11-16",
+  "session": "https://claude.ai/code/session_01AcxTtKAkfbCadpnnJHAL4M",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-16T06:06:57Z",
+  "ended": "2026-11-16T06:07:30Z",
+  "wall_minutes": 9.92,
+  "tokens_in": 5704832,
+  "tokens_out": 27575,
+  "cost_usd": 2.4301,
+  "tool_calls": 63,
+  "task": "redteam on restaurant-delivery-commission-analyzer/calc.mjs; -$0.00 formatter sweep",
+  "projects": [
+    "restaurant-delivery-commission-analyzer",
+    "platform/ci"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16478",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Three Bash commands with JS template literals (`$${...}`) inline were refused by the rm-safety parser ('could not be checked for dangerous rm operations') although none removed anything",
+      "fix": "wrote the scripts to scratchpad files with Write and ran them"
+    },
+    {
+      "what": "first payout-gap guard expected +2; payout minus net is -3 for the fixture",
+      "fix": "corrected the expected value before calling the guard done"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 0's open list held 9 entries, all control-plane fixes awaiting owner-approved PRs; a run can only re-check them, a fixed cost every run. A 'blocked on owner' state that `redteam.py open` lists separately would save it."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "step 1 suggests `targets --probe 20` to vet a target; without --under it probes the whole list. `--under ventures/<slug> --probe 20` is the quick form and worth naming."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "nothing warns that inline JS template literals ($${...}) in a Bash command trip the rm-safety parser; cost three refused commands."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "step 0 asks to fix each open entry; all 9 are control-plane (.github/, prompts/) fixes needing their own owner-approved PRs, several with patches already waiting",
+      "did": "spot-checked each on main (grep for the fix's marker: none landed) and left them open",
+      "result": "time went to the target and a 30-site class fix instead"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-16-half-a-cent-loss-printed-as-a-gain.md"
+  ],
+  "goal": null,
+  "notes": "Target: ventures/restaurant-delivery-commission-analyzer/calc.mjs (changed on main in the last 3 days, 1.5 s suite). Two campaigns, 20 mutants: 12 caught, 8 gaps, 19/20 by rerun after the guards plus the 20th re-applied by hand on its rewritten line (caught). Guard added (4b): platform/ci/money_sign.py + test_money_sign.py, a lint over every tracked venture .mjs/.js/.cjs/.html; first run found 31 sites in 27 files (30 formatter definitions; the scan counts one twice-matching file), all fixed with --fix. It runs via ventures-tests.yml's unwired platform/ci set on every venture change. Verification: restaurant suite 83/83; test_money_sign 4/4; run_venture_tests.py over the 28 touched ventures : 28 suites run, 0 failed (shed-designer 537 tests in 177 s, 3 skipped for missing axe-core). Limit: the lint knows one spelling; cents()/toLocaleString formatters still need reading.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 330166248,
+        "commit": "7eef0345e",
+        "sites": 594,
+        "baseline_seconds": 2.0,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 111,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "m = s.match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{4}|\\d{2})(?!\\d)(.*)$/);",
+            "after": "m = s.match(/^(\\d{1,3})[/.-](\\d{1,2})[/.-](\\d{4}|\\d{2})(?!\\d)(.*)$/);",
+            "line_text": "    m = s.match(/^(\\d{1,2})[/.-](\\d{1,2})[/.-](\\d{4}|\\d{2})(?!\\d)(.*)$/);",
+            "caught": false,
+            "seconds": 1.8,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "parseWhen accepted a three-digit first part ('012/04/2026' read as December); test asserts null"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 124,
+            "col": 25,
+            "operator": "lt-to-le",
+            "before": "if (ap === \"p\" && hh < 12) hh += 12;",
+            "after": "if (ap === \"p\" && hh <= 12) hh += 12;",
+            "line_text": "    if (ap === \"p\" && hh < 12) hh += 12;",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "12:30 PM became hour 24 and the row was skipped; test pins 12 pm and 12 am"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 125,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "if (ap === \"a\" && hh === 12) hh = 0;",
+            "after": "if (ap === \"a\" && hh === 13) hh = 0;",
+            "line_text": "    if (ap === \"a\" && hh === 12) hh = 0;",
+            "caught": true,
+            "seconds": 1.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 234,
+            "col": 60,
+            "operator": "eq-flip",
+            "before": "if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] === null)) { skipped.push({ line: lineNo, reason: \"no amount\" }); continue; }",
+            "after": "if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] !== null)) { skipped.push({ line: lineNo, reason: \"no amount\" }); continue; }",
+            "line_text": "    if (f.gross === null && CHARGE_FIELDS.every((k) => f[k] === null)) { skipped.push({ line: lineNo, reason: \"no amount\" }); continue; }",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 254,
+            "col": 27,
+            "operator": "const-plus-one",
+            "before": "sign[k] = neg > pos ? -1 : pos > neg ? 1 : negAll >= posAll ? -1 : 1;",
+            "after": "sign[k] = neg > pos ? -2 : pos > neg ? 1 : negAll >= posAll ? -1 : 1;",
+            "line_text": "    sign[k] = neg > pos ? -1 : pos > neg ? 1 : negAll >= posAll ? -1 : 1;",
+            "caught": true,
+            "seconds": 1.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 327,
+            "col": 58,
+            "operator": "or-to-and",
+            "before": "const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "after": "const inRange = orders.filter((x) => (opts.from == null && x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "line_text": "  const inRange = orders.filter((x) => (opts.from == null || x.t >= opts.from) && (opts.to == null || x.t < opts.to + DAY));",
+            "caught": true,
+            "seconds": 0.7,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 385,
+            "col": 111,
+            "operator": "plus-to-minus",
+            "before": "refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t + r.gross, 0),",
+            "after": "refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t - r.gross, 0),",
+            "line_text": "    refunds: rows.filter((r) => r.refund).length, refundTotal: rows.filter((r) => r.refund).reduce((t, r) => t + r.gross, 0),",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 435,
+            "col": 39,
+            "operator": "plus-to-minus",
+            "before": "const p0 = (n) => (n * 100).toFixed(0) + \"%\";",
+            "after": "const p0 = (n) => (n * 100).toFixed(0) - \"%\";",
+            "line_text": "const p0 = (n) => (n * 100).toFixed(0) + \"%\";",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "markup finding printed NaN; test pins the whole-percent text"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 498,
+            "col": 60,
+            "operator": "lt-to-le",
+            "before": "export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? \"-\" : \"\") + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : \"\u2013\");",
+            "after": "export const money = (n) => (Number.isFinite(n) ? (cents(n) <= 0 ? \"-\" : \"\") + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : \"\u2013\");",
+            "line_text": "export const money = (n) => (Number.isFinite(n) ? (cents(n) < 0 ? \"-\" : \"\") + Math.abs(n).toLocaleString(\"en-US\", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : \"\u2013\");",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "money(0) printed -0.00; test pins zero and float noise. rerun reported 'line changed' (the fix rewrote money()); re-applied by hand as `cents(n) <= 0` on the new line: test 64 fails, so caught."
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 524,
+            "col": 33,
+            "operator": "const-plus-one",
+            "before": "const f = (v) => v.toFixed(2);",
+            "after": "const f = (v) => v.toFixed(3);",
+            "line_text": "      const f = (v) => v.toFixed(2);",
+            "caught": false,
+            "seconds": 1.6,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "example file had three-decimal amounts; test pins two"
+          }
+        ]
+      },
+      {
+        "target": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "test": "node --test ventures/restaurant-delivery-commission-analyzer/**/*.test.mjs  (in .)",
+        "seed": 7,
+        "commit": "7eef0345e",
+        "sites": 594,
+        "baseline_seconds": 1.8,
+        "mutants": [
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 86,
+            "col": 23,
+            "operator": "const-plus-one",
+            "before": "let comma = 0, dot = 0;",
+            "after": "let comma = 0, dot = 1;",
+            "line_text": "  let comma = 0, dot = 0;",
+            "caught": true,
+            "seconds": 2.0,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 92,
+            "col": 29,
+            "operator": "const-plus-one",
+            "before": "const v = s.replace(/[^0-9.,]/g, \"\");",
+            "after": "const v = s.replace(/[^1-9.,]/g, \"\");",
+            "line_text": "      const v = s.replace(/[^0-9.,]/g, \"\");",
+            "caught": false,
+            "seconds": 1.7,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "zeros stripped before the decimal vote, so 1.000,00 read as decimal point; test with zero-bearing amounts"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 107,
+            "col": 24,
+            "operator": "const-plus-one",
+            "before": "let m = s.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})(?!\\d)(.*)$/);",
+            "after": "let m = s.match(/^(\\d{5})-(\\d{1,2})-(\\d{1,2})(?!\\d)(.*)$/);",
+            "line_text": "  let m = s.match(/^(\\d{4})-(\\d{1,2})-(\\d{1,2})(?!\\d)(.*)$/);",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 118,
+            "col": 9,
+            "operator": "lt-to-le",
+            "before": "if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "after": "if (mo <= 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "line_text": "  if (mo < 1 || mo > 12 || d < 1 || d > 31) return null;",
+            "caught": false,
+            "seconds": 1.4,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "every January date was rejected as unreadable; test pins January in ISO and US forms"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 142,
+            "col": 11,
+            "operator": "const-plus-one",
+            "before": "if (+m[3] > 12) second = true;",
+            "after": "if (+m[4] > 12) second = true;",
+            "line_text": "    if (+m[3] > 12) second = true;",
+            "caught": true,
+            "seconds": 1.6,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 341,
+            "col": 17,
+            "operator": "const-plus-one",
+            "before": "b.records += 1; if (r.counted) b.orders += 1;",
+            "after": "b.records += 2; if (r.counted) b.orders += 1;",
+            "line_text": "    b.records += 1; if (r.counted) b.orders += 1;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 371,
+            "col": 150,
+            "operator": "eq-flip",
+            "before": "const byPlatform = [...plats.values()].map((b) => ({ ...finish(b), markup: markupNeeded(b, markupNow), direct: directOf(b), payoutGap: b.payoutRows === b.records && b.records > 0 ? b.payout - b.net : null }))",
+            "after": "const byPlatform = [...plats.values()].map((b) => ({ ...finish(b), markup: markupNeeded(b, markupNow), direct: directOf(b), payoutGap: b.payoutRows !== b.records && b.records > 0 ? b.payout - b.net : null }))",
+            "line_text": "  const byPlatform = [...plats.values()].map((b) => ({ ...finish(b), markup: markupNeeded(b, markupNow), direct: directOf(b), payoutGap: b.payoutRows === b.records && b.records > 0 ? b.payout - b.net : null }))",
+            "caught": false,
+            "seconds": 1.5,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "per-platform payout gap was null when every row had a payout; test pins -3 and null without the column"
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 394,
+            "col": 16,
+            "operator": "gt-to-ge",
+            "before": "if (!(spend > 0)) return null;",
+            "after": "if (!(spend >= 0)) return null;",
+            "line_text": "    if (!(spend > 0)) return null;",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 507,
+            "col": 35,
+            "operator": "times-to-div",
+            "before": "const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };",
+            "after": "const rnd = () => { seed = (seed / 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };",
+            "line_text": "  const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };",
+            "caught": true,
+            "seconds": 1.5,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+            "line": 518,
+            "col": 80,
+            "operator": "div-to-times",
+            "before": "const gross = cancelled ? 0 : Math.round((10 + rnd() * rnd() * 60) * 100) / 100;",
+            "after": "const gross = cancelled ? 0 : Math.round((10 + rnd() * rnd() * 60) * 100) * 100;",
+            "line_text": "      const gross = cancelled ? 0 : Math.round((10 + rnd() * rnd() * 60) * 100) / 100;",
+            "caught": true,
+            "seconds": 1.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/restaurant-delivery-commission-analyzer/calc.mjs",
+        "issue": "money() took its sign from the rounded cents but printed the unrounded magnitude, and Math.round rounds -0.5 toward zero, so money(-0.005) printed '0.01' (a half-cent loss shown as a gain in the per-order net and per-platform tables). Fixed: cents() rounds halves away from zero for both signs and money() prints abs(cents(n)); test 'money signs follow the rounded cents'.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16478"
+      },
+      {
+        "file": "ventures/*/ (27 files, 30 formatters)",
+        "issue": "The formatter `${x < 0 ? \"-\" : \"\"}$${Math.abs(x).toFixed(2)}` takes the sign from the raw value and the digits from the rounded one, so float noise (0.3-0.1-0.2 = -2.8e-17) or any loss under half a cent printed -$0.00. Fixed by platform/ci/money_sign.py --fix (minus kept only when the printed digits are not 0.00); guarded by platform/ci/test_money_sign.py over every tracked venture file.",
+        "patched": true,
+        "patched_in": "https://github.com/Duncan-Haywood/oss-monorepo/pull/16478"
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f2920c8d-af27-5ccc-b924-21a5d07a2b21",
+    "transcripts": 1,
+    "first": "2026-11-16T06:06:57Z",
+    "last": "2026-11-16T06:16:52Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 61,
+        "input": 122,
+        "output": 27575,
+        "thinking": 4823,
+        "cache_read": 5610207,
+        "cache_write_5m": 0,
+        "cache_write_1h": 94503,
+        "api_equivalent_usd": 2.4301,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 61,
+      "input": 122,
+      "output": 27575,
+      "thinking": 4823,
+      "cache_read": 5610207,
+      "cache_write_5m": 0,
+      "cache_write_1h": 94503,
+      "api_equivalent_usd": 2.4301,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.983,
+    "tool_calls": 63,
+    "tools": {
+      "Bash": 52,
+      "Write": 6,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1,
+      "Monitor": 1,
+      "ReadNotifications": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 9.92,
+      "active_minutes": 9.31,
+      "model_minutes": 5.37,
+      "tool_minutes": 3.94,
+      "waiting_on_human_minutes": 0.6,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 5.0,
+      "basis": "mutation triage and 8 tests (~2h), defect fix (~0.5h), 30-site sweep with lint and 28 suite runs (~2h), post (~0.5h)",
+      "rate_usd_per_hour": 100.0,
+      "usd": 500.0
+    },
+    "leverage": 205.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

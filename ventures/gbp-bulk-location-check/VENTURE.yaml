@@ -36,3 +36,10 @@ owner: duncan
 #
 # Liability: format checks on the user's own file, no warranty, independent-of-Google clause,
 # trademark used nominatively.
+
+hypotheses:
+  - claim: >-
+      Agency account managers and multi-location marketers will check a Google Business Profile bulk spreadsheet before upload because a rejected upload is slow to retry, and the ZIP-leading-zero and E.164 phone findings are the faults they act on; measured as the share of file_checked events that are followed by fixes_applied (counters exist; local only, no reading yet, added 2026-11-10).
+    status: untested
+    checked: null
+    evidence: in-repo

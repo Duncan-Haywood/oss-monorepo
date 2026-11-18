@@ -230,6 +230,40 @@ class TestSuperseded(RepoFixture):
 
         self.assertTrue(evaluate("feature", "main", fetch=False).superseded)
 
+    def test_the_whole_tree_search_is_one_batch_with_exact_answers(self):
+        """base_contains runs one grep for every needle (a grep per needle took
+        over ten minutes on this repository) and still answers per needle:
+        regex metacharacters are literal, a needle inside a longer line counts,
+        and an absent needle stays absent."""
+        write(self.repo, "lib/a.mjs", "const x = (a + b) * [c]; // note\n")
+        write(self.repo, "lib/b.mjs", "  if (total.$ > 10) { return 'big'; }\n")
+        commit(self.repo, "base files")
+        needles = [
+            "const x = (a + b) * [c];",          # metacharacters, inside a longer line
+            "if (total.$ > 10) { return 'big'; }",  # whole line, leading spaces stripped
+            "export function nowhere() {}",       # absent
+            "(a + b) * [c]",                      # a fragment of the first
+        ]
+        calls = []
+        real_run = subprocess.run
+
+        def counting_run(cmd, *a, **k):
+            if cmd[0] == "grep" or cmd[:2] == ["git", "grep"]:
+                calls.append(cmd)
+            return real_run(cmd, *a, **k)
+
+        supersede_check.subprocess.run = counting_run
+        self.addCleanup(setattr, supersede_check.subprocess, "run", real_run)
+        real_which = supersede_check.shutil.which
+        self.addCleanup(setattr, supersede_check.shutil, "which", real_which)
+        # Both routes: git archive into GNU grep, and the git grep fallback.
+        for which in (real_which, lambda name: None):
+            calls.clear()
+            supersede_check.shutil.which = which
+            found = supersede_check.base_contains("main", needles)
+            self.assertEqual(found, set(needles) - {"export function nowhere() {}"})
+            self.assertEqual(len(calls), 1)
+
     def test_whitespace_and_punctuation_churn_is_not_treated_as_work(self):
         git(self.repo, "checkout", "-q", "-b", "feature")
         write(
@@ -318,6 +352,45 @@ class TestIdenticalMergeProof(RepoFixture):
         )
 
 
+class TestMergeTreeMatchesTheReplay(RepoFixture):
+    """`merges_to_base` merges in the object store; the worktree replay it
+    replaced (kept as the fallback for old git) must give the same answer."""
+
+    def both(self) -> tuple[bool, bool]:
+        base = supersede_check._git("rev-parse", "main").strip()
+        head = supersede_check._git("rev-parse", "feature").strip()
+        return (supersede_check.merges_to_base(base, head),
+                supersede_check._replay_in_worktree(base, head))
+
+    def test_a_file_main_deleted_and_the_branch_edited_is_superseded(self):
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "calc.mjs", "export function total(a, b) {\n  return b + a;\n}\n")
+        commit(self.repo, "branch edits calc")
+        git(self.repo, "checkout", "-q", "main")
+        git(self.repo, "rm", "-q", "calc.mjs")
+        write(self.repo, "sum.mjs", "export const sum = (a, b) => a + b;\n")
+        commit(self.repo, "main replaces calc")
+        self.assertEqual(self.both(), (True, True))
+
+    def test_a_branch_file_main_lacks_is_not_superseded(self):
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "share.mjs", "export function encodeInputs(input) {}\n")
+        commit(self.repo, "add sharing")
+        git(self.repo, "checkout", "-q", "main")
+        write(self.repo, "calc.mjs", "export function total(x, y) {\n  return x + y;\n}\n")
+        commit(self.repo, "main edits calc")
+        self.assertEqual(self.both(), (False, False))
+
+    def test_both_adding_the_same_path_differently_goes_to_main(self):
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "share.mjs", "export const share = 1;\n")
+        commit(self.repo, "branch adds share")
+        git(self.repo, "checkout", "-q", "main")
+        write(self.repo, "share.mjs", "export const share = 2;\n")
+        commit(self.repo, "main adds share")
+        self.assertEqual(self.both(), (True, True))
+
+
 class TestShallowClone(unittest.TestCase):
     """A scheduled session's clone is shallow, and that used to defeat the tool.
 
@@ -340,14 +413,20 @@ class TestShallowClone(unittest.TestCase):
         write(cls.origin, "calc.mjs", "export function total(a, b) {\n  return a + b;\n}\n")
         commit(cls.origin, "base")
         # Deeper than the --deepen=200 first attempt, so the fixture exercises
-        # the unshallow escalation rather than only the cheap deepen. Empty
-        # commits keep them cheap; only their count matters here.
+        # the escalation rather than only the cheap deepen. Empty commits keep
+        # them cheap; only their count matters here.
         for n in range(260):
             git(cls.origin, "commit", "-q", "--allow-empty", "-m", f"commit {n}")
 
         git(cls.origin, "checkout", "-q", "-b", "feature")
         write(cls.origin, "share.mjs", "export function encodeInputs(input) {}\n")
         commit(cls.origin, "add sharing")
+        git(cls.origin, "checkout", "-q", "main")
+        # A bystander branch: the deepen must leave it alone, since on the
+        # real origin "every branch" was 2.6M objects.
+        git(cls.origin, "checkout", "-q", "--orphan", "bystander")
+        for n in range(5):
+            git(cls.origin, "commit", "-q", "--allow-empty", "-m", f"bystander {n}")
         git(cls.origin, "checkout", "-q", "main")
         write(cls.origin, "unrelated.mjs", "export function somethingElse() {}\n")
         commit(cls.origin, "main moves on")
@@ -379,6 +458,33 @@ class TestShallowClone(unittest.TestCase):
         verdict = evaluate("origin/feature", "origin/main")
         self.assertFalse(verdict.superseded)
         self.assertTrue(any("share.mjs" in f.path for f in verdict.files))
+
+    def test_history_already_fetched_is_not_truncated(self):
+        """`fetch --depth=N` shortens a tip held deeper than N: never do that."""
+        subprocess.run(["git", "fetch", "-q", "--depth=250", "origin", "main"],
+                       check=True, capture_output=True, text=True)
+        evaluate("origin/feature", "origin/main")
+        count = subprocess.run(
+            ["git", "rev-list", "--count", "origin/main"],
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        self.assertGreaterEqual(int(count), 250)
+
+    def test_only_the_compared_refs_are_deepened(self):
+        evaluate("origin/feature", "origin/main")
+        depth = subprocess.run(
+            ["git", "rev-list", "--count", "origin/bystander"],
+            check=True, capture_output=True, text=True,
+        ).stdout.strip()
+        self.assertEqual(depth, "1")
+
+    def test_fetch_names(self):
+        self.assertEqual(supersede_check._fetch_name("15290", "abc"),
+                         "refs/pull/15290/head")
+        self.assertEqual(supersede_check._fetch_name("origin/main", "abc"),
+                         "refs/heads/main")
+        self.assertEqual(supersede_check._fetch_name("feature", "abc"), "abc")
+        self.assertEqual(supersede_check._fetch_name(None, "abc"), "abc")
 
     def test_no_fetch_reports_the_missing_ancestor_rather_than_passing(self):
         """Failing closed matters: exit 0 here would greenlight a wrongful close."""
@@ -560,6 +666,21 @@ class TestRenameSuspected(RepoFixture):
         verdict = evaluate("feature", "main", fetch=False)
         self.assertFalse(verdict.superseded)
         self.assertFalse(verdict.rename_suspected)
+
+    def test_run_records_are_exempt_and_get_no_twin_search(self):
+        """A run record twins every other run record (same keys, other numbers);
+        PR 14702's check spent most of four minutes pairing them."""
+        record = '{{\n  "session": "https://claude.ai/code/session_{s}",\n  "tool_minutes": {m},\n  "outcome": "merged"\n}}\n'
+        write(self.repo, "prompts/runs/2026-11-10-session_A.json", record.format(s="A", m="10.8"))
+        commit(self.repo, "a run record")
+        git(self.repo, "checkout", "-q", "-b", "feature")
+        write(self.repo, "prompts/runs/2026-11-11-session_B.json", record.format(s="B", m="10.86"))
+        commit(self.repo, "another run record")
+
+        verdict = evaluate("feature", "main", fetch=False)
+        self.assertFalse(verdict.superseded)
+        self.assertFalse(verdict.rename_suspected)
+        self.assertEqual([f.near for f in verdict.files], [[]])
 
 
 class TestStaleDraft(RepoFixture):
@@ -759,7 +880,8 @@ class TestNeighbourhood(unittest.TestCase):
 
     def test_shallow_paths_contribute_their_own_directory(self):
         self.assertEqual(
-            supersede_check.neighbourhood(["platform/build.mjs"]), ["platform"]
+            supersede_check.neighbourhood(["platform/build.mjs"]),
+            [":(glob)platform/*"],
         )
 
     def test_a_repository_root_file_has_no_neighbourhood(self):

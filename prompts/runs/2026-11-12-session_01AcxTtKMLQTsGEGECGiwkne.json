@@ -1,0 +1,168 @@
+{
+  "date": "2026-11-12",
+  "session": "https://claude.ai/code/session_01AcxTtKMLQTsGEGECGiwkne",
+  "track": "explore",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-12T07:07:08Z",
+  "ended": "2026-11-12T07:22:26Z",
+  "wall_minutes": 16.19,
+  "tokens_in": 9109708,
+  "tokens_out": 85612,
+  "cost_usd": 4.8852,
+  "tool_calls": 68,
+  "task": "explore: free choice -> new venture continuous-beam-calculator",
+  "projects": [
+    "continuous-beam-calculator"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15046",
+  "repo": "duncan-haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 24,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "Three of my own test expectations were wrong on first run (max-deflection formula for the wrong side of the load, shear sign at a cantilever tip, kN vs N in the metric case); the engine was right in each, confirmed by hand.",
+      "fixed": true
+    },
+    {
+      "what": "Round-off of ~1e-13 from spans with no effect on a determinate overhang leaked into the 'live on spans' pattern list; fixed with a 1e-10 relative threshold and a test.",
+      "fixed": true
+    },
+    {
+      "what": "Page overflowed sideways at 390 px (grid column 1fr instead of minmax(0,1fr)) and the hidden custom-section fields showed (display:grid beat [hidden]); both caught in Chromium screenshots and fixed.",
+      "fixed": true
+    },
+    {
+      "what": "First push blocked by the post front-matter hook: description 202 chars > 160; shortened.",
+      "fixed": true
+    },
+    {
+      "what": "First CI run red on three real checks: check_table_headers (result tables were empty in the markup, filled by script), siblings orphan budget (the new venture had no inbound sibling link; added from the deck lumber page and shed designer), and the same siblings test inside portfolio-pages. A first try put the deck link inside an FAQ answer, which broke wall-framing-takeoff's FAQ-matches-JSON-LD test; moved to its own paragraph.",
+      "fixed": true
+    },
+    {
+      "what": "run_workflow_locally --for-changes ran past the 10 min background limit (portfolio-pages' site-builder tests alone hit the 300 s step timeout); verified those suites directly instead (platform/pages 1560/1560; venture tests for the three touched ventures). shed-designer's browser test failed once under parallel load and passed alone, both with and without this change.",
+      "fixed": true
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "issue": "Says 'calculators are a poor use of a run' while the explore prompt and recent explore runs keep shipping engineering calculators (earthwork, pipe sizing, PV strings); no line says where an exact multi-span solver falls. I judged it depth (indeterminate analysis + exact pattern envelope a chatbot gets wrong) and said so in the PR."
+    },
+    {
+      "file": "CLAUDE.md",
+      "issue": "run_workflow_locally.py has no --dry-run to list which workflows a diff would trigger before running them all; I guessed the flag and got a usage error."
+    },
+    {
+      "file": "PRODUCT_PLAYBOOK.md / ventures/CLAUDE.md",
+      "issue": "A new venture page must have an inbound sibling link (siblings.mjs orphan budget 0) and static <th> in every <table> (check_table_headers.py); neither is on the new-venture checklist I read, so both surfaced only in CI."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "ventures/CLAUDE.md",
+      "why": "'Calculators are a poor use of a run' - built a new structural calculator anyway, because a continuous-beam solver with an exact live-load pattern envelope is indeterminate analysis that span tables, free tools and the flagship's simple-span checks lack.",
+      "did": "Shipped it with an independent exact-arithmetic differential check and a brute-force envelope test.",
+      "result": "Merged with 24 tests and a 1e-11 differential agreement."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-12-the-worst-case-is-not-every-span-loaded.md",
+    "ventures/continuous-beam-calculator/README.md",
+    "ventures/continuous-beam-calculator/why-pattern-live-load-matters.html"
+  ],
+  "goal": null,
+  "notes": "Explore idea: continuous-beam-calculator, a multi-span beam solver (pin/fixed/free supports, point loads, moments, partial/tapered loads, D and L cases) with the live load patterned span by span exactly by superposition, then each governing pattern re-solved for its exact in-span peak. Exact Euler-Bernoulli elements with closed-form interiors. Verification: 24 node tests (textbook coefficients incl. 49/512 and 0.10125 wL^2, three-moment equation with unequal I, equilibrium/continuity, envelope vs brute force over 16 patterns); check/differential.py, an independent Macaulay solution in exact fractions, agrees on 60 random beams to 6.5e-12 (moment), 8.8e-12 (deflection), 5.9e-12 (reactions); page driven in headless Chromium at 1200 and 390 px with no console errors. Next: hinges/springs, a size picker, wiring into wall-framing-takeoff's floor and deck beams.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "5c9cbe37-9422-57cf-a340-723847fc76d1",
+    "transcripts": 1,
+    "first": "2026-11-12T07:07:08Z",
+    "last": "2026-11-12T07:23:20Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 65,
+        "input": 130,
+        "output": 85612,
+        "thinking": 15097,
+        "cache_read": 8936433,
+        "cache_write_5m": 0,
+        "cache_write_1h": 173145,
+        "api_equivalent_usd": 4.8852,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 65,
+      "input": 130,
+      "output": 85612,
+      "thinking": 15097,
+      "cache_read": 8936433,
+      "cache_write_5m": 0,
+      "cache_write_1h": 173145,
+      "api_equivalent_usd": 4.8852,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 68,
+    "tools": {
+      "Bash": 59,
+      "Write": 4,
+      "ToolSearch": 2,
+      "Read": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 16.19,
+      "active_minutes": 16.18,
+      "model_minutes": 14.33,
+      "tool_minutes": 1.85,
+      "waiting_on_human_minutes": 0.01,
+      "human_prompts": 3,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a structural engineer-developer building a tested multi-span beam solver with pattern envelope, page, CLI and independent check: about three days",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 491.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

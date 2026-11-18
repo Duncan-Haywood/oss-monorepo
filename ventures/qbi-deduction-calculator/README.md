@@ -32,7 +32,12 @@ often gets wrong:
   phase-in range, a specified service trade or business must reduce QBI,
   W-2 wages, *and* UBIA by the same "applicable percentage" before the 20%
   and wage/UBIA calculations run on the reduced figures — not just cap the
-  final result.
+  final result — and the wage/UBIA limit then phases in on those reduced
+  figures exactly as it does for any other business in the range (Treas.
+  Reg. 1.199A-1(d)(2)(i), then (iv)(B)). Before 2026-11-11 this tool skipped
+  that second step and applied the full wage cap, so a consultant with no
+  employees halfway through the 2026 single range and $100,000 of QBI was
+  shown the $400 minimum instead of $5,000.
 - **The overall cap is independent of the QBI-based limit.** The deduction
   is the *lesser* of the QBI-based amount and 20% of (taxable income minus
   net capital gain) — a return with large itemized deductions or a big
@@ -74,9 +79,13 @@ All in [`calc.mjs`](calc.mjs), as pure functions with no dependencies:
   deduction or apply their own rules).
 - SSTB classification is self-reported by the user, not checked against the
   statute and Treas. Reg. 1.199A-5.
-- The 2026+ $400 minimum deduction is modeled as a floor applied before the
-  overall taxable-income cap, a simplification for an edge case published
-  guidance does not fully spell out yet.
+- The 2026+ $400 minimum deduction is applied as a floor on the final
+  deduction, after the overall taxable-income cap, as 199A(i)(1) words it
+  ("the deduction allowed under subsection (a) ... shall be equal to the
+  greater of" that deduction or $400). It assumes material participation,
+  and only QBI that counts toward the deduction counts toward the $1,000
+  (none of an SSTB's above the phase-in range, the applicable percentage
+  inside it). Fixed 2026-11-11: earlier versions applied it before the cap.
 
 ## Disclaimers
 

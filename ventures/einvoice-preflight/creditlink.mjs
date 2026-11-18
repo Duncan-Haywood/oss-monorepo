@@ -33,7 +33,7 @@ function kindOf(invoice) {
 function cents(invoice) {
   const gross = invoice.totals && invoice.totals.gross;
   const n = typeof gross === "string" && gross.trim() !== "" ? Number(gross) : gross;
-  return typeof n === "number" && Number.isFinite(n) ? Math.round(Math.abs(n) * 100) : null;
+  return typeof n === "number" && Number.isFinite(n) ? Math.round(Number((Math.abs(n) * 100).toPrecision(12))) : null;
 }
 
 function currencyOf(invoice) {

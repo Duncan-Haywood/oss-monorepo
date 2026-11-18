@@ -41,3 +41,11 @@ test("bad inputs are refused, not guessed", () => {
   assert.equal(layoutPaint({ waste: 2 }, room).ok, false);
   assert.match(paintText(layoutPaint({}, room)).join("\n"), /Paint: 2 coats/);
 });
+
+test("layoutPaint refuses a missing plan or one with no wall list instead of throwing", () => {
+  for (const bad of [undefined, null, 5, {}, { walls: "x" }]) {
+    const r = layoutPaint({}, bad);
+    assert.equal(r.ok, false);
+    assert.match(r.errors[0], /wall list/);
+  }
+});

@@ -223,11 +223,21 @@ export function calculateBatch(text, settings = {}) {
   String(text ?? '').split(/\r?\n/).forEach((raw, index) => {
     const line = raw.trim();
     if (!line || line.startsWith('#')) return;
-    const cells = line.split(/\t|,(?=(?:[^"]*"[^"]*")*[^"]*$)/).map((cell) => cell.trim().replace(/^"|"$/g, ''));
+    // A tab-separated line splits on tabs only. Otherwise a comma splits
+    // fields unless it is inside quotes or is a thousands separator (a digit
+    // before it and exactly three digits after it): "Blue Note LP, $1,200.00"
+    // is one $1,200 price, not a $1 price and $200 shipping.
+    const separator = line.includes('\t')
+      ? /\t/
+      : /(?:(?<!\d),|,(?!\d{3}(?!\d)))(?=(?:[^"]*"[^"]*")*[^"]*$)/;
+    const cells = line.split(separator).map((cell) => cell.trim().replace(/^"|"$/g, ''));
     const numeric = (cell) => /^\$?-?[\d,]*\.?\d+$/.test(cell.replace(/\s/g, ''));
     let label = '';
-    if (cells.length && !numeric(cells[0])) label = cells.shift();
-    if (!cells.length || cells.some((cell) => cell !== '' && !numeric(cell))) {
+    // Up to three values follow an optional label. Four values means the first
+    // is a label (an order number, say); reading it as the price would shift
+    // every column and silently drop the cost.
+    if (cells.length && (!numeric(cells[0]) || cells.length === 4)) label = cells.shift();
+    if (!cells.length || cells.length > 3 || cells.some((cell) => cell !== '' && !numeric(cell))) {
       if (rows.length === 0 && /^(label|title|record|item|price)/i.test(line)) return; // header row
       problems.push({ line: index + 1, message: `Line ${index + 1}: expected "label, price, shipping, cost"` });
       return;

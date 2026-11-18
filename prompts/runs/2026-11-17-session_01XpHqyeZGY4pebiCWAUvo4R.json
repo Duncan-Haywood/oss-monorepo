@@ -1,0 +1,296 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01XpHqyeZGY4pebiCWAUvo4R",
+  "track": "redteam",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-17T23:39:28Z",
+  "ended": "2026-11-17T23:39:58Z",
+  "wall_minutes": 85.5,
+  "tokens_in": 6319992,
+  "tokens_out": 24758,
+  "cost_usd": 2.5542,
+  "tool_calls": 64,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17120",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [
+    "First campaign (--mutants 10) hit the 30-minute background-task limit with nothing recorded; the venture suite takes ~245 s per mutant. Reran with --mutants 8 and a 2 h timeout (33 min).",
+    "Ran a node one-liner against bowling.mjs while the first campaign had it mutated; re-checked every finding on clean code before calling it a defect."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "prompts/redteam.py",
+      "issue": "suite_for runs the whole venture glob (league-schedule-generator: 245 s) though bowling.test.mjs alone takes 9 s; the prompt's '--probe 20' advice skips this only for random draws, and with --target there is no way to pick a narrower suite. Proposal in docs/reports/redteam-2026-11-17-bowling-lanes.md."
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "issue": "Step 4b's guidance to file process problems in prompts/process/backlog/ conflicts with that path being control plane (/prompts/ in CODEOWNERS), which would hold the whole red-team PR for owner approval; wrote the proposal as a docs/reports note instead."
+    },
+    {
+      "file": "prompts/redteam.py",
+      "issue": "`targets --probe 20` probes every guarded file's suite in turn and ran past the 120 s foreground limit; it is unusable as a quick check of one candidate target."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 0: all 11 open defects are control-plane fixes (workflows, prompts/redteam.py, control_plane_guard.py) that each need their own owner-approved PR, several already prepared in other branches or PRs.",
+      "did": "Checked that 4 of them still reproduce on main (grep of redteam.py, browser_checks.py, proposal-module-ci.yml); fixed none.",
+      "result": "open list unchanged at 11"
+    },
+    {
+      "file": "prompts/redteam/prompt-0.md",
+      "why": "Step 4b: the three defects are specific to the bowling engine's odd-league handling, with no class across files a lint would catch; the run's time went to a 33-minute campaign and 12-minute rerun.",
+      "did": "No new CI guard. Six tests were added to bowling.test.mjs, which ventures-tests.yml already runs on every venture PR, and a redteam.py --suite change is proposed for the next run.",
+      "result": "tests guard all 3 defects and all 3 escaped mutants"
+    },
+    {
+      "file": "prompt.md",
+      "why": "A process problem goes in prompts/process/backlog/, but that path is control plane and would hold this PR.",
+      "did": "Wrote it in docs/reports/redteam-2026-11-17-bowling-lanes.md.",
+      "result": "PR stays mergeable without owner approval"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-17-redteam-bowling-league-sixth-place.md",
+    "docs/reports/redteam-2026-11-17-bowling-lanes.md"
+  ],
+  "goal": null,
+  "notes": "Target ventures/league-schedule-generator/bowling.mjs (one day old). Catch rate 5/8 -> 8/8 after the fix (redteam.py rerun). 3 real defects found and patched with failing-first tests: odd-league position round named an (N+1)th place; a team called Vacancy collided with the added Vacancy; team-count errors printed twice. bowling.test.mjs 16/16 pass. Full venture suite: python3 platform/ci/run_venture_tests.py league-schedule-generator -> ok (245.3s, 595 tests). promptctl validate clean; prompts unittest OK; check_posts ok.",
+  "corrections": [],
+  "redteam": {
+    "campaigns": [
+      {
+        "target": "ventures/league-schedule-generator/bowling.mjs",
+        "test": "node --test ventures/league-schedule-generator/**/*.test.mjs  (in .)",
+        "seed": 294964031,
+        "commit": "49aa68872",
+        "sites": 333,
+        "baseline_seconds": 244.7,
+        "mutants": [
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 35,
+            "col": 29,
+            "operator": "plus-to-minus",
+            "before": "const minv = new Array(n + 1).fill(INF);",
+            "after": "const minv = new Array(n - 1).fill(INF);",
+            "line_text": "    const minv = new Array(n + 1).fill(INF);",
+            "caught": true,
+            "seconds": 300.1,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 152,
+            "col": 27,
+            "operator": "plus-to-minus",
+            "before": "return { cost: OFF * o + SQ * q + r, off: o, repeats: r };",
+            "after": "return { cost: OFF * o - SQ * q + r, off: o, repeats: r };",
+            "line_text": "    return { cost: OFF * o + SQ * q + r, off: o, repeats: r };",
+            "caught": false,
+            "seconds": 267.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: flipping the squared-count term's sign in the sweep's price left every spread intact but raised 12-team/30-week repeats from 17 to 25; new test pins repeats <= 17."
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 170,
+            "col": 45,
+            "operator": "or-to-and",
+            "before": "for (let k = 0; k < kicks && (best.off > 0 || best.repeats > 0); k++) {",
+            "after": "for (let k = 0; k < kicks && (best.off > 0 && best.repeats > 0); k++) {",
+            "line_text": "  for (let k = 0; k < kicks && (best.off > 0 || best.repeats > 0); k++) {",
+            "caught": true,
+            "seconds": 241.2,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 201,
+            "col": 55,
+            "operator": "const-plus-one",
+            "before": "if (!Number.isInteger(weeks) || weeks < 1 || weeks > 60) errors.push(\"Weeks must be a whole number from 1 to 60.\");",
+            "after": "if (!Number.isInteger(weeks) || weeks < 1 || weeks > 61) errors.push(\"Weeks must be a whole number from 1 to 60.\");",
+            "line_text": "  if (!Number.isInteger(weeks) || weeks < 1 || weeks > 60) errors.push(\"Weeks must be a whole number from 1 to 60.\");",
+            "caught": false,
+            "seconds": 249.2,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: no test tried weeks 61; new test checks 60 accepted, 61 and 2.5 refused."
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 302,
+            "col": 15,
+            "operator": "const-plus-one",
+            "before": "for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {",
+            "after": "for (let a = 1; a < n; a++) for (let b = a + 1; b < n; b++) {",
+            "line_text": "  for (let a = 0; a < n; a++) for (let b = a + 1; b < n; b++) {",
+            "caught": false,
+            "seconds": 247.3,
+            "triage": "gap",
+            "caught_after_fix": true,
+            "note": "gap: validateBowling's meeting check skipped team 0 and no test tampered with team 0's games; new test swaps week-2 opponents and expects a 'Team 1 and ...' problem."
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 303,
+            "col": 36,
+            "operator": "or-to-and",
+            "before": "const c = meet.get(`${a},${b}`) || 0;",
+            "after": "const c = meet.get(`${a},${b}`) && 0;",
+            "line_text": "    const c = meet.get(`${a},${b}`) || 0;",
+            "caught": true,
+            "seconds": 238.9,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 304,
+            "col": 10,
+            "operator": "lt-to-le",
+            "before": "if (c < full || c > full + 1) problems.push(`${season.teams[a]} and ${season.teams[b]} meet ${c} times; ${rr} round-robin weeks give ${full} or ${full + 1}.`);",
+            "after": "if (c <= full || c > full + 1) problems.push(`${season.teams[a]} and ${season.teams[b]} meet ${c} times; ${rr} round-robin weeks give ${full} or ${full + 1}.`);",
+            "line_text": "    if (c < full || c > full + 1) problems.push(`${season.teams[a]} and ${season.teams[b]} meet ${c} times; ${rr} round-robin weeks give ${full} or ${full + 1}.`);",
+            "caught": true,
+            "seconds": 242.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          },
+          {
+            "file": "ventures/league-schedule-generator/bowling.mjs",
+            "line": 307,
+            "col": 54,
+            "operator": "lt-to-le",
+            "before": "if (season.weeks[i].day - season.weeks[i - 1].day < 7) problems.push(`Weeks ${i} and ${i + 1} are less than a week apart.`);",
+            "after": "if (season.weeks[i].day - season.weeks[i - 1].day <= 7) problems.push(`Weeks ${i} and ${i + 1} are less than a week apart.`);",
+            "line_text": "    if (season.weeks[i].day - season.weeks[i - 1].day < 7) problems.push(`Weeks ${i} and ${i + 1} are less than a week apart.`);",
+            "caught": true,
+            "seconds": 241.4,
+            "triage": null,
+            "caught_after_fix": null,
+            "note": ""
+          }
+        ]
+      }
+    ],
+    "real_defects": [
+      {
+        "file": "ventures/league-schedule-generator/bowling.mjs",
+        "issue": "An odd league's position round listed '5th place v 6th place' for 5 teams (and N+1th place in general): there is no 6th place, the last-placed team bowls the Vacancy. Now '5th place v Vacancy'.",
+        "patched": true
+      },
+      {
+        "file": "ventures/league-schedule-generator/bowling.mjs",
+        "issue": "A real team named 'Vacancy' (any case) in an odd league was accepted, and the schedule added a second 'Vacancy': two teams of one name in the text, CSV and lane report, and realRows dropped the wrong one by name. Now refused with a reason in odd leagues.",
+        "patched": true
+      },
+      {
+        "file": "ventures/league-schedule-generator/bowling.mjs",
+        "issue": "Pasted team lists with fewer than 2 (or more than 64) teams printed the error twice: parseTeams' message plus bowlingSchedule's own. Now each is reported once.",
+        "patched": true
+      }
+    ]
+  },
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "d3d74e62-edb3-5b8b-9e2b-386378e37eac",
+    "transcripts": 1,
+    "first": "2026-11-17T23:39:28Z",
+    "last": "2026-11-18T01:04:59Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 66,
+        "input": 140,
+        "output": 24758,
+        "thinking": 5632,
+        "cache_read": 6217992,
+        "cache_write_5m": 0,
+        "cache_write_1h": 101860,
+        "api_equivalent_usd": 2.5542,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 66,
+      "input": 140,
+      "output": 24758,
+      "thinking": 5632,
+      "cache_read": 6217992,
+      "cache_write_5m": 0,
+      "cache_write_1h": 101860,
+      "api_equivalent_usd": 2.5542,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.984,
+    "tool_calls": 64,
+    "tools": {
+      "Bash": 59,
+      "ToolSearch": 2,
+      "Write": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 85.5,
+      "active_minutes": 75.83,
+      "model_minutes": 4.9,
+      "tool_minutes": 70.92,
+      "waiting_on_human_minutes": 9.68,
+      "human_prompts": 5,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 4.0,
+      "basis": "read a new 350-line scheduling engine, seed and triage 8 faults, fix 3 defects with tests, write post and note",
+      "rate_usd_per_hour": 100.0,
+      "usd": 400.0
+    },
+    "leverage": 156.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

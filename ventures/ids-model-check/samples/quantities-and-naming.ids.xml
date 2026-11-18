@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- A second starter IDS written for this tool (MIT): quantities in SI units,
+     numeric attributes, naming patterns, classification and storey structure. -->
+<ids xmlns="http://standards.buildingsmart.org/IDS" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://standards.buildingsmart.org/IDS http://standards.buildingsmart.org/IDS/1.0/ids.xsd">
+  <info>
+    <title>Quantities and naming (starter IDS)</title>
+    <purpose>Cost planning and handover</purpose>
+  </info>
+  <specifications>
+    <specification name="Doors are at least 2 m tall" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="OverallHeight is read in the model's length unit and compared in metres.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCDOOR</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <attribute>
+          <name><simpleValue>OverallHeight</simpleValue></name>
+          <value><xs:restriction base="xs:double"><xs:minInclusive value="2.0"/></xs:restriction></value>
+        </attribute>
+      </requirements>
+    </specification>
+    <specification name="Wall lengths are quantified" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2" description="Any base quantity set with a Length between 0.1 m and 40 m.">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLENGTHMEASURE">
+          <propertySet><xs:restriction base="xs:string"><xs:pattern value="(Qto_|Base).*"/></xs:restriction></propertySet>
+          <baseName><simpleValue>Length</simpleValue></baseName>
+          <value><xs:restriction base="xs:double"><xs:minInclusive value="0.1"/><xs:maxInclusive value="40"/></xs:restriction></value>
+        </property>
+      </requirements>
+    </specification>
+    <specification name="Wall names follow Type:Name:Id or a short code" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <attribute>
+          <name><simpleValue>Name</simpleValue></name>
+          <value><xs:restriction base="xs:string"><xs:pattern value="[^:]+:[^:]+:\d+"/><xs:pattern value="[A-Z]{1,3}-?\d{1,4}"/></xs:restriction></value>
+        </attribute>
+      </requirements>
+    </specification>
+    <specification name="Storeys belong to a building" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2">
+      <applicability minOccurs="1" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCBUILDINGSTOREY</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <partOf relation="IFCRELAGGREGATES"><entity><name><simpleValue>IFCBUILDING</simpleValue></name></entity></partOf>
+      </requirements>
+    </specification>
+    <specification name="Elements are classified" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/><xs:enumeration value="IFCSLAB"/><xs:enumeration value="IFCDOOR"/><xs:enumeration value="IFCWINDOW"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <classification><system><xs:restriction base="xs:string"><xs:pattern value=".+"/></xs:restriction></system></classification>
+      </requirements>
+    </specification>
+    <specification name="Slabs carry a predefined type" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><simpleValue>IFCSLAB</simpleValue></name></entity>
+      </applicability>
+      <requirements>
+        <entity><name><simpleValue>IFCSLAB</simpleValue></name><predefinedType><xs:restriction base="xs:string"><xs:enumeration value="FLOOR"/><xs:enumeration value="ROOF"/><xs:enumeration value="LANDING"/><xs:enumeration value="BASESLAB"/></xs:restriction></predefinedType></entity>
+      </requirements>
+    </specification>
+    <specification name="Fire rating, if given, is a rating in minutes or hours" ifcVersion="IFC2X3 IFC4 IFC4X3_ADD2">
+      <applicability minOccurs="0" maxOccurs="unbounded">
+        <entity><name><xs:restriction base="xs:string"><xs:enumeration value="IFCWALL"/><xs:enumeration value="IFCWALLSTANDARDCASE"/><xs:enumeration value="IFCDOOR"/></xs:restriction></name></entity>
+      </applicability>
+      <requirements>
+        <property dataType="IFCLABEL" cardinality="optional">
+          <propertySet><xs:restriction base="xs:string"><xs:pattern value="Pset_(Wall|Door)Common"/></xs:restriction></propertySet>
+          <baseName><simpleValue>FireRating</simpleValue></baseName>
+          <value><xs:restriction base="xs:string"><xs:pattern value="(\d+ ?(min|h|HR|hr))|(EI|REI|E) ?\d+"/></xs:restriction></value>
+        </property>
+      </requirements>
+    </specification>
+  </specifications>
+</ids>

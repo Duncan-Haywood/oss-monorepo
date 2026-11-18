@@ -17,7 +17,7 @@ from prior_boosted import bucket, pin  # noqa: E402
 
 TAUS = harness.TAUS
 MIN_N = 30
-FILES = {"chicago": ("a2i",), "sf": ("a2i", "i2c"), "austin": ("a2i", "i2c")}
+FILES = {"chicago": ("a2i",), "sf": ("a2i", "i2c"), "austin": ("a2i", "i2c"), "seattle": ("a2i", "i2c")}
 
 
 def build(df, keycols, min_n=MIN_N):

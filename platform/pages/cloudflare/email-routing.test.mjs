@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import { RULE_PREFIX, apply, desiredRules, loadConfig, plan } from './email-routing.mjs';
+import { RULE_PREFIX, apply, canonical, desiredRules, loadConfig, plan } from './email-routing.mjs';
 
 test('the config is valid and every address is on the site domain', async () => {
   const cfg = await loadConfig();
@@ -34,7 +34,7 @@ test('apply is a dry run unless asked to write', async () => {
     calls.push(`${method} ${route}`);
     if (route.startsWith('/zones?')) return [{ id: 'z' }];
     if (route.endsWith('/email/routing')) return { enabled: false };
-    if (route.endsWith('/rules')) return [];
+    if (route.endsWith('/rules?per_page=50')) return [];
     return {};
   };
   const cfg = { zone: 'x.test', addresses: [{ local: 'support' }], deliver_to_worker: 'w' };
@@ -47,4 +47,21 @@ test('apply is a dry run unless asked to write', async () => {
   assert.ok(calls.includes('POST /zones/z/email/routing/enable'));
   assert.ok(!calls.some((c) => c.includes('/addresses')), 'no destination address to verify');
   assert.ok(calls.includes('POST /zones/z/email/routing/rules'));
+});
+
+test('rules as Cloudflare returns them (other key order, extra fields) plan to nothing', () => {
+  const cfg = { zone: 'x.test', addresses: [{ local: 'support' }, { local: 'hello' }], deliver_to_worker: 'w' };
+  const want = desiredRules(cfg);
+  const fromApi = want.map((r, i) => ({
+    id: String(i), tag: `t${i}`, priority: 0, name: r.name, enabled: true,
+    matchers: r.matchers.map(({ type, field, value }) => ({ field, value, type })),
+    actions: r.actions.map(({ type, value }) => ({ value, type })),
+  }));
+  assert.deepEqual(plan(fromApi, want), []);
+  assert.equal(canonical([{ b: 1, a: [{ d: 2, c: 3 }] }]), canonical([{ a: [{ c: 3, d: 2 }], b: 1 }]));
+});
+
+test('a stale rule that is already disabled is left alone, not disabled again', () => {
+  const stale = { id: '9', name: `${RULE_PREFIX}gone@x.test`, enabled: false, matchers: [], actions: [] };
+  assert.deepEqual(plan([stale], []), []);
 });

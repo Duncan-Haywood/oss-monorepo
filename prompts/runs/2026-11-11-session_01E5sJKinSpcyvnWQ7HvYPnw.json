@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKinSpcyvnWQ7HvYPnw",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T19:17:52Z",
+  "ended": "2026-11-11T19:54:37Z",
+  "wall_minutes": 37.37,
+  "tokens_in": 6915850,
+  "tokens_out": 44834,
+  "cost_usd": 3.3205,
+  "tool_calls": 61,
+  "task": "aerolog-scaling milestone 6l: spare packs under measured demand variability",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14860",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "data.cityofchicago.org (the 6f/6k data host) refused by the egress proxy (403); switched to FiveThirtyEight's Uber NYC data on raw.githubusercontent.com",
+      "cost_minutes": 3
+    },
+    {
+      "what": "first S_MAX of 110 too small: with the Uber cell's 2.5x evening peak the mixture rule had no answer; raised to 300 before the full run",
+      "cost_minutes": 3
+    },
+    {
+      "what": "first unit test assumed the planted day multiplier stays 2.0; the weekday factor absorbs part of it (2/1.25); test corrected",
+      "cost_minutes": 2
+    },
+    {
+      "what": "run_workflow_locally.py --for-changes timed out in the foreground at 120 s; rerun in background",
+      "cost_minutes": 1
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "The research_idea_dupe / CLAIM CHECK step is built for new slugs; pick_track.py on a track draw printed no CLAIM CHECK, so the open-PR search via gh api search/issues was the real claim check for a milestone inside an existing programme."
+    },
+    {
+      "file": "research/aerolog-scaling (6f/6k)",
+      "issue": "The Chicago open-data host is now proxy-blocked, so 6f's chicago_tnp_counts.json cannot be extended to more days from a cloud session; the committed json is the only copy."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/CLAUDE.md",
+      "why": "6k's 'Next' named a negative-binomial bin count; per-bin NB noise at hub scale is small and its correlation is what matters, so I measured the rate's day-level and hourly variability on real data (Cox process) instead",
+      "did": "nonparametric mixture over 131 observed weekdays",
+      "result": "found a 17 to 40 pack effect and a carry-over mechanism the NB plan would not have shown"
+    },
+    {
+      "file": "research/aerolog-scaling/paper/draft.md",
+      "why": "paper not updated with 6k/6l this run (time spent on the experiment and the post hoc diagnostic)",
+      "did": "listed in LOG 'Next'",
+      "result": null
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-drone-hub-spare-packs-real-demand-variability.md",
+    "research/aerolog-scaling/LOG.md (6l)"
+  ],
+  "goal": null,
+  "notes": "Local checks: aerolog-scaling pytest 35 passed; research/_homepage/build.py ok (1072 projects); research_live_links 0 missing; check_md_links ok. Main run 917 s, post hoc diag 670 s, both in background. Six predictions fixed before the run: P2, P3, P6 held; P1, P4, P5 refuted. Carry-over diagnostic is labelled post hoc.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "f66863b4-2e56-5ee2-8da1-bdef92095a73",
+    "transcripts": 1,
+    "first": "2026-11-11T19:17:52Z",
+    "last": "2026-11-11T19:55:13Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 57,
+        "input": 109,
+        "output": 44834,
+        "thinking": 14389,
+        "cache_read": 6782373,
+        "cache_write_5m": 0,
+        "cache_write_1h": 133368,
+        "api_equivalent_usd": 3.3205,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 57,
+      "input": 109,
+      "output": 44834,
+      "thinking": 14389,
+      "cache_read": 6782373,
+      "cache_write_5m": 0,
+      "cache_write_1h": 133368,
+      "api_equivalent_usd": 3.3205,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 61,
+    "tools": {
+      "Bash": 51,
+      "Write": 4,
+      "Read": 2,
+      "Edit": 2,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 37.37,
+      "active_minutes": 37.37,
+      "model_minutes": 9.06,
+      "tool_minutes": 28.31,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "data sourcing and extraction, Cox-process decomposition, mixture rule and simulator runs, post hoc diagnostic, write-up: about two working days for a queueing researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 481.9,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

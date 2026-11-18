@@ -42,8 +42,9 @@ test("CLI: 0-shock identity on a real priced plan, and a bad --swing exits 1", (
   assert.equal(out.code, 0);
   const s = JSON.parse(out.out);
   const bj = JSON.parse(run("--budget", "--json").out);
-  assert.equal(s.total, bj.total);
-  assert.equal(s.bid, bj.bid);
+  // restack keeps full precision between stages while budget() rounds each stage to the cent, so a 0% shock agrees to a cent
+  assert.ok(Math.abs(s.total - bj.total) <= 0.011, `${s.total} vs ${bj.total}`);
+  assert.ok(Math.abs(s.bid - bj.bid) <= 0.011, `${s.bid} vs ${bj.bid}`);
   assert.equal(run("--sensitivity", "--swing=0").code, 1);
 });
 
@@ -60,4 +61,9 @@ test("sensitivity refuses hostile budgets and swings with a reason", async () =>
   assert.throws(() => sensitivity(n), /needs a name/);
   assert.throws(() => sensitivity({ ...good(), taxRate: "0.1" }), /taxRate/);
   assert.throws(() => sensitivity({ ...good(), profit: NaN }), /profit/);
+});
+
+test("restack refuses input that is not a budget with a reason; a bad factors value reads as no shock", () => {
+  for (const bad of [null, undefined, 5, "x", {}, []]) assert.throws(() => restack(bad), /needs a budget result/);
+  for (const f of [null, 5, "x"]) assert.deepEqual(restack(hand, f), { total: 1655, bid: 2002.55 });
 });

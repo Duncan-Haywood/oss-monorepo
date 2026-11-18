@@ -44,7 +44,7 @@ def test_low_speed_wave_term_uses_m2_not_m4():
     fn = 0.267
     r = run(fn * math.sqrt(9.80665 * 4.0), s=2.38)
     cw = r["RW"] / (0.5 * RHO_FRESH * (fn * math.sqrt(9.80665 * 4.0)) ** 2 * 2.38)
-    assert abs(cw - 1.02e-3) < 0.02e-3
+    assert abs(cw - 1.103e-3) < 0.02e-3   # 1.02e-3 before the lambda fix of milestone 3k
 
 
 def test_m4_low_form_reproduces_pre_3d_value_and_stays_within_10_percent():
@@ -52,5 +52,44 @@ def test_m4_low_form_reproduces_pre_3d_value_and_stays_within_10_percent():
     v = fn * math.sqrt(9.80665 * 4.0)
     a, b = run(v, s=2.38), run(v, s=2.38, low_form="m4")
     cw = b["RW"] / (0.5 * RHO_FRESH * v * v * 2.38)
-    assert abs(cw - 0.94e-3) < 0.02e-3
+    assert abs(cw - 0.964e-3) < 0.02e-3   # 0.94e-3 before the lambda fix of milestone 3k
     assert abs(b["RT"] / a["RT"] - 1) < 0.10
+
+
+def _ex(**kw):
+    """Holtrop and Mennen (1982) p. 170 numerical example (values as tabulated in Archibald's validation script)."""
+    return hm_resistance(25 * 1852 / 3600, 205.0, 32.0, 10.0, 37500.0, 0.980, 0.750, lcb_pct=-0.75, c_stern=10.0,
+                         nu=1.1883e-6, s=7381.45, c2=0.7595, c5=0.9592, **kw)
+
+
+def test_1982_example_form_factor_and_wave_resistance():
+    r = _ex(k_form="1982")
+    assert abs(r["1+k1"] / 1.156 - 1) < 0.001
+    assert abs(r["RW"] / 1e3 / 557.11 - 1) < 0.001   # failed (-15%) while lambda's L/B branch was inverted
+    assert abs(r["RA"] / 1e3 / 221.98 - 1) < 0.01
+
+
+def test_1982_example_sum():
+    r = _ex(k_form="1982")
+    total = 869.63 * r["1+k1"] + r["RW"] / 1e3 + r["RA"] / 1e3 + 0.049
+    assert abs(total / (869.63 * 1.156 + 557.11 + 0.049 + 221.98) - 1) < 0.002
+
+
+def test_default_form_factor_is_the_1984_one():
+    assert abs(_ex()["1+k1"] - 1.1851) < 0.0005
+
+
+def test_c15_three_way_rule_is_continuous_and_ends_at_zero():
+    from marine_hull.holtrop import c15_coefficient
+    assert c15_coefficient(1.0, 1 / 400) == -1.69385                      # L^3/V = 400
+    just_above = c15_coefficient(1.0, 1 / 512.001)
+    assert abs(just_above - (-1.69385)) < 1e-4                          # continuous at 512
+    assert abs(c15_coefficient(1.0, 1 / 1726.9) - 0.0) < 1e-3          # reaches 0 at 1726.91
+    assert c15_coefficient(1.0, 1 / 2000) == 0.0
+
+
+def test_slender_hull_wave_resistance_uses_new_c15():
+    # L^3/V = 1000: c15 = -0.846, so the hump term differs from the old fixed value
+    L, vol = 60.0, 60.0 ** 3 / 1000
+    r = hm_resistance(0.3 * math.sqrt(9.80665 * L), L, 5.0, 2.5, vol, 0.85, 0.75)
+    assert r["RW"] > 0

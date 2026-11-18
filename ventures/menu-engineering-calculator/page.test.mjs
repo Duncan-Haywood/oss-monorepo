@@ -30,11 +30,11 @@ function normalise(text) {
 
 test('the page imports the calculator and the usage counter from their own modules', () => {
   assert.match(html, /import \{ calculateMenu, MAX_ITEMS, CLASS_LABELS \} from '\.\/calc\.mjs'/);
-  assert.match(html, /import \{ recordUsage, readOptOut, writeOptOut \} from '\.\/usage\.mjs'/);
+  assert.match(html, /import \{ recordUsage, readOptOut, writeOptOut, usageStorage \} from '\.\/usage\.mjs'/);
   // The page stores and restores the opt-out itself: the module takes the
   // choice as an argument, so nothing else would remember it.
-  assert.match(html, /readOptOut\(localStorage\)/);
-  assert.match(html, /writeOptOut\(localStorage, /);
+  assert.match(html, /readOptOut\(usageStorage\(\)\)/);
+  assert.match(html, /writeOptOut\(usageStorage\(\), /);
 });
 
 test('the menu-level fields each have an input the calculator reads by the same id', () => {
@@ -118,7 +118,7 @@ test('usage counting is wired for the three events the page can distinguish', ()
 
 test('the usage counter can be turned off from the page', () => {
   assert.match(html, /id="usageOptOut"/);
-  assert.match(html, /recordUsage\(localStorage, el\('usageOptOut'\)\.checked, event\)/);
+  assert.match(html, /recordUsage\(usageStorage\(\), el\('usageOptOut'\)\.checked, event\)/);
 });
 
 test('the no-warranty, hosting and privacy clauses are all on the page', () => {

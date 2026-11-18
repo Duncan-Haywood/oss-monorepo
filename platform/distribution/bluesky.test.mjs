@@ -90,3 +90,59 @@ test('posting needs the enabling variable set to "true" plus both credentials', 
   await run({ env: full, fetchImpl, log: () => {} });
   assert.deepEqual(calls.slice(0, 2), ['createSession', 'getAuthorFeed']);
 });
+
+test('readMeta decodes numeric entities and decodes each entity exactly once', () => {
+  // 2026-11-16 red team: scrap-metal-yard-payout-calculator's description holds
+  // `yard&#x27;s`, which went out literally to every channel built on readMeta.
+  const page = (d) => `<title>T — x</title><meta name="description" content="${d}">`;
+  assert.equal(readMeta(page('each yard&#x27;s price &#8212; &#39;net&#39;')).description, "each yard's price — 'net'");
+  // `&amp;lt;` is the HTML for the literal text "&lt;", not for "<".
+  assert.equal(readMeta(page('type &amp;lt;b&amp;gt; &amp;amp; go')).description, 'type &lt;b&gt; &amp; go');
+  assert.equal(readMeta(page('a&nbsp;b &apos;c&apos; &bogus; &#xZZ;')).description, "a b 'c' &bogus; &#xZZ;");
+});
+
+test("every venture page's title and description decode to plain text through readMeta", async () => {
+  // Class guard for the `&#x27;` slip above: an entity readMeta does not know
+  // would reach Bluesky, dev.to, the hub and the store listings as literal text.
+  const fs = await import('node:fs');
+  const path = await import('node:path');
+  const root = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..', '..', 'ventures');
+  const bad = [];
+  for (const slug of fs.readdirSync(root)) {
+    let html;
+    try { html = fs.readFileSync(path.join(root, slug, 'index.html'), 'utf8'); } catch { continue; }
+    const meta = readMeta(html);
+    if (!meta) continue;
+    for (const [field, text] of Object.entries(meta)) {
+      const left = /&(#x[0-9a-f]+|#[0-9]+|[a-z]+);/i.exec(text);
+      if (left) bad.push(`${slug} ${field}: ${left[0]}`);
+    }
+  }
+  assert.deepEqual(bad, []);
+});
+
+test("Bluesky's post limit is 300 graphemes, and composePost stays within it", () => {
+  // Pinned as a literal: the existing fit test reads MAX_GRAPHEMES, so raising
+  // the constant past the network's limit kept it green (red team 2026-11-16).
+  assert.equal(MAX_GRAPHEMES, 300);
+  const { text } = composePost({ title: 'T'.repeat(400), description: 'D'.repeat(400) }, toolUrl('a'));
+  assert.ok([...new Intl.Segmenter().segment(text)].length <= 300);
+});
+
+test('readMeta decodes hex references whose digits include 0', () => {
+  const p = '<title>T</title><meta name="description" content="&#x20AC;5 &#x0041;">';
+  assert.equal(readMeta(p).description, '€5 A');
+});
+
+test('recentLaunches breaks a same-day tie by slug, so the per-run cap picks the same tools every time', () => {
+  const l = { zeta: '2026-10-15', alpha: '2026-10-15', mid: '2026-10-15', old: '2026-10-14' };
+  assert.deepEqual(recentLaunches(l, '2026-10-15'), ['alpha', 'mid', 'zeta', 'old']);
+});
+
+test('running the file as a CLI with no credentials prints a dry run', async () => {
+  const { execFileSync } = await import('node:child_process');
+  const { fileURLToPath } = await import('node:url');
+  const env = { PATH: process.env.PATH, HOME: process.env.HOME };
+  const out = execFileSync(process.execPath, [fileURLToPath(new URL('./bluesky.mjs', import.meta.url))], { env, encoding: 'utf8', timeout: 20000 });
+  assert.match(out, /^DRY RUN/);
+});

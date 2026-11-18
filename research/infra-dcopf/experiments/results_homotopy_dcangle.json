@@ -1,0 +1,156 @@
+[
+ {
+  "case": "case300_ieee",
+  "kind": "typ",
+  "nbus": 300,
+  "ref_moved": null,
+  "start_rule": "DC+ang",
+  "direct": [
+   0.1,
+   0.25,
+   0.5,
+   0.75
+  ],
+  "noload_pf": true,
+  "mu": 0.8546875,
+  "last_step": 0.00078125,
+  "n_pf": 19,
+  "vmin": {
+   "0": 0.9514678000544211,
+   "0.50": 0.9464994972953945,
+   "mu*": 0.717976724183476
+  },
+  "acopt_mu_fileVG": 1.0,
+  "secs": 3.631485939025879
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "typ",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "start_rule": "DC+ang",
+  "direct": [
+   0.1,
+   0.25,
+   0.5,
+   0.75
+  ],
+  "noload_pf": true,
+  "mu": 0.7984375,
+  "last_step": 0.00078125,
+  "n_pf": 21,
+  "vmin": {
+   "0": 0.8664103899702581,
+   "0.50": 0.8659001001804376,
+   "mu*": 0.7768984841143458
+  },
+  "acopt_mu_fileVG": null,
+  "secs": 21.93920350074768
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "api",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "start_rule": "DC, no ang",
+  "direct": [
+   0.1,
+   0.25
+  ],
+  "noload_pf": true,
+  "mu": 0.47500000000000003,
+  "last_step": 0.00078125,
+  "n_pf": 14,
+  "vmin": {
+   "0": 0.86640989437216,
+   "mu*": 0.7870636969122531
+  },
+  "acopt_mu_fileVG": null,
+  "secs": 34.81986403465271
+ },
+ {
+  "case": "case1888_rte",
+  "kind": "sad",
+  "nbus": 1888,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "start_rule": "DC+ang",
+  "direct": [
+   0.1,
+   0.25,
+   0.5,
+   0.75
+  ],
+  "noload_pf": true,
+  "mu": 0.7984375,
+  "last_step": 0.00078125,
+  "n_pf": 21,
+  "vmin": {
+   "0": 0.8664103899702581,
+   "0.50": 0.8659122930402015,
+   "mu*": 0.7837097142206019
+  },
+  "acopt_mu_fileVG": null,
+  "secs": 22.65753197669983
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "typ",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "start_rule": "DC+ang",
+  "direct": [
+   0.1,
+   0.25,
+   0.5
+  ],
+  "noload_pf": true,
+  "mu": 0.571875,
+  "last_step": 0.00078125,
+  "n_pf": 17,
+  "vmin": {
+   "0": 0.8692613623785316,
+   "0.50": 0.8544222068516866,
+   "mu*": 0.7765560717917604
+  },
+  "acopt_mu_fileVG": null,
+  "secs": 18.483126878738403
+ },
+ {
+  "case": "case1951_rte",
+  "kind": "sad",
+  "nbus": 1951,
+  "ref_moved": [
+   1320,
+   46
+  ],
+  "start_rule": "DC, no ang",
+  "direct": [
+   0.1,
+   0.25,
+   0.5
+  ],
+  "noload_pf": true,
+  "mu": 0.571875,
+  "last_step": 0.00078125,
+  "n_pf": 17,
+  "vmin": {
+   "0": 0.8692613623785316,
+   "0.50": 0.8544222068516476,
+   "mu*": 0.7765560717962676
+  },
+  "acopt_mu_fileVG": null,
+  "secs": 19.851454734802246
+ }
+]

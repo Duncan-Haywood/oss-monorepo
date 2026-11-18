@@ -1,0 +1,43 @@
+{
+  "date": "2026-11-17",
+  "session": "https://claude.ai/code/session_01EhTJVPzgqoAWNVPNTXtFK4",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "scheduled ventures prompt (prompts/ventures/prompt-1.md brief)",
+  "input_sha256": "20b6aad4c7749bfe57783787f0f3f9a9b8479b84f65050c730d7f1e9113b4831",
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-17T23:02:12Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "changepoint-detector flagship: synthetic control with covariate balance table on the web page",
+  "projects": [
+    "changepoint-detector"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17092",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 5,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-17-changepoint-synthetic-control-in-the-browser.md"
+  ],
+  "goal": null,
+  "notes": "Router: default draw gave research; re-routed with --task (the session message names revenue) to ventures/1. allocate.py start row: changepoint-detector; item 'next the table on the page'. Shipped: page boxes for donors and covariates, worker job synth field, synth-view.mjs, Prop 99 example, synth-page.test.mjs (5 tests). Headless Chromium run of the example: card shown, CA rank 1 of 39 p 0.026, income warning, no console errors, scrollWidth 390 at 390 px. run_venture_tests.py changepoint-detector: ok, 835 tests, 0 failed. venture-preflight: caught a missing CSV formula guard in synth-view.mjs (fixed, csvCell + tests); the remaining failure, test_checks_refuse_empty_root.py on check_posts.py, reproduces on main with no platform/ diff here (from PR #17091), so not this change.",
+  "corrections": [],
+  "redteam": null
+}

@@ -1,0 +1,136 @@
+{
+  "date": "2026-11-13",
+  "session": "https://claude.ai/code/session_01XpHqycos56ZoLpZpZsCsR8",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "follow ./prompt.md",
+  "input_sha256": "10faadb41fa7a565a177efa08e3d598a26d172cf15f5717ae7b442686a3c0139",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-13T15:56:25Z",
+  "ended": "2026-11-13T16:08:04Z",
+  "wall_minutes": 11.83,
+  "tokens_in": 5715000,
+  "tokens_out": 45074,
+  "cost_usd": 3.2298,
+  "tool_calls": 50,
+  "task": null,
+  "projects": [],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/15530",
+  "repo": null,
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": null,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "pyenv.py installed pypower/clarabel into /usr/bin/python3.13 in ~60 s; but infra-dcopf tests/test_dcopf.py still needs pandapower, so a plain 'pytest tests' fails at collection locally; the project lists no requirements file to pass with -r."
+    },
+    {
+      "file": "prompts/research/prompt-0.md",
+      "issue": "pick_track drew track 21 whose two programmes had both landed steps in the last 2 hours; the CLAIM CHECK told me what to avoid but not which next steps were still unclaimed, so I took a milestone (7) the last LOG's 'Next' did not list to reduce collision risk."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "research/infra-dcopf/experiments/run_converge.py",
+      "why": "After the first full run I added two reported quantities (clean point's cost vs AC optimum, repair wall time) to the summary.",
+      "did": "Declared in LOG.md as an after-the-run reporting addition; reran the whole experiment; every count reproduced.",
+      "result": "No change to any prediction's verdict."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-13-the-grid-repair-needed-more-rounds-not-a-better-model.md",
+    "research/infra-dcopf/LOG.md",
+    "research/grid-linopf/LOG.md"
+  ],
+  "goal": null,
+  "notes": "Milestone 7 (empirical half) of research/grid-linopf. Pre-registered plan committed first (6ad6636b6). Results: 30-round budget -> 31/34 fully clean (21 at 10); 168/224 early misses are curvature failures; Proposition 1 exact on 190 hard misses; H4 as written refuted (bound within 10x on 6/31; case73 API stalls at local infeasibility). Local checks: tests 43 passed 1 skipped (test_dcopf needs pandapower), build.py ok, research_live_links ok, check_md_links ok.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "1063287e-e801-5e95-8d89-2ed6f887f5b7",
+    "transcripts": 1,
+    "first": "2026-11-13T15:56:25Z",
+    "last": "2026-11-13T16:08:14Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 46,
+        "input": 90,
+        "output": 45074,
+        "thinking": 14241,
+        "cache_read": 5562992,
+        "cache_write_5m": 0,
+        "cache_write_1h": 151918,
+        "api_equivalent_usd": 3.2298,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 46,
+      "input": 90,
+      "output": 45074,
+      "thinking": 14241,
+      "cache_read": 5562992,
+      "cache_write_5m": 0,
+      "cache_write_1h": 151918,
+      "api_equivalent_usd": 3.2298,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.973,
+    "tool_calls": 50,
+    "tools": {
+      "Bash": 44,
+      "Write": 4,
+      "ToolSearch": 1,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 11.83,
+      "active_minutes": 11.83,
+      "model_minutes": 7.14,
+      "tool_minutes": 4.69,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "instrumenting an SLP repair, pre-registering, running and writing up a convergence study: about two days for a PhD student",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 495.4,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

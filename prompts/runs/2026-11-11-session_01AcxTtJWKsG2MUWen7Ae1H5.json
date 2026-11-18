@@ -1,0 +1,143 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01AcxTtJWKsG2MUWen7Ae1H5",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T07:05:33Z",
+  "ended": "2026-11-11T07:43:11Z",
+  "wall_minutes": 92.12,
+  "tokens_in": 11060152,
+  "tokens_out": 44872,
+  "cost_usd": 4.2314,
+  "tool_calls": 98,
+  "task": "Flagship 2 (ai-bookkeeper) item (1): a bigger local model on the same 140 real Toronto card lines",
+  "projects": [
+    "ai-bookkeeper"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14730",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": true,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 2,
+  "outcome": "success",
+  "errors": [
+    "llama-cpp-python server OOM-killed on first load (--n_ctx 16384, mmap on: AMX repack 8.3 GB + mapped file + 3 GB KV); fixed with --n_ctx 8192 --use_mmap false",
+    "first 14B run lost every batch: server OOM-killed mid-batch-1, harness had no checkpoint; added per-batch checkpoint and --resume",
+    "an analysis node process OOM-killed while the 11 GB server was still up; stopped the server first"
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/ai-bookkeeper/eval/toronto-ai.mjs",
+      "issue": "header says how to run against a local model but not the memory needed; a 14B on llama.cpp CPU with AMX repack needs --use_mmap false and n_ctx <= 8192 inside the ~16 GB container (now in README) (fixed in this PR: toronto-ai.mjs header)"
+    },
+    {
+      "file": "ventures/ai-bookkeeper/README.md",
+      "issue": "the y2526.csv used by the 2026-11-11 Toronto reading is described as 'cut the rows you want'; the exact cut (Transaction Date 2025-07-01..2026-06-30, 85,415 raw rows) was not recorded, cost a check (fill queue 307 matched) (fixed in this PR: toronto-ai.mjs header)"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "CLAUDE.md",
+      "why": "'open the PR right away (draft)': opened after the first push of the harness change, ~1 h in, since the first hour was downloading/building and the model run itself",
+      "did": "draft PR #14730 opened while the 65-minute model run was in progress",
+      "result": "no duplicate work appeared in that window"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-ai-bookkeeper-bigger-local-model.md",
+    "ventures/ai-bookkeeper/README.md (A bigger local model on the same 140; Split categories)"
+  ],
+  "goal": null,
+  "notes": "Qwen2.5 14B Q4_K_M via llama-cpp-python 0.3.16 server, 4 cores, temp 0, same 140 lines/batches as the 7B reading: 24 right / 84 wrong / 32 abstain (9999) vs 7B 35/104/1, rules 43; default fill mode 48 right either model, 14B 80 wrong vs 90. 509-602 s per 20-line batch. Split-category plurality (found on the 140: 52 right) built as mccPlurality, read on whole Toronto year (first-seen 74.8->75.1% right), 16 divisions (+22 right/+46 wrong), Scotland 2020-26 held out (66.0->66.8 right, 30.9->31.9 wrong): shipped OFF. Verification: run_venture_tests.py ai-bookkeeper ok (41.8s); node --test mcc.test.mjs toronto-ai.test.mjs 14/14; check_post_frontmatter/links/similarity clean; venture-preflight see PR.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "db2abe3c-dafb-5627-bfc4-fbcb24a41316",
+    "transcripts": 1,
+    "first": "2026-11-11T07:05:33Z",
+    "last": "2026-11-11T08:37:40Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 91,
+        "input": 172,
+        "output": 44872,
+        "thinking": 10199,
+        "cache_read": 10916231,
+        "cache_write_5m": 0,
+        "cache_write_1h": 143749,
+        "api_equivalent_usd": 4.2314,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 91,
+      "input": 172,
+      "output": 44872,
+      "thinking": 10199,
+      "cache_read": 10916231,
+      "cache_write_5m": 0,
+      "cache_write_1h": 143749,
+      "api_equivalent_usd": 4.2314,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 98,
+    "tools": {
+      "Bash": 93,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Edit": 1,
+      "Write": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 92.12,
+      "active_minutes": 92.12,
+      "model_minutes": 9.52,
+      "tool_minutes": 82.6,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 6.0,
+      "basis": "an engineer setting up llama.cpp, running a 65-min 14B eval, building and reading a new categorizer layer on three datasets, and writing it up",
+      "rate_usd_per_hour": 100.0,
+      "usd": 600.0
+    },
+    "leverage": 141.8,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

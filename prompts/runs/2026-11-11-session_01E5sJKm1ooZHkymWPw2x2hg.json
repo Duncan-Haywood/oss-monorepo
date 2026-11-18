@@ -1,0 +1,145 @@
+{
+  "date": "2026-11-11",
+  "session": "https://claude.ai/code/session_01E5sJKm1ooZHkymWPw2x2hg",
+  "track": "research",
+  "prompt_version": 0,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-11T11:23:43Z",
+  "ended": "2026-11-11T11:42:45Z",
+  "wall_minutes": 19.39,
+  "tokens_in": 9275657,
+  "tokens_out": 58898,
+  "cost_usd": 4.3916,
+  "tool_calls": 66,
+  "task": "research programme aerolog-scaling, milestone 6k (pick_track draw)",
+  "projects": [
+    "research/aerolog-scaling"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/14773",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 3,
+  "outcome": "success",
+  "errors": [
+    {
+      "what": "first simulator run used 100 seeds, far too few for batch arrivals; k=4 counts looked 3-7 packs off the rule",
+      "fix": "post hoc paired diagnostic showed feedback and pad limits change nothing; rerun with 2,000/4,000 seeds and printed standard errors closed the gap to 1 pack; both runs reported in LOG"
+    },
+    {
+      "what": "simulator scan window too narrow in one case (85% k=4 returned None)",
+      "fix": "window moves up when no S passes; rerun"
+    }
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "research/CLAUDE.md",
+      "issue": "plain `python3 -m pytest tests` in research/aerolog-scaling fails to import aerolog_scaling (needs PYTHONPATH=src); the project README/CI path is not stated where a run looks first"
+    }
+  ],
+  "deviations": [
+    {
+      "file": "experiments/hub_throughput/analytic_trace_tail.py (pre-registered predictions)",
+      "why": "predictions fixed 100 simulator seeds; that proved too noisy to test a 1-pack claim",
+      "did": "kept predictions unchanged, raised seeds to 2,000/4,000 with a dated note in the docstring and both runs' numbers in LOG.md",
+      "result": "rule within 1 pack in all 8 cases; residual -0.003 for k=4 reported as unexplained"
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-11-aerolog-hub-packs-daily-profile-formula.md",
+    "research/aerolog-scaling/LOG.md (6k)",
+    "research/aerolog-scaling/paper/draft.md section 4.15"
+  ],
+  "goal": null,
+  "notes": "Checks run locally: PYTHONPATH=src pytest tests (33 passed), paper/check_numbers.py all ok (5 new 6k checks), research/_homepage/build.py ok, research_live_links.py, check_md_links.py ok, programme_check ok, post frontmatter/links/similarity ok. Experiment runtime 197 s on 4 cores.",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "9282b928-d742-557d-9c55-8c6a99c27b26",
+    "transcripts": 1,
+    "first": "2026-11-11T11:23:43Z",
+    "last": "2026-11-11T11:43:06Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 63,
+        "input": 122,
+        "output": 58898,
+        "thinking": 23840,
+        "cache_read": 9101422,
+        "cache_write_5m": 0,
+        "cache_write_1h": 174113,
+        "api_equivalent_usd": 4.3916,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 63,
+      "input": 122,
+      "output": 58898,
+      "thinking": 23840,
+      "cache_read": 9101422,
+      "cache_write_5m": 0,
+      "cache_write_1h": 174113,
+      "api_equivalent_usd": 4.3916,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.981,
+    "tool_calls": 66,
+    "tools": {
+      "Bash": 59,
+      "Write": 3,
+      "ToolSearch": 1,
+      "mcp__github__list_pull_requests": 1,
+      "mcp__github__create_pull_request": 1,
+      "Read": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 19.39,
+      "active_minutes": 19.39,
+      "model_minutes": 12.07,
+      "tool_minutes": 7.32,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 16.0,
+      "basis": "derivation of an exact time-varying queueing tail, implementation, simulator validation and noise diagnosis, write-up: about two working days for a queueing researcher",
+      "rate_usd_per_hour": 100.0,
+      "usd": 1600.0
+    },
+    "leverage": 364.3,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}

@@ -2,6 +2,8 @@
 // price, bench minutes and materials each, the technician's loaded pay, the tools and the rent the season has to carry, and an optional care-plan
 // (free flat fixes) line. It turns that into profit per service, profit per bench hour, the plan result, the volume at which the shop breaks even, the
 // price each service needs for a target margin, and how the season moves with volume against the bench hours a busy season really has.
+// The technician is paid for every scheduled bench hour by default (techPaid "scheduled"): bench hours no job fills still cost the loaded rate.
+// A shop that pays its mechanic only per job (flat-rate or commission) picks techPaid "jobs", and idle hours then cost nothing.
 
 const round1 = (x) => Math.round((x + Number.EPSILON) * 10) / 10;
 const round2 = (x) => Math.round((x + Number.EPSILON) * 100) / 100;
@@ -19,8 +21,17 @@ const NUMERIC = [
   "passHolders", "passPrice", "passFlatVisits", "targetMarginPct",
 ];
 
+const REQUIRED = [
+  "flatPrice", "flatMin", "flatMat", "tunePrice", "tuneMin", "tuneMat", "ovhPrice", "ovhMin", "ovhMat",
+  "techRate", "burdenPct", "toolYears", "busyMonths", "benchHrsPerWeek", "targetMarginPct",
+];
+
 export function readInput(input) {
-  const f = (k, d = 0) => (input[k] === undefined || input[k] === "" ? d : num(input[k]));
+  const blank = (k) => input[k] === undefined || String(input[k]).trim() === "";
+  const f = (k, d = 0) => (blank(k) ? d : num(input[k]));
+  // A cleared price, minutes or pay field must not silently become a value the page never showed.
+  const missing = REQUIRED.find((k) => blank(k)) ?? (!blank("passHolders") && num(input.passHolders) > 0 && blank("passFlatVisits") ? "passFlatVisits" : null);
+  if (missing) return { error: `Enter the ${missing}: it has no value.` };
   const v = {
     flatQty: f("flatQty"), flatPrice: f("flatPrice", 30), flatMin: f("flatMin", 15), flatMat: f("flatMat", 6),
     tuneQty: f("tuneQty"), tunePrice: f("tunePrice", 55), tuneMin: f("tuneMin", 30), tuneMat: f("tuneMat", 5),
@@ -37,6 +48,7 @@ export function readInput(input) {
   if (v.targetMarginPct >= 90) return { error: "Target margin must be below 90 percent of the price." };
   if (v.benchHrsPerWeek > 168) return { error: "A week has 168 hours: check the bench hours." };
   if (v.flatQty + v.tuneQty + v.ovhQty > 200000) return { error: "That volume is far beyond a single shop: check the quantities." };
+  v.techPaid = String(input.techPaid ?? "").trim() === "jobs" ? "jobs" : "scheduled";
   return { v };
 }
 
@@ -82,15 +94,19 @@ export function seasonResult(v, scale = 1) {
   const hours = lines.reduce((a, l) => a + l.hours, 0) + pass.hours;
   const weeks = v.busyMonths * 4.345;
   const capacity = weeks * v.benchHrsPerWeek;
-  const profit = contribution - fixed.total;
+  // Paid for the schedule: the hours no job fills are still on the payroll (audit 2026-11-17).
+  const idleHours = v.techPaid === "jobs" ? 0 : Math.max(0, capacity - hours);
+  const idleLabor = idleHours * burden(v);
+  const profit = contribution - fixed.total - idleLabor;
   return {
-    scale, lines, pass, fixed, revenue: round2(revenue), contribution: round2(contribution), profit: round2(profit), hours: round1(hours), capacity: round1(capacity),
+    scale, lines, pass, fixed, revenue: round2(revenue), contribution: round2(contribution), idleHours: round1(idleHours), idleLabor: round2(idleLabor),
+    profit: round2(profit), hours: round1(hours), capacity: round1(capacity),
     utilizationPct: capacity > 0 ? round1((hours / capacity) * 100) : 0, jobs: lines.reduce((a, l) => a + l.qty, 0),
   };
 }
 
 function usd(x) {
-  return (x < 0 ? "-$" : "$") + Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return ((t) => (x < 0 && /[1-9∞]/.test(t) ? "-$" : "$") + t)(Math.abs(x).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 }
 
 export function plan(input) {
@@ -98,7 +114,8 @@ export function plan(input) {
   if (error) return { error };
   const res = seasonResult(v);
   const advice = [];
-  advice.push(`Plan result: ${usd(res.revenue)} of revenue, ${usd(res.contribution)} after tech labor and materials, and ${usd(res.profit)} after ${usd(res.fixed.total)} of tools, rent and other fixed cost (${usd(res.fixed.machine)} tools share, ${usd(res.fixed.rent)} rent).`);
+  const idleNote = res.idleLabor > 0 ? ` ${usd(res.idleLabor)} of technician pay for the ${res.idleHours} scheduled bench hours no job fills and` : "";
+  advice.push(`Plan result: ${usd(res.revenue)} of revenue, ${usd(res.contribution)} after tech labor on the jobs and materials, and ${usd(res.profit)} after${idleNote} ${usd(res.fixed.total)} of tools, rent and other fixed cost (${usd(res.fixed.machine)} tools share, ${usd(res.fixed.rent)} rent).`);
   const active = res.lines.filter((l) => l.qty > 0);
   const best = [...res.lines].sort((a, b) => b.perBenchHour - a.perBenchHour)[0];
   const worst = [...res.lines].sort((a, b) => a.perBenchHour - b.perBenchHour)[0];
@@ -106,20 +123,40 @@ export function plan(input) {
   for (const l of active) {
     if (l.price < l.targetPrice) advice.push(`${l.label} at ${usd(l.price)} earns ${l.marginPct}% after labor and materials. For a ${v.targetMarginPct}% margin it would need ${usd(l.targetPrice)}.`);
   }
-  if (res.profit < 0) {
-    const perJob = res.jobs > 0 ? res.contribution / res.jobs : 0;
-    advice.push(res.contribution > 0 && perJob > 0
-      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)} need about ${Math.ceil(res.fixed.total / res.contribution * res.jobs)} paid jobs at this mix to break even, against the ${res.jobs} you entered.`
-      : `You lose ${usd(-res.profit)}: the services do not cover their own labor and materials, so more volume makes it worse. Raise a price first.`);
-  } else if (res.contribution > 0) {
-    const be = Math.ceil((res.fixed.total / res.contribution) * res.jobs);
-    advice.push(`Break-even is about ${be} paid jobs at this mix; you plan ${res.jobs}, a cushion of ${Math.max(0, res.jobs - be)}.`);
+  // Care plans are paid up front, so their contribution is presold: break-even counts only the jobs still to sell against what is left.
+  // With the tech paid for the schedule, labor is a season cost, not a per-job one: each job then covers its price less materials, and the
+  // schedule's pay (less the hours the care-plan visits use) joins the fixed cost to cover, while the jobs still fit on the bench.
+  const scheduled = v.techPaid !== "jobs";
+  const jobContribution = res.contribution - res.pass.contribution;
+  const jobHours = res.lines.reduce((a, l) => a + l.hours, 0);
+  const perJob = res.jobs > 0 ? (jobContribution + (scheduled ? jobHours * burden(v) : 0)) / res.jobs : 0;
+  const scheduleCost = scheduled ? Math.max(0, res.capacity - res.pass.hours) * burden(v) : 0;
+  const uncovered = res.fixed.total + scheduleCost - res.pass.contribution;
+  const coverNote = scheduled ? ` and ${usd(scheduleCost)} of scheduled technician pay` : "";
+  const plansNote = res.pass.contribution > 0 ? `, after the ${usd(res.pass.contribution)} the care plans bring in` : "";
+  if (res.jobs === 0) {
+    advice.push(uncovered > 0
+      ? `With no jobs entered, the care plans alone leave ${usd(uncovered)} of fixed cost uncovered. Enter the jobs you expect to see how many cover it.`
+      : `The care plans alone cover the ${usd(res.fixed.total)} of fixed cost.`);
+  } else if (perJob <= 0) {
+    advice.push(`You ${res.profit < 0 ? `lose ${usd(-res.profit)}` : "make money only from the care plans"}: the services do not cover their own ${scheduled ? "materials" : "labor and materials"}, so more volume makes it worse. Raise a price first.`);
+  } else if (uncovered <= 0) {
+    advice.push(`The care plans alone cover the ${usd(res.fixed.total)} of fixed cost; every paid job adds to profit.`);
+  } else {
+    const be = Math.ceil(uncovered / perJob);
+    const beHours = res.pass.hours + (be * jobHours) / res.jobs;
+    const benchNote = scheduled && beHours > res.capacity
+      ? ` That many jobs need ${round1(beHours)} bench hours against ${res.capacity} scheduled, so this mix cannot break even on this bench: raise prices or cut fixed cost.`
+      : "";
+    advice.push((res.profit < 0
+      ? `You lose ${usd(-res.profit)} at this volume. Fixed costs of ${usd(res.fixed.total)}${coverNote}${plansNote ? plansNote + "," : ""} need about ${be} paid jobs at this mix to break even, against the ${res.jobs} you entered.`
+      : `Break-even is about ${be} paid jobs at this mix (${usd(res.fixed.total)} of fixed cost${coverNote}${plansNote}); you plan ${res.jobs}, a cushion of ${Math.max(0, res.jobs - be)}.`) + benchNote);
   }
   if (v.passHolders > 0) {
     advice.push(`Care plans: ${v.passHolders} holders at ${usd(v.passPrice)} come to ${usd(res.pass.revenue)}. If each member comes in ${v.passFlatVisits} times, a plan earns ${usd(res.pass.perVisit)} a visit against a flat fix that costs you ${usd(res.lines[0].cost)}. ${v.passFlatVisits > res.pass.breakEvenVisits ? `It loses money past ${res.pass.breakEvenVisits} visits.` : `It stays profitable up to ${res.pass.breakEvenVisits} visits.`}`);
   }
   if (res.utilizationPct > 100) advice.push(`The plan needs ${res.hours} bench hours against ${res.capacity} available (${res.utilizationPct}%). You cannot do this volume without more bench hours or a second tech.`);
-  else advice.push(`The plan uses ${res.hours} of ${res.capacity} bench hours (${res.utilizationPct}%). Most shops jam on weekends: an average near 70% usually means peak weeks turn work away.`);
+  else advice.push(`The plan uses ${res.hours} of ${res.capacity} bench hours (${res.utilizationPct}%). ${scheduled ? `The other ${res.idleHours} hours are paid and empty: fewer scheduled hours or more jobs close that gap, though walk-in work is uneven and a bench sized to the average week turns work away in the peak ones.` : "Walk-in work is uneven: a bench sized to the average week turns work away in the peak ones."}`);
   const table = [0.5, 0.75, 1, 1.25, 1.5].map((s) => {
     const r = seasonResult(v, s);
     return { pct: Math.round(s * 100), jobs: r.jobs, revenue: r.revenue, profit: r.profit, hours: r.hours, utilizationPct: r.utilizationPct };
@@ -129,12 +166,12 @@ export function plan(input) {
 
 export function sampleInput() {
   return {
-    flatQty: "700", flatPrice: "30", flatMin: "15", flatMat: "6", tuneQty: "400", tunePrice: "95", tuneMin: "60", tuneMat: "12", ovhQty: "80", ovhPrice: "260", ovhMin: "180", ovhMat: "45", techRate: "22", burdenPct: "12", toolCost: "6000", toolYears: "8", rentPerMonth: "3500", busyMonths: "6", otherFixed: "4000", benchHrsPerWeek: "60", passHolders: "40", passPrice: "149", passFlatVisits: "3", targetMarginPct: "40",
+    techPaid: "scheduled", flatQty: "700", flatPrice: "30", flatMin: "15", flatMat: "6", tuneQty: "400", tunePrice: "95", tuneMin: "60", tuneMat: "12", ovhQty: "80", ovhPrice: "260", ovhMin: "180", ovhMat: "45", techRate: "22", burdenPct: "12", toolCost: "6000", toolYears: "8", rentPerMonth: "3500", busyMonths: "6", otherFixed: "4000", benchHrsPerWeek: "60", passHolders: "40", passPrice: "149", passFlatVisits: "3", targetMarginPct: "40",
   };
 }
 
 // Share-link payload: only known keys, only plain strings, so a pasted link cannot inject anything.
-export const SHARE_KEYS = [...NUMERIC];
+export const SHARE_KEYS = [...NUMERIC, "techPaid"];
 
 export function encodeShare(input) {
   const p = new URLSearchParams();

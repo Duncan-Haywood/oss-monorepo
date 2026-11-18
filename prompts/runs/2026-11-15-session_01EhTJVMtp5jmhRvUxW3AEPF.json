@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-15",
+  "session": "https://claude.ai/code/session_01EhTJVMtp5jmhRvUxW3AEPF",
+  "track": "ventures",
+  "prompt_version": 1,
+  "input": null,
+  "input_sha256": null,
+  "follow_up_inputs": [],
+  "model": null,
+  "models_seen": [],
+  "started": null,
+  "ended": "2026-11-15T23:24:42Z",
+  "wall_minutes": null,
+  "tokens_in": null,
+  "tokens_out": null,
+  "cost_usd": null,
+  "tool_calls": null,
+  "task": "shift-roster-builder flagship: flow-bounded neighbourhood for the exact repair (coverRepair)",
+  "projects": [
+    "ventures/shift-roster-builder"
+  ],
+  "pr": 16368,
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 4,
+  "outcome": "success",
+  "errors": [],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "ventures/shift-roster-builder/eval/repair-guide.mjs",
+      "issue": "JSON configs on the command line break when passed through xargs (it strips double quotes); added short config names dfs/flow/dfs<ms>/flow<ms>."
+    }
+  ],
+  "deviations": [],
+  "writeups": [
+    "docs/posts/2026-11-15-shift-roster-most-repair-rounds-could-never-win.md",
+    "ventures/shift-roster-builder/README.md#the-repairs-neighbourhood-under-a-flow-bound-2026-11-15-later"
+  ],
+  "goal": "Land the flagship's named next item: a flow- or LP-solved repair neighbourhood.",
+  "notes": "Repair alone, 24 fixed starts of the 80-100 person bench weeks: flow-bounded k=3 closes 484 h vs depth-first 217 h, fewer open on 24/24 (p=1.2e-7); same 2 s wall-clock 691 vs 534 h, 19 better / 3 worse. End to end at 20 s budget, seeds 4-6: default (no reserve) 7,633 vs 7,633 h (tie, repair gets ~0.2 s); with a 2 s reserve flow 7,613 vs dfs 7,629 (6/2, p=0.29), so the reserve stays off. Local verification: python3 platform/ci/run_venture_tests.py shift-roster-builder -> ok, 662 tests, 0 failed; repair-flow.test.mjs checks flow and dfs agree over everyone on 60 tiny weeks and the neighbourhood floor never exceeds an exhaustive search on 80 small weeks.",
+  "corrections": [],
+  "redteam": null
+}
