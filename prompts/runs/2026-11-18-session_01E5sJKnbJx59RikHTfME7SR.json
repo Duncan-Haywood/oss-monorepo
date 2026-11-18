@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-18",
+  "session": "https://claude.ai/code/session_01E5sJKnbJx59RikHTfME7SR",
+  "track": "ventures",
+  "prompt_version": 2,
+  "input": "read ./prompt.md and follow the instructions there",
+  "input_sha256": "2bdeeb5bf796b75eaf43154a7ca3d1fd7d80a69f8947eeec87b9edaeb6663aaa",
+  "follow_up_inputs": [],
+  "model": "claude-opus-5-5",
+  "models_seen": [
+    "claude-opus-5-5"
+  ],
+  "started": "2026-11-18T16:17:59Z",
+  "ended": "2026-11-18T16:43:13Z",
+  "wall_minutes": 60.01,
+  "tokens_in": 15194795,
+  "tokens_out": 79350,
+  "cost_usd": 6.2245,
+  "tool_calls": 97,
+  "task": "open-tennis-robots (flagship row 5): a ramp-then-PI drop fit for a speed-mode ESC (limit from a spin-up)",
+  "projects": [
+    "open-tennis-robots"
+  ],
+  "pr": "https://github.com/Duncan-Haywood/oss-monorepo/pull/17354",
+  "repo": "Duncan-Haywood/oss-monorepo",
+  "commits": [],
+  "lines_added": null,
+  "lines_removed": null,
+  "merged": null,
+  "ci_failures_before_green": null,
+  "review_findings": null,
+  "tests_added": 10,
+  "outcome": "success",
+  "errors": [
+    "Kernel.x for overdamped loops had its exponentials swapped; caught by the new numerical-integral test before any recorded run used it (the first ball-survey run was restarted).",
+    "Two background survey runs were killed by pkill when restarting; the first held-out ball survey was dropped (the step train replaced it), so the ball-survey pick has no held-out numbers."
+  ],
+  "integrity_issues": [],
+  "doc_friction": [
+    {
+      "file": "CLAUDE.md",
+      "issue": "The pkill hook rule (bracket the first letter) also blocks when the pattern appears elsewhere in the same command line; cost one retry. Saying 'and run pkill as its own command' would save it."
+    },
+    {
+      "file": "portfolio/router/allocate.py",
+      "issue": "The buildable items are terse shorthand ('SURVEY_QUEUE 3's heap', 'the sub-8 advised instant build'); picking one took reading the 2,800-line firmware README's last section. A pointer to the README heading for each item would help."
+    }
+  ],
+  "deviations": [
+    {
+      "file": "prompts/ventures/prompt-2.md",
+      "why": "The flagship item asked for a ramp-then-PI fit with the limit from a spin-up; the loop pick from the balls (the survey pattern the README used) proved too weak, so the run also built and shipped a setpoint step-train identification of the loop, which the item did not name.",
+      "did": "Added loop_from_steps and a --step mode; kept the ball-survey result in eval for comparison.",
+      "result": "Step-train pick: 88 of 768 drops >2% off vs 225 with the ball survey; worst unmarked 3.84% vs 6.24%."
+    }
+  ],
+  "writeups": [
+    "docs/posts/2026-11-18-the-tennis-feeders-speed-mode-esc-needed-a-ramp-and-a-step-train.md",
+    "ventures/open-tennis-robots/firmware/esp32/README.md (section 'A ramp-then-PI drop fit for a speed-mode ESC')"
+  ],
+  "goal": "Deepen flagship 10 (open-tennis-robots): make a speed-mode ESC calibratable in simulation",
+  "notes": "Simulated, 16 builds x 24 balls x 2 tachs (768): linear PI fit at the ball survey's pick 592 >2% off (21 unmarked, worst unmarked 6.2%); ramp-then-PI at the ball survey's pick 225 (85, 6.24%); at the step-train pick 88 (11, 3.84%); told the true loop 72 (7, 2.62%). Held out (12 builds, 576 balls, 446 read; the 130 unread are 1,200 rpm balls with 4 pre-ball revolutions): step pick 65 >2% off, 60 marked, worst unmarked 2.17%. SEEN_MIN = 0.05 was chosen on the main builds. Verification: PYTHONPATH=src python -m unittest discover -s tests -p 'test_speed*' -> 10 OK; platform/ci/run_venture_tests.py open-tennis-robots -> ok (420 tests, 58 skipped for build123d) before the step-train additions; check_posts ok; validate.py ok. No agent doc in docs/reports: the README section and NEXT.md carry what the next run needs. venture-preflight.mjs open-tennis-robots: clean (exit 0).",
+  "corrections": [],
+  "redteam": null,
+  "usage": {
+    "measured_by": "prompts/runcost.py v1",
+    "session_id": "e5e96099-6140-5f28-aa1f-ebeb90b9040c",
+    "transcripts": 1,
+    "first": "2026-11-18T16:17:59Z",
+    "last": "2026-11-18T17:18:00Z",
+    "primary_model": "claude-opus-5-5",
+    "models": {
+      "claude-opus-5-5": {
+        "requests": 95,
+        "input": 182,
+        "output": 79350,
+        "thinking": 29755,
+        "cache_read": 14989765,
+        "cache_write_5m": 0,
+        "cache_write_1h": 204848,
+        "api_equivalent_usd": 6.2245,
+        "fast_requests": 0
+      }
+    },
+    "totals": {
+      "requests": 95,
+      "input": 182,
+      "output": 79350,
+      "thinking": 29755,
+      "cache_read": 14989765,
+      "cache_write_5m": 0,
+      "cache_write_1h": 204848,
+      "api_equivalent_usd": 6.2245,
+      "api_equivalent_complete": true
+    },
+    "cache_hit_share": 0.987,
+    "tool_calls": 97,
+    "tools": {
+      "Bash": 90,
+      "Write": 4,
+      "ToolSearch": 2,
+      "mcp__github__create_pull_request": 1
+    },
+    "web_searches": 0,
+    "time": {
+      "wall_minutes": 60.01,
+      "active_minutes": 60.01,
+      "model_minutes": 13.24,
+      "tool_minutes": 46.77,
+      "waiting_on_human_minutes": 0.0,
+      "human_prompts": 1,
+      "stalls": 0,
+      "subagent_minutes": 0.0
+    },
+    "pricing": {
+      "as_of": "2026-10-06",
+      "source": "Anthropic pricing as cached in the Claude API skill (models table and per-model migration notes), 2026-10-06. Cache writes are 1.25x input (5-minute) and 2x input (1-hour); cache reads differ by model."
+    },
+    "human_equivalent": {
+      "hours": 24.0,
+      "basis": "a controls engineer deriving and coding a piecewise clamped-PI drop model, spin-up and step-train identification, and running the simulated surveys",
+      "rate_usd_per_hour": 100.0,
+      "usd": 2400.0
+    },
+    "leverage": 385.6,
+    "certainty": {
+      "tokens": "high: summed from the per-request `usage` the API returned, as the transcript recorded it, deduplicated by message id",
+      "model": "high: the `model` field on each API response, not the configured model",
+      "api_equivalent_usd": "medium: measured tokens x list prices in prompts/pricing.json (as_of stated); an equivalent, not a charge: these runs are billed under a subscription",
+      "time": "medium: from transcript timestamps; model time is request-to-response, tool time is call-to-result, time waiting on a person is excluded from active time",
+      "human_equivalent": "low: the agent's own estimate of how long a competent person would take, with its basis written down; never measured"
+    },
+    "not_counted": [
+      "requests the harness makes outside the transcript (context compaction summaries, title generation, safety classifiers), if any",
+      "transcripts lost when a cloud session moved to a new container: only files present in this container are read, so a resumed session can undercount",
+      "server-tool fees (web search is billed per search, not per token); the count is recorded, not priced",
+      "CI minutes and the reviewer bots' own model calls"
+    ]
+  }
+}
