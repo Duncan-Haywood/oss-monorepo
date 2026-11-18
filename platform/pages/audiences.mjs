@@ -411,7 +411,7 @@ export const AUDIENCES = [
     description:
       'Free retirement calculators: RMDs, QCDs, Medicare IRMAA, Social Security claiming age and taxes, Roth conversions, pension lump sums and withdrawal order.',
     intro:
-      'Calculators for the money decisions around retirement: when to claim Social Security, RMDs and QCDs, the IRMAA and ACA subsidy cliffs, Roth conversions, a pension lump sum, and which account to draw from first. Most follow US federal rules; the two marked UK cover the State Pension and pension withdrawals.',
+      'Calculators for retirement decisions: when to claim Social Security, RMDs and QCDs, the IRMAA and ACA subsidy cliffs, Roth conversions, a pension lump sum, and withdrawal order. US federal rules, except the two marked UK.',
     starting:
       'Retiring soon? Start with the Social Security claiming age calculator for your income floor, then the withdrawal sequencer for how the order you draw accounts moves your tax bill.',
     match:
@@ -453,7 +453,7 @@ export const AUDIENCES = [
     description:
       'Free homeowner calculators: mortgage points, escrow shortages, extra payments, HELOC vs cash-out refinance, property tax appeals, solar and heat pump payback.',
     intro:
-      'Calculators for the money decisions that come with a home: renting or buying, mortgage points and extra payments, escrow, refinancing, a property tax appeal, upgrades that should pay for themselves, and selling. Most follow US rules; the one marked UK covers mortgage overpayments and early repayment charges.',
+      'Calculators for the money decisions a home brings: renting or buying, mortgage points, extra payments, escrow, refinancing, a property tax appeal, upgrades that pay back, and selling. US rules, except the one marked UK.',
     starting:
       'Buying your first home? Start with the rent vs buy calculator for the break-even year, then the mortgage points calculator before you lock a rate: both answer how long you need to stay for the money to come back.',
     match:
