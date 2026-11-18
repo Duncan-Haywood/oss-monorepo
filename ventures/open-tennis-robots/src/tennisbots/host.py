@@ -334,7 +334,7 @@ def _fit_dict(fit: launcher.DropFit) -> dict:
             "recovery_s": r(fit.recovery_s), "rms_drop": r(fit.rms), "shots": fit.shots, "note": fit.note}
 
 
-ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms
+ESC_SURVEY_GRID_MS = (0, 20, 50, 100, 150, 200, 400)   # the firmware's ESC_SURVEY_GRID_US, in ms (150 since 2026-11-18)
 # How long the drill's end waits for the board's surveys of the last balls. 4 s until 2026-11-18: the survey's refined
 # fits (36 steps, about 2.2 s a wheel) now queue behind the strokes (controller.SURVEY_QUEUE, up to 4 balls), and the
 # wait ends sooner once no count has risen for SURVEY_QUIET_S (README "The ESC-lag survey's search, traced").
@@ -434,8 +434,9 @@ def take_survey_advice(sv: dict | None) -> str | None:
 def esc_survey_advice(sv: dict | None, esc_tau_ms: float = 0.0) -> str | None:
     """One line on the board's ESC-lag survey (firmware/esp32/README.md "The ESC lag surveyed on the board"): the lag
     its balls pick and whether config.ESC_TAU_US should change. None without a survey. The survey sums each wheel's
-    fit residual at six lags; on the simulator its refined lag came within 10% of the true one (30-150 ms) and 0 on a
-    wheel with no ESC lag. `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
+    fit residual at seven lags (150 ms added 2026-11-18, README "The ESC-lag survey between 100 and 200 ms"); on the
+    simulator its refined lag came within 15% of the true one up to 150 ms and 0 on a wheel with no ESC lag; 165-300 ms
+    on slow wheels read 20-60% off on some drills. `esc_tau_ms` is what the board ran with: the survey refits from the raw commands, so its
     pick does not depend on it."""
     if not sv or not sv.get("wheels"):
         return None

@@ -382,13 +382,13 @@ flagships:
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
-      see firmware/esp32/README.md, latest "The ESC-lag survey's search, traced"
-      (the survey skipped the tau refinement, so off the tau grid the ESC lag stood
-      in for tau: 10-14 ms picked with none, 23-25 for 50; refined, held out at
-      0.4-0.45 s and on a jittery tach, 0 and 48-55 ms; surveys now pause and queue,
-      not cut: 18+ wheels a drill; eval/esc-misfit-*-2026-11-18). Next: a grid point
-      between 100 and 200 ms (untold 150 read 188); ball hold: WHEEL_RPM_FULL
-      error's cost on 0.2 s wheels; an ESC with its own speed loop.
+      see firmware/esp32/README.md, latest "The ESC-lag survey between 100 and 200
+      ms" (grid + 150 ms: an untold 150 ms ESC read 169-195, now 148-155; a 15% rms
+      band to flag unsure picks failed held out; above ~165 ms on slow wheels the
+      pick is unreliable; 7-lag surveys reach 16-18 wheels a drill,
+      eval/esc-grid-gap-2026-11-18.txt). Next: a flag the Pi can trust for long ESC
+      lags; SURVEY_QUEUE 3's heap; ball hold: WHEEL_RPM_FULL error's cost on 0.2 s
+      wheels; an ESC with its own speed loop.
     why: >-
       Parametric CAD (build123d) generating a collector's DXF/STL/STEP
       package, ballistics and tracking planners, ESP32 firmware and a browser

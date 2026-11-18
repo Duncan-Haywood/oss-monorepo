@@ -2250,3 +2250,55 @@ an untold 150 ms ESC on a 0.6 s wheel read 188 ms on the rally drill, 25% over (
 **Not known.** All simulated, one seed, one ESC shape (a first-order lag). The 4.3 s of survey a ball, two queued
 balls' memory and a drill end that can now wait up to 20 s have not been tried on a real ESP32. Next: time a survey and
 measure free heap with two queued on a real board; a grid point between 100 and 200 ms if a real ESC lands there.
+
+## The ESC-lag survey between 100 and 200 ms (2026-11-18, after the trace)
+
+**The item.** The section above left one build off: an untold 150 ms ESC on a 0.6 s wheel read 188 ms on the rally
+drill. 150 sits between `ESC_SURVEY_GRID_US`'s 100 and 200 ms, and `survey_pick` refines the least grid lag with a
+parabola in the lag's log. Either the grid is too coarse there or the parabola's axis is wrong.
+
+**How.** `tests/esc_grid_gap.py` runs drills with an untold ESC (the board at `ESC_TAU_US` 0, as before any survey),
+keeps every surveyed wheel's inputs as the board passed them, and refits each one offline at 15 lags (0-400 ms), as the
+board refits (`ESC_SURVEY_REFINE` 5). Any grid that is a subset of those 15, with either axis, can then be scored
+without another drill. Part 1: ESC 0 / 50 / 80 / 120 / 150 / 180 / 250 / 300 ms, wheel lags 0.3 / 0.45 / 0.6 s, the rally,
+example and calibration drills, 72 drills. The prediction, written first: the grid is the cause, not the axis. Scored
+on the 48 drills with at least 16 surveyed wheels (the Pi advises only those), against a bar of first-order 5 ms or less
+and an ESC within 10% (eval/esc-grid-gap-2026-11-18.txt):
+
+| grid | lags | drills within the bar | 150 ms ESC, counted drills |
+| --- | --- | --- | --- |
+| shipped, log axis | 6 | 26 of 48 | 152-195; 5 of 6 over by 13-30% |
+| shipped, linear axis | 6 | 8 of 48 | 179-245; and 50 ms read 63-67 |
+| + 150 ms | 7 | 34 of 48 | 148-155, 6 of 6 |
+| + 150 and 300 ms | 8 | 36 of 48 | 148-155, 6 of 6 |
+
+The grid was the cause at 150 ms, and the log axis is right. But no grid met the bar everywhere: on slow wheels a long
+ESC fits almost as well at any lag from 100 to 400 ms (a 180 ms ESC on a 0.6 s wheel, calibration drill: 53-63 ppm
+across that span). The ESC and the wheel are two lags in series, and when the ESC's is a third of the wheel's or more,
+a drill's balls barely tell them apart. 250-300 ms builds picked 400 or 266-282.
+
+**A band, tried and held out.** Designed on part 1's drills: call the pick unsure when the grid lags within 15% of the
+least mean rms reach the grid's end, run from 0 past 20 ms, or span more than a factor of 2, and advise no number then.
+On part 1 that flagged 13 drills, all with an ESC of 180 ms or more, and 34 of the other 35 came within 15%. Held out
+on 24 drills no part 1 run used (ESC 0 / 35 / 65 / 130 / 165 / 210 ms, wheel lags 0.35 and 0.5 s, seed 8, another true
+launcher), the prediction was that every build of 130 ms or less is sure and every sure build is within 15%:
+
+| held out (24 drills, all counted) | shipped grid | + 150 ms | band on + 150 |
+| --- | --- | --- | --- |
+| 0-130 ms (16 drills) | 16 within 15% | 16 within 15% | all 16 sure |
+| 165 ms (4) | 1 | 2 | 4 sure; 2 missed (119 and 218 ms) |
+| 210 ms (4) | 1 | 1 | 2 unsure (400); 1 sure miss (167) |
+
+The band failed (3 sure builds missed by 20-32%), so it is not in the Pi. The pre-registered fallback held: the 7-lag
+grid missed no build the shipped grid hit (19 of 24 to 18). The board now surveys at 0 / 20 / 50 / 100 / 150 / 200 / 400
+ms, and the ESC_SURVEY frame carries seven rms slots (`protocol.ESC_SURVEY_LAGS` 7): a Pi and a board from either side
+of this change do not read each other's frame, so update both.
+
+**The cost.** One more refit a wheel, about 17% more survey time a ball. Rerun on the 7-lag board (0 / 50 / 150 ms at
+0.3 and 0.6 s, rally and calibration drills): every pick right (0; 48-52; 149-157), but the queued surveys reached
+16-18 wheels where the 6-lag board reached 18-22. That is the 16 the Pi needs to advise, with nothing to spare. The
+venture's tests of the "run a drill, then the calibration drill is held" flow pass.
+
+**Not known.** All simulated, one ESC shape (a first-order lag). Above about 165 ms on a slow wheel the survey's pick
+is not reliable, and nothing yet tells the Pi when it is in that range: log a real ESC's step response on a scope. Next:
+a real ESC's lag; whether `SURVEY_QUEUE` 3 fits the ESP32's heap, to win back the wheels the seventh lag costs.
