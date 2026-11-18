@@ -121,3 +121,22 @@ test("a credit linked to a one-off charge stays on its own date (red team 2026-1
   assert.equal(rows.find((r) => r.month === "2026-02").recognized, -5000);
   assert.equal(rows.find((r) => r.month === "2026-03").recognized, 5000);
 });
+
+test("summary: asked about a month after the last row, deferred is the last closing balance", () => {
+  const rows = schedule([{ id: "a", billedAt: D(2026, 1, 1), start: D(2026, 1, 1), end: D(2026, 4, 1), amount: 9000 }, { id: "b", billedAt: D(2026, 3, 1), start: D(2026, 3, 1), end: D(2026, 3, 1), amount: 500 }], { asOf: D(2026, 2, 15) });
+  const s = summary(rows, D(2026, 9, 15));
+  assert.equal(s.deferredNow, rows[rows.length - 1].closing);
+  assert.notEqual(rows[rows.length - 1].closing, rows[rows.length - 2].closing);
+});
+
+// Stripe periods carry the subscription's time of day. Flooring only the start
+// counted 32 days for a month and 366 for a year, pushing a sliver of revenue
+// past the period end (known gap from the 2026-11-17 audit, fixed 2026-11-18).
+test("spread: a period that starts and ends at the same time of day counts whole days only", () => {
+  const H = 3600000;
+  const m = spread({ amount: 3100, start: D(2026, 1, 15) + 10 * H, end: D(2026, 2, 15) + 10 * H });
+  assert.deepEqual(m, { "2026-01": 1700, "2026-02": 1400 });
+  const y = spread({ amount: 36500, start: D(2026, 3, 1) + 17 * H, end: D(2027, 3, 1) + 17 * H });
+  assert.equal(y["2027-03"], undefined);
+  assert.equal(y["2026-03"], 3100);
+});

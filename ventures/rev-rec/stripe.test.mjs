@@ -59,3 +59,14 @@ test("normalizeCreditNote: exclusive tax and a zero discount change nothing, the
   assert.equal(out[0].currency, "eur");
   assert.equal(normalizeCreditNote({ id: "cn_4", created: 1, lines: { data: [{ id: "l", amount: 1 }] } })[0].currency, "usd");
 });
+
+// Stripe API 2025-03-31 (basil) and later replace tax_amounts[{inclusive}] with
+// taxes[{tax_behavior}] on invoice and credit note lines. An unpinned key gets the
+// account's version, so a new account sent inclusive VAT straight into revenue
+// (red team 2026-11-18).
+test("normalizeLine and normalizeCreditNote net inclusive tax in the basil `taxes` shape", () => {
+  const l = normalizeLine(inv, { id: "il_9", amount: 12000, period: { start: 1700000000, end: 1731536000 }, discount_amounts: [{ amount: 2000 }], taxes: [{ amount: 500, tax_behavior: "inclusive" }, { amount: 900, tax_behavior: "exclusive" }] });
+  assert.equal(l.amount, 9500);
+  const cn = normalizeCreditNote({ id: "cn_9", invoice: "in_1", created: 1700100000, currency: "usd", lines: { data: [{ id: "cnl_9", amount: 3000, taxes: [{ amount: 200, tax_behavior: "inclusive" }, { amount: 50, tax_behavior: "exclusive" }] }] } });
+  assert.equal(cn[0].amount, -2800);
+});
