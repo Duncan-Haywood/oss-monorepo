@@ -2,6 +2,9 @@
 
 Newest first. Write the hypothesis and the planned analysis before running an experiment, then the outcome.
 
+## 2026-11-18 · Milestone 7c: the hull-ranking paper as an OCEANS-format LaTeX draft (`paper/main.tex`, `paper/refs.bib`), every number copied from `paper/DRAFT.md` and the results files it names
+- Why: pick_track's CHAIN notice (89 sub-steps of milestone 6, 20 since a paper step). Milestone 7 is the programme's last; the draft has been Markdown only. (WIP: outcome below once compiled.)
+
 ## 2026-11-18 · Milestone 6zzzk: does a forced brightening remove the wide clamp's win at the nine in 6zzzh's 2010 to 2014 rows? 6zzzj's forced level shift, moved into the one design where the wide clamp won (predictions in `experiments/run_offset_sign_out.py`'s docstring, committed in 696024bcb before the full run)
 - Why: 6zzzj's first "Next". 6zzzj found at 6zzzi's design that darkening the learned month ratios always costs at the nine and brightening always pays, so the dark offset of 6zzzh's learning years cannot be why ±10% won there (hi84 at k = 3: C10 46.7, C02 34.0, AT_90 27.6). Two readings were left: (A) offset accuracy, the 2010 to 2014 scored years are themselves dark, so the learned dark offset is a correct forecast that a wide clamp passes (brightening then removes the win, and AT_90 fails on dark hours there); (B) scored decade, something about 2010 to 2014 at the nine favours a wide clamp whatever the offset (C10 then rises with d, as in 6zzzj, and its lead survives).
 - Plan: 6zzzh's design (2015 to 2024 climatology, leave-one-out), its OUT years 2010 to 2014 only, the frozen nine, k = 3, 10 lag sets, 50 W, 4 packs, real plus 20 swept shapes, nasa world; 6zzzj's rules unchanged (AT_90 and the learned ratios times (1 + d), clamped to 1 ± h; h in {±2%, ±5%, ±10%}, d in {-3%, -1.5%, 0, +1.5%, +3%}); hi84 failure modes per rule; realised harvest over the climatology at the nine for each scored year and its learning years.
