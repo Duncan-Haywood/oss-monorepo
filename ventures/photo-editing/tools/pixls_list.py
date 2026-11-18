@@ -53,7 +53,7 @@ def main(argv=None) -> int:
             if name in seen:
                 continue
             page = get(BASE + quote(maker) + "/" + body)
-            files = sorted(unquote(f) for f, size in ROW.findall(page)
+            files = sorted(unquote(f).removeprefix("./") for f, size in ROW.findall(page)
                            if not f.lower().endswith(SKIP) and mb(size) <= args.max_mb)
             if len(files) < args.min_files:
                 continue

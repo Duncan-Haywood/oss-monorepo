@@ -1519,6 +1519,14 @@ is worse than directional by over 0.1 dB on 0.8% of real full-size rows (worst -
 that most raw.pixls.us multi-file sets are one scene saved several ways (`tools/card_scenes.py` finds them).
 `eval/noise-card-floor-real-2026-11-18.md`.
 
+**The card floor's last two fixes failed too, and the line is closed (2026-11-18).** Taking the floor on the
+pre-white-balance scale changed nothing (a card's frames carry similar as-shot gains). Taking it from the
+second-lowest scene halved the cost and was tested, rule first, on 24 raw.pixls.us bodies no earlier rule had read
+(Pentax, Leica, Leaf, Kodak, Samsung, Fujifilm's Bayer X-M5, OM System, newer Nikon and Sony folders): it still
+cost 0.020 dB of mean luma (bar 0.01) and fixed none of the 5 losing rows. On all 5, the true noise model loses
+as much as what ships (-0.58 dB on a Pentax K-3 Mark III tile at SNR 200): the blend loses near clean, not the
+estimate. `eval/noise-card-floor-rank-2026-11-18.md`.
+
 ## A directional demosaic for Bayer files (2026-11-15)
 
 Nearly every camera has a Bayer sensor, and until now every Bayer file the developer read (DNG, CR2,
