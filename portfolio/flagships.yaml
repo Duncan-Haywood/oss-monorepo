@@ -398,9 +398,9 @@ flagships:
       eval/bowling-bound-proof.txt). Lane limits (team avoids a pair, hard;
       eval/bowling-lane-avoid.txt). Limits per shape
       (eval/bowling-avoid-shapes.txt), on other slots and symmetry-broken
-      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. Next,
-      most valuable first: 6x32 two teams, slots 0,4 open; 6x26 random limits on
-      other slots; shapes of 5+ limited teams. More open items: NEXT.md.
+      (eval/bowling-avoid-slots.txt): 112 of 112 hard, 139 of 142 limit grid. 6x32 2
+      teams, 6x26 random: UNSAT every dealing (eval/bowling-count-model.py); 16x40,
+      24x35 stored. Next: 5+ limited teams. More open items: NEXT.md.
   - venture: open-tennis-robots
     buildable: >-
       CAD and firmware with no outside input (build123d: pypi venv, 2 min). Landed:
