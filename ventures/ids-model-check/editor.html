@@ -536,9 +536,9 @@
     $("model").innerHTML = `<p class="muted">Reading ${esc(f.name)}...</p>`;
     try {
       const bytes = new Uint8Array(await f.arrayBuffer());
-      let text, inner = null;
-      if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream); text = m.text; inner = m.name; }
-      else text = new TextDecoder().decode(bytes);
+      // Sent as bytes: the worker reads STEP from them (eval/step-bytes-2026-11-18.md).
+      let text = bytes, inner = null;
+      if (isZip(bytes)) { const m = await unzipModel(bytes, inflateRawStream, { bytes: true }); text = m.bytes; inner = m.name; }
       inv = await inventoryOf(text);
       invName = f.name + (inner ? ` (${inner.split("/").pop()} inside)` : "");
       record("editor_model_opened");

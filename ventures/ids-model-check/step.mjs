@@ -1,6 +1,7 @@
 // ISO 10303-21 (STEP physical file) reader for IFC models.
 //
 // parseStep(text) -> { schema, entities: EntityTable<id, {id, type, args}> } (a Map's read interface)
+// (text is a string, or the file's bytes as a Uint8Array: see parseStepBytes)
 // (args is read on first use; parseStep(text, { eager: true }) reads it up front)
 // Argument values:
 //   null            $ (unset)
@@ -128,7 +129,9 @@ export class Interner {
 }
 
 class Reader {
-  constructor(text, pos, intern = null) { this.t = text; this.p = pos; this.i = intern; }
+  // b: where the text starts in the file, for error positions (a record read
+  // from a file's bytes is read as a string of its own).
+  constructor(text, pos, intern = null, base = 0) { this.t = text; this.p = pos; this.i = intern; this.b = base; }
   ws() {
     const t = this.t;
     for (;;) {
@@ -165,13 +168,13 @@ class Reader {
       const m = /#(\d+)/y;
       m.lastIndex = this.p;
       const r = m.exec(t);
-      if (!r) throw new Error(`'#' with no number at ${this.p}`);
+      if (!r) throw new Error(`'#' with no number at ${this.b + this.p}`);
       this.p = m.lastIndex;
       return { ref: Number(r[1]) };
     }
     if (c === ".") {
       const e = t.indexOf(".", this.p + 1);
-      if (e < 0) throw new Error(`unterminated enumeration at ${this.p}`);
+      if (e < 0) throw new Error(`unterminated enumeration at ${this.b + this.p}`);
       const v = t.slice(this.p + 1, e).toUpperCase();
       this.p = e + 1;
       if (v === "T") return true;
@@ -181,7 +184,7 @@ class Reader {
     }
     if (c === '"') {
       const e = t.indexOf('"', this.p + 1);
-      if (e < 0) throw new Error(`unterminated binary at ${this.p}`);
+      if (e < 0) throw new Error(`unterminated binary at ${this.b + this.p}`);
       const v = t.slice(this.p + 1, e);
       this.p = e + 1;
       return { binary: v };
@@ -203,14 +206,14 @@ class Reader {
       if (this.i) return this.i.typedOf(this.i.typeName(k[0]), inner.length === 1 ? inner[0] : inner);
       return { typed: k[0].toUpperCase(), value: inner.length === 1 ? inner[0] : inner };
     }
-    throw new Error(`unexpected '${c}' at ${this.p}`);
+    throw new Error(`unexpected '${c}' at ${this.b + this.p}`);
   }
   // The argument list with every nested list left unread: an empty one is
   // EMPTY_LIST, any other SKIPPED_LIST (one placeholder item, so it is a
   // non-empty array). Everything else is read as list() reads it.
   shallowList() {
     this.ws();
-    if (this.t[this.p] !== "(") throw new Error(`expected ( at ${this.p}`);
+    if (this.t[this.p] !== "(") throw new Error(`expected ( at ${this.b + this.p}`);
     this.p++;
     const out = [];
     this.ws();
@@ -222,7 +225,7 @@ class Reader {
       const c = this.t[this.p++];
       if (c === ",") continue;
       if (c === ")") return out.slice();
-      throw new Error(`expected , or ) at ${this.p - 1}`);
+      throw new Error(`expected , or ) at ${this.b + this.p - 1}`);
     }
   }
   // Steps over a list, strings and comments included, to just past its ")".
@@ -257,11 +260,11 @@ class Reader {
         }
       }
     }
-    throw new Error(`unclosed list at ${this.p}`);
+    throw new Error(`unclosed list at ${this.b + this.p}`);
   }
   list() {
     this.ws();
-    if (this.t[this.p] !== "(") throw new Error(`expected ( at ${this.p}`);
+    if (this.t[this.p] !== "(") throw new Error(`expected ( at ${this.b + this.p}`);
     this.p++;
     const out = [];
     this.ws();
@@ -272,7 +275,7 @@ class Reader {
       const c = this.t[this.p++];
       if (c === ",") continue;
       if (c === ")") return out.slice();
-      throw new Error(`expected , or ) at ${this.p - 1}`);
+      throw new Error(`expected , or ) at ${this.b + this.p - 1}`);
     }
   }
 }
@@ -302,6 +305,201 @@ function recordEnd(t, p) {
   return -1;
 }
 
+// ------------------------------------------------------ the file's bytes ----
+//
+// parseStep(bytes) reads a Uint8Array (a Node Buffer, or a browser File's
+// arrayBuffer) without decoding it into one string. A 219 MB export as a
+// string is 219 MB of V8 heap for as long as the model is checked (the lazy
+// records read their arguments from it); as bytes it sits outside the heap,
+// and each record is decoded to a short string of its own when its arguments
+// are read (eval/step-bytes-2026-11-18.md). Records are cut at ASCII bytes
+// (";", "'", "(", "/*"), which never occur inside a UTF-8 multi-byte
+// character, so decoding a record alone gives the same characters as
+// decoding the whole file and slicing it.
+
+function byteDecoder(b) {
+  if (typeof b.utf8Slice === "function") return (s, e) => b.utf8Slice(s, e); // Node Buffer
+  const td = new TextDecoder();
+  return (s, e) => td.decode(b.subarray(s, e));
+}
+
+function asBuffer(b) {
+  // A plain Uint8Array in Node gets Buffer's fast utf8Slice over the same memory.
+  if (typeof b.utf8Slice !== "function" && typeof globalThis.Buffer === "function") return globalThis.Buffer.from(b.buffer, b.byteOffset, b.length);
+  return b;
+}
+
+// The "*/" that ends a comment, at or after i; -1 when the file ends first.
+function commentEndBytes(b, i) {
+  for (;;) {
+    const k = b.indexOf(42, i);
+    if (k < 0 || k + 1 >= b.length) return -1;
+    if (b[k + 1] === 47) return k;
+    i = k + 1;
+  }
+}
+
+function quotedBySolidusSBytes(b, q) {
+  if (b[q - 1] !== 92 || b[q - 2] !== 83 || b[q - 3] !== 92) return false;
+  let k = q - 4, n = 0;
+  while (k >= 0 && b[k] === 92) { n++; k--; }
+  return n % 2 === 0;
+}
+
+// recordEnd, on bytes.
+function recordEndBytes(b, p) {
+  const n = b.length;
+  for (let i = p; i < n; i++) {
+    const c = b[i];
+    if (c === 59) return i; // ;
+    if (c === 39) { // '
+      for (;;) {
+        const q = b.indexOf(39, i + 1);
+        if (q < 0) return -1;
+        if (quotedBySolidusSBytes(b, q)) { i = q; continue; }
+        if (b[q + 1] === 39) { i = q + 1; continue; }
+        i = q;
+        break;
+      }
+    } else if (c === 47 && b[i + 1] === 42) { // /*
+      const e = commentEndBytes(b, i + 2);
+      if (e < 0) return -1;
+      i = e + 1;
+    }
+  }
+  return -1;
+}
+
+// A Reader over one record: decoded from where its argument list starts to
+// its ";" (found again; the scan does not keep it, 4 bytes an entity).
+function bytesReader(b, intern) {
+  const dec = byteDecoder(b);
+  return (p) => {
+    let e = recordEndBytes(b, p);
+    if (e < 0) e = b.length;
+    return new Reader(dec(p, e), 0, intern, p);
+  };
+}
+
+// The same whitespace as the scan's \s on these files (ASCII).
+const isWs = (c) => c === 32 || (c >= 9 && c <= 13);
+const isWord = (c) => (c >= 48 && c <= 57) || (c >= 65 && c <= 90) || (c >= 97 && c <= 122) || c === 95;
+
+// Where /\bDATA\s*;/ first matches, in bytes; -1 if nowhere.
+function dataSectionBytes(b) {
+  for (let i = b.indexOf(68); i >= 0; i = b.indexOf(68, i + 1)) { // D
+    if (b[i + 1] !== 65 || b[i + 2] !== 84 || b[i + 3] !== 65) continue; // ATA
+    if (i > 0 && isWord(b[i - 1])) continue;
+    let j = i + 4;
+    while (j < b.length && isWs(b[j])) j++;
+    if (b[j] === 59) return i;
+  }
+  return -1;
+}
+
+function utf8Length(s) {
+  let n = 0;
+  for (let i = 0; i < s.length; i++) {
+    const c = s.charCodeAt(i);
+    if (c < 0x80) n += 1;
+    else if (c < 0x800) n += 2;
+    else if (c >= 0xd800 && c <= 0xdbff && i + 1 < s.length) { n += 4; i++; }
+    else n += 3;
+  }
+  return n;
+}
+
+function parseStepBytes(input, opts) {
+  const b = asBuffer(input);
+  const dec = byteDecoder(b);
+  const dataStart = dataSectionBytes(b);
+  if (dataStart < 0) throw new Error("not a STEP file: no DATA section");
+  const schemaM = dec(0, dataStart).match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
+  const schema = schemaM ? schemaM[1].toUpperCase() : null;
+  const entities = new EntityTable();
+  const errors = [];
+  const policy = { keep: () => true };
+  const intern = new Interner();
+  const Lazy = entityClass(b, errors, policy, intern);
+  // Type names by their bytes: a hash of the name to the strings seen with it,
+  // so the scan makes no string per entity.
+  const types = new Map();
+  const typeAt = (s, e) => {
+    let h = 2166136261;
+    for (let k = s; k < e; k++) h = Math.imul(h ^ b[k], 16777619);
+    h = (h ^ (e - s)) >>> 0;
+    let l = types.get(h);
+    if (l) for (const t of l) if (t.raw.length === e - s && sameBytes(b, s, t.raw)) return t.type;
+    const raw = dec(s, e);
+    const t = { raw, type: raw.toUpperCase() };
+    if (!l) types.set(h, (l = []));
+    l.push(t);
+    return t.type;
+  };
+  const n = b.length;
+  let i = dataStart;
+  while (i < n) {
+    const c = b[i];
+    if (c === 47 && b[i + 1] === 42) { // /* comment */
+      const e = commentEndBytes(b, i + 2);
+      if (e < 0) break;
+      i = e + 2;
+      continue;
+    }
+    if (c !== 35) { i++; continue; } // not #
+    // #(\d+)\s*=\s*(?:([A-Za-z0-9_]+)\s*)?\(
+    let j = i + 1;
+    while (b[j] >= 48 && b[j] <= 57) j++;
+    if (j === i + 1) { i++; continue; }
+    const idEnd = j;
+    while (isWs(b[j])) j++;
+    if (b[j] !== 61) { i++; continue; } // =
+    j++;
+    while (isWs(b[j])) j++;
+    const ts = j;
+    while (isWord(b[j])) j++;
+    const te = j;
+    if (te > ts) while (isWs(b[j])) j++;
+    if (b[j] !== 40) { i++; continue; } // (
+    const start = j;
+    if (te === ts) { // complex instance: skip to its ";"
+      const end = recordEndBytes(b, start);
+      if (end < 0) break;
+      i = end + 1;
+      continue;
+    }
+    let id = 0;
+    if (idEnd - i - 1 <= 15) for (let k = i + 1; k < idEnd; k++) id = id * 10 + (b[k] - 48);
+    else id = Number(dec(i + 1, idEnd));
+    const type = typeAt(ts, te);
+    if (!opts.eager) {
+      const end = recordEndBytes(b, start);
+      if (end >= 0) {
+        entities.set(id, new Lazy(id, type, start));
+        i = end + 1;
+        continue;
+      }
+    }
+    // Eager, or the file ends inside this record: read it now (parseStep).
+    const end = opts.eager ? recordEndBytes(b, start) : -1;
+    const tail = dec(start, end < 0 ? n : end + 1);
+    const r = new Reader(tail, 0, null, start);
+    try {
+      const args = r.list();
+      entities.set(id, { id, type, args });
+    } catch (e) {
+      errors.push(`#${id}: ${e.message}`);
+    }
+    i = Math.max(start + utf8Length(tail.slice(0, r.p)), start + 1);
+  }
+  return { schema, entities: entities.trim(), errors, policy };
+}
+
+function sameBytes(b, s, raw) {
+  for (let k = 0; k < raw.length; k++) if (b[s + k] !== raw.charCodeAt(k)) return false;
+  return true;
+}
+
 // Entities are read lazily: the scan records each one's number, type and where
 // its argument list starts, and `args` is parsed the first time it is read.
 // An IDS check reads the arguments of the objects, property sets and
@@ -319,9 +517,12 @@ function recordEnd(t, p) {
 // length when read (list(): a pushed list of four keeps room for 16), and
 // repeated small values are shared (Interner).
 function entityClass(text, errors, policy, intern) {
+  // From a file's bytes (parseStep(bytes)), a record is decoded to a string
+  // of its own when it is read: the file is never one string on the heap.
+  const reader = text instanceof Uint8Array ? bytesReader(text, intern) : (p) => new Reader(text, p, intern);
   const read = (e, p) => {
     try {
-      return new Reader(text, p, intern).list();
+      return reader(p).list();
     } catch (err) {
       errors.push(`#${e.id}: ${err.message}`);
       return [];
@@ -352,7 +553,7 @@ function entityClass(text, errors, policy, intern) {
     get shallowArgs() {
       if (typeof this._a !== "number" || policy.keep(this.type)) return this.args;
       try {
-        return new Reader(text, this._a, intern).shallowList();
+        return reader(this._a).shallowList();
       } catch {
         return this.args;
       }
@@ -405,6 +606,7 @@ export class EntityTable {
 }
 
 export function parseStep(text, opts = {}) {
+  if (text instanceof Uint8Array) return parseStepBytes(text, opts);
   const schemaM = text.match(/FILE_SCHEMA\s*\(\s*\(\s*'([^']*)'/i);
   const schema = schemaM ? schemaM[1].toUpperCase() : null;
   const dataStart = text.search(/\bDATA\s*;/);
